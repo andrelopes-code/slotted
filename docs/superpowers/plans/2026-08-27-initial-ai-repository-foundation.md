@@ -87,7 +87,7 @@ Create `package.json`:
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "tsc --project tsconfig.base.json --noEmit",
+    "typecheck": "tsc --build tsconfig.base.json --pretty false",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck",
     "check:affected": "pnpm check && turbo run verify --affected",
     "check:full": "pnpm check && turbo run verify"
@@ -145,7 +145,7 @@ Create `tsconfig.base.json`:
     "strict": true,
     "useUnknownInCatchVariables": true
   },
-  "files": []
+  "references": []
 }
 ```
 
@@ -201,8 +201,10 @@ Create `.prettierignore`:
 .turbo
 coverage
 dist
+docs/superpowers
 node_modules
 pnpm-lock.yaml
+PROJECT-PRD.md
 ```
 
 Create `.editorconfig`:
