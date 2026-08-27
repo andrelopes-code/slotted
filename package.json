@@ -1,0 +1,30 @@
+{
+  "name": "slotted",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@11.24.0",
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": "11.24.0"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --build tsconfig.base.json --pretty false",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck",
+    "check:affected": "pnpm check && turbo run verify --affected",
+    "check:full": "pnpm check && turbo run verify"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.9.1",
+    "globals": "17.11.0",
+    "prettier": "3.9.6",
+    "turbo": "2.10.12",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.68.0"
+  }
+}
