@@ -1,0 +1,137 @@
+@layer slotted.components {
+  :host {
+    --_solid: var(--slotted-tone-accent-solid);
+    --_solid-hover: var(--slotted-tone-accent-solid-hover);
+    --_solid-active: var(--slotted-tone-accent-solid-active);
+    --_on-solid: var(--slotted-tone-accent-on-solid);
+    --_border: var(--slotted-tone-accent-border);
+    --_text: var(--slotted-tone-accent-text);
+    --_subtle-hover: var(--slotted-tone-accent-subtle-hover);
+    --_subtle-active: var(--slotted-tone-accent-subtle-active);
+
+    align-items: center;
+    appearance: none;
+    border: var(--slotted-control-border-width, 1px) solid transparent;
+    border-radius: var(--slotted-control-radius, 4px);
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-weight: var(--slotted-control-font-weight, 600);
+    gap: var(--slotted-button-gap, 0.5rem);
+    justify-content: center;
+    line-height: 1;
+    text-decoration: none;
+    transition:
+      background-color var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease),
+      border-color var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease),
+      color var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease);
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  :host([data-tone='neutral']) {
+    --_solid: var(--slotted-tone-neutral-solid);
+    --_solid-hover: var(--slotted-tone-neutral-solid-hover);
+    --_solid-active: var(--slotted-tone-neutral-solid-active);
+    --_on-solid: var(--slotted-tone-neutral-on-solid);
+    --_border: var(--slotted-tone-neutral-border);
+    --_text: var(--slotted-tone-neutral-text);
+    --_subtle-hover: var(--slotted-tone-neutral-subtle-hover);
+    --_subtle-active: var(--slotted-tone-neutral-subtle-active);
+  }
+
+  :host([data-tone='danger']) {
+    --_solid: var(--slotted-tone-danger-solid);
+    --_solid-hover: var(--slotted-tone-danger-solid-hover);
+    --_solid-active: var(--slotted-tone-danger-solid-active);
+    --_on-solid: var(--slotted-tone-danger-on-solid);
+    --_border: var(--slotted-tone-danger-border);
+    --_text: var(--slotted-tone-danger-text);
+    --_subtle-hover: var(--slotted-tone-danger-subtle-hover);
+    --_subtle-active: var(--slotted-tone-danger-subtle-active);
+  }
+
+  :host([data-variant='solid']) {
+    background: var(--_solid, ButtonFace);
+    border-color: var(--_solid, ButtonBorder);
+    color: var(--_on-solid, ButtonText);
+  }
+
+  :host([data-variant='outline']) {
+    background: var(--slotted-button-outline-background, transparent);
+    border-color: var(--_border, ButtonBorder);
+    color: var(--_text, ButtonText);
+  }
+
+  :host([data-variant='ghost']) {
+    background: var(--slotted-button-ghost-background, transparent);
+    color: var(--_text, ButtonText);
+    text-decoration: var(--slotted-button-ghost-text-decoration, none);
+  }
+
+  :host([data-variant='solid']:hover:not(:disabled)) {
+    background: var(--_solid-hover, Highlight);
+    border-color: var(--_solid-hover, Highlight);
+  }
+
+  :host([data-variant='solid']:active:not(:disabled)) {
+    background: var(--_solid-active, Highlight);
+    border-color: var(--_solid-active, Highlight);
+  }
+
+  :host(:is([data-variant='outline'], [data-variant='ghost']):hover:not(:disabled)) {
+    background: var(--_subtle-hover, color-mix(in srgb, currentColor 10%, transparent));
+  }
+
+  :host(:is([data-variant='outline'], [data-variant='ghost']):active:not(:disabled)) {
+    background: var(--_subtle-active, color-mix(in srgb, currentColor 18%, transparent));
+  }
+
+  :host(:focus-visible) {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  :host(:disabled) {
+    background: var(--slotted-disabled-background, GrayText);
+    border-color: var(--slotted-disabled-border, GrayText);
+    color: var(--slotted-disabled-foreground, Canvas);
+    cursor: not-allowed;
+    opacity: 1;
+  }
+
+  :host([data-size='sm']) {
+    font-size: var(--slotted-button-font-size-sm, 0.75rem);
+    min-height: var(--slotted-button-height-sm, 1.875rem);
+    padding-inline: var(--slotted-button-padding-inline-sm, 0.625rem);
+  }
+
+  :host([data-size='md']) {
+    font-size: var(--slotted-button-font-size-md, 0.8125rem);
+    min-height: var(--slotted-button-height-md, 2.125rem);
+    padding-inline: var(--slotted-button-padding-inline-md, 0.8125rem);
+  }
+
+  :host([data-size='lg']) {
+    font-size: var(--slotted-button-font-size-lg, 0.875rem);
+    min-height: var(--slotted-button-height-lg, 2.375rem);
+    padding-inline: var(--slotted-button-padding-inline-lg, 1rem);
+  }
+
+  [data-part='leading'],
+  [data-part='trailing'] {
+    align-items: center;
+    display: inline-flex;
+    inline-size: var(--slotted-button-icon-size, 1em);
+    justify-content: center;
+  }
+
+  [data-part='leading']:empty,
+  [data-part='trailing']:empty {
+    display: none;
+  }
+}
