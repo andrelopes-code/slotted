@@ -1,0 +1,42 @@
+{
+  "name": "@slotted/react",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": ["**/*.css"],
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./button": {
+      "types": "./dist/types/button/index.d.ts",
+      "import": "./dist/button.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "test": "vitest run && node --test src/button/button.styles.test.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit --pretty false",
+    "verify": "pnpm test && pnpm typecheck && pnpm build"
+  },
+  "peerDependencies": {
+    "react": ">=19.2.0 <20"
+  },
+  "devDependencies": {
+    "@storybook/react-vite": "10.5.10",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@types/node": "24.13.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "@vitejs/plugin-react": "6.1.1",
+    "jsdom": "30.0.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "storybook": "10.5.10",
+    "vite": "8.2.2",
+    "vitest": "4.1.11"
+  }
+}
