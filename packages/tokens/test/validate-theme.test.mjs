@@ -31,15 +31,11 @@ test('accepts a complete theme', () => {
 test('reports missing tokens with their scope', () => {
   const invalid = structuredClone(validTheme);
   delete invalid.schemes.dark['--scheme'];
-  assert.deepEqual(validateTheme(contract, invalid), [
-    'scheme dark is missing --scheme',
-  ]);
+  assert.deepEqual(validateTheme(contract, invalid), ['scheme dark is missing --scheme']);
 });
 
 test('reports unknown tokens', () => {
   const invalid = structuredClone(validTheme);
   invalid.base['--unknown'] = 'value';
-  assert.deepEqual(validateTheme(contract, invalid), [
-    'base contains unknown token --unknown',
-  ]);
+  assert.deepEqual(validateTheme(contract, invalid), ['base contains unknown token --unknown']);
 });

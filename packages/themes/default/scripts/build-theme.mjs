@@ -35,9 +35,7 @@ async function build() {
   const contract = JSON.parse(
     await readFile(new URL('../../../tokens/src/contract.json', import.meta.url), 'utf8'),
   );
-  const theme = JSON.parse(
-    await readFile(new URL('../src/theme.json', import.meta.url), 'utf8'),
-  );
+  const theme = JSON.parse(await readFile(new URL('../src/theme.json', import.meta.url), 'utf8'));
   assertValidTheme(contract, theme);
   const distUrl = new URL('../dist/', import.meta.url);
   await mkdir(distUrl, { recursive: true });
