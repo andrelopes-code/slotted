@@ -3,11 +3,7 @@ import { createRef } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/button/contract.json';
-import {
-  BUTTON_SIZES,
-  BUTTON_TONES,
-  BUTTON_VARIANTS,
-} from './button.constants';
+import { BUTTON_SIZES, BUTTON_TONES, BUTTON_VARIANTS } from './button.constants';
 import { Button } from './button';
 
 describe('Button', () => {

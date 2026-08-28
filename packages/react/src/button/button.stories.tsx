@@ -93,16 +93,10 @@ export const Densities: Story = {
 export const Schemes: Story = {
   render: () => (
     <div style={rowStyle}>
-      <div
-        data-slotted-scheme="light"
-        style={{ padding: 16, background: '#f8fafc' }}
-      >
+      <div data-slotted-scheme="light" style={{ padding: 16, background: '#f8fafc' }}>
         <Button>Light</Button>
       </div>
-      <div
-        data-slotted-scheme="dark"
-        style={{ padding: 16, background: '#111827' }}
-      >
+      <div data-slotted-scheme="dark" style={{ padding: 16, background: '#111827' }}>
         <Button>Dark</Button>
       </div>
     </div>
