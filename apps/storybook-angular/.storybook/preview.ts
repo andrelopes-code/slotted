@@ -12,11 +12,20 @@ const preview: Preview = {
     density: { toolbar: { icon: 'component', items: ['comfortable', 'compact'] } },
   },
   decorators: [
-    componentWrapperDecorator((story, context) => {
-      const { density, scheme, theme } = context.globals;
-      const background = scheme === 'dark' ? '#111827' : '#f8fafc';
-      return `<div data-slotted-theme="${theme}" data-slotted-scheme="${scheme}" data-slotted-density="${density}" style="min-height:100vh;padding:24px;background:${background}">${story}</div>`;
-    }),
+    componentWrapperDecorator(
+      (story) =>
+        `<div [attr.data-slotted-theme]="slottedTheme" [attr.data-slotted-scheme]="slottedScheme" [attr.data-slotted-density]="slottedDensity" [style.background]="slottedBackground" style="min-height:100vh;padding:24px">${story}</div>`,
+      ({ globals }) => {
+        const scheme = globals['scheme'] ?? 'light';
+
+        return {
+          slottedBackground: scheme === 'dark' ? '#111827' : '#f8fafc',
+          slottedDensity: globals['density'] ?? 'comfortable',
+          slottedScheme: scheme,
+          slottedTheme: globals['theme'] ?? 'default',
+        };
+      },
+    ),
   ],
   parameters: {
     a11y: { test: 'todo' },
