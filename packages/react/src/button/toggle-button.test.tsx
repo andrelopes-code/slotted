@@ -1,10 +1,49 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import { fireEvent, render, screen } from '@testing-library/react';
-import { createRef } from 'react';
+import { createRef, type ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { ToggleButton } from './toggle-button';
 
+const buttonCss = readFileSync(resolve(process.cwd(), 'src/button/button.css'), 'utf8');
+
 describe('ToggleButton', () => {
+  it('keeps pressed toggle surfaces outside generic interactive selectors', () => {
+    const headers = [...buttonCss.matchAll(/\.slotted-button[^{}]*:(?:hover|active)[^{]*\{/g)].map(
+      ([header]) => header,
+    );
+
+    expect(headers).toHaveLength(4);
+    expect(headers).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/data-variant=['"]solid['"][^{}]*:hover/),
+        expect.stringMatching(/data-variant=['"]solid['"][^{}]*:active/),
+        expect.stringMatching(/data-variant=['"]outline['"][^{}]*data-variant=['"]ghost['"][^{}]*:hover/),
+        expect.stringMatching(/data-variant=['"]outline['"][^{}]*data-variant=['"]ghost['"][^{}]*:active/),
+      ]),
+    );
+
+    for (const header of headers) {
+      expect(header).toContain(":not([data-state='pressed'])");
+    }
+  });
+
+  it('accepts pressed as the only aria-pressed state input', () => {
+    const rawAriaPressed = (
+      <ToggleButton
+        {...({
+          // @ts-expect-error ToggleButton derives aria-pressed from its pressed prop.
+          'aria-pressed': 'mixed',
+        } satisfies ComponentProps<typeof ToggleButton>)}
+      >
+        Pin
+      </ToggleButton>
+    );
+    expect(rawAriaPressed).toBeDefined();
+  });
+
   it('uses controlled defaults and logical content parts', () => {
     render(
       <ToggleButton leading="L" trailing="T">
@@ -51,9 +90,16 @@ describe('ToggleButton', () => {
     fireEvent.click(button);
     expect(onPressedChange).toHaveBeenCalledWith(true);
     expect(button).toHaveAttribute('aria-pressed', 'false');
-    rerender(<ToggleButton pressed>Pin</ToggleButton>);
+    rerender(
+      <ToggleButton pressed onPressedChange={onPressedChange}>
+        Pin
+      </ToggleButton>,
+    );
     expect(button).toHaveAttribute('aria-pressed', 'true');
     expect(button).toHaveAttribute('data-state', 'pressed');
+    fireEvent.click(button);
+    expect(onPressedChange).toHaveBeenLastCalledWith(false);
+    expect(button).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('runs the consumer click handler before requesting a state change and honors preventDefault', () => {
@@ -76,6 +122,24 @@ describe('ToggleButton', () => {
     );
     fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
     expect(onPressedChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not request a state change when the consumer cancels in click capture', () => {
+    const onClick = vi.fn();
+    const onPressedChange = vi.fn();
+    render(
+      <ToggleButton
+        onClick={onClick}
+        onClickCapture={(event) => event.preventDefault()}
+        onPressedChange={onPressedChange}
+      >
+        Pin
+      </ToggleButton>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
+    expect(onClick).toHaveBeenCalledOnce();
+    expect(onPressedChange).not.toHaveBeenCalled();
   });
 
   it.each([true, 'true'] as const)(
