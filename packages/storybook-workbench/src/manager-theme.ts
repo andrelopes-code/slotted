@@ -1,0 +1,27 @@
+import { create } from 'storybook/theming/create';
+
+export const managerTheme = create({
+  base: 'dark',
+  brandTitle: 'Slotted Workbench',
+  brandUrl: '/',
+  brandTarget: '_self',
+  colorPrimary: '#8997ff',
+  colorSecondary: '#7c8cff',
+  appBg: '#0b0e14',
+  appContentBg: '#f4f6f8',
+  appPreviewBg: '#f4f6f8',
+  appBorderColor: '#252b36',
+  appBorderRadius: 6,
+  textColor: '#e8ecf3',
+  textInverseColor: '#11141a',
+  barTextColor: '#aeb6c5',
+  barSelectedColor: '#a8b2ff',
+  barHoverColor: '#ffffff',
+  barBg: '#11151d',
+  inputBg: '#171c26',
+  inputBorder: '#343b48',
+  inputTextColor: '#eef1f6',
+  inputBorderRadius: 5,
+  fontBase: '"Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif',
+  fontCode: '"JetBrains Mono Variable", ui-monospace, monospace',
+});
