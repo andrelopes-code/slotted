@@ -185,10 +185,12 @@ describe('SlButtonLink', () => {
     const click = new MouseEvent('click', { bubbles: true, cancelable: true });
     const auxClick = new MouseEvent('auxclick', { bubbles: true, cancelable: true });
     const enter = keyboardEvent('Enter');
+    const space = keyboardEvent(' ');
     anchor.dispatchEvent(click);
     anchor.dispatchEvent(auxClick);
     anchor.dispatchEvent(enter);
-    expect([click, auxClick, enter].every((event) => event.defaultPrevented)).toBe(true);
+    anchor.dispatchEvent(space);
+    expect([click, auxClick, enter, space].every((event) => event.defaultPrevented)).toBe(true);
     expect(clickCaptureSpy).not.toHaveBeenCalled();
     expect(auxClickCaptureSpy).not.toHaveBeenCalled();
     expect(keyCaptureSpy).not.toHaveBeenCalled();
