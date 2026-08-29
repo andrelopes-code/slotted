@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
@@ -43,10 +44,9 @@ import {
     '[attr.data-state]': 'state()',
     '[disabled]': 'disabled()',
     '[attr.type]': 'type()',
-    '(click)': 'handleClick($event)',
   },
 })
-export class SlToggleButton {
+export class SlToggleButton implements AfterViewInit {
   readonly ariaDisabled = input<boolean | string | null>(null, { alias: 'aria-disabled' });
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly fullWidth = input(false, { transform: booleanAttribute });
@@ -62,19 +62,22 @@ export class SlToggleButton {
   );
   readonly state = computed(() => buttonState({ disabled: this.disabled(), pressed: this.pressed() }));
 
+  private readonly element = inject(ElementRef<HTMLButtonElement>).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor() {
-    const element = inject(ElementRef<HTMLButtonElement>).nativeElement;
     const listener = (event: Event) => {
       if (this.interactionBlocked()) blockActivation(event);
     };
-    element.addEventListener('click', listener, { capture: true });
-    inject(DestroyRef).onDestroy(() => element.removeEventListener('click', listener, { capture: true }));
+    this.element.addEventListener('click', listener, { capture: true });
+    this.destroyRef.onDestroy(() => this.element.removeEventListener('click', listener, { capture: true }));
   }
 
-  handleClick(event: Event) {
-    const nextPressed = !this.pressed();
-    queueMicrotask(() => {
-      if (!this.interactionBlocked() && !event.defaultPrevented) this.pressedChange.emit(nextPressed);
-    });
+  ngAfterViewInit() {
+    const listener = (event: Event) => {
+      if (!this.interactionBlocked() && !event.defaultPrevented) this.pressedChange.emit(!this.pressed());
+    };
+    this.element.addEventListener('click', listener);
+    this.destroyRef.onDestroy(() => this.element.removeEventListener('click', listener));
   }
 }

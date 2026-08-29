@@ -56,6 +56,7 @@ class ControlledHost {
   readonly pressedChangeSpy = vi.fn();
   readonly order: string[] = [];
   preventClick = false;
+  destroyed = false;
 
   onClick(event: Event) {
     this.order.push('click');
@@ -64,7 +65,7 @@ class ControlledHost {
   }
 
   onPressedChange(pressed: boolean) {
-    this.order.push(`change:${pressed}`);
+    this.order.push(`${this.destroyed ? 'change-after-destroy' : 'change'}:${pressed}`);
     this.pressedChangeSpy(pressed);
   }
 }
@@ -90,6 +91,14 @@ describe('SlToggleButton', () => {
     expect(button.querySelector('[data-part="trailing"]')?.textContent).toContain('T');
   });
 
+  it('reflects fullWidth as a data attribute', async () => {
+    const fixture = TestBed.createComponent(BoundHost);
+    fixture.componentInstance.fullWidth.set(true);
+    await fixture.whenStable();
+
+    expect((fixture.nativeElement.querySelector('button') as HTMLButtonElement).getAttribute('data-full-width')).toBe('');
+  });
+
   it('uses the banana binding to update the consumer pressed value', async () => {
     const fixture = TestBed.createComponent(BoundHost);
     await fixture.whenStable();
@@ -109,7 +118,6 @@ describe('SlToggleButton', () => {
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
 
     click(button);
-    await Promise.resolve();
 
     expect(fixture.componentInstance.pressedChangeSpy).toHaveBeenCalledWith(true);
     expect(fixture.componentInstance.order).toEqual(['click', 'change:true']);
@@ -125,7 +133,6 @@ describe('SlToggleButton', () => {
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
 
     click(button);
-    await Promise.resolve();
 
     expect(fixture.componentInstance.pressedChangeSpy).toHaveBeenCalledWith(false);
     expect(button.getAttribute('aria-pressed')).toBe('true');
@@ -139,7 +146,6 @@ describe('SlToggleButton', () => {
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
 
     click(button);
-    await Promise.resolve();
 
     expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
     expect(fixture.componentInstance.pressedChangeSpy).not.toHaveBeenCalled();
@@ -188,12 +194,39 @@ describe('SlToggleButton', () => {
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
 
     click(button);
-    await Promise.resolve();
 
     expect(button.disabled).toBe(false);
     expect(button.dataset['state']).toBeUndefined();
     expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
     expect(fixture.componentInstance.pressedChangeSpy).toHaveBeenCalledWith(true);
+  });
+
+  it('emits synchronously for rapid controlled clicks without changing the input', async () => {
+    const fixture = TestBed.createComponent(ControlledHost);
+    await fixture.whenStable();
+    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+
+    click(button);
+    click(button);
+
+    expect(fixture.componentInstance.pressedChangeSpy).toHaveBeenCalledTimes(2);
+    expect(fixture.componentInstance.pressedChangeSpy).toHaveBeenNthCalledWith(1, true);
+    expect(fixture.componentInstance.pressedChangeSpy).toHaveBeenNthCalledWith(2, true);
+    expect(fixture.componentInstance.pressed()).toBe(false);
+  });
+
+  it('does not defer an output until after destruction', async () => {
+    const fixture = TestBed.createComponent(ControlledHost);
+    await fixture.whenStable();
+    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+
+    click(button);
+    fixture.destroy();
+    fixture.componentInstance.destroyed = true;
+    await Promise.resolve();
+
+    expect(fixture.componentInstance.pressedChangeSpy).toHaveBeenCalledOnce();
+    expect(fixture.componentInstance.order).toEqual(['click', 'change:true']);
   });
 
   it('removes its capture listener on destroy without disturbing a focused native button', async () => {
