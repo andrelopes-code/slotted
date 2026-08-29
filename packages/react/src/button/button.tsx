@@ -1,36 +1,54 @@
 import './button.css';
 
+import { ButtonContentLayer } from './button-content';
+import { BUTTON_DEFAULTS } from './button.constants';
+import { appearanceData, blockActivation, buttonClassName } from './button-root';
 import type { ButtonProps } from './button.types';
 
 export function Button({
+  'aria-busy': ariaBusy,
+  'aria-disabled': ariaDisabled,
   children,
   className,
-  disabled,
+  disabled = false,
+  fullWidth = false,
   leading,
-  size = 'md',
-  tone = 'accent',
+  loading = false,
+  loadingIndicator,
+  loadingText,
+  onClick,
+  size = BUTTON_DEFAULTS.size,
+  tone = BUTTON_DEFAULTS.tone,
   trailing,
   type = 'button',
-  variant = 'solid',
+  variant = BUTTON_DEFAULTS.variant,
   ...nativeProps
 }: ButtonProps) {
-  const classes = ['slotted-button', className].filter(Boolean).join(' ');
+  const state = disabled ? 'disabled' : loading ? 'loading' : undefined;
 
   return (
     <button
       {...nativeProps}
-      className={classes}
-      data-size={size}
-      data-slotted-component="button"
-      data-state={disabled ? 'disabled' : undefined}
-      data-tone={tone}
-      data-variant={variant}
+      {...appearanceData({ component: 'button', fullWidth, size, state, tone, variant })}
+      aria-busy={loading || ariaBusy || undefined}
+      aria-disabled={loading || ariaDisabled || undefined}
+      className={buttonClassName(className)}
       disabled={disabled}
+      onClick={(event) => {
+        if (loading) return blockActivation(event);
+        onClick?.(event);
+      }}
       type={type}
     >
-      {leading === undefined ? null : <span data-part="leading">{leading}</span>}
-      <span data-part="label">{children}</span>
-      {trailing === undefined ? null : <span data-part="trailing">{trailing}</span>}
+      <ButtonContentLayer
+        leading={leading}
+        loading={loading}
+        loadingIndicator={loadingIndicator}
+        loadingText={loadingText}
+        trailing={trailing}
+      >
+        {children}
+      </ButtonContentLayer>
     </button>
   );
 }

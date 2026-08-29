@@ -10,12 +10,12 @@ describe('Button', () => {
   it('renders native safe defaults', () => {
     render(<Button>Save</Button>);
     const button = screen.getByRole('button', { name: 'Save' });
-    expect(button.localName).toBe(contract.nativeElement);
-    expect(button).toHaveAttribute('data-slotted-component', contract.component);
-    expect(button).toHaveAttribute('type', contract.defaults.type);
-    expect(button).toHaveAttribute('data-variant', contract.defaults.variant);
-    expect(button).toHaveAttribute('data-tone', contract.defaults.tone);
-    expect(button).toHaveAttribute('data-size', contract.defaults.size);
+    expect(button.localName).toBe(contract.members.button.nativeElement);
+    expect(button).toHaveAttribute('data-slotted-component', 'button');
+    expect(button).toHaveAttribute('type', contract.members.button.defaults.type);
+    expect(button).toHaveAttribute('data-variant', contract.members.button.defaults.variant);
+    expect(button).toHaveAttribute('data-tone', contract.members.button.defaults.tone);
+    expect(button).toHaveAttribute('data-size', contract.members.button.defaults.size);
   });
 
   it('forwards native attributes, events, and refs', () => {
@@ -42,7 +42,7 @@ describe('Button', () => {
     const parts = [...button.querySelectorAll('[data-part]')].map((part) =>
       part.getAttribute('data-part'),
     );
-    expect(parts).toEqual(contract.parts);
+    expect(parts).toEqual(contract.members.button.parts.slice(0, -1));
   });
 
   it('preserves native disabled behavior', () => {
@@ -56,9 +56,56 @@ describe('Button', () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
-  it('matches the shared contract axes', () => {
+  it('matches the Button contract defaults and axes', () => {
     expect(BUTTON_VARIANTS).toEqual(contract.axes.variant);
     expect(BUTTON_TONES).toEqual(contract.axes.tone);
     expect(BUTTON_SIZES).toEqual(contract.axes.size);
+    render(<Button>Save</Button>);
+    const button = screen.getByRole('button', { name: 'Save' });
+    expect(button).toHaveAttribute('data-variant', contract.members.button.defaults.variant);
+    expect(button).toHaveAttribute('data-tone', contract.members.button.defaults.tone);
+    expect(button).toHaveAttribute('data-size', contract.members.button.defaults.size);
+    expect(button).toHaveAttribute('type', contract.members.button.defaults.type);
+  });
+
+  it('exposes full-width layout without changing semantics', () => {
+    render(<Button fullWidth>Save</Button>);
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute(
+      'data-full-width',
+      '',
+    );
+  });
+
+  it('blocks activation while loading and preserves focus and name', () => {
+    const onClick = vi.fn();
+    const { rerender } = render(<Button onClick={onClick}>Save</Button>);
+    const button = screen.getByRole('button', { name: 'Save' });
+    button.focus();
+    rerender(
+      <Button loading onClick={onClick}>
+        Save
+      </Button>,
+    );
+    fireEvent.click(button);
+    expect(onClick).not.toHaveBeenCalled();
+    expect(button).not.toBeDisabled();
+    expect(button).toHaveFocus();
+    expect(button).toHaveAttribute('aria-busy', 'true');
+    expect(button).toHaveAttribute('aria-disabled', 'true');
+    expect(button).toHaveAttribute('data-state', 'loading');
+    expect(screen.getByRole('button', { name: 'Save' })).toBe(button);
+  });
+
+  it('supports explicit loading text and indicator content', () => {
+    render(
+      <Button loading loadingText="Saving" loadingIndicator={<span>spinner</span>}>
+        Save
+      </Button>,
+    );
+    expect(screen.getByRole('button', { name: 'Saving' })).toBeInTheDocument();
+    expect(screen.getByText('spinner').closest('[data-part="loading-indicator"]')).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
   });
 });
