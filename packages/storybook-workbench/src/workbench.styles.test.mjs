@@ -13,4 +13,5 @@ test('workbench CSS keeps the reference-sheet layout and accessibility invariant
   assert.match(css, /\.slotted-code-drawer summary:focus-visible/);
   assert.match(css, /\[data-slotted-scheme='dark'\]\s*\{/);
   assert.match(css, /\.slotted-visually-hidden\s*\{[\s\S]*?clip-path:\s*inset\(50%\)/);
+  assert.match(css, /\.slotted-matrix-scroll:focus-visible,[\s\S]*?\.slotted-token-scroll:focus-visible\s*\{/);
 });

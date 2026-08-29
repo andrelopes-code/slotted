@@ -26,7 +26,7 @@ function WorkbenchSection({ children, title }: { children: ReactNode; title: str
 
 function TokenTable({ tokens }: { tokens: ReferencePageConfig['tokens'] }) {
   return (
-    <div className="slotted-token-scroll">
+    <div aria-label="Public tokens" className="slotted-token-scroll" role="region" tabIndex={0}>
       <table className="slotted-token-table">
         <thead><tr><th scope="col">Token</th><th scope="col">Purpose</th></tr></thead>
         <tbody>{tokens.map((token) => <tr key={token.name}><td><code>{token.name}</code></td><td>{token.purpose}</td></tr>)}</tbody>

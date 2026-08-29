@@ -13,6 +13,16 @@ const snippet: WorkbenchSnippet = {
 
 const originalClipboard = navigator.clipboard;
 
+function deferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, reject, resolve };
+}
+
 afterEach(() => {
   vi.useRealTimers();
   Object.defineProperty(navigator, 'clipboard', { configurable: true, value: originalClipboard });
@@ -58,5 +68,38 @@ describe('CodeDrawer', () => {
     rerender(<CodeDrawer snippet={{ ...snippet, id: 'failed' }} />);
     fireEvent.click(screen.getByRole('button', { name: `Copy ${snippet.label}` }));
     await vi.waitFor(() => expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('Copy failed'));
+  });
+
+  it('does not schedule copy feedback after an unmounted drawer resolves', async () => {
+    const write = deferred<void>();
+    const setTimeout = vi.spyOn(window, 'setTimeout');
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn(() => write.promise) } });
+    const { unmount } = render(<CodeDrawer snippet={snippet} />);
+
+    fireEvent.click(screen.getByRole('button', { name: `Copy ${snippet.label}` }));
+    unmount();
+    write.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(setTimeout).not.toHaveBeenCalled();
+  });
+
+  it('keeps the newest copy result when an earlier request settles last', async () => {
+    const first = deferred<void>();
+    const second = deferred<void>();
+    const writeText = vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+    render(<CodeDrawer snippet={snippet} />);
+
+    const copy = screen.getByRole('button', { name: `Copy ${snippet.label}` });
+    fireEvent.click(copy);
+    fireEvent.click(copy);
+    second.resolve();
+    await vi.waitFor(() => expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('Copied'));
+    first.reject(new Error('stale failure'));
+    await Promise.resolve();
+
+    expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('Copied');
   });
 });

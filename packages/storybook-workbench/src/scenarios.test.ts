@@ -29,6 +29,15 @@ describe('workbench scenario metadata', () => {
     ]);
   });
 
+  it('reports duplicate known story scenario IDs', () => {
+    const stories = {
+      First: { parameters: scenario('matrix') },
+      Second: { parameters: scenario('matrix') },
+    };
+
+    expect(scenarioCoverageErrors(['matrix'], stories)).toEqual(['duplicate matrix']);
+  });
+
   it('reports missing API capability rows and incorrect defaults', () => {
     expect(
       apiMetadataErrors(
@@ -40,5 +49,19 @@ describe('workbench scenario metadata', () => {
         ],
       ),
     ).toEqual(['missing API loading', 'default size: expected md, received lg', 'missing default loading']);
+  });
+
+  it('reports duplicate API rows before checking capability rows or defaults', () => {
+    expect(
+      apiMetadataErrors(
+        { capabilities: ['appearance'], defaults: { variant: 'solid' } },
+        [
+          { name: 'variant', defaultValue: 'solid' },
+          { name: 'variant', defaultValue: 'outline' },
+          { name: 'tone', defaultValue: 'accent' },
+          { name: 'size', defaultValue: 'md' },
+        ],
+      ),
+    ).toEqual(['duplicate API variant']);
   });
 });

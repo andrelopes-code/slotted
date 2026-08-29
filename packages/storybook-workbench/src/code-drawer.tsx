@@ -4,9 +4,17 @@ import type { WorkbenchSnippet } from './snippets';
 
 export function CodeDrawer({ snippet }: { snippet: WorkbenchSnippet }) {
   const [status, setStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const mounted = useRef(true);
+  const request = useRef(0);
   const resetTimer = useRef<number | undefined>(undefined);
 
-  useEffect(() => () => window.clearTimeout(resetTimer.current), []);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      window.clearTimeout(resetTimer.current);
+    };
+  }, []);
 
   async function writeSource() {
     if (navigator.clipboard?.writeText !== undefined) {
@@ -35,13 +43,16 @@ export function CodeDrawer({ snippet }: { snippet: WorkbenchSnippet }) {
   }
 
   async function copy() {
+    const requestId = ++request.current;
+    window.clearTimeout(resetTimer.current);
     try {
       await writeSource();
+      if (!mounted.current || requestId !== request.current) return;
       setStatus('copied');
     } catch {
+      if (!mounted.current || requestId !== request.current) return;
       setStatus('failed');
     }
-    window.clearTimeout(resetTimer.current);
     resetTimer.current = window.setTimeout(() => setStatus('idle'), 1800);
   }
 

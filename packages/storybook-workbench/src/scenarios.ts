@@ -30,9 +30,11 @@ export function storyScenarioIds(storyModule: Record<string, unknown>) {
 
 export function scenarioCoverageErrors(expected: readonly string[], storyModule: Record<string, unknown>) {
   const actual = storyScenarioIds(storyModule);
+  const duplicates = [...new Set(actual.filter((id) => expected.includes(id) && actual.filter((actualId) => actualId === id).length > 1))];
   return [
     ...expected.filter((id) => !actual.includes(id)).map((id) => `missing ${id}`),
     ...actual.filter((id) => !expected.includes(id)).map((id) => `unknown ${id}`),
+    ...duplicates.map((id) => `duplicate ${id}`),
   ];
 }
 
@@ -57,6 +59,8 @@ export function apiMetadataErrors(
 ) {
   const errors: string[] = [];
   const names = rows.map((row) => row.name);
+  const duplicates = [...new Set(names.filter((name) => names.filter((candidate) => candidate === name).length > 1))];
+  if (duplicates.length > 0) return duplicates.map((name) => `duplicate API ${name}`);
   for (const capability of member.capabilities) {
     const required = capabilityApi[capability as keyof typeof capabilityApi] ?? [];
     for (const name of required) {
