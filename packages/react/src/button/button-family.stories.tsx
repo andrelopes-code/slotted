@@ -1,15 +1,24 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { scenario, WorkbenchMatrix } from '@slotted/storybook-workbench';
+import { ChevronDown, Plus, Redo2, Save, Trash2, Undo2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { Button } from './button';
 import { ButtonGroup } from './button-group';
 import { IconButton } from './icon-button';
 
-type DemoIconName = 'chevron-down' | 'plus' | 'redo' | 'save' | 'trash' | 'undo';
+const demoIcons = {
+  'chevron-down': ChevronDown,
+  plus: Plus,
+  redo: Redo2,
+  save: Save,
+  trash: Trash2,
+  undo: Undo2,
+} as const;
 
-function DemoIcon({ name }: { name: DemoIconName }) {
-  return <span aria-hidden="true" className="slotted-demo-icon" data-icon={name} />;
+function DemoIcon({ name }: { name: keyof typeof demoIcons }) {
+  const Icon = demoIcons[name];
+  return <Icon aria-hidden="true" focusable="false" strokeWidth={1.75} />;
 }
 
 function SectionIntro({ description, title }: { description: string; title: string }) {

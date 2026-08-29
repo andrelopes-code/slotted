@@ -84,7 +84,7 @@ describe('Button family stories', () => {
     const iconButtons = container.querySelectorAll('[data-slotted-component="icon-button"]');
     expect(iconButtons.length).toBeGreaterThan(0);
     for (const iconButton of iconButtons) {
-      expect(iconButton.querySelector('.slotted-demo-icon[data-icon]')).not.toBeNull();
+      expect(iconButton.querySelector('svg.lucide[aria-hidden="true"]')).not.toBeNull();
     }
   });
 
@@ -101,6 +101,6 @@ describe('Button family stories', () => {
       expect(button).toHaveAttribute('data-tone', 'accent');
       expect(button).toHaveAttribute('data-variant', 'solid');
     }
-    expect(container.querySelector(".slotted-demo-icon[data-icon='chevron-down']")).not.toBeNull();
+    expect(container.querySelector('svg.lucide-chevron-down')).not.toBeNull();
   });
 });

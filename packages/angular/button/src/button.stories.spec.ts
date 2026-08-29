@@ -68,7 +68,7 @@ describe('Angular Button family stories', () => {
     const iconButtons = host.querySelectorAll('button[sliconbutton]');
     expect(iconButtons.length).toBeGreaterThan(0);
     for (const iconButton of iconButtons) {
-      expect(iconButton.querySelector('.slotted-demo-icon[data-icon]')).not.toBeNull();
+      expect(iconButton.querySelector('ng-icon[name][aria-hidden="true"]')).not.toBeNull();
     }
 
     expect(template).not.toMatch(/[+⌄⌘]/u);
@@ -89,6 +89,6 @@ describe('Angular Button family stories', () => {
       expect(button.getAttribute('tone')).toBe('accent');
       expect(button.getAttribute('variant')).toBe('solid');
     }
-    expect(group?.querySelector(".slotted-demo-icon[data-icon='chevron-down']")).not.toBeNull();
+    expect(group?.querySelector('ng-icon[name="lucideChevronDown"]')).not.toBeNull();
   });
 });

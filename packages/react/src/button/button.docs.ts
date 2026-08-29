@@ -93,7 +93,8 @@ export const REACT_BUTTON_DOCS = {
         id: 'react-button-basic',
         label: 'Basic action',
         language: 'tsx',
-        source: '<Button tone="accent" leading={<SaveIcon />}>\n  Save changes\n</Button>;',
+        source:
+          'import { Save } from \'lucide-react\';\n\n<Button tone="accent" leading={<Save aria-hidden="true" />}>\n  Save changes\n</Button>;',
       }),
       defineSnippet({
         id: 'react-button-loading',
@@ -176,7 +177,8 @@ export const REACT_BUTTON_DOCS = {
         id: 'react-icon-button',
         label: 'Named icon action',
         language: 'tsx',
-        source: '<IconButton aria-label="Close" variant="ghost">\n  <CloseIcon />\n</IconButton>;',
+        source:
+          'import { X } from \'lucide-react\';\n\n<IconButton aria-label="Close" variant="ghost">\n  <X aria-hidden="true" />\n</IconButton>;',
       }),
     ],
   },
@@ -248,7 +250,7 @@ export const REACT_BUTTON_DOCS = {
         label: 'Grouped actions',
         language: 'tsx',
         source:
-          '<ButtonGroup aria-label="Editing actions">\n  <Button>Save</Button>\n  <IconButton aria-label="More save options">\n    <MoreIcon />\n  </IconButton>\n</ButtonGroup>;',
+          'import { ChevronDown } from \'lucide-react\';\n\n<ButtonGroup aria-label="Editing actions">\n  <Button>Save</Button>\n  <IconButton aria-label="More save options">\n    <ChevronDown aria-hidden="true" />\n  </IconButton>\n</ButtonGroup>;',
       }),
     ],
   },

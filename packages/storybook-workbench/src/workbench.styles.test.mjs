@@ -42,15 +42,8 @@ test('workbench CSS gives matrices stable geometry and centered non-empty cells'
   assert.match(css, /\.slotted-matrix__cell\s*>\s*\*\s*\{[\s\S]*?vertical-align:\s*middle/);
 });
 
-test('workbench CSS supplies a portable currentColor icon set for every demonstration', () => {
-  assert.match(
-    css,
-    /\.slotted-demo-icon\s*\{[\s\S]*?background-color:\s*currentColor[\s\S]*?mask-position:\s*center/,
-  );
-
-  for (const name of ['save', 'chevron-down', 'plus', 'undo', 'redo', 'trash', 'external']) {
-    assert.match(css, new RegExp(`\\.slotted-demo-icon\\[data-icon='${name}'\\]\\s*\\{`));
-  }
+test('workbench does not own icon glyph data', () => {
+  assert.doesNotMatch(css, /slotted-demo-icon|mask-image:\s*url\(["']data:image\/svg\+xml/);
 });
 
 test('embedded docs canvases do not become empty viewport-height demonstrations', () => {

@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { createReferencePage, scenario } from '@slotted/storybook-workbench';
 import type { ReferencePageConfig } from '@slotted/storybook-workbench';
+import { Plus } from 'lucide-react';
 import { REACT_BUTTON_DOCS, REACT_BUTTON_TOKENS } from './button.docs';
 import { IconButton } from './icon-button';
-const Icon = () => <span aria-hidden="true" className="slotted-demo-icon" data-icon="plus" />;
+const Icon = () => <Plus aria-hidden="true" focusable="false" strokeWidth={1.75} />;
 const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,
   matrix: States as never,

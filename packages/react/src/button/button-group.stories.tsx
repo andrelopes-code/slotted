@@ -1,14 +1,24 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { createReferencePage, scenario } from '@slotted/storybook-workbench';
 import type { ReferencePageConfig } from '@slotted/storybook-workbench';
+import { ChevronDown, Redo2, Save, Trash2, Undo2 } from 'lucide-react';
 
 import { REACT_BUTTON_DOCS, REACT_BUTTON_TOKENS } from './button.docs';
 import { Button } from './button';
 import { ButtonGroup } from './button-group';
 import { IconButton } from './icon-button';
 
-function DemoIcon({ name }: { name: 'chevron-down' | 'redo' | 'save' | 'trash' | 'undo' }) {
-  return <span aria-hidden="true" className="slotted-demo-icon" data-icon={name} />;
+const demoIcons = {
+  'chevron-down': ChevronDown,
+  redo: Redo2,
+  save: Save,
+  trash: Trash2,
+  undo: Undo2,
+} as const;
+
+function DemoIcon({ name }: { name: keyof typeof demoIcons }) {
+  const Icon = demoIcons[name];
+  return <Icon aria-hidden="true" focusable="false" strokeWidth={1.75} />;
 }
 
 const referenceStories: ReferencePageConfig['stories'] = () => ({

@@ -1,13 +1,20 @@
 import type { Meta, StoryObj } from '@storybook/angular-vite';
 import { moduleMetadata } from '@storybook/angular-vite';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideChevronDown, lucideSave } from '@ng-icons/lucide';
 import { createReferencePage, scenario } from '@slotted/storybook-workbench';
 import type { ReferencePageConfig } from '@slotted/storybook-workbench';
 import { ANGULAR_BUTTON_DOCS, ANGULAR_BUTTON_TOKENS } from './button.docs';
 import { SlButton } from './button';
 
-type DemoIconName = 'chevron-down' | 'save';
-const demoIcon = (name: DemoIconName, marker: 'slButtonLeading' | 'slButtonTrailing') =>
-  `<span ${marker} aria-hidden="true" class="slotted-demo-icon" data-icon="${name}"></span>`;
+const demoIconNames = {
+  'chevron-down': 'lucideChevronDown',
+  save: 'lucideSave',
+} as const;
+const demoIcon = (
+  name: keyof typeof demoIconNames,
+  marker: 'slButtonLeading' | 'slButtonTrailing',
+) => `<ng-icon ${marker} aria-hidden="true" name="${demoIconNames[name]}"></ng-icon>`;
 
 interface ButtonStoryArgs {
   disabled: boolean;
@@ -25,7 +32,12 @@ const referenceStories: ReferencePageConfig['stories'] = () => ({
 const meta: Meta<ButtonStoryArgs> = {
   title: 'Components/Button family/Button',
   component: SlButton,
-  decorators: [moduleMetadata({ imports: [SlButton] })],
+  decorators: [
+    moduleMetadata({
+      imports: [NgIcon, SlButton],
+      providers: [provideIcons({ lucideChevronDown, lucideSave })],
+    }),
+  ],
   args: {
     disabled: false,
     fullWidth: false,

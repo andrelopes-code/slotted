@@ -1,11 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/angular-vite';
 import { moduleMetadata } from '@storybook/angular-vite';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucidePlus } from '@ng-icons/lucide';
 import { createReferencePage, scenario } from '@slotted/storybook-workbench';
 import type { ReferencePageConfig } from '@slotted/storybook-workbench';
 import { ANGULAR_BUTTON_DOCS, ANGULAR_BUTTON_TOKENS } from './button.docs';
 import { SlIconButton } from './icon-button';
 
-const plusIcon = '<span aria-hidden="true" class="slotted-demo-icon" data-icon="plus"></span>';
+const plusIcon = '<ng-icon aria-hidden="true" name="lucidePlus"></ng-icon>';
 
 const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,
@@ -14,7 +16,12 @@ const referenceStories: ReferencePageConfig['stories'] = () => ({
 const meta: Meta = {
   title: 'Components/Button family/IconButton',
   component: SlIconButton,
-  decorators: [moduleMetadata({ imports: [SlIconButton] })],
+  decorators: [
+    moduleMetadata({
+      imports: [NgIcon, SlIconButton],
+      providers: [provideIcons({ lucidePlus })],
+    }),
+  ],
   args: { 'aria-label': 'Add' },
   parameters: {
     controls: { disable: true },

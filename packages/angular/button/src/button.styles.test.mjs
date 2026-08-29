@@ -132,4 +132,12 @@ test('sizes consumer supplied SVG icons without imposing an icon visual language
     'display: block;',
     'inline-size: 100%;',
   ]);
+
+  const iconSlotRule = css.match(
+    /\[data-part='icon'\],[\s\S]*?\[data-part='trailing'\]\s*\{([\s\S]*?)\}/,
+  );
+  assert.ok(iconSlotRule, 'Missing icon slot rule');
+  assert.match(iconSlotRule[1], /font-size:\s*var\(--_button-icon-size\);/);
+  assert.match(iconSlotRule[1], /line-height:\s*1;/);
+  assert.doesNotMatch(iconSlotRule[1], /(?:fill|stroke):/);
 });

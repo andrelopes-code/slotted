@@ -1,11 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { createReferencePage, scenario } from '@slotted/storybook-workbench';
 import type { ReferencePageConfig } from '@slotted/storybook-workbench';
+import { ChevronDown, Save } from 'lucide-react';
 import { REACT_BUTTON_DOCS, REACT_BUTTON_TOKENS } from './button.docs';
 import { Button } from './button';
 
 function DemoIcon({ name }: { name: 'chevron-down' | 'save' }) {
-  return <span aria-hidden="true" className="slotted-demo-icon" data-icon={name} />;
+  const Icon = name === 'save' ? Save : ChevronDown;
+  return <Icon aria-hidden="true" focusable="false" strokeWidth={1.75} />;
 }
 const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,

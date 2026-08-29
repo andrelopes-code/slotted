@@ -1,15 +1,31 @@
 import type { Meta, StoryObj } from '@storybook/angular-vite';
 import { moduleMetadata } from '@storybook/angular-vite';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideChevronDown,
+  lucidePlus,
+  lucideRedo2,
+  lucideSave,
+  lucideTrash2,
+  lucideUndo2,
+} from '@ng-icons/lucide';
 import { scenario } from '@slotted/storybook-workbench';
 
 import { SlButton } from './button';
 import { SlButtonGroup } from './button-group';
 import { SlIconButton } from './icon-button';
 
-type DemoIconName = 'chevron-down' | 'plus' | 'redo' | 'save' | 'trash' | 'undo';
+const demoIconNames = {
+  'chevron-down': 'lucideChevronDown',
+  plus: 'lucidePlus',
+  redo: 'lucideRedo2',
+  save: 'lucideSave',
+  trash: 'lucideTrash2',
+  undo: 'lucideUndo2',
+} as const;
 
-const demoIcon = (name: DemoIconName, marker = '') =>
-  `<span ${marker} aria-hidden="true" class="slotted-demo-icon" data-icon="${name}"></span>`;
+const demoIcon = (name: keyof typeof demoIconNames, marker = '') =>
+  `<ng-icon ${marker} aria-hidden="true" name="${demoIconNames[name]}"></ng-icon>`;
 
 const scene = (label: string, note: string, content: string) => `
   <section class="slotted-demo-scene">
@@ -38,7 +54,21 @@ const matrixRows = variants
 
 const meta: Meta = {
   title: 'Components/Button family/Overview',
-  decorators: [moduleMetadata({ imports: [SlButton, SlButtonGroup, SlIconButton] })],
+  decorators: [
+    moduleMetadata({
+      imports: [NgIcon, SlButton, SlButtonGroup, SlIconButton],
+      providers: [
+        provideIcons({
+          lucideChevronDown,
+          lucidePlus,
+          lucideRedo2,
+          lucideSave,
+          lucideTrash2,
+          lucideUndo2,
+        }),
+      ],
+    }),
+  ],
   parameters: { controls: { disable: true } },
 };
 

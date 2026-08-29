@@ -100,7 +100,7 @@ export const ANGULAR_BUTTON_DOCS = {
         label: 'Basic action',
         language: 'angular',
         source:
-          '<button slButton tone="accent"><app-save-icon slButtonLeading />Save changes</button>',
+          '<button slButton tone="accent">\n  <ng-icon slButtonLeading name="lucideSave" aria-hidden="true" />\n  Save changes\n</button>',
       }),
       defineSnippet({
         id: 'angular-button-loading',
@@ -200,7 +200,8 @@ export const ANGULAR_BUTTON_DOCS = {
         id: 'angular-icon-button',
         label: 'Named icon action',
         language: 'angular',
-        source: '<button slIconButton aria-label="Close"><app-close-icon /></button>',
+        source:
+          '<button slIconButton aria-label="Close">\n  <ng-icon name="lucideX" aria-hidden="true" />\n</button>',
       }),
     ],
   },
@@ -277,7 +278,7 @@ export const ANGULAR_BUTTON_DOCS = {
         label: 'Grouped actions',
         language: 'angular',
         source:
-          '<div slButtonGroup aria-label="Editing actions">\n  <button slButton>Save</button>\n  <button slIconButton aria-label="More save options">\n    <app-more-icon />\n  </button>\n</div>',
+          '<div slButtonGroup aria-label="Editing actions">\n  <button slButton>Save</button>\n  <button slIconButton aria-label="More save options">\n    <ng-icon name="lucideChevronDown" aria-hidden="true" />\n  </button>\n</div>',
       }),
     ],
   },

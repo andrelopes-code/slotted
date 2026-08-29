@@ -1,13 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/angular-vite';
 import { applicationConfig, moduleMetadata } from '@storybook/angular-vite';
 import { provideRouter, RouterLink } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideExternalLink } from '@ng-icons/lucide';
 import { createReferencePage, scenario } from '@slotted/storybook-workbench';
 import type { ReferencePageConfig } from '@slotted/storybook-workbench';
 import { ANGULAR_BUTTON_DOCS, ANGULAR_BUTTON_TOKENS } from './button.docs';
 import { SlButtonLink } from './button-link';
 
 const externalIcon =
-  '<span slButtonTrailing aria-hidden="true" class="slotted-demo-icon" data-icon="external"></span>';
+  '<ng-icon slButtonTrailing aria-hidden="true" name="lucideExternalLink"></ng-icon>';
 
 const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,
@@ -16,7 +18,12 @@ const referenceStories: ReferencePageConfig['stories'] = () => ({
 const meta: Meta = {
   title: 'Components/Button family/ButtonLink',
   component: SlButtonLink,
-  decorators: [moduleMetadata({ imports: [SlButtonLink] })],
+  decorators: [
+    moduleMetadata({
+      imports: [NgIcon, SlButtonLink],
+      providers: [provideIcons({ lucideExternalLink })],
+    }),
+  ],
   args: { href: '/settings' },
   parameters: {
     controls: { disable: true },

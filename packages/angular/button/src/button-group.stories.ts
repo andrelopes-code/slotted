@@ -1,5 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/angular-vite';
 import { moduleMetadata } from '@storybook/angular-vite';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideChevronDown,
+  lucideRedo2,
+  lucideSave,
+  lucideTrash2,
+  lucideUndo2,
+} from '@ng-icons/lucide';
 import { createReferencePage, scenario } from '@slotted/storybook-workbench';
 import type { ReferencePageConfig } from '@slotted/storybook-workbench';
 
@@ -8,9 +16,15 @@ import { SlButton } from './button';
 import { SlButtonGroup } from './button-group';
 import { SlIconButton } from './icon-button';
 
-type DemoIconName = 'chevron-down' | 'redo' | 'save' | 'trash' | 'undo';
-const demoIcon = (name: DemoIconName, marker = '') =>
-  `<span ${marker} aria-hidden="true" class="slotted-demo-icon" data-icon="${name}"></span>`;
+const demoIconNames = {
+  'chevron-down': 'lucideChevronDown',
+  redo: 'lucideRedo2',
+  save: 'lucideSave',
+  trash: 'lucideTrash2',
+  undo: 'lucideUndo2',
+} as const;
+const demoIcon = (name: keyof typeof demoIconNames, marker = '') =>
+  `<ng-icon ${marker} aria-hidden="true" name="${demoIconNames[name]}"></ng-icon>`;
 
 const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,
@@ -20,7 +34,20 @@ const referenceStories: ReferencePageConfig['stories'] = () => ({
 const meta: Meta = {
   title: 'Components/Button family/ButtonGroup',
   component: SlButtonGroup,
-  decorators: [moduleMetadata({ imports: [SlButton, SlButtonGroup, SlIconButton] })],
+  decorators: [
+    moduleMetadata({
+      imports: [NgIcon, SlButton, SlButtonGroup, SlIconButton],
+      providers: [
+        provideIcons({
+          lucideChevronDown,
+          lucideRedo2,
+          lucideSave,
+          lucideTrash2,
+          lucideUndo2,
+        }),
+      ],
+    }),
+  ],
   parameters: {
     controls: { disable: true },
     docs: {
