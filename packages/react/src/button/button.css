@@ -44,6 +44,17 @@
     --_subtle-active: var(--slotted-tone-neutral-subtle-active);
   }
 
+  .slotted-button[data-tone='accent'] {
+    --_solid: var(--slotted-tone-accent-solid);
+    --_solid-hover: var(--slotted-tone-accent-solid-hover);
+    --_solid-active: var(--slotted-tone-accent-solid-active);
+    --_on-solid: var(--slotted-tone-accent-on-solid);
+    --_border: var(--slotted-tone-accent-border);
+    --_text: var(--slotted-tone-accent-text);
+    --_subtle-hover: var(--slotted-tone-accent-subtle-hover);
+    --_subtle-active: var(--slotted-tone-accent-subtle-active);
+  }
+
   .slotted-button[data-tone='success'] {
     --_solid: var(--slotted-tone-success-solid);
     --_solid-hover: var(--slotted-tone-success-solid-hover);
@@ -206,6 +217,43 @@
     block-size: var(--_button-icon-size);
     inline-size: var(--_button-icon-size);
     justify-content: center;
+  }
+
+  .slotted-button-group {
+    align-items: stretch;
+    display: inline-flex;
+    gap: var(--slotted-button-group-gap, 0px);
+    isolation: isolate;
+  }
+
+  .slotted-button-group[data-orientation='vertical'] {
+    flex-direction: column;
+  }
+
+  .slotted-button-group[data-orientation='horizontal'] > .slotted-button:not(:first-child) {
+    border-start-start-radius: var(--slotted-button-group-inner-radius, 0px);
+    border-end-start-radius: var(--slotted-button-group-inner-radius, 0px);
+    margin-inline-start: var(--slotted-button-group-adjacent-offset, -1px);
+  }
+
+  .slotted-button-group[data-orientation='horizontal'] > .slotted-button:not(:last-child) {
+    border-start-end-radius: var(--slotted-button-group-inner-radius, 0px);
+    border-end-end-radius: var(--slotted-button-group-inner-radius, 0px);
+  }
+
+  .slotted-button-group[data-orientation='vertical'] > .slotted-button:not(:first-child) {
+    border-start-start-radius: var(--slotted-button-group-inner-radius, 0px);
+    border-start-end-radius: var(--slotted-button-group-inner-radius, 0px);
+    margin-block-start: var(--slotted-button-group-adjacent-offset, -1px);
+  }
+
+  .slotted-button-group[data-orientation='vertical'] > .slotted-button:not(:last-child) {
+    border-end-start-radius: var(--slotted-button-group-inner-radius, 0px);
+    border-end-end-radius: var(--slotted-button-group-inner-radius, 0px);
+  }
+
+  .slotted-button-group > .slotted-button:focus-visible {
+    z-index: 1;
   }
 
   @media (prefers-reduced-motion: reduce) {
