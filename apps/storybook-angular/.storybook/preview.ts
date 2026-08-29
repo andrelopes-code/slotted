@@ -3,34 +3,46 @@ import '@slotted/theme-default/styles.css';
 
 import { componentWrapperDecorator } from '@storybook/angular-vite';
 import type { Preview } from '@storybook/angular-vite';
+import {
+  GLOBAL_TYPES,
+  INITIAL_GLOBALS,
+  resolveWorkbenchGlobals,
+} from '@slotted/storybook-workbench';
+import '@slotted/storybook-workbench/styles.css';
 
 const preview: Preview = {
-  initialGlobals: { theme: 'default', scheme: 'light', density: 'comfortable' },
-  globalTypes: {
-    theme: { toolbar: { icon: 'paintbrush', items: ['default'] } },
-    scheme: { toolbar: { icon: 'contrast', items: ['light', 'dark'] } },
-    density: { toolbar: { icon: 'component', items: ['comfortable', 'compact'] } },
-  },
+  initialGlobals: INITIAL_GLOBALS,
+  globalTypes: GLOBAL_TYPES,
   decorators: [
     componentWrapperDecorator(
       (story) =>
-        `<div [attr.data-slotted-theme]="slottedTheme" [attr.data-slotted-scheme]="slottedScheme" [attr.data-slotted-density]="slottedDensity" [style.background]="slottedBackground" style="min-height:100vh;padding:24px">${story}</div>`,
-      ({ globals }) => {
-        const scheme = globals['scheme'] ?? 'light';
-
+        `<div class="slotted-workbench-preview" [attr.data-slotted-theme]="slottedTheme" [attr.data-slotted-scheme]="slottedScheme" [attr.data-slotted-density]="slottedDensity">${story}</div>`,
+      (context) => {
+        const values = resolveWorkbenchGlobals(context?.globals);
         return {
-          slottedBackground: scheme === 'dark' ? '#111827' : '#f8fafc',
-          slottedDensity: globals['density'] ?? 'comfortable',
-          slottedScheme: scheme,
-          slottedTheme: globals['theme'] ?? 'default',
+          slottedDensity: values.density,
+          slottedScheme: values.scheme,
+          slottedTheme: values.theme,
         };
       },
     ),
   ],
   parameters: {
-    a11y: { test: 'todo' },
-    controls: { expanded: true },
+    a11y: { test: 'off' },
+    controls: { expanded: false },
+    docs: { source: { state: 'none' }, toc: true },
+    layout: 'fullscreen',
+    options: {
+      storySort: {
+        order: [
+          'Components',
+          [
+            'Button family',
+            ['Overview', 'Button', 'ButtonLink', 'IconButton', 'ToggleButton', 'ButtonGroup'],
+          ],
+        ],
+      },
+    },
   },
 };
-
 export default preview;

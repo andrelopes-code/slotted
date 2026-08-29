@@ -10,6 +10,7 @@ const config: StorybookConfig = {
   },
   stories: ['../../../packages/angular/button/src/**/*.stories.ts'],
   addons: ['@storybook/addon-docs', '@storybook/addon-a11y'],
+  docs: { defaultName: 'Reference' },
 };
 
 export default config;
