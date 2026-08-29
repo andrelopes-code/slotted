@@ -155,6 +155,12 @@
     inline-size: 100%;
   }
 
+  :host([data-part-root='icon']:not([data-full-width])) {
+    aspect-ratio: 1;
+    inline-size: var(--_button-height);
+    padding-inline: 0;
+  }
+
   :host([data-state='loading']) {
     cursor: progress;
     opacity: var(--slotted-button-loading-opacity, 0.72);
@@ -175,28 +181,39 @@
   }
 
   :host([data-size='sm']) {
+    --_button-height: var(--slotted-button-height-sm, 1.875rem);
+    --_button-icon-size: var(--slotted-button-icon-size-sm, var(--slotted-button-icon-size, 1em));
+
     font-size: var(--slotted-button-font-size-sm, 0.75rem);
-    min-height: var(--slotted-button-height-sm, 1.875rem);
+    min-height: var(--_button-height);
     padding-inline: var(--slotted-button-padding-inline-sm, 0.625rem);
   }
 
   :host([data-size='md']) {
+    --_button-height: var(--slotted-button-height-md, 2.125rem);
+    --_button-icon-size: var(--slotted-button-icon-size-md, var(--slotted-button-icon-size, 1em));
+
     font-size: var(--slotted-button-font-size-md, 0.8125rem);
-    min-height: var(--slotted-button-height-md, 2.125rem);
+    min-height: var(--_button-height);
     padding-inline: var(--slotted-button-padding-inline-md, 0.8125rem);
   }
 
   :host([data-size='lg']) {
+    --_button-height: var(--slotted-button-height-lg, 2.375rem);
+    --_button-icon-size: var(--slotted-button-icon-size-lg, var(--slotted-button-icon-size, 1em));
+
     font-size: var(--slotted-button-font-size-lg, 0.875rem);
-    min-height: var(--slotted-button-height-lg, 2.375rem);
+    min-height: var(--_button-height);
     padding-inline: var(--slotted-button-padding-inline-lg, 1rem);
   }
 
+  [data-part='icon'],
   [data-part='leading'],
   [data-part='trailing'] {
     align-items: center;
+    block-size: var(--_button-icon-size);
     display: inline-flex;
-    inline-size: var(--slotted-button-icon-size, 1em);
+    inline-size: var(--_button-icon-size);
     justify-content: center;
   }
 
