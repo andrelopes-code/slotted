@@ -4,7 +4,7 @@ import { join, relative } from 'node:path';
 
 const packageDirectory = fileURLToPath(new URL('.', import.meta.url));
 const distDirectory = join(packageDirectory, 'dist');
-const forbiddenPattern = /storybook-workbench|@storybook|fontsource/i;
+const forbiddenPattern = /storybook-workbench|@storybook|fontsource|@testing-library/i;
 const textArtifactPattern = /\.(?:css|d\.ts|html|js|json|map)$/;
 
 function collectTextArtifacts(directory) {
