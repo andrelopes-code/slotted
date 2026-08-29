@@ -169,17 +169,27 @@ describe('ToggleButton', () => {
     },
   );
 
-  it.each([false, 'false'] as const)('keeps aria-disabled=%s interactive', (ariaDisabled) => {
-    const onPressedChange = vi.fn();
-    render(
-      <ToggleButton aria-disabled={ariaDisabled} onPressedChange={onPressedChange}>
-        Pin
-      </ToggleButton>,
-    );
+  it.each([false, 'false'] as const)(
+    'keeps aria-disabled=%s interactive through capture, bubble, and state request',
+    (ariaDisabled) => {
+      const calls: string[] = [];
+      const onPressedChange = vi.fn((pressed: boolean) => calls.push(`pressed:${pressed}`));
+      render(
+        <ToggleButton
+          aria-disabled={ariaDisabled}
+          onClick={() => calls.push('bubble')}
+          onClickCapture={() => calls.push('capture')}
+          onPressedChange={onPressedChange}
+        >
+          Pin
+        </ToggleButton>,
+      );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
-    expect(onPressedChange).toHaveBeenCalledWith(true);
-  });
+      fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
+      expect(onPressedChange).toHaveBeenCalledWith(true);
+      expect(calls).toEqual(['capture', 'bubble', 'pressed:true']);
+    },
+  );
 
   it('does not request a state change when disabled', () => {
     const onPressedChange = vi.fn();
