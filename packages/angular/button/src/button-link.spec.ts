@@ -15,9 +15,12 @@ import { SlButtonLink } from './button-link';
       [disabled]="disabled()"
       [tabIndex]="tabIndex()"
       [fullWidth]="fullWidth()"
-      (click)="clickSpy()"
-      (auxclick)="auxClickSpy()"
-      (keydown)="keySpy()"
+      [size]="size()"
+      [tone]="tone()"
+      [variant]="variant()"
+      (click)="onClick($event)"
+      (auxclick)="onAuxClick($event)"
+      (keydown)="onKeydown($event)"
     >
       <span slButtonLeading>L</span>Settings<span slButtonTrailing>T</span>
     </a>
@@ -28,9 +31,26 @@ class TestHost {
   readonly ariaDisabled = signal<boolean | string | null>(null);
   readonly tabIndex = signal<number | string | null>(null);
   readonly fullWidth = signal(false);
+  readonly size = signal<'sm' | 'md' | 'lg'>('md');
+  readonly tone = signal<'neutral' | 'accent' | 'success' | 'warning' | 'danger'>('accent');
+  readonly variant = signal<'solid' | 'outline' | 'ghost'>('solid');
   readonly clickSpy = vi.fn();
   readonly auxClickSpy = vi.fn();
   readonly keySpy = vi.fn();
+
+  onClick(event: Event) {
+    event.preventDefault();
+    this.clickSpy();
+  }
+
+  onAuxClick(event: Event) {
+    event.preventDefault();
+    this.auxClickSpy();
+  }
+
+  onKeydown(_event: KeyboardEvent) {
+    this.keySpy();
+  }
 }
 
 function keyboardEvent(key: string) {
@@ -52,6 +72,23 @@ describe('SlButtonLink', () => {
     expect([...anchor.querySelectorAll('[data-part]')].map((part) => part.getAttribute('data-part'))).toEqual(
       contract.members.buttonLink.parts,
     );
+    expect(anchor.querySelector('[data-part="label"]')?.textContent?.trim()).toBe('Settings');
+    expect(anchor.textContent?.trim()).toContain('Settings');
+  });
+
+  it('reflects appearance input bindings as data attributes', async () => {
+    const fixture = TestBed.createComponent(TestHost);
+    fixture.componentInstance.fullWidth.set(true);
+    fixture.componentInstance.size.set('lg');
+    fixture.componentInstance.tone.set('danger');
+    fixture.componentInstance.variant.set('outline');
+    await fixture.whenStable();
+    const anchor = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
+
+    expect(anchor.getAttribute('data-full-width')).toBe('');
+    expect(anchor.dataset['size']).toBe('lg');
+    expect(anchor.dataset['tone']).toBe('danger');
+    expect(anchor.dataset['variant']).toBe('outline');
   });
 
   it('preserves native anchor attributes, classes, and DOM reference behavior', async () => {
@@ -73,8 +110,12 @@ describe('SlButtonLink', () => {
     fixture.componentInstance.disabled.set(true);
     await fixture.whenStable();
     const anchor = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
-    const captureSpy = vi.fn();
-    anchor.addEventListener('click', captureSpy, true);
+    const clickCaptureSpy = vi.fn();
+    const auxClickCaptureSpy = vi.fn();
+    const keyCaptureSpy = vi.fn();
+    anchor.addEventListener('click', clickCaptureSpy, true);
+    anchor.addEventListener('auxclick', auxClickCaptureSpy, true);
+    anchor.addEventListener('keydown', keyCaptureSpy, true);
     const click = new MouseEvent('click', { bubbles: true, cancelable: true });
     const auxClick = new MouseEvent('auxclick', { bubbles: true, cancelable: true });
     const enter = keyboardEvent('Enter');
@@ -88,7 +129,9 @@ describe('SlButtonLink', () => {
     expect(anchor.dataset['state']).toBe('disabled');
     expect(anchor.tabIndex).toBe(-1);
     expect([click, auxClick, enter, space].every((event) => event.defaultPrevented)).toBe(true);
-    expect(captureSpy).not.toHaveBeenCalled();
+    expect(clickCaptureSpy).not.toHaveBeenCalled();
+    expect(auxClickCaptureSpy).not.toHaveBeenCalled();
+    expect(keyCaptureSpy).not.toHaveBeenCalled();
     expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
     expect(fixture.componentInstance.auxClickSpy).not.toHaveBeenCalled();
     expect(fixture.componentInstance.keySpy).not.toHaveBeenCalled();
@@ -107,8 +150,12 @@ describe('SlButtonLink', () => {
     fixture.componentInstance.disabled.set(true);
     await fixture.whenStable();
     const event = keyboardEvent('ArrowDown');
-    (fixture.nativeElement.querySelector('a') as HTMLAnchorElement).dispatchEvent(event);
+    const anchor = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
+    const captureSpy = vi.fn();
+    anchor.addEventListener('keydown', captureSpy, true);
+    anchor.dispatchEvent(event);
     expect(event.defaultPrevented).toBe(false);
+    expect(captureSpy).toHaveBeenCalledOnce();
     expect(fixture.componentInstance.keySpy).toHaveBeenCalledOnce();
   });
 
@@ -124,15 +171,30 @@ describe('SlButtonLink', () => {
     expect(fixture.componentInstance.keySpy).toHaveBeenCalledOnce();
   });
 
-  it.each([true, 'true'] as const)('blocks raw aria-disabled %s before consumer handlers', async (ariaDisabled) => {
+  it.each([true, 'true'] as const)('blocks raw aria-disabled %s activation before consumer handlers', async (ariaDisabled) => {
     const fixture = TestBed.createComponent(TestHost);
     fixture.componentInstance.ariaDisabled.set(ariaDisabled);
     await fixture.whenStable();
     const anchor = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
+    const clickCaptureSpy = vi.fn();
+    const auxClickCaptureSpy = vi.fn();
+    const keyCaptureSpy = vi.fn();
+    anchor.addEventListener('click', clickCaptureSpy, true);
+    anchor.addEventListener('auxclick', auxClickCaptureSpy, true);
+    anchor.addEventListener('keydown', keyCaptureSpy, true);
     const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+    const auxClick = new MouseEvent('auxclick', { bubbles: true, cancelable: true });
+    const enter = keyboardEvent('Enter');
     anchor.dispatchEvent(click);
-    expect(click.defaultPrevented).toBe(true);
+    anchor.dispatchEvent(auxClick);
+    anchor.dispatchEvent(enter);
+    expect([click, auxClick, enter].every((event) => event.defaultPrevented)).toBe(true);
+    expect(clickCaptureSpy).not.toHaveBeenCalled();
+    expect(auxClickCaptureSpy).not.toHaveBeenCalled();
+    expect(keyCaptureSpy).not.toHaveBeenCalled();
     expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.auxClickSpy).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.keySpy).not.toHaveBeenCalled();
     expect(anchor.dataset['state']).toBeUndefined();
     expect(anchor.hasAttribute('tabindex')).toBe(false);
   });
@@ -144,5 +206,20 @@ describe('SlButtonLink', () => {
     const anchor = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
     anchor.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
+  });
+
+  it('removes its capture guard when destroyed', async () => {
+    const fixture = TestBed.createComponent(TestHost);
+    fixture.componentInstance.disabled.set(true);
+    await fixture.whenStable();
+    const anchor = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
+    fixture.destroy();
+    const observer = vi.fn((event: Event) => event.preventDefault());
+    anchor.addEventListener('click', observer, true);
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+
+    anchor.dispatchEvent(click);
+    expect(observer).toHaveBeenCalledOnce();
+    expect(click.defaultPrevented).toBe(true);
   });
 });
