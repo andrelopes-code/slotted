@@ -6,13 +6,13 @@ The Button family defines related action, navigation, toggle, icon-only, and gro
 
 ## Implemented Family
 
-| Member       | Purpose and native semantics                                                                 |
-| ------------ | -------------------------------------------------------------------------------------------- |
-| Button       | Performs an action; renders a native `button`.                                               |
-| ButtonLink   | Navigates; renders a native `a`.                                                             |
-| IconButton   | Performs an icon-only action and requires an explicit accessible name.                       |
-| ToggleButton | Represents a controlled pressed state.                                                       |
-| ButtonGroup  | Provides semantic grouping; orientation and exclusive behavior belong to the group contract. |
+| Member       | Native root               | Exclusive behavior                                                   |
+| ------------ | ------------------------- | -------------------------------------------------------------------- |
+| Button       | `button`                  | controlled loading and form type                                     |
+| ButtonLink   | `a`                       | native or router-owned navigation; documented disabled-link behavior |
+| IconButton   | `button`                  | mandatory `aria-label` or `aria-labelledby`                          |
+| ToggleButton | `button`                  | controlled `aria-pressed`                                            |
+| ButtonGroup  | `div` with `role="group"` | horizontal or vertical layout                                        |
 
 ## Invariants
 
@@ -28,7 +28,7 @@ The implemented family is the exact machine-readable surface in `contract.json`:
 
 ## Accessibility
 
-Visible text supplies the accessible name. IconButton always requires an explicit accessible name. Disabled uses the native disabled state where applicable. Focus is shown only for `:focus-visible`.
+Visible text supplies the accessible name. IconButton always requires an explicit `aria-label` or `aria-labelledby`. Disabled uses the native disabled state where applicable. Anchors have no native `disabled`; a disabled ButtonLink exposes `aria-disabled`, prevents activation and navigation, and stays out of the tab sequence as defined by adapters. Focus is shown only for `:focus-visible`.
 
 ## Theme Contract
 
@@ -36,7 +36,7 @@ Button consumes public `--slotted-*` custom properties. Internal classes are pri
 
 ## Capability Horizon
 
-Future slices may add RTL hardening, forced colors, SplitButton, and composed menu actions. This list is non-normative and is not an implementation backlog.
+Future slices may add RTL hardening, forced colors, SplitButton, and composed menu actions. New capabilities extend their owning member or introduce a new family member rather than accumulating on a polymorphic Button. This list is non-normative and is not an implementation backlog.
 
 ## Contract Escape Hatch
 
