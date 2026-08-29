@@ -30,6 +30,39 @@ describe('IconButton', () => {
     ).toThrow('IconButton requires aria-label or aria-labelledby');
   });
 
+  it.each(['', '   '])('rejects an empty aria-label of %j', (ariaLabel) => {
+    expect(() =>
+      render(
+        <IconButton {...({ 'aria-label': ariaLabel } as unknown as ComponentProps<typeof IconButton>)}>
+          ×
+        </IconButton>,
+      ),
+    ).toThrow('IconButton requires aria-label or aria-labelledby');
+  });
+
+  it.each(['', '   '])('rejects an empty aria-labelledby of %j', (ariaLabelledBy) => {
+    expect(() =>
+      render(
+        <IconButton
+          {...({ 'aria-labelledby': ariaLabelledBy } as unknown as ComponentProps<typeof IconButton>)}
+        >
+          ×
+        </IconButton>,
+      ),
+    ).toThrow('IconButton requires aria-label or aria-labelledby');
+  });
+
+  it('accepts a meaningful aria-labelledby reference', () => {
+    render(
+      <>
+        <span id="close-label">Close dialog</span>
+        <IconButton aria-labelledby="close-label">×</IconButton>
+      </>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Close dialog' })).toBeInTheDocument();
+  });
+
   it('blocks activation while loading without removing focus', () => {
     const onClick = vi.fn();
     render(
