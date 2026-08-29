@@ -51,7 +51,7 @@ describe('ButtonLink', () => {
     render(
       <ButtonLink
         ref={ref}
-        render={(rootProps) => <a {...rootProps} data-router-link="true" href="/router" />}
+        render={(rootProps) => <a href="/router" {...rootProps} data-router-link="true" />}
       >
         Router settings
       </ButtonLink>,
@@ -59,6 +59,130 @@ describe('ButtonLink', () => {
     const link = screen.getByRole('link', { name: 'Router settings' });
     expect(link).toHaveAttribute('data-router-link', 'true');
     expect(link).toHaveAttribute('data-variant', 'solid');
+    expect(link).toHaveAttribute('href', '/router');
     expect(ref.current).toBe(link);
   });
+
+  it('blocks disabled activation in capture before consumer capture and bubble handlers', () => {
+    const onClick = vi.fn();
+    const onClickCapture = vi.fn();
+    const onAuxClick = vi.fn();
+    const onAuxClickCapture = vi.fn();
+    const onKeyDown = vi.fn();
+    const onKeyDownCapture = vi.fn();
+    render(
+      <ButtonLink
+        disabled
+        href="#settings"
+        onAuxClick={onAuxClick}
+        onAuxClickCapture={onAuxClickCapture}
+        onClick={onClick}
+        onClickCapture={onClickCapture}
+        onKeyDown={onKeyDown}
+        onKeyDownCapture={onKeyDownCapture}
+      >
+        Settings
+      </ButtonLink>,
+    );
+    const link = screen.getByRole('link', { name: 'Settings' });
+
+    expect(fireEvent.click(link)).toBe(false);
+    expect(fireEvent(link, new MouseEvent('auxclick', { bubbles: true, cancelable: true }))).toBe(
+      false,
+    );
+    expect(fireEvent.keyDown(link, { key: 'Enter' })).toBe(false);
+    expect(fireEvent.keyDown(link, { key: ' ' })).toBe(false);
+    expect(onClickCapture).not.toHaveBeenCalled();
+    expect(onClick).not.toHaveBeenCalled();
+    expect(onAuxClickCapture).not.toHaveBeenCalled();
+    expect(onAuxClick).not.toHaveBeenCalled();
+    expect(onKeyDownCapture).not.toHaveBeenCalled();
+    expect(onKeyDown).not.toHaveBeenCalled();
+  });
+
+  it('composes non-activation keyboard and enabled handlers', () => {
+    const onClick = vi.fn();
+    const onClickCapture = vi.fn();
+    const onAuxClick = vi.fn();
+    const onAuxClickCapture = vi.fn();
+    const onKeyDown = vi.fn();
+    const onKeyDownCapture = vi.fn();
+    const { rerender } = render(
+      <ButtonLink
+        disabled
+        href="#settings"
+        onAuxClick={onAuxClick}
+        onAuxClickCapture={onAuxClickCapture}
+        onClick={onClick}
+        onClickCapture={onClickCapture}
+        onKeyDown={onKeyDown}
+        onKeyDownCapture={onKeyDownCapture}
+      >
+        Settings
+      </ButtonLink>,
+    );
+    const link = screen.getByRole('link', { name: 'Settings' });
+
+    expect(fireEvent.keyDown(link, { key: 'ArrowDown' })).toBe(true);
+    expect(onKeyDownCapture).toHaveBeenCalledOnce();
+    expect(onKeyDown).toHaveBeenCalledOnce();
+
+    rerender(
+      <ButtonLink
+        href="#settings"
+        onAuxClick={onAuxClick}
+        onAuxClickCapture={onAuxClickCapture}
+        onClick={onClick}
+        onClickCapture={onClickCapture}
+        onKeyDown={onKeyDown}
+        onKeyDownCapture={onKeyDownCapture}
+      >
+        Settings
+      </ButtonLink>,
+    );
+
+    fireEvent.click(link);
+    fireEvent(link, new MouseEvent('auxclick', { bubbles: true, cancelable: true }));
+    fireEvent.keyDown(link, { key: 'Enter' });
+    expect(onClickCapture).toHaveBeenCalledOnce();
+    expect(onClick).toHaveBeenCalledOnce();
+    expect(onAuxClickCapture).toHaveBeenCalledOnce();
+    expect(onAuxClick).toHaveBeenCalledOnce();
+    expect(onKeyDownCapture).toHaveBeenCalledTimes(2);
+    expect(onKeyDown).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([true, 'true'] as const)(
+    'treats aria-disabled=%s as disabled interaction state',
+    (ariaDisabled) => {
+      const onClick = vi.fn();
+      render(
+        <ButtonLink aria-disabled={ariaDisabled} href="#settings" onClick={onClick}>
+          Settings
+        </ButtonLink>,
+      );
+      const link = screen.getByRole('link', { name: 'Settings' });
+      expect(link).toHaveAttribute('aria-disabled', 'true');
+      expect(link).toHaveAttribute('data-state', 'disabled');
+      expect(link).toHaveAttribute('tabindex', '-1');
+      expect(fireEvent.click(link)).toBe(false);
+      expect(onClick).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([false, 'false', undefined] as const)(
+    'keeps aria-disabled=%s interactive',
+    (ariaDisabled) => {
+      const onClick = vi.fn();
+      render(
+        <ButtonLink aria-disabled={ariaDisabled} href="#settings" onClick={onClick}>
+          Settings
+        </ButtonLink>,
+      );
+      const link = screen.getByRole('link', { name: 'Settings' });
+      fireEvent.click(link);
+      expect(onClick).toHaveBeenCalledOnce();
+      expect(link).not.toHaveAttribute('data-state', 'disabled');
+    },
+  );
 });
