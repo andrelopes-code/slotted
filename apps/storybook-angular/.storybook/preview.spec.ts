@@ -44,6 +44,15 @@ describe('Angular Storybook preview', () => {
     });
   });
 
+  it('uses a compact wrapper for stories embedded in docs', () => {
+    expect(render({ globals: {}, viewMode: 'docs' })).toMatchObject({
+      props: { slottedEmbedded: true },
+    });
+    expect(render({ globals: {}, viewMode: 'story' })).toMatchObject({
+      props: { slottedEmbedded: false },
+    });
+  });
+
   it('uses the deterministic remote development host', async () => {
     const packageJson = await readFile(
       fileURLToPath(new URL('../package.json', import.meta.url)),

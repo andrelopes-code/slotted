@@ -16,11 +16,12 @@ const preview: Preview = {
   decorators: [
     componentWrapperDecorator(
       (story) =>
-        `<div class="slotted-workbench-preview" [attr.data-slotted-theme]="slottedTheme" [attr.data-slotted-scheme]="slottedScheme" [attr.data-slotted-density]="slottedDensity">${story}</div>`,
+        `<div class="slotted-workbench-preview" [class.slotted-workbench-preview--embedded]="slottedEmbedded" [attr.data-slotted-theme]="slottedTheme" [attr.data-slotted-scheme]="slottedScheme" [attr.data-slotted-density]="slottedDensity">${story}</div>`,
       (context) => {
         const values = resolveWorkbenchGlobals(context?.globals);
         return {
           slottedDensity: values.density,
+          slottedEmbedded: context?.viewMode === 'docs',
           slottedScheme: values.scheme,
           slottedTheme: values.theme,
         };

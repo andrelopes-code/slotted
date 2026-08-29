@@ -7,6 +7,23 @@ export function WorkbenchMatrix({
   columns: readonly string[];
   rows: readonly { label: string; cells: readonly ReactNode[] }[];
 }) {
+  for (const row of rows) {
+    const hasOneCellPerColumn = row.cells.length === columns.length;
+    const hasOnlyRenderableCells = row.cells.every(
+      (cell) =>
+        cell !== null &&
+        cell !== undefined &&
+        typeof cell !== 'boolean' &&
+        (typeof cell !== 'string' || cell.trim().length > 0),
+    );
+
+    if (!hasOneCellPerColumn || !hasOnlyRenderableCells) {
+      throw new Error(
+        `Matrix row "${row.label}" must provide one non-empty demonstration per column`,
+      );
+    }
+  }
+
   return (
     <div
       aria-label="Component comparison"

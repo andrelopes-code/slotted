@@ -3,11 +3,7 @@ import { createReferencePage, scenario } from '@slotted/storybook-workbench';
 import type { ReferencePageConfig } from '@slotted/storybook-workbench';
 import { REACT_BUTTON_DOCS, REACT_BUTTON_TOKENS } from './button.docs';
 import { IconButton } from './icon-button';
-const Icon = () => (
-  <svg aria-hidden="true" viewBox="0 0 16 16">
-    <path d="M3 8h10M8 3v10" />
-  </svg>
-);
+const Icon = () => <span aria-hidden="true" className="slotted-demo-icon" data-icon="plus" />;
 const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,
   matrix: States as never,
@@ -32,14 +28,13 @@ const meta = {
 } satisfies Meta<typeof IconButton>;
 export default meta;
 type Story = StoryObj<typeof meta>;
-const row = { display: 'flex', gap: 12 } as const;
 export const Playground: Story = {
   parameters: { ...scenario('playground'), controls: { disable: false } },
 };
 export const Sizes: Story = {
   parameters: scenario('sizes'),
   render: () => (
-    <div style={row}>
+    <div className="slotted-demo-row">
       {(['sm', 'md', 'lg'] as const).map((size) => (
         <IconButton aria-label={`Add ${size}`} key={size} size={size}>
           <Icon />
@@ -51,7 +46,7 @@ export const Sizes: Story = {
 export const States: Story = {
   parameters: scenario('states'),
   render: () => (
-    <div style={row}>
+    <div className="slotted-demo-row">
       <IconButton aria-label="Default">
         <Icon />
       </IconButton>

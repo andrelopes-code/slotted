@@ -6,6 +6,9 @@ import type { ReferencePageConfig } from '@slotted/storybook-workbench';
 import { ANGULAR_BUTTON_DOCS, ANGULAR_BUTTON_TOKENS } from './button.docs';
 import { SlButtonLink } from './button-link';
 
+const externalIcon =
+  '<span slButtonTrailing aria-hidden="true" class="slotted-demo-icon" data-icon="external"></span>';
+
 const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,
   matrix: States as never,
@@ -38,8 +41,7 @@ export const Playground: Story = {
 export const States: Story = {
   parameters: scenario('states'),
   render: () => ({
-    template:
-      '<div style="display:flex;gap:12px"><a slButtonLink href="/settings">Default</a><a slButtonLink href="/settings" disabled>Disabled</a></div>',
+    template: `<div class="slotted-demo-stage"><div class="slotted-demo-row"><a slButtonLink href="/settings">Settings${externalIcon}</a><a slButtonLink href="/settings" disabled>Disabled${externalIcon}</a></div></div>`,
   }),
 };
 export const RouterIntegration: Story = {
@@ -48,7 +50,9 @@ export const RouterIntegration: Story = {
     moduleMetadata({ imports: [SlButtonLink, RouterLink] }),
   ],
   parameters: scenario('routerIntegration'),
-  render: () => ({ template: '<a slButtonLink routerLink="/settings">Settings</a>' }),
+  render: () => ({
+    template: `<a slButtonLink routerLink="/settings">Settings${externalIcon}</a>`,
+  }),
 };
 export const Accessibility: Story = {
   parameters: scenario('accessibility'),

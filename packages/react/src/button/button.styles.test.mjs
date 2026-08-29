@@ -70,6 +70,7 @@ test('styles button group seams and focus layering with logical properties', () 
     'display: inline-flex;',
     'gap: var(--slotted-button-group-gap, 0px);',
     'isolation: isolate;',
+    'vertical-align: middle;',
   ]);
   assertRuleDeclarations(".slotted-button-group[data-orientation='vertical']", [
     'flex-direction: column;',
@@ -104,5 +105,17 @@ test('styles button group seams and focus layering with logical properties', () 
       'border-end-end-radius: var(--slotted-button-group-inner-radius, 0px);',
     ],
   );
-  assertRuleDeclarations('.slotted-button-group > .slotted-button:focus-visible', ['z-index: 1;']);
+  assertRuleDeclarations(
+    ".slotted-button-group > .slotted-button:hover:not([data-state='pressed'])",
+    ['z-index: 1;'],
+  );
+  assertRuleDeclarations('.slotted-button-group > .slotted-button:focus-visible', ['z-index: 2;']);
+});
+
+test('sizes consumer supplied SVG icons without imposing an icon visual language', () => {
+  assertRuleDeclarations('.slotted-button [data-part] > svg', [
+    'block-size: 100%;',
+    'display: block;',
+    'inline-size: 100%;',
+  ]);
 });

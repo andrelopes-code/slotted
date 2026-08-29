@@ -16,10 +16,16 @@ const preview: Preview = {
   decorators: [
     (Story, context) => {
       const values = resolveWorkbenchGlobals(context?.globals);
+      const className = [
+        'slotted-workbench-preview',
+        context?.viewMode === 'docs' ? 'slotted-workbench-preview--embedded' : undefined,
+      ]
+        .filter(Boolean)
+        .join(' ');
 
       return (
         <div
-          className="slotted-workbench-preview"
+          className={className}
           data-slotted-theme={values.theme}
           data-slotted-scheme={values.scheme}
           data-slotted-density={values.density}

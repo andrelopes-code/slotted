@@ -3,6 +3,10 @@ import { createReferencePage, scenario } from '@slotted/storybook-workbench';
 import type { ReferencePageConfig } from '@slotted/storybook-workbench';
 import { REACT_BUTTON_DOCS, REACT_BUTTON_TOKENS } from './button.docs';
 import { Button } from './button';
+
+function DemoIcon({ name }: { name: 'chevron-down' | 'save' }) {
+  return <span aria-hidden="true" className="slotted-demo-icon" data-icon={name} />;
+}
 const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,
   matrix: States as never,
@@ -27,38 +31,40 @@ const meta = {
 } satisfies Meta<typeof Button>;
 export default meta;
 type Story = StoryObj<typeof meta>;
-const row = { display: 'flex', flexWrap: 'wrap', gap: 12 } as const;
 export const Playground: Story = {
   parameters: { ...scenario('playground'), controls: { disable: false } },
 };
 export const States: Story = {
   parameters: scenario('states'),
   render: () => (
-    <div style={row}>
-      <Button>Default</Button>
-      <Button disabled>Disabled</Button>
-      <Button loading>Loading</Button>
+    <div className="slotted-demo-stage">
+      <div className="slotted-demo-row">
+        <Button>Default</Button>
+        <Button disabled>Disabled</Button>
+        <Button loading loadingText="Saving">
+          Save
+        </Button>
+      </div>
     </div>
   ),
 };
 export const Content: Story = {
   parameters: scenario('content'),
   render: () => (
-    <Button
-      leading={
-        <svg aria-hidden="true" viewBox="0 0 16 16">
-          <path d="M3 8h10M8 3v10" />
-        </svg>
-      }
-      trailing={<span aria-hidden="true">⌘S</span>}
-    >
+    <Button leading={<DemoIcon name="save" />} trailing={<DemoIcon name="chevron-down" />}>
       Save
     </Button>
   ),
 };
 export const FullWidth: Story = {
   parameters: scenario('fullWidth'),
-  render: () => <Button fullWidth>Full width action</Button>,
+  render: () => (
+    <div className="slotted-demo-measure">
+      <Button fullWidth leading={<DemoIcon name="save" />}>
+        Full width action
+      </Button>
+    </div>
+  ),
 };
 export const Loading: Story = {
   parameters: scenario('loading'),

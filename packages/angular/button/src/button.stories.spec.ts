@@ -56,4 +56,39 @@ describe('Angular Button family stories', () => {
       expect(templates).toContain(`id="${id}"`);
     }
   });
+
+  it('renders the overview as a structured lab with real icons and no empty icon controls', () => {
+    const template = overviewStories.Matrix.render?.({} as never, {} as never)?.template ?? '';
+    const host = document.createElement('div');
+    host.innerHTML = template;
+
+    expect(host.querySelectorAll('.slotted-component-lab__section')).toHaveLength(3);
+    expect(host.querySelectorAll('.slotted-demo-scene')).toHaveLength(6);
+
+    const iconButtons = host.querySelectorAll('button[sliconbutton]');
+    expect(iconButtons.length).toBeGreaterThan(0);
+    for (const iconButton of iconButtons) {
+      expect(iconButton.querySelector('.slotted-demo-icon[data-icon]')).not.toBeNull();
+    }
+
+    expect(template).not.toMatch(/[+⌄⌘]/u);
+  });
+
+  it('renders split actions as one coherent control with matching segments', () => {
+    const template = buttonGroupStories.SplitAction.render?.({} as never, {} as never)?.template;
+    const host = document.createElement('div');
+    host.innerHTML = template ?? '';
+
+    const group = host.querySelector('[slbuttongroup]');
+    const buttons = group?.querySelectorAll('button') ?? [];
+    expect(group?.classList.contains('slotted-split-action')).toBe(true);
+    expect(group?.getAttribute('aria-label')).toBe('Publish actions');
+    expect(buttons).toHaveLength(2);
+    for (const button of buttons) {
+      expect(button.getAttribute('size')).toBe('md');
+      expect(button.getAttribute('tone')).toBe('accent');
+      expect(button.getAttribute('variant')).toBe('solid');
+    }
+    expect(group?.querySelector(".slotted-demo-icon[data-icon='chevron-down']")).not.toBeNull();
+  });
 });

@@ -24,7 +24,7 @@ function WorkbenchSection({ children, title }: { children: ReactNode; title: str
   return (
     <section className="slotted-reference-page__section">
       <h2>{title}</h2>
-      {children}
+      <div className="slotted-reference-page__section-content">{children}</div>
     </section>
   );
 }

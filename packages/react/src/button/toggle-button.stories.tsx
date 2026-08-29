@@ -29,7 +29,6 @@ const meta = {
 } satisfies Meta<typeof ToggleButton>;
 export default meta;
 type Story = StoryObj<typeof meta>;
-const row = { display: 'flex', gap: 12 } as const;
 
 export function ToggleButtonStoryAdapter({
   onPressedChange,
@@ -66,10 +65,12 @@ export const Pressed: Story = {
 export const States: Story = {
   parameters: scenario('states'),
   render: () => (
-    <div style={row}>
-      <ToggleButton>Default</ToggleButton>
-      <ToggleButton pressed>Pressed</ToggleButton>
-      <ToggleButton disabled>Disabled</ToggleButton>
+    <div className="slotted-demo-stage">
+      <div className="slotted-demo-row">
+        <ToggleButton>Default</ToggleButton>
+        <ToggleButton pressed>Pressed</ToggleButton>
+        <ToggleButton disabled>Disabled</ToggleButton>
+      </div>
     </div>
   ),
 };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { createElement, Fragment } from 'react';
 
 import contract from '../../../../specs/components/button/contract.json';
@@ -72,5 +72,35 @@ describe('Button family stories', () => {
     for (const id of ['settings-help', 'pin-help']) {
       expect(document.getElementById(id)).not.toBeNull();
     }
+  });
+
+  it('renders the overview as a structured lab with real icons and no empty icon controls', () => {
+    const overview = overviewStories.Matrix.render?.({} as never, {} as never);
+    const { container } = render(createElement(Fragment, undefined, overview));
+
+    expect(container.querySelectorAll('.slotted-component-lab__section')).toHaveLength(3);
+    expect(container.querySelectorAll('.slotted-demo-scene')).toHaveLength(6);
+
+    const iconButtons = container.querySelectorAll('[data-slotted-component="icon-button"]');
+    expect(iconButtons.length).toBeGreaterThan(0);
+    for (const iconButton of iconButtons) {
+      expect(iconButton.querySelector('.slotted-demo-icon[data-icon]')).not.toBeNull();
+    }
+  });
+
+  it('renders split actions as one coherent control with matching segments', () => {
+    const splitAction = buttonGroupStories.SplitAction.render?.({} as never, {} as never);
+    const { container } = render(createElement(Fragment, undefined, splitAction));
+    const group = screen.getByRole('group', { name: 'Publish actions' });
+    const buttons = within(group).getAllByRole('button');
+
+    expect(group).toHaveClass('slotted-split-action');
+    expect(buttons).toHaveLength(2);
+    for (const button of buttons) {
+      expect(button).toHaveAttribute('data-size', 'md');
+      expect(button).toHaveAttribute('data-tone', 'accent');
+      expect(button).toHaveAttribute('data-variant', 'solid');
+    }
+    expect(container.querySelector(".slotted-demo-icon[data-icon='chevron-down']")).not.toBeNull();
   });
 });

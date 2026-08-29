@@ -18,6 +18,17 @@ describe('workbench data tables', () => {
     expect(screen.getByRole('cell', { name: 'Save' })).toBeInTheDocument();
   });
 
+  it('rejects incomplete matrix rows instead of rendering empty demonstrations', () => {
+    expect(() =>
+      render(
+        <WorkbenchMatrix
+          columns={['Neutral', 'Accent']}
+          rows={[{ label: 'Solid', cells: ['Save', null] }]}
+        />,
+      ),
+    ).toThrow('Matrix row "Solid" must provide one non-empty demonstration per column');
+  });
+
   it('makes API and token overflow regions named and keyboard focusable', () => {
     const Page = createReferencePage({
       accessibility: [],

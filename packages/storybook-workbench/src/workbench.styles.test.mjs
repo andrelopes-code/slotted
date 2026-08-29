@@ -18,3 +18,48 @@ test('workbench CSS keeps the reference-sheet layout and accessibility invariant
     /\.slotted-matrix-scroll:focus-visible,[\s\S]*?\.slotted-token-scroll:focus-visible\s*\{/,
   );
 });
+
+test('workbench CSS composes demonstrations as a continuous component lab', () => {
+  assert.match(
+    css,
+    /\.slotted-component-lab\s*\{[\s\S]*?border:\s*1px solid var\(--slotted-workbench-border\)/,
+  );
+  assert.match(
+    css,
+    /\.slotted-component-lab__section\s*\{[\s\S]*?grid-template-columns:\s*minmax\(150px, 0\.24fr\) minmax\(0, 1fr\)/,
+  );
+  assert.match(
+    css,
+    /\.slotted-demo-grid\s*\{[\s\S]*?display:\s*grid[\s\S]*?gap:\s*var\(--slotted-workbench-scene-gap\)/,
+  );
+  assert.match(css, /\.slotted-demo-row\s*\{[\s\S]*?align-items:\s*center/);
+  assert.match(css, /\.slotted-demo-scene__label\s*\{[\s\S]*?font-weight:\s*700/);
+});
+
+test('workbench CSS gives matrices stable geometry and centered non-empty cells', () => {
+  assert.match(css, /\.slotted-matrix\s*\{[\s\S]*?inline-size:\s*100%/);
+  assert.match(css, /\.slotted-matrix__cell\s*\{[\s\S]*?text-align:\s*center/);
+  assert.match(css, /\.slotted-matrix__cell\s*>\s*\*\s*\{[\s\S]*?vertical-align:\s*middle/);
+});
+
+test('workbench CSS supplies a portable currentColor icon set for every demonstration', () => {
+  assert.match(
+    css,
+    /\.slotted-demo-icon\s*\{[\s\S]*?background-color:\s*currentColor[\s\S]*?mask-position:\s*center/,
+  );
+
+  for (const name of ['save', 'chevron-down', 'plus', 'undo', 'redo', 'trash', 'external']) {
+    assert.match(css, new RegExp(`\\.slotted-demo-icon\\[data-icon='${name}'\\]\\s*\\{`));
+  }
+});
+
+test('embedded docs canvases do not become empty viewport-height demonstrations', () => {
+  assert.match(
+    css,
+    /\.slotted-workbench-preview--embedded\s*\{[\s\S]*?background:\s*transparent;[\s\S]*?min-block-size:\s*0;[\s\S]*?padding:\s*0;/,
+  );
+  assert.match(
+    css,
+    /@media \(max-width:\s*760px\)\s*\{[\s\S]*?\.slotted-workbench-preview:not\(\.slotted-workbench-preview--embedded\)\s*\{[\s\S]*?padding:\s*12px;/,
+  );
+});

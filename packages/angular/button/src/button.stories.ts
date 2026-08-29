@@ -5,6 +5,10 @@ import type { ReferencePageConfig } from '@slotted/storybook-workbench';
 import { ANGULAR_BUTTON_DOCS, ANGULAR_BUTTON_TOKENS } from './button.docs';
 import { SlButton } from './button';
 
+type DemoIconName = 'chevron-down' | 'save';
+const demoIcon = (name: DemoIconName, marker: 'slButtonLeading' | 'slButtonTrailing') =>
+  `<span ${marker} aria-hidden="true" class="slotted-demo-icon" data-icon="${name}"></span>`;
+
 interface ButtonStoryArgs {
   disabled: boolean;
   fullWidth: boolean;
@@ -64,19 +68,20 @@ export const States: Story = {
   parameters: scenario('states'),
   render: () => ({
     template:
-      '<div style="display:flex;gap:12px"><button slButton>Default</button><button slButton disabled>Disabled</button><button slButton loading>Loading</button></div>',
+      '<div class="slotted-demo-stage"><div class="slotted-demo-row"><button slButton>Default</button><button slButton disabled>Disabled</button><button slButton loading loadingText="Saving">Save</button></div></div>',
   }),
 };
 export const Content: Story = {
   parameters: scenario('content'),
   render: () => ({
-    template:
-      '<button slButton><span slButtonLeading aria-hidden="true">+</span>Save<span slButtonTrailing aria-hidden="true">⌘S</span></button>',
+    template: `<button slButton>${demoIcon('save', 'slButtonLeading')}Save${demoIcon('chevron-down', 'slButtonTrailing')}</button>`,
   }),
 };
 export const FullWidth: Story = {
   parameters: scenario('fullWidth'),
-  render: () => ({ template: '<button slButton fullWidth>Full width action</button>' }),
+  render: () => ({
+    template: `<div class="slotted-demo-measure"><button slButton fullWidth>${demoIcon('save', 'slButtonLeading')}Full width action</button></div>`,
+  }),
 };
 export const Loading: Story = {
   parameters: scenario('loading'),

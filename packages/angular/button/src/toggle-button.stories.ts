@@ -45,7 +45,7 @@ export const States: Story = {
   parameters: scenario('states'),
   render: () => ({
     template:
-      '<div style="display:flex;gap:12px"><button slToggleButton [(pressed)]="defaultPressed">Default</button><button slToggleButton [pressed]="true">Pressed</button><button slToggleButton disabled>Disabled</button></div>',
+      '<div class="slotted-demo-stage"><div class="slotted-demo-row"><button slToggleButton [(pressed)]="defaultPressed">Default</button><button slToggleButton [pressed]="true">Pressed</button><button slToggleButton disabled>Disabled</button></div></div>',
     props: { defaultPressed: false },
   }),
 };

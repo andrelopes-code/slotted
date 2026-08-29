@@ -5,6 +5,8 @@ import type { ReferencePageConfig } from '@slotted/storybook-workbench';
 import { ANGULAR_BUTTON_DOCS, ANGULAR_BUTTON_TOKENS } from './button.docs';
 import { SlIconButton } from './icon-button';
 
+const plusIcon = '<span aria-hidden="true" class="slotted-demo-icon" data-icon="plus"></span>';
+
 const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,
   matrix: States as never,
@@ -27,7 +29,7 @@ const meta: Meta = {
       }),
     },
   },
-  render: () => ({ template: '<button slIconButton aria-label="Add">+</button>' }),
+  render: () => ({ template: `<button slIconButton aria-label="Add">${plusIcon}</button>` }),
 };
 export default meta;
 type Story = StoryObj;
@@ -37,22 +39,24 @@ export const Playground: Story = {
 export const Sizes: Story = {
   parameters: scenario('sizes'),
   render: () => ({
-    template:
-      '<div style="display:flex;gap:12px"><button slIconButton aria-label="Add small" size="sm">+</button><button slIconButton aria-label="Add medium" size="md">+</button><button slIconButton aria-label="Add large" size="lg">+</button></div>',
+    template: `<div class="slotted-demo-row"><button slIconButton aria-label="Add small" size="sm">${plusIcon}</button><button slIconButton aria-label="Add medium" size="md">${plusIcon}</button><button slIconButton aria-label="Add large" size="lg">${plusIcon}</button></div>`,
   }),
 };
 export const States: Story = {
   parameters: scenario('states'),
   render: () => ({
-    template:
-      '<div style="display:flex;gap:12px"><button slIconButton aria-label="Default">+</button><button slIconButton aria-label="Disabled" disabled>+</button></div>',
+    template: `<div class="slotted-demo-row"><button slIconButton aria-label="Add item">${plusIcon}</button><button slIconButton aria-label="Add item disabled" disabled>${plusIcon}</button></div>`,
   }),
 };
 export const Loading: Story = {
   parameters: scenario('loading'),
-  render: () => ({ template: '<button slIconButton aria-label="Saving" loading>+</button>' }),
+  render: () => ({
+    template: `<button slIconButton aria-label="Saving" loading>${plusIcon}</button>`,
+  }),
 };
 export const Accessibility: Story = {
   parameters: scenario('accessibility'),
-  render: () => ({ template: '<button slIconButton aria-label="Add item">+</button>' }),
+  render: () => ({
+    template: `<button slIconButton aria-label="Add item">${plusIcon}</button>`,
+  }),
 };

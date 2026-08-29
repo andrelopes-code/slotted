@@ -228,11 +228,19 @@
     justify-content: center;
   }
 
+  .slotted-button [data-part] > svg {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+  }
+
   .slotted-button-group {
     align-items: stretch;
     display: inline-flex;
     gap: var(--slotted-button-group-gap, 0px);
     isolation: isolate;
+    max-inline-size: 100%;
+    vertical-align: middle;
   }
 
   .slotted-button-group[data-orientation='vertical'] {
@@ -261,8 +269,12 @@
     border-end-end-radius: var(--slotted-button-group-inner-radius, 0px);
   }
 
-  .slotted-button-group > .slotted-button:focus-visible {
+  .slotted-button-group > .slotted-button:hover:not([data-state='pressed']) {
     z-index: 1;
+  }
+
+  .slotted-button-group > .slotted-button:focus-visible {
+    z-index: 2;
   }
 
   @media (prefers-reduced-motion: reduce) {
