@@ -1,28 +1,61 @@
 {
-  "component": "button",
-  "nativeElement": "button",
-  "defaults": {
-    "variant": "solid",
-    "tone": "accent",
-    "size": "md",
-    "type": "button"
-  },
+  "schemaVersion": 2,
+  "family": "button",
   "axes": {
     "variant": ["solid", "outline", "ghost"],
-    "tone": ["accent", "neutral", "danger"],
+    "tone": ["neutral", "accent", "success", "warning", "danger"],
     "size": ["sm", "md", "lg"]
   },
-  "states": ["default", "hover", "active", "focus-visible", "disabled"],
-  "parts": ["leading", "label", "trailing"],
-  "stories": [
-    "overview",
-    "variants",
-    "tones",
-    "sizes",
-    "states",
-    "content",
-    "densities",
-    "schemes",
-    "accessibility"
-  ]
+  "orientations": ["horizontal", "vertical"],
+  "members": {
+    "button": {
+      "nativeElement": "button",
+      "defaults": { "variant": "solid", "tone": "accent", "size": "md", "type": "button" },
+      "capabilities": ["appearance", "content", "fullWidth", "disabled", "loading"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled", "loading"],
+      "parts": ["leading", "label", "trailing", "loading-indicator"]
+    },
+    "buttonLink": {
+      "nativeElement": "a",
+      "defaults": { "variant": "solid", "tone": "accent", "size": "md" },
+      "capabilities": ["appearance", "content", "fullWidth", "disabled"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled"],
+      "parts": ["leading", "label", "trailing"]
+    },
+    "iconButton": {
+      "nativeElement": "button",
+      "defaults": { "variant": "ghost", "tone": "neutral", "size": "md", "type": "button" },
+      "capabilities": ["appearance", "fullWidth", "disabled", "loading"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled", "loading"],
+      "parts": ["icon", "loading-indicator"]
+    },
+    "toggleButton": {
+      "nativeElement": "button",
+      "defaults": {
+        "variant": "outline",
+        "tone": "neutral",
+        "size": "md",
+        "type": "button",
+        "pressed": false
+      },
+      "capabilities": ["appearance", "content", "fullWidth", "disabled", "pressed"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled", "pressed"],
+      "parts": ["leading", "label", "trailing"]
+    },
+    "buttonGroup": {
+      "nativeElement": "div",
+      "defaults": { "orientation": "horizontal" },
+      "capabilities": ["orientation"],
+      "states": [],
+      "parts": ["group"]
+    }
+  },
+  "scenarios": {
+    "overview": ["matrix", "themes", "densities"],
+    "button": ["playground", "states", "content", "fullWidth", "loading", "accessibility"],
+    "buttonLink": ["playground", "states", "routerIntegration", "accessibility"],
+    "iconButton": ["playground", "sizes", "states", "loading", "accessibility"],
+    "toggleButton": ["playground", "pressed", "states", "accessibility"],
+    "buttonGroup": ["playground", "orientations", "splitAction", "accessibility"]
+  }
 }

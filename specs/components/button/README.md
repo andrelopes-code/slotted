@@ -1,24 +1,34 @@
-# Button Contract
+# Button Family Contract
 
 ## Purpose
 
-Button performs an immediate action. Navigation belongs to the future LinkButton family member, and pressed state belongs to ToggleButton.
+The Button family defines related action, navigation, toggle, icon-only, and grouping semantics. Its machine-readable contract describes shared axes, each member's defaults, parts, capabilities, states, and the scenarios that document the family.
+
+## Implemented Family
+
+| Member       | Purpose and native semantics                                                                 |
+| ------------ | -------------------------------------------------------------------------------------------- |
+| Button       | Performs an action; renders a native `button`.                                               |
+| ButtonLink   | Navigates; renders a native `a`.                                                             |
+| IconButton   | Performs an icon-only action and requires an explicit accessible name.                       |
+| ToggleButton | Represents a controlled pressed state.                                                       |
+| ButtonGroup  | Provides semantic grouping; orientation and exclusive behavior belong to the group contract. |
 
 ## Invariants
 
-- Render a native `button` in both frameworks.
-- Default `type` to `button`; preserve explicit `submit` and `reset`.
+- Members use their declared native elements and semantic defaults.
+- Button, IconButton, and ToggleButton default `type` to `button`; Button preserves explicit `submit` and `reset`.
 - Preserve native attributes, events, focus, disabled behavior, and accessible naming.
 - Use logical leading and trailing parts rather than left and right.
-- Keep React and Angular semantics and visual axes equivalent without sharing runtime code.
+- Keep React and Angular semantics and shared family axes equivalent without sharing runtime code.
 
 ## Implemented Slice
 
-The implemented slice is the exact machine-readable surface in `contract.json`.
+The implemented family is the exact machine-readable surface in `contract.json`: shared axes and orientations, member definitions with defaults, parts, capabilities, and states, plus page scenarios.
 
 ## Accessibility
 
-Visible text supplies the accessible name. Icon-only usage is not part of this slice; future IconButton requires an explicit accessible name. Disabled uses the native disabled state. Focus is shown only for `:focus-visible`.
+Visible text supplies the accessible name. IconButton always requires an explicit accessible name. Disabled uses the native disabled state where applicable. Focus is shown only for `:focus-visible`.
 
 ## Theme Contract
 
@@ -26,7 +36,7 @@ Button consumes public `--slotted-*` custom properties. Internal classes are pri
 
 ## Capability Horizon
 
-Future slices may add loading, icon-only actions, full-width layout, RTL hardening, forced colors, LinkButton, ToggleButton, ButtonGroup, SplitButton, and composed menu actions. This list is non-normative and is not an implementation backlog.
+Future slices may add RTL hardening, forced colors, SplitButton, and composed menu actions. This list is non-normative and is not an implementation backlog.
 
 ## Contract Escape Hatch
 
