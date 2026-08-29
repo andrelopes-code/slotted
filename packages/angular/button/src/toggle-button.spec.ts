@@ -152,17 +152,24 @@ describe('SlToggleButton', () => {
     expect(fixture.componentInstance.order).toEqual(['click']);
   });
 
-  it('uses native disabled state and disabled data state in preference to pressed', async () => {
+  it('actively blocks cancelable activation while explicitly disabled and gives disabled state priority over pressed', async () => {
     const fixture = TestBed.createComponent(ControlledHost);
     fixture.componentInstance.pressed.set(true);
     fixture.componentInstance.disabled.set(true);
     await fixture.whenStable();
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    const laterCapture = vi.fn();
+    button.addEventListener('click', laterCapture, true);
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
 
     button.click();
+    button.dispatchEvent(event);
 
     expect(button.disabled).toBe(true);
     expect(button.dataset['state']).toBe('disabled');
+    expect(event.defaultPrevented).toBe(true);
+    expect(laterCapture).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
     expect(fixture.componentInstance.pressedChangeSpy).not.toHaveBeenCalled();
   });
 
