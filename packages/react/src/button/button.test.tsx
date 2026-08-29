@@ -78,22 +78,51 @@ describe('Button', () => {
 
   it('blocks activation while loading and preserves focus and name', () => {
     const onClick = vi.fn();
-    const { rerender } = render(<Button onClick={onClick}>Save</Button>);
+    const onClickCapture = vi.fn();
+    const { rerender } = render(
+      <Button onClick={onClick} onClickCapture={onClickCapture}>
+        Save
+      </Button>,
+    );
     const button = screen.getByRole('button', { name: 'Save' });
     button.focus();
     rerender(
-      <Button loading onClick={onClick}>
+      <Button loading onClick={onClick} onClickCapture={onClickCapture}>
         Save
       </Button>,
     );
     fireEvent.click(button);
     expect(onClick).not.toHaveBeenCalled();
+    expect(onClickCapture).not.toHaveBeenCalled();
     expect(button).not.toBeDisabled();
     expect(button).toHaveFocus();
     expect(button).toHaveAttribute('aria-busy', 'true');
     expect(button).toHaveAttribute('aria-disabled', 'true');
     expect(button).toHaveAttribute('data-state', 'loading');
     expect(screen.getByRole('button', { name: 'Save' })).toBe(button);
+  });
+
+  it('blocks true aria-disabled activation before caller handlers while false remains interactive', () => {
+    const onClick = vi.fn();
+    const onClickCapture = vi.fn();
+    const { rerender } = render(
+      <Button aria-disabled="true" onClick={onClick} onClickCapture={onClickCapture}>
+        Save
+      </Button>,
+    );
+    const button = screen.getByRole('button', { name: 'Save' });
+    fireEvent.click(button);
+    expect(onClick).not.toHaveBeenCalled();
+    expect(onClickCapture).not.toHaveBeenCalled();
+
+    rerender(
+      <Button aria-disabled="false" onClick={onClick} onClickCapture={onClickCapture}>
+        Save
+      </Button>,
+    );
+    fireEvent.click(button);
+    expect(onClick).toHaveBeenCalledOnce();
+    expect(onClickCapture).toHaveBeenCalledOnce();
   });
 
   it('supports explicit loading text and indicator content', () => {
@@ -107,5 +136,14 @@ describe('Button', () => {
       'aria-hidden',
       'true',
     );
+  });
+
+  it('keeps the child label accessible for non-rendering loading text', () => {
+    render(
+      <Button loading loadingText={null}>
+        Save
+      </Button>,
+    );
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
   });
 });

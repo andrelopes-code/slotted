@@ -17,6 +17,7 @@ export function Button({
   loadingIndicator,
   loadingText,
   onClick,
+  onClickCapture,
   size = BUTTON_DEFAULTS.size,
   tone = BUTTON_DEFAULTS.tone,
   trailing,
@@ -24,6 +25,7 @@ export function Button({
   variant = BUTTON_DEFAULTS.variant,
   ...nativeProps
 }: ButtonProps) {
+  const interactionBlocked = loading || ariaDisabled === true || ariaDisabled === 'true';
   const state = disabled ? 'disabled' : loading ? 'loading' : undefined;
 
   return (
@@ -35,8 +37,12 @@ export function Button({
       className={buttonClassName(className)}
       disabled={disabled}
       onClick={(event) => {
-        if (loading) return blockActivation(event);
+        if (interactionBlocked) return blockActivation(event);
         onClick?.(event);
+      }}
+      onClickCapture={(event) => {
+        if (interactionBlocked) return blockActivation(event);
+        onClickCapture?.(event);
       }}
       type={type}
     >

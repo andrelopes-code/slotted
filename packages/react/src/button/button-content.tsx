@@ -13,6 +13,10 @@ function DefaultLoadingIndicator() {
   return <span className="slotted-button__spinner" />;
 }
 
+function hasRenderableLoadingText(loadingText: ReactNode) {
+  return loadingText !== null && loadingText !== undefined && typeof loadingText !== 'boolean';
+}
+
 export function ButtonContentLayer({
   children,
   leading,
@@ -21,7 +25,8 @@ export function ButtonContentLayer({
   loadingText,
   trailing,
 }: ButtonContentLayerProps) {
-  const replacesAccessibleLabel = loading && loadingText !== undefined;
+  const rendersLoadingText = hasRenderableLoadingText(loadingText);
+  const replacesAccessibleLabel = loading && rendersLoadingText;
 
   return (
     <>
@@ -39,7 +44,7 @@ export function ButtonContentLayer({
           <span aria-hidden="true" data-part="loading-indicator">
             {loadingIndicator ?? <DefaultLoadingIndicator />}
           </span>
-          {loadingText === undefined ? null : <span>{loadingText}</span>}
+          {rendersLoadingText ? <span>{loadingText}</span> : null}
         </span>
       ) : null}
     </>
