@@ -4,6 +4,7 @@ const config: StorybookConfig = {
   framework: '@storybook/react-vite',
   stories: ['../../../packages/react/src/**/*.stories.@(ts|tsx)'],
   addons: ['@storybook/addon-docs', '@storybook/addon-a11y'],
+  docs: { defaultName: 'Reference' },
   typescript: { reactDocgen: 'react-docgen' },
 };
 

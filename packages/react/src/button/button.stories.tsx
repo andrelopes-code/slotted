@@ -1,113 +1,79 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-
+import { createReferencePage, scenario } from '@slotted/storybook-workbench';
+import type { ReferencePageConfig } from '@slotted/storybook-workbench';
+import { REACT_BUTTON_DOCS, REACT_BUTTON_TOKENS } from './button.docs';
 import { Button } from './button';
-
+const referenceStories: ReferencePageConfig['stories'] = () => ({
+  essential: Playground as never,
+  matrix: States as never,
+});
 const meta = {
-  title: 'Components/Button',
+  title: 'Components/Button family/Button',
   component: Button,
-  tags: ['autodocs'],
   args: { children: 'Save changes' },
-  argTypes: {
-    variant: { control: 'select', options: ['solid', 'outline', 'ghost'] },
-    tone: { control: 'select', options: ['accent', 'neutral', 'danger'] },
-    size: { control: 'select', options: ['sm', 'md', 'lg'] },
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      page: createReferencePage({
+        title: 'Button',
+        description: 'Native action control with controlled loading.',
+        framework: 'React',
+        ...REACT_BUTTON_DOCS.button,
+        tokens: REACT_BUTTON_TOKENS,
+        stories: referenceStories,
+      }),
+    },
   },
 } satisfies Meta<typeof Button>;
-
 export default meta;
 type Story = StoryObj<typeof meta>;
-
-const rowStyle = { display: 'flex', flexWrap: 'wrap', gap: 12 } as const;
-
-export const Overview: Story = {};
-
-export const Variants: Story = {
-  render: () => (
-    <div style={rowStyle}>
-      {(['solid', 'outline', 'ghost'] as const).map((variant) => (
-        <Button key={variant} variant={variant}>
-          {variant}
-        </Button>
-      ))}
-    </div>
-  ),
+const row = { display: 'flex', flexWrap: 'wrap', gap: 12 } as const;
+export const Playground: Story = {
+  parameters: { ...scenario('playground'), controls: { disable: false } },
 };
-
-export const Tones: Story = {
-  render: () => (
-    <div style={rowStyle}>
-      {(['accent', 'neutral', 'danger'] as const).map((tone) => (
-        <Button key={tone} tone={tone}>
-          {tone}
-        </Button>
-      ))}
-    </div>
-  ),
-};
-
-export const Sizes: Story = {
-  render: () => (
-    <div style={rowStyle}>
-      {(['sm', 'md', 'lg'] as const).map((size) => (
-        <Button key={size} size={size}>
-          {size}
-        </Button>
-      ))}
-    </div>
-  ),
-};
-
 export const States: Story = {
+  parameters: scenario('states'),
   render: () => (
-    <div style={rowStyle}>
-      <Button>Enabled</Button>
+    <div style={row}>
+      <Button>Default</Button>
       <Button disabled>Disabled</Button>
+      <Button loading>Loading</Button>
     </div>
   ),
 };
-
 export const Content: Story = {
+  parameters: scenario('content'),
   render: () => (
     <Button
-      leading={<span aria-hidden="true">+</span>}
+      leading={
+        <svg aria-hidden="true" viewBox="0 0 16 16">
+          <path d="M3 8h10M8 3v10" />
+        </svg>
+      }
       trailing={<span aria-hidden="true">⌘S</span>}
     >
-      Create
+      Save
     </Button>
   ),
 };
-
-export const Densities: Story = {
+export const FullWidth: Story = {
+  parameters: scenario('fullWidth'),
+  render: () => <Button fullWidth>Full width action</Button>,
+};
+export const Loading: Story = {
+  parameters: scenario('loading'),
   render: () => (
-    <div style={rowStyle}>
-      <div data-slotted-density="comfortable">
-        <Button>Comfortable</Button>
-      </div>
-      <div data-slotted-density="compact">
-        <Button>Compact</Button>
-      </div>
-    </div>
+    <Button loading loadingText="Saving">
+      Save
+    </Button>
   ),
 };
-
-export const Schemes: Story = {
-  render: () => (
-    <div style={rowStyle}>
-      <div data-slotted-scheme="light" style={{ padding: 16, background: '#f8fafc' }}>
-        <Button>Light</Button>
-      </div>
-      <div data-slotted-scheme="dark" style={{ padding: 16, background: '#111827' }}>
-        <Button>Dark</Button>
-      </div>
-    </div>
-  ),
-};
-
 export const Accessibility: Story = {
+  parameters: scenario('accessibility'),
   render: () => (
-    <div>
+    <>
       <Button aria-describedby="save-help">Save</Button>
       <p id="save-help">Saves the current document.</p>
-    </div>
+    </>
   ),
 };
