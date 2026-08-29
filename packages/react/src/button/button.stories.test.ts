@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { createElement, Fragment } from 'react';
 
 import contract from '../../../../specs/components/button/contract.json';
 import {
@@ -15,6 +17,7 @@ import * as buttonLinkStories from './button-link.stories';
 import * as iconButtonStories from './icon-button.stories';
 import * as toggleButtonStories from './toggle-button.stories';
 import * as buttonGroupStories from './button-group.stories';
+import { ToggleButtonStoryAdapter } from './toggle-button.stories';
 
 const storyModules = {
   overview: overviewStories,
@@ -50,5 +53,24 @@ describe('Button family stories', () => {
   it('keeps curated snippets formatted', async () => {
     const snippets = Object.values(REACT_BUTTON_DOCS).flatMap((docs) => docs.snippets);
     expect(await snippetFormatErrors(snippets)).toEqual([]);
+  });
+
+  it('makes the controlled ToggleButton story adapter interactive', () => {
+    render(createElement(ToggleButtonStoryAdapter, undefined, 'Pin'));
+
+    const button = screen.getByRole('button', { name: 'Pin' });
+    expect(button).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(button);
+    expect(button).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('renders descriptions referenced by accessibility stories', () => {
+    const buttonLink = buttonLinkStories.Accessibility.render?.({} as never, {} as never);
+    const toggleButton = toggleButtonStories.Accessibility.render?.({} as never, {} as never);
+    render(createElement(Fragment, undefined, buttonLink, toggleButton));
+
+    for (const id of ['settings-help', 'pin-help']) {
+      expect(document.getElementById(id)).not.toBeNull();
+    }
   });
 });

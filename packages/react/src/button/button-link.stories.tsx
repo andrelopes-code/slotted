@@ -53,8 +53,13 @@ export const RouterIntegration: Story = {
 export const Accessibility: Story = {
   parameters: scenario('accessibility'),
   render: () => (
-    <ButtonLink href="/settings" aria-describedby="settings-help">
-      Settings
-    </ButtonLink>
+    <>
+      <ButtonLink href="/settings" aria-describedby="settings-help">
+        Settings
+      </ButtonLink>
+      <span className="slotted-visually-hidden" id="settings-help">
+        Opens account settings.
+      </span>
+    </>
   ),
 };
