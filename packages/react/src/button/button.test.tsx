@@ -70,10 +70,7 @@ describe('Button', () => {
 
   it('exposes full-width layout without changing semantics', () => {
     render(<Button fullWidth>Save</Button>);
-    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute(
-      'data-full-width',
-      '',
-    );
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('data-full-width', '');
   });
 
   it('blocks activation while loading and preserves focus and name', () => {

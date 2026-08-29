@@ -10,7 +10,13 @@ import {
 } from '@angular/core';
 
 import { blockActivation, buttonState } from './button-appearance';
-import { BUTTON_DEFAULTS, type ButtonSize, type ButtonTone, type ButtonType, type ButtonVariant } from './button.constants';
+import {
+  BUTTON_DEFAULTS,
+  type ButtonSize,
+  type ButtonTone,
+  type ButtonType,
+  type ButtonVariant,
+} from './button.constants';
 
 @Component({
   selector: 'button[slButton]',
@@ -69,17 +75,23 @@ export class SlButton {
     const loadingText = this.loadingText();
     return typeof loadingText === 'string' && loadingText.trim().length > 0;
   });
-  readonly replacesAccessibleLabel = computed(() => this.loading() && this.hasMeaningfulLoadingText());
+  readonly replacesAccessibleLabel = computed(
+    () => this.loading() && this.hasMeaningfulLoadingText(),
+  );
   readonly interactionBlocked = computed(
     () => this.loading() || this.ariaDisabled() === true || this.ariaDisabled() === 'true',
   );
-  readonly state = computed(() => buttonState({ disabled: this.disabled(), loading: this.loading() }));
+  readonly state = computed(() =>
+    buttonState({ disabled: this.disabled(), loading: this.loading() }),
+  );
 
   constructor() {
     const element = inject(ElementRef<HTMLButtonElement>).nativeElement;
     const listener = (event: Event) => this.handleClick(event);
     element.addEventListener('click', listener, { capture: true });
-    inject(DestroyRef).onDestroy(() => element.removeEventListener('click', listener, { capture: true }));
+    inject(DestroyRef).onDestroy(() =>
+      element.removeEventListener('click', listener, { capture: true }),
+    );
   }
 
   handleClick(event: Event) {

@@ -25,7 +25,9 @@ export function IconButton({
   variant = ICON_BUTTON_DEFAULTS.variant,
   ...nativeProps
 }: IconButtonProps) {
-  if (import.meta.env.DEV && !ariaLabel?.trim() && !ariaLabelledBy?.trim()) {
+  const isDevelopment = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
+
+  if (isDevelopment && !ariaLabel?.trim() && !ariaLabelledBy?.trim()) {
     throw new Error('IconButton requires aria-label or aria-labelledby');
   }
 

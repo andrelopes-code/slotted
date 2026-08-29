@@ -60,7 +60,9 @@ export class SlToggleButton implements AfterViewInit {
   readonly interactionBlocked = computed(
     () => this.disabled() || this.ariaDisabled() === true || this.ariaDisabled() === 'true',
   );
-  readonly state = computed(() => buttonState({ disabled: this.disabled(), pressed: this.pressed() }));
+  readonly state = computed(() =>
+    buttonState({ disabled: this.disabled(), pressed: this.pressed() }),
+  );
 
   private readonly element = inject(ElementRef<HTMLButtonElement>).nativeElement;
   private readonly destroyRef = inject(DestroyRef);
@@ -70,12 +72,15 @@ export class SlToggleButton implements AfterViewInit {
       if (this.interactionBlocked()) blockActivation(event);
     };
     this.element.addEventListener('click', listener, { capture: true });
-    this.destroyRef.onDestroy(() => this.element.removeEventListener('click', listener, { capture: true }));
+    this.destroyRef.onDestroy(() =>
+      this.element.removeEventListener('click', listener, { capture: true }),
+    );
   }
 
   ngAfterViewInit() {
     const listener = (event: Event) => {
-      if (!this.interactionBlocked() && !event.defaultPrevented) this.pressedChange.emit(!this.pressed());
+      if (!this.interactionBlocked() && !event.defaultPrevented)
+        this.pressedChange.emit(!this.pressed());
     };
     this.element.addEventListener('click', listener);
     this.destroyRef.onDestroy(() => this.element.removeEventListener('click', listener));

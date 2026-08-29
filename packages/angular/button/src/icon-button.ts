@@ -12,7 +12,13 @@ import {
 } from '@angular/core';
 
 import { blockActivation, buttonState } from './button-appearance';
-import { ICON_BUTTON_DEFAULTS, type ButtonSize, type ButtonTone, type ButtonType, type ButtonVariant } from './button.constants';
+import {
+  ICON_BUTTON_DEFAULTS,
+  type ButtonSize,
+  type ButtonTone,
+  type ButtonType,
+  type ButtonVariant,
+} from './button.constants';
 
 @Component({
   selector: 'button[slIconButton]',
@@ -61,14 +67,18 @@ export class SlIconButton implements AfterViewInit {
   readonly interactionBlocked = computed(
     () => this.loading() || this.ariaDisabled() === true || this.ariaDisabled() === 'true',
   );
-  readonly state = computed(() => buttonState({ disabled: this.disabled(), loading: this.loading() }));
+  readonly state = computed(() =>
+    buttonState({ disabled: this.disabled(), loading: this.loading() }),
+  );
 
   private readonly element = inject(ElementRef<HTMLButtonElement>).nativeElement;
 
   constructor() {
     const listener = (event: Event) => this.handleClick(event);
     this.element.addEventListener('click', listener, { capture: true });
-    inject(DestroyRef).onDestroy(() => this.element.removeEventListener('click', listener, { capture: true }));
+    inject(DestroyRef).onDestroy(() =>
+      this.element.removeEventListener('click', listener, { capture: true }),
+    );
   }
 
   ngAfterViewInit() {

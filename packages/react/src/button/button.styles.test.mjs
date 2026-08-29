@@ -9,6 +9,7 @@ const contract = JSON.parse(
   ),
 );
 const css = readFileSync(new URL('./button.css', import.meta.url), 'utf8');
+const normalizedCss = css.replace(/\s+/g, '');
 
 function assertRuleDeclarations(selector, declarations) {
   const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -45,7 +46,10 @@ test('implements every contract state in framework-owned CSS', () => {
 
   assert.deepEqual(new Set(Object.keys(selectors)), requiredStates);
   for (const selector of Object.values(selectors)) {
-    assert.ok(css.includes(selector), `Missing state selector: ${selector}`);
+    assert.ok(
+      normalizedCss.includes(selector.replace(/\s+/g, '')),
+      `Missing state selector: ${selector}`,
+    );
   }
 
   for (const tone of contract.axes.tone) {

@@ -10,7 +10,12 @@ import {
 } from '@angular/core';
 
 import { blockActivation, buttonState } from './button-appearance';
-import { BUTTON_DEFAULTS, type ButtonSize, type ButtonTone, type ButtonVariant } from './button.constants';
+import {
+  BUTTON_DEFAULTS,
+  type ButtonSize,
+  type ButtonTone,
+  type ButtonVariant,
+} from './button.constants';
 
 @Component({
   selector: 'a[slButtonLink]',
@@ -58,7 +63,12 @@ export class SlButtonLink {
     const destroyRef = inject(DestroyRef);
     this.addCaptureListener(element, 'click', (event) => this.handleClick(event), destroyRef);
     this.addCaptureListener(element, 'auxclick', (event) => this.handleAuxClick(event), destroyRef);
-    this.addCaptureListener(element, 'keydown', (event) => this.handleKeydown(event as KeyboardEvent), destroyRef);
+    this.addCaptureListener(
+      element,
+      'keydown',
+      (event) => this.handleKeydown(event as KeyboardEvent),
+      destroyRef,
+    );
   }
 
   handleClick(event: Event) {
@@ -70,7 +80,8 @@ export class SlButtonLink {
   }
 
   handleKeydown(event: KeyboardEvent) {
-    if (this.interactionBlocked() && (event.key === 'Enter' || event.key === ' ')) blockActivation(event);
+    if (this.interactionBlocked() && (event.key === 'Enter' || event.key === ' '))
+      blockActivation(event);
   }
 
   private addCaptureListener(

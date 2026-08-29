@@ -48,20 +48,21 @@ describe('workbench scenario metadata', () => {
           { name: 'size', defaultValue: 'lg' },
         ],
       ),
-    ).toEqual(['missing API loading', 'default size: expected md, received lg', 'missing default loading']);
+    ).toEqual([
+      'missing API loading',
+      'default size: expected md, received lg',
+      'missing default loading',
+    ]);
   });
 
   it('reports duplicate API rows before checking capability rows or defaults', () => {
     expect(
-      apiMetadataErrors(
-        { capabilities: ['appearance'], defaults: { variant: 'solid' } },
-        [
-          { name: 'variant', defaultValue: 'solid' },
-          { name: 'variant', defaultValue: 'outline' },
-          { name: 'tone', defaultValue: 'accent' },
-          { name: 'size', defaultValue: 'md' },
-        ],
-      ),
+      apiMetadataErrors({ capabilities: ['appearance'], defaults: { variant: 'solid' } }, [
+        { name: 'variant', defaultValue: 'solid' },
+        { name: 'variant', defaultValue: 'outline' },
+        { name: 'tone', defaultValue: 'accent' },
+        { name: 'size', defaultValue: 'md' },
+      ]),
     ).toEqual(['duplicate API variant']);
   });
 });

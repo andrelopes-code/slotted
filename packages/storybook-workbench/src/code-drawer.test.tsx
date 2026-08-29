@@ -38,16 +38,24 @@ describe('CodeDrawer', () => {
 
     expect(screen.getByText(snippet.label).closest('details')).not.toHaveAttribute('open');
     fireEvent.click(screen.getByText(snippet.label));
-    expect(screen.getByText((_, element) => element?.tagName === 'CODE' && element.textContent === snippet.source)).toBeVisible();
+    expect(
+      screen.getByText(
+        (_, element) => element?.tagName === 'CODE' && element.textContent === snippet.source,
+      ),
+    ).toBeVisible();
 
     fireEvent.click(screen.getByRole('button', { name: `Copy ${snippet.label}` }));
     await act(async () => {});
     expect(writeText).toHaveBeenCalledWith(snippet.source);
-    expect(screen.getByRole('button', { name: `Copy ${snippet.label}` })).toHaveTextContent('Copied');
+    expect(screen.getByRole('button', { name: `Copy ${snippet.label}` })).toHaveTextContent(
+      'Copied',
+    );
     expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('Copied');
 
     act(() => vi.advanceTimersByTime(1800));
-    expect(screen.getByRole('button', { name: `Copy ${snippet.label}` })).toHaveTextContent('Copy code');
+    expect(screen.getByRole('button', { name: `Copy ${snippet.label}` })).toHaveTextContent(
+      'Copy code',
+    );
   });
 
   it('uses execCommand when Clipboard API is unavailable and announces failure when copying fails', async () => {
@@ -62,18 +70,25 @@ describe('CodeDrawer', () => {
 
     fireEvent.click(screen.getByRole('button', { name: `Copy ${snippet.label}` }));
     await vi.waitFor(() => expect(execCommand).toHaveBeenCalledWith('copy'));
-    await vi.waitFor(() => expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('Copied'));
+    await vi.waitFor(() =>
+      expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('Copied'),
+    );
 
     execCommand.mockReturnValue(false);
     rerender(<CodeDrawer snippet={{ ...snippet, id: 'failed' }} />);
     fireEvent.click(screen.getByRole('button', { name: `Copy ${snippet.label}` }));
-    await vi.waitFor(() => expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('Copy failed'));
+    await vi.waitFor(() =>
+      expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('Copy failed'),
+    );
   });
 
   it('does not schedule copy feedback after an unmounted drawer resolves', async () => {
     const write = deferred<void>();
     const setTimeout = vi.spyOn(window, 'setTimeout');
-    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn(() => write.promise) } });
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn(() => write.promise) },
+    });
     const { unmount } = render(<CodeDrawer snippet={snippet} />);
 
     fireEvent.click(screen.getByRole('button', { name: `Copy ${snippet.label}` }));
@@ -88,7 +103,10 @@ describe('CodeDrawer', () => {
   it('keeps the newest copy result when an earlier request settles last', async () => {
     const first = deferred<void>();
     const second = deferred<void>();
-    const writeText = vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
+    const writeText = vi
+      .fn()
+      .mockReturnValueOnce(first.promise)
+      .mockReturnValueOnce(second.promise);
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
     render(<CodeDrawer snippet={snippet} />);
 
@@ -96,7 +114,9 @@ describe('CodeDrawer', () => {
     fireEvent.click(copy);
     fireEvent.click(copy);
     second.resolve();
-    await vi.waitFor(() => expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('Copied'));
+    await vi.waitFor(() =>
+      expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('Copied'),
+    );
     first.reject(new Error('stale failure'));
     await Promise.resolve();
 

@@ -134,7 +134,9 @@ describe('SlButton', () => {
     fixture.componentInstance.loading.set(true);
     fixture.componentInstance.loadingText.set('   ');
     await fixture.whenStable();
-    const content = fixture.nativeElement.querySelector('.slotted-button__content') as HTMLSpanElement;
+    const content = fixture.nativeElement.querySelector(
+      '.slotted-button__content',
+    ) as HTMLSpanElement;
     expect(content.getAttribute('aria-hidden')).toBeNull();
     expect(content.textContent).toContain('Save');
   });
@@ -144,8 +146,12 @@ describe('SlButton', () => {
     fixture.componentInstance.loading.set(true);
     fixture.componentInstance.loadingText.set('Saving');
     await fixture.whenStable();
-    const content = fixture.nativeElement.querySelector('.slotted-button__content') as HTMLSpanElement;
-    const loading = fixture.nativeElement.querySelector('.slotted-button__loading') as HTMLSpanElement;
+    const content = fixture.nativeElement.querySelector(
+      '.slotted-button__content',
+    ) as HTMLSpanElement;
+    const loading = fixture.nativeElement.querySelector(
+      '.slotted-button__loading',
+    ) as HTMLSpanElement;
     expect(content.getAttribute('aria-hidden')).toBe('true');
     expect(loading.textContent).toContain('Saving');
   });
@@ -164,22 +170,27 @@ describe('SlButton', () => {
     },
   );
 
-  it.each([false, 'false'] as const)('keeps raw aria-disabled value %s active', async (ariaDisabled) => {
-    const fixture = TestBed.createComponent(TestHost);
-    fixture.componentInstance.ariaDisabled.set(ariaDisabled);
-    await fixture.whenStable();
-    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
-    button.click();
-    expect(button.disabled).toBe(false);
-    expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
-  });
+  it.each([false, 'false'] as const)(
+    'keeps raw aria-disabled value %s active',
+    async (ariaDisabled) => {
+      const fixture = TestBed.createComponent(TestHost);
+      fixture.componentInstance.ariaDisabled.set(ariaDisabled);
+      await fixture.whenStable();
+      const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+      button.click();
+      expect(button.disabled).toBe(false);
+      expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
+    },
+  );
 
   it('projects a custom loading indicator into the loading indicator part', async () => {
     const fixture = TestBed.createComponent(TestHost);
     fixture.componentInstance.loading.set(true);
     fixture.componentInstance.customLoadingIndicator.set(true);
     await fixture.whenStable();
-    const indicator = fixture.nativeElement.querySelector('[data-part="loading-indicator"]') as HTMLSpanElement;
+    const indicator = fixture.nativeElement.querySelector(
+      '[data-part="loading-indicator"]',
+    ) as HTMLSpanElement;
     expect(indicator.textContent).toContain('Custom indicator');
   });
 });

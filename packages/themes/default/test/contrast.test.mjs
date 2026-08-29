@@ -2,17 +2,13 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-const theme = JSON.parse(
-  readFileSync(new URL('../src/theme.json', import.meta.url), 'utf8'),
-);
+const theme = JSON.parse(readFileSync(new URL('../src/theme.json', import.meta.url), 'utf8'));
 const tones = ['neutral', 'accent', 'success', 'warning', 'danger'];
 const solidStates = ['solid', 'solid-hover', 'solid-active'];
 
 function channel(value) {
   const normalized = value / 255;
-  return normalized <= 0.04045
-    ? normalized / 12.92
-    : ((normalized + 0.055) / 1.055) ** 2.4;
+  return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
 }
 
 function luminance(hex) {

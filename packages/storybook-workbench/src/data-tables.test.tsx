@@ -30,7 +30,22 @@ describe('workbench data tables', () => {
       tokens: [{ name: '--button-bg', purpose: 'Background' }],
     });
 
-    render(<><ApiTable rows={[{ name: 'tone', type: 'string', defaultValue: 'accent', appliesTo: 'Button', description: 'Color' }]} /><Page /></>);
+    render(
+      <>
+        <ApiTable
+          rows={[
+            {
+              name: 'tone',
+              type: 'string',
+              defaultValue: 'accent',
+              appliesTo: 'Button',
+              description: 'Color',
+            },
+          ]}
+        />
+        <Page />
+      </>,
+    );
 
     for (const name of ['Component API', 'Public tokens']) {
       expect(screen.getByRole('region', { name })).toHaveAttribute('tabindex', '0');

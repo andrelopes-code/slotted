@@ -15,10 +15,10 @@ export function Actions() {
 
 The component structure and behavior belong to this package. Styling comes from `@slotted/react/styles.css` plus a complete installed Slotted theme through CSS custom properties.
 
-| Component | Supported behavior |
-| --- | --- |
-| `Button` | Native action with loading, `fullWidth`, and structured content. |
-| `ButtonLink` | Native anchor or narrow router render adapter with disabled-link behavior. |
-| `IconButton` | Native icon-only action requiring an explicit accessible name, with loading. |
-| `ToggleButton` | Native controlled action using `aria-pressed`. |
-| `ButtonGroup` | `div` with `role="group"`, horizontal/vertical orientation, and non-mutating child composition. |
+| Component      | Supported behavior                                                                              |
+| -------------- | ----------------------------------------------------------------------------------------------- |
+| `Button`       | Native action with loading, `fullWidth`, and structured content.                                |
+| `ButtonLink`   | Native anchor or narrow router render adapter with disabled-link behavior.                      |
+| `IconButton`   | Native icon-only action requiring an explicit accessible name, with loading.                    |
+| `ToggleButton` | Native controlled action using `aria-pressed`.                                                  |
+| `ButtonGroup`  | `div` with `role="group"`, horizontal/vertical orientation, and non-mutating child composition. |

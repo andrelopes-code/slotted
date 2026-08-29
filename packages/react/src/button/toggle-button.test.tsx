@@ -20,13 +20,17 @@ describe('ToggleButton', () => {
       expect.arrayContaining([
         expect.stringMatching(/data-variant=['"]solid['"][^{}]*:hover/),
         expect.stringMatching(/data-variant=['"]solid['"][^{}]*:active/),
-        expect.stringMatching(/data-variant=['"]outline['"][^{}]*data-variant=['"]ghost['"][^{}]*:hover/),
-        expect.stringMatching(/data-variant=['"]outline['"][^{}]*data-variant=['"]ghost['"][^{}]*:active/),
+        expect.stringMatching(
+          /data-variant=['"]outline['"][^{}]*data-variant=['"]ghost['"][^{}]*:hover/,
+        ),
+        expect.stringMatching(
+          /data-variant=['"]outline['"][^{}]*data-variant=['"]ghost['"][^{}]*:active/,
+        ),
       ]),
     );
 
     for (const header of headers) {
-      expect(header).toContain(":not([data-state='pressed'])");
+      expect(header.replace(/\s+/g, '')).toContain(":not([data-state='pressed'])");
     }
   });
 
@@ -58,11 +62,9 @@ describe('ToggleButton', () => {
     expect(button).toHaveAttribute('data-variant', 'outline');
     expect(button).toHaveAttribute('data-tone', 'neutral');
     expect(button).toHaveAttribute('data-size', 'md');
-    expect([...button.querySelectorAll('[data-part]')].map((part) => part.getAttribute('data-part'))).toEqual([
-      'leading',
-      'label',
-      'trailing',
-    ]);
+    expect(
+      [...button.querySelectorAll('[data-part]')].map((part) => part.getAttribute('data-part')),
+    ).toEqual(['leading', 'label', 'trailing']);
   });
 
   it('forwards native button props and refs', () => {

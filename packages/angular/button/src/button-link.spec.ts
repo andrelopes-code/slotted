@@ -48,7 +48,8 @@ class TestHost {
     this.auxClickSpy();
   }
 
-  onKeydown(_event: KeyboardEvent) {
+  onKeydown(event: KeyboardEvent) {
+    void event;
     this.keySpy();
   }
 }
@@ -69,9 +70,9 @@ describe('SlButtonLink', () => {
     expect(anchor.dataset['variant']).toBe('solid');
     expect(anchor.dataset['tone']).toBe('accent');
     expect(anchor.dataset['size']).toBe('md');
-    expect([...anchor.querySelectorAll('[data-part]')].map((part) => part.getAttribute('data-part'))).toEqual(
-      contract.members.buttonLink.parts,
-    );
+    expect(
+      [...anchor.querySelectorAll('[data-part]')].map((part) => part.getAttribute('data-part')),
+    ).toEqual(contract.members.buttonLink.parts);
     expect(anchor.querySelector('[data-part="label"]')?.textContent?.trim()).toBe('Settings');
     expect(anchor.textContent?.trim()).toContain('Settings');
   });
@@ -171,44 +172,50 @@ describe('SlButtonLink', () => {
     expect(fixture.componentInstance.keySpy).toHaveBeenCalledOnce();
   });
 
-  it.each([true, 'true'] as const)('blocks raw aria-disabled %s activation before consumer handlers', async (ariaDisabled) => {
-    const fixture = TestBed.createComponent(TestHost);
-    fixture.componentInstance.ariaDisabled.set(ariaDisabled);
-    await fixture.whenStable();
-    const anchor = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
-    const clickCaptureSpy = vi.fn();
-    const auxClickCaptureSpy = vi.fn();
-    const keyCaptureSpy = vi.fn();
-    anchor.addEventListener('click', clickCaptureSpy, true);
-    anchor.addEventListener('auxclick', auxClickCaptureSpy, true);
-    anchor.addEventListener('keydown', keyCaptureSpy, true);
-    const click = new MouseEvent('click', { bubbles: true, cancelable: true });
-    const auxClick = new MouseEvent('auxclick', { bubbles: true, cancelable: true });
-    const enter = keyboardEvent('Enter');
-    const space = keyboardEvent(' ');
-    anchor.dispatchEvent(click);
-    anchor.dispatchEvent(auxClick);
-    anchor.dispatchEvent(enter);
-    anchor.dispatchEvent(space);
-    expect([click, auxClick, enter, space].every((event) => event.defaultPrevented)).toBe(true);
-    expect(clickCaptureSpy).not.toHaveBeenCalled();
-    expect(auxClickCaptureSpy).not.toHaveBeenCalled();
-    expect(keyCaptureSpy).not.toHaveBeenCalled();
-    expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
-    expect(fixture.componentInstance.auxClickSpy).not.toHaveBeenCalled();
-    expect(fixture.componentInstance.keySpy).not.toHaveBeenCalled();
-    expect(anchor.dataset['state']).toBeUndefined();
-    expect(anchor.hasAttribute('tabindex')).toBe(false);
-  });
+  it.each([true, 'true'] as const)(
+    'blocks raw aria-disabled %s activation before consumer handlers',
+    async (ariaDisabled) => {
+      const fixture = TestBed.createComponent(TestHost);
+      fixture.componentInstance.ariaDisabled.set(ariaDisabled);
+      await fixture.whenStable();
+      const anchor = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
+      const clickCaptureSpy = vi.fn();
+      const auxClickCaptureSpy = vi.fn();
+      const keyCaptureSpy = vi.fn();
+      anchor.addEventListener('click', clickCaptureSpy, true);
+      anchor.addEventListener('auxclick', auxClickCaptureSpy, true);
+      anchor.addEventListener('keydown', keyCaptureSpy, true);
+      const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+      const auxClick = new MouseEvent('auxclick', { bubbles: true, cancelable: true });
+      const enter = keyboardEvent('Enter');
+      const space = keyboardEvent(' ');
+      anchor.dispatchEvent(click);
+      anchor.dispatchEvent(auxClick);
+      anchor.dispatchEvent(enter);
+      anchor.dispatchEvent(space);
+      expect([click, auxClick, enter, space].every((event) => event.defaultPrevented)).toBe(true);
+      expect(clickCaptureSpy).not.toHaveBeenCalled();
+      expect(auxClickCaptureSpy).not.toHaveBeenCalled();
+      expect(keyCaptureSpy).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.auxClickSpy).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.keySpy).not.toHaveBeenCalled();
+      expect(anchor.dataset['state']).toBeUndefined();
+      expect(anchor.hasAttribute('tabindex')).toBe(false);
+    },
+  );
 
-  it.each([false, 'false'] as const)('keeps raw aria-disabled %s interactive', async (ariaDisabled) => {
-    const fixture = TestBed.createComponent(TestHost);
-    fixture.componentInstance.ariaDisabled.set(ariaDisabled);
-    await fixture.whenStable();
-    const anchor = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
-    anchor.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-    expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
-  });
+  it.each([false, 'false'] as const)(
+    'keeps raw aria-disabled %s interactive',
+    async (ariaDisabled) => {
+      const fixture = TestBed.createComponent(TestHost);
+      fixture.componentInstance.ariaDisabled.set(ariaDisabled);
+      await fixture.whenStable();
+      const anchor = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
+      anchor.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
+    },
+  );
 
   it('removes its capture guard when destroyed', async () => {
     const fixture = TestBed.createComponent(TestHost);

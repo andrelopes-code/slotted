@@ -25,9 +25,7 @@ describe('ButtonGroup', () => {
 
   it('forwards native div refs, classes, and attributes', () => {
     const ref = createRef<HTMLDivElement>();
-    render(
-      <ButtonGroup ref={ref} className="actions" data-testid="group" title="Edit actions" />,
-    );
+    render(<ButtonGroup ref={ref} className="actions" data-testid="group" title="Edit actions" />);
 
     const group = screen.getByTestId('group');
     expect(ref.current).toBe(group);

@@ -33,7 +33,8 @@ export interface ButtonLoadingProps {
 }
 
 export interface ButtonProps
-  extends Omit<ComponentPropsWithRef<'button'>, 'children' | 'type'>,
+  extends
+    Omit<ComponentPropsWithRef<'button'>, 'children' | 'type'>,
     ButtonAppearanceProps,
     ButtonContentProps,
     ButtonLoadingProps {
@@ -76,7 +77,8 @@ export type IconButtonProps = Omit<
   };
 
 export interface ToggleButtonProps
-  extends Omit<ComponentPropsWithRef<'button'>, 'aria-pressed' | 'children' | 'type'>,
+  extends
+    Omit<ComponentPropsWithRef<'button'>, 'aria-pressed' | 'children' | 'type'>,
     ButtonAppearanceProps,
     ButtonContentProps {
   onPressedChange?: (pressed: boolean) => void;

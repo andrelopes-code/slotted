@@ -56,7 +56,8 @@ class EmptyNamedHost {}
 
 @Component({
   imports: [SlIconButton],
-  template: '<span id="label">Close</span><button slIconButton aria-labelledby="label"><span aria-hidden="true">×</span></button>',
+  template:
+    '<span id="label">Close</span><button slIconButton aria-labelledby="label"><span aria-hidden="true">×</span></button>',
 })
 class LabelledByHost {}
 
@@ -99,19 +100,25 @@ describe('SlIconButton', () => {
   it('rejects a missing accessible name during stabilization', async () => {
     const fixture = TestBed.createComponent(UnnamedHost);
 
-    await expect(fixture.whenStable()).rejects.toThrow('IconButton requires aria-label or aria-labelledby');
+    await expect(fixture.whenStable()).rejects.toThrow(
+      'IconButton requires aria-label or aria-labelledby',
+    );
   });
 
   it('rejects an empty accessible name during stabilization', async () => {
     const fixture = TestBed.createComponent(EmptyNamedHost);
 
-    await expect(fixture.whenStable()).rejects.toThrow('IconButton requires aria-label or aria-labelledby');
+    await expect(fixture.whenStable()).rejects.toThrow(
+      'IconButton requires aria-label or aria-labelledby',
+    );
   });
 
   it('rejects a whitespace-only accessible name during stabilization', async () => {
     const fixture = TestBed.createComponent(WhitespaceNamedHost);
 
-    await expect(fixture.whenStable()).rejects.toThrow('IconButton requires aria-label or aria-labelledby');
+    await expect(fixture.whenStable()).rejects.toThrow(
+      'IconButton requires aria-label or aria-labelledby',
+    );
   });
 
   it('accepts a meaningful aria-labelledby accessible name', async () => {
@@ -120,7 +127,9 @@ describe('SlIconButton', () => {
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
 
     expect(button.getAttribute('aria-labelledby')).toBe('label');
-    expect((fixture.nativeElement.querySelector('#label') as HTMLElement).textContent).toBe('Close');
+    expect((fixture.nativeElement.querySelector('#label') as HTMLElement).textContent).toBe(
+      'Close',
+    );
   });
 
   it('keeps a loading icon button enabled, focusable, named, and inert before later listeners', async () => {
@@ -155,37 +164,45 @@ describe('SlIconButton', () => {
     expect(button.dataset['state']).toBe('disabled');
   });
 
-  it.each([true, 'true'] as const)('blocks raw aria-disabled value %s without applying disabled state', async (ariaDisabled) => {
-    const fixture = TestBed.createComponent(NamedHost);
-    fixture.componentInstance.ariaDisabled.set(ariaDisabled);
-    await fixture.whenStable();
-    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+  it.each([true, 'true'] as const)(
+    'blocks raw aria-disabled value %s without applying disabled state',
+    async (ariaDisabled) => {
+      const fixture = TestBed.createComponent(NamedHost);
+      fixture.componentInstance.ariaDisabled.set(ariaDisabled);
+      await fixture.whenStable();
+      const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
 
-    button.click();
+      button.click();
 
-    expect(button.disabled).toBe(false);
-    expect(button.dataset['state']).toBeUndefined();
-    expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
-  });
+      expect(button.disabled).toBe(false);
+      expect(button.dataset['state']).toBeUndefined();
+      expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
+    },
+  );
 
-  it.each([false, 'false'] as const)('keeps raw aria-disabled value %s active', async (ariaDisabled) => {
-    const fixture = TestBed.createComponent(NamedHost);
-    fixture.componentInstance.ariaDisabled.set(ariaDisabled);
-    await fixture.whenStable();
-    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+  it.each([false, 'false'] as const)(
+    'keeps raw aria-disabled value %s active',
+    async (ariaDisabled) => {
+      const fixture = TestBed.createComponent(NamedHost);
+      fixture.componentInstance.ariaDisabled.set(ariaDisabled);
+      await fixture.whenStable();
+      const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
 
-    button.click();
+      button.click();
 
-    expect(button.disabled).toBe(false);
-    expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
-  });
+      expect(button.disabled).toBe(false);
+      expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
+    },
+  );
 
   it('projects a custom loading indicator while keeping it hidden from the accessible name', async () => {
     const fixture = TestBed.createComponent(NamedHost);
     fixture.componentInstance.loading.set(true);
     fixture.componentInstance.customLoadingIndicator.set(true);
     await fixture.whenStable();
-    const indicator = fixture.nativeElement.querySelector('[data-part="loading-indicator"]') as HTMLSpanElement;
+    const indicator = fixture.nativeElement.querySelector(
+      '[data-part="loading-indicator"]',
+    ) as HTMLSpanElement;
 
     expect(indicator.getAttribute('aria-hidden')).toBe('true');
     expect(indicator.textContent).toContain('Custom indicator');

@@ -33,7 +33,9 @@ describe('IconButton', () => {
   it.each(['', '   '])('rejects an empty aria-label of %j', (ariaLabel) => {
     expect(() =>
       render(
-        <IconButton {...({ 'aria-label': ariaLabel } as unknown as ComponentProps<typeof IconButton>)}>
+        <IconButton
+          {...({ 'aria-label': ariaLabel } as unknown as ComponentProps<typeof IconButton>)}
+        >
           ×
         </IconButton>,
       ),
@@ -44,7 +46,9 @@ describe('IconButton', () => {
     expect(() =>
       render(
         <IconButton
-          {...({ 'aria-labelledby': ariaLabelledBy } as unknown as ComponentProps<typeof IconButton>)}
+          {...({ 'aria-labelledby': ariaLabelledBy } as unknown as ComponentProps<
+            typeof IconButton
+          >)}
         >
           ×
         </IconButton>,

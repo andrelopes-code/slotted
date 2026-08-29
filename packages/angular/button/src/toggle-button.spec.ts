@@ -96,7 +96,11 @@ describe('SlToggleButton', () => {
     fixture.componentInstance.fullWidth.set(true);
     await fixture.whenStable();
 
-    expect((fixture.nativeElement.querySelector('button') as HTMLButtonElement).getAttribute('data-full-width')).toBe('');
+    expect(
+      (fixture.nativeElement.querySelector('button') as HTMLButtonElement).getAttribute(
+        'data-full-width',
+      ),
+    ).toBe('');
   });
 
   it('uses the banana binding to update the consumer pressed value', async () => {
@@ -173,40 +177,46 @@ describe('SlToggleButton', () => {
     expect(fixture.componentInstance.pressedChangeSpy).not.toHaveBeenCalled();
   });
 
-  it.each([true, 'true'] as const)('blocks raw aria-disabled %s before later capture and consumer handlers', async (ariaDisabled) => {
-    const fixture = TestBed.createComponent(ControlledHost);
-    fixture.componentInstance.ariaDisabled.set(ariaDisabled);
-    await fixture.whenStable();
-    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
-    const laterCapture = vi.fn();
-    button.addEventListener('click', laterCapture, true);
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+  it.each([true, 'true'] as const)(
+    'blocks raw aria-disabled %s before later capture and consumer handlers',
+    async (ariaDisabled) => {
+      const fixture = TestBed.createComponent(ControlledHost);
+      fixture.componentInstance.ariaDisabled.set(ariaDisabled);
+      await fixture.whenStable();
+      const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+      const laterCapture = vi.fn();
+      button.addEventListener('click', laterCapture, true);
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true });
 
-    button.dispatchEvent(event);
+      button.dispatchEvent(event);
 
-    expect(event.defaultPrevented).toBe(true);
-    expect(button.getAttribute('aria-disabled')).toBe(String(ariaDisabled));
-    expect(button.disabled).toBe(false);
-    expect(button.getAttribute('aria-disabled')).toBe(String(ariaDisabled));
-    expect(button.dataset['state']).toBeUndefined();
-    expect(laterCapture).not.toHaveBeenCalled();
-    expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
-    expect(fixture.componentInstance.pressedChangeSpy).not.toHaveBeenCalled();
-  });
+      expect(event.defaultPrevented).toBe(true);
+      expect(button.getAttribute('aria-disabled')).toBe(String(ariaDisabled));
+      expect(button.disabled).toBe(false);
+      expect(button.getAttribute('aria-disabled')).toBe(String(ariaDisabled));
+      expect(button.dataset['state']).toBeUndefined();
+      expect(laterCapture).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.pressedChangeSpy).not.toHaveBeenCalled();
+    },
+  );
 
-  it.each([false, 'false'] as const)('keeps raw aria-disabled %s interactive without forcing disabled state', async (ariaDisabled) => {
-    const fixture = TestBed.createComponent(ControlledHost);
-    fixture.componentInstance.ariaDisabled.set(ariaDisabled);
-    await fixture.whenStable();
-    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+  it.each([false, 'false'] as const)(
+    'keeps raw aria-disabled %s interactive without forcing disabled state',
+    async (ariaDisabled) => {
+      const fixture = TestBed.createComponent(ControlledHost);
+      fixture.componentInstance.ariaDisabled.set(ariaDisabled);
+      await fixture.whenStable();
+      const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
 
-    click(button);
+      click(button);
 
-    expect(button.disabled).toBe(false);
-    expect(button.dataset['state']).toBeUndefined();
-    expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
-    expect(fixture.componentInstance.pressedChangeSpy).toHaveBeenCalledWith(true);
-  });
+      expect(button.disabled).toBe(false);
+      expect(button.dataset['state']).toBeUndefined();
+      expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
+      expect(fixture.componentInstance.pressedChangeSpy).toHaveBeenCalledWith(true);
+    },
+  );
 
   it('emits synchronously for rapid controlled clicks without changing the input', async () => {
     const fixture = TestBed.createComponent(ControlledHost);

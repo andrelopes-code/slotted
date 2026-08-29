@@ -23,14 +23,26 @@ export function storyScenarioIds(storyModule: Record<string, unknown>) {
         typeof parameters === 'object' && parameters !== null
           ? Reflect.get(parameters, 'slotted')
           : undefined;
-      const id = typeof slotted === 'object' && slotted !== null ? Reflect.get(slotted, 'scenarioId') : undefined;
+      const id =
+        typeof slotted === 'object' && slotted !== null
+          ? Reflect.get(slotted, 'scenarioId')
+          : undefined;
       return typeof id === 'string' ? [id] : [];
     });
 }
 
-export function scenarioCoverageErrors(expected: readonly string[], storyModule: Record<string, unknown>) {
+export function scenarioCoverageErrors(
+  expected: readonly string[],
+  storyModule: Record<string, unknown>,
+) {
   const actual = storyScenarioIds(storyModule);
-  const duplicates = [...new Set(actual.filter((id) => expected.includes(id) && actual.filter((actualId) => actualId === id).length > 1))];
+  const duplicates = [
+    ...new Set(
+      actual.filter(
+        (id) => expected.includes(id) && actual.filter((actualId) => actualId === id).length > 1,
+      ),
+    ),
+  ];
   return [
     ...expected.filter((id) => !actual.includes(id)).map((id) => `missing ${id}`),
     ...actual.filter((id) => !expected.includes(id)).map((id) => `unknown ${id}`),
@@ -59,7 +71,9 @@ export function apiMetadataErrors(
 ) {
   const errors: string[] = [];
   const names = rows.map((row) => row.name);
-  const duplicates = [...new Set(names.filter((name) => names.filter((candidate) => candidate === name).length > 1))];
+  const duplicates = [
+    ...new Set(names.filter((name) => names.filter((candidate) => candidate === name).length > 1)),
+  ];
   if (duplicates.length > 0) return duplicates.map((name) => `duplicate API ${name}`);
   for (const capability of member.capabilities) {
     const required = capabilityApi[capability as keyof typeof capabilityApi] ?? [];

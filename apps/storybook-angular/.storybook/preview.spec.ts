@@ -54,5 +54,4 @@ describe('Angular Storybook preview', () => {
     expect(dev).toContain('--port 6007');
     expect(dev).toContain('--no-open');
   });
-
 });
