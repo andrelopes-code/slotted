@@ -8,6 +8,6 @@ describe('SlButton stories', () => {
     const names = Object.keys(storyModule)
       .filter((name) => name !== 'default')
       .map((name) => `${name[0]?.toLowerCase()}${name.slice(1)}`);
-    expect(names.sort()).toEqual([...contract.stories].sort());
+    expect(names.sort()).toEqual([...contract.scenarios.button].sort());
   });
 });
