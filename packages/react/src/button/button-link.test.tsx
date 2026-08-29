@@ -153,22 +153,40 @@ describe('ButtonLink', () => {
   });
 
   it.each([true, 'true'] as const)(
-    'treats aria-disabled=%s as disabled interaction state',
+    'blocks aria-disabled=%s activation without changing visual or focus state',
     (ariaDisabled) => {
       const onClick = vi.fn();
+      const onClickCapture = vi.fn();
       render(
-        <ButtonLink aria-disabled={ariaDisabled} href="#settings" onClick={onClick}>
+        <ButtonLink
+          aria-disabled={ariaDisabled}
+          href="#settings"
+          onClick={onClick}
+          onClickCapture={onClickCapture}
+        >
           Settings
         </ButtonLink>,
       );
       const link = screen.getByRole('link', { name: 'Settings' });
       expect(link).toHaveAttribute('aria-disabled', 'true');
-      expect(link).toHaveAttribute('data-state', 'disabled');
-      expect(link).toHaveAttribute('tabindex', '-1');
+      expect(link).not.toHaveAttribute('data-state', 'disabled');
+      expect(link).not.toHaveAttribute('tabindex');
       expect(fireEvent.click(link)).toBe(false);
+      expect(onClickCapture).not.toHaveBeenCalled();
       expect(onClick).not.toHaveBeenCalled();
     },
   );
+
+  it('preserves an explicit tab index with raw aria-disabled', () => {
+    render(
+      <ButtonLink aria-disabled="true" href="#settings" tabIndex={0}>
+        Settings
+      </ButtonLink>,
+    );
+    const link = screen.getByRole('link', { name: 'Settings' });
+    expect(link).toHaveAttribute('tabindex', '0');
+    expect(link).not.toHaveAttribute('data-state', 'disabled');
+  });
 
   it.each([false, 'false', undefined] as const)(
     'keeps aria-disabled=%s interactive',

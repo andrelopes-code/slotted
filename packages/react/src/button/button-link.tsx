@@ -41,7 +41,7 @@ export function ButtonLink({
       component: 'button-link',
       fullWidth,
       size,
-      state: interactionBlocked ? 'disabled' : undefined,
+      state: disabled ? 'disabled' : undefined,
       tone,
       variant,
     }),
@@ -77,7 +77,7 @@ export function ButtonLink({
       if (isActivationKey(event.key) && blockInteraction(event)) return;
       onKeyDownCapture?.(event);
     },
-    tabIndex: interactionBlocked ? (tabIndex ?? -1) : tabIndex,
+    tabIndex: disabled ? (tabIndex ?? -1) : tabIndex,
   };
 
   return render === undefined ? <a {...rootProps} /> : render(rootProps);
