@@ -106,21 +106,27 @@
     text-decoration: var(--slotted-button-ghost-text-decoration, none);
   }
 
-  :host([data-variant='solid']:hover:not(:disabled):not([aria-disabled='true'])) {
+  :host([data-slotted-component='toggle-button'][data-state='pressed']) {
+    background: var(--_solid, ButtonFace);
+    border-color: var(--_solid, ButtonBorder);
+    color: var(--_on-solid, ButtonText);
+  }
+
+  :host([data-variant='solid']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])) {
     background: var(--_solid-hover, Highlight);
     border-color: var(--_solid-hover, Highlight);
   }
 
-  :host([data-variant='solid']:active:not(:disabled):not([aria-disabled='true'])) {
+  :host([data-variant='solid']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])) {
     background: var(--_solid-active, Highlight);
     border-color: var(--_solid-active, Highlight);
   }
 
-  :host(:is([data-variant='outline'], [data-variant='ghost']):hover:not(:disabled):not([aria-disabled='true'])) {
+  :host(:is([data-variant='outline'], [data-variant='ghost']):hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])) {
     background: var(--_subtle-hover, color-mix(in srgb, currentColor 10%, transparent));
   }
 
-  :host(:is([data-variant='outline'], [data-variant='ghost']):active:not(:disabled):not([aria-disabled='true'])) {
+  :host(:is([data-variant='outline'], [data-variant='ghost']):active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])) {
     background: var(--_subtle-active, color-mix(in srgb, currentColor 18%, transparent));
   }
 
