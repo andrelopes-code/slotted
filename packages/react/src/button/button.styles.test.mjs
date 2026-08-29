@@ -10,14 +10,33 @@ const contract = JSON.parse(
 );
 const css = readFileSync(new URL('./button.css', import.meta.url), 'utf8');
 
+function assertRuleDeclarations(selector, declarations) {
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = css.match(new RegExp(`${escapedSelector}\\s*\\{([\\s\\S]*?)\\}`));
+
+  assert.ok(match, `Missing selector: ${selector}`);
+  for (const declaration of declarations) {
+    const whitespaceTolerantDeclaration = declaration
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replaceAll(' ', '\\s*');
+    assert.match(
+      match[1],
+      new RegExp(whitespaceTolerantDeclaration),
+      `Missing declaration for ${selector}: ${declaration}`,
+    );
+  }
+}
+
 test('implements every contract state in framework-owned CSS', () => {
   const requiredStates = new Set(
     Object.values(contract.members).flatMap((member) => member.states),
   );
   const selectors = {
     default: '.slotted-button {',
-    hover: ":hover:not(:disabled):not([aria-disabled='true'])",
-    active: ":active:not(:disabled):not([aria-disabled='true'])",
+    hover:
+      ".slotted-button[data-variant='solid']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+    active:
+      ".slotted-button[data-variant='solid']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
     'focus-visible': '.slotted-button:focus-visible',
     disabled: "[data-state='disabled']",
     loading: "[data-state='loading']",
@@ -42,17 +61,44 @@ test('implements every contract state in framework-owned CSS', () => {
 });
 
 test('styles button group seams and focus layering with logical properties', () => {
-  const selectors = [
-    '.slotted-button-group {',
+  assertRuleDeclarations('.slotted-button-group', [
+    'align-items: stretch;',
+    'display: inline-flex;',
+    'gap: var(--slotted-button-group-gap, 0px);',
+    'isolation: isolate;',
+  ]);
+  assertRuleDeclarations(".slotted-button-group[data-orientation='vertical']", [
+    'flex-direction: column;',
+  ]);
+  assertRuleDeclarations(
     ".slotted-button-group[data-orientation='horizontal'] > .slotted-button:not(:first-child)",
+    [
+      'border-start-start-radius: var(--slotted-button-group-inner-radius, 0px);',
+      'border-end-start-radius: var(--slotted-button-group-inner-radius, 0px);',
+      'margin-inline-start: var(--slotted-button-group-adjacent-offset, -1px);',
+    ],
+  );
+  assertRuleDeclarations(
+    ".slotted-button-group[data-orientation='horizontal'] > .slotted-button:not(:last-child)",
+    [
+      'border-start-end-radius: var(--slotted-button-group-inner-radius, 0px);',
+      'border-end-end-radius: var(--slotted-button-group-inner-radius, 0px);',
+    ],
+  );
+  assertRuleDeclarations(
     ".slotted-button-group[data-orientation='vertical'] > .slotted-button:not(:first-child)",
-    '.slotted-button-group > .slotted-button:focus-visible',
-  ];
-
-  for (const selector of selectors) {
-    assert.ok(css.includes(selector), `Missing group selector: ${selector}`);
-  }
-  assert.ok(css.includes('margin-inline-start: var(--slotted-button-group-adjacent-offset, -1px)'));
-  assert.ok(css.includes('margin-block-start: var(--slotted-button-group-adjacent-offset, -1px)'));
-  assert.ok(css.includes('var(--slotted-button-group-inner-radius, 0px)'));
+    [
+      'border-start-start-radius: var(--slotted-button-group-inner-radius, 0px);',
+      'border-start-end-radius: var(--slotted-button-group-inner-radius, 0px);',
+      'margin-block-start: var(--slotted-button-group-adjacent-offset, -1px);',
+    ],
+  );
+  assertRuleDeclarations(
+    ".slotted-button-group[data-orientation='vertical'] > .slotted-button:not(:last-child)",
+    [
+      'border-end-start-radius: var(--slotted-button-group-inner-radius, 0px);',
+      'border-end-end-radius: var(--slotted-button-group-inner-radius, 0px);',
+    ],
+  );
+  assertRuleDeclarations('.slotted-button-group > .slotted-button:focus-visible', ['z-index: 1;']);
 });
