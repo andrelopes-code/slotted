@@ -40,6 +40,13 @@ describe('Button family stories', () => {
     }
   });
 
+  it('spells every member tone union in the reference API', () => {
+    const toneType = 'neutral | accent | success | warning | danger';
+    for (const page of ['buttonLink', 'iconButton', 'toggleButton'] as const) {
+      expect(REACT_BUTTON_DOCS[page].api.find((row) => row.name === 'tone')?.type).toBe(toneType);
+    }
+  });
+
   it('keeps curated snippets formatted', async () => {
     const snippets = Object.values(REACT_BUTTON_DOCS).flatMap((docs) => docs.snippets);
     expect(await snippetFormatErrors(snippets)).toEqual([]);

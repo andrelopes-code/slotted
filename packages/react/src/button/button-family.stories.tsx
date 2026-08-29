@@ -44,6 +44,14 @@ export const Matrix: Story = {
         <Button leading={<SaveIcon />} trailing={<span aria-hidden="true">⌘S</span>}>
           Save
         </Button>
+        <IconButton aria-label="Save draft">
+          <SaveIcon />
+        </IconButton>
+        <div style={{ maxInlineSize: 360 }}>
+          <Button fullWidth leading={<SaveIcon />}>
+            Full-width save
+          </Button>
+        </div>
         <ButtonGroup aria-label="Save actions">
           <Button leading={<SaveIcon />}>Save</Button>
           <IconButton aria-label="More save options">⌄</IconButton>
