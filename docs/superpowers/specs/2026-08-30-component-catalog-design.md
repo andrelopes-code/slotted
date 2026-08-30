@@ -2,190 +2,188 @@
 
 ## Outcome
 
-The catalog names every component Slotted intends to own, assigns each to a build tier, records what it depends on and what it unblocks, and marks the version it belongs to. It decides scope and order. It does not decide anatomy, states, keyboard model, or accessibility contract — those are written per component, in `specs/components/<family>/contract.json`, when the component enters the queue.
+The catalog names every component of the v1 library, orders them by dependency, and records what each unblocks. Everything listed here is v1: the tiers are build order, not release phases.
 
-That split is deliberate. Order and dependency age well; API detail does not. Fixing the keyboard model of a combobox eighteen components before building it produces a document that is confidently wrong, which is the failure that stopped `@slotted/core` from being built ahead of its first caller.
+It decides scope and order. It does not decide anatomy, states, keyboard model, or accessibility contract — those are written per component in `specs/components/<family>/contract.json` when the component enters the queue. Order and dependency age well; API detail does not. Fixing a combobox keyboard model eighteen components before building it produces a document that is confidently wrong, which is the failure that stopped `@slotted/core` from being written ahead of its first caller.
 
 ## Tiers Are Not Package Layers
 
-`L0`–`L4` in `2026-08-30-layered-architecture-design.md` are package layers, enforced by `scripts/verify-layers.mjs`. Every component in this catalog lives in `L3`, the framework packages.
+`L0`–`L4` in `2026-08-30-layered-architecture-design.md` are package layers, enforced by `scripts/verify-layers.mjs`. Every component here lives in `L3`, the framework packages.
 
-`T1`–`T7` here are build tiers. They express dependency and order among components, not package boundaries. A tier is ready when the tier below it is, not because a rule forbids otherwise.
+`T1`–`T7` are build tiers, derived from one rule:
 
-## Entry Format
+> A component's tier is one greater than the highest tier among its dependencies. A component with no dependency on another catalog component is `T1`.
 
-Each component carries: its tier, a one-line purpose, what it depends on, and what it unblocks. Completion is governed by PRD §42, which this document does not restate.
+The rule admits no thematic exception. Components in the same tier have no dependency on each other and can be built in parallel. A consequence worth stating: a tier mixes concerns. `T4` holds `NumberInput` beside `Dialog` because both sit at the same depth, not because they are alike.
 
-`Core` in a dependency column names a module of `@slotted/core` that the component's own plan writes, designed against that component's real requirements. Infrastructure that is inherently shared — focus, dismissal, positioning — is written directly in core by its first caller; its signature stays malleable until a second caller confirms it.
+## What Belongs to `@slotted/core`
+
+Portal, focus trap, focus restoration, roving tabindex, typeahead, dismissal, positioning, collision detection, scroll locking, and virtualization math are infrastructure, not components. They live in `@slotted/core` and never appear in this catalog.
+
+Each module is written by the plan of the first component that needs it, designed against that component's real requirements, and its signature stays malleable until a second caller confirms it. The table below records where each arrives.
+
+| Core module | First caller | Tier |
+| --- | --- | --- |
+| `core/id` | Field | T2 |
+| `core/focus` — roving tabindex, typeahead | Tabs | T2 |
+| `core/collection` — virtualization math | VirtualList | T2 |
+| `core/collection` — filtering, comparison | Listbox | T3 |
+| `core/collection` — date arithmetic | Calendar | T3 |
+| `core/overlay` — portal, positioning, collision, scroll lock | Dialog | T4 |
+| `core/focus` — trap, restoration | Dialog | T4 |
+| `core/dismiss` | Dialog | T4 |
+
+`Dialog` is deliberately the first overlay: it exercises trapping, restoration, dismissal, and scroll locking together, so the modules are designed against the hardest case rather than the easiest. Signatures that satisfy a dialog are usable by a popover; the reverse does not hold.
 
 ---
 
-## T0 — Foundations
+## T1 — No Dependency
 
-Complete. Delivered by the layered architecture work: the token pipeline and contract, the default theme, the single authored stylesheet, the machine-checked component contract, the Storybook workbench, and the enforced layer rule.
+| Component | Purpose | Unblocks |
+| --- | --- | --- |
+| Button family | Action, navigation, icon-only action, toggle, group | shipped; Tag, Alert, Pagination, Toolbar, Collapsible |
+| Link | Inline text navigation carrying link semantics | Breadcrumb, Sidebar, EmptyState |
+| VisuallyHidden | Content exposed only to assistive technology | Field, Dialog, Toast, Table |
+| Divider | Semantic or decorative separation | Card, Menu, Toolbar |
+| Spinner | Indeterminate progress | Button loading, async surfaces |
+| ProgressBar | Determinate progress | Stepper, LoadingBar, FileUpload |
+| Badge | Short status or count label | Tabs, Menu, Table |
+| Avatar | Person or entity image with fallback | Menu, Table, Sidebar |
+| Skeleton | Loading placeholder that preserves layout | Table, Card, list surfaces |
+| Kbd | Keyboard key presentation | Command, Tooltip, Menu |
+| DescriptionList | Semantic key and value pairs | detail surfaces |
+| Table | Semantic tabular markup with a styling contract, no behaviour | DataTable |
+| Splitter | Resizable adjacent regions, pointer and keyboard | application shells |
 
-## T1 — Primitives
-
-No dependency beyond tokens, themes, and the stylesheet. Each is small, and several are prerequisites the later tiers assume.
-
-| Component | Purpose | Depends on | Unblocks |
-| --- | --- | --- | --- |
-| Button family | Action, navigation, icon-only action, toggle, group | — | shipped |
-| VisuallyHidden | Content for assistive technology only | — | Field, Dialog, Toast, Table |
-| Divider | Semantic or decorative separation | — | Menu, Toolbar, Card |
-| Spinner | Indeterminate progress | — | Button loading, Skeleton, async states |
-| ProgressBar | Determinate progress | — | FileUpload, Stepper |
-| Badge | Short status or count label | — | Tabs, NavigationMenu, Table |
-| Tag | Removable or selectable label | — | TagsInput, MultiCombobox, filters |
-| Avatar | Person or entity image with fallback | — | NavigationMenu, Table, Menu |
-| Skeleton | Loading placeholder preserving layout | — | Table, Card, list states |
-| Card | Grouped surface with header, body, footer | Divider | EmptyState, dashboards |
-| Alert | Inline message carrying severity | — | Field error patterns, Banner |
-| EmptyState | Absence of content, with a recovery action | Card | Table, Combobox, list views |
-
-**Not owned by the library.** Box, Stack, Inline, Grid, Text, and Heading are layout and typography utilities. PRD §5 lists replacing Tailwind, Sass, or CSS Modules as a non-goal, and shipping them would put the library in competition with the consumer's styling solution for no accessibility or behavioural gain. Typography is a theme decision, expressed in tokens.
-
-**Not a component.** Polymorphic rendering — `render` in React, directive-on-native-element in Angular — is a pattern the library already applies in `ButtonLink` and `slButton`. It is documented in the glossary, not shipped as `Slot` or `asChild`.
-
-**Icon** stays a consumer decision, per the layered architecture spec.
-
-## T2 — Form Controls
-
-`Field` is the keystone. It owns identifier generation and the ARIA wiring that every control below reuses, so it is built first and alone.
+## T2 — Depends on T1
 
 | Component | Purpose | Depends on | Unblocks |
 | --- | --- | --- | --- |
-| Field family | Label, description, error, and their ARIA wiring | VisuallyHidden, Core `id` | every control below |
-| Input | Single-line text entry | Field | Combobox, Autocomplete, SearchInput |
-| Textarea | Multi-line text entry, optionally auto-sizing | Field | — |
-| Checkbox | Binary choice, including indeterminate | Field | Table row selection, MultiCombobox |
-| RadioGroup | One choice among few, with roving focus | Field, Core `focus` | SegmentedControl |
-| Switch | Immediate binary setting | Field | settings surfaces |
-| SegmentedControl | One choice among few, shown as a bar | RadioGroup | Toolbar, view switchers |
-| NumberInput | Numeric entry with step controls | Input | Slider pairing, Table filters |
-| Slider | Value or range along a track | Field, Core `focus` | filters |
-| SearchInput | Text entry shaped for querying | Input, IconButton | Command, Combobox |
-
-`Core id` arrives here, written by the `Field` plan. React keeps `useId`, which is already hydration-safe and is the framework primitive PRD §6.4 prefers; the shared module is expected to serve Angular. That expectation is tested when `Field` is built, not assumed now.
-
-`Core focus` arrives with `RadioGroup`, which needs roving tabindex. Whether that same function serves `Toolbar` and `Menu` unchanged is decided by those components, and changing it then is expected.
-
-## T3 — Overlay Infrastructure
-
-The tier that requires the most new infrastructure and unblocks the most. `Dialog` is built first because it exercises focus trapping, restoration, dismissal, and scroll locking together, so the core modules are designed against the hardest case rather than the easiest.
-
-| Component | Purpose | Depends on | Unblocks |
-| --- | --- | --- | --- |
-| Portal | Render outside the DOM position, keep the context | Core `overlay` | every overlay below |
-| Dialog | Modal task requiring a decision | Portal, Core `focus`, Core `dismiss`, Core `overlay` | AlertDialog, Drawer |
-| AlertDialog | Dialog for a destructive or irreversible confirmation | Dialog | — |
-| Drawer | Panel anchored to a viewport edge | Dialog | navigation on small viewports |
-| Popover | Non-modal panel anchored to a trigger | Portal, Core `overlay`, Core `dismiss` | Menu, Select, Combobox, DatePicker |
-| Tooltip | Supplementary text for a control, on hover and focus | Popover | IconButton, Toolbar |
-| Toast | Transient message outside the user's flow | Portal, Core `overlay` | async feedback |
-
-`@floating-ui/dom` enters here as the single positioning and collision engine, wrapped by `core/overlay`. Angular CDK is not adopted. Portals, stacking, and scroll locking build on platform features where they apply.
-
-SSR tests enter here too: this is the first tier with client-only effects, which the layered architecture spec records as the trigger.
-
-## T4 — Menus and Selection
-
-Depends on T3 for anchoring and dismissal, and introduces collection behaviour: active descendant, typeahead, filtering.
-
-| Component | Purpose | Depends on | Unblocks |
-| --- | --- | --- | --- |
-| Menu | Actions anchored to a trigger, keyboard navigable | Popover, Core `focus`, Core `collection` | ContextMenu, Toolbar overflow |
-| ContextMenu | The same menu, opened by secondary click | Menu | Table row actions |
-| Listbox | Selectable option list, single or multiple | Core `focus`, Core `collection` | Select, Combobox |
-| Select | One option from a known set | Popover, Listbox, Field | Table filters |
-| Combobox | One option, filtered by typing, with free entry | Select, Input | Autocomplete |
-| MultiCombobox | Several options, filtered by typing | Combobox, Tag | filter builders |
-| Autocomplete | Suggestions for free text, without constraining it | Combobox | SearchInput |
-| TagsInput | Free-form list of short values | Input, Tag | filters, recipients |
-| Command | Searchable action palette | Combobox, Dialog | keyboard-first surfaces |
-
-## T5 — Navigation and Structure
-
-Mostly independent of T3 and T4; placed here because its value depends on there being content to navigate.
-
-| Component | Purpose | Depends on | Unblocks |
-| --- | --- | --- | --- |
-| Tabs | Sibling panels, one visible, with roving focus | Core `focus` | settings, detail views |
-| Accordion | Independently collapsible sections | Core `focus` | dense forms, FAQ |
-| Toolbar | Grouped controls with one focus stop | Core `focus`, ButtonGroup | editors, Table headers |
-| Breadcrumb | Position within a hierarchy | ButtonLink | detail views |
-| Pagination | Movement across pages of results | ButtonGroup | Table |
+| Field family | Label, description, error, and their ARIA wiring | VisuallyHidden, `core/id` | every form control |
+| Card | Grouped surface with header, body, footer | Divider | EmptyState |
+| Tag | Removable or selectable short value | IconButton | TagsInput, MultiCombobox |
+| Alert | Inline message carrying severity | IconButton | — |
+| Collapsible | Single disclosure of a region | Button | Accordion, Sidebar |
+| Breadcrumb | Position within a hierarchy | Link | — |
+| Pagination | Movement across pages of results | ButtonGroup | DataTable |
 | Stepper | Position within a sequential flow | ProgressBar | wizards |
-| NavigationMenu | Application-level navigation, optionally nested | Popover, Core `focus` | shells |
-| Tree | Hierarchical, expandable, selectable structure | Core `focus`, Core `collection` | file and org browsers |
+| LoadingBar | Page-level indeterminate or determinate progress | ProgressBar | — |
+| Tabs | Sibling panels, one visible, roving focus | `core/focus` | settings and detail surfaces |
+| Toolbar | Grouped controls sharing one focus stop | ButtonGroup, `core/focus` | editors, Table headers |
+| VirtualList | Windowed rendering of a long list | `core/collection` | DataTable, Listbox |
+| FileUpload | File selection with progress and validation | ProgressBar, Button | — |
 
-## T6 — Data
-
-The heaviest tier. `Table` and `DataTable` are separated deliberately: the first is semantic markup with a styling contract and no behaviour, useful immediately; the second adds sorting, selection, resizing, and virtualization, and is where the cost concentrates.
+## T3 — Depends on T2
 
 | Component | Purpose | Depends on | Unblocks |
 | --- | --- | --- | --- |
-| Table | Semantic tabular markup with a styling contract | Divider | DataTable |
-| DataTable | Sorting, selection, resizing, sticky regions, virtualization | Table, Checkbox, Menu, Pagination, Core `collection` | dense application surfaces |
-| Calendar | Month grid with keyboard navigation | Core `focus`, Core `collection` | DatePicker |
-| DatePicker | Date or range entry, typed or picked | Calendar, Popover, Input, Field | filters, scheduling |
-| TimePicker | Time entry, typed or picked | Popover, Input, Field | scheduling |
+| Input | Single-line text entry | Field | NumberInput, SearchInput, Combobox |
+| Textarea | Multi-line text entry, optionally auto-sizing | Field | — |
+| Checkbox | Binary choice, including indeterminate | Field | DataTable selection |
+| RadioGroup | One choice among few, roving focus | Field, `core/focus` | SegmentedControl |
+| Switch | Immediate binary setting | Field | — |
+| Slider | Single value along a track | Field, `core/focus` | RangeSlider, ColorPicker |
+| Fieldset | Grouping of related fields with a legend | Field | forms |
+| Accordion | Group of independently collapsible sections | Collapsible | — |
+| EmptyState | Absence of content, with a recovery action | Card, Link | Table, Combobox |
+| Sidebar | Collapsible application navigation region | Collapsible, Link | shells |
+| Listbox | Selectable option list, single or multiple | `core/focus`, `core/collection` | Select, Combobox |
+| Tree | Hierarchical, expandable, selectable structure | `core/focus`, `core/collection` | TreeSelect |
+| Calendar | Month grid with keyboard navigation | `core/focus`, `core/collection` | DatePicker |
 
-## T7 — Specialized
+## T4 — Depends on T3
 
-Each needs its own justification against PRD §39 before entering the catalog proper. None is assumed.
+| Component | Purpose | Depends on | Unblocks |
+| --- | --- | --- | --- |
+| Dialog | Modal task requiring a decision | `core/overlay`, `core/focus`, `core/dismiss`, VisuallyHidden | AlertDialog, Drawer, Command |
+| Popover | Non-modal panel anchored to a trigger | `core/overlay`, `core/dismiss` | Tooltip, Menu, Select, DatePicker |
+| Toast | Transient message outside the user's flow | `core/overlay` | — |
+| NumberInput | Numeric entry with step controls | Input | — |
+| SearchInput | Text entry shaped for querying | Input, IconButton | Command |
+| SegmentedControl | One choice among few, presented as a bar | RadioGroup | — |
+| RangeSlider | Two values along one track | Slider | filters |
+| TagsInput | Free-form list of short values | Input, Tag | — |
 
-| Component | Purpose | Note |
+## T5 — Depends on T4
+
+| Component | Purpose | Depends on | Unblocks |
+| --- | --- | --- | --- |
+| AlertDialog | Confirmation of a destructive or irreversible action | Dialog | — |
+| Drawer | Panel anchored to a viewport edge | Dialog | small-viewport navigation |
+| Tooltip | Supplementary text for a control, on hover and focus | Popover | IconButton, Toolbar |
+| HoverCard | Rich preview on hover, non-essential content | Popover | — |
+| Menu | Actions anchored to a trigger, keyboard navigable | Popover, `core/focus` | ContextMenu, Menubar |
+| Select | One option from a known set | Popover, Listbox, Field | Combobox |
+| NavigationMenu | Application navigation, optionally nested | Popover, `core/focus` | — |
+| TreeSelect | Hierarchical selection inside a panel | Popover, Tree | — |
+| Cascader | Sequential selection across dependent levels | Popover, Listbox | — |
+| DatePicker | Date entry, typed or picked | Popover, Calendar, Input, Field | DateRangePicker |
+| TimePicker | Time entry, typed or picked | Popover, Input, Field | DateTimePicker |
+| ColorPicker | Colour selection | Popover, Slider, Input | — |
+
+## T6 — Depends on T5
+
+| Component | Purpose | Depends on | Unblocks |
+| --- | --- | --- | --- |
+| ContextMenu | The same menu, opened by secondary click | Menu | DataTable row actions |
+| Menubar | Application menu bar with horizontal traversal | Menu | — |
+| Combobox | One option, filtered by typing, with free entry | Select, Input | Autocomplete, MultiCombobox |
+| DateRangePicker | Start and end date in one control | DatePicker | — |
+| DateTimePicker | Date and time in one control | DatePicker, TimePicker | — |
+| DataTable | Sorting, selection, resizing, sticky regions, virtualization | Table, Checkbox, Menu, Pagination, VirtualList | dense application surfaces |
+
+## T7 — Depends on T6
+
+| Component | Purpose | Depends on |
 | --- | --- | --- |
-| FileUpload | File selection with progress and validation | Depends on ProgressBar; drag-and-drop accessibility is the hard part |
-| ScrollArea | Custom scrollbar presentation | Questionable value against native scrollbars; needs a concrete case |
-| ColorPicker | Colour selection | Large surface, narrow demand |
-| RichTextEditor | Formatted text authoring | Almost certainly a wrapper over an existing editor, not an in-house implementation |
-| Charts | Data visualisation | Out of scope for a UI library; PRD §23.1 names charts as an example of what a button import must not pull in |
+| MultiCombobox | Several options, filtered by typing | Combobox, Tag |
+| Autocomplete | Suggestions for free text without constraining it | Combobox |
+| Command | Searchable action palette | Combobox, Dialog, Kbd |
+| QueryBuilder | Composed filter expressions | Combobox, Select, Input |
 
-## Versions
+---
 
-| Version | Contents | Rationale |
-| --- | --- | --- |
-| v1 | T1, T2, T3, and from T4 Menu, ContextMenu, Listbox, Select | The smallest set that builds a real application: actions, forms, overlays, and choice from a known set |
-| v1.1 | Remaining T4, and from T5 Tabs, Accordion, Breadcrumb, Pagination, Toolbar | Filtering and navigation, once the overlay infrastructure has been exercised by real use |
-| v1.2 | Table, Calendar, DatePicker, TimePicker, remaining T5 | Dense application surfaces, once collection behaviour is proven by T4 |
-| v2 | DataTable | Large enough to deserve its own PRD; virtualization and column state are the cost |
-| Unscheduled | T7 | Each enters only with a case against PRD §39 |
+## Not Owned by the Library
 
-The v1 boundary excludes `Tabs` and `Table`, which are commonly expected. That is a deliberate ordering choice, not an omission: both are cheap to add once T3 exists, and pulling them earlier would delay the overlay infrastructure that far more components depend on.
+Each exclusion below is a decision with a reason, not an omission. Any of them can be reversed, and reversing one adds it to `T1` unless noted.
 
-## Order of Work
+**Box, Stack, Inline, Grid, Text, Heading, Surface.** Layout and typography utilities. PRD §5 lists replacing Tailwind, Sass, or CSS Modules as a non-goal, and these add no accessibility or behavioural value over the consumer's own styling solution. Typography is a theme decision expressed in tokens.
 
-```
-T1 primitives          ──┐
-                         ├─> T2 Field ──> T2 controls ──┐
-                         │                              │
-                         └─> T3 Dialog ──> T3 overlays ─┼─> T4 selection ──> T6 data
-                                                        │
-                                                        └─> T5 navigation
-```
+**Icon.** Consumers use any source. The library owns the slot's sizing contract, and the glyphs it renders itself come from `core/glyphs`.
 
-Two constraints, both from dependency rather than preference:
+**Polymorphic rendering.** `render` in React and directive-on-native-element in Angular are a pattern the library already applies in `ButtonLink` and `slButton`. It belongs in the glossary, not in a shipped `Slot` component.
 
-1. `Field` precedes every other form control, because it owns the ARIA wiring they all reuse.
-2. `Dialog` precedes every other overlay, because it exercises focus trapping, restoration, dismissal, and scroll locking together, and designing the core modules against it produces signatures the simpler overlays can use.
+**ScrollArea.** Custom scrollbar presentation. Native scrollbars are accessible, respect user settings, and cost nothing; a replacement needs a concrete case that native cannot serve.
+
+## Requires a Case Before Entering
+
+These appear in earlier planning notes and are neither accepted nor rejected here. Each needs an argument against PRD §39 and §40 — whether it is a recurring, generalizable problem the library should centrally maintain, and whether it is better served by an existing dependency.
+
+| Candidate | The question |
+| --- | --- |
+| RichTextEditor | Almost certainly a wrapper over an existing editor rather than an in-house implementation. Which one, and does wrapping it belong in a UI library? |
+| CodeEditor, JSON editor | Same question, with a larger dependency and a narrower audience. |
+| Charts | PRD §23.1 names charts as an example of what importing a button must never pull in. Likely a separate package if owned at all. |
+| Carousel, Rating, Timeline, Statistic | Common in component libraries, uncommon in dense applications. Each needs a real requirement before entering. |
 
 ## Per-Component Process
 
-Each component follows the process already proven on the button family:
+Each component follows the process proven on the button family:
 
 1. A contract in `specs/components/<family>/contract.json`, with its test.
-2. A design brought through the brainstorming skill when the component raises genuine architectural questions, and skipped when it does not.
+2. A design through the brainstorming skill when the component raises architectural questions, skipped when it does not.
 3. An implementation plan, executed task by task with tests written first.
 4. Both frameworks in the same plan whenever a public contract changes, so no commit leaves the library inconsistent.
 5. Storybook coverage driven by the contract's scenarios, verified by the existing coverage check.
 
+Completion is governed by PRD §42, which this document does not restate.
+
 ## Open Questions
 
-These belong to the components that raise them and are recorded so they are not rediscovered:
+Recorded so they are not rediscovered. Each is decided by the component that raises it, not now.
 
-1. Whether `Listbox` is a public component or an internal building block for `Select` and `Combobox`. Decided when `Select` is designed.
-2. Whether `Toolbar` and `ButtonGroup` are one concept. `ButtonGroup` exists and joins seams; `Toolbar` adds a single focus stop. Decided when `Toolbar` is designed.
+1. Whether `Listbox` is public or an internal building block for `Select` and `Combobox`. Decided when `Select` is designed.
+2. Whether `Toolbar` and `ButtonGroup` are one concept. `ButtonGroup` joins seams; `Toolbar` adds a single focus stop. Decided when `Toolbar` is designed.
 3. Whether `Drawer` is a `Dialog` variant or its own component. Decided when `Drawer` is designed.
-4. Whether `RichTextEditor` and `Charts` belong to the library at all. Both currently read as out of scope.
+4. Whether `Menu`, `Menubar`, and `NavigationMenu` share one implementation. Decided when `Menubar` is designed.
+5. Whether `Fieldset` is a component or a documented composition of `Field`. Decided when `Fieldset` is designed.
