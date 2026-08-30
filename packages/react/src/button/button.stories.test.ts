@@ -83,39 +83,74 @@ describe('Button family stories', () => {
     const { container } = render(createElement(Fragment, undefined, overview));
 
     expect(container.querySelectorAll('.slotted-component-lab__section')).toHaveLength(6);
-    expect(container.querySelectorAll('.slotted-demo-scene')).toHaveLength(11);
+    expect(container.querySelectorAll('.slotted-demo-scene')).toHaveLength(15);
 
-    const componentMatrices = {
-      button: 'button',
-      'button-link': 'button-link',
-      'icon-button': 'icon-button',
-      'toggle-button': 'toggle-button',
-    } as const;
-    for (const [matrixName, componentName] of Object.entries(componentMatrices)) {
-      const matrix = container.querySelector(`[data-slotted-matrix="${matrixName}"]`);
-      expect(matrix).not.toBeNull();
-      expect(matrix?.querySelectorAll(`[data-slotted-component="${componentName}"]`)).toHaveLength(
-        15,
-      );
-      for (const variant of ['accent', 'secondary', 'success', 'warning', 'danger']) {
-        expect(matrix?.querySelectorAll(`[data-variant="${variant}"]`)).toHaveLength(3);
-      }
-      for (const fill of ['solid', 'outline', 'ghost']) {
-        expect(matrix?.querySelectorAll(`[data-fill="${fill}"]`)).toHaveLength(5);
-      }
+    const appearanceMatrix = container.querySelector('[data-slotted-matrix="button"]');
+    expect(appearanceMatrix).not.toBeNull();
+    expect(appearanceMatrix?.querySelectorAll('[data-slotted-component="button"]')).toHaveLength(
+      15,
+    );
+    for (const variant of ['accent', 'secondary', 'success', 'warning', 'danger']) {
+      expect(appearanceMatrix?.querySelectorAll(`[data-variant="${variant}"]`)).toHaveLength(3);
     }
+    for (const fill of ['solid', 'outline', 'ghost']) {
+      expect(appearanceMatrix?.querySelectorAll(`[data-fill="${fill}"]`)).toHaveLength(5);
+    }
+
+    expect(container.querySelectorAll('[data-slotted-matrix]')).toHaveLength(2);
 
     const toggleStateMatrix = container.querySelector('[data-slotted-matrix="toggle-state"]');
     expect(
       toggleStateMatrix?.querySelectorAll('[data-slotted-component="toggle-button"]'),
-    ).toHaveLength(10);
-    expect(toggleStateMatrix?.querySelectorAll('[aria-pressed="true"]')).toHaveLength(5);
+    ).toHaveLength(30);
+    expect(toggleStateMatrix?.querySelectorAll('[aria-pressed="true"]')).toHaveLength(15);
+    expect(toggleStateMatrix?.querySelectorAll('[aria-pressed="false"]')).toHaveLength(15);
+    for (const variant of ['accent', 'secondary', 'success', 'warning', 'danger']) {
+      expect(toggleStateMatrix?.querySelectorAll(`[data-variant="${variant}"]`)).toHaveLength(6);
+    }
+    for (const fill of ['solid', 'outline', 'ghost']) {
+      expect(toggleStateMatrix?.querySelectorAll(`[data-fill="${fill}"]`)).toHaveLength(10);
+    }
     expect(container.querySelector('.slotted-matrix button[data-tone]')).toBeNull();
 
     const iconButtons = container.querySelectorAll('[data-slotted-component="icon-button"]');
     expect(iconButtons.length).toBeGreaterThan(0);
     for (const iconButton of iconButtons) {
       expect(iconButton.querySelector('svg.lucide[aria-hidden="true"]')).not.toBeNull();
+      expect(iconButton).toHaveAttribute('data-part-root', 'icon');
+    }
+  });
+
+  it('demonstrates each family member with something Button alone does not show', () => {
+    const overview = overviewStories.Matrix.render?.({} as never, {} as never);
+    const { container } = render(createElement(Fragment, undefined, overview));
+
+    const headings = [...container.querySelectorAll('.slotted-component-lab__intro h2')].map(
+      (heading) => heading.textContent,
+    );
+    expect(headings).toEqual([
+      'Appearance system',
+      'Button',
+      'ButtonLink',
+      'IconButton',
+      'ToggleButton',
+      'Composition',
+    ]);
+
+    const links = container.querySelectorAll('a[data-slotted-component="button-link"]');
+    expect(links.length).toBeGreaterThan(0);
+    for (const link of links) {
+      expect(link.getAttribute('href')).toBeTruthy();
+    }
+    expect(
+      container.querySelector('a[data-slotted-component="button-link"][aria-disabled="true"]'),
+    ).not.toBeNull();
+
+    const sizedIconButtons = [
+      ...container.querySelectorAll('[data-slotted-component="icon-button"]'),
+    ].map((iconButton) => iconButton.getAttribute('data-size'));
+    for (const size of ['sm', 'md', 'lg']) {
+      expect(sizedIconButtons).toContain(size);
     }
   });
 

@@ -55,6 +55,18 @@ test('workbench CSS gives matrices stable geometry and centered non-empty cells'
   assert.match(css, /\.slotted-matrix__cell\s*>\s*\*\s*\{[\s\S]*?vertical-align:\s*middle/);
 });
 
+test('matrix cells never stretch icon-only controls out of their square footprint', () => {
+  assert.match(
+    css,
+    /\.slotted-matrix__cell\s*>\s*\.slotted-button:not\(\[data-part-root='icon'\]\)\s*\{[\s\S]*?min-inline-size:\s*92px/,
+  );
+  assert.doesNotMatch(css, /\.slotted-matrix__cell\s*>\s*\.slotted-button\s*\{/);
+  assert.match(
+    css,
+    /\.slotted-matrix__cell\s*>\s*\.slotted-demo-row\s*\{[\s\S]*?justify-content:\s*center/,
+  );
+});
+
 test('workbench does not own icon glyph data', () => {
   assert.doesNotMatch(css, /slotted-demo-icon|mask-image:\s*url\(["']data:image\/svg\+xml/);
 });

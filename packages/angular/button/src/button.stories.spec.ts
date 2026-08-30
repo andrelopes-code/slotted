@@ -63,33 +63,72 @@ describe('Angular Button family stories', () => {
     host.innerHTML = template;
 
     expect(host.querySelectorAll('.slotted-component-lab__section')).toHaveLength(6);
-    expect(host.querySelectorAll('.slotted-demo-scene')).toHaveLength(11);
+    expect(host.querySelectorAll('.slotted-demo-scene')).toHaveLength(15);
 
-    const componentMatrices = ['button', 'button-link', 'icon-button', 'toggle-button'];
-    for (const matrixName of componentMatrices) {
-      const matrix = host.querySelector(`[data-slotted-matrix="${matrixName}"]`);
-      expect(matrix).not.toBeNull();
-      expect(matrix?.querySelectorAll('button, a')).toHaveLength(15);
-      for (const variant of ['accent', 'secondary', 'success', 'warning', 'danger']) {
-        expect(matrix?.querySelectorAll(`[variant="${variant}"]`)).toHaveLength(3);
-      }
-      for (const fill of ['solid', 'outline', 'ghost']) {
-        expect(matrix?.querySelectorAll(`[fill="${fill}"]`)).toHaveLength(5);
-      }
+    const appearanceMatrix = host.querySelector('[data-slotted-matrix="button"]');
+    expect(appearanceMatrix).not.toBeNull();
+    expect(appearanceMatrix?.querySelectorAll('button[slbutton]')).toHaveLength(15);
+    for (const variant of ['accent', 'secondary', 'success', 'warning', 'danger']) {
+      expect(appearanceMatrix?.querySelectorAll(`[variant="${variant}"]`)).toHaveLength(3);
+    }
+    for (const fill of ['solid', 'outline', 'ghost']) {
+      expect(appearanceMatrix?.querySelectorAll(`[fill="${fill}"]`)).toHaveLength(5);
     }
 
+    expect(host.querySelectorAll('[data-slotted-matrix]')).toHaveLength(2);
+
     const toggleStateMatrix = host.querySelector('[data-slotted-matrix="toggle-state"]');
-    expect(toggleStateMatrix?.querySelectorAll('button[sltogglebutton]')).toHaveLength(10);
-    expect(toggleStateMatrix?.querySelectorAll('[\\[pressed\\]="true"]')).toHaveLength(5);
+    expect(toggleStateMatrix?.querySelectorAll('button[sltogglebutton]')).toHaveLength(30);
+    expect(toggleStateMatrix?.querySelectorAll('[\\[pressed\\]="true"]')).toHaveLength(15);
+    expect(toggleStateMatrix?.querySelectorAll('[\\[pressed\\]="false"]')).toHaveLength(15);
+    for (const variant of ['accent', 'secondary', 'success', 'warning', 'danger']) {
+      expect(toggleStateMatrix?.querySelectorAll(`[variant="${variant}"]`)).toHaveLength(6);
+    }
+    for (const fill of ['solid', 'outline', 'ghost']) {
+      expect(toggleStateMatrix?.querySelectorAll(`[fill="${fill}"]`)).toHaveLength(10);
+    }
     expect(host.querySelector('.slotted-matrix button[tone]')).toBeNull();
 
     const iconButtons = host.querySelectorAll('button[sliconbutton]');
     expect(iconButtons.length).toBeGreaterThan(0);
     for (const iconButton of iconButtons) {
       expect(iconButton.querySelector('ng-icon[name][aria-hidden="true"]')).not.toBeNull();
+      expect(iconButton.getAttribute('aria-label')?.trim()).toBeTruthy();
     }
 
     expect(template).not.toMatch(/[+⌄⌘]/u);
+  });
+
+  it('demonstrates each family member with something Button alone does not show', () => {
+    const template = overviewStories.Matrix.render?.({} as never, {} as never)?.template ?? '';
+    const host = document.createElement('div');
+    host.innerHTML = template;
+
+    const headings = [...host.querySelectorAll('.slotted-component-lab__intro h2')].map(
+      (heading) => heading.textContent,
+    );
+    expect(headings).toEqual([
+      'Appearance system',
+      'Button',
+      'ButtonLink',
+      'IconButton',
+      'ToggleButton',
+      'Composition',
+    ]);
+
+    const links = host.querySelectorAll('a[slbuttonlink]');
+    expect(links.length).toBeGreaterThan(0);
+    for (const link of links) {
+      expect(link.getAttribute('href')).toBeTruthy();
+    }
+    expect(host.querySelector('a[slbuttonlink][disabled]')).not.toBeNull();
+
+    const sizedIconButtons = [...host.querySelectorAll('button[sliconbutton]')].map((iconButton) =>
+      iconButton.getAttribute('size'),
+    );
+    for (const size of ['sm', 'md', 'lg']) {
+      expect(sizedIconButtons).toContain(size);
+    }
   });
 
   it('exposes every IconButton appearance axis in its playground', () => {
