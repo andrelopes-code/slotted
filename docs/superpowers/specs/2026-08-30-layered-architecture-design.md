@@ -41,6 +41,8 @@ L4  @slotted/testing           published test helpers
 
 `L3` may import `L2`, `L1`, and `L0`. `L1` may import `L0`. `L2` imports nothing from this repository. `L2` never imports `L3`. `@slotted/react` and `@slotted/angular` never import each other.
 
+Layer 1 carries an internal order, because `@slotted/theme-default` consumes the token contract to build a theme: `@slotted/tokens` and `@slotted/styles` come before `@slotted/theme-default`. The check therefore ranks packages rather than grouping them — the tens digit is the architectural layer, the ones digit orders packages inside it, and a package may depend only on a strictly lower rank. No other layer has an internal edge today.
+
 The rule is enforced, not documented only. `packages/react/package-boundary.verify.mjs` is generalized into a repository-level check that reads each package's manifest and fails on any edge outside the graph above.
 
 ## L0 — Contracts
