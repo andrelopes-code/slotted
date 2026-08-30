@@ -6,7 +6,7 @@ import type { ButtonGroupOrientation } from './button.constants';
   selector: 'div[slButtonGroup]',
   standalone: true,
   template: '<ng-content></ng-content>',
-  styleUrl: './button-group.css',
+  styleUrl: '../../../styles/src/button/button-group.css',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

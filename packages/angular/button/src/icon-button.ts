@@ -9,6 +9,7 @@ import {
   inject,
   input,
   isDevMode,
+  ViewEncapsulation,
 } from '@angular/core';
 
 import { blockActivation, buttonState } from './button-appearance';
@@ -36,8 +37,9 @@ import {
       </span>
     }
   `,
-  styleUrl: './button.css',
+  styleUrl: '../../../styles/src/button/button.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
   host: {
     class: 'slotted-button',
     'data-slotted-component': 'icon-button',
