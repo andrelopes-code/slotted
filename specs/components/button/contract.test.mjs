@@ -6,7 +6,7 @@ const contract = JSON.parse(await readFile(new URL('./contract.json', import.met
 const appearanceMembers = ['button', 'buttonLink', 'iconButton', 'toggleButton'];
 
 test('defines the ordered button family structure and axes', () => {
-  assert.equal(contract.schemaVersion, 3);
+  assert.equal(contract.schemaVersion, 4);
   assert.equal(contract.family, 'button');
   assert.deepEqual(Object.keys(contract.members), [
     'button',
@@ -111,5 +111,26 @@ test('provides uniquely named scenarios for every page', () => {
     for (const scenarioId of scenarioIds) {
       assert.match(scenarioId, /^[a-z][a-zA-Z]+$/, `${page}: ${scenarioId}`);
     }
+  }
+});
+
+test('maps every attribute-driven state to a boolean data attribute', () => {
+  assert.deepEqual(contract.stateAttributes, {
+    disabled: 'data-disabled',
+    loading: 'data-loading',
+    pressed: 'data-pressed',
+  });
+
+  const pseudoStates = new Set(['default', 'hover', 'active', 'focus-visible']);
+  const declaredStates = new Set(
+    Object.values(contract.members).flatMap((member) => member.states),
+  );
+
+  for (const state of declaredStates) {
+    if (pseudoStates.has(state)) {
+      assert.ok(!(state in contract.stateAttributes), `${state} must not have an attribute`);
+      continue;
+    }
+    assert.ok(state in contract.stateAttributes, `${state} needs an attribute`);
   }
 });
