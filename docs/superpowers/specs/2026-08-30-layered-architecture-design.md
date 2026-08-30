@@ -45,13 +45,9 @@ The rule is enforced, not documented only. `packages/react/package-boundary.veri
 
 ## L0 — Contracts
 
-`specs/` gains `primitives/` and `patterns/` alongside `components/`, covering all four terms of PRD §38.
+`specs/components/<family>/contract.json` stays the only contract shape. A family declares its members, axes, capabilities, states, parts, and scenarios, as `specs/components/button/` already does.
 
-```
-specs/components/<family>/contract.json
-specs/primitives/<name>/contract.json
-specs/patterns/<name>/contract.json
-```
+The four terms of PRD §38 — primitive, component, pattern, theme — are documented in the glossary required by §16, not expressed as directories. A `specs/primitives/` or `specs/patterns/` directory appears when a contract exists that the family shape cannot express, and not before.
 
 `contract.json` becomes the single source of the scenario list. `BUTTON_FAMILY_SCENARIOS` is deleted; `packages/storybook-workbench/src/scenarios.tsx` reads the contract file. The scenario coverage check keeps its current behavior and loses its duplicate source.
 
@@ -114,6 +110,10 @@ Portals, stacking, and scroll locking are built on platform features — the nat
 
 ## L3 — Framework Packages
 
+The first version targets React and Angular only. No third framework package is planned, and PRD §5 lists supporting every framework as a non-goal.
+
+The dependency rule nonetheless keeps a future framework additive rather than structural: `L0`, `L1`, and `L2` contain no React or Angular import, so a third package would consume the existing contracts, stylesheet, and core without altering them. That is a property of the layering, not a commitment.
+
 Current structure is kept: subpath exports in React, ng-packagr secondary entry points in Angular. Each component wraps `L2` in the local idiom — a hook in React, a directive or injectable service in Angular — applies the `L1` classes, and satisfies the `L0` contract.
 
 Directives sit on native elements wherever the native element suffices, as `slButton` already does, so `formControlName`, `ngModel`, and native attributes reach the real element.
@@ -128,7 +128,9 @@ Directives sit on native elements wherever the native element suffices, as `slBu
 
 ### Field and Forms
 
-`Field` is a composition primitive with a contract in `specs/primitives/field/`. It generates ids through `core/id`, composes `aria-describedby` from description and error, and propagates `invalid`, `required`, `disabled`, and `readOnly` to the control — through context in React, through dependency injection in Angular.
+`Field` is a component family, contracted at `specs/components/field/` with members `field`, `fieldLabel`, `fieldDescription`, and `fieldError`, and published in the same entry point as the form controls. It is composition-shaped, but it is not filed apart from the controls: nobody reaches for `Field` without a control, and the family shape already carried by `specs/components/button/` expresses it without new contract machinery.
+
+`Field` generates ids through `core/id`, composes `aria-describedby` from description and error, and propagates `invalid`, `required`, `disabled`, and `readOnly` to the control — through context in React, through dependency injection in Angular.
 
 ```tsx
 <Field invalid>
@@ -259,6 +261,8 @@ Steps 1 through 6 apply to code that exists and are verifiable against the curre
 ## Out of Scope
 
 Component catalog selection and ordering. This design fixes the structure; which components are built, in which tier, and in what order is decided afterward against this structure.
+
+Layout and typography primitives — box, stack, grid, text, heading, surface, card, scroll area, visually-hidden — are the first question that catalog work resolves, including whether each is a public component, an internal utility, or nothing the library should own at all. The layering hosts them in `L3` either way, so the decision does not change this structure.
 
 Visual regression infrastructure, deferred as recorded above.
 
