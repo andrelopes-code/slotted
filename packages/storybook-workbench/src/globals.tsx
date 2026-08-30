@@ -5,9 +5,9 @@ export const INITIAL_GLOBALS = {
 } as const;
 
 export const GLOBAL_TYPES = {
-  theme: { toolbar: { icon: 'paintbrush', items: ['default'] } },
-  scheme: { toolbar: { icon: 'contrast', items: ['light', 'dark'] } },
-  density: { toolbar: { icon: 'component', items: ['comfortable', 'compact'] } },
+  theme: { toolbar: { icon: 'paintbrush', items: ['default'] as string[] } },
+  scheme: { toolbar: { icon: 'contrast', items: ['light', 'dark'] as string[] } },
+  density: { toolbar: { icon: 'component', items: ['comfortable', 'compact'] as string[] } },
 } as const;
 
 type StorybookGlobals = Record<string, unknown> | undefined;
