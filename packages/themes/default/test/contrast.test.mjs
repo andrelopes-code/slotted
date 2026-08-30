@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const theme = JSON.parse(readFileSync(new URL('../src/theme.json', import.meta.url), 'utf8'));
-const tones = ['neutral', 'accent', 'success', 'warning', 'danger'];
+const variants = ['accent', 'secondary', 'success', 'warning', 'danger'];
 const solidStates = ['solid', 'solid-hover', 'solid-active'];
 
 function channel(value) {
@@ -29,14 +29,14 @@ function contrast(first, second) {
 }
 
 for (const [scheme, values] of Object.entries(theme.schemes)) {
-  test(`${scheme} solid tones meet text contrast`, () => {
-    for (const tone of tones) {
-      const foreground = values[`--slotted-tone-${tone}-on-solid`];
+  test(`${scheme} solid variants meet text contrast`, () => {
+    for (const variant of variants) {
+      const foreground = values[`--slotted-tone-${variant}-on-solid`];
       for (const state of solidStates) {
-        const background = values[`--slotted-tone-${tone}-${state}`];
+        const background = values[`--slotted-tone-${variant}-${state}`];
         assert.ok(
           contrast(background, foreground) >= 4.5,
-          `${scheme}.${tone}.${state} has insufficient contrast`,
+          `${scheme}.${variant}.${state} has insufficient contrast`,
         );
       }
     }
@@ -47,4 +47,39 @@ test('danger remains a strong surface with white text', () => {
   for (const values of Object.values(theme.schemes)) {
     assert.equal(values['--slotted-tone-danger-on-solid'], '#ffffff');
   }
+});
+
+test('accent and success remain strong surfaces with white text', () => {
+  for (const values of Object.values(theme.schemes)) {
+    assert.equal(values['--slotted-tone-accent-on-solid'], '#ffffff');
+    assert.equal(values['--slotted-tone-success-on-solid'], '#ffffff');
+  }
+});
+
+test('secondary remains a neutral surface rather than an inverted foreground', () => {
+  assert.deepEqual(
+    {
+      active: theme.schemes.light['--slotted-tone-secondary-solid-active'],
+      default: theme.schemes.light['--slotted-tone-secondary-solid'],
+      hover: theme.schemes.light['--slotted-tone-secondary-solid-hover'],
+      text: theme.schemes.light['--slotted-tone-secondary-on-solid'],
+    },
+    { active: '#b8c3d1', default: '#e2e8f0', hover: '#cbd5e1', text: '#172033' },
+  );
+  assert.deepEqual(
+    {
+      active: theme.schemes.dark['--slotted-tone-secondary-solid-active'],
+      default: theme.schemes.dark['--slotted-tone-secondary-solid'],
+      hover: theme.schemes.dark['--slotted-tone-secondary-solid-hover'],
+      text: theme.schemes.dark['--slotted-tone-secondary-on-solid'],
+    },
+    { active: '#18181b', default: '#27272a', hover: '#3f3f46', text: '#fafafa' },
+  );
+});
+
+test('button radii decrease gently as control size increases', () => {
+  assert.deepEqual(
+    ['sm', 'md', 'lg'].map((size) => theme.base[`--slotted-button-radius-${size}`]),
+    ['7px', '6px', '5px'],
+  );
 });

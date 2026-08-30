@@ -62,7 +62,7 @@ const meta: Meta = {
     },
   },
   render: () => ({
-    template: `<div slButtonGroup aria-label="Editing history"><button slIconButton aria-label="Undo" tone="neutral" variant="outline">${demoIcon('undo')}</button><button slIconButton aria-label="Redo" tone="neutral" variant="outline">${demoIcon('redo')}</button></div>`,
+    template: `<div slButtonGroup aria-label="Editing history"><button slIconButton aria-label="Undo" variant="secondary" fill="outline">${demoIcon('undo')}</button><button slIconButton aria-label="Redo" variant="secondary" fill="outline">${demoIcon('redo')}</button></div>`,
   }),
 };
 
@@ -80,11 +80,11 @@ export const Orientations: Story = {
 <div class="slotted-demo-grid">
   <section class="slotted-demo-scene">
     <header class="slotted-demo-scene__header"><span class="slotted-demo-scene__label">Horizontal toolbar</span><span class="slotted-demo-scene__note">Compact icon actions share one outline.</span></header>
-    <div class="slotted-demo-stage"><div slButtonGroup aria-label="Editing history"><button slIconButton aria-label="Undo" tone="neutral" variant="outline">${demoIcon('undo')}</button><button slIconButton aria-label="Redo" tone="neutral" variant="outline">${demoIcon('redo')}</button><button slIconButton aria-label="Delete" tone="neutral" variant="outline">${demoIcon('trash')}</button></div></div>
+    <div class="slotted-demo-stage"><div slButtonGroup aria-label="Editing history"><button slIconButton aria-label="Undo" variant="secondary" fill="outline">${demoIcon('undo')}</button><button slIconButton aria-label="Redo" variant="secondary" fill="outline">${demoIcon('redo')}</button><button slIconButton aria-label="Delete" variant="secondary" fill="outline">${demoIcon('trash')}</button></div></div>
   </section>
   <section class="slotted-demo-scene">
     <header class="slotted-demo-scene__header"><span class="slotted-demo-scene__label">Vertical actions</span><span class="slotted-demo-scene__note">A stacked set keeps its edge treatment.</span></header>
-    <div class="slotted-demo-stage"><div slButtonGroup aria-label="Document actions" orientation="vertical"><button slButton tone="neutral" variant="outline">${demoIcon('save', 'slButtonLeading')}Save draft</button><button slButton tone="neutral" variant="outline">Duplicate</button></div></div>
+    <div class="slotted-demo-stage"><div slButtonGroup aria-label="Document actions" orientation="vertical"><button slButton variant="secondary" fill="outline">${demoIcon('save', 'slButtonLeading')}Save draft</button><button slButton variant="secondary" fill="outline">Duplicate</button></div></div>
   </section>
 </div>`,
   }),
@@ -93,13 +93,13 @@ export const Orientations: Story = {
 export const SplitAction: Story = {
   parameters: scenario('splitAction'),
   render: () => ({
-    template: `<div class="slotted-demo-stage"><div slButtonGroup aria-label="Publish actions" class="slotted-split-action"><button slButton size="md" tone="accent" variant="solid">${demoIcon('save', 'slButtonLeading')}Publish</button><button slIconButton aria-label="More publish options" size="md" tone="accent" variant="solid">${demoIcon('chevron-down')}</button></div></div>`,
+    template: `<div class="slotted-demo-stage"><div slButtonGroup aria-label="Publish actions" class="slotted-split-action"><button slButton size="md" variant="accent" fill="solid">${demoIcon('save', 'slButtonLeading')}Publish</button><button slIconButton aria-label="More publish options" size="md" variant="accent" fill="solid">${demoIcon('chevron-down')}</button></div></div>`,
   }),
 };
 
 export const Accessibility: Story = {
   parameters: scenario('accessibility'),
   render: () => ({
-    template: `<div slButtonGroup aria-label="Editing history"><button slIconButton aria-label="Undo" tone="neutral" variant="outline">${demoIcon('undo')}</button><button slIconButton aria-label="Redo" tone="neutral" variant="outline">${demoIcon('redo')}</button></div>`,
+    template: `<div slButtonGroup aria-label="Editing history"><button slIconButton aria-label="Undo" variant="secondary" fill="outline">${demoIcon('undo')}</button><button slIconButton aria-label="Redo" variant="secondary" fill="outline">${demoIcon('redo')}</button></div>`,
   }),
 };

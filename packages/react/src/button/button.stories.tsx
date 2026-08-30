@@ -42,6 +42,7 @@ export const States: Story = {
     <div className="slotted-demo-stage">
       <div className="slotted-demo-row">
         <Button>Default</Button>
+        <Button variant="secondary">Secondary</Button>
         <Button disabled>Disabled</Button>
         <Button loading loadingText="Saving">
           Save

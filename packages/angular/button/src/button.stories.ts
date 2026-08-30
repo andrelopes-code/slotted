@@ -22,8 +22,8 @@ interface ButtonStoryArgs {
   label: string;
   loading: boolean;
   size: 'sm' | 'md' | 'lg';
-  tone: 'neutral' | 'accent' | 'success' | 'warning' | 'danger';
-  variant: 'solid' | 'outline' | 'ghost';
+  fill: 'solid' | 'outline' | 'ghost';
+  variant: 'accent' | 'secondary' | 'success' | 'warning' | 'danger';
 }
 const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,
@@ -44,12 +44,15 @@ const meta: Meta<ButtonStoryArgs> = {
     label: 'Save changes',
     loading: false,
     size: 'md',
-    tone: 'accent',
-    variant: 'solid',
+    fill: 'solid',
+    variant: 'accent',
   },
   argTypes: {
-    variant: { control: 'select', options: ['solid', 'outline', 'ghost'] },
-    tone: { control: 'select', options: ['neutral', 'accent', 'success', 'warning', 'danger'] },
+    fill: { control: 'select', options: ['solid', 'outline', 'ghost'] },
+    variant: {
+      control: 'select',
+      options: ['accent', 'secondary', 'success', 'warning', 'danger'],
+    },
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
   },
   parameters: {
@@ -68,7 +71,7 @@ const meta: Meta<ButtonStoryArgs> = {
   render: (args) => ({
     props: args,
     template:
-      '<button slButton [variant]="variant" [tone]="tone" [size]="size" [disabled]="disabled" [loading]="loading" [fullWidth]="fullWidth">{{ label }}</button>',
+      '<button slButton [fill]="fill" [variant]="variant" [size]="size" [disabled]="disabled" [loading]="loading" [fullWidth]="fullWidth">{{ label }}</button>',
   }),
 };
 export default meta;
@@ -80,7 +83,7 @@ export const States: Story = {
   parameters: scenario('states'),
   render: () => ({
     template:
-      '<div class="slotted-demo-stage"><div class="slotted-demo-row"><button slButton>Default</button><button slButton disabled>Disabled</button><button slButton loading loadingText="Saving">Save</button></div></div>',
+      '<div class="slotted-demo-stage"><div class="slotted-demo-row"><button slButton>Default</button><button slButton variant="secondary">Secondary</button><button slButton disabled>Disabled</button><button slButton loading loadingText="Saving">Save</button></div></div>',
   }),
 };
 export const Content: Story = {

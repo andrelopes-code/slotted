@@ -12,8 +12,8 @@ import { SlIconButton } from './icon-button';
       aria-label="Close"
       [aria-busy]="ariaBusy()"
       [aria-disabled]="ariaDisabled()"
+      [fill]="fill()"
       [variant]="variant()"
-      [tone]="tone()"
       [size]="size()"
       [type]="type()"
       [disabled]="disabled()"
@@ -31,8 +31,8 @@ import { SlIconButton } from './icon-button';
 class NamedHost {
   readonly ariaBusy = signal<boolean | string | null>(null);
   readonly ariaDisabled = signal<boolean | string | null>(null);
-  readonly variant = signal<'solid' | 'outline' | 'ghost'>('ghost');
-  readonly tone = signal<'neutral' | 'accent' | 'success' | 'warning' | 'danger'>('neutral');
+  readonly fill = signal<'solid' | 'outline' | 'ghost'>('ghost');
+  readonly variant = signal<'accent' | 'secondary' | 'success' | 'warning' | 'danger'>('secondary');
   readonly size = signal<'sm' | 'md' | 'lg'>('md');
   readonly type = signal<'button' | 'submit' | 'reset'>('button');
   readonly disabled = signal(false);
@@ -77,8 +77,8 @@ describe('SlIconButton', () => {
     expect(button.type).toBe('button');
     expect(button.dataset['slottedComponent']).toBe('icon-button');
     expect(button.dataset['partRoot']).toBe('icon');
-    expect(button.dataset['variant']).toBe('ghost');
-    expect(button.dataset['tone']).toBe('neutral');
+    expect(button.dataset['variant']).toBe('secondary');
+    expect(button.dataset['fill']).toBe('ghost');
     expect(button.dataset['size']).toBe('md');
     expect(button.getAttribute('aria-label')).toBe('Close');
     expect(button.querySelector('[data-part="icon"]')).not.toBeNull();
@@ -87,13 +87,13 @@ describe('SlIconButton', () => {
   it('updates native attributes and appearance inputs', async () => {
     const fixture = TestBed.createComponent(NamedHost);
     fixture.componentInstance.type.set('submit');
-    fixture.componentInstance.variant.set('outline');
+    fixture.componentInstance.fill.set('outline');
     fixture.componentInstance.fullWidth.set(true);
     await fixture.whenStable();
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
 
     expect(button.type).toBe('submit');
-    expect(button.dataset['variant']).toBe('outline');
+    expect(button.dataset['fill']).toBe('outline');
     expect(button.getAttribute('data-full-width')).toBe('');
   });
 

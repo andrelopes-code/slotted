@@ -2,21 +2,21 @@ import type { ComponentPropsWithRef, ReactElement, ReactNode } from 'react';
 
 import type {
   BUTTON_GROUP_ORIENTATIONS,
+  BUTTON_FILLS,
   BUTTON_SIZES,
-  BUTTON_TONES,
   BUTTON_VARIANTS,
 } from './button.constants';
 
 export type ButtonVariant = (typeof BUTTON_VARIANTS)[number];
-export type ButtonTone = (typeof BUTTON_TONES)[number];
+export type ButtonFill = (typeof BUTTON_FILLS)[number];
 export type ButtonSize = (typeof BUTTON_SIZES)[number];
 export type ButtonGroupOrientation = (typeof BUTTON_GROUP_ORIENTATIONS)[number];
 export type ButtonType = 'button' | 'submit' | 'reset';
 
 export interface ButtonAppearanceProps {
+  fill?: ButtonFill;
   fullWidth?: boolean;
   size?: ButtonSize;
-  tone?: ButtonTone;
   variant?: ButtonVariant;
 }
 

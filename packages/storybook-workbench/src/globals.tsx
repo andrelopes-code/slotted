@@ -18,7 +18,7 @@ export function resolveWorkbenchGlobals(globals: StorybookGlobals) {
   const density = globals?.['density'] === 'compact' ? 'compact' : 'comfortable';
 
   return {
-    background: scheme === 'dark' ? '#0e1117' : '#f4f6f8',
+    background: scheme === 'dark' ? '#09090b' : '#f4f6f8',
     density,
     scheme,
     theme,

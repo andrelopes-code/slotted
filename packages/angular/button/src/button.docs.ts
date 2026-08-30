@@ -1,7 +1,7 @@
 import { defineSnippet } from '@slotted/storybook-workbench';
 import type { ApiRow } from '@slotted/storybook-workbench';
 
-import { BUTTON_SIZES, BUTTON_TONES } from './button.constants';
+import { BUTTON_SIZES, BUTTON_VARIANTS } from './button.constants';
 
 type ApiTuple = readonly [string, string, string, string, string];
 const apiRows = (rows: readonly ApiTuple[]): ApiRow[] =>
@@ -12,7 +12,7 @@ const apiRows = (rows: readonly ApiTuple[]): ApiRow[] =>
     appliesTo,
     description,
   }));
-const toneSuffixes = [
+const variantTokenSuffixes = [
   'solid',
   'solid-hover',
   'solid-active',
@@ -57,22 +57,22 @@ export const ANGULAR_BUTTON_TOKENS = [
     `--slotted-button-font-size-${size}`,
     `--slotted-button-icon-size-${size}`,
   ]),
-  ...BUTTON_TONES.flatMap((tone) =>
-    toneSuffixes.map((suffix) => `--slotted-tone-${tone}-${suffix}`),
+  ...BUTTON_VARIANTS.flatMap((variant) =>
+    variantTokenSuffixes.map((suffix) => `--slotted-tone-${variant}-${suffix}`),
   ),
 ].map((name) => ({ name, purpose: 'Theme-owned Button family decision' }));
 
 export const ANGULAR_BUTTON_DOCS = {
   button: {
     api: apiRows([
-      ['variant', 'solid | outline | ghost', 'solid', 'Button', 'Visual emphasis via [variant]'],
       [
-        'tone',
-        'neutral | accent | success | warning | danger',
+        'variant',
+        'accent | secondary | success | warning | danger',
         'accent',
         'Button',
-        'Semantic intent via [tone]',
+        'Semantic intent via [variant]',
       ],
+      ['fill', 'solid | outline | ghost', 'solid', 'Button', 'Surface treatment via [fill]'],
       ['size', 'sm | md | lg', 'md', 'Button', 'Control scale via [size]'],
       ['fullWidth', 'boolean', 'false', 'Button', 'Fill the inline container with [fullWidth]'],
       ['disabled', 'boolean', 'false', 'Button', 'Native disabled state'],
@@ -100,7 +100,7 @@ export const ANGULAR_BUTTON_DOCS = {
         label: 'Basic action',
         language: 'angular',
         source:
-          '<button slButton tone="accent">\n  <ng-icon slButtonLeading name="lucideSave" aria-hidden="true" />\n  Save changes\n</button>',
+          '<button slButton variant="accent">\n  <ng-icon slButtonLeading name="lucideSave" aria-hidden="true" />\n  Save changes\n</button>',
       }),
       defineSnippet({
         id: 'angular-button-loading',
@@ -114,18 +114,12 @@ export const ANGULAR_BUTTON_DOCS = {
     api: apiRows([
       [
         'variant',
-        'solid | outline | ghost',
-        'solid',
-        'ButtonLink',
-        'Visual emphasis via [variant]',
-      ],
-      [
-        'tone',
-        'neutral | accent | success | warning | danger',
+        'accent | secondary | success | warning | danger',
         'accent',
         'ButtonLink',
-        'Semantic intent via [tone]',
+        'Semantic intent via [variant]',
       ],
+      ['fill', 'solid | outline | ghost', 'solid', 'ButtonLink', 'Surface treatment via [fill]'],
       ['size', 'sm | md | lg', 'md', 'ButtonLink', 'Control scale via [size]'],
       ['fullWidth', 'boolean', 'false', 'ButtonLink', 'Fill the inline container with [fullWidth]'],
       ['disabled', 'boolean', 'false', 'ButtonLink', 'Suppress navigation and sequential focus'],
@@ -165,18 +159,12 @@ export const ANGULAR_BUTTON_DOCS = {
       ],
       [
         'variant',
-        'solid | outline | ghost',
-        'ghost',
+        'accent | secondary | success | warning | danger',
+        'secondary',
         'IconButton',
-        'Visual emphasis via [variant]',
+        'Semantic intent via [variant]',
       ],
-      [
-        'tone',
-        'neutral | accent | success | warning | danger',
-        'neutral',
-        'IconButton',
-        'Semantic intent via [tone]',
-      ],
+      ['fill', 'solid | outline | ghost', 'ghost', 'IconButton', 'Surface treatment via [fill]'],
       ['size', 'sm | md | lg', 'md', 'IconButton', 'Square control scale via [size]'],
       ['fullWidth', 'boolean', 'false', 'IconButton', 'Fill the inline container with [fullWidth]'],
       ['disabled', 'boolean', 'false', 'IconButton', 'Native disabled state'],
@@ -211,17 +199,17 @@ export const ANGULAR_BUTTON_DOCS = {
       ['pressedChange', 'boolean event', '—', 'ToggleButton', 'Requests the next controlled state'],
       [
         'variant',
+        'accent | secondary | success | warning | danger',
+        'secondary',
+        'ToggleButton',
+        'Semantic intent via [variant]',
+      ],
+      [
+        'fill',
         'solid | outline | ghost',
         'outline',
         'ToggleButton',
-        'Visual emphasis via [variant]',
-      ],
-      [
-        'tone',
-        'neutral | accent | success | warning | danger',
-        'neutral',
-        'ToggleButton',
-        'Semantic intent via [tone]',
+        'Surface treatment via [fill]',
       ],
       ['size', 'sm | md | lg', 'md', 'ToggleButton', 'Control scale via [size]'],
       [

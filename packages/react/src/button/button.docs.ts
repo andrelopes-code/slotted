@@ -1,7 +1,7 @@
 import { defineSnippet } from '@slotted/storybook-workbench';
 import type { ApiRow } from '@slotted/storybook-workbench';
 
-import { BUTTON_SIZES, BUTTON_TONES } from './button.constants';
+import { BUTTON_SIZES, BUTTON_VARIANTS } from './button.constants';
 
 type ApiTuple = readonly [string, string, string, string, string];
 const apiRows = (rows: readonly ApiTuple[]): ApiRow[] =>
@@ -12,7 +12,7 @@ const apiRows = (rows: readonly ApiTuple[]): ApiRow[] =>
     appliesTo,
     description,
   }));
-const toneSuffixes = [
+const variantTokenSuffixes = [
   'solid',
   'solid-hover',
   'solid-active',
@@ -57,22 +57,22 @@ export const REACT_BUTTON_TOKENS = [
     `--slotted-button-font-size-${size}`,
     `--slotted-button-icon-size-${size}`,
   ]),
-  ...BUTTON_TONES.flatMap((tone) =>
-    toneSuffixes.map((suffix) => `--slotted-tone-${tone}-${suffix}`),
+  ...BUTTON_VARIANTS.flatMap((variant) =>
+    variantTokenSuffixes.map((suffix) => `--slotted-tone-${variant}-${suffix}`),
   ),
 ].map((name) => ({ name, purpose: 'Theme-owned Button family decision' }));
 
 export const REACT_BUTTON_DOCS = {
   button: {
     api: apiRows([
-      ['variant', 'solid | outline | ghost', 'solid', 'Button', 'Visual emphasis'],
       [
-        'tone',
-        'neutral | accent | success | warning | danger',
+        'variant',
+        'accent | secondary | success | warning | danger',
         'accent',
         'Button',
         'Semantic intent',
       ],
+      ['fill', 'solid | outline | ghost', 'solid', 'Button', 'Surface treatment'],
       ['size', 'sm | md | lg', 'md', 'Button', 'Control scale'],
       ['leading', 'ReactNode', '—', 'Button', 'Logical leading content'],
       ['trailing', 'ReactNode', '—', 'Button', 'Logical trailing content'],
@@ -94,7 +94,7 @@ export const REACT_BUTTON_DOCS = {
         label: 'Basic action',
         language: 'tsx',
         source:
-          'import { Save } from \'lucide-react\';\n\n<Button tone="accent" leading={<Save aria-hidden="true" />}>\n  Save changes\n</Button>;',
+          'import { Save } from \'lucide-react\';\n\n<Button variant="accent" leading={<Save aria-hidden="true" />}>\n  Save changes\n</Button>;',
       }),
       defineSnippet({
         id: 'react-button-loading',
@@ -109,14 +109,14 @@ export const REACT_BUTTON_DOCS = {
       ['href', 'string', 'required in native mode', 'ButtonLink', 'Native navigation destination'],
       ['render', '(rootProps) => ReactElement', '—', 'ButtonLink', 'Router-owned link adapter'],
       ['disabled', 'boolean', 'false', 'ButtonLink', 'Suppress navigation and sequential focus'],
-      ['variant', 'solid | outline | ghost', 'solid', 'ButtonLink', 'Visual emphasis'],
       [
-        'tone',
-        'neutral | accent | success | warning | danger',
+        'variant',
+        'accent | secondary | success | warning | danger',
         'accent',
         'ButtonLink',
         'Semantic intent',
       ],
+      ['fill', 'solid | outline | ghost', 'solid', 'ButtonLink', 'Surface treatment'],
       ['size', 'sm | md | lg', 'md', 'ButtonLink', 'Control scale'],
       ['leading', 'ReactNode', '—', 'ButtonLink', 'Logical leading content'],
       ['trailing', 'ReactNode', '—', 'ButtonLink', 'Logical trailing content'],
@@ -152,14 +152,14 @@ export const REACT_BUTTON_DOCS = {
         'IconButton',
         'Explicit accessible name',
       ],
-      ['variant', 'solid | outline | ghost', 'ghost', 'IconButton', 'Visual emphasis'],
       [
-        'tone',
-        'neutral | accent | success | warning | danger',
-        'neutral',
+        'variant',
+        'accent | secondary | success | warning | danger',
+        'secondary',
         'IconButton',
         'Semantic intent',
       ],
+      ['fill', 'solid | outline | ghost', 'ghost', 'IconButton', 'Surface treatment'],
       ['size', 'sm | md | lg', 'md', 'IconButton', 'Square control scale'],
       ['fullWidth', 'boolean', 'false', 'IconButton', 'Fill the inline container'],
       ['disabled', 'boolean', 'false', 'IconButton', 'Native disabled state'],
@@ -178,7 +178,7 @@ export const REACT_BUTTON_DOCS = {
         label: 'Named icon action',
         language: 'tsx',
         source:
-          'import { X } from \'lucide-react\';\n\n<IconButton aria-label="Close" variant="ghost">\n  <X aria-hidden="true" />\n</IconButton>;',
+          'import { X } from \'lucide-react\';\n\n<IconButton aria-label="Close" fill="ghost">\n  <X aria-hidden="true" />\n</IconButton>;',
       }),
     ],
   },
@@ -192,14 +192,14 @@ export const REACT_BUTTON_DOCS = {
         'ToggleButton',
         'Requests the next state',
       ],
-      ['variant', 'solid | outline | ghost', 'outline', 'ToggleButton', 'Visual emphasis'],
       [
-        'tone',
-        'neutral | accent | success | warning | danger',
-        'neutral',
+        'variant',
+        'accent | secondary | success | warning | danger',
+        'secondary',
         'ToggleButton',
         'Semantic intent',
       ],
+      ['fill', 'solid | outline | ghost', 'outline', 'ToggleButton', 'Surface treatment'],
       ['size', 'sm | md | lg', 'md', 'ToggleButton', 'Control scale'],
       ['leading', 'ReactNode', '—', 'ToggleButton', 'Logical leading content'],
       ['trailing', 'ReactNode', '—', 'ToggleButton', 'Logical trailing content'],

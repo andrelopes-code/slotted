@@ -29,6 +29,22 @@ function assertRuleDeclarations(source, selector, declarations) {
   }
 }
 
+function assertNormalizedRuleDeclarations(source, selector, declarations) {
+  const normalizedSource = source.replace(/\s+/g, '');
+  const normalizedSelector = selector.replace(/\s+/g, '');
+  const start = normalizedSource.indexOf(`${normalizedSelector}{`);
+  assert.notEqual(start, -1, `Missing selector: ${selector}`);
+  const end = normalizedSource.indexOf('}', start);
+  const rule = normalizedSource.slice(start, end + 1);
+
+  for (const declaration of declarations) {
+    assert.ok(
+      rule.includes(declaration.replace(/\s+/g, '')),
+      `Missing declaration for ${selector}: ${declaration}`,
+    );
+  }
+}
+
 test('implements every contract state in framework-owned CSS', () => {
   const requiredStates = new Set(
     Object.values(contract.members).flatMap((member) => member.states),
@@ -36,9 +52,9 @@ test('implements every contract state in framework-owned CSS', () => {
   const selectors = {
     default: ':host {',
     hover:
-      ":host([data-variant='solid']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed']))",
+      ":host([data-fill='solid']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed']))",
     active:
-      ":host([data-variant='solid']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed']))",
+      ":host([data-fill='solid']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed']))",
     'focus-visible': ':host(:focus-visible)',
     disabled: ":host([data-state='disabled'])",
     loading: ":host([data-state='loading'])",
@@ -53,16 +69,50 @@ test('implements every contract state in framework-owned CSS', () => {
     );
   }
 
-  for (const tone of contract.axes.tone) {
-    assert.ok(css.includes(`[data-tone='${tone}']`), `Missing tone: ${tone}`);
-  }
   for (const variant of contract.axes.variant) {
     assert.ok(css.includes(`[data-variant='${variant}']`), `Missing variant: ${variant}`);
   }
+  for (const fill of contract.axes.fill) {
+    assert.ok(css.includes(`[data-fill='${fill}']`), `Missing fill: ${fill}`);
+  }
   for (const size of contract.axes.size) {
     assert.ok(css.includes(`[data-size='${size}']`), `Missing size: ${size}`);
+    assertNormalizedRuleDeclarations(css, `:host([data-size='${size}'])`, [
+      `border-radius: var(--slotted-button-radius-${size}, var(--slotted-control-radius, 4px));`,
+    ]);
   }
   assert.ok(css.includes('@media (prefers-reduced-motion: reduce)'), 'Missing reduced-motion CSS');
+});
+
+test('maps secondary to a theme palette and keeps fill borders intentional', () => {
+  assertNormalizedRuleDeclarations(css, ":host([data-variant='secondary'])", [
+    '--_solid: var(--slotted-tone-secondary-solid);',
+    '--_on-solid: var(--slotted-tone-secondary-on-solid);',
+    '--_text: var(--slotted-tone-secondary-text);',
+  ]);
+  assertNormalizedRuleDeclarations(css, ":host([data-fill='solid'])", [
+    'border-color: transparent;',
+  ]);
+  assertNormalizedRuleDeclarations(
+    css,
+    ":host([data-fill='solid']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed']))",
+    ['border-color: transparent;'],
+  );
+  assertNormalizedRuleDeclarations(
+    css,
+    ":host([data-fill='solid']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed']))",
+    ['border-color: transparent;'],
+  );
+  assertNormalizedRuleDeclarations(
+    css,
+    ":host([data-fill='outline']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed']))",
+    ['background: var(--_subtle-hover);', 'border-color: var(--_border);'],
+  );
+  assertNormalizedRuleDeclarations(
+    css,
+    ":host([data-fill='outline']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed']))",
+    ['background: var(--_subtle-active);', 'border-color: var(--_border);'],
+  );
 });
 
 test('styles button group seams and focus layering with logical properties', () => {

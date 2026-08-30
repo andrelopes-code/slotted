@@ -12,8 +12,8 @@ import {
 import { blockActivation, buttonState } from './button-appearance';
 import {
   BUTTON_DEFAULTS,
+  type ButtonFill,
   type ButtonSize,
-  type ButtonTone,
   type ButtonVariant,
 } from './button.constants';
 
@@ -33,9 +33,9 @@ import {
     class: 'slotted-button',
     'data-slotted-component': 'button-link',
     '[attr.aria-disabled]': 'disabled() ? true : ariaDisabled()',
+    '[attr.data-fill]': 'fill()',
     '[attr.data-full-width]': "fullWidth() ? '' : null",
     '[attr.data-size]': 'size()',
-    '[attr.data-tone]': 'tone()',
     '[attr.data-variant]': 'variant()',
     '[attr.data-state]': 'state()',
     '[attr.tabindex]': 'disabled() ? (tabIndex() ?? -1) : tabIndex()',
@@ -47,10 +47,10 @@ import {
 export class SlButtonLink {
   readonly ariaDisabled = input<boolean | string | null>(null, { alias: 'aria-disabled' });
   readonly disabled = input(false, { transform: booleanAttribute });
+  readonly fill = input<ButtonFill>(BUTTON_DEFAULTS.fill);
   readonly fullWidth = input(false, { transform: booleanAttribute });
   readonly tabIndex = input<number | string | null>(null, { alias: 'tabIndex' });
   readonly size = input<ButtonSize>(BUTTON_DEFAULTS.size);
-  readonly tone = input<ButtonTone>(BUTTON_DEFAULTS.tone);
   readonly variant = input<ButtonVariant>(BUTTON_DEFAULTS.variant);
 
   readonly interactionBlocked = computed(

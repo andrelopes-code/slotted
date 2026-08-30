@@ -16,7 +16,7 @@ import { SlButtonLink } from './button-link';
       [tabIndex]="tabIndex()"
       [fullWidth]="fullWidth()"
       [size]="size()"
-      [tone]="tone()"
+      [fill]="fill()"
       [variant]="variant()"
       (click)="onClick($event)"
       (auxclick)="onAuxClick($event)"
@@ -32,8 +32,8 @@ class TestHost {
   readonly tabIndex = signal<number | string | null>(null);
   readonly fullWidth = signal(false);
   readonly size = signal<'sm' | 'md' | 'lg'>('md');
-  readonly tone = signal<'neutral' | 'accent' | 'success' | 'warning' | 'danger'>('accent');
-  readonly variant = signal<'solid' | 'outline' | 'ghost'>('solid');
+  readonly fill = signal<'solid' | 'outline' | 'ghost'>('solid');
+  readonly variant = signal<'accent' | 'secondary' | 'success' | 'warning' | 'danger'>('accent');
   readonly clickSpy = vi.fn();
   readonly auxClickSpy = vi.fn();
   readonly keySpy = vi.fn();
@@ -67,8 +67,8 @@ describe('SlButtonLink', () => {
     expect(anchor.localName).toBe(contract.members.buttonLink.nativeElement);
     expect(anchor.getAttribute('href')).toBe('/settings');
     expect(anchor.dataset['slottedComponent']).toBe('button-link');
-    expect(anchor.dataset['variant']).toBe('solid');
-    expect(anchor.dataset['tone']).toBe('accent');
+    expect(anchor.dataset['variant']).toBe('accent');
+    expect(anchor.dataset['fill']).toBe('solid');
     expect(anchor.dataset['size']).toBe('md');
     expect(
       [...anchor.querySelectorAll('[data-part]')].map((part) => part.getAttribute('data-part')),
@@ -81,15 +81,15 @@ describe('SlButtonLink', () => {
     const fixture = TestBed.createComponent(TestHost);
     fixture.componentInstance.fullWidth.set(true);
     fixture.componentInstance.size.set('lg');
-    fixture.componentInstance.tone.set('danger');
-    fixture.componentInstance.variant.set('outline');
+    fixture.componentInstance.variant.set('danger');
+    fixture.componentInstance.fill.set('outline');
     await fixture.whenStable();
     const anchor = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
 
     expect(anchor.getAttribute('data-full-width')).toBe('');
     expect(anchor.dataset['size']).toBe('lg');
-    expect(anchor.dataset['tone']).toBe('danger');
-    expect(anchor.dataset['variant']).toBe('outline');
+    expect(anchor.dataset['variant']).toBe('danger');
+    expect(anchor.dataset['fill']).toBe('outline');
   });
 
   it('preserves native anchor attributes, classes, and DOM reference behavior', async () => {

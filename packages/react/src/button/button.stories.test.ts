@@ -43,10 +43,14 @@ describe('Button family stories', () => {
     }
   });
 
-  it('spells every member tone union in the reference API', () => {
-    const toneType = 'neutral | accent | success | warning | danger';
-    for (const page of ['buttonLink', 'iconButton', 'toggleButton'] as const) {
-      expect(REACT_BUTTON_DOCS[page].api.find((row) => row.name === 'tone')?.type).toBe(toneType);
+  it('spells every appearance axis in the reference API', () => {
+    const variantType = 'accent | secondary | success | warning | danger';
+    const fillType = 'solid | outline | ghost';
+    for (const page of ['button', 'buttonLink', 'iconButton', 'toggleButton'] as const) {
+      expect(REACT_BUTTON_DOCS[page].api.find((row) => row.name === 'variant')?.type).toBe(
+        variantType,
+      );
+      expect(REACT_BUTTON_DOCS[page].api.find((row) => row.name === 'fill')?.type).toBe(fillType);
     }
   });
 
@@ -78,14 +82,57 @@ describe('Button family stories', () => {
     const overview = overviewStories.Matrix.render?.({} as never, {} as never);
     const { container } = render(createElement(Fragment, undefined, overview));
 
-    expect(container.querySelectorAll('.slotted-component-lab__section')).toHaveLength(3);
-    expect(container.querySelectorAll('.slotted-demo-scene')).toHaveLength(6);
+    expect(container.querySelectorAll('.slotted-component-lab__section')).toHaveLength(6);
+    expect(container.querySelectorAll('.slotted-demo-scene')).toHaveLength(11);
+
+    const componentMatrices = {
+      button: 'button',
+      'button-link': 'button-link',
+      'icon-button': 'icon-button',
+      'toggle-button': 'toggle-button',
+    } as const;
+    for (const [matrixName, componentName] of Object.entries(componentMatrices)) {
+      const matrix = container.querySelector(`[data-slotted-matrix="${matrixName}"]`);
+      expect(matrix).not.toBeNull();
+      expect(matrix?.querySelectorAll(`[data-slotted-component="${componentName}"]`)).toHaveLength(
+        15,
+      );
+      for (const variant of ['accent', 'secondary', 'success', 'warning', 'danger']) {
+        expect(matrix?.querySelectorAll(`[data-variant="${variant}"]`)).toHaveLength(3);
+      }
+      for (const fill of ['solid', 'outline', 'ghost']) {
+        expect(matrix?.querySelectorAll(`[data-fill="${fill}"]`)).toHaveLength(5);
+      }
+    }
+
+    const toggleStateMatrix = container.querySelector('[data-slotted-matrix="toggle-state"]');
+    expect(
+      toggleStateMatrix?.querySelectorAll('[data-slotted-component="toggle-button"]'),
+    ).toHaveLength(10);
+    expect(toggleStateMatrix?.querySelectorAll('[aria-pressed="true"]')).toHaveLength(5);
+    expect(container.querySelector('.slotted-matrix button[data-tone]')).toBeNull();
 
     const iconButtons = container.querySelectorAll('[data-slotted-component="icon-button"]');
     expect(iconButtons.length).toBeGreaterThan(0);
     for (const iconButton of iconButtons) {
       expect(iconButton.querySelector('svg.lucide[aria-hidden="true"]')).not.toBeNull();
     }
+  });
+
+  it('exposes every IconButton appearance axis in its playground', () => {
+    const meta = iconButtonStories.default;
+
+    expect(meta.args).toMatchObject({
+      disabled: false,
+      fill: 'ghost',
+      loading: false,
+      size: 'md',
+      variant: 'secondary',
+    });
+    expect(meta.argTypes?.variant).toMatchObject({
+      options: ['accent', 'secondary', 'success', 'warning', 'danger'],
+    });
+    expect(meta.argTypes?.fill).toMatchObject({ options: ['solid', 'outline', 'ghost'] });
   });
 
   it('renders split actions as one coherent control with matching segments', () => {
@@ -98,8 +145,8 @@ describe('Button family stories', () => {
     expect(buttons).toHaveLength(2);
     for (const button of buttons) {
       expect(button).toHaveAttribute('data-size', 'md');
-      expect(button).toHaveAttribute('data-tone', 'accent');
-      expect(button).toHaveAttribute('data-variant', 'solid');
+      expect(button).toHaveAttribute('data-variant', 'accent');
+      expect(button).toHaveAttribute('data-fill', 'solid');
     }
     expect(container.querySelector('svg.lucide-chevron-down')).not.toBeNull();
   });

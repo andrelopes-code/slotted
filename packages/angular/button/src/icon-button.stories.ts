@@ -5,6 +5,7 @@ import { lucidePlus } from '@ng-icons/lucide';
 import { createReferencePage, scenario } from '@slotted/storybook-workbench';
 import type { ReferencePageConfig } from '@slotted/storybook-workbench';
 import { ANGULAR_BUTTON_DOCS, ANGULAR_BUTTON_TOKENS } from './button.docs';
+import type { ButtonFill, ButtonSize, ButtonVariant } from './button.constants';
 import { SlIconButton } from './icon-button';
 
 const plusIcon = '<ng-icon aria-hidden="true" name="lucidePlus"></ng-icon>';
@@ -13,7 +14,17 @@ const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,
   matrix: States as never,
 });
-const meta: Meta = {
+
+interface IconButtonStoryArgs {
+  ariaLabel: string;
+  disabled: boolean;
+  fill: ButtonFill;
+  loading: boolean;
+  size: ButtonSize;
+  variant: ButtonVariant;
+}
+
+const meta: Meta<IconButtonStoryArgs> = {
   title: 'Components/Button family/IconButton',
   component: SlIconButton,
   decorators: [
@@ -22,7 +33,22 @@ const meta: Meta = {
       providers: [provideIcons({ lucidePlus })],
     }),
   ],
-  args: { 'aria-label': 'Add' },
+  args: {
+    ariaLabel: 'Add',
+    disabled: false,
+    fill: 'ghost',
+    loading: false,
+    size: 'md',
+    variant: 'secondary',
+  },
+  argTypes: {
+    fill: { control: 'select', options: ['solid', 'outline', 'ghost'] },
+    size: { control: 'select', options: ['sm', 'md', 'lg'] },
+    variant: {
+      control: 'select',
+      options: ['accent', 'secondary', 'success', 'warning', 'danger'],
+    },
+  },
   parameters: {
     controls: { disable: true },
     docs: {
@@ -36,10 +62,13 @@ const meta: Meta = {
       }),
     },
   },
-  render: () => ({ template: `<button slIconButton aria-label="Add">${plusIcon}</button>` }),
+  render: (args) => ({
+    props: args,
+    template: `<button slIconButton [attr.aria-label]="ariaLabel" [disabled]="disabled" [fill]="fill" [loading]="loading" [size]="size" [variant]="variant">${plusIcon}</button>`,
+  }),
 };
 export default meta;
-type Story = StoryObj;
+type Story = StoryObj<IconButtonStoryArgs>;
 export const Playground: Story = {
   parameters: { ...scenario('playground'), controls: { disable: false } },
 };

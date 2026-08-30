@@ -14,8 +14,8 @@ import {
 import { blockActivation, buttonState } from './button-appearance';
 import {
   ICON_BUTTON_DEFAULTS,
+  type ButtonFill,
   type ButtonSize,
-  type ButtonTone,
   type ButtonType,
   type ButtonVariant,
 } from './button.constants';
@@ -44,9 +44,9 @@ import {
     'data-part-root': 'icon',
     '[attr.aria-busy]': 'loading() || ariaBusy()',
     '[attr.aria-disabled]': 'loading() || ariaDisabled()',
+    '[attr.data-fill]': 'fill()',
     '[attr.data-full-width]': "fullWidth() ? '' : null",
     '[attr.data-size]': 'size()',
-    '[attr.data-tone]': 'tone()',
     '[attr.data-variant]': 'variant()',
     '[attr.data-state]': 'state()',
     '[disabled]': 'disabled()',
@@ -57,10 +57,10 @@ export class SlIconButton implements AfterViewInit {
   readonly ariaBusy = input<boolean | string | null>(null, { alias: 'aria-busy' });
   readonly ariaDisabled = input<boolean | string | null>(null, { alias: 'aria-disabled' });
   readonly disabled = input(false, { transform: booleanAttribute });
+  readonly fill = input<ButtonFill>(ICON_BUTTON_DEFAULTS.fill);
   readonly fullWidth = input(false, { transform: booleanAttribute });
   readonly loading = input(false, { transform: booleanAttribute });
   readonly size = input<ButtonSize>(ICON_BUTTON_DEFAULTS.size);
-  readonly tone = input<ButtonTone>(ICON_BUTTON_DEFAULTS.tone);
   readonly type = input<ButtonType>('button');
   readonly variant = input<ButtonVariant>(ICON_BUTTON_DEFAULTS.variant);
 

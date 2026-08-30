@@ -6,7 +6,7 @@ const contract = JSON.parse(await readFile(new URL('./contract.json', import.met
 const appearanceMembers = ['button', 'buttonLink', 'iconButton', 'toggleButton'];
 
 test('defines the ordered button family structure and axes', () => {
-  assert.equal(contract.schemaVersion, 2);
+  assert.equal(contract.schemaVersion, 3);
   assert.equal(contract.family, 'button');
   assert.deepEqual(Object.keys(contract.members), [
     'button',
@@ -15,8 +15,8 @@ test('defines the ordered button family structure and axes', () => {
     'toggleButton',
     'buttonGroup',
   ]);
-  assert.deepEqual(contract.axes.variant, ['solid', 'outline', 'ghost']);
-  assert.deepEqual(contract.axes.tone, ['neutral', 'accent', 'success', 'warning', 'danger']);
+  assert.deepEqual(contract.axes.variant, ['accent', 'secondary', 'success', 'warning', 'danger']);
+  assert.deepEqual(contract.axes.fill, ['solid', 'outline', 'ghost']);
   assert.deepEqual(contract.axes.size, ['sm', 'md', 'lg']);
   assert.deepEqual(contract.orientations, ['horizontal', 'vertical']);
   assert.deepEqual(
@@ -45,7 +45,7 @@ test('gives each family member valid and semantic defaults', () => {
   for (const memberName of appearanceMembers) {
     const member = contract.members[memberName];
 
-    for (const axis of ['variant', 'tone', 'size']) {
+    for (const axis of ['variant', 'fill', 'size']) {
       assert.ok(axis in member.defaults, `${memberName} defaults include ${axis}`);
       assert.ok(contract.axes[axis].includes(member.defaults[axis]), `${memberName} ${axis}`);
     }

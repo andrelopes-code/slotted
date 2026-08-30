@@ -8,8 +8,8 @@ describe('IconButton', () => {
   it('uses icon defaults and an explicit accessible name', () => {
     render(<IconButton aria-label="Close">×</IconButton>);
     const button = screen.getByRole('button', { name: 'Close' });
-    expect(button).toHaveAttribute('data-variant', 'ghost');
-    expect(button).toHaveAttribute('data-tone', 'neutral');
+    expect(button).toHaveAttribute('data-variant', 'secondary');
+    expect(button).toHaveAttribute('data-fill', 'ghost');
     expect(button).toHaveAttribute('data-part-root', 'icon');
   });
 

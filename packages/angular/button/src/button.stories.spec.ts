@@ -62,8 +62,26 @@ describe('Angular Button family stories', () => {
     const host = document.createElement('div');
     host.innerHTML = template;
 
-    expect(host.querySelectorAll('.slotted-component-lab__section')).toHaveLength(3);
-    expect(host.querySelectorAll('.slotted-demo-scene')).toHaveLength(6);
+    expect(host.querySelectorAll('.slotted-component-lab__section')).toHaveLength(6);
+    expect(host.querySelectorAll('.slotted-demo-scene')).toHaveLength(11);
+
+    const componentMatrices = ['button', 'button-link', 'icon-button', 'toggle-button'];
+    for (const matrixName of componentMatrices) {
+      const matrix = host.querySelector(`[data-slotted-matrix="${matrixName}"]`);
+      expect(matrix).not.toBeNull();
+      expect(matrix?.querySelectorAll('button, a')).toHaveLength(15);
+      for (const variant of ['accent', 'secondary', 'success', 'warning', 'danger']) {
+        expect(matrix?.querySelectorAll(`[variant="${variant}"]`)).toHaveLength(3);
+      }
+      for (const fill of ['solid', 'outline', 'ghost']) {
+        expect(matrix?.querySelectorAll(`[fill="${fill}"]`)).toHaveLength(5);
+      }
+    }
+
+    const toggleStateMatrix = host.querySelector('[data-slotted-matrix="toggle-state"]');
+    expect(toggleStateMatrix?.querySelectorAll('button[sltogglebutton]')).toHaveLength(10);
+    expect(toggleStateMatrix?.querySelectorAll('[\\[pressed\\]="true"]')).toHaveLength(5);
+    expect(host.querySelector('.slotted-matrix button[tone]')).toBeNull();
 
     const iconButtons = host.querySelectorAll('button[sliconbutton]');
     expect(iconButtons.length).toBeGreaterThan(0);
@@ -72,6 +90,22 @@ describe('Angular Button family stories', () => {
     }
 
     expect(template).not.toMatch(/[+⌄⌘]/u);
+  });
+
+  it('exposes every IconButton appearance axis in its playground', () => {
+    const meta = iconButtonStories.default;
+
+    expect(meta.args).toMatchObject({
+      disabled: false,
+      fill: 'ghost',
+      loading: false,
+      size: 'md',
+      variant: 'secondary',
+    });
+    expect(meta.argTypes?.['variant']).toMatchObject({
+      options: ['accent', 'secondary', 'success', 'warning', 'danger'],
+    });
+    expect(meta.argTypes?.['fill']).toMatchObject({ options: ['solid', 'outline', 'ghost'] });
   });
 
   it('renders split actions as one coherent control with matching segments', () => {
@@ -86,8 +120,8 @@ describe('Angular Button family stories', () => {
     expect(buttons).toHaveLength(2);
     for (const button of buttons) {
       expect(button.getAttribute('size')).toBe('md');
-      expect(button.getAttribute('tone')).toBe('accent');
-      expect(button.getAttribute('variant')).toBe('solid');
+      expect(button.getAttribute('variant')).toBe('accent');
+      expect(button.getAttribute('fill')).toBe('solid');
     }
     expect(group?.querySelector('ng-icon[name="lucideChevronDown"]')).not.toBeNull();
   });

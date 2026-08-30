@@ -6,13 +6,13 @@ export { ToggleButton } from './toggle-button';
 export type {
   ButtonLinkProps,
   ButtonLinkRootProps,
+  ButtonFill,
   ButtonGroupOrientation,
   ButtonGroupProps,
   ButtonProps,
   IconButtonProps,
   ToggleButtonProps,
   ButtonSize,
-  ButtonTone,
   ButtonType,
   ButtonVariant,
 } from './button.types';

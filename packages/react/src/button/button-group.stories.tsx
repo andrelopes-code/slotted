@@ -33,10 +33,10 @@ const meta = {
     'aria-label': 'Editing history',
     children: (
       <>
-        <IconButton aria-label="Undo" tone="neutral" variant="outline">
+        <IconButton aria-label="Undo" variant="secondary" fill="outline">
           <DemoIcon name="undo" />
         </IconButton>
-        <IconButton aria-label="Redo" tone="neutral" variant="outline">
+        <IconButton aria-label="Redo" variant="secondary" fill="outline">
           <DemoIcon name="redo" />
         </IconButton>
       </>
@@ -75,13 +75,13 @@ export const Orientations: Story = {
         </header>
         <div className="slotted-demo-stage">
           <ButtonGroup aria-label="Editing history">
-            <IconButton aria-label="Undo" tone="neutral" variant="outline">
+            <IconButton aria-label="Undo" variant="secondary" fill="outline">
               <DemoIcon name="undo" />
             </IconButton>
-            <IconButton aria-label="Redo" tone="neutral" variant="outline">
+            <IconButton aria-label="Redo" variant="secondary" fill="outline">
               <DemoIcon name="redo" />
             </IconButton>
-            <IconButton aria-label="Delete" tone="neutral" variant="outline">
+            <IconButton aria-label="Delete" variant="secondary" fill="outline">
               <DemoIcon name="trash" />
             </IconButton>
           </ButtonGroup>
@@ -94,10 +94,10 @@ export const Orientations: Story = {
         </header>
         <div className="slotted-demo-stage">
           <ButtonGroup aria-label="Document actions" orientation="vertical">
-            <Button leading={<DemoIcon name="save" />} tone="neutral" variant="outline">
+            <Button leading={<DemoIcon name="save" />} variant="secondary" fill="outline">
               Save draft
             </Button>
-            <Button tone="neutral" variant="outline">
+            <Button variant="secondary" fill="outline">
               Duplicate
             </Button>
           </ButtonGroup>
@@ -112,10 +112,10 @@ export const SplitAction: Story = {
   render: () => (
     <div className="slotted-demo-stage">
       <ButtonGroup aria-label="Publish actions" className="slotted-split-action">
-        <Button leading={<DemoIcon name="save" />} size="md" tone="accent" variant="solid">
+        <Button leading={<DemoIcon name="save" />} size="md" variant="accent" fill="solid">
           Publish
         </Button>
-        <IconButton aria-label="More publish options" size="md" tone="accent" variant="solid">
+        <IconButton aria-label="More publish options" size="md" variant="accent" fill="solid">
           <DemoIcon name="chevron-down" />
         </IconButton>
       </ButtonGroup>
@@ -127,10 +127,10 @@ export const Accessibility: Story = {
   parameters: scenario('accessibility'),
   render: () => (
     <ButtonGroup aria-label="Editing history">
-      <IconButton aria-label="Undo" tone="neutral" variant="outline">
+      <IconButton aria-label="Undo" variant="secondary" fill="outline">
         <DemoIcon name="undo" />
       </IconButton>
-      <IconButton aria-label="Redo" tone="neutral" variant="outline">
+      <IconButton aria-label="Redo" variant="secondary" fill="outline">
         <DemoIcon name="redo" />
       </IconButton>
     </ButtonGroup>

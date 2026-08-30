@@ -43,8 +43,8 @@ describe('workbench scenario metadata', () => {
       apiMetadataErrors(
         { capabilities: ['appearance', 'loading'], defaults: { size: 'md', loading: false } },
         [
-          { name: 'variant', defaultValue: 'solid' },
-          { name: 'tone', defaultValue: 'accent' },
+          { name: 'variant', defaultValue: 'accent' },
+          { name: 'fill', defaultValue: 'solid' },
           { name: 'size', defaultValue: 'lg' },
         ],
       ),
@@ -57,10 +57,10 @@ describe('workbench scenario metadata', () => {
 
   it('reports duplicate API rows before checking capability rows or defaults', () => {
     expect(
-      apiMetadataErrors({ capabilities: ['appearance'], defaults: { variant: 'solid' } }, [
-        { name: 'variant', defaultValue: 'solid' },
-        { name: 'variant', defaultValue: 'outline' },
-        { name: 'tone', defaultValue: 'accent' },
+      apiMetadataErrors({ capabilities: ['appearance'], defaults: { variant: 'accent' } }, [
+        { name: 'variant', defaultValue: 'accent' },
+        { name: 'variant', defaultValue: 'secondary' },
+        { name: 'fill', defaultValue: 'solid' },
         { name: 'size', defaultValue: 'md' },
       ]),
     ).toEqual(['duplicate API variant']);

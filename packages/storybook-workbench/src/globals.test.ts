@@ -16,7 +16,7 @@ describe('resolveWorkbenchGlobals', () => {
     expect(
       resolveWorkbenchGlobals({ theme: 'default', scheme: 'dark', density: 'compact' }),
     ).toEqual({
-      background: '#0e1117',
+      background: '#09090b',
       density: 'compact',
       scheme: 'dark',
       theme: 'default',

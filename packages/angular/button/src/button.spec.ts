@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/button/contract.json';
-import { BUTTON_SIZES, BUTTON_TONES, BUTTON_VARIANTS } from './button.constants';
+import { BUTTON_FILLS, BUTTON_SIZES, BUTTON_VARIANTS } from './button.constants';
 import { SlButton } from './button';
 
 @Component({
@@ -13,8 +13,8 @@ import { SlButton } from './button';
       slButton
       [aria-busy]="ariaBusy()"
       [aria-disabled]="ariaDisabled()"
+      [fill]="fill()"
       [variant]="variant()"
-      [tone]="tone()"
       [size]="size()"
       [type]="type()"
       [disabled]="disabled()"
@@ -33,8 +33,8 @@ import { SlButton } from './button';
   `,
 })
 class TestHost {
-  readonly variant = signal<'solid' | 'outline' | 'ghost'>('solid');
-  readonly tone = signal<'neutral' | 'accent' | 'success' | 'warning' | 'danger'>('accent');
+  readonly fill = signal<'solid' | 'outline' | 'ghost'>('solid');
+  readonly variant = signal<'accent' | 'secondary' | 'success' | 'warning' | 'danger'>('accent');
   readonly size = signal<'sm' | 'md' | 'lg'>('md');
   readonly type = signal<'button' | 'submit' | 'reset'>('button');
   readonly disabled = signal(false);
@@ -59,7 +59,7 @@ describe('SlButton', () => {
     expect(button.dataset['slottedComponent']).toBe('button');
     expect(button.type).toBe(contract.members.button.defaults.type);
     expect(button.dataset['variant']).toBe(contract.members.button.defaults.variant);
-    expect(button.dataset['tone']).toBe(contract.members.button.defaults.tone);
+    expect(button.dataset['fill']).toBe(contract.members.button.defaults.fill);
     expect(button.dataset['size']).toBe(contract.members.button.defaults.size);
     const parts = [...button.querySelectorAll('[data-part]')].map((part) =>
       part.getAttribute('data-part'),
@@ -69,12 +69,12 @@ describe('SlButton', () => {
 
   it('updates inputs and preserves native events', async () => {
     const fixture = TestBed.createComponent(TestHost);
-    fixture.componentInstance.variant.set('outline');
+    fixture.componentInstance.fill.set('outline');
     fixture.componentInstance.type.set('submit');
     await fixture.whenStable();
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
     button.click();
-    expect(button.dataset['variant']).toBe('outline');
+    expect(button.dataset['fill']).toBe('outline');
     expect(button.type).toBe('submit');
     expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
   });
@@ -92,7 +92,7 @@ describe('SlButton', () => {
 
   it('matches the shared contract axes', () => {
     expect(BUTTON_VARIANTS).toEqual(contract.axes.variant);
-    expect(BUTTON_TONES).toEqual(contract.axes.tone);
+    expect(BUTTON_FILLS).toEqual(contract.axes.fill);
     expect(BUTTON_SIZES).toEqual(contract.axes.size);
   });
 

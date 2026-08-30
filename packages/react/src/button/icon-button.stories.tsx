@@ -12,7 +12,23 @@ const referenceStories: ReferencePageConfig['stories'] = () => ({
 const meta = {
   title: 'Components/Button family/IconButton',
   component: IconButton,
-  args: { 'aria-label': 'Add', children: <Icon /> },
+  args: {
+    'aria-label': 'Add',
+    children: <Icon />,
+    disabled: false,
+    fill: 'ghost',
+    loading: false,
+    size: 'md',
+    variant: 'secondary',
+  },
+  argTypes: {
+    fill: { control: 'select', options: ['solid', 'outline', 'ghost'] },
+    size: { control: 'select', options: ['sm', 'md', 'lg'] },
+    variant: {
+      control: 'select',
+      options: ['accent', 'secondary', 'success', 'warning', 'danger'],
+    },
+  },
   parameters: {
     controls: { disable: true },
     docs: {

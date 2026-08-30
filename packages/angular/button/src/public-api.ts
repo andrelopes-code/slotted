@@ -5,8 +5,8 @@ export { SlIconButton } from './icon-button';
 export { SlToggleButton } from './toggle-button';
 export type {
   ButtonGroupOrientation,
+  ButtonFill,
   ButtonSize,
-  ButtonTone,
   ButtonType,
   ButtonVariant,
 } from './button.constants';

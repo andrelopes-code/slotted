@@ -28,6 +28,21 @@ function assertRuleDeclarations(selector, declarations) {
   }
 }
 
+function assertNormalizedRuleDeclarations(selector, declarations) {
+  const normalizedSelector = selector.replace(/\s+/g, '');
+  const start = normalizedCss.indexOf(`${normalizedSelector}{`);
+  assert.notEqual(start, -1, `Missing selector: ${selector}`);
+  const end = normalizedCss.indexOf('}', start);
+  const rule = normalizedCss.slice(start, end + 1);
+
+  for (const declaration of declarations) {
+    assert.ok(
+      rule.includes(declaration.replace(/\s+/g, '')),
+      `Missing declaration for ${selector}: ${declaration}`,
+    );
+  }
+}
+
 test('implements every contract state in framework-owned CSS', () => {
   const requiredStates = new Set(
     Object.values(contract.members).flatMap((member) => member.states),
@@ -35,9 +50,9 @@ test('implements every contract state in framework-owned CSS', () => {
   const selectors = {
     default: '.slotted-button {',
     hover:
-      ".slotted-button[data-variant='solid']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+      ".slotted-button[data-fill='solid']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
     active:
-      ".slotted-button[data-variant='solid']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+      ".slotted-button[data-fill='solid']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
     'focus-visible': '.slotted-button:focus-visible',
     disabled: "[data-state='disabled']",
     loading: "[data-state='loading']",
@@ -52,16 +67,46 @@ test('implements every contract state in framework-owned CSS', () => {
     );
   }
 
-  for (const tone of contract.axes.tone) {
-    assert.ok(css.includes(`[data-tone='${tone}']`), `Missing tone: ${tone}`);
-  }
   for (const variant of contract.axes.variant) {
     assert.ok(css.includes(`[data-variant='${variant}']`), `Missing variant: ${variant}`);
   }
+  for (const fill of contract.axes.fill) {
+    assert.ok(css.includes(`[data-fill='${fill}']`), `Missing fill: ${fill}`);
+  }
   for (const size of contract.axes.size) {
     assert.ok(css.includes(`[data-size='${size}']`), `Missing size: ${size}`);
+    assertNormalizedRuleDeclarations(`.slotted-button[data-size='${size}']`, [
+      `border-radius: var(--slotted-button-radius-${size}, var(--slotted-control-radius, 4px));`,
+    ]);
   }
   assert.ok(css.includes('--slotted-control-radius'), 'Missing control radius token');
+});
+
+test('maps secondary to a theme palette and keeps fill borders intentional', () => {
+  assertNormalizedRuleDeclarations(".slotted-button[data-variant='secondary']", [
+    '--_solid: var(--slotted-tone-secondary-solid);',
+    '--_on-solid: var(--slotted-tone-secondary-on-solid);',
+    '--_text: var(--slotted-tone-secondary-text);',
+  ]);
+  assertNormalizedRuleDeclarations(".slotted-button[data-fill='solid']", [
+    'border-color: transparent;',
+  ]);
+  assertNormalizedRuleDeclarations(
+    ".slotted-button[data-fill='solid']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+    ['border-color: transparent;'],
+  );
+  assertNormalizedRuleDeclarations(
+    ".slotted-button[data-fill='solid']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+    ['border-color: transparent;'],
+  );
+  assertNormalizedRuleDeclarations(
+    ".slotted-button[data-fill='outline']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+    ['background: var(--_subtle-hover);', 'border-color: var(--_border);'],
+  );
+  assertNormalizedRuleDeclarations(
+    ".slotted-button[data-fill='outline']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+    ['background: var(--_subtle-active);', 'border-color: var(--_border);'],
+  );
 });
 
 test('styles button group seams and focus layering with logical properties', () => {

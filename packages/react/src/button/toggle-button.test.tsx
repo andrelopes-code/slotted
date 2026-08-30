@@ -15,17 +15,15 @@ describe('ToggleButton', () => {
       ([header]) => header,
     );
 
-    expect(headers.length).toBeGreaterThanOrEqual(4);
+    expect(headers.length).toBeGreaterThanOrEqual(6);
     expect(headers).toEqual(
       expect.arrayContaining([
-        expect.stringMatching(/data-variant=['"]solid['"][^{}]*:hover/),
-        expect.stringMatching(/data-variant=['"]solid['"][^{}]*:active/),
-        expect.stringMatching(
-          /data-variant=['"]outline['"][^{}]*data-variant=['"]ghost['"][^{}]*:hover/,
-        ),
-        expect.stringMatching(
-          /data-variant=['"]outline['"][^{}]*data-variant=['"]ghost['"][^{}]*:active/,
-        ),
+        expect.stringMatching(/data-fill=['"]solid['"][^{}]*:hover/),
+        expect.stringMatching(/data-fill=['"]solid['"][^{}]*:active/),
+        expect.stringMatching(/data-fill=['"]outline['"][^{}]*:hover/),
+        expect.stringMatching(/data-fill=['"]outline['"][^{}]*:active/),
+        expect.stringMatching(/data-fill=['"]ghost['"][^{}]*:hover/),
+        expect.stringMatching(/data-fill=['"]ghost['"][^{}]*:active/),
       ]),
     );
 
@@ -59,8 +57,8 @@ describe('ToggleButton', () => {
     expect(button).toHaveAttribute('type', 'button');
     expect(button).toHaveAttribute('aria-pressed', 'false');
     expect(button).toHaveAttribute('data-slotted-component', 'toggle-button');
-    expect(button).toHaveAttribute('data-variant', 'outline');
-    expect(button).toHaveAttribute('data-tone', 'neutral');
+    expect(button).toHaveAttribute('data-variant', 'secondary');
+    expect(button).toHaveAttribute('data-fill', 'outline');
     expect(button).toHaveAttribute('data-size', 'md');
     expect(
       [...button.querySelectorAll('[data-part]')].map((part) => part.getAttribute('data-part')),

@@ -14,13 +14,13 @@ export function IconButton({
   children,
   className,
   disabled = false,
+  fill = ICON_BUTTON_DEFAULTS.fill,
   fullWidth = false,
   loading = false,
   loadingIndicator,
   onClick,
   onClickCapture,
   size = ICON_BUTTON_DEFAULTS.size,
-  tone = ICON_BUTTON_DEFAULTS.tone,
   type = 'button',
   variant = ICON_BUTTON_DEFAULTS.variant,
   ...nativeProps
@@ -37,7 +37,7 @@ export function IconButton({
   return (
     <button
       {...nativeProps}
-      {...appearanceData({ component: 'icon-button', fullWidth, size, state, tone, variant })}
+      {...appearanceData({ component: 'icon-button', fill, fullWidth, size, state, variant })}
       aria-busy={loading ? true : ariaBusy}
       aria-disabled={loading ? true : ariaDisabled}
       aria-label={ariaLabel}

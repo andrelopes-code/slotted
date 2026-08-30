@@ -58,7 +58,8 @@ describe('ButtonLink', () => {
     );
     const link = screen.getByRole('link', { name: 'Router settings' });
     expect(link).toHaveAttribute('data-router-link', 'true');
-    expect(link).toHaveAttribute('data-variant', 'solid');
+    expect(link).toHaveAttribute('data-variant', 'accent');
+    expect(link).toHaveAttribute('data-fill', 'solid');
     expect(link).toHaveAttribute('href', '/router');
     expect(ref.current).toBe(link);
   });

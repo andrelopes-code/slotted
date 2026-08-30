@@ -8,6 +8,7 @@ export function ToggleButton({
   children,
   className,
   disabled = false,
+  fill = TOGGLE_BUTTON_DEFAULTS.fill,
   fullWidth = false,
   leading,
   onClick,
@@ -15,7 +16,6 @@ export function ToggleButton({
   onPressedChange,
   pressed = false,
   size = TOGGLE_BUTTON_DEFAULTS.size,
-  tone = TOGGLE_BUTTON_DEFAULTS.tone,
   trailing,
   type = 'button',
   variant = TOGGLE_BUTTON_DEFAULTS.variant,
@@ -27,7 +27,7 @@ export function ToggleButton({
   return (
     <button
       {...nativeProps}
-      {...appearanceData({ component: 'toggle-button', fullWidth, size, state, tone, variant })}
+      {...appearanceData({ component: 'toggle-button', fill, fullWidth, size, state, variant })}
       aria-disabled={ariaDisabled}
       aria-pressed={pressed}
       className={buttonClassName(className)}

@@ -10,6 +10,7 @@ export function ButtonLink({
   children,
   className,
   disabled = false,
+  fill = BUTTON_DEFAULTS.fill,
   fullWidth = false,
   href,
   leading,
@@ -22,7 +23,6 @@ export function ButtonLink({
   render,
   size = BUTTON_DEFAULTS.size,
   tabIndex,
-  tone = BUTTON_DEFAULTS.tone,
   trailing,
   variant = BUTTON_DEFAULTS.variant,
   ...anchorProps
@@ -39,10 +39,10 @@ export function ButtonLink({
     ...anchorProps,
     ...appearanceData({
       component: 'button-link',
+      fill,
       fullWidth,
       size,
       state: disabled ? 'disabled' : undefined,
-      tone,
       variant,
     }),
     'aria-disabled': interactionBlocked || ariaDisabled || undefined,

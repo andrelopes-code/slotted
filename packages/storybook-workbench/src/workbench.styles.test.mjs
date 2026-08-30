@@ -19,6 +19,19 @@ test('workbench CSS keeps the reference-sheet layout and accessibility invariant
   );
 });
 
+test('dark workbench uses a neutral carbon surface scale', () => {
+  const darkScheme = css.match(/\[data-slotted-scheme='dark'\]\s*\{([\s\S]*?)\}/)?.[1];
+
+  assert.ok(darkScheme, 'Missing dark workbench scheme');
+  assert.match(darkScheme, /--slotted-workbench-canvas:\s*#09090b/);
+  assert.match(darkScheme, /--slotted-workbench-panel:\s*#111113/);
+  assert.match(darkScheme, /--slotted-workbench-panel-subtle:\s*#18181b/);
+  assert.match(darkScheme, /--slotted-workbench-panel-strong:\s*#27272a/);
+  assert.match(darkScheme, /--slotted-workbench-border:\s*#27272a/);
+  assert.match(darkScheme, /--slotted-workbench-text:\s*#fafafa/);
+  assert.match(darkScheme, /--slotted-workbench-muted:\s*#a1a1aa/);
+});
+
 test('workbench CSS composes demonstrations as a continuous component lab', () => {
   assert.match(
     css,

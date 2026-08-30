@@ -11,6 +11,7 @@ export function Button({
   children,
   className,
   disabled = false,
+  fill = BUTTON_DEFAULTS.fill,
   fullWidth = false,
   leading,
   loading = false,
@@ -19,7 +20,6 @@ export function Button({
   onClick,
   onClickCapture,
   size = BUTTON_DEFAULTS.size,
-  tone = BUTTON_DEFAULTS.tone,
   trailing,
   type = 'button',
   variant = BUTTON_DEFAULTS.variant,
@@ -31,7 +31,7 @@ export function Button({
   return (
     <button
       {...nativeProps}
-      {...appearanceData({ component: 'button', fullWidth, size, state, tone, variant })}
+      {...appearanceData({ component: 'button', fill, fullWidth, size, state, variant })}
       aria-busy={loading || ariaBusy || undefined}
       aria-disabled={loading || ariaDisabled || undefined}
       className={buttonClassName(className)}

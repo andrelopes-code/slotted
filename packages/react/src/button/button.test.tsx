@@ -3,7 +3,7 @@ import { createRef } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/button/contract.json';
-import { BUTTON_SIZES, BUTTON_TONES, BUTTON_VARIANTS } from './button.constants';
+import { BUTTON_FILLS, BUTTON_SIZES, BUTTON_VARIANTS } from './button.constants';
 import { Button } from './button';
 
 describe('Button', () => {
@@ -14,7 +14,7 @@ describe('Button', () => {
     expect(button).toHaveAttribute('data-slotted-component', 'button');
     expect(button).toHaveAttribute('type', contract.members.button.defaults.type);
     expect(button).toHaveAttribute('data-variant', contract.members.button.defaults.variant);
-    expect(button).toHaveAttribute('data-tone', contract.members.button.defaults.tone);
+    expect(button).toHaveAttribute('data-fill', contract.members.button.defaults.fill);
     expect(button).toHaveAttribute('data-size', contract.members.button.defaults.size);
   });
 
@@ -58,12 +58,12 @@ describe('Button', () => {
 
   it('matches the Button contract defaults and axes', () => {
     expect(BUTTON_VARIANTS).toEqual(contract.axes.variant);
-    expect(BUTTON_TONES).toEqual(contract.axes.tone);
+    expect(BUTTON_FILLS).toEqual(contract.axes.fill);
     expect(BUTTON_SIZES).toEqual(contract.axes.size);
     render(<Button>Save</Button>);
     const button = screen.getByRole('button', { name: 'Save' });
     expect(button).toHaveAttribute('data-variant', contract.members.button.defaults.variant);
-    expect(button).toHaveAttribute('data-tone', contract.members.button.defaults.tone);
+    expect(button).toHaveAttribute('data-fill', contract.members.button.defaults.fill);
     expect(button).toHaveAttribute('data-size', contract.members.button.defaults.size);
     expect(button).toHaveAttribute('type', contract.members.button.defaults.type);
   });

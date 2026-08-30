@@ -14,8 +14,8 @@ import {
 import { blockActivation, buttonState } from './button-appearance';
 import {
   TOGGLE_BUTTON_DEFAULTS,
+  type ButtonFill,
   type ButtonSize,
-  type ButtonTone,
   type ButtonType,
   type ButtonVariant,
 } from './button.constants';
@@ -37,9 +37,9 @@ import {
     'data-slotted-component': 'toggle-button',
     '[attr.aria-disabled]': 'ariaDisabled()',
     '[attr.aria-pressed]': 'pressed()',
+    '[attr.data-fill]': 'fill()',
     '[attr.data-full-width]': "fullWidth() ? '' : null",
     '[attr.data-size]': 'size()',
-    '[attr.data-tone]': 'tone()',
     '[attr.data-variant]': 'variant()',
     '[attr.data-state]': 'state()',
     '[disabled]': 'disabled()',
@@ -49,10 +49,10 @@ import {
 export class SlToggleButton implements AfterViewInit {
   readonly ariaDisabled = input<boolean | string | null>(null, { alias: 'aria-disabled' });
   readonly disabled = input(false, { transform: booleanAttribute });
+  readonly fill = input<ButtonFill>(TOGGLE_BUTTON_DEFAULTS.fill);
   readonly fullWidth = input(false, { transform: booleanAttribute });
   readonly pressed = input(false, { transform: booleanAttribute });
   readonly size = input<ButtonSize>(TOGGLE_BUTTON_DEFAULTS.size);
-  readonly tone = input<ButtonTone>(TOGGLE_BUTTON_DEFAULTS.tone);
   readonly type = input<ButtonType>('button');
   readonly variant = input<ButtonVariant>(TOGGLE_BUTTON_DEFAULTS.variant);
   readonly pressedChange = output<boolean>();

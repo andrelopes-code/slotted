@@ -56,7 +56,7 @@ interface ContractMember {
 }
 
 const capabilityApi = {
-  appearance: ['variant', 'tone', 'size'],
+  appearance: ['variant', 'fill', 'size'],
   content: ['leading', 'trailing'],
   fullWidth: ['fullWidth'],
   disabled: ['disabled'],

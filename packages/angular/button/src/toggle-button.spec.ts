@@ -14,7 +14,7 @@ import { SlToggleButton } from './toggle-button';
       [disabled]="disabled()"
       [fullWidth]="fullWidth()"
       [size]="size()"
-      [tone]="tone()"
+      [fill]="fill()"
       [type]="type()"
       [variant]="variant()"
     >
@@ -28,9 +28,9 @@ class BoundHost {
   readonly disabled = signal(false);
   readonly fullWidth = signal(false);
   readonly size = signal<'sm' | 'md' | 'lg'>('md');
-  readonly tone = signal<'neutral' | 'accent' | 'success' | 'warning' | 'danger'>('neutral');
+  readonly fill = signal<'solid' | 'outline' | 'ghost'>('outline');
   readonly type = signal<'button' | 'submit' | 'reset'>('button');
-  readonly variant = signal<'solid' | 'outline' | 'ghost'>('outline');
+  readonly variant = signal<'accent' | 'secondary' | 'success' | 'warning' | 'danger'>('secondary');
 }
 
 @Component({
@@ -82,8 +82,8 @@ describe('SlToggleButton', () => {
 
     expect(button.type).toBe('button');
     expect(button.dataset['slottedComponent']).toBe('toggle-button');
-    expect(button.dataset['variant']).toBe('outline');
-    expect(button.dataset['tone']).toBe('neutral');
+    expect(button.dataset['variant']).toBe('secondary');
+    expect(button.dataset['fill']).toBe('outline');
     expect(button.dataset['size']).toBe('md');
     expect(button.getAttribute('aria-pressed')).toBe('false');
     expect(button.querySelector('[data-part="leading"]')?.textContent).toContain('L');
