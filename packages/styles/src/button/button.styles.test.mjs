@@ -203,3 +203,9 @@ test('keeps pressed toggle surfaces outside generic interactive selectors', () =
     assert.match(header.replace(/\s+/g, ''), /:not\(\[data-pressed\]\)/);
   }
 });
+
+test('keeps a disabled toggle distinguishable when pressed', () => {
+  assertNormalizedRuleDeclarations('.slotted-button[data-disabled][data-pressed]', [
+    'border-color: var(--slotted-disabled-foreground, GrayText);',
+  ]);
+});
