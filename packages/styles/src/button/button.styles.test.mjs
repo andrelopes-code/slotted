@@ -16,7 +16,7 @@ const normalizedCss = css.replace(/\s+/g, '');
 
 function assertRuleDeclarations(selector, declarations) {
   const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = css.match(new RegExp(`${escapedSelector}\\s*\\{([\\s\\S]*?)\\}`));
+  const match = css.match(new RegExp(`${escapedSelector}[^{}]*\\{([\\s\\S]*?)\\}`));
 
   assert.ok(match, `Missing selector: ${selector}`);
   for (const declaration of declarations) {
@@ -160,7 +160,7 @@ test('styles button group seams and focus layering with logical properties', () 
 });
 
 test('sizes consumer supplied SVG icons without imposing an icon visual language', () => {
-  assertRuleDeclarations('.slotted-button [data-part] > svg', [
+  assertRuleDeclarations(".slotted-button [data-part='icon'] svg", [
     'block-size: 100%;',
     'display: block;',
     'inline-size: 100%;',
@@ -208,4 +208,44 @@ test('keeps a disabled toggle distinguishable when pressed', () => {
   assertNormalizedRuleDeclarations('.slotted-button[data-disabled][data-pressed]', [
     'border-color: var(--slotted-disabled-foreground, GrayText);',
   ]);
+});
+
+test('sizes every icon shape a consumer can supply', async () => {
+  const { JSDOM } = await import('jsdom');
+
+  // Selectors are read from the stylesheet, not restated here, so the test
+  // fails when the stylesheet stops covering a shape.
+  const sizingSelectors = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .filter(([, , body]) => /inline-size:\s*100%/.test(body) && /block-size:\s*100%/.test(body))
+    .flatMap(([, selector]) => selector.split(','))
+    .map((selector) => selector.trim())
+    .filter((selector) => selector.includes('[data-part'));
+
+  assert.ok(sizingSelectors.length > 0, 'No icon sizing rule found in the stylesheet');
+
+  const shapes = {
+    'bare svg': '<svg data-probe></svg>',
+    'component rendering an svg': '<svg data-probe class="lucide"></svg>',
+    'wrapper with a nested svg': '<ng-icon><svg data-probe></svg></ng-icon>',
+    'element sized in em': '<i data-probe class="icon-font"></i>',
+  };
+
+  for (const slot of ['icon', 'leading', 'trailing']) {
+    for (const [shape, markup] of Object.entries(shapes)) {
+      const dom = new JSDOM(
+        `<button class="slotted-button"><span data-part="${slot}">${markup}</span></button>`,
+      );
+      const probe = dom.window.document.querySelector('[data-probe]');
+
+      assert.ok(
+        sizingSelectors.some((selector) => probe.matches(selector)),
+        `${shape} in the ${slot} slot is not covered by an icon sizing rule`,
+      );
+    }
+  }
+});
+
+test('does not force sizing on content inside the label slot', () => {
+  assert.doesNotMatch(css, /\.slotted-button \[data-part\] > svg/);
+  assert.doesNotMatch(css, /\[data-part='label'\][^{]*>\s*\*/);
 });
