@@ -1,3 +1,5 @@
+import '@slotted/styles/button/button-group.css';
+
 import type { ButtonGroupProps } from './button.types';
 
 export function ButtonGroup({

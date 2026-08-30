@@ -1,4 +1,4 @@
-import './button.css';
+import '@slotted/styles/button/button.css';
 
 import { ButtonContentLayer } from './button-content';
 import { BUTTON_DEFAULTS } from './button.constants';

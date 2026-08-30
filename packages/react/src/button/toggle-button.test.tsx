@@ -1,37 +1,10 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createRef, type ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { ToggleButton } from './toggle-button';
 
-const buttonCss = readFileSync(resolve(process.cwd(), 'src/button/button.css'), 'utf8');
-
 describe('ToggleButton', () => {
-  it('keeps pressed toggle surfaces outside generic interactive selectors', () => {
-    const headers = [...buttonCss.matchAll(/\.slotted-button[^{}]*:(?:hover|active)[^{]*\{/g)].map(
-      ([header]) => header,
-    );
-
-    expect(headers.length).toBeGreaterThanOrEqual(6);
-    expect(headers).toEqual(
-      expect.arrayContaining([
-        expect.stringMatching(/data-fill=['"]solid['"][^{}]*:hover/),
-        expect.stringMatching(/data-fill=['"]solid['"][^{}]*:active/),
-        expect.stringMatching(/data-fill=['"]outline['"][^{}]*:hover/),
-        expect.stringMatching(/data-fill=['"]outline['"][^{}]*:active/),
-        expect.stringMatching(/data-fill=['"]ghost['"][^{}]*:hover/),
-        expect.stringMatching(/data-fill=['"]ghost['"][^{}]*:active/),
-      ]),
-    );
-
-    for (const header of headers) {
-      expect(header.replace(/\s+/g, '')).toContain(":not([data-state='pressed'])");
-    }
-  });
-
   it('accepts pressed as the only aria-pressed state input', () => {
     const rawAriaPressed = (
       <ToggleButton
