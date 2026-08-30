@@ -1,7 +1,6 @@
+import buttonTokens from '@slotted/styles/button/tokens.json';
 import { defineSnippet } from '@slotted/storybook-workbench';
 import type { ApiRow } from '@slotted/storybook-workbench';
-
-import { BUTTON_SIZES, BUTTON_VARIANTS } from './button.constants';
 
 type ApiTuple = readonly [string, string, string, string, string];
 const apiRows = (rows: readonly ApiTuple[]): ApiRow[] =>
@@ -12,55 +11,10 @@ const apiRows = (rows: readonly ApiTuple[]): ApiRow[] =>
     appliesTo,
     description,
   }));
-const variantTokenSuffixes = [
-  'solid',
-  'solid-hover',
-  'solid-active',
-  'on-solid',
-  'border',
-  'text',
-  'subtle-hover',
-  'subtle-active',
-] as const;
-
-export const REACT_BUTTON_TOKENS = [
-  '--slotted-control-font-family',
-  '--slotted-control-font-weight',
-  '--slotted-control-line-height',
-  '--slotted-control-letter-spacing',
-  '--slotted-control-border-width',
-  '--slotted-control-radius',
-  '--slotted-control-shadow',
-  '--slotted-control-transition-duration',
-  '--slotted-control-transition-easing',
-  '--slotted-focus-ring-width',
-  '--slotted-focus-ring-offset',
-  '--slotted-focus-ring-color',
-  '--slotted-button-gap',
-  '--slotted-button-icon-size',
-  '--slotted-button-loading-opacity',
-  '--slotted-button-loading-indicator-size',
-  '--slotted-button-loading-indicator-stroke-width',
-  '--slotted-button-loading-indicator-duration',
-  '--slotted-button-group-gap',
-  '--slotted-button-group-adjacent-offset',
-  '--slotted-button-group-inner-radius',
-  '--slotted-button-outline-background',
-  '--slotted-button-ghost-background',
-  '--slotted-button-ghost-text-decoration',
-  '--slotted-disabled-background',
-  '--slotted-disabled-foreground',
-  '--slotted-disabled-border',
-  ...BUTTON_SIZES.flatMap((size) => [
-    `--slotted-button-height-${size}`,
-    `--slotted-button-padding-inline-${size}`,
-    `--slotted-button-font-size-${size}`,
-    `--slotted-button-icon-size-${size}`,
-  ]),
-  ...BUTTON_VARIANTS.flatMap((variant) =>
-    variantTokenSuffixes.map((suffix) => `--slotted-tone-${variant}-${suffix}`),
-  ),
-].map((name) => ({ name, purpose: 'Theme-owned Button family decision' }));
+export const REACT_BUTTON_TOKENS = buttonTokens.map((name) => ({
+  name,
+  purpose: 'Theme-owned Button family decision',
+}));
 
 export const REACT_BUTTON_DOCS = {
   button: {

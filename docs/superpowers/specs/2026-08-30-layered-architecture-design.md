@@ -53,7 +53,7 @@ The four terms of PRD §38 — primitive, component, pattern, theme — are docu
 
 `contract.json` becomes the single source of the scenario list. `BUTTON_FAMILY_SCENARIOS` is deleted; `packages/storybook-workbench/src/scenarios.tsx` reads the contract file. The scenario coverage check keeps its current behavior and loses its duplicate source.
 
-Documentation prose derives from the contract rather than being restated per framework, replacing the duplicated conceptual sections of `button.docs.ts`.
+The public token list has one authored source in `@slotted/styles`, verified against the stylesheet it describes, and both framework packages re-export it. API tables stay per framework: after normalising the framework name, 154 of the 530 lines across the two `button.docs.ts` files differ, and they differ because the APIs genuinely differ — React takes `leading` as a `ReactNode` prop where Angular projects `[slButtonLeading]` content. PRD §27 allows the APIs to differ and §46.1 warns against the generic layer that unifying them would create.
 
 ## L1 — Design Foundation
 
