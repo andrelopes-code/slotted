@@ -32,12 +32,19 @@ export function IconButton({
   }
 
   const interactionBlocked = loading || ariaDisabled === true || ariaDisabled === 'true';
-  const state = disabled ? 'disabled' : loading ? 'loading' : undefined;
 
   return (
     <button
       {...nativeProps}
-      {...appearanceData({ component: 'icon-button', fill, fullWidth, size, state, variant })}
+      {...appearanceData({
+        component: 'icon-button',
+        disabled,
+        fill,
+        fullWidth,
+        loading,
+        size,
+        variant,
+      })}
       aria-busy={loading ? true : ariaBusy}
       aria-disabled={loading ? true : ariaDisabled}
       aria-label={ariaLabel}

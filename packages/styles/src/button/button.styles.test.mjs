@@ -53,13 +53,13 @@ test('implements every contract state in framework-owned CSS', () => {
   const selectors = {
     default: '.slotted-button {',
     hover:
-      ".slotted-button[data-fill='solid']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+      ".slotted-button[data-fill='solid']:hover:not(:disabled):not([aria-disabled='true']):not([data-pressed])",
     active:
-      ".slotted-button[data-fill='solid']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+      ".slotted-button[data-fill='solid']:active:not(:disabled):not([aria-disabled='true']):not([data-pressed])",
     'focus-visible': '.slotted-button:focus-visible',
-    disabled: "[data-state='disabled']",
-    loading: "[data-state='loading']",
-    pressed: "[data-state='pressed']",
+    disabled: `[${contract.stateAttributes.disabled}]`,
+    loading: `[${contract.stateAttributes.loading}]`,
+    pressed: `[${contract.stateAttributes.pressed}]`,
   };
 
   assert.deepEqual(new Set(Object.keys(selectors)), requiredStates);
@@ -95,19 +95,19 @@ test('maps secondary to a theme palette and keeps fill borders intentional', () 
     'border-color: transparent;',
   ]);
   assertNormalizedRuleDeclarations(
-    ".slotted-button[data-fill='solid']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+    ".slotted-button[data-fill='solid']:hover:not(:disabled):not([aria-disabled='true']):not([data-pressed])",
     ['border-color: transparent;'],
   );
   assertNormalizedRuleDeclarations(
-    ".slotted-button[data-fill='solid']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+    ".slotted-button[data-fill='solid']:active:not(:disabled):not([aria-disabled='true']):not([data-pressed])",
     ['border-color: transparent;'],
   );
   assertNormalizedRuleDeclarations(
-    ".slotted-button[data-fill='outline']:hover:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+    ".slotted-button[data-fill='outline']:hover:not(:disabled):not([aria-disabled='true']):not([data-pressed])",
     ['background: var(--_subtle-hover);', 'border-color: var(--_border);'],
   );
   assertNormalizedRuleDeclarations(
-    ".slotted-button[data-fill='outline']:active:not(:disabled):not([aria-disabled='true']):not([data-state='pressed'])",
+    ".slotted-button[data-fill='outline']:active:not(:disabled):not([aria-disabled='true']):not([data-pressed])",
     ['background: var(--_subtle-active);', 'border-color: var(--_border);'],
   );
 });
@@ -153,10 +153,9 @@ test('styles button group seams and focus layering with logical properties', () 
       'border-end-end-radius: var(--slotted-button-group-inner-radius, 0px);',
     ],
   );
-  assertRuleDeclarations(
-    ".slotted-button-group > .slotted-button:hover:not([data-state='pressed'])",
-    ['z-index: 1;'],
-  );
+  assertRuleDeclarations('.slotted-button-group > .slotted-button:hover:not([data-pressed])', [
+    'z-index: 1;',
+  ]);
   assertRuleDeclarations('.slotted-button-group > .slotted-button:focus-visible', ['z-index: 2;']);
 });
 
@@ -201,6 +200,6 @@ test('keeps pressed toggle surfaces outside generic interactive selectors', () =
   }
 
   for (const header of headers) {
-    assert.match(header.replace(/\s+/g, ''), /:not\(\[data-state='pressed'\]\)/);
+    assert.match(header.replace(/\s+/g, ''), /:not\(\[data-pressed\]\)/);
   }
 });

@@ -10,7 +10,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 
-import { blockActivation, buttonState } from './button-appearance';
+import { blockActivation, stateAttribute } from './button-appearance';
 import {
   BUTTON_DEFAULTS,
   type ButtonFill,
@@ -56,7 +56,8 @@ import {
     '[attr.data-full-width]': "fullWidth() ? '' : null",
     '[attr.data-size]': 'size()',
     '[attr.data-variant]': 'variant()',
-    '[attr.data-state]': 'state()',
+    '[attr.data-disabled]': 'stateAttribute(disabled())',
+    '[attr.data-loading]': 'stateAttribute(loading())',
     '[disabled]': 'disabled()',
     '[attr.type]': 'type()',
   },
@@ -80,11 +81,9 @@ export class SlButton {
   readonly replacesAccessibleLabel = computed(
     () => this.loading() && this.hasMeaningfulLoadingText(),
   );
+  readonly stateAttribute = stateAttribute;
   readonly interactionBlocked = computed(
     () => this.loading() || this.ariaDisabled() === true || this.ariaDisabled() === 'true',
-  );
-  readonly state = computed(() =>
-    buttonState({ disabled: this.disabled(), loading: this.loading() }),
   );
 
   constructor() {

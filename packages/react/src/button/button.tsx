@@ -26,12 +26,19 @@ export function Button({
   ...nativeProps
 }: ButtonProps) {
   const interactionBlocked = loading || ariaDisabled === true || ariaDisabled === 'true';
-  const state = disabled ? 'disabled' : loading ? 'loading' : undefined;
 
   return (
     <button
       {...nativeProps}
-      {...appearanceData({ component: 'button', fill, fullWidth, size, state, variant })}
+      {...appearanceData({
+        component: 'button',
+        disabled,
+        fill,
+        fullWidth,
+        loading,
+        size,
+        variant,
+      })}
       aria-busy={loading || ariaBusy || undefined}
       aria-disabled={loading || ariaDisabled || undefined}
       className={buttonClassName(className)}

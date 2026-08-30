@@ -22,12 +22,19 @@ export function ToggleButton({
   ...nativeProps
 }: ToggleButtonProps) {
   const interactionBlocked = ariaDisabled === true || ariaDisabled === 'true';
-  const state = disabled ? 'disabled' : pressed ? 'pressed' : undefined;
 
   return (
     <button
       {...nativeProps}
-      {...appearanceData({ component: 'toggle-button', fill, fullWidth, size, state, variant })}
+      {...appearanceData({
+        component: 'toggle-button',
+        disabled,
+        fill,
+        fullWidth,
+        pressed,
+        size,
+        variant,
+      })}
       aria-disabled={ariaDisabled}
       aria-pressed={pressed}
       className={buttonClassName(className)}

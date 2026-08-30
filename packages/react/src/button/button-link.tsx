@@ -39,10 +39,10 @@ export function ButtonLink({
     ...anchorProps,
     ...appearanceData({
       component: 'button-link',
+      disabled,
       fill,
       fullWidth,
       size,
-      state: disabled ? 'disabled' : undefined,
       variant,
     }),
     'aria-disabled': interactionBlocked || ariaDisabled || undefined,

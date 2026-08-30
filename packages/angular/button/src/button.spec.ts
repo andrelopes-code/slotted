@@ -86,7 +86,7 @@ describe('SlButton', () => {
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
     button.click();
     expect(button.disabled).toBe(true);
-    expect(button.dataset['state']).toBe('disabled');
+    expect(button.dataset['disabled']).toBe('');
     expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
   });
 
@@ -106,7 +106,7 @@ describe('SlButton', () => {
     expect(button.disabled).toBe(false);
     expect(button.getAttribute('aria-busy')).toBe('true');
     expect(button.getAttribute('aria-disabled')).toBe('true');
-    expect(button.dataset['state']).toBe('loading');
+    expect(button.dataset['loading']).toBe('');
     expect(document.activeElement).toBe(button);
     expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
   });
@@ -165,7 +165,7 @@ describe('SlButton', () => {
       const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
       button.click();
       expect(button.disabled).toBe(false);
-      expect(button.dataset['state']).toBeUndefined();
+      expect(button.dataset['disabled']).toBeUndefined();
       expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
     },
   );

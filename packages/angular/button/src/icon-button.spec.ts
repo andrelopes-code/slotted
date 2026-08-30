@@ -148,7 +148,7 @@ describe('SlIconButton', () => {
     expect(button.getAttribute('aria-label')).toBe('Close');
     expect(button.getAttribute('aria-busy')).toBe('true');
     expect(button.getAttribute('aria-disabled')).toBe('true');
-    expect(button.dataset['state']).toBe('loading');
+    expect(button.dataset['loading']).toBe('');
     expect(laterCapture).not.toHaveBeenCalled();
     expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
   });
@@ -161,7 +161,7 @@ describe('SlIconButton', () => {
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
 
     expect(button.disabled).toBe(true);
-    expect(button.dataset['state']).toBe('disabled');
+    expect(button.dataset['disabled']).toBe('');
   });
 
   it.each([true, 'true'] as const)(
@@ -175,7 +175,7 @@ describe('SlIconButton', () => {
       button.click();
 
       expect(button.disabled).toBe(false);
-      expect(button.dataset['state']).toBeUndefined();
+      expect(button.dataset['disabled']).toBeUndefined();
       expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
     },
   );

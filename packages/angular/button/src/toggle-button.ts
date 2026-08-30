@@ -12,7 +12,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 
-import { blockActivation, buttonState } from './button-appearance';
+import { blockActivation, stateAttribute } from './button-appearance';
 import {
   TOGGLE_BUTTON_DEFAULTS,
   type ButtonFill,
@@ -43,7 +43,8 @@ import {
     '[attr.data-full-width]': "fullWidth() ? '' : null",
     '[attr.data-size]': 'size()',
     '[attr.data-variant]': 'variant()',
-    '[attr.data-state]': 'state()',
+    '[attr.data-disabled]': 'stateAttribute(disabled())',
+    '[attr.data-pressed]': 'stateAttribute(pressed())',
     '[disabled]': 'disabled()',
     '[attr.type]': 'type()',
   },
@@ -59,11 +60,9 @@ export class SlToggleButton implements AfterViewInit {
   readonly variant = input<ButtonVariant>(TOGGLE_BUTTON_DEFAULTS.variant);
   readonly pressedChange = output<boolean>();
 
+  readonly stateAttribute = stateAttribute;
   readonly interactionBlocked = computed(
     () => this.disabled() || this.ariaDisabled() === true || this.ariaDisabled() === 'true',
-  );
-  readonly state = computed(() =>
-    buttonState({ disabled: this.disabled(), pressed: this.pressed() }),
   );
 
   private readonly element = inject(ElementRef<HTMLButtonElement>).nativeElement;

@@ -75,6 +75,18 @@ function click(button: HTMLButtonElement) {
 }
 
 describe('SlToggleButton', () => {
+  it('keeps the pressed value visible while disabled', () => {
+    const fixture = TestBed.createComponent(BoundHost);
+    fixture.componentInstance.pressed = true;
+    fixture.componentInstance.disabled.set(true);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('button');
+    expect(button.getAttribute('data-pressed')).toBe('');
+    expect(button.getAttribute('data-disabled')).toBe('');
+    expect(button.hasAttribute('data-state')).toBe(false);
+  });
+
   it('renders defaults, native type, component identity, and labeled projection', async () => {
     const fixture = TestBed.createComponent(BoundHost);
     await fixture.whenStable();
@@ -113,7 +125,7 @@ describe('SlToggleButton', () => {
 
     expect(fixture.componentInstance.pressed).toBe(true);
     expect(button.getAttribute('aria-pressed')).toBe('true');
-    expect(button.dataset['state']).toBe('pressed');
+    expect(button.dataset['pressed']).toBe('');
   });
 
   it('requests the next pressed value without writing the controlled input', async () => {
@@ -127,7 +139,7 @@ describe('SlToggleButton', () => {
     expect(fixture.componentInstance.order).toEqual(['click', 'change:true']);
     expect(fixture.componentInstance.pressed()).toBe(false);
     expect(button.getAttribute('aria-pressed')).toBe('false');
-    expect(button.dataset['state']).toBeUndefined();
+    expect(button.dataset['pressed']).toBeUndefined();
   });
 
   it('requests false from a true controlled input while the DOM remains true until the host updates', async () => {
@@ -140,7 +152,7 @@ describe('SlToggleButton', () => {
 
     expect(fixture.componentInstance.pressedChangeSpy).toHaveBeenCalledWith(false);
     expect(button.getAttribute('aria-pressed')).toBe('true');
-    expect(button.dataset['state']).toBe('pressed');
+    expect(button.dataset['pressed']).toBe('');
   });
 
   it('lets a consumer cancel a click before pressedChange and preserves output ordering', async () => {
@@ -170,7 +182,7 @@ describe('SlToggleButton', () => {
     button.dispatchEvent(event);
 
     expect(button.disabled).toBe(true);
-    expect(button.dataset['state']).toBe('disabled');
+    expect(button.dataset['disabled']).toBe('');
     expect(event.defaultPrevented).toBe(true);
     expect(laterCapture).not.toHaveBeenCalled();
     expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
@@ -194,7 +206,7 @@ describe('SlToggleButton', () => {
       expect(button.getAttribute('aria-disabled')).toBe(String(ariaDisabled));
       expect(button.disabled).toBe(false);
       expect(button.getAttribute('aria-disabled')).toBe(String(ariaDisabled));
-      expect(button.dataset['state']).toBeUndefined();
+      expect(button.dataset['disabled']).toBeUndefined();
       expect(laterCapture).not.toHaveBeenCalled();
       expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
       expect(fixture.componentInstance.pressedChangeSpy).not.toHaveBeenCalled();
@@ -212,7 +224,7 @@ describe('SlToggleButton', () => {
       click(button);
 
       expect(button.disabled).toBe(false);
-      expect(button.dataset['state']).toBeUndefined();
+      expect(button.dataset['disabled']).toBeUndefined();
       expect(fixture.componentInstance.clickSpy).toHaveBeenCalledOnce();
       expect(fixture.componentInstance.pressedChangeSpy).toHaveBeenCalledWith(true);
     },

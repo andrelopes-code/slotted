@@ -95,7 +95,7 @@ describe('Button', () => {
     expect(button).toHaveFocus();
     expect(button).toHaveAttribute('aria-busy', 'true');
     expect(button).toHaveAttribute('aria-disabled', 'true');
-    expect(button).toHaveAttribute('data-state', 'loading');
+    expect(button).toHaveAttribute('data-loading', '');
     expect(screen.getByRole('button', { name: 'Save' })).toBe(button);
   });
 

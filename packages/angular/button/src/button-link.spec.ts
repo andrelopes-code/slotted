@@ -127,7 +127,7 @@ describe('SlButtonLink', () => {
     anchor.dispatchEvent(enter);
     anchor.dispatchEvent(space);
     expect(anchor.getAttribute('aria-disabled')).toBe('true');
-    expect(anchor.dataset['state']).toBe('disabled');
+    expect(anchor.dataset['disabled']).toBe('');
     expect(anchor.tabIndex).toBe(-1);
     expect([click, auxClick, enter, space].every((event) => event.defaultPrevented)).toBe(true);
     expect(clickCaptureSpy).not.toHaveBeenCalled();
@@ -200,7 +200,7 @@ describe('SlButtonLink', () => {
       expect(fixture.componentInstance.clickSpy).not.toHaveBeenCalled();
       expect(fixture.componentInstance.auxClickSpy).not.toHaveBeenCalled();
       expect(fixture.componentInstance.keySpy).not.toHaveBeenCalled();
-      expect(anchor.dataset['state']).toBeUndefined();
+      expect(anchor.dataset['disabled']).toBeUndefined();
       expect(anchor.hasAttribute('tabindex')).toBe(false);
     },
   );

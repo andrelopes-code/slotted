@@ -10,7 +10,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 
-import { blockActivation, buttonState } from './button-appearance';
+import { blockActivation, stateAttribute } from './button-appearance';
 import {
   BUTTON_DEFAULTS,
   type ButtonFill,
@@ -39,7 +39,7 @@ import {
     '[attr.data-full-width]': "fullWidth() ? '' : null",
     '[attr.data-size]': 'size()',
     '[attr.data-variant]': 'variant()',
-    '[attr.data-state]': 'state()',
+    '[attr.data-disabled]': 'stateAttribute(disabled())',
     '[attr.tabindex]': 'disabled() ? (tabIndex() ?? -1) : tabIndex()',
     '(click)': 'handleClick($event)',
     '(auxclick)': 'handleAuxClick($event)',
@@ -55,10 +55,10 @@ export class SlButtonLink {
   readonly size = input<ButtonSize>(BUTTON_DEFAULTS.size);
   readonly variant = input<ButtonVariant>(BUTTON_DEFAULTS.variant);
 
+  readonly stateAttribute = stateAttribute;
   readonly interactionBlocked = computed(
     () => this.disabled() || this.ariaDisabled() === true || this.ariaDisabled() === 'true',
   );
-  readonly state = computed(() => buttonState({ disabled: this.disabled() }));
 
   constructor() {
     const element = inject(ElementRef<HTMLAnchorElement>).nativeElement;

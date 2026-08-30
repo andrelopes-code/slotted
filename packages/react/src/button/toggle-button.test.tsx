@@ -5,6 +5,19 @@ import { describe, expect, it, vi } from 'vitest';
 import { ToggleButton } from './toggle-button';
 
 describe('ToggleButton', () => {
+  it('keeps the pressed value visible while disabled', () => {
+    render(
+      <ToggleButton disabled pressed>
+        Pin
+      </ToggleButton>,
+    );
+
+    const button = screen.getByRole('button', { name: 'Pin' });
+    expect(button).toHaveAttribute('data-pressed', '');
+    expect(button).toHaveAttribute('data-disabled', '');
+    expect(button).not.toHaveAttribute('data-state');
+  });
+
   it('accepts pressed as the only aria-pressed state input', () => {
     const rawAriaPressed = (
       <ToggleButton
@@ -69,7 +82,7 @@ describe('ToggleButton', () => {
       </ToggleButton>,
     );
     expect(button).toHaveAttribute('aria-pressed', 'true');
-    expect(button).toHaveAttribute('data-state', 'pressed');
+    expect(button).toHaveAttribute('data-pressed', '');
     fireEvent.click(button);
     expect(onPressedChange).toHaveBeenLastCalledWith(false);
     expect(button).toHaveAttribute('aria-pressed', 'true');
@@ -137,7 +150,7 @@ describe('ToggleButton', () => {
       expect(onClickCapture).not.toHaveBeenCalled();
       expect(onClick).not.toHaveBeenCalled();
       expect(onPressedChange).not.toHaveBeenCalled();
-      expect(button).not.toHaveAttribute('data-state', 'disabled');
+      expect(button).not.toHaveAttribute('data-disabled');
       expect(button).not.toBeDisabled();
     },
   );
@@ -175,7 +188,7 @@ describe('ToggleButton', () => {
     fireEvent.click(button);
     expect(onPressedChange).not.toHaveBeenCalled();
     expect(button).toBeDisabled();
-    expect(button).toHaveAttribute('data-state', 'disabled');
+    expect(button).toHaveAttribute('data-disabled', '');
   });
 
   it('gives explicit disabled state priority over pressed state', () => {
@@ -187,6 +200,6 @@ describe('ToggleButton', () => {
 
     const button = screen.getByRole('button', { name: 'Pin' });
     expect(button).toHaveAttribute('aria-pressed', 'true');
-    expect(button).toHaveAttribute('data-state', 'disabled');
+    expect(button).toHaveAttribute('data-disabled', '');
   });
 });

@@ -170,7 +170,7 @@ describe('ButtonLink', () => {
       );
       const link = screen.getByRole('link', { name: 'Settings' });
       expect(link).toHaveAttribute('aria-disabled', 'true');
-      expect(link).not.toHaveAttribute('data-state', 'disabled');
+      expect(link).not.toHaveAttribute('data-disabled');
       expect(link).not.toHaveAttribute('tabindex');
       expect(fireEvent.click(link)).toBe(false);
       expect(onClickCapture).not.toHaveBeenCalled();
@@ -186,7 +186,7 @@ describe('ButtonLink', () => {
     );
     const link = screen.getByRole('link', { name: 'Settings' });
     expect(link).toHaveAttribute('tabindex', '0');
-    expect(link).not.toHaveAttribute('data-state', 'disabled');
+    expect(link).not.toHaveAttribute('data-disabled');
   });
 
   it.each([false, 'false', undefined] as const)(
@@ -201,7 +201,7 @@ describe('ButtonLink', () => {
       const link = screen.getByRole('link', { name: 'Settings' });
       fireEvent.click(link);
       expect(onClick).toHaveBeenCalledOnce();
-      expect(link).not.toHaveAttribute('data-state', 'disabled');
+      expect(link).not.toHaveAttribute('data-disabled');
     },
   );
 });

@@ -119,7 +119,7 @@ describe('IconButton', () => {
 
       expect(onClickCapture).not.toHaveBeenCalled();
       expect(onClick).not.toHaveBeenCalled();
-      expect(button).not.toHaveAttribute('data-state');
+      expect(button).not.toHaveAttribute('data-loading');
     },
   );
 
