@@ -10,8 +10,10 @@ import {
 } from './scenarios';
 
 describe('workbench scenario metadata', () => {
-  it('matches the button-family scenario contract', () => {
-    expect(BUTTON_FAMILY_SCENARIOS).toEqual(contract.scenarios);
+  it('reads the scenario list from the contract instead of restating it', () => {
+    // Reference equality, not deep equality: a restated copy would satisfy
+    // toEqual while reintroducing the second source this removes.
+    expect(BUTTON_FAMILY_SCENARIOS).toBe(contract.scenarios);
   });
 
   it('collects story scenario IDs and reports missing or unknown IDs', () => {

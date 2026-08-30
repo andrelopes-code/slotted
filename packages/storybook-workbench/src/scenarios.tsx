@@ -1,11 +1,6 @@
-export const BUTTON_FAMILY_SCENARIOS = {
-  overview: ['matrix', 'themes', 'densities'],
-  button: ['playground', 'states', 'content', 'fullWidth', 'loading', 'accessibility'],
-  buttonLink: ['playground', 'states', 'routerIntegration', 'accessibility'],
-  iconButton: ['playground', 'sizes', 'states', 'loading', 'accessibility'],
-  toggleButton: ['playground', 'pressed', 'states', 'accessibility'],
-  buttonGroup: ['playground', 'orientations', 'splitAction', 'accessibility'],
-} as const;
+import contract from '../../../specs/components/button/contract.json';
+
+export const BUTTON_FAMILY_SCENARIOS = contract.scenarios;
 
 export type ScenarioPage = keyof typeof BUTTON_FAMILY_SCENARIOS;
 
