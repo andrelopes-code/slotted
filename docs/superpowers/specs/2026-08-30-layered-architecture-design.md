@@ -33,7 +33,7 @@ L2  @slotted/core              imperative DOM utilities and pure algorithms
 L3  @slotted/react             idiomatic React components
     @slotted/angular           idiomatic Angular components
       ^
-L4  @slotted/testing           published test helpers
+L4  @slotted/testing           reserved; created with its first caller
     storybook-workbench        internal, never published
 ```
 
@@ -102,7 +102,9 @@ core/collection   filtering, comparison, date arithmetic, virtualization math
 core/glyphs       path data for the glyphs the library itself renders
 ```
 
-`core/id` is the mechanism that satisfies PRD §22: ids are derived deterministically so server and client markup match.
+`core/id` is the mechanism that satisfies PRD §22: ids are derived deterministically so server and client markup match. It carries a caveat: React 19 ships `useId`, which is already hydration-safe, and PRD §6.4 prefers a framework primitive to a custom abstraction. A shared id utility is therefore likely to be Angular-only, and the React package should keep using `useId` unless a concrete case shows otherwise.
+
+None of these modules is created up front. No component in the catalog generates an identifier or manages focus today, so every one of these functions would ship without a caller, and the questions that shape their signatures — whether `trapFocus` needs an initial-focus option, whether a roving tabindex needs orientation, looping and disabled-item skipping — are answered by the first real consumer, differently for a dialog, a menu and a toolbar. The layer is registered and enforced in `scripts/verify-layers.mjs`; each module arrives with the component that calls it.
 
 ### Overlay
 
@@ -122,7 +124,9 @@ Directives sit on native elements wherever the native element suffices, as `slBu
 
 ## L4 — Support Packages
 
-`@slotted/testing` publishes the contract matchers currently held in `packages/storybook-workbench/src/testing.ts`, plus helpers that assert documented state attributes and parts, and a harness that renders a subject under a given theme, scheme, and density. Consumers use it to validate their own extensions against the same contract the library validates itself against.
+`@slotted/testing` is reserved, not created. The premise for creating it early does not hold: `packages/storybook-workbench/src/testing.ts` holds one function, `snippetFormatErrors`, which checks that documentation snippets are Prettier-formatted, and `apiMetadataErrors` and `scenarioCoverageErrors` check that this repository's own stories cover the contract. All three are internal tooling that no external consumer wants.
+
+The package a consumer would want — helpers that assert a component satisfies its contract's states and parts, and a harness that renders a subject under a given theme, scheme, and density — has no caller today, and an API designed without a caller is an API designed wrong. It is created alongside the first component whose extension story needs it.
 
 `storybook-workbench` remains internal and unpublished.
 
