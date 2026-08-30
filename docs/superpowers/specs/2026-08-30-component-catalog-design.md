@@ -43,16 +43,15 @@ Each module is written by the plan of the first component that needs it, designe
 | --- | --- | --- |
 | Button family | Action, navigation, icon-only action, toggle, group | shipped; Tag, Alert, Pagination, Toolbar, Collapsible |
 | Link | Inline text navigation carrying link semantics | Breadcrumb, Sidebar, EmptyState |
-| VisuallyHidden | Content exposed only to assistive technology | Field, Dialog, Toast, Table |
+| VisuallyHidden | Content exposed only to assistive technology | Field, Dialog, Toast, Table family |
 | Divider | Semantic or decorative separation | Card, Menu, Toolbar |
 | Spinner | Indeterminate progress | Button loading, async surfaces |
 | ProgressBar | Determinate progress | Stepper, LoadingBar, FileUpload |
-| Badge | Short status or count label | Tabs, Menu, Table |
-| Avatar | Person or entity image with fallback | Menu, Table, Sidebar |
-| Skeleton | Loading placeholder that preserves layout | Table, Card, list surfaces |
+| Badge | Short status or count label | Tabs, Menu, Table family |
+| Avatar | Person or entity image with fallback | Menu, Sidebar |
+| Skeleton | Loading placeholder that preserves layout | Card, list surfaces |
 | Kbd | Keyboard key presentation | Command, Tooltip, Menu |
 | DescriptionList | Semantic key and value pairs | detail surfaces |
-| Table | Semantic tabular markup with a styling contract, no behaviour | DataTable |
 | Splitter | Resizable adjacent regions, pointer and keyboard | application shells |
 
 ## T2 — Depends on T1
@@ -65,12 +64,12 @@ Each module is written by the plan of the first component that needs it, designe
 | Alert | Inline message carrying severity | IconButton | — |
 | Collapsible | Single disclosure of a region | Button | Accordion, Sidebar |
 | Breadcrumb | Position within a hierarchy | Link | — |
-| Pagination | Movement across pages of results | ButtonGroup | DataTable |
+| Pagination | Movement across pages of results | ButtonGroup | Table family |
 | Stepper | Position within a sequential flow | ProgressBar | wizards |
 | LoadingBar | Page-level indeterminate or determinate progress | ProgressBar | — |
 | Tabs | Sibling panels, one visible, roving focus | `core/focus` | settings and detail surfaces |
 | Toolbar | Grouped controls sharing one focus stop | ButtonGroup, `core/focus` | editors, Table headers |
-| VirtualList | Windowed rendering of a long list | `core/collection` | DataTable, Listbox |
+| VirtualList | Windowed rendering of a long list | `core/collection` | Table family, Listbox |
 | FileUpload | File selection with progress and validation | ProgressBar, Button | — |
 
 ## T3 — Depends on T2
@@ -79,13 +78,13 @@ Each module is written by the plan of the first component that needs it, designe
 | --- | --- | --- | --- |
 | Input | Single-line text entry | Field | NumberInput, SearchInput, Combobox |
 | Textarea | Multi-line text entry, optionally auto-sizing | Field | — |
-| Checkbox | Binary choice, including indeterminate | Field | DataTable selection |
+| Checkbox | Binary choice, including indeterminate | Field | Table family selection |
 | RadioGroup | One choice among few, roving focus | Field, `core/focus` | SegmentedControl |
 | Switch | Immediate binary setting | Field | — |
 | Slider | Single value along a track | Field, `core/focus` | RangeSlider, ColorPicker |
 | Fieldset | Grouping of related fields with a legend | Field | forms |
 | Accordion | Group of independently collapsible sections | Collapsible | — |
-| EmptyState | Absence of content, with a recovery action | Card, Link | Table, Combobox |
+| EmptyState | Absence of content, with a recovery action | Card, Link | Table family, Combobox |
 | Sidebar | Collapsible application navigation region | Collapsible, Link | shells |
 | Listbox | Selectable option list, single or multiple | `core/focus`, `core/collection` | Select, Combobox |
 | Tree | Hierarchical, expandable, selectable structure | `core/focus`, `core/collection` | TreeSelect |
@@ -125,12 +124,20 @@ Each module is written by the plan of the first component that needs it, designe
 
 | Component | Purpose | Depends on | Unblocks |
 | --- | --- | --- | --- |
-| ContextMenu | The same menu, opened by secondary click | Menu | DataTable row actions |
+| ContextMenu | The same menu, opened by secondary click | Menu | Table family row actions |
 | Menubar | Application menu bar with horizontal traversal | Menu | — |
 | Combobox | One option, filtered by typing, with free entry | Select, Input | Autocomplete, MultiCombobox |
 | DateRangePicker | Start and end date in one control | DatePicker | — |
 | DateTimePicker | Date and time in one control | DatePicker, TimePicker | — |
-| DataTable | Sorting, selection, resizing, sticky regions, virtualization | Table, Checkbox, Menu, Pagination, VirtualList | dense application surfaces |
+| Table family | Semantic table, then sorting, selection, column resizing, sticky regions and virtualization on one DOM | Checkbox, Menu, Pagination, VirtualList | dense application surfaces |
+
+### Why the table is one family, built late
+
+A plain semantic table has no dependency and would sit in `T1` by the tier rule. It is placed here anyway, and this is the catalog's only deliberate departure from that rule.
+
+The DOM a feature-bearing table needs is not the DOM a naive one would have. Virtualization rules out rendering every row inside `tbody`; sticky headers change the structure; column resizing needs `colgroup` or a fixed table layout; row selection changes the ARIA semantics. A parts contract fixed early, without those in view, is one the feature-bearing member either breaks or works around — and working around it means two implementations of the same component.
+
+This is the same argument that puts `Dialog` first among the overlays: design against the hardest case, because a contract that satisfies it also satisfies the simple one. Here the simple member, `Table`, falls out of the family's design at no extra cost. Building it first and reshaping it later would cost the design twice.
 
 ## T7 — Depends on T6
 
@@ -187,3 +194,4 @@ Recorded so they are not rediscovered. Each is decided by the component that rai
 3. Whether `Drawer` is a `Dialog` variant or its own component. Decided when `Drawer` is designed.
 4. Whether `Menu`, `Menubar`, and `NavigationMenu` share one implementation. Decided when `Menubar` is designed.
 5. Whether `Fieldset` is a component or a documented composition of `Field`. Decided when `Fieldset` is designed.
+6. Whether `Tabs` and `Toolbar` handle overflow with scroll affordances or with an overflow menu. Both sit in `T2` and `Menu` sits in `T5`, so the menu route would invert the tier rule. Scroll affordances keep them at `T2`; an overflow menu is additive to their parts contract rather than structural, so it can arrive later without breaking it. Decided when each is designed, with that constraint stated up front.
