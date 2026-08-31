@@ -39,8 +39,8 @@ describe('Angular Storybook preview', () => {
 
     expect(rendered).toMatchObject({
       props: {
-        slottedBackground: 'var(--slotted-button-outline-background)',
-        slottedColor: 'var(--slotted-tone-neutral-text)',
+        slottedBackground: 'var(--slotted-workbench-canvas)',
+        slottedColor: 'var(--slotted-workbench-text)',
         slottedColorScheme: 'dark',
         slottedDensity: 'compact',
         slottedEmbedded: false,

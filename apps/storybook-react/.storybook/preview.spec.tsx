@@ -30,9 +30,9 @@ describe('React Storybook preview', () => {
       'data-slotted-scheme': 'dark',
       'data-slotted-theme': 'default',
       style: {
-        background: 'var(--slotted-button-outline-background)',
+        background: 'var(--slotted-workbench-canvas)',
         boxSizing: 'border-box',
-        color: 'var(--slotted-tone-neutral-text)',
+        color: 'var(--slotted-workbench-text)',
         colorScheme: 'dark',
         minHeight: '100dvh',
       },
