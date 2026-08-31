@@ -7,7 +7,7 @@ import { REACT_BADGE_DOCS, REACT_BADGE_TOKENS } from './badge.docs';
 import type { BadgeFill, BadgeVariant } from './badge.types';
 
 const VARIANTS: readonly BadgeVariant[] = ['accent', 'secondary', 'success', 'warning', 'danger'];
-const FILLS: readonly BadgeFill[] = ['solid', 'outline'];
+const FILLS: readonly BadgeFill[] = ['solid', 'outline', 'subtle'];
 
 const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,

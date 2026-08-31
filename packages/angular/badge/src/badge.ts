@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, ViewEncapsulation } from '@angular/core';
 
 export type BadgeVariant = 'accent' | 'secondary' | 'success' | 'warning' | 'danger';
-export type BadgeFill = 'solid' | 'outline';
+export type BadgeFill = 'solid' | 'outline' | 'subtle';
 export type BadgeSize = 'sm' | 'md';
 
 /**

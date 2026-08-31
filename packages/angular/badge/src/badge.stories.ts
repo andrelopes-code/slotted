@@ -79,6 +79,7 @@ export const Appearance: Story = {
 <div class="slotted-demo-grid" data-columns="2">
   ${fillScene('solid')}
   ${fillScene('outline')}
+  ${fillScene('subtle')}
 </div>`,
   }),
 };

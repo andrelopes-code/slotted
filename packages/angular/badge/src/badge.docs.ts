@@ -27,7 +27,13 @@ export const ANGULAR_BADGE_DOCS = {
         'slBadge',
         'Tone the badge is painted in',
       ],
-      ['fill', "'solid' | 'outline'", 'solid', 'slBadge', 'How much of the tone is painted'],
+      [
+        'fill',
+        "'solid' | 'outline' | 'subtle'",
+        'solid',
+        'slBadge',
+        'How much of the tone is painted',
+      ],
       ['size', "'sm' | 'md'", 'md', 'slBadge', 'Height and type size'],
     ]),
     accessibility: [

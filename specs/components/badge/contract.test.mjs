@@ -27,8 +27,8 @@ test('names the same tones the button family names', () => {
   assert.deepEqual(contract.axes.variant, buttonContract.axes.variant);
 });
 
-test('offers only the fills the tone tokens can paint', () => {
-  assert.deepEqual(contract.axes.fill, ['solid', 'outline']);
+test('offers a fill for each weight the tone tokens can paint', () => {
+  assert.deepEqual(contract.axes.fill, ['solid', 'outline', 'subtle']);
 });
 
 test('sizes a badge for a table row and for a heading', () => {

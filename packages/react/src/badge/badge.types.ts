@@ -1,7 +1,7 @@
 import type { ComponentPropsWithoutRef, HTMLAttributes, ReactNode } from 'react';
 
 export type BadgeVariant = 'accent' | 'secondary' | 'success' | 'warning' | 'danger';
-export type BadgeFill = 'solid' | 'outline';
+export type BadgeFill = 'solid' | 'outline' | 'subtle';
 export type BadgeSize = 'sm' | 'md';
 
 export interface BadgeRootProps extends HTMLAttributes<HTMLElement> {

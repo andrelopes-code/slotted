@@ -34,6 +34,12 @@ describe('Badge', () => {
     expect(badge).toHaveAttribute('data-size', 'sm');
   });
 
+  it('paints a resting tint when the fill is subtle', () => {
+    render(<Badge fill="subtle">Draft</Badge>);
+
+    expect(screen.getByText('Draft')).toHaveAttribute('data-fill', 'subtle');
+  });
+
   it('carries the class the stylesheet paints, beside the consumer class', () => {
     render(<Badge className="app-badge">Paid</Badge>);
 

@@ -31,7 +31,7 @@ test('routes every variant through the same four local properties', () => {
   for (const variant of contract.axes.variant) {
     const rule = normalized.split(`.slotted-badge[data-variant='${variant}']{`)[1]?.split('}')[0];
     assert.ok(rule, `Missing variant ${variant}`);
-    for (const local of ['--_solid:', '--_on-solid:', '--_border:', '--_text:']) {
+    for (const local of ['--_solid:', '--_on-solid:', '--_border:', '--_surface:', '--_text:']) {
       assert.ok(rule.includes(local), `Variant ${variant} does not set ${local}`);
     }
   }
