@@ -14,6 +14,7 @@ export default defineConfig({
         button: resolve(import.meta.dirname, 'src/button/index.ts'),
         divider: resolve(import.meta.dirname, 'src/divider/index.ts'),
         field: resolve(import.meta.dirname, 'src/field/index.ts'),
+        kbd: resolve(import.meta.dirname, 'src/kbd/index.ts'),
         link: resolve(import.meta.dirname, 'src/link/index.ts'),
         skeleton: resolve(import.meta.dirname, 'src/skeleton/index.ts'),
         spinner: resolve(import.meta.dirname, 'src/spinner/index.ts'),

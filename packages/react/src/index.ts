@@ -3,6 +3,7 @@ export * from './badge';
 export * from './button';
 export * from './divider';
 export * from './field';
+export * from './kbd';
 export * from './link';
 export * from './skeleton';
 export * from './spinner';
