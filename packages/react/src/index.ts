@@ -19,4 +19,5 @@ export * from './splitter';
 export * from './stepper';
 export * from './tabs';
 export * from './tag';
+export * from './toolbar';
 export * from './visually-hidden';
