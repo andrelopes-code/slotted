@@ -1,6 +1,7 @@
 export * from './avatar';
 export * from './badge';
 export * from './button';
+export * from './description-list';
 export * from './divider';
 export * from './field';
 export * from './kbd';
