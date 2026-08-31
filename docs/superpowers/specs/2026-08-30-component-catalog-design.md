@@ -26,6 +26,7 @@ Each module is written by the plan of the first component that needs it, designe
 | --- | --- | --- |
 | `core/focus` — roving tabindex, typeahead | Tabs | T2 |
 | `core/collection` — virtualization math | VirtualList | T2 |
+| `core/files` — accept matching | FileUpload | T2 |
 | `core/collection` — filtering, comparison | Listbox | T3 |
 | `core/collection` — date arithmetic | Calendar | T3 |
 | `core/overlay` — portal, positioning, collision, scroll lock | Dialog | T4 |
