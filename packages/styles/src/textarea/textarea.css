@@ -1,0 +1,93 @@
+@layer slotted.components {
+  /**
+   * The multi-line control. Its rules mirror the single-line control's and
+   * reach the same foundation tokens rather than the input family's, so a
+   * theme can move one without the other and neither stylesheet depends on
+   * the other's class.
+   */
+  .slotted-textarea {
+    background-color: var(--slotted-textarea-background, transparent);
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-textarea-border-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: var(--slotted-textarea-radius, var(--slotted-control-radius, 4px));
+    box-sizing: border-box;
+    color: var(--slotted-textarea-color, var(--slotted-text, CanvasText));
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    inline-size: 100%;
+    line-height: var(--slotted-textarea-line-height, 1.5);
+    min-inline-size: 0;
+    resize: var(--slotted-textarea-resize, block);
+    transition: border-color var(--slotted-control-transition-duration, 120ms)
+      var(--slotted-control-transition-easing, ease);
+  }
+
+  .slotted-textarea::placeholder {
+    color: var(--slotted-textarea-placeholder-color, var(--slotted-text-muted, GrayText));
+  }
+
+  .slotted-textarea[data-size='sm'] {
+    font-size: var(--slotted-textarea-font-size-sm, 0.8125rem);
+    padding: var(--slotted-textarea-padding-block-sm, 0.375rem)
+      var(--slotted-textarea-padding-inline-sm, 0.5rem);
+  }
+
+  .slotted-textarea[data-size='md'] {
+    font-size: var(--slotted-textarea-font-size-md, 0.875rem);
+    padding: var(--slotted-textarea-padding-block-md, 0.5rem)
+      var(--slotted-textarea-padding-inline-md, 0.625rem);
+  }
+
+  .slotted-textarea[data-size='lg'] {
+    font-size: var(--slotted-textarea-font-size-lg, 1rem);
+    padding: var(--slotted-textarea-padding-block-lg, 0.625rem)
+      var(--slotted-textarea-padding-inline-lg, 0.75rem);
+  }
+
+  /**
+   * Growing with the content is the platform's job. `field-sizing` measures
+   * nothing on the main thread and thrashes no layout; where a browser does
+   * not support it the control keeps the block size `rows` gives it, which is
+   * a smaller box rather than a broken one.
+   *
+   * The manual resize handle is withdrawn while it is on, because a control
+   * that resizes itself and a handle that fixes its size disagree on the next
+   * keystroke.
+   */
+  .slotted-textarea[data-auto-size] {
+    field-sizing: content;
+    max-block-size: var(--slotted-textarea-auto-size-max, 16rem);
+    resize: none;
+  }
+
+  .slotted-textarea:hover:not([data-disabled]):not([data-readonly]) {
+    border-color: var(--slotted-textarea-hover-border-color, var(--slotted-tone-accent-border));
+  }
+
+  .slotted-textarea:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  .slotted-textarea[data-invalid] {
+    border-color: var(--slotted-textarea-invalid-border-color, var(--slotted-tone-danger-border));
+  }
+
+  .slotted-textarea[data-readonly] {
+    background-color: var(
+      --slotted-textarea-readonly-background,
+      var(--slotted-tone-secondary-surface)
+    );
+    cursor: var(--slotted-textarea-readonly-cursor, default);
+  }
+
+  .slotted-textarea[data-disabled] {
+    background-color: var(
+      --slotted-textarea-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(--slotted-textarea-disabled-border-color, var(--slotted-disabled-border));
+    color: var(--slotted-textarea-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+    resize: none;
+  }
+}
