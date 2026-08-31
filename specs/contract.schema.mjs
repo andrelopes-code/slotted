@@ -23,6 +23,7 @@ export const KNOWN_CAPABILITIES = [
   'size',
   'shape',
   'measurement',
+  'live',
   'content',
   'fullWidth',
   'disabled',
