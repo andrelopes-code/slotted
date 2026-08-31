@@ -31,6 +31,7 @@ export default defineConfig({
         tabs: resolve(import.meta.dirname, 'src/tabs/index.ts'),
         tag: resolve(import.meta.dirname, 'src/tag/index.ts'),
         toolbar: resolve(import.meta.dirname, 'src/toolbar/index.ts'),
+        'virtual-list': resolve(import.meta.dirname, 'src/virtual-list/index.ts'),
         'visually-hidden': resolve(import.meta.dirname, 'src/visually-hidden/index.ts'),
       },
       formats: ['es'],
