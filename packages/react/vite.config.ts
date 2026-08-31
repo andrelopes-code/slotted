@@ -11,11 +11,12 @@ export default defineConfig({
         index: resolve(import.meta.dirname, 'src/index.ts'),
         button: resolve(import.meta.dirname, 'src/button/index.ts'),
         field: resolve(import.meta.dirname, 'src/field/index.ts'),
+        tabs: resolve(import.meta.dirname, 'src/tabs/index.ts'),
       },
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['react', 'react/jsx-runtime'],
+      external: [/^@slotted\/core/, 'react', 'react/jsx-runtime'],
       output: {
         entryFileNames: '[name].js',
       },
