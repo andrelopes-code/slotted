@@ -258,3 +258,39 @@ memory of the session that produced it.
   A wrapping `div` per pair is valid HTML and would fall out of the grid;
   `display: contents` on such a wrapper would fix the layout, and it is not
   added speculatively. If a consumer reports it, that is the one-line answer.
+
+## Splitter — 2026-08-31
+
+- Design: `docs/superpowers/specs/2026-08-31-splitter-design.md`. The only T1
+  component with real interaction, and the only one that needed a document.
+- Decisions: two panes, one separator. N panes need a policy for which
+  neighbour absorbs a constraint violation, and no two libraries choose the
+  same one; three regions are two nested splitters, which both Storybooks show.
+- Decisions: `orientation` describes the panes and `aria-orientation` describes
+  the separator, and they are perpendicular. `horizontal` is the ARIA
+  attribute's own default, so it is written only for side-by-side panes.
+- Decisions: the position is the first grid track's size, written inline. The
+  rejected alternative was a custom property read into `flex-basis` on
+  `:first-child`, which makes DOM order load-bearing and relies on the one part
+  of the style-binding API whose support differs between the frameworks.
+- Decisions: no `@slotted/core` module. A rectangle, a fraction and a clamp are
+  four lines that read better where they are used, and a module extracted here
+  would have its signature fixed by one caller with no second to confirm it.
+- Decisions: the arrow pair along the separator is ignored, so a scrollable
+  pane still scrolls. Both suites assert the absence.
+- Defects found: the design document said the handle would set `aria-controls`
+  at the pane it resizes. Implementing it means the root identifying which
+  projected child is the first pane — child inspection or a mount-order
+  registry in React, a content query in Angular — for an attribute the
+  `separator` role does not require, and the registry misbehaves under a
+  double-invoked render. Corrected in the same commit as the React
+  implementation; the consumer passes it and the pages show that.
+- Deviations: the React implementation was written before its tests. The
+  design document had settled the behaviour and the component is large; the
+  tests were written immediately after and both frameworks assert the same
+  seventeen behaviours. Angular followed the usual order.
+- Follow-on: T1 is complete. The next tier begins with Card, Tag, Alert,
+  Collapsible and Breadcrumb. Tag and Alert both want the subtle fill Badge
+  deferred, so that is the point to add `--slotted-tone-*-subtle` to the token
+  contract and both schemes of the default theme, and to give Badge, Tag and
+  Alert the third fill in one change.
