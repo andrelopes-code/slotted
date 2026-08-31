@@ -1,0 +1,79 @@
+@layer slotted.components {
+  /**
+   * Three grid tracks — pane, handle, pane. The position is the first track's
+   * size, written inline by the component; the inline axis follows the
+   * document's direction, so a right-to-left document needs nothing extra.
+   */
+  .slotted-splitter {
+    block-size: 100%;
+    display: grid;
+    inline-size: 100%;
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+
+  .slotted-splitter [data-part='pane'] {
+    min-block-size: 0;
+    min-inline-size: 0;
+    overflow: auto;
+  }
+
+  .slotted-splitter [data-part='handle'] {
+    align-items: center;
+    background-color: var(
+      --slotted-splitter-handle-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+    display: flex;
+    justify-content: center;
+    position: relative;
+    touch-action: none;
+    transition: background-color var(--slotted-control-transition-duration, 120ms)
+      var(--slotted-control-transition-easing, ease);
+    user-select: none;
+  }
+
+  .slotted-splitter[data-orientation='horizontal'] [data-part='handle'] {
+    cursor: col-resize;
+    inline-size: var(--slotted-splitter-handle-thickness, 0.25rem);
+  }
+
+  .slotted-splitter[data-orientation='vertical'] [data-part='handle'] {
+    block-size: var(--slotted-splitter-handle-thickness, 0.25rem);
+    cursor: row-resize;
+  }
+
+  .slotted-splitter [data-part='handle']:hover {
+    background-color: var(--slotted-splitter-handle-hover-color, var(--slotted-tone-accent-border));
+  }
+
+  .slotted-splitter [data-part='handle']:active {
+    background-color: var(--slotted-splitter-handle-active-color, var(--slotted-tone-accent-solid));
+  }
+
+  .slotted-splitter [data-part='handle']:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * A separator a few pixels wide is a hard pointer target, so the handle
+   * reaches past itself with a pseudo-element. The reach is a negative inset on
+   * both sides of the axis rather than a width and a translation, which keeps
+   * it symmetric in a right-to-left document without a second rule.
+   */
+  .slotted-splitter [data-part='handle']::after {
+    content: '';
+    position: absolute;
+  }
+
+  .slotted-splitter[data-orientation='horizontal'] [data-part='handle']::after {
+    inset-block: 0;
+    inset-inline: calc(var(--slotted-splitter-handle-hit-area, 0.375rem) * -1);
+  }
+
+  .slotted-splitter[data-orientation='vertical'] [data-part='handle']::after {
+    inset-block: calc(var(--slotted-splitter-handle-hit-area, 0.375rem) * -1);
+    inset-inline: 0;
+  }
+}
