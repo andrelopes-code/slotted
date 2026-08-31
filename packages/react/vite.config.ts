@@ -12,6 +12,7 @@ export default defineConfig({
         avatar: resolve(import.meta.dirname, 'src/avatar/index.ts'),
         badge: resolve(import.meta.dirname, 'src/badge/index.ts'),
         button: resolve(import.meta.dirname, 'src/button/index.ts'),
+        card: resolve(import.meta.dirname, 'src/card/index.ts'),
         'description-list': resolve(import.meta.dirname, 'src/description-list/index.ts'),
         divider: resolve(import.meta.dirname, 'src/divider/index.ts'),
         field: resolve(import.meta.dirname, 'src/field/index.ts'),
