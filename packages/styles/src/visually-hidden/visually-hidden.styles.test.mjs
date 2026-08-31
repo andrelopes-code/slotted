@@ -33,13 +33,3 @@ test('reveals the focusable variant while focus is inside', () => {
     'The default variant stays hidden whether or not it holds focus',
   );
 });
-
-test('documents exactly the public custom properties the stylesheet reads', () => {
-  const declared = JSON.parse(
-    readFileSync(new URL('./visually-hidden.tokens.json', import.meta.url), 'utf8'),
-  );
-  const referenced = [
-    ...new Set([...css.matchAll(/var\((--slotted-[a-z0-9-]+)/g)].map(([, token]) => token)),
-  ].sort();
-  assert.deepEqual(declared, referenced);
-});

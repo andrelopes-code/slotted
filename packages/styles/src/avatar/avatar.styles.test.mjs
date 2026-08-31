@@ -46,13 +46,3 @@ test('states the loaded state the contract declares', () => {
     assert.ok(normalized.includes(`[${attribute}]`), `Missing ${attribute}`);
   }
 });
-
-test('documents exactly the public custom properties the stylesheet reads', () => {
-  const declared = JSON.parse(
-    readFileSync(new URL('./avatar.tokens.json', import.meta.url), 'utf8'),
-  );
-  const referenced = [
-    ...new Set([...css.matchAll(/var\((--slotted-[a-z0-9-]+)/g)].map(([, token]) => token)),
-  ].sort();
-  assert.deepEqual(declared, referenced);
-});

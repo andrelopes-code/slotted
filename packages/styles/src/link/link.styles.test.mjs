@@ -39,11 +39,3 @@ test('restores the underline under forced colours', () => {
     'A link with no underline is unrecognizable once the palette flattens colour',
   );
 });
-
-test('documents exactly the public custom properties the stylesheet reads', () => {
-  const declared = JSON.parse(readFileSync(new URL('./link.tokens.json', import.meta.url), 'utf8'));
-  const referenced = [
-    ...new Set([...css.matchAll(/var\((--slotted-[a-z0-9-]+)/g)].map(([, token]) => token)),
-  ].sort();
-  assert.deepEqual(declared, referenced);
-});

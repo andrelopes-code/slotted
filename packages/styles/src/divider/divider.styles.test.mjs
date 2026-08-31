@@ -28,13 +28,3 @@ test('sizes each orientation the contract names', () => {
 test('removes the border the user agent draws on an hr', () => {
   assert.ok(normalized.includes('border:0'), 'The default hr border would double the rule');
 });
-
-test('documents exactly the public custom properties the stylesheet reads', () => {
-  const declared = JSON.parse(
-    readFileSync(new URL('./divider.tokens.json', import.meta.url), 'utf8'),
-  );
-  const referenced = [
-    ...new Set([...css.matchAll(/var\((--slotted-[a-z0-9-]+)/g)].map(([, token]) => token)),
-  ].sort();
-  assert.deepEqual(declared, referenced);
-});

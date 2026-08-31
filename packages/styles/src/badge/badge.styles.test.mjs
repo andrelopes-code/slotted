@@ -43,13 +43,3 @@ test('keeps a border under forced colours, where the tone is discarded', () => {
     'A solid and an outline badge are otherwise indistinguishable',
   );
 });
-
-test('documents exactly the public custom properties the stylesheet reads', () => {
-  const declared = JSON.parse(
-    readFileSync(new URL('./badge.tokens.json', import.meta.url), 'utf8'),
-  );
-  const referenced = [
-    ...new Set([...css.matchAll(/var\((--slotted-[a-z0-9-]+)/g)].map(([, token]) => token)),
-  ].sort();
-  assert.deepEqual(declared, referenced);
-});

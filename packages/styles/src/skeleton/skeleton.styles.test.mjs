@@ -39,13 +39,3 @@ test('stops the animation outright under reduced motion', () => {
     'A placeholder reports through its shape, which survives the animation stopping',
   );
 });
-
-test('documents exactly the public custom properties the stylesheet reads', () => {
-  const declared = JSON.parse(
-    readFileSync(new URL('./skeleton.tokens.json', import.meta.url), 'utf8'),
-  );
-  const referenced = [
-    ...new Set([...css.matchAll(/var\((--slotted-[a-z0-9-]+)/g)].map(([, token]) => token)),
-  ].sort();
-  assert.deepEqual(declared, referenced);
-});

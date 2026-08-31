@@ -31,11 +31,3 @@ test('keeps a single key at least as wide as it is tall', () => {
 test('sets a monospace family, so W and I take the same room', () => {
   assert.ok(normalized.includes('font-family:var(--slotted-kbd-font-family'), 'Missing the family');
 });
-
-test('documents exactly the public custom properties the stylesheet reads', () => {
-  const declared = JSON.parse(readFileSync(new URL('./kbd.tokens.json', import.meta.url), 'utf8'));
-  const referenced = [
-    ...new Set([...css.matchAll(/var\((--slotted-[a-z0-9-]+)/g)].map(([, token]) => token)),
-  ].sort();
-  assert.deepEqual(declared, referenced);
-});

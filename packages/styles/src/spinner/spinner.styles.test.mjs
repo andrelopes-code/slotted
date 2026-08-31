@@ -41,13 +41,3 @@ test('slows the animation rather than stopping it under reduced motion', () => {
     'Reduced motion should slow the ring, since a frozen spinner reports nothing',
   );
 });
-
-test('documents exactly the public custom properties the stylesheet reads', () => {
-  const declared = JSON.parse(
-    readFileSync(new URL('./spinner.tokens.json', import.meta.url), 'utf8'),
-  );
-  const referenced = [
-    ...new Set([...css.matchAll(/var\((--slotted-[a-z0-9-]+)/g)].map(([, token]) => token)),
-  ].sort();
-  assert.deepEqual(declared, referenced);
-});

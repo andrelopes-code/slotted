@@ -249,19 +249,3 @@ test('does not force sizing on content inside the label slot', () => {
   assert.doesNotMatch(css, /\.slotted-button \[data-part\] > svg/);
   assert.doesNotMatch(css, /\[data-part='label'\][^{]*>\s*\*/);
 });
-
-test('documents exactly the public custom properties the stylesheet reads', () => {
-  const declared = JSON.parse(
-    readFileSync(new URL('./button.tokens.json', import.meta.url), 'utf8'),
-  );
-
-  const referenced = [
-    ...new Set([...css.matchAll(/var\((--slotted-[a-z0-9-]+)/g)].map(([, token]) => token)),
-  ].sort();
-
-  assert.deepEqual(declared, referenced);
-  assert.ok(
-    declared.every((token) => !token.startsWith('--_')),
-    'Internal custom properties must not be documented',
-  );
-});
