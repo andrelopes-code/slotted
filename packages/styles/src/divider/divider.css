@@ -1,0 +1,25 @@
+@layer slotted.components {
+  .slotted-divider {
+    background-color: var(--slotted-divider-color, var(--slotted-border-subtle, ButtonBorder));
+    border: 0;
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  .slotted-divider[data-orientation='horizontal'] {
+    block-size: var(--slotted-divider-thickness, 1px);
+    inline-size: 100%;
+  }
+
+  /**
+   * A vertical rule has no intrinsic length, so it takes one from its
+   * container: `align-self` covers a flex row, and `block-size` covers a
+   * container that sizes its children some other way.
+   */
+  .slotted-divider[data-orientation='vertical'] {
+    align-self: stretch;
+    block-size: 100%;
+    inline-size: var(--slotted-divider-thickness, 1px);
+    min-block-size: var(--slotted-divider-min-length, 1em);
+  }
+}
