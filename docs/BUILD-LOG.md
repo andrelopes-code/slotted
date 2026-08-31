@@ -606,6 +606,59 @@ memory of the session that produced it.
   otherwise forward an optional prop as `{ maxSize: props.maxSize }`. Any core
   interface a component forwards props into needs the same.
 
+## Input — 2026-08-31
+
+- Decisions: a control this library ships reads the field itself, so
+  `<Input />` and `<input slInput>` are wired with nothing else written.
+  `fieldControl` stays, but only for controls the library has never seen. The
+  Angular alternative — `<input slInput slFieldControl>` — needs no dependency
+  between entry points and was rejected because forgetting the second directive
+  leaves a label whose `for` resolves to nothing.
+  `docs/superpowers/specs/2026-08-31-field-aware-controls-design.md` carries the
+  argument, and it applies to the whole of T3, not only to Input.
+- Decisions: every state a control shares with its field is `undefined` by
+  default, not `false`. Unset defers to the field; set wins over it in both
+  directions. Both suites assert an explicitly enabled input inside a disabled
+  field.
+- Decisions: the resolved state is mirrored onto the control's own element, so
+  the stylesheet is one class-and-attribute selector and an input outside a
+  field looks the same as one inside it. A style test refuses any mention of
+  `.slotted-field` in the sheet.
+- Decisions: `data-required` is not mirrored. The required marker belongs to the
+  label the field already draws, and an attribute that paints nothing is an
+  attribute nothing reads. `aria-required` is still set.
+- Decisions: the invalid rule is written after the hover rule and a test asserts
+  that order, so a field reporting an error keeps looking wrong while the
+  pointer is over it.
+- Decisions: `size` shadows the native `size` attribute of a text input, which
+  sets a width in characters. Every family in this library names its scale
+  `size`, and the vocabulary is worth more than a rarely-used native attribute.
+- Decisions: `@slotted/angular/input` is the package's first entry point to
+  depend on another. It imports `SlField` by the published path, never
+  relatively — ng-packagr refuses the relative form, and the refusal is the
+  useful kind, because a build that duplicated the class would produce two
+  injection tokens and fail silently. `packages/angular/src/bundle.boundaries.test.mjs`
+  states that against the built bundles.
+- Decisions: no equivalent test for React. Rollup deduplicates a shared module
+  into one chunk by construction — the build was checked and `input.js` and
+  `field.js` do import the same `field-context` chunk — and a test of that
+  would be a test of Rollup.
+- Defects found: the design document claimed the Angular path mapping was
+  deliberately kept out of ng-packagr's `tsconfig.lib.json`. The root typecheck
+  spans every package, so the mapping has to be in `tsconfig.base.json`, which
+  `tsconfig.lib.json` extends. Measured rather than assumed: ng-packagr resolves
+  entry points before the inherited paths apply, and a build from a clean `dist`
+  still emits one `SlField`. The document was corrected in the same commit.
+- Defects found: none in shipped code.
+- Deviations: the Angular Storybook was built once here rather than at the end
+  of the batch, because the Vite alias that resolves `@slotted/angular/*` is new
+  infrastructure and no other gate exercises it. It builds.
+- Follow-on: leading and trailing adornments — an icon inside the control, a
+  unit after it — are deliberately absent. They are a layout problem with their
+  own answers about click targets and padding.
+- Follow-on: `Textarea`, `Switch` and `Fieldset` complete this batch and follow
+  the same mechanism. None of them needs a design document.
+
 ## Where the queue stands — 2026-08-31
 
 **T1 and T2 are complete.** Button, Field and Tabs were already shipped. T1
