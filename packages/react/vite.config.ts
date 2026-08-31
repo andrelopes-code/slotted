@@ -22,6 +22,7 @@ export default defineConfig({
         kbd: resolve(import.meta.dirname, 'src/kbd/index.ts'),
         link: resolve(import.meta.dirname, 'src/link/index.ts'),
         'loading-bar': resolve(import.meta.dirname, 'src/loading-bar/index.ts'),
+        pagination: resolve(import.meta.dirname, 'src/pagination/index.ts'),
         'progress-bar': resolve(import.meta.dirname, 'src/progress-bar/index.ts'),
         skeleton: resolve(import.meta.dirname, 'src/skeleton/index.ts'),
         spinner: resolve(import.meta.dirname, 'src/spinner/index.ts'),

@@ -11,6 +11,7 @@ export * from './field';
 export * from './kbd';
 export * from './link';
 export * from './loading-bar';
+export * from './pagination';
 export * from './progress-bar';
 export * from './skeleton';
 export * from './spinner';
