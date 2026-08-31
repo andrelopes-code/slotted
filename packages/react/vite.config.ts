@@ -16,6 +16,7 @@ export default defineConfig({
         field: resolve(import.meta.dirname, 'src/field/index.ts'),
         kbd: resolve(import.meta.dirname, 'src/kbd/index.ts'),
         link: resolve(import.meta.dirname, 'src/link/index.ts'),
+        'progress-bar': resolve(import.meta.dirname, 'src/progress-bar/index.ts'),
         skeleton: resolve(import.meta.dirname, 'src/skeleton/index.ts'),
         spinner: resolve(import.meta.dirname, 'src/spinner/index.ts'),
         tabs: resolve(import.meta.dirname, 'src/tabs/index.ts'),
