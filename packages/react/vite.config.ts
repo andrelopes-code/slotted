@@ -12,6 +12,7 @@ export default defineConfig({
         button: resolve(import.meta.dirname, 'src/button/index.ts'),
         field: resolve(import.meta.dirname, 'src/field/index.ts'),
         tabs: resolve(import.meta.dirname, 'src/tabs/index.ts'),
+        'visually-hidden': resolve(import.meta.dirname, 'src/visually-hidden/index.ts'),
       },
       formats: ['es'],
     },
