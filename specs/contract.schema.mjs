@@ -26,6 +26,7 @@ export const KNOWN_CAPABILITIES = [
   'measurement',
   'live',
   'current',
+  'open',
   'content',
   'fullWidth',
   'disabled',
