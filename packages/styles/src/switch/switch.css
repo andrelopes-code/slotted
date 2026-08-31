@@ -79,7 +79,7 @@
     border-color: var(--slotted-switch-checked-border-color, var(--slotted-tone-accent-solid));
   }
 
-  .slotted-switch:hover:not([data-disabled]) {
+  .slotted-switch:hover:not([data-disabled]):not(:disabled) {
     border-color: var(--slotted-switch-hover-border-color, var(--slotted-tone-accent-border));
   }
 
@@ -92,7 +92,15 @@
     border-color: var(--slotted-switch-invalid-border-color, var(--slotted-tone-danger-border));
   }
 
-  .slotted-switch[data-disabled] {
+  /**
+   * `:disabled` is matched alongside `data-disabled`, because a control can be
+   * disabled by something that never told it so: a disabled `<fieldset>`
+   * disables every control inside it, and the control has no way to know. The
+   * attribute alone left such a control fully operable-looking and entirely
+   * inert.
+   */
+  .slotted-switch[data-disabled],
+  .slotted-switch:disabled {
     background-color: var(
       --slotted-switch-disabled-track-color,
       var(--slotted-disabled-background)
@@ -101,7 +109,8 @@
     cursor: not-allowed;
   }
 
-  .slotted-switch[data-disabled] [data-part='thumb'] {
+  .slotted-switch[data-disabled] [data-part='thumb'],
+  .slotted-switch:disabled [data-part='thumb'] {
     background-color: var(
       --slotted-switch-disabled-thumb-color,
       var(--slotted-disabled-foreground)

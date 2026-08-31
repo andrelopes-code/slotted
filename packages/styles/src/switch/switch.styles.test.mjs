@@ -69,3 +69,10 @@ test('sizes the track in the inline axis alone, and lets the padding set the res
     assert.ok(!track?.includes('block-size:'), `${size} should take its block size from the thumb`);
   }
 });
+
+test('looks disabled however it was disabled, including by a fieldset', () => {
+  assert.ok(
+    normalized.includes('.slotted-switch[data-disabled],.slotted-switch:disabled'),
+    'A disabled <fieldset> disables every control inside it without telling them, so the attribute alone leaves an inert control looking operable',
+  );
+});

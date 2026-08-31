@@ -47,7 +47,9 @@ test('never reaches for the field, so a control outside one looks the same', () 
 
 test('holds the hover rule back for a disabled or read-only control', () => {
   assert.ok(
-    normalized.includes('.slotted-input:hover:not([data-disabled]):not([data-readonly])'),
+    normalized.includes(
+      '.slotted-input:hover:not([data-disabled]):not(:disabled):not([data-readonly])',
+    ),
     'A control that cannot be edited should not invite the pointer',
   );
 });
@@ -67,4 +69,11 @@ test('sizes the control in the block axis, never with a physical height', () => 
     assert.ok(declaration?.includes('block-size:'), `Missing block size for ${size}`);
     assert.ok(declaration?.includes('padding-inline:'), `Missing inline padding for ${size}`);
   }
+});
+
+test('looks disabled however it was disabled, including by a fieldset', () => {
+  assert.ok(
+    normalized.includes('.slotted-input[data-disabled],.slotted-input:disabled'),
+    'A disabled <fieldset> disables every control inside it without telling them, so the attribute alone leaves an inert control looking operable',
+  );
 });

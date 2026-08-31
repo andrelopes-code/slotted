@@ -60,7 +60,7 @@ test('grows with its content through the platform, not through measurement', () 
 test('withdraws the resize handle wherever the size is not the reader’s to set', () => {
   for (const selector of [
     '.slotted-textarea[data-auto-size]',
-    '.slotted-textarea[data-disabled]',
+    '.slotted-textarea[data-disabled], .slotted-textarea:disabled',
   ]) {
     assert.ok(rule(selector)?.includes('resize: none'), `Missing resize: none on ${selector}`);
   }
@@ -74,4 +74,11 @@ test('lets the error outrank the pointer, by writing it afterwards', () => {
   const hover = declarations.indexOf(':hover');
   const invalid = declarations.indexOf('[data-invalid]');
   assert.ok(hover !== -1 && invalid > hover, 'An error should survive the pointer being over it');
+});
+
+test('looks disabled however it was disabled, including by a fieldset', () => {
+  assert.ok(
+    normalized.includes('.slotted-textarea[data-disabled],.slotted-textarea:disabled'),
+    'A disabled <fieldset> disables every control inside it without telling them, so the attribute alone leaves an inert control looking operable',
+  );
 });

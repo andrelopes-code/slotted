@@ -59,7 +59,7 @@
     resize: none;
   }
 
-  .slotted-textarea:hover:not([data-disabled]):not([data-readonly]) {
+  .slotted-textarea:hover:not([data-disabled]):not(:disabled):not([data-readonly]) {
     border-color: var(--slotted-textarea-hover-border-color, var(--slotted-tone-accent-border));
   }
 
@@ -80,7 +80,15 @@
     cursor: var(--slotted-textarea-readonly-cursor, default);
   }
 
-  .slotted-textarea[data-disabled] {
+  /**
+   * `:disabled` is matched alongside `data-disabled`, because a control can be
+   * disabled by something that never told it so: a disabled `<fieldset>`
+   * disables every control inside it, and the control has no way to know. The
+   * attribute alone left such a control fully operable-looking and entirely
+   * inert.
+   */
+  .slotted-textarea[data-disabled],
+  .slotted-textarea:disabled {
     background-color: var(
       --slotted-textarea-disabled-background,
       var(--slotted-disabled-background)
