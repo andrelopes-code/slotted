@@ -27,6 +27,7 @@ export const KNOWN_CAPABILITIES = [
   'live',
   'current',
   'open',
+  'placement',
   'content',
   'fullWidth',
   'disabled',
