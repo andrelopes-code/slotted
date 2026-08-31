@@ -8,6 +8,7 @@ import {
   isDevMode,
   ViewEncapsulation,
 } from '@angular/core';
+import { clamp, percentOf } from '@slotted/core/measure';
 
 /**
  * A value outside the range is clamped rather than rejected: progress is
@@ -48,15 +49,13 @@ export class SlProgressBar {
 
   readonly valueNow = computed(() => {
     if (this.indeterminate()) return null;
-    return Math.min(Math.max(this.value() as number, 0), this.max());
+    return clamp(this.value() as number, 0, this.max());
   });
 
   readonly indicatorSize = computed(() => {
     const now = this.valueNow();
     if (now === null) return null;
-    const max = this.max();
-    const fraction = max > 0 ? now / max : 0;
-    return `${(fraction * 100).toFixed(4)}%`;
+    return `${percentOf(now, 0, this.max())}%`;
   });
 
   constructor() {

@@ -1,5 +1,7 @@
 import '@slotted/styles/progress-bar/progress-bar.css';
 
+import { clamp, percentOf } from '@slotted/core/measure';
+
 import type { ProgressBarProps, ProgressBarRootProps } from './progress-bar.types';
 
 const isDevelopment = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
@@ -27,8 +29,7 @@ export function ProgressBar({
   }
 
   const indeterminate = value === null || Number.isNaN(value);
-  const clamped = indeterminate ? 0 : Math.min(Math.max(value, 0), max);
-  const fraction = max > 0 ? clamped / max : 0;
+  const clamped = indeterminate ? 0 : clamp(value, 0, max);
 
   const rootProps: ProgressBarRootProps = {
     ...nativeProps,
@@ -41,7 +42,7 @@ export function ProgressBar({
     children: (
       <span
         data-part="indicator"
-        style={indeterminate ? undefined : { inlineSize: `${(fraction * 100).toFixed(4)}%` }}
+        style={indeterminate ? undefined : { inlineSize: `${percentOf(clamped, 0, max)}%` }}
       />
     ),
     className: ['slotted-progress-bar', className].filter(Boolean).join(' '),

@@ -9,11 +9,12 @@ import {
   numberAttribute,
   ViewEncapsulation,
 } from '@angular/core';
+import { clamp, roundTo } from '@slotted/core/measure';
 
 export type SplitterOrientation = 'horizontal' | 'vertical';
 
 export function clampPosition(value: number, min: number, max: number) {
-  return Number(Math.min(Math.max(value, min), max).toFixed(2));
+  return roundTo(clamp(value, min, max), 2);
 }
 
 /**

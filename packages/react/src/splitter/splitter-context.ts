@@ -1,3 +1,4 @@
+import { clamp, roundTo } from '@slotted/core/measure';
 import { createContext, useContext } from 'react';
 
 import type { SplitterContextValue } from './splitter.types';
@@ -9,5 +10,5 @@ export function useSplitter() {
 }
 
 export function clampPosition(value: number, min: number, max: number) {
-  return Number(Math.min(Math.max(value, min), max).toFixed(2));
+  return roundTo(clamp(value, min, max), 2);
 }
