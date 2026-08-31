@@ -205,3 +205,37 @@ memory of the session that produced it.
 - Follow-on: Command (T7) and Tooltip (T5) print shortcuts. If either needs a
   combination rendered from data rather than written out, the separator and the
   platform-dependent modifier order are the two questions to answer first.
+
+## ProgressBar — 2026-08-31
+
+- Decisions: a div with `role="progressbar"`, not the native `progress`. A
+  native progress bar can only be painted through engine-specific
+  pseudo-elements (`::-webkit-progress-value`, `::-moz-progress-bar`) that sit
+  outside the CSS specification and cannot be written once for both engines,
+  and one authored stylesheet is the library's rule.
+- Decisions: `measurement` joins the capability vocabulary and `indeterminate`
+  joins the state vocabulary. Checkbox in T3 needs the same state word for the
+  same meaning — a value that exists but cannot be given.
+- Decisions: the root is the track. A separate track part would be a second
+  element that adds a name and nothing else.
+- Decisions: a value outside the range is clamped, and the clamped value is
+  what `aria-valuenow` reports, so the announcement and the painted bar cannot
+  disagree. Progress is usually computed from numbers the application does not
+  fully control.
+- Decisions: a missing accessible name is a `console.warn` in development, not
+  a throw. IconButton throws because a nameless icon button is unusable; a
+  nameless progress bar still reports visually, and taking down a screen
+  mid-upload is worse than the defect.
+- Decisions: the indeterminate bar travels by animating `inset-inline-start`,
+  so it runs the way the document reads. A translation runs the same way in
+  both directions, which is wrong in one of them.
+- Defects found: every family's token check was a copy of one pattern anchored
+  directly to the token name, so it missed any `var(` Prettier had wrapped —
+  the longest declarations, exactly. `skeleton.tokens.json` was short one entry,
+  and nothing could notice, because the generator and the assertion shared the
+  flaw. Replaced by `packages/styles/src/tokens.test.mjs`, one test over every
+  family, which also fails a family shipping a stylesheet with no token list.
+- Deviations: none.
+- Follow-on: LoadingBar and Stepper (T2) and FileUpload (T2) build on this.
+  LoadingBar is the page-level case and will want to sit fixed at the top of the
+  viewport; that is a positioning decision, not a new measurement.
