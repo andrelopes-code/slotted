@@ -9,5 +9,6 @@ export * from './link';
 export * from './progress-bar';
 export * from './skeleton';
 export * from './spinner';
+export * from './splitter';
 export * from './tabs';
 export * from './visually-hidden';

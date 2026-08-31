@@ -20,6 +20,7 @@ export default defineConfig({
         'progress-bar': resolve(import.meta.dirname, 'src/progress-bar/index.ts'),
         skeleton: resolve(import.meta.dirname, 'src/skeleton/index.ts'),
         spinner: resolve(import.meta.dirname, 'src/spinner/index.ts'),
+        splitter: resolve(import.meta.dirname, 'src/splitter/index.ts'),
         tabs: resolve(import.meta.dirname, 'src/tabs/index.ts'),
         'visually-hidden': resolve(import.meta.dirname, 'src/visually-hidden/index.ts'),
       },

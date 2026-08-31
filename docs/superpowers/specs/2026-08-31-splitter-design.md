@@ -98,8 +98,13 @@ application composing the panes, not to the separator.
   separator a widget rather than a decoration.
 - `aria-valuenow`, `aria-valuemin` and `aria-valuemax` report the position as a
   percentage of the container, which is the unit the value is held in.
-- `aria-controls` points at the pane the value describes, so a screen reader
-  can say which region the number belongs to.
+- `aria-controls` is the consumer's to pass. It is recommended by the Authoring
+  Practices and not required by the `separator` role, and setting it
+  automatically would mean the root identifying which of its projected children
+  is the first pane. In React that is child inspection or a mount-order
+  registry; in Angular it is a content query. Both are machinery in service of
+  an optional attribute, and the registry is the one that breaks under a
+  double-invoked render. The reference pages show a consumer passing it.
 - The handle needs an accessible name. A development build warns when neither
   `aria-label` nor `aria-labelledby` is present, matching ProgressBar. It
   warns rather than throws for the same reason: the layout still works.
