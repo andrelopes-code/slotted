@@ -26,3 +26,26 @@ memory of the session that produced it.
   entries in `styleUrls`; React imports both stylesheets. This keeps Spinner
   free of a dependency on the VisuallyHidden component while sharing its one
   authored rule.
+
+## Divider — 2026-08-31
+
+- Decisions: `decorative` joins the shared capability vocabulary. The rendered
+  element is `hr`, so the separator role arrives from the platform and the
+  component writes only its two departures from it: `role="none"` when the rule
+  is decoration, `aria-orientation` when it runs vertically. Tests assert both
+  absences, since setting them unconditionally would pass everything else.
+- Decisions: the rule is painted with `background-color` on a border-less
+  element, not with a border, so one thickness token serves both orientations.
+  A vertical rule carries a minimum length, because `block-size: 100%` resolves
+  to nothing in a plain block container and the rule would vanish.
+- Decisions: the Angular selector is `hr[slDivider]`, element-bound, while
+  React reaches other elements through `render`. Conceptual parity, not
+  identical APIs.
+- Defects found: none.
+- Deviations: none.
+- Follow-on: the family has no labelled variant — the "OR" rule with text in
+  the middle — because `hr` admits no children. If one is wanted it is a
+  different element and a second member, not a prop on this one. Menu (T5) will
+  need a separator inside a `ul`, where `hr` is not valid content; React can use
+  `render`, and Angular will need either a second selector or a `li[slDivider]`
+  member. Decide it when Menu is designed.
