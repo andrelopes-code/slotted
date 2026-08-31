@@ -78,3 +78,31 @@ memory of the session that produced it.
   change and a theme revalidation. It is worth doing and it is not a T1 task;
   take it as its own change with both frameworks in one commit. The class is
   internal, so no public contract moves.
+
+## Link — 2026-08-31
+
+- Decisions: underline is a per-instance axis, not a theme token. The same
+  application under one theme wants an underline in prose and none in a
+  sidebar, so a token could not express it. `always` is the default because
+  colour alone does not mark a link for a reader who cannot see the difference.
+- Decisions: the underline returns under `forced-colors: active` whatever the
+  axis says. The palette flattens the contrast a bare link relies on, and the
+  axis is a stylistic preference that must not survive into a mode chosen for
+  legibility.
+- Decisions: `external` sets `target`, `rel` and a hidden warning, all three
+  yielding to values the consumer passed. The warning's wording is a prop with
+  a contract-declared default, so it is translatable and so the two frameworks
+  cannot drift to different sentences.
+- Defects found: none.
+- Deviations: the external hint's leading space lives inside the string, not as
+  a template text node. Accessible name computation concatenates adjacent
+  alternatives without a separator, and Angular strips a whitespace-only text
+  node before it reaches the DOM. The React tests assert the rendered text
+  rather than the computed name's spacing: `dom-accessibility-api` trims each
+  alternative, so asserting spacing there would test the test library.
+- Follow-on: Breadcrumb, Sidebar and EmptyState all consume this family.
+  Breadcrumb will want `underline="hover"` throughout; if a third caller wants
+  the same, consider whether the default belongs to a context rather than a
+  prop. Angular snippets must stay under roughly 70 characters on one line —
+  Prettier's angular printer breaks a longer element onto a hanging `>` even
+  well inside printWidth 100, and the snippet format test then fails.
