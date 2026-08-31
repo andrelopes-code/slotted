@@ -23,6 +23,7 @@ export default defineConfig({
         spinner: resolve(import.meta.dirname, 'src/spinner/index.ts'),
         splitter: resolve(import.meta.dirname, 'src/splitter/index.ts'),
         tabs: resolve(import.meta.dirname, 'src/tabs/index.ts'),
+        tag: resolve(import.meta.dirname, 'src/tag/index.ts'),
         'visually-hidden': resolve(import.meta.dirname, 'src/visually-hidden/index.ts'),
       },
       formats: ['es'],

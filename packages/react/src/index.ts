@@ -12,4 +12,5 @@ export * from './skeleton';
 export * from './spinner';
 export * from './splitter';
 export * from './tabs';
+export * from './tag';
 export * from './visually-hidden';
