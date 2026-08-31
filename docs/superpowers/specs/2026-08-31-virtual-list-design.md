@@ -38,8 +38,10 @@ real one.
 ## The Root Is the Scroll Container
 
 The root element scrolls. The consumer gives it a block size; the component
-gives it `overflow-block: auto` and reads `scrollTop` and `clientHeight` from
-it.
+gives it `overflow: auto` and reads `scrollTop` and `clientHeight` from it.
+`overflow` rather than the logical `overflow-block`, because the axis-neutral
+form needs no right-to-left counterpart and leaves a row wider than the list
+reachable instead of clipped.
 
 The alternative is window scrolling, or scrolling on an ancestor the consumer
 nominates. Both mean the component has to find an element it does not own,

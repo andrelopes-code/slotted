@@ -1,0 +1,63 @@
+@layer slotted.components {
+  /**
+   * The root is the scroll container, and the only element in the family that
+   * scrolls. The consumer gives it a block size; without one it collapses and
+   * there is no viewport to window.
+   *
+   * `overflow` rather than `overflow-block`, because the axis-neutral form
+   * needs no counterpart for a right-to-left document, and a row wider than
+   * the list should still be reachable rather than clipped.
+   */
+  .slotted-virtual-list {
+    background-color: var(--slotted-virtual-list-background, transparent);
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-virtual-list-border-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: var(--slotted-virtual-list-radius, 0.5rem);
+    box-sizing: border-box;
+    color: var(--slotted-virtual-list-color, var(--slotted-text, CanvasText));
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    min-block-size: 0;
+    overflow: auto;
+  }
+
+  /**
+   * The ring is drawn inside the element. An outline offset outwards from a
+   * scrolling region is the first thing an ancestor with its own overflow
+   * clips, and the root is focusable precisely so that a reader with no
+   * pointer can scroll it — a focus ring it cannot see defeats that.
+   */
+  .slotted-virtual-list:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /**
+   * The canvas carries the block size of the whole list, which is what gives
+   * the scrollbar its real length: without it the bar would describe the
+   * window rather than the list. Its size is written inline by the component,
+   * as is each row's position, because both are arithmetic over `itemCount`
+   * and `itemSize` and neither is a theme's decision.
+   */
+  .slotted-virtual-list [data-part='canvas'] {
+    inline-size: 100%;
+    position: relative;
+  }
+
+  /**
+   * A row is positioned by `inset-block-start` rather than a translation.
+   * `translateY` moves along the physical axis, which is the wrong one in a
+   * vertical writing mode; `inset-block-start` means the same thing in every
+   * mode, and with a windowed row count the layout cost is not the constraint.
+   */
+  .slotted-virtual-list [data-part='item'] {
+    align-items: center;
+    border-block-end: var(--slotted-virtual-list-item-border-width, 1px) solid
+      var(--slotted-virtual-list-item-border-color, var(--slotted-border-subtle, ButtonBorder));
+    box-sizing: border-box;
+    display: flex;
+    gap: var(--slotted-virtual-list-item-gap, 0.5rem);
+    inset-inline: 0;
+    padding-inline: var(--slotted-virtual-list-item-padding-inline, 0.75rem);
+    position: absolute;
+  }
+}
