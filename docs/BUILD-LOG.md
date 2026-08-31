@@ -555,26 +555,94 @@ memory of the session that produced it.
   see that `render` supplies it. Any later family with a required render prop
   will meet the same thing.
 
+## FileUpload — 2026-08-31
+
+- Decisions: the dropzone is a `<label>` and the `<input type="file">` sits
+  inside it. That answers the accessible-name question the catalog raised with
+  no generated id and no click handler: a label names the control it contains
+  and activates it. The alternatives were a div with `role="button"`, which
+  means reimplementing Enter, Space, the picker, form association and
+  `:disabled`, and an `aria-labelledby` pairing, which needs an id generator
+  React and Angular solve differently in exchange for what a label already does.
+  `docs/superpowers/specs/2026-08-31-file-upload-design.md` records the rest.
+- Decisions: the input is hidden with the clip technique. `display: none` and
+  `visibility: hidden` remove it from the tab order and the accessibility tree,
+  which is exactly what the label pairing exists to prevent. A style test
+  refuses both by name.
+- Decisions: the focus ring is on the region, via `:has(:focus-visible)`. The
+  focused element is a one-pixel invisible input.
+- Decisions: the drag tracker counts enters rather than trusting leaves.
+  `dragleave` fires when the pointer crosses a child, and clearing there makes
+  the highlight flicker across the whole zone. Both suites assert the
+  child-crossing case. `dragover` is cancelled on every event, without which
+  the browser refuses the drop and navigates to the file instead.
+- Decisions: the component validates `accept` and `maxSize` itself. The
+  attribute filters the picker's dialog and constrains a drop not at all, so
+  without a check the component would accept by drop what it refuses by picker.
+- Decisions: refused files are reported, not dropped and not thrown, with one
+  of three reasons. `multiple` is one of them: a single-file upload handed three
+  files refuses two and says so rather than truncating.
+- Decisions: no `progress` prop. The library never uploads, so it has no
+  progress of its own; the row is an `li` and a consumer who has the number
+  composes a ProgressBar into it. That is what the catalog's ProgressBar
+  dependency amounts to.
+- Decisions: the list is `aria-live="polite"`. A drop is otherwise silent.
+- Decisions: `core/files` carries the accept matcher and the rejection policy.
+  The test applied was not "will a second component call it" but "must both
+  frameworks answer identically" — a drift between two copies of a three-form
+  parser is drop and picker disagreeing in one framework and not the other.
+  `clampPosition` stays duplicated because four lines cannot drift.
+- Defects found: the catalog's core-module table listed no module for
+  FileUpload. Corrected in the same commit as the design document, with the
+  reasoning above.
+- Deviations: none.
+- Follow-on: T2 is complete. T3 begins with the form controls, and Listbox and
+  Calendar are the callers that will confirm or change `core/collection`.
+- Follow-on: nothing is de-duplicated. Whether two files are the same file is a
+  question about name, size, modification time or content, and the answer
+  differs by application, so it is left to the consumer.
+- Follow-on: `FileRestrictions` in core spells each optional field
+  `| undefined`, because under `exactOptionalPropertyTypes` a caller cannot
+  otherwise forward an optional prop as `{ maxSize: props.maxSize }`. Any core
+  interface a component forwards props into needs the same.
+
 ## Where the queue stands — 2026-08-31
 
-**T1 is complete.** Button (already shipped), Link, VisuallyHidden, Divider,
-Spinner, ProgressBar, Badge, Avatar, Skeleton, Kbd, DescriptionList, Splitter.
+**T1 and T2 are complete.** Button, Field and Tabs were already shipped. T1
+added Link, VisuallyHidden, Divider, Spinner, ProgressBar, Badge, Avatar,
+Skeleton, Kbd, DescriptionList and Splitter. T2 added Card, Tag, Alert,
+Collapsible, Breadcrumb, Pagination, Stepper, LoadingBar, Toolbar, VirtualList
+and FileUpload.
 
-**T2 is ten of eleven.** Field and Tabs were already shipped; Card, Tag, Alert,
-Collapsible, Breadcrumb, Pagination, Stepper, LoadingBar, Toolbar and
-VirtualList have landed. **FileUpload alone remains.**
+**T3 is next, and nothing in it is blocked.** Thirteen components: `Input`,
+`Textarea`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `Fieldset`,
+`Accordion`, `EmptyState`, `Sidebar`, `Listbox`, `Tree`, `Calendar`.
 
-Take FileUpload next. It composes ProgressBar and Button, both shipped, and its
-own question is where the drop target's accessible name comes from when the
-visible affordance is a whole region rather than a control. Expect to answer
-three more while you are there: whether the file input is the accessible
-control with the region merely decorating it, what happens to a file the
-`accept` list rejects, and whether upload progress belongs to the component or
-to the consumer that performs the upload.
+Batch them, three to five at a time, simplest first. A sensible first batch is
+`Input`, `Textarea`, `Switch` and `Fieldset`: all four are Field compositions,
+they share one set of decisions about how a control wires itself to a label,
+a description and an error, and none of them needs a design document. `Input`
+first, because whatever it decides about that wiring the other three follow.
 
-Then T3 begins. Two of its components — Listbox and Calendar — are the callers
-that will confirm or change `core/collection`, whose signature VirtualList left
-provisional on purpose.
+Then `Checkbox`, `RadioGroup` and `Slider` — the first two share the
+indeterminate and group-name questions, and `RadioGroup` and `Slider` are the
+next callers of `core/focus`. `Accordion`, `EmptyState` and `Sidebar` compose
+Collapsible and Card and raise little that is new.
+
+Leave `Listbox`, `Tree` and `Calendar` until last. Each needs a design document
+and all three are callers of `core/collection`, whose signature VirtualList
+left provisional on purpose:
+
+- `Listbox` brings filtering and comparison, plus selection and roving focus.
+  It is also the first component that will want windowed rows and a selection
+  at once, which is the test of whether `virtualWindow` was drawn correctly.
+- `Calendar` brings date arithmetic, which shares nothing with the windowing
+  maths but is named against the same module in the catalog. Decide when you
+  get there whether it belongs beside it or in its own entry point.
+- `Tree` needs a design document for its own reasons: what the DOM shape is,
+  and where the expanded state lives.
+
+Do not start T4 until T3 is complete. `Dialog` must be the first overlay.
 
 **Conventions worth knowing before writing a line:**
 
@@ -596,6 +664,10 @@ provisional on purpose.
 - A React family with a _required_ function prop cannot satisfy Storybook's
   types from `render` alone. Give `meta.args` a default for it; VirtualList
   passes a default row renderer that way.
+- `exactOptionalPropertyTypes` is on. Never write `{ maxSize: undefined }` in
+  story args or into an interface whose field is `maxSize?: number` — declare
+  the field `| undefined` where a component forwards an optional prop into it,
+  and omit the key everywhere else.
 - Angular snippets must fit on one line under roughly seventy characters, or
   Prettier's angular printer breaks them onto a hanging `>` and the format test
   fails.
@@ -606,3 +678,5 @@ provisional on purpose.
   through `dist`, so a fresh module fails to resolve until it exists.
 - The Angular spec tsconfig has `noUncheckedIndexedAccess`. An indexed access in
   a spec needs `!`, which the React suite does not require.
+- A demonstration component in an Angular stories file must declare real
+  `input()`s. A plain public field cannot be bound to from a story template.

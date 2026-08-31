@@ -33,20 +33,22 @@ Do not read more than this to start. You will read specific files as you need th
 
 ### What already exists
 
-| Layer                | Packages                                                                             |
-| -------------------- | ------------------------------------------------------------------------------------ |
-| L0 contracts         | `specs/contract.schema.mjs` + `specs/components/<family>/contract.json`              |
-| L1 design foundation | `@slotted/tokens`, `@slotted/themes/default`, `@slotted/styles`                      |
-| L2 core              | `@slotted/core` — `core/focus` (roving tabindex), `core/measure` (clamp, percentage) |
-| L3 frameworks        | `@slotted/react`, `@slotted/angular`                                                 |
-| L4 tooling           | `@slotted/storybook-workbench` (internal, never published)                           |
+| Layer                | Packages                                                                                                                                                                          |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| L0 contracts         | `specs/contract.schema.mjs` + `specs/components/<family>/contract.json`                                                                                                           |
+| L1 design foundation | `@slotted/tokens`, `@slotted/themes/default`, `@slotted/styles`                                                                                                                   |
+| L2 core              | `@slotted/core` — `core/focus` (roving tabindex), `core/measure` (clamp, percentage), `core/collection` (virtualization window), `core/files` (accept matching, rejection policy) |
+| L3 frameworks        | `@slotted/react`, `@slotted/angular`                                                                                                                                              |
+| L4 tooling           | `@slotted/storybook-workbench` (internal, never published)                                                                                                                        |
 
 Shipped families, all with both frameworks and both Storybooks: **button**,
-**field**, **tabs**, and every T1 family — **link**, **visually-hidden**,
+**field**, **tabs**, every T1 family — **link**, **visually-hidden**,
 **divider**, **spinner**, **progress-bar**, **badge**, **avatar**, **skeleton**,
-**kbd**, **description-list**, **splitter** — plus nine of eleven T2 families:
-**card**, **tag**, **alert**, **collapsible**, **breadcrumb**, **pagination**,
-**stepper**, **loading-bar**, **toolbar**.
+**kbd**, **description-list**, **splitter** — and every T2 family: **card**,
+**tag**, **alert**, **collapsible**, **breadcrumb**, **pagination**,
+**stepper**, **loading-bar**, **toolbar**, **virtual-list**, **file-upload**.
+
+**T1 and T2 are complete. T3 is the whole of the remaining near-term work.**
 
 Apps: `apps/storybook-react`, `apps/storybook-angular`.
 
@@ -60,23 +62,22 @@ that cost the previous session a failed gate before it learned them. Everything
 before that section is one entry per shipped component: the decisions taken, the
 defects found, and the work each one left behind.
 
-The working tree is clean and `main` is green. Your first task is **VirtualList**,
-and it is not a small one:
+The working tree is clean and `main` is green. Your first batch is the four
+Field compositions of T3 — **Input**, **Textarea**, **Switch**, **Fieldset** —
+and `Input` goes first:
 
-- It is the first caller of `core/collection`, which does not exist yet. Write
-  that module against VirtualList's real requirements and leave its signature
-  provisional until Listbox and Calendar confirm it in T3. `core/measure` is the
-  worked example of how that goes — three callers wanted the same arithmetic,
-  and only then was it extracted.
-- It needs a design document (§5.1). The open questions are fixed against
-  measured item heights, what the scroll container is, and whether the windowed
-  rows are exposed to assistive technology at all or whether the list reports its
-  full length through `aria-setsize` and `aria-posinset`.
-- Its demonstration needs hundreds of rows. Generate them in the story.
+- All four wire a control to a label, a description and an error. Whatever
+  `Input` decides about that wiring, the other three follow, so decide it once
+  and deliberately. Read `packages/react/src/field/` and
+  `packages/angular/field/src/` before writing anything.
+- None of the four needs a design document. If one turns out to, write it.
+- `Textarea` is the only one with a question of its own: whether it auto-sizes,
+  and if so whether that is a prop or a separate component.
 
-**FileUpload** after it, and then T2 is complete. It composes ProgressBar and
-Button, both shipped; its own question is where the drop target's accessible
-name comes from when the visible affordance is a region rather than a control.
+Then `Checkbox`, `RadioGroup` and `Slider`; then `Accordion`, `EmptyState` and
+`Sidebar`. Leave `Listbox`, `Tree` and `Calendar` until last — each needs a
+design document, and the first two are the callers that confirm or change
+`core/collection`, whose signature VirtualList left provisional on purpose.
 
 ---
 
@@ -103,21 +104,17 @@ These are already enforced by tests. Do not weaken a test to make your code pass
 
 Work strictly in this order. A component is eligible only when everything it depends on is merged. Components inside one tier are independent and may be built in any order.
 
-**Finish first:** `VirtualList`, then `FileUpload`. They are what remains of T2.
-
 ### T1 — no dependency on another component
 
 Complete: `Link`, `VisuallyHidden`, `Divider`, `Spinner`, `ProgressBar`, `Badge`, `Avatar`, `Skeleton`, `Kbd`, `DescriptionList`, `Splitter`
 
 ### T2 — depends on T1
 
-Complete: `Card`, `Tag`, `Alert`, `Collapsible`, `Breadcrumb`, `Pagination`, `Stepper`, `LoadingBar`, `Toolbar`
-
-Remaining: `VirtualList`, `FileUpload`
+Complete: `Card`, `Tag`, `Alert`, `Collapsible`, `Breadcrumb`, `Pagination`, `Stepper`, `LoadingBar`, `Toolbar`, `VirtualList`, `FileUpload`
 
 ### T3 — depends on T2
 
-`Input`, `Textarea`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `Fieldset`, `Accordion`, `EmptyState`, `Sidebar`, `Listbox`, `Tree`, `Calendar`
+Remaining, and the whole of the near-term work: `Input`, `Textarea`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `Fieldset`, `Accordion`, `EmptyState`, `Sidebar`, `Listbox`, `Tree`, `Calendar`
 
 ### T4 and beyond
 
@@ -126,9 +123,9 @@ Read the catalog. Do not start T4 until T3 is complete — `Dialog` must be the 
 **Batching.** Group 3 to 5 independent components from the same tier into one batch. Build them one at a time inside the batch, but run the expensive full gate once per batch rather than once per component. Start each batch with the simplest member so the batch's shared decisions surface early.
 
 **Order inside a tier.** Simplest first, so the batch's shared decisions surface
-early, and the one with real interaction last. T1 and most of T2 were built that
-way; the two components left in T2 are the two hardest in it, so take them one at
-a time rather than as a batch.
+early, and the one with real interaction last. T1 and T2 were built that way,
+and the two hardest members of T2 — VirtualList and FileUpload — were taken one
+at a time rather than as a batch. Do the same with Listbox, Tree and Calendar.
 
 ---
 
@@ -136,7 +133,7 @@ a time rather than as a batch.
 
 Repeat until the queue is exhausted. Do not stop between components. Do not summarize and wait.
 
-**5.1 Decide the design.** Do not write a design document for a component that raises no architectural question. Most of T1 raises none. Write a short design doc in `docs/superpowers/specs/YYYY-MM-DD-<name>-design.md` only when the component introduces a new `core` module, a new shared vocabulary entry, a cross-framework mechanism, or a decision a future maintainer would otherwise redo. `Splitter`, `VirtualList`, `Listbox`, `Calendar`, `Dialog`, and `Tree` will each need one. `Divider` will not.
+**5.1 Decide the design.** Do not write a design document for a component that raises no architectural question. Most of T1 raises none. Write a short design doc in `docs/superpowers/specs/YYYY-MM-DD-<name>-design.md` only when the component introduces a new `core` module, a new shared vocabulary entry, a cross-framework mechanism, or a decision a future maintainer would otherwise redo. `Splitter`, `VirtualList` and `FileUpload` each needed one, and `Listbox`, `Calendar`, `Tree` and `Dialog` still will. `Divider` did not.
 
 **5.2 Write the contract and its test.** Test first: write the assertions, watch them fail on the missing `contract.json`, then write the contract. Commit.
 
@@ -292,4 +289,4 @@ There is no end state. Work until the session is interrupted. Leave the reposito
 - `docs/BUILD-LOG.md` explains what happened and what comes next.
 - The last thing you did was push to `origin/main`.
 
-Begin now with Angular `Tabs`. Do not reply with a plan before starting — start, and let the commits be the report.
+Begin now with `Input`. Do not reply with a plan before starting — start, and let the commits be the report.
