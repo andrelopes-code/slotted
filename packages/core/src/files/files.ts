@@ -75,11 +75,15 @@ export interface FileRejection<TFile> {
  * one is no restriction at all, so `{}` accepts anything. Product defaults —
  * a single-file upload, for instance — belong to the component, which states
  * `multiple` on every call.
+ *
+ * Each one admits an explicit `undefined` under `exactOptionalPropertyTypes`,
+ * because every caller forwards an optional prop straight into this object and
+ * `{ maxSize: props.maxSize }` is the natural way to write that.
  */
 export interface FileRestrictions {
-  accept?: string;
-  maxSize?: number;
-  multiple?: boolean;
+  accept?: string | undefined;
+  maxSize?: number | undefined;
+  multiple?: boolean | undefined;
 }
 
 export interface PartitionedFiles<TFile> {

@@ -19,6 +19,7 @@ export default defineConfig({
         'description-list': resolve(import.meta.dirname, 'src/description-list/index.ts'),
         divider: resolve(import.meta.dirname, 'src/divider/index.ts'),
         field: resolve(import.meta.dirname, 'src/field/index.ts'),
+        'file-upload': resolve(import.meta.dirname, 'src/file-upload/index.ts'),
         kbd: resolve(import.meta.dirname, 'src/kbd/index.ts'),
         link: resolve(import.meta.dirname, 'src/link/index.ts'),
         'loading-bar': resolve(import.meta.dirname, 'src/loading-bar/index.ts'),
