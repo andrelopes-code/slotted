@@ -7,6 +7,7 @@ export default defineConfig({
       entry: {
         index: resolve(import.meta.dirname, 'src/index.ts'),
         focus: resolve(import.meta.dirname, 'src/focus/index.ts'),
+        measure: resolve(import.meta.dirname, 'src/measure/index.ts'),
       },
       formats: ['es'],
     },
