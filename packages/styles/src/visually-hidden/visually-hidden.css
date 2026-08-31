@@ -1,0 +1,23 @@
+@layer slotted.components {
+  /**
+   * Removed from sight while left in the accessibility tree. `display: none`
+   * and `visibility: hidden` would remove it from both, which is the opposite
+   * of what this primitive exists to do.
+   *
+   * The declarations apply only while nothing inside is focused, so the
+   * focusable variant restores the element by ceasing to match rather than by
+   * a second rule undoing each declaration.
+   */
+  .slotted-visually-hidden:not([data-focusable]),
+  .slotted-visually-hidden[data-focusable]:not(:focus-within) {
+    block-size: 1px;
+    border: 0;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+  }
+}
