@@ -4,6 +4,5 @@ export { CollapsibleTrigger } from './collapsible-trigger';
 export type {
   CollapsibleContentProps,
   CollapsibleProps,
-  CollapsibleRootProps,
   CollapsibleTriggerProps,
 } from './collapsible.types';
