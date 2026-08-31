@@ -411,3 +411,32 @@ memory of the session that produced it.
 - Follow-on: Accordion (T3) is a group of these. `<details name="...">` gives
   exclusive opening natively and would mean Accordion adds a name and nothing
   else; check the support floor when it is planned.
+
+## core/measure, LoadingBar — 2026-08-31
+
+- Decisions: `@slotted/core/measure` is written now because three callers wanted
+  the same arithmetic. ProgressBar wrote it inline, Splitter wrote a second
+  copy, and LoadingBar would have been the third; the rule that a core module
+  stays malleable until a second caller confirms it had been satisfied twice
+  over. It is arithmetic only — no DOM, no framework, no state — so "a value
+  outside the range is clamped, not rejected" means one thing library-wide.
+  ProgressBar and Splitter were refactored onto it with every behaviour test
+  unchanged.
+- Decisions: LoadingBar's contract asserts what it shares with ProgressBar by
+  reading that contract — role, minimum, parts, indeterminate state — rather
+  than repeating it. `placement` is the only real difference and joins the
+  vocabulary.
+- Decisions: `value` defaults to null, so a LoadingBar is indeterminate unless
+  told otherwise. A page-level bar usually does not know how much is left, and
+  defaulting to zero would report a position nobody claimed.
+- Decisions: the track is transparent where ProgressBar's is painted. A
+  page-level bar on a permanent grey band reads as a rule under the header.
+- Defects found: the Angular LoadingBar reference page carried a `tsx` snippet
+  showing React code. Every check passed — the snippet formatter parsed it
+  happily, because it was valid TSX. Added `pnpm test:docs`
+  (`scripts/verify-docs-snippets.test.mjs`), which walks every reference page in
+  both packages and fails a snippet whose language or id belongs to the other
+  framework. It runs inside `pnpm check`.
+- Deviations: none.
+- Follow-on: FileUpload and Stepper both report progress and can now take the
+  same measurement from core/measure rather than a fourth inline copy.
