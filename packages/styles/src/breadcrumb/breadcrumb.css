@@ -1,0 +1,59 @@
+@layer slotted.components {
+  .slotted-breadcrumb [data-part='list'] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--slotted-breadcrumb-font-size, 0.8125rem);
+    gap: var(--slotted-breadcrumb-gap, 0.375rem);
+    line-height: var(--slotted-breadcrumb-line-height, 1.45);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .slotted-breadcrumb [data-part='item'] {
+    align-items: center;
+    display: flex;
+    gap: var(--slotted-breadcrumb-gap, 0.375rem);
+    min-inline-size: 0;
+  }
+
+  /**
+   * The separator is a pseudo-element on every item after the first, so it is
+   * never in the accessibility tree and no consumer has to remember to hide
+   * it. A theme changes the glyph through the token.
+   *
+   * Its colour has no system-colour last resort: with no theme the declaration
+   * is invalid and the separator simply takes the colour around it, which is
+   * what decoration should do rather than paint itself in a system grey.
+   */
+  .slotted-breadcrumb [data-part='item'] + [data-part='item']::before {
+    color: var(--slotted-breadcrumb-separator-color, var(--slotted-text-muted));
+    content: var(--slotted-breadcrumb-separator, '/');
+  }
+
+  .slotted-breadcrumb [data-part='link'] {
+    border-radius: var(--slotted-breadcrumb-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-breadcrumb-link-color, var(--slotted-text-muted, GrayText));
+    overflow: hidden;
+    text-decoration-line: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .slotted-breadcrumb [data-part='link']:hover {
+    color: var(--slotted-breadcrumb-link-hover-color, var(--slotted-text, CanvasText));
+    text-decoration-line: underline;
+  }
+
+  .slotted-breadcrumb [data-part='link']:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  .slotted-breadcrumb [data-part='link'][data-current] {
+    color: var(--slotted-breadcrumb-current-color, var(--slotted-text, CanvasText));
+    font-weight: var(--slotted-breadcrumb-current-font-weight, 600);
+  }
+}
