@@ -49,3 +49,32 @@ memory of the session that produced it.
   need a separator inside a `ul`, where `hr` is not valid content; React can use
   `render`, and Angular will need either a second selector or a `li[slDivider]`
   member. Decide it when Menu is designed.
+
+## Spinner — 2026-08-31
+
+- Decisions: `size` joins the vocabulary as a capability distinct from
+  `appearance`. `appearance` obliges a member to document a variant, a fill and
+  a size; a spinner has one axis, and claiming the larger capability would have
+  meant documenting two props that do not exist.
+- Decisions: `decorative` is reused from Divider rather than a second word
+  invented for the same removal from the accessibility tree. A vocabulary entry
+  earning its second caller is the evidence it was named at the right altitude.
+- Decisions: the label is a rendered part carrying the shared
+  `slotted-visually-hidden` class, not an `aria-label`. The root is a polite
+  live region, and a live region announces the content it gains; an attribute
+  is not content, and a string in the template is the one a translation pass
+  finds. This is the first family to reach for another family's stylesheet —
+  Angular through a second entry in `styleUrls`, React through a second import.
+- Decisions: under `prefers-reduced-motion` the ring slows rather than stops. A
+  stopped ring still claims a wait is in progress while reporting nothing about
+  it.
+- Defects found: none.
+- Deviations: none.
+- Follow-on: the Button family paints its own loading ring with
+  `.slotted-button__spinner` and its own `--slotted-button-loading-indicator-*`
+  tokens, which now duplicates `spinner.css`. Consolidating means pointing
+  Button's default indicator at the spinner stylesheet and retiring those
+  tokens from `packages/tokens/src/contract.json`, which is a token-contract
+  change and a theme revalidation. It is worth doing and it is not a T1 task;
+  take it as its own change with both frameworks in one commit. The class is
+  internal, so no public contract moves.
