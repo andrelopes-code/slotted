@@ -1,0 +1,56 @@
+@layer slotted.components {
+  /**
+   * A `<fieldset>` carries a default border, padding and margin in every
+   * browser, and a `min-inline-size: min-content` no other element has. All
+   * four are reset before anything is drawn, because a grouping box that
+   * refuses to shrink breaks every flex and grid layout it is put inside.
+   */
+  .slotted-fieldset {
+    border: 0;
+    display: flex;
+    gap: var(--slotted-fieldset-gap, 0.75rem);
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+  }
+
+  .slotted-fieldset[data-orientation='vertical'] {
+    flex-direction: column;
+  }
+
+  .slotted-fieldset[data-orientation='horizontal'] {
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  /**
+   * A `<legend>` is taken out of the fieldset's flow by the browser, so it
+   * ignores the flex layout above. `float: none` and `display: block` are what
+   * put it back into it, and are the one place this stylesheet undoes
+   * behaviour rather than adding to it.
+   */
+  .slotted-fieldset [data-part='legend'] {
+    color: var(--slotted-fieldset-legend-color, var(--slotted-text, CanvasText));
+    display: block;
+    float: none;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--slotted-fieldset-legend-font-size, 0.8125rem);
+    font-weight: var(--slotted-fieldset-legend-font-weight, 600);
+    inline-size: 100%;
+    line-height: var(--slotted-control-line-height, 1);
+    padding: 0;
+  }
+
+  .slotted-fieldset[data-invalid] [data-part='legend'] {
+    color: var(--slotted-fieldset-invalid-legend-color, var(--slotted-tone-danger-text));
+  }
+
+  /**
+   * The contents are disabled by the platform: a disabled `<fieldset>`
+   * disables every control inside it. Nothing here has to reach for them.
+   */
+  .slotted-fieldset[data-disabled] [data-part='legend'] {
+    color: var(--slotted-fieldset-disabled-legend-color, var(--slotted-disabled-foreground));
+  }
+}
