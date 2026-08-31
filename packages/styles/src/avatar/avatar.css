@@ -1,0 +1,59 @@
+@layer slotted.components {
+  .slotted-avatar {
+    --_avatar-size: var(--slotted-avatar-size-md, 2.5rem);
+
+    align-items: center;
+    background-color: var(--slotted-avatar-background, var(--slotted-tone-secondary-solid));
+    block-size: var(--_avatar-size);
+    border-radius: var(--slotted-avatar-radius, 999px);
+    box-sizing: border-box;
+    color: var(--slotted-avatar-color, var(--slotted-tone-secondary-on-solid));
+    display: inline-flex;
+    flex-shrink: 0;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-weight: var(--slotted-avatar-font-weight, 600);
+    inline-size: var(--_avatar-size);
+    justify-content: center;
+    line-height: var(--slotted-control-line-height, 1);
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .slotted-avatar[data-size='sm'] {
+    --_avatar-size: var(--slotted-avatar-size-sm, 1.75rem);
+
+    font-size: var(--slotted-avatar-font-size-sm, 0.6875rem);
+  }
+
+  .slotted-avatar[data-size='md'] {
+    --_avatar-size: var(--slotted-avatar-size-md, 2.5rem);
+
+    font-size: var(--slotted-avatar-font-size-md, 0.875rem);
+  }
+
+  .slotted-avatar[data-size='lg'] {
+    --_avatar-size: var(--slotted-avatar-size-lg, 3.5rem);
+
+    font-size: var(--slotted-avatar-font-size-lg, 1.125rem);
+  }
+
+  .slotted-avatar [data-part='image'] {
+    block-size: 100%;
+    display: none;
+    inline-size: 100%;
+    object-fit: cover;
+  }
+
+  /**
+   * One attribute on the root decides which of the two parts is in the
+   * document. `display: none` rather than a visual trick, so the picture and
+   * the text it stands in for are never both read out.
+   */
+  .slotted-avatar[data-loaded] [data-part='image'] {
+    display: block;
+  }
+
+  .slotted-avatar[data-loaded] [data-part='fallback'] {
+    display: none;
+  }
+}
