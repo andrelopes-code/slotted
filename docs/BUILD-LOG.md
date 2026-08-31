@@ -294,3 +294,79 @@ memory of the session that produced it.
   deferred, so that is the point to add `--slotted-tone-*-subtle` to the token
   contract and both schemes of the default theme, and to give Badge, Tag and
   Alert the third fill in one change.
+
+## Tone surface, Badge subtle fill — 2026-08-31
+
+- Decisions: `--slotted-tone-<tone>-surface` is a new role, not another step on
+  the `subtle-hover` / `subtle-active` ladder. Those two are what a transparent
+  control becomes on interaction; using one as a resting fill would make the
+  name a lie and leave an interactive component nowhere to move on hover. The
+  defaults reuse palette steps the theme already names, so the change adds no
+  colour decisions.
+- Decisions: the rejected alternative was shifting `subtle-hover` and
+  `subtle-active` up a step to make room, which changes how the shipped Button
+  family looks for a reason no consumer asked for.
+- Decisions: Badge's third fill landed across contract, stylesheet, both
+  frameworks and both reference pages in one commit, because a public axis
+  gained a value and no commit may leave the frameworks disagreeing.
+
+## Card — 2026-08-31
+
+- Decisions: no axes at all. Every difference between one card and another in
+  an application is a token decision, and a variant prop would be the library
+  guessing which differences matter.
+- Decisions: transparent surface with a border. The theme owns no neutral
+  surface colour and adding one to serve a single component is backwards;
+  `--slotted-card-background` fills a card when a theme wants that.
+- Decisions: a region at either end takes the padding its missing neighbour
+  would have carried, so a card of only a body is not visibly tighter than a
+  full one. Asserted, because that is the case a three-region layout usually
+  gets wrong.
+- Deviations: the Angular card stories import Badge and Divider by relative
+  path across entry points. Stories are not reachable from any `public-api.ts`,
+  so this is not a runtime dependency and ng-packagr builds unchanged. Keeping
+  the two Storybooks scenario for scenario is worth more than an import purity
+  no check measures.
+
+## Tag — 2026-08-31
+
+- Decisions: two members — the value and the control that removes it. The
+  appearance axes are asserted equal to Badge's rather than retyped.
+- Decisions: selection is absent. A selectable tag is a toggle, and the button
+  family already owns that behaviour.
+- Decisions: the cross on the remove control is drawn in CSS, so neither
+  framework ships a glyph and the two cannot drift. The bars are centred with
+  `inset: 0; margin: auto`, which is symmetric in either reading direction — a
+  logical inset plus a physical percentage translation is not.
+- Decisions: the hover and press washes mix `currentColor`, so they lighten a
+  solid tag and darken a subtle one without a token per case.
+- Defects found: none.
+- Follow-on: the library now has two answers for a missing accessible name.
+  IconButton throws; ProgressBar, SplitterHandle and TagRemove warn. The rule
+  that fits the evidence is: throw when the component cannot do its job without
+  the name, warn when it still does its job and only the announcement suffers.
+  Worth writing down as a policy the next component can follow rather than
+  rediscover.
+
+## Alert — 2026-08-31
+
+- Decisions: `live` joins the capability vocabulary — `off` sets no role,
+  `polite` sets `role="status"`, `assertive` sets `role="alert"`. Whether a
+  message interrupts is the one thing the library cannot infer, and `off` is
+  the default because most alerts are on the page before anyone reads it.
+- Decisions: the four regions are placed by grid area, not source order, so a
+  message with no title or no icon collapses that track instead of shifting
+  everything else. The icon spans both rows.
+- Decisions: only the solid fill takes the tone as its text colour. Tone-
+  coloured body text on a tinted surface is harder to read, and the surface and
+  the icon already carry the tone.
+- Decisions: the icon is `aria-hidden` by default, with the explicit
+  `aria-hidden="false"` escape hatch Skeleton established.
+- Defects found: none.
+- Deviations: a shell heredoc generating the Angular part directives produced
+  `selector: ''` — zsh reads `$el[...]` as an array subscript. Caught by the
+  Angular compiler before the commit; the files are now generated from Python.
+- Follow-on: Alert has no dismiss member. Dismissal is a button the consumer
+  puts in `alertActions`, and the focus that button leaves behind is an
+  application decision. Revisit if Toast (T4) needs the same affordance, which
+  would be its second caller.
