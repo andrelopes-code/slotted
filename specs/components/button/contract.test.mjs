@@ -2,11 +2,12 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
+import { assertContractShape } from '../../contract.schema.mjs';
+
 const contract = JSON.parse(await readFile(new URL('./contract.json', import.meta.url), 'utf8'));
 const appearanceMembers = ['button', 'buttonLink', 'iconButton', 'toggleButton'];
 
 test('defines the ordered button family structure and axes', () => {
-  assert.equal(contract.schemaVersion, 4);
   assert.equal(contract.family, 'button');
   assert.deepEqual(Object.keys(contract.members), [
     'button',
@@ -67,32 +68,8 @@ test('gives each family member valid and semantic defaults', () => {
   }
 });
 
-test('limits member capabilities and states to the family vocabulary', () => {
-  const knownCapabilities = new Set([
-    'appearance',
-    'content',
-    'fullWidth',
-    'disabled',
-    'loading',
-    'pressed',
-    'orientation',
-  ]);
-  const knownStates = new Set([
-    'default',
-    'hover',
-    'active',
-    'focus-visible',
-    'disabled',
-    'loading',
-    'pressed',
-  ]);
-
-  for (const member of Object.values(contract.members)) {
-    assert.equal(new Set(member.capabilities).size, member.capabilities.length);
-    assert.equal(new Set(member.states).size, member.states.length);
-    assert.ok(member.capabilities.every((value) => knownCapabilities.has(value)));
-    assert.ok(member.states.every((value) => knownStates.has(value)));
-  }
+test('satisfies the shared contract schema', () => {
+  assertContractShape(contract);
 });
 
 test('provides uniquely named scenarios for every page', () => {
@@ -111,26 +88,5 @@ test('provides uniquely named scenarios for every page', () => {
     for (const scenarioId of scenarioIds) {
       assert.match(scenarioId, /^[a-z][a-zA-Z]+$/, `${page}: ${scenarioId}`);
     }
-  }
-});
-
-test('maps every attribute-driven state to a boolean data attribute', () => {
-  assert.deepEqual(contract.stateAttributes, {
-    disabled: 'data-disabled',
-    loading: 'data-loading',
-    pressed: 'data-pressed',
-  });
-
-  const pseudoStates = new Set(['default', 'hover', 'active', 'focus-visible']);
-  const declaredStates = new Set(
-    Object.values(contract.members).flatMap((member) => member.states),
-  );
-
-  for (const state of declaredStates) {
-    if (pseudoStates.has(state)) {
-      assert.ok(!(state in contract.stateAttributes), `${state} must not have an attribute`);
-      continue;
-    }
-    assert.ok(state in contract.stateAttributes, `${state} needs an attribute`);
   }
 });

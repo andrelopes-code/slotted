@@ -6,13 +6,6 @@ export { FrameworkBadge } from './framework-badge';
 export { WorkbenchMatrix } from './matrix';
 export { createReferencePage } from './reference-page';
 export type { ReferencePageConfig } from './reference-page';
-export {
-  apiMetadataErrors,
-  BUTTON_FAMILY_SCENARIOS,
-  scenario,
-  scenarioCoverageErrors,
-  storyScenarioIds,
-} from './scenarios';
-export type { ScenarioPage } from './scenarios';
+export { apiMetadataErrors, scenario, scenarioCoverageErrors, storyScenarioIds } from './scenarios';
 export { defineSnippet } from './snippets';
 export type { SnippetLanguage, WorkbenchSnippet } from './snippets';

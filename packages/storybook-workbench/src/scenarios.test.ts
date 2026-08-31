@@ -1,21 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import contract from '../../../specs/components/button/contract.json';
-import {
-  apiMetadataErrors,
-  BUTTON_FAMILY_SCENARIOS,
-  scenario,
-  scenarioCoverageErrors,
-  storyScenarioIds,
-} from './scenarios';
+import { apiMetadataErrors, scenario, scenarioCoverageErrors, storyScenarioIds } from './scenarios';
 
 describe('workbench scenario metadata', () => {
-  it('reads the scenario list from the contract instead of restating it', () => {
-    // Reference equality, not deep equality: a restated copy would satisfy
-    // toEqual while reintroducing the second source this removes.
-    expect(BUTTON_FAMILY_SCENARIOS).toBe(contract.scenarios);
-  });
-
   it('collects story scenario IDs and reports missing or unknown IDs', () => {
     const stories = {
       default: { title: 'Example' },

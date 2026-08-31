@@ -1,9 +1,3 @@
-import contract from '../../../specs/components/button/contract.json';
-
-export const BUTTON_FAMILY_SCENARIOS = contract.scenarios;
-
-export type ScenarioPage = keyof typeof BUTTON_FAMILY_SCENARIOS;
-
 export function scenario(id: string) {
   return { slotted: { scenarioId: id } } as const;
 }
@@ -58,6 +52,10 @@ const capabilityApi = {
   loading: ['loading'],
   pressed: ['pressed'],
   orientation: ['orientation'],
+  invalid: ['invalid'],
+  required: ['required'],
+  readOnly: ['readOnly'],
+  wiring: [],
 } as const;
 
 export function apiMetadataErrors(

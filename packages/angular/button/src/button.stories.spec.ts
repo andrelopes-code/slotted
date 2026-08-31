@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import contract from '../../../../specs/components/button/contract.json';
-import {
-  apiMetadataErrors,
-  BUTTON_FAMILY_SCENARIOS,
-  scenarioCoverageErrors,
-} from '@slotted/storybook-workbench';
+import { apiMetadataErrors, scenarioCoverageErrors } from '@slotted/storybook-workbench';
 import { snippetFormatErrors } from '@slotted/storybook-workbench/testing';
 
 import { ANGULAR_BUTTON_DOCS } from './button.docs';
@@ -27,10 +23,8 @@ const storyModules = {
 
 describe('Angular Button family stories', () => {
   it('covers every required scenario', () => {
-    for (const page of Object.keys(BUTTON_FAMILY_SCENARIOS) as Array<
-      keyof typeof BUTTON_FAMILY_SCENARIOS
-    >) {
-      expect(scenarioCoverageErrors(BUTTON_FAMILY_SCENARIOS[page], storyModules[page])).toEqual([]);
+    for (const page of Object.keys(contract.scenarios) as Array<keyof typeof contract.scenarios>) {
+      expect(scenarioCoverageErrors(contract.scenarios[page], storyModules[page])).toEqual([]);
     }
   });
 
