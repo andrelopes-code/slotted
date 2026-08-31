@@ -1,0 +1,47 @@
+@layer slotted.components {
+  .slotted-skeleton {
+    animation: slotted-skeleton-pulse var(--slotted-skeleton-duration, 1.6s) ease-in-out infinite;
+    background-color: var(
+      --slotted-skeleton-background,
+      var(--slotted-disabled-background, ButtonFace)
+    );
+    border-radius: var(--slotted-skeleton-radius, var(--slotted-control-radius, 4px));
+    display: block;
+  }
+
+  .slotted-skeleton[data-shape='text'] {
+    block-size: var(--slotted-skeleton-text-block-size, 1em);
+    border-radius: var(--slotted-skeleton-text-radius, 999px);
+    inline-size: 100%;
+  }
+
+  .slotted-skeleton[data-shape='rectangle'] {
+    block-size: var(--slotted-skeleton-rectangle-block-size, 100%);
+    inline-size: 100%;
+  }
+
+  .slotted-skeleton[data-shape='circle'] {
+    aspect-ratio: 1;
+    block-size: var(--slotted-skeleton-circle-size, 2.5rem);
+    border-radius: 999px;
+    inline-size: var(--slotted-skeleton-circle-size, 2.5rem);
+  }
+
+  /**
+   * The animation stops outright under reduced motion, where the spinner only
+   * slows down. A spinner reports through its motion and has nothing left to
+   * say when it stops; a skeleton reports through its shape, which is still
+   * there.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .slotted-skeleton {
+      animation: none;
+    }
+  }
+}
+
+@keyframes slotted-skeleton-pulse {
+  50% {
+    opacity: var(--slotted-skeleton-pulse-opacity, 0.55);
+  }
+}
