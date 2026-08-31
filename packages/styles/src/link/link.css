@@ -1,0 +1,48 @@
+@layer slotted.components {
+  .slotted-link {
+    border-radius: var(--slotted-link-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-link-color, var(--slotted-tone-accent-text));
+    text-decoration-color: var(--slotted-link-underline-color, currentColor);
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--slotted-link-underline-thickness, from-font);
+    text-underline-offset: var(--slotted-link-underline-offset, 0.15em);
+    transition:
+      color var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease),
+      text-decoration-color var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease);
+  }
+
+  .slotted-link[data-underline='hover'],
+  .slotted-link[data-underline='none'] {
+    text-decoration-line: none;
+  }
+
+  .slotted-link[data-underline='hover']:hover {
+    text-decoration-line: underline;
+  }
+
+  .slotted-link:hover {
+    color: var(--slotted-link-hover-color, var(--slotted-tone-accent-solid-hover));
+  }
+
+  .slotted-link:active {
+    color: var(--slotted-link-active-color, var(--slotted-tone-accent-solid-active));
+  }
+
+  .slotted-link:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * The underline is restored under forced colours whatever the axis says. A
+   * high-contrast palette flattens the colour difference that a link without
+   * one relies on to be recognizable.
+   */
+  @media (forced-colors: active) {
+    .slotted-link {
+      text-decoration-line: underline;
+    }
+  }
+}
