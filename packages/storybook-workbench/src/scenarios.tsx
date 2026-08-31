@@ -50,6 +50,7 @@ const capabilityApi = {
   shape: ['shape'],
   measurement: ['value', 'max'],
   live: ['live'],
+  current: ['current'],
   content: ['leading', 'trailing'],
   fullWidth: ['fullWidth'],
   disabled: ['disabled'],
