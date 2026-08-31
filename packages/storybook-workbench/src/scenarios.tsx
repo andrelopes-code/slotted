@@ -57,6 +57,7 @@ const capabilityApi = {
   readOnly: ['readOnly'],
   wiring: [],
   focusable: ['focusable'],
+  decorative: ['decorative'],
   activation: ['activation'],
   selection: ['value'],
 } as const;
