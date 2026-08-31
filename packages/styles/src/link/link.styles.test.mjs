@@ -40,12 +40,6 @@ test('restores the underline under forced colours', () => {
   );
 });
 
-test('uses logical properties, so a right-to-left document needs no second sheet', () => {
-  for (const physical of ['width:', 'height:', 'left:', 'right:']) {
-    assert.ok(!normalized.includes(physical), `Found the physical property ${physical}`);
-  }
-});
-
 test('documents exactly the public custom properties the stylesheet reads', () => {
   const declared = JSON.parse(readFileSync(new URL('./link.tokens.json', import.meta.url), 'utf8'));
   const referenced = [

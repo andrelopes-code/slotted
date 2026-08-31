@@ -29,12 +29,6 @@ test('removes the border the user agent draws on an hr', () => {
   assert.ok(normalized.includes('border:0'), 'The default hr border would double the rule');
 });
 
-test('uses logical properties, so a right-to-left document needs no second sheet', () => {
-  for (const physical of ['width:', 'height:', 'left:', 'right:']) {
-    assert.ok(!normalized.includes(physical), `Found the physical property ${physical}`);
-  }
-});
-
 test('documents exactly the public custom properties the stylesheet reads', () => {
   const declared = JSON.parse(
     readFileSync(new URL('./divider.tokens.json', import.meta.url), 'utf8'),

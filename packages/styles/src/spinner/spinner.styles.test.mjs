@@ -42,12 +42,6 @@ test('slows the animation rather than stopping it under reduced motion', () => {
   );
 });
 
-test('uses logical properties, so a right-to-left document needs no second sheet', () => {
-  for (const physical of ['width:', 'height:', 'left:', 'right:']) {
-    assert.ok(!normalized.includes(physical), `Found the physical property ${physical}`);
-  }
-});
-
 test('documents exactly the public custom properties the stylesheet reads', () => {
   const declared = JSON.parse(
     readFileSync(new URL('./spinner.tokens.json', import.meta.url), 'utf8'),

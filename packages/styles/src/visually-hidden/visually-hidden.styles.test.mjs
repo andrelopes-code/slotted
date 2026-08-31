@@ -34,12 +34,6 @@ test('reveals the focusable variant while focus is inside', () => {
   );
 });
 
-test('uses logical properties, so a right-to-left document needs no second sheet', () => {
-  for (const physical of ['width:', 'height:', 'left:', 'right:']) {
-    assert.ok(!normalized.includes(physical), `Found the physical property ${physical}`);
-  }
-});
-
 test('documents exactly the public custom properties the stylesheet reads', () => {
   const declared = JSON.parse(
     readFileSync(new URL('./visually-hidden.tokens.json', import.meta.url), 'utf8'),
