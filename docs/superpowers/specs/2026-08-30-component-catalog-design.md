@@ -24,7 +24,6 @@ Each module is written by the plan of the first component that needs it, designe
 
 | Core module | First caller | Tier |
 | --- | --- | --- |
-| `core/id` | Field | T2 |
 | `core/focus` — roving tabindex, typeahead | Tabs | T2 |
 | `core/collection` — virtualization math | VirtualList | T2 |
 | `core/collection` — filtering, comparison | Listbox | T3 |
@@ -32,6 +31,8 @@ Each module is written by the plan of the first component that needs it, designe
 | `core/overlay` — portal, positioning, collision, scroll lock | Dialog | T4 |
 | `core/focus` — trap, restoration | Dialog | T4 |
 | `core/dismiss` | Dialog | T4 |
+
+Identifier generation is absent from this table on purpose. React 19 ships a hydration-safe `useId`, and Angular 22.1.4 ships no equivalent, so the generator is Angular-local until a second consumer needs it. `2026-08-31-field-primitive-design.md` records the evidence.
 
 `Dialog` is deliberately the first overlay: it exercises trapping, restoration, dismissal, and scroll locking together, so the modules are designed against the hardest case rather than the easiest. Signatures that satisfy a dialog are usable by a popover; the reverse does not hold.
 
@@ -58,7 +59,7 @@ Each module is written by the plan of the first component that needs it, designe
 
 | Component | Purpose | Depends on | Unblocks |
 | --- | --- | --- | --- |
-| Field family | Label, description, error, and their ARIA wiring | VisuallyHidden, `core/id` | every form control |
+| Field family | Label, description, error, and their ARIA wiring | VisuallyHidden | every form control |
 | Card | Grouped surface with header, body, footer | Divider | EmptyState |
 | Tag | Removable or selectable short value | IconButton | TagsInput, MultiCombobox |
 | Alert | Inline message carrying severity | IconButton | — |
