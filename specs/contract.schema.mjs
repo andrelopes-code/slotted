@@ -15,6 +15,7 @@ export const STATE_ATTRIBUTES = {
   invalid: 'data-invalid',
   required: 'data-required',
   readonly: 'data-readonly',
+  dragging: 'data-dragging',
 };
 
 export const ATTRIBUTE_STATES = Object.keys(STATE_ATTRIBUTES);
@@ -46,6 +47,7 @@ export const KNOWN_CAPABILITIES = [
   'activation',
   'selection',
   'virtualization',
+  'files',
 ];
 
 function assertUnique(values, label) {

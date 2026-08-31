@@ -71,6 +71,7 @@ const capabilityApi = {
   activation: ['activation'],
   selection: ['value'],
   virtualization: ['itemCount', 'itemSize', 'overscan'],
+  files: ['accept', 'files', 'maxSize', 'multiple'],
 } as const;
 
 export function apiMetadataErrors(
