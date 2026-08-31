@@ -1,0 +1,110 @@
+@layer slotted.components {
+  /**
+   * A switch is a button that reports `aria-checked`, so the track is the
+   * element itself and the thumb is the one child it renders. Drawing both
+   * on an `<input type="checkbox">` would need pseudo-elements on a replaced
+   * element, which no specification promises.
+   */
+  .slotted-switch {
+    align-items: center;
+    background-color: var(--slotted-switch-track-color, var(--slotted-tone-secondary-surface));
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-switch-border-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: var(--slotted-switch-radius, 999px);
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    padding: var(--slotted-switch-padding, 2px);
+    transition:
+      background-color var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease),
+      border-color var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease);
+  }
+
+  .slotted-switch [data-part='thumb'] {
+    background-color: var(--slotted-switch-thumb-color, var(--slotted-tone-accent-on-solid));
+    border-radius: var(--slotted-switch-thumb-radius, 999px);
+    box-shadow: var(--slotted-switch-thumb-shadow, none);
+    display: block;
+    /**
+     * The thumb travels by a margin rather than a transform, so the track
+     * needs no fixed inline size and the movement follows the document's
+     * direction without a second rule for right-to-left.
+     */
+    margin-inline-start: 0;
+    transition: margin-inline-start var(--slotted-switch-thumb-duration, 140ms)
+      var(--slotted-control-transition-easing, ease);
+  }
+
+  .slotted-switch[data-size='sm'] {
+    inline-size: var(--slotted-switch-inline-size-sm, 1.75rem);
+  }
+
+  .slotted-switch[data-size='sm'] [data-part='thumb'] {
+    block-size: var(--slotted-switch-thumb-size-sm, 0.75rem);
+    inline-size: var(--slotted-switch-thumb-size-sm, 0.75rem);
+  }
+
+  .slotted-switch[data-size='md'] {
+    inline-size: var(--slotted-switch-inline-size-md, 2.25rem);
+  }
+
+  .slotted-switch[data-size='md'] [data-part='thumb'] {
+    block-size: var(--slotted-switch-thumb-size-md, 1rem);
+    inline-size: var(--slotted-switch-thumb-size-md, 1rem);
+  }
+
+  .slotted-switch[data-size='lg'] {
+    inline-size: var(--slotted-switch-inline-size-lg, 2.75rem);
+  }
+
+  .slotted-switch[data-size='lg'] [data-part='thumb'] {
+    block-size: var(--slotted-switch-thumb-size-lg, 1.25rem);
+    inline-size: var(--slotted-switch-thumb-size-lg, 1.25rem);
+  }
+
+  /**
+   * The travel is whatever the track has left once the thumb and the padding
+   * are taken out of it, so a theme changing any one of the three keeps the
+   * thumb inside the track.
+   */
+  .slotted-switch[data-checked] [data-part='thumb'] {
+    margin-inline-start: auto;
+  }
+
+  .slotted-switch[data-checked] {
+    background-color: var(--slotted-switch-checked-track-color, var(--slotted-tone-accent-solid));
+    border-color: var(--slotted-switch-checked-border-color, var(--slotted-tone-accent-solid));
+  }
+
+  .slotted-switch:hover:not([data-disabled]) {
+    border-color: var(--slotted-switch-hover-border-color, var(--slotted-tone-accent-border));
+  }
+
+  .slotted-switch:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  .slotted-switch[data-invalid] {
+    border-color: var(--slotted-switch-invalid-border-color, var(--slotted-tone-danger-border));
+  }
+
+  .slotted-switch[data-disabled] {
+    background-color: var(
+      --slotted-switch-disabled-track-color,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(--slotted-switch-disabled-border-color, var(--slotted-disabled-border));
+    cursor: not-allowed;
+  }
+
+  .slotted-switch[data-disabled] [data-part='thumb'] {
+    background-color: var(
+      --slotted-switch-disabled-thumb-color,
+      var(--slotted-disabled-foreground)
+    );
+  }
+}

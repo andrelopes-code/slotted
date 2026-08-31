@@ -72,6 +72,7 @@ const capabilityApi = {
   selection: ['value'],
   virtualization: ['itemCount', 'itemSize', 'overscan'],
   files: ['accept', 'files', 'maxSize', 'multiple'],
+  checked: ['checked'],
 } as const;
 
 export function apiMetadataErrors(

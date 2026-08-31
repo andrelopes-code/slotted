@@ -16,6 +16,7 @@ export const STATE_ATTRIBUTES = {
   required: 'data-required',
   readonly: 'data-readonly',
   dragging: 'data-dragging',
+  checked: 'data-checked',
 };
 
 export const ATTRIBUTE_STATES = Object.keys(STATE_ATTRIBUTES);
@@ -48,6 +49,7 @@ export const KNOWN_CAPABILITIES = [
   'selection',
   'virtualization',
   'files',
+  'checked',
 ];
 
 function assertUnique(values, label) {
