@@ -239,3 +239,22 @@ memory of the session that produced it.
 - Follow-on: LoadingBar and Stepper (T2) and FileUpload (T2) build on this.
   LoadingBar is the page-level case and will want to sit fixed at the top of the
   viewport; that is a positioning decision, not a new measurement.
+
+## DescriptionList — 2026-08-31
+
+- Decisions: `orientation` is reused rather than a `layout` word invented for
+  the same idea. The axis a term and its details are arranged along is an
+  orientation. `vertical` is the default because a stacked pair survives a
+  narrow column and a two-column one does not.
+- Decisions: in the horizontal arrangement each part is pinned to a grid
+  column. One term followed by several `dd` elements is valid HTML, and under
+  auto-placement the second value takes the next term's cell and shears the
+  rest of the list. Both Storybooks show that case.
+- Decisions: no role anywhere. `dl`, `dt` and `dd` carry the pairing, and the
+  tests assert each absence.
+- Defects found: none.
+- Deviations: none.
+- Follow-on: the layout requires `dt` and `dd` as direct children of the `dl`.
+  A wrapping `div` per pair is valid HTML and would fall out of the grid;
+  `display: contents` on such a wrapper would fix the layout, and it is not
+  added speculatively. If a consumer reports it, that is the one-line answer.
