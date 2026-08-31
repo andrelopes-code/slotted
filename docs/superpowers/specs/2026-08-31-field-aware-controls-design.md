@@ -58,8 +58,15 @@ genuinely owns — `size`, and nothing else.
 
 ## The Control Mirrors the State Onto Itself
 
-A control carries `data-disabled`, `data-invalid`, `data-required` and
-`data-readonly` on its own element, resolved from its props or from the field.
+A control carries a data attribute on its own element for each shared state its
+stylesheet actually paints, resolved from its props or from the field.
+
+Which states those are is the control's to decide. `Input` mirrors
+`data-disabled`, `data-invalid` and `data-readonly` and deliberately does not
+mirror `data-required`: the required marker belongs to the label, which the
+field already draws, and an attribute that paints nothing is an attribute
+nothing reads. `aria-required` is still set — describing the control and
+painting it are different jobs.
 
 The alternative is a descendant selector — `.slotted-field[data-invalid]
 .slotted-input` — which is shorter to write and wrong twice over. It cannot
@@ -98,18 +105,27 @@ copies of a class are two different injection tokens. `inject(SlField)` inside
 
 With the published path, ng-packagr resolves the dependency itself and emits
 `import { SlField } from '@slotted/angular/field'` into the input bundle. One
-class, one token.
+class, one token. `packages/angular/src/bundle.boundaries.test.mjs` states that
+property against the built bundles: no entry point may declare a class another
+entry point exports, and none may reach into another's source.
 
 Two resolvers need to be told about the path, because only ng-packagr knows it
 by itself:
 
-- `packages/angular/tsconfig.spec.json` maps `@slotted/angular/*` to
-  `./*/src/public-api.ts`, so the unit tests compile against source. The
-  mapping is deliberately not in `tsconfig.lib.json`: that is ng-packagr's own
-  configuration, and pointing it at source is how the duplicate-class failure
-  above would be reintroduced.
-- The Angular Storybook aliases the same specifier in its Vite configuration,
-  for the same reason and to the same files.
+- `tsconfig.base.json` maps `@slotted/angular/*` to
+  `./packages/angular/*/src/public-api.ts`. That is the repository's typecheck
+  and the base every package extends, so one entry covers the root `tsc`, the
+  unit tests, and the Storybook compiler at once.
+- The Angular Storybook aliases the same specifiers in its Vite configuration,
+  because Vite resolves modules itself and knows nothing of tsconfig paths.
+
+`packages/angular/tsconfig.lib.json` is ng-packagr's own configuration and
+inherits that mapping, which looked like the way to reintroduce the
+duplicate-class failure above. It is not: ng-packagr resolves entry points
+before the inherited paths apply, and a build from a clean `dist` emits
+`import { SlField } from '@slotted/angular/field'` into the input bundle with
+no second copy of the class. That was measured rather than assumed, and the
+artefact test below is what keeps it true.
 
 The layer rule is unaffected. It ranks packages, and both entry points belong
 to `@slotted/angular`.
