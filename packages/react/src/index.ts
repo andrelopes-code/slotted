@@ -4,6 +4,7 @@ export * from './badge';
 export * from './breadcrumb';
 export * from './button';
 export * from './card';
+export * from './collapsible';
 export * from './description-list';
 export * from './divider';
 export * from './field';

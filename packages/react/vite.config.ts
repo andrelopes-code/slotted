@@ -15,6 +15,7 @@ export default defineConfig({
         breadcrumb: resolve(import.meta.dirname, 'src/breadcrumb/index.ts'),
         button: resolve(import.meta.dirname, 'src/button/index.ts'),
         card: resolve(import.meta.dirname, 'src/card/index.ts'),
+        collapsible: resolve(import.meta.dirname, 'src/collapsible/index.ts'),
         'description-list': resolve(import.meta.dirname, 'src/description-list/index.ts'),
         divider: resolve(import.meta.dirname, 'src/divider/index.ts'),
         field: resolve(import.meta.dirname, 'src/field/index.ts'),
