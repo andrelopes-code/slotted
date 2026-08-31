@@ -1,0 +1,63 @@
+@layer slotted.components {
+  /**
+   * The surface is transparent by default and carries a border. A card sits on
+   * whatever the page is painted with, and the theme has no neutral surface
+   * colour to reach for; a theme that wants a filled card sets
+   * --slotted-card-background and nothing else changes.
+   */
+  .slotted-card {
+    background-color: var(--slotted-card-background, transparent);
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-card-border-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: var(--slotted-card-radius, 0.5rem);
+    box-shadow: var(--slotted-card-shadow, none);
+    box-sizing: border-box;
+    color: var(--slotted-card-color, var(--slotted-text, CanvasText));
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    min-inline-size: 0;
+    overflow: hidden;
+  }
+
+  .slotted-card [data-part='header'],
+  .slotted-card [data-part='body'],
+  .slotted-card [data-part='footer'] {
+    padding: var(--slotted-card-padding-block, 1rem) var(--slotted-card-padding-inline, 1rem);
+  }
+
+  .slotted-card [data-part='header'] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-card-header-gap, 0.25rem);
+    padding-block-end: var(--slotted-card-header-padding-block-end, 0.5rem);
+  }
+
+  .slotted-card [data-part='body'] {
+    flex: 1;
+    min-block-size: 0;
+    padding-block: var(--slotted-card-body-padding-block, 0.5rem);
+  }
+
+  .slotted-card [data-part='footer'] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-card-footer-gap, 0.5rem);
+    padding-block-start: var(--slotted-card-footer-padding-block-start, 0.5rem);
+  }
+
+  /**
+   * A region at either end owns the padding the missing neighbour would have
+   * carried, so a card of only a body is not visibly tighter than a full one.
+   */
+  .slotted-card [data-part='body']:first-child,
+  .slotted-card [data-part='footer']:first-child {
+    padding-block-start: var(--slotted-card-padding-block, 1rem);
+  }
+
+  .slotted-card [data-part='header']:last-child,
+  .slotted-card [data-part='body']:last-child {
+    padding-block-end: var(--slotted-card-padding-block, 1rem);
+  }
+}
