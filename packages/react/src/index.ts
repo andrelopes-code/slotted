@@ -19,6 +19,7 @@ export * from './skeleton';
 export * from './spinner';
 export * from './splitter';
 export * from './stepper';
+export * from './switch';
 export * from './tabs';
 export * from './tag';
 export * from './textarea';

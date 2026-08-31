@@ -30,6 +30,7 @@ export default defineConfig({
         spinner: resolve(import.meta.dirname, 'src/spinner/index.ts'),
         splitter: resolve(import.meta.dirname, 'src/splitter/index.ts'),
         stepper: resolve(import.meta.dirname, 'src/stepper/index.ts'),
+        switch: resolve(import.meta.dirname, 'src/switch/index.ts'),
         tabs: resolve(import.meta.dirname, 'src/tabs/index.ts'),
         tag: resolve(import.meta.dirname, 'src/tag/index.ts'),
         textarea: resolve(import.meta.dirname, 'src/textarea/index.ts'),
