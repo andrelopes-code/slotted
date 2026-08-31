@@ -9,6 +9,7 @@ export const STATE_ATTRIBUTES = {
   loading: 'data-loading',
   pressed: 'data-pressed',
   selected: 'data-selected',
+  loaded: 'data-loaded',
   invalid: 'data-invalid',
   required: 'data-required',
   readonly: 'data-readonly',
