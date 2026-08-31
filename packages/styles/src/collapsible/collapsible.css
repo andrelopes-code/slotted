@@ -1,0 +1,80 @@
+@layer slotted.components {
+  .slotted-collapsible {
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+  }
+
+  .slotted-collapsible [data-part='trigger'] {
+    align-items: center;
+    border-radius: var(--slotted-collapsible-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-collapsible-trigger-color, var(--slotted-text, CanvasText));
+    cursor: pointer;
+    display: flex;
+    font-size: var(--slotted-collapsible-trigger-font-size, 0.875rem);
+    font-weight: var(--slotted-collapsible-trigger-font-weight, 600);
+    gap: var(--slotted-collapsible-trigger-gap, 0.5rem);
+    line-height: var(--slotted-collapsible-line-height, 1.45);
+    list-style: none;
+    padding: var(--slotted-collapsible-trigger-padding, 0.5rem);
+    user-select: none;
+  }
+
+  /**
+   * Safari draws its own disclosure triangle through a pseudo-element that no
+   * standard property reaches, so it is removed by name. `list-style: none`
+   * covers every other engine.
+   */
+  .slotted-collapsible [data-part='trigger']::-webkit-details-marker {
+    display: none;
+  }
+
+  /**
+   * The marker is drawn here so it is the same shape in every engine and turns
+   * with the state. It is a pseudo-element, so it never reaches the
+   * accessibility tree: the summary already announces expanded or collapsed.
+   */
+  .slotted-collapsible [data-part='trigger']::before {
+    border-block-end: var(--slotted-collapsible-marker-size, 0.3rem) solid transparent;
+    border-block-start: var(--slotted-collapsible-marker-size, 0.3rem) solid transparent;
+    border-inline-start: var(--slotted-collapsible-marker-size, 0.35rem) solid currentColor;
+    content: '';
+    flex-shrink: 0;
+    transition: rotate var(--slotted-control-transition-duration, 120ms)
+      var(--slotted-control-transition-easing, ease);
+  }
+
+  .slotted-collapsible[open] [data-part='trigger']::before {
+    rotate: 90deg;
+  }
+
+  .slotted-collapsible [data-part='trigger']:hover {
+    background-color: var(
+      --slotted-collapsible-trigger-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  .slotted-collapsible [data-part='trigger']:active {
+    background-color: var(
+      --slotted-collapsible-trigger-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  .slotted-collapsible [data-part='trigger']:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  .slotted-collapsible [data-part='content'] {
+    color: var(--slotted-collapsible-content-color, var(--slotted-text, CanvasText));
+    font-size: var(--slotted-collapsible-content-font-size, 0.875rem);
+    line-height: var(--slotted-collapsible-line-height, 1.45);
+    padding: var(--slotted-collapsible-content-padding, 0.25rem 0.5rem 0.75rem);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slotted-collapsible [data-part='trigger']::before {
+      transition-duration: 0.01ms;
+    }
+  }
+}
