@@ -498,3 +498,49 @@ memory of the session that produced it.
 - Deviations: none.
 - Follow-on: VirtualList and FileUpload are what remain in T2. VirtualList needs
   `core/collection`, which does not exist yet and will be written against it.
+
+## Where the queue stands — 2026-08-31
+
+**T1 is complete.** Button (already shipped), Link, VisuallyHidden, Divider,
+Spinner, ProgressBar, Badge, Avatar, Skeleton, Kbd, DescriptionList, Splitter.
+
+**T2 is nine of eleven.** Field and Tabs were already shipped; Card, Tag, Alert,
+Collapsible, Breadcrumb, Pagination, Stepper, LoadingBar and Toolbar landed
+tonight. **VirtualList and FileUpload remain.**
+
+Take VirtualList next, and expect it to need more than a component:
+
+- It is the first caller of `core/collection`, which does not exist. Write the
+  module against VirtualList's real requirements — item height, overscan, the
+  index range for a scroll offset — and leave the signature provisional until
+  Listbox and Calendar confirm it in T3. `core/measure` is the worked example of
+  how that goes: three callers, then extract.
+- It needs a design document. The catalog says so, and the questions are real:
+  fixed against measured item heights, what the scroll container is, and whether
+  the windowed rows are exposed to assistive technology at all or whether the
+  list reports its full length through `aria-setsize` and `aria-posinset`.
+- The two Storybooks must show the same scenarios, as everywhere else. A
+  windowed list is the first component whose demonstration needs hundreds of
+  rows; generate them in the story rather than writing them out.
+
+FileUpload after it. It composes ProgressBar and Button, both shipped, and its
+own question is where the drop target's accessible name comes from when the
+visible affordance is a whole region rather than a control.
+
+**Conventions worth knowing before writing a line:**
+
+- Contract first, and assert shared vocabulary by reading the other contract
+  rather than retyping it. Badge, Tag and Alert all name the same five tones and
+  none of them repeats the list.
+- Both frameworks in one commit whenever a public contract changes.
+- `pnpm check` per component, `pnpm check:full` per batch, then push.
+- Every reference page is written by copying the other framework's and editing
+  it. `pnpm test:docs` now fails a snippet left in the wrong language, which is
+  the one edit that copy reliably forgets.
+- A React family with no `render` prop must not export a root props type. It
+  cannot be produced, and the unused import trips the lint gate — Collapsible
+  and Toolbar both did it.
+- Angular snippets must fit on one line under roughly seventy characters, or
+  Prettier's angular printer breaks them onto a hanging `>` and the format test
+  fails.
+- `model()` takes no `transform`, unlike `input()`.
