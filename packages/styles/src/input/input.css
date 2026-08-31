@@ -1,0 +1,79 @@
+@layer slotted.components {
+  /**
+   * Every rule is a single class-and-attribute selector on the control's own
+   * element. The field mirrors its state onto the control rather than being
+   * styled through, so an input outside a field looks the same as one inside
+   * it and the field's DOM is not part of this stylesheet's contract.
+   */
+  .slotted-input {
+    background-color: var(--slotted-input-background, transparent);
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-input-border-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: var(--slotted-input-radius, var(--slotted-control-radius, 4px));
+    box-sizing: border-box;
+    color: var(--slotted-input-color, var(--slotted-text, CanvasText));
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    inline-size: 100%;
+    min-inline-size: 0;
+    transition:
+      border-color var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease),
+      box-shadow var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease);
+  }
+
+  .slotted-input::placeholder {
+    color: var(--slotted-input-placeholder-color, var(--slotted-text-muted, GrayText));
+  }
+
+  .slotted-input[data-size='sm'] {
+    block-size: var(--slotted-input-block-size-sm, 1.75rem);
+    font-size: var(--slotted-input-font-size-sm, 0.8125rem);
+    padding-inline: var(--slotted-input-padding-inline-sm, 0.5rem);
+  }
+
+  .slotted-input[data-size='md'] {
+    block-size: var(--slotted-input-block-size-md, 2.25rem);
+    font-size: var(--slotted-input-font-size-md, 0.875rem);
+    padding-inline: var(--slotted-input-padding-inline-md, 0.625rem);
+  }
+
+  .slotted-input[data-size='lg'] {
+    block-size: var(--slotted-input-block-size-lg, 2.75rem);
+    font-size: var(--slotted-input-font-size-lg, 1rem);
+    padding-inline: var(--slotted-input-padding-inline-lg, 0.75rem);
+  }
+
+  .slotted-input:hover:not([data-disabled]):not([data-readonly]) {
+    border-color: var(--slotted-input-hover-border-color, var(--slotted-tone-accent-border));
+  }
+
+  .slotted-input:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * Invalid outranks hover and is written after it for that reason: a field
+   * reporting an error should not stop looking wrong because the pointer is
+   * over it.
+   */
+  .slotted-input[data-invalid] {
+    border-color: var(--slotted-input-invalid-border-color, var(--slotted-tone-danger-border));
+  }
+
+  .slotted-input[data-readonly] {
+    background-color: var(
+      --slotted-input-readonly-background,
+      var(--slotted-tone-secondary-surface)
+    );
+    cursor: var(--slotted-input-readonly-cursor, default);
+  }
+
+  .slotted-input[data-disabled] {
+    background-color: var(--slotted-input-disabled-background, var(--slotted-disabled-background));
+    border-color: var(--slotted-input-disabled-border-color, var(--slotted-disabled-border));
+    color: var(--slotted-input-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+  }
+}

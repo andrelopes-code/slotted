@@ -34,15 +34,26 @@ test('owns its size and nothing else, because the rest comes from the field', ()
   );
 });
 
-test('shares every state the field declares, and mirrors it onto itself', () => {
-  assert.deepEqual(contract.stateAttributes, field.stateAttributes);
-  for (const state of ['disabled', 'invalid', 'required', 'readonly']) {
+test('mirrors the field states it paints, and names them the way the field does', () => {
+  for (const [state, attribute] of Object.entries(contract.stateAttributes)) {
+    assert.equal(attribute, field.stateAttributes[state], `${state} disagrees with the field`);
     assert.ok(contract.members.input.states.includes(state), `Missing state ${state}`);
   }
+  assert.deepEqual(Object.keys(contract.stateAttributes), ['disabled', 'invalid', 'readonly']);
   assert.equal(
     contract.mirrorsState,
     true,
     'A descendant selector from the field cannot style a control used outside one',
+  );
+});
+
+test('does not mirror required: the marker belongs to the label, not the control', () => {
+  assert.ok(!('required' in contract.stateAttributes));
+  assert.ok(contract.members.input.capabilities.includes('required'));
+  assert.equal(
+    contract.requiredAttribute,
+    'aria-required',
+    'The prop still describes the control; it just paints nothing on it',
   );
 });
 
