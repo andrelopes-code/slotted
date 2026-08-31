@@ -27,6 +27,7 @@ test('names the underline axis and defaults to the web convention', () => {
 test('carries a part for the warning an external link owes the reader', () => {
   assert.deepEqual(contract.members.link.parts, ['root', 'external-hint']);
   assert.equal(contract.members.link.defaults.external, false);
+  assert.equal(contract.members.link.defaults.externalHint, '(opens in a new tab)');
 });
 
 test('reacts to the pointer and the keyboard, and holds no attribute state', () => {
