@@ -18,6 +18,7 @@ export const ATTRIBUTE_STATES = Object.keys(STATE_ATTRIBUTES);
 
 export const KNOWN_CAPABILITIES = [
   'appearance',
+  'size',
   'content',
   'fullWidth',
   'disabled',
