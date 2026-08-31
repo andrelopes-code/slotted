@@ -1,0 +1,95 @@
+@layer slotted.components {
+  .slotted-pagination [data-part='list'] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    gap: var(--slotted-pagination-gap, 0.25rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .slotted-pagination [data-part='item'] {
+    display: flex;
+  }
+
+  .slotted-pagination [data-part='page'] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: var(--slotted-control-border-width, 1px) solid transparent;
+    border-radius: var(--slotted-pagination-radius, var(--slotted-control-radius, 4px));
+    box-sizing: border-box;
+    color: var(--slotted-pagination-color, var(--slotted-text, CanvasText));
+    cursor: pointer;
+    display: inline-flex;
+    font-size: var(--slotted-pagination-font-size, 0.8125rem);
+    justify-content: center;
+    line-height: var(--slotted-control-line-height, 1);
+    min-block-size: var(--slotted-pagination-size, 2rem);
+    min-inline-size: var(--slotted-pagination-size, 2rem);
+    padding-inline: var(--slotted-pagination-padding-inline, 0.5rem);
+    text-decoration: none;
+    transition:
+      background-color var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease),
+      color var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease);
+  }
+
+  .slotted-pagination [data-part='page']:hover {
+    background-color: var(
+      --slotted-pagination-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  .slotted-pagination [data-part='page']:active {
+    background-color: var(
+      --slotted-pagination-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  .slotted-pagination [data-part='page']:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * The page the reader is on is filled, not merely tinted, so it is not two
+   * shades of the same neutral that tell one control from ten others.
+   */
+  .slotted-pagination [data-part='page'][data-current] {
+    background-color: var(
+      --slotted-pagination-current-background,
+      var(--slotted-tone-accent-solid)
+    );
+    border-color: var(--slotted-pagination-current-background, var(--slotted-tone-accent-solid));
+    color: var(--slotted-pagination-current-color, var(--slotted-tone-accent-on-solid));
+    cursor: default;
+  }
+
+  .slotted-pagination [data-part='page']:disabled,
+  .slotted-pagination [data-part='page'][data-disabled] {
+    background-color: transparent;
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: not-allowed;
+  }
+
+  .slotted-pagination [data-part='ellipsis'] {
+    align-items: center;
+    color: var(--slotted-pagination-ellipsis-color, var(--slotted-text-muted, GrayText));
+    display: inline-flex;
+    justify-content: center;
+    min-block-size: var(--slotted-pagination-size, 2rem);
+    min-inline-size: var(--slotted-pagination-size, 2rem);
+  }
+
+  @media (forced-colors: active) {
+    .slotted-pagination [data-part='page'][data-current] {
+      border-color: currentColor;
+    }
+  }
+}
