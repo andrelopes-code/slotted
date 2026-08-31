@@ -8,7 +8,7 @@ const config: StorybookConfig = {
       tsconfig: '../../packages/angular/tsconfig.lib.json',
     },
   },
-  stories: ['../../../packages/angular/button/src/**/*.stories.ts'],
+  stories: ['../../../packages/angular/*/src/**/*.stories.ts'],
   addons: ['@storybook/addon-docs', '@storybook/addon-a11y'],
   docs: { defaultName: 'Reference' },
 };
