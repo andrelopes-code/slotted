@@ -1,0 +1,111 @@
+@layer slotted.components {
+  .slotted-stepper {
+    --_marker-size: var(--slotted-stepper-marker-size, 1.5rem);
+
+    display: flex;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--slotted-stepper-font-size, 0.8125rem);
+    line-height: var(--slotted-stepper-line-height, 1.45);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .slotted-stepper[data-orientation='horizontal'] {
+    align-items: center;
+    flex-direction: row;
+    gap: var(--slotted-stepper-gap, 0.75rem);
+  }
+
+  .slotted-stepper[data-orientation='vertical'] {
+    flex-direction: column;
+    gap: var(--slotted-stepper-gap, 0.75rem);
+  }
+
+  .slotted-stepper [data-part='step'] {
+    align-items: center;
+    display: flex;
+    gap: var(--slotted-stepper-step-gap, 0.5rem);
+    min-inline-size: 0;
+  }
+
+  .slotted-stepper[data-orientation='horizontal'] [data-part='step'] {
+    flex: 1;
+  }
+
+  /**
+   * The connector is a pseudo-element on every step after the first, so it is
+   * never in the accessibility tree and no consumer has to write one. It runs
+   * along the axis the steps are arranged on.
+   *
+   * Its colour has no system-colour last resort, as the breadcrumb separator's
+   * has none: with no theme the declaration is invalid and the line simply does
+   * not paint, which is what unthemed decoration should do.
+   */
+  .slotted-stepper [data-part='step'] + [data-part='step']::before {
+    background-color: var(--slotted-stepper-connector-color, var(--slotted-border-subtle));
+    content: '';
+    flex-shrink: 0;
+  }
+
+  .slotted-stepper[data-orientation='horizontal'] [data-part='step'] + [data-part='step']::before {
+    block-size: var(--slotted-stepper-connector-thickness, 1px);
+    flex: 1;
+    min-inline-size: var(--slotted-stepper-connector-length, 1rem);
+  }
+
+  .slotted-stepper[data-orientation='vertical'] [data-part='step'] + [data-part='step']::before {
+    block-size: var(--slotted-stepper-connector-length, 1rem);
+    inline-size: var(--slotted-stepper-connector-thickness, 1px);
+    margin-inline-start: calc(var(--_marker-size) / 2);
+  }
+
+  .slotted-stepper[data-orientation='vertical'] [data-part='step'] + [data-part='step'] {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .slotted-stepper [data-part='marker'] {
+    align-items: center;
+    block-size: var(--_marker-size);
+    border: var(--slotted-stepper-marker-border-width, 1px) solid
+      var(--slotted-stepper-marker-border-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: 999px;
+    box-sizing: border-box;
+    color: var(--slotted-stepper-marker-color, var(--slotted-text-muted, GrayText));
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: var(--slotted-stepper-marker-font-size, 0.6875rem);
+    font-weight: var(--slotted-stepper-marker-font-weight, 600);
+    inline-size: var(--_marker-size);
+    justify-content: center;
+  }
+
+  .slotted-stepper [data-part='step'][data-status='current'] [data-part='marker'] {
+    background-color: var(--slotted-stepper-current-background, var(--slotted-tone-accent-surface));
+    border-color: var(--slotted-stepper-current-border-color, var(--slotted-tone-accent-border));
+    border-width: var(--slotted-stepper-current-border-width, 2px);
+    color: var(--slotted-stepper-current-color, var(--slotted-tone-accent-text));
+  }
+
+  .slotted-stepper [data-part='step'][data-status='complete'] [data-part='marker'] {
+    background-color: var(--slotted-stepper-complete-background, var(--slotted-tone-accent-solid));
+    border-color: var(--slotted-stepper-complete-background, var(--slotted-tone-accent-solid));
+    color: var(--slotted-stepper-complete-color, var(--slotted-tone-accent-on-solid));
+  }
+
+  .slotted-stepper [data-part='label'] {
+    color: var(--slotted-stepper-label-color, var(--slotted-text-muted, GrayText));
+    min-inline-size: 0;
+  }
+
+  .slotted-stepper [data-part='step'][data-status='current'] [data-part='label'] {
+    color: var(--slotted-stepper-current-label-color, var(--slotted-text, CanvasText));
+    font-weight: var(--slotted-stepper-current-label-font-weight, 600);
+  }
+
+  .slotted-stepper [data-part='step'][data-status='complete'] [data-part='label'] {
+    color: var(--slotted-stepper-complete-label-color, var(--slotted-text, CanvasText));
+  }
+}
