@@ -45,6 +45,7 @@ export const KNOWN_CAPABILITIES = [
   'external',
   'activation',
   'selection',
+  'virtualization',
 ];
 
 function assertUnique(values, label) {

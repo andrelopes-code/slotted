@@ -70,6 +70,7 @@ const capabilityApi = {
   external: ['external'],
   activation: ['activation'],
   selection: ['value'],
+  virtualization: ['itemCount', 'itemSize', 'overscan'],
 } as const;
 
 export function apiMetadataErrors(
