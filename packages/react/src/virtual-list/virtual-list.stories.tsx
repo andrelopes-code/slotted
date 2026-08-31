@@ -19,6 +19,8 @@ const STATUS = ['ready', 'queued', 'running'] as const;
 
 const label = (index: number) => `${CITIES[index % CITIES.length]} ${1000 + index}`;
 
+const row = (index: number) => <VirtualListItem index={index}>{label(index)}</VirtualListItem>;
+
 const referenceStories: ReferencePageConfig['stories'] = () => ({
   essential: Playground as never,
   matrix: Scale as never,
@@ -27,6 +29,8 @@ const referenceStories: ReferencePageConfig['stories'] = () => ({
 const meta = {
   title: 'Components/VirtualList',
   component: VirtualList,
+  args: { children: row, itemCount: 5000, itemSize: 44, overscan: 4 },
+  argTypes: { children: { table: { disable: true } } },
   parameters: {
     controls: { disable: true },
     docs: {
@@ -46,13 +50,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {
-  args: { itemCount: 5000, itemSize: 44, overscan: 4 },
   parameters: { ...scenario('playground'), controls: { disable: false } },
   render: (args) => (
     <div className="slotted-demo-measure">
-      <VirtualList {...args} aria-label="Playground rows" style={FRAME}>
-        {(index) => <VirtualListItem index={index}>{label(index)}</VirtualListItem>}
-      </VirtualList>
+      <VirtualList {...args} aria-label="Playground rows" style={FRAME} />
     </div>
   ),
 };
@@ -70,7 +71,7 @@ export const Scale: Story = {
         </header>
         <div className="slotted-demo-stage">
           <VirtualList aria-label="One hundred rows" itemCount={100} itemSize={40} style={FRAME}>
-            {(index) => <VirtualListItem index={index}>{label(index)}</VirtualListItem>}
+            {row}
           </VirtualList>
         </div>
       </section>
@@ -88,7 +89,7 @@ export const Scale: Story = {
             itemSize={40}
             style={FRAME}
           >
-            {(index) => <VirtualListItem index={index}>{label(index)}</VirtualListItem>}
+            {row}
           </VirtualList>
         </div>
       </section>
@@ -137,7 +138,7 @@ export const Composition: Story = {
       <VirtualList aria-label="Jobs" itemCount={20_000} itemSize={52} style={FRAME}>
         {(index) => (
           <VirtualListItem index={index}>
-            <Badge variant={index % 3 === 2 ? 'primary' : 'secondary'}>
+            <Badge variant={index % 3 === 2 ? 'accent' : 'secondary'}>
               {STATUS[index % STATUS.length]}
             </Badge>
             <span>{label(index)}</span>

@@ -146,11 +146,16 @@ Repeat until the queue is exhausted. Do not stop between components. Do not summ
 node -e "
 const { readFileSync, writeFileSync } = require('node:fs');
 const css = readFileSync('packages/styles/src/<family>/<family>.css', 'utf8');
-const tokens = [...new Set([...css.matchAll(/var\((--slotted-[a-z0-9-]+)/g)].map((m) => m[1]))].sort();
+const tokens = [...new Set([...css.matchAll(/var\(\s*(--slotted-[a-z0-9-]+)/g)].map((m) => m[1]))].sort();
 writeFileSync('packages/styles/src/<family>/<family>.tokens.json', JSON.stringify(tokens, null, 2) + '\n');
 console.log(tokens.length + ' tokens');
 "
 ```
+
+The `\s*` is not optional: Prettier inserts a space after `var(` whenever a
+declaration wraps, and a pattern anchored to the token name misses exactly the
+tokens in the longest declarations. `packages/styles/src/tokens.test.mjs`
+allows for it and will disagree with a list generated without it.
 
 Register both exports and the new test in `packages/styles/package.json`. Commit.
 

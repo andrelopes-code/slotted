@@ -159,7 +159,7 @@ export const Composition: Story = {
   <div slVirtualList #list="slVirtualList" aria-label="Jobs" style="${FRAME}" [itemCount]="20000" [itemSize]="52">
     @for (index of list.indices(); track index) {
       <div slVirtualListItem [index]="index">
-        <span slBadge [variant]="index % 3 === 2 ? 'primary' : 'secondary'">{{ status(index) }}</span>
+        <span slBadge [variant]="index % 3 === 2 ? 'accent' : 'secondary'">{{ status(index) }}</span>
         <span>{{ label(index) }}</span>
       </div>
     }

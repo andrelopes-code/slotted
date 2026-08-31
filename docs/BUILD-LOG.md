@@ -499,33 +499,82 @@ memory of the session that produced it.
 - Follow-on: VirtualList and FileUpload are what remain in T2. VirtualList needs
   `core/collection`, which does not exist yet and will be written against it.
 
+## VirtualList — 2026-08-31
+
+- Decisions: uniform `itemSize` rather than measured heights. Measured heights
+  need a per-row size cache, an observer per row, a prefix-sum offset table and
+  a scroll-anchoring policy — and the last of those is a product decision, not
+  an implementation detail. Uniform rows make an index and an offset the same
+  number in both directions. `docs/superpowers/specs/2026-08-31-virtual-list-design.md`
+  records the full argument.
+- Decisions: the root is the scroll container, so the component never has to
+  find, observe and position itself inside an element it does not own.
+- Decisions: the full length reaches assistive technology through `aria-setsize`
+  and `aria-posinset` on the rendered rows. A screen reader that counts DOM rows
+  announces a false number, not a degraded one. The canvas between the list and
+  its rows is `role="none"` so the rows stay owned by the list.
+- Decisions: the root carries `tabindex="0"` and the family binds no keys at
+  all. A scrollable region with nothing focusable in it cannot be scrolled from
+  the keyboard, and a focused scroll container already answers the arrows, the
+  Page keys, Home and End better than a reimplementation would. Listbox is where
+  selection and roving focus arrive.
+- Decisions: `core/collection` exports one function, `virtualWindow`, returning
+  the window, its offset and the canvas size together. Given four numbers a
+  caller derives three and takes one, and that derivation is where the window
+  and the scrollbar drift apart. Its signature stays provisional until Listbox
+  and Calendar confirm it, as `core/measure` did.
+- Decisions: an unmeasured viewport is nought, which is what a server render and
+  the first client render both see, so hydration is quiet. `overscan` applies
+  regardless of viewport size, so that first window holds four rows rather than
+  none. Neither is a branch in `virtualWindow`; both fall out of its clamps.
+- Decisions: the row is placed with `inset-block-start`, not `translateY`.
+  A translation moves along the physical axis, which is the wrong one in a
+  vertical writing mode.
+- Decisions: `overflow: auto` rather than the logical `overflow-block`. The
+  axis-neutral form needs no right-to-left counterpart and leaves a row wider
+  than the list reachable instead of clipped. The design document said
+  `overflow-block` before the sheet existed and was corrected with it.
+- Decisions: one new shared vocabulary entry, `virtualization`, obliging a
+  reference page to document `itemCount`, `itemSize` and `overscan`.
+- Defects found: an uncommitted, complete and tested change was sitting in the
+  working tree at session start — the two Storybook managers moved onto the
+  workbench neutral ramp. It was committed first, before anything else was
+  touched.
+- Defects found: §5.3 of `docs/autonomous-build-prompt.md` gives a token-list
+  generator whose regexp is `var\((--slotted-…)`, missing the `\s*` that
+  `packages/styles/src/tokens.test.mjs` allows for. Prettier inserts that space
+  whenever a declaration wraps, so the snippet under-reports exactly the tokens
+  in the longest declarations — the failure the tokens test's own comment
+  describes. Corrected in the prompt.
+- Deviations: none.
+- Follow-on: FileUpload is all that remains of T2.
+- Follow-on: the family is block-axis only. A horizontal virtual list is the
+  same arithmetic on the other axis and was left out rather than half-built.
+- Follow-on: React types the story args by giving `meta.args` a default row
+  renderer, because `children` is a required function prop and Storybook cannot
+  see that `render` supplies it. Any later family with a required render prop
+  will meet the same thing.
+
 ## Where the queue stands — 2026-08-31
 
 **T1 is complete.** Button (already shipped), Link, VisuallyHidden, Divider,
 Spinner, ProgressBar, Badge, Avatar, Skeleton, Kbd, DescriptionList, Splitter.
 
-**T2 is nine of eleven.** Field and Tabs were already shipped; Card, Tag, Alert,
-Collapsible, Breadcrumb, Pagination, Stepper, LoadingBar and Toolbar landed
-tonight. **VirtualList and FileUpload remain.**
+**T2 is ten of eleven.** Field and Tabs were already shipped; Card, Tag, Alert,
+Collapsible, Breadcrumb, Pagination, Stepper, LoadingBar, Toolbar and
+VirtualList have landed. **FileUpload alone remains.**
 
-Take VirtualList next, and expect it to need more than a component:
-
-- It is the first caller of `core/collection`, which does not exist. Write the
-  module against VirtualList's real requirements — item height, overscan, the
-  index range for a scroll offset — and leave the signature provisional until
-  Listbox and Calendar confirm it in T3. `core/measure` is the worked example of
-  how that goes: three callers, then extract.
-- It needs a design document. The catalog says so, and the questions are real:
-  fixed against measured item heights, what the scroll container is, and whether
-  the windowed rows are exposed to assistive technology at all or whether the
-  list reports its full length through `aria-setsize` and `aria-posinset`.
-- The two Storybooks must show the same scenarios, as everywhere else. A
-  windowed list is the first component whose demonstration needs hundreds of
-  rows; generate them in the story rather than writing them out.
-
-FileUpload after it. It composes ProgressBar and Button, both shipped, and its
+Take FileUpload next. It composes ProgressBar and Button, both shipped, and its
 own question is where the drop target's accessible name comes from when the
-visible affordance is a whole region rather than a control.
+visible affordance is a whole region rather than a control. Expect to answer
+three more while you are there: whether the file input is the accessible
+control with the region merely decorating it, what happens to a file the
+`accept` list rejects, and whether upload progress belongs to the component or
+to the consumer that performs the upload.
+
+Then T3 begins. Two of its components — Listbox and Calendar — are the callers
+that will confirm or change `core/collection`, whose signature VirtualList left
+provisional on purpose.
 
 **Conventions worth knowing before writing a line:**
 
@@ -537,10 +586,23 @@ visible affordance is a whole region rather than a control.
 - Every reference page is written by copying the other framework's and editing
   it. `pnpm test:docs` now fails a snippet left in the wrong language, which is
   the one edit that copy reliably forgets.
+- A snippet's `source` must be exactly what Prettier produces from it under the
+  repository's own config — `printWidth: 100`, single quotes — and
+  `defineSnippet` supplies the trailing newline. Format the candidate through
+  Prettier and paste the result rather than guessing where it wraps.
 - A React family with no `render` prop must not export a root props type. It
   cannot be produced, and the unused import trips the lint gate — Collapsible
   and Toolbar both did it.
+- A React family with a _required_ function prop cannot satisfy Storybook's
+  types from `render` alone. Give `meta.args` a default for it; VirtualList
+  passes a default row renderer that way.
 - Angular snippets must fit on one line under roughly seventy characters, or
   Prettier's angular printer breaks them onto a hanging `>` and the format test
   fails.
-- `model()` takes no `transform`, unlike `input()`.
+- `model()` takes no `transform`, unlike `input()`. `input.required` does take
+  one, written `input.required<number, unknown>({ transform: numberAttribute })`.
+- A new `@slotted/core` entry point must be built before any framework package
+  can import it: `pnpm --filter @slotted/core build`. The subpath resolves
+  through `dist`, so a fresh module fails to resolve until it exists.
+- The Angular spec tsconfig has `noUncheckedIndexedAccess`. An indexed access in
+  a spec needs `!`, which the React suite does not require.
