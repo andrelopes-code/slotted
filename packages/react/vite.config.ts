@@ -15,6 +15,7 @@ export default defineConfig({
         divider: resolve(import.meta.dirname, 'src/divider/index.ts'),
         field: resolve(import.meta.dirname, 'src/field/index.ts'),
         link: resolve(import.meta.dirname, 'src/link/index.ts'),
+        skeleton: resolve(import.meta.dirname, 'src/skeleton/index.ts'),
         spinner: resolve(import.meta.dirname, 'src/spinner/index.ts'),
         tabs: resolve(import.meta.dirname, 'src/tabs/index.ts'),
         'visually-hidden': resolve(import.meta.dirname, 'src/visually-hidden/index.ts'),
