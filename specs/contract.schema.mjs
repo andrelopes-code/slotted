@@ -8,6 +8,7 @@ export const STATE_ATTRIBUTES = {
   disabled: 'data-disabled',
   loading: 'data-loading',
   pressed: 'data-pressed',
+  selected: 'data-selected',
   invalid: 'data-invalid',
   required: 'data-required',
   readonly: 'data-readonly',
@@ -27,6 +28,8 @@ export const KNOWN_CAPABILITIES = [
   'required',
   'readOnly',
   'wiring',
+  'activation',
+  'selection',
 ];
 
 function assertUnique(values, label) {

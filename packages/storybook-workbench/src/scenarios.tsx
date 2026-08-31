@@ -56,6 +56,8 @@ const capabilityApi = {
   required: ['required'],
   readOnly: ['readOnly'],
   wiring: [],
+  activation: ['activation'],
+  selection: ['value'],
 } as const;
 
 export function apiMetadataErrors(
