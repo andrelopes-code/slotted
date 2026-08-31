@@ -10,6 +10,7 @@ export * from './divider';
 export * from './field';
 export * from './kbd';
 export * from './link';
+export * from './loading-bar';
 export * from './progress-bar';
 export * from './skeleton';
 export * from './spinner';
