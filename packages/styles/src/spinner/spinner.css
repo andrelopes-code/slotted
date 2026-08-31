@@ -1,0 +1,47 @@
+@layer slotted.components {
+  .slotted-spinner {
+    --_spinner-size: var(--slotted-spinner-size-md, 1.25rem);
+
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+
+  .slotted-spinner[data-size='sm'] {
+    --_spinner-size: var(--slotted-spinner-size-sm, 1rem);
+  }
+
+  .slotted-spinner[data-size='md'] {
+    --_spinner-size: var(--slotted-spinner-size-md, 1.25rem);
+  }
+
+  .slotted-spinner[data-size='lg'] {
+    --_spinner-size: var(--slotted-spinner-size-lg, 1.75rem);
+  }
+
+  /**
+   * The ring is one border with a transparent end, so it costs no markup and
+   * takes its colour from the text around it. A spinner belongs to whatever it
+   * is reporting on, and currentColor is how it says so.
+   */
+  .slotted-spinner [data-part='indicator'] {
+    animation: slotted-spinner-spin var(--slotted-spinner-duration, 700ms) linear infinite;
+    block-size: var(--_spinner-size);
+    border: var(--slotted-spinner-stroke-width, 2px) solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: var(--slotted-spinner-radius, 999px);
+    display: block;
+    inline-size: var(--_spinner-size);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slotted-spinner [data-part='indicator'] {
+      animation-duration: var(--slotted-spinner-reduced-motion-duration, 1.8s);
+    }
+  }
+}
+
+@keyframes slotted-spinner-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
