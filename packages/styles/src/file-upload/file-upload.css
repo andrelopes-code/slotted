@@ -1,0 +1,117 @@
+@layer slotted.components {
+  .slotted-file-upload {
+    color: var(--slotted-file-upload-color, var(--slotted-text, CanvasText));
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    gap: var(--slotted-file-upload-gap, 0.75rem);
+    min-inline-size: 0;
+  }
+
+  /**
+   * The region is a `<label>`, so it activates the input inside it without a
+   * click handler and names it without a generated id. It is laid out as the
+   * whole affordance because that is what the reader aims at.
+   */
+  .slotted-file-upload [data-part='dropzone'] {
+    align-items: center;
+    background-color: var(--slotted-file-upload-dropzone-background, transparent);
+    border: var(--slotted-file-upload-dropzone-border-width, 1px)
+      var(--slotted-file-upload-dropzone-border-style, dashed)
+      var(--slotted-file-upload-dropzone-border-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: var(--slotted-file-upload-dropzone-radius, 0.5rem);
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-file-upload-dropzone-gap, 0.25rem);
+    justify-content: center;
+    min-block-size: var(--slotted-file-upload-dropzone-min-block-size, 7rem);
+    padding: var(--slotted-file-upload-dropzone-padding-block, 1.5rem)
+      var(--slotted-file-upload-dropzone-padding-inline, 1rem);
+    position: relative;
+    text-align: center;
+    transition:
+      background-color var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease),
+      border-color var(--slotted-control-transition-duration, 120ms)
+        var(--slotted-control-transition-easing, ease);
+  }
+
+  .slotted-file-upload [data-part='dropzone']:hover {
+    border-color: var(
+      --slotted-file-upload-dropzone-hover-border-color,
+      var(--slotted-tone-accent-border)
+    );
+  }
+
+  /**
+   * The ring belongs to the region and the focus belongs to the input. What
+   * the reader focuses is one pixel and invisible, so a ring around it would
+   * be a ring around nothing; the region is what they see and activate.
+   */
+  .slotted-file-upload [data-part='dropzone']:has(:focus-visible) {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  .slotted-file-upload [data-part='dropzone'][data-dragging] {
+    background-color: var(
+      --slotted-file-upload-dropzone-dragging-background,
+      var(--slotted-tone-accent-surface)
+    );
+    border-color: var(
+      --slotted-file-upload-dropzone-dragging-border-color,
+      var(--slotted-tone-accent-border)
+    );
+  }
+
+  .slotted-file-upload [data-part='dropzone'][data-disabled] {
+    border-color: var(--slotted-disabled-border, GrayText);
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: not-allowed;
+    opacity: var(--slotted-file-upload-dropzone-disabled-opacity, 0.6);
+  }
+
+  /**
+   * Removed from sight and from nothing else. `display: none` and
+   * `visibility: hidden` would take the control out of the tab order and the
+   * accessibility tree, which is the reason the label pairing exists. Its
+   * rules are restated here rather than borrowed from the visually-hidden
+   * family, so that class does not become part of two families' surface.
+   */
+  .slotted-file-upload [data-part='input'] {
+    block-size: 1px;
+    border: 0;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  .slotted-file-upload [data-part='list'] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-file-upload-list-gap, 0.5rem);
+    list-style: none;
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+  }
+
+  .slotted-file-upload [data-part='item'] {
+    align-items: center;
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-file-upload-item-border-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: var(--slotted-file-upload-item-radius, 0.375rem);
+    box-sizing: border-box;
+    display: flex;
+    gap: var(--slotted-file-upload-item-gap, 0.75rem);
+    min-inline-size: 0;
+    padding: var(--slotted-file-upload-item-padding-block, 0.5rem)
+      var(--slotted-file-upload-item-padding-inline, 0.75rem);
+  }
+}
