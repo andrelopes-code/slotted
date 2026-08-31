@@ -41,13 +41,14 @@ export function scenarioCoverageErrors(
 
 interface ContractMember {
   capabilities: readonly string[];
-  defaults: Record<string, boolean | string>;
+  defaults: Record<string, boolean | number | string>;
 }
 
 const capabilityApi = {
   appearance: ['variant', 'fill', 'size'],
   size: ['size'],
   shape: ['shape'],
+  measurement: ['value', 'max'],
   content: ['leading', 'trailing'],
   fullWidth: ['fullWidth'],
   disabled: ['disabled'],
