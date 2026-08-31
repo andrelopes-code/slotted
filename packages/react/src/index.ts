@@ -15,6 +15,7 @@ export * from './progress-bar';
 export * from './skeleton';
 export * from './spinner';
 export * from './splitter';
+export * from './stepper';
 export * from './tabs';
 export * from './tag';
 export * from './visually-hidden';
