@@ -41,3 +41,17 @@ test('documents exactly the public custom properties the stylesheet reads', () =
   ].sort();
   assert.deepEqual(declared, referenced);
 });
+
+test('never falls back to a system colour for decoration', () => {
+  // Text and interactive surfaces must stay readable without a theme, so a
+  // visible system colour is the right last resort there. A decorative rule is
+  // the opposite: unthemed, it should disappear rather than shout.
+  const decorative = css.match(/\[data-part='list'\]::after\s*\{[\s\S]*?\}/)?.[0];
+  assert.ok(decorative, 'Missing track rule');
+  assert.doesNotMatch(decorative, /ButtonBorder|CanvasText|GrayText|Highlight|ButtonFace/);
+  assert.match(decorative, /var\(--slotted-border-subtle, transparent\)/);
+});
+
+test('lets one token remove the track entirely', () => {
+  assert.match(css, /--slotted-tabs-track-color/);
+});
