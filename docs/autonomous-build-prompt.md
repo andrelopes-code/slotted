@@ -33,25 +33,50 @@ Do not read more than this to start. You will read specific files as you need th
 
 ### What already exists
 
-| Layer                | Packages                                                                |
-| -------------------- | ----------------------------------------------------------------------- |
-| L0 contracts         | `specs/contract.schema.mjs` + `specs/components/<family>/contract.json` |
-| L1 design foundation | `@slotted/tokens`, `@slotted/themes/default`, `@slotted/styles`         |
-| L2 core              | `@slotted/core` — currently `core/focus` (roving tabindex)              |
-| L3 frameworks        | `@slotted/react`, `@slotted/angular`                                    |
-| L4 tooling           | `@slotted/storybook-workbench` (internal, never published)              |
+| Layer                | Packages                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------ |
+| L0 contracts         | `specs/contract.schema.mjs` + `specs/components/<family>/contract.json`              |
+| L1 design foundation | `@slotted/tokens`, `@slotted/themes/default`, `@slotted/styles`                      |
+| L2 core              | `@slotted/core` — `core/focus` (roving tabindex), `core/measure` (clamp, percentage) |
+| L3 frameworks        | `@slotted/react`, `@slotted/angular`                                                 |
+| L4 tooling           | `@slotted/storybook-workbench` (internal, never published)                           |
 
-Shipped families: **button** (5 members), **field** (5 members), **tabs** (React done, Angular in progress).
+Shipped families, all with both frameworks and both Storybooks: **button**,
+**field**, **tabs**, and every T1 family — **link**, **visually-hidden**,
+**divider**, **spinner**, **progress-bar**, **badge**, **avatar**, **skeleton**,
+**kbd**, **description-list**, **splitter** — plus nine of eleven T2 families:
+**card**, **tag**, **alert**, **collapsible**, **breadcrumb**, **pagination**,
+**stepper**, **loading-bar**, **toolbar**.
 
 Apps: `apps/storybook-react`, `apps/storybook-angular`.
 
 ---
 
-## 2. Start here — finish the work in flight
+## 2. Start here
 
-The working tree has uncommitted Angular `Tabs` work under `packages/angular/tabs/`. React `Tabs` is committed and green. Your first task is to finish Angular `Tabs` to the same standard, then merge.
+Read `docs/BUILD-LOG.md` last section first — "Where the queue stands". It names
+the next component, what it will demand of you, and the handful of conventions
+that cost the previous session a failed gate before it learned them. Everything
+before that section is one entry per shipped component: the decisions taken, the
+defects found, and the work each one left behind.
 
-There is also a stray `.swp` file at the repo root. Delete it; never commit it.
+The working tree is clean and `main` is green. Your first task is **VirtualList**,
+and it is not a small one:
+
+- It is the first caller of `core/collection`, which does not exist yet. Write
+  that module against VirtualList's real requirements and leave its signature
+  provisional until Listbox and Calendar confirm it in T3. `core/measure` is the
+  worked example of how that goes — three callers wanted the same arithmetic,
+  and only then was it extracted.
+- It needs a design document (§5.1). The open questions are fixed against
+  measured item heights, what the scroll container is, and whether the windowed
+  rows are exposed to assistive technology at all or whether the list reports its
+  full length through `aria-setsize` and `aria-posinset`.
+- Its demonstration needs hundreds of rows. Generate them in the story.
+
+**FileUpload** after it, and then T2 is complete. It composes ProgressBar and
+Button, both shipped; its own question is where the drop target's accessible
+name comes from when the visible affordance is a region rather than a control.
 
 ---
 
@@ -78,15 +103,17 @@ These are already enforced by tests. Do not weaken a test to make your code pass
 
 Work strictly in this order. A component is eligible only when everything it depends on is merged. Components inside one tier are independent and may be built in any order.
 
-**Finish first:** Angular `Tabs` (in flight).
+**Finish first:** `VirtualList`, then `FileUpload`. They are what remains of T2.
 
 ### T1 — no dependency on another component
 
-`Link`, `VisuallyHidden`, `Divider`, `Spinner`, `ProgressBar`, `Badge`, `Avatar`, `Skeleton`, `Kbd`, `DescriptionList`, `Splitter`
+Complete: `Link`, `VisuallyHidden`, `Divider`, `Spinner`, `ProgressBar`, `Badge`, `Avatar`, `Skeleton`, `Kbd`, `DescriptionList`, `Splitter`
 
 ### T2 — depends on T1
 
-`Card`, `Tag`, `Alert`, `Collapsible`, `Breadcrumb`, `Pagination`, `Stepper`, `LoadingBar`, `Toolbar`, `VirtualList`, `FileUpload`
+Complete: `Card`, `Tag`, `Alert`, `Collapsible`, `Breadcrumb`, `Pagination`, `Stepper`, `LoadingBar`, `Toolbar`
+
+Remaining: `VirtualList`, `FileUpload`
 
 ### T3 — depends on T2
 
@@ -98,7 +125,10 @@ Read the catalog. Do not start T4 until T3 is complete — `Dialog` must be the 
 
 **Batching.** Group 3 to 5 independent components from the same tier into one batch. Build them one at a time inside the batch, but run the expensive full gate once per batch rather than once per component. Start each batch with the simplest member so the batch's shared decisions surface early.
 
-**Order inside T1.** Start with `VisuallyHidden`, `Divider`, `Spinner` — the three smallest — to establish the rhythm, then `Link`, `Badge`, `Avatar`, `Skeleton`, `Kbd`, `ProgressBar`, `DescriptionList`, and `Splitter` last, since it is the only T1 component with real interaction.
+**Order inside a tier.** Simplest first, so the batch's shared decisions surface
+early, and the one with real interaction last. T1 and most of T2 were built that
+way; the two components left in T2 are the two hardest in it, so take them one at
+a time rather than as a batch.
 
 ---
 
