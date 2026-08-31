@@ -10,6 +10,7 @@ export default defineConfig({
       entry: {
         index: resolve(import.meta.dirname, 'src/index.ts'),
         button: resolve(import.meta.dirname, 'src/button/index.ts'),
+        field: resolve(import.meta.dirname, 'src/field/index.ts'),
       },
       formats: ['es'],
     },
