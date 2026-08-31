@@ -32,6 +32,7 @@ export default defineConfig({
         stepper: resolve(import.meta.dirname, 'src/stepper/index.ts'),
         tabs: resolve(import.meta.dirname, 'src/tabs/index.ts'),
         tag: resolve(import.meta.dirname, 'src/tag/index.ts'),
+        textarea: resolve(import.meta.dirname, 'src/textarea/index.ts'),
         toolbar: resolve(import.meta.dirname, 'src/toolbar/index.ts'),
         'virtual-list': resolve(import.meta.dirname, 'src/virtual-list/index.ts'),
         'visually-hidden': resolve(import.meta.dirname, 'src/visually-hidden/index.ts'),
