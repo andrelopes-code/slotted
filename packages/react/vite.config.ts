@@ -12,6 +12,7 @@ export default defineConfig({
         alert: resolve(import.meta.dirname, 'src/alert/index.ts'),
         avatar: resolve(import.meta.dirname, 'src/avatar/index.ts'),
         badge: resolve(import.meta.dirname, 'src/badge/index.ts'),
+        breadcrumb: resolve(import.meta.dirname, 'src/breadcrumb/index.ts'),
         button: resolve(import.meta.dirname, 'src/button/index.ts'),
         card: resolve(import.meta.dirname, 'src/card/index.ts'),
         'description-list': resolve(import.meta.dirname, 'src/description-list/index.ts'),
