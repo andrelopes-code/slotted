@@ -370,3 +370,44 @@ memory of the session that produced it.
   puts in `alertActions`, and the focus that button leaves behind is an
   application decision. Revisit if Toast (T4) needs the same affordance, which
   would be its second caller.
+
+## Breadcrumb — 2026-08-31
+
+- Decisions: no separator member. A slash between crumbs is decoration a screen
+  reader should not read, so the stylesheet draws it from a token on every item
+  after the first. The contract records `separator: "stylesheet"` so the
+  absence reads as a decision.
+- Decisions: `current` joins both vocabularies — the capability and the
+  `data-current` state. The current crumb keeps its href and carries
+  `aria-current="page"`, as the Authoring Practices example does; dropping the
+  link would take it out of the tab order and out of the enumerable links.
+- Decisions: the nav takes a default name of "Breadcrumb", which steps aside
+  when the consumer passes `aria-labelledby`. Two unnamed navigation landmarks
+  give a screen reader two identical entries.
+- Defects found: the separator's colour originally fell back to `GrayText`,
+  which the fallbacks test forbids in a decorative pseudo-element. Removed: with
+  no theme the declaration is invalid and the separator takes the colour around
+  it, which is what decoration should do.
+
+## Collapsible — 2026-08-31
+
+- Decisions: `details` and `summary`, not a button and a div. The disclosure
+  role, the expanded state, Enter and Space, and find-in-page reaching text
+  inside a closed region all come from the platform. The costs are real and
+  recorded: `details` does not animate its own height, and the trigger must be
+  the first child.
+- Decisions: the state is read from the platform's `open` attribute, recorded
+  as `openAttribute`, rather than duplicated as a `data-expanded` that nothing
+  would keep in step.
+- Decisions: a controlled React Collapsible is put back where the consumer says
+  it is. A `details` opens itself and React re-renders nothing when the consumer
+  ignores the change, so without the reassignment "controlled" would have meant
+  "notified". Angular's `model` writes the change back instead, which is the
+  same guarantee reached the framework's own way.
+- Defects found: none.
+- Deviations: Angular's `model()` accepts no `transform`, unlike `input()`, so
+  `open` is a plain boolean model. Worth remembering for every later component
+  with a two-way boolean.
+- Follow-on: Accordion (T3) is a group of these. `<details name="...">` gives
+  exclusive opening natively and would mean Accordion adds a name and nothing
+  else; check the support floor when it is planned.
