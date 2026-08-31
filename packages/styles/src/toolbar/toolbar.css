@@ -1,0 +1,36 @@
+@layer slotted.components {
+  .slotted-toolbar {
+    align-items: center;
+    display: flex;
+    gap: var(--slotted-toolbar-gap, 0.375rem);
+    min-inline-size: 0;
+    padding: var(--slotted-toolbar-padding, 0.25rem);
+  }
+
+  .slotted-toolbar[data-orientation='horizontal'] {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .slotted-toolbar[data-orientation='vertical'] {
+    align-items: stretch;
+    flex-direction: column;
+    inline-size: fit-content;
+  }
+
+  /**
+   * A separator inside a toolbar is a Divider the consumer placed, and it runs
+   * across the axis the controls are laid out on. The toolbar sizes it, because
+   * a rule that stretches to the full height of a wrapped row looks like a
+   * column break rather than a grouping.
+   */
+  .slotted-toolbar[data-orientation='horizontal'] > .slotted-divider {
+    align-self: center;
+    block-size: var(--slotted-toolbar-separator-length, 1.25em);
+  }
+
+  .slotted-toolbar[data-orientation='vertical'] > .slotted-divider {
+    inline-size: var(--slotted-toolbar-separator-length, 1.25em);
+    margin-inline: auto;
+  }
+}
