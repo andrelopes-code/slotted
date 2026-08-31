@@ -440,3 +440,39 @@ memory of the session that produced it.
 - Deviations: none.
 - Follow-on: FileUpload and Stepper both report progress and can now take the
   same measurement from core/measure rather than a fourth inline copy.
+
+## Stepper — 2026-08-31
+
+- Decisions: where a step sits is an axis with three values, not two booleans.
+  `upcoming`, `current` and `complete` are mutually exclusive, and a pair of
+  flags would admit a step that is both. Invariant 5 forbids a single-valued
+  `data-state`, and this is not one: `data-status` is an appearance axis like
+  `data-fill`, chosen from a closed set the contract names.
+- Decisions: the current step is marked by a thicker ring as well as a tone, so
+  it is not colour alone; the style test asserts the ring rather than the tone.
+- Decisions: the marker is `aria-hidden`. It repeats what the label and
+  `aria-current` already say.
+- Decisions: the connector has no member and is drawn by the stylesheet, as the
+  breadcrumb separator is.
+- Defects found: none.
+- Deviations: none.
+
+## Pagination — 2026-08-31
+
+- Decisions: a `ul`, where Breadcrumb and Stepper use `ol`. The pages are
+  siblings a reader may visit in any order; numbering them twice tells a screen
+  reader nothing. Recorded as `listReason` so the difference reads as a
+  decision rather than an inconsistency.
+- Decisions: a page control is a button by default and an anchor through
+  `render` (React) or by putting the attribute on an anchor (Angular). A page
+  with an address should be a link — bookmarking page four and opening page five
+  in a new tab are things a button cannot do.
+- Decisions: Angular binds the native `disabled` attribute only when the element
+  is a button, because an anchor cannot carry one and writing it there would be
+  a lie nothing acts on. A test asserts the absence.
+- Decisions: the previous and next controls at the ends are disabled rather than
+  removed, so the row does not change length as the reader moves through it.
+- Defects found: none.
+- Follow-on: Toolbar, VirtualList and FileUpload are what remain in T2. Toolbar
+  needs `core/focus`, which already exists from Tabs and will get its second
+  caller there — the point at which its signature stops being provisional.
