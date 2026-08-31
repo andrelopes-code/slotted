@@ -28,6 +28,7 @@ export const KNOWN_CAPABILITIES = [
   'required',
   'readOnly',
   'wiring',
+  'focusable',
   'activation',
   'selection',
 ];
