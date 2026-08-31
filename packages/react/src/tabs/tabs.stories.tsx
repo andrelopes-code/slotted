@@ -129,6 +129,52 @@ export const States: Story = {
   ),
 };
 
+export const Composition: Story = {
+  parameters: scenario('composition'),
+  render: () => (
+    <div className="slotted-demo-grid">
+      <section className="slotted-demo-scene">
+        <header className="slotted-demo-scene__header">
+          <span className="slotted-demo-scene__label">Inside a bordered surface</span>
+          <span className="slotted-demo-scene__note">
+            The track meets the container edge, so two lines read as one thick one.
+          </span>
+        </header>
+        <div className="slotted-demo-stage">
+          <div
+            style={{
+              border: '1px solid var(--slotted-border-subtle)',
+              borderRadius: 8,
+              padding: 12,
+            }}
+          >
+            <Report />
+          </div>
+        </div>
+      </section>
+      <section className="slotted-demo-scene">
+        <header className="slotted-demo-scene__header">
+          <span className="slotted-demo-scene__label">Track removed</span>
+          <span className="slotted-demo-scene__note">
+            One token: --slotted-tabs-track-color: transparent.
+          </span>
+        </header>
+        <div className="slotted-demo-stage">
+          <div
+            style={{
+              border: '1px solid var(--slotted-border-subtle)',
+              borderRadius: 8,
+              padding: 12,
+            }}
+          >
+            <Report style={{ ['--slotted-tabs-track-color' as string]: 'transparent' }} />
+          </div>
+        </div>
+      </section>
+    </div>
+  ),
+};
+
 export const Accessibility: Story = {
   parameters: scenario('accessibility'),
   render: () => (

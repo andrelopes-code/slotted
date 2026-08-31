@@ -56,6 +56,7 @@ test('names one scenario page for the family', () => {
     'orientations',
     'activation',
     'states',
+    'composition',
     'accessibility',
   ]);
 });

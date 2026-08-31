@@ -45,6 +45,7 @@ export const ANGULAR_TABS_DOCS = {
       'Each tab carries aria-controls and each panel aria-labelledby, resolved through derived identifiers.',
       'Unselected panels are hidden rather than unmounted, so content inside them keeps its state.',
       'Manual activation exists for panels that are expensive to render: focus moves, Enter or Space selects.',
+      'The rule under the list is a layout opinion: inside a bordered surface it doubles up. Setting --slotted-tabs-track-color to transparent removes it.',
     ],
     snippets: [
       defineSnippet({

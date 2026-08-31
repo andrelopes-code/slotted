@@ -113,6 +113,28 @@ export const States: Story = {
   }),
 };
 
+const bordered = (content: string) =>
+  `<div style="border: 1px solid var(--slotted-border-subtle); border-radius: 8px; padding: 12px">${content}</div>`;
+
+export const Composition: Story = {
+  parameters: scenario('composition'),
+  render: () => ({
+    template: `
+<div class="slotted-demo-grid">
+  ${scene(
+    'Inside a bordered surface',
+    'The track meets the container edge, so two lines read as one thick one.',
+    bordered(report()),
+  )}
+  ${scene(
+    'Track removed',
+    'One token: --slotted-tabs-track-color: transparent.',
+    bordered(report('style="--slotted-tabs-track-color: transparent"')),
+  )}
+</div>`,
+  }),
+};
+
 export const Accessibility: Story = {
   parameters: scenario('accessibility'),
   render: () => ({
