@@ -59,6 +59,8 @@ const capabilityApi = {
   wiring: [],
   focusable: ['focusable'],
   decorative: ['decorative'],
+  underline: ['underline'],
+  external: ['external'],
   activation: ['activation'],
   selection: ['value'],
 } as const;

@@ -31,6 +31,8 @@ export const KNOWN_CAPABILITIES = [
   'wiring',
   'focusable',
   'decorative',
+  'underline',
+  'external',
   'activation',
   'selection',
 ];
