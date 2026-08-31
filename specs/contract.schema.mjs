@@ -28,6 +28,7 @@ export const KNOWN_CAPABILITIES = [
   'current',
   'open',
   'placement',
+  'status',
   'content',
   'fullWidth',
   'disabled',

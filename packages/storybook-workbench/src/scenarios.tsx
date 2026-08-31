@@ -53,6 +53,7 @@ const capabilityApi = {
   current: ['current'],
   open: ['open'],
   placement: ['placement'],
+  status: ['status'],
   content: ['leading', 'trailing'],
   fullWidth: ['fullWidth'],
   disabled: ['disabled'],
