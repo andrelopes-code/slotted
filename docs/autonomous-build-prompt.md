@@ -44,11 +44,12 @@ Do not read more than this to start. You will read specific files as you need th
 Shipped families, all with both frameworks and both Storybooks: **button**,
 **field**, **tabs**, every T1 family — **link**, **visually-hidden**,
 **divider**, **spinner**, **progress-bar**, **badge**, **avatar**, **skeleton**,
-**kbd**, **description-list**, **splitter** — and every T2 family: **card**,
+**kbd**, **description-list**, **splitter** — every T2 family: **card**,
 **tag**, **alert**, **collapsible**, **breadcrumb**, **pagination**,
-**stepper**, **loading-bar**, **toolbar**, **virtual-list**, **file-upload**.
+**stepper**, **loading-bar**, **toolbar**, **virtual-list**, **file-upload** —
+and four of T3: **input**, **textarea**, **switch**, **fieldset**.
 
-**T1 and T2 are complete. T3 is the whole of the remaining near-term work.**
+**T1 and T2 are complete. Nine T3 components remain.**
 
 Apps: `apps/storybook-react`, `apps/storybook-angular`.
 
@@ -62,22 +63,29 @@ that cost the previous session a failed gate before it learned them. Everything
 before that section is one entry per shipped component: the decisions taken, the
 defects found, and the work each one left behind.
 
-The working tree is clean and `main` is green. Your first batch is the four
-Field compositions of T3 — **Input**, **Textarea**, **Switch**, **Fieldset** —
-and `Input` goes first:
+The working tree is clean and `main` is green. Your first batch is
+**Checkbox**, **RadioGroup** and **Slider**, and `Checkbox` goes first:
 
-- All four wire a control to a label, a description and an error. Whatever
-  `Input` decides about that wiring, the other three follow, so decide it once
-  and deliberately. Read `packages/react/src/field/` and
-  `packages/angular/field/src/` before writing anything.
-- None of the four needs a design document. If one turns out to, write it.
-- `Textarea` is the only one with a question of its own: whether it auto-sizes,
-  and if so whether that is a prop or a separate component.
+- Read `docs/superpowers/specs/2026-08-31-field-aware-controls-design.md`
+  first. It is short, and it settles how a control reads its field, what an
+  unset state means, and how Angular crosses an entry point. Do not reopen any
+  of it.
+- `Checkbox` and `RadioGroup` share one question Switch sidestepped by drawing
+  on a `<button>`: a checkmark and a radio dot have to be drawn on something,
+  and an `<input>` is a replaced element no specification promises will render
+  a pseudo-element. Decide it once, for both, and write it down. An inline SVG
+  child is the obvious candidate and was not investigated.
+- `Checkbox` also brings `indeterminate` — already in the shared vocabulary
+  from ProgressBar, and meaning something different here: a third visual state
+  set through a DOM property that no attribute reflects.
+- `RadioGroup` and `Slider` are the next callers of `core/focus`. Toolbar
+  already confirmed `createRovingTabindex` against items it had never seen, so
+  expect to use it unchanged.
 
-Then `Checkbox`, `RadioGroup` and `Slider`; then `Accordion`, `EmptyState` and
-`Sidebar`. Leave `Listbox`, `Tree` and `Calendar` until last — each needs a
-design document, and the first two are the callers that confirm or change
-`core/collection`, whose signature VirtualList left provisional on purpose.
+Then `Accordion`, `EmptyState` and `Sidebar`. Leave `Listbox`, `Tree` and
+`Calendar` until last — each needs a design document, and the first two are the
+callers that confirm or change `core/collection`, whose signature VirtualList
+left provisional on purpose.
 
 ---
 
@@ -114,7 +122,9 @@ Complete: `Card`, `Tag`, `Alert`, `Collapsible`, `Breadcrumb`, `Pagination`, `St
 
 ### T3 — depends on T2
 
-Remaining, and the whole of the near-term work: `Input`, `Textarea`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `Fieldset`, `Accordion`, `EmptyState`, `Sidebar`, `Listbox`, `Tree`, `Calendar`
+Complete: `Input`, `Textarea`, `Switch`, `Fieldset`
+
+Remaining: `Checkbox`, `RadioGroup`, `Slider`, `Accordion`, `EmptyState`, `Sidebar`, `Listbox`, `Tree`, `Calendar`
 
 ### T4 and beyond
 
@@ -133,7 +143,7 @@ at a time rather than as a batch. Do the same with Listbox, Tree and Calendar.
 
 Repeat until the queue is exhausted. Do not stop between components. Do not summarize and wait.
 
-**5.1 Decide the design.** Do not write a design document for a component that raises no architectural question. Most of T1 raises none. Write a short design doc in `docs/superpowers/specs/YYYY-MM-DD-<name>-design.md` only when the component introduces a new `core` module, a new shared vocabulary entry, a cross-framework mechanism, or a decision a future maintainer would otherwise redo. `Splitter`, `VirtualList` and `FileUpload` each needed one, and `Listbox`, `Calendar`, `Tree` and `Dialog` still will. `Divider` did not.
+**5.1 Decide the design.** Do not write a design document for a component that raises no architectural question. Most of T1 raises none. Write a short design doc in `docs/superpowers/specs/YYYY-MM-DD-<name>-design.md` only when the component introduces a new `core` module, a new shared vocabulary entry, a cross-framework mechanism, or a decision a future maintainer would otherwise redo. `Splitter`, `VirtualList` and `FileUpload` each needed one, as did the T3 field-aware control mechanism, and `Checkbox`, `Listbox`, `Calendar`, `Tree` and `Dialog` still will. `Divider` did not.
 
 **5.2 Write the contract and its test.** Test first: write the assertions, watch them fail on the missing `contract.json`, then write the contract. Commit.
 
@@ -289,4 +299,4 @@ There is no end state. Work until the session is interrupted. Leave the reposito
 - `docs/BUILD-LOG.md` explains what happened and what comes next.
 - The last thing you did was push to `origin/main`.
 
-Begin now with `Input`. Do not reply with a plan before starting — start, and let the commits be the report.
+Begin now with `Checkbox`. Do not reply with a plan before starting — start, and let the commits be the report.

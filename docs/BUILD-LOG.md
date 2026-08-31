@@ -659,6 +659,64 @@ memory of the session that produced it.
 - Follow-on: `Textarea`, `Switch` and `Fieldset` complete this batch and follow
   the same mechanism. None of them needs a design document.
 
+## Textarea, Switch, Fieldset — 2026-08-31
+
+Three components, taken together because they share one batch and one set of
+decisions with `Input`.
+
+- Decisions (Textarea): auto-sizing is `field-sizing: content` and nothing
+  else. The classic implementation — reset the height, read `scrollHeight`,
+  write the height — runs on every keystroke, thrashes layout, and needs its
+  own answers for paste and programmatic change. `rows` stays the floor and is
+  recorded in the contract as such, so a browser without the property shows a
+  smaller box rather than a broken one. The caveat is stated on the reference
+  page rather than hidden.
+- Decisions (Textarea): the resize handle is withdrawn while auto-sizing and
+  while disabled. A control that resizes itself and a handle that fixes its
+  size disagree on the next keystroke.
+- Decisions (Switch): drawn on a `<button>` reporting `aria-checked`, not on an
+  `<input type="checkbox">`. Drawing a track and a thumb on a checkbox needs
+  pseudo-elements on a replaced element, which no specification promises. The
+  cost is that the control does not submit with a form; the reference pages say
+  so and tell the consumer to add a hidden input.
+- Decisions (Switch): no read-only state, and the contract says `unsupported`
+  rather than leaving it unmentioned. Simulating one by swallowing clicks
+  produces a control that looks operable and is not.
+- Decisions (Switch): the thumb travels by `margin-inline-start: auto` rather
+  than a translation, so the travel is whatever the track has left. A theme
+  changing the padding or the thumb size cannot push it outside the track, and
+  right-to-left needs no second rule.
+- Decisions (Fieldset): native `<fieldset>` and `<legend>`, and no ARIA at all.
+  `disabled` sets the native attribute and stops there — the platform disables
+  every control inside, including ones this library has never seen.
+- Decisions (Fieldset): `invalid` marks the group and colours its legend and
+  reaches into no control. Which field is at fault is the field's own to say.
+- Decisions (Fieldset): the stylesheet resets the border, margin, padding and
+  the `min-inline-size: min-content` a `<fieldset>` carries, and puts the
+  `<legend>` back into the flex layout the browser floats it out of. Both are
+  pinned by tests, because both look arbitrary to anyone who has not hit them.
+- Defects found: Input, Textarea and Switch keyed their disabled appearance on
+  `data-disabled` alone. A disabled `<fieldset>` disables every control inside
+  it and never tells them, so such a control was entirely inert and looked
+  entirely operable. Each sheet now matches `:disabled` alongside the attribute
+  and holds its hover rule back for it, and a test in each family states the
+  pairing. Fixed in its own commit, before Fieldset was implemented.
+- Defects found: two of the assertions written for this batch were wrong rather
+  than the code. `toBeRequired()` counts `aria-required`, so it cannot express
+  "not natively required"; the native attribute is now asserted directly. And
+  `input.disabled` reflects the control's own attribute and stays `false`
+  inside a disabled fieldset, by specification — what changes is that the
+  control matches `:disabled`. Both suites now assert that, which is also the
+  property the stylesheet fix rests on.
+- Deviations: none.
+- Follow-on: `Checkbox` and `RadioGroup` inherit the `checked` state this batch
+  added to the shared vocabulary. Both will have to answer the pseudo-element
+  question Switch avoided, because a checkmark has to be drawn on something.
+- Follow-on: `size` on Input and Textarea shadows the native `size` attribute
+  of a text input. Every family here names its scale `size`, and the vocabulary
+  is worth more than a rarely-used native attribute, but a consumer who wants
+  the native one cannot reach it in React.
+
 ## Where the queue stands — 2026-08-31
 
 **T1 and T2 are complete.** Button, Field and Tabs were already shipped. T1
@@ -667,24 +725,36 @@ Skeleton, Kbd, DescriptionList and Splitter. T2 added Card, Tag, Alert,
 Collapsible, Breadcrumb, Pagination, Stepper, LoadingBar, Toolbar, VirtualList
 and FileUpload.
 
-**T3 is next, and nothing in it is blocked.** Thirteen components: `Input`,
-`Textarea`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `Fieldset`,
-`Accordion`, `EmptyState`, `Sidebar`, `Listbox`, `Tree`, `Calendar`.
+**T3 is four of thirteen.** `Input`, `Textarea`, `Switch` and `Fieldset` have
+landed as one batch, and the mechanism every remaining field-aware control
+follows is settled and written down in
+`docs/superpowers/specs/2026-08-31-field-aware-controls-design.md`. Read that
+before writing another control; it is short, and it answers the three questions
+each one would otherwise reopen.
 
-Batch them, three to five at a time, simplest first. A sensible first batch is
-`Input`, `Textarea`, `Switch` and `Fieldset`: all four are Field compositions,
-they share one set of decisions about how a control wires itself to a label,
-a description and an error, and none of them needs a design document. `Input`
-first, because whatever it decides about that wiring the other three follow.
+**Remaining in T3:** `Checkbox`, `RadioGroup`, `Slider`, `Accordion`,
+`EmptyState`, `Sidebar`, `Listbox`, `Tree`, `Calendar`.
 
-Then `Checkbox`, `RadioGroup` and `Slider` — the first two share the
-indeterminate and group-name questions, and `RadioGroup` and `Slider` are the
-next callers of `core/focus`. `Accordion`, `EmptyState` and `Sidebar` compose
-Collapsible and Card and raise little that is new.
+Take `Checkbox`, `RadioGroup` and `Slider` next, in that order:
 
-Leave `Listbox`, `Tree` and `Calendar` until last. Each needs a design document
-and all three are callers of `core/collection`, whose signature VirtualList
-left provisional on purpose:
+- `Checkbox` and `RadioGroup` share the `checked` state Switch added to the
+  vocabulary, and share the question Switch sidestepped by drawing on a
+  `<button>`: a checkmark and a radio dot have to be drawn on something, and an
+  `<input>` is a replaced element that no specification promises will render a
+  pseudo-element. Decide it once, for both, and write it down — an inline SVG
+  child is the obvious candidate and was not investigated here.
+- `Checkbox` also brings `indeterminate`, which is already in the shared
+  vocabulary from ProgressBar and means something different here: a third
+  visual state, set through a DOM property that no attribute reflects.
+- `RadioGroup` and `Slider` are the next callers of `core/focus`. Toolbar
+  already confirmed `createRovingTabindex` against items it had never seen, so
+  expect to use it unchanged rather than to change it.
+
+Then `Accordion`, `EmptyState` and `Sidebar`, which compose Collapsible and
+Card and raise little that is new.
+
+Leave `Listbox`, `Tree` and `Calendar` until last. Each needs a design document,
+and the first two are the callers `core/collection` is waiting on:
 
 - `Listbox` brings filtering and comparison, plus selection and roving focus.
   It is also the first component that will want windowed rows and a selection
@@ -700,8 +770,8 @@ Do not start T4 until T3 is complete. `Dialog` must be the first overlay.
 **Conventions worth knowing before writing a line:**
 
 - Contract first, and assert shared vocabulary by reading the other contract
-  rather than retyping it. Badge, Tag and Alert all name the same five tones and
-  none of them repeats the list.
+  rather than retyping it. Textarea's contract reads Input's; Badge, Tag and
+  Alert all name the same five tones and none of them repeats the list.
 - Both frameworks in one commit whenever a public contract changes.
 - `pnpm check` per component, `pnpm check:full` per batch, then push.
 - Every reference page is written by copying the other framework's and editing
@@ -712,8 +782,7 @@ Do not start T4 until T3 is complete. `Dialog` must be the first overlay.
   `defineSnippet` supplies the trailing newline. Format the candidate through
   Prettier and paste the result rather than guessing where it wraps.
 - A React family with no `render` prop must not export a root props type. It
-  cannot be produced, and the unused import trips the lint gate — Collapsible
-  and Toolbar both did it.
+  cannot be produced, and the unused import trips the lint gate.
 - A React family with a _required_ function prop cannot satisfy Storybook's
   types from `render` alone. Give `meta.args` a default for it; VirtualList
   passes a default row renderer that way.
@@ -727,9 +796,17 @@ Do not start T4 until T3 is complete. `Dialog` must be the first overlay.
 - `model()` takes no `transform`, unlike `input()`. `input.required` does take
   one, written `input.required<number, unknown>({ transform: numberAttribute })`.
 - A new `@slotted/core` entry point must be built before any framework package
-  can import it: `pnpm --filter @slotted/core build`. The subpath resolves
-  through `dist`, so a fresh module fails to resolve until it exists.
+  can import it: `pnpm --filter @slotted/core build`.
+- One Angular entry point reaches another **only** by its published path,
+  `@slotted/angular/<name>`. The mapping lives in `tsconfig.base.json`; the
+  Storybook aliases it in Vite. A relative path is refused by ng-packagr, and
+  `packages/angular/src/bundle.boundaries.test.mjs` keeps the artefacts honest.
 - The Angular spec tsconfig has `noUncheckedIndexedAccess`. An indexed access in
   a spec needs `!`, which the React suite does not require.
 - A demonstration component in an Angular stories file must declare real
   `input()`s. A plain public field cannot be bound to from a story template.
+- Two assertions read as though they mean something they do not.
+  `toBeRequired()` counts `aria-required`, so assert the native attribute
+  directly. And a control inside a disabled `<fieldset>` keeps its own
+  `disabled` property `false` — it matches `:disabled` instead, which is what
+  every control stylesheet keys on.
