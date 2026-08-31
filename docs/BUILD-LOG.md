@@ -134,3 +134,31 @@ memory of the session that produced it.
   arrives, add `--slotted-tone-*-subtle` to `packages/tokens/src/contract.json`
   and both schemes of the default theme, then give Badge, Tag and Alert the
   third fill in one change.
+
+## Avatar — 2026-08-31
+
+- Decisions: three members, not one component with `src` and `initials` props.
+  The fallback is arbitrary content — initials, an icon, a company mark — and
+  the consumer owns it.
+- Decisions: `loaded` joins the state vocabulary as one boolean on the root.
+  Pending and failed are the same situation for everything that reads the
+  state, so a three-valued attribute would have added a distinction nothing
+  acts on, and invariant 5 forbids a single-valued `data-state` anyway.
+- Decisions: both parts are always rendered and the stylesheet removes one with
+  `display: none`. Conditional rendering would have put the decision in two
+  different places in the two frameworks, and Angular cannot project content
+  inside a control-flow block without a wrapper. `display: none` also keeps the
+  picture and the initials from ever both reaching the accessibility tree.
+- Decisions: no shape axis. Whether avatars are round is a brand decision taken
+  once per application, so it is `--slotted-avatar-radius`.
+- Decisions: the image reports through a callback ref (React) and
+  `ngAfterViewInit` (Angular) as well as through the load event. A picture
+  already in cache finishes before the listener is attached; without the check,
+  every page after the first shows initials over a picture that is already
+  there. Both suites assert it by replacing the `complete` and `naturalWidth`
+  getters on `HTMLImageElement.prototype`.
+- Defects found: none.
+- Deviations: none.
+- Follow-on: an avatar group — overlapping avatars with a "+7" overflow — is a
+  separate family, not a prop here. It needs a stacking direction and a
+  z-ordering rule, neither of which belongs on a single avatar.
