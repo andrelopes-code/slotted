@@ -1,0 +1,57 @@
+@layer slotted.components {
+  .slotted-progress-bar {
+    background-color: var(
+      --slotted-progress-bar-track-color,
+      var(--slotted-disabled-background, ButtonFace)
+    );
+    block-size: var(--slotted-progress-bar-thickness, 0.5rem);
+    border-radius: var(--slotted-progress-bar-radius, 999px);
+    display: block;
+    inline-size: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .slotted-progress-bar [data-part='indicator'] {
+    background-color: var(--slotted-progress-bar-indicator-color, var(--slotted-tone-accent-solid));
+    block-size: 100%;
+    border-radius: inherit;
+    display: block;
+    inline-size: 0;
+    transition: inline-size var(--slotted-progress-bar-transition-duration, 220ms)
+      var(--slotted-control-transition-easing, ease);
+  }
+
+  /**
+   * The travelling bar is animated with an inset rather than a translation, so
+   * it runs from the start edge to the end edge in whichever direction the
+   * document reads.
+   */
+  .slotted-progress-bar[data-indeterminate] [data-part='indicator'] {
+    animation: slotted-progress-bar-travel var(--slotted-progress-bar-travel-duration, 1.4s)
+      ease-in-out infinite;
+    inline-size: var(--slotted-progress-bar-travel-length, 40%);
+    position: absolute;
+    transition: none;
+  }
+
+  /**
+   * Slowed rather than stopped, as with the spinner: an indeterminate bar
+   * reports through its motion and reports nothing once it is still.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .slotted-progress-bar[data-indeterminate] [data-part='indicator'] {
+      animation-duration: var(--slotted-progress-bar-reduced-motion-duration, 3.2s);
+    }
+  }
+}
+
+@keyframes slotted-progress-bar-travel {
+  from {
+    inset-inline-start: calc(var(--slotted-progress-bar-travel-length, 40%) * -1);
+  }
+
+  to {
+    inset-inline-start: 100%;
+  }
+}
