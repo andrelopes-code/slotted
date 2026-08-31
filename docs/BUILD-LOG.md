@@ -106,3 +106,31 @@ memory of the session that produced it.
   prop. Angular snippets must stay under roughly 70 characters on one line —
   Prettier's angular printer breaks a longer element onto a hanging `>` even
   well inside printWidth 100, and the snippet format test then fails.
+
+## Badge — 2026-08-31
+
+- Decisions: the variant axis is asserted equal to the button family's rather
+  than retyped, so the two cannot drift into naming the same five tones
+  differently.
+- Decisions: the fill axis is `solid` and `outline` only. A `subtle` fill needs
+  a resting tint and the theme has none — it has `--slotted-tone-*-subtle-hover`
+  and `-subtle-active`, which are interaction states and would be a lie at rest.
+  Extending the token contract for a single caller is the mistake the
+  core-module rule exists to prevent.
+- Decisions: `appearance` covers all three axes, which obliged the family to
+  have a size axis. `sm` and `md` are real: a badge in a table row and a badge
+  beside a heading are not the same size.
+- Decisions: no role, on either side. What a badge means comes from where it
+  sits. The reference pages carry the consequence — a bare count needs an
+  accessible name from the consumer.
+- Defects found: `button.css` set `min-height` three times, breaking the
+  logical-properties rule that had never been written as a test. The per-family
+  checks added earlier tonight searched for the substring `height:`, which
+  `line-height` contains, so they could not have found it. Replaced by one
+  `packages/styles/src/logical.test.mjs` that walks every stylesheet, matches at
+  a token boundary, and names the logical counterpart in the failure.
+- Deviations: none.
+- Follow-on: Tag and Alert (T2) both want a subtle fill. When the second of them
+  arrives, add `--slotted-tone-*-subtle` to `packages/tokens/src/contract.json`
+  and both schemes of the default theme, then give Badge, Tag and Alert the
+  third fill in one change.
