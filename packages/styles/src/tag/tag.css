@@ -1,0 +1,170 @@
+@layer slotted.components {
+  .slotted-tag {
+    --_solid: var(--slotted-tone-secondary-solid);
+    --_on-solid: var(--slotted-tone-secondary-on-solid);
+    --_border: var(--slotted-tone-secondary-border);
+    --_surface: var(--slotted-tone-secondary-surface);
+    --_text: var(--slotted-tone-secondary-text);
+
+    align-items: center;
+    border: var(--slotted-control-border-width, 1px) solid transparent;
+    border-radius: var(--slotted-tag-radius, 999px);
+    box-sizing: border-box;
+    display: inline-flex;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-weight: var(--slotted-tag-font-weight, 600);
+    gap: var(--slotted-tag-gap, 0.25rem);
+    letter-spacing: var(--slotted-tag-letter-spacing, 0.01em);
+    line-height: var(--slotted-control-line-height, 1);
+    white-space: nowrap;
+  }
+
+  .slotted-tag[data-variant='accent'] {
+    --_solid: var(--slotted-tone-accent-solid);
+    --_on-solid: var(--slotted-tone-accent-on-solid);
+    --_border: var(--slotted-tone-accent-border);
+    --_surface: var(--slotted-tone-accent-surface);
+    --_text: var(--slotted-tone-accent-text);
+  }
+
+  .slotted-tag[data-variant='secondary'] {
+    --_solid: var(--slotted-tone-secondary-solid);
+    --_on-solid: var(--slotted-tone-secondary-on-solid);
+    --_border: var(--slotted-tone-secondary-border);
+    --_surface: var(--slotted-tone-secondary-surface);
+    --_text: var(--slotted-tone-secondary-text);
+  }
+
+  .slotted-tag[data-variant='success'] {
+    --_solid: var(--slotted-tone-success-solid);
+    --_on-solid: var(--slotted-tone-success-on-solid);
+    --_border: var(--slotted-tone-success-border);
+    --_surface: var(--slotted-tone-success-surface);
+    --_text: var(--slotted-tone-success-text);
+  }
+
+  .slotted-tag[data-variant='warning'] {
+    --_solid: var(--slotted-tone-warning-solid);
+    --_on-solid: var(--slotted-tone-warning-on-solid);
+    --_border: var(--slotted-tone-warning-border);
+    --_surface: var(--slotted-tone-warning-surface);
+    --_text: var(--slotted-tone-warning-text);
+  }
+
+  .slotted-tag[data-variant='danger'] {
+    --_solid: var(--slotted-tone-danger-solid);
+    --_on-solid: var(--slotted-tone-danger-on-solid);
+    --_border: var(--slotted-tone-danger-border);
+    --_surface: var(--slotted-tone-danger-surface);
+    --_text: var(--slotted-tone-danger-text);
+  }
+
+  .slotted-tag[data-fill='solid'] {
+    background-color: var(--_solid);
+    color: var(--_on-solid);
+  }
+
+  .slotted-tag[data-fill='outline'] {
+    background-color: transparent;
+    border-color: var(--_border);
+    color: var(--_text);
+  }
+
+  .slotted-tag[data-fill='subtle'] {
+    background-color: var(--_surface);
+    color: var(--_text);
+  }
+
+  .slotted-tag[data-size='sm'] {
+    font-size: var(--slotted-tag-font-size-sm, 0.6875rem);
+    min-block-size: var(--slotted-tag-height-sm, 1.125rem);
+    padding-inline: var(--slotted-tag-padding-inline-sm, 0.375rem);
+  }
+
+  .slotted-tag[data-size='md'] {
+    font-size: var(--slotted-tag-font-size-md, 0.75rem);
+    min-block-size: var(--slotted-tag-height-md, 1.375rem);
+    padding-inline: var(--slotted-tag-padding-inline-md, 0.5rem);
+  }
+
+  .slotted-tag [data-part='remove'] {
+    appearance: none;
+    background: none;
+    border: 0;
+    border-radius: var(--slotted-tag-remove-radius, 999px);
+    block-size: var(--slotted-tag-remove-size, 1em);
+    color: inherit;
+    cursor: pointer;
+    display: inline-block;
+    flex-shrink: 0;
+    inline-size: var(--slotted-tag-remove-size, 1em);
+    margin-inline-end: var(--slotted-tag-remove-outdent, -0.125rem);
+    padding: 0;
+    position: relative;
+  }
+
+  /**
+   * The cross is drawn in CSS rather than shipped as markup, so neither
+   * framework carries a glyph and the two cannot drift. Both bars are centred
+   * with `inset: 0; margin: auto`, which is symmetric in either reading
+   * direction; a percentage translation is not.
+   *
+   * The hover and press washes mix currentColor rather than black, so they
+   * lighten a solid tag and darken a subtle one without the theme owning a
+   * token for each case.
+   */
+  .slotted-tag [data-part='remove']::before,
+  .slotted-tag [data-part='remove']::after {
+    background-color: currentColor;
+    block-size: var(--slotted-tag-remove-stroke, 1.5px);
+    content: '';
+    inline-size: var(--slotted-tag-remove-glyph-size, 0.5625em);
+    inset: 0;
+    margin: auto;
+    position: absolute;
+  }
+
+  .slotted-tag [data-part='remove']::before {
+    transform: rotate(45deg);
+  }
+
+  .slotted-tag [data-part='remove']::after {
+    transform: rotate(-45deg);
+  }
+
+  .slotted-tag [data-part='remove']:hover {
+    background-color: var(
+      --slotted-tag-remove-hover-background,
+      color-mix(in srgb, currentColor 14%, transparent)
+    );
+  }
+
+  .slotted-tag [data-part='remove']:active {
+    background-color: var(
+      --slotted-tag-remove-active-background,
+      color-mix(in srgb, currentColor 22%, transparent)
+    );
+  }
+
+  .slotted-tag [data-part='remove']:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 1px);
+  }
+
+  .slotted-tag [data-part='remove']:disabled,
+  .slotted-tag [data-part='remove'][data-disabled] {
+    background: none;
+    cursor: not-allowed;
+    opacity: var(--slotted-tag-remove-disabled-opacity, 0.5);
+  }
+
+  /**
+   * Forced colours discard the tone entirely, so an outline badge and a solid
+   * one become indistinguishable unless both keep a border to be read by.
+   */
+  @media (forced-colors: active) {
+    .slotted-tag {
+      border-color: currentColor;
+    }
+  }
+}
