@@ -184,3 +184,24 @@ memory of the session that produced it.
   so "pass undefined to remove the default" cannot work as an API. Any later
   component with a defaulted ARIA attribute should use an explicit value as its
   escape hatch, as this one does.
+
+## Kbd — 2026-08-31
+
+- Decisions: one key per element. A combination is several elements with a
+  separator the consumer writes, because the separator is text in their
+  language and the order of modifiers differs between platforms — a component
+  rendering "Ctrl+K" from a string would have to decide both.
+- Decisions: each size reads one token for both the minimum block size and the
+  minimum inline size, so a single key is square whatever the type size is. The
+  style test asserts the two read the same token, not that they happen to hold
+  equal values today.
+- Decisions: the reference pages say where a shortcut is actually announced —
+  `aria-keyshortcuts` on the control that responds to it. The printed key is a
+  picture of the shortcut and announces nothing.
+- Defects found: none.
+- Deviations: React and Angular landed in one commit rather than two. The family
+  has no behaviour to speak of, and splitting it would have left the library
+  inconsistent between commits for no gain.
+- Follow-on: Command (T7) and Tooltip (T5) print shortcuts. If either needs a
+  combination rendered from data rather than written out, the separator and the
+  platform-dependent modifier order are the two questions to answer first.
