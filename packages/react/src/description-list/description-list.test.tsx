@@ -2,10 +2,11 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { DescriptionDetails, DescriptionList, DescriptionTerm } from './index';
+import type { DescriptionListProps } from './index';
 
-const setup = (orientation?: 'horizontal' | 'vertical') =>
+const setup = (props: Partial<DescriptionListProps> = {}) =>
   render(
-    <DescriptionList data-testid="list" orientation={orientation}>
+    <DescriptionList data-testid="list" {...props}>
       <DescriptionTerm>Owner</DescriptionTerm>
       <DescriptionDetails>Ada Lovelace</DescriptionDetails>
     </DescriptionList>,
@@ -35,7 +36,7 @@ describe('DescriptionList', () => {
   });
 
   it('states the orientation it was given', () => {
-    setup('horizontal');
+    setup({ orientation: 'horizontal' });
 
     expect(screen.getByTestId('list')).toHaveAttribute('data-orientation', 'horizontal');
   });
