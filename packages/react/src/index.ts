@@ -9,6 +9,7 @@ export * from './description-list';
 export * from './divider';
 export * from './field';
 export * from './file-upload';
+export * from './fieldset';
 export * from './input';
 export * from './kbd';
 export * from './link';

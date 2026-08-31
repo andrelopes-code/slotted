@@ -20,6 +20,7 @@ export default defineConfig({
         divider: resolve(import.meta.dirname, 'src/divider/index.ts'),
         field: resolve(import.meta.dirname, 'src/field/index.ts'),
         'file-upload': resolve(import.meta.dirname, 'src/file-upload/index.ts'),
+        fieldset: resolve(import.meta.dirname, 'src/fieldset/index.ts'),
         input: resolve(import.meta.dirname, 'src/input/index.ts'),
         kbd: resolve(import.meta.dirname, 'src/kbd/index.ts'),
         link: resolve(import.meta.dirname, 'src/link/index.ts'),
