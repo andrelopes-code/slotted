@@ -1,0 +1,40 @@
+@layer slotted.components {
+  .slotted-description-list {
+    display: grid;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    gap: var(--slotted-description-list-row-gap, 0.5rem)
+      var(--slotted-description-list-column-gap, 1.5rem);
+    margin: 0;
+  }
+
+  .slotted-description-list [data-part='term'] {
+    color: var(--slotted-description-list-term-color, var(--slotted-text-muted, GrayText));
+    font-size: var(--slotted-description-list-term-font-size, 0.8125rem);
+    font-weight: var(--slotted-description-list-term-font-weight, 600);
+    line-height: var(--slotted-description-list-line-height, 1.45);
+  }
+
+  .slotted-description-list [data-part='details'] {
+    color: var(--slotted-description-list-details-color, var(--slotted-text, CanvasText));
+    font-size: var(--slotted-description-list-details-font-size, 0.875rem);
+    line-height: var(--slotted-description-list-line-height, 1.45);
+    margin: 0;
+  }
+
+  /**
+   * Each part is pinned to a column rather than left to flow, so a term with
+   * several details keeps them all in the second column instead of pushing the
+   * next term out of the first.
+   */
+  .slotted-description-list[data-orientation='horizontal'] {
+    grid-template-columns: auto 1fr;
+  }
+
+  .slotted-description-list[data-orientation='horizontal'] [data-part='term'] {
+    grid-column: 1;
+  }
+
+  .slotted-description-list[data-orientation='horizontal'] [data-part='details'] {
+    grid-column: 2;
+  }
+}
