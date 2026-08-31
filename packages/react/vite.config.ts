@@ -9,6 +9,7 @@ export default defineConfig({
       cssFileName: 'styles',
       entry: {
         index: resolve(import.meta.dirname, 'src/index.ts'),
+        badge: resolve(import.meta.dirname, 'src/badge/index.ts'),
         button: resolve(import.meta.dirname, 'src/button/index.ts'),
         divider: resolve(import.meta.dirname, 'src/divider/index.ts'),
         field: resolve(import.meta.dirname, 'src/field/index.ts'),
