@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { Avatar, AvatarFallback, AvatarImage } from './index';
 
@@ -102,5 +102,32 @@ describe('Avatar', () => {
 
     expect(screen.getByText('AL')).toBeInTheDocument();
     expect(screen.getByTestId('avatar')).not.toHaveAttribute('data-loaded');
+  });
+});
+
+describe('AvatarImage with a picture already in cache', () => {
+  const complete = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'complete');
+  const naturalWidth = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'naturalWidth');
+
+  afterEach(() => {
+    if (complete !== undefined)
+      Object.defineProperty(HTMLImageElement.prototype, 'complete', complete);
+    if (naturalWidth !== undefined)
+      Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', naturalWidth);
+  });
+
+  it('reports it without waiting for a load event that has already fired', () => {
+    Object.defineProperty(HTMLImageElement.prototype, 'complete', {
+      configurable: true,
+      get: () => true,
+    });
+    Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', {
+      configurable: true,
+      get: () => 64,
+    });
+
+    setup();
+
+    expect(screen.getByTestId('avatar')).toHaveAttribute('data-loaded', '');
   });
 });
