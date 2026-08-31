@@ -162,3 +162,25 @@ memory of the session that produced it.
 - Follow-on: an avatar group — overlapping avatars with a "+7" overflow — is a
   separate family, not a prop here. It needs a stacking direction and a
   z-ordering rule, neither of which belongs on a single avatar.
+
+## Skeleton — 2026-08-31
+
+- Decisions: `shape` joins the vocabulary, distinct from `size`. A text
+  placeholder takes a line's height and the width available, a circle takes an
+  aspect ratio, a rectangle takes what the consumer gives it — three
+  relationships to the surrounding layout, not three points on one scale.
+- Decisions: `aria-hidden="true"` by default, with `aria-hidden="false"` as the
+  explicit escape hatch on both sides. Announcing the wait belongs to the
+  region the placeholders fill, through `aria-busy`.
+- Decisions: the animation pulses opacity. A gradient sweep needs a second,
+  lighter colour that the theme does not own, and inventing that token to serve
+  an effect is backwards.
+- Decisions: under reduced motion the animation stops outright, where Spinner's
+  only slows. A spinner reports through motion and says nothing once still; a
+  skeleton reports through shape, which does not move.
+- Defects found: none.
+- Deviations: none.
+- Follow-on: React's `render` prop takes an `undefined`-valued prop as absent,
+  so "pass undefined to remove the default" cannot work as an API. Any later
+  component with a defaulted ARIA attribute should use an explicit value as its
+  escape hatch, as this one does.
