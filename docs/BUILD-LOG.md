@@ -476,3 +476,25 @@ memory of the session that produced it.
 - Follow-on: Toolbar, VirtualList and FileUpload are what remain in T2. Toolbar
   needs `core/focus`, which already exists from Tabs and will get its second
   caller there — the point at which its signature stops being provisional.
+
+## Toolbar — 2026-08-31
+
+- Decisions: no item member. A toolbar groups controls the consumer already
+  has, and asking each to be wrapped would put a component between the consumer
+  and the control they meant to use. The toolbar finds its focusable children;
+  the contract records `items: "focusable-children"`.
+- Decisions: this is the second caller of `core/focus`. Its `itemSelector` was
+  designed against Tabs, where the items are elements the family renders
+  itself; here they are elements it has never seen, and the signature took that
+  unchanged. That is the confirmation the core rule asks for, and
+  `createRovingTabindex` can now be treated as settled.
+- Decisions: a MutationObserver refreshes the tab stop as the consumer's
+  controls come and go. Without it a control added after mount keeps its own tab
+  stop and the single-Tab promise quietly becomes two. Both suites assert it.
+- Decisions: the item selector matches disabled controls. The core skips them
+  when moving, and excluding them would renumber the others whenever one was
+  disabled.
+- Defects found: none.
+- Deviations: none.
+- Follow-on: VirtualList and FileUpload are what remain in T2. VirtualList needs
+  `core/collection`, which does not exist yet and will be written against it.
