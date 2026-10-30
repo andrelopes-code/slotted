@@ -23,7 +23,7 @@ describe('compileReact', () => {
           key: 'invented-prop',
           language: 'tsx',
           source:
-            'import { Button } from \'@slotted/react\';\n\nexport const A = () => <Button color="red">Save</Button>;\n',
+            'import { Button } from \'@slotted/react\';\n\nexport const A = () => <Button shade="red">Save</Button>;\n',
         },
       ],
       root,
