@@ -1,0 +1,825 @@
+@layer docs {
+  /*
+   * The home page is a drafting sheet: one column between two rails that run
+   * the page's full height, sections divided by hairlines that cross the
+   * whole width, and hatched bands where the column holds something to run.
+   */
+
+  .home {
+    /* 86rem: the console's main column then clears the dashboard's 1024px class. */
+    --home-col: 86rem;
+    --home-pad: var(--docs-gutter);
+    position: relative;
+    overflow-x: clip;
+  }
+
+  @media (min-width: 64rem) {
+    .home {
+      --home-pad: var(--slotted-space-10);
+    }
+  }
+
+  /*
+   * The ground behind the opening: a canvas a sixth of this size that the
+   * browser scales up (`lib/rays.ts`); the canvas fades itself out before
+   * the sections.
+   */
+  .home-backdrop {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 0;
+    inline-size: 100%;
+    block-size: 60rem;
+    pointer-events: none;
+  }
+
+  .home-col {
+    position: relative;
+    z-index: 1;
+    max-inline-size: var(--home-col);
+    margin-inline: auto;
+  }
+
+  @media (min-width: 64rem) {
+    .home-col {
+      border-inline: 1px solid var(--docs-line);
+    }
+  }
+
+  /* A hairline that crosses the full width, at the top of each section. */
+  .home-rule {
+    position: relative;
+  }
+
+  .home-rule::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: -100vw;
+    border-block-start: 1px solid var(--docs-line);
+  }
+
+  /* ── Opening ───────────────────────────────────────────────────────── */
+
+  .home-intro {
+    padding: var(--slotted-space-12) var(--home-pad) var(--slotted-space-10);
+  }
+
+  .home-intro h1 {
+    max-inline-size: 19ch;
+    margin: 0;
+    font-size: clamp(2.5rem, 1.4rem + 3.4vw, 4.25rem);
+    line-height: 1;
+    font-weight: var(--slotted-font-weight-medium);
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+
+  .home-intro p {
+    max-inline-size: 38rem;
+    margin: var(--slotted-space-8) 0 var(--slotted-space-9);
+    color: var(--docs-ink-2);
+    font-size: var(--slotted-font-size-xl);
+    line-height: var(--docs-leading);
+    text-wrap: pretty;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-5);
+  }
+
+  /* ── The console, on a hatched band ────────────────────────────────── */
+
+  .home-stage {
+    padding: var(--slotted-space-6);
+  }
+
+  @media (min-width: 64rem) {
+    .home-stage {
+      padding: var(--slotted-space-8);
+    }
+  }
+
+  .stage-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--slotted-space-5);
+    margin-block-end: var(--slotted-space-6);
+  }
+
+  .stage-note {
+    margin: 0;
+    padding: var(--slotted-space-1) var(--slotted-space-4);
+    border-radius: var(--slotted-radius-md);
+    background: var(--slotted-surface);
+    box-shadow: 0 0 0 1px var(--docs-line);
+    color: var(--docs-ink-2);
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-md);
+  }
+
+  .stage-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--slotted-space-4);
+  }
+
+  /*
+   * In full screen the stage is the viewport: the bar stays on top and the
+   * console takes every pixel under it, its frame no longer a card.
+   */
+  .stage[data-fullscreen] {
+    background-color: var(--docs-canvas);
+  }
+
+  .stage[data-fullscreen] .stage-frame {
+    border-radius: var(--slotted-radius-lg);
+  }
+
+  .stage[data-fullscreen] .console {
+    block-size: 100%;
+    min-block-size: 0;
+  }
+
+  .stage-axes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-4);
+  }
+
+  .stage-frame {
+    border-radius: var(--docs-frame-radius);
+    background: var(--slotted-surface);
+    color: var(--slotted-text);
+    box-shadow:
+      0 0 0 1px var(--docs-line),
+      0 1px 2px color-mix(in oklab, #000 6%, transparent),
+      0 18px 48px -24px color-mix(in oklab, #000 28%, transparent);
+    overflow: clip;
+  }
+
+  /* ── Sections ──────────────────────────────────────────────────────── */
+
+  .home-section {
+    padding: calc(var(--slotted-space-12) + var(--slotted-space-4)) var(--home-pad);
+  }
+
+  .home-section-head {
+    display: grid;
+    gap: var(--slotted-space-5);
+    max-inline-size: 42rem;
+    margin-block-end: var(--slotted-space-10);
+  }
+
+  .home-section-head h2 {
+    margin: 0;
+    font-size: var(--slotted-font-size-4xl);
+    line-height: var(--slotted-line-height-4xl);
+    font-weight: var(--slotted-font-weight-medium);
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .home-section-head p {
+    margin: 0;
+    color: var(--docs-ink-2);
+    text-wrap: pretty;
+  }
+
+  /*
+   * Axes: one specimen in three scopes. Each scope is a double frame in its
+   * own scheme — the scheme's sunken ground around a raised card — named at
+   * the top and captioned with the two attributes that make it. Side by side,
+   * the frames share one set of rows through subgrid: the name, the card's
+   * heading, its tools, the table, the pager and the caption stand on the
+   * same lines in all three, and a density's lighter rows leave room inside
+   * the table's own band rather than raising everything under it.
+   */
+  .axes-grid {
+    display: grid;
+    gap: var(--slotted-space-6);
+    align-items: start;
+  }
+
+  @media (min-width: 72rem) {
+    .axes-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: repeat(6, auto);
+      row-gap: 0;
+      align-items: stretch;
+    }
+
+    .axes-frame {
+      grid-row: span 6;
+      grid-template-rows: subgrid;
+    }
+
+    .axes-card {
+      grid-row: span 4;
+      grid-template-rows: subgrid;
+    }
+
+    .axes-card > [data-ui='table'] {
+      align-self: start;
+    }
+  }
+
+  .axes-frame {
+    display: grid;
+    min-inline-size: 0;
+    margin: 0;
+    padding: var(--slotted-space-2);
+    border-radius: var(--docs-frame-radius);
+    background: var(--slotted-surface-sunken);
+    box-shadow: 0 0 0 1px var(--slotted-border-subtle);
+    color: var(--slotted-text);
+  }
+
+  .axes-frame-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--slotted-space-4);
+    padding: var(--slotted-space-3) var(--slotted-space-4) var(--slotted-space-4);
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-sm);
+  }
+
+  .axes-frame-name {
+    font-weight: var(--slotted-font-weight-semibold);
+  }
+
+  .axes-frame-step {
+    color: var(--slotted-text-muted);
+  }
+
+  .axes-frame-attr {
+    display: grid;
+    gap: var(--slotted-space-1);
+    padding: var(--slotted-space-4) var(--slotted-space-4) var(--slotted-space-3);
+    color: var(--slotted-text-muted);
+    font-family: var(--slotted-font-family-mono);
+    font-size: var(--slotted-font-size-xs);
+    line-height: var(--slotted-line-height-xs);
+  }
+
+  .axes-frame-attr b {
+    color: var(--slotted-text);
+    font-weight: var(--slotted-font-weight-medium);
+  }
+
+  .axes-card {
+    display: grid;
+    gap: var(--slotted-space-5);
+    min-inline-size: 0;
+    padding: var(--slotted-space-6);
+    border-radius: var(--slotted-radius-lg);
+    background: var(--slotted-surface);
+    box-shadow:
+      0 0 0 1px var(--slotted-border-subtle),
+      var(--slotted-shadow-xs, 0 1px 2px rgb(0 0 0 / 6%));
+  }
+
+  .axes-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--slotted-space-4);
+  }
+
+  .axes-card-title {
+    margin: 0;
+    font-size: var(--slotted-font-size-md);
+    line-height: var(--slotted-line-height-md);
+    font-weight: var(--slotted-font-weight-semibold);
+  }
+
+  .axes-tools {
+    display: flex;
+    gap: var(--slotted-space-4);
+  }
+
+  .axes-search {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  .axes-card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--slotted-space-4);
+    color: var(--slotted-text-muted);
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-sm);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .axes-pager {
+    display: inline-flex;
+    gap: var(--slotted-space-1);
+  }
+
+  /*
+   * Two bindings, one DOM: the two sources side by side at half the column,
+   * wide enough that no line is cut; a labelled rule; then what both render,
+   * the running field beside its markup, in one frame.
+   */
+  .contract-grid {
+    display: grid;
+    gap: var(--slotted-space-6);
+  }
+
+  @media (min-width: 64rem) {
+    .contract-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .contract-join,
+    .contract-result {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .contract-source {
+    display: grid;
+    min-inline-size: 0;
+  }
+
+  /* Side by side, the shorter source's block fills its frame to the taller one's height. */
+  .contract-grid .docs-code {
+    display: grid;
+    margin: 0;
+  }
+
+  .contract-join {
+    display: flex;
+    align-items: center;
+    gap: var(--slotted-space-5);
+    margin: 0;
+    color: var(--docs-ink-2);
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-sm);
+  }
+
+  .contract-join::before,
+  .contract-join::after {
+    content: '';
+    flex: 1;
+    border-block-start: 1px dashed var(--docs-line);
+  }
+
+  .contract-result {
+    display: grid;
+    gap: var(--slotted-space-2);
+    min-inline-size: 0;
+    padding: var(--slotted-space-2);
+    border-radius: var(--docs-frame-radius);
+    background: var(--slotted-surface-sunken);
+    box-shadow: 0 0 0 1px var(--docs-line);
+  }
+
+  @media (min-width: 64rem) {
+    .contract-result {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    }
+  }
+
+  .contract-preview {
+    display: grid;
+    place-items: center;
+    min-inline-size: 0;
+    padding: var(--slotted-space-9) var(--slotted-space-8);
+    border-radius: var(--slotted-radius-lg);
+    background: var(--slotted-surface);
+    box-shadow: 0 0 0 1px var(--slotted-border-subtle);
+  }
+
+  .contract-preview > * {
+    inline-size: min(100%, 22rem);
+  }
+
+  .contract-dom {
+    display: grid;
+    min-inline-size: 0;
+  }
+
+  /* Inside the result frame the code needs no frame of its own. */
+  .contract-dom .docs-code {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  /* The family index. */
+
+  .catalog-list {
+    columns: 2;
+    column-gap: var(--slotted-space-8);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--slotted-font-size-md);
+    line-height: var(--slotted-line-height-md);
+  }
+
+  @media (min-width: 48rem) {
+    .catalog-list {
+      columns: 4;
+    }
+  }
+
+  @media (min-width: 72rem) {
+    .catalog-list {
+      columns: 6;
+    }
+  }
+
+  .catalog-list li {
+    padding-block: var(--slotted-space-2);
+    break-inside: avoid;
+    color: color-mix(in oklab, var(--slotted-text) 45%, var(--slotted-surface));
+  }
+
+  .catalog-list a {
+    color: var(--slotted-text);
+    font-weight: var(--slotted-font-weight-semibold);
+    text-decoration: none;
+    border-block-end: 1px solid var(--slotted-text);
+  }
+
+  .home-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--slotted-space-6);
+    padding: var(--slotted-space-9) var(--home-pad) var(--slotted-space-11);
+    color: var(--docs-ink-2);
+    font-size: var(--slotted-font-size-md);
+  }
+
+  .home-footer p {
+    margin: 0;
+  }
+}
+
+@layer docs {
+  /*
+   * The console's own frame: a fixed height the shell fills, and the site's
+   * rules for the seams between families (demos/nexora/guidelines).
+   */
+  .console {
+    block-size: 54rem;
+  }
+
+  /* SC-04: the search stands one space step off the wordmark. */
+  .console-search {
+    margin-inline-start: var(--slotted-space-5);
+  }
+
+  .console-search-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--slotted-space-3);
+    inline-size: 100%;
+    min-inline-size: 14rem;
+    block-size: var(--slotted-control-height-sm);
+    padding-inline: var(--slotted-space-4);
+    border: var(--slotted-control-border-width) solid var(--slotted-control-border-color);
+    border-radius: var(--slotted-control-radius);
+    background: var(--slotted-surface);
+    box-shadow: var(--slotted-control-shadow);
+    color: var(--slotted-text-muted);
+    font: inherit;
+    font-size: var(--slotted-font-size-sm);
+    cursor: pointer;
+  }
+
+  .console-search-trigger:hover {
+    border-color: var(--slotted-border-strong);
+  }
+
+  .console-search-trigger:focus-visible {
+    outline: 2px solid var(--slotted-focus-ring-color);
+    outline-offset: 2px;
+  }
+
+  .console-search-label {
+    flex: 1;
+    overflow: hidden;
+    text-align: start;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* SC-03: the panel states the width its query container cannot. */
+  .console-notifications {
+    inline-size: min(24rem, calc(100vw - var(--slotted-space-8)));
+    max-block-size: 30rem;
+  }
+
+  /* LA-02: the column's pinned rows stand on the shell's row inset and mark column. */
+  .console-nav-row {
+    display: flex;
+    align-items: center;
+    gap: var(--slotted-space-3);
+    min-inline-size: 0;
+    padding-inline: var(--slotted-app-shell-row-inset);
+  }
+
+  .console-nav-mark {
+    display: grid;
+    flex: 0 0 auto;
+    inline-size: var(--slotted-app-shell-row-mark);
+    place-items: center;
+  }
+
+  .console-workspace {
+    display: grid;
+    min-inline-size: 0;
+    line-height: var(--slotted-line-height-sm);
+  }
+
+  .console-workspace-name,
+  .console-workspace-scope {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .console-workspace-name {
+    font-size: var(--slotted-font-size-sm);
+    font-weight: var(--slotted-font-weight-semibold);
+  }
+
+  .console-workspace-scope {
+    color: var(--slotted-text-muted);
+    font-size: var(--slotted-font-size-xs);
+  }
+
+  .console-sync .console-workspace-name {
+    font-weight: var(--slotted-font-weight-medium);
+  }
+
+  [data-ui='app-shell'][data-nav-mode='inline']:not([data-open])
+    .console-nav-row
+    .console-workspace {
+    display: none;
+  }
+
+  .console-tab-count {
+    margin-inline-start: var(--slotted-space-3);
+    color: var(--slotted-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* LP-12: the bar and the grid share the body; the grid takes what the bar leaves. */
+  .console-listing {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-4);
+    block-size: 100%;
+    min-block-size: 0;
+  }
+
+  .console-listing > [data-ui='data-grid'] {
+    flex: 1 1 0;
+    min-block-size: 0;
+  }
+
+  /*
+   * LP-12, from the page's own width and not the viewport's: under 600px the
+   * page does not fill, the column has no height to share, and a zero basis
+   * left the grid none — the list vanished at 820px with the column open.
+   */
+  @container slotted-page (width < 600px) {
+    .console-listing {
+      block-size: auto;
+    }
+
+    .console-listing > [data-ui='data-grid'],
+    .console-calendar > [data-ui='event-calendar'] {
+      flex-basis: auto;
+    }
+  }
+
+  .console-person {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--slotted-space-3);
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
+  /* LP-04: a cell template carries the column's truncation. */
+  .console-cut {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .console-muted {
+    color: var(--slotted-text-muted);
+  }
+
+  .console-tags {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--slotted-space-2);
+  }
+
+  .console-date[data-late],
+  .console-cover[data-short] {
+    color: var(--slotted-tone-danger-text);
+    font-weight: var(--slotted-font-weight-medium);
+  }
+
+  .console-meter {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 3.5ch;
+    align-items: center;
+    gap: var(--slotted-space-4);
+    inline-size: 100%;
+  }
+
+  .console-meter-value {
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+  }
+
+  .console-product {
+    display: grid;
+    min-inline-size: 0;
+    line-height: var(--slotted-line-height-sm);
+  }
+
+  .console-product > .console-muted {
+    font-size: var(--slotted-font-size-xs);
+    font-weight: var(--slotted-font-weight-regular);
+  }
+
+  /* ── Overview ──────────────────────────────────────────────────────── */
+
+  .console-exception {
+    display: grid;
+    inline-size: var(--slotted-control-height-sm);
+    block-size: var(--slotted-control-height-sm);
+    place-items: center;
+    border-radius: var(--slotted-radius-md);
+    background: var(--slotted-tone-secondary-surface, var(--slotted-surface-sunken));
+    color: var(--slotted-text-muted);
+  }
+
+  .console-exception[data-tone='danger'] {
+    background: var(--slotted-tone-danger-surface);
+    color: var(--slotted-tone-danger-text);
+  }
+
+  .console-exception[data-tone='warning'] {
+    background: var(--slotted-tone-warning-surface);
+    color: var(--slotted-tone-warning-text);
+  }
+
+  .console-pipeline {
+    display: grid;
+    gap: var(--slotted-space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .console-pipeline li {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr) 3ch;
+    align-items: center;
+    gap: var(--slotted-space-4);
+    font-size: var(--slotted-font-size-sm);
+  }
+
+  .console-pipeline-count {
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold);
+    text-align: end;
+  }
+
+  /* ── The order beside the list ─────────────────────────────────────── */
+
+  .console-aside-title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--slotted-space-3);
+    font-weight: var(--slotted-font-weight-semibold);
+  }
+
+  .console-detail {
+    display: grid;
+    gap: var(--slotted-space-7);
+  }
+
+  .console-detail-party {
+    display: flex;
+    align-items: center;
+    gap: var(--slotted-space-4);
+  }
+
+  .console-detail-block {
+    display: grid;
+    gap: var(--slotted-space-4);
+  }
+
+  .console-block-title {
+    margin: 0;
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-sm);
+    font-weight: var(--slotted-font-weight-semibold);
+  }
+
+  .console-detail-sentence {
+    margin: 0;
+    color: var(--slotted-text-muted);
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-sm);
+  }
+
+  /* The steps an order passes: a rail of marks, the reached ones filled. */
+  .console-steps {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .console-steps li {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: var(--slotted-space-2);
+    color: var(--slotted-text-muted);
+    font-size: var(--slotted-font-size-xs);
+    line-height: var(--slotted-line-height-xs);
+  }
+
+  .console-steps li + li::before {
+    content: '';
+    position: absolute;
+    inset-block-start: calc(var(--slotted-space-3) - 1px);
+    inset-inline: -50% 50%;
+    border-block-start: 2px solid var(--slotted-border-subtle);
+  }
+
+  .console-steps li[data-state='done'] + li::before,
+  .console-steps li[data-state='done'] + li[data-state='current']::before {
+    border-color: var(--slotted-tone-accent-solid);
+  }
+
+  .console-step-mark {
+    position: relative;
+    z-index: 1;
+    inline-size: var(--slotted-space-6);
+    block-size: var(--slotted-space-6);
+    border: 2px solid var(--slotted-border-strong);
+    border-radius: 50%;
+    background: var(--slotted-surface);
+  }
+
+  .console-steps li[data-state='done'] .console-step-mark {
+    border-color: var(--slotted-tone-accent-solid);
+    background: var(--slotted-tone-accent-solid);
+  }
+
+  .console-steps li[data-state='current'] .console-step-mark {
+    border-color: var(--slotted-tone-accent-solid);
+    box-shadow:
+      inset 0 0 0 3px var(--slotted-surface),
+      inset 0 0 0 8px var(--slotted-tone-accent-solid);
+  }
+
+  .console-steps li[data-state='done'],
+  .console-steps li[data-state='current'] {
+    color: var(--slotted-text);
+  }
+
+  .console-steps li[data-state='current'] .console-step-label {
+    font-weight: var(--slotted-font-weight-semibold);
+  }
+
+  .console-calendar {
+    display: flex;
+    flex-direction: column;
+    block-size: 100%;
+    min-block-size: 0;
+  }
+
+  .console-calendar > [data-ui='event-calendar'] {
+    flex: 1 1 0;
+    min-block-size: 0;
+  }
+}

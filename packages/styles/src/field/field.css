@@ -1,0 +1,720 @@
+@layer slotted.components {
+  /**
+   * ── The field ──────────────────────────────────────────────────────────
+   *
+   * One control, its name, its necessity, its help and its error. The box has
+   * no ground and no border of its own: a field inherits the rhythm of whatever
+   * placed it — a `Stack`, a `field-group`, a table cell — and everything it
+   * draws is text beside a control it does not own.
+   *
+   * The grid is two columns and every child spans both, so the only parts that
+   * need a rule of their own are the two that do not: the label takes the first
+   * column of the first row, and the counter the second. That is what lets the
+   * description and the error be another family's elements — they are
+   * `inline-message` roots, they carry `data-ui='inline-message'`, and the field
+   * places them without ever selecting them.
+   *
+   * The field is its own container. `labelPlacement='side'` is a layout that
+   * depends on how wide the field is rather than on how wide the window is, and
+   * a field in a 240-pixel drawer has to stack while the same field in a page
+   * grid stays beside its control.
+   */
+  [data-ui-field][data-part-root] {
+    /**
+     * Type, control height and glyph come from the control scales, the only
+     * ones the theme restates per density, so a field in a dense table shrinks
+     * whole rather than in parts. The control height is read for one reason:
+     * the side label is centred on the control's first line, and that is the
+     * only distance in the family that depends on the control's own size.
+     */
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_control-block-size: var(--slotted-control-height-md, 34px);
+
+    /**
+     * The distance between the label, the control and the message. One value
+     * for all three rows: a label closer to its control than the message is
+     * would say the message belongs to the field below, which is the mistake a
+     * form makes exactly once and then everywhere.
+     */
+    --_row-gap: var(--slotted-field-row-gap, var(--slotted-space-3, 0.375rem));
+    /** The distance from a side label to the control it names. */
+    --_column-gap: var(--slotted-field-column-gap, var(--slotted-space-5, 0.75rem));
+
+    /* The field is as tall as its rows. Stretched — a grid track taller than
+       its content, a dialog body filling a phone's height — the rows would
+       share the surplus and stand the label a finger's width from the control
+       it names. The surplus belongs to whatever stretched the field. */
+    align-content: start;
+    container-name: slotted-field;
+    container-type: inline-size;
+    display: grid;
+    font-family: var(--slotted-field-font-family, var(--slotted-control-font-family, sans-serif));
+    /**
+     * Three tracks, stated once and never restated. An element cannot query its
+     * own container — `container-type` makes a box a container for what is
+     * *inside* it — so a rule that changed the template under `@container`
+     * would apply to nothing, silently, while the child rules beside it applied
+     * normally. The picture would still look right at one width and be laid out
+     * on the wrong tracks at every other, which is what the first capture of
+     * this family showed: a label holding 235 pixels and its control 185.
+     *
+     * So the tracks never change, and only the placement of the children does.
+     * With the label above the control every child spans all three, and the
+     * split between the first two is invisible; with the label beside it, the
+     * first track is the label's and the cap is what stops a long one from
+     * taking the row.
+     *
+     * There is no `column-gap`. A gutter beside an empty counter track would
+     * inset every label by that distance for a part that is not there, so the
+     * two parts that need separation carry it as their own padding.
+     */
+    grid-template-columns:
+      minmax(0, var(--slotted-field-label-inline-size, 12rem))
+      minmax(0, 1fr)
+      auto;
+    /* A field inside a grid track narrower than its content would otherwise
+       refuse to shrink, and take the control's placeholder with it. */
+    min-inline-size: 0;
+    row-gap: var(--_row-gap);
+  }
+
+  /* Every child spans the field, and the two that do not say so below. */
+  [data-ui-field][data-part-root] > * {
+    grid-column: 1 / -1;
+  }
+
+  /**
+   * The whole of what the field does to the control it does not own. A grid item
+   * refuses to shrink below its own intrinsic width — about twenty characters
+   * for an `input` — so a field in a 240-pixel drawer would overflow the drawer
+   * rather than the control. Nothing here paints the control, sizes its type or
+   * touches its border: `text-field` owns all three.
+   */
+  [data-ui-field] > [data-part-control] {
+    min-inline-size: 0;
+  }
+
+  /**
+   * The width says what the field expects: the control stands no wider than
+   * the step, and still shrinks with a narrower field. The control is the
+   * child that is another family's root, or the part a consumer wrote.
+   */
+  [data-ui-field][data-part-root][data-width='short']
+    > :is([data-part-control], [data-ui]:not([data-ui-inline-message])) {
+    max-inline-size: var(--slotted-field-width-short, 6rem);
+  }
+
+  [data-ui-field][data-part-root][data-width='medium']
+    > :is([data-part-control], [data-ui]:not([data-ui-inline-message])) {
+    max-inline-size: var(--slotted-field-width-medium, 15rem);
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────
+   *
+   * Three steps, matching the control the field wraps. Fluent ships the same
+   * three; Angular Material ships none and sizes its field from the control
+   * inside it, which makes a field with no control an unsized box.
+   */
+
+  [data-ui-field][data-part-root][data-size='sm'] {
+    --_help-glyph: max(
+      var(--slotted-field-icon-size-min, 14px),
+      var(--slotted-control-icon-size-sm, 14px)
+    );
+    --_help-inner-size: var(--slotted-control-inner-size-sm, 22px);
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_control-block-size: var(--slotted-control-height-sm, 30px);
+  }
+
+  [data-ui-field][data-part-root][data-size='md'] {
+    --_help-glyph: max(
+      var(--slotted-field-icon-size-min, 14px),
+      var(--slotted-control-icon-size-sm, 14px)
+    );
+    --_help-inner-size: var(--slotted-control-inner-size-sm, 22px);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_control-block-size: var(--slotted-control-height-md, 34px);
+  }
+
+  [data-ui-field][data-part-root][data-size='lg'] {
+    --_help-glyph: max(
+      var(--slotted-field-icon-size-min, 14px),
+      var(--slotted-control-icon-size-md, 16px)
+    );
+    --_help-inner-size: var(--slotted-control-inner-size-md, 24px);
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_control-block-size: var(--slotted-control-height-lg, 38px);
+  }
+
+  /* ── The label ────────────────────────────────────────────────────────
+   *
+   * A native `label`, carrying `for`. The APG's naming practice calls the
+   * explicit association the one with the broadest support, and the implicit
+   * form — wrapping the control — the one some assistive technologies fail to
+   * treat as a name at all.
+   *
+   * The leading is the text scale rather than the control's `1`: a control's
+   * line height is for a box holding one line, and a label of twelve words
+   * beside a narrow control holds three.
+   */
+  [data-ui-field] > [data-part-label],
+  [data-ui-field] > [data-part-header] > [data-part-label] {
+    color: var(--slotted-field-label-color, var(--slotted-text));
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-field-label-font-weight, var(--slotted-font-weight-medium, 500));
+    line-height: var(--slotted-field-line-height, var(--slotted-line-height-sm, 1.45));
+    min-inline-size: 0;
+    /* A compound noun no language can break — a German insurance number, a
+       column name from a database — otherwise runs out of the label's track and
+       under the control, which is where the first capture of this family put
+       `Kraftfahrzeug-Haftpflichtversicherungsnummer`. Nothing is removed: the
+       whole word stays in the DOM and in the accessible name. */
+    overflow-wrap: anywhere;
+    transition: color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * The first row is the label's, or the header's when the label has company.
+   * Either spans the field when the label sits above the control.
+   */
+  [data-ui-field] > [data-part-label],
+  [data-ui-field] > [data-part-header] {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  /**
+   * The label stops before the counter's track only when there is a counter.
+   * Two grid items in one cell overlap, and a field with a count would print its
+   * label under it; a field without one would otherwise lose the counter's track
+   * from the label's width for a part that is not there.
+   */
+  [data-ui-field][data-part-root]:has(> [data-part-counter]) > [data-part-label] {
+    grid-column: 1 / 3;
+  }
+
+  /**
+   * The necessity marker. Real text rather than generated content, because the
+   * two word forms — `(required)` and `(optional)` — are information a reader
+   * hears and a page search finds, and because generated content cannot be
+   * translated by an application.
+   *
+   * The glyph form is the one this rule paints. It takes the danger ink because
+   * a red asterisk is the convention every surveyed implementation follows, and
+   * the field deliberately does *not* repaint the label when it is invalid: a
+   * red marker on a red label is a marker nobody can see, and the error already
+   * says the same thing in words, in colour and in a glyph.
+   */
+  [data-ui-field] > [data-part-label] > [data-part-mark],
+  [data-ui-field] > [data-part-header] > [data-part-label] > [data-part-mark] {
+    color: var(--slotted-field-mark-color, var(--slotted-tone-danger-text));
+    /* The distance is the space written before the mark, which the accessible
+       name needs as text; the token adds to it. */
+    margin-inline-start: var(--slotted-field-mark-gap, 0);
+    /* The label breaks anywhere; the necessity word never does. `(required)`
+       split across two lines as `(re` and `quired)` in the 240-pixel capture,
+       because a rule for one unbreakable German noun had reached the one part
+       of the label that is always a word. */
+    overflow-wrap: normal;
+    /**
+     * Its own bidi run. Latin label text in a right-to-left document forms one
+     * left-to-right run, and the marker joined it — so the distance written as
+     * `margin-inline-start` landed outside the run instead of between the two,
+     * and `CNPJ` and `(required)` touched. Isolated, the marker is ordered by
+     * the field's direction rather than by the label's characters.
+     */
+    unicode-bidi: isolate;
+  }
+
+  /**
+   * The word forms are not a severity, so they are not painted like one. Each is
+   * the quietest thing in the row: muted ink, the regular weight the label is
+   * not, and one type step down, so `E-mail (optional)` reads as one label with
+   * a qualifier rather than as two labels. `optional` writes the word only on
+   * the fields a reader may skip; `words` writes both.
+   */
+  [data-ui-field]:is([data-necessity='optional'], [data-necessity='words'])
+    > [data-part-label]
+    > [data-part-mark],
+  [data-ui-field]:is([data-necessity='optional'], [data-necessity='words'])
+    > [data-part-header]
+    > [data-part-label]
+    > [data-part-mark] {
+    color: var(--slotted-field-mark-text-color, var(--slotted-text-muted));
+    font-size: var(--slotted-control-font-size-sm, 12px);
+    font-weight: var(--slotted-font-weight-regular, 400);
+  }
+
+  /* ── The header ───────────────────────────────────────────────────────
+   *
+   * The label row, when the label has company: the help behind an icon, an
+   * indicator such as `Beta`, an action such as `Forgot password?`, and the
+   * counter. ReUI writes the same row by hand in four of its examples — a
+   * `div` with `justify-between` around the label — and centres every item in
+   * it; here the row is a part, and it aligns its items on the label's first
+   * baseline instead, so a 13-pixel label, a 12-pixel count and an emblem with
+   * a box of its own sit on one line of text rather than on one centre.
+   *
+   * The row takes the label's type, so `1lh`, `1cap` and `1ex` measured by
+   * anything inside it are the label's line. It wraps: in a narrow field the
+   * action and the counter move to a second line, still at its end.
+   */
+  [data-ui-field] > [data-part-header] {
+    align-items: baseline;
+    column-gap: var(--slotted-field-header-gap, var(--slotted-space-3, 0.375rem));
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--_font-size);
+    line-height: var(--slotted-field-line-height, var(--slotted-line-height-sm, 1.45));
+    min-inline-size: 0;
+  }
+
+  [data-ui-field] > [data-part-header] > [data-part-label] {
+    flex: 0 1 auto;
+  }
+
+  /**
+   * The action and the counter belong to the end of the row. The first of the
+   * two that is present takes the free space; a counter after an action stands
+   * a second step of the row gap away from it, twelve pixels in all, the same
+   * distance a side label keeps from its control, so a link and a number do
+   * not read as one phrase.
+   */
+  [data-ui-field] > [data-part-header] > [data-part-action],
+  [data-ui-field] > [data-part-header] > [data-part-counter] {
+    margin-inline-start: auto;
+  }
+
+  [data-ui-field] > [data-part-header] > [data-part-action] ~ [data-part-counter] {
+    margin-inline-start: var(--slotted-space-3, 0.375rem);
+  }
+
+  /* ── The help ─────────────────────────────────────────────────────────
+   *
+   * A glyph beside the label that opens the tooltip holding the field's help.
+   * It is an inner control (R2, `inner-control.test.mjs`): no frame, no ground
+   * at rest, and hover and press move the ground one step each and nothing
+   * else — ReUI's trigger changes its ink on hover and draws the same picture
+   * on press, which is the press the craft bar fails.
+   *
+   * The box is the glyph and a step of air a side, capped at the inside of a
+   * control at the field's step (`--slotted-control-inner-size-*`), the box
+   * `tag` gives its remove; the pointer target is a transparent halo that
+   * reaches twenty-four pixels around it. The box holds one line of the
+   * label's type at its own height and gives the difference back in the block
+   * axis, so a field with a help icon is exactly as tall as one without. The
+   * line inside it is the label's own — `font: inherit` — and a `button`
+   * centres its content in the block axis, so the button's baseline stands
+   * where the label's does; a line as tall as the box put it 0.44 pixels lower
+   * at comfortable and 0.69 at dense, and the row grew by that much. Only
+   * the block axis gives it back: a negative inline margin would pull the box
+   * under the last word of the label and strike the focus ring through it,
+   * which is what `description-list` measured on its copy control. The row gap
+   * before it is taken down to one step instead, so the glyph stands six
+   * pixels from the label at `md`.
+   *
+   * The glyph is placed on the label's text rather than on its line box: the
+   * button holds one line of the label's type, and the glyph sits on that
+   * line's baseline and centred on the band between the middle of the
+   * capitals and the middle of the lowercase — `(1cap + 1ex) / 2` — the band
+   * `toast` settled on (`docs/build-briefing.md`, a mark beside a line of
+   * text). The first capture raised the glyph's bottom by the band less half
+   * the glyph, which put its centre on the band's top: four pixels high, and a
+   * line box 3.3 pixels taller than the label's.
+   */
+  [data-ui-field] > [data-part-header] > [data-part-help] {
+    /* Never shorter than the label's line: at dense the inside of a control is
+       16 pixels and the line 17.39, and a button shorter than its own line
+       overflows downward and pushes the row 0.69 pixels taller. */
+    --_box: max(
+      min(calc(var(--_help-glyph) + 2 * var(--slotted-space-2, 0.25rem)), var(--_help-inner-size)),
+      1lh
+    );
+    --slotted-icon-size: var(--_help-glyph);
+
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_box);
+    border: 0;
+    border-radius: var(--slotted-field-help-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-field-help-color, var(--slotted-text-muted));
+    cursor: pointer;
+    display: inline-block;
+    flex: none;
+    font: inherit;
+    inline-size: var(--_box);
+    margin-block: calc(
+      (
+          var(--_font-size) *
+            var(--slotted-field-line-height, var(--slotted-line-height-sm, 1.45)) - var(--_box)
+        ) /
+        2
+    );
+    margin-inline-start: calc(
+      var(--slotted-space-1, 0.125rem) -
+        var(--slotted-field-header-gap, var(--slotted-space-3, 0.375rem))
+    );
+    padding: 0;
+    position: relative;
+    text-align: center;
+    transition: background-color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  /* The pointer target: a transparent square centred on the box that reaches
+     the WCAG minimum wherever the box falls short of it — 22 pixels at
+     comfortable, 16 at dense. It takes no room, so the row keeps its height. */
+  [data-ui-field] > [data-part-header] > [data-part-help]::before {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  [data-ui-field] > [data-part-header] > [data-part-help] > [data-ui-icon] {
+    vertical-align: calc(((1cap + 1ex) / 2 - var(--_help-glyph)) / 2);
+  }
+
+  /**
+   * Hover and press move the ground and nothing else. An open hint keeps the
+   * hover ground while its tooltip is showing, so the reader sees which icon
+   * the layer belongs to after the pointer has moved onto the layer.
+   */
+  [data-ui-field] > [data-part-header] > [data-part-help]:enabled:hover,
+  [data-ui-field] > [data-part-header] > [data-part-help][data-open] {
+    background-color: var(
+      --slotted-field-help-surface-hover,
+      var(--slotted-tone-secondary-subtle-hover, ButtonFace)
+    );
+  }
+
+  [data-ui-field] > [data-part-header] > [data-part-help]:enabled:active {
+    background-color: var(
+      --slotted-field-help-surface-active,
+      var(--slotted-tone-secondary-subtle-active, ButtonFace)
+    );
+  }
+
+  [data-ui-field] > [data-part-header] > [data-part-help]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── The indicator ────────────────────────────────────────────────────
+   *
+   * What qualifies the field — `Beta`, `Pro`, `New` — as one or more `badge`s
+   * after the label. It stands outside the `label` so the necessity mark stays
+   * against the label's last word, and it is read with the control's
+   * description rather than with its name. The badges are the badge family's;
+   * the field only spaces them.
+   */
+  [data-ui-field] > [data-part-header] > [data-part-indicator] {
+    align-items: center;
+    /* A badge is a box, not a line of text. Set on the label's baseline, its
+       own inset stood it 1.77 pixels above the label's line and the row grew
+       by that much; centred on the line, an 18.8-pixel badge fits in the
+       18.85-pixel line and the row is the label's height with or without it. */
+    align-self: center;
+    column-gap: var(--slotted-space-2, 0.25rem);
+    display: inline-flex;
+    flex-wrap: wrap;
+  }
+
+  /* ── The action ───────────────────────────────────────────────────────
+   *
+   * A link or a button at the end of the label row: `Forgot password?`,
+   * `Generate`, `Use the billing address`. It is a text control, so it speaks
+   * the vocabulary `link` settled for text that answers a pointer: accent ink
+   * at rest, a hover a third of the way to the body colour with the underline
+   * drawn, and a press two thirds of the way. ReUI paints the same action in
+   * muted ink, where it reads as inert text beside the counter, and answers
+   * press with a one-pixel shift of a line of 12-pixel type.
+   *
+   * The box is 24 pixels in the block axis for the pointer and gives the line
+   * its height back; in the inline axis the text is the box, so the focus ring
+   * hugs the words. It is a flex box so its height is stated rather than summed
+   * from a padding and a line — the sum measured 23.98 — and a flex box's
+   * baseline is its words', so the row still aligns on it.
+   */
+  [data-ui-field] > [data-part-header] > [data-part-action] {
+    --_rest: var(--slotted-field-action-color, var(--slotted-tone-accent-text, LinkText));
+
+    align-items: center;
+    appearance: none;
+    background: none;
+    block-size: var(--slotted-target-min, 24px);
+    border: 0;
+    border-radius: var(--slotted-field-action-radius, var(--slotted-control-radius, 4px));
+    color: var(--_rest);
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    font-family: inherit;
+    font-size: var(--slotted-control-font-size-sm, 12px);
+    font-weight: var(--slotted-font-weight-regular, 400);
+    line-height: var(--slotted-field-line-height, var(--slotted-line-height-sm, 1.45));
+    margin-block: calc((1lh - var(--slotted-target-min, 24px)) / 2);
+    padding: 0;
+    text-decoration-color: transparent;
+    text-decoration-line: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.15em;
+    transition:
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing),
+      text-decoration-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing);
+    /* Ordered by its own words rather than by the page's direction. A Latin
+       `Forgot password?` on a right-to-left page printed its question mark
+       first, because the run took the page's direction; an Arabic action on
+       the same page is still ordered right to left. */
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-field]
+    > [data-part-header]
+    > [data-part-action]:not(:disabled, [aria-disabled='true']):hover {
+    color: var(
+      --slotted-field-action-color-hover,
+      color-mix(in oklab, var(--_rest) 65%, var(--slotted-text, CanvasText))
+    );
+    text-decoration-color: currentColor;
+  }
+
+  [data-ui-field]
+    > [data-part-header]
+    > [data-part-action]:not(:disabled, [aria-disabled='true']):active {
+    color: var(
+      --slotted-field-action-color-active,
+      color-mix(in oklab, var(--_rest) 35%, var(--slotted-text, CanvasText))
+    );
+    text-decoration-color: currentColor;
+  }
+
+  [data-ui-field] > [data-part-header] > [data-part-action]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+    text-decoration-color: currentColor;
+  }
+
+  [data-ui-field] > [data-part-header] > [data-part-action]:is(:disabled, [aria-disabled='true']) {
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: not-allowed;
+  }
+
+  /**
+   * On a finger both controls of the row reach the comfortable target with a
+   * transparent halo centred on the box. The halo takes no room, so the row
+   * keeps its height and the ground and the ring stay the box a mouse sees.
+   */
+  @media (pointer: coarse) {
+    [data-ui-field] > [data-part-header] > [data-part-action] {
+      position: relative;
+    }
+
+    [data-ui-field] > [data-part-header] > [data-part-help]::before,
+    [data-ui-field] > [data-part-header] > [data-part-action]::before {
+      content: '';
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+      position: absolute;
+    }
+  }
+
+  /* ── The counter ──────────────────────────────────────────────────────
+   *
+   * A count the consumer owns — `text-field` will own it in wave 3 — sitting at
+   * the end of the label row, which is where Carbon puts it. Angular Material
+   * puts it in the subscript beside the error, where a count that appears on the
+   * first keystroke shares a row with the message and pushes it.
+   *
+   * Tabular figures, because a counter that jitters as it counts is a counter
+   * the eye follows instead of the field.
+   */
+  [data-ui-field] > [data-part-counter],
+  [data-ui-field] > [data-part-header] > [data-part-counter] {
+    color: var(--slotted-field-counter-color, var(--slotted-text-muted));
+    font-size: var(--slotted-control-font-size-sm, 12px);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--slotted-field-line-height, var(--slotted-line-height-sm, 1.45));
+    transition: color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * The counter the family draws on a field with no header: the end of the
+   * label row, in the third track, apart from the label by the side gap.
+   */
+  [data-ui-field] > [data-part-counter] {
+    align-self: end;
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    padding-inline-start: var(--_column-gap);
+  }
+
+  /**
+   * Past the limit. The counter says so before the form does: a count can pass
+   * its maximum while validation has not yet run, and a counter that only turned
+   * at submit would say nothing at the moment it is being read.
+   */
+  [data-ui-field] > [data-part-counter][data-invalid],
+  [data-ui-field] > [data-part-header] > [data-part-counter][data-invalid] {
+    color: var(--slotted-field-counter-invalid-color, var(--slotted-tone-danger-text));
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  /* ── The messages ─────────────────────────────────────────────────────
+   *
+   * `inline-message` roots, placed by the grid and styled by their own family.
+   * The field adds the rules below: one withdraws, and two set the type of
+   * what a field says — the size and, for an outcome, the weight.
+   *
+   * A message with nothing to say is withdrawn rather than left as an empty
+   * line. `inline-message` already withdraws its mark and its severity word in
+   * that case; what it cannot do from inside is remove its own row from a grid
+   * it knows nothing about. `[data-reserve]` is the deliberate exception — a
+   * form that renders its error unconditionally so nothing below it moves when
+   * the error arrives.
+   */
+  [data-ui-field] > [data-ui-inline-message]:not([data-reserve]):has([data-part-text]:empty) {
+    display: none;
+  }
+
+  /**
+   * What a field says under its control, and how (F1). The type is one step
+   * under the smallest control type, from the type scale rather than the
+   * control scale: a message is quieter than the control it is about at every
+   * size the field takes, and it does not grow with the control. The message's
+   * own `size` still places its mark — sized in `em`, it follows this.
+   *
+   * The selector carries the root's part so it outweighs the message family's
+   * own root rule, which has the same two attributes; equal specificity would
+   * leave the winner to stylesheet order.
+   */
+  [data-ui-field][data-part-root] > [data-ui-inline-message] {
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+  }
+
+  /**
+   * An outcome — the value is wrong, or it was accepted — is set a weight up
+   * from the help under it. The help is muted ink at the regular weight and
+   * draws no mark; the outcome draws the tone's own silhouette at the type's
+   * size (`inline-message`, R5) and its own ink, and the weight is what makes
+   * the two read as two kinds of sentence rather than one.
+   */
+  [data-ui-field][data-part-root] > [data-ui-inline-message][data-tone='danger'],
+  [data-ui-field][data-part-root] > [data-ui-inline-message][data-tone='success'] {
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  /* ── Placement: the label above the control, or beside it ─────────────
+   *
+   * The axis Fluent calls `orientation`, Primer `layout` and Spectrum
+   * `labelPosition`. A leading track for the label or the header, everything
+   * else in the second, and the counter at the end of the label's track.
+   *
+   * `--slotted-field-label-inline-size` is the one literal in the family, and
+   * it is a line length rather than a step on a scale: `12rem` is the width at
+   * which a label of about twenty characters at the `md` step sits on one line.
+   * No scale in `docs/token-foundation.md` holds a line length, and inventing
+   * one for a single family is what the component layer's own rule forbids.
+   */
+  @container slotted-field (min-width: 320px) {
+    /**
+     * The second track alone, not the second through the last. A control
+     * spanning to the end would meet the counter's cell on the first row and be
+     * pushed to a row of its own — which is the side layout undone, and it is
+     * what the second capture of this family showed: `Assunto` above its input
+     * rather than beside it.
+     *
+     * Nothing is lost when there is no counter: the third track is then zero
+     * wide, and there is no gutter for it to leave behind.
+     *
+     * Every child keeps its own height. A row is as tall as its tallest cell,
+     * and a label of three lines — or a header whose action wrapped under the
+     * label — stretched a one-line input beside it to 43 pixels.
+     */
+    [data-ui-field][data-part-root][data-label-placement='side'] > * {
+      align-self: start;
+      grid-column: 2 / 3;
+    }
+
+    /**
+     * Centred on the control's first line rather than on the control, so the
+     * label stays level with the text a reader is typing when the control is a
+     * textarea four lines tall. `max()` keeps a label taller than its control —
+     * three wrapped lines beside a 30-pixel input — from being pushed down.
+     */
+    [data-ui-field][data-part-root][data-label-placement='side'] > [data-part-label],
+    [data-ui-field][data-part-root][data-label-placement='side'] > [data-part-header] {
+      grid-column: 1;
+      grid-row: 1;
+      padding-block-start: max(0px, calc((var(--_control-block-size) - 1lh) / 2));
+      padding-inline-end: var(--_column-gap);
+    }
+
+    /**
+     * Under the label, at the end of the label's track, which is where a header
+     * puts its own counter as well (below), so a side field says its count in
+     * one place whether the page wrote a header or not; the count after the
+     * control, where it sat until the header existed, was a second place. Restated inside the query because `> *` above is one selector
+     * more specific than the counter's own rule.
+     */
+    [data-ui-field][data-part-root][data-label-placement='side'] > [data-part-counter] {
+      grid-column: 1;
+      grid-row: 2;
+      justify-self: end;
+      padding-inline: 0 var(--_column-gap);
+    }
+
+    /**
+     * The same place for the counter a header holds: a line of its own under
+     * the label, at the end of the label's track. Beside the label it read as
+     * part of the name — `Assunto 12/60` — and it stood one line higher than
+     * the counter a field without a header draws.
+     */
+    [data-ui-field][data-part-root][data-label-placement='side']
+      > [data-part-header]
+      > [data-part-counter] {
+      flex-basis: 100%;
+      margin-inline-start: 0;
+      text-align: end;
+    }
+  }
+
+  /* ── Disabled ─────────────────────────────────────────────────────────
+   *
+   * Muted to the colour the theme measures rather than faded by opacity: a
+   * label nobody can read is a field nobody can identify, and a form that
+   * disables a section still has to say what the section was for.
+   *
+   * The messages need no rule here. The field passes `disabled` to them, and
+   * `inline-message` mutes itself to the same colour and stops its own ring.
+   */
+  [data-ui-field][data-part-root][data-disabled] > [data-part-label],
+  [data-ui-field][data-part-root][data-disabled] > [data-part-counter],
+  [data-ui-field][data-part-root][data-disabled] > [data-part-header] > [data-part-label],
+  [data-ui-field][data-part-root][data-disabled] > [data-part-header] > [data-part-counter] {
+    color: var(--slotted-disabled-foreground);
+  }
+
+  [data-ui-field][data-part-root][data-disabled] > [data-part-label] > [data-part-mark],
+  [data-ui-field][data-part-root][data-disabled]
+    > [data-part-header]
+    > [data-part-label]
+    > [data-part-mark] {
+    color: var(--slotted-disabled-foreground);
+  }
+
+  /**
+   * `disabled` sits above `invalid` in `STATE_PRECEDENCE`, so a disabled field
+   * whose counter is over its limit paints the counter muted rather than red.
+   * A control nobody can type in is not over a limit; it is off.
+   */
+  [data-ui-field][data-part-root][data-disabled] > [data-part-counter][data-invalid],
+  [data-ui-field][data-part-root][data-disabled]
+    > [data-part-header]
+    > [data-part-counter][data-invalid] {
+    color: var(--slotted-disabled-foreground);
+    font-weight: var(--slotted-font-weight-regular, 400);
+  }
+}

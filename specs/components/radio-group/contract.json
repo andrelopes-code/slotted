@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 5,
+  "family": "radio-group",
+  "ui": "radio-group",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Set of radios for one choice."
+  },
+  "controlPart": "control",
+  "itemPart": "item",
+  "rootRole": "radiogroup",
+  "roleWithdrawnInside": "field-group",
+  "indicator": {
+    "part": "indicator",
+    "drawnOn": "sibling",
+    "checked": "--slotted-icon-dot"
+  },
+  "labelAssociation": "for",
+  "generatesControlId": true,
+  "grouping": "name",
+  "generatesName": true,
+  "rovingFocus": "platform",
+  "stateSource": "field",
+  "mirrorsState": true,
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "disabled",
+  "readOnlyAttribute": "aria-readonly",
+  "wiring": {
+    "id": "never",
+    "aria-labelledby": "the field's label, inside a field, unless the consumer writes aria-label or aria-labelledby",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "disabled": "disabled",
+    "readonly": "aria-readonly"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves focus into the group",
+      "focus": "the checked item, or the first item when none is checked",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "checks the focused item when it is not already checked",
+      "focus": "stays on the item",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "checks the next item, unchecking the previous one; wraps at the end",
+      "focus": "the newly checked item",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "checks the next item, unchecking the previous one; wraps at the end",
+      "focus": "the newly checked item",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "checks the previous item, unchecking the current one; wraps at the start",
+      "focus": "the newly checked item",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "checks the previous item, unchecking the current one; wraps at the start",
+      "focus": "the newly checked item",
+      "source": "platform"
+    }
+  ],
+  "escapeBound": false,
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["plain", "tile"],
+    "orientation": ["vertical", "horizontal"],
+    "labelPlacement": ["end", "start"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "plain"],
+    "orientation": ["prop", "defaults", "vertical"],
+    "labelPlacement": ["prop", "defaults", "end"]
+  },
+  "declined": {
+    "columns": {
+      "deferTo": "grid",
+      "reason": "grid already ships columns, minItemWidth and a stretching alignment, so a row of equal-width tiles is a grid around the items. Two families laying out one row would be two answers to one question."
+    }
+  },
+  "provides": {
+    "radioGroupDefaults": ["size", "variant", "orientation", "labelPlacement"],
+    "toItems": ["size", "variant", "labelPlacement", "disabled", "readOnly", "invalid", "name"]
+  },
+  "stateAttributes": {
+    "checked": "data-checked",
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly"
+  },
+  "stateModel": {
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard"]
+    }
+  },
+  "members": {
+    "radioGroup": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "plain",
+        "orientation": "vertical",
+        "labelPlacement": "end"
+      },
+      "capabilities": [
+        "selection",
+        "orientation",
+        "size",
+        "appearance",
+        "placement",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "readonly",
+        "invalid",
+        "checked"
+      ],
+      "parts": ["root", "item", "label", "control", "indicator", "description"]
+    }
+  },
+  "scenarios": {
+    "radioGroup": [
+      "playground",
+      "orientation",
+      "tile",
+      "sizes",
+      "states",
+      "placement",
+      "description",
+      "field",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

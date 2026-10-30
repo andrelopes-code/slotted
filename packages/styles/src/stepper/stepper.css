@@ -1,0 +1,625 @@
+@layer slotted.components {
+  /**
+   * Where the reader is in a sequence of steps, which steps they may reach,
+   * and the panel belonging to the step they are on.
+   *
+   * The whole family is drawn from three measurements and one ratio: the
+   * marker is a circle sized from the control scale, the connector is a rule
+   * one border width thick, and the gap between a marker and its label is the
+   * control gap. Everything else — where the connector starts, how far the
+   * column indents, where the label sits — is derived from those, so a theme
+   * that retunes the control scale moves the whole stepper together instead of
+   * leaving the connector behind.
+   */
+  [data-ui-stepper] {
+    --_marker: var(--slotted-stepper-marker-size, var(--slotted-control-height-md, 34px));
+    --_gap: var(--slotted-stepper-gap, var(--slotted-control-gap-md, 8px));
+    --_rule: var(--slotted-stepper-connector-thickness, var(--slotted-border-width-thick, 2px));
+    --_muted: var(--slotted-stepper-color-muted, var(--slotted-text-muted, GrayText));
+    --_strong: var(--slotted-stepper-color, var(--slotted-text, CanvasText));
+    --_pending-line: var(--slotted-stepper-connector-color, var(--slotted-border-subtle, GrayText));
+    /**
+     * The ring of a step the reader has not reached. It is a step above the
+     * connector, and deliberately: the track behind a flow is decoration and
+     * may be faint, while the ring is the frame of the marker itself and holds
+     * the 3:1 every non-text element needs. `--slotted-border-subtle` reads at
+     * about 1.2:1 against the surface, and the four pending markers in a
+     * six-step row all but disappeared.
+     */
+    --_pending-ring: var(
+      --slotted-stepper-marker-border,
+      var(--slotted-control-border-color, ButtonBorder)
+    );
+    --_done-line: var(
+      --slotted-stepper-connector-color-complete,
+      var(--slotted-tone-accent-solid, Highlight)
+    );
+
+    /**
+     * The wash a press puts over the marker: the family's own strong ink at a
+     * low strength, over whatever ground the status gave the marker. It is the
+     * state layer `alert`, `toast` and `tag` answer a press with, at the same
+     * strength, and a theme retunes it by strength — which is what the
+     * component token is for.
+     *
+     * The ink is stated rather than taken from `currentcolor`, which is what
+     * those three take: a complete marker and an invalid one draw their number
+     * in `transparent`, because the check and the alert are painted over it, so
+     * a wash of `currentcolor` there would be a wash of nothing. The strong ink
+     * darkens a filled marker and greys an empty one, and it is near-white in
+     * the dark scheme, where it lightens both.
+     */
+    --_state-press: color-mix(
+      in oklab,
+      var(--_strong) var(--slotted-stepper-marker-press-strength, 14%),
+      transparent
+    );
+
+    color: var(--_strong);
+    container-name: slotted-stepper;
+    container-type: inline-size;
+    display: block;
+    font-family: var(--slotted-stepper-font-family, var(--slotted-font-family-sans, inherit));
+    font-size: var(--slotted-stepper-font-size, var(--slotted-control-font-size-md, 13px));
+  }
+
+  /* ── The row, and the column ────────────────────────────────────────────
+   *
+   * Horizontal is a row of equal columns, so five steps divide the width
+   * evenly however long their labels are; a row of intrinsic widths would give
+   * "Review" a quarter of the space it gives "Shipping and billing address"
+   * and the markers would stop lining up with anything.
+   *
+   * Vertical is a column, and the connector runs down the marker's own centre
+   * line rather than beside it.
+   */
+
+  [data-ui-stepper] [data-part-list] {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  [data-ui-stepper][data-orientation='horizontal'] [data-part-list] {
+    align-items: flex-start;
+    flex-direction: row;
+  }
+
+  [data-ui-stepper][data-orientation='vertical'] [data-part-list] {
+    flex-direction: column;
+  }
+
+  [data-ui-stepper] [data-part-item] {
+    display: flex;
+    position: relative;
+  }
+
+  [data-ui-stepper][data-orientation='horizontal'] [data-part-item] {
+    flex: 1 1 0;
+    /* A label longer than its column wraps instead of widening the column. */
+    min-inline-size: 0;
+  }
+
+  [data-ui-stepper][data-orientation='vertical'] [data-part-item] {
+    flex-direction: column;
+  }
+
+  /* ── The header ─────────────────────────────────────────────────────────
+   *
+   * A `button`, an `a` or a `span`, depending on what the flow lets the reader
+   * do. All three are painted the same, because what changes between them is
+   * whether the step can be reached, not what a step looks like — and the
+   * `span` is the read-only progress indicator the field ships as a separate
+   * component.
+   */
+
+  [data-ui-stepper] [data-part-trigger] {
+    align-items: center;
+    appearance: none;
+    background: none;
+    border: 0;
+    border-radius: var(--slotted-stepper-radius, var(--slotted-control-radius, 4px));
+    color: inherit;
+    column-gap: var(--_gap);
+    display: flex;
+    font: inherit;
+    padding: 0;
+    text-align: start;
+    text-decoration: none;
+    transition: color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-stepper] button[data-part-trigger],
+  [data-ui-stepper] a[data-part-trigger] {
+    cursor: pointer;
+  }
+
+  /**
+   * `end` puts the label beside the marker and `bottom` puts it under, which
+   * is what a row of five steps needs once the labels are longer than a word.
+   * The stack is centred so the marker sits over the middle of its own label
+   * rather than over the middle of the column.
+   */
+  [data-ui-stepper][data-label-placement='bottom'] [data-part-trigger] {
+    align-items: center;
+    flex-direction: column;
+    /**
+     * The label fills its column, so two long names in adjacent columns meet
+     * with nothing between them. The inset is on the header rather than on the
+     * item, because the connector is measured from the item's own edges and
+     * padding there would shorten every track by twice this.
+     */
+    padding-inline: var(--slotted-stepper-column-inset, var(--slotted-space-3, 0.375rem));
+    row-gap: var(--slotted-stepper-label-gap, var(--slotted-space-3, 0.375rem));
+    text-align: center;
+  }
+
+  [data-ui-stepper] [data-part-trigger]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── The marker ─────────────────────────────────────────────────────────
+   *
+   * A circle holding the step's number, and the one part that never wraps,
+   * never shrinks and never moves. Its four appearances are the four statuses,
+   * and each of them is a fill and an edge rather than a colour alone: a
+   * pending step is an outline, the current one is a filled ring, a complete
+   * one is a solid disc with a check, and a step in error is a solid disc with
+   * an alert. `docs/component-features.md` section 7 requires exactly this —
+   * progress that does not depend on colour.
+   */
+
+  [data-ui-stepper] [data-part-marker] {
+    /**
+     * The colour of the glyph drawn over the number, held on the marker rather
+     * than stated on the glyph's box. Reading it through one custom property
+     * keeps the family's system-colour last resort on the element where the
+     * theme's own tokens live, and lets the invalid step restate it once.
+     */
+    --_mark: var(
+      --slotted-stepper-marker-color-complete,
+      var(--slotted-tone-accent-on-solid, HighlightText)
+    );
+    --_mark-size: var(--slotted-stepper-glyph-size, var(--slotted-control-icon-size-md, 16px));
+
+    align-items: center;
+    background-color: var(--slotted-stepper-marker-surface, transparent);
+    block-size: var(--_marker);
+    border: var(--_rule) solid var(--_pending-ring);
+    border-radius: var(--slotted-radius-full, 9999px);
+    /**
+     * The marker measures `--_marker` including its ring, because every other
+     * rule in this sheet is written as though it does: the connector's centre,
+     * the panel's indent and the vertical track all read that one length. With
+     * the ring outside it the circle stood four pixels wider than the number
+     * the rest of the family was using, and the connector ran two pixels off
+     * every marker centre it was supposed to be on — in both orientations and
+     * at all three densities (ST2).
+     */
+    box-sizing: border-box;
+    color: var(--_muted);
+    display: flex;
+    flex: none;
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-stepper-marker-weight, var(--slotted-font-weight-semibold, 600));
+    inline-size: var(--_marker);
+    justify-content: center;
+    line-height: 1;
+    /* The check and the alert are drawn over the number, not beside it. */
+    position: relative;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * The step the reader is on. The ring thickens to the accent and the number
+   * takes the accent's text colour: it is where they are, not where they have
+   * been, so it stays an outline and does not fill.
+   */
+  [data-ui-stepper] [data-current] [data-part-marker] {
+    border-color: var(--slotted-stepper-marker-border-current, var(--_done-line));
+    color: var(--slotted-stepper-marker-color-current, var(--slotted-tone-accent-text, Highlight));
+  }
+
+  /**
+   * A step that is finished. The disc fills and the number gives way to a
+   * check, because a reader scanning the row counts filled discs rather than
+   * reading five numbers.
+   */
+  [data-ui-stepper] [data-complete]:not([data-current], [data-invalid]) [data-part-marker] {
+    background-color: var(--slotted-stepper-marker-surface-complete, var(--_done-line));
+    border-color: var(--slotted-stepper-marker-surface-complete, var(--_done-line));
+  }
+
+  [data-ui-stepper] [data-invalid] [data-part-marker] {
+    --_mark: var(
+      --slotted-stepper-marker-color-invalid,
+      var(--slotted-tone-danger-on-solid, MarkText)
+    );
+
+    background-color: var(
+      --slotted-stepper-marker-surface-invalid,
+      var(--slotted-tone-danger-solid, Mark)
+    );
+    border-color: var(
+      --slotted-stepper-marker-surface-invalid,
+      var(--slotted-tone-danger-solid, Mark)
+    );
+  }
+
+  [data-ui-stepper] [data-disabled]:not([data-invalid]) [data-part-marker] {
+    background-color: transparent;
+    border-color: var(--slotted-disabled-border, GrayText);
+    color: var(--slotted-disabled-foreground, GrayText);
+  }
+
+  /**
+   * The glyph a finished or failed step shows in place of its number. It is
+   * the Glyph element the binding renders in the marker, chosen from the
+   * step's state, and laid over the number the binding leaves in the DOM. The
+   * number stays there because a reader enlarging the page to four hundred per
+   * cent still needs to know which step this is, and because the accessible
+   * name is built from the `status` part rather than from what is painted
+   * here.
+   *
+   * A failed step shows a bare cross rather than the scale's circled alert.
+   * The status glyphs carry their own container, and `docs/token-foundation.md`
+   * says why: the bare marks are the ones drawn inside a box some control
+   * already provides. The marker is that box, and a circle inside a disc reads
+   * as a ring inside a ring rather than as a failure.
+   */
+  /**
+   * The number gives way to the mark. Neither the complete rule nor the
+   * invalid one paints the number any more, and that is the fix rather than
+   * the tidying: both used to set a colour for it, both outranked this rule on
+   * specificity, and a finished step drew its number and its check on top of
+   * each other. The capture is what said so — the two marks overlap into a
+   * shape that is neither.
+   */
+  [data-ui-stepper] :is([data-complete], [data-invalid]) [data-part-marker] {
+    color: transparent;
+  }
+
+  [data-ui-stepper] [data-part-marker] > [data-ui-icon] {
+    --slotted-icon-size: var(--_mark-size);
+
+    color: var(--_mark);
+    /**
+     * Centred by its own box rather than by the flex container's alignment.
+     * An absolutely positioned child takes a static position the engines do
+     * not agree on inside a flex container, and the capture showed the result:
+     * the check drawn from the marker's top corner, with half of it outside
+     * the disc. `inset` plus automatic margins centres a fixed-size box in
+     * every engine.
+     */
+    inset: 0;
+    margin: auto;
+    position: absolute;
+  }
+
+  /**
+   * The current step keeps its number even where the consumer also marked it
+   * complete, because the number is what says where the reader is in a
+   * sequence and a check would say they had left it.
+   */
+  [data-ui-stepper] [data-current]:not([data-invalid]) [data-part-marker] {
+    color: var(--slotted-stepper-marker-color-current, var(--slotted-tone-accent-text, Highlight));
+  }
+
+  /* ── The label and its second line ──────────────────────────────────────
+   *
+   * The label wraps; the marker does not. A step whose name is a forty-letter
+   * compound takes two lines of its own column and leaves every other step
+   * where it was.
+   */
+
+  [data-ui-stepper] [data-part-label] {
+    color: var(--_muted);
+    font-weight: var(--slotted-stepper-label-weight, var(--slotted-font-weight-medium, 500));
+    line-height: var(--slotted-stepper-line-height, var(--slotted-line-height-sm, 1.45));
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-stepper] :is([data-current], [data-complete]) [data-part-label] {
+    color: var(--_strong);
+  }
+
+  [data-ui-stepper] [data-invalid] [data-part-label] {
+    color: var(--slotted-stepper-label-color-invalid, var(--slotted-tone-danger-text, MarkText));
+  }
+
+  [data-ui-stepper] [data-disabled]:not([data-invalid]) [data-part-label] {
+    color: var(--slotted-disabled-foreground, GrayText);
+  }
+
+  [data-ui-stepper] [data-part-description] {
+    color: var(--_muted);
+    display: block;
+    font-size: var(--slotted-stepper-description-font-size, var(--slotted-font-size-xs, 0.75rem));
+    line-height: var(--slotted-stepper-line-height, var(--slotted-line-height-sm, 1.45));
+    margin-block-start: var(--slotted-stepper-description-gap, var(--slotted-space-1, 0.125rem));
+  }
+
+  /**
+   * A step whose header can be pressed answers the pointer, and it answers it
+   * on the label rather than on the whole column: the column is mostly empty
+   * space, and a fill across it would read as a selected row.
+   */
+  [data-ui-stepper]
+    [data-part-item]:not([data-disabled], [data-loading])
+    :is(button, a)[data-part-trigger]:hover
+    [data-part-label] {
+    color: var(--_strong);
+    text-decoration-color: currentColor;
+    text-decoration-line: underline;
+    text-underline-offset: var(--slotted-stepper-underline-offset, 0.2em);
+  }
+
+  /**
+   * The press is said on the marker's own ground rather than by shrinking it.
+   * The marker grew smaller by six per cent for one iteration, and R7 refuses
+   * it: the marker carries the step's number, and a box of type drawn at
+   * ninety-four per cent resamples the number for the length of the press.
+   *
+   * A wash of the marker's own ink over whatever ground it has is what says
+   * *taken* instead — the state layer `alert`, `toast` and `tag` already
+   * answer a press with, at the same strength. It is written as an inset
+   * shadow rather than as a background because the ground underneath is the
+   * status: a complete marker is filled with the accent, an invalid one with
+   * the danger tone, and a press that replaced either would be a press that
+   * also changed what the step is.
+   */
+  [data-ui-stepper]
+    [data-part-item]:not([data-disabled], [data-loading])
+    :is(button, a)[data-part-trigger]:active
+    [data-part-marker] {
+    box-shadow: inset 0 0 0 var(--_marker) var(--_state-press);
+  }
+
+  /* ── The connector ──────────────────────────────────────────────────────
+   *
+   * The rule between two markers, and the only part that shows how far the
+   * flow has come without reading a word. It is painted up to the step the
+   * reader has reached, so the row reads as a filled track rather than as five
+   * separate marks.
+   *
+   * Horizontally it runs across the marker's own centre line, which is half a
+   * marker below the top of the item; vertically it runs down the marker's
+   * centre, which is half a marker in from the item's start edge. Both are
+   * derived from the marker rather than stated, so the rule stays on the
+   * centre at every density.
+   */
+
+  [data-ui-stepper] [data-part-separator] {
+    background-color: var(--_pending-line);
+    display: block;
+    flex: none;
+  }
+
+  /**
+   * The connector fills for a step the reader has walked past, which is
+   * distance travelled rather than work completed — the same measure
+   * `stepPercent` reports. The two facts are deliberately on different
+   * elements: `data-complete` on an item is the consumer's claim that the work
+   * is done, and `data-complete` on a connector is the family's own arithmetic
+   * about where the reader has been. A track that filled only where the
+   * consumer marked completion would stay grey through every flow that never
+   * claims it.
+   */
+  [data-ui-stepper] [data-part-separator][data-complete] {
+    background-color: var(--_done-line);
+  }
+
+  /**
+   * With the label beside the marker, the connector is a flex child that takes
+   * whatever the label leaves. It was an absolutely positioned stub at the
+   * item's trailing edge until the capture showed what that produces: a dash
+   * touching the next marker rather than a track between two of them. Nothing
+   * knows how wide a label is, so nothing can position around it — but a flex
+   * item can be told to take the rest.
+   */
+  [data-ui-stepper][data-orientation='horizontal'][data-label-placement='end']
+    [data-part-separator] {
+    align-self: center;
+    block-size: var(--_rule);
+    flex: 1 1 auto;
+    margin-inline: var(--slotted-stepper-track-gap, var(--slotted-space-5, 0.75rem));
+    min-inline-size: var(--slotted-stepper-track-min, var(--slotted-space-8, 1.5rem));
+    position: static;
+  }
+
+  [data-ui-stepper][data-orientation='horizontal'][data-label-placement='end'] [data-part-trigger] {
+    flex: 0 1 auto;
+    min-inline-size: 0;
+  }
+
+  /**
+   * With the label under the marker, the connector runs between two marker
+   * centres. The columns are equal, so the next centre is exactly one column
+   * away, and both ends are derived from the marker rather than stated.
+   */
+  [data-ui-stepper][data-orientation='horizontal'][data-label-placement='bottom']
+    [data-part-separator] {
+    block-size: var(--_rule);
+    inset-block-start: calc(0.5 * (var(--_marker) - var(--_rule)));
+    inset-inline-end: calc(-50% + 0.5 * var(--_marker) + var(--_gap));
+    inset-inline-start: calc(50% + 0.5 * var(--_marker) + var(--_gap));
+    position: absolute;
+  }
+
+  /**
+   * Down the marker's own centre line, from below this marker to above the
+   * next one, with the same room at both ends. The bottom of the item is where
+   * the next marker begins, so the end inset is that room and not zero: at
+   * zero the rule stopped short of the marker above and ran into the marker
+   * below, which read as misaligned in every vertical flow.
+   *
+   * The room is its own length rather than `--_gap`, the space between a
+   * marker and its label. A one-line step is its header plus the step gap
+   * tall, and `--_gap` at both ends of a step gap of one rem left a rule of
+   * no length at all; a quarter rem leaves half the step gap drawn.
+   */
+  [data-ui-stepper][data-orientation='vertical'] [data-part-separator] {
+    --_rule-room: var(--slotted-stepper-connector-gap, var(--slotted-space-2, 0.25rem));
+
+    inline-size: var(--_rule);
+    inset-block-end: var(--_rule-room);
+    inset-block-start: calc(var(--_marker) + var(--_rule-room));
+    inset-inline-start: calc(0.5 * (var(--_marker) - var(--_rule)));
+    position: absolute;
+  }
+
+  /**
+   * The last step draws no connector, because there is nothing after it. The
+   * binding does not render the element at all; this is what a consumer who
+   * renders one anyway gets, and it is nothing.
+   */
+  [data-ui-stepper] [data-part-item]:last-child [data-part-separator] {
+    display: none;
+  }
+
+  /* ── Horizontal geometry ────────────────────────────────────────────────
+   *
+   * With the label under the marker the header fills its column, so the marker
+   * centres over the column and the connector runs between two centres.
+   */
+
+  [data-ui-stepper][data-orientation='horizontal'][data-label-placement='bottom']
+    [data-part-trigger] {
+    inline-size: 100%;
+  }
+
+  /* ── Vertical geometry ──────────────────────────────────────────────────
+   *
+   * The panel is indented to the label's own start edge, so the content of a
+   * step lines up with its name rather than with its number.
+   */
+
+  [data-ui-stepper][data-orientation='vertical'] [data-part-item] {
+    padding-block-end: var(--slotted-stepper-step-gap, var(--slotted-space-6, 1rem));
+  }
+
+  [data-ui-stepper][data-orientation='vertical'] [data-part-item]:last-child {
+    padding-block-end: 0;
+  }
+
+  [data-ui-stepper][data-orientation='vertical'] [data-part-panel] {
+    margin-inline-start: calc(var(--_marker) + var(--_gap));
+    padding-block-start: var(--slotted-stepper-panel-gap, var(--slotted-space-4, 0.5rem));
+  }
+
+  [data-ui-stepper][data-orientation='horizontal'] [data-part-panel] {
+    padding-block-start: var(--slotted-stepper-panel-gap, var(--slotted-space-6, 1rem));
+  }
+
+  [data-ui-stepper] [data-part-panel]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── Reflow ─────────────────────────────────────────────────────────────
+   *
+   * Five labels in a row at 320 pixels are five columns two characters wide.
+   * Below the breakpoint a horizontal stepper becomes a column, which is the
+   * composition change section 2.7 of `docs/component-features.md` asks for
+   * rather than a smaller version of the same row. A stepper the consumer set
+   * to vertical is already one and is left alone.
+   *
+   * The breakpoint is a literal because `@container (min-width: var(--x))` is
+   * invalid CSS, which rule 4 of `docs/token-foundation.md` states.
+   */
+
+  @container slotted-stepper (max-width: 30rem) {
+    [data-ui-stepper][data-orientation='horizontal'] [data-part-list] {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    [data-ui-stepper][data-orientation='horizontal'] [data-part-item] {
+      flex: none;
+      flex-direction: column;
+      padding-block-end: var(--slotted-stepper-step-gap, var(--slotted-space-6, 1rem));
+      padding-inline-end: 0;
+    }
+
+    [data-ui-stepper][data-orientation='horizontal'] [data-part-item]:last-child {
+      padding-block-end: 0;
+    }
+
+    [data-ui-stepper][data-orientation='horizontal'][data-label-placement] [data-part-trigger] {
+      align-items: center;
+      flex-direction: row;
+      inline-size: auto;
+      /**
+       * The column inset goes with the columns. It exists so two long names in
+       * adjacent columns do not meet, and a stepper that has turned into a
+       * column has no neighbour to keep away from — while the connector below
+       * is measured from the item's own edge, so six pixels of padding on the
+       * header moved the marker off the track and left the two joined by
+       * nothing (ST2).
+       */
+      padding-inline: 0;
+      text-align: start;
+    }
+
+    /**
+     * `[data-label-placement]` is here for specificity, not for selection: the
+     * two rules this one replaces name the placement, and a container query
+     * adds no weight of its own. Without it the row's own connector geometry
+     * survived the reflow and the column drew four-pixel dots down its side.
+     */
+    [data-ui-stepper][data-orientation='horizontal'][data-label-placement] [data-part-separator] {
+      block-size: auto;
+      flex: none;
+      inline-size: var(--_rule);
+      inset-block-end: 0;
+      inset-block-start: calc(var(--_marker) + var(--_gap));
+      inset-inline-end: auto;
+      inset-inline-start: calc(0.5 * (var(--_marker) - var(--_rule)));
+      margin-inline: 0;
+      min-inline-size: 0;
+      position: absolute;
+    }
+
+    [data-ui-stepper][data-orientation='horizontal'][data-label-placement] [data-part-panel] {
+      margin-inline-start: calc(var(--_marker) + var(--_gap));
+      padding-block-start: var(--slotted-stepper-panel-gap, var(--slotted-space-4, 0.5rem));
+    }
+  }
+
+  /* ── Forced colours ─────────────────────────────────────────────────────
+   *
+   * The system replaces every painted surface with the page's own background,
+   * which would flatten the four statuses into one outline. Three things need
+   * restating: the connector, which is a painted rule; the fill that separates
+   * a finished step from a pending one; and the glyph inside it, which keeps
+   * its paint through the marker's own `forced-color-adjust` rather than
+   * through a system colour this family would have to choose.
+   */
+
+  @media (forced-colors: active) {
+    [data-ui-stepper] [data-part-separator] {
+      background-color: GrayText;
+    }
+
+    [data-ui-stepper] [data-part-separator][data-complete] {
+      background-color: Highlight;
+    }
+
+    [data-ui-stepper] :is([data-complete], [data-invalid]):not([data-current]) [data-part-marker] {
+      background-color: Highlight;
+      border-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+  }
+}

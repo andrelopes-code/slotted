@@ -1,0 +1,158 @@
+---
+title: Multi-select
+description: A text field that collects several values as removable tags, filtering a list of options as the reader types.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Initial value
+
+`defaultValue` in React and a one-way `[value]` in Angular set the values the control starts with, in the order the tags are drawn. Pass `items`, the list of values and labels, whenever the control starts with values: in React the options are rendered only while the list is open, so without `items` a tag shows its raw value, such as `RNO`, until the list first opens.
+
+<Example name="initial-value" />
+
+## Sizes
+
+`size` sets the control to one step of the control scale: `sm` for toolbars and dense tables, `md` for most forms, `lg` for sparse forms. An empty multi-select is the height of a text field of the same size; each row of tags adds to it. Inside a field, an unset size follows the field.
+
+<Example name="sizes" />
+
+## Variants
+
+`outline` is the default frame. `subtle` fills the control, for a form on a tinted surface. `plain` draws no frame at rest, for a table cell, and still shows hover and focus.
+
+<Example name="variants" />
+
+## States
+
+Set `invalid`, `readOnly` and `disabled` on the field, which passes them to the multi-select; each can also be set on the multi-select itself. Invalid draws the border and the focus ring in the danger tone and sets `aria-invalid` on the input. Read-only keeps the tags legible and the input focusable, and removes the remove buttons, the clear button and the list. Disabled does the same and takes the control out of the tab order.
+
+<Example name="states" />
+
+## Groups
+
+`MultiSelectGroup` in React and `sl-multi-select-group` in Angular put a run of options under a heading, which assistive technology reads with each option. `MultiSelectSeparator` and `sl-multi-select-separator` draw a line between runs. A group whose options were all filtered away disappears with its heading: type `dallas` to see only Central.
+
+<Example name="groups" />
+
+## Icons and descriptions
+
+`icon` fills the first column of an option and `description` writes a second line under its label. In React `icon` takes any element; in Angular it names a glyph. The filter compares the label only.
+
+<Example name="descriptions" />
+
+## Disabled options
+
+A disabled option stays in the list, is announced as unavailable, and is skipped by every movement key. Put the reason in its description, so the reader knows why it cannot be chosen.
+
+<Example name="disabled-options" />
+
+## Filtering
+
+Typing filters the list. The default comparison is a locale-sensitive "contains" that ignores accents and case, so `malmo` finds Malmö, and the matched span is marked. `locale` sets the language of the comparison when it differs from the page; `highlightMatch={false}` turns the mark off. Choosing an option empties the typed text and keeps the list open for the next value.
+
+<Example name="filtering" />
+
+## Limiting the number of values
+
+`max` caps the set. A counter such as `2 of 3` sits in the control while `max` is set. At the limit the counter changes tone, the root carries `data-complete`, every option not yet chosen is announced as unavailable, and a live message says the limit was reached. Removing a tag frees a place again.
+
+<Example name="limit" />
+
+## Overflow
+
+`overflow="wrap"`, the default, keeps every tag in view: the control grows by whole rows up to three, then scrolls inside its frame. `overflow="collapse"` keeps the control one row high and counts the tags that do not fit in a `+N` tag; pressing it opens the list, whose top band lists every chosen value.
+
+<Example name="overflow" />
+
+## Creating values
+
+With `creatable`, text the list does not hold becomes a value. Once nothing in the list matches, the list offers to add the text; Enter, a comma or leaving the control commits it. `delimiters` sets the characters that commit, and `commitOnBlur={false}` keeps the text when focus leaves. A value already in the set is refused, compared without regard to case or accents, and focus moves to the tag that holds it.
+
+<Example name="creatable" />
+
+## Pasting and validating typed values
+
+A paste that contains delimiters becomes several values at once; `addOnPaste={false}` keeps it as text. `validateValue` decides whether typed text may become a value. Every value turned away, by the predicate, as a duplicate or over `max`, is reported through `onValueRefuse` in React and `(valueRefuse)` in Angular with its cause, so the page can say why. Paste `buyers@northwind.example, not-an-address` to see both outcomes.
+
+<Example name="email-list" />
+
+## Editing a value in place
+
+With `editable`, Enter on a focused tag turns it into a text field holding its value. Enter commits the change as one update and Escape restores the original. ArrowLeft from the start of the input, or Backspace from an empty input, reaches the last tag.
+
+<Example name="editable" />
+
+## Controlled
+
+Pass `value` and update it from `onValueChange` when other parts of the screen depend on the set; in Angular, bind `[(value)]` to a signal. The value is an array in the reader's order. The request carries the reason: `select` from the list, `submit` from typed text, `remove` for one tag, `clear` for all of them, and `keyboard` for a reorder. In Angular the reason arrives through `(valueChangeRequest)`.
+
+<Example name="controlled" />
+
+## Clearing
+
+The clear button appears while the control holds tags or typed text. It empties both under the reason `clear` and returns focus to the input. `clearable={false}` removes the button, so tags come off one at a time. Escape never clears the set: it closes the list, or empties the typed text when the list is closed.
+
+<Example name="clearing" />
+
+## Loading options
+
+Set `loading` while options are on their way. The chevron becomes a spinner, the list shows three placeholder rows, and a status row announces the `loading` message. Here the options are requested the first time the list opens, from `onOpenChange` in React and `(openChange)` in Angular.
+
+<Example name="loading" />
+
+## Searching on the server
+
+`filter={null}` turns the built-in filter off, for options a server has already filtered. Send the typed text to the server from `onInputValueChange` in React or `(inputValueChange)` in Angular, render what comes back, and set `loading` while the request runs. Tags keep their labels when a later search no longer returns their options. The `empty` message replaces "No matches" when nothing comes back.
+
+<Example name="async-search" />
+
+## Long lists
+
+The list is never taller than the space the viewport leaves for it, and scrolls inside. PageDown and PageUp move the highlight ten options, and the list scrolls to the highlighted option without moving the page. `chosenOptions="hide"` takes chosen options out of the list, which suits a long list where the tags already show what was chosen.
+
+<Example name="long-list" />
+
+## In a form
+
+In React, `name` renders one hidden input per value under the same name, so `FormData.getAll` reads the set and a native reset restores `defaultValue`. In Angular, the multi-select is a form control: `formControlName`, `formControl` and `ngModel` bind the array, and its own validator reports `required`, `tooMany` past `max` and `duplicate`, with no validator to write. Submit without a warehouse to see the error, then reset.
+
+<Example name="form" />
+
+## Narrow controls
+
+Under 120 pixels there is no room for a tag, and the control shows a count such as `3 chosen` instead; the count ends in an ellipsis when the clear button and the chevron leave too little room for it, and the grid still announces it whole. `width="content"` lets the list grow past a narrow control, so labels keep their length.
+
+<Example name="narrow" />
+
+## Keyboard and reordering
+
+The multi-select is one tab stop. ArrowLeft from the start of the input reaches the last tag; from there ArrowLeft and ArrowRight walk the tags, Delete removes the focused tag, and any character returns to the input and types there. Backspace from an empty input first moves to the last tag and removes nothing; a second press removes it. With `reorderable`, Alt with ArrowLeft or ArrowRight moves the focused tag one place and Alt with Home or End moves it to either end; the move is reported with the reason `keyboard` and announced with the new position.
+
+<Example name="keyboard" />
+
+## Defaults for a section
+
+`MultiSelectDefaultsProvider` in React and `provideMultiSelectDefaults` in Angular set any axis once for every multi-select under them, such as `size`, `variant` and `overflow` for a filter panel. A value set on one multi-select still wins.
+
+<Example name="defaults" />
+
+## Filters above a table
+
+Two compact multi-selects filter the rows of an orders table. `overflow="collapse"` keeps each filter one row high, each option's description shows how many orders it matches, and an empty filter means every value. Outside a field, `aria-label` names each control.
+
+<Example name="filter-bar" wide />
+
+## Tagging orders in a table
+
+A plain, compact, creatable multi-select in each row holds that order's tags. `variant="plain"` draws no frame inside the cell, `overflow="collapse"` keeps the row one line high, and a new tag is typed and committed in place.
+
+<Example name="order-tags" wide />
+
+## Choosing table columns
+
+A reorderable multi-select decides which columns the table shows and in which order. "Show all" sets the whole list as the value, which is how a select-all is composed: the multi-select has no built-in one, because only the page knows what "all" means under a filter or a limit.
+
+<Example name="choose-columns" wide />

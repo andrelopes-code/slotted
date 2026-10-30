@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 5,
+  "family": "list-item",
+  "ui": "list-item",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Row with media, text, metadata and actions."
+  },
+  "pattern": null,
+  "patternAbsent": {
+    "index": "https://www.w3.org/WAI/ARIA/apg/patterns/",
+    "reason": "There is no Authoring Practices pattern for a row of a static list. The governing source is the roles model, and it is unusually specific about what a `listitem` may carry.",
+    "roles": "https://www.w3.org/TR/wai-aria-1.2/#listitem"
+  },
+  "groupFamily": "list",
+  "roles": {
+    "root": "listitem"
+  },
+  "roleFacts": {
+    "supported": ["aria-level", "aria-posinset", "aria-setsize"],
+    "inherited": ["aria-current", "aria-busy"],
+    "deprecated": ["aria-disabled", "aria-invalid", "aria-errormessage", "aria-haspopup"],
+    "source": "https://www.w3.org/TR/wai-aria-1.2/#listitem",
+    "reason": "ARIA 1.2 deprecates `aria-disabled` on `listitem`. The state is therefore painted from `data-disabled` on the row and the attribute that means it is written on `content`, which is the element that can refuse an interaction. No surveyed implementation makes the distinction; MUI writes `aria-disabled` on the row."
+  },
+  "contentElement": {
+    "static": "div",
+    "action": "button",
+    "navigation": "a",
+    "default": "div",
+    "reason": "Three components rather than one `as` prop, because the three are three different accessibility trees and a string that picks between them turns a typo into a `div` no reader can reach. Angular reaches the same trees with one directive on the element the page wrote, which is that ecosystem's own composition."
+  },
+  "actionsPlacement": {
+    "part": "actions",
+    "sibling": "content",
+    "reason": "Interactive content may not nest inside `a` or `button`. A row that navigates and also carries a delete control has to place the two side by side, and every surveyed implementation lets a consumer nest them instead. It is the decision `tag` took for `remove`, stated once for every member."
+  },
+  "nesting": {
+    "tree": "root > [marker] content (div, button or a) > [start] body > label, description; [end] inside content; actions beside content, inside root",
+    "endOrActions": "end takes metadata, inside the box and part of its name; actions takes controls, beside the box",
+    "check": "in development, body, label and description outside a content part, and a content part inside a body, call console.error once per part, naming the expected parent. React reads a context the content part sets and Angular its injector, so the check holds under render; a production build drops it"
+  },
+  "labelPart": {
+    "part": "label",
+    "reason": "The title gets a box of its own, as it does in `tag`, `tabs` and `collapsible`: it is what `text-overflow` needs to clip a title the row cannot grow for, what `unicode-bidi: plaintext` needs to keep a title in another script from reordering the row around it, and what `overflow-wrap: anywhere` needs so a single unbroken token — a URL, a hash — breaks instead of pushing the trailing metadata out of the row."
+  },
+  "disabled": {
+    "button": "the native `disabled` attribute on the `button`",
+    "link": "`aria-disabled=\"true\"`, and the activation refused. The destination stays in the DOM: `aria-disabled` means perceivable but not operable, and an element under it stays focusable, so a reader can still reach the row and hear why it is unavailable. Taking the `href` away would be `disabled` semantics wearing an `aria-disabled` name, and it would also drop a destination the page bound after the element was created.",
+    "static": "nothing; a `div` refuses no interaction and the row dims, which is the rule `card` states for the same shape",
+    "row": "`data-disabled` only — never `aria-disabled`, which ARIA 1.2 deprecates on this role"
+  },
+  "loading": {
+    "attribute": "aria-busy",
+    "refuses": "activation, by the same means `disabled` uses",
+    "preserves": ["the row's width", "the accessible name"],
+    "reason": "`docs/component-features.md` section 2.5: a loading control keeps its width, blocks the duplicate action and keeps its accessible name. A busy row still says what it is."
+  },
+  "selected": {
+    "attribute": "data-selected",
+    "announcedBy": "the control the page composes into `start`",
+    "reason": "`aria-selected` is not valid on `listitem`. The row paints a selection the page owns and the `checkbox` in `start` announces it, which is `card`'s contract for the same problem."
+  },
+  "current": {
+    "attribute": "data-current",
+    "aria": "aria-current",
+    "values": ["page", "step", "location", "date", "time", "true"],
+    "reason": "ARIA 1.2 lists `aria-current` as inherited by `listitem` and does not deprecate it. It is the one selection-shaped state a static list may announce itself, and it is what a navigation list needs."
+  },
+  "setPosition": {
+    "attributes": ["aria-posinset", "aria-setsize"],
+    "written": "only when the page states them",
+    "source": "https://www.w3.org/TR/wai-aria-1.2/#aria-setsize",
+    "reason": "The specification is explicit that both are unnecessary while every row is in the DOM and necessary the moment only part of the set is. Writing them always makes every list disagree with itself as soon as a row is filtered out."
+  },
+  "container": {
+    "name": "slotted-list-item",
+    "type": "inline-size",
+    "breakpoint": "22rem",
+    "effect": "the trailing metadata leaves the row's inline axis and sits under the title, and the independent targets take a line of their own at the end of the row. The leading visual stays where it is: it is the row's identity, and moving it says nothing.",
+    "reason": "A literal, because `@container (min-width: var(--x))` is invalid — `docs/token-foundation.md` rule 4. The row answers its own width and the list does not, because the list has no layout that depends on it."
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next focusable element; `content` and every control in `actions` are in the page tab sequence",
+      "focus": "the next focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous focusable element, under the same rule",
+      "focus": "the previous focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "follows the destination of a link row; activates a button row",
+      "focus": "stays on the control",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "activates a button row; scrolls the page on a link row and a static one",
+      "focus": "stays on the control",
+      "source": "platform"
+    }
+  ],
+  "escapeBound": false,
+  "rovingTabindex": false,
+  "declined": {
+    "onAction": {
+      "reason": "Fluent and React Aria each ship an action event beside the click. `content` is a real `button` or `a`, so `onClick`, `onKeyDown` and the modified click a browser gives an anchor are the platform's already, and `docs/state-and-events.md` refuses two events for one transition by name."
+    },
+    "inactiveText": {
+      "reason": "Primer alone ships it. `disabled` with a description says the same in two lines: `<ListItem disabled><ListItemLabel>Search</ListItemLabel><ListItemDescription>Unavailable while the index rebuilds</ListItemDescription></ListItem>`."
+    },
+    "lines": {
+      "reason": "Angular Material counts the lines of a row and sizes it from the count. `align` answers the one thing the count decided — whether the leading visual sits with the title or with the block — and the row's height is then its content's, which is what keeps a translated string from breaking the recipe."
+    }
+  },
+  "axes": {
+    "tone": ["secondary", "accent", "info", "success", "warning", "danger"],
+    "size": ["sm", "md", "lg"],
+    "align": ["center", "start"]
+  },
+  "resolution": {
+    "tone": ["prop", "defaults", "secondary"],
+    "size": ["prop", "list", "defaults", "md"],
+    "align": ["prop", "defaults", "center"],
+    "inset": ["prop", "list", "defaults", false],
+    "truncate": ["prop", "defaults", false]
+  },
+  "provides": {
+    "listItemDefaults": ["tone", "size", "align", "inset", "truncate"],
+    "toContent": ["disabled", "loading"]
+  },
+  "stateAttributes": {
+    "selected": "data-selected",
+    "current": "data-current",
+    "disabled": "data-disabled",
+    "loading": "data-loading"
+  },
+  "members": {
+    "listItem": {
+      "nativeElement": "li",
+      "defaults": {
+        "tone": "secondary",
+        "size": "md",
+        "align": "center",
+        "inset": false,
+        "truncate": false,
+        "selected": false,
+        "current": false,
+        "disabled": false,
+        "loading": false
+      },
+      "capabilities": ["appearance", "size", "disabled", "loading", "wiring"],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "selected",
+        "current",
+        "loading",
+        "disabled"
+      ],
+      "parts": [
+        "root",
+        "marker",
+        "content",
+        "start",
+        "body",
+        "label",
+        "description",
+        "end",
+        "actions"
+      ]
+    }
+  },
+  "scenarios": {
+    "listItem": [
+      "playground",
+      "content-elements",
+      "anatomy",
+      "alignment",
+      "tone",
+      "states",
+      "actions",
+      "reflow",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

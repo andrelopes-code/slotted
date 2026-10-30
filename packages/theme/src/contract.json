@@ -1,0 +1,2708 @@
+{
+  "schemaVersion": 3,
+  "layers": ["primitive", "semantic", "component"],
+  "axes": ["base", "scheme", "density"],
+  "requiredSchemes": ["light", "dark", "high-contrast"],
+  "requiredDensities": ["comfortable", "compact", "dense"],
+  "groups": [
+    {
+      "id": "space",
+      "reader": "application",
+      "purpose": "How much separation or inset a layout needs, smallest first; a gap or an inset is one step.",
+      "pattern": "--slotted-space-{step}",
+      "dimensions": {
+        "step": "open"
+      }
+    },
+    {
+      "id": "radius",
+      "reader": "application",
+      "purpose": "How rounded a box or a part is drawn, from none to full.",
+      "pattern": "--slotted-radius-{step}",
+      "dimensions": {
+        "step": "open"
+      }
+    },
+    {
+      "id": "font-family",
+      "reader": "application",
+      "purpose": "The typeface text is set in.",
+      "pattern": "--slotted-font-family-{family}",
+      "dimensions": {
+        "family": {
+          "sans": "The typeface of the interface's text.",
+          "mono": "The typeface of code and of values read character by character.",
+          "heading": "The typeface of headings; a theme may point it at a face of its own."
+        }
+      }
+    },
+    {
+      "id": "font-size",
+      "reader": "application",
+      "purpose": "What size text is set in, smallest first; text of the application's own takes its size from the `typography` family before this scale.",
+      "pattern": "--slotted-font-size-{step}",
+      "dimensions": {
+        "step": "open"
+      }
+    },
+    {
+      "id": "line-height",
+      "reader": "application",
+      "purpose": "The line height that pairs with the font-size step of the same name.",
+      "pattern": "--slotted-line-height-{step}",
+      "dimensions": {
+        "step": "open"
+      }
+    },
+    {
+      "id": "letter-spacing",
+      "reader": "application",
+      "purpose": "The tracking large type takes: the tight step at the md and lg display steps, the tighter step at 3xl and 4xl. Text at the body steps reads the face as drawn.",
+      "tokens": {
+        "--slotted-letter-spacing-tight": "The tracking of a display figure or a wordmark at the md and lg font-size steps.",
+        "--slotted-letter-spacing-tighter": "The tracking of a display figure at the 3xl and 4xl font-size steps."
+      }
+    },
+    {
+      "id": "font-weight",
+      "reader": "application",
+      "purpose": "How much typographic emphasis text carries.",
+      "pattern": "--slotted-font-weight-{weight}",
+      "dimensions": {
+        "weight": {
+          "regular": "Running text.",
+          "medium": "Text that stands out from running text without heading it.",
+          "semibold": "A heading, a control's label, a figure that leads."
+        }
+      }
+    },
+    {
+      "id": "border-width",
+      "reader": "application",
+      "purpose": "How thick an edge or a ring is drawn.",
+      "pattern": "--slotted-border-width-{width}",
+      "dimensions": {
+        "width": {
+          "thin": "The edge of a box, a control or a divider.",
+          "medium": "The weight between thin and thick.",
+          "thick": "The heaviest edge."
+        }
+      }
+    },
+    {
+      "id": "duration",
+      "reader": "application",
+      "purpose": "How long a transition or one cycle of a loop takes. The steps from instant to long collapse under reduced motion; the loops do not, so a repeating animation stops there instead.",
+      "pattern": "--slotted-duration-{step}",
+      "dimensions": {
+        "step": {
+          "instant": "A change that must not read as motion.",
+          "short": "A control changing state: a ground, a border, a mark.",
+          "medium": "A part appearing or leaving: a popover, a menu, a tooltip.",
+          "long": "A surface entering or leaving over a larger distance: a drawer, a dialog.",
+          "loop-fast": "One cycle of a fast repeating animation.",
+          "loop": "One cycle of a repeating animation.",
+          "loop-slow": "One cycle of a slow repeating animation."
+        }
+      }
+    },
+    {
+      "id": "easing",
+      "reader": "application",
+      "purpose": "How the velocity of a transition changes.",
+      "pattern": "--slotted-easing-{curve}",
+      "dimensions": {
+        "curve": {
+          "standard": "A change within the screen.",
+          "enter": "A part arriving.",
+          "exit": "A part leaving.",
+          "emphasized": "A change meant to be noticed; it overshoots its end."
+        }
+      }
+    },
+    {
+      "id": "z-index",
+      "reader": "application",
+      "purpose": "Which layer an element occupies above the page.",
+      "pattern": "--slotted-z-index-{layer}",
+      "dimensions": {
+        "layer": {
+          "sticky": "A header or a column that stays in place while its region scrolls.",
+          "overlay": "A modal surface and the scrim under it.",
+          "popover": "A popover, a menu or a tooltip; above an overlay, so one opens from a dialog.",
+          "toast": "A toast; above every other layer."
+        }
+      }
+    },
+    {
+      "id": "shadow",
+      "reader": "application",
+      "purpose": "What elevation a surface has above the one under it, smallest first; under forced colours every step is none.",
+      "pattern": "--slotted-shadow-{step}",
+      "dimensions": {
+        "step": "open"
+      }
+    },
+    {
+      "id": "surface",
+      "reader": "application",
+      "purpose": "The grounds content stands on.",
+      "tokens": {
+        "--slotted-surface": "The ground of the page's content and of a card.",
+        "--slotted-surface-raised": "The ground of a surface above another: a popover, a menu, a dialog; paired with a step of `shadow`.",
+        "--slotted-surface-sunken": "The canvas under the content: the ground a card and a field stand out from.",
+        "--slotted-surface-inverse": "A ground in the opposite lightness, with `--slotted-text-inverse` on it.",
+        "--slotted-surface-inverse-hover": "The inverse ground under the pointer: `--slotted-surface-inverse` moved a share toward the opposite lightness.",
+        "--slotted-surface-inverse-active": "The inverse ground while pressed, a step beyond the hover.",
+        "--slotted-surface-material": "The ground of a bar that floats over scrolling content, drawn as a material: `--slotted-surface` at a partial share over transparency, behind `--slotted-material-backdrop`. Under `prefers-reduced-transparency: reduce` it is `--slotted-surface`, and under forced colours the Canvas system colour.",
+        "--slotted-material-backdrop": "The backdrop filter a material is drawn with: the content scrolling under it, saturated and blurred. Each scheme states its own, because a light page holds less contrast for a blur to keep. Under `prefers-reduced-transparency: reduce` and forced colours it is `none`."
+      }
+    },
+    {
+      "id": "text",
+      "reader": "application",
+      "purpose": "The colours text is painted in.",
+      "tokens": {
+        "--slotted-text": "Text on a surface.",
+        "--slotted-text-muted": "Text that ranks below the text beside it: a caption, a hint, a secondary value.",
+        "--slotted-text-inverse": "Text on `--slotted-surface-inverse`."
+      }
+    },
+    {
+      "id": "border",
+      "reader": "application",
+      "purpose": "The colours of lines between and inside surfaces.",
+      "tokens": {
+        "--slotted-border-subtle": "A rule inside a surface: a divider, the edge of a region, the seam under a header.",
+        "--slotted-border-strong": "The line between two surfaces; it holds 3:1 against every surface a control stands on."
+      }
+    },
+    {
+      "id": "disabled",
+      "reader": "application",
+      "purpose": "How an unavailable control is painted.",
+      "pattern": "--slotted-disabled-{role}",
+      "dimensions": {
+        "role": {
+          "background": "The ground of an unavailable control.",
+          "foreground": "The text and icons of an unavailable control.",
+          "border": "The edge of an unavailable control, a step lighter than the edge of an available one."
+        }
+      }
+    },
+    {
+      "id": "focus-ring",
+      "reader": "application",
+      "purpose": "The outline every focused element draws.",
+      "tokens": {
+        "--slotted-focus-ring-width": "The thickness of the focus outline.",
+        "--slotted-focus-ring-offset": "The distance between the element and its focus outline.",
+        "--slotted-focus-ring-color": "The colour of the focus outline.",
+        "--slotted-focus-ring-color-invalid": "The colour of the focus outline of a control in error; an element in error points `--slotted-focus-ring-color` at it."
+      }
+    },
+    {
+      "id": "target",
+      "reader": "application",
+      "purpose": "How small an interactive target may be.",
+      "tokens": {
+        "--slotted-target-min": "The smallest target in both axes: 24 by 24 CSS pixels.",
+        "--slotted-target-comfortable": "The size a target grows to under a coarse pointer."
+      }
+    },
+    {
+      "id": "tone",
+      "reader": "application",
+      "purpose": "What an element carrying an intent is painted with: seven tones, each with the same nine roles.",
+      "pattern": "--slotted-tone-{tone}-{role}",
+      "dimensions": {
+        "tone": {
+          "accent": "The product's intent: the primary action, the chosen option, the current place.",
+          "secondary": "A second intent beside accent, for an action or a mark that must not compete with it.",
+          "neutral": "Ink: the inverse surface as a fill and the text colour as a label, for a primary action in a product that keeps the accent for data.",
+          "info": "A fact the reader is told with no judgement of it: a note, a transfer, a change of state that is neither good nor bad. Its own seed, so it stays apart from an accent that shares a hue with success.",
+          "success": "A result that completed or a state that is healthy.",
+          "warning": "A state that needs attention before it becomes a failure.",
+          "danger": "A failure, an error or an action that destroys data."
+        },
+        "role": {
+          "solid": "A filled ground: the primary button of the tone.",
+          "solid-hover": "The filled ground under the pointer.",
+          "solid-active": "The filled ground while pressed.",
+          "on-solid": "Text and icons on the filled ground.",
+          "surface": "A tinted ground; a state that must be seen pairs it with the tone's border.",
+          "subtle-hover": "The tint under the pointer of an element with no filled ground.",
+          "subtle-active": "That tint while pressed.",
+          "border": "An edge in the tone, at the non-text contrast ratio against the page and against its own surface.",
+          "text": "Text in the tone on a surface."
+        }
+      }
+    },
+    {
+      "id": "data",
+      "reader": "application",
+      "purpose": "What a series of data is painted with: a line, a bar, a slice. Slots are assigned in order and never skipped.",
+      "pattern": "--slotted-data-{slot}",
+      "dimensions": {
+        "slot": {
+          "1": "The first series.",
+          "2": "The second series.",
+          "3": "The third series.",
+          "4": "The fourth series.",
+          "5": "The fifth series.",
+          "6": "The sixth series.",
+          "7": "The seventh series.",
+          "8": "The eighth series."
+        }
+      }
+    },
+    {
+      "id": "data-on",
+      "reader": "application",
+      "purpose": "The ink drawn on a data slot used as a ground — an icon on a category tile — at the non-text ratio (3:1, WCAG 1.4.11) against its slot in every scheme.",
+      "pattern": "--slotted-data-{slot}-on",
+      "dimensions": {
+        "slot": {
+          "1": "Ink on the first slot.",
+          "2": "Ink on the second slot.",
+          "3": "Ink on the third slot.",
+          "4": "Ink on the fourth slot.",
+          "5": "Ink on the fifth slot.",
+          "6": "Ink on the sixth slot.",
+          "7": "Ink on the seventh slot.",
+          "8": "Ink on the eighth slot."
+        }
+      }
+    },
+    {
+      "id": "control",
+      "reader": "application",
+      "purpose": "What a control's text and frame look like at every size.",
+      "tokens": {
+        "--slotted-control-font-family": "The typeface of a control's text.",
+        "--slotted-control-font-weight": "The weight of a control's label.",
+        "--slotted-control-line-height": "The line height of a control's text.",
+        "--slotted-control-letter-spacing": "The letter spacing of a control's text.",
+        "--slotted-control-border-width": "The edge width of a control at rest.",
+        "--slotted-control-radius": "The corner of a control.",
+        "--slotted-control-shadow-focus-geometry": "Offset, blur and spread of the shadow a focused control draws, with no colour; drawn with `--slotted-focus-ring-color`.",
+        "--slotted-control-focus-ring-offset": "The distance between a field's frame and its focus outline; set to the negative of `--slotted-control-border-width`, a field's ring lies flush over its border while a button keeps `--slotted-focus-ring-offset`.",
+        "--slotted-control-transition-duration": "How long a control takes to change state.",
+        "--slotted-control-transition-easing": "The curve of a control's change of state.",
+        "--slotted-control-invalid-edge-width": "The edge an invalid control adds inside its border, so the state reads where colour cannot.",
+        "--slotted-control-border-color": "The edge colour of a control at rest.",
+        "--slotted-control-surface": "The ground of a control at rest: a field, a select, a segmented control.",
+        "--slotted-control-shadow": "The shadow of a control at rest."
+      }
+    },
+    {
+      "id": "control-size",
+      "reader": "application",
+      "purpose": "The size and inner spacing of a control at each size step; every value follows density.",
+      "pattern": "--slotted-control-{part}-{size}",
+      "dimensions": {
+        "part": {
+          "height": "The block size of the control.",
+          "padding-inline": "The inline space between the control's edge and its content.",
+          "font-size": "The size of the control's text.",
+          "icon-size": "The size of an icon inside the control.",
+          "gap": "The space between items inside the control, and between one choice and the next in a group.",
+          "label-gap": "The space between a binary control — a box, a circle, a switch — and its own label.",
+          "inner-size": "The block size of what stands inside the control: a key, a chip, a clear mark."
+        },
+        "size": {
+          "sm": "The small step.",
+          "md": "The medium step.",
+          "lg": "The large step."
+        }
+      }
+    },
+    {
+      "id": "selection",
+      "reader": "application",
+      "purpose": "The size of a selection control and of the halo behind it.",
+      "tokens": {
+        "--slotted-selection-size-sm": "The box of a checkbox and the circle of a radio at the small step.",
+        "--slotted-selection-size-md": "The box and the circle at the medium step.",
+        "--slotted-selection-size-lg": "The box and the circle at the large step.",
+        "--slotted-selection-halo-opacity": "The share of `--slotted-tone-accent-text` in the halo behind a selection control under the pointer."
+      }
+    },
+    {
+      "id": "highlight",
+      "reader": "application",
+      "purpose": "How strong the band behind a matched span is.",
+      "tokens": {
+        "--slotted-highlight-tint-opacity": "The share of `--slotted-tone-accent-text` in the band behind a matched span."
+      }
+    },
+    {
+      "id": "current",
+      "reader": "application",
+      "purpose": "How the place the reader is on is marked.",
+      "tokens": {
+        "--slotted-current-edge": "The edge of the row the reader is on, drawn over its tone ground."
+      }
+    },
+    {
+      "id": "state",
+      "reader": "application",
+      "purpose": "Translucent layers laid over whatever surface an element stands on, so a hovered, pressed or selected row reads the same on the page and on a raised surface. Each is the scheme's text colour at a small share over transparency. Under forced colours every layer is the Canvas system colour: the state is carried by the system colours the family draws, Highlight for selection and an outline for focus.",
+      "tokens": {
+        "--slotted-state-hover": "The layer under the pointer.",
+        "--slotted-state-pressed": "The layer while the element is pressed; the strongest of the three.",
+        "--slotted-state-selected": "The layer of a selected or open element, between hover and pressed."
+      }
+    },
+    {
+      "id": "scrim",
+      "reader": "application",
+      "purpose": "The veil under a modal surface.",
+      "tokens": {
+        "--slotted-scrim": "The veil between the page and a modal surface above it."
+      }
+    },
+    {
+      "id": "icon",
+      "reader": "family",
+      "purpose": "The geometry of an icon a family draws itself; an icon of the application's own is drawn with the `icon` family.",
+      "pattern": "--slotted-icon-{glyph}",
+      "dimensions": {
+        "glyph": "open"
+      }
+    },
+    {
+      "id": "upload-kind",
+      "reader": "family",
+      "purpose": "The tile colours of file kinds in `upload` and `attachment`.",
+      "pattern": "--slotted-upload-kind-{kind}",
+      "dimensions": {
+        "kind": "open"
+      }
+    },
+    {
+      "id": "code",
+      "reader": "family",
+      "purpose": "The colours of syntax scopes in `code-block`.",
+      "pattern": "--slotted-code-{scope}",
+      "dimensions": {
+        "scope": "open"
+      }
+    },
+    {
+      "id": "rating",
+      "reader": "family",
+      "purpose": "The edge of a star in `rating`.",
+      "tokens": {
+        "--slotted-rating-edge": "The edge of a star."
+      }
+    },
+    {
+      "id": "avatar-size",
+      "reader": "family",
+      "purpose": "The sizes of `avatar`, smallest first.",
+      "pattern": "--slotted-avatar-size-{size}",
+      "dimensions": {
+        "size": "open"
+      }
+    }
+  ],
+  "tokens": [
+    {
+      "name": "--slotted-radius-none",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-family-sans",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "font-family",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-family-mono",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "font-family",
+      "root": true
+    },
+    {
+      "name": "--slotted-border-width-thin",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-border-width-thick",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-border-width-medium",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-duration-loop-fast",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "duration",
+      "root": true
+    },
+    {
+      "name": "--slotted-duration-loop",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "duration",
+      "root": true
+    },
+    {
+      "name": "--slotted-duration-loop-slow",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "duration",
+      "root": true
+    },
+    {
+      "name": "--slotted-space-1",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-space-2",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-space-3",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-space-4",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-space-5",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-space-6",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-space-7",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-space-8",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-space-9",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-space-10",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-space-11",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-space-12",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-radius-xs",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-radius-sm",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-radius-md",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-radius-lg",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-radius-full",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-size-xs",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-size-sm",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-size-md",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-size-lg",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-size-xl",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-size-2xl",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-size-3xl",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-size-4xl",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-line-height-xs",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-line-height-sm",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-line-height-md",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-line-height-lg",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-line-height-xl",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-line-height-2xl",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-line-height-3xl",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-line-height-4xl",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-letter-spacing-tight",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-letter-spacing-tighter",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-weight-regular",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-weight-medium",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-weight-semibold",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-duration-instant",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "duration",
+      "root": true,
+      "reducedMotion": true
+    },
+    {
+      "name": "--slotted-duration-short",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "duration",
+      "root": true,
+      "reducedMotion": true
+    },
+    {
+      "name": "--slotted-duration-medium",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "duration",
+      "root": true,
+      "reducedMotion": true
+    },
+    {
+      "name": "--slotted-duration-long",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "duration",
+      "root": true,
+      "reducedMotion": true
+    },
+    {
+      "name": "--slotted-easing-standard",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "easing",
+      "root": true
+    },
+    {
+      "name": "--slotted-easing-enter",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "easing",
+      "root": true
+    },
+    {
+      "name": "--slotted-easing-exit",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "easing",
+      "root": true
+    },
+    {
+      "name": "--slotted-easing-emphasized",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "easing",
+      "root": true
+    },
+    {
+      "name": "--slotted-z-index-sticky",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-z-index-overlay",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-z-index-popover",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-z-index-toast",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-check",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-minus",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-plus",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-dot",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-x",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-ellipsis",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-copy",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-eye",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-eye-off",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-chevron-right",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-chevrons-right",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-panel-open",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-panel-close",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-arrow-left",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-pin",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-pin-off",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-chevron-down",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-chevron-left",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-chevron-up",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-calendar",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-clock",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-external",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-person",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-circle",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-circle-info",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-circle-check",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-triangle-alert",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-circle-alert",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-circle-x",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-circle-question",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-inbox",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-search",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-search-x",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-lock",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-caps-lock",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-arrow-up",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-arrow-right",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-arrow-down",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-stop",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-paperclip",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-mic",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-pipette",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-cloud-off",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-loader-circle",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-maximize",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-minimize",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-upload",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-file",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-trash",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-play",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-pause",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-rotate-ccw",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-file-image",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-file-text",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-file-spreadsheet",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-file-audio",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-file-video",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-file-archive",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-file-type",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-presentation",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-text-wrap",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-bell",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-trending-up",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-image-off",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-funnel",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-grip-vertical",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-grip-horizontal",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-star",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-check-check",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-pencil",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-download",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-icon-rotate-cw",
+      "layer": "primitive",
+      "axis": "base",
+      "type": "image",
+      "root": true
+    },
+    {
+      "name": "--slotted-font-family-heading",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "font-family",
+      "literal": "a heading face may be a typeface of its own, which no primitive face names"
+    },
+    {
+      "name": "--slotted-control-font-family",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "font-family"
+    },
+    {
+      "name": "--slotted-control-font-weight",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "number"
+    },
+    {
+      "name": "--slotted-control-line-height",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "number",
+      "literal": "a control sets its own line box to its height"
+    },
+    {
+      "name": "--slotted-control-letter-spacing",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length",
+      "literal": "zero is the absence of tracking, not a scale step"
+    },
+    {
+      "name": "--slotted-control-border-width",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length"
+    },
+    {
+      "name": "--slotted-control-radius",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length"
+    },
+    {
+      "name": "--slotted-control-shadow-focus-geometry",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "shadow",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-transition-duration",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "duration"
+    },
+    {
+      "name": "--slotted-control-transition-easing",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "easing"
+    },
+    {
+      "name": "--slotted-focus-ring-width",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length"
+    },
+    {
+      "name": "--slotted-control-invalid-edge-width",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length"
+    },
+    {
+      "name": "--slotted-focus-ring-offset",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length"
+    },
+    {
+      "name": "--slotted-control-focus-ring-offset",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length"
+    },
+    {
+      "name": "--slotted-target-min",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-target-comfortable",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-selection-size-sm",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-selection-size-md",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-selection-size-lg",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-selection-halo-opacity",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-highlight-tint-opacity",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "number",
+      "root": true
+    },
+    {
+      "name": "--slotted-focus-ring-color",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Highlight"
+    },
+    {
+      "name": "--slotted-focus-ring-color-invalid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "forcedColor": "Highlight"
+    },
+    {
+      "name": "--slotted-border-subtle",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonBorder"
+    },
+    {
+      "name": "--slotted-text",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-text-muted",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "GrayText"
+    },
+    {
+      "name": "--slotted-disabled-background",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-disabled-foreground",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "GrayText"
+    },
+    {
+      "name": "--slotted-disabled-border",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "GrayText"
+    },
+    {
+      "name": "--slotted-tone-accent-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Highlight"
+    },
+    {
+      "name": "--slotted-tone-accent-surface",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-accent-solid-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Highlight"
+    },
+    {
+      "name": "--slotted-tone-accent-solid-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Highlight"
+    },
+    {
+      "name": "--slotted-tone-accent-on-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "HighlightText"
+    },
+    {
+      "name": "--slotted-tone-accent-border",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonBorder"
+    },
+    {
+      "name": "--slotted-tone-accent-text",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-tone-accent-subtle-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-accent-subtle-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-secondary-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-secondary-surface",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-secondary-solid-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-secondary-solid-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-secondary-on-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonText"
+    },
+    {
+      "name": "--slotted-tone-secondary-border",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonBorder"
+    },
+    {
+      "name": "--slotted-tone-secondary-text",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-tone-secondary-subtle-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-secondary-subtle-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-neutral-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-tone-neutral-solid-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-tone-neutral-solid-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-tone-neutral-on-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-neutral-surface",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-neutral-subtle-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-neutral-subtle-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-neutral-border",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonBorder"
+    },
+    {
+      "name": "--slotted-tone-neutral-text",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-tone-success-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-success-surface",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-success-solid-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-success-solid-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-success-on-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonText"
+    },
+    {
+      "name": "--slotted-tone-success-border",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonBorder"
+    },
+    {
+      "name": "--slotted-tone-success-text",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-tone-success-subtle-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-success-subtle-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-warning-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-warning-surface",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-warning-solid-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-warning-solid-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-warning-on-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonText"
+    },
+    {
+      "name": "--slotted-tone-warning-border",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonBorder"
+    },
+    {
+      "name": "--slotted-tone-warning-text",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-tone-warning-subtle-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-warning-subtle-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-danger-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-danger-surface",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-danger-solid-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-danger-solid-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-danger-on-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonText"
+    },
+    {
+      "name": "--slotted-tone-danger-border",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonBorder"
+    },
+    {
+      "name": "--slotted-tone-danger-text",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-tone-danger-subtle-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-danger-subtle-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-info-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-info-surface",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-info-solid-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-info-solid-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-tone-info-on-solid",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonText"
+    },
+    {
+      "name": "--slotted-tone-info-border",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonBorder"
+    },
+    {
+      "name": "--slotted-tone-info-text",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-tone-info-subtle-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-tone-info-subtle-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-shadow-xs",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "shadow",
+      "root": true,
+      "forcedColor": "none"
+    },
+    {
+      "name": "--slotted-shadow-sm",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "shadow",
+      "root": true,
+      "forcedColor": "none"
+    },
+    {
+      "name": "--slotted-shadow-md",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "shadow",
+      "root": true,
+      "forcedColor": "none"
+    },
+    {
+      "name": "--slotted-shadow-lg",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "shadow",
+      "root": true,
+      "forcedColor": "none"
+    },
+    {
+      "name": "--slotted-surface",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-surface-raised",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-surface-sunken",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-surface-inverse",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-surface-inverse-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-surface-inverse-active",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-surface-material",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas",
+      "reducedTransparency": "var(--slotted-surface)"
+    },
+    {
+      "name": "--slotted-material-backdrop",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "filter",
+      "literal": "a filter function names no other token",
+      "forcedColor": "none",
+      "reducedTransparency": "none"
+    },
+    {
+      "name": "--slotted-text-inverse",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-border-strong",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-control-border-color",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonBorder"
+    },
+    {
+      "name": "--slotted-control-surface",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "forcedColor": "Field"
+    },
+    {
+      "name": "--slotted-current-edge",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Highlight"
+    },
+    {
+      "name": "--slotted-state-hover",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-state-pressed",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-state-selected",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-control-shadow",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "shadow",
+      "root": true,
+      "forcedColor": "none"
+    },
+    {
+      "name": "--slotted-scrim",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-data-1",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-data-2",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-data-3",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-data-4",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-data-5",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-data-6",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-data-7",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-data-8",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-data-1-on",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-data-2-on",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-data-3-on",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-data-4-on",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-data-5-on",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-data-6-on",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-data-7-on",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-data-8-on",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "Canvas"
+    },
+    {
+      "name": "--slotted-control-height-sm",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-height-md",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-height-lg",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-padding-inline-sm",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-padding-inline-md",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-padding-inline-lg",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-font-size-sm",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-font-size-md",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-font-size-lg",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-icon-size-sm",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-icon-size-md",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-icon-size-lg",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-gap-sm",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-gap-md",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-gap-lg",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-label-gap-sm",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-label-gap-md",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-label-gap-lg",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-inner-size-sm",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-inner-size-md",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-control-inner-size-lg",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-upload-kind-pdf",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-upload-kind-document",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-upload-kind-spreadsheet",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-upload-kind-presentation",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-upload-kind-image",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-upload-kind-video",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-upload-kind-audio",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-upload-kind-archive",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-upload-kind-other",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonFace"
+    },
+    {
+      "name": "--slotted-upload-kind-foreground",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "ButtonText"
+    },
+    {
+      "name": "--slotted-code-comment",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-code-keyword",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-code-string",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-code-number",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-code-function",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-code-type",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-code-variable",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-code-property",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-code-punctuation",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-code-tag",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-code-attribute",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-code-constant",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-rating-edge",
+      "layer": "component",
+      "axis": "scheme",
+      "type": "color",
+      "root": true,
+      "forcedColor": "CanvasText"
+    },
+    {
+      "name": "--slotted-avatar-size-xs",
+      "layer": "component",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-avatar-size-sm",
+      "layer": "component",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-avatar-size-md",
+      "layer": "component",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-avatar-size-lg",
+      "layer": "component",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
+      "name": "--slotted-avatar-size-xl",
+      "layer": "component",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    }
+  ]
+}

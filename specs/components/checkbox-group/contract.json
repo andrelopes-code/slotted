@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 5,
+  "family": "checkbox-group",
+  "ui": "checkbox-group",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Set of checkboxes under one label."
+  },
+  "itemFamily": "checkbox",
+  "rootRole": "group",
+  "roleWithdrawnInside": "field-group",
+  "stateSource": "field",
+  "mirrorsState": true,
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "disabled",
+  "readOnlyAttribute": "aria-readonly",
+  "wiring": {
+    "id": "never",
+    "aria-labelledby": "the field's label, inside a field, unless the consumer writes aria-label or aria-labelledby",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "disabled": "disabled",
+    "readonly": "aria-readonly"
+  },
+  "parent": {
+    "derivedFrom": "allValues",
+    "checkedWhen": "every value is selected",
+    "indeterminateWhen": "some but not every value is selected",
+    "requestReplaces": "the whole selection"
+  },
+  "counter": {
+    "unit": "items",
+    "placedBy": "field",
+    "limitFrom": "allValues"
+  },
+  "keyboard": [],
+  "escapeBound": false,
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["plain", "tile"],
+    "orientation": ["vertical", "horizontal"],
+    "labelPlacement": ["end", "start"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "plain"],
+    "orientation": ["prop", "defaults", "vertical"],
+    "labelPlacement": ["prop", "defaults", "end"]
+  },
+  "declined": {
+    "columns": {
+      "deferTo": "grid",
+      "reason": "grid already ships columns, minItemWidth and a stretching alignment, so a row of equal-width tiles is a grid around the items. Two families laying out one row would be two answers to one question."
+    }
+  },
+  "provides": {
+    "checkboxGroupDefaults": ["size", "variant", "orientation", "labelPlacement"],
+    "toItems": ["size", "variant", "labelPlacement", "disabled", "readOnly", "invalid", "name"]
+  },
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly"
+  },
+  "stateModel": {
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard"]
+    }
+  },
+  "members": {
+    "checkboxGroup": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "plain",
+        "orientation": "vertical",
+        "labelPlacement": "end",
+        "showCount": false
+      },
+      "capabilities": [
+        "selection",
+        "orientation",
+        "size",
+        "appearance",
+        "placement",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": ["default", "disabled", "readonly", "invalid"],
+      "parts": ["root"]
+    }
+  },
+  "scenarios": {
+    "checkboxGroup": [
+      "playground",
+      "orientation",
+      "tile",
+      "parent",
+      "states",
+      "count",
+      "field",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

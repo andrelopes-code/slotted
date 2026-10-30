@@ -1,0 +1,755 @@
+<!--
+  Every scene holding an overlay declares `data-fixed`, which gives the stage
+  `contain: layout paint` and makes it the containing block a `position: fixed`
+  layer needs. Without it one page's nine cells each paint a full-viewport layer
+  over the whole page and over each other.
+
+  The two inline scenes declare nothing: an inline drawer is a box in the flow,
+  and giving it a containing block would hide the one thing it is here to show.
+
+  The page behind each scrim is written out rather than left empty. The scrim is
+  half the picture, and a scrim over nothing shows nothing.
+-->
+
+<section data-scene="page-behind" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-5)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Invoices</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      Everything under the scrim is inert while a modal layer is open: the browser is told by the
+      <code>inert</code> attribute, not only by the paint.
+    </p>
+    <button
+      style="justify-self: start"
+      data-part="trigger"
+      data-part-trigger=""
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="true"
+    >
+      Open details
+    </button>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-mode="overlay"
+    data-side="end"
+    data-size="md"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="d1-title"
+      aria-describedby="d1-description"
+    >
+      <header data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="d1-title">Invoice 4471</h2>
+        <p data-part="description" data-part-description="" id="d1-description">
+          Issued on August 12, due in 11 days.
+        </p>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </header>
+      <div data-part="body" data-part-body="">
+        <p style="margin: 0">
+          A drawer holds a secondary task. The middle row is the only one that scrolls, which is
+          what keeps the actions on screen however long the body gets.
+        </p>
+      </div>
+      <footer data-part="footer" data-part-footer="">
+        <button type="button">Cancel</button>
+        <button type="button">Download PDF</button>
+      </footer>
+    </div>
+  </div>
+</section>
+
+<section data-scene="side-start" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-lg); margin: 0">Navigation</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      The side is logical: <code>start</code> sits against the reading start edge, and the same
+      markup mirrors under <code>dir="rtl"</code> with no second rule.
+    </p>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-mode="overlay"
+    data-side="start"
+    data-size="sm"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="d2-title"
+    >
+      <header data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="d2-title">Menu</h2>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </header>
+      <div data-part="body" data-part-body="">
+        <p style="margin: 0">Projects</p>
+        <p style="margin: 0">Invoices</p>
+        <p style="margin: 0">Team</p>
+      </div>
+      <div
+        data-part="resizer"
+        data-part-resizer=""
+        role="separator"
+        tabindex="0"
+        aria-orientation="vertical"
+        aria-valuenow="30"
+        aria-valuemin="20"
+        aria-valuemax="100"
+        aria-labelledby="d2-title"
+        aria-controls="d2-panel"
+      >
+        <span data-part="line" data-part-line="" aria-hidden="true"></span
+        ><span data-part="grip" data-part-grip="" aria-hidden="true"></span
+        ><span data-part="line" data-part-line="" aria-hidden="true"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sheet" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-lg); margin: 0">Invoices</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      The sheet fits its content: three filter rows and the footer, and nothing below them. On a
+      wide screen it stops at 40 rem and is centered over the scrim.
+    </p>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-mode="overlay"
+    data-side="bottom"
+    data-size="content"
+    data-drag="panel"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="d3-title"
+      id="d3-panel"
+    >
+      <div
+        data-part="resizer"
+        data-part-resizer=""
+        role="separator"
+        tabindex="0"
+        aria-orientation="horizontal"
+        aria-valuenow="42"
+        aria-valuemin="20"
+        aria-valuemax="100"
+        aria-labelledby="d3-title"
+        aria-controls="d3-panel"
+      >
+        <span data-part="line" data-part-line="" aria-hidden="true"></span
+        ><span data-part="grip" data-part-grip="" aria-hidden="true"></span
+        ><span data-part="line" data-part-line="" aria-hidden="true"></span>
+      </div>
+      <header data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="d3-title">Filter invoices</h2>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </header>
+      <div data-part="body" data-part-body="">
+        <div style="display: grid; gap: var(--slotted-space-3)">
+          <p style="margin: 0">Period: last 30 days</p>
+          <p style="margin: 0">Status: open, overdue</p>
+          <p style="margin: 0">Owner: Marian Dunn</p>
+        </div>
+      </div>
+      <footer data-part="footer" data-part-footer="">
+        <button type="button">Limpar</button>
+        <button type="button">Aplicar</button>
+      </footer>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sheet-long" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-lg); margin: 0">Invoices</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      Twelve customers do not fit: the sheet stops four rems below the top, leaving that strip of
+      scrim for outside touch, and only the body scrolls.
+    </p>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-mode="overlay"
+    data-side="bottom"
+    data-size="content"
+    data-drag="panel"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="d3l-title"
+      id="d3l-panel"
+    >
+      <div
+        data-part="resizer"
+        data-part-resizer=""
+        role="separator"
+        tabindex="0"
+        aria-orientation="horizontal"
+        aria-valuenow="42"
+        aria-valuemin="20"
+        aria-valuemax="100"
+        aria-labelledby="d3l-title"
+        aria-controls="d3l-panel"
+      >
+        <span data-part="line" data-part-line="" aria-hidden="true"></span
+        ><span data-part="grip" data-part-grip="" aria-hidden="true"></span
+        ><span data-part="line" data-part-line="" aria-hidden="true"></span>
+      </div>
+      <header data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="d3l-title">Customers with open invoices</h2>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </header>
+      <div data-part="body" data-part-body="">
+        <div style="display: grid; gap: var(--slotted-space-4)">
+          <p style="margin: 0">Acme Logistics — $12,480.00</p>
+          <p style="margin: 0">Horizon Bank — $3,920.50</p>
+          <p style="margin: 0">Green House Foods — $845.00</p>
+          <p style="margin: 0">North Distributors — $27,300.00</p>
+          <p style="margin: 0">Lume Studio — $1,150.00</p>
+          <p style="margin: 0">Downtown Community Pharmacy — $6,712.30</p>
+          <p style="margin: 0">Aurora Print Shop — $2,004.90</p>
+          <p style="margin: 0">Hotel Overlook — $18,960.00</p>
+          <p style="margin: 0">Root Institute — $540.00</p>
+          <p style="margin: 0">Hillside Gardens — $9,870.00</p>
+          <p style="margin: 0">Klabin Packaging — $31,225.75</p>
+          <p style="margin: 0">Vitta Laboratory — $4,380.00</p>
+        </div>
+      </div>
+      <footer data-part="footer" data-part-footer="">
+        <button type="button">Limpar</button>
+        <button type="button">Aplicar</button>
+      </footer>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sheet-undimmed" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-lg); margin: 0">Invoices</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      Below the detent the consumer named in scrimFrom, the page does not darken and keeps receiving
+      touch; the sheet is not modal.
+    </p>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-mode="overlay"
+    data-side="bottom"
+    data-size="content"
+    data-drag="panel"
+    data-mount="active"
+    data-undimmed
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      role="dialog"
+      aria-labelledby="d3u-title"
+      id="d3u-panel"
+    >
+      <div
+        data-part="resizer"
+        data-part-resizer=""
+        role="separator"
+        tabindex="0"
+        aria-orientation="horizontal"
+        aria-valuenow="42"
+        aria-valuemin="20"
+        aria-valuemax="100"
+        aria-labelledby="d3u-title"
+        aria-controls="d3u-panel"
+      >
+        <span data-part="line" data-part-line="" aria-hidden="true"></span
+        ><span data-part="grip" data-part-grip="" aria-hidden="true"></span
+        ><span data-part="line" data-part-line="" aria-hidden="true"></span>
+      </div>
+      <header data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="d3u-title">Filter invoices</h2>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </header>
+      <div data-part="body" data-part-body="">
+        <div style="display: grid; gap: var(--slotted-space-3)">
+          <p style="margin: 0">Period: last 30 days</p>
+          <p style="margin: 0">Status: open, overdue</p>
+          <p style="margin: 0">Owner: Marian Dunn</p>
+        </div>
+      </div>
+      <footer data-part="footer" data-part-footer="">
+        <button type="button">Limpar</button>
+        <button type="button">Aplicar</button>
+      </footer>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sheet-keyboard" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-lg); margin: 0">Invoices</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      With the on-screen keyboard open, the layer retreats by what it covers, and the sheet rests
+      above the keys.
+    </p>
+  </div>
+  <div
+    aria-hidden="true"
+    style="
+      position: fixed;
+      inset: auto 0 0;
+      block-size: 180px;
+      display: grid;
+      place-items: center;
+      background: var(--slotted-surface-sunken);
+      color: var(--slotted-text-muted);
+      z-index: 2000;
+    "
+  >
+    teclado virtual, 180 px
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-mode="overlay"
+    data-side="bottom"
+    data-size="content"
+    data-drag="panel"
+    data-mount="active"
+    style="--slotted-keyboard-inset: 180px"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="d3k-title"
+      id="d3k-panel"
+    >
+      <div
+        data-part="resizer"
+        data-part-resizer=""
+        role="separator"
+        tabindex="0"
+        aria-orientation="horizontal"
+        aria-valuenow="42"
+        aria-valuemin="20"
+        aria-valuemax="100"
+        aria-labelledby="d3k-title"
+        aria-controls="d3k-panel"
+      >
+        <span data-part="line" data-part-line="" aria-hidden="true"></span
+        ><span data-part="grip" data-part-grip="" aria-hidden="true"></span
+        ><span data-part="line" data-part-line="" aria-hidden="true"></span>
+      </div>
+      <header data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="d3k-title">Send reminder</h2>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </header>
+      <div data-part="body" data-part-body="">
+        <label style="display: grid; gap: var(--slotted-space-2)">
+          <span>Note to the customer</span>
+          <input type="text" value="Payment expected on Friday" />
+        </label>
+      </div>
+      <footer data-part="footer" data-part-footer="">
+        <button type="button">Limpar</button>
+        <button type="button">Aplicar</button>
+      </footer>
+    </div>
+  </div>
+</section>
+
+<section data-scene="side-top" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      The announcement bar drops from the block-start edge and rounds the bottom corners, which are
+      the two the reader sees.
+    </p>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-mode="overlay"
+    data-side="top"
+    data-size="content"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="d4-title"
+    >
+      <header data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="d4-title">Scheduled maintenance</h2>
+        <p data-part="description" data-part-description="">Saturday, 02:00 to 04:00.</p>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </header>
+    </div>
+  </div>
+</section>
+
+<section data-scene="inline-open">
+  <div
+    style="
+      display: grid;
+      /* A sidebar layout: the drawer's column is capped at its own step and
+         the content beside it keeps a floor, so at 240px the drawer cedes
+         rather than leaving the page a column narrower than one word. */
+      grid-template-columns: minmax(0, 18rem) minmax(6rem, 1fr);
+      block-size: 320px;
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-md);
+      overflow: hidden;
+    "
+  >
+    <div
+      data-ui="drawer"
+      data-ui-drawer=""
+      data-part="root"
+      data-part-root=""
+      data-open
+      data-mode="inline"
+      data-side="start"
+      data-size="sm"
+      data-mount="eager"
+    >
+      <div data-part="panel" data-part-panel="" aria-labelledby="d5-title" id="d5-panel">
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="d5-title">Collections</h2>
+        </header>
+        <div data-part="body" data-part-body="">
+          <p style="margin: 0">Todas</p>
+          <p style="margin: 0">Recentes</p>
+          <p style="margin: 0">Arquivadas</p>
+        </div>
+        <div
+          data-part="resizer"
+          data-part-resizer=""
+          role="separator"
+          tabindex="0"
+          aria-orientation="vertical"
+          aria-valuenow="35"
+          aria-valuemin="20"
+          aria-valuemax="100"
+          aria-labelledby="d5-title"
+          aria-controls="d5-panel"
+        >
+          <span data-part="line" data-part-line="" aria-hidden="true"></span
+          ><span data-part="grip" data-part-grip="" aria-hidden="true"></span
+          ><span data-part="line" data-part-line="" aria-hidden="true"></span>
+        </div>
+      </div>
+    </div>
+    <main style="padding: var(--slotted-space-6); min-inline-size: 0">
+      <h2 style="font-size: var(--slotted-font-size-lg); margin: 0 0 var(--slotted-space-4)">
+        All collections
+      </h2>
+      <p style="color: var(--slotted-text-muted); margin: 0">
+        No scrim, no portal and no z-index. The adjacent content reflows because the consumer's grid
+        says so, not because the family wrote a margin on an element that is not its own.
+      </p>
+    </main>
+  </div>
+</section>
+
+<section data-scene="inline-closed">
+  <div
+    style="
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      block-size: 320px;
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-md);
+      overflow: hidden;
+    "
+  >
+    <div
+      data-ui="drawer"
+      data-ui-drawer=""
+      data-part="root"
+      data-part-root=""
+      data-mode="inline"
+      data-side="start"
+      data-size="sm"
+      data-mount="eager"
+      inert
+    >
+      <div data-part="panel" data-part-panel="" aria-labelledby="d6-title">
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="d6-title">Collections</h2>
+        </header>
+        <div data-part="body" data-part-body="">
+          <p style="margin: 0">Todas</p>
+        </div>
+      </div>
+    </div>
+    <main style="padding: var(--slotted-space-6); min-inline-size: 0">
+      <h2 style="font-size: var(--slotted-font-size-lg); margin: 0 0 var(--slotted-space-4)">
+        All collections
+      </h2>
+      <p style="color: var(--slotted-text-muted); margin: 0">
+        Closed, the box is zero and the panel inside it keeps its own measure. The
+        <code>inert</code> attribute removes the controls from the tab sequence, so that the
+        collapse the eye reads and the focus order agree.
+      </p>
+    </main>
+  </div>
+</section>
+
+<section data-scene="content" data-fixed>
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-mode="overlay"
+    data-side="end"
+    data-size="sm"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="d7-title"
+    >
+      <header data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="d7-title">
+          consolidated-bank-reconciliation-report-2026-08.csv
+        </h2>
+        <p data-part="description" data-part-description="">
+          A string without spaces cannot widen the panel: the minimum measure is zero and breaking
+          is allowed at any point.
+        </p>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </header>
+      <div data-part="body" data-part-body="">
+        <p style="margin: 0 0 var(--slotted-space-4)">
+          The middle row is the only track that scrolls. Bounded, it scrolls; unbounded, it would
+          push the footer off the screen and the reader could not reach the button.
+        </p>
+        <p style="margin: 0 0 var(--slotted-space-4)">
+          Vaul, MUI and Angular Material ship no layout at all, so this is the default result of
+          following the example of any of the three.
+        </p>
+        <p style="margin: 0 0 var(--slotted-space-4)">
+          A third paragraph, so there is something to scroll.
+        </p>
+        <p style="margin: 0">And a fourth, already below the fold.</p>
+      </div>
+      <footer data-part="footer" data-part-footer="">
+        <button type="button">Cancel</button>
+        <button type="button">Save</button>
+      </footer>
+    </div>
+  </div>
+</section>
+
+<section data-scene="loading" data-fixed>
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-loading
+    data-mode="overlay"
+    data-side="end"
+    data-size="sm"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="d8-title"
+    >
+      <header data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="d8-title">Invoice 4471</h2>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </header>
+      <div data-part="body" data-part-body="" aria-busy="true">
+        <div
+          style="
+            block-size: var(--slotted-space-6);
+            inline-size: 70%;
+            border-radius: var(--slotted-radius-sm);
+            background: var(--slotted-surface-sunken);
+          "
+        ></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="nested" data-fixed>
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-mode="overlay"
+    data-side="end"
+    data-size="md"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="d9-title"
+    >
+      <header data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="d9-title">Order 118</h2>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </header>
+      <div data-part="body" data-part-body="">
+        <p style="margin: 0">Escape reaches only the topmost layer.</p>
+      </div>
+    </div>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-mode="overlay"
+    data-side="end"
+    data-size="sm"
+    data-mount="active"
+    style="--slotted-layer-depth: 1"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="d10-title"
+    >
+      <header data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="d10-title">Item 3</h2>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </header>
+      <div data-part="body" data-part-body="">
+        <p style="margin: 0">
+          The depth comes from the single stack, not from a number written here.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

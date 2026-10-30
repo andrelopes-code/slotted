@@ -1,0 +1,255 @@
+{
+  "schemaVersion": 5,
+  "family": "attachment",
+  "ui": "attachment",
+  "catalog": {
+    "group": "Data display",
+    "summary": "File that belongs to a message or record."
+  },
+  "pattern": null,
+  "patternAbsent": {
+    "index": "https://www.w3.org/WAI/ARIA/apg/patterns/",
+    "reason": "There is no Authoring Practices pattern for a file shown inside a message, a record or a tray. The file's own target and its remove control follow the Button pattern and the native anchor; the set is a native list.",
+    "button": "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
+    "roles": "https://www.w3.org/TR/wai-aria-1.2/#listitem"
+  },
+  "sources": {
+    "reui": "https://reui.io/r/styles/base-nova/c-attachment-5.json",
+    "aiElements": "https://ai-sdk.dev/elements/components/attachments",
+    "assistantUi": "https://www.assistant-ui.com/docs/api-reference/primitives/attachment",
+    "carbon": "https://carbondesignsystem.com/components/file-uploader/usage/"
+  },
+  "roles": {
+    "root": "listitem inside the group; no role when the attachment stands alone",
+    "group": "list",
+    "trigger": "link or button",
+    "action": "button or link",
+    "remove": "button"
+  },
+  "group": {
+    "part": "group",
+    "element": "ul",
+    "itemElement": "li",
+    "aloneElement": "div",
+    "focusable": "tabindex=-1, so it can take focus when its last attachment is removed",
+    "reason": "The set is a part of the one member, as `tag` holds its group. A second member would be a second reference page for a list with one axis, and the attachment inside it is the same object whether it stands in a set or alone."
+  },
+  "vocabulary": {
+    "module": "@slotted/core/upload",
+    "functions": ["fileKind", "splitName", "formatBytes"],
+    "reason": "`upload` acquires and transfers files; this family shows a file that already belongs to something. They share the words for a file and nothing else."
+  },
+  "composes": ["upload", "focus"],
+  "composesFamilies": ["icon", "progress-indicator"],
+  "kinds": {
+    "pdf": { "glyph": "file-text", "tile": "--slotted-upload-kind-pdf" },
+    "document": { "glyph": "file-type", "tile": "--slotted-upload-kind-document" },
+    "spreadsheet": { "glyph": "file-spreadsheet", "tile": "--slotted-upload-kind-spreadsheet" },
+    "presentation": { "glyph": "presentation", "tile": "--slotted-upload-kind-presentation" },
+    "image": { "glyph": "file-image", "tile": "--slotted-upload-kind-image" },
+    "video": { "glyph": "file-video", "tile": "--slotted-upload-kind-video" },
+    "audio": { "glyph": "file-audio", "tile": "--slotted-upload-kind-audio" },
+    "archive": { "glyph": "file-archive", "tile": "--slotted-upload-kind-archive" },
+    "other": { "glyph": "file", "tile": "--slotted-upload-kind-other" }
+  },
+  "kindsForeground": "--slotted-upload-kind-foreground",
+  "kindsReason": "The scale is `upload`'s, read under its own name. A shared name (`--slotted-file-kind-*`) would move twelve files across three families and the theme; it is a reopening if a third family needs the scale.",
+  "preview": {
+    "image": "an `img` with `alt=\"\"`, `loading=\"lazy\"` and `decoding=\"async\"` when the page gives a source; the file name is already the attachment's name, and a list of many attachments fetches only the thumbnails in sight",
+    "fallback": "the kind's tile with the kind's mark knocked out of it",
+    "error": "an image that fails to load returns to the tile; the failure is internal state, not a state of the contract"
+  },
+  "trigger": {
+    "part": "trigger",
+    "elements": { "navigation": "a", "action": "button" },
+    "accessibleName": "filename",
+    "stretch": "a transparent `::after` on the trigger, inset over the root, so the whole attachment is the target and the accessible name stays the file name",
+    "blocked": "a `button` takes the native `disabled`; an `a` takes `aria-disabled=\"true\"` and the activation is refused, while `loading` or `disabled` holds",
+    "reason": "Every surveyed implementation makes the whole file a target, and assistant-ui lets the page substitute the element. A name that is a real anchor keeps `href`, `download` and the modified click a browser gives a link."
+  },
+  "actionsPlacement": {
+    "part": "actions",
+    "sibling": "body",
+    "reason": "Interactive content may not nest inside `a` or `button`. `actions` is the trigger's container's sibling and sits above the stretched target, the decision `list-item` took for `content` and `actions`."
+  },
+  "filename": {
+    "split": ["name", "extension"],
+    "dir": "auto",
+    "reason": "CSS cannot truncate in the middle, so `splitName` splits at the last dot and the stem shrinks while the extension stays. The whole name stays in the DOM and in the trigger's `title`, because truncation never removes content."
+  },
+  "removal": {
+    "part": "remove",
+    "request": { "react": "onRemove", "angular": "(remove)" },
+    "reasons": ["remove", "keyboard"],
+    "keys": ["Backspace", "Delete"],
+    "keysBoundTo": "the root, so the keys answer wherever focus is inside the attachment",
+    "focus": {
+      "module": "@slotted/core/focus",
+      "order": ["next", "previous", "group"],
+      "reason": "Removing the focused attachment moves focus to the one that took its place, then to the last one, then to the group. `removal-focus` observes the DOM, so it is right however the consumer removed the file."
+    },
+    "reason": "The list of attachments is the consumer's. Removal is a request with a reason and no value, so no controlled pair exists (`docs/state-and-events.md`)."
+  },
+  "progress": {
+    "part": "progress",
+    "family": "progress-indicator",
+    "range": "0..100",
+    "indeterminate": "`loading` without `value` draws the indeterminate bar",
+    "accessibleName": "the file name, as the bar's hidden label",
+    "reason": "A tray that sends files on its own shows the transfer on the attachment it is sending. The bar is `progress-indicator`'s, drawn as the attachment's bottom edge, as `upload` draws it."
+  },
+  "invalid": {
+    "row": "`data-invalid` only; ARIA 1.2 deprecates `aria-invalid` on `listitem`",
+    "announcedBy": "the trigger's `aria-describedby`, which names the detail and the message",
+    "describedBy": ["detail", "message"],
+    "reason": "A colour and a border say the file failed; the sentence in `message` says why, and a reader hears it on the file's own name."
+  },
+  "loading": {
+    "attribute": "aria-busy",
+    "on": "root",
+    "refuses": "the trigger's activation; `remove` stays operable so a transfer can be abandoned",
+    "preserves": ["the attachment's size", "the accessible name"]
+  },
+  "disabled": {
+    "row": "`data-disabled` only",
+    "controls": "the trigger, every family action and `remove` take the native `disabled` (a `button`) or `aria-disabled` (an `a`)"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next focusable element; the trigger, each action and `remove` are in the page tab sequence",
+      "focus": "the next focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous focusable element, under the same rule",
+      "focus": "the previous focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "follows a link trigger, activates a button trigger, an action or `remove`",
+      "focus": "stays on the control; after a removal, `removal-focus` moves it",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "activates a button trigger, an action or `remove`",
+      "focus": "stays on the control",
+      "source": "platform"
+    },
+    {
+      "key": "Backspace",
+      "effect": "asks to remove the attachment when it is removable, with the reason `keyboard`; a repeat is ignored",
+      "focus": "the next attachment, the previous one, or the group",
+      "source": "family"
+    },
+    {
+      "key": "Delete",
+      "effect": "the same request as `Backspace`",
+      "focus": "the next attachment, the previous one, or the group",
+      "source": "family"
+    }
+  ],
+  "rovingTabindex": false,
+  "rovingReason": "An attachment holds up to four targets and a set holds dozens; a composite widget with arrow keys would hide the actions behind a mode. The page tab sequence reaches every one, which is what `list-item` does for the same shape.",
+  "declined": {
+    "empty": {
+      "reason": "AI Elements ships `AttachmentEmpty`. A set with no attachments is the page's `result-state`, and an empty group draws nothing: `{files.length ? <AttachmentGroup>…</AttachmentGroup> : <ResultState … />}`."
+    },
+    "hoverCard": {
+      "reason": "AI Elements ships a hover card. `hover-card` composes around the trigger: `<HoverCard><HoverCardTrigger render={(props) => <AttachmentTrigger {...props} />} />…</HoverCard>`."
+    },
+    "fade": {
+      "reason": "ReUI fades the ends of a scrolling strip. `scroll-area` holds the reopening for a veil driven by `animation-timeline: scroll()`; a strip inside a ScrollArea receives it."
+    },
+    "processing": {
+      "reason": "ReUI draws `processing` with an infinite shimmer. A file the server is still working on is `loading` without a value, and the indeterminate bar stops under reduced motion where a shimmer did not."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "orientation": ["horizontal", "vertical"],
+    "layout": ["list", "grid", "strip"]
+  },
+  "resolution": {
+    "size": ["prop", "group", "defaults", "md"],
+    "orientation": ["prop", "group", "defaults", "horizontal"],
+    "layout": ["prop", "defaults", "list"]
+  },
+  "provides": {
+    "attachmentDefaults": ["size", "orientation", "layout"],
+    "toParts": ["file", "disabled", "loading", "invalid", "removable"]
+  },
+  "messages": ["noExtension", "remove"],
+  "messagesReason": "The remove control's name is one message with the file name in it, `Remove claim-form.pdf`, so a language that puts the file first writes its own order; it and the tile's word for a file without an extension come from the catalog of the language in force, laid over by the attachment's `messages`.",
+  "dataAttributes": {
+    "root": ["data-kind", "data-size", "data-orientation"],
+    "group": ["data-layout", "data-size", "data-orientation"],
+    "preview": ["data-kind", "data-extension"]
+  },
+  "stateAttributes": {
+    "invalid": "data-invalid",
+    "loading": "data-loading",
+    "disabled": "data-disabled"
+  },
+  "members": {
+    "attachment": {
+      "nativeElement": "li",
+      "defaults": {
+        "size": "md",
+        "orientation": "horizontal",
+        "layout": "list",
+        "invalid": false,
+        "loading": false,
+        "disabled": false
+      },
+      "capabilities": [
+        "appearance",
+        "arrangement",
+        "size",
+        "orientation",
+        "content",
+        "invalid",
+        "loading",
+        "disabled",
+        "removable",
+        "wiring"
+      ],
+      "states": ["default", "hover", "active", "focus-visible", "invalid", "loading", "disabled"],
+      "parts": [
+        "root",
+        "group",
+        "preview",
+        "body",
+        "trigger",
+        "filename",
+        "name",
+        "extension",
+        "detail",
+        "message",
+        "progress",
+        "actions",
+        "action",
+        "remove"
+      ]
+    }
+  },
+  "scenarios": {
+    "attachment": [
+      "playground",
+      "anatomy",
+      "sizes",
+      "orientation",
+      "layout",
+      "kinds",
+      "trigger",
+      "actions",
+      "states",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

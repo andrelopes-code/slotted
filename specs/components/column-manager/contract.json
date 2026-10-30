@@ -1,0 +1,257 @@
+{
+  "schemaVersion": 5,
+  "family": "column-manager",
+  "ui": "column-manager",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Shows, hides, orders and pins table columns."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/examples/listbox-rearrangeable/",
+  "patternStatus": "no APG pattern names a column chooser; the rows are native checkboxes and buttons in document order, and the rearrangeable listbox example is read for the move keys, the announcement of the new position and focus staying on the moved thing",
+  "reference": "AG Grid Columns Tool Panel, MUI X Data Grid columns panel, Kendo Grid Column Chooser, DevExtreme Column Chooser (dragAndDrop), TanStack Table column visibility, order and pinning",
+  "composes": ["popover", "drawer", "checkbox", "text-field", "menu", "button", "visually-hidden"],
+  "engine": "@slotted/core/grid — normalizeColumnState, withColumnHidden, withColumnMoved, withColumnPinned, columnStateChanges; @slotted/core/drag for the reorder; @slotted/core/live-announcer for the move",
+  "rootElement": "div",
+  "rootRole": "group, aria-labelledby the title",
+  "roles": {
+    "root": "group",
+    "section": "group, aria-labelledby its section-label",
+    "visibility": "the checkbox family's native input type=checkbox",
+    "handle": "button",
+    "pin": "button, the menu family's trigger: aria-haspopup=menu",
+    "trigger": "the consumer's button: aria-haspopup=dialog, aria-expanded, aria-controls"
+  },
+  "anatomy": {
+    "root": "a div carrying data-ui=column-manager, data-presentation and data-apply; role=group named by the title. Inside a popover it is the panel's one child, inside a drawer the panel's content, under presentation=inline it stands where it is written",
+    "header": "the row above the search: title and summary on one line",
+    "title": "an h2 with messages.title; names the root and, through the root, the layer",
+    "summary": "the visible count of columns shown, messages.visibleCount — '7 of 9 shown'",
+    "search": "a div around the text-field family at size sm, type=search, named by messages.search; the field's start slot holds the search glyph, an icon the family draws",
+    "list": "the scroller of the sections, bounded by --slotted-column-manager-list-max-block-size",
+    "section": "one per zone that holds a column — pinned to start, the middle, pinned to end; role=group named by its section-label; the drag container of its zone. data-sole when it is the only one, and its label is then read and not shown",
+    "section-label": "the zone's name: messages.pinnedStart, messages.unpinned, messages.pinnedEnd",
+    "item": "one column: data-column, data-hidden, data-locked, data-space-hidden, data-pinned, data-dragging; the draggable",
+    "handle": "a button with the grip glyph, aria-label messages.reorder; a pointer drag starts on it and Alt+ArrowUp/Down moves the column one place in its zone; disabled — data-disabled and aria-disabled — while a search is typed or for a column with reorderable: false",
+    "visibility": "a div around the checkbox family: ticked while the column is shown, named by the column's label and its status",
+    "description": "the checkbox's own description, holding GridColumn.description, under the label and referenced by the box's aria-describedby",
+    "status": "inside the checkbox's label after the column's label: messages.required for hideable: false, messages.hiddenBySpace for a column the grid hid for room, messages.inRow for one the grid moved into its rows' pop-in",
+    "pin": "a button with the pin glyph, the menu family's trigger for Pin to start, Pin to end, Unpin; aria-label messages.pin; data-pinned while the column is pinned",
+    "drop-indicator": "a line of no height inside the section, before the item the drop would land before, while a pointer drag hovers a valid position",
+    "empty": "in place of the sections when the search matches no column: messages.noResults",
+    "footer": "the row of actions under the list",
+    "show-all": "a button asking for every column shown; disabled while none is hidden",
+    "reset": "a button asking for defaultColumnState with the reason clear; disabled while the state already equals it",
+    "cancel": "under apply=confirm: discards the draft and closes the layer",
+    "apply": "under apply=confirm: asks once for the draft with the reason submit and closes the layer; disabled while the draft equals the state",
+    "trigger": "the consumer's button, wired by the family: aria-haspopup=dialog, aria-expanded, aria-controls the root while open, data-open, data-column-manager-trigger",
+    "count": "on the trigger, after its words: the number of hidden columns, aria-hidden, beside a visually-hidden sentence messages.hiddenCount that names the trigger; absent at zero"
+  },
+  "wiring": {
+    "aria-labelledby": "on the root, naming the title; on each section, naming its label",
+    "aria-describedby": "on each checkbox with a description, naming it — the checkbox family's own wiring",
+    "aria-haspopup / aria-expanded / aria-controls": "on the trigger",
+    "aria-disabled": "on a handle that cannot move",
+    "live": "the move is announced politely through the shared live announcer: messages.moved"
+  },
+  "request": {
+    "shape": "ChangeRequest<GridColumnState> & { change, changes }",
+    "change": "changes[0]: the first of order, width, hidden, pinned that differs",
+    "changes": "columnStateChanges(previous, value): every key of the state that differs, in that order",
+    "reset": "Restore defaults asks for normalizeColumnState(defaultColumnState) with the reason clear, controlled or not",
+    "showAll": "Show all asks for the state with hidden emptied, with the reason pointer or keyboard from the press",
+    "equal": "a request for a state equal to the current one is not emitted"
+  },
+  "rules": {
+    "locked": "a column with hideable: false keeps its box ticked and disabled, carries data-locked, and its status reads messages.required",
+    "lastVisible": "the last shown column's box is disabled: the manager never asks for a state with no column shown",
+    "hiddenBySpace": "a column in the grid's outOfSpace.hidden — hidden for room — keeps the reader's value in its box, carries data-space-hidden and reads messages.hiddenBySpace as its status; outOfSpace never enters the state",
+    "inRow": "a column in the grid's outOfSpace.popin — drawn in each row's pop-in for room — keeps the reader's value in its box and reads messages.inRow as its status",
+    "search": "filters by label and by description, without case and without accents — normalize('NFD') less the combining marks; while the query is not empty every handle is disabled, because a place in a subset is not a place in the list",
+    "reorder": "within the zone, never across: withColumnMoved over the zone's ids in the state's order. A pointer drag through @slotted/core/drag with one vertical container per section; Alt+ArrowUp/Down on the handle is the controller's moveBy, then messages.moved is announced and focus stays on the handle",
+    "pin": "the pin menu asks withColumnPinned with the reason the menu reports; a column pinned to the start joins the start zone last and one pinned to the end joins the end zone first, next to the middle, as withColumnPinned writes it",
+    "confirm": "under apply=confirm every action edits a draft read from the state when the layer opens; Apply asks once with the reason submit; Cancel, Escape and any close of the layer discard the draft",
+    "presentation": "popover composes the popover family anchored on the trigger at size lg, the root --slotted-column-manager-inline-size wide; drawer composes the drawer family at side end, size sm; inline renders the root in place, for a host the application already owns"
+  },
+  "itemAttributes": {
+    "hidden": "data-hidden",
+    "locked": "data-locked",
+    "spaceHidden": "data-space-hidden",
+    "pinned": "data-pinned"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "native order: the search, then each row's checkbox, handle and pin, then the footer",
+      "focus": "the next tabbable element",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "on a checkbox: toggles the column's visibility with the reason keyboard",
+      "focus": "stays",
+      "source": "platform"
+    },
+    {
+      "key": "Alt+ArrowUp / Alt+ArrowDown",
+      "effect": "on a handle: moves the column one place up or down in its zone, asks with the reason keyboard and announces messages.moved; nothing at the zone's edge",
+      "focus": "stays on the moved column's handle",
+      "source": "family, through @slotted/core/drag moveBy"
+    },
+    {
+      "key": "Escape",
+      "effect": "during a pointer drag: cancels the drag; otherwise closes the layer, discarding the draft under apply=confirm",
+      "focus": "the handle after a cancelled drag; the trigger after the layer closes",
+      "source": "@slotted/core/drag, then dismissable-layer"
+    },
+    {
+      "key": "Enter / Space",
+      "effect": "on pin: opens the pin menu; on any other button: presses it",
+      "focus": "the menu's first item",
+      "source": "menu"
+    }
+  ],
+  "messages": [
+    "apply",
+    "cancel",
+    "hiddenBySpace",
+    "hiddenCount",
+    "inRow",
+    "moved",
+    "noResults",
+    "pin",
+    "pinEnd",
+    "pinnedEnd",
+    "pinnedStart",
+    "pinStart",
+    "reorder",
+    "required",
+    "reset",
+    "search",
+    "showAll",
+    "title",
+    "unpin",
+    "unpinned",
+    "visibleCount"
+  ],
+  "declined": {
+    "gridRole": {
+      "reason": "native order gives three stops per row; a layout grid would give one and a cursor model of its own. The inspected AG Grid and MUI X lists use native order, and the search shortens the list before Tab"
+    },
+    "columnGroups": {
+      "reason": "the list follows the pin zones, which are facts of the state; a group is a header over columns and not a place a column can be moved to"
+    },
+    "table": {
+      "deferTo": "table",
+      "reason": "table exposes no GridColumnState; its columns are the consumer's markup. The reopening is in docs/process/build-order.md"
+    },
+    "density": {
+      "deferTo": "segmented-control",
+      "reason": "the grid's density is the application's control beside the manager; the manager edits the column state and nothing else"
+    },
+    "width": {
+      "reason": "a width is set where the column is, by the resizer or by autofit; a number field per row is a spreadsheet's settings screen"
+    }
+  },
+  "axes": {
+    "presentation": ["popover", "drawer", "inline"],
+    "apply": ["live", "confirm"]
+  },
+  "resolution": "the consumer's explicit prop, then the family's defaults provider, then the fallback",
+  "provides": {
+    "columnManagerDefaults": ["presentation", "apply"]
+  },
+  "literals": {
+    "--slotted-column-manager-inline-size": {
+      "value": "22rem",
+      "reason": "the room a label, a description and three controls take on one row at the md type step; no space or measure token names a panel width, and popover's lg measure, 24rem, is the layer's cap around it"
+    },
+    "--slotted-column-manager-list-max-block-size": {
+      "value": "min(60vh, 28rem)",
+      "reason": "about ten rows of two lines before the list scrolls, and never more than most of a short viewport; the search and the footer stay in view"
+    }
+  },
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "dragging": "data-dragging",
+    "drop-target": "data-drop-target",
+    "open": "data-open"
+  },
+  "stateModel": {
+    "columns": {
+      "controlled": "columnState",
+      "uncontrolled": "defaultColumnState",
+      "request": "onColumnStateChange",
+      "reasons": ["pointer", "keyboard", "clear", "submit", "programmatic"]
+    },
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "outsidePress", "back", "programmatic"]
+    }
+  },
+  "members": {
+    "columnManager": {
+      "nativeElement": "div",
+      "defaults": {
+        "presentation": "popover",
+        "apply": "live",
+        "open": false
+      },
+      "capabilities": ["columns", "open", "live", "content", "wiring"],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "dragging",
+        "drop-target",
+        "open"
+      ],
+      "parts": [
+        "root",
+        "header",
+        "title",
+        "summary",
+        "search",
+        "list",
+        "section",
+        "section-label",
+        "item",
+        "handle",
+        "visibility",
+        "description",
+        "status",
+        "pin",
+        "drop-indicator",
+        "empty",
+        "footer",
+        "show-all",
+        "reset",
+        "cancel",
+        "apply",
+        "trigger",
+        "count"
+      ]
+    }
+  },
+  "scenarios": {
+    "columnManager": [
+      "playground",
+      "popover",
+      "drawer",
+      "confirm",
+      "search",
+      "locked",
+      "hidden-by-space",
+      "reorder",
+      "pinning",
+      "reset-and-show-all",
+      "trigger-count",
+      "with-data-grid",
+      "keyboard",
+      "accessibility"
+    ]
+  }
+}

@@ -1,0 +1,1176 @@
+<!--
+  The field does not own its control, and every scene writes a native input so
+  the picture is the field's alone. A native input is 21 pixels tall, and the
+  field centres a side label on a control of the scale's height; the page gives
+  the native controls that height, so a side row is laid out against the
+  control the field is written for rather than against the user agent's.
+-->
+<style>
+  [data-ui='field'][data-size='sm'] > :is(input, textarea)[data-part='control'] {
+    --harness-control: var(--slotted-control-height-sm);
+  }
+  [data-ui='field'][data-size='md'] > :is(input, textarea)[data-part='control'] {
+    --harness-control: var(--slotted-control-height-md);
+  }
+  [data-ui='field'][data-size='lg'] > :is(input, textarea)[data-part='control'] {
+    --harness-control: var(--slotted-control-height-lg);
+  }
+  [data-ui='field'] > input[data-part='control'] {
+    block-size: var(--harness-control);
+    box-sizing: border-box;
+  }
+  [data-ui='field'] > textarea[data-part='control'] {
+    box-sizing: border-box;
+    min-block-size: var(--harness-control);
+  }
+</style>
+
+<section data-scene="default">
+  <div
+    data-ui="field"
+    data-ui-field=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-label-placement="top"
+    data-necessity="mark"
+  >
+    <label data-part="label" data-part-label="" for="default-control">E-mail</label>
+    <input
+      data-part="control"
+      data-part-control=""
+      id="default-control"
+      type="email"
+      aria-describedby="default-description"
+      value="billing@sirius.example.com"
+    />
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-mark="none"
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-size="sm"
+      data-live="off"
+      id="default-description"
+    >
+      <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+      <span data-part="text" data-part-text="">We will use this address for billing.</span>
+    </p>
+  </div>
+</section>
+
+<section data-scene="necessity">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="7">
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-required
+    >
+      <label data-part="label" data-part-label="" for="necessity-mark"
+        >CNPJ <span aria-hidden="true" data-part="mark" data-part-mark="">*</span></label
+      >
+      <input
+        data-part="control"
+        data-part-control=""
+        id="necessity-mark"
+        aria-required="true"
+        value="12.345.678/0001-90"
+      />
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="words"
+      data-required
+    >
+      <label data-part="label" data-part-label="" for="necessity-required"
+        >CNPJ <span data-part="mark" data-part-mark="">(required)</span></label
+      >
+      <input
+        data-part="control"
+        data-part-control=""
+        id="necessity-required"
+        aria-required="true"
+        value="12.345.678/0001-90"
+      />
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="words"
+    >
+      <label data-part="label" data-part-label="" for="necessity-optional"
+        >State tax ID <span data-part="mark" data-part-mark="">(optional)</span></label
+      >
+      <input data-part="control" data-part-control="" id="necessity-optional" />
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="optional"
+      data-required
+    >
+      <label data-part="label" data-part-label="" for="necessity-only-required">Legal name</label>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="necessity-only-required"
+        aria-required="true"
+        value="Sirius Group"
+      />
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="optional"
+    >
+      <label data-part="label" data-part-label="" for="necessity-only-optional"
+        >Nome fantasia <span data-part="mark" data-part-mark="">(optional)</span></label
+      >
+      <input data-part="control" data-part-control="" id="necessity-only-optional" />
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="none"
+      data-required
+    >
+      <label data-part="label" data-part-label="" for="necessity-none">Legal name</label>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="necessity-none"
+        aria-required="true"
+        value="Sirius Group"
+      />
+    </div>
+  </div>
+</section>
+
+<section data-scene="placement">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="7">
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="side"
+      data-necessity="mark"
+    >
+      <label data-part="label" data-part-label="" for="placement-side">Legal name</label>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="placement-side"
+        value="Sirius Group Tecnologia"
+        aria-describedby="placement-side-description"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="secondary"
+        data-size="sm"
+        data-live="off"
+        id="placement-side-description"
+      >
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">As shown on the tax ID card.</span>
+      </p>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="side"
+      data-necessity="mark"
+    >
+      <label data-part="label" data-part-label="" for="placement-wrap"
+        >Headquarters mailing address</label
+      >
+      <textarea data-part="control" data-part-control="" id="placement-wrap" rows="3">
+Avenida Paulista, 1000</textarea>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sizes">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="7">
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="sm"
+      data-label-placement="top"
+      data-necessity="mark"
+    >
+      <label data-part="label" data-part-label="" for="size-sm">Apelido</label>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="size-sm"
+        value="sm"
+        aria-describedby="size-sm-description"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="secondary"
+        data-size="sm"
+        data-live="off"
+        id="size-sm-description"
+      >
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">Appears in reports.</span>
+      </p>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+    >
+      <label data-part="label" data-part-label="" for="size-md">Apelido</label>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="size-md"
+        value="md"
+        aria-describedby="size-md-description"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="secondary"
+        data-size="sm"
+        data-live="off"
+        id="size-md-description"
+      >
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">Appears in reports.</span>
+      </p>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      data-label-placement="top"
+      data-necessity="mark"
+    >
+      <label data-part="label" data-part-label="" for="size-lg">Apelido</label>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="size-lg"
+        value="lg"
+        aria-describedby="size-lg-description"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="secondary"
+        data-size="md"
+        data-live="off"
+        id="size-lg-description"
+      >
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">Appears in reports.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<section data-scene="states">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="7">
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-required
+      data-invalid
+    >
+      <label data-part="label" data-part-label="" for="state-invalid"
+        >CNPJ <span aria-hidden="true" data-part="mark" data-part-mark="">*</span></label
+      >
+      <input
+        data-part="control"
+        data-part-control=""
+        id="state-invalid"
+        aria-invalid="true"
+        aria-required="true"
+        aria-describedby="state-invalid-description state-invalid-error"
+        value="12.345.678"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="secondary"
+        data-size="sm"
+        data-live="off"
+        id="state-invalid-description"
+      >
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">Digits only, with branch and check digit.</span>
+      </p>
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="danger"
+        data-size="sm"
+        data-live="off"
+        id="state-invalid-error"
+      >
+        <span data-part="prefix" data-part-prefix="">Error:</span>
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">Six digits missing.</span>
+      </p>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-readonly
+    >
+      <label data-part="label" data-part-label="" for="state-readonly"
+        >Identificador da conta</label
+      >
+      <input
+        data-part="control"
+        data-part-control=""
+        id="state-readonly"
+        readonly
+        value="acc_9f2b7c41"
+        aria-describedby="state-readonly-description"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="secondary"
+        data-size="sm"
+        data-live="off"
+        id="state-readonly-description"
+      >
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">Generated at account creation and copyable.</span>
+      </p>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-required
+      data-disabled
+    >
+      <label data-part="label" data-part-label="" for="state-disabled"
+        >Centro de custo <span aria-hidden="true" data-part="mark" data-part-mark="">*</span></label
+      >
+      <input
+        data-part="control"
+        data-part-control=""
+        id="state-disabled"
+        disabled
+        aria-required="true"
+        aria-describedby="state-disabled-description"
+        value="Choose a unit first"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="secondary"
+        data-size="sm"
+        data-live="off"
+        data-disabled
+        id="state-disabled-description"
+      >
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">Available after the unit is chosen.</span>
+      </p>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-invalid
+    >
+      <label data-part="label" data-part-label="" for="state-reserve">Phone</label>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="state-reserve"
+        aria-describedby="state-reserve-error"
+        value="(11) 90000-0000"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="danger"
+        data-size="sm"
+        data-live="off"
+        data-reserve
+        id="state-reserve-error"
+      >
+        <span data-part="prefix" data-part-prefix="">Error:</span>
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text=""></span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<section data-scene="counter">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="7">
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+    >
+      <label data-part="label" data-part-label="" for="counter-under">Public description</label>
+      <span data-part="counter" data-part-counter="">64/140</span>
+      <textarea data-part="control" data-part-control="" id="counter-under" rows="2">
+We integrate payroll, timekeeping and benefits in one place.</textarea>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-invalid
+    >
+      <label data-part="label" data-part-label="" for="counter-over">Public description</label>
+      <span data-part="counter" data-part-counter="" data-invalid>148/140</span>
+      <textarea
+        data-part="control"
+        data-part-control=""
+        id="counter-over"
+        rows="3"
+        aria-invalid="true"
+        aria-describedby="counter-over-error"
+      >
+We integrate payroll, timekeeping, benefits, onboarding, offboarding and the accounting close of the period in one place.</textarea>
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="danger"
+        data-size="sm"
+        data-live="off"
+        id="counter-over-error"
+      >
+        <span data-part="prefix" data-part-prefix="">Error:</span>
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">Corte oito caracteres.</span>
+      </p>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="side"
+      data-necessity="mark"
+    >
+      <label data-part="label" data-part-label="" for="counter-side">Subject</label>
+      <span data-part="counter" data-part-counter="">12/60</span>
+      <input data-part="control" data-part-control="" id="counter-side" value="March invoice" />
+    </div>
+  </div>
+</section>
+
+<section data-scene="header">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="7">
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-required
+    >
+      <div data-part="header" data-part-header="">
+        <label data-part="label" data-part-label="" for="header-password"
+          >Senha <span aria-hidden="true" data-part="mark" data-part-mark="">*</span></label
+        >
+        <button
+          data-part="help"
+          data-part-help=""
+          type="button"
+          aria-label="More information"
+          aria-describedby="header-password-help"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-question"></svg
+          ></span>
+          <span data-part="help-text" data-part-help-text="" id="header-password-help" hidden
+            >At least eight characters, with letters and numbers.</span
+          >
+        </button>
+        <a data-part="action" data-part-action="" href="#recuperar">Esqueceu a senha?</a>
+      </div>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="header-password"
+        type="password"
+        aria-required="true"
+        aria-describedby="header-password-help"
+        value="segredo"
+      />
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+    >
+      <div data-part="header" data-part-header="">
+        <label data-part="label" data-part-label="" for="header-endpoint">Endpoint da API</label>
+        <button
+          data-part="help"
+          data-part-help=""
+          type="button"
+          aria-label="More information"
+          aria-describedby="header-endpoint-help"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-question"></svg
+          ></span>
+          <span data-part="help-text" data-part-help-text="" id="header-endpoint-help" hidden
+            >The base address that receives notifications.</span
+          >
+        </button>
+        <span data-part="indicator" data-part-indicator="" id="header-endpoint-indicator"
+          ><span
+            data-ui="badge"
+            data-ui-badge=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="soft"
+            data-size="sm"
+            data-shape="square"
+            ><span data-part="label" data-part-label="">Beta</span></span
+          ></span
+        >
+      </div>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="header-endpoint"
+        aria-describedby="header-endpoint-indicator header-endpoint-help header-endpoint-description"
+        value="https://api.sirius.com.br"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="secondary"
+        data-size="sm"
+        data-live="off"
+        id="header-endpoint-description"
+      >
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text=""
+          >Use HTTPS; the certificate is verified on every delivery.</span
+        >
+      </p>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+    >
+      <div data-part="header" data-part-header="">
+        <label data-part="label" data-part-label="" for="header-bio">Introduction</label>
+        <button data-part="action" data-part-action="" type="button">Generate with AI</button>
+        <span data-part="counter" data-part-counter="" id="header-bio-counter">24/160</span>
+      </div>
+      <textarea
+        data-part="control"
+        data-part-control=""
+        id="header-bio"
+        rows="2"
+        aria-describedby="header-bio-counter"
+      >
+Engenheira e contribuidora.</textarea>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-required
+    >
+      <div data-part="header" data-part-header="">
+        <label data-part="label" data-part-label="" for="header-long"
+          >Headquarters mailing address<span aria-hidden="true" data-part="mark" data-part-mark=""
+            >*</span
+          ></label
+        >
+        <button
+          data-part="help"
+          data-part-help=""
+          type="button"
+          aria-label="More information"
+          aria-describedby="header-long-help"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-question"></svg
+          ></span>
+          <span data-part="help-text" data-part-help-text="" id="header-long-help" hidden
+            >Recebe as notas fiscais em papel.</span
+          >
+        </button>
+        <span data-part="indicator" data-part-indicator="" id="header-long-indicator"
+          ><span
+            data-ui="badge"
+            data-ui-badge=""
+            data-part="root"
+            data-part-root=""
+            data-tone="warning"
+            data-variant="soft"
+            data-size="sm"
+            data-shape="square"
+            ><span data-part="label" data-part-label="">Required for legal entities</span>
+          </span></span
+        >
+        <button data-part="action" data-part-action="" type="button">Use the billing one</button>
+        <span data-part="counter" data-part-counter="" id="header-long-counter">0/120</span>
+      </div>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="header-long"
+        aria-required="true"
+        aria-describedby="header-long-indicator header-long-help header-long-counter"
+      />
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-disabled
+    >
+      <div data-part="header" data-part-header="">
+        <label data-part="label" data-part-label="" for="header-disabled">Centro de custo</label>
+        <button
+          data-part="help"
+          data-part-help=""
+          type="button"
+          aria-label="More information"
+          aria-describedby="header-disabled-help"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-question"></svg
+          ></span>
+          <span data-part="help-text" data-part-help-text="" id="header-disabled-help" hidden
+            >Liberado depois que a unidade for escolhida.</span
+          >
+        </button>
+        <span data-part="indicator" data-part-indicator="" id="header-disabled-indicator"
+          ><span
+            data-ui="badge"
+            data-ui-badge=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="soft"
+            data-size="sm"
+            data-shape="square"
+            ><span data-part="label" data-part-label="">Pro</span>
+          </span></span
+        >
+      </div>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="header-disabled"
+        disabled
+        aria-describedby="header-disabled-indicator header-disabled-help"
+        placeholder="Choose a unit first"
+      />
+    </div>
+  </div>
+</section>
+
+<section data-scene="header-side">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="7">
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="side"
+      data-necessity="mark"
+    >
+      <div data-part="header" data-part-header="">
+        <label data-part="label" data-part-label="" for="side-password">Senha</label>
+        <button
+          data-part="help"
+          data-part-help=""
+          type="button"
+          aria-label="More information"
+          aria-describedby="side-password-help"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-question"></svg
+          ></span>
+          <span data-part="help-text" data-part-help-text="" id="side-password-help" hidden
+            >At least eight characters, with letters and numbers.</span
+          >
+        </button>
+        <a data-part="action" data-part-action="" href="#recuperar">Esqueceu a senha?</a>
+      </div>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="side-password"
+        type="password"
+        aria-describedby="side-password-help"
+        value="segredo"
+      />
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="side"
+      data-necessity="mark"
+    >
+      <div data-part="header" data-part-header="">
+        <label data-part="label" data-part-label="" for="side-subject">Assunto</label>
+        <span data-part="counter" data-part-counter="" id="side-subject-counter">12/60</span>
+      </div>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="side-subject"
+        aria-describedby="side-subject-counter"
+        value="March invoice"
+      />
+    </div>
+  </div>
+</section>
+
+<section data-scene="help">
+  <div style="padding-block-start: 3.5rem">
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+    >
+      <div data-part="header" data-part-header="" style="position: relative">
+        <label data-part="label" data-part-label="" for="help-open">Payment term</label>
+        <button
+          data-part="help"
+          data-part-help=""
+          type="button"
+          aria-label="More information"
+          aria-describedby="help-open-help"
+          data-open
+          aria-expanded="true"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-question"></svg
+          ></span>
+          <span data-part="help-text" data-part-help-text="" id="help-open-help" hidden
+            >Calendar days from the invoice issue date.</span
+          >
+        </button>
+        <div
+          data-ui="tooltip"
+          data-ui-tooltip=""
+          data-part="root"
+          data-part-root=""
+          data-side="top"
+          data-align="center"
+          data-variant="inverse"
+          data-size="md"
+          data-hoverable
+          data-open
+          style="
+            top: auto;
+            bottom: calc(100% + 0.25rem);
+            left: 9.25rem;
+            translate: -50% 0;
+            --slotted-positioner-arrow-x: calc(50% - 0.25rem);
+            --slotted-positioner-available-width: 100%;
+            --slotted-positioner-transform-origin: center bottom;
+          "
+        >
+          <div data-part="arrow" data-part-arrow=""></div>
+          <div data-part="content" data-part-content="" role="tooltip" aria-hidden="true">
+            Calendar days from the invoice issue date.
+          </div>
+        </div>
+      </div>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="help-open"
+        aria-describedby="help-open-help"
+        value="30"
+      />
+    </div>
+  </div>
+</section>
+
+<section data-scene="content">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="7">
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="side"
+      data-necessity="words"
+      data-required
+    >
+      <label data-part="label" data-part-label="" for="content-long"
+        >Kraftfahrzeug-Haftpflichtversicherungsnummer
+        <span data-part="mark" data-part-mark="">(required)</span>
+      </label>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="content-long"
+        aria-required="true"
+        aria-describedby="content-long-description"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="secondary"
+        data-size="sm"
+        data-live="off"
+        id="content-long-description"
+      >
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text=""
+          >sha256:9f2b7c41a8d3e05f6c1b4a97e2d80f3c5b6a1d4e7f0938271a6b5c4d3e2f1a09</span
+        >
+      </p>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-invalid
+    >
+      <label data-part="label" data-part-label="" for="content-rtl" lang="ar" dir="rtl"
+        >رقم التعريف الضريبي</label
+      >
+      <span data-part="counter" data-part-counter="">3/14</span>
+      <input
+        data-part="control"
+        data-part-control=""
+        id="content-rtl"
+        lang="ar"
+        dir="rtl"
+        aria-invalid="true"
+        aria-describedby="content-rtl-error"
+        value="٣٠٠"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="danger"
+        data-size="sm"
+        data-live="off"
+        id="content-rtl-error"
+        lang="ar"
+        dir="rtl"
+      >
+        <span data-part="prefix" data-part-prefix="">خطأ:</span>
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">الرقم غير مكتمل.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<section data-scene="form-errors">
+  <!-- The picture R5's limit is about: four fields of one form, every one of
+       them in error, one under the other. -->
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="7">
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-required
+      data-invalid
+    >
+      <label data-part="label" data-part-label="" for="form-error-name"
+        >Legal name <span aria-hidden="true" data-part="mark" data-part-mark="">*</span></label
+      >
+      <input
+        data-part="control"
+        data-part-control=""
+        id="form-error-name"
+        aria-invalid="true"
+        aria-required="true"
+        aria-describedby="form-error-name-error"
+        value="Sirius"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="danger"
+        data-size="sm"
+        data-live="off"
+        id="form-error-name-error"
+      >
+        <span data-part="prefix" data-part-prefix="">Error:</span>
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">Enter the full legal name.</span>
+      </p>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-required
+      data-invalid
+    >
+      <label data-part="label" data-part-label="" for="form-error-document"
+        >CNPJ <span aria-hidden="true" data-part="mark" data-part-mark="">*</span></label
+      >
+      <input
+        data-part="control"
+        data-part-control=""
+        id="form-error-document"
+        aria-invalid="true"
+        aria-required="true"
+        aria-describedby="form-error-document-error"
+        value="12.345.678"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="danger"
+        data-size="sm"
+        data-live="off"
+        id="form-error-document-error"
+      >
+        <span data-part="prefix" data-part-prefix="">Error:</span>
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">Six digits missing.</span>
+      </p>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-required
+      data-invalid
+    >
+      <label data-part="label" data-part-label="" for="form-error-mail"
+        >Billing email <span aria-hidden="true" data-part="mark" data-part-mark="">*</span></label
+      >
+      <input
+        data-part="control"
+        data-part-control=""
+        id="form-error-mail"
+        aria-invalid="true"
+        aria-required="true"
+        aria-describedby="form-error-mail-error"
+        value="billing@"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="danger"
+        data-size="sm"
+        data-live="off"
+        id="form-error-mail-error"
+      >
+        <span data-part="prefix" data-part-prefix="">Error:</span>
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">Incomplete address.</span>
+      </p>
+    </div>
+    <div
+      data-ui="field"
+      data-ui-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-label-placement="top"
+      data-necessity="mark"
+      data-required
+      data-invalid
+    >
+      <label data-part="label" data-part-label="" for="form-error-code"
+        >Plan code <span aria-hidden="true" data-part="mark" data-part-mark="">*</span></label
+      >
+      <input
+        data-part="control"
+        data-part-control=""
+        id="form-error-code"
+        aria-invalid="true"
+        aria-required="true"
+        aria-describedby="form-error-code-error"
+        value="PL-"
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-mark="none"
+        data-part="root"
+        data-part-root=""
+        data-tone="danger"
+        data-size="sm"
+        data-live="off"
+        id="form-error-code-error"
+      >
+        <span data-part="prefix" data-part-prefix="">Error:</span>
+        <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+        <span data-part="text" data-part-text="">The code has six characters.</span>
+      </p>
+    </div>
+  </div>
+</section>

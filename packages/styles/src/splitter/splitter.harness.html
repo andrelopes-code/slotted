@@ -1,0 +1,378 @@
+<!--
+  The regions either side of the bar are written out rather than left empty.
+  A separator's whole job is to read as the boundary between two things, and a
+  bar with nothing on either side of it shows nothing.
+
+  The surrounding layout is inline, from the space scale: the family holds no
+  layout, so every measure here belongs to the stage and not to the splitter.
+  The fraction is written as `--slotted-splitter-value` on the region before the
+  bar, which is exactly what the bindings write.
+-->
+
+<section data-scene="vertical">
+  <div
+    style="
+      --slotted-splitter-value: 0.34;
+      block-size: 13rem;
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-md);
+      display: flex;
+      overflow: hidden;
+    "
+  >
+    <nav
+      id="contas"
+      style="
+        background: var(--slotted-surface-sunken);
+        display: grid;
+        align-content: start;
+        gap: var(--slotted-space-3);
+        inline-size: calc(var(--slotted-splitter-value) * 100%);
+        padding: var(--slotted-space-5);
+      "
+    >
+      <h3
+        style="
+          color: var(--slotted-text);
+          font-size: var(--slotted-font-size-sm);
+          font-weight: var(--slotted-font-weight-semibold);
+          margin: 0;
+        "
+      >
+        Contas
+      </h3>
+      <span style="color: var(--slotted-text-muted); font-size: var(--slotted-font-size-sm)">
+        A receber
+      </span>
+      <span style="color: var(--slotted-text-muted); font-size: var(--slotted-font-size-sm)">
+        Vencidas · 14
+      </span>
+      <span style="color: var(--slotted-text-muted); font-size: var(--slotted-font-size-sm)">
+        Reconciliation
+      </span>
+    </nav>
+
+    <div
+      data-ui="splitter"
+      data-ui-splitter=""
+      data-part="root"
+      data-part-root=""
+      data-orientation="vertical"
+      role="separator"
+      tabindex="0"
+      aria-orientation="vertical"
+      aria-controls="accounts"
+      aria-label="Account list width"
+      aria-valuenow="34"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <span data-part="line" data-part-line="" aria-hidden="true"></span>
+      <span data-part="grip" data-part-grip="" aria-hidden="true"></span>
+      <span data-part="line" data-part-line="" aria-hidden="true"></span>
+    </div>
+
+    <main
+      style="
+        display: grid;
+        align-content: start;
+        gap: var(--slotted-space-4);
+        flex: 1;
+        padding: var(--slotted-space-5);
+      "
+    >
+      <h2 style="color: var(--slotted-text); font-size: var(--slotted-font-size-lg); margin: 0">
+        NF-e 20 483
+      </h2>
+      <p
+        style="color: var(--slotted-text-muted); font-size: var(--slotted-font-size-sm); margin: 0"
+      >
+        Issued 02/09/2026 · due 02/10/2026 · $18,420.00. Drag the bar to the left: the announced
+        value and the applied measure are the same number.
+      </p>
+    </main>
+  </div>
+</section>
+
+<section data-scene="horizontal">
+  <div
+    style="
+      --slotted-splitter-value: 0.45;
+      block-size: 15rem;
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-md);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    "
+  >
+    <section
+      id="lancamentos"
+      style="
+        background: var(--slotted-surface-sunken);
+        block-size: calc(var(--slotted-splitter-value) * 100%);
+        display: grid;
+        align-content: start;
+        gap: var(--slotted-space-3);
+        padding: var(--slotted-space-5);
+      "
+    >
+      <h3 style="color: var(--slotted-text); font-size: var(--slotted-font-size-sm); margin: 0">
+        Entries
+      </h3>
+      <span style="color: var(--slotted-text-muted); font-size: var(--slotted-font-size-sm)">
+        09/02 · Partial payment · $6,000.00
+      </span>
+      <span style="color: var(--slotted-text-muted); font-size: var(--slotted-font-size-sm)">
+        18/09 · Juros de mora · R$ 184,20
+      </span>
+    </section>
+
+    <div
+      data-ui="splitter"
+      data-ui-splitter=""
+      data-part="root"
+      data-part-root=""
+      data-orientation="horizontal"
+      role="separator"
+      tabindex="0"
+      aria-controls="lancamentos"
+      aria-label="Entries height"
+      aria-valuenow="45"
+      aria-valuemin="10"
+      aria-valuemax="80"
+    >
+      <span data-part="line" data-part-line="" aria-hidden="true"></span>
+      <span data-part="grip" data-part-grip="" aria-hidden="true"></span>
+      <span data-part="line" data-part-line="" aria-hidden="true"></span>
+    </div>
+
+    <div style="flex: 1; padding: var(--slotted-space-5)">
+      <p
+        style="color: var(--slotted-text-muted); font-size: var(--slotted-font-size-sm); margin: 0"
+      >
+        The horizontal bar uses the up and down arrows. The side arrows are left to the page, which
+        is the rule that <code>tabs</code> already declares as
+        <code>crossAxisNavigates: false</code>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!--
+  The three states a static document can hold. Hover and focus are photographed
+  with `shoot.mjs --focus`, which is what that flag exists for.
+-->
+<section data-scene="states">
+  <div style="display: grid; gap: var(--slotted-space-6)">
+    <div style="display: grid; gap: var(--slotted-space-3)">
+      <span style="color: var(--slotted-text-muted); font-size: var(--slotted-font-size-xs)">
+        repouso — duas hairlines que se apagam, a pega no meio
+      </span>
+      <div style="block-size: 8rem; display: flex">
+        <div style="background: var(--slotted-surface-sunken); flex: 1"></div>
+        <div
+          data-ui="splitter"
+          data-ui-splitter=""
+          data-part="root"
+          data-part-root=""
+          data-orientation="vertical"
+          role="separator"
+          tabindex="0"
+          aria-orientation="vertical"
+          aria-label="Repouso"
+          aria-valuenow="50"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <span data-part="line" data-part-line="" aria-hidden="true"></span>
+          <span data-part="grip" data-part-grip="" aria-hidden="true"></span>
+          <span data-part="line" data-part-line="" aria-hidden="true"></span>
+        </div>
+        <div style="flex: 1"></div>
+      </div>
+    </div>
+
+    <div style="display: grid; gap: var(--slotted-space-3)">
+      <span style="color: var(--slotted-text-muted); font-size: var(--slotted-font-size-xs)">
+        arrasto — as linhas correm a pista inteira, no passo forte
+      </span>
+      <div style="block-size: 8rem; display: flex">
+        <div style="background: var(--slotted-surface-sunken); flex: 1"></div>
+        <div
+          data-ui="splitter"
+          data-ui-splitter=""
+          data-part="root"
+          data-part-root=""
+          data-orientation="vertical"
+          data-dragging
+          role="separator"
+          tabindex="0"
+          aria-orientation="vertical"
+          aria-label="Arrasto"
+          aria-valuenow="50"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <span data-part="line" data-part-line="" aria-hidden="true"></span>
+          <span data-part="grip" data-part-grip="" aria-hidden="true"></span>
+          <span data-part="line" data-part-line="" aria-hidden="true"></span>
+        </div>
+        <div style="flex: 1"></div>
+      </div>
+    </div>
+
+    <div style="display: grid; gap: var(--slotted-space-3)">
+      <span style="color: var(--slotted-text-muted); font-size: var(--slotted-font-size-xs)">
+        disabled — keeps the tab stop, because the value is still readable
+      </span>
+      <div style="block-size: 8rem; display: flex">
+        <div style="background: var(--slotted-surface-sunken); flex: 1"></div>
+        <div
+          data-ui="splitter"
+          data-ui-splitter=""
+          data-part="root"
+          data-part-root=""
+          data-orientation="vertical"
+          data-disabled
+          role="separator"
+          tabindex="0"
+          aria-orientation="vertical"
+          aria-disabled="true"
+          aria-label="Desactivado"
+          aria-valuenow="50"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <span data-part="line" data-part-line="" aria-hidden="true"></span>
+          <span data-part="grip" data-part-grip="" aria-hidden="true"></span>
+          <span data-part="line" data-part-line="" aria-hidden="true"></span>
+        </div>
+        <div style="flex: 1"></div>
+      </div>
+    </div>
+
+    <div style="display: grid; gap: var(--slotted-space-3)">
+      <span style="color: var(--slotted-text-muted); font-size: var(--slotted-font-size-xs)">
+        collapsible, expanded — <code>data-expanded</code>; the pattern's Enter collapses and
+        restores
+      </span>
+      <div style="block-size: 8rem; display: flex">
+        <div style="background: var(--slotted-surface-sunken); flex: 1"></div>
+        <div
+          data-ui="splitter"
+          data-ui-splitter=""
+          data-part="root"
+          data-part-root=""
+          data-orientation="vertical"
+          data-expanded
+          role="separator"
+          tabindex="0"
+          aria-orientation="vertical"
+          aria-label="Expandido"
+          aria-valuenow="50"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <span data-part="line" data-part-line="" aria-hidden="true"></span>
+          <span data-part="grip" data-part-grip="" aria-hidden="true"></span>
+          <span data-part="line" data-part-line="" aria-hidden="true"></span>
+        </div>
+        <div style="flex: 1"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  Two bars in series — the shape the invocation cited, and the one the family
+  declined to manage. Each clamps independently; the consumer owns the total.
+-->
+<section data-scene="two-bars">
+  <div
+    style="
+      block-size: 12rem;
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-md);
+      display: flex;
+      overflow: hidden;
+    "
+  >
+    <nav
+      id="sumario"
+      style="
+        background: var(--slotted-surface-sunken);
+        inline-size: 26%;
+        padding: var(--slotted-space-5);
+        color: var(--slotted-text-muted);
+        font-size: var(--slotted-font-size-sm);
+      "
+    >
+      Contents
+    </nav>
+
+    <div
+      data-ui="splitter"
+      data-ui-splitter=""
+      data-part="root"
+      data-part-root=""
+      data-orientation="vertical"
+      role="separator"
+      tabindex="0"
+      aria-orientation="vertical"
+      aria-controls="sumario"
+      aria-label="Contents width"
+      aria-valuenow="26"
+      aria-valuemin="12"
+      aria-valuemax="50"
+    >
+      <span data-part="line" data-part-line="" aria-hidden="true"></span>
+      <span data-part="grip" data-part-grip="" aria-hidden="true"></span>
+      <span data-part="line" data-part-line="" aria-hidden="true"></span>
+    </div>
+
+    <main
+      id="documento"
+      style="
+        flex: 1;
+        padding: var(--slotted-space-5);
+        color: var(--slotted-text);
+        font-size: var(--slotted-font-size-sm);
+      "
+    >
+      Reconciliation procedure
+    </main>
+
+    <div
+      data-ui="splitter"
+      data-ui-splitter=""
+      data-part="root"
+      data-part-root=""
+      data-orientation="vertical"
+      role="separator"
+      tabindex="0"
+      aria-orientation="vertical"
+      aria-controls="documento"
+      aria-label="Largura do documento"
+      aria-valuenow="58"
+      aria-valuemin="30"
+      aria-valuemax="80"
+    >
+      <span data-part="line" data-part-line="" aria-hidden="true"></span>
+      <span data-part="grip" data-part-grip="" aria-hidden="true"></span>
+      <span data-part="line" data-part-line="" aria-hidden="true"></span>
+    </div>
+
+    <aside
+      style="
+        background: var(--slotted-surface-sunken);
+        inline-size: 22%;
+        padding: var(--slotted-space-5);
+        color: var(--slotted-text-muted);
+        font-size: var(--slotted-font-size-sm);
+      "
+    >
+      Notas
+    </aside>
+  </div>
+</section>

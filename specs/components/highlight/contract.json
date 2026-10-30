@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 5,
+  "family": "highlight",
+  "ui": "highlight",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Marks matches of a query inside text."
+  },
+  "axes": {
+    "occurrences": ["all", "first"],
+    "sensitivity": ["base", "accent", "case", "variant"]
+  },
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "current": "data-current"
+  },
+  "members": {
+    "highlight": {
+      "nativeElement": "span",
+      "defaults": {
+        "occurrences": "all",
+        "sensitivity": "base",
+        "locale": null,
+        "current": null,
+        "disabled": false
+      },
+      "capabilities": ["content", "disabled"],
+      "states": ["default", "current", "disabled"],
+      "parts": ["root", "match"]
+    }
+  },
+  "match": {
+    "element": "mark",
+    "engine": "@slotted/core/highlight",
+    "input": "text, and one of ranges | matcher | query",
+    "precedence": "ranges wins over matcher, which wins over the default matcher",
+    "empty": "a query that is empty or whitespace, or a range set that normalises to nothing, renders the text alone inside the root",
+    "normalisation": "every range set is clipped to the text, ordered, merged where it overlaps or touches, emptied of zero-width entries, and widened to grapheme boundaries",
+    "reason": "The HTML Standard defines mark for exactly this — the term searched for inside a result — and the APG has no pattern for it, so the family is content inside a host rather than a widget. The default matcher is the collator scan createFilter and createRanker already use, so an option that passes the filter shows the mark the filter found; Chakra and Mantine match by a case-insensitive regex, which finds no résumé for resume. Ranges are widened to graphemes because a range cutting a surrogate pair or a combining sequence would put half a character in a mark, and none of the surveyed implementations guards it."
+  },
+  "current": {
+    "attribute": "data-current on the match at that index, counting matches only",
+    "model": "none — the family has no keyboard and cannot move the index, so a state model would declare a request nothing can emit; list-item and timeline declare the state the same way",
+    "reason": "react-highlight-words is the one surveyed implementation with an active match (activeIndex); a find bar over a document or a log needs it, and a consumer scrolls to it through the root's ref."
+  },
+  "disabled": {
+    "own": "data-disabled on the root",
+    "inherited": "any ancestor carrying data-disabled",
+    "reason": "The mark says why an option is in the list, and saying it in the accent tone on a row that answers nothing puts the loudest thing on the surface on the one option a reader cannot take. The row already carries the state, so the family reads it from above as well as taking it itself."
+  },
+  "announcement": {
+    "decision": "mark keeps its semantics and no hidden text is injected",
+    "reason": "Most screen readers do not announce mark by default (MDN); a hidden 'highlight start' before every match — the technique MDN documents — would read a five-match option as ten announcements. A consumer that needs the announcement writes the ::before rule in its own scope."
+  },
+  "hosts": {
+    "combobox": "the label part holds one root; text, query and locale come from the family that filtered",
+    "select": "the same, in the search popup",
+    "multi-select": "the same",
+    "command-palette": "the same",
+    "listbox": "imports nothing; a consumer that marks an option renders the family inside it",
+    "reason": "R6: the mark is drawn once. The four hosts rendered the same mark by hand in two bindings each, and each pair could drift from the others."
+  },
+  "declined": {
+    "matchElement": "the match is always mark; the element carries the semantics and the forced-colors pair. What react-highlight-words solves with highlightTag this library solves with the highlight tokens.",
+    "wholeWord": "Chakra's exactMatch alone; a consumer writes it as a matcher over matchRanges and a word-boundary test.",
+    "styleObject": "docs/component-features.md §2.4: no style object in the contract. The tokens are --slotted-highlight-{background, color, rule-color, tint-opacity, disabled-background, current-background, current-color}."
+  },
+  "scenarios": {
+    "highlight": [
+      "playground",
+      "query",
+      "multiple",
+      "occurrences",
+      "ranges",
+      "matcher",
+      "current",
+      "states",
+      "context",
+      "content",
+      "accessibility"
+    ]
+  }
+}

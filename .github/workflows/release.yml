@@ -1,0 +1,53 @@
+name: Release
+
+# `pnpm release` pushes a `v*` tag; this workflow verifies the tagged commit and
+# publishes it. npm Trusted Publishing authenticates the job by OIDC
+# (`id-token: write`), so the repository holds no npm token and no one-time
+# password is asked. Each package names this repository and `release.yml` as
+# its trusted publisher on npmjs.com.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-24.04
+    steps:
+      # The whole history, so the publish step can prove the tag is on main.
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # No second validation: `pnpm release` refuses a commit whose CI has not
+      # passed, and the release commit changes only the six versions and
+      # CHANGELOG.md. The build is what the publish step packs.
+      - name: Build packages
+        run: pnpm build
+
+      - name: Publish to npm
+        run: node scripts/release.mjs --publish

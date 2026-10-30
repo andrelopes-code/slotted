@@ -1,0 +1,757 @@
+{
+  "schemaVersion": 5,
+  "family": "multi-select",
+  "ui": "multi-select",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Picks several options shown as tags."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/combobox/",
+  "chipsPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
+  "patternStatus": "Two pages answer this family, both read on 2026-09-10 from the rendered pattern pages. The combobox pattern owns the input, its role, aria-expanded, aria-controls, aria-activedescendant, aria-autocomplete and both key tables. The grid pattern's Layout Grids for Grouping Widgets half owns the chip row, and it names this exact control: \"a list of recipients for a message may be a grid where each cell contains a link that represents a recipient. The grid may initially have a single row but then wrap into multiple rows as recipients are added.\" The itemised comparison of both is, and the three departures are in `departures` below.",
+  "roles": {
+    "input": "combobox",
+    "control": "grid",
+    "chips": "row",
+    "chip": "gridcell",
+    "field": "gridcell",
+    "content": "listbox",
+    "item": "option",
+    "group": "group",
+    "separator": "separator",
+    "status": "status"
+  },
+  "nativeElement": {
+    "considered": "input + datalist",
+    "refused": true,
+    "kept": "The control is a real input, so every text-editing key, the caret, the text selection, IME composition and autofill remain the browser's. What is refused is the datalist: it is drawn by the operating system, holds no chip, no group, no description and no disabled option, filters by a rule that cannot be replaced, and renders differently in every engine.",
+    "reason": "There is no native element for a set of values with a text field beside it. The platform's own <select multiple> is the closest and it holds no typed text at all."
+  },
+  "departures": [
+    {
+      "from": "selection follows focus",
+      "instead": "The popup writes aria-multiselectable=\"true\", carries aria-selected on more than one option at a time, and moving the highlight chooses nothing. Enter toggles.",
+      "cost": "A screen reader that reads the pattern's note rather than the attribute describes the widget as single-select on first encounter.",
+      "reason": "The pattern's own note says \"a combobox is a single-select widget where selection follows focus in the popup\". The alternative it allows — a grid popup, which may carry several values per row — would put the whole grid key table on the popup, and the reader would then drive one grid inside the control and another inside the surface with the same four arrows. Base UI, Mantine, PrimeNG and the platform's own <select multiple> all write aria-multiselectable on a list, and none of them reaches for a grid."
+    },
+    {
+      "from": "Enter closes the popup",
+      "instead": "Enter toggles the highlighted option, empties the query and leaves the popup open. closeOnSelect is an axis and its default is false, which is the opposite of select's.",
+      "cost": "A reader who expects one press to finish has to press Escape or Tab.",
+      "reason": "The set is built by several presses. The pattern's own Enter clause describes this family: \"in a messaging application, the default action may be to add the accepted value to a list of message recipients and then clear the combobox so the user can add another recipient.\""
+    },
+    {
+      "from": "focus in a cell",
+      "instead": "A chip cell holds text and a remove button. Focus is set on the cell rather than on the button, and the button is tabindex=\"-1\" with its function duplicated on Delete and Backspace.",
+      "cost": "A reader who has not tried Delete may not learn the button is there, which is why the row's own description names the key.",
+      "reason": "The grid pattern gives two optimal combinations — one widget that does not need arrows, or text alone — and calls text plus a widget the case that \"adds complexity for authors or users or both\". React Aria's TagGroup and Angular Material's MatChipGrid resolve it the same way."
+    }
+  ],
+  "composes": [
+    "positioner",
+    "presence",
+    "portal",
+    "dismissable-layer",
+    "collection",
+    "overflow",
+    "measure",
+    "focus",
+    "live-announcer"
+  ],
+  "adds": {
+    "collection": {
+      "module": "packages/core/src/collection",
+      "reason": "Nothing new. createFilter and matchRanges for the query, moveIndex for the highlight, and nextSelection for the toggle — the same four combobox and listbox already read.",
+      "nextConsumer": "hierarchical-picker"
+    }
+  },
+  "portalledIdentity": {
+    "elements": ["root", "positioner"],
+    "reason": "The family is two subtrees: the control, where the consumer wrote it, and the popup, portalled to the end of the document. A stylesheet cannot reach a subtree that has left the root, so data-ui is written on both. select recorded the decision first and this family inherits it unchanged."
+  },
+  "layer": {
+    "modal": false,
+    "scrollLock": false,
+    "branches": [
+      "the control root, so pressing the trigger again closes rather than dismissing twice"
+    ],
+    "depthProperty": "--slotted-layer-depth",
+    "zIndexToken": "--slotted-z-index-popover",
+    "reason": "One layer in the single stack, at the token popover, menu and select already use."
+  },
+  "chips": {
+    "row": "chips",
+    "cell": "gridcell",
+    "chip": {
+      "ui": "tag",
+      "size": "sm",
+      "stylesheet": "tag/tag.css"
+    },
+    "removeTabindex": -1,
+    "message": "remove",
+    "rowMessage": "chosen",
+    "reason": "The chosen values are the chips themselves rather than a sentence about them. Each chip is a tag, worn as data-ui beside this family's own data-part, so the chip a reader removes here is the chip they know from everywhere else and the pill's geometry — including the remove control floored at --slotted-target-min per density — is stated once, in tag.css. The row carries its own count in aria-label so a reader landing on it hears how many chips there are before hearing all of them.",
+    "count": {
+      "attribute": "data-count",
+      "variant": "outline",
+      "reason": "The chip that counts what did not fit wears tag's outline variant where a value wears soft, because a count drawn exactly like a value is read as a value named \"+3\". It carries no remove control and it opens the popup, whose chosen band holds the values it stands for."
+    }
+  },
+  "value": {
+    "shape": "readonly string[]",
+    "order": "the reader's own, and a contract: the chips are drawn in it, reorder changes it, and a consumer who wants them alphabetical sorts what they are given",
+    "query": "inputValue, the characters the reader sees. It is transient — emptied when a value is committed — and it becomes a value only through the creation path.",
+    "reason": "It is an array and not a set because reorder is meaningless against a value the family is free to re-sort. Three of the eight implementations surveyed on 2026-09-10 hand back an array and none of them says the order is a contract."
+  },
+  "refusal": {
+    "request": "onValueRefuse",
+    "causes": ["duplicate", "limit", "invalid"],
+    "stateModel": false,
+    "paste": "A paste that carries more values than the limit allows takes them in order up to the limit and reports the rest in one request carrying limit, rather than taking them all or silently taking none.",
+    "reason": "Nothing is held, so there is no controlled value and nothing to cancel: the family reports what did not get in. Four silences in the field are answered by it — Mantine drops a duplicate with no feedback, PrimeNG stops selecting at the limit, Zag marks the control invalid and says nothing, and none of the eight says what a long paste does."
+  },
+  "duplicates": {
+    "axis": "allowDuplicates",
+    "comparison": "Intl.Collator at base sensitivity, through createFilter from @slotted/core/collection",
+    "focus": "the chip that already holds the value",
+    "reason": "docs/component-features.md §2.9 asks that comparison be locale-sensitive and §6 refuses an assumed contains, which is exactly what Mantine's isDuplicate escape hatch exists to work around. A refused duplicate moves focus to the chip that already holds the value: the reader is shown where their value is instead of being told nothing happened."
+  },
+  "limit": {
+    "prop": "max",
+    "attribute": "data-complete",
+    "options": "aria-disabled on every unchosen option while the control is full",
+    "validity": "tooMany, reported by the Angular Validator",
+    "announce": "one live message when the limit is reached",
+    "reason": "A set that has reached the top of its range is what the state vocabulary already calls complete — \"a quantity that has reached the top of its range\" — so no word is added to it. A control that silently ignores a press is a control the reader presses again, which is the failure PrimeNG and Zag each leave in place."
+  },
+  "creation": {
+    "axis": "creatable",
+    "message": "create",
+    "element": "an option of its own, marked data-create",
+    "appears": "while creatable is set, the query is not empty, no value in the set already holds it, and nothing in the collection matched it",
+    "effect": "adds the query to the set with reason submit, and empties the query",
+    "reason": "combobox declines creation of a value into its own state because its collection belongs to the consumer; here the set is the value, so the family adds it and reports it. The offer is an option — data-part='item', told apart by data-create — so ArrowDown reaches it, aria-activedescendant names it and Enter takes it, through machinery that already exists."
+  },
+  "paste": {
+    "axis": "addOnPaste",
+    "split": "the delimiters axis, which is the same list the delimiter key reads",
+    "reason": "One list serves the key and the paste split, because a control that accepted \"a,b\" from the clipboard and refused it from the keyboard would be two rules for one idea. Zag and Mantine each ship both halves and each keeps them on one setting."
+  },
+  "editing": {
+    "axis": "editable",
+    "enter": "turns the chip's cell into a text field holding the value",
+    "commit": "Enter commits and emits selection with reason submit",
+    "revert": "Escape reverts and restores grid navigation",
+    "state": "not modelled: it exists between one Enter and the next, the way a caret does",
+    "reason": "The tag family deferred the editable chip to this family by name — \"an editable chip is a text field wearing a chip, and it needs the field's validity, its commit-and-revert keys and its own state model\". The grid pattern already prescribes the keys: Enter disables grid navigation and places focus in an input field, Escape restores it."
+  },
+  "reorder": {
+    "axis": "reorderable",
+    "keys": "Alt with the next or previous arrow moves the chip one place; Alt+Home and Alt+End move it to either end",
+    "direction": "the arrows follow the writing direction, so ArrowRight moves toward the end of the row in ltr and toward the start in rtl",
+    "announce": "the value's label and its new position",
+    "motion": "none. Moving a chip changes the DOM order, and a transition across that needs a measured FLIP on every press. What the eye follows instead is the focus ring, which travels with the chip because focus stays on it, and the announcement, which names the new position.",
+    "pointer": {
+      "deferTo": "drag-and-drop",
+      "reason": "docs/component-features.md §3 files drag-and-drop as [Extended] shared infrastructure and packages/core holds none of it yet."
+    },
+    "reason": "docs/component-features.md §6 asks for reorder and §2.8 requires that drag-and-drop have a keyboard alternative. None of the eight implementations surveyed on 2026-09-10 ships reorder at all, and React Aria's exists only as a pointer drag bolted on through useDragAndDrop. Building the keyboard alternative first is the only order in which it is not an afterthought."
+  },
+  "removal": {
+    "rule": "two presses of Backspace from an empty input: the first moves focus to the last chip and removes nothing, the second removes it",
+    "reason": "docs/component-features.md §6 asks for a predictable rule and does not say which. The first press is what stops a reader losing a value while correcting a typo, and it is the only rule under which Backspace is reversible without an undo."
+  },
+  "overflow": {
+    "axis": ["wrap", "collapse"],
+    "default": "wrap",
+    "rows": 3,
+    "collapse": "createCollapse from @slotted/core/overflow",
+    "band": "chosen",
+    "narrowWidth": "120px",
+    "reason": "docs/component-features.md §6 asks that overflow summarise the selection without hiding access to the whole set. wrap keeps every chip in the DOM: the row wraps to three rows and scrolls past them, so nothing leaves the accessibility tree. collapse is for a control that must stay one line high — in a table row, in a filter bar — and there the +N chip opens the popup, whose chosen band holds every value. Under 120px of control there is no room for a chip at all and the counter answers instead; the width is watched by createWidthGate rather than by a container query, because container-type: inline-size would stop the frame's own width depending on its contents, which is exactly how a control that is not fullWidth is measured.",
+    "scrollbar": "none. The row scrolls and draws no bar: a form control has one frame, and a bar inside that frame takes width from the chips, moves them when it appears, and paints a second edge inside the control's own. The wheel, the trackpad and every arrow key still reach the rows above and below, because a chip is focusable and the browser scrolls focus into view. What says there is more is the counter beside the row, the row's own aria-label carrying the count, and the band at the top of the popup."
+  },
+  "counter": {
+    "part": "counter",
+    "drawn": "only while max is set, or while the frame is under the narrow width",
+    "label": "{count} of {max} while max is set, {count} chosen while the frame is narrow",
+    "reason": "A limit a reader cannot see is a limit that surprises them. A counter with no limit to count against would be furniture, so it is drawn only where it answers something."
+  },
+  "bound": {
+    "part": "content",
+    "property": "--slotted-positioner-available-height",
+    "reason": "The same bound menu and select take: a list of a hundred options otherwise runs off the bottom of the screen."
+  },
+  "filtering": {
+    "default": "createFilter().contains, locale-sensitive at base sensitivity",
+    "adapter": "filter: (item, query) => boolean",
+    "off": "filter={null}, for a list the consumer has already filtered on a server",
+    "highlight": "matchRanges, drawn as the match part",
+    "chosenOptions": "the axis that decides whether an option already in the set stays in the list with a mark, or leaves it",
+    "reason": "docs/component-features.md §6 requires that filtering, ranking and remote search be adapters and that the component assume neither contains nor English normalisation. Showing a chosen option with a check is the better default for a short list and hiding it is the better one for a long list, and neither is a defect of the other."
+  },
+  "wiring": {
+    "role": "combobox on the input, grid on the control, row on the chips, gridcell on each chip and on the field, listbox on the content, option on each item",
+    "aria-multiselectable": "true on the content, always",
+    "aria-expanded": "true while the popup is open, false while it is closed, always written on the input",
+    "aria-controls": "the input names the content while the popup is open",
+    "aria-activedescendant": "the input names the highlighted option, and nothing while there is none",
+    "aria-selected": "true on every chosen option, false on every other selectable one, which is what the listbox pattern requires",
+    "aria-haspopup": "never written; the popup is a listbox and that is role=combobox's implicit value",
+    "aria-autocomplete": "list. The popup presents values that correspond to what was typed and nothing is completed inline",
+    "aria-label": "on the control, carrying the field's label and the count of chips",
+    "aria-disabled": "on an option that cannot be chosen, and on every unchosen option while the control is full. Never on the input, which is a real input and carries the native attribute",
+    "aria-describedby": "the input takes the field's description and error, and the chips row's own description names the removal key",
+    "hidden inputs": "one per value, all under the same name, so a plain form receives several values under one key"
+  },
+  "keyboard": [
+    {
+      "key": "ArrowDown",
+      "effect": "closed, opens and highlights the first option; open, moves the highlight to the next option, wrapping only when loop is true",
+      "focus": "stays on the input, and the caret does not move",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "closed, opens and highlights the last option, which is the pattern's optional Up Arrow; open, moves the highlight to the previous option",
+      "focus": "the input, caret unmoved",
+      "source": "pattern"
+    },
+    {
+      "key": "Alt+ArrowDown",
+      "effect": "opens the popup without moving the highlight",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Alt+ArrowUp",
+      "effect": "closes the popup",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Enter",
+      "effect": "with a highlight, toggles that option, empties the query and leaves the popup open; with no highlight, an offer drawn and creatable set, commits the typed text as a value; on a chip with editable set, opens or commits the chip's field",
+      "focus": "the input, or the chip's cell while it is being edited",
+      "source": "pattern"
+    },
+    {
+      "key": "Escape",
+      "effect": "open, closes and keeps the typed text; closed, clears the typed text; on a chip, returns to the input; while a chip is being edited, reverts it. It never clears the selection",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "on the input, the browser's caret movement, never intercepted, which is the pattern's editable branch; on a chip, moves to the first cell",
+      "focus": "the input with the caret at the first character, or the first chip",
+      "source": "platform"
+    },
+    {
+      "key": "End",
+      "effect": "on the input, the browser's caret movement, never intercepted; on a chip, moves to the last cell, which is the input",
+      "focus": "the input with the caret after the last character",
+      "source": "platform"
+    },
+    {
+      "key": "PageDown",
+      "effect": "moves the highlight ten options down, which is PAGE_STEP from the collection engine",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "PageUp",
+      "effect": "moves the highlight ten options up",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "on the input, the browser's caret movement while the caret has anywhere to go; from the start of the query it moves to the previous cell, which under dir=rtl is the next one. On a chip, moves one cell",
+      "focus": "the input or a chip's cell",
+      "source": "grid"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "on the input, the browser's caret movement while the caret has anywhere to go; from the end of the query it moves to the next cell, which under dir=rtl is the previous one. On a chip, moves one cell",
+      "focus": "the input or a chip's cell",
+      "source": "grid"
+    },
+    {
+      "key": "Alt+ArrowLeft",
+      "effect": "with reorderable set, moves the focused value one place toward the start of the row, and toward the end under dir=rtl",
+      "focus": "stays on the moved chip, which has changed cell",
+      "source": "family"
+    },
+    {
+      "key": "Alt+ArrowRight",
+      "effect": "with reorderable set, moves the focused value one place toward the end of the row, and toward the start under dir=rtl",
+      "focus": "stays on the moved chip",
+      "source": "family"
+    },
+    {
+      "key": "Alt+Home",
+      "effect": "with reorderable set, moves the focused value to the start of the row",
+      "focus": "stays on the moved chip",
+      "source": "family"
+    },
+    {
+      "key": "Alt+End",
+      "effect": "with reorderable set, moves the focused value to the end of the row",
+      "focus": "stays on the moved chip",
+      "source": "family"
+    },
+    {
+      "key": "Backspace",
+      "effect": "on the input with a query, the browser's own deletion; on the input with an empty query and the caret at the start, the first press moves focus to the last chip and removes nothing and the second press removes it; on a chip, removes that value",
+      "focus": "the last chip, then the chip that took the removed one's index, then the previous chip, then the input",
+      "source": "family"
+    },
+    {
+      "key": "Delete",
+      "effect": "on a chip, removes that value; on the input, the browser's own deletion",
+      "focus": "the chip that took the removed one's index, then the previous chip, then the input",
+      "source": "grid"
+    },
+    {
+      "key": "Delimiter",
+      "effect": "any character in the delimiters axis commits the typed text as a value and is never typed into the input",
+      "focus": "the input",
+      "source": "family"
+    },
+    {
+      "key": "Printable character",
+      "effect": "on the input, types and filters; on a chip, returns focus to the input and types it there, which is the grid pattern's alphanumeric branch",
+      "focus": "the input",
+      "source": "grid"
+    },
+    {
+      "key": "Tab",
+      "effect": "leaves the control. With commitOnBlur set, the pending text is committed first. The popup, the chips and the remove buttons are outside the tab sequence, which the combobox pattern requires of a popup and the grid pattern of a layout grid",
+      "focus": "the element beside the control in the document's order",
+      "source": "pattern"
+    }
+  ],
+  "focus": {
+    "module": "createRemovalFocus from @slotted/core/focus",
+    "onOpen": "nothing moves; the input keeps focus and the highlight is aria-activedescendant",
+    "roving": true,
+    "tabStops": 1,
+    "contained": false,
+    "restore": "focus never leaves the control on its own, so there is nothing to restore",
+    "removal": "the chip that took the removed one's index, then the previous chip, then the input. The three steps are createRemovalFocus's, and the third is the one the field gets wrong: Angular Material leaves focus on a button that no longer exists and the page loses it to the document body",
+    "duplicate": "a refused duplicate moves focus to the existing chip that already holds the value",
+    "clear": "the input",
+    "disabledItems": "A disabled option is announced with aria-disabled, carries data-disabled, keeps its place in the collection and is skipped by every movement key. A disabled chip keeps its place and its label, draws no remove control, is skipped by Backspace, and is still reachable by arrow, because the reader has to be able to read it",
+    "guards": false,
+    "guardsReason": "Focus never enters the portalled layer, so there is nothing inside it for Tab to reach."
+  },
+  "opening": {
+    "input": "typing into the input opens the popup, and so does a press on the input; a Tab into the input does not, because a reader tabbing through a form is passing the control on the way to the next field",
+    "focus": "every focus on the input opens the popup, a Tab into it and a press on it alike. For a control that is the reason the page exists, such as a search field alone in a header",
+    "manual": "only the trigger, ArrowDown, ArrowUp and Alt+ArrowDown open the popup; typing filters without opening it",
+    "press": "a pointer press on the input opens a closed popup with reason pointer, under input and focus, and never closes an open one, because a press there also places the caret. Under manual it only places the caret. A consumer handler that calls preventDefault on the click keeps the popup closed",
+    "reason": "React Aria names the same three values in menuTrigger and defaults to input; Base UI (openOnInputClick) and Ark (openOnClick) open on a press on the input. combobox, multi-select and entity-picker answer both gestures alike, so one form holding the three opens on the same gestures"
+  },
+  "waiting": {
+    "busy": {
+      "part": "busy",
+      "ui": "spinner",
+      "stylesheet": "spinner/spinner.css",
+      "reason": "While an answer is travelling the control shows the ring instead of the chevron: the chevron says the popup opens, and it does not open onto anything yet."
+    },
+    "placeholder": {
+      "part": "placeholder",
+      "ui": "skeleton",
+      "stylesheet": "skeleton/skeleton.css",
+      "reason": "The popup waits as rows the height of an option, so the surface a reader is looking at is the shape of the list that is coming. It is hidden from assistive technology: the status row beside it is the live region and already says what is happening."
+    }
+  },
+  "announce": {
+    "module": "createLiveAnnouncer from @slotted/core/live-announcer",
+    "politeness": "polite",
+    "messages": [
+      "a value added, with the count that is now held",
+      "a value removed, with the label that left and the count that is left",
+      "a value moved, with its label and its new position",
+      "the limit reached",
+      "a duplicate refused, naming the chip that already holds it",
+      "the number of options the query matched"
+    ],
+    "reason": "A reader who removed the wrong chip needs the count to know they did, and none of the eight implementations surveyed says both facts. React Aria announces the removal alone."
+  },
+  "form": {
+    "react": "one visually hidden input per value, all carrying the same name, with required and form on the first",
+    "angular": "ControlValueAccessor and Validator",
+    "validity": ["required", "tooMany", "duplicate"],
+    "reason": "Neither ecosystem has the other's mechanism. The hidden inputs are what make a plain form receive several values under one key and a native reset() restore them; the Validator is what puts tooMany in a Reactive Form without the consumer writing it. Recording the asymmetry is what the framework requirements ask instead of levelling both to the smaller shape."
+  },
+  "mount": {
+    "active": "the layer exists only while it is open",
+    "lazy": "built on the first open and kept afterwards",
+    "eager": "exists from the start, closed",
+    "default": "active",
+    "reason": "The same axis tooltip, popover, collapsible, menu and select declare."
+  },
+  "motion": {
+    "property": "scale",
+    "companion": "opacity",
+    "companionPart": "content",
+    "origin": "--slotted-positioner-transform-origin",
+    "measured": false,
+    "chips": "none. A chip that faded in would delay the row's reflow behind it, and the reader has just pressed a key; the announcement carries the change instead",
+    "reorder": "none. Moving a chip changes the DOM order, and a transition across that needs a measured FLIP on every press. What the eye follows instead is the focus ring, which travels with the chip because focus stays on it, and the announcement, which names the new position.",
+    "reason": "The popup grows from the control that opened it, which is what says where it came from. The same grammar tooltip, popover, menu and select use."
+  },
+  "runtimeProperties": [
+    "--slotted-layer-depth",
+    "--slotted-positioner-anchor-width",
+    "--slotted-positioner-available-height",
+    "--slotted-positioner-available-width",
+    "--slotted-positioner-transform-origin"
+  ],
+  "positioning": {
+    "side": "bottom",
+    "align": "start",
+    "sideOffset": 4,
+    "alignOffset": 0,
+    "collisionPadding": 8,
+    "reason": "The popup hangs from the start edge of the control and is never narrower than it, so the query in the control and the labels in the list share one edge."
+  },
+  "measure": {
+    "value": "the content's own width by default, never narrower than the anchor's width and capped by the measure and the available width; exactly the anchor's width when width is anchor",
+    "property": "--slotted-positioner-anchor-width",
+    "reason": "As select records it."
+  },
+  "declined": {
+    "reorderByPointer": {
+      "deferTo": "drag-and-drop",
+      "reason": "docs/component-features.md §3 files drag-and-drop as [Extended] shared infrastructure and packages/core holds none of it. The keyboard reorder this family ships is the alternative §2.8 requires of a drag, and it is built first so that it is not an afterthought of one."
+    },
+    "selectAll": {
+      "compose": "ref.current.setValue(items.map((item) => item.value), 'programmatic')",
+      "reason": "One of the eight implementations surveyed ships it, so it is not table stakes, and the family cannot answer what \"all\" means under a limit and under a filter — the consumer can. PrimeNG's showToggleAll is the one that does."
+    },
+    "virtualization": {
+      "deferTo": "collection",
+      "reason": "docs/component-features.md §2.10 makes virtualization a capability of the collection engine rather than a parallel component. listbox already reads window from it and this family reads the same."
+    },
+    "modal": {
+      "deferTo": "dialog",
+      "reason": "The same decline select, menu and popover each recorded: applyInert in dismissable-layer inerts everything outside the layer, the control included, so a modal popup could not be closed by pressing the control again."
+    },
+    "backdrop": {
+      "deferTo": "dialog",
+      "reason": "A backdrop darkens the page behind a modal and catches the press that closes it; modality is declined above and the press outside already belongs to the dismissable layer."
+    },
+    "arrow": {
+      "deferTo": "popover",
+      "reason": "The popup is never narrower than its control and hangs directly under it, so the control already says where it came from. Declining it is also what frees the part name arrow for the chevron on the trigger."
+    },
+    "inlineCompletion": {
+      "deferTo": "combobox",
+      "reason": "aria-autocomplete=\"both\" selects a range of the input's text, and the input's text here is a query that is about to be emptied. combobox ships it, for a family whose typed text is the value."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"],
+    "side": ["bottom", "top", "inline-start", "inline-end", "left", "right"],
+    "align": ["start", "center", "end"],
+    "width": ["anchor", "content"],
+    "mount": ["active", "lazy", "eager"],
+    "strategy": ["absolute", "fixed"],
+    "openOn": ["input", "focus", "manual"],
+    "overflow": ["wrap", "collapse"],
+    "chosenOptions": ["show", "hide"],
+    "creatable": [true, false],
+    "editable": [true, false],
+    "reorderable": [true, false],
+    "allowDuplicates": [true, false],
+    "commitOnBlur": [true, false],
+    "addOnPaste": [true, false],
+    "clearable": [true, false],
+    "loop": [true, false],
+    "highlightMatch": [true, false],
+    "closeOnSelect": [true, false],
+    "closeOnEscape": [true, false],
+    "closeOnOutsidePress": [true, false],
+    "flip": [true, false],
+    "shift": [true, false],
+    "hideWhenDetached": [true, false],
+    "portal": [true, false],
+    "fullWidth": [true, false],
+    "disabled": [true, false],
+    "readOnly": [true, false],
+    "required": [true, false],
+    "invalid": [true, false],
+    "loading": [true, false]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "side": ["prop", "defaults", "bottom"],
+    "align": ["prop", "defaults", "start"],
+    "width": ["prop", "defaults", "content"],
+    "mount": ["prop", "defaults", "active"],
+    "strategy": ["prop", "defaults", "absolute"],
+    "openOn": ["prop", "defaults", "input"],
+    "overflow": ["prop", "defaults", "wrap"],
+    "chosenOptions": ["prop", "defaults", "show"],
+    "creatable": ["prop", "defaults", false],
+    "editable": ["prop", "defaults", false],
+    "reorderable": ["prop", "defaults", false],
+    "allowDuplicates": ["prop", "defaults", false],
+    "commitOnBlur": ["prop", "defaults", true],
+    "addOnPaste": ["prop", "defaults", true],
+    "clearable": ["prop", "defaults", true],
+    "loop": ["prop", "defaults", false],
+    "highlightMatch": ["prop", "defaults", true],
+    "closeOnSelect": ["prop", "defaults", false],
+    "closeOnEscape": ["prop", "defaults", true],
+    "closeOnOutsidePress": ["prop", "defaults", true],
+    "flip": ["prop", "defaults", true],
+    "shift": ["prop", "defaults", true],
+    "hideWhenDetached": ["prop", "defaults", true],
+    "portal": ["prop", "defaults", true],
+    "fullWidth": ["prop", "defaults", true],
+    "disabled": ["prop", "defaults", false],
+    "readOnly": ["prop", "defaults", false],
+    "required": ["prop", "defaults", false],
+    "invalid": ["prop", "defaults", false],
+    "loading": ["prop", "defaults", false]
+  },
+  "provides": {
+    "multiSelectDefaults": [
+      "size",
+      "variant",
+      "side",
+      "align",
+      "width",
+      "mount",
+      "strategy",
+      "openOn",
+      "overflow",
+      "chosenOptions",
+      "creatable",
+      "editable",
+      "reorderable",
+      "allowDuplicates",
+      "commitOnBlur",
+      "addOnPaste",
+      "clearable",
+      "loop",
+      "highlightMatch",
+      "closeOnSelect",
+      "closeOnEscape",
+      "closeOnOutsidePress",
+      "flip",
+      "shift",
+      "hideWhenDetached",
+      "portal",
+      "fullWidth",
+      "disabled",
+      "readOnly",
+      "required",
+      "invalid",
+      "loading",
+      "max",
+      "delimiters",
+      "sideOffset",
+      "alignOffset",
+      "collisionPadding"
+    ]
+  },
+  "messages": [
+    "chosen",
+    "clear",
+    "count",
+    "counter",
+    "create",
+    "empty",
+    "loading",
+    "remove",
+    "reorder",
+    "trigger"
+  ],
+  "stateAttributes": {
+    "open": "data-open",
+    "disabled": "data-disabled",
+    "readonly": "data-readonly",
+    "invalid": "data-invalid",
+    "required": "data-required",
+    "loading": "data-loading",
+    "selected": "data-selected",
+    "current": "data-current",
+    "complete": "data-complete"
+  },
+  "stateModel": {
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["select", "submit", "remove", "clear", "keyboard", "programmatic"]
+    },
+    "value": {
+      "controlled": "inputValue",
+      "uncontrolled": "defaultInputValue",
+      "request": "onInputValueChange",
+      "reasons": ["keyboard", "select", "submit", "clear", "blur", "programmatic"]
+    },
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "escape",
+        "outsidePress",
+        "select",
+        "dismiss",
+        "blur",
+        "programmatic"
+      ]
+    },
+    "current": {
+      "controlled": "highlightedValue",
+      "uncontrolled": "defaultHighlightedValue",
+      "request": "onHighlightedValueChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "members": {
+    "multi-select": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "side": "bottom",
+        "align": "start",
+        "width": "content",
+        "mount": "active",
+        "strategy": "absolute",
+        "openOn": "input",
+        "overflow": "wrap",
+        "chosenOptions": "show",
+        "creatable": false,
+        "editable": false,
+        "reorderable": false,
+        "allowDuplicates": false,
+        "commitOnBlur": true,
+        "addOnPaste": true,
+        "clearable": true,
+        "loop": false,
+        "highlightMatch": true,
+        "closeOnSelect": false,
+        "closeOnEscape": true,
+        "closeOnOutsidePress": true,
+        "flip": true,
+        "shift": true,
+        "hideWhenDetached": true,
+        "portal": true,
+        "fullWidth": true,
+        "disabled": false,
+        "readOnly": false,
+        "required": false,
+        "invalid": false,
+        "loading": false,
+        "max": null,
+        "delimiters": [","],
+        "sideOffset": 4,
+        "alignOffset": 0,
+        "collisionPadding": 8
+      },
+      "capabilities": [
+        "value",
+        "selection",
+        "open",
+        "current",
+        "overflow",
+        "size",
+        "appearance",
+        "placement",
+        "content",
+        "fullWidth",
+        "disabled",
+        "loading",
+        "readOnly",
+        "required",
+        "invalid",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "open",
+        "disabled",
+        "readonly",
+        "invalid",
+        "required",
+        "loading",
+        "selected",
+        "current",
+        "complete"
+      ],
+      "parts": [
+        "root",
+        "control",
+        "chips",
+        "field",
+        "input",
+        "counter",
+        "busy",
+        "clear",
+        "trigger",
+        "arrow",
+        "positioner",
+        "content",
+        "chosen",
+        "group",
+        "group-label",
+        "item",
+        "indicator",
+        "icon",
+        "label",
+        "match",
+        "description",
+        "separator",
+        "empty",
+        "status",
+        "placeholder"
+      ]
+    }
+  },
+  "scenarios": {
+    "multi-select": [
+      "playground",
+      "chips",
+      "creation",
+      "limit",
+      "duplicates",
+      "reorder",
+      "paste",
+      "editing",
+      "filtering",
+      "groups",
+      "overflow",
+      "sizes",
+      "variants",
+      "states",
+      "loading-and-empty",
+      "long-content",
+      "keyboard",
+      "form",
+      "composition"
+    ]
+  },
+  "mark": {
+    "family": "highlight",
+    "ui": "highlight",
+    "part": "match",
+    "inside": "label",
+    "reason": "The span a query matched is the `highlight` family, rendered inside this family's label part, as combobox records it. Every occurrence is marked since wave 10, which is the family's default."
+  }
+}

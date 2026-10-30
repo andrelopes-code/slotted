@@ -1,0 +1,74 @@
+---
+title: Textarea
+description: Takes several lines of text on the native textarea element, with a height set in rows, growth with the content and a character count drawn by its field.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Sizes
+
+`size` sets the type, the padding and the row height to one step of the control scale: `sm` for dense tables and toolbars, `md` for most forms, `lg` for sparse forms. A textarea of one row is as tall as a text field of the same step. Inside a field, the textarea takes the field's size when it states none of its own.
+
+<Example name="sizes" />
+
+## Variants
+
+`variant` sets how much frame the textarea draws, with the same three frames as the text field. `outline` draws a border on the surface it sits on, `subtle` sinks into a tinted ground, and `plain` draws no border or background until hover, for a textarea inside a table cell or a card that already frames it.
+
+<Example name="variants" />
+
+## Monospaced text
+
+`mono` sets the value in the monospaced font with tabular figures. Use it for a JSON payload, a template or a code snippet, where characters must line up between lines. Turn `spellCheck` off for content that is not prose.
+
+<Example name="mono" />
+
+## States
+
+`invalid` sets `aria-invalid` and draws the border in the danger tone, with a wider edge. `readOnly` sets the native `readonly`: the text stays focusable, selectable and submitted, and the resize handle stays. `disabled` sets the native `disabled`, which takes the textarea out of the tab order and out of form submission and removes the handle. Set the state on the field, and the textarea inside it follows.
+
+<Example name="states" />
+
+## Read-only long text
+
+A read-only textarea holds a long text a reader has to scroll, select and copy, such as agreed terms or a log entry, at the height `rows` sets. The text keeps its full contrast, and the resize handle lets the reader open it to its full length.
+
+<Example name="read-only" />
+
+## Rows and the resize handle
+
+`rows` sets the height in lines; the default is 3. `resize` decides which way the handle in the corner drags: `block`, the default, changes only the height, so the textarea never grows wider than its field. `none` removes the handle, and `both` adds the width.
+
+<Example name="rows" />
+
+## Growing with the content
+
+`autoSize` makes the textarea grow as lines are added, from `rows` lines up to `maxRows` lines, the default 12. Past the ceiling it scrolls, so the page under the caret stays where it is. The resize handle is removed while `autoSize` is on. The growth uses CSS `field-sizing`; a browser without it keeps the height of `rows`. Add lines to the note until it stops growing.
+
+<Example name="auto-size" />
+
+## Character count
+
+`showCount` publishes the length of the value, and the field draws the count at the end of its label row. With `maxLength`, the count shows the native limit, which refuses input past it. `countMax` without `maxLength` is a soft limit: the value may pass it, and the count turns to the danger tone when it does. Type past 120 characters in the summary.
+
+<Example name="count" />
+
+## Validation in a form
+
+Enter adds a line and never submits the form, so a form with a textarea submits through its button. Validate on submit, then set `invalid` on the field and write the error; the field marks the textarea with `aria-invalid` and adds the error to its accessible description. The Angular example binds the textarea to a reactive form control with `Validators.required` and `Validators.minLength`. Submit the empty form, then write a description and submit again.
+
+<Example name="validation" />
+
+## Defaults for a section
+
+`TextareaDefaultsProvider` in React and `provideTextareaDefaults` in Angular set `size`, `variant`, `mono` and `resize` once for every textarea under them. A textarea that states a value of its own keeps it, and a textarea inside a field takes the field's size over the provider's.
+
+<Example name="defaults" />
+
+## Comment composer
+
+A comment thread with a composer under it. The textarea is controlled: `value` and `onValueChange` in React, `[value]` and `(valueChange)` in Angular, so the page clears it after the comment is posted. It starts at two rows and grows to eight. Write a comment over two or three lines and press Post comment.
+
+<Example name="comment-composer" />

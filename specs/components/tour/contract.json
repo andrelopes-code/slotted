@@ -1,0 +1,384 @@
+{
+  "schemaVersion": 5,
+  "family": "tour",
+  "ui": "tour",
+  "catalog": {
+    "group": "Overlays",
+    "summary": "Guided steps anchored to elements."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+  "patternStatus": "There is no tour pattern in the APG. A modal step answers the modal dialog pattern; a step whose target the reader must operate answers the non-modal dialog that popover answers, with that family's focus guards.",
+  "roles": {
+    "content": "dialog"
+  },
+  "composes": [
+    "positioner",
+    "presence",
+    "portal",
+    "dismissable-layer",
+    "focus",
+    "live-announcer",
+    "button"
+  ],
+  "compositionReason": "The scope names popover and dialog. popover anchors to a PopoverAnchor wrapping the consumer's element, not to any element of the page that changes on every step, and composing the family would change its public contract. The tour composes the same core modules both families compose, takes popover's anchored geometry and dialog's scrim, and renders its four actions as button.",
+  "layer": {
+    "modal": "the modal axis, true by default; a step marked interactive is non-modal whatever the axis says",
+    "scrollLock": false,
+    "scrollLockReason": "A tour scrolls the page to each target, and a reader has to be able to scroll to read what the spotlight points at. The backdrop takes the pointer; the wheel still reaches the document.",
+    "depthProperty": "--slotted-layer-depth",
+    "zIndexToken": "--slotted-z-index-overlay",
+    "reason": "One layer in the single stack, above the page and below a toast. A popover the reader opens from an interactive target opens above the tour, because it joins the stack after it."
+  },
+  "wiring": {
+    "aria-modal": "true on the content only while the page is inert, which is a modal step; never on an interactive step, where the page stays reachable",
+    "aria-labelledby": "the content names the title part; a step with no title gets no aria-labelledby, and the reference page says to write aria-label on the content instead",
+    "aria-describedby": "the content names the description part when one is present",
+    "aria-hidden": "the backdrop, the spotlight, the arrow and both focus guards",
+    "aria-live": "not written on the card. A step change the reader did not make from the card is announced once through @slotted/core/live-announcer, politely",
+    "progress": "the progress part is text a reader hears in the card's reading order; it carries no role"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next tabbable element of the card; wraps from the last to the first on a modal step; on an interactive step, past the last element it reaches the trailing focus guard",
+      "focus": "the next element of the card, or the target on an interactive step",
+      "source": "pattern"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves back through the card under the same rule",
+      "focus": "the previous element of the card, or the target on an interactive step",
+      "source": "pattern"
+    },
+    {
+      "key": "Escape",
+      "effect": "asks the topmost layer to close, carrying the reason escape and the outcome close; closeOnEscape=false refuses it",
+      "focus": "the element that held focus when the tour opened, or finalFocus",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "goes to the next available step, with focus in the card and outside a text field; in a right-to-left document it goes to the previous one",
+      "focus": "the new step's card",
+      "source": "family"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "goes to the previous available step under the same rule; in a right-to-left document it goes to the next one",
+      "focus": "the new step's card",
+      "source": "family"
+    },
+    {
+      "key": "Enter",
+      "effect": "activates the focused action: next, prev, skip or close",
+      "focus": "the new step's card, or the restored element when the action closed the tour",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "activates the focused action, under the same rule",
+      "focus": "the new step's card, or the restored element when the action closed the tour",
+      "source": "platform"
+    }
+  ],
+  "focus": {
+    "autoFocus": {
+      "default": true,
+      "target": "content",
+      "reason": "The card carries tabindex=\"-1\" and takes focus, as popover's does: the reader hears the step's name before its buttons, and a card whose first button is Skip does not arrive with Skip armed."
+    },
+    "stepChange": "moves focus to the new card only when focus was in the previous card or on the body; anywhere else — the reader operating an interactive target, typing in the page — it stays, and the new step's title is announced politely",
+    "restore": "the element that held focus when the tour opened",
+    "finalFocus": {
+      "accepts": "an element, a ref or a selector",
+      "reason": "The element that opened the tour may be gone by the time it closes: a tour started from a welcome banner the tour's own first step dismissed."
+    },
+    "contained": "on a modal step, from @slotted/core/focus; not on an interactive step",
+    "guards": {
+      "count": 2,
+      "part": "focus-guard",
+      "rendered": "only on a non-modal step",
+      "destination": "the target's first tabbable element, or the target itself",
+      "reason": "A non-modal card is portalled to the end of the document. On an interactive step the target is what the reader is being asked to operate, so Tab past either edge of the card goes to it rather than to the end of the page."
+    }
+  },
+  "recovery": {
+    "missing": {
+      "values": ["center", "skip"],
+      "default": "center",
+      "reason": "A step whose target cannot be found still has something to say. Centred, with data-missing on the root and no spotlight, the reader reads it; skip is for steps that only make sense beside their target."
+    },
+    "targetTimeout": {
+      "default": 0,
+      "unit": "ms",
+      "reason": "How long to watch the document for a target that is not there yet, with a MutationObserver. Zero by default: a wait shows nothing new, and a consumer whose target renders late states how late. While it runs the previous card stays and next carries data-loading."
+    },
+    "prepareRejected": "a step whose prepare rejects is treated as a step with a missing target, under the same missing policy",
+    "noneAvailable": "opening a tour with no available step is refused, and the request to close carries the outcome unavailable, so a controlled open flag goes back without the tour ever painting",
+    "targetRemoved": "a target that leaves the document during its step turns the step centred, with data-missing on the root; the reader keeps their place",
+    "whenFalse": "a step whose when() returns false is passed over in both directions, and progress does not count it"
+  },
+  "spotlight": {
+    "drawnBy": "family",
+    "geometry": "the script publishes the target's rectangle in viewport pixels; the stylesheet adds --slotted-tour-spotlight-padding and rounds the cutout with --slotted-tour-spotlight-radius",
+    "scrim": "the spotlight's own box-shadow, in --slotted-scrim, so the cutout is rounded",
+    "hitArea": "the whole backdrop, on a modal step only. The target of a modal step is inert with the rest of the page, so the backdrop has no hole for the pointer; a step whose target the reader operates is interactive, and non-modal",
+    "motion": "none at rest, so the cutout follows scrolling and resizing without lag. data-spot on the root names the three movements the eye follows, each on the long step and the standard curve: travel between two targets, light where a cutout opens (the hole clears from the scrim's ink), close before a centred step (the hole fills with the scrim before the cutout goes)",
+    "clamp": "a target larger than the viewport is clipped to the viewport, and the card is centred"
+  },
+  "scroll": {
+    "default": true,
+    "behavior": "smooth, unless prefers-reduced-motion asks otherwise",
+    "block": "center",
+    "when": "only when the target is not wholly inside the viewport"
+  },
+  "runtimeProperties": [
+    "--slotted-layer-depth",
+    "--slotted-tour-target-x",
+    "--slotted-tour-target-y",
+    "--slotted-tour-target-width",
+    "--slotted-tour-target-height",
+    "--slotted-positioner-arrow-x",
+    "--slotted-positioner-arrow-y",
+    "--slotted-positioner-available-height",
+    "--slotted-positioner-available-width",
+    "--slotted-positioner-transform-origin"
+  ],
+  "positioning": {
+    "sideOffset": 0,
+    "alignOffset": 0,
+    "collisionPadding": 8,
+    "arrowPadding": 12,
+    "gap": {
+      "token": "--slotted-tour-gap",
+      "default": "calc(var(--slotted-tour-spotlight-padding) + var(--slotted-space-4))",
+      "reason": "The card stands off the spotlight's edge, not the target's, or the arrow would point into the cutout's padding."
+    }
+  },
+  "step": {
+    "id": "string, unique in the tour; the value of the current capability",
+    "target": "an element, a ref, a selector or a function returning an element; absent for a centred step",
+    "title": "the step's name",
+    "description": "optional",
+    "media": "optional image or video above the header",
+    "side": "overrides the tour's side",
+    "align": "overrides the tour's align",
+    "when": "optional; read each time navigation reaches the step",
+    "interactive": "the target stays operable and the step is non-modal",
+    "advanceOn": "optional DOM event name on the target that goes to the next step, carrying the reason of the event that fired it",
+    "prepare": "optional; awaited with an AbortSignal before the target is resolved",
+    "spotlight": "overrides the tour's spotlight",
+    "messages": "optional; laid over the tour's next, prev, skip and done for this step"
+  },
+  "messages": ["close", "done", "next", "preparing", "prev", "progress", "skip"],
+  "messagesReason": "The words the tour says come from the tour catalog of the language in force, laid over by one messages input on the tour and, for next, prev, skip and done, by a step's own messages. progress is one message with {position} and {total}, so each language orders its own words; preparing names the Next button's wait.",
+
+  "declined": {
+    "indicatorDots": {
+      "compose": "useTour() in React and slTour in Angular expose position and total; three lines draw the dots inside the footer",
+      "reason": "Ant Design alone ships dots. The text progress is what the reader hears, and dots beside it say the same thing twice."
+    },
+    "primaryType": {
+      "compose": "--slotted-tour-surface and --slotted-tour-text retint the card",
+      "reason": "Ant Design alone ships a card in the accent colour."
+    },
+    "actionsData": {
+      "compose": "the consumer arranges the footer's parts and adds their own button beside them",
+      "reason": "Zag describes actions as data. Composition is the answer to a list of buttons."
+    },
+    "bottomSheet": {
+      "deferTo": "action-sheet",
+      "reason": "A card docked to the bottom edge of a narrow viewport is separated from the target it points at, and the arrow loses its meaning. The card is bounded by the available width instead."
+    },
+    "persistence": {
+      "compose": "onOpenChange carries the outcome; the product stores that a reader completed or skipped a tour, and passes defaultOpen accordingly",
+      "reason": "docs/component-features.md §7: persistence and versioning belong to the product."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "side": ["top", "bottom", "inline-start", "inline-end", "left", "right"],
+    "align": ["start", "center", "end"],
+    "modal": [true, false],
+    "spotlight": [true, false],
+    "arrow": [true, false],
+    "autoFocus": [true, false],
+    "closeOnEscape": [true, false],
+    "closeOnOutsidePress": [true, false],
+    "scrollIntoView": [true, false],
+    "missing": ["center", "skip"],
+    "keyboardNavigation": [true, false],
+    "layout": ["auto", "compact", "regular"]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "side": ["step", "prop", "defaults", "bottom"],
+    "align": ["step", "prop", "defaults", "center"],
+    "modal": ["step.interactive", "prop", "defaults", true],
+    "spotlight": ["step", "prop", "defaults", true],
+    "arrow": ["prop", "defaults", true],
+    "autoFocus": ["prop", "defaults", true],
+    "closeOnEscape": ["prop", "defaults", true],
+    "closeOnOutsidePress": ["prop", "defaults", false],
+    "scrollIntoView": ["prop", "defaults", true],
+    "missing": ["prop", "defaults", "center"],
+    "keyboardNavigation": ["prop", "defaults", true],
+    "targetTimeout": ["prop", "defaults", 0],
+    "layout": ["prop", "defaults", "auto"]
+  },
+  "provides": {
+    "tourDefaults": [
+      "layout",
+      "size",
+      "side",
+      "align",
+      "modal",
+      "spotlight",
+      "arrow",
+      "autoFocus",
+      "closeOnEscape",
+      "closeOnOutsidePress",
+      "scrollIntoView",
+      "missing",
+      "keyboardNavigation",
+      "targetTimeout"
+    ]
+  },
+  "stateAttributes": {
+    "open": "data-open",
+    "loading": "data-loading"
+  },
+  "compositionAttributes": {
+    "data-placement": "anchored or centered, on the root and the surface",
+    "data-modal": "on the root while the step is modal",
+    "data-spotlight": "on the root while a spotlight is drawn",
+    "data-missing": "on the root while the step's target could not be found",
+    "data-side": "on the surface, the physical side the positioner resolved",
+    "data-align": "on the surface",
+    "data-last": "on the next part on the last available step, where it reads Done",
+    "data-compact": "on the root while the compact composition is in force"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "dismiss",
+        "escape",
+        "outsidePress",
+        "back",
+        "programmatic"
+      ],
+      "outcome": ["complete", "skip", "close", "unavailable"]
+    },
+    "current": {
+      "controlled": "step",
+      "uncontrolled": "defaultStep",
+      "request": "onStepChange",
+      "reasons": ["pointer", "keyboard", "programmatic"],
+      "value": "the id of the step, never its index"
+    }
+  },
+  "members": {
+    "tour": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "side": "bottom",
+        "align": "center",
+        "modal": true,
+        "spotlight": true,
+        "arrow": true,
+        "autoFocus": true,
+        "closeOnEscape": true,
+        "closeOnOutsidePress": false,
+        "scrollIntoView": true,
+        "missing": "center",
+        "keyboardNavigation": true,
+        "targetTimeout": 0,
+        "sideOffset": 0,
+        "alignOffset": 0,
+        "collisionPadding": 8,
+        "arrowPadding": 12,
+        "layout": "auto"
+      },
+      "capabilities": ["open", "current", "placement", "size", "appearance", "wiring"],
+      "states": ["default", "hover", "active", "focus-visible", "open", "loading"],
+      "parts": [
+        "root",
+        "backdrop",
+        "spotlight",
+        "surface",
+        "focus-guard",
+        "arrow",
+        "content",
+        "media",
+        "header",
+        "progress",
+        "close",
+        "title",
+        "description",
+        "body",
+        "footer",
+        "skip",
+        "prev",
+        "next"
+      ]
+    }
+  },
+  "scenarios": {
+    "tour": [
+      "playground",
+      "placement",
+      "centered",
+      "spotlight",
+      "modal",
+      "interactive",
+      "availability",
+      "missing",
+      "prepare",
+      "controlled",
+      "composition",
+      "labels",
+      "keyboard",
+      "compact",
+      "edges",
+      "layers"
+    ]
+  },
+  "measure": {
+    "value": "16rem / 20rem / 24rem by size",
+    "reason": "popover's three steps: wide enough for two sentences, narrow enough to point at a control."
+  },
+  "compact": {
+    "threshold": "the viewport is narrower than 600 pixels, COMPACT_BELOW in @slotted/core/measure, the library's compact size class",
+    "side": "a lateral side — inline-start, inline-end, left, right — becomes bottom, and the positioner flips it to top when there is no room below",
+    "width": "the card takes the width the positioner says is left, not its measure",
+    "attribute": "data-compact on the root",
+    "override": "layout=\"compact\" or \"regular\" decides it whatever the viewport is; \"auto\" reads the viewport",
+    "reason": "A 16-rem card beside a button does not fit in 375 pixels, and a flip to the other side has less room. The tour is useful on a phone — onboarding is most needed where the screen is smallest — so it adapts rather than refusing; a product that does not want it there does not open it, or marks steps with when()."
+  },
+  "edges": {
+    "corners": "the positioner flips a card that has no room on its side and slides it along the edge, keeping collisionPadding from the viewport; the arrow keeps arrowPadding from the card's corner",
+    "crowded": "a target that leaves no side 140 pixels tall, or 240 wide on a regular viewport — a whole editor, a chart taller than the screen — keeps its spotlight and gets its card centred over it",
+    "offscreen": "a target not wholly on screen is scrolled to the middle first",
+    "safeArea": "a centred card stands inside env(safe-area-inset-*)",
+    "tracking": "scroll in any container, window and target resize, the end of any animation or transition, the first frames until the rectangle holds still, and the visual viewport where the platform has one — a phone's keyboard, a pinch"
+  },
+  "layers": {
+    "stack": "the tour joins the single dismissable-layer stack when it opens, so it stands over a dialog, drawer or popover already open and under one opened from an interactive step",
+    "focus": "@slotted/core/focus lets focus go to a layer opened over a containing one, so a dialog's trap does not pull focus back out of the card",
+    "escape": "Escape reaches the topmost layer only: the tour closes and the dialog under it stays",
+    "target": "a target inside a dialog is found, tracked while the dialog animates in, and centred with data-missing if the dialog closes under it; prepare may open the dialog"
+  },
+  "motion": {
+    "card": "opacity alone, as dialog's panel (DG4): a box of text moved by fractions of a pixel is resampled every frame. Leaves on the short step and the exit curve; arrives on the long step and the standard curve, drawn only once placed (data-ready) and never while leaving (data-leaving)",
+    "sequence": "stageStep in @slotted/core/tour: the old card leaves, the page scrolls the target in with the cutout at rest on the old target, the cutout moves, the new card arrives at the medium step while the cutout finishes its move",
+    "opening": "the scrim and the card arrive together, as dialog's do; data-open is written a frame after the frame exists, so both have a closed style to arrive from",
+    "closing": "the frame declares its exit as a visibility transition on the short step, which is what presence measures before removing it",
+    "reducedMotion": "every duration token collapses to a millisecond, and the sequence with it; scrolling is instant"
+  }
+}

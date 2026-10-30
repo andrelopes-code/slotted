@@ -1,0 +1,576 @@
+<!--
+  Every scene holds `drawer`'s layer, which the family renders with
+  `side="bottom"` and `size="content"`; the family's own root sits inside
+  `drawer`'s panel. The page loads `drawer.css` because the fragment names it.
+  The style on each panel is the bridge both bindings write: the family's
+  measure handed to `drawer`'s sheet token.
+
+  Every scene declares `data-fixed`, which gives the stage
+  `contain: layout paint` and makes it the containing block the fixed layer
+  needs. The page behind each scrim is written out: the scrim is half the
+  picture, and the strip of it above the sheet is what says there is an outside
+  to press.
+
+  The glyphs are the theme's masks, drawn by a span inside the icon part; a
+  consumer passes its own icon node there. The ring of the loading item is the
+  `spinner` family, which the page loads because the fragment names it.
+-->
+
+<section data-scene="share" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Quarterly report</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      Revenue, margins and Q3 forecast, shared with the finance team.
+    </p>
+    <button
+      style="justify-self: start"
+      data-part="trigger"
+      data-part-trigger=""
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="true"
+      aria-controls="s1-panel"
+    >
+      Partilhar
+    </button>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-mode="overlay"
+    data-side="bottom"
+    data-size="content"
+    data-mount="active"
+    data-drag="panel"
+    data-open
+    data-modal
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      style="--slotted-drawer-sheet-inline-size: var(--slotted-action-sheet-inline-size, 32rem)"
+      id="s1-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="s1-title"
+      aria-describedby="s1-message"
+      tabindex="-1"
+    >
+      <div data-ui="action-sheet" data-ui-action-sheet="" data-part="root" data-part-root="">
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="s1-title">Share report</h2>
+          <p data-part="message" data-part-message="" id="s1-message">
+            Anyone who receives the link sees today's version.
+          </p>
+        </header>
+        <div
+          data-part="list"
+          data-part-list=""
+          role="menu"
+          aria-labelledby="s1-title"
+          aria-orientation="vertical"
+        >
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="0">
+            <span data-part="icon" data-part-icon="" aria-hidden="true"
+              ><span
+                style="
+                  display: block;
+                  inline-size: 1em;
+                  block-size: 1em;
+                  background: currentColor;
+                  mask: var(--slotted-icon-copy) center / contain no-repeat;
+                "
+              ></span
+            ></span>
+            <span data-part="label" data-part-label="">Copy link</span>
+          </button>
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="-1">
+            <span data-part="icon" data-part-icon="" aria-hidden="true"
+              ><span
+                style="
+                  display: block;
+                  inline-size: 1em;
+                  block-size: 1em;
+                  background: currentColor;
+                  mask: var(--slotted-icon-person) center / contain no-repeat;
+                "
+              ></span
+            ></span>
+            <span data-part="label" data-part-label="">Invite people</span>
+            <span data-part="description" data-part-description="">Can comment, cannot edit</span>
+          </button>
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="-1">
+            <span data-part="icon" data-part-icon="" aria-hidden="true"
+              ><span
+                style="
+                  display: block;
+                  inline-size: 1em;
+                  block-size: 1em;
+                  background: currentColor;
+                  mask: var(--slotted-icon-file-text) center / contain no-repeat;
+                "
+              ></span
+            ></span>
+            <span data-part="label" data-part-label="">Descarregar PDF</span>
+          </button>
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="-1">
+            <span data-part="icon" data-part-icon="" aria-hidden="true"
+              ><span
+                style="
+                  display: block;
+                  inline-size: 1em;
+                  block-size: 1em;
+                  background: currentColor;
+                  mask: var(--slotted-icon-external) center / contain no-repeat;
+                "
+              ></span
+            ></span>
+            <span data-part="label" data-part-label="">Open in browser</span>
+          </button>
+        </div>
+        <div data-part="footer" data-part-footer="">
+          <button data-part="cancel" data-part-cancel="" type="button">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The destructive sheet UIKit's Mail draws: the danger first, where it is
+  noticed, and focus on the cancel, which is the least destructive action.
+-->
+<section data-scene="destructive" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Nova mensagem</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">Para: financeiro@exemplo.pt</p>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-mode="overlay"
+    data-side="bottom"
+    data-size="content"
+    data-mount="active"
+    data-drag="panel"
+    data-open
+    data-modal
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      style="--slotted-drawer-sheet-inline-size: var(--slotted-action-sheet-inline-size, 32rem)"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="s2-title"
+      tabindex="-1"
+    >
+      <div data-ui="action-sheet" data-ui-action-sheet="" data-part="root" data-part-root="">
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="s2-title">Descartar a mensagem?</h2>
+        </header>
+        <div
+          data-part="list"
+          data-part-list=""
+          role="menu"
+          aria-labelledby="s2-title"
+          aria-orientation="vertical"
+        >
+          <button
+            data-part="item"
+            data-part-item=""
+            role="menuitem"
+            type="button"
+            tabindex="0"
+            data-tone="danger"
+          >
+            <span data-part="label" data-part-label="">Delete draft</span>
+          </button>
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="-1">
+            <span data-part="label" data-part-label="">Save draft</span>
+          </button>
+        </div>
+        <div data-part="footer" data-part-footer="">
+          <button data-part="cancel" data-part-cancel="" type="button">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Two runs of actions, a disabled one that says why, and a tone. -->
+<section data-scene="groups" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Invoice 4471</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">Issued on August 12.</p>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-mode="overlay"
+    data-side="bottom"
+    data-size="content"
+    data-mount="active"
+    data-drag="panel"
+    data-open
+    data-modal
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      style="--slotted-drawer-sheet-inline-size: var(--slotted-action-sheet-inline-size, 32rem)"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="s3-title"
+      tabindex="-1"
+    >
+      <div data-ui="action-sheet" data-ui-action-sheet="" data-part="root" data-part-root="">
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="s3-title">Invoice 4471</h2>
+        </header>
+        <div
+          data-part="list"
+          data-part-list=""
+          role="menu"
+          aria-labelledby="s3-title"
+          aria-orientation="vertical"
+        >
+          <div data-part="group" data-part-group="" role="group" aria-labelledby="s3-g1">
+            <div data-part="group-label" data-part-group-label="" id="s3-g1">Send</div>
+            <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="0">
+              <span data-part="icon" data-part-icon="" aria-hidden="true"
+                ><span
+                  style="
+                    display: block;
+                    inline-size: 1em;
+                    block-size: 1em;
+                    background: currentColor;
+                    mask: var(--slotted-icon-bell) center / contain no-repeat;
+                  "
+                ></span
+              ></span>
+              <span data-part="label" data-part-label="">Remind the customer</span>
+            </button>
+            <button
+              data-part="item"
+              data-part-item=""
+              role="menuitem"
+              type="button"
+              tabindex="-1"
+              aria-disabled="true"
+              data-disabled
+            >
+              <span data-part="icon" data-part-icon="" aria-hidden="true"
+                ><span
+                  style="
+                    display: block;
+                    inline-size: 1em;
+                    block-size: 1em;
+                    background: currentColor;
+                    mask: var(--slotted-icon-upload) center / contain no-repeat;
+                  "
+                ></span
+              ></span>
+              <span data-part="label" data-part-label="">Send to accounting</span>
+              <span data-part="description" data-part-description="">Available after approval</span>
+            </button>
+          </div>
+          <hr data-part="separator" data-part-separator="" role="separator" />
+          <div data-part="group" data-part-group="" role="group" aria-labelledby="s3-g2">
+            <div data-part="group-label" data-part-group-label="" id="s3-g2">Estado</div>
+            <button
+              data-part="item"
+              data-part-item=""
+              role="menuitem"
+              type="button"
+              tabindex="-1"
+              data-tone="success"
+            >
+              <span data-part="icon" data-part-icon="" aria-hidden="true"
+                ><span
+                  style="
+                    display: block;
+                    inline-size: 1em;
+                    block-size: 1em;
+                    background: currentColor;
+                    mask: var(--slotted-icon-circle-check) center / contain no-repeat;
+                  "
+                ></span
+              ></span>
+              <span data-part="label" data-part-label="">Marcar como paga</span>
+            </button>
+            <button
+              data-part="item"
+              data-part-item=""
+              role="menuitem"
+              type="button"
+              tabindex="-1"
+              data-tone="danger"
+            >
+              <span data-part="icon" data-part-icon="" aria-hidden="true"
+                ><span
+                  style="
+                    display: block;
+                    inline-size: 1em;
+                    block-size: 1em;
+                    background: currentColor;
+                    mask: var(--slotted-icon-trash) center / contain no-repeat;
+                  "
+                ></span
+              ></span>
+              <span data-part="label" data-part-label="">Void invoice</span>
+              <span data-part="description" data-part-description="">The number is not reused</span>
+            </button>
+          </div>
+        </div>
+        <div data-part="footer" data-part-footer="">
+          <button data-part="cancel" data-part-cancel="" type="button">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  An action that takes time: the ring stands in the mark's box, the label
+  stays, and the sheet stays open until the consumer closes it.
+-->
+<section data-scene="loading" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Quarterly report</h2>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-mode="overlay"
+    data-side="bottom"
+    data-size="content"
+    data-mount="active"
+    data-drag="panel"
+    data-open
+    data-modal
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      style="--slotted-drawer-sheet-inline-size: var(--slotted-action-sheet-inline-size, 32rem)"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="s4-title"
+      tabindex="-1"
+    >
+      <div data-ui="action-sheet" data-ui-action-sheet="" data-part="root" data-part-root="">
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="s4-title">Exportar</h2>
+        </header>
+        <div
+          data-part="list"
+          data-part-list=""
+          role="menu"
+          aria-labelledby="s4-title"
+          aria-orientation="vertical"
+        >
+          <button
+            data-part="item"
+            data-part-item=""
+            role="menuitem"
+            type="button"
+            tabindex="0"
+            aria-busy="true"
+            aria-disabled="true"
+            data-loading
+          >
+            <span data-part="icon" data-part-icon="" aria-hidden="true"
+              ><span data-ui="spinner" data-ui-spinner=""></span
+            ></span>
+            <span data-part="label" data-part-label="">Download PDF</span>
+            <span data-part="description" data-part-description="">Preparing 14 pages</span>
+          </button>
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="-1">
+            <span data-part="icon" data-part-icon="" aria-hidden="true"
+              ><span
+                style="
+                  display: block;
+                  inline-size: 1em;
+                  block-size: 1em;
+                  background: currentColor;
+                  mask: var(--slotted-icon-file-spreadsheet) center / contain no-repeat;
+                "
+              ></span
+            ></span>
+            <span data-part="label" data-part-label="">Download spreadsheet</span>
+          </button>
+        </div>
+        <div data-part="footer" data-part-footer="">
+          <button data-part="cancel" data-part-cancel="" type="button">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  More actions than the stage holds, long translated labels and one unbroken
+  token: the list is the one row that scrolls, the header and the cancel stay,
+  and a strip of scrim stays above the sheet.
+-->
+<section data-scene="long" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Encomenda 88213</h2>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-mode="overlay"
+    data-side="bottom"
+    data-size="content"
+    data-mount="active"
+    data-drag="panel"
+    data-open
+    data-modal
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      style="--slotted-drawer-sheet-inline-size: var(--slotted-action-sheet-inline-size, 32rem)"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="s5-title"
+      aria-describedby="s5-message"
+      tabindex="-1"
+    >
+      <div data-ui="action-sheet" data-ui-action-sheet="" data-part="root" data-part-root="">
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="s5-title">
+            Actions available for order 88213 from customer Atlantic Distribution
+          </h2>
+          <p data-part="message" data-part-message="" id="s5-message">
+            Changes are recorded in the history and sent to the warehouse on the next sync.
+          </p>
+        </header>
+        <div
+          data-part="list"
+          data-part-list=""
+          role="menu"
+          aria-labelledby="s5-title"
+          aria-orientation="vertical"
+        >
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="0">
+            <span data-part="label" data-part-label=""
+              >Resend the order confirmation to the billing address</span
+            >
+          </button>
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="-1">
+            <span data-part="label" data-part-label="">Change the delivery address</span>
+            <span data-part="description" data-part-description=""
+              >Until the warehouse dispatch, scheduled for tomorrow at 9 AM</span
+            >
+          </button>
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="-1">
+            <span data-part="label" data-part-label=""
+              >Copiar ENC-2026-0000088213-ATLANTICA-PT-LISBOA-NORTE</span
+            >
+          </button>
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="-1">
+            <span data-part="label" data-part-label="">Dividir em duas remessas</span>
+          </button>
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="-1">
+            <span data-part="label" data-part-label="">Add internal note</span>
+          </button>
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="-1">
+            <span data-part="label" data-part-label="">Imprimir guia de transporte</span>
+          </button>
+          <button
+            data-part="item"
+            data-part-item=""
+            role="menuitem"
+            type="button"
+            tabindex="-1"
+            data-tone="danger"
+          >
+            <span data-part="label" data-part-label="">Cancelar encomenda</span>
+          </button>
+        </div>
+        <div data-part="footer" data-part-footer="">
+          <button data-part="cancel" data-part-cancel="" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  A sheet that is not modal: no scrim, the page stays operable, and a press
+  outside still closes it. No header either, and no cancel, so the last row
+  carries the bottom safe-area inset.
+-->
+<section data-scene="non-modal" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Delivery map</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      The page stays operable: the map scrolls and the routes remain selectable.
+    </p>
+    <button style="justify-self: start" type="button">Next route</button>
+  </div>
+
+  <div
+    data-ui="drawer"
+    data-ui-drawer=""
+    data-part="root"
+    data-part-root=""
+    data-mode="overlay"
+    data-side="bottom"
+    data-size="content"
+    data-mount="active"
+    data-drag="panel"
+    data-open
+    data-undimmed
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div
+      data-part="panel"
+      data-part-panel=""
+      style="--slotted-drawer-sheet-inline-size: var(--slotted-action-sheet-inline-size, 32rem)"
+      role="dialog"
+      aria-label="Rota 12"
+      tabindex="-1"
+    >
+      <div data-ui="action-sheet" data-ui-action-sheet="" data-part="root" data-part-root="">
+        <div
+          data-part="list"
+          data-part-list=""
+          role="menu"
+          aria-label="Rota 12"
+          aria-orientation="vertical"
+        >
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="0">
+            <span data-part="label" data-part-label="">Start navigation</span>
+          </button>
+          <button data-part="item" data-part-item="" role="menuitem" type="button" tabindex="-1">
+            <span data-part="label" data-part-label="">Ligar ao motorista</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,1023 @@
+<!--
+  The harness runs no script, so every layer carries what
+  `packages/core/src/positioner` would have written on it — `top`, `left`,
+  `data-side`, the transform origin, and the room the engine says is left.
+  `--slotted-positioner-available-width` is a percentage rather than the
+  engine's pixels: it resolves against the stage, so one value holds at all
+  three capture widths. The inline placement is `inset-inline-start` where the
+  engine writes `left`: the engine measures a mirrored document and writes the
+  physical answer, and a fragment that wrote `left` would strand every layer on
+  the same edge in a right-to-left capture, which is the one thing that capture
+  exists to check.
+
+  Focus is the state this family turns on, and it is photographed rather than
+  faked: `shoot.mjs --focus "[data-scene='states'] [data-part='item']:nth-of-type(2)"`
+  puts real focus on an item after a Tab press, so `:focus` and `:focus-visible`
+  are both the browser's own.
+
+  A scene that shows a menu hanging from something carries `data-fixed` and
+  places its layer absolutely, as the engine would. A scene that is only about
+  the surface makes the layer `position: relative` instead, so the stage is as
+  tall as the surface and not a floor of 420 pixels with a menu in one corner.
+-->
+<section data-scene="anatomy" data-fixed>
+  <div style="position: relative; padding: 12px">
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-variant="outline"
+      data-size="md"
+      type="button"
+      aria-haspopup="menu"
+      aria-expanded="true"
+      data-open
+    >
+      <span data-part="label" data-part-label="">Document</span>
+    </button>
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-open
+      style="
+        top: 56px;
+        inset-inline-start: 12px;
+        --slotted-positioner-available-width: 92%;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <div data-part="content" data-part-content="" role="menu" aria-label="Document">
+        <div data-part="group" data-part-group="" role="group" aria-labelledby="menu-anatomy-file">
+          <div data-part="group-label" data-part-group-label="" id="menu-anatomy-file">File</div>
+          <button data-part="item" data-part-item="" role="menuitem" type="button">
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="copy"></svg></span
+            ></span>
+            <span data-part="label" data-part-label="">Duplicate</span>
+            <span data-part="shortcut" data-part-shortcut="">⌘D</span>
+          </button>
+          <button data-part="item" data-part-item="" role="menuitem" type="button">
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="external"></svg></span
+            ></span>
+            <span data-part="label" data-part-label="">Open in new tab</span>
+            <span data-part="shortcut" data-part-shortcut="">⇧⌘O</span>
+          </button>
+          <button
+            data-part="item"
+            data-part-item=""
+            role="menuitem"
+            type="button"
+            aria-disabled="true"
+            data-disabled
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="lock"></svg></span
+            ></span>
+            <span data-part="label" data-part-label="">Publish</span>
+            <span data-part="shortcut" data-part-shortcut="">⌘P</span>
+          </button>
+        </div>
+        <hr
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="horizontal"
+        />
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitemcheckbox"
+          type="button"
+          aria-checked="true"
+          data-checked
+        >
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Show comments</span>
+          <span data-part="shortcut" data-part-shortcut="">⌘/</span>
+        </button>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitem"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+        >
+          <span data-part="label" data-part-label="">Export as</span>
+          <span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            data-directional
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+          ></span>
+        </button>
+        <hr
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="horizontal"
+        />
+        <button data-part="item" data-part-item="" role="menuitem" type="button" data-tone="danger">
+          <span data-part="icon" data-part-icon=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Delete document</span>
+          <span data-part="description" data-part-description="">This cannot be undone.</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sizes">
+  <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="sm"
+      data-open
+      style="position: relative; --slotted-positioner-available-width: 100%"
+    >
+      <div data-part="content" data-part-content="" role="menu" aria-label="Small">
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="icon" data-part-icon=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="copy"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Rename</span>
+          <span data-part="shortcut" data-part-shortcut="">F2</span>
+        </button>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitemcheckbox"
+          type="button"
+          aria-checked="true"
+          data-checked
+        >
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Move to…</span>
+        </button>
+      </div>
+    </div>
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-open
+      style="position: relative; --slotted-positioner-available-width: 100%"
+    >
+      <div data-part="content" data-part-content="" role="menu" aria-label="Medium">
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="icon" data-part-icon=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="copy"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Rename</span>
+          <span data-part="shortcut" data-part-shortcut="">F2</span>
+        </button>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitemcheckbox"
+          type="button"
+          aria-checked="true"
+          data-checked
+        >
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Move to…</span>
+        </button>
+      </div>
+    </div>
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="lg"
+      data-open
+      style="position: relative; --slotted-positioner-available-width: 100%"
+    >
+      <div data-part="content" data-part-content="" role="menu" aria-label="Large">
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="icon" data-part-icon=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="copy"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Rename</span>
+          <span data-part="shortcut" data-part-shortcut="">F2</span>
+        </button>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitemcheckbox"
+          type="button"
+          aria-checked="true"
+          data-checked
+        >
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Move to…</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="states">
+  <div
+    data-ui="menu"
+    data-ui-menu=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-open
+    style="position: relative; --slotted-positioner-available-width: 100%"
+  >
+    <div data-part="content" data-part-content="" role="menu" aria-label="States">
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="label" data-part-label="">Default</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="label" data-part-label="">Focus and hover</span>
+      </button>
+      <button
+        data-part="item"
+        data-part-item=""
+        role="menuitem"
+        type="button"
+        aria-disabled="true"
+        data-disabled
+      >
+        <span data-part="label" data-part-label="">Disabled</span>
+        <span data-part="shortcut" data-part-shortcut="">⌘Z</span>
+      </button>
+      <button
+        data-part="item"
+        data-part-item=""
+        role="menuitemcheckbox"
+        type="button"
+        aria-checked="true"
+        data-checked
+      >
+        <span data-part="indicator" data-part-indicator=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Checked</span>
+      </button>
+      <button
+        data-part="item"
+        data-part-item=""
+        role="menuitemcheckbox"
+        type="button"
+        aria-checked="false"
+      >
+        <span data-part="indicator" data-part-indicator=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Unchecked</span>
+      </button>
+      <button
+        data-part="item"
+        data-part-item=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="true"
+        data-open
+      >
+        <span data-part="label" data-part-label="">Open submenu</span>
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          data-directional
+          aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+      <button
+        data-part="item"
+        data-part-item=""
+        role="menuitem"
+        type="button"
+        data-tone="danger"
+        aria-disabled="true"
+        data-disabled
+      >
+        <span data-part="label" data-part-label="">Danger, disabled</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="choice">
+  <div
+    data-ui="menu"
+    data-ui-menu=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-open
+    style="position: relative; --slotted-positioner-available-width: 100%"
+  >
+    <div data-part="content" data-part-content="" role="menu" aria-label="View">
+      <div data-part="group" data-part-group="" role="group" aria-labelledby="menu-choice-show">
+        <div data-part="group-label" data-part-group-label="" id="menu-choice-show">Show</div>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitemcheckbox"
+          type="button"
+          aria-checked="true"
+          data-checked
+        >
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Ruler</span>
+        </button>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitemcheckbox"
+          type="button"
+          aria-checked="false"
+        >
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Grid</span>
+          <span data-part="shortcut" data-part-shortcut="">⌘'</span>
+        </button>
+      </div>
+      <hr
+        data-part="separator"
+        data-part-separator=""
+        role="separator"
+        aria-orientation="horizontal"
+      />
+      <div data-part="group" data-part-group="" role="group" aria-labelledby="menu-choice-sort">
+        <div data-part="group-label" data-part-group-label="" id="menu-choice-sort">Sort by</div>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitemradio"
+          type="button"
+          aria-checked="true"
+          data-checked
+        >
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Name</span>
+        </button>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitemradio"
+          type="button"
+          aria-checked="false"
+        >
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Date modified</span>
+        </button>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitemradio"
+          type="button"
+          aria-checked="false"
+        >
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Size</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="submenu" data-fixed>
+  <div style="position: relative; padding: 12px">
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-open
+      style="
+        top: 12px;
+        inset-inline-start: 12px;
+        --slotted-positioner-available-width: 60%;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <div data-part="content" data-part-content="" role="menu" aria-label="Share">
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Copy link</span>
+        </button>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitem"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="true"
+          data-open
+        >
+          <span data-part="label" data-part-label="">Send to</span>
+          <span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            data-directional
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+          ></span>
+        </button>
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Embed</span>
+        </button>
+      </div>
+    </div>
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="right"
+      data-align="start"
+      data-size="md"
+      data-open
+      style="
+        /* Where the positioner puts a submenu (M2): its layer at the parent
+           surface's edge — the parent's inset plus its measure, which for
+           three short labels is the floor, min(12rem, 60%) — so the layer's
+           own gap separates the two panels, and one inset above the item
+           that opened it, so the first items line up. */
+        top: 50px;
+        inset-inline-start: calc(12px + min(12rem, 60%));
+        --slotted-positioner-available-width: calc(100% - 12px - min(12rem, 60%));
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <div data-part="content" data-part-content="" role="menu" aria-label="Send to">
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Slack</span>
+        </button>
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Email</span>
+        </button>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitem"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+        >
+          <span data-part="label" data-part-label="">More</span>
+          <span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            data-directional
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+          ></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="content">
+  <div
+    data-ui="menu"
+    data-ui-menu=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-open
+    style="position: relative; --slotted-positioner-available-width: 100%"
+  >
+    <div data-part="content" data-part-content="" role="menu" aria-label="Content">
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="inbox"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Move every unread message to the archive</span>
+        <span data-part="shortcut" data-part-shortcut="">⇧⌘A</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="label" data-part-label="">Benutzerkontensteuerungseinstellungen</span>
+        <span data-part="description" data-part-description=""
+          >A translated label wraps in its own column and leaves the binding where it was.</span
+        >
+        <span data-part="shortcut" data-part-shortcut="">⌥⌘,</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="label" data-part-label=""
+          >https://example.com/a/very/long/unbroken/path/that/cannot/wrap</span
+        >
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="eye"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Preview</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="scrolling">
+  <div
+    data-ui="menu"
+    data-ui-menu=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-open
+    style="
+      position: relative;
+      --slotted-positioner-available-width: 100%;
+      --slotted-positioner-available-height: 232px;
+    "
+  >
+    <div data-part="content" data-part-content="" role="menu" aria-label="Move to">
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="label" data-part-label="">Inbox</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="label" data-part-label="">Archive</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="label" data-part-label="">Drafts</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="label" data-part-label="">Sent</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="label" data-part-label="">Spam</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="label" data-part-label="">Trash</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="label" data-part-label="">Receipts</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="label" data-part-label="">Travel</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="header">
+  <div
+    data-ui="menu"
+    data-ui-menu=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-open
+    style="position: relative; --slotted-positioner-available-width: 100%"
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="menu"
+      aria-label="Account"
+      aria-describedby="harness-account"
+    >
+      <div data-part="header" data-part-header="" id="harness-account">
+        <span
+          data-ui="avatar"
+          data-ui-avatar=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          data-shape="circle"
+          data-tone="accent"
+          data-variant="soft"
+          role="img"
+          aria-label="Ada Lovelace"
+          ><span data-part="fallback" data-part-fallback="">AL</span></span
+        >
+        <span data-part="label" data-part-label="">Ada Lovelace</span>
+        <span data-part="description" data-part-description="">ada@analytical.engine</span>
+      </div>
+      <hr data-part="separator" data-part-separator="" aria-orientation="horizontal" />
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="person"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Profile</span>
+        <span data-part="shortcut" data-part-shortcut="" aria-hidden="true">⇧⌘P</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="lock"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Security</span>
+      </button>
+      <hr data-part="separator" data-part-separator="" aria-orientation="horizontal" />
+      <button data-part="item" data-part-item="" role="menuitem" type="button" data-tone="danger">
+        <span data-part="label" data-part-label="">Sign out</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!--
+  Meta: a count, a status, the value a submenu holds — its own column, so the
+  metas line up with each other and the shortcuts keep theirs.
+-->
+<section data-scene="meta">
+  <div
+    data-ui="menu"
+    data-ui-menu=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-open
+    style="position: relative; --slotted-positioner-available-width: 100%"
+  >
+    <div data-part="content" data-part-content="" role="menu" aria-label="Workspace">
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="inbox"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Inbox</span>
+        <span data-part="meta" data-part-meta="">12</span>
+        <span data-part="shortcut" data-part-shortcut="" aria-hidden="true">⌘1</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button">
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="file"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Drafts</span>
+        <span data-part="meta" data-part-meta="">3</span>
+        <span data-part="shortcut" data-part-shortcut="" aria-hidden="true">⌘2</span>
+      </button>
+      <button
+        data-part="item"
+        data-part-item=""
+        role="menuitem"
+        type="button"
+        aria-disabled="true"
+        data-disabled
+      >
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="trash"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Trash</span>
+        <span data-part="meta" data-part-meta="">0</span>
+      </button>
+      <hr data-part="separator" data-part-separator="" aria-orientation="horizontal" />
+      <button
+        data-part="item"
+        data-part-item=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+      >
+        <span data-part="label" data-part-label="">Status</span>
+        <span data-part="meta" data-part-meta="">Available</span>
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          data-directional
+          aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="tones">
+  <div
+    data-ui="menu"
+    data-ui-menu=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-open
+    style="position: relative; --slotted-positioner-available-width: 100%"
+  >
+    <div data-part="content" data-part-content="" role="menu" aria-label="Tones">
+      <button data-part="item" data-part-item="" role="menuitem" type="button" data-tone="accent">
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-info"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Accent</span>
+      </button>
+      <button
+        data-part="item"
+        data-part-item=""
+        role="menuitem"
+        type="button"
+        data-tone="secondary"
+      >
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="circle"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Secondary</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button" data-tone="success">
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-check"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Success</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button" data-tone="warning">
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="triangle-alert"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Warning</span>
+      </button>
+      <button data-part="item" data-part-item="" role="menuitem" type="button" data-tone="danger">
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-x"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Danger</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="empty">
+  <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-open
+      style="position: relative; --slotted-positioner-available-width: 100%"
+    >
+      <div data-part="content" data-part-content="" role="menu" aria-label="No labels">
+        <div data-part="empty" data-part-empty="">No labels yet</div>
+      </div>
+    </div>
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-open
+      style="position: relative; --slotted-positioner-available-width: 100%"
+    >
+      <div
+        data-part="content"
+        data-part-content=""
+        role="menu"
+        aria-label="Loading"
+        data-loading
+        aria-busy="true"
+      >
+        <div data-part="empty" data-part-empty="">Loading labels…</div>
+      </div>
+    </div>
+  </div>
+</section>

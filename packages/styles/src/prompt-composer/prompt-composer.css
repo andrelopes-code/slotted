@@ -1,0 +1,827 @@
+@layer slotted.components {
+  /**
+   * ── A message being written ─────────────────────────────────────────────
+   *
+   * A form around a textarea, with a band above it for what the message
+   * carries — attachments, a quoted reply, a context chip — and a band below
+   * it for what the message is sent with — a model, a tool, the send itself.
+   * The root paints the border, the ground, the lift and the ring; the
+   * textarea inside gives up all four and keeps the value, the caret and the
+   * selection.
+   *
+   * Three variants. `raised` is the chat composer: a surface lifted off the
+   * page, round buttons, a corner derived from them. `outline` and `subtle`
+   * are the composer inside a form — a comment, a reply — and keep the
+   * geometry of a one-line control.
+   */
+  [data-ui-prompt-composer][data-part-root] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+    --_rows: var(--slotted-prompt-composer-rows, 1);
+    --_max-rows: var(--slotted-prompt-composer-max-rows, 8);
+    /**
+     * The box of every button in a band. In a form it is the inside of a
+     * control of this step, the height a key or a chip takes in a field; the
+     * chat composer adds a step of air, because its buttons are the only
+     * targets on a surface meant for a thumb.
+     */
+    --_button: var(--_inner-size);
+    /**
+     * The air around the buttons in both bands: the air a button has inside
+     * a control of this step, so a band in a form holds its buttons the way a
+     * one-line field does.
+     */
+    --_inset: max(
+      0px,
+      calc((var(--_height) - 2 * var(--slotted-control-border-width, 1px) - var(--_inner-size)) / 2)
+    );
+    /**
+     * The value starts on the vertical line the ink of the first button in a
+     * band starts on — the glyph, not its box — so the paperclip below and the
+     * first letter above stand on one edge. Measured, the old control padding
+     * put the text five pixels inside the paperclip at `md`.
+     */
+    --_padding-inline: calc(var(--_inset) + (var(--_button) - var(--_icon-size)) / 2);
+    /* One row of the composer in a form is one row of a text field. */
+    --_padding-block: max(0px, calc((var(--_height) - 1lh) / 2));
+    --_radius: var(--slotted-prompt-composer-radius, var(--slotted-radius-lg, 8px));
+    /* A button's corner in a form is the frame's corner less the air around
+       it, so the two shapes are concentric. */
+    --_action-radius: max(var(--slotted-radius-xs, 2px), calc(var(--_radius) - var(--_inset)));
+    --_lift: var(--slotted-prompt-composer-shadow, var(--slotted-control-shadow, none));
+    --_lift-focus: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+
+    background-color: var(
+      --slotted-prompt-composer-background,
+      var(--slotted-control-surface, Field)
+    );
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-prompt-composer-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--_radius);
+    box-shadow: var(--_lift);
+    box-sizing: border-box;
+    color: var(--slotted-prompt-composer-color, var(--slotted-text, CanvasText));
+    /* The whole frame is where the caret goes: a press on its padding lands in
+       the textarea through the binding, and the cursor says so. */
+    cursor: text;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    inline-size: 100%;
+    line-height: var(--slotted-prompt-composer-line-height, var(--slotted-line-height-md, 1.5));
+    margin: 0;
+    min-inline-size: 0;
+    transition:
+      background-color var(--slotted-duration-medium) var(--slotted-easing-standard),
+      border-color var(--slotted-duration-medium) var(--slotted-easing-standard),
+      box-shadow var(--slotted-duration-medium) var(--slotted-easing-standard);
+  }
+
+  [data-ui-prompt-composer][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_inner-size: var(--slotted-control-inner-size-sm, 22px);
+  }
+
+  [data-ui-prompt-composer][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_inner-size: var(--slotted-control-inner-size-lg, 28px);
+  }
+
+  /**
+   * ── The chat composer ──────────────────────────────────────────────────
+   *
+   * A surface, not a field: lifted by the theme's middle shadow at rest and
+   * its large one while the reader writes, with a step of the space scale
+   * around the buttons and a step more above the first line.
+   *
+   * The corner is derived rather than chosen. Every button in the bands is
+   * round, and a round button inset by `--_inset` sits concentric with the
+   * frame only when the frame's radius is the button's radius plus that air:
+   * 14 + 8 = 22 at `md`. The theme's radius scale stops at 8, which is a
+   * card's corner, and a card's corner around a round send draws two curves
+   * that do not agree.
+   */
+  [data-ui-prompt-composer][data-part-root][data-variant='raised'] {
+    --_button: calc(var(--_inner-size) + var(--slotted-space-2, 0.25rem));
+    --_inset: var(--slotted-space-4, 0.5rem);
+    --_padding-block: calc(var(--_inset) + var(--slotted-space-2, 0.25rem));
+    --_radius: var(--slotted-prompt-composer-radius, calc(var(--_button) / 2 + var(--_inset)));
+    --_action-radius: var(--slotted-radius-full, 9999px);
+    --_lift: var(--slotted-prompt-composer-raised-shadow, var(--slotted-shadow-md, none));
+    --_lift-focus: var(
+      --slotted-prompt-composer-raised-focus-shadow,
+      var(--slotted-shadow-lg, none)
+    );
+  }
+
+  [data-ui-prompt-composer][data-part-root][data-variant='subtle'] {
+    background-color: var(
+      --slotted-prompt-composer-subtle-background,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    border-color: var(
+      --slotted-prompt-composer-subtle-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+  }
+
+  /* ── The value ─────────────────────────────────────────────────────────
+   *
+   * Grows with what is written, from `rows` lines to `maxRows`, then scrolls:
+   * `field-sizing: content`, the mechanism `textarea` already uses, so no
+   * script measures a line. The band below stays where the reader's thumb
+   * expects it.
+   */
+  [data-ui-prompt-composer] > [data-part-input] {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    box-sizing: border-box;
+    caret-color: var(--slotted-prompt-composer-caret-color, var(--slotted-tone-accent-solid, auto));
+    color: inherit;
+    display: block;
+    field-sizing: content;
+    font: inherit;
+    inline-size: 100%;
+    line-height: inherit;
+    margin: 0;
+    max-block-size: calc(var(--_max-rows) * 1lh + 2 * var(--_padding-block));
+    min-block-size: calc(var(--_rows) * 1lh + 2 * var(--_padding-block));
+    /* The frame draws the ring for it, so two rings never nest. */
+    outline: none;
+    overflow-wrap: anywhere;
+    overflow-y: auto;
+    padding-block: var(--_padding-block);
+    padding-inline: var(--_padding-inline);
+    resize: none;
+    scrollbar-color: var(--slotted-border-strong, GrayText) transparent;
+    scrollbar-width: thin;
+    /* A message mixes languages, and each paragraph takes the direction of
+       its own first strong character: a Portuguese question in an Arabic
+       interface ends in its own question mark, not at the other margin. */
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-prompt-composer] > [data-part-input]::placeholder {
+    color: var(--slotted-prompt-composer-placeholder-color, var(--slotted-text-muted, GrayText));
+  }
+
+  [data-ui-prompt-composer] > [data-part-input]::selection {
+    background-color: var(
+      --slotted-prompt-composer-selection-background,
+      var(--slotted-tone-accent-surface, Highlight)
+    );
+  }
+
+  /* A band above the value gives it back the block padding it already has. */
+  [data-ui-prompt-composer] > [data-part-header] + [data-part-input] {
+    padding-block-start: var(--_inset);
+  }
+
+  /* The band below sits on the last line: the value keeps its own air above
+     the text and hands the air below it to the band's inset. */
+  [data-ui-prompt-composer][data-variant='raised'] > [data-part-input]:has(+ [data-part-footer]) {
+    padding-block-end: var(--slotted-space-2, 0.25rem);
+  }
+
+  /* ── The two bands ─────────────────────────────────────────────────────
+   *
+   * Each band is a row of what the consumer put in it, inset by `--_inset`.
+   * The header wraps — a message can carry six attachments — and the footer
+   * does not: the send stays on the line, and a narrow composer gives up the
+   * space between the tools first.
+   */
+  [data-ui-prompt-composer] > :is([data-part-header], [data-part-footer]) {
+    --slotted-icon-size: var(--_icon-size);
+    --slotted-control-inner-size: var(--_button);
+
+    align-items: center;
+    display: flex;
+    gap: var(--slotted-space-2, 0.25rem);
+    min-inline-size: 0;
+    padding: var(--_inset);
+  }
+
+  [data-ui-prompt-composer] > [data-part-header] {
+    flex-wrap: wrap;
+    padding-block-end: 0;
+  }
+
+  /* A strip of attachments is the width the band has and scrolls inside it;
+     a flex item otherwise keeps its content's width and crosses the frame. */
+  [data-ui-prompt-composer] > [data-part-header] > * {
+    max-inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  [data-ui-prompt-composer] > [data-part-footer] {
+    flex-wrap: nowrap;
+    padding-block-start: 0;
+  }
+
+  /* ── Buttons in the bands ───────────────────────────────────────────────
+   *
+   * `action` is the consumer's, `attach` the family's: both are R2 inner
+   * controls — no frame, no ground at rest, one step of ground for hover and
+   * one for press, and the ink never moves. Square when named by aria-label,
+   * padded when named by their own words, the rule `text-field` set; round
+   * in the chat composer, a pill when they carry words.
+   */
+  [data-ui-prompt-composer]
+    > :is([data-part-header], [data-part-footer])
+    > :is([data-part-action], [data-part-attach], [data-part-dictate]) {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_button);
+    border: 0;
+    border-radius: var(--_action-radius);
+    box-sizing: border-box;
+    color: var(--slotted-prompt-composer-action-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font: inherit;
+    gap: var(--slotted-space-2, 0.25rem);
+    justify-content: center;
+    line-height: 1;
+    min-inline-size: var(--_button);
+    padding: 0;
+    position: relative;
+    touch-action: manipulation;
+    transition: background-color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+    unicode-bidi: plaintext;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-prompt-composer]
+    > :is([data-part-header], [data-part-footer])
+    > [data-part-action]:not([aria-label], [aria-labelledby]) {
+    color: var(--slotted-prompt-composer-action-label-color, var(--slotted-text, CanvasText));
+    font-weight: var(--slotted-font-weight-medium, 500);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+  }
+
+  /**
+   * Words and a mark in one button — a country code over its chevron, a model
+   * name, a notation. The mark is centred on the band the letters occupy, not
+   * on the line box: the line box keeps room under the baseline for
+   * descenders, so a box centred in it sits low beside the letters — every
+   * chevron in these buttons did. The rule is the briefing's (_A mark beside a
+   * line of text is aligned to the text_), here in a grid: items share the
+   * baseline, the mark's synthesized baseline is its bottom edge, a negative
+   * start margin takes back the height it would add above the letters, and a
+   * translate puts its centre at `(1cap + 1ex) / 4` above the baseline — the
+   * midpoint of the capitals' and the lowercase letters' own centres.
+   */
+  [data-ui-prompt-composer]
+    > :is([data-part-header], [data-part-footer])
+    > [data-part-action]:not([aria-label], [aria-labelledby]) {
+    align-content: center;
+    align-items: baseline;
+    display: inline-grid;
+    grid-auto-flow: column;
+    justify-content: center;
+  }
+
+  [data-ui-prompt-composer]
+    > :is([data-part-header], [data-part-footer])
+    > [data-part-action]:not([aria-label], [aria-labelledby])
+    > [data-ui-icon] {
+    margin-block-start: calc((1cap + 1ex) / 4 - var(--_icon-size) / 2);
+    translate: 0 calc(var(--_icon-size) / 2 - (1cap + 1ex) / 4);
+  }
+
+  /* A pill carries its words a step further from its round ends. */
+  [data-ui-prompt-composer][data-variant='raised']
+    > :is([data-part-header], [data-part-footer])
+    > [data-part-action]:not([aria-label], [aria-labelledby]) {
+    padding-inline: var(--slotted-space-4, 0.5rem);
+  }
+
+  /* The target, recovered outside the paint: 24 pixels on a mouse, 44 on a
+     finger, and never across the edge two buttons share. */
+  [data-ui-prompt-composer]
+    > :is([data-part-header], [data-part-footer])
+    > :is([data-part-action], [data-part-attach], [data-part-dictate], [data-part-submit])::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  @media (pointer: coarse) {
+    [data-ui-prompt-composer]
+      > :is([data-part-header], [data-part-footer])
+      > :is(
+        [data-part-action],
+        [data-part-attach],
+        [data-part-dictate],
+        [data-part-submit]
+      )::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+    }
+
+    [data-ui-prompt-composer]
+      > :is([data-part-header], [data-part-footer])
+      > :is([data-part-action], [data-part-attach], [data-part-dictate]):has(+ *)::after {
+      inset-inline-end: 0;
+    }
+
+    [data-ui-prompt-composer]
+      > :is([data-part-header], [data-part-footer])
+      > *
+      + :is(
+        [data-part-action],
+        [data-part-attach],
+        [data-part-dictate],
+        [data-part-submit]
+      )::after {
+      inset-inline-start: 0;
+    }
+  }
+
+  [data-ui-prompt-composer]
+    > :is([data-part-header], [data-part-footer])
+    > :is([data-part-action], [data-part-attach], [data-part-dictate]):hover:not(
+      :disabled,
+      [aria-expanded='true'],
+      [aria-pressed='true']
+    ) {
+    background-color: var(
+      --slotted-prompt-composer-action-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-prompt-composer]
+    > :is([data-part-header], [data-part-footer])
+    > :is([data-part-action], [data-part-attach], [data-part-dictate]):is(
+      :active,
+      [aria-expanded='true'],
+      [aria-pressed='true']
+    ):not(:disabled) {
+    background-color: var(
+      --slotted-prompt-composer-action-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  [data-ui-prompt-composer]
+    > :is([data-part-header], [data-part-footer])
+    > :is([data-part-action], [data-part-attach], [data-part-dictate]):disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  /* ── Send, stop, retry ──────────────────────────────────────────────────
+   *
+   * The one solid thing in the frame, and round: the command the whole
+   * control exists for, in the accent the theme gives a primary action. It
+   * holds the end of the footer by an automatic margin rather than a spacer.
+   * The mark and the ring share one grid cell, so the stop square stands in
+   * the middle of the ring that says an answer is still arriving.
+   */
+  [data-ui-prompt-composer] > [data-part-footer] > [data-part-submit] {
+    /* Alone, the ring is the glyph's size and stands where the arrow stood;
+       around the stop square it grows to the disc (below). */
+    --slotted-spinner-size: var(--_icon-size);
+
+    align-items: center;
+    appearance: none;
+    background-color: var(
+      --slotted-prompt-composer-submit-background,
+      var(--slotted-tone-accent-solid, Highlight)
+    );
+    block-size: var(--_button);
+    border: 0;
+    border-radius: var(--slotted-radius-full, 9999px);
+    color: var(
+      --slotted-prompt-composer-submit-color,
+      var(--slotted-tone-accent-on-solid, HighlightText)
+    );
+    cursor: pointer;
+    display: inline-grid;
+    flex: 0 0 auto;
+    inline-size: var(--_button);
+    justify-items: center;
+    margin-inline-start: auto;
+    padding: 0;
+    position: relative;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing),
+      scale var(--slotted-duration-short) var(--slotted-easing-standard);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-prompt-composer] > [data-part-footer] > [data-part-submit] > * {
+    grid-area: 1 / 1;
+  }
+
+  /* Named by its own word — Comentar, Publicar — the send is a padded pill at
+     the same height; named by aria-label it is the round mark. */
+  [data-ui-prompt-composer]
+    > [data-part-footer]
+    > [data-part-submit]:not([aria-label], [aria-labelledby]) {
+    border-radius: var(--_action-radius);
+    font: inherit;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    inline-size: auto;
+    line-height: 1;
+    padding-inline: var(--slotted-space-5, 0.75rem);
+  }
+
+  [data-ui-prompt-composer] > [data-part-footer] > [data-part-submit]:hover:not(:disabled) {
+    background-color: var(
+      --slotted-prompt-composer-submit-hover-background,
+      var(--slotted-tone-accent-solid-hover, Highlight)
+    );
+  }
+
+  /**
+   * Press settles the round mark to nine tenths, a movement the eye reads as
+   * the button going in; the ground darkens a further step. A padded send
+   * holds its words, so it takes the ground alone (R7).
+   */
+  [data-ui-prompt-composer] > [data-part-footer] > [data-part-submit]:active:not(:disabled) {
+    background-color: var(
+      --slotted-prompt-composer-submit-active-background,
+      var(--slotted-tone-accent-solid-active, Highlight)
+    );
+  }
+
+  [data-ui-prompt-composer]
+    > [data-part-footer]
+    > [data-part-submit]:is([aria-label], [aria-labelledby]):active:not(:disabled) {
+    scale: 0.9;
+  }
+
+  /**
+   * The arrow leans a pixel in the direction it sends while the pointer is
+   * over it: a hint of the movement the press will start, and nothing else
+   * in the frame moves.
+   */
+  [data-ui-prompt-composer]
+    > [data-part-footer]
+    > [data-part-submit]
+    > [data-ui-icon]:has([data-glyph='arrow-up']) {
+    transition: translate var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-prompt-composer]
+    > [data-part-footer]
+    > [data-part-submit]:hover:not(:disabled)
+    > [data-ui-icon]:has([data-glyph='arrow-up']) {
+    translate: 0 calc(var(--slotted-border-width-thin, 1px) * -1);
+  }
+
+  /* Nothing to send: a quiet disc in the disabled ground, the arrow still
+     legible, so the reader sees where the send will be before it wakes. */
+  [data-ui-prompt-composer] > [data-part-footer] > [data-part-submit]:disabled {
+    background-color: var(
+      --slotted-prompt-composer-submit-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  /* While the request travels the button is busy, not unavailable: the ring
+     stands where the arrow stood and the ground keeps the accent. */
+  [data-ui-prompt-composer][data-status='submitted'] > [data-part-footer] > [data-part-submit] {
+    background-color: var(
+      --slotted-prompt-composer-submit-background,
+      var(--slotted-tone-accent-solid, Highlight)
+    );
+    color: var(
+      --slotted-prompt-composer-submit-color,
+      var(--slotted-tone-accent-on-solid, HighlightText)
+    );
+    cursor: progress;
+  }
+
+  /* The ring around the stop square is drawn inside the disc, a stroke in
+     from its edge, so the disc keeps its outline. */
+  [data-ui-prompt-composer][data-status='streaming'] > [data-part-footer] > [data-part-submit] {
+    --slotted-spinner-size: calc(var(--_button) - 2 * var(--slotted-space-1, 2px));
+    --slotted-icon-size: calc(var(--_icon-size) * 3 / 4);
+  }
+
+  /**
+   * The mark swaps — an arrow to send, a square to stop, a turn to retry — as
+   * a new element, and it arrives rather than replaces: from four fifths and
+   * transparent, on the entering curve. The old mark is gone in the same
+   * frame.
+   */
+  [data-ui-prompt-composer]
+    > [data-part-footer]
+    > [data-part-submit]
+    > :is([data-ui-icon], [data-ui-spinner]) {
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-enter),
+      scale var(--slotted-duration-short) var(--slotted-easing-enter),
+      translate var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  @starting-style {
+    [data-ui-prompt-composer]
+      > [data-part-footer]
+      > [data-part-submit]
+      > :is([data-ui-icon], [data-ui-spinner]) {
+      opacity: 0;
+      scale: 0.8;
+    }
+  }
+
+  /* The ghost buttons draw their ring inside their own box, the way every
+     inner control does: four pixels from the frame, an outward ring would
+     land on the frame's edge. The solid send keeps it outside, where the
+     ring stands against the frame's ground rather than against the accent. */
+  [data-ui-prompt-composer]
+    > :is([data-part-header], [data-part-footer])
+    > :is([data-part-action], [data-part-attach], [data-part-dictate]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-prompt-composer] > [data-part-footer] > [data-part-submit]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── States of the frame ─────────────────────────────────────────────── */
+
+  [data-ui-prompt-composer][data-part-root]:hover:not([data-disabled]):not([data-readonly]):not(
+      [data-invalid]
+    ):not([data-drop-target]) {
+    border-color: var(
+      --slotted-prompt-composer-hover-border-color,
+      var(--slotted-tone-accent-border)
+    );
+  }
+
+  /**
+   * Writing lifts the surface: the ring the theme draws for focus, and the
+   * shadow one step deeper — in a form the resting lift recoloured in the
+   * ring's ink, the rule every framed control follows; in the chat composer
+   * the theme's large shadow, because a surface that is being written on
+   * comes forward.
+   */
+  [data-ui-prompt-composer][data-part-root]:has(> [data-part-input]:focus-visible) {
+    box-shadow: var(--_lift-focus);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-control-focus-ring-offset, var(--slotted-focus-ring-offset, 2px));
+  }
+
+  /* ── Emphasis: the ring ──────────────────────────────────────────────
+   *
+   * An AI input marked by a ring of turning hues and a soft glow, as Gemini
+   * and AI Studio mark theirs. The ring replaces the frame's border, its focus
+   * outline and its raised shadow; the controls inside keep their own focus
+   * rings. Two marks the binding draws, both `aria-hidden`: the ring, a band
+   * the width of `--slotted-prompt-composer-ring-width` cut out of a turning
+   * conic gradient, and the glow, the same gradient blurred under the frame's
+   * surface, so only its halo outside the frame shows. Each turns a square larger than its box by a
+   * `transform`, which the compositor runs at a constant speed.
+   */
+  [data-ui-prompt-composer][data-part-root][data-emphasis='ring'] {
+    --_ring-width: var(
+      --slotted-prompt-composer-ring-width,
+      var(--slotted-border-width-thick, 2px)
+    );
+    --_ring-reach: var(--slotted-prompt-composer-ring-glow-reach, var(--slotted-space-8, 1.5rem));
+    --_glow: var(--slotted-prompt-composer-ring-glow-opacity, 0.3);
+
+    border-color: transparent;
+    box-shadow: none;
+    isolation: isolate;
+  }
+
+  [data-ui-prompt-composer][data-part-root][data-emphasis='ring']:has(
+      > [data-part-input]:focus-visible
+    ) {
+    --_glow: var(--slotted-prompt-composer-ring-glow-opacity-focus, 0.55);
+
+    box-shadow: none;
+    outline: none;
+  }
+
+  [data-ui-prompt-composer][data-part-root][data-emphasis='ring']:is(
+      [data-loading],
+      [data-status='submitted'],
+      [data-status='streaming']
+    ) {
+    --_glow: var(--slotted-prompt-composer-ring-glow-opacity-busy, 0.75);
+  }
+
+  [data-ui-prompt-composer] > :is([data-part-ring], [data-part-glow]) {
+    border-radius: var(--_radius);
+    container-type: size;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  [data-ui-prompt-composer] > [data-part-ring] {
+    inset: calc(-1 * var(--slotted-control-border-width, 1px));
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    padding: var(--_ring-width);
+    z-index: 1;
+  }
+
+  /**
+   * The glow is the frame's own box, blurred: the halo is the blur's ink, which
+   * fades to nothing past the edge, and ink adds no overflow to a scrolling
+   * ancestor. A box the reach larger, cut by a mask, gave both a hard edge and
+   * that overflow. The frame's surface is restated on `::after`, which paints
+   * above the glow, so the halo shows outside the frame only.
+   */
+  [data-ui-prompt-composer] > [data-part-glow] {
+    filter: blur(calc(var(--_ring-reach) / 2));
+    inset: calc(-1 * var(--slotted-control-border-width, 1px));
+    opacity: var(--_glow);
+    transition: opacity var(--slotted-duration-medium) var(--slotted-easing-standard);
+    z-index: -1;
+  }
+
+  [data-ui-prompt-composer][data-part-root][data-emphasis='ring']::after {
+    background-color: inherit;
+    border-radius: inherit;
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: -1;
+  }
+
+  [data-ui-prompt-composer] > :is([data-part-ring], [data-part-glow])::before {
+    animation: slotted-prompt-composer-turn
+      var(--slotted-prompt-composer-ring-duration, var(--slotted-duration-loop-slow)) linear
+      infinite;
+    aspect-ratio: 1;
+    background: conic-gradient(
+      var(
+        --slotted-prompt-composer-ring-colors,
+        var(--slotted-data-1),
+        var(--slotted-data-3),
+        var(--slotted-data-5),
+        var(--slotted-data-2),
+        var(--slotted-data-1)
+      )
+    );
+    content: '';
+    inline-size: 150cqmax;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%) rotate(0turn);
+  }
+
+  @keyframes slotted-prompt-composer-turn {
+    to {
+      transform: translate(-50%, -50%) rotate(1turn);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-prompt-composer] > :is([data-part-ring], [data-part-glow])::before {
+      animation: none;
+    }
+  }
+
+  /* The system's colours draw no gradient: the marks go, and the frame's own
+     border and focus outline return. */
+  @media (forced-colors: active) {
+    [data-ui-prompt-composer] > :is([data-part-ring], [data-part-glow]) {
+      display: none;
+    }
+
+    [data-ui-prompt-composer][data-part-root][data-emphasis='ring'] {
+      border-color: ButtonBorder;
+    }
+
+    [data-ui-prompt-composer][data-part-root][data-emphasis='ring']:has(
+        > [data-part-input]:focus-visible
+      ) {
+      outline: var(--slotted-focus-ring-width, 2px) solid Highlight;
+      outline-offset: var(--slotted-focus-ring-offset, 2px);
+    }
+  }
+
+  /**
+   * Files held over the frame. The frame answers in the accent — a wash of
+   * its surface, and a dashed edge drawn inside it at half the bands' inset,
+   * concentric with the corner — so the reader sees where the drop will land
+   * before letting go, the picture `upload`'s drop zone gives the same
+   * moment. The dashed edge is a pseudo-element rather than an outline: the
+   * outline is the focus ring's, and the two can be on at once.
+   */
+  [data-ui-prompt-composer][data-part-root] {
+    position: relative;
+  }
+
+  [data-ui-prompt-composer][data-part-root]::before {
+    /* Unthemed, the dashed edge disappears rather than shouting in a system
+       colour; the wash and the frame's edge still say where the drop lands. */
+    border: var(--slotted-border-width-medium, 1.5px) dashed
+      var(
+        --slotted-prompt-composer-drop-border-color,
+        var(--slotted-tone-accent-border, transparent)
+      );
+    border-radius: max(var(--slotted-radius-xs, 2px), calc(var(--_radius) - var(--_inset) / 2));
+    content: '';
+    /* Half the bands' air: between the frame and the buttons, crossing
+       neither. */
+    inset: calc(var(--_inset) / 2 - var(--slotted-control-border-width, 1px));
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-prompt-composer][data-part-root][data-drop-target]::before {
+    opacity: 1;
+    transition-timing-function: var(--slotted-easing-enter);
+  }
+
+  [data-ui-prompt-composer][data-part-root][data-drop-target] {
+    background-color: var(
+      --slotted-prompt-composer-drop-background,
+      var(--slotted-tone-accent-surface, Canvas)
+    );
+    border-color: var(
+      --slotted-prompt-composer-drop-border-color,
+      var(--slotted-tone-accent-border, Highlight)
+    );
+  }
+
+  [data-ui-prompt-composer][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-prompt-composer-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+    --_invalid-edge-width: var(
+      --slotted-prompt-composer-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+
+    border-color: var(
+      --slotted-prompt-composer-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+  }
+
+  /*
+   * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+   * `high-contrast` the danger border is the resting edge's black. It is a
+   * border on a box laid over the frame's padding box rather than a shadow on
+   * the frame, so the frame keeps its own elevation at rest and under focus —
+   * the large one in `raised` — and forced colours, which remove shadows, keep
+   * a border. Nothing moves: the box is out of flow.
+   */
+  [data-ui-prompt-composer][data-part-root][data-invalid]::after {
+    border: var(--_invalid-edge-width) solid
+      var(--slotted-prompt-composer-invalid-border-color, var(--slotted-tone-danger-border));
+    border-radius: max(0px, calc(var(--_radius) - var(--slotted-control-border-width, 1px)));
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  [data-ui-prompt-composer][data-part-root][data-readonly] {
+    background-color: var(
+      --slotted-prompt-composer-readonly-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    cursor: default;
+  }
+
+  [data-ui-prompt-composer][data-part-root][data-disabled] {
+    background-color: var(
+      --slotted-prompt-composer-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(
+      --slotted-prompt-composer-disabled-border-color,
+      var(--slotted-disabled-border)
+    );
+    box-shadow: none;
+    color: var(--slotted-prompt-composer-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+  }
+}

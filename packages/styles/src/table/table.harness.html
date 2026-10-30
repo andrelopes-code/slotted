@@ -1,0 +1,3718 @@
+<!--
+  The third place this family's DOM is written, after React and Angular. Every
+  `data-part` the contract declares appears here, in the arrangement both
+  bindings render:
+
+    div[data-ui='table'][data-part='root']          the frame
+      div[data-part='scroll']                       the scroller
+        table[data-part='table']
+          caption[data-part='caption']
+          thead[data-part='head']
+            tr[data-part='row']
+              th[data-part='selection']             the select-all cell
+              th[data-part='column-header']
+                button[data-part='sort']            when the column sorts
+                span[data-part='column-actions']    a filter, a column menu
+          tbody[data-part='body']
+            tr[data-part='row']
+              td[data-part='selection'] › checkbox
+              td[data-part='cell'] › button[data-part='expander']
+              th[data-part='row-header']
+              td[data-part='cell']
+            tr[data-part='detail'] › td[data-part='cell']
+          tbody[data-part='loader']                 a first load
+          tfoot[data-part='summary']                the column summaries
+      div[data-part='footer']                       pagination, a count
+
+  The scroll region's `role="region"`, `tabindex="0"` and name are written here
+  only on the scenes where the table overflows, because that is the condition
+  both bindings write them under: `@slotted/core/overflow` measures, and a
+  table that fits carries none of the three.
+
+  The chooser is `checkbox`'s own DOM, not a bare `<input>`. The cell is this
+  family's and the control is not; the builder loads `checkbox.css` on its own
+  from the `data-ui` written here, and the same is true of `skeleton`.
+-->
+
+<section data-scene="anatomy">
+  <div data-ui="table" data-ui-table="" data-part="root" data-part-root="" data-variant="framed">
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          Invoices issued this quarter
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="selection" data-part-selection="" scope="col">
+              <span
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-label-placement="end"
+                data-indeterminate
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  id="table-anatomy-all"
+                  aria-label="Select all 3 rows"
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg></span
+                ></span>
+              </span>
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col"></th>
+            <th
+              data-part="column-header"
+              data-part-column-header=""
+              scope="col"
+              aria-sort="ascending"
+            >
+              <button data-part="sort" data-part-sort="" type="button">
+                Invoice<span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                ></span>
+              </button>
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col">
+              <button data-part="sort" data-part-sort="" type="button">
+                Client<span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                ></span>
+              </button>
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              <button data-part="sort" data-part-sort="" type="button">
+                Amount<span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                ></span>
+              </button>
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <td data-part="selection" data-part-selection="">
+              <span
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-label-placement="end"
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  id="table-anatomy-row-1"
+                  aria-label="Select INV-1042"
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+              </span>
+            </td>
+            <td data-part="cell" data-part-cell=""></td>
+            <th data-part="row-header" data-part-row-header="" scope="row">INV-1042</th>
+            <td data-part="cell" data-part-cell="">Northwind Trading</td>
+            <td data-part="cell" data-part-cell="" data-numeric>1,240.00</td>
+            <td data-part="cell" data-part-cell="">Paid</td>
+          </tr>
+          <tr data-part="row" data-part-row="" data-selected data-expanded>
+            <td data-part="selection" data-part-selection="">
+              <span
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-label-placement="end"
+                data-checked
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  id="table-anatomy-row-2"
+                  checked
+                  aria-label="Select INV-1043"
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+              </span>
+            </td>
+            <td data-part="cell" data-part-cell="">
+              <button
+                data-part="expander"
+                data-part-expander=""
+                type="button"
+                aria-expanded="true"
+                aria-controls="table-anatomy-detail"
+                aria-label="Hide details"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+                ></span>
+              </button>
+            </td>
+            <th data-part="row-header" data-part-row-header="" scope="row">INV-1043</th>
+            <td data-part="cell" data-part-cell="">Cascade Logistics</td>
+            <td data-part="cell" data-part-cell="" data-numeric>18.50</td>
+            <td data-part="cell" data-part-cell="">Overdue</td>
+          </tr>
+          <tr data-part="detail" data-part-detail="" id="table-anatomy-detail">
+            <td data-part="cell" data-part-cell="" colspan="6">
+              Issued 12 August, due 11 September. Two reminders sent.
+            </td>
+          </tr>
+          <tr data-part="row" data-part-row="" data-disabled>
+            <td data-part="selection" data-part-selection="">
+              <span
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-label-placement="end"
+                data-disabled
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  id="table-anatomy-row-3"
+                  disabled
+                  aria-label="Select INV-1044"
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+              </span>
+            </td>
+            <td data-part="cell" data-part-cell=""></td>
+            <th data-part="row-header" data-part-row-header="" scope="row">INV-1044</th>
+            <td data-part="cell" data-part-cell="">Bright Harbor</td>
+            <td data-part="cell" data-part-cell="" data-numeric>9,802.75</td>
+            <td data-part="cell" data-part-cell="">Draft</td>
+          </tr>
+        </tbody>
+        <tfoot data-part="summary" data-part-summary="">
+          <tr data-part="row" data-part-row="">
+            <td data-part="cell" data-part-cell="" colspan="4">3 invoices</td>
+            <td data-part="cell" data-part-cell="" data-numeric>11,061.25</td>
+            <td data-part="cell" data-part-cell=""></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section data-scene="variants">
+  <div data-ui="table" data-ui-table="" data-part="root" data-part-root="" data-variant="plain">
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          plain — no frame, no rules, a header carried by its own line
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">Region</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Orders
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">North</th>
+            <td data-part="cell" data-part-cell="" data-numeric>412</td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">South</th>
+            <td data-part="cell" data-part-cell="" data-numeric>1,208</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div data-ui="table" data-ui-table="" data-part="root" data-part-root="" data-variant="ruled">
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          ruled — the default: a line between records and none around the set
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">Region</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Orders
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">North</th>
+            <td data-part="cell" data-part-cell="" data-numeric>412</td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">South</th>
+            <td data-part="cell" data-part-cell="" data-numeric>1,208</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div
+    data-ui="table"
+    data-ui-table=""
+    data-part="root"
+    data-part-root=""
+    data-variant="framed"
+    data-striped
+  >
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          framed and striped — the set is one object, and the stripe reads under every state
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">Region</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Orders
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">North</th>
+            <td data-part="cell" data-part-cell="" data-numeric>412</td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">South</th>
+            <td data-part="cell" data-part-cell="" data-numeric>1,208</td>
+          </tr>
+          <tr data-part="row" data-part-row="" data-selected>
+            <th data-part="row-header" data-part-row-header="" scope="row">East</th>
+            <td data-part="cell" data-part-cell="" data-numeric>76</td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">West</th>
+            <td data-part="cell" data-part-cell="" data-numeric>3,940</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section data-scene="edges">
+  <div
+    data-ui="table"
+    data-ui-table=""
+    data-part="root"
+    data-part-root=""
+    data-variant="plain"
+    data-edges="flush"
+    data-probe="plain-flush"
+  >
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          plain, edges flush — the text lines up with the heading above it
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">Region</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Orders
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">North</th>
+            <td data-part="cell" data-part-cell="" data-numeric>412</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div
+    data-ui="table"
+    data-ui-table=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-edges="flush"
+    data-probe="ruled-flush"
+  >
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          ruled, edges flush
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">Region</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Orders
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">North</th>
+            <td data-part="cell" data-part-cell="" data-numeric>412</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div
+    data-ui="table"
+    data-ui-table=""
+    data-part="root"
+    data-part-root=""
+    data-variant="framed"
+    data-edges="flush"
+    data-probe="framed-flush"
+  >
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          framed, edges flush — ignored: text keeps its distance from the frame
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">Region</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Orders
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">North</th>
+            <td data-part="cell" data-part-cell="" data-numeric>412</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div
+    data-ui="table"
+    data-ui-table=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-probe="ruled-inset"
+  >
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          ruled, edges inset — the default
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">Region</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Orders
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">North</th>
+            <td data-part="cell" data-part-cell="" data-numeric>412</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sorting">
+  <div data-ui="table" data-ui-table="" data-part="root" data-part-root="" data-variant="ruled">
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          The mark is drawn on the sorted column and revealed on the others under the pointer or
+          under focus
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th
+              data-part="column-header"
+              data-part-column-header=""
+              scope="col"
+              aria-sort="ascending"
+            >
+              <button data-part="sort" data-part-sort="" type="button">
+                Ascending<span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                ></span>
+              </button>
+            </th>
+            <th
+              data-part="column-header"
+              data-part-column-header=""
+              scope="col"
+              aria-sort="descending"
+            >
+              <button data-part="sort" data-part-sort="" type="button">
+                Descending<span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                ></span>
+              </button>
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col">
+              <button data-part="sort" data-part-sort="" type="button">
+                Sortable, unsorted<span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                ></span>
+              </button>
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col">Not sortable</th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <td data-part="cell" data-part-cell="">Aalborg</td>
+            <td data-part="cell" data-part-cell="">Zürich</td>
+            <td data-part="cell" data-part-cell="">Kyoto</td>
+            <td data-part="cell" data-part-cell="">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section data-scene="alignment">
+  <div data-ui="table" data-ui-table="" data-part="root" data-part-root="" data-variant="framed">
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          Alignment is logical, and a numeric column takes tabular figures whichever way it is
+          aligned
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">start</th>
+            <th
+              data-part="column-header"
+              data-part-column-header=""
+              scope="col"
+              data-align="center"
+            >
+              center
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-align="end">
+              end
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              numeric
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <td data-part="cell" data-part-cell="">Northwind</td>
+            <td data-part="cell" data-part-cell="" data-align="center">EU</td>
+            <td data-part="cell" data-part-cell="" data-align="end">12 Aug</td>
+            <td data-part="cell" data-part-cell="" data-numeric>1,111.10</td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <td data-part="cell" data-part-cell="">Bright Harbor</td>
+            <td data-part="cell" data-part-cell="" data-align="center">US</td>
+            <td data-part="cell" data-part-cell="" data-align="end">3 Sep</td>
+            <td data-part="cell" data-part-cell="" data-numeric>98.05</td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <td data-part="cell" data-part-cell="">Cascade</td>
+            <td data-part="cell" data-part-cell="" data-align="center">APAC</td>
+            <td data-part="cell" data-part-cell="" data-align="end">28 Sep</td>
+            <td data-part="cell" data-part-cell="" data-numeric>9,802.75</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section data-scene="text">
+  <div
+    data-ui="table"
+    data-ui-table=""
+    data-part="root"
+    data-part-root=""
+    data-variant="framed"
+    data-layout="fixed"
+  >
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          wrap breaks an unbroken token, truncate keeps the whole value in the DOM, nowrap never
+          breaks
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">wrap</th>
+            <th data-part="column-header" data-part-column-header="" scope="col">truncate</th>
+            <th data-part="column-header" data-part-column-header="" scope="col">nowrap</th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <td data-part="cell" data-part-cell="" data-text="wrap">
+              9f2c1ab84de07615c3b9a0d5e8471fca2b6d09e3
+            </td>
+            <td data-part="cell" data-part-cell="" data-text="truncate">
+              Quarterly reconciliation for the Northwind Trading account, prepared by the finance
+              team
+            </td>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">12 Aug 2026, 09:41</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sticky">
+  <div
+    data-ui="table"
+    data-ui-table=""
+    data-part="root"
+    data-part-root=""
+    data-variant="framed"
+    data-sticky-header
+    style="max-inline-size: 22rem"
+  >
+    <div
+      data-part="scroll"
+      data-part-scroll=""
+      data-overflowing
+      data-at-start
+      role="region"
+      tabindex="0"
+      aria-label="Table, scrollable"
+      style="max-block-size: 11rem"
+    >
+      <table data-part="table" data-part-table="">
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th
+              data-part="column-header"
+              data-part-column-header=""
+              scope="col"
+              data-sticky="start"
+            >
+              Invoice
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col">Client</th>
+            <th data-part="column-header" data-part-column-header="" scope="col">Owner</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Amount
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row" data-sticky="start">
+              INV-1042
+            </th>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">Northwind Trading</td>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">A. Marchetti</td>
+            <td data-part="cell" data-part-cell="" data-numeric>1,240.00</td>
+          </tr>
+          <tr data-part="row" data-part-row="" data-selected>
+            <th data-part="row-header" data-part-row-header="" scope="row" data-sticky="start">
+              INV-1043
+            </th>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">Cascade Logistics</td>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">P. Okonkwo</td>
+            <td data-part="cell" data-part-cell="" data-numeric>18.50</td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row" data-sticky="start">
+              INV-1044
+            </th>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">Bright Harbor</td>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">L. Ferreira</td>
+            <td data-part="cell" data-part-cell="" data-numeric>9,802.75</td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row" data-sticky="start">
+              INV-1045
+            </th>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">Halcyon Press</td>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">S. Nakamura</td>
+            <td data-part="cell" data-part-cell="" data-numeric>430.00</td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row" data-sticky="start">
+              INV-1046
+            </th>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">Orchard Foods</td>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">M. Dubois</td>
+            <td data-part="cell" data-part-cell="" data-numeric>2,015.40</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!--
+  The same table with the reader scrolled off the start: `data-at-start` is
+  gone, so the pinned column's edge darkens to say something is hidden under it.
+  A scroll offset cannot be written into a static fragment, and the attribute is
+  what the binding writes at that offset — so this is the scene that photographs
+  the affordance.
+-->
+<section data-scene="sticky-scrolled">
+  <div
+    data-ui="table"
+    data-ui-table=""
+    data-part="root"
+    data-part-root=""
+    data-variant="framed"
+    data-sticky-header
+    style="max-inline-size: 22rem"
+  >
+    <div
+      data-part="scroll"
+      data-part-scroll=""
+      data-overflowing
+      role="region"
+      tabindex="0"
+      aria-label="Table, scrollable"
+      style="max-block-size: 8rem"
+    >
+      <table data-part="table" data-part-table="">
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th
+              data-part="column-header"
+              data-part-column-header=""
+              scope="col"
+              data-sticky="start"
+            >
+              Invoice
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col">Client</th>
+            <th data-part="column-header" data-part-column-header="" scope="col">Owner</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Amount
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row" data-sticky="start">
+              INV-1044
+            </th>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">Bright Harbor</td>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">L. Ferreira</td>
+            <td data-part="cell" data-part-cell="" data-numeric>9,802.75</td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row" data-sticky="start">
+              INV-1045
+            </th>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">Halcyon Press</td>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">S. Nakamura</td>
+            <td data-part="cell" data-part-cell="" data-numeric>430.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!--
+  The screen this family is reached for first: a listing. A column that sorts
+  and filters at once, a column that only filters, an actions column pinned to
+  the trailing edge, and the identifier pinned to the leading one.
+
+  The filter trigger is the family's own part standing in that slot; the row menu
+  beside it is the consumer's, which is what the slot is for. `data-filtered` is
+  written on the trigger and on the header that holds it, so a column filtered
+  from anywhere on the screen still reads as filtered.
+-->
+<section data-scene="listing">
+  <div
+    data-ui="table"
+    data-ui-table=""
+    data-part="root"
+    data-part-root=""
+    data-variant="framed"
+    data-sticky-header
+    style="max-inline-size: 30rem"
+  >
+    <div
+      data-part="scroll"
+      data-part-scroll=""
+      data-overflowing
+      role="region"
+      tabindex="0"
+      aria-label="Table, scrollable"
+    >
+      <table data-part="table" data-part-table="">
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th
+              data-part="column-header"
+              data-part-column-header=""
+              scope="col"
+              data-sticky="start"
+            >
+              <button data-part="sort" data-part-sort="" type="button">
+                Invoice<span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                ></span>
+              </button>
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col">
+              <button data-part="sort" data-part-sort="" type="button">
+                Client<span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                ></span>
+              </button>
+              <span data-part="column-actions" data-part-column-actions="">
+                <button
+                  data-part="filter"
+                  data-part-filter=""
+                  type="button"
+                  aria-label="Filter Client"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
+                  </svg>
+                </button>
+              </span>
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-filtered>
+              Status
+              <span data-part="column-actions" data-part-column-actions="">
+                <button
+                  data-part="filter"
+                  data-part-filter=""
+                  data-filtered
+                  type="button"
+                  aria-label="Filter Status: is any of Paid, Refunded"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
+                  </svg>
+                </button>
+              </span>
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              <button data-part="sort" data-part-sort="" type="button">
+                Amount<span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                ></span>
+              </button>
+            </th>
+            <th
+              data-part="column-header"
+              data-part-column-header=""
+              scope="col"
+              data-sticky="end"
+              data-align="center"
+            >
+              <span
+                data-ui="visually-hidden"
+                data-ui-visually-hidden=""
+                data-part="root"
+                data-part-root=""
+                >Actions</span
+              >
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row" data-sticky="start">
+              INV-1042
+            </th>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">Northwind Trading</td>
+            <td data-part="cell" data-part-cell="">Paid</td>
+            <td data-part="cell" data-part-cell="" data-numeric>1,240.00</td>
+            <td data-part="cell" data-part-cell="" data-sticky="end" data-align="center">
+              <button
+                data-ui="button"
+                data-ui-button=""
+                data-part="root"
+                data-part-root=""
+                data-variant="ghost"
+                data-tone="secondary"
+                data-size="sm"
+                data-shape="square"
+                type="button"
+                aria-label="Actions for INV-1042"
+              >
+                <span data-part="icon" data-part-icon="">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="5" r="1" />
+                    <circle cx="12" cy="12" r="1" />
+                    <circle cx="12" cy="19" r="1" />
+                  </svg>
+                </span>
+              </button>
+            </td>
+          </tr>
+          <tr data-part="row" data-part-row="" data-selected>
+            <th data-part="row-header" data-part-row-header="" scope="row" data-sticky="start">
+              INV-1043
+            </th>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">Cascade Logistics</td>
+            <td data-part="cell" data-part-cell="">Overdue</td>
+            <td data-part="cell" data-part-cell="" data-numeric>18.50</td>
+            <td data-part="cell" data-part-cell="" data-sticky="end" data-align="center">
+              <button
+                data-ui="button"
+                data-ui-button=""
+                data-part="root"
+                data-part-root=""
+                data-variant="ghost"
+                data-tone="secondary"
+                data-size="sm"
+                data-shape="square"
+                type="button"
+                aria-label="Actions for INV-1043"
+              >
+                <span data-part="icon" data-part-icon="">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="5" r="1" />
+                    <circle cx="12" cy="12" r="1" />
+                    <circle cx="12" cy="19" r="1" />
+                  </svg>
+                </span>
+              </button>
+            </td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row" data-sticky="start">
+              INV-1044
+            </th>
+            <td data-part="cell" data-part-cell="" data-text="nowrap">Bright Harbor</td>
+            <td data-part="cell" data-part-cell="">Draft</td>
+            <td data-part="cell" data-part-cell="" data-numeric>9,802.75</td>
+            <td data-part="cell" data-part-cell="" data-sticky="end" data-align="center">
+              <button
+                data-ui="button"
+                data-ui-button=""
+                data-part="root"
+                data-part-root=""
+                data-variant="ghost"
+                data-tone="secondary"
+                data-size="sm"
+                data-shape="square"
+                type="button"
+                aria-label="Actions for INV-1044"
+              >
+                <span data-part="icon" data-part-icon="">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="5" r="1" />
+                    <circle cx="12" cy="12" r="1" />
+                    <circle cx="12" cy="19" r="1" />
+                  </svg>
+                </span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div data-part="footer" data-part-footer="">
+      <span>3 of 128 invoices</span>
+      <nav
+        aria-label="Pagination"
+        data-part="root"
+        data-part-root=""
+        data-ui="pagination"
+        data-ui-pagination=""
+      >
+        <button aria-label="Previous page" data-part="previous" data-part-previous="" type="button">
+          <span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            data-directional
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+          ></span>
+        </button>
+        <ul data-part="list" data-part-list="">
+          <li data-part="item" data-part-item="">
+            <button
+              aria-current="page"
+              aria-label="Page 1"
+              data-part="page"
+              data-part-page=""
+              type="button"
+            >
+              1
+            </button>
+          </li>
+          <li data-part="item" data-part-item="">
+            <button aria-label="Page 2" data-part="page" data-part-page="" type="button">2</button>
+          </li>
+          <li data-part="item" data-part-item="">
+            <button aria-label="Page 3" data-part="page" data-part-page="" type="button">3</button>
+          </li>
+        </ul>
+        <!-- Pagination's own compact form: below its 22rem container query the
+             page list gives way to this sentence. The footer bar is narrow
+             enough for that to happen at 720 pixels, which is the composition
+             working rather than a defect. -->
+        <span data-part="summary" data-part-summary="">Page 1 of 43</span>
+        <button aria-label="Next page" data-part="next" data-part-next="" type="button">
+          <span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            data-directional
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+          ></span>
+        </button>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<!--
+  A cell holding a `plain` control gives its inset to the control: the cell's
+  `padding-inline` goes to zero and the control's own padding tokens take the
+  cell's inset, so the edited value stands under the column's name, where the
+  read value stood. Three controls, three families — a text field, a number
+  field with no steppers, a select — beside a read-only cell in the same
+  column, which is the alignment the rule exists for. The third row carries
+  the invalid edge, square.
+-->
+<section data-scene="editing">
+  <div data-ui="table" data-ui-table="" data-part="root" data-part-root="" data-variant="ruled">
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          Stock take — the edited value stands where the read value stood
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">SKU</th>
+            <th data-part="column-header" data-part-column-header="" scope="col">Description</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Counted
+            </th>
+            <th data-part="column-header" data-part-column-header="" scope="col">Location</th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">PRD-0412</th>
+            <td data-part="cell" data-part-cell="">Hex bolt M8</td>
+            <td data-part="cell" data-part-cell="" data-numeric>1,200</td>
+            <td data-part="cell" data-part-cell="">Aisle 4</td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">PRD-0413</th>
+            <td data-part="cell" data-part-cell="">
+              <div
+                data-ui="text-field"
+                data-ui-text-field=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-variant="plain"
+              >
+                <input
+                  data-part="input"
+                  data-part-input=""
+                  value="Flat washer M8"
+                  aria-label="Description"
+                />
+              </div>
+            </td>
+            <td data-part="cell" data-part-cell="" data-numeric>
+              <div
+                data-ui="number-field"
+                data-ui-number-field=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-variant="plain"
+                data-stepper="none"
+              >
+                <input
+                  data-part="input"
+                  data-part-input=""
+                  type="text"
+                  role="spinbutton"
+                  value="3,400"
+                  aria-label="Counted"
+                />
+              </div>
+            </td>
+            <td data-part="cell" data-part-cell="">
+              <div
+                data-ui="select"
+                data-ui-select=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-variant="plain"
+              >
+                <button
+                  data-part="trigger"
+                  data-part-trigger=""
+                  type="button"
+                  role="combobox"
+                  aria-expanded="false"
+                  aria-label="Location"
+                >
+                  <span data-part="value" data-part-value="">Aisle 4</span>
+                </button>
+                <span data-part="arrow" data-part-arrow=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg
+                      data-part="glyph"
+                      data-part-glyph=""
+                      data-glyph="chevron-down"
+                    ></svg></span
+                ></span>
+              </div>
+            </td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">PRD-0414</th>
+            <td data-part="cell" data-part-cell="">
+              <div
+                data-ui="text-field"
+                data-ui-text-field=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-variant="plain"
+                data-invalid
+              >
+                <input
+                  data-part="input"
+                  data-part-input=""
+                  value=""
+                  placeholder="Required"
+                  aria-label="Description"
+                  aria-invalid="true"
+                />
+              </div>
+            </td>
+            <td data-part="cell" data-part-cell="" data-numeric>
+              <div
+                data-ui="number-field"
+                data-ui-number-field=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-variant="plain"
+                data-stepper="none"
+              >
+                <input
+                  data-part="input"
+                  data-part-input=""
+                  type="text"
+                  role="spinbutton"
+                  value="0"
+                  aria-label="Counted"
+                />
+              </div>
+            </td>
+            <td data-part="cell" data-part-cell="">
+              <div
+                data-ui="select"
+                data-ui-select=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-variant="plain"
+              >
+                <button
+                  data-part="trigger"
+                  data-part-trigger=""
+                  type="button"
+                  role="combobox"
+                  aria-expanded="false"
+                  aria-label="Location"
+                >
+                  <span data-part="value" data-part-value="">Aisle 7</span>
+                </button>
+                <span data-part="arrow" data-part-arrow=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg
+                      data-part="glyph"
+                      data-part-glyph=""
+                      data-glyph="chevron-down"
+                    ></svg></span
+                ></span>
+              </div>
+            </td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">PRD-0415</th>
+            <td data-part="cell" data-part-cell="">Spring washer M8</td>
+            <td data-part="cell" data-part-cell="" data-numeric>860</td>
+            <td data-part="cell" data-part-cell="">Aisle 7</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section data-scene="empty">
+  <div data-ui="table" data-ui-table="" data-part="root" data-part-root="" data-variant="framed">
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">Invoice</th>
+            <th data-part="column-header" data-part-column-header="" scope="col">Client</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Amount
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <td data-part="empty" data-part-empty="" colspan="3">No invoices match this filter</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section data-scene="loading">
+  <div data-ui="table" data-ui-table="" data-part="root" data-part-root="" data-variant="framed">
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="">
+        <caption data-part="caption" data-part-caption="">
+          A first load: the table's shape before its content
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">Invoice</th>
+            <th data-part="column-header" data-part-column-header="" scope="col">Client</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Amount
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="loader" data-part-loader="" aria-hidden="true">
+          <tr data-part="row" data-part-row="">
+            <td data-part="cell" data-part-cell="">
+              <span
+                style="--slotted-skeleton-inline-size: 5rem"
+                data-ui="skeleton"
+                data-ui-skeleton=""
+                data-part="root"
+                data-part-root=""
+                data-shape="text"
+                data-size="md"
+                data-animation="shimmer"
+                data-loading=""
+              ></span>
+            </td>
+            <td data-part="cell" data-part-cell="">
+              <span
+                style="--slotted-skeleton-inline-size: 9rem"
+                data-ui="skeleton"
+                data-ui-skeleton=""
+                data-part="root"
+                data-part-root=""
+                data-shape="text"
+                data-size="md"
+                data-animation="shimmer"
+                data-loading=""
+              ></span>
+            </td>
+            <td data-part="cell" data-part-cell="" data-numeric>
+              <span
+                style="--slotted-skeleton-inline-size: 4rem"
+                data-ui="skeleton"
+                data-ui-skeleton=""
+                data-part="root"
+                data-part-root=""
+                data-shape="text"
+                data-size="md"
+                data-animation="shimmer"
+                data-loading=""
+              ></span>
+            </td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <td data-part="cell" data-part-cell="">
+              <span
+                style="--slotted-skeleton-inline-size: 5rem"
+                data-ui="skeleton"
+                data-ui-skeleton=""
+                data-part="root"
+                data-part-root=""
+                data-shape="text"
+                data-size="md"
+                data-animation="shimmer"
+                data-loading=""
+              ></span>
+            </td>
+            <td data-part="cell" data-part-cell="">
+              <span
+                style="--slotted-skeleton-inline-size: 7rem"
+                data-ui="skeleton"
+                data-ui-skeleton=""
+                data-part="root"
+                data-part-root=""
+                data-shape="text"
+                data-size="md"
+                data-animation="shimmer"
+                data-loading=""
+              ></span>
+            </td>
+            <td data-part="cell" data-part-cell="" data-numeric>
+              <span
+                style="--slotted-skeleton-inline-size: 4rem"
+                data-ui="skeleton"
+                data-ui-skeleton=""
+                data-part="root"
+                data-part-root=""
+                data-shape="text"
+                data-size="md"
+                data-animation="shimmer"
+                data-loading=""
+              ></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div
+    data-ui="table"
+    data-ui-table=""
+    data-part="root"
+    data-part-root=""
+    data-variant="framed"
+    data-loading
+  >
+    <div data-part="scroll" data-part-scroll="">
+      <table data-part="table" data-part-table="" aria-busy="true">
+        <caption data-part="caption" data-part-caption="">
+          A refresh over rows already read: nothing moves and no width changes
+        </caption>
+        <thead data-part="head" data-part-head="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="column-header" data-part-column-header="" scope="col">Invoice</th>
+            <th data-part="column-header" data-part-column-header="" scope="col">Client</th>
+            <th data-part="column-header" data-part-column-header="" scope="col" data-numeric>
+              Amount
+            </th>
+          </tr>
+        </thead>
+        <tbody data-part="body" data-part-body="">
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">INV-1042</th>
+            <td data-part="cell" data-part-cell="">Northwind Trading</td>
+            <td data-part="cell" data-part-cell="" data-numeric>1,240.00</td>
+          </tr>
+          <tr data-part="row" data-part-row="">
+            <th data-part="row-header" data-part-row-header="" scope="row">INV-1043</th>
+            <td data-part="cell" data-part-cell="">Cascade Logistics</td>
+            <td data-part="cell" data-part-cell="" data-numeric>18.50</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!--
+  The filter panel, in the four arrangements the kinds produce. It is drawn in a
+  box of its own rather than hanging from a header, because `popover` places it
+  and the fragment runs no script: what these scenes are about is the panel's own
+  rhythm, not where the engine puts it.
+
+  Two of them are photographed rather than faked:
+
+    shoot.mjs table --focus "[data-scene='filter-set'] [data-part='filter-search'] input"
+    shoot.mjs table --focus "[data-scene='filter-conditions'] [data-part='filter-operator'] button"
+
+  Every control inside the panel belongs to another family and carries its own
+  `data-ui`: `select` for the operator, `radio-group` for the join, `text-field`,
+  `number-field`, `date-picker` and `checkbox` for the operands, `button` for the
+  two actions. This family holds the place, the draft and the wiring.
+
+  Each layer carries what `packages/core/src/positioner` would have written on
+  it, because the fragment runs no script: a definite inline size, so the
+  panel's own floor resolves against a box that has one, and
+  `--slotted-positioner-available-width` as a percentage rather than the
+  engine's pixels — it resolves against the stage, so one value holds at all
+  three capture widths. Without both, the panel measured 217 pixels against a
+  floor of 272 and the harness reproduced the defect it exists to catch.
+-->
+<section data-scene="filter-set">
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: min(22rem, 100%);
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-label="Filter Status"
+    >
+      <div
+        data-ui="table"
+        data-ui-table=""
+        data-part="filter-panel"
+        data-part-filter-panel=""
+        data-kind="set"
+      >
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="1">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Is any of</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="filter-operand" data-part-filter-operand="" data-kind="set">
+            <div data-part="filter-search" data-part-filter-search="">
+              <div
+                data-ui="text-field"
+                data-ui-text-field=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-variant="outline"
+              >
+                <input
+                  data-part="input"
+                  data-part-input=""
+                  aria-label="Search Status"
+                  placeholder="Search"
+                />
+              </div>
+            </div>
+            <div data-part="filter-list" data-part-filter-list="">
+              <div data-part="filter-option" data-part-filter-option="" data-covering>
+                <span
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                  data-indeterminate
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="table-filter-all"
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="table-filter-all"
+                    >Select all</label
+                  >
+                </span>
+                <span data-count>5</span>
+              </div>
+              <div data-part="filter-option" data-part-filter-option="">
+                <span
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="table-filter-paid"
+                    checked
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="table-filter-paid">Paid</label>
+                </span>
+                <span data-count>128</span>
+              </div>
+              <div data-part="filter-option" data-part-filter-option="">
+                <span
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="table-filter-open"
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="table-filter-open">Open</label>
+                </span>
+                <span data-count>34</span>
+              </div>
+              <div data-part="filter-option" data-part-filter-option="">
+                <span
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="table-filter-overdue"
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="table-filter-overdue"
+                    >Overdue</label
+                  >
+                </span>
+                <span data-count>9</span>
+              </div>
+              <div data-part="filter-option" data-part-filter-option="">
+                <span
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="table-filter-refunded"
+                    checked
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="table-filter-refunded"
+                    >Refunded</label
+                  >
+                </span>
+                <span data-count>2</span>
+              </div>
+              <div data-part="filter-option" data-part-filter-option="">
+                <span
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="table-filter-cancelled"
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="table-filter-cancelled"
+                    >Cancelled by the client</label
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-actions" data-part-filter-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Clear</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: min(22rem, 100%);
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-label="Filter Status"
+    >
+      <div
+        data-ui="table"
+        data-ui-table=""
+        data-part="filter-panel"
+        data-part-filter-panel=""
+        data-kind="set"
+      >
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="1">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Is none of</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="filter-operand" data-part-filter-operand="" data-kind="set">
+            <div data-part="filter-search" data-part-filter-search="">
+              <div
+                data-ui="text-field"
+                data-ui-text-field=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-variant="outline"
+              >
+                <input data-part="input" data-part-input="" aria-label="Search Status" value="zz" />
+              </div>
+            </div>
+            <p data-part="filter-empty" data-part-filter-empty="">No values match</p>
+          </div>
+        </div>
+        <div data-part="filter-actions" data-part-filter-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+            disabled
+          >
+            <span data-part="label" data-part-label="">Clear</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  Two conditions and the join between them. The second appears once the first is
+  active, so a panel that shows one is the ordinary case and this is what the
+  reader gets after typing.
+-->
+<section data-scene="filter-conditions">
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: min(22rem, 100%);
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-label="Filter Status"
+    >
+      <div
+        data-ui="table"
+        data-ui-table=""
+        data-part="filter-panel"
+        data-part-filter-panel=""
+        data-kind="text"
+      >
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="1">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Contains</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="filter-operand" data-part-filter-operand="" data-kind="text">
+            <div
+              data-ui="text-field"
+              data-ui-text-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+            >
+              <input data-part="input" data-part-input="" aria-label="Value" value="ana" />
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-join" data-part-filter-join="">
+          <span data-label>Match</span>
+          <div
+            data-ui="radio-group"
+            data-ui-radio-group=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-orientation="horizontal"
+            data-label-placement="end"
+            role="radiogroup"
+            aria-label="Match"
+          >
+            <div data-part="item" data-part-item="">
+              <input
+                data-part="control"
+                data-part-control=""
+                type="radio"
+                name="table-filter-join"
+                id="table-join-and"
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+              ></span>
+              <label data-part="label" data-part-label="" for="table-join-and">And</label>
+            </div>
+            <div data-part="item" data-part-item="">
+              <input
+                data-part="control"
+                data-part-control=""
+                type="radio"
+                name="table-filter-join"
+                id="table-join-or"
+                checked
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+              ></span>
+              <label data-part="label" data-part-label="" for="table-join-or">Or</label>
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="1">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Begins with</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="filter-operand" data-part-filter-operand="" data-kind="text">
+            <div
+              data-ui="text-field"
+              data-ui-text-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+            >
+              <input data-part="input" data-part-input="" aria-label="Value" value="B" />
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-actions" data-part-filter-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Clear</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The three shapes an operator can give a condition: two operands, one, and none
+  at all. The boolean panel is the fourth kind, and its operand is a pair of
+  radios rather than a field.
+-->
+<section data-scene="filter-shapes">
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: min(22rem, 100%);
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-label="Filter Status"
+    >
+      <div
+        data-ui="table"
+        data-ui-table=""
+        data-part="filter-panel"
+        data-part-filter-panel=""
+        data-kind="number"
+      >
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="2">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Between</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="filter-operand" data-part-filter-operand="" data-kind="number">
+            <div
+              data-ui="number-field"
+              data-ui-number-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-stepper="stacked"
+            >
+              <input
+                data-part="input"
+                data-part-input=""
+                type="text"
+                role="spinbutton"
+                aria-label="From"
+                value="100"
+                aria-valuenow="100"
+              />
+              <span data-part="stepper" data-part-stepper="">
+                <button
+                  data-part="increment"
+                  data-part-increment=""
+                  type="button"
+                  tabindex="-1"
+                  aria-label="Increase"
+                >
+                  <span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                  ></span>
+                </button>
+                <button
+                  data-part="decrement"
+                  data-part-decrement=""
+                  type="button"
+                  tabindex="-1"
+                  aria-label="Decrease"
+                >
+                  <span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                  ></span>
+                </button>
+              </span>
+            </div>
+            <div
+              data-ui="number-field"
+              data-ui-number-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-stepper="stacked"
+            >
+              <input
+                data-part="input"
+                data-part-input=""
+                type="text"
+                role="spinbutton"
+                aria-label="To"
+                value="2500"
+                aria-valuenow="2500"
+              />
+              <span data-part="stepper" data-part-stepper="">
+                <button
+                  data-part="increment"
+                  data-part-increment=""
+                  type="button"
+                  tabindex="-1"
+                  aria-label="Increase"
+                >
+                  <span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                  ></span>
+                </button>
+                <button
+                  data-part="decrement"
+                  data-part-decrement=""
+                  type="button"
+                  tabindex="-1"
+                  aria-label="Decrease"
+                >
+                  <span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                  ></span>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-actions" data-part-filter-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Clear</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: min(22rem, 100%);
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-label="Filter Status"
+    >
+      <div
+        data-ui="table"
+        data-ui-table=""
+        data-part="filter-panel"
+        data-part-filter-panel=""
+        data-kind="date"
+      >
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="1">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Before</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="filter-operand" data-part-filter-operand="" data-kind="date">
+            <div
+              data-ui="date-picker"
+              data-ui-date-picker=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+            >
+              <div data-part="control" data-part-control="">
+                <div
+                  data-ui="date-field"
+                  data-ui-date-field=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-variant="outline"
+                >
+                  <div
+                    data-part="segments"
+                    data-part-segments=""
+                    role="group"
+                    aria-label="Value, 10 September 2026"
+                  >
+                    <div
+                      data-part="segment"
+                      data-part-segment=""
+                      data-field="day"
+                      role="spinbutton"
+                      tabindex="0"
+                      aria-label="day"
+                      aria-valuenow="10"
+                      aria-valuemin="1"
+                      aria-valuemax="30"
+                      aria-valuetext="10"
+                    >
+                      10
+                    </div>
+                    <span data-part="separator" data-part-separator="">/</span>
+                    <div
+                      data-part="segment"
+                      data-part-segment=""
+                      data-field="month"
+                      role="spinbutton"
+                      tabindex="0"
+                      aria-label="month"
+                      aria-valuenow="9"
+                      aria-valuemin="1"
+                      aria-valuemax="12"
+                      aria-valuetext="9"
+                    >
+                      09
+                    </div>
+                    <span data-part="separator" data-part-separator="">/</span>
+                    <div
+                      data-part="segment"
+                      data-part-segment=""
+                      data-field="year"
+                      role="spinbutton"
+                      tabindex="0"
+                      aria-label="year"
+                      aria-valuenow="2026"
+                      aria-valuemin="1"
+                      aria-valuemax="9999"
+                      aria-valuetext="2026"
+                    >
+                      2026
+                    </div>
+                  </div>
+                  <span data-part="end" data-part-end=""
+                    ><button
+                      data-part="trigger"
+                      data-part-trigger=""
+                      type="button"
+                      aria-haspopup="dialog"
+                      aria-label="Change date, 10 September 2026"
+                    >
+                      <span
+                        data-ui="icon"
+                        data-ui-icon=""
+                        data-part="root"
+                        data-part-root=""
+                        aria-hidden="true"
+                        ><svg data-part="glyph" data-part-glyph="" data-glyph="calendar"></svg
+                      ></span></button
+                  ></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-actions" data-part-filter-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Clear</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: min(22rem, 100%);
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-label="Filter Status"
+    >
+      <div
+        data-ui="table"
+        data-ui-table=""
+        data-part="filter-panel"
+        data-part-filter-panel=""
+        data-kind="text"
+      >
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="0">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Is not empty</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-actions" data-part-filter-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Clear</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: min(22rem, 100%);
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-label="Filter Status"
+    >
+      <div
+        data-ui="table"
+        data-ui-table=""
+        data-part="filter-panel"
+        data-part-filter-panel=""
+        data-kind="boolean"
+      >
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="1">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Is</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="filter-operand" data-part-filter-operand="" data-kind="boolean">
+            <div
+              data-ui="radio-group"
+              data-ui-radio-group=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-orientation="horizontal"
+              data-label-placement="end"
+              role="radiogroup"
+              aria-label="Value"
+            >
+              <div data-part="item" data-part-item="">
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="radio"
+                  name="table-filter-paid-value"
+                  id="table-paid-true"
+                  checked
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+                ></span>
+                <label data-part="label" data-part-label="" for="table-paid-true">Yes</label>
+              </div>
+              <div data-part="item" data-part-item="">
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="radio"
+                  name="table-filter-paid-value"
+                  id="table-paid-false"
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+                ></span>
+                <label data-part="label" data-part-label="" for="table-paid-false">No</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-actions" data-part-filter-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Clear</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The three operands the panel could not draw on 10 September, each supplied by
+  a family built since. `filter-time` and `filter-datetime` are two kinds; the
+  `between` of each is one `time-range-picker` or one `datetime-range-picker`
+  since wave 10, marked `data-range` as the date kind's `between` is.
+  `filter-range` is the date kind's `between` as one `date-range-picker`,
+  marked `data-range` so the operand grid collapses to one column.
+  `filter-tags` is the set kind typed as chips.
+-->
+<section data-scene="filter-time">
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: min(22rem, 100%);
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-label="Filter Opens at"
+    >
+      <div
+        data-ui="table"
+        data-ui-table=""
+        data-part="filter-panel"
+        data-part-filter-panel=""
+        data-kind="time"
+      >
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="1">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Is</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="filter-operand" data-part-filter-operand="" data-kind="time">
+            <div
+              data-ui="time-picker"
+              data-ui-time-picker=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-granularity="minute"
+            >
+              <div data-part="control" data-part-control="">
+                <div
+                  data-ui="time-field"
+                  data-ui-time-field=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-variant="outline"
+                  data-cycle="24"
+                  data-granularity="minute"
+                >
+                  <div
+                    data-part="segments"
+                    data-part-segments=""
+                    role="group"
+                    aria-label="Value, 09:00"
+                  >
+                    <div
+                      data-part="segment"
+                      data-part-segment=""
+                      data-field="hour"
+                      role="spinbutton"
+                      tabindex="0"
+                      aria-label="hour"
+                      aria-valuenow="9"
+                      aria-valuemin="0"
+                      aria-valuemax="23"
+                      aria-valuetext="09"
+                    >
+                      09
+                    </div>
+                    <span data-part="literal" data-part-literal="" aria-hidden="true">:</span>
+                    <div
+                      data-part="segment"
+                      data-part-segment=""
+                      data-field="minute"
+                      role="spinbutton"
+                      tabindex="-1"
+                      aria-label="minute"
+                      aria-valuenow="0"
+                      aria-valuemin="0"
+                      aria-valuemax="59"
+                      aria-valuetext="00"
+                    >
+                      00
+                    </div>
+                  </div>
+                  <span data-part="end" data-part-end=""
+                    ><button
+                      data-part="trigger"
+                      data-part-trigger=""
+                      type="button"
+                      aria-haspopup="listbox"
+                      aria-label="Change time, 09:00"
+                    >
+                      <span
+                        data-ui="icon"
+                        data-ui-icon=""
+                        data-part="root"
+                        data-part-root=""
+                        aria-hidden="true"
+                        ><svg data-part="glyph" data-part-glyph="" data-glyph="clock"></svg
+                      ></span></button
+                  ></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-actions" data-part-filter-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Clear</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: min(22rem, 100%);
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-label="Filter Shift"
+    >
+      <div
+        data-ui="table"
+        data-ui-table=""
+        data-part="filter-panel"
+        data-part-filter-panel=""
+        data-kind="time"
+      >
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="2">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Between</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <!--
+            `between` is one `time-range-picker`: the frame is a trigger with
+            the two times in it, and the fields and the two lists are in the
+            surface it opens. The pair is the overnight shift the engine reads
+            as a window that crosses midnight, and the picker names it `order`
+            invalid — the disagreement the contract resolves on the picker's
+            side, with `wrap`; until it lands, this is the picture.
+          -->
+          <div data-part="filter-operand" data-part-filter-operand="" data-kind="time" data-range>
+            <div
+              data-ui="time-range-picker"
+              data-ui-time-range-picker=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-granularity="minute"
+              data-invalid
+            >
+              <div data-part="control" data-part-control="">
+                <button
+                  data-part="trigger"
+                  data-part-trigger=""
+                  type="button"
+                  aria-haspopup="dialog"
+                  aria-expanded="false"
+                  aria-label="Change range, 22:00 – 02:00"
+                >
+                  <span data-part="summary" data-part-summary="">22:00 – 02:00</span
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="clock"></svg
+                  ></span>
+                </button>
+                <input
+                  data-part="hidden-input"
+                  data-part-hidden-input=""
+                  type="hidden"
+                  name="shift-from"
+                  value="22:00:00"
+                />
+                <input
+                  data-part="hidden-input"
+                  data-part-hidden-input=""
+                  type="hidden"
+                  name="shift-to"
+                  value="02:00:00"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-actions" data-part-filter-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Clear</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="filter-datetime">
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: min(22rem, 100%);
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-label="Filter Created"
+    >
+      <div
+        data-ui="table"
+        data-ui-table=""
+        data-part="filter-panel"
+        data-part-filter-panel=""
+        data-kind="datetime"
+      >
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="2">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Between</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <!--
+            `between` is one `datetime-range-picker`. The end is still open —
+            the condition is inactive until both ends exist, and Apply reports
+            nothing for it — and the frame says so with the picker's own dash.
+          -->
+          <div
+            data-part="filter-operand"
+            data-part-filter-operand=""
+            data-kind="datetime"
+            data-range
+          >
+            <div
+              data-ui="datetime-range-picker"
+              data-ui-datetime-range-picker=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-granularity="minute"
+              data-calendar="gregory"
+            >
+              <div data-part="control" data-part-control="">
+                <button
+                  data-part="trigger"
+                  data-part-trigger=""
+                  type="button"
+                  aria-haspopup="dialog"
+                  aria-expanded="false"
+                  aria-label="Change range, 14 Sept 2026, 09:00 – end missing"
+                >
+                  <span data-part="summary" data-part-summary="">14 Sept, 09:00 – ––</span
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="calendar"></svg
+                  ></span>
+                </button>
+                <input
+                  data-part="hidden-input"
+                  data-part-hidden-input=""
+                  type="hidden"
+                  name="created-from"
+                  value="2026-09-14T09:00:00"
+                />
+                <input
+                  data-part="hidden-input"
+                  data-part-hidden-input=""
+                  type="hidden"
+                  name="created-to"
+                  value=""
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-actions" data-part-filter-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Clear</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="filter-range">
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: min(22rem, 100%);
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-label="Filter Due"
+    >
+      <div
+        data-ui="table"
+        data-ui-table=""
+        data-part="filter-panel"
+        data-part-filter-panel=""
+        data-kind="date"
+      >
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="2">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Between</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="filter-operand" data-part-filter-operand="" data-kind="date" data-range>
+            <div
+              data-ui="date-range-picker"
+              data-ui-date-range-picker=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-count="days"
+              data-calendar="gregory"
+            >
+              <div data-part="control" data-part-control="">
+                <div data-part="start" data-part-start="" data-current>
+                  <div
+                    data-ui="date-field"
+                    data-ui-date-field=""
+                    data-part="root"
+                    data-part-root=""
+                    data-size="sm"
+                    data-variant="plain"
+                  >
+                    <div
+                      data-part="segments"
+                      data-part-segments=""
+                      role="group"
+                      aria-label="From, 1 September 2026"
+                    >
+                      <div
+                        data-part="segment"
+                        data-part-segment=""
+                        data-field="day"
+                        role="spinbutton"
+                        tabindex="0"
+                        aria-label="day"
+                        aria-valuenow="1"
+                        aria-valuetext="1"
+                      >
+                        01
+                      </div>
+                      <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+                      <div
+                        data-part="segment"
+                        data-part-segment=""
+                        data-field="month"
+                        role="spinbutton"
+                        tabindex="-1"
+                        aria-label="month"
+                        aria-valuenow="9"
+                        aria-valuetext="September"
+                      >
+                        09
+                      </div>
+                      <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+                      <div
+                        data-part="segment"
+                        data-part-segment=""
+                        data-field="year"
+                        role="spinbutton"
+                        tabindex="-1"
+                        aria-label="year"
+                        aria-valuenow="2026"
+                        aria-valuetext="2026"
+                      >
+                        2026
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <span data-part="separator" data-part-separator="" aria-hidden="true">–</span>
+                <div data-part="end" data-part-end="">
+                  <div
+                    data-ui="date-field"
+                    data-ui-date-field=""
+                    data-part="root"
+                    data-part-root=""
+                    data-size="sm"
+                    data-variant="plain"
+                  >
+                    <div
+                      data-part="segments"
+                      data-part-segments=""
+                      role="group"
+                      aria-label="To, 30 September 2026"
+                    >
+                      <div
+                        data-part="segment"
+                        data-part-segment=""
+                        data-field="day"
+                        role="spinbutton"
+                        tabindex="-1"
+                        aria-label="day"
+                        aria-valuenow="30"
+                        aria-valuetext="30"
+                      >
+                        30
+                      </div>
+                      <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+                      <div
+                        data-part="segment"
+                        data-part-segment=""
+                        data-field="month"
+                        role="spinbutton"
+                        tabindex="-1"
+                        aria-label="month"
+                        aria-valuenow="9"
+                        aria-valuetext="September"
+                      >
+                        09
+                      </div>
+                      <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+                      <div
+                        data-part="segment"
+                        data-part-segment=""
+                        data-field="year"
+                        role="spinbutton"
+                        tabindex="-1"
+                        aria-label="year"
+                        aria-valuenow="2026"
+                        aria-valuetext="2026"
+                      >
+                        2026
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  data-part="trigger"
+                  data-part-trigger=""
+                  type="button"
+                  aria-haspopup="dialog"
+                  aria-expanded="false"
+                  aria-label="Change period, 1 September 2026 – 30 September 2026, 30 days"
+                >
+                  <span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="calendar"></svg
+                  ></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-actions" data-part-filter-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Clear</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="filter-tags">
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: min(22rem, 100%);
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-label="Filter SKU"
+    >
+      <div
+        data-ui="table"
+        data-ui-table=""
+        data-part="filter-panel"
+        data-part-filter-panel=""
+        data-kind="set"
+      >
+        <div data-part="filter-condition" data-part-filter-condition="" data-operands="1">
+          <div data-part="filter-operator" data-part-filter-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Condition"
+              >
+                <span data-part="value" data-part-value="">Is any of</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div
+            data-part="filter-operand"
+            data-part-filter-operand=""
+            data-kind="set"
+            data-operand="tags"
+          >
+            <div
+              data-ui="tags-input"
+              data-ui-tags-input=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <div
+                data-part="control"
+                data-part-control=""
+                role="grid"
+                aria-label="Value, 3 values"
+              >
+                <div
+                  data-part="chips"
+                  data-part-chips=""
+                  role="row"
+                  aria-describedby="filter-tags-hint"
+                >
+                  <span
+                    data-ui="tag"
+                    data-ui-tag=""
+                    data-part="root"
+                    data-part-root=""
+                    data-size="sm"
+                    data-variant="soft"
+                    data-value="SKU-1042"
+                    role="gridcell"
+                    tabindex="-1"
+                  >
+                    <span data-part="body" data-part-body=""
+                      ><span data-part="label" data-part-label="">SKU-1042</span></span
+                    >
+                    <button
+                      data-part="remove"
+                      data-part-remove=""
+                      type="button"
+                      tabindex="-1"
+                      aria-label="Remove SKU-1042"
+                    >
+                      <span
+                        data-ui="icon"
+                        data-ui-icon=""
+                        data-part="root"
+                        data-part-root=""
+                        aria-hidden="true"
+                        ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+                      ></span>
+                    </button>
+                  </span>
+                  <span
+                    data-ui="tag"
+                    data-ui-tag=""
+                    data-part="root"
+                    data-part-root=""
+                    data-size="sm"
+                    data-variant="soft"
+                    data-value="SKU-2210"
+                    role="gridcell"
+                    tabindex="-1"
+                  >
+                    <span data-part="body" data-part-body=""
+                      ><span data-part="label" data-part-label="">SKU-2210</span></span
+                    >
+                    <button
+                      data-part="remove"
+                      data-part-remove=""
+                      type="button"
+                      tabindex="-1"
+                      aria-label="Remove SKU-2210"
+                    >
+                      <span
+                        data-ui="icon"
+                        data-ui-icon=""
+                        data-part="root"
+                        data-part-root=""
+                        aria-hidden="true"
+                        ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+                      ></span>
+                    </button>
+                  </span>
+                  <span
+                    data-ui="tag"
+                    data-ui-tag=""
+                    data-part="root"
+                    data-part-root=""
+                    data-size="sm"
+                    data-variant="soft"
+                    data-value="SKU-3391"
+                    role="gridcell"
+                    tabindex="-1"
+                  >
+                    <span data-part="body" data-part-body=""
+                      ><span data-part="label" data-part-label="">SKU-3391</span></span
+                    >
+                    <button
+                      data-part="remove"
+                      data-part-remove=""
+                      type="button"
+                      tabindex="-1"
+                      aria-label="Remove SKU-3391"
+                    >
+                      <span
+                        data-ui="icon"
+                        data-ui-icon=""
+                        data-part="root"
+                        data-part-root=""
+                        aria-hidden="true"
+                        ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+                      ></span>
+                    </button>
+                  </span>
+                  <span data-part="field" data-part-field="" role="gridcell">
+                    <input
+                      data-part="input"
+                      data-part-input=""
+                      type="text"
+                      aria-label="Value"
+                      list="filter-tags-options"
+                      placeholder="Add a value"
+                    />
+                    <datalist id="filter-tags-options">
+                      <option value="SKU-1042"></option>
+                      <option value="SKU-2210"></option>
+                      <option value="SKU-3391"></option>
+                      <option value="SKU-4470"></option>
+                    </datalist>
+                  </span>
+                </div>
+              </div>
+              <span data-part="hint" data-part-hint="" id="filter-tags-hint"
+                >Press Delete to remove a value.</span
+              >
+            </div>
+          </div>
+        </div>
+        <div data-part="filter-actions" data-part-filter-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Clear</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

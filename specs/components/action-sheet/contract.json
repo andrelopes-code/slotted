@@ -1,0 +1,326 @@
+{
+  "schemaVersion": 5,
+  "family": "action-sheet",
+  "ui": "action-sheet",
+  "catalog": {
+    "group": "Overlays",
+    "summary": "Bottom sheet of short actions for touch."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+  "listPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/menubar/",
+  "patternStatus": "No APG pattern describes an action sheet. The layer answers the modal dialog pattern and the list of actions answers the menu pattern, each item by item",
+  "composes": ["drawer", "focus", "typeahead", "state"],
+  "identity": {
+    "reason": "The family renders drawer with side=bottom and size=content, and its own root sits inside drawer's panel spanning every row of the panel's grid (grid-row: 1 / -1), so the panel's flexible row is the one that shrinks when the sheet reaches its cap and the root shrinks with it. drawer owns the layer, the scrim, the slide, the width, the portal, dismissable-layer, presence, the focus scope, the drag and the keyboard inset; this family owns the header, the menu and the cancel. Each stylesheet reaches only its own children, so identity.test.mjs holds.",
+    "cost": "The sheet's radius, surface and scrim are drawer's and no longer this family's own tokens. The measure stays the family's, and crossing into drawer's panel costs one custom property written by each binding"
+  },
+  "wiring": {
+    "role": "dialog on the panel, which is drawer's panel rendered by the family; the family's own parts are inside it",
+    "aria-modal": "true on the panel only while modal, which is the only state in which the page is inert and the scrim is painted",
+    "aria-labelledby": "the panel names its title part; a consumer who writes aria-label on the sheet instead keeps it",
+    "aria-describedby": "the panel names its message part when one is present",
+    "aria-haspopup": "dialog on the trigger",
+    "aria-expanded": "true on the trigger while the sheet is open",
+    "aria-controls": "the trigger names the panel",
+    "listRole": "menu on the list part, named by the title part like the panel. Without a name a reader moving by widget would reach an anonymous menu",
+    "itemRole": "menuitem on a native button, which gives the press, Enter and Space; the role replaces button so a reader hears an item of the menu",
+    "aria-disabled": "true on a disabled item, which stays focusable as the menu pattern requires, and on a loading item",
+    "aria-busy": "true on a loading item",
+    "groupRole": "group on the group part, aria-labelledby its group-label",
+    "separatorRole": "separator on an hr inside the menu, not focusable"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves between the two tabbable stops of the panel — the list, which is one stop by roving tabindex, and the cancel — and wraps from the last to the first while modal. It does not close the sheet, which is the departure from the menu pattern: the menu is the content of a dialog, and a dialog contains focus",
+      "focus": "the item the list last held, or the cancel",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "the same, backwards, wrapping from the first stop to the last while modal",
+      "focus": "the previous tabbable stop inside the panel",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Escape",
+      "effect": "asks the topmost layer to close, carrying the reason escape; refused when escape is none, and a layer that refuses stops the request reaching the layer beneath it",
+      "focus": "returns to the element that held it when the sheet opened",
+      "source": "@slotted/core/dismissable-layer"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "moves to the next item of the list, disabled items included, wrapping from the last to the first",
+      "focus": "the next item",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "moves to the previous item, wrapping from the first to the last",
+      "focus": "the previous item",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Home",
+      "effect": "moves to the first item",
+      "focus": "the first item",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "End",
+      "effect": "moves to the last item",
+      "focus": "the last item",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Printable character",
+      "effect": "moves to the next item whose textValue, or whose label text, begins with the characters typed within the typeahead timeout",
+      "focus": "the matching item",
+      "source": "@slotted/core/typeahead"
+    },
+    {
+      "key": "Enter",
+      "effect": "on an item, runs onSelect and then asks to close with the reason select, carrying the item's value as the result, unless closeOnSelect is false or onSelect called preventDefault; a disabled or loading item does nothing. On the cancel, asks to close with the reason dismiss",
+      "focus": "returns to the element that held it when the sheet opened, once the sheet closes; stays on the item otherwise",
+      "source": "the native button"
+    },
+    {
+      "key": "Space",
+      "effect": "as Enter",
+      "focus": "as Enter",
+      "source": "the native button"
+    }
+  ],
+  "escapeBound": true,
+  "departures": {
+    "tabStaysInside": {
+      "pattern": "menu: Tab moves focus out of the menu and closes it",
+      "answer": "Tab moves to the cancel and stays inside the dialog",
+      "cost": "A reader who knows menus expects Tab to leave; they leave with Escape or with the cancel, one Tab away"
+    },
+    "twiceNamed": {
+      "pattern": "dialog and menu are each named",
+      "answer": "both are aria-labelledby the title",
+      "cost": "A screen reader announces the title twice on entry — once for the dialog, once for the menu"
+    }
+  },
+  "focus": {
+    "initial": "the first enabled item; the cancel when that item has tone=danger, which is the least destructive action the dialog pattern's first note recommends; with no cancel, the first enabled item that is not danger; with none, the panel itself",
+    "override": "initialFocus names another element, or false to move nothing for a sheet that stands open beside the reader's work; finalFocus names where focus returns, or false",
+    "pointer": "a mouse or a pen over an item moves focus to it, so exactly one item is highlighted whichever device is driving — menu's model. A touch does not move focus before its click",
+    "contain": "while modal, from @slotted/core/focus. A non-modal sheet contains nothing",
+    "restore": "the element that held focus when the sheet opened, or its nearest connected ancestor. Not after outsidePress on a non-modal sheet, because the reader pressed somewhere on the live page and taking focus back would fight them. On a modal sheet the press lands on the scrim, which belongs to the sheet, and focus returns as after the cancel"
+  },
+  "back": {
+    "mechanism": "one entry of the session history per modal sheet, held by @slotted/core/dismissable-layer; a popstate that leaves it is answered with the reason back",
+    "reason": "a sheet from the bottom edge is a phone's layer, and the back gesture is how a phone leaves one"
+  },
+  "reasons": {
+    "trigger": ["pointer", "keyboard"],
+    "item": "select",
+    "cancel": "dismiss",
+    "escape": "escape",
+    "outsidePress": "outsidePress",
+    "back": "back",
+    "handle": "programmatic"
+  },
+  "item": {
+    "props": [
+      "value",
+      "textValue",
+      "icon",
+      "description",
+      "tone",
+      "disabled",
+      "loading",
+      "closeOnSelect",
+      "onSelect",
+      "render"
+    ],
+    "tones": ["accent", "secondary", "success", "warning", "danger"],
+    "vocabulary": "menu's item, word for word, plus loading. An application that renders menu on a pointer device and action-sheet on a phone maps one array of actions to both",
+    "select": "onSelect receives an event with preventDefault; calling it keeps the sheet open, and closeOnSelect=false on the item or the sheet does the same without code",
+    "loading": "the item keeps its label and draws the spinner in its icon box, so nothing moves; it carries aria-busy and aria-disabled, and refuses activation until the consumer clears loading. The sheet stays open, because the consumer that started the work is the one that knows when it ended",
+    "link": "an item whose action navigates renders an anchor through render in React, or is written as a[slActionSheetItem] in Angular; the role and the keyboard are the same"
+  },
+  "anatomy": {
+    "root": "the family's box inside drawer's panel: a grid of header, list and footer spanning every row of the panel, min-block-size 0 so the list is the row that scrolls. drawer's root, backdrop and panel hold the layer, the scrim and the role=dialog",
+    "trigger": "the consumer's control that opens the sheet, rendered where it was written and never in the layer",
+    "header": "title and message",
+    "title": "an h2, the name of the dialog and of the menu. Set small and semibold: the title is the context and the actions are the content, the hierarchy UIKit and Ionic draw",
+    "message": "a p, the dialog's description",
+    "list": "role=menu, the one row that scrolls",
+    "group": "role=group; a run of related actions",
+    "group-label": "the group's visible name",
+    "item": "a native button with role=menuitem, at least the touch target tall",
+    "icon": "the item's visual, or the spinner while the item is loading. Its column exists only when some item of the list draws one",
+    "label": "the item's words; it wraps and never truncates",
+    "description": "the item's second line, muted",
+    "separator": "an hr between runs of items, role=separator",
+    "footer": "the band that holds the cancel, on --slotted-surface-sunken, carrying the bottom safe-area inset",
+    "cancel": "a native button that asks to close with the reason dismiss. Never disabled, because a sheet that cannot be left is a trap"
+  },
+  "geometry": {
+    "dock": "the panel is aligned to the bottom edge of the layer and centred on it, with its two top corners rounded",
+    "measure": "inline-size: min(100%, var(--slotted-action-sheet-inline-size)), 32rem by default, centred. The measure is the family's and the sheet is drawer's: the binding hands it to drawer's panel as --slotted-drawer-sheet-inline-size, through DrawerPanel's style in React and the panel drawer's instance exposes in Angular, so an action sheet stays narrower than a filter sheet",
+    "reach": "max-block-size leaves --slotted-space-12 of scrim above the sheet, so there is always somewhere outside to press",
+    "item": "min-block-size: var(--slotted-control-height-lg), which the theme raises to --slotted-target-comfortable (44 pixels) under pointer: coarse, per density. A fixed 44 pixels at every width made the sheet a phone's sheet on a desktop, rows of 44 beside menu's 34. Density moves the height, the inset and the gaps",
+    "label": "--slotted-font-size-md under a fine pointer, where the sheet sits beside menu's 13-pixel items, and --slotted-font-size-lg under pointer: coarse, where a phone's own sheets set their actions at 16 to 20 points. The mark is 1.125 times the label, so it follows the label rather than the control glyph scale",
+    "scroll": "the list is the one row that scrolls; the header and the cancel stay",
+    "safeArea": "the footer adds env(safe-area-inset-bottom) to its block-end inset; with no footer the list adds it. Both inline edges add env(safe-area-inset-left) and env(safe-area-inset-right) for a phone held sideways"
+  },
+  "mount": {
+    "active": "the layer exists only while open, and @slotted/core/presence holds it through its exit",
+    "lazy": "the layer is built on the first open and kept",
+    "eager": "the layer exists from the start and is inert while closed",
+    "default": "active",
+    "reason": "drawer's mount axis, passed through"
+  },
+  "modal": {
+    "true": "the page is inert, the scroll is locked, focus is contained, the scrim is painted and aria-modal is written",
+    "false": "the page stays operable, nothing is contained or locked, and no scrim is painted: the family passes drawer a scrimFrom above every extent, so drawer's root carries data-undimmed and lets the press through. A press outside still closes the sheet under outsidePress=close"
+  },
+  "stateAttributes": {
+    "open": "data-open",
+    "disabled": "data-disabled",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "select",
+        "dismiss",
+        "escape",
+        "outsidePress",
+        "back",
+        "programmatic"
+      ],
+      "result": "the value of the item that was selected, when the reason is select"
+    }
+  },
+  "axes": {
+    "modal": [true, false],
+    "mount": ["active", "lazy", "eager"],
+    "escape": ["close", "none"],
+    "outsidePress": ["close", "none"],
+    "back": ["close", "none"],
+    "closeOnSelect": [true, false]
+  },
+  "resolution": {
+    "modal": ["prop", "defaults", "family"],
+    "mount": ["prop", "defaults", "family"],
+    "escape": ["prop", "defaults", "family"],
+    "outsidePress": ["prop", "defaults", "family"],
+    "back": ["prop", "defaults", "family"],
+    "closeOnSelect": ["prop", "defaults", "family"]
+  },
+  "provides": {
+    "actionSheetDefaults": ["modal", "mount", "escape", "outsidePress", "back", "closeOnSelect"]
+  },
+  "messages": ["cancel"],
+  "declined": {
+    "controller": {
+      "reason": "Ionic's actionSheetController and Ant Mobile's ActionSheet.show return the choice from a promise. The decision dialog and drawer took holds: with state and @if it is three lines, and the close request already carries the chosen value as request.result",
+      "replacedBy": "const [open, setOpen] = useState(false); <ActionSheet open={open} onOpenChange={(next, request) => { setOpen(next); if (request.reason === 'select') run(request.result); }}>"
+    },
+    "radioItems": {
+      "reason": "Ionic's role radio turns an action into a choice with state. A choice with state is a field",
+      "deferTo": "select"
+    },
+    "boldItem": {
+      "reason": "Ant Mobile's bold and Konsta's bold set a weight. The label is content, and a weight prop would be the first in the library",
+      "replacedBy": "<ActionSheetItem value=\"save\"><strong>Save draft</strong></ActionSheetItem>"
+    },
+    "headerClose": {
+      "reason": "Vant's closeable draws a close mark in the header. The cancel is already the explicit way out, and two controls for one exit compete for the thumb",
+      "replacedBy": "<ActionSheetCancel>Cancel</ActionSheetCancel>"
+    },
+    "translucent": {
+      "reason": "Ionic's translucent blurs the page behind the sheet. The surface is a theme decision",
+      "replacedBy": "[data-ui='action-sheet'] { --slotted-action-sheet-surface: color-mix(in oklab, var(--slotted-surface-raised) 80%, transparent); }"
+    },
+    "emptyList": {
+      "reason": "A sheet with no action is a sheet nobody should open; the application does not render the trigger",
+      "replacedBy": "{actions.length > 0 && <ActionSheetTrigger>More</ActionSheetTrigger>}"
+    },
+    "size": {
+      "reason": "The item's height is a control's, which density and the pointer already move; a size step would be a third answer to the same question",
+      "replacedBy": "density, and the theme's coarse-pointer block"
+    },
+    "side": {
+      "reason": "An action sheet rises from the bottom edge, where the thumb is. A sheet from another edge is a drawer",
+      "deferTo": "drawer"
+    },
+    "popoverPresentation": {
+      "reason": "iPadOS presents an action sheet as a popover anchored to its control. On a pointer device the same list of actions is a menu, and the breakpoint is the application's",
+      "deferTo": "menu"
+    },
+    "grabber": {
+      "reason": "UIKit draws no grabber on an action sheet. The cancel, Escape, the press outside, back and the body drag already close it; a grabber would be a sixth way to the same close",
+      "replacedBy": "<Drawer side=\"bottom\"><DrawerPanel><DrawerResizer />…</DrawerPanel></Drawer> for a sheet whose height the reader chooses"
+    },
+    "dragAxis": {
+      "reason": "drawer's drag axis chooses between the body and the resizer, and an action sheet has no resizer. Refusing the drag is cancelling the close it asks for",
+      "replacedBy": "onOpenChange={(next, request) => { if (request.reason === 'pointer' && !next) request.cancel(); }}"
+    },
+    "ownMeasure": {
+      "reason": "--slotted-action-sheet-radius, -surface and -scrim were the family's own sheet. The sheet is drawer's now, and a second radius, surface and scrim for the same layer would be two answers to one question",
+      "replacedBy": "[data-ui='drawer'] { --slotted-drawer-radius: 12px; --slotted-drawer-surface: var(--slotted-surface-raised); }"
+    }
+  },
+  "members": {
+    "action-sheet": {
+      "nativeElement": "div",
+      "role": "dialog",
+      "defaults": {
+        "modal": true,
+        "mount": "active",
+        "escape": "close",
+        "outsidePress": "close",
+        "back": "close",
+        "closeOnSelect": true
+      },
+      "capabilities": ["open", "content", "appearance", "disabled", "loading", "wiring"],
+      "states": ["default", "hover", "active", "focus-visible", "open", "disabled", "loading"],
+      "parts": [
+        "root",
+        "trigger",
+        "header",
+        "title",
+        "message",
+        "list",
+        "group",
+        "group-label",
+        "item",
+        "icon",
+        "label",
+        "description",
+        "separator",
+        "footer",
+        "cancel"
+      ]
+    }
+  },
+  "scenarios": {
+    "action-sheet": [
+      "playground",
+      "destructive",
+      "groups",
+      "content",
+      "loading",
+      "modal",
+      "policy",
+      "focus",
+      "result",
+      "responsive",
+      "defaults",
+      "accessibility"
+    ]
+  },
+  "drag": "through drawer: a touch anywhere on the sheet's body moves it, and a release nearer to closed than to the content height, or a fling downward faster than 500 px/s, asks to close with the reason pointer. A sheet that must not close by drag cancels that request, which is the mechanism that already refuses every other close"
+}

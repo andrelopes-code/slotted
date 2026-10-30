@@ -1,0 +1,591 @@
+<!--
+  The markup is the third place this family's DOM is written, after React and
+  Angular, and it can drift from both. Every part the contract declares appears
+  in the first scene, every value of every painted axis appears below it, and
+  the three structural facts the family is built on are visible rather than
+  described: the severity word is first in the DOM and out of flow, the mark is
+  one line box tall so it stays on the first line of a wrapped sentence, and the
+  sentence is the family's own `text` element so an empty one can be asked
+  about.
+
+  The controls in the last scene are plain `label` and `input` markup rather
+  than a Slotted family, because `field` does not exist yet and how a message
+  sits under a control is one of the things these captures are for.
+-->
+<section data-scene="anatomy">
+  <div style="display: grid; gap: var(--slotted-space-5)">
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="danger"
+      data-size="sm"
+      data-live="off"
+      id="anatomy-message"
+    >
+      <span data-part="prefix" data-part-prefix="">Error:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="status-danger"></svg></span></span
+      ><span data-part="text" data-part-text="">Enter a valid tax ID to continue.</span>
+    </p>
+
+    <!-- A message that offers its answers: a group named by its sentence. -->
+    <div
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="warning"
+      data-size="sm"
+      data-live="off"
+      role="group"
+      aria-labelledby="actions-message-text"
+    >
+      <span data-part="prefix" data-part-prefix="">Warning:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="status-warning"></svg></span></span
+      ><span data-part="text" data-part-text="" id="actions-message-text"
+        >More than one number can be the amount.</span
+      >
+      <div data-part="actions" data-part-actions="">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="outline"
+          data-tone="secondary"
+          type="button"
+        >
+          R$ 2,00
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="outline"
+          data-tone="secondary"
+          type="button"
+        >
+          R$ 15,00
+        </button>
+      </div>
+    </div>
+
+    <!-- The same message with no mark and no severity word: the help tone. -->
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-size="sm"
+    >
+      <span data-part="icon" data-part-icon="" aria-hidden="true"></span
+      ><span data-part="text" data-part-text="">The tax ID is used only to issue the invoice.</span>
+    </p>
+  </div>
+</section>
+
+<section data-scene="tones">
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-size="sm"
+    >
+      <span data-part="icon" data-part-icon="" aria-hidden="true"></span
+      ><span data-part="text" data-part-text=""
+        >Between 8 and 64 characters, with at least one number.</span
+      >
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="accent"
+      data-size="sm"
+    >
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="status-info"></svg></span></span
+      ><span data-part="text" data-part-text="">This address will also be used for billing.</span>
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="success"
+      data-size="sm"
+    >
+      <span data-part="prefix" data-part-prefix="">Success:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="status-success"></svg></span></span
+      ><span data-part="text" data-part-text="">Username available.</span>
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="info"
+      data-size="sm"
+    >
+      <span data-part="prefix" data-part-prefix="">Info:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="status-success"></svg></span></span
+      ><span data-part="text" data-part-text="">Username available.</span>
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="warning"
+      data-size="sm"
+    >
+      <span data-part="prefix" data-part-prefix="">Warning:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="status-warning"></svg></span></span
+      ><span data-part="text" data-part-text="">The password is valid, but easy to guess.</span>
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="danger"
+      data-size="sm"
+    >
+      <span data-part="prefix" data-part-prefix="">Error:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="status-danger"></svg></span></span
+      ><span data-part="text" data-part-text="">This email is already registered.</span>
+    </p>
+  </div>
+</section>
+
+<section data-scene="marks">
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-size="sm"
+      data-mark="dot"
+    >
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span></span
+      ><span data-part="text" data-part-text="">Digits only, with branch and check digit.</span>
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="warning"
+      data-size="sm"
+      data-mark="dot"
+    >
+      <span data-part="prefix" data-part-prefix="">Warning:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span></span
+      ><span data-part="text" data-part-text="">The password is valid, but easy to guess.</span>
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="danger"
+      data-size="sm"
+      data-mark="dot"
+    >
+      <span data-part="prefix" data-part-prefix="">Error:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span></span
+      ><span data-part="text" data-part-text=""
+        >Six digits of the tax ID are missing, and the check digit does not match.</span
+      >
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="danger"
+      data-size="md"
+      data-mark="dot"
+    >
+      <span data-part="prefix" data-part-prefix="">Error:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span></span
+      ><span data-part="text" data-part-text="">Choose at least one nationality.</span>
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="danger"
+      data-size="sm"
+      data-mark="none"
+    >
+      <span data-part="prefix" data-part-prefix="">Error:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"></span
+      ><span data-part="text" data-part-text=""
+        >No mark: the tone is carried by the ink and the weight of the sentence.</span
+      >
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="success"
+      data-size="sm"
+      data-mark="none"
+    >
+      <span data-part="prefix" data-part-prefix="">Success:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"></span
+      ><span data-part="text" data-part-text=""
+        >No mark, and the sentence starts at the edge of the field.</span
+      >
+    </p>
+  </div>
+</section>
+
+<section data-scene="sizes">
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="danger"
+      data-size="sm"
+    >
+      <span data-part="prefix" data-part-prefix="">Error:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="status-danger"></svg></span></span
+      ><span data-part="text" data-part-text="">sm — a mensagem de um campo.</span>
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="danger"
+      data-size="md"
+    >
+      <span data-part="prefix" data-part-prefix="">Error:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="status-danger"></svg></span></span
+      ><span data-part="text" data-part-text="">md — a mensagem de um campo grande.</span>
+    </p>
+  </div>
+</section>
+
+<section data-scene="states">
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <!-- Waiting: the mark is a ring in the same box, on the same line. -->
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-size="sm"
+      data-loading=""
+    >
+      <span data-part="icon" data-part-icon="" aria-hidden="true"></span
+      ><span data-part="text" data-part-text="">Verificando disponibilidade…</span>
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="accent"
+      data-size="md"
+      data-loading=""
+    >
+      <span data-part="icon" data-part-icon="" aria-hidden="true"></span
+      ><span data-part="text" data-part-text="">Enviando o arquivo para o servidor…</span>
+    </p>
+    <!-- Beside a control nobody can use. The ring stops; the ink is measured. -->
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-size="sm"
+      data-disabled=""
+    >
+      <span data-part="icon" data-part-icon="" aria-hidden="true"></span
+      ><span data-part="text" data-part-text="">Available only on the Enterprise plan.</span>
+    </p>
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="danger"
+      data-size="sm"
+      data-disabled=""
+    >
+      <span data-part="prefix" data-part-prefix="">Error:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="status-danger"></svg></span></span
+      ><span data-part="text" data-part-text="">The field stays invalid while it is disabled.</span>
+    </p>
+  </div>
+</section>
+
+<section data-scene="reserve">
+  <!--
+    Two identical blocks. The first holds its message line open with `reserve`
+    and has nothing to say, so nothing is drawn; the second says something. The
+    two controls have to sit at the same distance from the top of their block,
+    which is the whole point of the axis.
+  -->
+  <div
+    style="
+      display: grid;
+      gap: var(--slotted-space-7);
+      grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    "
+  >
+    <div style="display: grid; gap: var(--slotted-space-2); min-inline-size: 0">
+      <label for="reserve-empty" style="font-size: var(--slotted-font-size-sm)">CNPJ</label>
+      <input
+        id="reserve-empty"
+        value="12.345.678/0001-90"
+        style="
+          border: 1px solid var(--slotted-border-subtle);
+          box-sizing: border-box;
+          border-radius: var(--slotted-radius-sm);
+          font: inherit;
+          inline-size: 100%;
+          min-inline-size: 0;
+          padding: var(--slotted-space-3);
+        "
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-part="root"
+        data-part-root=""
+        data-tone="danger"
+        data-size="sm"
+        data-reserve=""
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg
+              data-part="glyph"
+              data-part-glyph=""
+              data-glyph="status-danger"
+            ></svg></span></span
+        ><span data-part="text" data-part-text=""></span>
+      </p>
+      <label for="reserve-next" style="font-size: var(--slotted-font-size-sm)">Legal name</label>
+      <input
+        id="reserve-next"
+        value="Acme Ltda"
+        style="
+          border: 1px solid var(--slotted-border-subtle);
+          box-sizing: border-box;
+          border-radius: var(--slotted-radius-sm);
+          font: inherit;
+          inline-size: 100%;
+          min-inline-size: 0;
+          padding: var(--slotted-space-3);
+        "
+      />
+    </div>
+    <div style="display: grid; gap: var(--slotted-space-2); min-inline-size: 0">
+      <label for="reserve-full" style="font-size: var(--slotted-font-size-sm)">CNPJ</label>
+      <input
+        id="reserve-full"
+        value="12.345.678/0001-9"
+        aria-invalid="true"
+        aria-errormessage="reserve-message"
+        style="
+          border: 1px solid var(--slotted-tone-danger-border);
+          box-sizing: border-box;
+          border-radius: var(--slotted-radius-sm);
+          font: inherit;
+          inline-size: 100%;
+          min-inline-size: 0;
+          padding: var(--slotted-space-3);
+        "
+      />
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-part="root"
+        data-part-root=""
+        data-tone="danger"
+        data-size="sm"
+        data-reserve=""
+        id="reserve-message"
+      >
+        <span data-part="prefix" data-part-prefix="">Error:</span>
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg
+              data-part="glyph"
+              data-part-glyph=""
+              data-glyph="status-danger"
+            ></svg></span></span
+        ><span data-part="text" data-part-text="">Two digits missing.</span>
+      </p>
+      <label for="reserve-next-2" style="font-size: var(--slotted-font-size-sm)">Legal name</label>
+      <input
+        id="reserve-next-2"
+        value="Acme Ltda"
+        style="
+          border: 1px solid var(--slotted-border-subtle);
+          box-sizing: border-box;
+          border-radius: var(--slotted-radius-sm);
+          font: inherit;
+          inline-size: 100%;
+          min-inline-size: 0;
+          padding: var(--slotted-space-3);
+        "
+      />
+    </div>
+  </div>
+</section>
+
+<section data-scene="content">
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <!-- Three lines of German: the mark stays on the first one. -->
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="warning"
+      data-size="sm"
+    >
+      <span data-part="prefix" data-part-prefix="">Warning:</span>
+      <span data-part="icon" data-part-icon="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="status-warning"></svg></span></span
+      ><span data-part="text" data-part-text="">
+        Die Zahlungsbestätigung konnte nicht zugestellt werden, weil die hinterlegte
+        Rechnungsadresse nicht mit der Adresse der Bank übereinstimmt.
+      </span>
+    </p>
+    <!-- A string no language can break, in a column narrow enough to prove it. -->
+    <div style="inline-size: 15rem">
+      <p
+        data-ui="inline-message"
+        data-ui-inline-message=""
+        data-part="root"
+        data-part-root=""
+        data-tone="danger"
+        data-size="sm"
+      >
+        <span data-part="prefix" data-part-prefix="">Error:</span>
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg
+              data-part="glyph"
+              data-part-glyph=""
+              data-glyph="status-danger"
+            ></svg></span></span
+        ><span data-part="text" data-part-text=""
+          >sha256:9f2c4ab1de77c0d5e8b3a6f41c9d0e72b58a4437cc61de09f2a3b7d1e40c5a86</span
+        >
+      </p>
+    </div>
+    <!-- The page's own artwork, keeping the box, the colour and the line. -->
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="accent"
+      data-size="sm"
+    >
+      <span data-part="icon" data-part-icon="" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" width="1em" height="1em" aria-hidden="true">
+          <path
+            d="M12 3 5 6v5.5c0 4.2 2.9 7.9 7 9.5 4.1-1.6 7-5.3 7-9.5V6l-7-3Z"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </span>
+      <span data-part="text" data-part-text="">Two-step verification protects this account.</span>
+    </p>
+    <!-- A link inside the sentence: one grid item, not two. -->
+    <p
+      data-ui="inline-message"
+      data-ui-inline-message=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-size="sm"
+    >
+      <span data-part="icon" data-part-icon="" aria-hidden="true"></span
+      ><span data-part="text" data-part-text="">
+        We accept card, ACH and wire transfer.
+        <a
+          href="#tarifas"
+          data-ui="link"
+          data-ui-link=""
+          data-part="root"
+          data-part-root=""
+          data-variant="accent"
+          data-underline="always"
+          >Ver tarifas</a
+        >
+      </span>
+    </p>
+  </div>
+</section>

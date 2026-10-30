@@ -1,0 +1,375 @@
+{
+  "schemaVersion": 5,
+  "family": "drawer",
+  "ui": "drawer",
+  "catalog": {
+    "group": "Overlays",
+    "summary": "Panel that slides in from an edge."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+  "resizePattern": "https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/",
+  "composes": ["portal", "dismissable-layer", "presence", "focus", "extent", "measure"],
+  "identity": {
+    "reason": "A drawer is not a member of dialog, and one fact decides it: a persistent drawer has no dialog role at all. An alert dialog is a dialog — same role family, same keyboard, same modality — so a consumer writing [data-ui='dialog'] means it too. An inline drawer is a region of the page, nothing is inert, nothing is contained, and role=dialog on it would be the claim the APG calls severe",
+    "cost": "The header's three columns, the words' overflow handling, the close button's geometry and the forced-colours rule are shapes dialog already holds, and packages/styles/src/identity.test.mjs forbids reaching for them. Around eighty lines are written twice, and the two families can move apart without one breaking the other"
+  },
+  "wiring": {
+    "role": "dialog on the panel part under mode=overlay. Under mode=inline the panel writes no role: a navigation drawer is a navigation landmark and a filter panel is complementary, and a family that cannot know which one guesses wrong half the time. The consumer names it with render or with their own element",
+    "aria-modal": "true on the panel only while modal is true, which is the only state in which the family makes the background inert. modal is fixed at false under mode=inline",
+    "aria-labelledby": "the panel names its title part under mode=overlay; a consumer who writes their own aria-label instead keeps it. Under mode=inline the panel has no role and writes no name, because a name on a generic element names nothing: the consumer's landmark around it carries the name, and a panel the consumer gives a role is named by its title again",
+    "aria-describedby": "the panel names its description part when a description part is present",
+    "aria-haspopup": "dialog on the trigger under mode=overlay only. An inline drawer is a disclosure, not a popup, and the property would promise a layer that never arrives",
+    "aria-expanded": "true on the trigger while the drawer is open, in both modes",
+    "aria-controls": "the trigger names the panel part",
+    "aria-busy": "true on the body while the family is loading",
+    "resizerRole": "separator on the resizer part, with tabindex=0, which is the focusable widget form the separator role takes",
+    "resizerValue": "aria-valuenow, aria-valuemin and aria-valuemax on the resizer are the extent fraction times a hundred, rounded. The Window Splitter pattern calls 0 to 100 the typical range",
+    "resizerName": "aria-labelledby the title part, which is the pattern's rule that the separator is named for the pane it sizes; a consumer with no title writes aria-label on the resizer",
+    "resizerControls": "aria-controls on the resizer names the panel, which is the pattern's primary pane",
+    "aria-orientation": "vertical on the resizer for side=start and side=end, horizontal for side=top and side=bottom"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next tabbable element inside the panel, and wraps from the last to the first while modal",
+      "focus": "the next tabbable element inside the panel",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous tabbable element inside the panel, and wraps from the first to the last while modal",
+      "focus": "the previous tabbable element inside the panel",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Escape",
+      "effect": "asks the topmost layer to close, carrying the reason escape; a layer that refuses stops the request reaching the layer beneath it, so one Escape never closes two",
+      "focus": "returns to the element that held it when the drawer opened",
+      "source": "@slotted/core/dismissable-layer"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "on the resizer, moves the separator sixteen pixels, or sixty-four with Shift, to the left of the screen, which grows an end panel in a left-to-right document and shrinks it in a mirrored one; with snap points it moves to the adjacent stop",
+      "focus": "stays on the resizer",
+      "source": "@slotted/core/extent"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "on the resizer, moves the separator sixteen pixels, or sixty-four with Shift, to the right of the screen; with snap points it moves to the adjacent stop",
+      "focus": "stays on the resizer",
+      "source": "@slotted/core/extent"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "on the resizer, moves the separator sixteen pixels, or sixty-four with Shift, up the screen, which grows a bottom panel and shrinks a top one; with snap points it moves to the adjacent stop",
+      "focus": "stays on the resizer",
+      "source": "@slotted/core/extent"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "on the resizer, moves the separator sixteen pixels, or sixty-four with Shift, down the screen; with snap points it moves to the adjacent stop",
+      "focus": "stays on the resizer",
+      "source": "@slotted/core/extent"
+    },
+    {
+      "key": "Home",
+      "effect": "on the resizer, gives the panel its smallest allowed extent",
+      "focus": "stays on the resizer",
+      "source": "@slotted/core/extent"
+    },
+    {
+      "key": "End",
+      "effect": "on the resizer, gives the panel its largest allowed extent",
+      "focus": "stays on the resizer",
+      "source": "@slotted/core/extent"
+    },
+    {
+      "key": "Enter",
+      "effect": "on the resizer, collapses the panel to its smallest allowed extent, and from there restores the extent it left. It does not close the drawer, because Escape already means that and a reader pressing Enter on a separator expects the separator to still be there",
+      "focus": "stays on the resizer",
+      "source": "@slotted/core/extent"
+    }
+  ],
+  "escapeBound": true,
+  "focus": {
+    "contain": "under mode=overlay while modal, from @slotted/core/focus. An inline drawer contains nothing and a non-modal overlay contains nothing, because both are reachable from the page by definition",
+    "initial": "the first tabbable element under mode=overlay; nothing at all under mode=inline, because a sidebar that stole focus every time a breakpoint crossed would be unusable. Angular Material takes the same split, defaulting autoFocus to false in side mode",
+    "restore": "the element that held focus when the drawer opened, or its nearest connected ancestor when that element has since left the document, or the trigger when it was the body — a click does not focus a button in Safari. It restores in both modes, and only when focus is still inside the panel or on the body, so closing a drawer the reader had already left moves nothing. The layer is lifted before focus is given back, because a modal layer keeps the trigger inert while it stands, and the element to give back to is read once, when the drawer opens, not on every render",
+    "closedPanel": "inert and content-visibility: hidden, in both modes. A panel the eye reads as closed whose controls are still in the tab sequence is the defect MUI's persistent variant ships"
+  },
+  "back": {
+    "mechanism": "as dialog: one entry of the session history per modal overlay layer, held by @slotted/core/dismissable-layer, and a popstate that leaves it is the platform's way back, answered by the layer with the reason back. An inline drawer holds none, as it answers no Escape",
+    "reason": "the sheet from the edge is the layer a phone shows most, and the gesture that leaves it is the same one that leaves a native sheet"
+  },
+  "reasons": {
+    "trigger": ["pointer", "keyboard"],
+    "close": "dismiss",
+    "escape": "escape",
+    "outsidePress": "outsidePress",
+    "back": "back",
+    "handle": "programmatic",
+    "resizerDrag": "pointer",
+    "resizerKeys": "keyboard"
+  },
+  "result": {
+    "parts": ["close"],
+    "reason": "What the platform calls returnValue and Angular Material returns from afterClosed(). It rides on the close request rather than declaring a second state model: nothing about a result is controlled, there is no initial one, and a consumer owning it would own a value only the family can produce"
+  },
+  "declinedReasons": {
+    "submit": "alertDialog owns a part whose meaning is confirmation and this family owns none. A drawer's Apply button is the consumer's own control, and it closes the drawer by setting open or by calling the handle"
+  },
+  "anatomy": {
+    "root": "the layer under mode=overlay — fixed to the viewport, stacked with --slotted-z-index-overlay plus the depth dismissable-layer writes — and the flow box under mode=inline, whose own size is what transitions. A one-cell grid either way",
+    "backdrop": "the scrim, in that one cell. Painted under mode=overlay, whether the layer is modal or not: modal decides what happens to the page behind the scrim — inert, the scroll lock, focus containment — and never what is painted. Tying the two cost a reference page, where a demonstration that stands open must not be modal and every still picture lost the scrim that is half of it. dialog draws it the same way, and a consumer who wants none sets --slotted-drawer-scrim: transparent",
+    "panel": "the surface, in the same cell, aligned to the side. Two boxes and not three: dialog needs a viewport between the layer and the panel because its root is a query container, which makes a scrim inside a scrolling root part of what scrolls. A drawer's root declares no container and never scrolls, because the panel is bounded to the layer by construction",
+    "resizer": "the separator the reader moves, and it draws something at rest. Two hairlines in the strong border step with a grip between them on an inline side; a four-by-thirty-six pill above the header on a block side, which is where a hand looks for a sheet. The picture is splitter's, and the reason it changed is that the old one drew nothing at rest and then a two-pixel line in the accent under the hand: a resizable edge nobody can see is a capability nobody finds, and the accent is the one colour that means the keyboard is here. It is spent on the focus ring alone now. The pointer reach stays --slotted-target-min, drawn by a transparent pseudo-element centred on the gutter. It is a row of the panel's grid on a block side and an overlay on the inner edge on an inline side, and the asymmetry has one cause: every rule in the panel runs across the inline axis, so a resizer row crossing none of them is a track while a resizer column would cut all of them.",
+    "line": "a hairline each side of the grip on an inline side, fading to transparent away from it and running the whole gutter under the hand, under focus and under a drag. Not painted on a block side, where the grip is the whole picture.",
+    "grip": "the mark a hand aims at. A two-by-three dot matrix on an inline side and a rounded pill on a block one, aria-hidden in both: the separator around it is already named and already valued."
+  },
+  "scroll": {
+    "body": "the body scrolls; the header, the footer and the resizer stay",
+    "reason": "There is no scroll axis, and dialog has one because a centred panel can be taller than the layer and the reader has to choose which box moves. A drawer's panel is exactly the layer's block extent on a side and its own extent on a top or bottom, so it never exceeds the layer and there is no second thing that could scroll. Ant, Fluent and MUI all scroll the body and none of them ships an axis for it"
+  },
+  "mount": {
+    "active": "the layer exists only while it is open, and @slotted/core/presence holds it through its own exit; a layer mounted open enters from its closed style, and onOpenChangeComplete (React) / openChangeComplete (Angular) reports true when the entrance has ended and false when the exit has, so a layer rendered conditionally is removed after its exit",
+    "lazy": "the layer is built on the first open and kept afterwards",
+    "eager": "the layer exists from the start and is inert while closed",
+    "default": "active",
+    "reason": "The same reading dialog took: a layer transitions a translate that presence already keeps mounted, and a layer left in the document holds its controls in the page tab sequence. Under mode=inline the panel is always in the document, so the axis decides only whether its content is built"
+  },
+  "mode": {
+    "overlay": "portalled, fixed to the viewport, with a scrim and the whole dismissal policy",
+    "inline": "in the consumer's own layout, with no portal, no scrim, no z-index and no dismissal policy. The root's own size is what opens and closes",
+    "default": "overlay",
+    "reason": "docs/component-features.md section 8 asks for both — modal ou persistente conforme viewport — so only the packaging is open. An axis rather than two components, because the switch is the point: two components mean the consumer swaps one element for another at a breakpoint, and both frameworks destroy the subtree when they do, taking the panel's scroll position, focus and every uncontrolled input with it",
+    "responsive": "The breakpoint is the consumer's. A family owning a viewport media query is what references/rubric.md dimension 3 refuses, and a container query cannot answer it because an overlay drawer has no place in the layout to measure. Fluent, MUI and Angular Material all document the consumer binding it"
+  },
+  "extent": {
+    "unit": "a fraction of the layer along the panel's own axis, in [0, 1], rather than a CSS length",
+    "unset": "the size step decides, through --_extent: var(--slotted-drawer-extent, var(--_step))",
+    "property": "--slotted-drawer-extent, written by the binding as an inline custom property once the reader has moved it. It is a theme-owned decision as well — an application setting one measure for every drawer writes it on [data-ui='drawer'] — which is why it is in drawer.tokens.json and not in packages/styles/src/runtime-properties.mjs",
+    "min": "minExtent, default 0.2",
+    "max": "maxExtent, default 1",
+    "step": "16px per arrow press and 64px with Shift, converted against the layer measured at the moment of the press, when there are no snap points. A distance and not a proportion: five per cent of a wide layer is a jump rather than an adjustment, and SAP's Splitter, VS Code's sash and the Window Splitter pattern's own examples all move a fixed distance",
+    "snapPoints": "an array of fractions, empty by default. With them an arrow moves to the adjacent stop, Home and End go to the first and last, a drag releases onto the nearest, and minExtent and maxExtent default to the first and the last",
+    "dismissThreshold": "a release settles through settleExtent (see sheet.settle), where the closed position is the stop 0: a drag released nearer to it than to any stop, or flung toward it, asks to close carrying pointer, and a close the consumer cancels leaves the panel on the lowest stop. That is what MUI's SwipeableDrawer, Vaul's dismiss gesture and BottomSheetBehavior's hide all do, expressed as a consequence of the resize rather than as a second mechanism",
+    "overlapCost": "On side=start the separator sits at the panel's inline-end edge, which is where a left-to-right document also puts the body's scrollbar. The wheel still scrolls and the scrollbar's inner half is still reachable, and every desktop application with a resizable sidebar has the same overlap",
+    "capability": "Rendering the resizer part is the capability. There is no resizable prop, so a resizable prop with no resizer part, and a resizer part a prop has switched off, are both states this family cannot be in",
+    "reason": "A fraction and not a length: the Window Splitter pattern's three aria values are then the fraction times a hundred, the limits and the snap points are the same kind of number so one clamp covers all three, and a keyboard step is a proportion rather than a pixel literal the family would have to tokenise",
+    "restore": "a double click on the separator puts the panel back on the measure it started from, which is `undefined` — the size step decides — when the consumer named none. It is the one gesture that restores rather than moves, and every desktop pane divider answers a double click with it",
+    "gesture": "while the pointer is down the separator holds the pointer capture, the document's cursor becomes col-resize or row-resize and its selection is suspended; the panel carries will-change on the axis it is growing in and no transition on that axis at all. R7 forbids animating a layout property, and this animates none: the width is the value the reader is holding, written once per pointermove",
+    "press": "a press on the separator moves nothing: the panel follows the pointer from the offset it was grabbed at, so a press that travels less than three pixels is a tap (see sheet.grabberTap) and a drag never jumps the edge under the hand. The old press put the edge where the pointer landed, which made a tap on a sheet's grabber a resize"
+  },
+  "stateAttributes": {
+    "open": "data-open",
+    "loading": "data-loading",
+    "dragging": "data-dragging",
+    "expanded": "data-expanded"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "dismiss",
+        "escape",
+        "outsidePress",
+        "back",
+        "programmatic"
+      ],
+      "result": "the value of the close part that was pressed"
+    },
+    "extent": {
+      "controlled": "extent",
+      "uncontrolled": "defaultExtent",
+      "request": "onExtentChange",
+      "reasons": ["pointer", "keyboard", "programmatic"],
+      "valueType": "number | undefined, where undefined is the panel on the measure its size step gives it — under size=content, the height of its content"
+    }
+  },
+  "bodyInset": {
+    "attribute": "data-inset",
+    "values": ["none"],
+    "meaning": "the body's own padding is dropped: what goes inside brings its own inset — a page, a list, a table that wants the panel's edges",
+    "reason": "A page inside a drawer painted its ground inside the drawer's padding, which read as a thick frame. The drawer does not detect what it holds — a family never selects another family's identity — and the page does not reach out with negative margins; the consumer says so, with the word page and container already use for the same thing"
+  },
+  "axes": {
+    "mode": ["overlay", "inline"],
+    "side": ["start", "end", "top", "bottom"],
+    "size": ["sm", "md", "lg", "xl", "full", "content"],
+    "mount": ["active", "lazy", "eager"],
+    "modal": [true, false],
+    "escape": ["close", "none"],
+    "outsidePress": ["close", "none"],
+    "back": ["close", "none"],
+    "drag": ["panel", "resizer"]
+  },
+  "resolution": {
+    "mode": ["prop", "defaults", "family"],
+    "side": ["prop", "defaults", "family"],
+    "size": ["prop", "defaults", "family"],
+    "mount": ["prop", "defaults", "family"],
+    "modal": ["prop", "defaults", "family"],
+    "escape": ["prop", "defaults", "family"],
+    "outsidePress": ["prop", "defaults", "family"],
+    "back": ["prop", "defaults", "family"],
+    "drag": ["prop", "defaults", "family"]
+  },
+  "provides": {
+    "drawerDefaults": [
+      "mode",
+      "side",
+      "size",
+      "mount",
+      "modal",
+      "escape",
+      "outsidePress",
+      "back",
+      "drag"
+    ]
+  },
+  "messages": ["close"],
+  "declined": {
+    "dialogElement": {
+      "reason": "The same decision dialog took, for the same reason: an element promoted to the top layer paints above every element in the document regardless of z-index, and every other overlay in this library is portalled and stacked with --slotted-z-index-overlay plus --slotted-layer-depth. A select opened inside a drawer would paint behind the drawer it belongs to",
+      "alsoCosts": "An inline drawer could not be a dialog element at all, so the family would need two mechanisms rather than one, which is the opposite of what the mode axis exists for",
+      "cost": "The family depends on JavaScript for containment, inertness and Escape under mode=overlay"
+    },
+    "scrollAxis": {
+      "reason": "See scroll above: a drawer's panel never exceeds the layer, so there is no second thing that could scroll"
+    },
+    "pushMode": {
+      "reason": "Angular Material's push and MUI's persistent shift the page content aside. mode=inline puts the drawer in the consumer's own grid or flex row, and the sibling reflows because the layout says so rather than because a family wrote a margin on an element it does not own",
+      "replacedBy": "<div style=\"display: grid; grid-template-columns: auto 1fr\"><sl-drawer mode=\"inline\" side=\"start\">…</sl-drawer><main>…</main></div>"
+    },
+    "parentPush": {
+      "reason": "Ant's push slides a parent drawer aside when a child opens. The depth comes from dismissable-layer's single stack and the layers overlap; animating the parent would mean this family owning the geometry of a layer it no longer controls"
+    },
+    "drawerService": {
+      "reason": "The same decision dialog took. With @if and signals, opening a drawer from code is three lines in the consumer's own template, afterClosed() is the closed output carrying the same result, and the data injection is the component's own inputs, checked by the compiler rather than cast from a token"
+    },
+    "scrollStrategy": {
+      "reason": "A drawer is anchored to an edge of the layer rather than to an element, so reposition describes nothing; closing on scroll is a tooltip and popover policy; noop is modal=false, which is already an axis; and block is what the scroll lock does"
+    },
+    "emptyState": {
+      "deferTo": "result-state",
+      "reason": "An empty list inside a drawer is result-state, which owns the seven statuses and the marks that distinguish them without colour. A second empty state here would be a second answer to one question"
+    },
+    "positioner": {
+      "reason": "A drawer is anchored to an edge of the layer, not to an element, so there is nothing to position against and no collision to resolve"
+    },
+    "liveAnnouncer": {
+      "reason": "Under mode=overlay the dialog role announces the layer itself. Under mode=inline the trigger's aria-expanded is what a reader hears, which is what a disclosure already means"
+    },
+    "ariaValueText": {
+      "reason": "A reader hears 40 rather than 40 per cent. The string would have to be built from a locale this family does not take, and a hard-coded per-cent sign is wrong in the locales that place it differently. The Window Splitter pattern's 0 to 100 range is what makes the bare number legible"
+    },
+    "backgroundScale": {
+      "reason": "Vaul's shouldScaleBackground and react-modal-sheet's modalEffectRootId shrink the page behind the sheet. The family never writes on an element it does not own, and the page is the consumer's",
+      "replacedBy": "body:has([data-ui='drawer'][data-side='bottom'][data-open]) #app { scale: 0.96; transition: scale var(--slotted-duration-medium) var(--slotted-easing-enter); }"
+    },
+    "edgeAttached": {
+      "reason": "UIKit's prefersEdgeAttachedInCompactHeight is one implementation; the sheet's maximum inline size already gives a phone held sideways a sheet narrower than the screen"
+    }
+  },
+  "members": {
+    "drawer": {
+      "nativeElement": "div",
+      "role": "dialog",
+      "defaults": {
+        "mode": "overlay",
+        "side": "end",
+        "size": "content on top and bottom, md on start and end",
+        "mount": "active",
+        "modal": true,
+        "escape": "close",
+        "outsidePress": "close",
+        "back": "close",
+        "drag": "panel",
+        "minExtent": 0.2,
+        "maxExtent": 1,
+        "loading": false,
+        "scrimFrom": 0
+      },
+      "fixed": {
+        "modalUnderInline": false
+      },
+      "capabilities": ["open", "extent", "size", "placement", "appearance", "loading", "wiring"],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "open",
+        "loading",
+        "dragging",
+        "expanded"
+      ],
+      "parts": [
+        "root",
+        "trigger",
+        "backdrop",
+        "panel",
+        "resizer",
+        "line",
+        "grip",
+        "header",
+        "title",
+        "actions",
+        "description",
+        "body",
+        "footer",
+        "close"
+      ]
+    }
+  },
+  "scenarios": {
+    "drawer": [
+      "playground",
+      "mode",
+      "side",
+      "size",
+      "resize",
+      "snapPoints",
+      "modal",
+      "policy",
+      "focus",
+      "loading",
+      "nested",
+      "content",
+      "composition",
+      "defaults",
+      "accessibility",
+      "sheet",
+      "scrimFrom",
+      "keyboard"
+    ]
+  },
+  "sheet": {
+    "expanded": "an overlay sheet from the bottom whose extent is the whole layer, or whose size is full, is the screen, Material 3's expanded bottom sheet: the layer carries data-expanded, the top corners take --slotted-drawer-radius-expanded (0px unless set) and the header's block-start padding adds env(safe-area-inset-top). A content sheet held 4rem short of the screen is not expanded",
+    "content": "size=content is block-size: auto with max-block-size: calc(100% - var(--slotted-space-12)), sixty-four pixels of scrim left above the sheet for the press outside; on an inline side it is inline-size: max-content under the same cap. It is the default size on top and bottom and never on start and end",
+    "contentStop": "under size=content the height of the content, capped 4rem short of the layer, is a stop for the scroll, the keyboard and the grabber tap. attachSheetScroll measures it with the panel's minimum height lifted, so a panel laid out at a higher stop still reports its content. A scroll that rests on it requests extent undefined rather than the measured fraction, so the sheet follows its content again when the content grows",
+    "restStop": "with no snap points and a named size, the size step is the only stop: the sheet rests on it or closes. With snap points the opening lands on the stop nearest the rest",
+    "drag": "an overlay sheet on side=bottom (data-drag on the root) is moved by the platform's own scroll: the root is the scroll container, a spacer the height of the layer comes before the panel, and scrollTop is how much of the panel is in sight. attachSheetScroll from @slotted/core/extent lays the stops out as zero-height snap markers ([data-part=stops] > [data-part=stop]) under scroll-snap-type: y mandatory, so the finger, the fling and the landing run on the compositor and read nothing from the main thread. The root takes no press of its own; the scrim (position: fixed) and the panel do. drag=panel lets a touch anywhere on the panel scroll the root; drag=resizer gives the panel touch-action: none and leaves the resizer, with touch-action: pan-y, the only handle. A mouse on the resizer drags the scroll with the snap off and settles on the nearest stop",
+    "handoff": "drag=panel is one scroll for the sheet and its content: the panel is as tall as its content, the body does not scroll on its own, and the header and the resizer stick to the top of the screen while the footer sticks to its bottom. A hand pushing up from a lower stop lifts the sheet to the top and, without letting go, goes on scrolling the content; pulling down from the top of the content brings the sheet down in the same gesture. A panel taller than the layer is a snap area larger than the snapport, so a position inside the content is a resting one. Content at rest past the top is read with the snap off (data-sheet-content), so a layout does not re-snap it to the top; with no finger down the spacer folds away (data-sheet-anchored) and scrollTop moves by as much in the same frame, so the top of the content is the edge of what scrolls and a fling out of the content ends there, as a nested list's does. A touch unfolds it before the gesture begins",
+    "exclusions": "what claims a touch is the platform's: an element that scrolls across, a control whose touch-action does not admit pan-y — a slider, a canvas, a map — keeps its gesture, and a field takes its own touches as it does on any scrolled page. Under drag=panel every element inside the panel takes overscroll-behavior-y: auto, a family's own contain included, so a nested region at its edge passes the pull on to the sheet; a region inside data-drawer-drag=\"none\" is given overscroll-behavior: contain, so its own scroll never passes on to the sheet",
+    "settle": "the snap points decide: a release lands on the stop the platform's fling and snap choose, and a scroll that rests out of sight (scrollTop 0, the close marker) requests close with reason pointer. A refused close is read 300 ms later, once the render has landed, and scrolls back to the rest. settleExtent still decides a release of the resizer on the other sides",
+    "overdrag": "above the highest stop the platform's own overscroll answers: a rubber band on WebKit, a stretch on Chrome for Android. The panel paints its surface 50vh below its edge as a second shadow, so the band shows the sheet and never a gap",
+    "scrimFrom": {
+      "attribute": "data-undimmed",
+      "meaning": "while the extent is below scrimFrom the root carries data-undimmed: the backdrop takes opacity: 0 and pointer-events: none with the opacity transition it already had, and the root, which is fixed over the viewport, takes pointer-events: none while the panel keeps them, so a press reaches the page",
+      "reason": "UIKit's largestUndimmedDetentIdentifier, Vaul's fadeFromIndex, Ionic's backdropBreakpoint and gorhom's appearsOnIndex. It asks for modal=false and outsidePress=none, because a missing scrim over an inert page promises a page that does not answer"
+    },
+    "width": "on top and bottom the panel is min(100%, var(--slotted-drawer-sheet-inline-size)), centred; the token resolves to --slotted-drawer-extent-xl, 40rem, Material 3's 640 dp. An overlay sheet draws its side edges only while the viewport is wider than that token; at the token or under it the side edges are 0. size=full draws no edge on any side",
+    "full": "under size=full and drag=panel the panel is the layer's height and the footer rests at its bottom: the footer takes the grid's last row, the one that holds the free space, aligned to its end",
+    "keyboard": "observeKeyboardInset from @slotted/core/measure reads innerHeight - (visualViewport.height + visualViewport.offsetTop) on the visualViewport's resize and scroll, and the open overlay layer writes it as --slotted-keyboard-inset, read as the root's padding-block-end on every side, and as the sheet's scroll-padding-block-end and the sticky footer's inset, so a sheet's stops and its footer stand above the keyboard. navigator.virtualKeyboard.overlaysContent is never set: it is page-wide state and the API is not Baseline",
+    "grabberTap": "a click on the resizer that no drag preceded moves to the next stop up, and from the highest back to the lowest. With no stop beyond the rest it does nothing. Enter keeps the Window Splitter reading",
+    "motion": "opening, closing other than by the hand, a tap on the grabber and a released mouse drag put the scroll on the target stop at once and run a Web Animations transform on the panel from where it was drawn to nothing, with the snap off while it runs. Up reads --slotted-drawer-slide-duration (default --slotted-duration-long) and --slotted-drawer-slide-easing (default --slotted-easing-standard); down reads --slotted-drawer-slide-exit-duration (default --slotted-duration-medium) and --slotted-drawer-slide-exit-easing (default --slotted-easing-exit). The entrance leaves the edge from zero velocity: its first frame covers at most a tenth of the distance to the stop. The slide a CSS transition moves — start, end, top, and a bottom sheet without drag — reads the same four tokens. Under prefers-reduced-motion the travel is instant. A finger that lands on a moving sheet holds it where it is drawn",
+    "bounds": "under size=content the range reaches past the last snap point to maxExtent, because the height of the content is a stop above them; a floor never stands in for an unset extent when a request is compared, or a request for the floor from the content stop reads as no change",
+    "gesture": "nothing renders and nothing is measured while a hand moves the sheet: the compositor scrolls the root, and the family reads scrollend (a scroll followed by 150 ms of quiet where scrollend is missing) to request the extent, or the close. A ResizeObserver on the root and the panel lays the stops out again when either changes size, and leaves a scroll in flight alone",
+    "scrim": "the scrim dims with the sheet where animation-timeline is supported: a layer inside the backdrop runs on the root's scroll timeline from clear at scrollTop 0 to whole at the lowest stop (--slotted-drawer-sheet-floor), and stays whole while content is read; the backdrop keeps the fade it opens and closes with, and the two multiply"
+  }
+}

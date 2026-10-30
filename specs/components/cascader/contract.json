@@ -1,0 +1,487 @@
+{
+  "schemaVersion": 5,
+  "family": "cascader",
+  "ui": "cascader",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Picks a value from nested option columns."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/combobox/",
+  "treePattern": "https://www.w3.org/WAI/ARIA/apg/patterns/treeview/",
+  "patternStatus": "Both pages read on 2026-09-30 and transcribed into the design document §5. The combobox page owns the trigger and the popup keys through its tree popup section; the tree view page owns the roles, the selection attributes and the multi-select rule.",
+  "scope": {
+    "replaces": "hierarchical-picker",
+    "reason": "docs/process/build-order.md reserved hierarchical-picker for selection in a tree or a cascade, with TreeSelect and Cascader as two recipes of one core. This family is that core, and layout is the recipe. ReUI reaches the same shape: one Cascader primitive with mode drill, columns or tree."
+  },
+  "roles": {
+    "trigger": "combobox",
+    "panel": "tree",
+    "column": "group",
+    "node": "treeitem",
+    "breadcrumb": "navigation",
+    "status": "status"
+  },
+  "searchRoles": {
+    "content": "dialog",
+    "search-input": "combobox"
+  },
+  "composes": [
+    "tag",
+    "spinner",
+    "skeleton",
+    "highlight",
+    "positioner",
+    "presence",
+    "portal",
+    "dismissable-layer",
+    "collection",
+    "typeahead",
+    "pointer-intent",
+    "focus",
+    "live-announcer"
+  ],
+  "adds": {
+    "cascader": {
+      "module": "packages/core/src/cascader",
+      "exports": [
+        "cascaderColumns",
+        "cascaderLayout",
+        "cascaderKey",
+        "cascaderSearch",
+        "cascaderValue",
+        "flatToTree"
+      ],
+      "reason": "The columns a path shows, the layout a width allows, the decision a key makes in each layout, the search results with their paths and the value a checked strategy emits are the same in both bindings. Written and tested once, beside createTreeCollection, which stays as it is."
+    }
+  },
+  "layout": {
+    "module": "packages/core/src/cascader",
+    "auto": "columns while the popup's available width holds two columns and the insets, drill below it; decided by cascaderLayout, a pure function of the available width and the column measure",
+    "columns": "one column per level of the path, side by side, up to the window cascaderFit allows",
+    "drill": "one level at a time, with a breadcrumb of its ancestors above it",
+    "tree": "every level in one indented list, branches expanded in place",
+    "ssr": "auto renders drill until the popup has been measured, so the server and the first client render agree",
+    "treeDom": "the visible nodes as one flat run of treeitems carrying aria-level, aria-posinset and aria-setsize, indented by --slotted-cascader-depth; a highlight painted on a node that held its children would paint over them",
+    "window": "cascaderWindow shows the deepest columns that fit, at most maxColumns; the levels further back go to the breadcrumb, which columns shows only while a level is hidden",
+    "placement": "the binding places the layer against the widest width the window can reach — cascaderFit columns and the insets — computed as the popup opens, so a path that grows never moves the layer under the pointer; the surface itself is only as wide as the columns on show",
+    "scroll": "none on the inline axis",
+    "crumbs": "cascaderCrumbs folds a trail longer than maxCrumbs into the first level, one fold for the middle and the deepest levels; a press on the fold goes to the deepest level it holds",
+    "scrollReason": "The first capture scrolled a deep path sideways inside the popup. A horizontal scrollbar inside a layer is hidden on most pointers and absent on touch, and the column a reader just left slid out of view with nothing saying it was there."
+  },
+  "wiring": {
+    "aria-haspopup": "tree on the trigger; dialog when search is on, because the popup then holds a text field and a tree",
+    "aria-expanded": "on the trigger, true while the popup is open; on a branch node, true while its level is shown",
+    "aria-controls": "the trigger names the content while the popup is open; the search input names the panel",
+    "aria-activedescendant": "the trigger, or the search input when search is on, names the active node",
+    "aria-multiselectable": "true on the panel under selectionMode=multiple",
+    "aria-selected": "on a selectable node under selectionMode=single",
+    "aria-checked": "on a selectable node under selectionMode=multiple, and mixed on a branch whose descendants are partly selected",
+    "aria-level": "on every node, the depth from the root, starting at 1",
+    "aria-posinset": "on every node, its place among its siblings",
+    "aria-setsize": "on every node, the number of its siblings, or the count the consumer gave for a level still loading",
+    "aria-busy": "on a column whose level is loading",
+    "aria-disabled": "on a disabled node, which stays reachable by the arrows",
+    "aria-current": "location, on the breadcrumb's last crumb"
+  },
+  "value": {
+    "single": "string | null",
+    "multiple": "readonly string[]",
+    "reason": "The shape tree and listbox settled: a scalar for one choice, so a consumer never writes value[0]."
+  },
+  "selection": {
+    "selectable": ["leaf", "any", "predicate"],
+    "default": "leaf",
+    "checkedStrategy": ["all", "parent", "child"],
+    "cascade": "cascadeSelection",
+    "reason": "Ant Design's changeOnSelect, Element Plus's checkStrictly and ReUI's selectable are one question — which nodes may be committed — under three names. checkedStrategy decides the value emitted under selectionMode=multiple, not only how it is drawn: parent emits a branch whose every selectable descendant is selected instead of those descendants."
+  },
+  "lazy": {
+    "owner": "the consumer",
+    "inputs": ["hasChildren", "loading", "invalid"],
+    "part": "loader",
+    "request": "a level on show whose branch has hasChildren and no children emits onLoadChildren (React) / loadChildren (Angular) with { key, signal }, once per showing; a level the consumer reports failed offers a retry that emits onRetry / retry with the key",
+    "abort": "the request carries an AbortSignal the family aborts when the path moves away from the branch or the popup closes",
+    "reason": "As tree records it: the family holds no collection of its own, so it asks for a level through the same request that shows it, and the answer arrives in the consumer's items."
+  },
+  "search": {
+    "module": "packages/core/src/collection/filter.ts",
+    "functions": ["createFilter", "matchRanges"],
+    "scope": "every loaded level",
+    "result": "one node per hit, with the path of its ancestors printed beside the label",
+    "highlight": "match",
+    "keepsPath": "the navigation path is untouched while a query is set, and clearing the query shows it again"
+  },
+  "keyboard": [
+    {
+      "key": "ArrowDown",
+      "effect": "on the closed trigger, opens the popup; in the popup, the next node — in tree the next visible node, in columns and drill the next sibling in the active column",
+      "focus": "the trigger or the search input keeps focus; the active node moves",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "on the closed trigger, opens the popup onto the last node; in the popup, the previous node, under the same rule as ArrowDown",
+      "focus": "the trigger or the search input keeps focus; the active node moves",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "the inline-end direction in a left-to-right document and the inline-start one in a right-to-left document: on a closed branch, shows its level; on an open one, moves to its first child — in columns and drill the two happen in one step; on a leaf, nothing",
+      "focus": "the active node, which becomes the first child",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "the mirror of ArrowRight: on an open branch in tree, closes it; on a child, moves to its parent, and in columns and drill closes the column the child was in",
+      "focus": "the active node, which becomes the parent",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "the first node of the tree, or of the active column in columns and drill; with search on, the start of the text",
+      "focus": "the active node or the caret",
+      "source": "pattern"
+    },
+    {
+      "key": "End",
+      "effect": "the last node, under the same rule as Home",
+      "focus": "the active node or the caret",
+      "source": "pattern"
+    },
+    {
+      "key": "Enter",
+      "effect": "on a selectable node, commits it — and closes under selectionMode=single when closeOnSelect is true; on a branch that is not selectable, as ArrowRight",
+      "focus": "the trigger when the popup closes",
+      "source": "pattern"
+    },
+    {
+      "key": "Space",
+      "effect": "under selectionMode=multiple, toggles the active node and leaves the popup open; under single without search, as Enter",
+      "focus": "unchanged",
+      "source": "family"
+    },
+    {
+      "key": "Escape",
+      "effect": "with a query set, clears it; otherwise closes the popup without changing the value",
+      "focus": "the trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "Printable character",
+      "effect": "without search, moves to the next node of the active level whose label begins with the typed sequence; with search, types into the field",
+      "focus": "the matched node, or the caret",
+      "source": "pattern"
+    },
+    {
+      "key": "Tab",
+      "effect": "closes the popup and moves focus to the next element after the trigger, as select does",
+      "focus": "the next element in the page",
+      "source": "family"
+    }
+  ],
+  "departures": {
+    "verticalArrows": {
+      "layouts": ["columns", "drill"],
+      "pattern": "ArrowDown and ArrowUp move to the next and previous visible node of the tree, which with the active path open is depth-first order",
+      "family": "ArrowDown and ArrowUp stay in the active column and move among siblings",
+      "cost": "Following the tree's order would move the highlight into the next column on a vertical key, since the open branch's children sit to its inline end. A screen reader still hears the level and the sibling position the arrows walk (aria-level, aria-posinset, aria-setsize), and its virtual cursor reads the DOM in depth-first order."
+    }
+  },
+  "focus": {
+    "onOpen": "the trigger keeps focus without search; the search input takes it with search, as the combobox page says of a dialog popup",
+    "active": "the selected node, with its path shown, or the first node of the root level",
+    "restore": "the trigger, on escape, on a commit that closes, and on Tab",
+    "roving": false,
+    "activeDescendant": true,
+    "disabledNodes": "A disabled node stays reachable by the arrows and cannot be committed; it carries aria-disabled and data-disabled."
+  },
+  "form": {
+    "name": "name",
+    "angular": "ControlValueAccessor and Validator, with required and unresolved",
+    "react": "one hidden input per selected key, under the name the consumer gave",
+    "reason": "The asymmetry tree and entity-picker record: Reactive Forms is an integration point React has no equivalent of, and hidden inputs are the platform's answer where it has none."
+  },
+  "overflow": {
+    "part": "column",
+    "property": "--slotted-positioner-available-height",
+    "reason": "Each column scrolls on its own inside the height the positioner reports, so a deep level never pushes the others out of view."
+  },
+  "measure": {
+    "column": "--slotted-cascader-column-measure",
+    "default": "12rem",
+    "reason": "Wide enough for a label with its count and chevron, narrow enough that two columns sit beside a field of ordinary width.",
+    "maxColumns": "3: three twelve-rem columns are 36rem, as wide as a popup sits from the control that opened it before the reader's eye has to travel; an application with wide data raises it once in the defaults"
+  },
+  "runtimeProperties": [
+    "--slotted-layer-depth",
+    "--slotted-positioner-anchor-width",
+    "--slotted-positioner-available-height",
+    "--slotted-positioner-available-width",
+    "--slotted-positioner-transform-origin",
+    "--slotted-cascader-depth"
+  ],
+  "declined": {
+    "serverSearch": {
+      "compose": "searchValue is a controlled model: a consumer who searches on a server holds it, fetches, and hands the hits in as items of a flat list with getParent.",
+      "reason": "ReUI takes onSearch and a debounce. The value model already carries every keystroke with its reason, and entity-picker owns the adapter shape for a remote source."
+    },
+    "footerActions": {
+      "compose": "A command below the panel is the consumer's own button beside the panel inside content, or a menu.",
+      "reason": "ReUI draws a footer with actions and a flyout menu. A command is not a value; the panel is a tree, and a tree owns only nodes."
+    },
+    "virtualization": {
+      "deferTo": "collection",
+      "reason": "docs/component-features.md §2.10 makes windowing a capability of the collection engine. Each column scrolls inside its bound until the engine's window covers a column."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "layout": ["auto", "columns", "drill", "tree"],
+    "selectionMode": ["single", "multiple"],
+    "selectable": ["leaf", "any"],
+    "checkedStrategy": ["all", "parent", "child"],
+    "expandOn": ["press", "hover"],
+    "closeOnSelect": [true, false],
+    "search": [true, false],
+    "clearable": [true, false],
+    "portal": [true, false],
+    "disabled": [true, false],
+    "readOnly": [true, false],
+    "required": [true, false],
+    "invalid": [true, false],
+    "variant": ["outline", "subtle", "plain"],
+    "fullWidth": [true, false]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "layout": ["prop", "defaults", "auto"],
+    "selectionMode": ["prop", "defaults", "single"],
+    "selectable": ["prop", "defaults", "leaf"],
+    "checkedStrategy": ["prop", "defaults", "all"],
+    "expandOn": ["prop", "defaults", "press"],
+    "closeOnSelect": ["prop", "defaults", true],
+    "search": ["prop", "defaults", false],
+    "clearable": ["prop", "defaults", true],
+    "portal": ["prop", "defaults", true],
+    "disabled": ["prop", "defaults", false],
+    "readOnly": ["prop", "defaults", false],
+    "required": ["prop", "defaults", false],
+    "invalid": ["prop", "defaults", false],
+    "variant": ["prop", "defaults", "outline"],
+    "fullWidth": ["prop", "defaults", true]
+  },
+  "provides": {
+    "cascaderDefaults": [
+      "size",
+      "variant",
+      "fullWidth",
+      "layout",
+      "selectionMode",
+      "selectable",
+      "checkedStrategy",
+      "expandOn",
+      "closeOnSelect",
+      "search",
+      "clearable",
+      "portal",
+      "disabled",
+      "readOnly",
+      "required",
+      "invalid",
+      "separator",
+      "hoverDelay",
+      "maxColumns",
+      "maxCrumbs"
+    ]
+  },
+  "messages": [
+    "back",
+    "breadcrumb",
+    "clear",
+    "empty",
+    "failed",
+    "loading",
+    "noResults",
+    "placeholder",
+    "remove",
+    "results",
+    "retry",
+    "root",
+    "search",
+    "searchPlaceholder",
+    "summary"
+  ],
+  "stateAttributes": {
+    "open": "data-open",
+    "expanded": "data-expanded",
+    "selected": "data-selected",
+    "indeterminate": "data-indeterminate",
+    "current": "data-current",
+    "disabled": "data-disabled",
+    "readonly": "data-readonly",
+    "invalid": "data-invalid",
+    "required": "data-required",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "clear", "remove", "programmatic"]
+    },
+    "value": {
+      "controlled": "searchValue",
+      "uncontrolled": "defaultSearchValue",
+      "request": "onSearchValueChange",
+      "reasons": ["keyboard", "select", "clear", "programmatic"]
+    },
+    "open": {
+      "popup": {
+        "controlled": "open",
+        "uncontrolled": "defaultOpen",
+        "request": "onOpenChange",
+        "reasons": [
+          "pointer",
+          "keyboard",
+          "escape",
+          "outsidePress",
+          "select",
+          "dismiss",
+          "blur",
+          "programmatic"
+        ]
+      },
+      "branches": {
+        "controlled": "expandedKeys",
+        "uncontrolled": "defaultExpandedKeys",
+        "request": "onExpandedKeysChange",
+        "reasons": ["pointer", "keyboard", "programmatic"]
+      }
+    },
+    "current": {
+      "path": {
+        "controlled": "path",
+        "uncontrolled": "defaultPath",
+        "request": "onPathChange",
+        "reasons": ["pointer", "keyboard", "back", "programmatic"]
+      },
+      "active": {
+        "controlled": "activeKey",
+        "uncontrolled": "defaultActiveKey",
+        "request": "onActiveKeyChange",
+        "reasons": ["pointer", "keyboard", "programmatic"]
+      }
+    }
+  },
+  "members": {
+    "cascader": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "layout": "auto",
+        "selectionMode": "single",
+        "selectable": "leaf",
+        "checkedStrategy": "all",
+        "expandOn": "press",
+        "closeOnSelect": true,
+        "search": false,
+        "clearable": true,
+        "portal": true,
+        "disabled": false,
+        "readOnly": false,
+        "required": false,
+        "invalid": false,
+        "separator": "/",
+        "hoverDelay": 150,
+        "variant": "outline",
+        "fullWidth": true,
+        "maxColumns": 3,
+        "maxCrumbs": 4
+      },
+      "capabilities": [
+        "selection",
+        "value",
+        "open",
+        "current",
+        "size",
+        "appearance",
+        "placement",
+        "content",
+        "fullWidth",
+        "disabled",
+        "loading",
+        "readOnly",
+        "required",
+        "invalid",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "open",
+        "expanded",
+        "selected",
+        "indeterminate",
+        "current",
+        "disabled",
+        "readonly",
+        "invalid",
+        "required",
+        "loading"
+      ],
+      "parts": [
+        "root",
+        "trigger",
+        "value",
+        "value-segment",
+        "value-separator",
+        "placeholder",
+        "tags",
+        "summary",
+        "clear",
+        "busy",
+        "arrow",
+        "positioner",
+        "content",
+        "search",
+        "search-input",
+        "breadcrumb",
+        "crumb",
+        "panel",
+        "column",
+        "node",
+        "indicator",
+        "icon",
+        "label",
+        "match",
+        "description",
+        "meta",
+        "expander",
+        "loader",
+        "status",
+        "empty"
+      ]
+    }
+  },
+  "scenarios": {
+    "cascader": [
+      "playground",
+      "columns",
+      "drill",
+      "tree",
+      "layout-auto",
+      "search",
+      "multiple",
+      "any-level",
+      "lazy",
+      "value-path",
+      "panel",
+      "states",
+      "keyboard",
+      "composition"
+    ]
+  }
+}

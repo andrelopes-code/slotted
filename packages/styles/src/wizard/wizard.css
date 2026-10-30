@@ -1,0 +1,728 @@
+@layer slotted.components {
+  /**
+   * A flow of steps that accumulates answers. The progress is `stepper`'s,
+   * each step's body is `form`'s, the actions are `button`'s, the error is
+   * `alert`'s, the optional mark is `tag`'s and the restore wait is
+   * `skeleton`'s. What this stylesheet draws is the two columns, the step's
+   * heading with its position, the row of actions and its two groups, the
+   * compact progress bar and its disclosure, and the pinned footer under
+   * `scroll=self`.
+   *
+   *   root (container slotted-wizard)
+   *   └ layout ▸ ┌ progress ─────┐  ┌ main ─────────────────────────────┐
+   *              │ toggle (<600) │  │ error ▸ alert                      │
+   *              │ stepper       │  │ step ▸ step-header ▸ step-title    │
+   *              │               │  │        form (the form family)      │
+   *              │               │  ├────────────────────────────────────┤
+   *              │               │  │ actions ▸ start … end              │
+   *              └───────────────┘  └────────────────────────────────────┘
+   *
+   * The root is the query container and the grid is one element in, so the
+   * query can change the grid's tracks (`docs/build-briefing.md`, _Decisions
+   * already taken_). Every part is reached from the root with child
+   * combinators: the content is other families, and a descendant rule would
+   * restyle a `form`'s actions or an `alert`'s title.
+   */
+  [data-ui-wizard] {
+    --_text: var(--slotted-text, CanvasText);
+    --_muted: var(--slotted-text-muted, GrayText);
+    --_rule: var(--slotted-wizard-border, var(--slotted-border-subtle, ButtonBorder));
+    --_rule-size: var(--slotted-border-width-thin, 1px);
+    /**
+     * The column the vertical progress takes. Fourteen rem holds a marker, its
+     * gap and a two-word label at the default type size without a break; a
+     * longer label wraps inside it. The contract records the literal.
+     */
+    --_progress-size: var(--slotted-wizard-progress-inline-size, 14rem);
+    /** Between the progress and the step, in either arrangement. */
+    --_gap: var(--slotted-wizard-gap, var(--slotted-space-9, 2rem));
+    /** Between the error, the step and the actions. */
+    --_rhythm: var(--slotted-wizard-rhythm, var(--slotted-space-8, 1.5rem));
+    /** Between the step's heading and its first field. */
+    --_header-gap: var(--slotted-wizard-header-gap, var(--slotted-space-6, 1rem));
+    /** Between two buttons of one group, the gap a control row keeps. */
+    --_action-gap: var(--slotted-control-gap-md, var(--slotted-space-3, 0.375rem));
+    /**
+     * The ground the pinned footer paints under `scroll=self`, so what scrolls
+     * under it is covered. Inside a page it is the page's own; outside, the
+     * surface.
+     */
+    --_ground: var(--slotted-page-ground, var(--slotted-surface, Canvas));
+    /**
+     * How far a focus ring stands outside the control it rings: its width and
+     * its offset. A region that scrolls clips at its own edge, so under
+     * `scroll=self` each scrolling region pads its content by this much, and
+     * the error and the actions take the same inset so the three still share
+     * one column. The inset stays inside the wizard's own box: a region that
+     * reached past it with a negative margin was clipped by the layer around
+     * the wizard instead.
+     */
+    --_ring-room: calc(
+      var(--slotted-focus-ring-width, 2px) + var(--slotted-focus-ring-offset, 2px)
+    );
+
+    color: var(--_text);
+    container-name: slotted-wizard;
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    min-inline-size: 0;
+  }
+
+  /* ── The two columns ──────────────────────────────────────────────────── */
+
+  [data-ui-wizard] > [data-part-layout] {
+    display: grid;
+    gap: var(--_gap);
+    grid-template-columns: minmax(0, 1fr);
+    min-inline-size: 0;
+  }
+
+  /**
+   * Beside the step, the progress is a column of the declared width and the
+   * step takes the rest. `align-items: start` keeps a short progress from
+   * stretching to the step's height, which the sticky rule below needs.
+   */
+  [data-ui-wizard][data-progress='start'] > [data-part-layout] {
+    align-items: start;
+    grid-template-columns: var(--_progress-size) minmax(0, 1fr);
+  }
+
+  [data-ui-wizard][data-progress='none'] > [data-part-layout] > [data-part-progress] {
+    display: none;
+  }
+
+  [data-ui-wizard] > [data-part-layout] > [data-part-progress] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-4, 0.5rem);
+    min-inline-size: 0;
+  }
+
+  /**
+   * On a page that scrolls, the column stays in view while a long step
+   * scrolls past it, under whatever chrome the page publishes (the briefing's
+   * `--slotted-page-sticky-top` decision). Under `scroll=self` the column is
+   * inside the root's own scroller and needs no stickiness.
+   */
+  [data-ui-wizard][data-progress='start']:not([data-scroll='self'])
+    > [data-part-layout]
+    > [data-part-progress] {
+    inset-block-start: var(--slotted-page-sticky-top, 0px);
+    position: sticky;
+  }
+
+  /**
+   * Above the step, the progress is a row closed by a rule: without it the
+   * row of markers and the step's heading read as one block of text.
+   */
+  [data-ui-wizard][data-progress='top'] > [data-part-layout] > [data-part-progress] {
+    border-block-end: var(--_rule-size) solid var(--_rule);
+    padding-block-end: var(--_rhythm);
+  }
+
+  /* ── The compact progress ─────────────────────────────────────────────── */
+
+  /**
+   * One bar that says where the reader is, and opens the whole list. It is
+   * laid out only below the compact class (the query at the end of this
+   * sheet); above it the list is always open and the bar is gone.
+   *
+   *   ┌──────────────────────────────────────────────┐
+   *   │ Step 2 of 5                                ⌄ │
+   *   │ ▬▬▬▬▬▬▬ ▬▬▬▬▬▬▬ ▭▭▭▭▭▭▭ ▭▭▭▭▭▭▭ ▭▭▭▭▭▭▭       │
+   *   └──────────────────────────────────────────────┘
+   *
+   * It does not repeat the step's name: the step's heading stands directly
+   * under it and says it at heading size. What the bar adds is how far the
+   * flow goes, one segment per step, which a phone has no column to show.
+   *
+   * It is painted as a control at rest — the control surface, its resting
+   * edge and lift, its radius — because it is one: it opens and closes.
+   */
+  [data-ui-wizard] > [data-part-layout] > [data-part-progress] > [data-part-progress-toggle] {
+    align-items: center;
+    appearance: none;
+    background-color: var(--slotted-control-surface, Field);
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-control-border-color, ButtonBorder);
+    border-radius: var(--slotted-control-radius, 6px);
+    box-shadow: var(--slotted-control-shadow, none);
+    color: inherit;
+    column-gap: var(--slotted-space-5, 0.75rem);
+    cursor: pointer;
+    display: none;
+    font: inherit;
+    grid-template-areas:
+      'position icon'
+      'track icon';
+    grid-template-columns: minmax(0, 1fr) auto;
+    inline-size: 100%;
+    margin: 0;
+    min-block-size: var(--slotted-control-height-lg, 2.75rem);
+    padding-block: var(--slotted-space-4, 0.5rem);
+    padding-inline: var(--slotted-control-padding-inline-md, 0.75rem);
+    row-gap: var(--slotted-space-3, 0.375rem);
+    text-align: start;
+    transition:
+      border-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard, ease)),
+      box-shadow var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard, ease));
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-progress]
+    > [data-part-progress-toggle]:hover:not(:disabled):not([data-disabled]) {
+    border-color: var(
+      --slotted-wizard-toggle-hover-border-color,
+      var(--slotted-tone-accent-border)
+    );
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-progress]
+    > [data-part-progress-toggle]:active:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-wizard-toggle-active-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-progress]
+    > [data-part-progress-toggle]:focus-visible {
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-progress]
+    > [data-part-progress-toggle]
+    > [data-part-progress-position] {
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    grid-area: position;
+    line-height: var(--slotted-line-height-sm, 1.45);
+  }
+
+  /**
+   * One segment per step, filled for a step that is complete or current and
+   * painted in the danger tone for a step in error: the same three facts the
+   * list's markers carry, at the size a bar can hold. The track is
+   * `aria-hidden`; the position in words is the bar's accessible name.
+   * Every segment fills the track's height; colour alone separates a step
+   * ahead from a step reached.
+   */
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-progress]
+    > [data-part-progress-toggle]
+    > [data-part-progress-track] {
+    align-items: center;
+    block-size: var(--slotted-space-2, 0.25rem);
+    display: flex;
+    gap: var(--slotted-space-1, 0.125rem);
+    grid-area: track;
+    min-inline-size: 0;
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-progress]
+    > [data-part-progress-toggle]
+    > [data-part-progress-track]
+    > [data-part-progress-segment] {
+    background-color: var(
+      --slotted-wizard-segment-color,
+      var(--slotted-control-border-color, ButtonBorder)
+    );
+    block-size: 100%;
+    border-radius: var(--slotted-radius-full, 9999px);
+    flex: 1 1 0;
+    transition: background-color var(--slotted-duration-medium) var(--slotted-easing-standard, ease);
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-progress]
+    > [data-part-progress-toggle]
+    > [data-part-progress-track]
+    > [data-part-progress-segment]:is([data-complete], [data-current]) {
+    background-color: var(
+      --slotted-wizard-segment-color-complete,
+      var(--slotted-tone-accent-solid, Highlight)
+    );
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-progress]
+    > [data-part-progress-toggle]
+    > [data-part-progress-track]
+    > [data-part-progress-segment][data-invalid] {
+    background-color: var(
+      --slotted-wizard-segment-color-invalid,
+      var(--slotted-tone-danger-solid, Mark)
+    );
+  }
+
+  /**
+   * The chevron turns a half turn when the list opens. The eye follows it
+   * because it is the control the reader just pressed.
+   */
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-progress]
+    > [data-part-progress-toggle]
+    > [data-ui-icon] {
+    color: var(--_muted);
+    grid-area: icon;
+    transition: rotate var(--slotted-duration-short) var(--slotted-easing-standard, ease);
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-progress][data-open]
+    > [data-part-progress-toggle]
+    > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  /* ── The step ─────────────────────────────────────────────────────────── */
+
+  [data-ui-wizard] > [data-part-layout] > [data-part-main] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--_rhythm);
+    min-inline-size: 0;
+  }
+
+  [data-ui-wizard] > [data-part-layout] > [data-part-main] > [data-part-error] {
+    min-inline-size: 0;
+  }
+
+  [data-ui-wizard] > [data-part-layout] > [data-part-main] > [data-part-step] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--_header-gap);
+    min-inline-size: 0;
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-step]
+    > [data-part-step-header] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-2, 0.25rem);
+    min-inline-size: 0;
+  }
+
+  /**
+   * The heading carries the position on its own line above the name, so a
+   * screen reader that lands on it hears "Step 2 of 5, Shipping address" —
+   * the order the WAI multi-page tutorial asks for — and a sighted reader
+   * sees the name at heading size and the position as its eyebrow.
+   *
+   * It takes focus on every step change and draws no ring: it is a reading
+   * position, not a control, and a ring on a heading after every Next reads
+   * as a selection nobody made. `form`'s summary, which is a region a reader
+   * is sent to with work to do, keeps its own.
+   */
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-step]
+    > [data-part-step-header]
+    > [data-part-step-title] {
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--slotted-font-size-2xl, 1.25rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-2xl, 1.4);
+    margin: 0;
+    outline: none;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-step]
+    > [data-part-step-header]
+    > [data-part-step-title]
+    > [data-part-position] {
+    color: var(--_muted);
+    display: block;
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    line-height: var(--slotted-line-height-sm, 1.45);
+    margin-block-end: var(--slotted-space-1, 0.125rem);
+  }
+
+  /**
+   * The optional mark sits after the name on the heading's line. Its own
+   * baseline alignment is `tag`'s. The part opens with a space, which keeps
+   * the name and the mark two words in the heading's accessible name; the
+   * margin adds to that space what a tag's frame needs to stand clear.
+   */
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-step]
+    > [data-part-step-header]
+    > [data-part-step-title]
+    > [data-part-optional] {
+    margin-inline-start: var(--slotted-space-1, 0.125rem);
+    vertical-align: middle;
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-step]
+    > [data-part-step-header]
+    > [data-part-step-description] {
+    color: var(--_muted);
+    font-size: var(--slotted-font-size-md, 0.875rem);
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin: 0;
+  }
+
+  /**
+   * The restore wait. The step keeps its header, whose parts hold skeleton
+   * lines in place of the position and the name — each line one cap of the
+   * type it stands for, inside that type's own line box — and the form is
+   * replaced by this part: one `field` whose label and control are
+   * skeletons, at the field's own gap. Nothing moves when the step arrives.
+   * Actions are absent while it stands.
+   */
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-step]
+    > [data-part-skeleton] {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  /* ── The actions ──────────────────────────────────────────────────────── */
+
+  /**
+   * Two groups at the two ends of one row, above a rule that ends the step.
+   * The order on screen is the order in the DOM (WCAG 2.4.3): what leaves
+   * the flow at the start, what moves it at the end, the primary action last.
+   */
+  [data-ui-wizard] > [data-part-layout] > [data-part-main] > [data-part-actions] {
+    align-items: center;
+    border-block-start: var(--_rule-size) solid var(--_rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--_action-gap) var(--_gap);
+    justify-content: space-between;
+    padding-block-start: var(--_rhythm);
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-actions]
+    > :is([data-part-actions-start], [data-part-actions-end]) {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--_action-gap);
+    min-inline-size: 0;
+  }
+
+  /**
+   * The end group keeps the end edge when the start group is empty or
+   * absent, and when the row wraps.
+   */
+  /**
+   * The draft status is set a step smaller than the button labels beside it,
+   * and centred boxes of two type sizes put their words on two lines a pixel
+   * apart. The start group aligns by baseline, so the status reads on the
+   * labels' line.
+   */
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-actions]
+    > [data-part-actions-start] {
+    align-items: baseline;
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-actions]
+    > [data-part-actions-end] {
+    justify-content: flex-end;
+    margin-inline-start: auto;
+  }
+
+  /**
+   * A ghost button has no edge, so its label is what the eye aligns, and the
+   * label stands one inset in from the button's box. The first one in the
+   * start group gives the inset back, which puts "Cancel" on the column's
+   * edge under the fields; its hover wash then reaches the inset past the
+   * edge, the way a link's does.
+   *
+   * The button neither shrinks nor takes `button`'s cap of the container's
+   * width: the margin makes the group an inset narrower than the button,
+   * and either rule gave the inset up from the button's own box and broke
+   * its label in two. The margin is not on the group either, which moved a
+   * wrapped draft status past the column.
+   */
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-actions]
+    > [data-part-actions-start]
+    > [data-ui-button][data-variant='ghost']:first-child {
+    flex: none;
+    max-inline-size: none;
+    margin-inline-start: calc(var(--slotted-control-padding-inline-md, 0.75rem) * -1);
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-actions]
+    > [data-part-actions-start]
+    > [data-part-draft-status] {
+    color: var(--_muted);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    line-height: var(--slotted-line-height-sm, 1.45);
+  }
+
+  [data-ui-wizard]
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-actions]
+    > [data-part-actions-start]
+    > [data-part-draft-status]:empty {
+    display: none;
+  }
+
+  /* ── Edit ─────────────────────────────────────────────────────────────── */
+
+  /**
+   * The control a review step puts beside each answer. It is text in the
+   * accent, as GOV.UK's "Change" is, because it stands in a row of text — the
+   * action column of a `description-list` is one line box tall and aligns
+   * its content to the row's start, and a button's box there sat a third of
+   * a line below the answer it changes. It is a `button` because it moves
+   * the flow rather than the page; nothing else about it is a button's.
+   *
+   * It is the one part reached with a descendant combinator: it stands
+   * wherever the consumer's review content puts it.
+   */
+  [data-ui-wizard] [data-part-edit] {
+    appearance: none;
+    background: none;
+    border: 0;
+    border-radius: var(--slotted-radius-xs, 2px);
+    color: var(--slotted-wizard-edit-color, var(--slotted-tone-accent-text, LinkText));
+    cursor: pointer;
+    font: inherit;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    margin: 0;
+    padding: 0;
+    text-decoration-line: none;
+    text-decoration-thickness: var(--slotted-border-width-thin, 1px);
+    text-underline-offset: 0.2em;
+  }
+
+  [data-ui-wizard] [data-part-edit]:hover:not(:disabled):not([aria-disabled='true']) {
+    text-decoration-line: underline;
+  }
+
+  [data-ui-wizard] [data-part-edit]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  [data-ui-wizard] [data-part-edit]:is(:disabled, [aria-disabled='true']) {
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: not-allowed;
+  }
+
+  /* ── After the submission ─────────────────────────────────────────────── */
+
+  /**
+   * The consumer's content in place of the step and the actions. It takes
+   * focus once, and draws no ring for the step title's reason.
+   */
+  [data-ui-wizard] > [data-part-layout] > [data-part-main] > [data-part-complete] {
+    min-inline-size: 0;
+    outline: none;
+  }
+
+  /* ── Scrolling inside a layer ─────────────────────────────────────────── */
+
+  /**
+   * Inside a dialog, a drawer or a pane with a height: the root takes that
+   * height, the step scrolls, and the actions stay at the bottom on the
+   * ground of the host. `min-block-size: 0` at each level is what lets a
+   * flex child shrink below its content; `overscroll-behavior` keeps a wheel
+   * at the end of the step from scrolling the page behind the layer.
+   */
+  [data-ui-wizard][data-scroll='self'] {
+    block-size: 100%;
+    min-block-size: 0;
+  }
+
+  [data-ui-wizard][data-scroll='self'] > [data-part-layout] {
+    block-size: 100%;
+    min-block-size: 0;
+  }
+
+  [data-ui-wizard][data-scroll='self'] > [data-part-layout] > [data-part-progress] {
+    max-block-size: 100%;
+    overflow: auto;
+    padding: var(--_ring-room);
+  }
+
+  [data-ui-wizard][data-scroll='self'] > [data-part-layout] > [data-part-main] {
+    block-size: 100%;
+    gap: 0;
+    min-block-size: 0;
+  }
+
+  [data-ui-wizard][data-scroll='self']
+    > [data-part-layout]
+    > [data-part-main]
+    > :is([data-part-step], [data-part-complete]) {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--_ring-room) var(--_rhythm);
+    padding-inline: var(--_ring-room);
+  }
+
+  [data-ui-wizard][data-scroll='self'] > [data-part-layout] > [data-part-main] > [data-part-error] {
+    padding-block-end: var(--_rhythm);
+    padding-inline: var(--_ring-room);
+  }
+
+  [data-ui-wizard][data-scroll='self']
+    > [data-part-layout]
+    > [data-part-main]
+    > [data-part-actions] {
+    background-color: var(--_ground);
+    flex: none;
+    padding-block-end: 0;
+    padding-inline: var(--_ring-room);
+  }
+
+  /* ── The compact class ────────────────────────────────────────────────── */
+
+  /**
+   * Below 600 pixels of its own width — the compact size class of
+   * `docs/component-features.md` §2.7 — the wizard is one column whatever the
+   * `progress` axis says, the list folds behind the bar, and the two action
+   * groups stack with the moving group underneath, each of its buttons
+   * sharing the line. The breakpoint is a literal because a container
+   * condition cannot read a custom property (token foundation, rule 4).
+   */
+  @container slotted-wizard (width < 600px) {
+    [data-ui-wizard] > [data-part-layout] {
+      gap: var(--_rhythm);
+    }
+
+    [data-ui-wizard][data-progress='start'] > [data-part-layout] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    [data-ui-wizard][data-progress] > [data-part-layout] > [data-part-progress] {
+      border-block-end: 0;
+      padding-block-end: 0;
+      position: static;
+    }
+
+    [data-ui-wizard] > [data-part-layout] > [data-part-progress] > [data-part-progress-toggle] {
+      display: grid;
+    }
+
+    [data-ui-wizard]
+      > [data-part-layout]
+      > [data-part-progress]:not([data-open])
+      > [data-ui-stepper] {
+      display: none;
+    }
+
+    /**
+     * The open list stands under the bar, in the flow, on a sunken ground
+     * so it reads as the bar's content rather than as the step.
+     */
+    [data-ui-wizard] > [data-part-layout] > [data-part-progress][data-open] > [data-ui-stepper] {
+      background-color: var(--slotted-surface-sunken, Canvas);
+      border-radius: var(--slotted-control-radius, 6px);
+      padding: var(--slotted-space-5, 0.75rem);
+    }
+
+    [data-ui-wizard]
+      > [data-part-layout]
+      > [data-part-main]
+      > [data-part-actions]
+      > :is([data-part-actions-start], [data-part-actions-end]) {
+      inline-size: 100%;
+    }
+
+    /**
+     * The two moving buttons share the line; a ghost Skip keeps its own
+     * width, because a borderless third of a row reads as empty space.
+     */
+    [data-ui-wizard]
+      > [data-part-layout]
+      > [data-part-main]
+      > [data-part-actions]
+      > [data-part-actions-end]
+      > [data-ui-button]:not([data-variant='ghost']) {
+      flex: 1 1 0;
+    }
+
+    /**
+     * The bar above says the position, so the heading's eyebrow leaves the
+     * picture here — and only the picture: it stays in the heading's text,
+     * which is what a screen reader hears when focus lands there.
+     */
+    [data-ui-wizard][data-progress='start']
+      > [data-part-layout]
+      > [data-part-main]
+      > [data-part-step]
+      > [data-part-step-header]
+      > [data-part-step-title]
+      > [data-part-position],
+    [data-ui-wizard][data-progress='top']
+      > [data-part-layout]
+      > [data-part-main]
+      > [data-part-step]
+      > [data-part-step-header]
+      > [data-part-step-title]
+      > [data-part-position] {
+      block-size: 1px;
+      clip-path: inset(50%);
+      inline-size: 1px;
+      margin: 0;
+      overflow: hidden;
+      position: absolute;
+      white-space: nowrap;
+    }
+  }
+}

@@ -1,0 +1,1536 @@
+<!--
+  The markup below is the DOM both bindings render, written a third time. It
+  drifts, so it is re-read whenever either binding's markup changes: the parts,
+  the roles, the attributes and the states are compared against the contract and
+  against React and Angular.
+
+  The panels carry `hidden` exactly as `mount="eager"` renders them, so the
+  capture shows what a reader sees rather than every panel at once.
+-->
+<section data-scene="variant">
+  <style>
+    [data-demo-column] {
+      display: grid;
+      gap: var(--slotted-space-8);
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    [data-demo-label] {
+      color: var(--slotted-text-muted);
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      margin: 0;
+    }
+
+    [data-demo-frame] {
+      border: 1px dashed var(--slotted-border-strong);
+      border-radius: var(--slotted-radius-md);
+      padding: var(--slotted-space-4);
+    }
+
+    [data-demo-body] {
+      color: var(--slotted-text);
+      font-family: var(--slotted-font-family-sans);
+      font-size: var(--slotted-font-size-md);
+      line-height: var(--slotted-line-height-md);
+      margin: 0;
+    }
+
+    [data-demo-narrow] {
+      max-inline-size: 320px;
+    }
+  </style>
+
+  <div data-demo-column>
+    <p data-demo-label>line — the default</p>
+    <div
+      data-ui="tabs"
+      data-ui-tabs=""
+      data-part="root"
+      data-part-root=""
+      data-variant="line"
+      data-orientation="horizontal"
+      data-size="md"
+      data-fit="auto"
+      data-track="line"
+      data-activation-direction="none"
+    >
+      <div data-part="list" data-part-list="" role="tablist" aria-label="Order">
+        <div data-part="item" data-part-item="" role="presentation" data-selected>
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="t-a"
+            aria-controls="p-a"
+            aria-selected="true"
+            tabindex="0"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Resumo</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="t-b"
+            aria-controls="p-b"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Itens</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="t-c"
+            aria-controls="p-c"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+            disabled
+          >
+            <span data-part="label" data-part-label="">Invoice</span>
+          </button>
+        </div>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="p-a"
+        aria-labelledby="t-a"
+        tabindex="0"
+      >
+        <p data-demo-body>Delivery expected on September 12.</p>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="p-b"
+        aria-labelledby="t-b"
+        tabindex="0"
+        hidden
+      ></div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="p-c"
+        aria-labelledby="t-c"
+        tabindex="0"
+        hidden
+      ></div>
+    </div>
+
+    <p data-demo-label>contained</p>
+    <div
+      data-ui="tabs"
+      data-ui-tabs=""
+      data-part="root"
+      data-part-root=""
+      data-variant="contained"
+      data-orientation="horizontal"
+      data-size="md"
+      data-fit="auto"
+      data-track="line"
+      data-activation-direction="forward"
+    >
+      <div data-part="list" data-part-list="" role="tablist" aria-label="Period">
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="t-d"
+            aria-controls="p-d"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Dia</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation" data-selected>
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="t-e"
+            aria-controls="p-e"
+            aria-selected="true"
+            tabindex="0"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Week</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="t-f"
+            aria-controls="p-f"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Month</span>
+          </button>
+        </div>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="p-d"
+        aria-labelledby="t-d"
+        tabindex="0"
+        hidden
+      ></div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="p-e"
+        aria-labelledby="t-e"
+        tabindex="0"
+      >
+        <p data-demo-body>De 1 a 7 de setembro.</p>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="p-f"
+        aria-labelledby="t-f"
+        tabindex="0"
+        hidden
+      ></div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sizes">
+  <div data-demo-column>
+    <p data-demo-label>sm / md / lg, and fit="equal" at the bottom</p>
+    <div
+      data-ui="tabs"
+      data-ui-tabs=""
+      data-part="root"
+      data-part-root=""
+      data-variant="line"
+      data-size="sm"
+      data-fit="auto"
+      data-track="line"
+      data-orientation="horizontal"
+      data-activation-direction="none"
+    >
+      <div data-part="list" data-part-list="" role="tablist" aria-label="Compacto">
+        <div data-part="item" data-part-item="" role="presentation" data-selected>
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="s-a"
+            aria-controls="sp-a"
+            aria-selected="true"
+            tabindex="0"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Compacto</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="s-b"
+            aria-controls="sp-b"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Outro</span>
+          </button>
+        </div>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="sp-a"
+        aria-labelledby="s-a"
+        tabindex="0"
+      >
+        <p data-demo-body>Altura de controle sm.</p>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="sp-b"
+        aria-labelledby="s-b"
+        tabindex="0"
+        hidden
+      ></div>
+    </div>
+
+    <div
+      data-ui="tabs"
+      data-ui-tabs=""
+      data-part="root"
+      data-part-root=""
+      data-variant="line"
+      data-size="md"
+      data-fit="auto"
+      data-track="line"
+      data-orientation="horizontal"
+      data-activation-direction="none"
+    >
+      <div data-part="list" data-part-list="" role="tablist" aria-label="Default">
+        <div data-part="item" data-part-item="" role="presentation" data-selected>
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="s-c"
+            aria-controls="sp-c"
+            aria-selected="true"
+            tabindex="0"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Default</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="s-d"
+            aria-controls="sp-d"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Outro</span>
+          </button>
+        </div>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="sp-c"
+        aria-labelledby="s-c"
+        tabindex="0"
+      >
+        <p data-demo-body>Altura de controle md.</p>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="sp-d"
+        aria-labelledby="s-d"
+        tabindex="0"
+        hidden
+      ></div>
+    </div>
+
+    <div
+      data-ui="tabs"
+      data-ui-tabs=""
+      data-part="root"
+      data-part-root=""
+      data-variant="contained"
+      data-size="lg"
+      data-fit="equal"
+      data-track="line"
+      data-orientation="horizontal"
+      data-activation-direction="none"
+    >
+      <div data-part="list" data-part-list="" role="tablist" aria-label="Comfortable">
+        <div data-part="item" data-part-item="" role="presentation" data-selected>
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="s-e"
+            aria-controls="sp-e"
+            aria-selected="true"
+            tabindex="0"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Comfortable</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="s-f"
+            aria-controls="sp-f"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label=""
+              >Uma etiqueta longa que precisa ser cortada</span
+            >
+          </button>
+        </div>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="sp-e"
+        aria-labelledby="s-e"
+        tabindex="0"
+      >
+        <p data-demo-body>Equal parts of the row; the label is what yields.</p>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="sp-f"
+        aria-labelledby="s-f"
+        tabindex="0"
+        hidden
+      ></div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="dismissible">
+  <div data-demo-column>
+    <p data-demo-label>dismissible, with the paging controls a scrolling list draws</p>
+    <div
+      data-ui="tabs"
+      data-ui-tabs=""
+      data-part="root"
+      data-part-root=""
+      data-variant="line"
+      data-size="md"
+      data-fit="auto"
+      data-orientation="horizontal"
+      data-track="line"
+      data-activation-direction="backward"
+      data-overflowing
+    >
+      <button
+        data-part="scroll"
+        data-part-scroll=""
+        data-direction="start"
+        type="button"
+        tabindex="-1"
+        aria-hidden="true"
+        disabled
+      >
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          data-directional
+          aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+      <div data-part="list" data-part-list="" role="tablist" aria-label="Consultas">
+        <div data-part="item" data-part-item="" role="presentation" data-selected>
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="d-a"
+            aria-controls="dp-a"
+            aria-selected="true"
+            tabindex="0"
+            type="button"
+            aria-keyshortcuts="Delete"
+          >
+            <span data-part="label" data-part-label="">customers.sql</span>
+          </button>
+          <button
+            data-part="dismiss"
+            data-part-dismiss=""
+            type="button"
+            tabindex="-1"
+            aria-label="Close customers.sql"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="d-b"
+            aria-controls="dp-b"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+            aria-keyshortcuts="Delete"
+          >
+            <span data-part="label" data-part-label="">faturamento-2026.sql</span>
+          </button>
+          <button
+            data-part="dismiss"
+            data-part-dismiss=""
+            type="button"
+            tabindex="-1"
+            aria-label="Close billing-2026.sql"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="d-c"
+            aria-controls="dp-c"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+            aria-keyshortcuts="Delete"
+          >
+            <span data-part="label" data-part-label="">inventory-by-branch.sql</span>
+          </button>
+          <button
+            data-part="dismiss"
+            data-part-dismiss=""
+            type="button"
+            tabindex="-1"
+            disabled
+            aria-label="Close inventory-by-branch.sql"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+      </div>
+      <button
+        data-part="scroll"
+        data-part-scroll=""
+        data-direction="end"
+        type="button"
+        tabindex="-1"
+        aria-hidden="true"
+      >
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          data-directional
+          aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+      <div data-part="actions" data-part-actions="">
+        <div
+          data-ui="toolbar"
+          data-ui-toolbar=""
+          data-part="root"
+          data-part-root=""
+          data-orientation="horizontal"
+          data-size="sm"
+          data-variant="plain"
+          data-overflow="wrap"
+          aria-label="Query actions"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ghost"
+            data-tone="secondary"
+            data-size="sm"
+            type="button"
+            tabindex="0"
+          >
+            Nova
+          </button>
+        </div>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="dp-a"
+        aria-labelledby="d-a"
+        tabindex="0"
+      >
+        <p data-demo-body>select * from customers where active;</p>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="dp-b"
+        aria-labelledby="d-b"
+        tabindex="0"
+        hidden
+      ></div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="dp-c"
+        aria-labelledby="d-c"
+        tabindex="0"
+        hidden
+      ></div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="vertical">
+  <div data-demo-column>
+    <p data-demo-label>vertical, where the track and the marker turn a quarter</p>
+    <div
+      data-ui="tabs"
+      data-ui-tabs=""
+      data-part="root"
+      data-part-root=""
+      data-variant="line"
+      data-size="md"
+      data-fit="auto"
+      data-orientation="vertical"
+      data-track="line"
+      data-activation-direction="none"
+    >
+      <div
+        data-part="list"
+        data-part-list=""
+        role="tablist"
+        aria-label="Settings"
+        aria-orientation="vertical"
+      >
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="v-a"
+            aria-controls="vp-a"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Perfil</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation" data-selected>
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="v-b"
+            aria-controls="vp-b"
+            aria-selected="true"
+            tabindex="0"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Notifications</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="v-c"
+            aria-controls="vp-c"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Security</span>
+          </button>
+        </div>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="vp-a"
+        aria-labelledby="v-a"
+        tabindex="0"
+        hidden
+      ></div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="vp-b"
+        aria-labelledby="v-b"
+        tabindex="0"
+      >
+        <p data-demo-body>Avisos por e-mail e no aplicativo.</p>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="vp-c"
+        aria-labelledby="v-c"
+        tabindex="0"
+        hidden
+      ></div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="content">
+  <div data-demo-column>
+    <p data-demo-label>an unbroken token, a right-to-left label, and a narrow container</p>
+    <div data-demo-narrow>
+      <div data-demo-frame>
+        <div
+          data-ui="tabs"
+          data-ui-tabs=""
+          data-part="root"
+          data-part-root=""
+          data-variant="line"
+          data-size="sm"
+          data-fit="auto"
+          data-orientation="horizontal"
+          data-track="line"
+          data-activation-direction="none"
+          data-overflowing
+        >
+          <button
+            data-part="scroll"
+            data-part-scroll=""
+            data-direction="start"
+            type="button"
+            tabindex="-1"
+            aria-hidden="true"
+            disabled
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-directional
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+            ></span>
+          </button>
+          <div data-part="list" data-part-list="" role="tablist" aria-label="Extreme content">
+            <div data-part="item" data-part-item="" role="presentation" data-selected>
+              <button
+                data-part="tab"
+                data-part-tab=""
+                role="tab"
+                id="c-a"
+                aria-controls="cp-a"
+                aria-selected="true"
+                tabindex="0"
+                type="button"
+              >
+                <span data-part="label" data-part-label="">sha256:9f86d08188</span>
+              </button>
+            </div>
+            <div data-part="item" data-part-item="" role="presentation">
+              <button
+                data-part="tab"
+                data-part-tab=""
+                role="tab"
+                id="c-b"
+                aria-controls="cp-b"
+                aria-selected="false"
+                tabindex="-1"
+                type="button"
+              >
+                <span data-part="label" data-part-label="">بيانات التسليم</span>
+              </button>
+            </div>
+            <div data-part="item" data-part-item="" role="presentation">
+              <button
+                data-part="tab"
+                data-part-tab=""
+                role="tab"
+                id="c-c"
+                aria-controls="cp-c"
+                aria-selected="false"
+                tabindex="-1"
+                type="button"
+              >
+                <span data-part="label" data-part-label="">Consolidated report</span>
+              </button>
+            </div>
+          </div>
+          <button
+            data-part="scroll"
+            data-part-scroll=""
+            data-direction="end"
+            type="button"
+            tabindex="-1"
+            aria-hidden="true"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-directional
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+            ></span>
+          </button>
+          <div
+            data-part="panel"
+            data-part-panel=""
+            role="tabpanel"
+            id="cp-a"
+            aria-labelledby="c-a"
+            tabindex="0"
+          >
+            <p data-demo-body>
+              sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08
+            </p>
+          </div>
+          <div
+            data-part="panel"
+            data-part-panel=""
+            role="tabpanel"
+            id="cp-b"
+            aria-labelledby="c-b"
+            tabindex="0"
+            hidden
+          ></div>
+          <div
+            data-part="panel"
+            data-part-panel=""
+            role="tabpanel"
+            id="cp-c"
+            aria-labelledby="c-c"
+            tabindex="0"
+            hidden
+          ></div>
+        </div>
+      </div>
+    </div>
+    <p data-demo-label>an icon before the label and a count after it</p>
+    <div data-demo-frame>
+      <div
+        data-ui="tabs"
+        data-ui-tabs=""
+        data-part="root"
+        data-part-root=""
+        data-variant="line"
+        data-size="md"
+        data-fit="auto"
+        data-orientation="horizontal"
+        data-track="line"
+        data-activation-direction="none"
+      >
+        <div data-part="list" data-part-list="" role="tablist" aria-label="Customer">
+          <div data-part="item" data-part-item="" role="presentation">
+            <button
+              data-part="tab"
+              data-part-tab=""
+              role="tab"
+              id="a-a"
+              aria-controls="ap-a"
+              aria-selected="false"
+              tabindex="-1"
+              type="button"
+            >
+              <span data-part="start" data-part-start=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="file-text"></svg></span
+              ></span>
+              <span data-part="label" data-part-label="">Overview</span>
+            </button>
+          </div>
+          <div data-part="item" data-part-item="" role="presentation" data-selected>
+            <button
+              data-part="tab"
+              data-part-tab=""
+              role="tab"
+              id="a-b"
+              aria-controls="ap-b"
+              aria-selected="true"
+              tabindex="0"
+              type="button"
+            >
+              <span data-part="start" data-part-start=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="inbox"></svg></span
+              ></span>
+              <span data-part="label" data-part-label="">Orders</span>
+              <span data-part="end" data-part-end=""
+                ><span
+                  data-ui="badge"
+                  data-ui-badge=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="secondary"
+                  data-variant="soft"
+                  data-size="sm"
+                  data-shape="pill"
+                  ><span data-part="label" data-part-label="">12</span></span
+                ></span
+              >
+            </button>
+          </div>
+          <div data-part="item" data-part-item="" role="presentation">
+            <button
+              data-part="tab"
+              data-part-tab=""
+              role="tab"
+              id="a-c"
+              aria-controls="ap-c"
+              aria-selected="false"
+              tabindex="-1"
+              type="button"
+            >
+              <span data-part="start" data-part-start=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="person"></svg></span
+              ></span>
+              <span data-part="label" data-part-label="">Contacts</span>
+              <span data-part="end" data-part-end=""
+                ><span
+                  data-ui="badge"
+                  data-ui-badge=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="secondary"
+                  data-variant="soft"
+                  data-size="sm"
+                  data-shape="pill"
+                  ><span data-part="label" data-part-label="">3</span></span
+                ></span
+              >
+            </button>
+          </div>
+        </div>
+        <div
+          data-part="panel"
+          data-part-panel=""
+          role="tabpanel"
+          id="ap-a"
+          aria-labelledby="a-a"
+          tabindex="0"
+          hidden
+        ></div>
+        <div
+          data-part="panel"
+          data-part-panel=""
+          role="tabpanel"
+          id="ap-b"
+          aria-labelledby="a-b"
+          tabindex="0"
+        >
+          <p data-demo-body>12 open orders.</p>
+        </div>
+        <div
+          data-part="panel"
+          data-part-panel=""
+          role="tabpanel"
+          id="ap-c"
+          aria-labelledby="a-c"
+          tabindex="0"
+          hidden
+        ></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="track">
+  <style>
+    [data-demo-card] {
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-md);
+    }
+
+    /* The rule the page draws, where a card header ends. */
+    [data-demo-card-header] {
+      border-block-end: 1px solid var(--slotted-border-subtle);
+      padding: var(--slotted-space-4) var(--slotted-space-4) 0;
+    }
+
+    [data-demo-card-body] {
+      padding: var(--slotted-space-4);
+    }
+  </style>
+
+  <div data-demo-column>
+    <p data-demo-label>track="line" inside a header that already draws one — two hairlines</p>
+    <div data-demo-card>
+      <div data-demo-card-header>
+        <div
+          data-ui="tabs"
+          data-ui-tabs=""
+          data-part="root"
+          data-part-root=""
+          data-variant="line"
+          data-orientation="horizontal"
+          data-size="sm"
+          data-fit="auto"
+          data-track="line"
+          data-activation-direction="none"
+        >
+          <div data-part="list" data-part-list="" role="tablist" aria-label="Com trilha">
+            <div data-part="item" data-part-item="" role="presentation" data-selected>
+              <button
+                data-part="tab"
+                data-part-tab=""
+                role="tab"
+                id="k-a"
+                aria-controls="kp-a"
+                aria-selected="true"
+                tabindex="0"
+                type="button"
+              >
+                <span data-part="label" data-part-label="">Resumo</span>
+              </button>
+            </div>
+            <div data-part="item" data-part-item="" role="presentation">
+              <button
+                data-part="tab"
+                data-part-tab=""
+                role="tab"
+                id="k-b"
+                aria-controls="kp-b"
+                aria-selected="false"
+                tabindex="-1"
+                type="button"
+              >
+                <span data-part="label" data-part-label="">Itens</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-demo-card-body>
+        <p data-demo-body id="kp-a" role="tabpanel" aria-labelledby="k-a" tabindex="0">
+          The panel the router draws.
+        </p>
+      </div>
+    </div>
+
+    <p data-demo-label>track="none" — the line is the header's, and the marker sits on it</p>
+    <div data-demo-card>
+      <div data-demo-card-header>
+        <div
+          data-ui="tabs"
+          data-ui-tabs=""
+          data-part="root"
+          data-part-root=""
+          data-variant="line"
+          data-orientation="horizontal"
+          data-size="sm"
+          data-fit="auto"
+          data-track="none"
+          data-activation-direction="none"
+        >
+          <div data-part="list" data-part-list="" role="tablist" aria-label="Sem trilha">
+            <div data-part="item" data-part-item="" role="presentation" data-selected>
+              <button
+                data-part="tab"
+                data-part-tab=""
+                role="tab"
+                id="k-c"
+                aria-controls="kp-c"
+                aria-selected="true"
+                tabindex="0"
+                type="button"
+              >
+                <span data-part="label" data-part-label="">Resumo</span>
+              </button>
+            </div>
+            <div data-part="item" data-part-item="" role="presentation">
+              <button
+                data-part="tab"
+                data-part-tab=""
+                role="tab"
+                id="k-d"
+                aria-controls="kp-d"
+                aria-selected="false"
+                tabindex="-1"
+                type="button"
+              >
+                <span data-part="label" data-part-label="">Itens</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-demo-card-body>
+        <p data-demo-body id="kp-c" role="tabpanel" aria-labelledby="k-c" tabindex="0">
+          The panel the router draws.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The marker, live. The module script of this file draws the marker of every
+  list with `createIndicator`, as the bindings do. `tools/harness/scenarios/tabs-marker.mjs`
+  reads its geometry against each selected tab and selects another tab.
+-->
+<section data-scene="marker">
+  <div data-demo-column>
+    <p data-demo-label>one marker per list, on the selected tab's content box</p>
+    <div
+      data-ui="tabs"
+      data-ui-tabs=""
+      data-part="root"
+      data-part-root=""
+      data-variant="line"
+      data-size="md"
+      data-fit="auto"
+      data-orientation="horizontal"
+      data-track="line"
+      data-activation-direction="none"
+      data-probe="horizontal"
+      style="--slotted-tabs-marker-size: 4px; --slotted-tabs-marker-radius: 2px"
+    >
+      <div data-part="list" data-part-list="" role="tablist" aria-label="Order">
+        <div data-part="item" data-part-item="" role="presentation" data-selected>
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="mh-0"
+            aria-controls="mh-0-panel"
+            aria-selected="true"
+            tabindex="0"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Resumo</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="mh-1"
+            aria-controls="mh-1-panel"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Itens</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="mh-2"
+            aria-controls="mh-2-panel"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Nota</span>
+          </button>
+        </div>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="mh-0-panel"
+        aria-labelledby="mh-0"
+        tabindex="0"
+      >
+        Dashboard
+      </div>
+    </div>
+    <div
+      data-ui="tabs"
+      data-ui-tabs=""
+      data-part="root"
+      data-part-root=""
+      data-variant="line"
+      data-size="md"
+      data-fit="auto"
+      data-orientation="horizontal"
+      data-track="line"
+      data-activation-direction="none"
+      data-probe="horizontal-dismissible"
+      style="--slotted-tabs-marker-size: 4px; --slotted-tabs-marker-radius: 2px"
+    >
+      <div data-part="list" data-part-list="" role="tablist" aria-label="Order">
+        <div data-part="item" data-part-item="" role="presentation" data-selected>
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="mhd-0"
+            aria-controls="mhd-0-panel"
+            aria-selected="true"
+            tabindex="0"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Resumo</span>
+          </button>
+          <button
+            data-part="dismiss"
+            data-part-dismiss=""
+            type="button"
+            tabindex="-1"
+            aria-label="Close Summary"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="mhd-1"
+            aria-controls="mhd-1-panel"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Itens</span>
+          </button>
+          <button
+            data-part="dismiss"
+            data-part-dismiss=""
+            type="button"
+            tabindex="-1"
+            aria-label="Close Items"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="mhd-2"
+            aria-controls="mhd-2-panel"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Nota</span>
+          </button>
+          <button
+            data-part="dismiss"
+            data-part-dismiss=""
+            type="button"
+            tabindex="-1"
+            aria-label="Close Note"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="mhd-0-panel"
+        aria-labelledby="mhd-0"
+        tabindex="0"
+      >
+        Dashboard
+      </div>
+    </div>
+    <div
+      data-ui="tabs"
+      data-ui-tabs=""
+      data-part="root"
+      data-part-root=""
+      data-variant="line"
+      data-size="md"
+      data-fit="auto"
+      data-orientation="vertical"
+      data-track="line"
+      data-activation-direction="none"
+      data-probe="vertical"
+      style="--slotted-tabs-marker-size: 4px; --slotted-tabs-marker-radius: 2px"
+    >
+      <div
+        data-part="list"
+        data-part-list=""
+        role="tablist"
+        aria-label="Order"
+        aria-orientation="vertical"
+      >
+        <div data-part="item" data-part-item="" role="presentation" data-selected>
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="mv-0"
+            aria-controls="mv-0-panel"
+            aria-selected="true"
+            tabindex="0"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Resumo</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="mv-1"
+            aria-controls="mv-1-panel"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Itens</span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="mv-2"
+            aria-controls="mv-2-panel"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Nota</span>
+          </button>
+        </div>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="mv-0-panel"
+        aria-labelledby="mv-0"
+        tabindex="0"
+      >
+        Dashboard
+      </div>
+    </div>
+    <div
+      data-ui="tabs"
+      data-ui-tabs=""
+      data-part="root"
+      data-part-root=""
+      data-variant="line"
+      data-size="md"
+      data-fit="auto"
+      data-orientation="vertical"
+      data-track="line"
+      data-activation-direction="none"
+      data-probe="vertical-dismissible"
+      style="--slotted-tabs-marker-size: 4px; --slotted-tabs-marker-radius: 2px"
+    >
+      <div
+        data-part="list"
+        data-part-list=""
+        role="tablist"
+        aria-label="Order"
+        aria-orientation="vertical"
+      >
+        <div data-part="item" data-part-item="" role="presentation" data-selected>
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="mvd-0"
+            aria-controls="mvd-0-panel"
+            aria-selected="true"
+            tabindex="0"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Resumo</span>
+          </button>
+          <button
+            data-part="dismiss"
+            data-part-dismiss=""
+            type="button"
+            tabindex="-1"
+            aria-label="Close Summary"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="mvd-1"
+            aria-controls="mvd-1-panel"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Itens</span>
+          </button>
+          <button
+            data-part="dismiss"
+            data-part-dismiss=""
+            type="button"
+            tabindex="-1"
+            aria-label="Close Items"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" role="presentation">
+          <button
+            data-part="tab"
+            data-part-tab=""
+            role="tab"
+            id="mvd-2"
+            aria-controls="mvd-2-panel"
+            aria-selected="false"
+            tabindex="-1"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Nota</span>
+          </button>
+          <button
+            data-part="dismiss"
+            data-part-dismiss=""
+            type="button"
+            tabindex="-1"
+            aria-label="Close Note"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        role="tabpanel"
+        id="mvd-0-panel"
+        aria-labelledby="mvd-0"
+        tabindex="0"
+      >
+        Dashboard
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  import { createIndicator } from '@slotted/core/measure';
+
+  for (const root of document.querySelectorAll('[data-ui="tabs"]')) {
+    const list = root.querySelector(':scope > [data-part="list"]');
+    if (list === null) continue;
+    createIndicator(list, {
+      orientation: () => root.getAttribute('data-orientation') ?? 'horizontal',
+      part: 'marker',
+      target: () =>
+        list.querySelector(':scope > [data-part="item"][data-selected] > [data-part="tab"]'),
+    });
+  }
+</script>

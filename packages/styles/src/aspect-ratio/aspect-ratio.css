@@ -1,0 +1,131 @@
+@layer slotted.components {
+  /**
+   * ── The frame ──────────────────────────────────────────────────────────
+   *
+   * A box that is a stated proportion of its own width before anything is in
+   * it, so a picture, a map or an embedded player arrives into room already
+   * held for it and moves nothing below. The ratio is the consumer's
+   * decision: there is no default, and the DOM says which one was taken.
+   *
+   * Two attributes on every selector, always. The frame holds whatever the
+   * consumer put in it, and the pair is what stops a rule meant for the box
+   * from reaching the thing inside.
+   *
+   * The ratio is the platform's `aspect-ratio`, not the padding hack Radix
+   * and Chakra v2 use, and the difference is what happens to content taller
+   * than the box. The hack positions the child absolutely, so a longer
+   * translation or a caption that wraps leaves the box and lands on whatever
+   * comes next. A box with `aspect-ratio` keeps the automatic minimum
+   * css-sizing-4 §5.2.1 gives it — its own min-content height — so it holds
+   * the ratio while the content fits and grows when it does not. Nothing is
+   * clipped and nothing escapes: the frame reserves, and it never crops. The
+   * crop is `image`'s decision, taken with `fit`.
+   *
+   * A replaced child contributes nothing to that minimum: css-sizing-3 §5.2.1
+   * resolves a cyclic percentage on a replaced element against zero for the
+   * min-content contribution, so a 4000-pixel photograph at `block-size: 100%`
+   * does not grow the frame to 4000 pixels. Only content with a height of its
+   * own — text, a control, a card — can.
+   */
+  [data-ui-aspect-ratio][data-part-root] {
+    /**
+     * The proportion, as the public token. A named ratio writes it below; a
+     * number the consumer stated is written on the instance, as `w / h`, and
+     * the instance wins because a declaration on the element beats one from
+     * a stylesheet. `1 / 1` is the fallback for a frame that named nothing,
+     * which the bindings never produce: a square is the honest shape of a
+     * box nobody thought about.
+     */
+    aspect-ratio: var(--slotted-aspect-ratio, 1 / 1);
+    /**
+     * A grid of one cell rather than a block, so every child lands in the
+     * same place and is stretched to the frame. A child that has a height of
+     * its own keeps it and the frame grows around it; a second child stacks
+     * on the first, which is how a caption sits over a map without the
+     * consumer positioning anything. The row is `1fr` and not `minmax(0, 1fr)`:
+     * a track with a zero minimum would have no content minimum to grow from.
+     */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 1fr;
+    /* The width the container gives, and never more. */
+    max-inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  /* ── The five named ratios ────────────────────────────────────────────── */
+
+  /**
+   * Named for what they hold rather than for their numbers, so a product
+   * decides once that a thumbnail is `landscape` and a hero is `wide`, and
+   * the decision reads in the DOM. Written as the public token so a theme
+   * that disagrees about what `wide` means retunes it in one place.
+   */
+  [data-ui-aspect-ratio][data-part-root][data-ratio='square'] {
+    --slotted-aspect-ratio: 1 / 1;
+  }
+
+  [data-ui-aspect-ratio][data-part-root][data-ratio='landscape'] {
+    --slotted-aspect-ratio: 4 / 3;
+  }
+
+  [data-ui-aspect-ratio][data-part-root][data-ratio='portrait'] {
+    --slotted-aspect-ratio: 3 / 4;
+  }
+
+  [data-ui-aspect-ratio][data-part-root][data-ratio='video'] {
+    --slotted-aspect-ratio: 16 / 9;
+  }
+
+  [data-ui-aspect-ratio][data-part-root][data-ratio='wide'] {
+    --slotted-aspect-ratio: 21 / 9;
+  }
+
+  /*
+   * `custom` has no rule: the base rule already reads the token the binding
+   * wrote on the instance, and a rule here would only restate the fallback.
+   */
+
+  /* ── What is inside ───────────────────────────────────────────────────── */
+
+  /**
+   * Every child takes the one cell and stretches to it. `min-inline-size: 0`
+   * is what lets an embedded player narrower than its own `width` attribute
+   * shrink with the frame; the block minimum is left alone on purpose, so a
+   * child taller than the ratio still grows the box.
+   */
+  [data-ui-aspect-ratio][data-part-root] > * {
+    grid-area: 1 / 1;
+    min-inline-size: 0;
+  }
+
+  /**
+   * A replaced element does not stretch in a grid — its ratio makes `normal`
+   * behave as `start` — so it is sized to the cell explicitly, and told to
+   * fit rather than to fill. `contain` is the one value that neither crops
+   * nor distorts: the frame reserves, and what it holds is shown whole. A
+   * consumer who wants the picture to cover the frame is asking for a crop,
+   * and `image` is the family that decides that.
+   *
+   * `picture` is in the list so its `img` sees a definite box to be 100 %
+   * of; an `iframe` and a `canvas` take the size and have no `object-fit`.
+   *
+   * `min-block-size: 0` is what keeps the frame at its ratio around a
+   * photograph. A grid item's automatic minimum is content-based, and while
+   * the row is being sized the percentage height is treated as `auto`, so
+   * the item asked for its natural height and a 4:3 photograph grew a 16:9
+   * frame to 4:3 (measured in the first capture of the `media` scene). A
+   * replaced element has nothing to say about the frame's height; the text
+   * child above keeps its automatic minimum, and the growth rule with it.
+   */
+  [data-ui-aspect-ratio][data-part-root] > :is(img, video, canvas, svg, iframe, picture) {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+    min-block-size: 0;
+  }
+
+  [data-ui-aspect-ratio][data-part-root] > :is(img, video) {
+    object-fit: contain;
+  }
+}

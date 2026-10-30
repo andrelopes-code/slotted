@@ -1,0 +1,43 @@
+import { apiMetadataErrors, scenarioCoverageErrors } from '@slotted/storybook-workbench';
+import { referencePageErrors, snippetFormatErrors } from '@slotted/storybook-workbench/testing';
+import { describe, expect, it } from 'vitest';
+
+import contract from '../../../../specs/components/checkbox/contract.json';
+import { ANGULAR_CHECKBOX_DOCS } from './checkbox.docs';
+import * as checkboxStories from './checkbox.stories';
+
+describe('Angular Checkbox stories', () => {
+  it('covers every required scenario', () => {
+    expect(scenarioCoverageErrors(contract.scenarios.checkbox, checkboxStories)).toEqual([]);
+  });
+
+  it('documents each public component API', () => {
+    for (const member of Object.keys(contract.members) as Array<
+      keyof typeof ANGULAR_CHECKBOX_DOCS
+    >) {
+      expect(
+        apiMetadataErrors(contract.members[member], ANGULAR_CHECKBOX_DOCS[member].api),
+      ).toEqual([]);
+    }
+  });
+
+  it('answers the reference-page contract', () => {
+    expect(
+      referencePageErrors({
+        docs: ANGULAR_CHECKBOX_DOCS.checkbox,
+        framework: 'Angular',
+        member: contract.members.checkbox,
+        scenarioIds: contract.scenarios.checkbox,
+        stateModel: contract.stateModel,
+      }),
+    ).toEqual([]);
+  });
+
+  it('keeps curated Angular snippets formatted', async () => {
+    const snippets = Object.values(ANGULAR_CHECKBOX_DOCS).flatMap((docs) => [
+      ...docs.snippets,
+      ...docs.scenes.map((scene) => scene.snippet),
+    ]);
+    expect(await snippetFormatErrors(snippets)).toEqual([]);
+  });
+});

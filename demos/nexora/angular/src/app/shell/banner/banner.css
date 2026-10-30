@@ -1,0 +1,60 @@
+/* One space step more than the bar's own gap: a bordered field beside the wordmark reads as the brand's at 8px. */
+.search {
+  margin-inline-start: var(--slotted-space-5);
+}
+.search-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--slotted-space-2);
+  inline-size: 100%;
+  min-inline-size: 16rem;
+  padding-block: var(--slotted-space-1);
+  padding-inline: var(--slotted-space-3);
+  /* A framed control at rest: the control edge, the control shadow, the control height. */
+  block-size: var(--slotted-control-height-md);
+  border: var(--slotted-control-border-width) solid var(--slotted-control-border-color);
+  border-radius: var(--slotted-control-radius);
+  background: var(--slotted-surface);
+  box-shadow: var(--slotted-control-shadow);
+  color: var(--slotted-text-muted);
+  font: inherit;
+  cursor: pointer;
+}
+.search-trigger:focus-visible {
+  outline: 2px solid var(--slotted-focus-ring-color);
+  outline-offset: 2px;
+}
+.search-placeholder {
+  flex: 1;
+  text-align: start;
+}
+
+/* The bar has to be the banner's direct child: the host steps out of the box tree. */
+:host {
+  display: contents;
+}
+
+/* Layers live in the portal; an empty host left in the banner's flex row still costs a gap. */
+app-command-palette,
+app-demo-drawer {
+  display: contents;
+}
+
+/*
+ * A phone's bar keeps the mark, the search, the bell, the help and the account.
+ * The product's own controls — approvals, tasks, the demo panel — leave it below
+ * the bar's high step: at touch size, nine controls do not fit in 390px, and the
+ * three are one press away in the column and in the palette.
+ */
+@container slotted-top-navigation (inline-size < 480px) {
+  .product-action {
+    display: none;
+  }
+}
+
+/* A key legend names nothing a touch screen can press. */
+@media (hover: none) and (pointer: coarse) {
+  .search-trigger kbd {
+    display: none;
+  }
+}

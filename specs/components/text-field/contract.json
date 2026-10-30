@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 5,
+  "family": "text-field",
+  "ui": "text-field",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Single-line text input."
+  },
+  "controlPart": "input",
+  "rootRole": null,
+  "stateSource": "field",
+  "mirrorsState": true,
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "disabled",
+  "wiring": {
+    "id": "always",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "disabled": "disabled",
+    "readonly": "readOnly"
+  },
+  "types": ["text", "search", "email", "url", "tel", "password"],
+  "counter": {
+    "unit": "utf-16",
+    "placedBy": "field",
+    "limitFrom": "maxLength"
+  },
+  "keyboard": [],
+  "escapeBound": false,
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"]
+  },
+  "provides": {
+    "textFieldDefaults": ["size", "variant", "mono"]
+  },
+  "messages": ["capsLock", "clear", "copied", "copy", "copyFailed", "reveal"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "loading": "data-loading",
+    "complete": "data-complete"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["keyboard", "clear"]
+    },
+    "revealed": {
+      "controlled": "revealed",
+      "uncontrolled": "defaultRevealed",
+      "request": "onRevealedChange",
+      "reasons": ["pointer", "keyboard"]
+    }
+  },
+  "action": {
+    "part": "action",
+    "element": "button",
+    "placedIn": ["start", "end"],
+    "composes": ["menu", "popover", "tooltip"],
+    "square": "aria-label or aria-labelledby",
+    "open": "aria-expanded"
+  },
+  "waiting": {
+    "busy": {
+      "part": "busy",
+      "ui": "spinner",
+      "stylesheet": "spinner/spinner.css",
+      "reason": "The ring B4 drew once for every family, at the control's glyph size, before the buttons: a check running on the value is about the value, so it sits next to it."
+    },
+    "editable": true,
+    "control": "aria-busy"
+  },
+  "copy": {
+    "part": "copy",
+    "module": "@slotted/core/clipboard",
+    "complete": "data-complete",
+    "completeFor": 2000,
+    "glyphs": ["copy", "check"],
+    "output": "onValueCopy",
+    "detail": ["copied", "reason", "source", "value"],
+    "announces": ["copied", "copyFailed"]
+  },
+  "capsLock": {
+    "part": "caps-lock",
+    "types": ["password"],
+    "read": "KeyboardEvent.getModifierState('CapsLock')",
+    "while": "focus",
+    "glyph": "caps-lock",
+    "announces": "capsLock"
+  },
+  "literals": {
+    "--slotted-text-field-action-size": "The two buttons inside the frame are square and sized from the control's own glyph scale plus its gap, which is arithmetic over tokens rather than a literal; the floor under it is --slotted-target-min, which the theme owns. On a coarse pointer each box reaches --slotted-target-comfortable in the block axis by a padding its ground does not paint, given back as a negative margin, and the input spans the frame's border box, so the control is the frame's height."
+  },
+  "members": {
+    "textField": {
+      "nativeElement": "input",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "mono": false,
+        "clearable": false,
+        "revealable": false,
+        "showCount": false,
+        "copyable": false,
+        "loading": false
+      },
+      "capabilities": [
+        "value",
+        "revealed",
+        "appearance",
+        "size",
+        "content",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring",
+        "loading"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "readonly",
+        "loading",
+        "complete"
+      ],
+      "parts": [
+        "root",
+        "input",
+        "start",
+        "end",
+        "action",
+        "busy",
+        "caps-lock",
+        "clear",
+        "copy",
+        "reveal"
+      ]
+    }
+  },
+  "scenarios": {
+    "textField": [
+      "playground",
+      "sizes",
+      "variants",
+      "adornments",
+      "actions",
+      "menu",
+      "copy",
+      "password",
+      "loading",
+      "states",
+      "count",
+      "types",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

@@ -1,0 +1,371 @@
+{
+  "schemaVersion": 5,
+  "family": "top-navigation",
+  "ui": "top-navigation",
+  "catalog": {
+    "group": "Navigation",
+    "summary": "Application header with brand, search and account."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/",
+  "landmarkPattern": "https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/",
+  "patternStatus": "Read on 2026-09-15 from the rendered example page, with the Navigation Menubar example beside it. The menubar example's own caution — that menubar demands functionality a site's navigation does not need, and that the disclosure pattern is the one suited to it — is why no menubar role, no roving tabindex and no arrow keys are written here; the scope says the same in its own words: the bar is not a toolbar with one tab stop per region. The keyboard table transcribes the disclosure example's Keyboard Support section without its optional arrow keys.",
+  "composes": ["presence", "dismissable-layer", "tooltip", "navigation-menu"],
+  "roles": {
+    "root": "banner | none",
+    "nav": "navigation",
+    "list": "list",
+    "item": "listitem",
+    "link": "link",
+    "trigger": "button",
+    "more": "button",
+    "panel-list": "list",
+    "help": "link | button",
+    "notifications": "button",
+    "account": "button",
+    "action": "link | button",
+    "reason": "Every role is the element's own. A header in the context of the body is the banner landmark and a nav is the navigation landmark, which the APG's HTML Sectioning Elements table maps with no ARIA written; the destinations are nav > ul > li > (a | button), the disclosure navigation example's own structure, and a screen reader announces a list of N items without the family writing a role"
+  },
+  "element": {
+    "root": "header | div",
+    "skip": "a",
+    "brand": "div",
+    "home": "a | span",
+    "mark": "span",
+    "name": "span",
+    "context": "div",
+    "nav": "nav",
+    "list": "ul",
+    "item": "li",
+    "link": "a",
+    "trigger": "button",
+    "indicator": "span",
+    "more": "button",
+    "panel": "div",
+    "panel-list": "ul",
+    "search": "div",
+    "search-toggle": "button",
+    "search-close": "button",
+    "actions": "div",
+    "help": "a | button",
+    "notifications": "button",
+    "count": "span",
+    "account": "button",
+    "action": "a | button",
+    "reason": "The root is a header where the family stands alone and a div inside app-shell's banner part, which is already the banner landmark; two banners in one document is what the resolution order below prevents. home is an a when it has somewhere to go and a span when the mark is only a mark. help is an a when help is a destination and a button when it opens something"
+  },
+  "anatomy": {
+    "root": "the query container the whole family answers: container-name slotted-top-navigation, container-type inline-size. A header when landmark resolves true, and the one element that paints the bar's ground and rule when frame resolves true",
+    "skip": "the first focusable thing in the bar: a link to #<skipTo>, visible only while focused. Rendered only when skipTo names a target, because inside app-shell the shell already renders one skip link per region",
+    "brand": "the start cluster: app-shell's nav-toggle when the bar is in the shell, then home. It starts on --slotted-app-shell-row-inset so the toggle and the mark stand over the marks in the navigation column",
+    "home": "the product's mark and name, linked to the start of the application; a span when there is nowhere to go",
+    "mark": "the box the logo stands in: square, the height of a md control, holding whatever image or svg the consumer gives it",
+    "name": "the product's name, one line, cut at --slotted-top-navigation-name-max. Below 480 pixels it leaves the eye and not the DOM, so home keeps its accessible name",
+    "context": "what the application is at this moment — the workspace, the store, the environment — as the consumer's own content: a menu trigger, a select, a badge. It keeps its width in the bar; below 600 pixels it is presented at the top of the panel",
+    "nav": "the navigation landmark, named by messages.navigation when the consumer writes no aria-label, and a navigation-menu root on the same element: data-ui=navigation-menu with data-part=nav, the shared surface after the list, and the open section's value, request and delays bound on the nav part",
+    "list": "the destinations of the bar, in the consumer's order",
+    "item": "one destination or one section. It carries data-priority, data-collapsed while the width has folded it into the panel, data-current and data-disabled",
+    "link": "the destination: an a with an href, aria-current=page while current, aria-disabled and a refused activation while disabled so the destination stays in the DOM",
+    "trigger": "a section that opens: the navigation-menu trigger of the navigation-menu content that follows it in the same item — aria-expanded, aria-controls, data-open, the chevron, a press and a resting pointer. Always a native button, because the menu wires it",
+    "indicator": "the trigger's chevron, the chevron-down Glyph element turned half a turn while the item is open",
+    "more": "the disclosure button of the panel, at the end of the list inside its own li: the ellipsis Glyph element, aria-expanded, aria-controls, data-overflow holding the count of what is folded, data-current while the current destination is folded. Present in the DOM whenever the list exists, hidden by the stylesheet while nothing is folded, so a server render at a narrow width already shows it",
+    "panel": "what did not fit, inside the root and after more in DOM order so Tab enters it: context, then panel-list, then help. Absolutely positioned under the bar, full width below 480 pixels and --slotted-top-navigation-panel-size wide above; presence holds it through its exit and dismissable-layer closes it",
+    "panel-list": "the ul that receives the folded items — the same li elements, moved (Angular) or portalled (React), so a trigger keeps its menu and a link keeps its badge. A folded section keeps its navigation-menu content, which opens in line under its trigger there rather than on the shared surface",
+    "search": "the search region, holding the consumer's text-field and standing at the start of the middle of the bar — after the brand, the context and the destinations — and growing to --slotted-top-navigation-search-size, never under --slotted-top-navigation-search-min: the search is the first thing that gives way when the bar is short of room, and the floor is where a field is still a field. Below 600 pixels it exists only while searchOpen, and then takes the whole bar",
+    "search-toggle": "the search Glyph element: the button that asks searchOpen to be true. Rendered by the family beside search, shown only below 600 pixels while the search is closed",
+    "search-close": "the x Glyph element at the end of search, shown only below 600 pixels while the search is open: the pointer's way back when Escape is not at hand",
+    "actions": "the end cluster, in the consumer's order. The reference page prescribes Carbon's: search, help, notifications, account",
+    "help": "the circle-question Glyph element: a destination (a) or a trigger (button) the consumer wraps in menu or popover. Its children are its label — the family's message when there are none — clipped from the eye in the bar, where the mark stands alone and the tooltip repeats the words, and shown as a row's words in the panel below 480 pixels: one accessible name in both places. It moves to the panel below 480",
+    "notifications": "the bell Glyph element with count in its corner: a button the consumer wraps in menu or popover. It never folds, because a count the reader cannot see is a count lost",
+    "count": "the number of what is waiting, drawn by the family as tabular figures on a --slotted-tone-accent-solid disc that becomes a pill from two digits, over the bell's top-end corner and out of the flow: the control keeps the bell's width, and a third digit grows away from the bell over the gap, where the control beside it holds no ink. It stands inside the button, so it is part of the accessible name without a script",
+    "action": "a global control of the product's own — approvals, tasks — in the same square as the marked controls, with the same ink, ground, focus ring and disabled treatment: an a when it is a destination, a button when it opens something. The consumer projects its own glyph, sized by the control at --slotted-control-icon-size, and names it with aria-label; count stands over its top-end corner the way it does over the bell. It never folds",
+    "account": "a pill around the consumer's avatar — one step under the control, xs at md, so the pointer's ground keeps a halo of one space step around it — and, when there is room, the name: a button the consumer wraps in menu. It never folds, because it is the way out"
+  },
+  "landmarks": {
+    "banner": "header",
+    "navigation": "nav",
+    "resolution": ["prop", "app-shell", "defaults", true],
+    "reason": "landmark resolves prop, then app-shell, then the defaults provider, then true. Inside the shell's banner the root is a div and writes no aria-label; a second banner inside a banner is what the resolution prevents, and it fails silently, which is why the consumer is not asked to set it"
+  },
+  "container": {
+    "name": "slotted-top-navigation",
+    "type": "inline-size",
+    "reason": "The bar answers its own width rather than the viewport's: under app-shell's primary=nav it is the frame's width less the navigation column's. A literal in every condition because @container (inline-size < var(--x)) is invalid — docs/token-foundation.md rule 4. The name is public: anything the consumer places in context, search or actions may write @container slotted-top-navigation (inline-size < 600px) and answer the bar without measuring it"
+  },
+  "collapseAt": {
+    "high": 480,
+    "medium": 600,
+    "low": 1024
+  },
+  "collapseAtReason": "Three literal steps, each read by the stylesheet in a container condition and by the ResizeObserver that writes data-collapsed, and compared by top-navigation.styles.test.mjs so the two cannot drift. Below low the low-priority items fold; below medium the medium ones fold, the search becomes its toggle, the context moves to the panel and the account gives up the name beside its avatar; below high the high ones fold, help moves to the panel, the name leaves the eye and the gaps drop to one space step. Measured with the reference bar — a mark and a name, a workspace switcher, five destinations, a field, four controls — the medium step is where a context and a field stop fitting side by side What stays at 240 pixels is the mark, the search toggle, the bell, the account and more — five md controls, 202 pixels at comfortable, which is what 240 holds standing alone. Inside the shell the toggle and the shell's own edge add sixty pixels, and the bar holds from 300, which is under the narrowest phone",
+  "priority": {
+    "values": ["high", "medium", "low"],
+    "default": "medium",
+    "reason": "The Priority+ pattern, with UI5's data-hide-order made a word: the consumer says which destinations give way first and the stylesheet folds them at the step. The order is the product's decision — Brad Frost's own caution — and the family takes it rather than measuring, which is what the invocation asked for and what toolbar does not do"
+  },
+  "collapse": {
+    "picture": "the stylesheet alone: display: none on a folded item inside list, the search region hidden and its toggle shown below medium, the name clipped below high. A server render at any width is already the right picture",
+    "script": "a ResizeObserver on the root compares the width to the three steps and writes data-collapsed on each item by its priority, data-overflow on more, and moves the folded parts into the panel while it is present",
+    "sameDom": "the panel receives the consumer's own elements. Angular moves each folded li, context and help into the panel when it opens and returns them when presence ends; React renders each folded Item, Context and Help into panel-list through createPortal while the panel is present. A trigger keeps the menu wrapped around it; a link keeps the badge inside it",
+    "sameDomCost": "in React a folded Item loses its children's local state when it changes place, and the family holds none of it: current and open live on the root. In Angular the moved li is the same instance",
+    "reason": "UI5 rebuilds its overflow from text and icon, Primer from ChildProps; both lose anything that is not a label. Bootstrap folds all or nothing. Moving the DOM is the one answer that keeps a section trigger, a badge and a translated label whole",
+    "panelOrder": "context, panel-list, help, whatever order they arrived in: the stylesheet orders the three with flex order and draws the rules between them from what the panel holds. In Angular the DOM order is that order; in React each part is rendered into the panel in the order it mounted, which the stylesheet's order corrects",
+    "gives": "what gives way when the bar is short of room, in order: the search, to its floor; then the name, to its ellipsis; never the marks — brand keeps its automatic minimum and home contributes the mark's track alone, the name standing in a minmax(0, 1fr) track that contributes nothing. The context, the destinations and the actions keep their width — a shrinking cluster wraps a button one letter per line — and the steps are what take their room back"
+  },
+  "more": {
+    "opens": "a press on more, or Enter and Space on it — the platform's button",
+    "closes": "escape and outsidePress through dismissable-layer with more as a branch; select when a link inside the panel is pressed; resize when nothing is folded any more",
+    "focus": "Escape returns focus to more. Tab from more enters the panel, because the panel follows more in DOM order",
+    "inRoot": true,
+    "inRootReason": "The panel stands inside the root and not in the portal container, so the tab sequence reaches it the way the disclosure pattern assumes — the cost side-navigation's flyout paid for standing outside. Cost of this side: a consumer who clips the root (overflow: hidden on the header) clips the panel; app-shell's banner does not clip",
+    "current": "more carries data-current while the current destination is folded, so the reader sees where they are when the destination itself is out of sight — side-navigation's rule for a closed parent"
+  },
+  "search": {
+    "wide": "the region is always visible, at the start of the middle of the bar — after the brand, the context and the destinations, with the free space between it and the actions — and searchOpen has no effect: data-search-open is not written. It is not centred: the two end clusters are never the same width, and a field centred in the space between them stood off the bar's own centre by half their difference in every capture, aligned with nothing. A bar that wants the field centred on the page gives its two clusters one width",
+    "narrow": "below medium the region is hidden and search-toggle stands in actions; searchOpen shows the region over the whole bar with search-close at its end, moves focus to the first input inside it, and hides brand, context, nav and the other actions from the eye while it is open",
+    "closes": "Escape inside the region, focus leaving it (blur), search-close, and resize when the width passes medium; focus returns to search-toggle",
+    "reason": "UI5 (showSearchField, search-field-toggle) and Carbon both expand the search over the bar at a narrow width: a 120-pixel field is no field. The results are not the family's — combobox or command-palette inside search is the consumer's composition, which is why Polaris' searchResults is declined"
+  },
+  "current": {
+    "attribute": "data-current",
+    "aria": "aria-current",
+    "value": "page",
+    "precedence": ["link", "value"],
+    "precedenceReason": "A link with an explicit current, or an aria-current a router wrote on it, wins over the root's value: the consumer's explicit value always does. The stylesheet reads aria-current=page as the state itself, so a router link rendered through React's render — where the family cannot read the DOM back — is painted current by the one attribute the router owns",
+    "painted": "the link's ground in --slotted-tone-accent-surface under its text in --slotted-tone-accent-text, the pair the foundation calibrates against each other and the pair side-navigation draws: a bar and a column with two ways of saying here is a library with two answers"
+  },
+  "disabled": {
+    "link": "aria-disabled=true, the click refused, the href kept: the destination stays reachable and the reader hears why it is unavailable — list-item's rule",
+    "trigger": "the native disabled attribute",
+    "item": "data-disabled, never aria-disabled, which ARIA 1.2 deprecates on listitem"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next control in the bar: skip, home, each link and trigger, more, the open panel's rows, the search, help, notifications, account. Every one is in the page tab sequence and a folded item is hidden",
+      "focus": "the next control",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous control, under the same rule",
+      "focus": "the previous control",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "follows a link and asks value to move with the reason keyboard; toggles more and asks moreOpen to move; opens a trigger's menu; opens the search from search-toggle",
+      "focus": "unchanged on a link and on more; the first input of search from search-toggle; the consumer's menu from a trigger",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "toggles more, search-toggle and a trigger; scrolls the page on a link. The disclosure example scripts Space to follow the link, and the family leaves the platform's answer in place — side-navigation and list-item took the same decision for the same row",
+      "focus": "unchanged",
+      "source": "departure"
+    },
+    {
+      "key": "Escape",
+      "effect": "closes the panel with the reason escape; inside an open search below medium, closes the search with the reason escape",
+      "focus": "more when the panel closed; search-toggle when the search closed",
+      "source": "pattern"
+    }
+  ],
+  "keyboardReason": "The disclosure example lists the arrow keys, Home and End as optional, for keyboard users who run no screen reader, and the family does not adopt them: the bar holds fewer than ten controls in a line, each one already a tab stop, and a second sequence over the same line is the one the scope refuses — a toolbar with one tab stop per region. The menubar example's caution is transcribed in patternStatus",
+  "rovingTabindex": false,
+  "reads": [
+    "--slotted-app-shell-row-inset",
+    "--slotted-app-shell-row-height",
+    "--slotted-app-shell-row-font-size",
+    "--slotted-app-shell-row-line-height"
+  ],
+  "readsReason": "The bar's brand starts on the shell's row inset so the toggle and the mark stand over the marks in the column; the panel's rows read the row height and type the column publishes so a folded destination reads as the same row it would be in side-navigation. Each is read with the family's own fallback, so a bar outside the shell measures the same",
+  "messages": [
+    "account",
+    "closeSearch",
+    "help",
+    "more",
+    "moreCount",
+    "navigation",
+    "notifications",
+    "search",
+    "skip"
+  ],
+  "declined": {
+    "navToggle": {
+      "deferTo": "app-shell",
+      "reason": "Carbon, UI5, Polaris, PatternFly and Bootstrap all put a hamburger at the start. app-shell's nav-toggle is placeable anywhere and takes its wiring from the shell's context; the reference page puts it in brand. Outside the shell the family folds its destinations into its own panel and needs no second toggle"
+    },
+    "sticky": {
+      "reason": "Carbon is fixed and Bootstrap ships fixed-top and sticky-top utilities. Inside app-shell the bar is row one of the grid and only main scrolls. Outside, [data-ui='top-navigation'] { position: sticky; inset-block-start: 0 } is two lines of the consumer's stylesheet, and the family does not write --slotted-page-sticky-top, which page owns"
+    },
+    "searchResults": {
+      "reason": "Polaris alone renders searchResults under the bar. The results are a combobox or, in wave 9, a command-palette inside search; the family gives the region and its open state and owns none of what is found"
+    },
+    "switcher": {
+      "reason": "Carbon's Switcher and UI5's product switch are one control: a menu or a popover the consumer places in context or in actions. Neither draws anything menu does not draw"
+    },
+    "stack": {
+      "reason": "PatternFly's display=stack puts the brand on one line and the content on another. One source, and a bar of two lines is page-header under the bar, which app-shell already composes"
+    },
+    "menubar": {
+      "reason": "The APG's own caution on the Navigation Menubar example, transcribed in patternStatus. Tab reaches every control; a trigger's menu is the consumer's menu; no arrow keys and no roving tabindex"
+    },
+    "extraActions": {
+      "reason": "UI5 folds its custom items into the overflow popover. Here a consumer's own button in actions keeps its box at every width and never folds: the panel receives the family's parts alone, because a button the family did not draw has no row in a list of destinations. A consumer who needs a folding action makes it an item with a priority. Reopening if a product asks for it"
+    },
+    "title": {
+      "deferTo": "page-header",
+      "reason": "Material's top app bar and Primer's PageHeader carry the page's title. The title belongs to the route and the bar is what does not change between routes; context holds what the application is, not what the page is"
+    },
+    "loading": {
+      "reason": "No surveyed bar has a loading state. A name or a count that is not known yet is a skeleton the consumer composes into name, account or count; the family asks for no data"
+    },
+    "empty": {
+      "reason": "A bar with no destinations is a bar with a mark and an account, and it is a valid bar"
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "landmark": [true, false],
+    "frame": [true, false],
+    "priority": ["high", "medium", "low"]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "landmark": ["prop", "app-shell", "defaults", true],
+    "frame": ["prop", "app-shell", "defaults", true],
+    "priority": ["prop", "medium"]
+  },
+  "frame": {
+    "true": "the root paints --slotted-top-navigation-surface, a rule of --slotted-top-navigation-border-color along its end edge, and --slotted-top-navigation-inset on both sides",
+    "false": "the root paints nothing and insets nothing, because app-shell's banner already paints the ground and already gives the edge inset. Resolved false by the shell's context",
+    "attribute": "data-frame"
+  },
+  "provides": {
+    "topNavigationDefaults": ["size", "landmark", "frame"]
+  },
+  "stateModel": {
+    "open": {
+      "more": {
+        "controlled": "moreOpen",
+        "uncontrolled": "defaultMoreOpen",
+        "request": "onMoreOpenChange",
+        "reasons": [
+          "pointer",
+          "keyboard",
+          "select",
+          "escape",
+          "outsidePress",
+          "resize",
+          "programmatic"
+        ],
+        "attributeOn": "more",
+        "reason": "Whether the panel is shown. select is a link inside the panel pressed; resize is the folded set emptying; escape and outsidePress come from dismissable-layer with more as a branch"
+      },
+      "search": {
+        "controlled": "searchOpen",
+        "uncontrolled": "defaultSearchOpen",
+        "request": "onSearchOpenChange",
+        "reasons": ["pointer", "keyboard", "escape", "blur", "resize", "programmatic"],
+        "attributeOn": "root",
+        "reason": "Whether the search takes the bar below medium. blur is focus leaving the search region; resize is the width passing medium with the search open. Above medium the value has no effect and the attribute is not written"
+      }
+    },
+    "current": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "programmatic"],
+      "attributeOn": "link",
+      "reason": "The value of the current destination. Pressing a link asks value to move; the navigation itself is the anchor's"
+    }
+  },
+  "overflow": {
+    "attribute": "data-collapsed",
+    "on": "item",
+    "count": "data-overflow on more",
+    "callback": "onCollapseChange(values, reason: resize)",
+    "reason": "The overflow capability of the schema, deliberately not mutable: which items fold is read from the width, and a consumer who owned the set could assert that a bar fits when the browser says it does not. What the consumer gets is the fact — the attribute on each item, the count on more, and a callback when the set changes — which is toolbar's rule and UI5's content-item-visibility-change"
+  },
+  "stateAttributes": {
+    "current": "data-current",
+    "open": "data-open",
+    "disabled": "data-disabled"
+  },
+  "members": {
+    "topNavigation": {
+      "nativeElement": "header",
+      "defaults": {
+        "size": "md",
+        "landmark": true,
+        "frame": true
+      },
+      "capabilities": ["open", "current", "overflow", "size", "appearance", "disabled", "wiring"],
+      "states": ["default", "hover", "active", "focus-visible", "current", "open", "disabled"],
+      "parts": [
+        "root",
+        "skip",
+        "brand",
+        "home",
+        "mark",
+        "name",
+        "context",
+        "nav",
+        "list",
+        "item",
+        "link",
+        "trigger",
+        "indicator",
+        "more",
+        "panel",
+        "panel-list",
+        "search",
+        "search-toggle",
+        "search-close",
+        "actions",
+        "help",
+        "notifications",
+        "count",
+        "account",
+        "action"
+      ],
+      "defaultsReason": "Axis defaults only. The uncontrolled starting values are the state models' own uncontrolled names and exist in React alone: Angular ships one model() for each of moreOpen, searchOpen and value, which is both sides. priority is an item's axis and has no root default"
+    }
+  },
+  "scenarios": {
+    "topNavigation": [
+      "playground",
+      "anatomy",
+      "priority",
+      "panel",
+      "search",
+      "sections",
+      "current",
+      "actions",
+      "context",
+      "size",
+      "states",
+      "content",
+      "shell",
+      "standalone",
+      "defaults",
+      "composition",
+      "keyboard",
+      "accessibility"
+    ]
+  },
+  "indicator": {
+    "closed": "chevron-down: a section opens below the bar, and a chevron pointing down is the promise select and Carbon's HeaderMenu both make for it",
+    "open": "the same mark turned half a turn",
+    "rtl": "not mirrored: down is down in both directions"
+  },
+  "glyphs": {
+    "bell": "added for this family: the mark on notifications. Carbon and UI5 draw a bell there, and nothing in the scale stands in for it — inbox says received, the dot says something without saying what"
+  },
+  "sections": {
+    "family": "navigation-menu",
+    "rule": "the nav part is a navigation-menu root and every item is a navigation-menu section: a trigger followed by a navigation-menu content opens a panel of destinations on the shared surface under the bar. menu is not used for a section: its destinations are links, and the disclosure pattern is the one the scope names",
+    "folded": "a folded section opens its content in line inside the panel, and a link followed there closes the section and the panel with the reason select",
+    "reopened": "2026-10-01, with navigation-menu: the trigger was a button the consumer wrapped in menu"
+  }
+}

@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 5,
+  "family": "segmented-control",
+  "ui": "segmented-control",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Row of exclusive options, one selected."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/radio/",
+  "roles": {
+    "root": "radiogroup",
+    "control": "radio"
+  },
+  "controlElement": "input[type=radio]",
+  "controlSubstitutable": false,
+  "roleWithdrawnInside": "field-group",
+  "rovingFocus": "platform",
+  "grouping": "name",
+  "generatesName": true,
+  "generatesControlId": true,
+  "labelAssociation": "wrapping",
+  "stateSource": "field",
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "disabled",
+  "readOnlyAttribute": "aria-readonly",
+  "wiring": {
+    "aria-label": "the consumer's own, on the root; the family writes none of its own",
+    "aria-orientation": "horizontal is written because `radiogroup` implies vertical",
+    "aria-describedby": "merged with what `field` says",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "aria-readonly": "readonly",
+    "disabled": "the platform's own attribute on every radio"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves focus into the group",
+      "focus": "the checked segment, or the first segment when none is checked",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "checks the focused segment when it is not already checked",
+      "focus": "stays on the segment",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "checks the next segment, unchecking the previous one; wraps at the end",
+      "focus": "the newly checked segment",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "checks the next segment, unchecking the previous one; wraps at the end",
+      "focus": "the newly checked segment",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "checks the previous segment, unchecking the current one; wraps at the start",
+      "focus": "the newly checked segment",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "checks the previous segment, unchecking the current one; wraps at the start",
+      "focus": "the newly checked segment",
+      "source": "platform"
+    }
+  ],
+  "height": {
+    "root": "--slotted-control-height-*",
+    "segment": "the control height less the track's edge and the ring around the thumb",
+    "target": "the radio reaches the track's own edge, so the target is the control's height rather than the thumb's",
+    "reason": "A segmented control is put in forms beside a text field and a select. A family that added its padding to the control height would stand two or six pixels prouder than every other control on the row."
+  },
+  "spacing": {
+    "between": "the ring's own step, --slotted-segmented-control-gap, defaulting to the track's inset",
+    "reason": "Segments stand apart so each one, its hover ground and the thumb on it, is a shape of its own on the track. Set flush, a hover ground ran into its neighbour's edge."
+  },
+  "divider": {
+    "drawnOn": "the middle of the gap before every segment after the first, half the segment's height",
+    "givesWayTo": "the checked segment and the one after it, and the segment under the pointer and the one after it",
+    "reason": "A track of words with nothing between them reads as a sentence. The rule is a light tint centred in the gap, so it divides without touching a shape: drawn on a segment's edge it met the thumb's edge and the hover ground."
+  },
+  "motion": {
+    "thumb": "--slotted-duration-medium",
+    "colour": "--slotted-control-transition-duration",
+    "easing": "--slotted-easing-standard",
+    "reason": "A thing that travels needs longer than a thing that changes colour. The thumb's movement is the one motion this family owns — it says which segment was left — and every step on the scale collapses to a single frame under prefers-reduced-motion."
+  },
+  "escapeBound": false,
+  "indicator": {
+    "part": "indicator",
+    "placed": "arithmetic",
+    "measured": false,
+    "customProperties": ["--slotted-segmented-control-count", "--slotted-segmented-control-index"],
+    "absentWhen": "no segment is checked",
+    "reason": "The track is a grid of equal columns, so the thumb is one column wide and its place is the checked index. Mantine measures the checked node with a ref and Ark's machine measures too, which paints the thumb in the wrong place until hydration; an index and a count are known at render, so the first server-rendered paint is already right."
+  },
+  "container": {
+    "type": "inline-size",
+    "name": "slotted-segmented-control",
+    "axis": "condense",
+    "value": "icons",
+    "declaredOn": "the root, and only under `data-condense=\"icons\"`",
+    "fillsItsParent": true,
+    "reason": "Primer drops a segmented control's labels at a viewport breakpoint. The control's own inline size is what decides whether its labels fit, and the words stay in the DOM while they are hidden, so the accessible name does not change with the width.",
+    "shapeReason": "`container-type: inline-size` contains the inline axis, so an element that declares it is sized as though it had no contents — and a control that shrinks to its labels shrinks to nothing. Measured: every content-width scene stood about one character wide. The container is therefore declared on the one shape that has a width of its own to be asked about, and that shape takes its parent's width. Asking a control to give up its words at a width it chose for itself is a question with no answer."
+  },
+  "declined": {
+    "multiple": {
+      "deferTo": "toggle-group",
+      "reason": "the thumb is one thumb, and two checked segments is a picture this family cannot draw. Four of the five implementations that ship multiple selection ship it on a toggle group."
+    },
+    "links": {
+      "deferTo": "tabs",
+      "reason": "Primer documents that a segment which changes the URL must be a link, and a radio that navigates is not a radio. `tabs` already ships `controlElement.withHref`."
+    },
+    "panels": {
+      "deferTo": "tabs",
+      "reason": "Carbon's ContentSwitcher is a tab list over a view. `tabs` owns `tablist`, the panel, `mount` and dismissal; this family changes a setting or how one view is drawn."
+    },
+    "dropdownFallback": {
+      "deferTo": "select",
+      "reason": "Primer swaps the whole control for a dropdown at a breakpoint. Swapping one family for another is the consumer's decision; what this family owns is its own paint at its own width."
+    },
+    "deselectable": {
+      "reason": "Ark's toggle group allows an empty selection and its segment group does not. A radio group may start with nothing checked, and the platform gives a reader no way to uncheck one — a family that added one would be a radio that is not a radio."
+    },
+    "tone": {
+      "deferTo": "button",
+      "reason": "the checked segment is the accent border and surface pair `docs/token-foundation.md` names for the chosen row, card, option and toggle."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "orientation": ["horizontal", "vertical"],
+    "condense": ["none", "icons"],
+    "variant": ["track", "underline"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "orientation": ["prop", "defaults", "horizontal"],
+    "condense": ["prop", "defaults", "none"],
+    "variant": ["prop", "defaults", "track"]
+  },
+  "provides": {
+    "segmentedControlDefaults": ["size", "orientation", "condense", "fullWidth", "variant"],
+    "toSegments": ["disabled", "invalid", "name", "readOnly", "size"]
+  },
+  "stateAttributes": {
+    "checked": "data-checked",
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly"
+  },
+  "stateModel": {
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard"]
+    }
+  },
+  "members": {
+    "segmentedControl": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "orientation": "horizontal",
+        "condense": "none",
+        "fullWidth": false,
+        "disabled": false,
+        "variant": "track"
+      },
+      "capabilities": [
+        "selection",
+        "orientation",
+        "size",
+        "appearance",
+        "content",
+        "fullWidth",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "checked",
+        "disabled",
+        "invalid",
+        "readonly"
+      ],
+      "parts": ["root", "indicator", "item", "control", "icon", "label"]
+    }
+  },
+  "scenarios": {
+    "segmentedControl": [
+      "playground",
+      "sizes",
+      "orientation",
+      "states",
+      "iconOnly",
+      "variants",
+      "condense",
+      "width",
+      "field",
+      "form",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  },
+  "variant": {
+    "track": "A box with a thumb behind the chosen segment; the segments share the width of the widest.",
+    "underline": "The words alone, each as wide as itself, the chosen one in the text colour and underlined, the others muted. No thumb, no ground; the semantics, the keyboard and the single tab stop are the same radio group.",
+    "labelledBy": "Inside a field the root is named by the field label through aria-labelledby, unless the consumer names it; the root is a div, which a label element cannot label."
+  }
+}

@@ -1,0 +1,358 @@
+<!--
+  The trigger is the family's one part; the card is `popover`, whose stylesheet
+  the builder adds because `data-ui="popover"` appears below, as `avatar`'s and
+  `button`'s are. Scenes carrying `data-fixed` place the layer where
+  `packages/core/src/positioner` would have put it — under the link, at its
+  start edge — with `inset-inline-start` rather than `left` so the scene mirrors
+  in a right-to-left capture, and clamped to the stage the way `shift` would
+  move it, so the 240-pixel column shows the card the engine would show. The
+  layer's top is the link's box bottom (36 px) plus the family's `sideOffset`
+  of 4 px.
+
+  The domain is a review thread: people are mentioned by handle, documents by
+  title, and a card says who or what before the reader leaves the thread.
+-->
+<section data-scene="anatomy" data-fixed>
+  <div
+    style="
+      position: relative;
+      padding: 16px 16px 232px;
+      font-family: var(--slotted-font-family-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--slotted-text);
+    "
+  >
+    <p style="margin: 0; max-inline-size: 36rem">
+      <a
+        data-ui="hover-card"
+        data-ui-hover-card=""
+        data-part="root"
+        data-part-root=""
+        data-open
+        href="#"
+        >@ana.souza</a
+      >
+      owns the follow-up on the pricing table, and the copy review goes to
+      <a data-ui="hover-card" data-ui-hover-card="" data-part="root" data-part-root="" href="#"
+        >@marcus.lee</a
+      >
+      once the numbers land.
+    </p>
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="auto"
+      data-open
+      style="
+        top: 40px;
+        inset-inline-start: clamp(8px, 16px, calc(100% - 20rem - 8px));
+        --slotted-positioner-available-width: calc(100% - 16px);
+        --slotted-positioner-arrow-x: 2.5rem;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="presentation" tabindex="-1">
+        <div data-part="body" data-part-body="">
+          <div
+            style="display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center"
+          >
+            <span
+              data-ui="avatar"
+              data-ui-avatar=""
+              data-part="root"
+              data-part-root=""
+              data-size="lg"
+              data-shape="circle"
+              data-tone="accent"
+              data-variant="soft"
+              data-status="idle"
+              role="img"
+              aria-label="Ana Souza"
+              ><span data-part="fallback" data-part-fallback="">AS</span></span
+            >
+            <div style="display: grid; gap: 2px">
+              <strong style="font-weight: 600">Ana Souza</strong>
+              <span style="color: var(--slotted-text-muted); font-size: 13px"
+                >@ana.souza · Product, Billing</span
+              >
+            </div>
+          </div>
+          <p style="margin: 12px 0 0; font-size: 13px">
+            Runs pricing and packaging. Reviews every change to the plans page before it ships.
+          </p>
+          <div
+            style="
+              display: flex;
+              gap: 16px;
+              margin-block-start: 12px;
+              font-size: 12px;
+              color: var(--slotted-text-muted);
+            "
+          >
+            <span
+              ><strong style="color: var(--slotted-text); font-weight: 600">18</strong> open
+              reviews</span
+            >
+            <span
+              ><strong style="color: var(--slotted-text); font-weight: 600">Seattle</strong> ·
+              14:05</span
+            >
+          </div>
+        </div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!--
+  The trigger's states beside each other, in a line of text where a mention
+  lives. `hover` cannot be staged; the focus ring is photographed with
+  `shoot.mjs --focus "[data-scene='states'] [data-ui='hover-card']:nth-of-type(2)"`.
+  The open mark grows the inline box by a halo without moving the line, which
+  is what the second line of the paragraph is here to prove.
+-->
+<section data-scene="states">
+  <div
+    style="
+      padding: 16px;
+      font-family: var(--slotted-font-family-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--slotted-text);
+    "
+  >
+    <p style="margin: 0; max-inline-size: 30rem">
+      Assigned to
+      <a data-ui="hover-card" data-ui-hover-card="" data-part="root" data-part-root="" href="#"
+        >@ana.souza</a
+      >
+      at rest,
+      <a data-ui="hover-card" data-ui-hover-card="" data-part="root" data-part-root="" href="#"
+        >@marcus.lee</a
+      >
+      under focus, and
+      <a
+        data-ui="hover-card"
+        data-ui-hover-card=""
+        data-part="root"
+        data-part-root=""
+        data-open
+        href="#"
+        >@priya.natarajan</a
+      >
+      with her card open; the line under this one has not moved.
+    </p>
+    <p
+      style="
+        margin: 8px 0 0;
+        max-inline-size: 30rem;
+        color: var(--slotted-text-muted);
+        font-size: 13px;
+      "
+    >
+      Baseline check: this sentence sits where it would without the open mark above it.
+    </p>
+  </div>
+</section>
+
+<!--
+  A navigable card: it holds a control, so it is `role="dialog"` named by its
+  title, the trigger carries `aria-haspopup="dialog"`, and `Tab` from the link
+  enters it. The footer's button is what `Tab` lands on.
+-->
+<section data-scene="navigable" data-fixed>
+  <div
+    style="
+      position: relative;
+      padding: 16px 16px 380px;
+      font-family: var(--slotted-font-family-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--slotted-text);
+    "
+  >
+    <p style="margin: 0; max-inline-size: 36rem">
+      Spec:
+      <a
+        data-ui="hover-card"
+        data-ui-hover-card=""
+        data-part="root"
+        data-part-root=""
+        data-open
+        href="#"
+        aria-haspopup="dialog"
+        aria-expanded="true"
+        aria-controls="hover-card-navigable-panel"
+        >Checkout redesign — pricing table</a
+      >
+      (draft 4, waiting on legal).
+    </p>
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="auto"
+      data-open
+      style="
+        top: 40px;
+        inset-inline-start: clamp(8px, 56px, calc(100% - 20rem - 8px));
+        --slotted-positioner-available-width: calc(100% - 16px);
+        --slotted-positioner-arrow-x: 2.5rem;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        id="hover-card-navigable-panel"
+        aria-labelledby="hover-card-navigable-title"
+        aria-describedby="hover-card-navigable-description"
+      >
+        <div data-part="header" data-part-header="">
+          <div data-part="title" data-part-title="" id="hover-card-navigable-title">
+            Checkout redesign — pricing table
+          </div>
+          <p data-part="description" data-part-description="" id="hover-card-navigable-description">
+            Product spec · updated 2 hours ago by Ana Souza
+          </p>
+        </div>
+        <div data-part="body" data-part-body="">
+          Three tiers with annual and monthly toggles, a usage estimator under the enterprise
+          column, and the comparison table folded behind a disclosure on narrow screens.
+        </div>
+        <div data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Open spec</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Subscribe</span>
+          </button>
+        </div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!--
+  Long content: a bio the consumer did not shorten and a handle that is one
+  unbroken token. The card's measure is the popover's; the body wraps and the
+  handle is allowed to break, so nothing leaves the panel at 240 pixels.
+-->
+<section data-scene="long" data-fixed>
+  <div
+    style="
+      position: relative;
+      padding: 16px 16px 440px;
+      font-family: var(--slotted-font-family-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--slotted-text);
+    "
+  >
+    <p style="margin: 0">
+      cc
+      <a
+        data-ui="hover-card"
+        data-ui-hover-card=""
+        data-part="root"
+        data-part-root=""
+        data-open
+        href="#"
+        >@konstantinos.papadimitriou</a
+      >
+    </p>
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="auto"
+      data-open
+      style="
+        top: 40px;
+        inset-inline-start: clamp(8px, 36px, calc(100% - 20rem - 8px));
+        --slotted-positioner-available-width: calc(100% - 16px);
+        --slotted-positioner-arrow-x: 2.5rem;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="presentation" tabindex="-1">
+        <div data-part="body" data-part-body="">
+          <div
+            style="display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center"
+          >
+            <span
+              data-ui="avatar"
+              data-ui-avatar=""
+              data-part="root"
+              data-part-root=""
+              data-size="lg"
+              data-shape="circle"
+              data-tone="success"
+              data-variant="soft"
+              data-status="idle"
+              role="img"
+              aria-label="Konstantinos Papadimitriou"
+              ><span data-part="fallback" data-part-fallback="">KP</span></span
+            >
+            <div style="display: grid; gap: 2px; min-inline-size: 0">
+              <strong style="font-weight: 600">Konstantinos Papadimitriou</strong>
+              <span
+                style="color: var(--slotted-text-muted); font-size: 13px; overflow-wrap: anywhere"
+                >@konstantinos.papadimitriou · Platform Infrastructure, Athens</span
+              >
+            </div>
+          </div>
+          <p style="margin: 12px 0 0; font-size: 13px">
+            Staff engineer on the payments platform since 2019. Owns the ledger service, the
+            reconciliation jobs and the on-call rotation for the European region; reviews every
+            migration that touches money before it reaches production, and writes the incident
+            reports nobody else wants to write.
+          </p>
+        </div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>

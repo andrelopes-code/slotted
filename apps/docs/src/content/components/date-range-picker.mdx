@@ -1,0 +1,164 @@
+---
+title: Date Range Picker
+description: Two segmented date fields in one frame with a two-month calendar behind a trigger, for a start and an end date that the reader can type or choose.
+---
+
+<Example name="basic" wide />
+
+<Installation />
+
+## Typing or choosing
+
+Each end is its own date field: type the month, day and year of the start, and Tab moves on to the end. Or press the calendar button and choose two days. The first press in the calendar starts the range and is not yet the value; the second press writes both ends at once. While the start is chosen and the end is not, the band above the calendar shows the range the next press would make and its length. The value reports its reason: `keyboard` or `blur` for a typed end, `select` for a range closed in the calendar, and `clear` for the clear button. A two-digit year resolves through `yearPivot`, as in the date field.
+
+<Example name="typing" wide />
+
+## Two months, or one
+
+The calendar shows two months side by side, because a range often crosses a month boundary. `months` sets another count. One month suits ranges that stay inside a month, such as a promotion. When the surface has no room for two months beside each other, the second one wraps under the first.
+
+<Example name="months" wide />
+
+## Sizes
+
+`size` sets the frame, both fields and the calendar button to one step of the control scale: `sm` for toolbars and dense filter panels, `md` for most forms, `lg` for sparse forms. Inside a field, an unset size follows the field.
+
+<Example name="sizes" wide />
+
+## Variants
+
+`outline` is the default frame. `subtle` fills the control, for a form on a tinted surface. `plain` draws no frame at rest and still shows hover and focus. The two fields inside draw no frame of their own: the date range picker draws one frame for both and answers hover, focus and invalid once.
+
+<Example name="variants" wide />
+
+## States
+
+Set `invalid`, `readOnly`, `disabled` and `required` on the field, which passes them to the date range picker; each can also be set on the date range picker itself. An end before its start is invalid without your help: the date range picker marks the end field and the frame, and it does not swap the ends. Read-only keeps both dates legible and focusable. Read-only and disabled both disable the calendar button, so the calendar cannot open.
+
+<Example name="states" wide />
+
+## Earliest and latest dates
+
+`min` and `max` bound both fields and the calendar. The calendar disables the days outside the bounds, and a date typed outside them marks the date range picker invalid and stays in the field. Once both ends are set, each field is also bounded by the other: the start cannot step past the end, and the end cannot step before the start.
+
+<Example name="bounds" wide />
+
+## Days or nights
+
+`count` decides what the length counts. `days` counts both ends, for a leave request or a rental. `nights` counts the nights between them, for a hotel stay. The same two dates give 5 days or 4 nights, and the same day at both ends is 1 day or 0 nights. The band above the calendar and the calendar button's accessible name both say the length in that unit.
+
+<Example name="count" wide />
+
+## Shortest and longest range
+
+`minLength` and `maxLength` limit the length, counted in the unit `count` names. Once a start is chosen, the calendar disables the days that would make the range too short or too long, and the band names the rule, such as "2 to 14 days". A typed range outside the limits marks the date range picker invalid.
+
+<Example name="limits" wide />
+
+## Unavailable dates
+
+`isDateUnavailable` receives each date and returns `true` for a date the reader cannot choose. The calendar disables those days. A range must not run across an unavailable day: once a start is chosen, the calendar also disables every day beyond the first unavailable day on either side. A typed range that contains an unavailable day marks the date range picker invalid. Describe the rule in the field's description, so the reader knows why a day is refused.
+
+<Example name="unavailable" wide />
+
+## Ranges across unavailable dates
+
+`contiguous={false}` lets a range run across unavailable days and checks only its two ends. Use it when the rule is about the days a range starts and ends on, such as a vacation that has to start and end on a working day and may include a weekend.
+
+<Example name="across-unavailable" wide />
+
+## Shortcuts
+
+`presets` in React and an element with `slDateRangePickerPresets` in Angular add a column of shortcuts beside the calendar. Each shortcut is a `DateRangePickerPreset` in React and a button with `slDateRangePickerPreset` in Angular, and it takes the range it writes. Pressing one writes its range with the reason `select` and closes the calendar. The shortcut equal to the value carries `data-selected`. The date range picker ships no list of shortcuts: "Last 30 days" and "This quarter" depend on your product's calendar. A shortcut can also take a function that returns the range when it is pressed, so a relative shortcut is computed at the press and not at render.
+
+<Example name="presets" wide />
+
+## Locale and format
+
+`locale` takes a BCP 47 tag and sets the order, separators and placeholders of both fields, the month and weekday names in the calendar, the short dates in the band, and the dates the calendar button announces. There is no format string: each locale writes its own shape. Unset, the locale comes from `SlottedProvider` in React or `provideSlotted` in Angular, and falls back to `en-US`. The value stays the same pair of `PlainDate` objects in every locale.
+
+<Example name="locale" wide />
+
+## First day of the week and week numbers
+
+The calendar starts the week on the day the locale uses. `firstDayOfWeek` overrides it with a number from `0`, Sunday, to `6`, Saturday. `weekNumbers` adds a column of ISO 8601 week numbers; ISO weeks start on Monday, so set `firstDayOfWeek` to `1` to keep each row inside one numbered week.
+
+<Example name="first-day" wide />
+
+## Controlled
+
+Pass `value` and update it from `onValueChange` in React, or bind `[value]` and update it from `(valueChange)` in Angular, when other parts of the screen depend on the range. The value is a `DateRange`, `{ start, end }`, where each end is a `PlainDate` or `null`; a range with both ends empty is `null`. Buttons outside the date range picker can set the value, and both fields and the calendar follow.
+
+<Example name="controlled" wide />
+
+## Clearing
+
+`clearable` adds one clear button to the frame while either end holds a date. It empties both ends with the reason `clear` and moves focus to the start field. The two fields do not draw clear buttons of their own.
+
+<Example name="clearable" wide />
+
+## An open end
+
+A range with one end, such as `{ start, end: null }`, is a value: the field shows the start and leaves the end empty, where the reader sees it. Use it for a period with no end yet, such as a price that stays valid until further notice. Open the calendar over it, and the first press writes the missing end.
+
+<Example name="open-end" wide />
+
+## Editing one end
+
+The end being edited carries `data-current`, and the calendar opens on that end's day. Focusing a field makes its end the current one. `defaultPosition="end"` starts on the end, so the first press in the calendar writes the end and keeps the start, which suits extending a booking. `position` and `onPositionChange` in React, or `[position]` and `(positionChange)` in Angular, control it.
+
+<Example name="position" wide />
+
+## Footer actions
+
+`footer` in React and an element with `slDateRangePickerFooter` in Angular add a row of actions under the calendar. `closeOnSelect` decides when choosing closes the calendar: `auto`, the default, closes it when the range is complete, by a second press or a shortcut; `always` closes it on every press that changes the value; `never` keeps it open. Here `never` keeps the calendar open while the reader adjusts the range, and the Done button closes it.
+
+<Example name="footer" wide />
+
+## In a form
+
+In React, `startName` and `endName` add two hidden inputs that submit the ends as ISO strings, such as `2026-10-14`, whether they were typed or chosen. In Angular, the date range picker is a form control: `formControlName`, `formControl` and `ngModel` bind the whole `DateRange`, and the date range picker reports `slottedDateRangeOrder` for an end before its start, `slottedDateRangeMin` and `slottedDateRangeMax` for a date outside the bounds, `slottedDateRangeUnavailable` for an unavailable date and `slottedDateRangeLength` for a length outside the limits. `Validators.required` accepts a range with one open end, so this example checks for both ends with its own validator. Submit without dates to see the required error, type an end before the start to see the order error, then reset.
+
+<Example name="form" wide />
+
+## Narrow screens
+
+Under 480 pixels on a touch screen, the calendar opens as a sheet attached to the bottom of the viewport instead of a popover under the frame. In a narrow column, the shortcuts move above the calendar and the second month wraps under the first. The markup stays the same; the positioner carries `data-presentation="sheet"`.
+
+<Example name="narrow" />
+
+## Keyboard and the trigger's name
+
+Alt+ArrowDown opens the calendar from either field and leaves focus in the field, so typing continues. Enter or Space on the calendar button opens it and moves focus to the day of the current end, or to today when that end is empty. Tab and Shift+Tab cycle through the shortcuts, the calendar and the footer until the calendar closes. The arrow keys move between days, and the band above the calendar says the length of the range the focused day would make; Enter or Space on a day starts the range and, pressed again, completes it. Escape closes the calendar, discards a range that has only its start, and returns focus to the calendar button; while the calendar shows the month or year grid, Escape first returns to the day grid. The calendar button's accessible name carries both dates and the length, so a screen reader announces them when focus returns. `messages` replaces that name: `choose` while no range is set, and `change` with its `{start}`, `{end}` and `{length}` slots once one is. `onOpenChange` in React and `(openChange)` in Angular report why the calendar opened or closed.
+
+<Example name="keyboard" wide />
+
+## Focus and open from code
+
+The date range picker's handle has `focus()`, which puts focus on the first segment of the current end, or of the end you pass: `focus('end')`. It also has `open()` and `close()` in React, named `openSurface()` and `closeSurface()` in Angular. Opening from code moves focus into the calendar, as the calendar button does. Reach the handle with `ref` in React and `#picker="slDateRangePicker"` in Angular.
+
+<Example name="focus-and-open" wide />
+
+## Defaults for a section
+
+`DateRangePickerDefaultsProvider` in React and `provideDateRangePickerDefaults` in Angular set `count`, `months`, `variant`, `size`, `placement`, `closeOnSelect`, `timeZone` and `calendar` once for every date range picker under them, such as a travel booking form. A value set on one date range picker still wins, and inside a field the field's size wins over the provider's.
+
+<Example name="defaults" wide />
+
+## Reporting period filter for a dashboard
+
+A dashboard filter in the small size, with the shortcuts analysts use most and `max` at today. The figures recompute from the chosen range, and the comparison uses the period of the same length that ends the day before it starts.
+
+<Example name="reporting-filter" wide />
+
+## Booking a warehouse dock window
+
+A carrier books dock 4 for one to three weekdays. Weekends and the days another carrier holds are unavailable, so once a start is chosen the calendar stops at the next held day; `maxLength` stops it at three days, and `min` and `max` keep the booking inside the open schedule.
+
+<Example name="dock-booking" wide />
+
+## Comparing two periods
+
+The date range picker holds one range. To compare two periods, use two of them: the second one's shortcuts are computed from the first, so "Previous period" and "Same period last year" always match the period being analysed.
+
+<Example name="compare-periods" wide />

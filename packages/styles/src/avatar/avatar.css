@@ -1,0 +1,628 @@
+@layer slotted.components {
+  /**
+   * ── The avatar box ─────────────────────────────────────────────────────
+   *
+   * A picture of a person or an entity, and what stands in when there is none.
+   * The order is the family's whole behaviour: the picture, then the initials
+   * taken from the name, then a glyph the family owns — so a request that fails
+   * never paints the browser's torn-page mark.
+   *
+   * Two attributes on every selector, always. Both parts sit inside the root,
+   * so the pair is what stops a rule meant for the box from reaching the
+   * picture inside it.
+   *
+   * The box is square by construction: one length, read from the avatar size
+   * scale the theme restates per density. Everything the family scales beside
+   * it — the type in the initials, the glyph, the square corner — is a
+   * proportion of that length rather than a scale of its own, which is the
+   * reasoning `badge` used for the overhang of an anchored count.
+   */
+  [data-ui-avatar][data-part-root] {
+    /**
+     * Tone. `secondary` reads the `solid-hover` step rather than `solid` for
+     * the reason `badge` records: `secondary.solid` is the surface colour in
+     * all three schemes, so a filled neutral avatar would be a hole in the page
+     * rather than a disc.
+     */
+    --_solid: var(--slotted-tone-secondary-solid-hover);
+    --_on-solid: var(--slotted-tone-secondary-on-solid);
+    --_surface: var(--slotted-tone-secondary-surface);
+    --_border: var(--slotted-tone-secondary-border);
+    --_text: var(--slotted-tone-secondary-text);
+
+    /**
+     * The size step. Written as the public token rather than into `--_size`
+     * directly, so an instance can state a size no step holds — a 96-pixel
+     * avatar on a profile header — with `style="--slotted-avatar-size: 6rem"`.
+     * It is the mechanism `icon` established, and the precedence it gives is
+     * the right one: a declaration on the element beats one inherited from a
+     * container, so `size` on the avatar always wins over the container's
+     * opinion of it.
+     */
+    --_size: var(--slotted-avatar-size, var(--slotted-avatar-size-md, 36px));
+
+    /**
+     * The initials fill a proportion of the box, not a step of the type scale.
+     * The smallest avatar is twenty pixels at `dense` and the type scale stops
+     * at twelve, so a scale step would be half the circle; and the whole point
+     * of the box is that the letters inside it look the same size at every
+     * step. Exposed as a token because the right proportion depends on the
+     * theme's typeface: a narrow grotesque wants more than a wide one.
+     */
+    --_initials-size: var(--slotted-avatar-initials-size, calc(var(--_size) * 0.4));
+
+    /**
+     * The silhouette is drawn a little larger than the letters, because it is
+     * a shape rather than a word and reads small at the same ratio.
+     */
+    --_glyph-size: var(--slotted-avatar-glyph-size, calc(var(--_size) * 0.68));
+
+    --_radius: var(--slotted-radius-full, 9999px);
+    --_edge-width: var(--slotted-avatar-border-width, var(--slotted-border-width-thin, 1px));
+    --_edge: var(--_border);
+    /**
+     * What a filled avatar draws around itself, and for four of the five tones
+     * the answer is its own fill: the edge is the disc, so there is no rim.
+     *
+     * `secondary` is the exception, and it is the only one, for the reason
+     * `badge` records against the same colour: the neutral fill is `#e6e6e6`
+     * against the page's own white in `high-contrast`, so a filled neutral
+     * avatar with no edge is not a disc, it is a smudge. Every other tone
+     * carries its own boundary there.
+     */
+    --_solid-edge: var(--_border);
+
+    /**
+     * What separates this avatar from whatever it is drawn over. Nought until a
+     * container asks for it, because a lone avatar overlaps nothing; a group
+     * turns it on for every member. It is a colour and not a boolean, because
+     * an avatar inside a card, a toolbar or a coloured row is not sitting on
+     * the page's own surface — the same reason `badge` gives for its own ring.
+     */
+    --_ring-width: var(--slotted-avatar-ring-width, 0);
+    --_ring-color: var(--slotted-avatar-ring-color, var(--slotted-surface, Canvas));
+
+    /**
+     * What the avatar is lifted off, and nothing at rest. A lone avatar sits on
+     * the page; a container that raises one of its members off the others says
+     * so here rather than restating the whole shadow — the ring below it is the
+     * avatar's own decision and a container has no business overwriting it,
+     * which is what a second `box-shadow` on the same box would do (AG1).
+     */
+    --_elevation: var(--slotted-avatar-elevation, 0 0 transparent);
+
+    align-items: center;
+    /**
+     * `render` can make the root a `<button>`, and the browser draws two
+     * pixels of `outset ButtonBorder` on one of those. The family states its
+     * own edge and its own inset below, so whatever the user agent had in mind
+     * is replaced rather than merely reset.
+     */
+    appearance: none;
+    block-size: var(--_size);
+    /**
+     * ── The edge ─────────────────────────────────────────────────────────
+     *
+     * The element's own border, and not a ring drawn over it.
+     *
+     * A pseudo-element was the first answer, so the rim could sit above the
+     * photograph. It cost a seam: the disc and the ring are two rounded shapes
+     * rasterised apart — `box-sizing` is not inherited, so the pseudo-element
+     * did not even use the same box — and two antialiased curves over the same
+     * path do not agree in the sub-pixel. On a circle the disagreement is a
+     * hairline of the page showing through between the fill and its rim.
+     *
+     * One border on one box has one curve, and the engine computes the inner
+     * radius from the outer one. `box-sizing: border-box` keeps the avatar
+     * exactly `--_size` however thick the rim is, and the picture is cropped
+     * inside the rim rather than under it — which is the right look anyway: a
+     * photograph in a frame, not a photograph with a line across it.
+     */
+    border-color: var(--_edge);
+    border-radius: var(--_radius);
+    /* Three longhands rather than the shorthand: an undefined colour makes a
+       `var()` shorthand invalid at computed-value time, and the width would
+       fall back to `medium` — three pixels — rather than to this one. */
+    border-style: solid;
+    border-width: var(--_edge-width);
+    box-shadow:
+      0 0 0 var(--_ring-width) var(--_ring-color),
+      var(--_elevation);
+    box-sizing: border-box;
+    display: inline-flex;
+    /* A box that shrinks is not a box: an avatar keeps its size in a flex row. */
+    flex: none;
+    font-family: var(--slotted-avatar-font-family, var(--slotted-control-font-family, sans-serif));
+    font-size: var(--_initials-size);
+    font-weight: var(--slotted-avatar-font-weight, var(--slotted-font-weight-medium, 500));
+    inline-size: var(--_size);
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    /**
+     * An avatar is one thing, and it paints as one thing.
+     *
+     * The rim used to be a pseudo-element carrying `z-index: 1`, and a positive
+     * `z-index` on a pseudo-element of a box whose own `z-index` is `auto`
+     * promotes it into the nearest ancestor stacking context rather than into
+     * its own. In a group every member's rim was drawn across the face on top
+     * of it, and the row was inconsistent as well as wrong: the one member the
+     * pointer had raised did create a stacking context, so it alone behaved.
+     * The rim is the element's own border now, and the isolation is what keeps
+     * the picture inside the avatar it belongs to.
+     */
+    isolation: isolate;
+    /**
+     * The picture and the initials are stacked rather than swapped, so the
+     * picture can arrive over the letters instead of replacing them in one
+     * frame. This is the containing block for both.
+     */
+    position: relative;
+    /**
+     * `render` can make the root an `<a>`, and a rule the browser writes on
+     * every anchor would put a line under two initials.
+     */
+    text-decoration: none;
+    /**
+     * The edge changes colour at the moment the picture arrives — the tone's
+     * own rim gives way to the neutral one a photograph wants — so it crosses
+     * on the same clock as the picture. Without it the rim snapped from red to
+     * grey a frame before the face had finished appearing, which was the one
+     * thing left moving on its own in the loading sequence.
+     *
+     * The ground crosses on the same clock, because hover and press answer on
+     * it; the ring and the transform are what a group raises a member with, and
+     * they are listed here so the group states only the curve and never
+     * replaces this list — it did, and the edge snapped inside a stack.
+     */
+    transition:
+      border-color var(--slotted-duration-short) var(--slotted-easing-standard),
+      background-color var(--slotted-duration-short) var(--slotted-easing-standard),
+      box-shadow var(--slotted-duration-short) var(--slotted-easing-standard),
+      transform var(--slotted-duration-short) var(--slotted-easing-standard);
+    /* Initials are a label, not a selection: dragging across a row of faces
+       should not highlight a column of letters. */
+    user-select: none;
+    /* Written beside a name, an avatar sits on the text's centre. */
+    vertical-align: middle;
+  }
+
+  /* ── Tone: which of the five semantic colours the name resolves to ─────── */
+
+  [data-ui-avatar][data-part-root][data-tone='accent'] {
+    --_solid: var(--slotted-tone-accent-solid);
+    --_solid-edge: var(--slotted-tone-accent-solid);
+    --_on-solid: var(--slotted-tone-accent-on-solid);
+    --_surface: var(--slotted-tone-accent-surface);
+    --_border: var(--slotted-tone-accent-border);
+    --_text: var(--slotted-tone-accent-text);
+  }
+
+  [data-ui-avatar][data-part-root][data-tone='success'] {
+    --_solid: var(--slotted-tone-success-solid);
+    --_solid-edge: var(--slotted-tone-success-solid);
+    --_on-solid: var(--slotted-tone-success-on-solid);
+    --_surface: var(--slotted-tone-success-surface);
+    --_border: var(--slotted-tone-success-border);
+    --_text: var(--slotted-tone-success-text);
+  }
+
+  [data-ui-avatar][data-part-root][data-tone='info'] {
+    --_solid: var(--slotted-tone-info-solid);
+    --_solid-edge: var(--slotted-tone-info-solid);
+    --_on-solid: var(--slotted-tone-info-on-solid);
+    --_surface: var(--slotted-tone-info-surface);
+    --_border: var(--slotted-tone-info-border);
+    --_text: var(--slotted-tone-info-text);
+  }
+
+  [data-ui-avatar][data-part-root][data-tone='warning'] {
+    --_solid: var(--slotted-tone-warning-solid);
+    --_solid-edge: var(--slotted-tone-warning-solid);
+    --_on-solid: var(--slotted-tone-warning-on-solid);
+    --_surface: var(--slotted-tone-warning-surface);
+    --_border: var(--slotted-tone-warning-border);
+    --_text: var(--slotted-tone-warning-text);
+  }
+
+  [data-ui-avatar][data-part-root][data-tone='danger'] {
+    --_solid: var(--slotted-tone-danger-solid);
+    --_solid-edge: var(--slotted-tone-danger-solid);
+    --_on-solid: var(--slotted-tone-danger-on-solid);
+    --_surface: var(--slotted-tone-danger-surface);
+    --_border: var(--slotted-tone-danger-border);
+    --_text: var(--slotted-tone-danger-text);
+  }
+
+  /**
+   * ── Variant: two paintings ─────────────────────────────────────────────
+   *
+   * `soft` tints and keeps the tone's own edge, which is what holds the disc
+   * together in the `high-contrast` scheme where every tone surface collapses
+   * to the page's own white. `solid` fills and draws no rim, because its edge
+   * is its own fill.
+   *
+   * There is no `outline`: an avatar drawn as a ring around nothing is not an
+   * avatar, and every one of the fourteen surveyed implementations fills.
+   */
+  [data-ui-avatar][data-part-root][data-variant='soft'] {
+    --_ground: var(--_surface, ButtonFace);
+
+    background-color: var(--_ground);
+    color: var(--_text, ButtonText);
+  }
+
+  [data-ui-avatar][data-part-root][data-variant='solid'] {
+    --_edge: var(--_solid-edge);
+    --_ground: var(--_solid, ButtonFace);
+
+    background-color: var(--_ground);
+    color: var(--_on-solid, ButtonText);
+  }
+
+  /* ── Shape ────────────────────────────────────────────────────────────── */
+
+  /**
+   * Primer's rule, taken with its meaning: a circle is a person and a square is
+   * a team, an organisation or a bot.
+   *
+   * The corner is a sixth of the box rather than a step of the radius scale.
+   * `radius-md` is six pixels, which is a gentle round on a 64-pixel square and
+   * a quarter-circle on a 20-pixel one; a proportion is the same shape at every
+   * step. A theme that disagrees states the token.
+   *
+   * Rounded to the pixel: a sixth of 64 is 10.67 and of 28 is 4.67, and a
+   * fractional radius spreads the curve over partial pixels at every corner.
+   */
+  [data-ui-avatar][data-part-root][data-shape='square'] {
+    --_radius: var(--slotted-avatar-radius, round(nearest, calc(var(--_size) / 6), 1px));
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-avatar][data-part-root][data-size='xs'] {
+    --slotted-avatar-size: var(--slotted-avatar-size-xs, 24px);
+  }
+
+  [data-ui-avatar][data-part-root][data-size='sm'] {
+    --slotted-avatar-size: var(--slotted-avatar-size-sm, 28px);
+  }
+
+  [data-ui-avatar][data-part-root][data-size='md'] {
+    --slotted-avatar-size: var(--slotted-avatar-size-md, 36px);
+  }
+
+  [data-ui-avatar][data-part-root][data-size='lg'] {
+    --slotted-avatar-size: var(--slotted-avatar-size-lg, 48px);
+  }
+
+  [data-ui-avatar][data-part-root][data-size='xl'] {
+    --slotted-avatar-size: var(--slotted-avatar-size-xl, 64px);
+  }
+
+  /**
+   * ── The picture ──────────────────────────────────────────────────────── */
+
+  /**
+   * Always rendered, never in the flow. It lies over the initials at opacity
+   * nought and rises to one when the load succeeds, so a photograph that
+   * arrives four hundred milliseconds after the page fades in over the letters
+   * instead of replacing them between two frames. A list of twenty avatars
+   * without the transition snaps letter-by-photograph as each request returns.
+   *
+   * `prefers-reduced-motion` collapses the duration in the theme, and nothing
+   * here loops.
+   */
+  [data-ui-avatar] [data-part-image] {
+    block-size: 100%;
+    border-radius: inherit;
+    inline-size: 100%;
+    inset: 0;
+    object-fit: cover;
+    opacity: 0;
+    position: absolute;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  /**
+   * A transition runs on the curve of the state it arrives at: the picture
+   * enters on the entering curve and, when a later request fails, leaves on the
+   * exiting one. The fallback below is the mirror of it.
+   */
+  [data-ui-avatar][data-status='loaded'] [data-part-image] {
+    opacity: 1;
+    transition-timing-function: var(--slotted-easing-enter);
+  }
+
+  /* ── What stands in for it ────────────────────────────────────────────── */
+
+  [data-ui-avatar] [data-part-fallback] {
+    /**
+     * The last step of the fallback order, and the only artwork this family
+     * owns. It is reached when there is no picture and no name to take
+     * initials from — an unassigned ticket, an anonymous visitor — and the
+     * binding draws it as the `person` glyph in an `Icon` rather than as a
+     * character, which no font can be relied on to carry.
+     *
+     * The size is set on the slot rather than on the icon, so an icon the
+     * consumer projects without a size of its own is drawn at the same step,
+     * and one that states a size keeps it.
+     */
+    --slotted-icon-size: var(--_glyph-size);
+
+    align-items: center;
+    block-size: 100%;
+    border-radius: inherit;
+    display: flex;
+    inline-size: 100%;
+    justify-content: center;
+    /**
+     * Initials are two graphemes, and a consumer who writes a word into the
+     * slot has written a word into a circle. Clipping is visual only:
+     * `overflow` removes nothing from the document or from the accessibility
+     * tree, which is what the briefing's rule about truncation protects.
+     */
+    overflow: hidden;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-enter);
+  }
+
+  [data-ui-avatar][data-status='loaded'] [data-part-fallback] {
+    /**
+     * It leaves as the picture arrives rather than the instant the load
+     * reports, so the two cross rather than flicker. It is still painted
+     * underneath, which is what a photograph with transparency is drawn on.
+     */
+    opacity: 0;
+    transition-timing-function: var(--slotted-easing-exit);
+  }
+
+  /**
+   * A flex container centres the line box, and a line box is not symmetric
+   * around the letters inside it: the ascender reaches further above the cap
+   * than the descender reaches below the baseline, and two initials have no
+   * descender. Measured with the Geist face at `compact`, `AL` sat 0.56 pixels
+   * high in the 32-pixel disc and 0.68 high in the 26-pixel one; at
+   * `comfortable`, 1.13 high in the 64-pixel one. `text-box` trims the line to
+   * the cap and the baseline, so what is centred is the ink rather than the
+   * font's metrics — the rule `badge`, `kbd`, `tag` and `button` each carry.
+   *
+   * Those four have a label part to carry it. The initials are written straight
+   * into the fallback, and `text-box-trim` needs a block container — a flex
+   * container's text lives in an anonymous item no selector can reach — so the
+   * fallback itself becomes the block and centres its one line with
+   * `align-content`, which block containers have taken since Chrome 123 and
+   * Safari 17.4, both earlier than the trim. The box keeps its full size, so
+   * the disc still clips a long word and no descender is beheaded: the clip is
+   * the whole fallback, not the trimmed line, which is the room `badge` had to
+   * buy with padding.
+   *
+   * Only a fallback holding nothing but text is trimmed. A projected logo or
+   * icon is not a line of type: it sits on the baseline of a line whose trim is
+   * measured from the font, and trimming that line would move the artwork
+   * rather than centre it. `:has(> *)` is the whole test, and it excludes the
+   * family's own glyph as well, which is an icon and needs no line at all.
+   */
+  @supports (text-box: trim-both cap alphabetic) {
+    [data-ui-avatar] [data-part-fallback]:not(:has(> *)) {
+      align-content: center;
+      display: block;
+      text-align: center;
+      text-box: trim-both cap alphabetic;
+    }
+  }
+
+  /* ── The picture that arrived, and the one that did not ───────────────── */
+
+  /**
+   * A photograph does not want a coloured rim, and a photograph of a white wall
+   * on a white surface with no rim at all has no boundary. `border-subtle` is
+   * the token that separates one surface from another everywhere else.
+   *
+   * Written after the variants and before `disabled`, so the three states
+   * resolve in the order `STATE_PRECEDENCE` declares with no selector weight
+   * standing in for the order.
+   */
+  [data-ui-avatar][data-part-root][data-status='loaded'] {
+    /* The picture is the avatar once it has loaded: the tone's ground stood
+       behind it, and a logo with transparency designed for a white ground
+       vanished on the dark tint. */
+    --_ground: transparent;
+    --_edge: var(--slotted-border-subtle, ButtonBorder);
+  }
+
+  /**
+   * The ground, when the consumer chooses it. `none` paints none, the fallback
+   * included: initials standing on the page. `plate` paints a light plate in
+   * every scheme, for a logo designed for a white ground; the hairline keeps
+   * it apart from a light page, and the fallback's ink is dark on it.
+   */
+  [data-ui-avatar][data-part-root][data-surface='none'] {
+    --_ground: transparent;
+  }
+
+  [data-ui-avatar][data-part-root][data-surface='plate'] {
+    --_edge: var(--slotted-border-subtle, ButtonBorder);
+    --_ground: var(--slotted-avatar-plate-surface, #ffffff);
+
+    color: var(--slotted-avatar-plate-color, #1f2937);
+  }
+
+  /* ── Disabled ─────────────────────────────────────────────────────────── */
+
+  /**
+   * A deactivated account, or an avatar inside a control the page has turned
+   * off. It stays legible rather than merely faded: the letters keep the
+   * disabled foreground, which the theme holds against the disabled ground, and
+   * the photograph loses its colour rather than its contrast.
+   */
+  [data-ui-avatar][data-part-root][data-disabled] {
+    --_solid: var(--slotted-disabled-background, Canvas);
+    --_on-solid: var(--slotted-disabled-foreground, GrayText);
+    --_surface: var(--slotted-disabled-background, Canvas);
+    --_text: var(--slotted-disabled-foreground, GrayText);
+    --_edge: var(--slotted-disabled-border, GrayText);
+  }
+
+  /**
+   * Colour alone would not be enough and colour alone is not what changes: the
+   * photograph loses its hue and part of its opacity, so the disabled ground
+   * shows through and a switched-off face reads as switched off beside one that
+   * has no photograph at all. Grey alone kept every luminance, which made a
+   * deactivated portrait the strongest thing in a row of disabled avatars.
+   */
+  [data-ui-avatar][data-part-root][data-disabled] [data-part-image] {
+    filter: var(--slotted-avatar-disabled-image-filter, grayscale(1) opacity(0.5));
+  }
+
+  /* ── Interaction ──────────────────────────────────────────────────────── */
+
+  /**
+   * An avatar is a picture, not a command, and paints nothing at rest. These
+   * three selectors are the ones the browser itself treats as interactive, and
+   * they are written apart rather than gathered into `:is()` because
+   * `packages/styles/src/states.test.mjs` reads one comma-separated selector at
+   * a time and a guard inside a list would be invisible to it.
+   *
+   * A weak state held back for the stronger one: a disabled avatar answers no
+   * hover, which is the rule that test exists to keep.
+   */
+  [data-ui-avatar][data-part-root]:any-link,
+  button[data-ui-avatar][data-part-root],
+  [data-ui-avatar][data-part-root][tabindex] {
+    cursor: pointer;
+    /**
+     * The target below hangs outside the box on purpose. A box whose content
+     * can leave it is a different statement, and it is the one an avatar never
+     * makes: a face is cropped by its own edge, and the only thing standing
+     * outside the disc is a hit area that draws nothing. `clip` says so, and
+     * saying so is what separates the two — `tools/harness/audit.mjs` read the
+     * hit area as content leaving the box nine times per density at `dense`
+     * (AV1), which is the reading `visible` invites.
+     *
+     * The margin keeps the target painted and pressed: the clip shape is the
+     * padding box grown by this length, corner radii grown with it, so a
+     * circular avatar is clipped to a larger circle rather than to a square,
+     * and the corners of the 24-pixel square still answer a press. One target's
+     * length is more than any centred target can reach past a box — half is the
+     * exact figure — and the property takes a plain length: Chrome rejects
+     * `calc()` here, and a rejected value computes to nought, which clips the
+     * target to the face.
+     */
+    overflow: clip;
+    overflow-clip-margin: var(--slotted-target-min, 24px);
+  }
+
+  /**
+   * Hover and press answer on the ground, the way `tag` answers on its own: the
+   * letters' colour laid over the fill at eight and fourteen per cent. The rim
+   * keeps the tone. It used to turn `border-strong` on hover, which took the
+   * colour out of the one thing the pointer was on, and in `high-contrast` the
+   * tone's rim and `border-strong` are both black, so the hover changed nothing.
+   *
+   * Press exists because `render` makes the root a link or a button, and a
+   * command that does not answer the press reads as one that did not register.
+   */
+  [data-ui-avatar][data-part-root]:any-link:not([data-disabled]):hover,
+  button[data-ui-avatar][data-part-root]:not([data-disabled]):hover,
+  [data-ui-avatar][data-part-root][tabindex]:not([data-disabled]):hover {
+    background-color: color-mix(
+      in oklab,
+      var(--_ground),
+      currentColor var(--slotted-avatar-state-layer-hover, 8%)
+    );
+  }
+
+  [data-ui-avatar][data-part-root]:any-link:not([data-disabled]):active,
+  button[data-ui-avatar][data-part-root]:not([data-disabled]):active,
+  [data-ui-avatar][data-part-root][tabindex]:not([data-disabled]):active {
+    background-color: color-mix(
+      in oklab,
+      var(--_ground),
+      currentColor var(--slotted-avatar-state-layer-active, 14%)
+    );
+  }
+
+  /**
+   * A photograph covers the ground, so a face answers on its frame instead: the
+   * rim steps to `border-strong` and a ring of the same colour grows outside it,
+   * one pixel under the pointer and two under the press. The ring is what keeps
+   * the hover visible in `high-contrast`, where the rim is black before and
+   * after.
+   *
+   * One attribute fewer than the group's raise on purpose. Inside a stack the
+   * ring belongs to the group — the surface-coloured gap between a raised face
+   * and the one it covers — and the lower weight is what lets the group's
+   * declaration of the same token win without either file knowing the order
+   * the other is loaded in.
+   */
+  [data-ui-avatar][data-status='loaded']:any-link:not([data-disabled]):hover,
+  button[data-ui-avatar][data-status='loaded']:not([data-disabled]):hover,
+  [data-ui-avatar][data-status='loaded'][tabindex]:not([data-disabled]):hover {
+    --_edge: var(--slotted-border-strong, CanvasText);
+    --slotted-avatar-ring-width: var(--slotted-border-width-thin, 1px);
+    --slotted-avatar-ring-color: var(--slotted-border-strong, CanvasText);
+  }
+
+  [data-ui-avatar][data-status='loaded']:any-link:not([data-disabled]):active,
+  button[data-ui-avatar][data-status='loaded']:not([data-disabled]):active,
+  [data-ui-avatar][data-status='loaded'][tabindex]:not([data-disabled]):active {
+    --slotted-avatar-ring-width: var(--slotted-border-width-thick, 2px);
+  }
+
+  /**
+   * Painted whatever the element turned out to be. An avatar is not focusable
+   * on its own, and a ring that appears only where a family expects focus is a
+   * ring that goes missing the first time a consumer makes one a link.
+   */
+  [data-ui-avatar][data-part-root]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * WCAG 2.2 2.5.8: an interactive target is at least 24 by 24 CSS pixels, and
+   * `--slotted-avatar-size-xs` is twenty at the two tighter densities. The
+   * overlay grows the hit area without moving anything: it is out of flow, and
+   * it is never larger than the box it belongs to when the box already passes.
+   *
+   * One negative inset on all four sides, and not a size with `margin: auto`.
+   * Auto margins centre a box that fits; a box wider than the space it is
+   * placed in is over-constrained, and the rule the engine applies then is to
+   * keep the start margin and put the whole difference on the end one. So the
+   * 24-pixel target sat against the leading edge of a 20-pixel avatar and hung
+   * four pixels off the trailing one: half the target was outside the face on
+   * one side and the other half was missing on the other, which is what AV1
+   * measured as four pixels of overflow. `inset` states the same target from
+   * both edges at once, so it cannot be resolved to one side, and `min(0px, …)`
+   * makes it inert on every box that already reaches the minimum. It is the
+   * idiom `tag` and `breadcrumb` use for the same requirement.
+   *
+   * Fluent ships a 16-pixel avatar and Atlassian a 16- and a 20-pixel one, and
+   * both accept a click on it as it stands.
+   */
+  [data-ui-avatar][data-part-root]:any-link::after,
+  button[data-ui-avatar][data-part-root]::after,
+  [data-ui-avatar][data-part-root][tabindex]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /**
+   * ── Forced colours ─────────────────────────────────────────────────────
+   *
+   * The theme maps every tone ground to `ButtonFace` or `Canvas`, so a tinted
+   * avatar and a filled one become the same disc and an avatar whose edge
+   * happened to match its fill has no edge at all. `currentColor` is the only
+   * paint left that still separates a face from the page.
+   *
+   * The picture is exempt: `forced-color-adjust` is not applied to images by
+   * the user agent, and a photograph reduced to two system colours is not a
+   * photograph.
+   */
+  @media (forced-colors: active) {
+    [data-ui-avatar][data-part-root] {
+      --_edge: currentColor;
+    }
+  }
+}

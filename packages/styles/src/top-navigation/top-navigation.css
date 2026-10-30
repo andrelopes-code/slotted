@@ -1,0 +1,1271 @@
+@layer slotted.components {
+  /**
+   * The bar across the top of an application: the mark, what the application
+   * is right now, the destinations, the search, and the global actions —
+   * reading its own width and folding by priority as the width goes.
+   *
+   *   root ▸ skip · brand ▸ home ▸ mark · name
+   *        · context
+   *        · nav ▸ list ▸ item ▸ link | trigger ▸ indicator
+   *                     ▸ item ▸ more
+   *        · panel ▸ context · panel-list ▸ item… · help
+   *        · search ▸ … · search-close
+   *        · actions ▸ search-toggle · help · notifications ▸ count · account
+   *
+   * ── The bar folds by container query ────────────────────────────────────
+   *
+   * Three literal steps, declared in the contract as `collapseAt` and compared
+   * by `top-navigation.styles.test.mjs`: below 1024 the low-priority items
+   * leave the list, below 600 the medium ones, the search becomes its toggle
+   * and the context moves to the panel, below 480 the high ones and the help
+   * go with them and the name leaves the eye. The stylesheet decides the whole picture from the
+   * width; the script that comes later writes `data-collapsed` from the same
+   * three numbers, counts what folded onto `more`, and moves the folded parts
+   * into the panel while it is open.
+   *
+   * ── The panel is the same DOM ───────────────────────────────────────────
+   *
+   * What folds is not rebuilt: the consumer's `li` is moved (Angular) or
+   * portalled (React) into `panel-list`, so a trigger keeps the menu wrapped
+   * around it and a link keeps the badge inside it. The panel stands inside
+   * the root and after `more` in DOM order, which is what lets Tab enter it.
+   *
+   * ── Geometry is the shell's where the shell is ──────────────────────────
+   *
+   * `brand` starts on `--slotted-app-shell-row-inset` so the shell's toggle
+   * and the mark stand over the marks in the navigation column, and the
+   * panel's rows read the row the shell publishes so a folded destination
+   * reads as the row it would be in `side-navigation`. Outside the shell the
+   * fallbacks are the control scale.
+   */
+  [data-ui-top-navigation] {
+    --_control-height: var(--slotted-control-height-md, 34px);
+    --_control-padding: var(--slotted-control-padding-inline-md, 13px);
+    --_control-font-size: var(--slotted-control-font-size-md, 13px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_action-gap: var(--slotted-control-gap-sm, 6px);
+    /** The start inset the shell publishes; nothing outside it. */
+    --_row-inset: var(--slotted-app-shell-row-inset, 0px);
+    --_row-height: var(--slotted-app-shell-row-height, var(--slotted-control-height-md, 34px));
+    --_row-font-size: var(
+      --slotted-app-shell-row-font-size,
+      var(--slotted-font-size-sm, 0.8125rem)
+    );
+    --_row-line-height: var(
+      --slotted-app-shell-row-line-height,
+      var(--slotted-line-height-sm, 1.45)
+    );
+    --_inset: var(--slotted-top-navigation-inset, var(--slotted-space-5, 0.75rem));
+    --_block-size: var(
+      --slotted-top-navigation-block-size,
+      calc(var(--slotted-control-height-lg, 38px) + var(--slotted-space-5, 0.75rem) * 2)
+    );
+    --_radius: var(--slotted-top-navigation-radius, var(--slotted-control-radius, 4px));
+    --_name-font-size: var(
+      --slotted-top-navigation-name-font-size,
+      var(--slotted-font-size-md, 0.875rem)
+    );
+    --_name-max: var(--slotted-top-navigation-name-max, 16rem);
+    --_search-size: var(--slotted-top-navigation-search-size, 28rem);
+    /** The floor a field is still a field at: nine characters and the shortcut. */
+    --_search-min: var(--slotted-top-navigation-search-min, 10rem);
+    /** The inset a framed bar carries at both ends; nought inside the shell, which insets the banner itself. */
+    --_edge: 0px;
+    --_panel-size: var(--slotted-top-navigation-panel-size, 20rem);
+    --_mark-size: calc(var(--_control-height) - var(--slotted-space-2, 0.25rem) * 2);
+
+    --_surface: var(--slotted-top-navigation-surface, var(--slotted-surface, Canvas));
+    --_color: var(--slotted-top-navigation-color, var(--slotted-text, CanvasText));
+    --_muted-color: var(--slotted-top-navigation-muted-color, var(--slotted-text-muted, GrayText));
+    --_border-color: var(
+      --slotted-top-navigation-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+    --_hover-background: var(
+      --slotted-top-navigation-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    --_active-background: var(
+      --slotted-top-navigation-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+    --_current-color: var(--slotted-top-navigation-current-color, var(--slotted-tone-accent-text));
+    --_current-background: var(
+      --slotted-top-navigation-current-background,
+      var(--slotted-tone-accent-surface)
+    );
+    /**
+     * The state is a pair, ground and edge, for the reason `side-navigation`
+     * gives: the foundation's `--slotted-current-edge` is transparent where the
+     * tone ground says the state and black in `high-contrast`, where every tone
+     * ground is the page's white. Drawn as an inset shadow, so nothing moves.
+     */
+    --_current-edge: var(
+      --slotted-top-navigation-current-edge,
+      var(--slotted-current-edge, transparent)
+    );
+    --_count-background: var(
+      --slotted-top-navigation-count-background,
+      var(--slotted-tone-accent-solid)
+    );
+    --_count-color: var(--slotted-top-navigation-count-color, var(--slotted-tone-accent-on-solid));
+    --_panel-surface: var(
+      --slotted-top-navigation-panel-surface,
+      var(--slotted-surface-raised, Canvas)
+    );
+    --_panel-shadow: var(--slotted-top-navigation-panel-shadow, var(--slotted-shadow-md));
+    --_panel-radius: var(--slotted-top-navigation-panel-radius, var(--slotted-radius-lg, 8px));
+    --_disabled-color: var(--slotted-disabled-foreground, GrayText);
+    --_rule-width: var(--slotted-border-width-thin, 1px);
+
+    --_duration: var(--slotted-control-transition-duration, var(--slotted-duration-short));
+    --_easing: var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+
+    align-items: center;
+    box-sizing: border-box;
+    color: var(--_color);
+    container-name: slotted-top-navigation;
+    container-type: inline-size;
+    display: flex;
+    font-family: var(--slotted-control-font-family, inherit);
+    font-size: var(--_control-font-size);
+    gap: var(--_gap);
+    line-height: var(--slotted-control-line-height, 1);
+    min-block-size: var(--_control-height);
+    min-inline-size: 0;
+    /* The panel's containing block, and a flex item that fills the shell's banner. */
+    flex: 1 1 auto;
+    position: relative;
+  }
+
+  /**
+   * Standing alone the bar paints its own ground, a rule along its end edge
+   * and its own inset; inside the shell the banner already does all three,
+   * and the bar paints nothing over what the shell painted.
+   *
+   * The inset is not padding on the root. A container query resolves against
+   * the container's content box, and the width gate in the script measures
+   * the border box: with twelve pixels of padding a side the stylesheet folded
+   * at 1048 and the script at 1024, and a bar in a room of exactly 1024 drew
+   * `more` for two items the script said were in the list. So the root's
+   * content box is its border box, and the first and last clusters carry the
+   * edge — `--_edge`, nought inside the shell — beside the shell's row inset.
+   */
+  [data-ui-top-navigation][data-frame] {
+    --_edge: var(--_inset);
+
+    background-color: var(--_surface);
+    border-block-end: var(--_rule-width) solid var(--_border-color);
+    min-block-size: var(--_block-size);
+  }
+
+  [data-ui-top-navigation][data-size='sm'] {
+    --_control-height: var(--slotted-control-height-sm, 30px);
+    --_control-padding: var(--slotted-control-padding-inline-sm, 10px);
+    --_control-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    --_action-gap: var(--slotted-control-gap-sm, 6px);
+    --_row-height: var(--slotted-control-height-sm, 30px);
+    --_row-font-size: var(--slotted-font-size-xs, 0.75rem);
+    --_row-line-height: var(--slotted-line-height-xs, 1.4);
+    --_name-font-size: var(
+      --slotted-top-navigation-name-font-size,
+      var(--slotted-font-size-sm, 0.8125rem)
+    );
+    --_block-size: var(
+      --slotted-top-navigation-block-size,
+      calc(var(--slotted-control-height-md, 34px) + var(--slotted-space-4, 0.5rem) * 2)
+    );
+  }
+
+  [data-ui-top-navigation][data-size='lg'] {
+    --_control-height: var(--slotted-control-height-lg, 38px);
+    --_control-padding: var(--slotted-control-padding-inline-lg, 16px);
+    --_control-font-size: var(--slotted-control-font-size-lg, 14px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+    --_action-gap: var(--slotted-control-gap-md, 8px);
+    --_row-height: var(--slotted-control-height-lg, 38px);
+    --_row-font-size: var(--slotted-font-size-md, 0.875rem);
+    --_row-line-height: var(--slotted-line-height-md, 1.5);
+    --_name-font-size: var(
+      --slotted-top-navigation-name-font-size,
+      var(--slotted-font-size-lg, 1rem)
+    );
+    --_block-size: var(
+      --slotted-top-navigation-block-size,
+      calc(var(--slotted-control-height-lg, 38px) + var(--slotted-space-6, 1rem) * 2)
+    );
+  }
+
+  /* ── The skip link ──────────────────────────────────────────────────────── */
+
+  /**
+   * Out of sight until it holds focus, and then a control at the start of the
+   * bar, on the bar's own ground: a reader tabbing into the page sees where
+   * they are before they see anything else.
+   */
+  [data-ui-top-navigation] > [data-part-skip] {
+    background-color: var(--_surface);
+    block-size: var(--_control-height);
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    clip-path: inset(50%);
+    color: var(--_color);
+    display: inline-flex;
+    align-items: center;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    inset-block-start: 50%;
+    inset-inline-start: var(--_edge);
+    padding-inline: var(--_control-padding);
+    position: absolute;
+    text-decoration: none;
+    translate: 0 -50%;
+    white-space: nowrap;
+    z-index: 1;
+  }
+
+  [data-ui-top-navigation] > [data-part-skip]:focus-visible {
+    clip-path: none;
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── Brand ──────────────────────────────────────────────────────────────── */
+
+  /**
+   * The root part is named in the selector for one reason: `app-shell` styles
+   * its own brand cluster with a descendant selector,
+   * `[data-ui-app-shell] [data-part-brand]`, which reaches this part when
+   * the bar stands in the shell's banner and clips `home` to a sliver at 240
+   * pixels. Naming the root outranks it. The shell's own reopening narrows
+   * that selector to its banner; until then the two declarations it leaks —
+   * the inset, and the overflow on every child — are restated here.
+   */
+  /**
+   * No `min-inline-size: 0` here: the cluster's minimum is its automatic one,
+   * the marks it holds, which `home` below contributes without the name. At
+   * nought it shrank under its own marks on a phone whose actions held seven
+   * touch-sized controls, and the marks spilled over the cluster beside it.
+   */
+  [data-ui-top-navigation][data-part-root] > [data-part-brand] {
+    align-items: center;
+    display: flex;
+    flex: 0 1 auto;
+    font-weight: inherit;
+    gap: var(--_gap);
+    padding-inline-start: calc(var(--_edge) + var(--_row-inset));
+  }
+
+  [data-ui-top-navigation][data-part-root] > [data-part-brand] > [data-part-home] {
+    min-inline-size: var(--_control-height);
+    overflow: visible;
+    white-space: normal;
+  }
+
+  [data-ui-top-navigation] [data-part-home] {
+    align-items: center;
+    border-radius: var(--_radius);
+    color: var(--_color);
+    /*
+     * A grid of two tracks, the mark's and the name's, rather than a flex row.
+     * The name gives way to its ellipsis and, past it, to the mark alone —
+     * the mark never does. As a flex row that order could not be stated: a
+     * flex item's minimum is its content's contribution, which for a nowrap
+     * string is the whole string, so a floor on the name became a floor on
+     * the cluster and the bar overflowed at its end. A `minmax(0, 1fr)` track
+     * contributes nothing to the grid's min-content size, so the link's
+     * minimum is the mark's track and the name still shrinks to its ellipsis
+     * inside its own.
+     */
+    display: inline-grid;
+    flex: 0 1 auto;
+    gap: var(--_gap);
+    grid-template-columns: auto minmax(0, 1fr);
+    min-block-size: var(--_control-height);
+    /*
+     * A bar whose priorities leave it short of room loses the name before it
+     * loses a control, which is the order the name's own step at 480 already sets.
+     */
+    min-inline-size: var(--_control-height);
+    text-decoration: none;
+  }
+
+  [data-ui-top-navigation] [data-part-home]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /** A square the mark is centred in, the height of the bar's controls. */
+  [data-ui-top-navigation] [data-part-mark] {
+    align-items: center;
+    block-size: var(--_control-height);
+    display: inline-flex;
+    flex: 0 0 auto;
+    inline-size: var(--_control-height);
+    justify-content: center;
+  }
+
+  [data-ui-top-navigation] [data-part-mark] > :is(svg, img) {
+    block-size: var(--_mark-size);
+    inline-size: var(--_mark-size);
+  }
+
+  /**
+   * One line. It ends in an ellipsis rather than pushing the bar wider than
+   * the space there is — the rule `app-shell` states for its own brand.
+   */
+  [data-ui-top-navigation] [data-part-name] {
+    font-size: var(--_name-font-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    max-inline-size: var(--_name-max);
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── Context ────────────────────────────────────────────────────────────── */
+
+  /**
+   * What gives way when the bar is short of room, and in which order: the
+   * search shrinks first, to the floor a field is still a field at; then the
+   * name, to its ellipsis. The context, the destinations and the actions keep
+   * their width — a workspace switcher wrapped one letter per line, which is
+   * what a shrinking cluster does to a button — and the steps below are what
+   * takes their room back.
+   */
+  [data-ui-top-navigation] [data-part-context] {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: var(--_action-gap);
+  }
+
+  /* ── Navigation ─────────────────────────────────────────────────────────── */
+
+  /**
+   * The nav part is also a `navigation-menu` root, which declares private
+   * variables of the same names on the same element. The bar's own values are
+   * inherited back, so the bar's rows and the sections' panels read the bar's
+   * tokens — one bar, one set of decisions.
+   */
+  [data-ui-top-navigation] [data-part-nav] {
+    --_control-height: inherit;
+    --_control-padding: inherit;
+    --_control-font-size: inherit;
+    --_icon-size: inherit;
+    --_gap: inherit;
+    --_radius: inherit;
+    --_color: inherit;
+    --_muted-color: inherit;
+    --_hover-background: inherit;
+    --_active-background: inherit;
+    --_current-color: inherit;
+    --_current-background: inherit;
+    --_current-edge: inherit;
+    --_disabled-color: inherit;
+    --_duration: inherit;
+    --_easing: inherit;
+
+    display: flex;
+    flex: 0 0 auto;
+  }
+
+  [data-ui-top-navigation] [data-part-list] {
+    align-items: center;
+    display: flex;
+    gap: var(--slotted-space-1, 0.125rem);
+    list-style: none;
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+  }
+
+  [data-ui-top-navigation] [data-part-item] {
+    display: flex;
+    flex: 0 0 auto;
+    min-inline-size: 0;
+  }
+
+  /**
+   * A destination and a section share one row: the control's height and
+   * inset, the page's ink at rest and a ground under the pointer. The ink is
+   * the page's rather than the muted step because a disabled row has to read
+   * as one beside its neighbours, and the disabled ink is one step from the
+   * muted ink in `light`; the icon-only controls stay muted, the way Carbon's
+   * global actions do, because a mark carries less weight than a word.
+   */
+  [data-ui-top-navigation]
+    :is([data-part-nav] > [data-part-list], [data-part-panel-list])
+    > [data-part-item]
+    > :is([data-part-link], [data-part-trigger]) {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    color: var(--_color);
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    gap: var(--_action-gap);
+    margin: 0;
+    min-block-size: var(--_control-height);
+    padding-block: 0;
+    padding-inline: var(--_control-padding);
+    text-decoration: none;
+    transition:
+      background-color var(--_duration) var(--_easing),
+      color var(--_duration) var(--_easing);
+    white-space: nowrap;
+  }
+
+  [data-ui-top-navigation]
+    [data-part-item]:not([data-disabled])
+    > [data-part-link]:not([data-current], [aria-current='page']):hover,
+  [data-ui-top-navigation]
+    [data-part-item]:not([data-disabled])
+    > [data-part-trigger]:enabled:hover {
+    background-color: var(--_hover-background);
+    color: var(--_color);
+  }
+
+  [data-ui-top-navigation]
+    [data-part-item]:not([data-disabled])
+    > [data-part-link]:not([data-current], [aria-current='page']):active,
+  [data-ui-top-navigation]
+    [data-part-item]:not([data-disabled])
+    > [data-part-trigger]:enabled:active {
+    background-color: var(--_active-background);
+    color: var(--_color);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /**
+   * A section that is open holds the ground the pointer gave it. `data-open`
+   * is written on the trigger by the consumer's `menu`, whose trigger the
+   * family's part is rendered as, so the family wires nothing for it.
+   */
+  [data-ui-top-navigation]
+    [data-part-item]:not([data-disabled])
+    > [data-part-trigger][data-open]:enabled {
+    background-color: var(--_hover-background);
+    color: var(--_color);
+  }
+
+  /**
+   * Current by the family's own attribute, or by the `aria-current` a router
+   * wrote on the anchor it rendered: React cannot read the DOM back, so a
+   * router link rendered through `render` says where the reader is in the one
+   * attribute it owns, and the stylesheet reads it as the same state.
+   */
+  [data-ui-top-navigation]
+    :is([data-part-nav] > [data-part-list], [data-part-panel-list])
+    > [data-part-item]
+    > [data-part-link]:is([data-current], [aria-current='page']) {
+    background-color: var(--_current-background);
+    box-shadow: inset 0 0 0 var(--_rule-width) var(--_current-edge);
+    color: var(--_current-color);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  [data-ui-top-navigation]
+    :is([data-part-nav] > [data-part-list], [data-part-panel-list])
+    > [data-part-item][data-disabled]
+    > [data-part-link],
+  [data-ui-top-navigation]
+    :is([data-part-nav] > [data-part-list], [data-part-panel-list])
+    > [data-part-item]
+    > [data-part-trigger]:disabled {
+    color: var(--_disabled-color);
+    cursor: not-allowed;
+  }
+
+  [data-ui-top-navigation]
+    :is([data-part-nav] > [data-part-list], [data-part-panel-list])
+    > [data-part-item]
+    > :is([data-part-link], [data-part-trigger]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * The chevron says a section opens below the bar — the promise `select`
+   * makes with the same mark — and turns half a turn while it is open. It is
+   * the `chevron-down` Glyph element the binding renders in the part. Down is
+   * down in both directions, so its box is not `directional`.
+   */
+  [data-ui-top-navigation]
+    :is([data-part-nav] > [data-part-list], [data-part-panel-list])
+    > [data-part-item]
+    > [data-part-trigger]
+    > [data-part-indicator] {
+    --slotted-icon-size: var(--_icon-size);
+
+    display: flex;
+    flex: 0 0 auto;
+    margin-inline-end: calc(-1 * var(--slotted-space-2, 0.25rem));
+  }
+
+  [data-ui-top-navigation]
+    :is([data-part-nav] > [data-part-list], [data-part-panel-list])
+    > [data-part-item]
+    > [data-part-trigger]
+    > [data-part-indicator]
+    > [data-ui-icon] {
+    transition: rotate var(--slotted-duration-medium) var(--_easing);
+  }
+
+  [data-ui-top-navigation] [data-part-trigger][data-open] > [data-part-indicator] > [data-ui-icon] {
+    rotate: 0.5turn;
+  }
+
+  /* ── Icon-only controls ─────────────────────────────────────────────────── */
+
+  /**
+   * One shape for every control the family draws a mark on: a square the
+   * control's height, no frame at rest, the ground under the pointer, the
+   * mark a Glyph element the binding renders in the control's own ink.
+   * `action` is the same shape for a global control the family did not
+   * foresee — approvals, tasks — with the consumer's own glyph where the
+   * family's would be, so the cluster is one row of equals and not four of
+   * the family's beside three of another.
+   */
+  [data-ui-top-navigation]
+    :is(
+      [data-part-more],
+      [data-part-search-toggle],
+      [data-part-search-close],
+      [data-part-help],
+      [data-part-notifications],
+      [data-part-account],
+      [data-part-action]
+    ) {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    color: var(--_muted-color);
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font: inherit;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    gap: var(--_action-gap);
+    justify-content: center;
+    margin: 0;
+    min-block-size: var(--_control-height);
+    min-inline-size: var(--_control-height);
+    padding: 0;
+    position: relative;
+    text-decoration: none;
+    transition:
+      background-color var(--_duration) var(--_easing),
+      color var(--_duration) var(--_easing);
+    white-space: nowrap;
+  }
+
+  /**
+   * The family's marks — `ellipsis`, `search`, `x`, `circle-question` and
+   * `bell` — are sized by the control they stand in.
+   */
+  [data-ui-top-navigation]
+    :is(
+      [data-part-more],
+      [data-part-search-toggle],
+      [data-part-search-close],
+      [data-part-help],
+      [data-part-notifications]
+    ) {
+    --slotted-icon-size: var(--_icon-size);
+  }
+
+  /**
+   * The glyph inside an action is the consumer's, and the control sizes it:
+   * an icon box reads `--slotted-icon-size` from the control, a bare glyph
+   * host such as `ng-icon` reads the font-size the child rule gives it. The
+   * count stands out of the flow and is not the glyph.
+   */
+  [data-ui-top-navigation] [data-part-action] {
+    --slotted-icon-size: var(--_icon-size);
+  }
+
+  [data-ui-top-navigation] [data-part-action] > :not([data-part-count]) {
+    block-size: var(--_icon-size);
+    flex: 0 0 auto;
+    font-size: var(--_icon-size);
+    inline-size: var(--_icon-size);
+  }
+
+  [data-ui-top-navigation]
+    :is(
+      [data-part-more],
+      [data-part-search-toggle],
+      [data-part-search-close],
+      [data-part-notifications],
+      [data-part-account]
+    ):enabled:hover,
+  [data-ui-top-navigation] a:is([data-part-help], [data-part-action]):not([data-disabled]):hover,
+  [data-ui-top-navigation] button:is([data-part-help], [data-part-action]):enabled:hover {
+    background-color: var(--_hover-background);
+    color: var(--_color);
+  }
+
+  [data-ui-top-navigation]
+    :is(
+      [data-part-more],
+      [data-part-search-toggle],
+      [data-part-search-close],
+      [data-part-notifications],
+      [data-part-account]
+    ):enabled:active,
+  [data-ui-top-navigation] a:is([data-part-help], [data-part-action]):not([data-disabled]):active,
+  [data-ui-top-navigation] button:is([data-part-help], [data-part-action]):enabled:active {
+    background-color: var(--_active-background);
+    color: var(--_color);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /** A control whose layer is open holds the ground the pointer gave it. */
+  [data-ui-top-navigation]
+    :is(
+      [data-part-more],
+      [data-part-notifications],
+      [data-part-account],
+      [data-part-help],
+      [data-part-action]
+    )[data-open] {
+    background-color: var(--_hover-background);
+    color: var(--_color);
+  }
+
+  [data-ui-top-navigation]
+    :is(
+      [data-part-more],
+      [data-part-search-toggle],
+      [data-part-search-close],
+      [data-part-help],
+      [data-part-notifications],
+      [data-part-account],
+      [data-part-action]
+    ):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  [data-ui-top-navigation]
+    :is(
+      [data-part-more],
+      [data-part-search-toggle],
+      [data-part-search-close],
+      [data-part-notifications],
+      [data-part-account]
+    ):disabled,
+  [data-ui-top-navigation] button:is([data-part-help], [data-part-action]):disabled {
+    color: var(--_disabled-color);
+    cursor: not-allowed;
+  }
+
+  /** The folded destination is where the reader is: `more` says so the way a closed parent does. */
+  [data-ui-top-navigation] [data-part-more][data-current] {
+    color: var(--_current-color);
+  }
+
+  /**
+   * The account is a pill: the consumer's avatar inside a halo of one space
+   * step, and, when there is room, a name after it. The halo is the space the
+   * pointer's ground keeps between the control's edge and the avatar's edge,
+   * and the avatar the bar expects is one step under the control — `xs` at
+   * `md` — which is what leaves the halo whole inside the control's height.
+   */
+  [data-ui-top-navigation] [data-part-account] {
+    border-radius: var(--slotted-radius-full, 9999px);
+    gap: var(--slotted-space-3, 0.375rem);
+    padding: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-top-navigation] [data-part-account] > :not([data-ui-avatar]) {
+    padding-inline-end: var(--slotted-space-3, 0.375rem);
+  }
+
+  /**
+   * The count of what is waiting, over the bell's top-end corner: a disc for
+   * one digit and a pill from two, knocked out of the bar's ground by a ring
+   * so it reads over the bell's edge. It stands out of the flow, so it adds
+   * nothing to the control's width — the control is the bell's box, like the
+   * boxes beside it — and a third digit grows away from the bell, over the gap,
+   * where the control beside it holds no ink. Tabular figures, so a count that
+   * goes from 9 to 10 does not shift the ring.
+   *
+   * The count is type, and it is sized as the type it is, the way `badge`
+   * sizes a count: the control scale's small step — which is the step that
+   * moves with density — on a disc the height of that type's line, with a
+   * space step of inset on either side of the figures. Sized as a fraction of
+   * the bell instead, it was 14 pixels holding 10-pixel semibold figures with
+   * two pixels of inset, and the figures were crushed against the edge.
+   *
+   * A block container rather than a flex one: a flex container centres the
+   * line box, which is not symmetric around the figures inside it, and the
+   * figures sat high. `align-content` centres the one line, and the trim
+   * below makes that line the ink.
+   */
+  [data-ui-top-navigation] [data-part-count] {
+    --_count-font: var(--slotted-control-font-size-sm, 12px);
+    --_count-size: calc(var(--_count-font) * var(--slotted-line-height-xs, 1.4));
+    --_count-inset: calc((var(--_control-height) - var(--_icon-size)) / 2);
+    align-content: center;
+    background-color: var(--_count-background);
+    block-size: var(--_count-size);
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-shadow: 0 0 0 var(--slotted-border-width-thick, 2px) var(--_surface);
+    box-sizing: border-box;
+    color: var(--_count-color);
+    display: block;
+    font-size: var(--_count-font);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    inset-block-start: calc(var(--_count-inset) - var(--_count-size) / 2);
+    /* Its centre on the bell's top-end corner, so the disc covers a corner of the mark and no more; a pill of three ends inside the account's halo. */
+    inset-inline-start: calc(100% - var(--_count-inset) - var(--_count-size) / 2);
+    line-height: 1;
+    min-inline-size: var(--_count-size);
+    padding-inline: var(--slotted-space-2, 0.25rem);
+    pointer-events: none;
+    position: absolute;
+    text-align: center;
+    white-space: nowrap;
+    z-index: 1;
+  }
+
+  /** What is centred is the ink rather than the font's metrics, as `badge` and `avatar` do it. */
+  @supports (text-box: trim-both cap alphabetic) {
+    [data-ui-top-navigation] [data-part-count] {
+      text-box: trim-both cap alphabetic;
+    }
+  }
+
+  /* ── Search ─────────────────────────────────────────────────────────────── */
+
+  /**
+   * The one thing in the bar that grows: it takes the middle, up to the
+   * measure a search field is read at, and gives way before anything else
+   * does. What stands inside it is the consumer's field.
+   *
+   * It stands at the start of the middle, and the free space is between it
+   * and the actions. It was centred in that space, and the two end clusters
+   * are never the same width, so the field stood off the bar's centre by half
+   * their difference — twenty pixels in the first demo capture, aligned with
+   * nothing. Centring on the bar itself needs the two clusters laid out as
+   * one grid track each, which is not this family's tree; what a field at the
+   * start of the middle aligns with is the brand it follows.
+   */
+  [data-ui-top-navigation] [data-part-search] {
+    align-items: center;
+    display: flex;
+    /* A shrink weight far above the brand's, so the field gives way to its
+       floor before the name gives up a letter: flex shares a deficit by weight
+       and basis, not in order, and the weight is how an order is stated. Four
+       orders of magnitude, because the brand's share of a deficit is what is
+       left after the weight, and at a hundred it was four tenths of a pixel —
+       enough to overflow the name's box and draw an ellipsis over a whole name. */
+    flex: 1 10000 var(--_search-size);
+    gap: var(--_action-gap);
+    margin-inline: 0 auto;
+    max-inline-size: var(--_search-size);
+    min-inline-size: var(--_search-min);
+  }
+
+  [data-ui-top-navigation] [data-part-search] > :not([data-part-search-close]) {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  /** The toggle and the close exist for the narrow bar alone. */
+  [data-ui-top-navigation] [data-part-search-toggle],
+  [data-ui-top-navigation] [data-part-search-close] {
+    display: none;
+  }
+
+  /* ── Actions ────────────────────────────────────────────────────────────── */
+
+  [data-ui-top-navigation] [data-part-actions] {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: var(--_action-gap);
+    margin-inline-start: auto;
+    padding-inline-end: calc(var(--_edge) + var(--_row-inset));
+  }
+
+  /* ── More, and the panel ────────────────────────────────────────────────── */
+
+  /**
+   * Hidden while nothing folds. The container queries below show it as soon
+   * as the list holds an item of a priority that has folded; the script
+   * shows it by the count it writes, which is what a list whose folded items
+   * have all moved into the panel is left with.
+   */
+  [data-ui-top-navigation] [data-part-item]:has(> [data-part-more]) {
+    display: none;
+  }
+
+  [data-ui-top-navigation] [data-part-item]:has(> [data-part-more][data-overflow]) {
+    display: flex;
+  }
+
+  /**
+   * Under the bar's end edge, on a raised ground, the width a column of
+   * destinations is read at. It stays in the DOM closed — out of sight and
+   * out of the tab order by `visibility` — so opening is a transition from a
+   * style the browser has already computed, and closing leaves from wherever
+   * the panel is. It arrives from one step above its place (R7).
+   */
+  [data-ui-top-navigation] [data-part-panel] {
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+
+    background-color: var(--_panel-surface);
+    border: var(--_rule-width) solid var(--_border-color);
+    border-radius: var(--_panel-radius);
+    box-shadow: var(--_panel-shadow);
+    box-sizing: border-box;
+    color: var(--_color);
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-2, 0.25rem);
+    inline-size: var(--_panel-size);
+    inset-block-start: calc(100% + var(--slotted-space-2, 0.25rem));
+    inset-inline-end: var(--_edge);
+    max-inline-size: 100%;
+    opacity: 0;
+    padding: var(--slotted-space-2, 0.25rem);
+    position: absolute;
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-exit),
+      translate var(--slotted-duration-short) var(--slotted-easing-exit),
+      visibility var(--slotted-duration-short) step-end;
+    translate: 0 calc(-1 * var(--_enter-distance));
+    visibility: hidden;
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+  }
+
+  [data-ui-top-navigation] [data-part-panel][data-open] {
+    opacity: 1;
+    transition:
+      opacity var(--slotted-duration-medium) var(--slotted-easing-enter),
+      translate var(--slotted-duration-medium) var(--slotted-easing-enter),
+      visibility var(--slotted-duration-medium) step-start;
+    translate: 0 0;
+    visibility: visible;
+  }
+
+  [data-ui-top-navigation] [data-part-panel-list] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-1, 0.125rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  [data-ui-top-navigation] [data-part-panel-list]:empty {
+    display: none;
+  }
+
+  /**
+   * A folded destination is a row of the column: the shell's row height and
+   * type, the whole width, the label at the start. A section trigger in the
+   * panel keeps its chevron at the end of the row.
+   */
+  [data-ui-top-navigation] [data-part-panel] [data-part-item] {
+    display: flex;
+    flex: 0 0 auto;
+  }
+
+  [data-ui-top-navigation]
+    [data-part-panel-list]
+    > [data-part-item]
+    > :is([data-part-link], [data-part-trigger]),
+  [data-ui-top-navigation] [data-part-panel] > [data-part-help] {
+    flex: 1 1 auto;
+    font-size: var(--_row-font-size);
+    justify-content: flex-start;
+    line-height: var(--_row-line-height);
+    min-block-size: var(--_row-height);
+    padding-inline: var(--_control-padding);
+    white-space: normal;
+  }
+
+  [data-ui-top-navigation]
+    [data-part-panel-list]
+    > [data-part-item]
+    > [data-part-trigger]
+    > [data-part-indicator] {
+    margin-inline-end: 0;
+    margin-inline-start: auto;
+  }
+
+  /**
+   * A section folded into the panel opens its links in line under its
+   * trigger, as a group of the column does: the shared surface belongs to
+   * the bar's row, and a panel floating out of a panel is a second layer the
+   * reader did not ask for. The rows read the row geometry the folded links
+   * already read.
+   */
+  [data-ui-top-navigation] [data-part-panel-list] > [data-part-item]:has(> [data-part-content]) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  [data-ui-top-navigation] [data-part-panel-list] > [data-part-item] > [data-part-content] {
+    display: grid;
+    gap: var(--slotted-space-1, 0.125rem);
+    padding-block-end: var(--slotted-space-2, 0.25rem);
+    padding-inline-start: var(--_control-padding);
+  }
+
+  [data-ui-top-navigation] [data-part-panel-list] > [data-part-item] > [data-part-content][hidden] {
+    display: none;
+  }
+
+  [data-ui-top-navigation] [data-part-panel-list] [data-part-content] [data-part-links] {
+    display: grid;
+    gap: var(--slotted-space-1, 0.125rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  [data-ui-top-navigation] [data-part-panel-list] [data-part-content] [data-part-link] {
+    align-content: center;
+    border-radius: var(--_radius);
+    color: var(--_color);
+    column-gap: var(--_action-gap);
+    display: grid;
+    font-size: var(--_row-font-size);
+    grid-template-columns: auto minmax(0, 1fr);
+    line-height: var(--_row-line-height);
+    min-block-size: var(--_row-height);
+    padding-inline: var(--_control-padding);
+    text-decoration: none;
+    transition: background-color var(--_duration) var(--_easing);
+  }
+
+  [data-ui-top-navigation]
+    [data-part-panel-list]
+    [data-part-content]
+    [data-part-link]:not([data-disabled], [data-current], [aria-current='page']):hover {
+    background-color: var(--_hover-background);
+  }
+
+  [data-ui-top-navigation]
+    [data-part-panel-list]
+    [data-part-content]
+    [data-part-link]:not([data-disabled], [data-current], [aria-current='page']):active {
+    background-color: var(--_active-background);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  [data-ui-top-navigation]
+    [data-part-panel-list]
+    [data-part-content]
+    [data-part-link]:is([data-current], [aria-current='page']) {
+    background-color: var(--_current-background);
+    box-shadow: inset 0 0 0 var(--_rule-width) var(--_current-edge);
+    color: var(--_current-color);
+  }
+
+  [data-ui-top-navigation]
+    [data-part-panel-list]
+    [data-part-content]
+    [data-part-link][data-disabled] {
+    color: var(--_disabled-color);
+    cursor: not-allowed;
+  }
+
+  [data-ui-top-navigation]
+    [data-part-panel-list]
+    [data-part-content]
+    [data-part-link]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-width, 2px) * -1);
+  }
+
+  /** A link of plain words, or a rich one with no mark, starts its text at the inset. */
+  [data-ui-top-navigation]
+    [data-part-panel-list]
+    [data-part-content]
+    [data-part-link]:not(:has(> [data-part-icon]))
+    > * {
+    grid-column: 1 / -1;
+  }
+
+  [data-ui-top-navigation] [data-part-panel-list] [data-part-content] [data-part-icon] {
+    --slotted-icon-size: var(--_icon-size);
+
+    color: var(--_muted-color);
+    display: flex;
+    grid-row: 1 / span 2;
+  }
+
+  [data-ui-top-navigation] [data-part-panel-list] [data-part-content] [data-part-description] {
+    color: var(--_muted-color);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    grid-column: 2;
+  }
+
+  [data-ui-top-navigation] [data-part-panel-list] [data-part-content] [data-part-group-label] {
+    color: var(--_muted-color);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_control-padding);
+  }
+
+  [data-ui-top-navigation] [data-part-panel-list] [data-part-content] [data-part-footer] {
+    align-items: center;
+    border-block-start: var(--_rule-width) solid var(--_border-color);
+    display: flex;
+    gap: var(--_action-gap);
+    justify-content: space-between;
+    padding-block-start: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_control-padding);
+  }
+
+  /**
+   * Help's children are its label: pushed out of the box and clipped in the
+   * bar, where the mark stands alone and the tooltip repeats the words, and
+   * shown after the mark in the panel, where it is a row. One accessible name
+   * in both places, from the same text. The words are a text node, which no
+   * child selector reaches, so the box itself does the hiding.
+   */
+  [data-ui-top-navigation] [data-part-actions] > [data-part-help] {
+    gap: var(--_control-height);
+    inline-size: var(--_control-height);
+    justify-content: flex-start;
+    overflow: hidden;
+    padding-inline-start: calc((var(--_control-height) - var(--_icon-size)) / 2);
+  }
+
+  [data-ui-top-navigation] [data-part-panel] > [data-part-help] {
+    gap: var(--_gap);
+  }
+
+  [data-ui-top-navigation] [data-part-panel] > [data-part-context] {
+    padding: var(--slotted-space-2, 0.25rem) var(--slotted-space-3, 0.375rem);
+  }
+
+  /**
+   * The panel reads context, list, help whatever order they arrived in: React
+   * renders each into the panel through a portal in the order the parts mount,
+   * Angular moves them into place. The rules between the three are drawn on
+   * the list and on help, from what the panel holds rather than from what
+   * stands before them, for the same reason.
+   */
+  [data-ui-top-navigation] [data-part-panel] > [data-part-context] {
+    order: -1;
+  }
+
+  [data-ui-top-navigation] [data-part-panel] > [data-part-help] {
+    order: 1;
+  }
+
+  [data-ui-top-navigation]
+    [data-part-panel]:has(> [data-part-context])
+    > [data-part-panel-list]:not(:empty),
+  [data-ui-top-navigation]
+    [data-part-panel]:has(> [data-part-panel-list]:not(:empty), > [data-part-context])
+    > [data-part-help] {
+    border-block-start: var(--_rule-width) solid var(--_border-color);
+    padding-block-start: var(--slotted-space-2, 0.25rem);
+  }
+
+  /* ── The bar folds ──────────────────────────────────────────────────────── */
+
+  /**
+   * An item without a priority is a medium one, so the default folds where
+   * the shell goes to overlay. `more` shows itself as soon as the list holds
+   * an item of the priority that just folded, so a server render at a narrow
+   * width already has the button.
+   */
+  @container slotted-top-navigation (inline-size < 1024px) {
+    [data-ui-top-navigation] [data-part-list] > [data-part-item][data-priority='low'] {
+      display: none;
+    }
+
+    [data-ui-top-navigation]
+      [data-part-list]:has(> [data-part-item][data-priority='low'])
+      > [data-part-item]:has(> [data-part-more]) {
+      display: flex;
+    }
+  }
+
+  @container slotted-top-navigation (inline-size < 600px) {
+    [data-ui-top-navigation]
+      [data-part-list]
+      > [data-part-item]:not([data-priority='low']):not([data-priority='high']):not(
+        :has(> [data-part-more])
+      ) {
+      display: none;
+    }
+
+    [data-ui-top-navigation]
+      [data-part-list]:has(
+        > [data-part-item]:not([data-priority='low']):not([data-priority='high']):not(
+            :has(> [data-part-more])
+          )
+      )
+      > [data-part-item]:has(> [data-part-more]) {
+      display: flex;
+    }
+
+    /* The field gives way to its toggle; open, it takes the whole bar. */
+    [data-ui-top-navigation]:not([data-search-open]) [data-part-search] {
+      display: none;
+    }
+
+    [data-ui-top-navigation]:not([data-search-open]) [data-part-search-toggle] {
+      display: inline-flex;
+    }
+
+    [data-ui-top-navigation][data-search-open] [data-part-search] {
+      max-inline-size: none;
+      padding-inline: var(--_edge);
+    }
+
+    [data-ui-top-navigation][data-search-open] [data-part-search-close] {
+      display: inline-flex;
+    }
+
+    [data-ui-top-navigation][data-search-open]
+      > :is([data-part-brand], [data-part-context], [data-part-nav], [data-part-actions]) {
+      display: none;
+    }
+
+    /* The account keeps its avatar and gives up the name beside it. */
+    [data-ui-top-navigation] [data-part-account] > :not([data-ui-avatar]) {
+      display: none;
+    }
+
+    /* The context moves to the panel; in the bar it leaves, and `more` shows for it. */
+    [data-ui-top-navigation] > [data-part-context] {
+      display: none;
+    }
+
+    [data-ui-top-navigation]:has(> [data-part-context])
+      [data-part-list]
+      > [data-part-item]:has(> [data-part-more]) {
+      display: flex;
+    }
+  }
+
+  @container slotted-top-navigation (inline-size < 480px) {
+    /* Six controls in a row: the air between them is what gives way. */
+    [data-ui-top-navigation] {
+      --_gap: var(--slotted-space-2, 0.25rem);
+      --_action-gap: var(--slotted-space-2, 0.25rem);
+    }
+
+    [data-ui-top-navigation] [data-part-list] > [data-part-item][data-priority='high'] {
+      display: none;
+    }
+
+    [data-ui-top-navigation]
+      [data-part-list]:has(> [data-part-item][data-priority='high'])
+      > [data-part-item]:has(> [data-part-more]) {
+      display: flex;
+    }
+
+    /**
+     * With one space step between the controls, a pill of three anchored on
+     * the bell's corner would reach the avatar. Here the count hangs from the
+     * gap's far edge instead and grows toward the bell: the disc still sits on
+     * the corner, and a pill covers the bell's top before it covers a control.
+     */
+    [data-ui-top-navigation] [data-part-count] {
+      inset-inline-end: calc(var(--slotted-border-width-thick, 2px) - var(--_action-gap));
+      inset-inline-start: auto;
+    }
+
+    /* The name leaves the eye and not the DOM: `home` keeps its accessible name. */
+    [data-ui-top-navigation] [data-part-name] {
+      clip-path: inset(50%);
+      inline-size: 1px;
+      margin: 0;
+      overflow: hidden;
+      position: absolute;
+      white-space: nowrap;
+    }
+
+    /* Out of flow, the name leaves its track empty; one track, or the gap stays. */
+    [data-ui-top-navigation] [data-part-home] {
+      grid-template-columns: auto;
+    }
+
+    /* Help moves to the panel; in the bar it leaves, and `more` shows for it. */
+    [data-ui-top-navigation] [data-part-actions] > [data-part-help] {
+      display: none;
+    }
+
+    [data-ui-top-navigation]:has([data-part-actions] > [data-part-help])
+      [data-part-list]
+      > [data-part-item]:has(> [data-part-more]) {
+      display: flex;
+    }
+
+    [data-ui-top-navigation] [data-part-panel] {
+      inline-size: auto;
+      inset-inline: var(--_edge);
+    }
+  }
+
+  /* ── Stillness ──────────────────────────────────────────────────────────── */
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-top-navigation] [data-part-panel],
+    [data-ui-top-navigation] [data-part-panel][data-open] {
+      translate: 0 0;
+    }
+  }
+
+  /* ── Forced colours ─────────────────────────────────────────────────────── */
+
+  @media (forced-colors: active) {
+    [data-ui-top-navigation]
+      :is([data-part-nav] > [data-part-list], [data-part-panel-list])
+      > [data-part-item]
+      > [data-part-link]:is([data-current], [aria-current='page']) {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-top-navigation] [data-part-count] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-top-navigation]
+      :is([data-part-nav] > [data-part-list], [data-part-panel-list])
+      > [data-part-item][data-disabled]
+      > [data-part-link],
+    [data-ui-top-navigation]
+      :is([data-part-nav] > [data-part-list], [data-part-panel-list])
+      > [data-part-item]
+      > [data-part-trigger]:disabled {
+      color: GrayText;
+    }
+
+    [data-ui-top-navigation][data-frame],
+    [data-ui-top-navigation] [data-part-panel] {
+      border-color: CanvasText;
+    }
+  }
+}

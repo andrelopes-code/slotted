@@ -1,0 +1,92 @@
+---
+title: Button
+description: Starts an action, navigates with the same surface, carries an action with no room for a label, or holds a state that stays on.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Variants
+
+`solid` marks the action a region exists for, `outline` a quieter action with a bounded edge, and `ghost` an action with no edge at all. Give a region one solid action and paint the rest `outline` or `ghost` in the `secondary` tone.
+
+<Example name="variants" />
+
+## Tones
+
+Five semantic colours, each paintable in every variant. `accent` is the default; `secondary` is neutral; `success`, `warning` and `danger` say what the action does to the record, so a destructive action reads as one before it is pressed.
+
+<Example name="tones" wide />
+
+## Sizes
+
+Three steps of the control scale. Each step reads the `--slotted-control-*` tokens, so the density the application sets retunes every button at once, and no state changes a button's size.
+
+<Example name="sizes" />
+
+## Icons
+
+`start` and `end` place content before and after the label, and mirror in a right-to-left document. An icon beside a label repeats it, so it stays hidden from assistive technology: the library's `Glyph` already carries `aria-hidden`; give your own icon the attribute.
+
+<Example name="icons" wide />
+
+## Icon buttons
+
+`IconButton` is a square control for an action with no room for a label. Its accessible name comes from `aria-label` or `aria-labelledby`, and it is required: in React the type refuses a button without one, and in Angular the development build throws. It defaults to the neutral `ghost` paint, and `shape="circle"` rounds it.
+
+<Example name="icon-button" />
+
+## Loading
+
+While `loading` is set, the button refuses activation, keeps focus and its width, and announces a progress indicator named by `messages.loading`. A band in the button's own ink sweeps behind the label and the icon. With reduced motion or forced colours, a ring replaces the band: in the start icon's box, or over the label when there is no icon. `loadingDelay` holds both back for waits that end quickly, while the refusal starts at once. Press either button.
+
+<Example name="loading" />
+
+## Disabled
+
+`disabled` uses the platform attribute, which also removes the control from the tab sequence. Add `focusableWhenDisabled` when the reason a control is unavailable has to stay reachable: the button keeps its place in the tab order, announces `aria-disabled`, refuses activation, and can point at the explanation with `aria-describedby`.
+
+<Example name="disabled" />
+
+## Links
+
+`ButtonLink` puts the same surface on an anchor. Use it for navigation and `Button` for an action. A disabled link drops its `href`, so a middle click or a modified click cannot follow it, and stays focusable with `role="link"` and `aria-disabled`.
+
+<Example name="link" />
+
+## Full width
+
+`fullWidth` fills the inline size of the container, for the primary actions of a narrow panel, a checkout or a sign-in form.
+
+<Example name="full-width" />
+
+## Toggle buttons
+
+`ToggleButton` holds an on or off state in `aria-pressed`, under a label that never changes with the state. Pass `pressed` and handle the change request to own the state, or pass `defaultPressed` and let the button own it. `IconButton` takes the same two props and becomes a toggle only when one of them is present.
+
+<Example name="toggle" />
+
+## Groups
+
+`ButtonGroup` joins related actions into one shape with `role="group"`. Its `tone`, `variant` and `size` become the defaults of every button inside it, and a button that sets its own value keeps it. Every button keeps its own place in the tab sequence.
+
+<Example name="group" />
+
+## Toolbars
+
+Inside a `Toolbar`, buttons drop in unwrapped and the bar becomes one tab stop with arrow-key movement between them. A disabled action stays in that sequence with `focusableWhenDisabled`, so the reason it is unavailable can be reached from the keyboard.
+
+<Example name="toolbar" wide />
+
+## Application defaults
+
+Set `size`, `tone` and `variant` once for a region instead of on every button: `ButtonDefaultsProvider` in React, `provideButtonDefaults` in Angular. A button that sets an axis itself overrides the default, and an axis the defaults leave unset keeps each member's own.
+
+<Example name="defaults" wide />
+
+## Destructive confirmation
+
+A destructive action opens an `AlertDialog`, whose cancel and confirm controls render as buttons. Focus starts on the cancel action, an outside press does not close the dialog, and the confirm action repeats the danger tone of the trigger. After the deletion, `focusableWhenDisabled` keeps the trigger in the tab sequence while it announces `aria-disabled`.
+
+<Example name="confirm-delete" />

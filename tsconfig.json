@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  /**
+   * The whole repository, checked as one program. `pnpm typecheck` builds this;
+   * `tsconfig.base.json` beside it is the preset every package extends and is
+   * not a project.
+   *
+   * There is no `include`. A component library that gains a family a week is
+   * better served by "everything is checked unless it is named" than by a list
+   * somebody has to remember to extend — a new package that quietly escaped the
+   * typecheck is a worse failure than a directory that has to be excluded once.
+   * TypeScript's own wildcard already skips dot-directories, which is what
+   * keeps `.worktrees` and every `.storybook` out.
+   *
+   * What is named below is output. A build writes declarations beside the
+   * sources they came from, and this program took them as *source*: 432 of
+   * them — 309 from `react`, 67 from `core`, 56 from `angular` — so the same
+   * type arrived twice, once from the file that declares it and once from the
+   * file the build emitted. Packages that consume one another still reach those
+   * declarations through `exports`, and check them once, as the modules they
+   * are (G6).
+   */
+  "extends": "./tsconfig.base.json",
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.turbo/**",
+    "**/coverage/**",
+    "**/storybook-static/**",
+    "apps/docs/**",
+    "tools/agent-docs/**",
+    "demos/nexora/angular/**"
+  ]
+}

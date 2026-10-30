@@ -1,0 +1,1450 @@
+@layer slotted.components {
+  /**
+   * ── One message of a conversation ──────────────────────────────────────
+   *
+   * Two members under one identifier: the row a sender speaks in
+   * (`data-part="root"`, an `article`) and the surface the words are painted
+   * on (`data-part="bubble"`). A bubble nests inside a row, so its root is not
+   * written `root` — every selector for the row would match it
+   * (`specs/components/message/contract.json` › `rootPartReason`).
+   *
+   * The side is asked once, on the row. The bubble, its reactions and the
+   * header follow `data-align`; the surveyed shadcn examples pass `align` to
+   * both `Message` and `Bubble`, and two answers to one question can disagree
+   *.
+   *
+   * Every rule is scoped to the family and stops at the parts of any other
+   * family nested in a message: a card or an alert in the body keeps its own
+   * `header`, `footer`, `content` and `actions`. The family's own nested roots
+   * (a bubble in a row, a row in a group) stay inside the scope.
+   */
+  @scope ([data-ui-message]) to (:scope [data-ui]:not([data-ui-message]) > *) {
+    :scope[data-part-root] {
+      /**
+       * The avatar column is the small avatar step, which the theme restates per
+       * density; ReUI's 32 has no step there (dossier §3), and a row that follows
+       * the density of the page around it is worth four pixels.
+       */
+      --_avatar-size: var(--slotted-message-avatar-size, var(--slotted-avatar-size-sm, 28px));
+      --_column-gap: var(--slotted-message-column-gap, var(--slotted-space-4, 0.5rem));
+      --_stack-gap: var(--slotted-message-stack-gap, var(--slotted-space-2, 0.25rem));
+      --_meta-size: var(--slotted-font-size-xs, 0.75rem);
+      --_meta-leading: round(up, calc(var(--_meta-size) * var(--slotted-line-height-xs, 1.4)), 1px);
+      /**
+       * The inset of the words inside a bubble, which the header and the footer
+       * repeat so a name stands over the first letter it names. Eight and twelve
+       * at comfortable, ReUI's measure (`c-bubble-2`), falling with the control
+       * gap the theme restates per density.
+       */
+      --_pad-block: var(--slotted-message-bubble-padding-block, var(--slotted-control-gap-md, 8px));
+      --_pad-inline: var(
+        --slotted-message-bubble-padding-inline,
+        calc(var(--slotted-control-gap-md, 8px) + var(--slotted-space-2, 0.25rem))
+      );
+      /**
+       * The inner controls of a row — the version pager — at the R2 size: the
+       * glyph plus a step of air on each side, never under the WCAG 2.2 target.
+       */
+      --_glyph-size: var(--slotted-control-icon-size-sm, 14px);
+      --_inner-size: max(
+        var(--slotted-target-min, 24px),
+        calc(var(--_glyph-size) + 2 * var(--slotted-space-2, 0.25rem))
+      );
+
+      display: grid;
+      grid-template-areas: 'body';
+      grid-template-columns: minmax(0, 1fr);
+      column-gap: var(--_column-gap);
+      position: relative;
+      min-inline-size: 0;
+      color: var(--slotted-text);
+      font-family: var(--slotted-font-family-sans, sans-serif);
+    }
+
+    /**
+     * A row with an avatar, and every row of a run that holds one anywhere,
+     * gives the avatar a column. The earlier rows of a run carry no avatar and
+     * still stand on the spine the last one sits on — shadcn asks for an empty
+     * `MessageAvatar` in each of them (`c-message-6`); the column is read here
+     * from the DOM instead.
+     */
+    :scope[data-part-root]:has(> [data-part-avatar]),
+    :scope[data-part-group]:has([data-part-avatar]) > [data-ui-message][data-part-root] {
+      grid-template-areas: 'avatar body';
+      grid-template-columns: var(--_avatar-size) minmax(0, 1fr);
+    }
+
+    :scope[data-part-root][data-align='end']:has(> [data-part-avatar]),
+    :scope[data-part-group]:has([data-part-avatar])
+      > [data-ui-message][data-part-root][data-align='end'] {
+      grid-template-areas: 'body avatar';
+      grid-template-columns: minmax(0, 1fr) var(--_avatar-size);
+    }
+
+    /**
+     * The avatar sits at the foot of the row, on the line of the last bubble
+     * rather than of the footer under it: in a run it marks where the run ends,
+     * which is where the reader's eye arrives.
+     */
+    :scope[data-part-root] > [data-part-avatar] {
+      grid-area: avatar;
+      display: flex;
+      align-self: end;
+      justify-content: center;
+      inline-size: var(--_avatar-size);
+      min-block-size: var(--_avatar-size);
+    }
+
+    :scope[data-part-root]:has(> [data-part-body] > [data-part-footer]) > [data-part-avatar] {
+      margin-block-end: calc(var(--_meta-leading) + var(--_stack-gap));
+    }
+
+    :scope[data-part-root] > [data-part-body] {
+      grid-area: body;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--_stack-gap);
+      min-inline-size: 0;
+    }
+
+    :scope[data-part-root][data-align='end'] > [data-part-body] {
+      align-items: flex-end;
+    }
+
+    /**
+     * ── A run from one sender ──────────────────────────────────────────────
+     *
+     * Two pixels between the rows of a run, where ReUI puts eight (`c-bubble-3`).
+     * At eight the run read as four messages; at two, with the corners on the
+     * sender's side drawn in, it reads as one speaker holding the floor. The
+     * gap between runs belongs to whatever stacks them — the scroller gives it.
+     */
+    :scope[data-part-group] {
+      display: flex;
+      flex-direction: column;
+      gap: var(--slotted-message-run-gap, var(--slotted-space-1, 0.125rem));
+      min-inline-size: 0;
+    }
+
+    /* ── Header and footer ──────────────────────────────────────────────── */
+
+    :scope[data-part-root] :is([data-part-header], [data-part-footer]) {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      column-gap: var(--slotted-space-3, 0.375rem);
+      max-inline-size: 100%;
+      min-inline-size: 0;
+      padding-inline: var(--_pad-inline);
+      color: var(--slotted-text-muted);
+      font-size: var(--_meta-size);
+      font-weight: var(--slotted-font-weight-medium, 500);
+      line-height: var(--_meta-leading);
+    }
+
+    :scope[data-part-root][data-align='end'] :is([data-part-header], [data-part-footer]) {
+      justify-content: flex-end;
+    }
+
+    /**
+     * The name and the hour are two facts, and the dot between them is drawn by
+     * the stylesheet rather than written into the text: a character would be
+     * read aloud, copied with the name and wrapped onto a line of its own.
+     * ReUI asks the consumer to write the dot (`c-message-3`).
+     */
+    :scope[data-part-root] [data-part-header] > * + [data-part-time]::before {
+      content: '';
+      display: inline-block;
+      inline-size: var(--slotted-space-2, 0.25rem);
+      block-size: var(--slotted-space-2, 0.25rem);
+      margin-inline-end: var(--slotted-space-3, 0.375rem);
+      border-radius: var(--slotted-radius-full, 9999px);
+      background-color: currentColor;
+      opacity: 0.5;
+      vertical-align: middle;
+    }
+
+    :scope[data-part-root] [data-part-author] {
+      min-inline-size: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    :scope[data-part-root] [data-part-time] {
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    /* ── Receipt ──────────────────────────────────────────────────────────
+     *
+     * Where a message is in its delivery is said inside the bubble, in `meta`
+     * (below), as a mark beside the hour — the convention WhatsApp and Telegram
+     * taught. Outside a bubble — an unframed reply, a thread — the receipt is a
+     * word in the footer, set in the meta type, with no mark: a glyph beside a
+     * word of twelve pixels is two voices saying one thing, and the two never
+     * shared a centre line.
+     */
+    :scope[data-part-root] [data-part-footer] > [data-part-receipt] {
+      white-space: nowrap;
+    }
+
+    :scope[data-part-root] [data-part-footer] > [data-part-receipt] > [data-ui-icon] {
+      display: none;
+    }
+
+    /**
+     * A message that did not go says so in a word under its surface, in the
+     * danger ink, lined up with the surface's own edge on the sender's side —
+     * not with the words inside it — so the note reads as the bubble's caption.
+     * The control that sends it again stands beside the surface (`retry`).
+     */
+    :scope[data-part-root][data-invalid] > [data-part-body] > [data-part-footer] {
+      padding-inline: var(--slotted-space-2, 0.25rem);
+      color: var(--slotted-tone-danger-text);
+    }
+
+    /* ── Actions ────────────────────────────────────────────────────────────
+     *
+     * The actions keep their room at rest, so a revealed toolbar moves nothing.
+     * `hover` reveals them on the pointer, on focus anywhere in the row, and
+     * always on a screen that cannot hover: a reveal by hover alone would hide
+     * them from the keyboard and from a finger.
+     */
+    :scope[data-part-root] [data-part-actions] {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--slotted-space-1, 0.125rem);
+      transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit, ease-in);
+    }
+
+    @media (hover: hover) {
+      :scope[data-part-root][data-actions='hover'] [data-part-actions] {
+        opacity: 0;
+      }
+
+      :scope[data-part-root][data-actions='hover']:is(:hover:not([data-disabled]), :focus-within)
+        [data-part-actions] {
+        opacity: 1;
+        transition-timing-function: var(--slotted-easing-enter, ease-out);
+      }
+    }
+
+    /* ── Activity ───────────────────────────────────────────────────────────
+     *
+     * What a reply is doing before it has words, as a short log of steps on a
+     * raised card: the steps already done carry a tick and step back into the
+     * muted ink, and the step in progress carries the shared ring (`spinner`)
+     * and a band of light that travels across its words. A single step is the
+     * same card with one line. ReUI's `c-message-7` draws one muted line that
+     * pulses; the log says what has been done, not only that something is.
+     *
+     * The band is the one place the family paints text with a gradient, which
+     * the polish lens refuses as decoration: here it is the wait itself, it
+     * moves only while the step is current, and under reduced motion the words
+     * stand in the plain ink.
+     */
+    :scope[data-part-root] [data-part-activity] {
+      display: inline-flex;
+      flex-direction: column;
+      gap: var(--slotted-space-3, 0.375rem);
+      box-sizing: border-box;
+      max-inline-size: 100%;
+      padding-block: var(--_pad-block);
+      padding-inline: var(--_pad-inline) calc(var(--_pad-inline) + var(--slotted-space-2, 0.25rem));
+      border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
+      border-radius: calc(var(--_pad-block) * 2);
+      background-color: var(--slotted-surface-raised);
+      box-shadow: var(--slotted-shadow-xs);
+      color: var(--slotted-text-muted);
+      font-size: var(--slotted-control-font-size-md, 13px);
+      line-height: round(up, calc(1em * var(--slotted-line-height-md, 1.5)), 1px);
+    }
+
+    :scope[data-part-root] [data-part-activity-step] {
+      display: flex;
+      align-items: center;
+      gap: var(--slotted-space-4, 0.5rem);
+      min-inline-size: 0;
+      transition:
+        opacity var(--slotted-duration-medium) var(--slotted-easing-enter, ease-out),
+        translate var(--slotted-duration-medium) var(--slotted-easing-enter, ease-out),
+        color var(--slotted-duration-medium) var(--slotted-easing-standard, ease);
+
+      @starting-style {
+        opacity: 0;
+        translate: 0 var(--slotted-space-2, 0.25rem);
+      }
+    }
+
+    /** The mark column: a tick, or the ring, in one box so the words line up. */
+    :scope[data-part-root] [data-part-activity-step] > :first-child {
+      --slotted-icon-size: var(--_glyph-size);
+      --slotted-spinner-size: var(--_glyph-size);
+
+      display: inline-grid;
+      flex: none;
+      place-items: center;
+      inline-size: var(--_glyph-size);
+      block-size: var(--_glyph-size);
+    }
+
+    :scope[data-part-root] [data-part-activity-step][data-complete] > :first-child {
+      color: var(--slotted-tone-success-text);
+    }
+
+    :scope[data-part-root] [data-part-activity-step][data-current] {
+      color: var(--slotted-text);
+    }
+
+    :scope[data-part-root] [data-part-activity-step][data-current] > :first-child {
+      color: var(--slotted-tone-accent-text);
+    }
+
+    :scope[data-part-root] [data-part-activity-step][data-current] > :last-child {
+      --_base: color-mix(in oklab, var(--slotted-text) 72%, var(--slotted-text-muted));
+
+      background-image: linear-gradient(
+        90deg,
+        var(--_base) 0%,
+        var(--_base) 38%,
+        var(--slotted-text-muted) 50%,
+        var(--_base) 62%,
+        var(--_base) 100%
+      );
+      background-size: 220% 100%;
+      background-clip: text;
+      color: transparent;
+      animation: slotted-message-sweep var(--slotted-duration-loop-slow) linear infinite;
+    }
+
+    /* ── Versions ───────────────────────────────────────────────────────────
+     *
+     * `2 de 3` between two inner controls. The chevron is one glyph turned for
+     * the previous control, and a right-to-left document turns both.
+     */
+    :scope[data-part-root] [data-part-versions] {
+      display: inline-flex;
+      align-items: center;
+      color: var(--slotted-text-muted);
+    }
+
+    :scope[data-part-root] [data-part-version-label] {
+      padding-inline: var(--slotted-space-2, 0.25rem);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    :scope[data-part-root] :is([data-part-version-previous], [data-part-version-next]) {
+      display: inline-grid;
+      place-items: center;
+      inline-size: var(--_inner-size);
+      block-size: var(--_inner-size);
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-radius: var(--slotted-control-radius, 4px);
+      background-color: transparent;
+      color: inherit;
+      font: inherit;
+      transition:
+        background-color var(--slotted-duration-short) var(--slotted-easing-standard, ease),
+        color var(--slotted-duration-short) var(--slotted-easing-standard, ease);
+    }
+
+    :scope[data-part-root]
+      :is([data-part-version-previous], [data-part-version-next])
+      > [data-ui-icon] {
+      --slotted-icon-size: var(--_glyph-size);
+    }
+
+    :scope[data-part-root] [data-part-version-previous] > [data-ui-icon] {
+      scale: -1 1;
+    }
+
+    :scope[data-part-root]:dir(rtl)
+      :is([data-part-version-previous], [data-part-version-next])
+      > [data-ui-icon] {
+      scale: -1 1;
+    }
+
+    :scope[data-part-root]:dir(rtl) [data-part-version-previous] > [data-ui-icon] {
+      scale: 1 1;
+    }
+
+    :scope[data-part-root]
+      :is([data-part-version-previous], [data-part-version-next]):hover:not(:disabled) {
+      background-color: var(--slotted-tone-secondary-subtle-hover);
+      color: var(--slotted-text);
+    }
+
+    :scope[data-part-root]
+      :is([data-part-version-previous], [data-part-version-next]):active:not(:disabled) {
+      background-color: var(--slotted-tone-secondary-subtle-active);
+      color: var(--slotted-text);
+    }
+
+    :scope[data-part-root] :is([data-part-version-previous], [data-part-version-next]):disabled {
+      color: var(--slotted-disabled-foreground);
+    }
+
+    :scope[data-part-root]
+      :is([data-part-version-previous], [data-part-version-next]):focus-visible {
+      outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color);
+      outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+    }
+
+    /* ── A message that did not go ─────────────────────────────────────────
+     *
+     * The words stay as they were written, on their own surface. A red rim round
+     * a blue bubble said "error" twice and read as a second, clashing bubble,
+     * and a faded fill dropped white words on the accent under 4.5:1 (4.2 at
+     * 85%). What says it is a round control beside the surface, in the danger
+     * tone, which is also the way to send it again (`bubble` › `retry`,
+     * iMessage's placement), and the receipt under it, in words.
+     */
+
+    /* ── Layout: thread ─────────────────────────────────────────────────────
+     *
+     * The comment thread (Slack, ReUI `sheet-5`): every row at the start, the
+     * avatar at the top beside the name, the words unframed under it, and a
+     * band under the pointer that says which message the actions belong to.
+     */
+    :scope[data-part-root][data-layout='thread'] {
+      --_avatar-size: var(
+        --slotted-message-thread-avatar-size,
+        var(--slotted-avatar-size-md, 36px)
+      );
+      --_pad-inline: 0px;
+
+      padding-block: var(--slotted-space-3, 0.375rem);
+      padding-inline: var(--slotted-space-4, 0.5rem);
+      border-radius: var(--slotted-radius-md, 6px);
+      transition: background-color var(--slotted-duration-short)
+        var(--slotted-easing-standard, ease);
+    }
+
+    :scope[data-part-root][data-layout='thread'] > [data-part-avatar] {
+      align-self: start;
+      margin-block-end: 0;
+    }
+
+    :scope[data-part-root][data-layout='thread'] [data-part-author] {
+      color: var(--slotted-text);
+      font-size: var(--slotted-control-font-size-md, 13px);
+      font-weight: var(--slotted-font-weight-semibold, 600);
+    }
+
+    :scope[data-part-root][data-layout='thread']:hover:not([data-disabled]) {
+      background-color: var(--slotted-tone-secondary-subtle-hover);
+    }
+
+    /**
+     * In a thread the actions stand in the flow under the words, on the words'
+     * column. Where the pointer can hover and the row reveals them, they float
+     * instead at the row's top end over the band, the way every comment surface
+     * places them — a toolbar that appears only under the pointer takes no room.
+     * A plate that is always painted, on a touch screen or with `always`, floated
+     * over the words and covered them at 360 pixels.
+     */
+    :scope[data-part-root][data-layout='thread'] > [data-part-actions] {
+      grid-column: body;
+      justify-self: start;
+    }
+
+    @media (hover: hover) {
+      :scope[data-part-root][data-layout='thread'][data-actions='hover'] > [data-part-actions] {
+        position: absolute;
+        inset-block-start: calc(var(--slotted-space-2, 0.25rem) * -1);
+        inset-inline-end: var(--slotted-space-4, 0.5rem);
+        padding: var(--slotted-space-1, 0.125rem);
+        border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
+        border-radius: var(--slotted-radius-md, 6px);
+        background-color: var(--slotted-surface-raised);
+        box-shadow: var(--slotted-shadow-sm);
+      }
+    }
+
+    /* ══ The bubble ════════════════════════════════════════════════════════ */
+
+    :scope[data-part-bubble] {
+      /**
+       * The five tones, read into the roles a painting needs. `soft` writes in
+       * the page's ink on the accent and secondary grounds — a paragraph set in
+       * blue is a link — and in the tone's own ink on the three status tones,
+       * where the colour of the words is the point.
+       */
+      --_solid: var(--slotted-tone-secondary-solid);
+      --_on-solid: var(--slotted-tone-secondary-on-solid);
+      --_surface: var(--slotted-tone-secondary-surface);
+      --_border: var(--slotted-border-subtle);
+      --_soft-ink: var(--slotted-text);
+
+      /**
+       * Twice the block inset: sixteen at comfortable, where ReUI draws fourteen
+       * (no step), falling to twelve and eight with the density. A one-line
+       * bubble is 39, 34 and 28 pixels tall at the three densities, so the
+       * corner never meets its twin and a bubble stays a bubble rather than a
+       * pill; a stated sixteen made the dense bubble a capsule.
+       */
+      --_radius: var(--slotted-message-bubble-radius, calc(var(--_pad-block) * 2));
+      --_radius-joined: var(--slotted-message-bubble-radius-joined, var(--slotted-radius-sm, 4px));
+      /* The row's inset, restated so a bubble outside a row keeps the density. */
+      --_pad-block: var(--slotted-message-bubble-padding-block, var(--slotted-control-gap-md, 8px));
+      --_pad-inline: var(
+        --slotted-message-bubble-padding-inline,
+        calc(var(--slotted-control-gap-md, 8px) + var(--slotted-space-2, 0.25rem))
+      );
+      --_top-side: var(--_radius);
+      --_bottom-side: var(--_radius);
+      --_font-size: var(--slotted-control-font-size-lg, 14px);
+      /**
+       * The line rounded up to a whole pixel: fourteen at 1.5 is 21, and a
+       * one-line bubble stands at 21 + 2 × 8 + 2 × 1 = 39. ReUI's 1.625 put it at
+       * 40.75, with every edge below the first line between two device pixels
+       * (dossier §3).
+       */
+      --_leading: round(up, calc(var(--_font-size) * var(--slotted-line-height-md, 1.5)), 1px);
+      --_reactions-size: max(
+        var(--slotted-target-min, 24px),
+        var(--slotted-control-inner-size-md, 24px)
+      );
+
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--slotted-space-1, 0.125rem);
+      position: relative;
+      inline-size: fit-content;
+      min-inline-size: 0;
+      /**
+       * A bubble never reaches the far side of its row, so the side it hangs
+       * from stays readable: ReUI's 80%. It is a share of the row, not a measure
+       * of the text — the measure belongs to `container`.
+       */
+      max-inline-size: var(--slotted-message-bubble-share, 80%);
+    }
+
+    :scope[data-part-bubble][data-tone='accent'] {
+      --_solid: var(--slotted-tone-accent-solid);
+      --_on-solid: var(--slotted-tone-accent-on-solid);
+      --_surface: var(--slotted-tone-accent-surface);
+      --_border: var(--slotted-tone-accent-border);
+    }
+
+    :scope[data-part-bubble][data-tone='success'] {
+      --_solid: var(--slotted-tone-success-solid);
+      --_on-solid: var(--slotted-tone-success-on-solid);
+      --_surface: var(--slotted-tone-success-surface);
+      --_border: var(--slotted-tone-success-border);
+      --_soft-ink: var(--slotted-tone-success-text);
+    }
+
+    :scope[data-part-bubble][data-tone='info'] {
+      --_solid: var(--slotted-tone-info-solid);
+      --_on-solid: var(--slotted-tone-info-on-solid);
+      --_surface: var(--slotted-tone-info-surface);
+      --_border: var(--slotted-tone-info-border);
+      --_soft-ink: var(--slotted-tone-info-text);
+    }
+
+    :scope[data-part-bubble][data-tone='warning'] {
+      --_solid: var(--slotted-tone-warning-solid);
+      --_on-solid: var(--slotted-tone-warning-on-solid);
+      --_surface: var(--slotted-tone-warning-surface);
+      --_border: var(--slotted-tone-warning-border);
+      --_soft-ink: var(--slotted-tone-warning-text);
+    }
+
+    :scope[data-part-bubble][data-tone='danger'] {
+      --_solid: var(--slotted-tone-danger-solid);
+      --_on-solid: var(--slotted-tone-danger-on-solid);
+      --_surface: var(--slotted-tone-danger-surface);
+      --_border: var(--slotted-tone-danger-border);
+      --_soft-ink: var(--slotted-tone-danger-text);
+    }
+
+    /**
+     * ── Variant: four paintings ────────────────────────────────────────────
+     *
+     * `solid` is the tone's fill with its own ink and no rim. `soft` is the
+     * tone's tinted ground; its rim is that ground mixed half-way to the subtle
+     * rule, which is next to invisible in `light` and `dark` and a grey line in
+     * `high-contrast`, where every tone surface is the page's white and a bubble
+     * without an edge is a paragraph. `outline` is the tone's edge around the
+     * page's ground, `plain` no box at all — the unframed assistant answer that
+     * takes the whole row.
+     */
+    :scope[data-part-bubble] > [data-part-content] {
+      --_ground: var(--_surface);
+      --_ink: var(--_soft-ink);
+      --_edge: color-mix(in oklab, var(--_surface), var(--slotted-border-subtle));
+
+      display: block;
+      box-sizing: border-box;
+      min-inline-size: 0;
+      max-inline-size: 100%;
+      margin: 0;
+      padding-block: var(--_pad-block, 8px);
+      padding-inline: var(--_pad-inline, 12px);
+      border: var(--slotted-border-width-thin, 1px) solid var(--_edge);
+      border-start-start-radius: var(--_top-side);
+      border-start-end-radius: var(--_radius);
+      border-end-start-radius: var(--_bottom-side);
+      border-end-end-radius: var(--_radius);
+      background-color: var(--_ground);
+      color: var(--_ink);
+      font-family: inherit;
+      font-size: var(--_font-size);
+      font-weight: var(--slotted-font-weight-regular, 400);
+      line-height: var(--_leading);
+      text-align: start;
+      text-decoration: none;
+      /**
+       * A URL or a hash of three hundred characters breaks where it must rather
+       * than pushing the bubble past its share, and each paragraph takes the
+       * direction of its own first strong letter: Arabic in an English thread
+       * reads from its own side.
+       */
+      overflow-wrap: anywhere;
+      unicode-bidi: plaintext;
+    }
+
+    :scope[data-part-bubble][data-variant='solid'] > [data-part-content] {
+      --_ground: var(--_solid);
+      --_ink: var(--_on-solid);
+      --_edge: var(--_solid);
+    }
+
+    :scope[data-part-bubble][data-variant='outline'] > [data-part-content] {
+      --_ground: var(--slotted-surface);
+      --_ink: var(--slotted-text);
+      --_edge: var(--_border);
+    }
+
+    :scope[data-part-bubble][data-variant='plain'] {
+      --_pad-inline: 0px;
+
+      max-inline-size: 100%;
+    }
+
+    :scope[data-part-bubble][data-variant='plain'] > [data-part-content] {
+      --_ground: transparent;
+      --_ink: var(--slotted-text);
+      --_edge: transparent;
+
+      padding: 0;
+      border-width: 0;
+      border-radius: 0;
+    }
+
+    /**
+     * The bubble sits on the sender's side, and so does everything it carries:
+     * the corners that join a run are the ones that face the avatar.
+     */
+    :scope[data-part-root][data-align='end'] [data-part-bubble] {
+      align-items: flex-end;
+    }
+
+    :scope[data-part-root][data-align='end'] [data-part-bubble] > [data-part-content] {
+      border-start-start-radius: var(--_radius);
+      border-start-end-radius: var(--_top-side);
+      border-end-start-radius: var(--_radius);
+      border-end-end-radius: var(--_bottom-side);
+    }
+
+    /**
+     * ── A bubble that is a control ─────────────────────────────────────────
+     *
+     * A quick reply is the content itself as a `button`, a way out of the
+     * thread the content as an `a`. The pointer's answer is the ink laid over
+     * the ground — six and twelve per cent — which answers every painting and
+     * every tone with one rule: 0.03 OKLab lightness over the accent fill in
+     * `light`, 0.044 under the secondary ground, over the 0.02 step
+     * `theme-conformance` asks of a hover, and the press twice that.
+     */
+    :scope[data-part-bubble] > [data-part-content]:is(button, a) {
+      --_ground-hover: color-mix(
+        in oklab,
+        var(--_ink) var(--slotted-message-state-layer-hover, 6%),
+        var(--_ground)
+      );
+      --_ground-active: color-mix(
+        in oklab,
+        var(--_ink) var(--slotted-message-state-layer-active, 12%),
+        var(--_ground)
+      );
+
+      appearance: none;
+      cursor: pointer;
+      transition:
+        background-color var(--slotted-duration-short) var(--slotted-easing-standard, ease),
+        border-color var(--slotted-duration-short) var(--slotted-easing-standard, ease);
+    }
+
+    :scope[data-part-bubble][data-variant='plain'] > [data-part-content]:is(button, a) {
+      padding-block: var(--slotted-space-1, 0.125rem);
+      padding-inline: var(--slotted-space-2, 0.25rem);
+      margin-inline: calc(var(--slotted-space-2, 0.25rem) * -1);
+      border-radius: var(--slotted-radius-sm, 4px);
+    }
+
+    :scope[data-part-bubble]
+      > [data-part-content]:is(button, a):hover:not(:disabled):not([data-disabled]) {
+      background-color: var(--_ground-hover);
+    }
+
+    :scope[data-part-bubble]
+      > [data-part-content]:is(button, a):active:not(:disabled):not([data-disabled]) {
+      background-color: var(--_ground-active);
+    }
+
+    :scope[data-part-bubble] > [data-part-content]:is(button, a):focus-visible {
+      outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color);
+      outline-offset: var(--slotted-focus-ring-offset, 2px);
+    }
+
+    /**
+     * ── Meta: the hour and the ticks inside the bubble ────────────────────
+     *
+     * The hour and the delivery mark ride at the end of the last line, inside
+     * the surface, in the bubble's own ink a step back: a float at the end of
+     * the words, so it shares the last line when there is room and takes a line
+     * of its own, still at the end, when there is not. The bubble never grows a
+     * caption under itself for a fact this small.
+     *
+     * The box is the height of the words' line and its contents stand on that
+     * line's centre, a pixel down, where the twelve-pixel digits share the
+     * fourteen-pixel words' baseline to within a pixel and the mark sits on the
+     * same axis as the digits. WhatsApp hangs its meta below the baseline; set
+     * beside a line of text, the hanging meta read as misaligned. Read is the one state that changes the ink: full strength on a
+     * solid fill, the accent on a tinted one; the other marks differ by shape.
+     */
+    :scope[data-part-bubble] [data-part-meta] {
+      /*
+       * Ninety per cent of the bubble's ink: the lowest share at which the hour
+       * keeps 4.5:1 on every fill — 4.50 on the accent in `dark`, 5.74 in
+       * `light`, 8.39 in `high-contrast` against its 7:1 — measured in sRGB.
+       * Two thirds, the first choice, left it at 3.24 on the dark accent.
+       */
+      --_meta-ink: color-mix(in srgb, currentColor 90%, transparent);
+      --_read-ink: var(--slotted-tone-accent-text);
+
+      display: inline-flex;
+      float: inline-end;
+      align-items: center;
+      gap: var(--slotted-space-1, 0.125rem);
+      /* The line rounded down to an even length, so a fourteen-pixel mark and a fourteen-pixel line of digits centre on whole pixels. */
+      block-size: round(down, var(--_leading), 2px);
+      margin-inline-start: var(--slotted-space-4, 0.5rem);
+      color: var(--_meta-ink);
+      font-size: var(--slotted-font-size-xs, 0.75rem);
+      font-weight: var(--slotted-font-weight-regular, 400);
+      line-height: var(--slotted-control-icon-size-sm, 14px);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      translate: 0 1px;
+    }
+
+    :scope[data-part-bubble][data-variant='solid'] [data-part-meta] {
+      --_read-ink: var(--_on-solid);
+    }
+
+    :scope[data-part-bubble] [data-part-meta] [data-part-receipt] {
+      display: inline-grid;
+      place-items: center;
+    }
+
+    /**
+     * The mark is the small control glyph, the height of the digits' line, so
+     * the two share one box and one centre; two ticks at twelve pixels were two
+     * scratches.
+     */
+    :scope[data-part-bubble] [data-part-meta] [data-part-receipt] > [data-ui-icon] {
+      --slotted-icon-size: var(--slotted-control-icon-size-sm, 14px);
+    }
+
+    :scope[data-part-bubble] [data-part-meta] [data-part-receipt] > span:not([data-ui]) {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    :scope[data-part-bubble] [data-part-meta] [data-part-receipt][data-status='read'] {
+      color: var(--_read-ink);
+    }
+
+    /** A clock that breathes while the message is on its way. */
+    :scope[data-part-bubble]
+      [data-part-meta]
+      [data-part-receipt][data-status='sending']
+      > [data-ui-icon] {
+      animation: slotted-message-pending var(--slotted-duration-loop-slow)
+        var(--slotted-easing-standard, ease) infinite alternate;
+    }
+
+    /** The meta of an unframed reply has no surface to ride in; it is the footer's. */
+    :scope[data-part-bubble][data-variant='plain'] [data-part-meta] {
+      display: none;
+    }
+
+    /* ── Clamp ──────────────────────────────────────────────────────────────
+     *
+     * A long bubble shows its first lines and the rest stays in the DOM — for
+     * copying, for finding in the page and for a screen reader — behind a line
+     * clamp. `more` shows it whole; the binding draws `more` only while the
+     * text overflows.
+     *
+     * The reveal snaps. A line clamp is not an interpolable length, and the
+     * alternative — a measured height transitioned through script — makes the
+     * text jump twice when a reply streaming above it reflows the column. The
+     * chevron turning is the motion that answers the press.
+     */
+    :scope[data-part-bubble][data-clamped]:not([data-revealed]) > [data-part-content] {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: var(--slotted-message-max-lines, 6);
+      /**
+       * The clamp stops painting after the last line it keeps, but a box clips
+       * its overflow at the padding edge, and the inset under that line painted
+       * the top of the next one. Clipping at the content edge keeps the inset
+       * clean; the ellipsis is still the clamp's.
+       */
+      overflow: clip;
+      overflow-clip-margin: content-box;
+    }
+
+    :scope[data-part-bubble] > [data-part-more] {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--slotted-space-1, 0.125rem);
+      min-block-size: var(--slotted-target-min, 24px);
+      margin: 0;
+      padding-block: 0;
+      padding-inline: var(--_pad-inline, 12px);
+      border: 0;
+      border-radius: var(--slotted-control-radius, 4px);
+      background-color: transparent;
+      color: var(--slotted-text-muted);
+      font: inherit;
+      font-size: var(--slotted-font-size-xs, 0.75rem);
+      font-weight: var(--slotted-font-weight-medium, 500);
+      transition: color var(--slotted-duration-short) var(--slotted-easing-standard, ease);
+    }
+
+    :scope[data-part-bubble] > [data-part-more] > [data-ui-icon] {
+      --slotted-icon-size: var(--slotted-control-icon-size-sm, 14px);
+
+      transition: rotate var(--slotted-duration-medium) var(--slotted-easing-standard, ease);
+    }
+
+    :scope[data-part-bubble][data-revealed] > [data-part-more] > [data-ui-icon] {
+      rotate: 180deg;
+    }
+
+    :scope[data-part-bubble] > [data-part-more]:hover:not(:disabled) {
+      color: var(--slotted-text);
+    }
+
+    :scope[data-part-bubble] > [data-part-more]:active:not(:disabled) {
+      color: var(--slotted-tone-accent-text);
+    }
+
+    :scope[data-part-bubble] > [data-part-more]:focus-visible {
+      outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color);
+      outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+    }
+
+    /* ── Quote ──────────────────────────────────────────────────────────────
+     *
+     * The message a reply answers, at the head of the surface: a block tinted
+     * with the surface's own ink, the author over two lines of the words. No
+     * rail on its start edge — a tinted block reads as quoted in every painting,
+     * the accent fill included, where a rail in the ink would be the only
+     * saturated stroke in the thread.
+     */
+    :scope[data-part-bubble] [data-part-quote] {
+      display: block;
+      box-sizing: border-box;
+      inline-size: 100%;
+      margin: 0;
+      margin-block-end: var(--slotted-space-3, 0.375rem);
+      padding-block: var(--slotted-space-2, 0.25rem);
+      padding-inline: var(--slotted-space-4, 0.5rem);
+      border: 0;
+      border-radius: calc(var(--_radius) - var(--_pad-block, 8px));
+      background-color: color-mix(in oklab, currentColor 8%, transparent);
+      color: inherit;
+      font: inherit;
+      font-size: var(--slotted-control-font-size-md, 13px);
+      line-height: round(up, calc(1em * var(--slotted-line-height-md, 1.5)), 1px);
+      text-align: start;
+      unicode-bidi: plaintext;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+    }
+
+    :scope[data-part-bubble] [data-part-quote-author] {
+      display: block;
+      font-weight: var(--slotted-font-weight-semibold, 600);
+    }
+
+    :scope[data-part-bubble] button[data-part-quote] {
+      cursor: pointer;
+      transition: background-color var(--slotted-duration-short)
+        var(--slotted-easing-standard, ease);
+    }
+
+    :scope[data-part-bubble] button[data-part-quote]:hover:not(:disabled) {
+      background-color: color-mix(in oklab, currentColor 13%, transparent);
+    }
+
+    :scope[data-part-bubble] button[data-part-quote]:active:not(:disabled) {
+      background-color: color-mix(in oklab, currentColor 18%, transparent);
+    }
+
+    :scope[data-part-bubble] button[data-part-quote]:focus-visible {
+      outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color);
+      outline-offset: var(--slotted-focus-ring-offset, 2px);
+    }
+
+    /* ── Streaming text, caret and typing ──────────────────────────────────
+     *
+     * A streamed reply enters word by word. `stream` holds the settled words as
+     * plain text and each word still entering as a `stream-chunk`, whose delay
+     * the binding writes from `@slotted/core/text-stream`: a burst of forty
+     * words enters as a wave of at most 320 ms instead of landing as a block.
+     * A word comes out of a blur of a sixth of its own size, at nothing, and
+     * the ink and the edge arrive together: a word that is opaque while still
+     * blurred reads as a smudge, and five of them in a row as a smeared line.
+     *
+     * The caret is a dot after the last word, centred on the middle of the
+     * x-height, breathing between full and 72 % while the reply is open. A bar
+     * blinking in two steps read as a text field waiting for input; the reply is
+     * not waiting for the reader, it is still being written. While words are
+     * entering, the wave is the leading edge and the dot steps aside: a word
+     * still invisible already holds its place in the line, and a dot after it
+     * would stand apart from the last word painted. It returns once the wave has
+     * landed and the transport has been quiet for a long transition.
+     *
+     * Under reduced motion the binding settles every word on arrival, the caret
+     * stands lit and the typing dots stand at three strengths, so the state is
+     * still drawn.
+     */
+    :scope[data-part-bubble] [data-part-stream] {
+      white-space: pre-wrap;
+    }
+
+    :scope[data-part-bubble] [data-part-stream-chunk] {
+      animation: slotted-message-word var(--slotted-duration-long) var(--slotted-easing-standard)
+        both;
+    }
+
+    :scope[data-part-bubble] [data-part-caret] {
+      --_dot: round(nearest, 0.6em, 2px);
+
+      display: inline-block;
+      inline-size: var(--_dot);
+      block-size: var(--_dot);
+      /* A streamed word carries its own space; the margin only parts the dot from a word cut mid-way. */
+      margin-inline-start: var(--slotted-space-1, 0.125rem);
+      border-radius: var(--slotted-radius-full, 9999px);
+      background-color: currentColor;
+      vertical-align: middle;
+      transition: filter var(--slotted-duration-medium) var(--slotted-easing-enter)
+        var(--slotted-duration-long);
+      animation:
+        slotted-message-dot-in var(--slotted-duration-medium) var(--slotted-easing-enter),
+        slotted-message-breathe var(--slotted-duration-loop) var(--slotted-easing-standard)
+          var(--slotted-duration-medium) infinite alternate;
+    }
+
+    /* `filter`, not `opacity`: the breath animates opacity, and an animation outranks the rule. */
+    :scope[data-part-bubble]
+      [data-part-stream]:has(> [data-part-stream-chunk])
+      + [data-part-caret] {
+      filter: opacity(0);
+      transition: filter var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    /**
+     * Three dots a third of the line tall — seven pixels at comfortable — that
+     * rise and brighten in a wave, each a sixth of the loop behind the one
+     * before, in the bubble of the person writing. The wave travels half a dot:
+     * enough to read as a voice, not so much that the bubble seems to bounce.
+     */
+    :scope[data-part-bubble] [data-part-typing] {
+      --_dot: round(calc(var(--_leading) / 3), 1px);
+
+      display: inline-flex;
+      align-items: center;
+      gap: calc(var(--_dot) * 0.6);
+      block-size: var(--_leading);
+      padding-inline: var(--slotted-space-1, 0.125rem);
+      vertical-align: top;
+    }
+
+    /**
+     * The bubble of someone writing trails two small circles from its foot on
+     * the sender's side, the way a thought is drawn, and arrives from them: it
+     * rises and fades in on the enter curve, and its trail follows one step
+     * behind. The circles are the surface's own fill and edge, so they answer
+     * every painting and every scheme with the bubble.
+     */
+    :scope[data-part-bubble] > [data-part-content]:has(> [data-part-typing]) {
+      position: relative;
+      padding-inline: calc(var(--_pad-inline) + var(--slotted-space-1, 0.125rem));
+      transition:
+        opacity var(--slotted-duration-medium) var(--slotted-easing-enter, ease-out),
+        translate var(--slotted-duration-medium) var(--slotted-easing-enter, ease-out);
+
+      @starting-style {
+        opacity: 0;
+        translate: 0 var(--slotted-space-3, 0.375rem);
+      }
+    }
+
+    :scope[data-part-bubble] > [data-part-content]:has(> [data-part-typing])::before,
+    :scope[data-part-bubble] > [data-part-content]:has(> [data-part-typing])::after {
+      content: '';
+      position: absolute;
+      box-sizing: border-box;
+      border: inherit;
+      border-radius: var(--slotted-radius-full, 9999px);
+      background-color: inherit;
+      animation: slotted-message-trail var(--slotted-duration-loop-slow)
+        var(--slotted-easing-standard, ease) infinite alternate;
+    }
+
+    :scope[data-part-bubble] > [data-part-content]:has(> [data-part-typing])::before {
+      inset-block-end: calc(var(--slotted-space-1, 0.125rem) * -1);
+      inset-inline-start: calc(var(--slotted-space-1, 0.125rem) * -1);
+      inline-size: var(--slotted-space-4, 0.5rem);
+      block-size: var(--slotted-space-4, 0.5rem);
+    }
+
+    :scope[data-part-bubble] > [data-part-content]:has(> [data-part-typing])::after {
+      inset-block-end: calc(var(--slotted-space-3, 0.375rem) * -1);
+      inset-inline-start: calc(var(--slotted-space-3, 0.375rem) * -1);
+      inline-size: var(--slotted-space-2, 0.25rem);
+      block-size: var(--slotted-space-2, 0.25rem);
+      animation-delay: calc(var(--slotted-duration-loop-slow) / -2);
+    }
+
+    /** The line under a writing bubble clears the trail. */
+    :scope[data-part-root]
+      > [data-part-body]:has(> [data-part-bubble] [data-part-typing])
+      > [data-part-footer] {
+      margin-block-start: var(--slotted-space-2, 0.25rem);
+    }
+
+    :scope[data-part-bubble] [data-part-typing] > span {
+      inline-size: var(--_dot);
+      block-size: var(--_dot);
+      border-radius: var(--slotted-radius-full, 9999px);
+      background-color: currentColor;
+      opacity: 0.3;
+      animation: slotted-message-typing var(--slotted-duration-loop)
+        var(--slotted-easing-standard, ease) infinite;
+    }
+
+    :scope[data-part-bubble] [data-part-typing] > span:nth-child(2) {
+      animation-delay: calc(var(--slotted-duration-loop) / 6);
+    }
+
+    :scope[data-part-bubble] [data-part-typing] > span:nth-child(3) {
+      animation-delay: calc(var(--slotted-duration-loop) / 3);
+    }
+
+    /**
+     * ── Retry ──────────────────────────────────────────────────────────────
+     *
+     * A message that did not go carries a round control beside its surface, on
+     * the side away from the sender, in the danger tone, centred on the last
+     * line. It is the way to send it again, and its arrow turns a little under
+     * the pointer toward the way it will go.
+     */
+    :scope[data-part-bubble] > [data-part-retry] {
+      --_size: max(var(--slotted-target-min, 24px), var(--slotted-control-inner-size-md, 24px));
+      --_ground: var(--slotted-tone-danger-solid);
+
+      display: inline-grid;
+      place-items: center;
+      position: absolute;
+      inset-block-end: calc(
+        (
+            var(--_leading) + 2 * var(--_pad-block) + 2 * var(--slotted-border-width-thin, 1px) -
+              var(--_size)
+          ) /
+          2
+      );
+      inset-inline-start: calc(100% + var(--slotted-space-4, 0.5rem));
+      box-sizing: border-box;
+      inline-size: var(--_size);
+      block-size: var(--_size);
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-radius: var(--slotted-radius-full, 9999px);
+      background-color: var(--_ground);
+      color: var(--slotted-tone-danger-on-solid);
+      cursor: pointer;
+      transition: background-color var(--slotted-duration-short)
+        var(--slotted-easing-standard, ease);
+    }
+
+    :scope[data-part-root][data-align='end'] [data-part-bubble] > [data-part-retry] {
+      inset-inline: auto calc(100% + var(--slotted-space-4, 0.5rem));
+    }
+
+    :scope[data-part-bubble] > [data-part-retry] > [data-ui-icon] {
+      --slotted-icon-size: var(--slotted-control-icon-size-sm, 14px);
+
+      transition: rotate var(--slotted-duration-medium) var(--slotted-easing-emphasized, ease);
+    }
+
+    /**
+     * The tone's own hover step sits 0.01 OKLab lightness from its fill, under
+     * the 0.02 `theme-conformance` asks; the control's ink laid over the fill at
+     * fourteen per cent answers visibly in every scheme.
+     */
+    :scope[data-part-bubble] > [data-part-retry]:hover:not(:disabled):not([data-disabled]) {
+      background-color: color-mix(
+        in oklab,
+        var(--slotted-tone-danger-on-solid) var(--slotted-message-retry-state-layer, 14%),
+        var(--_ground)
+      );
+    }
+
+    :scope[data-part-bubble]
+      > [data-part-retry]:hover:not(:disabled):not([data-disabled])
+      > [data-ui-icon] {
+      rotate: -45deg;
+    }
+
+    :scope[data-part-bubble] > [data-part-retry]:active:not(:disabled):not([data-disabled]) {
+      background-color: var(--slotted-tone-danger-solid-active);
+    }
+
+    :scope[data-part-bubble] > [data-part-retry]:focus-visible {
+      outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color);
+      outline-offset: var(--slotted-focus-ring-offset, 2px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :scope[data-part-bubble] [data-part-caret],
+      :scope[data-part-bubble] [data-part-stream-chunk],
+      :scope[data-part-bubble] [data-part-typing] > span,
+      :scope[data-part-bubble] > [data-part-content]:has(> [data-part-typing])::before,
+      :scope[data-part-bubble] > [data-part-content]:has(> [data-part-typing])::after,
+      :scope[data-part-bubble]
+        [data-part-meta]
+        [data-part-receipt][data-status='sending']
+        > [data-ui-icon] {
+        animation: none;
+      }
+
+      :scope[data-part-root] [data-part-activity-step][data-current] > :last-child {
+        animation: none;
+        background-image: none;
+        color: inherit;
+      }
+
+      :scope[data-part-bubble] [data-part-typing] > span:nth-child(2) {
+        opacity: 0.55;
+      }
+
+      :scope[data-part-bubble] [data-part-typing] > span:nth-child(3) {
+        opacity: 0.8;
+      }
+    }
+
+    /* ── Reactions ──────────────────────────────────────────────────────────
+     *
+     * A raised pill straddling the lower edge of the surface on the side away
+     * from the sender. It rises into the surface by half the surface's own
+     * inset, clear of the descenders of the last line; the bubble keeps the rest as room
+     * below itself, so the pill never lands on the next message. ReUI hangs
+     * the row three quarters out and its example needs a 32-pixel gap to clear
+     * it (`c-bubble-4`). The pill draws its own edge and lift rather than a
+     * ring in the colour of a card it assumes it is on.
+     */
+    :scope[data-part-bubble]:has(> [data-part-reactions]) {
+      padding-block-end: calc(var(--_reactions-size) - var(--_pad-block, 8px) / 2);
+    }
+
+    :scope[data-part-bubble] > [data-part-reactions] {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--slotted-space-1, 0.125rem);
+      position: absolute;
+      inset-block-end: 0;
+      inset-inline-end: var(--_pad-inline, 12px);
+      padding: var(--slotted-space-1, 0.125rem);
+      border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-full, 9999px);
+      background-color: var(--slotted-surface-raised);
+      box-shadow: var(--slotted-shadow-xs);
+    }
+
+    :scope[data-part-root][data-align='end'] [data-part-bubble] > [data-part-reactions] {
+      inset-inline: var(--_pad-inline, 12px) auto;
+    }
+
+    /**
+     * In a thread there is no surface to straddle: the reactions are a row in
+     * the flow under the words, the way Slack and GitHub set them.
+     */
+    :scope[data-part-bubble][data-variant='plain']:has(> [data-part-reactions]) {
+      padding-block-end: 0;
+    }
+
+    :scope[data-part-bubble][data-variant='plain'] > [data-part-reactions] {
+      position: static;
+      padding: 0;
+      border: 0;
+      background-color: transparent;
+      box-shadow: none;
+      translate: none;
+    }
+
+    :scope[data-part-bubble] [data-part-reaction] {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--slotted-space-1, 0.125rem);
+      box-sizing: border-box;
+      min-inline-size: var(--_reactions-size);
+      block-size: var(--_reactions-size);
+      margin: 0;
+      padding-block: 0;
+      padding-inline: var(--slotted-space-3, 0.375rem);
+      --_reaction-ground: transparent;
+
+      border: var(--slotted-border-width-thin, 1px) solid transparent;
+      border-radius: var(--slotted-radius-full, 9999px);
+      background-color: var(--_reaction-ground);
+      color: var(--slotted-text);
+      font: inherit;
+      font-size: var(--slotted-font-size-xs, 0.75rem);
+      line-height: 1;
+      transition:
+        background-color var(--slotted-duration-short) var(--slotted-easing-standard, ease),
+        border-color var(--slotted-duration-short) var(--slotted-easing-standard, ease),
+        color var(--slotted-duration-short) var(--slotted-easing-standard, ease);
+    }
+
+    :scope[data-part-bubble][data-variant='plain'] [data-part-reaction] {
+      --_reaction-ground: var(--slotted-surface);
+
+      border-color: var(--slotted-border-subtle);
+    }
+
+    :scope[data-part-bubble] [data-part-reaction-count] {
+      color: var(--slotted-text-muted);
+      font-weight: var(--slotted-font-weight-medium, 500);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /**
+     * The pointer answers on whatever ground the reaction stands on — none, the
+     * page, or the accent's tint when it is the reader's own — with the text's
+     * ink laid over it at six and twelve per cent, so a pressed reaction answers
+     * a hover and a press as clearly as a bare one and the two never match.
+     */
+    :scope[data-part-bubble] [data-part-reaction]:hover:not(:disabled):not([data-disabled]) {
+      background-color: color-mix(
+        in oklab,
+        var(--slotted-text) var(--slotted-message-state-layer-hover, 6%),
+        var(--_reaction-ground)
+      );
+    }
+
+    :scope[data-part-bubble] [data-part-reaction]:active:not(:disabled):not([data-disabled]) {
+      background-color: color-mix(
+        in oklab,
+        var(--slotted-text) var(--slotted-message-state-layer-active, 12%),
+        var(--_reaction-ground)
+      );
+    }
+
+    /**
+     * The reader's own reaction: the accent's tinted ground inside the accent's
+     * edge, and the count in the accent's ink. The pair carries the ratio the
+     * ground alone cannot (`docs/token-foundation.md` › Semantic colour).
+     */
+    :scope[data-part-bubble] [data-part-reaction][data-pressed] {
+      --_reaction-ground: var(--slotted-tone-accent-surface);
+
+      border-color: var(--slotted-tone-accent-border);
+    }
+
+    :scope[data-part-bubble] [data-part-reaction][data-pressed] > [data-part-reaction-count] {
+      color: var(--slotted-tone-accent-text);
+    }
+
+    :scope[data-part-bubble] [data-part-reaction]:is(:disabled, [data-disabled]) {
+      color: var(--slotted-disabled-foreground);
+      cursor: default;
+    }
+
+    :scope[data-part-bubble] [data-part-reaction]:focus-visible {
+      outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color);
+      outline-offset: var(--slotted-focus-ring-offset, 2px);
+    }
+
+    /* ── Forced colours ─────────────────────────────────────────────────────
+     *
+     * The system owns the palette: every bubble is a framed box of text, the
+     * reader's own reaction is `Highlight`, and the tints of the quote and the
+     * pointer go, because `color-mix` over system colours is not a colour the
+     * reader chose.
+     */
+    @media (forced-colors: active) {
+      :scope[data-part-bubble] > [data-part-content] {
+        border-color: CanvasText;
+      }
+
+      /* A background is the system's to repaint; the dot is ink, so it keeps the text's colour. */
+      :scope[data-part-bubble] [data-part-caret] {
+        forced-color-adjust: none;
+        background-color: CanvasText;
+      }
+
+      :scope[data-part-bubble][data-variant='plain'] > [data-part-content] {
+        border-color: transparent;
+      }
+
+      :scope[data-part-bubble] [data-part-reaction][data-pressed] {
+        border-color: Highlight;
+        forced-color-adjust: none;
+        background-color: Highlight;
+        color: HighlightText;
+      }
+
+      :scope[data-part-bubble] [data-part-quote] {
+        border: var(--slotted-border-width-thin, 1px) solid CanvasText;
+      }
+    }
+  }
+
+  /**
+   * ── The corners of a run ───────────────────────────────────────────────
+   *
+   * Bubbles that follow one another from one sender draw in the corners that
+   * face each other on the sender's side, inside one row and across the rows
+   * of a group. A run reads as one speaker by its shape, with no position
+   * prop on each message (Chatscope asks for `first`, `normal`, `last`).
+   *
+   * A bubble that follows a bubble is its sibling, outside the scope the
+   * first bubble roots, so these rules stand outside the family's `@scope`.
+   */
+  [data-ui-message][data-part-bubble]:has(~ [data-part-bubble]),
+  [data-ui-message][data-part-group]
+    > [data-ui-message][data-part-root]:not(:last-child)
+    > [data-part-body]
+    > [data-part-bubble]:not(:has(~ [data-part-bubble])) {
+    --_bottom-side: var(--_radius-joined);
+  }
+
+  [data-ui-message][data-part-bubble] ~ [data-part-bubble],
+  [data-ui-message][data-part-group]
+    > [data-ui-message][data-part-root]:not(:first-child)
+    > [data-part-body]
+    > [data-part-bubble]:not([data-part-bubble] ~ [data-part-bubble]) {
+    --_top-side: var(--_radius-joined);
+  }
+
+  /**
+   * A bubble is as wide as its words. Prose — markdown's typography — is a size
+   * container for its narrow-column rules, and a size container contributes no
+   * width, so the bubble shrank to its padding. Inside a bubble prose sizes to
+   * its text and its narrow-column rules do not apply. Prose sits inside the
+   * markdown family, past the limit of the scope above, so the rule stands
+   * outside it.
+   */
+  [data-ui-message][data-part-bubble] > [data-part-content] [data-ui-prose] {
+    container-type: normal;
+  }
+
+  @keyframes slotted-message-sweep {
+    from {
+      background-position: 100% 0;
+    }
+
+    to {
+      background-position: 0% 0;
+    }
+  }
+
+  @keyframes slotted-message-pending {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0.4;
+    }
+  }
+
+  @keyframes slotted-message-word {
+    from {
+      opacity: 0;
+      filter: blur(0.16em);
+    }
+
+    to {
+      opacity: 1;
+      filter: blur(0);
+    }
+  }
+
+  @keyframes slotted-message-dot-in {
+    from {
+      opacity: 0;
+      scale: 0;
+    }
+  }
+
+  /* 0.72 of 8 px is 5.76: the breath is seen, and the dot never shrinks to a full stop's 2 px. */
+  @keyframes slotted-message-breathe {
+    from {
+      opacity: 1;
+      scale: 1;
+    }
+
+    to {
+      opacity: 0.5;
+      scale: 0.72;
+    }
+  }
+
+  @keyframes slotted-message-trail {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes slotted-message-typing {
+    0%,
+    55%,
+    100% {
+      opacity: 0.3;
+      translate: 0 0;
+    }
+
+    25% {
+      opacity: 0.85;
+      translate: 0 calc(var(--_dot) * -0.5);
+    }
+  }
+}

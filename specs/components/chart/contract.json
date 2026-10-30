@@ -1,0 +1,462 @@
+{
+  "schemaVersion": 5,
+  "family": "chart",
+  "ui": "chart",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Line, bar, area, pie and scatter charts."
+  },
+  "pattern": "none in the APG; the plot adapts the Grid pattern's arrow navigation (https://www.w3.org/WAI/ARIA/apg/patterns/grid/) and the legend is the Toolbar pattern (https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/)",
+  "engine": {
+    "module": "@slotted/core/chart-echarts",
+    "package": "echarts",
+    "dependency": "optional peer",
+    "loading": "import() on first mount, one chunk per series kind and one for the canvas renderer",
+    "neverRegistered": ["TooltipComponent", "LegendComponent", "TitleComponent", "ToolboxComponent"]
+  },
+  "rootRole": "figure",
+  "plot": {
+    "role": "group",
+    "roledescription": "localized message, 'chart' by default",
+    "name": "aria-labelledby the title part",
+    "description": "aria-describedby the summary part",
+    "focusable": true
+  },
+  "tooltip": {
+    "hidden": "aria-hidden: the live announcer says the same content when the active point moves by keyboard",
+    "triggers": ["axis", "item", "none"],
+    "defaultTrigger": {
+      "cartesian": "axis",
+      "pie": "item",
+      "scatter": "item"
+    }
+  },
+  "direction": "the plot does not mirror; header, legend, tooltip and table follow dir",
+  "keyboard": [
+    {
+      "key": "ArrowRight",
+      "target": "plot",
+      "effect": "next point of the active series; stops at the last",
+      "reason": "keyboard"
+    },
+    {
+      "key": "ArrowLeft",
+      "target": "plot",
+      "effect": "previous point of the active series; stops at the first",
+      "reason": "keyboard"
+    },
+    {
+      "key": "ArrowDown",
+      "target": "plot",
+      "effect": "next visible series at the same key; stops at the last",
+      "reason": "keyboard"
+    },
+    {
+      "key": "ArrowUp",
+      "target": "plot",
+      "effect": "previous visible series at the same key; stops at the first",
+      "reason": "keyboard"
+    },
+    {
+      "key": "Home",
+      "target": "plot",
+      "effect": "first point of the active series",
+      "reason": "keyboard"
+    },
+    {
+      "key": "End",
+      "target": "plot",
+      "effect": "last point of the active series",
+      "reason": "keyboard"
+    },
+    {
+      "key": "PageDown",
+      "target": "plot",
+      "effect": "forward a tenth of the points, at least one",
+      "reason": "keyboard"
+    },
+    {
+      "key": "PageUp",
+      "target": "plot",
+      "effect": "back a tenth of the points, at least one",
+      "reason": "keyboard"
+    },
+    {
+      "key": "Enter",
+      "target": "plot",
+      "effect": "selects the active point, or clears it when already selected",
+      "reason": "keyboard"
+    },
+    {
+      "key": "Space",
+      "target": "plot",
+      "effect": "the same as Enter",
+      "reason": "keyboard"
+    },
+    {
+      "key": "+",
+      "target": "plot",
+      "effect": "zooms in around the active point, when zoom is enabled",
+      "reason": "keyboard"
+    },
+    {
+      "key": "-",
+      "target": "plot",
+      "effect": "zooms out around the active point, when zoom is enabled",
+      "reason": "keyboard"
+    },
+    {
+      "key": "0",
+      "target": "plot",
+      "effect": "resets the zoom",
+      "reason": "keyboard"
+    },
+    {
+      "key": "Escape",
+      "target": "plot",
+      "effect": "clears the active point; with none, resets the zoom",
+      "reason": "escape"
+    },
+    {
+      "key": "ArrowRight",
+      "target": "legend",
+      "effect": "focus to the next item in the arrow's direction, mirrored under dir=rtl, wrapping",
+      "reason": null
+    },
+    {
+      "key": "ArrowLeft",
+      "target": "legend",
+      "effect": "focus to the previous item in the arrow's direction, mirrored under dir=rtl, wrapping",
+      "reason": null
+    },
+    {
+      "key": "Home",
+      "target": "legend",
+      "effect": "focus to the first item",
+      "reason": null
+    },
+    {
+      "key": "End",
+      "target": "legend",
+      "effect": "focus to the last item",
+      "reason": null
+    },
+    {
+      "key": "Enter",
+      "target": "legend",
+      "effect": "shows or hides the item's series",
+      "reason": "keyboard"
+    },
+    {
+      "key": "Space",
+      "target": "legend",
+      "effect": "the same as Enter",
+      "reason": "keyboard"
+    },
+    {
+      "key": "Shift+Enter",
+      "target": "legend",
+      "effect": "isolates the item's series, or shows every series when it is already isolated",
+      "reason": "keyboard"
+    },
+    {
+      "key": "Escape",
+      "target": "root",
+      "effect": "leaves fullscreen when the chart is the fixed layer; the Fullscreen API leaves on its own",
+      "reason": "escape"
+    }
+  ],
+  "slots": {
+    "count": 8,
+    "cycles": false,
+    "overflow": "the ninth series on is drawn in --slotted-text-muted with a texture",
+    "precedence": ["tone", "slot", "position"],
+    "pie": "a pie colours its slices in place of its series; slotField and toneField name the fields of each record that hold its slice's slot (1 to 8) and tone, which the legend, the tooltip and the table read; a record that names neither takes the next free slot"
+  },
+  "axes": {
+    "kind": ["line", "area", "bar", "pie", "scatter"],
+    "size": ["sm", "md", "lg"],
+    "orientation": ["vertical", "horizontal"],
+    "stackMode": ["normal", "percent"],
+    "curve": ["linear", "monotone", "step"],
+    "stroke": ["solid", "dashed"],
+    "markers": ["none", "last", "all"],
+    "grid": ["horizontal", "vertical", "both", "none"],
+    "trigger": ["axis", "item", "none"],
+    "indicator": ["dot", "line", "none"],
+    "sort": ["none", "asc", "desc"],
+    "renderer": ["auto", "svg", "canvas"],
+    "scale": ["linear", "log"],
+    "xType": ["category", "time", "value"],
+    "tone": ["neutral", "accent", "secondary", "info", "success", "warning", "danger"],
+    "slot": ["1", "2", "3", "4", "5", "6", "7", "8"],
+    "variant": ["plain", "card"],
+    "toolbar": ["visible", "hover", "none"],
+    "palette": ["categorical", "sequential", "focus"],
+    "legendOverflow": ["collapse", "wrap"]
+  },
+  "nominalSize": {
+    "sm": {
+      "plotBlockSize": "calc(var(--slotted-space-12) * 3)"
+    },
+    "md": {
+      "plotBlockSize": "calc(var(--slotted-space-12) * 4)"
+    },
+    "lg": {
+      "plotBlockSize": "calc(var(--slotted-space-12) * 6)"
+    }
+  },
+  "members": {
+    "chart": {
+      "nativeElement": "figure",
+      "defaults": {
+        "size": "md",
+        "orientation": "vertical",
+        "stackMode": "normal",
+        "curve": "linear",
+        "stroke": "solid",
+        "markers": "none",
+        "grid": "horizontal",
+        "trigger": "axis",
+        "indicator": "dot",
+        "sort": "none",
+        "renderer": "auto",
+        "sampling": "auto",
+        "texture": false,
+        "zoomable": false,
+        "selectable": false,
+        "legendInteractive": true,
+        "legendValues": false,
+        "tableOpen": false,
+        "variant": "plain",
+        "toolbar": "visible",
+        "palette": "categorical",
+        "legendOverflow": "collapse",
+        "fullscreen": false
+      },
+      "capabilities": [
+        "appearance",
+        "size",
+        "orientation",
+        "measurement",
+        "content",
+        "loading",
+        "live",
+        "current",
+        "selection",
+        "open",
+        "visibility",
+        "zoom",
+        "fullscreen"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "loading",
+        "pressed",
+        "current",
+        "selected",
+        "open",
+        "fullscreen"
+      ],
+      "parts": [
+        "root",
+        "header",
+        "title",
+        "description",
+        "help",
+        "help-content",
+        "actions",
+        "toolbar",
+        "zoom-reset",
+        "view-toggle",
+        "fullscreen-toggle",
+        "menu-trigger",
+        "menu",
+        "menu-item",
+        "legend",
+        "legend-item",
+        "legend-marker",
+        "legend-label",
+        "legend-value",
+        "legend-more",
+        "plot",
+        "canvas",
+        "crosshair",
+        "marker",
+        "center",
+        "center-value",
+        "center-label",
+        "tooltip",
+        "tooltip-title",
+        "tooltip-item",
+        "tooltip-marker",
+        "tooltip-label",
+        "tooltip-value",
+        "tooltip-note",
+        "tooltip-total",
+        "skeleton",
+        "empty",
+        "error",
+        "summary",
+        "table-region",
+        "table"
+      ]
+    }
+  },
+  "messages": [
+    "allHidden",
+    "category",
+    "downloadCsv",
+    "downloadImage",
+    "error",
+    "excluded",
+    "exitFullscreen",
+    "fullscreen",
+    "help",
+    "hidden",
+    "kinds.area",
+    "kinds.bar",
+    "kinds.line",
+    "kinds.mixed",
+    "kinds.pie",
+    "kinds.scatter",
+    "legend",
+    "legendMore",
+    "loading",
+    "more",
+    "moreSeries",
+    "noData",
+    "point",
+    "resetZoom",
+    "retry",
+    "roledescription",
+    "selected",
+    "seriesRange",
+    "showAll",
+    "shown",
+    "slice",
+    "summary",
+    "summaryPie",
+    "tableView",
+    "toolbar",
+    "total",
+    "truncated",
+    "truncatedCaption",
+    "zoomed",
+    "zoomReset"
+  ],
+  "stateAttributes": {
+    "loading": "data-loading",
+    "pressed": "data-pressed",
+    "current": "data-current",
+    "selected": "data-selected",
+    "open": "data-open",
+    "fullscreen": "data-fullscreen"
+  },
+  "stateModel": {
+    "visibility": {
+      "controlled": "hidden",
+      "uncontrolled": "defaultHidden",
+      "request": "onHiddenChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    },
+    "current": {
+      "controlled": "activePoint",
+      "uncontrolled": "defaultActivePoint",
+      "request": "onActivePointChange",
+      "reasons": ["pointer", "keyboard", "blur", "escape", "programmatic"]
+    },
+    "selection": {
+      "controlled": "selection",
+      "uncontrolled": "defaultSelection",
+      "request": "onSelectionChange",
+      "reasons": ["pointer", "keyboard", "escape", "programmatic"]
+    },
+    "zoom": {
+      "controlled": "zoom",
+      "uncontrolled": "defaultZoom",
+      "request": "onZoomChange",
+      "reasons": ["pointer", "keyboard", "clear", "escape", "programmatic"]
+    },
+    "open": {
+      "controlled": "tableOpen",
+      "uncontrolled": "defaultTableOpen",
+      "request": "onTableOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "programmatic"]
+    },
+    "fullscreen": {
+      "controlled": "fullscreen",
+      "uncontrolled": "defaultFullscreen",
+      "request": "onFullscreenChange",
+      "reasons": ["pointer", "keyboard", "escape", "programmatic"]
+    }
+  },
+  "scenarios": {
+    "chart": [
+      "playground",
+      "line",
+      "area",
+      "bar",
+      "bar-horizontal",
+      "stacked",
+      "stacked-percent",
+      "combo",
+      "dual-axis",
+      "time-axis",
+      "log-scale",
+      "pie",
+      "donut",
+      "scatter",
+      "bubble",
+      "annotations",
+      "legend",
+      "legend-values",
+      "tooltip-modes",
+      "tooltip-custom",
+      "selection",
+      "zoom",
+      "sync",
+      "sizes",
+      "many-series",
+      "large-data",
+      "gaps",
+      "negative",
+      "long-labels",
+      "texture",
+      "loading",
+      "empty",
+      "all-hidden",
+      "error",
+      "dashboard",
+      "card",
+      "toolbar",
+      "fullscreen",
+      "palette",
+      "help",
+      "table",
+      "accessibility"
+    ]
+  },
+  "overlay": "crosshair, marker and tooltip are the family's HTML, placed at the pixel the engine reports through --slotted-chart-x, --slotted-chart-y, --slotted-chart-band-start and --slotted-chart-band-size; the engine draws no hover of its own",
+  "layout": {
+    "heightStable": "loading, loaded, empty, error, all-hidden and the table view occupy the same boxes: the plot keeps its block size and the table opens inside it",
+    "card": "the root fills the block size its container gives it and the plot takes what the header and legend leave, never less than its size step; title and description are one line each, whole in the DOM",
+    "legend": "one line; entries that do not fit move behind legend-more, measured by @slotted/core/overflow; legendOverflow=wrap lets it wrap",
+    "table": "the table view replaces the plot in the plot's box and scrolls inside it"
+  },
+  "fullscreenModel": "the Fullscreen API on the root when document.fullscreenEnabled, else a fixed layer over the page; Escape leaves both and the request carries escape",
+  "palette": {
+    "categorical": "--slotted-chart-color-1..8, falling back to --slotted-data-1..8",
+    "sequential": "one hue, the accent, mixed toward the surface in eight steps: for ordered data and at most four series read by identity",
+    "focus": "slot 1 in the accent, every other slot a step of the muted text: one series read against the rest",
+    "override": "a consumer retunes --slotted-chart-color-n on any ancestor; per series, slot names a step and tone a meaning; no series takes an arbitrary colour (docs/component-features.md §2.4)"
+  },
+  "annotationLabels": {
+    "placement": "labelPlacement start | end | auto per annotation: start ends the label at its upright line, end begins it there, auto centres it and keeps it inside the plot.",
+    "collision": "Labels of upright lines take the first of two rows above the plot where they overlap no other, placed highest priority first; past the second row the lowest priority is hidden. The layout needs the chart width; without it the inward alignment stands.",
+    "tooltip": "The tooltip names every upright line on its category in tooltip-note, so a hidden label is still read."
+  }
+}

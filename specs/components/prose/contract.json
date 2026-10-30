@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 5,
+  "family": "prose",
+  "ui": "prose",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Styles long-form HTML text."
+  },
+  "pattern": null,
+  "patternAbsent": {
+    "index": "https://www.w3.org/WAI/ARIA/apg/patterns/",
+    "reason": "The Authoring Practices publish patterns for widgets a reader operates, and a region of rendered editorial content is not one. The governing sources are therefore the platform's own semantics for the elements a Markdown renderer emits, the two success criteria that decide how that text may be spaced, and the rule that a scrolling region has to be reachable without a pointer.",
+    "platform": "https://html.spec.whatwg.org/multipage/grouping-content.html",
+    "textSpacing": "https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html",
+    "visualPresentation": "https://www.w3.org/WAI/WCAG22/Understanding/visual-presentation.html",
+    "scrollableRegion": "https://dequeuniversity.com/rules/axe/4.10/scrollable-region-focusable"
+  },
+  "axes": {
+    "size": ["md", "lg", "xl"],
+    "flow": ["tight", "normal", "loose"]
+  },
+  "sizeSteps": {
+    "md": "--slotted-font-size-md",
+    "lg": "--slotted-font-size-lg",
+    "xl": "--slotted-font-size-xl"
+  },
+  "headingLadder": {
+    "h1": {
+      "token": "--slotted-prose-h1-size",
+      "fallback": "2em",
+      "reason": "A heading in editorial content is sized relative to the text it introduces, which is what lets one size axis move a whole page. The foundation type scale is a scale of absolute control steps that stops at 1.5rem because no control needs more, so an h1 taken from it would be 1.33 times its own body text at size=xl — a title that does not read as one. Adding a fourth step would change ground every family stands on to serve this one."
+    },
+    "h2": {
+      "token": "--slotted-prose-h2-size",
+      "fallback": "1.5em"
+    },
+    "h3": {
+      "token": "--slotted-prose-h3-size",
+      "fallback": "1.25em"
+    },
+    "h4": {
+      "token": "--slotted-prose-h4-size",
+      "fallback": "1.125em"
+    },
+    "h5": {
+      "token": "--slotted-prose-h5-size",
+      "fallback": "1em"
+    },
+    "h6": {
+      "token": "--slotted-prose-h6-size",
+      "fallback": "0.875em"
+    }
+  },
+  "borrows": {
+    "a": "--slotted-link-color",
+    "hr": "--slotted-divider-color",
+    "kbd": "--slotted-kbd-radius"
+  },
+  "guard": {
+    "selector": "[data-ui-prose] :where(<element>):not(:where([data-part='exclude'], [data-part='exclude'] *))",
+    "reason": "Every content rule has to lose to two other things: a Slotted family placed inside the region, selected at 0-1-0, and the consumer's own rule. :where() costs nothing in specificity and :not(:where()) takes the specificity of its argument, which is zero, so the whole content stylesheet weighs exactly what the root selector weighs.",
+    "alternative": {
+      "feature": "@scope ([data-ui='prose']) to ([data-part='exclude'])",
+      "source": "https://developer.mozilla.org/en-US/docs/Web/CSS/@scope",
+      "reason": "It expresses the region and the exclusion exactly, and a bare selector inside it resolves as :where(:scope) p — lower still. It reached Baseline in March 2026, six months before this family, and an @scope block a browser cannot parse drops the whole stylesheet rather than one declaration. The exclusion is data-part='exclude' under either mechanism, so the stylesheet can move without touching this contract."
+    }
+  },
+  "container": {
+    "name": "slotted-prose",
+    "element": "root",
+    "reason": "The query restyles descendants only and never the root's own tracks, so the family needs one element rather than the two docs/build-briefing.md requires of a family that resizes its own grid.",
+    "breakpoints": [
+      {
+        "maxWidth": "34rem",
+        "changes": [
+          "h1 steps down to 1.6em and h2 to 1.35em, because a 2em heading in a 400-pixel column is six words a line"
+        ]
+      },
+      {
+        "maxWidth": "22rem",
+        "changes": [
+          "the blockquote inset halves, because a rule plus a full inset takes a fifth of the column",
+          "the list indent steps down to 1.15em, so a third-level row still has a line to read in"
+        ]
+      }
+    ]
+  },
+  "scroll": {
+    "role": "region",
+    "appliesWhen": "overflowing",
+    "measuredBy": "@slotted/core/overflow",
+    "name": ["labelledBy", "aria-label", "messages.scroll"],
+    "focusSelector": "[data-part-scroll][tabindex]",
+    "reason": "A pre or a table wider than the column scrolls sideways, and none of the four surveyed implementations lets a keyboard reach it. Anything that takes focus needs a name and a role or it fails SC 4.1.2, and a block that fits needs neither: a tab stop on it is a tab stop that does nothing. The ring is painted on the markup that is actually operable, which is Adrian Roselli's own selector trick, and it answers :focus-visible rather than :focus because a pointer press inside a tabindex box focuses it.",
+    "source": "https://adrianroselli.com/2020/11/under-engineered-responsive-tables.html"
+  },
+  "streaming": {
+    "forbiddenSelectors": [":last-child", ":has(", ":empty"],
+    "spacingProperty": "margin-block-start",
+    "reason": "A page rendering a language model's answer appends blocks continuously, and each of those three selectors changes its own match when one arrives, restyling text already under the reader's eye. Spacing that runs one way means an arriving block brings its own space and moves nothing. Typeset is the only surveyed implementation that states the requirement; here it is held by a test."
+  },
+  "declined": {
+    "measure": {
+      "deferTo": "container",
+      "compose": "<Container size=\"measure\"><Prose>{rendered}</Prose></Container>",
+      "reason": "docs/build-briefing.md decided it before this family existed: measure belongs to container, and to it alone. Tailwind bakes 65ch in and ships max-w-none to remove it; Typeset reached this library's conclusion independently and gives the maximum to the layout."
+    },
+    "density": {
+      "compose": "flow=\"tight\" on the region, or a smaller size step",
+      "reason": "flow is this family's answer to the question density would ask, and two answers to one question is what container refused for its own inset. How tightly a form packs its controls is not a decision about how a paragraph is read, and the controls a prose region does contain — a kbd, a checkbox in a task list — each answer density themselves."
+    },
+    "colorTheme": {
+      "compose": "color on the region, or a tone from typography around it",
+      "reason": "prose-gray and its siblings are Tailwind's answer to having one colour scheme. This library has three, the region inherits --slotted-text, and a second palette per region is the thing three schemes remove."
+    },
+    "elementComponents": {
+      "deferTo": "the consumer's renderer",
+      "reason": "Nuxt UI ships one component per tag. Every Markdown renderer already maps a tag to a component — components={{ a: Link }} in MDX, the same map in @nuxtjs/mdc — so a parallel set of thirty components here would be a second renderer with no renderer."
+    },
+    "taskLists": {
+      "deferTo": "checkbox",
+      "compose": "<li><Checkbox checked readOnly /> …</li>, plus two lines of the consumer's own CSS: ul:has(> li > input[type='checkbox']) { list-style: none; padding-inline-start: 0 }",
+      "reason": "A checkbox in editorial text is a real checkbox, with the state and the accessible name that come with it. Hiding the marker beside one needs :has(), and a selector whose match changes when a child arrives is exactly what this family's streaming rule forbids — so the two declarations belong to the page, which knows whether its content is still growing."
+    },
+    "syntaxHighlighting": {
+      "deferTo": "code-block, wave 8",
+      "reason": "Prose paints the type, the ground and the inset of a pre. Highlighting, a copy control, line numbers and a wrap toggle are a family, and docs/process/build-order.md already names it."
+    },
+    "tableBehaviour": {
+      "deferTo": "table, wave 6",
+      "reason": "Prose paints a table's rhythm and its rules. Sorting, sticky headers, column resize and row selection are the family wave 6 delivers, and a Markdown table needs none of them."
+    },
+    "liveRegion": {
+      "compose": "aria-live on the consumer's own wrapper, or result-state for the announced case",
+      "reason": "Only the consumer knows whether the text is arriving once or continuously, and a region that announced every appended token would read a whole answer twice. result-state owns the announced region; prose is the typography under it."
+    },
+    "sanitisation": {
+      "deferTo": "the renderer",
+      "reason": "docs/component-features.md section 10 states it in the family's own sentence: prose does not sanitise content on its own behalf. A component that both styled and sanitised would hide which of the two failed."
+    }
+  },
+  "messages": ["scroll"],
+  "members": {
+    "prose": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "lg",
+        "flow": "normal"
+      },
+      "capabilities": ["appearance", "arrangement", "size", "wiring"],
+      "states": ["default", "hover", "focus-visible"],
+      "parts": ["root", "lead", "anchor", "scroll", "exclude", "footnotes"]
+    }
+  },
+  "scenarios": {
+    "prose": [
+      "playground",
+      "elements",
+      "size",
+      "flow",
+      "lead",
+      "anchor",
+      "scroll",
+      "exclude",
+      "streaming",
+      "content",
+      "composition",
+      "accessibility"
+    ]
+  }
+}

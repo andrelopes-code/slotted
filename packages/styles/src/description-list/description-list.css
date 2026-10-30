@@ -1,0 +1,705 @@
+@layer slotted.components {
+  /**
+   * Pairs of a term and its description, read rather than edited.
+   *
+   * The whole family is one grid and one borrowed one. The list declares a set
+   * of tracks per column — a term track sized to the widest term, a value track
+   * that takes what is left, and an action track that exists only when an
+   * action does — and every pair borrows those tracks with `subgrid`. That is
+   * what makes the terms line up down the page, which is the first thing a
+   * reader of a details panel notices and the one thing a `dl` of independent
+   * groups cannot do on its own.
+   *
+   * Every placement is a custom property set on the list, so the arrangement is
+   * decided in one place. The container query then changes the arrangement by
+   * setting those same properties, rather than by restating six rules that
+   * would have to be kept in step with the six above them.
+   */
+  [data-ui-description-list] {
+    /**
+     * The root is the query container and nothing else. An element with
+     * `container-type: inline-size` is a container for its descendants and not
+     * for itself, and what the query changes here is the grid — so the grid is
+     * the list, one element in.
+     */
+    container-name: slotted-description-list;
+    container-type: inline-size;
+    display: block;
+    /**
+     * The width under which a row of a term and its value gives up, carried as
+     * the root's font size. A container condition cannot read a custom
+     * property, but it resolves `em` against the container's own font size, so
+     * `(max-width: 1em)` folds the row when the term track and the narrowest
+     * value no longer fit side by side. The list states its own font size, so
+     * no text is set in this one.
+     */
+    font-size: calc(
+      var(--slotted-description-list-term-width, 14rem) +
+        var(--slotted-description-list-value-min, 12rem)
+    );
+  }
+
+  [data-ui-description-list] [data-part-list] {
+    /* ── The colours ─────────────────────────────────────────────────── */
+    --_ink: var(--slotted-description-list-color, var(--slotted-text, CanvasText));
+    --_term-ink: var(--slotted-description-list-term-color, var(--slotted-text-muted, GrayText));
+    --_hint-ink: var(--slotted-description-list-hint-color, var(--slotted-text-muted, GrayText));
+    --_rule: var(--slotted-description-list-rule-color, var(--slotted-border-subtle, ButtonBorder));
+    --_term-surface: var(
+      --slotted-description-list-term-surface,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    --_surface: var(--slotted-description-list-surface, var(--slotted-surface, Canvas));
+    /**
+     * The mark standing in for a missing value, held on the list rather than
+     * stated inside the pseudo-element that paints it: an unthemed decoration
+     * should disappear rather than shout, which is why
+     * `packages/styles/src/fallbacks.test.mjs` refuses a system colour inside a
+     * `::before` or `::after` rule. Reading it through one property keeps the
+     * last resort where the theme's own tokens are.
+     */
+    --_placeholder-ink: var(
+      --slotted-description-list-placeholder-color,
+      var(--slotted-text-muted, GrayText)
+    );
+    --_control-ink: var(
+      --slotted-description-list-control-color,
+      var(--slotted-text-muted, GrayText)
+    );
+    --_control-ink-hover: var(
+      --slotted-description-list-control-color-hover,
+      var(--slotted-text, CanvasText)
+    );
+    --_control-ink-done: var(
+      --slotted-description-list-control-color-complete,
+      var(--slotted-tone-success-text, CanvasText)
+    );
+    --_link-ink: var(
+      --slotted-description-list-toggle-color,
+      var(--slotted-tone-accent-text, LinkText)
+    );
+
+    /* ── The measurements ────────────────────────────────────────────── */
+    --_term-width: var(--slotted-description-list-term-width, 14rem);
+    /**
+     * The distance between a term and its own value, and the distance between
+     * two pairs standing side by side. They are not the same distance: eight
+     * pixels reads as "these two belong together" and twenty-four as "these
+     * two are separate pairs", and a single gap would have to be wrong for one
+     * of them. A subgrid's own gap overrides the one it inherits, which is what
+     * lets the list state the second and each pair state the first.
+     */
+    --_pair-gap: var(--slotted-description-list-column-gap, var(--slotted-control-gap-md, 8px));
+    /**
+     * Three times the distance a term stands from its own value, and it follows
+     * the density with it: a dense list packs its column groups as tightly as
+     * it packs everything else, where a fixed two rem left the one distance on
+     * the page that never answered the axis.
+     */
+    --_group-gap: var(
+      --slotted-description-list-group-gap,
+      calc(var(--slotted-control-gap-md, 8px) * 3)
+    );
+    --_row-gap: var(
+      --slotted-description-list-row-gap,
+      calc(var(--slotted-control-gap-md, 8px) + var(--slotted-space-2, 0.25rem))
+    );
+    /**
+     * The distance between a term and the value under it, which is three times
+     * the distance between a term and its own hint: without that ratio the
+     * three lines of a stacked pair read as one paragraph and the reader has to
+     * find the value by its colour alone.
+     */
+    --_stack-gap: var(--slotted-description-list-stack-gap, var(--slotted-space-3, 0.375rem));
+    --_pad-block: var(
+      --slotted-description-list-cell-padding-block,
+      var(--slotted-control-gap-md, 8px)
+    );
+    --_pad-inline: var(
+      --slotted-description-list-cell-padding-inline,
+      var(--slotted-control-padding-inline-md, 13px)
+    );
+    --_glyph: var(--slotted-description-list-glyph-size, var(--slotted-control-icon-size-md, 16px));
+    --_hit: calc((var(--slotted-target-min, 24px) - var(--_glyph)) / 2);
+
+    /* ── The arrangement, decided once and read everywhere ───────────── */
+    --_pair: fit-content(var(--_term-width)) minmax(0, 1fr);
+    --_cols: var(--_pair);
+    --_span-1: 2;
+    --_span-2: 4;
+    --_span-3: 6;
+    --_item-cols: subgrid;
+    --_item-col-gap: var(--_pair-gap);
+    --_term-col: 1;
+    --_term-row: auto;
+    --_desc-col: 2 / -1;
+    --_desc-row: auto;
+    --_action-col: -2 / -1;
+    --_action-row: auto;
+
+    color: var(--_ink);
+    column-gap: var(--_group-gap);
+    display: grid;
+    font-family: var(
+      --slotted-description-list-font-family,
+      var(--slotted-font-family-sans, inherit)
+    );
+    font-size: var(--slotted-description-list-font-size, var(--slotted-control-font-size-md, 13px));
+    grid-template-columns: var(--_cols);
+    line-height: var(--slotted-description-list-line-height, var(--slotted-line-height-md, 1.5));
+    /* `dl` carries a user-agent margin that no layout here asked for. */
+    margin: 0;
+  }
+
+  /**
+   * The action track exists only where an action does. A gap applies between
+   * two tracks whether or not the second has any width, so declaring the track
+   * always would end every row of every actionless list with a distance
+   * nothing asked for.
+   */
+  [data-ui-description-list] [data-part-list]:has([data-part-action]) {
+    --_pair: fit-content(var(--_term-width)) minmax(0, 1fr) auto;
+    --_span-1: 3;
+    --_span-2: 6;
+    --_span-3: 9;
+    --_desc-col: 2 / -2;
+  }
+
+  [data-ui-description-list][data-columns='2'] [data-part-list] {
+    --_cols: repeat(2, var(--_pair));
+  }
+
+  [data-ui-description-list][data-columns='3'] [data-part-list] {
+    --_cols: repeat(3, var(--_pair));
+  }
+
+  /**
+   * The stacked arrangement. The term is above the value and the action stays
+   * beside the term, where it is still the row's action rather than a third
+   * thing under it — which is what GOV.UK's summary list does at its own narrow
+   * width.
+   */
+  [data-ui-description-list][data-layout='stack'] [data-part-list] {
+    --_pair: minmax(0, 1fr);
+    --_term-floor: 0px;
+    --_span-1: 1;
+    --_span-2: 2;
+    --_span-3: 3;
+    --_item-cols: minmax(0, 1fr);
+    --_item-col-gap: var(--_pair-gap);
+    --_term-col: 1;
+    --_desc-col: 1 / -1;
+    --_desc-row: 2;
+    --_action-col: -1 / -2;
+    --_action-row: 1;
+  }
+
+  [data-ui-description-list][data-layout='stack'] [data-part-list]:has([data-part-action]) {
+    --_item-cols: minmax(0, 1fr) auto;
+    --_desc-col: 1 / -1;
+  }
+
+  /* ── The pair ──────────────────────────────────────────────────────── */
+
+  [data-ui-description-list] [data-part-item] {
+    column-gap: var(--_item-col-gap);
+    display: grid;
+    grid-column: span var(--_span-1);
+    grid-template-columns: var(--_item-cols);
+    min-inline-size: 0;
+    row-gap: var(--_stack-gap);
+  }
+
+  [data-ui-description-list] [data-part-item][data-span='2'] {
+    grid-column: span var(--_span-2);
+  }
+
+  [data-ui-description-list] [data-part-item][data-span='3'] {
+    grid-column: span var(--_span-3);
+  }
+
+  [data-ui-description-list] [data-part-term] {
+    color: var(--_term-ink);
+    font-weight: var(
+      --slotted-description-list-term-weight,
+      var(--slotted-font-weight-medium, 500)
+    );
+    grid-column: var(--_term-col);
+    grid-row: var(--_term-row);
+    /**
+     * The floor a hint asks for, and nothing otherwise. Hints are held out of
+     * the track's own sizing below, so without a floor a list of one-word terms
+     * would wrap every hint one word to a line. Every stacked arrangement puts
+     * the floor back to nothing, because a stacked term already has the whole
+     * width and a floor there is only something to overflow.
+     *
+     * It is a length rather than `min(…, 100%)`: a percentage minimum is
+     * indefinite while a track is being sized, so the floor resolved to zero
+     * during exactly the pass it exists for and the column went on being the
+     * width of its longest term.
+     */
+    min-inline-size: var(--_term-floor, 0px);
+    /* A forty-character identifier is a term too, and it wraps rather than
+       widening a track every other pair has to live with. */
+    overflow-wrap: break-word;
+  }
+
+  /**
+   * One line explaining what the term means. PatternFly needs a popover for the
+   * same job; a dense back-office panel explains a field far more often than it
+   * needs a layer, and the layer is still available when the explanation is
+   * longer than a line.
+   */
+  [data-ui-description-list] [data-part-list]:has([data-part-hint]) {
+    --_term-floor: var(--slotted-description-list-term-min, 12rem);
+  }
+
+  [data-ui-description-list] [data-part-hint] {
+    color: var(--_hint-ink);
+    /**
+     * A hint is a sentence and a term is two words, so a hint left to size its
+     * own column takes the whole of the fourteen-rem maximum and every value in
+     * the list pays for it: the label column stood at two hundred and
+     * twenty-four pixels in a four-hundred-and-twenty-pixel panel, for one
+     * sentence. Size containment holds the hint out of the track's intrinsic
+     * width — the terms decide the column, the floor above keeps it habitable,
+     * and the hint wraps inside what those two agreed.
+     */
+    contain: inline-size;
+    display: block;
+    font-size: var(--slotted-description-list-hint-font-size, var(--slotted-font-size-xs, 0.75rem));
+    font-weight: var(--slotted-font-weight-regular, 400);
+    line-height: var(--slotted-line-height-xs, 1.4);
+    margin-block-start: var(--slotted-space-1, 0.125rem);
+  }
+
+  /**
+   * The value's cell, and the ground its controls stand on. Two tracks: the
+   * value, which takes what it needs up to the width available, and the copy
+   * control beside it. The reveal toggle takes a line of its own, because a
+   * clamped value ends mid-sentence and a control on that line would read as
+   * part of it.
+   */
+  /**
+   * A value with no clamp and no toggle is text, and the control that copies it
+   * belongs at the end of that text — not at the far edge of the row, which is
+   * where a grid track put it the moment the value wrapped. Inline flow is the
+   * only thing that follows a last line, so a description with nothing but a
+   * value and a copy control is a block, and the grid below is for the ones
+   * that have a second row to place.
+   */
+  [data-ui-description-list] [data-part-description]:not([data-clamp]) {
+    display: block;
+  }
+
+  [data-ui-description-list] [data-part-description]:not([data-clamp]) [data-part-value] {
+    display: inline;
+  }
+
+  [data-ui-description-list] [data-part-description]:not([data-clamp]) [data-part-copy] {
+    margin-inline-start: var(--_pair-gap);
+    vertical-align: text-bottom;
+  }
+
+  [data-ui-description-list] [data-part-description] {
+    align-items: baseline;
+    /**
+     * The distance from a value to the control that reaches it does not follow
+     * the density the way the distance from a term to its value does. The focus
+     * ring is drawn two pixels outside the control's box, and a dense list's
+     * four-pixel gap left the ring two pixels from the last word of the value —
+     * a ring that reads as a box around the text it is beside.
+     */
+    column-gap: max(var(--_pair-gap), var(--slotted-space-4, 0.5rem));
+    display: grid;
+    grid-column: var(--_desc-col);
+    grid-row: var(--_desc-row);
+    grid-template-columns: minmax(0, max-content) auto;
+    justify-content: start;
+    /* `dd` carries a user-agent inline margin of forty pixels. */
+    margin: 0;
+    min-inline-size: 0;
+    row-gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-description-list] [data-part-value] {
+    grid-column: 1;
+    min-inline-size: 0;
+    /* An unbroken token — a hash, an ARN, a URL — breaks rather than leaving
+       the box it was given. */
+    overflow-wrap: break-word;
+  }
+
+  /**
+   * Clamping is visual only: every character stays in the DOM, selectable,
+   * copyable and readable by a screen reader. `docs/build-briefing.md` decided
+   * that for the library and section 10 of the feature guide states it for this
+   * family — a long value may be copied or revealed, never truncated without
+   * access.
+   */
+  [data-ui-description-list] [data-part-description][data-clamp] [data-part-value] {
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--slotted-description-list-clamp, 2);
+    display: -webkit-box;
+    overflow: hidden;
+  }
+
+  [data-ui-description-list] [data-part-description][data-clamp][data-revealed] [data-part-value] {
+    -webkit-line-clamp: none;
+    display: block;
+    overflow: visible;
+  }
+
+  /**
+   * A value that is missing, in one of two forms.
+   *
+   * With words, it is those words: a consumer who writes "Not set yet" means a
+   * reader to see it, and a row that says what it is missing is worth more than
+   * a mark that says only *something*.
+   *
+   * Without them it is an em dash — `—`, U+2014 — and the accompanying sentence
+   * is read rather than shown, because a panel of twelve empty rows saying "Not
+   * provided" twelve times is noise, and the mark is what a reader scans past.
+   *
+   * The mark was a drawn rule of two pixels until DL2: geometry that answered
+   * to no font, sitting on a line of text as a bar the reader has no name for,
+   * where an em dash is what a table has used for a missing value since tables
+   * were set in lead. It is a character, so it is content and both bindings
+   * write it — the stylesheet generates no text, which
+   * `description-list.styles.test.mjs` holds for the whole family — and the
+   * only thing left here is the ink it is drawn in, one step down from the
+   * value it stands in for.
+   *
+   * `—` and never `-`: a hyphen is a word joiner, half the width, and it sits
+   * at a different height.
+   */
+  [data-ui-description-list] [data-part-placeholder] {
+    color: var(--_placeholder-ink);
+  }
+
+  /* ── The controls ──────────────────────────────────────────────────── */
+
+  [data-ui-description-list] :is([data-part-copy], [data-part-toggle]) {
+    appearance: none;
+    background: none;
+    border: 0;
+    border-radius: var(--slotted-description-list-radius, var(--slotted-control-radius, 4px));
+    cursor: pointer;
+    font: inherit;
+    transition:
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing),
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-description-list] :is([data-part-copy], [data-part-toggle]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * The copy control is an icon on the value's own line, and its hit area is
+   * larger than the mark it draws: padding takes the box to the WCAG minimum of
+   * twenty-four pixels and an equal negative margin gives the space back to the
+   * line, so the row keeps its rhythm and the target keeps its size.
+   */
+  [data-ui-description-list] [data-part-copy] {
+    --slotted-icon-size: var(--_glyph);
+    align-items: center;
+    block-size: var(--slotted-target-min, 24px);
+    color: var(--_control-ink);
+    display: inline-flex;
+    grid-column: 2;
+    inline-size: var(--slotted-target-min, 24px);
+    justify-content: center;
+    /**
+     * Only the block axis gives its padding back. An inline negative margin
+     * pulled the control's box under the last word of the value, and the focus
+     * ring — which is drawn around the box and not around the mark — was then
+     * struck through the text it belonged beside.
+     */
+    margin-block: calc(var(--_hit) * -1);
+    padding: var(--_hit);
+  }
+
+  [data-ui-description-list] [data-part-copy]:enabled:not([data-complete]):hover {
+    background-color: var(
+      --slotted-description-list-control-surface-hover,
+      var(--slotted-tone-secondary-subtle-hover, ButtonFace)
+    );
+    color: var(--_control-ink-hover);
+  }
+
+  [data-ui-description-list] [data-part-copy]:enabled:not([data-complete]):active {
+    background-color: var(
+      --slotted-description-list-control-surface-active,
+      var(--slotted-tone-secondary-subtle-active, ButtonFace)
+    );
+  }
+
+  /**
+   * A copy that finished. The mark changes as well as the colour — the binding
+   * draws the check `Glyph` in place of the copy one — because a green
+   * clipboard says nothing to a reader who cannot see the green, and the
+   * control returns to rest on its own, so nothing is left claiming a state
+   * that has passed.
+   */
+  [data-ui-description-list] [data-part-copy][data-complete] {
+    color: var(--_control-ink-done);
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: a transparent `::before` centred on the control
+     reaches 44 pixels, and the ground and the ring stay square. The row keeps
+     its rhythm, because the halo takes no room. */
+  @media (pointer: coarse) {
+    [data-ui-description-list] [data-part-copy] {
+      position: relative;
+    }
+
+    [data-ui-description-list] [data-part-copy]::before {
+      content: '';
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+      position: absolute;
+    }
+  }
+
+  /**
+   * The control that reveals the rest of a clamped value. It reads as a link
+   * rather than as a button because what it does is take the reader further
+   * into the text, and it carries the chevron every disclosure in this library
+   * carries — the `Glyph` the binding draws after the words, turned, not
+   * swapped, so the eye follows one mark rather than catching two.
+   */
+  [data-ui-description-list] [data-part-toggle] {
+    --slotted-icon-size: var(--_glyph);
+    align-items: center;
+    color: var(--_link-ink);
+    column-gap: var(--slotted-space-2, 0.25rem);
+    display: inline-flex;
+    grid-column: 1 / -1;
+    justify-self: start;
+    min-block-size: var(--slotted-target-min, 24px);
+    padding-inline: 0;
+  }
+
+  [data-ui-description-list] [data-part-toggle] > [data-ui-icon] {
+    rotate: 0deg;
+    transition: rotate var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-description-list] [data-revealed] [data-part-toggle] > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  [data-ui-description-list] [data-part-toggle]:enabled:hover {
+    text-decoration-line: underline;
+    text-underline-offset: var(--slotted-description-list-underline-offset, 0.2em);
+  }
+
+  [data-ui-description-list] [data-part-toggle]:enabled:active {
+    color: var(--_control-ink-hover);
+  }
+
+  /* ── The row's own action ──────────────────────────────────────────── */
+
+  [data-ui-description-list] [data-part-action] {
+    align-self: start;
+    grid-column: var(--_action-col);
+    grid-row: var(--_action-row);
+    justify-self: end;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  /* ── plain ─────────────────────────────────────────────────────────── */
+
+  /**
+   * Nothing between pairs but the distance between them, which is the whole of
+   * this variant. It is the form that belongs inside a card, where the card
+   * already draws the box and a second frame would be two.
+   */
+  [data-ui-description-list][data-variant='plain'] [data-part-list] {
+    row-gap: var(--_row-gap);
+  }
+
+  /* ── ruled ─────────────────────────────────────────────────────────── */
+
+  /**
+   * A rule under every pair, including the last — which is GOV.UK's own summary
+   * list, and reads as a finished list rather than as one that stopped. It is
+   * also the only form of the rule that survives a pair spanning two columns,
+   * because it needs to know nothing about which row a pair is in.
+   */
+  [data-ui-description-list][data-variant='ruled'] [data-part-list] {
+    row-gap: 0;
+  }
+
+  [data-ui-description-list][data-variant='ruled'] [data-part-item] {
+    border-block-end: var(--slotted-border-width-thin, 1px) solid var(--_rule);
+    padding-block: var(--_pad-block);
+  }
+
+  /* ── framed ────────────────────────────────────────────────────────── */
+
+  /**
+   * The specification table: an outer frame, a hairline between rows, and the
+   * term cell tinted so the two columns read as two kinds of thing. Ant Design
+   * calls it `bordered` and Carbon draws the same rules; here the frame is the
+   * family's and the surface underneath is the theme's.
+   */
+  [data-ui-description-list][data-variant='framed'] [data-part-list] {
+    background-color: var(--_surface);
+    border: var(--slotted-border-width-thin, 1px) solid var(--_rule);
+    border-radius: var(--slotted-description-list-frame-radius, var(--slotted-radius-md, 6px));
+    column-gap: 0;
+    /* The tinted term cell would otherwise square off the rounded corners. */
+    overflow: clip;
+    row-gap: 0;
+  }
+
+  [data-ui-description-list][data-variant='framed'] [data-part-item] {
+    border-block-start: var(--slotted-border-width-thin, 1px) solid var(--_rule);
+    column-gap: 0;
+  }
+
+  [data-ui-description-list][data-variant='framed'][data-columns='1'] [data-part-item]:first-child,
+  [data-ui-description-list][data-variant='framed'][data-columns='2']
+    [data-part-item]:nth-child(-n + 2),
+  [data-ui-description-list][data-variant='framed'][data-columns='3']
+    [data-part-item]:nth-child(-n + 3) {
+    border-block-start-width: 0;
+  }
+
+  [data-ui-description-list][data-variant='framed']
+    :is([data-part-term], [data-part-description], [data-part-action]) {
+    padding-block: var(--_pad-block);
+    padding-inline: var(--_pad-inline);
+  }
+
+  [data-ui-description-list][data-variant='framed'] [data-part-term] {
+    background-color: var(--_term-surface);
+    border-inline-end: var(--slotted-border-width-thin, 1px) solid var(--_rule);
+  }
+
+  [data-ui-description-list][data-variant='framed'][data-layout='stack'] [data-part-term] {
+    /* Stacked, the term is a bar above its value rather than a cell beside it,
+       and a rule on its inline edge would point at nothing. */
+    border-inline-end: 0;
+  }
+
+  /* ── The container answers its own width ───────────────────────────── */
+
+  /**
+   * The count collapses before the arrangement does. A two-column row list at
+   * thirty rem has fifteen rem for each pair, of which the term may take
+   * fourteen, and the value would break one word to a line — so the second
+   * column goes first and the single-column row form gets the whole width
+   * before it gives up on the row.
+   *
+   * The count breakpoints are literals because a container condition cannot
+   * read a custom property, which rule 4 of `docs/token-foundation.md` states.
+   * That is why `data-min-column-width` is a step and not a length: `md` folds
+   * at sixteen and seventeen rem a column, `sm` at twelve and a half. The row
+   * fold reads the term width through the root's font size instead.
+   */
+  /**
+   * A span is stated in tracks, so it collapses with the count that produced
+   * it. A pair asking for two columns of a list that now has one spans past the
+   * last track, and grid answers by inventing the tracks it was asked for: the
+   * list quietly grew two implicit columns and went on drawing two pairs to a
+   * row at every width. The picture said nothing — it was a correct rendering
+   * of a four-track grid.
+   */
+  @container slotted-description-list (max-width: 48rem) {
+    [data-ui-description-list][data-min-column-width='md'][data-columns='3'] [data-part-list] {
+      --_cols: repeat(2, var(--_pair));
+      --_span-3: var(--_span-2);
+    }
+  }
+
+  @container slotted-description-list (max-width: 37.5rem) {
+    [data-ui-description-list][data-min-column-width='sm'][data-columns='3'] [data-part-list] {
+      --_cols: repeat(2, var(--_pair));
+      --_span-3: var(--_span-2);
+    }
+  }
+
+  @container slotted-description-list (max-width: 25rem) {
+    [data-ui-description-list][data-min-column-width='sm'][data-columns='2'] [data-part-list],
+    [data-ui-description-list][data-min-column-width='sm'][data-columns='3'] [data-part-list] {
+      --_cols: var(--_pair);
+      --_span-2: var(--_span-1);
+      --_span-3: var(--_span-1);
+    }
+  }
+
+  @container slotted-description-list (max-width: 34rem) {
+    [data-ui-description-list][data-min-column-width='md'][data-columns='2'] [data-part-list],
+    [data-ui-description-list][data-min-column-width='md'][data-columns='3'] [data-part-list] {
+      --_cols: var(--_pair);
+      --_span-2: var(--_span-1);
+      --_span-3: var(--_span-1);
+    }
+  }
+
+  @container slotted-description-list (max-width: calc(1em + 8rem)) {
+    /**
+     * A list whose terms carry hints gives up the row eight rem earlier than
+     * one whose terms do not. A hint is a sentence under a label, and a label
+     * column wide enough to hold one leaves a four-hundred-pixel panel with a
+     * value column narrower than the label — which is the arrangement inverted
+     * rather than compressed. The declarations are the ones below, at the
+     * row fold, and they are written twice because two container conditions
+     * cannot share one rule.
+     */
+    [data-ui-description-list][data-layout='row'] [data-part-list]:has([data-part-hint]) {
+      --_pair: minmax(0, 1fr);
+      --_term-floor: 0px;
+      --_span-1: 1;
+      --_span-2: 1;
+      --_span-3: 1;
+      --_item-cols: minmax(0, 1fr);
+      --_desc-col: 1 / -1;
+      --_desc-row: 2;
+      --_action-col: -1 / -2;
+      --_action-row: 1;
+    }
+
+    [data-ui-description-list][data-layout='row']
+      [data-part-list]:has([data-part-hint]):has([data-part-action]) {
+      --_item-cols: minmax(0, 1fr) auto;
+    }
+
+    [data-ui-description-list][data-variant='framed'][data-layout='row']
+      [data-part-list]:has([data-part-hint])
+      [data-part-term] {
+      border-inline-end: 0;
+    }
+  }
+
+  @container slotted-description-list (max-width: 1em) {
+    [data-ui-description-list][data-layout='row'] [data-part-list] {
+      --_pair: minmax(0, 1fr);
+      --_term-floor: 0px;
+      --_span-1: 1;
+      --_span-2: 1;
+      --_span-3: 1;
+      --_item-cols: minmax(0, 1fr);
+      --_desc-col: 1 / -1;
+      --_desc-row: 2;
+      --_action-col: -1 / -2;
+      --_action-row: 1;
+    }
+
+    [data-ui-description-list][data-layout='row'] [data-part-list]:has([data-part-action]) {
+      --_item-cols: minmax(0, 1fr) auto;
+      --_desc-col: 1 / -1;
+    }
+
+    [data-ui-description-list][data-variant='framed'][data-layout='row'] [data-part-term] {
+      border-inline-end: 0;
+    }
+  }
+}

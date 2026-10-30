@@ -1,0 +1,134 @@
+---
+title: Datetime Picker
+description: A segmented date and time field with a calendar and a list of times behind one trigger, for one moment that the reader can type or choose.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Typing or choosing
+
+The field and the panel write the same value. Type the month, day, year, hour and minute into the segments, or press the calendar button and choose a day in the calendar and a time in the list. Each change reports its reason: `keyboard` for typing, `select` for a press in the panel, `clear` for the clear button and `blur` for a value completed when the field loses focus. Press `+`, `-` or `=` on a segment to type a relative expression instead, such as `+2h` or `+1d`, measured from `referenceDateTime`.
+
+<Example name="typing" />
+
+## Completing the value
+
+The datetime picker has no confirm button: the press that completes the value closes the panel. A day pressed while the field is empty moves focus to the time list, onto the time nearest `referenceDateTime`, and the panel stays open; a time pressed first moves focus to the calendar. The value stays empty until both halves are chosen. Once the value is whole, a press changes one half and the panel stays open, so the reader can change the day and then the time. Set `referenceDateTime` to the time your flow books most often; unset, it is the current time. It also sets the month the calendar opens on.
+
+<Example name="reference" />
+
+## 12-hour and 24-hour clocks
+
+`hourCycle` takes `12` or `24` and applies to the field, the list and the date and time in words. Unset, the locale decides: `en-US` writes 12-hour times with AM and PM, `en-GB` and `de-DE` write 24-hour times.
+
+<Example name="hour-cycle" />
+
+## Step between times
+
+`step` sets the seconds between two times in the list, 900 by default. The list counts from the earliest time the day allows: the time of `min` on its own day, `minTime` on the other days, and midnight when neither is set. A step of 1800 from a `minTime` of 7:15 AM offers 7:15, 7:45 and 8:15. The step applies to the list only: the field accepts any minute by typing and by the arrow keys.
+
+<Example name="step" />
+
+## Hours, minutes or seconds
+
+`granularity` sets how much of the time the field writes: `hour`, `minute` (the default) or `second`. Pair it with a step that lands on the same unit. The list stops at `maxOptions` rows, 1,440 by default, so a step in seconds needs a window from `minTime` to `maxTime` to stay short.
+
+<Example name="granularity" />
+
+## Stated times
+
+`options` replaces the step with your own list of times, for a schedule that no step describes, such as departures or delivery windows. The list keeps the order you give it. The bounds and the predicates still refuse times in it.
+
+<Example name="options" />
+
+## Earliest and latest
+
+Two pairs of bounds apply together. `min` and `max` are whole date-times: where the range starts and where it ends. `minTime` and `maxTime` bound the times of every day inside the range. On the first day the list starts at the time of `min`, on the last day it stops at the time of `max`, and the calendar disables the days outside the range. A value outside the bounds stays in the field and marks the datetime picker invalid.
+
+<Example name="bounds" />
+
+## Unavailable dates and times
+
+`isDateUnavailable` receives each date and returns `true` for a day the reader cannot choose; the calendar disables it and its list is empty. `isTimeUnavailable` receives a time and the date it belongs to, so the rule can differ by day. The list follows the day the reader is on in the calendar, before any day is chosen. Refused times stay in the list, disabled; `unavailableOptions="hide"` removes them instead.
+
+<Example name="unavailable" />
+
+## Time zones and wall-clock values
+
+The value is a `PlainDateTime`: a `date` and a `time` with no time zone, the time a clock on the wall shows. `toISODateTime` writes it as `2026-09-30T14:00:00`, the format of `input[type=datetime-local]`, and `parseISODateTime` reads it back. When your server stores instants, `wallClockIn` from `@slotted/core/date` converts an instant to the wall-clock time in a time zone; converting back to an instant stays in your application. `timeZone` decides which day the calendar marks as today and what the Now button writes. Unset, both come from the browser's time zone.
+
+<Example name="time-zones" />
+
+## Locale and format
+
+`locale` takes a BCP 47 tag and sets the order of the segments, their separators and placeholders, the clock, the month and weekday names in the calendar, and the date and time in words that the calendar button announces. There is no format string: each locale writes its own shape. Unset, the locale comes from `SlottedProvider` in React or `provideSlotted` in Angular, and falls back to `en-US`. The value is the same `PlainDateTime` in every locale.
+
+<Example name="locale" />
+
+## Sizes
+
+`size` sets the field, the trigger and the rows of the list to one step of the control scale: `sm` for toolbars and filter rows, `md` for most forms, `lg` for sparse forms. Inside a field, an unset size follows the field.
+
+<Example name="sizes" />
+
+## Variants
+
+`outline` is the default frame. `subtle` fills the control, for a form on a tinted surface. `plain` draws no frame at rest, for a table cell or a toolbar, and still shows hover and focus.
+
+<Example name="variants" />
+
+## States
+
+Set `invalid`, `readOnly` and `disabled` on the field, which passes them to the datetime picker; each can also be set on the datetime picker itself. Invalid draws the frame and the focus ring in the danger tone and sets `aria-invalid`. Read-only keeps the value legible and focusable. Read-only and disabled both disable the calendar button, so the panel cannot open.
+
+<Example name="states" />
+
+## Controlled
+
+Pass `value` and update it from `onValueChange` in React, or bind `[value]` and update it from `(valueChange)` in Angular, when other parts of the screen depend on the value. The handler receives a `PlainDateTime`, or `null` while the field is empty or holds only one half. Buttons outside the datetime picker can set the value; the field and the panel follow.
+
+<Example name="controlled" />
+
+## Clearing
+
+`clearable` adds a clear button to the field while it holds any part of a value. The button empties both halves, reports `null` with the reason `clear` and returns focus to the field.
+
+<Example name="clearable" />
+
+## Footer actions
+
+`footer` in React and an element with `slDateTimePickerFooter` in Angular add a row of actions under the calendar and the list. `closeOnSelect` decides when a press closes the panel: `auto`, the default, closes it on the press that completes the value; `always` closes it on every press that changes the value; `never` keeps it open. Here `never` keeps the panel open while the reader changes the day and the time, and the Done button closes it through `close()` in React and `closeSurface()` in Angular.
+
+<Example name="footer" />
+
+## In a form
+
+`name` adds a hidden input that submits the value as an ISO string, such as `2026-10-01T08:00:00`, whether it was typed or chosen. In Angular, the datetime picker is a form control: `formControlName`, `formControl` and `ngModel` bind the value, `Validators.required` applies to it, and the datetime picker reports `slottedDateTimeRange` outside `min` and `max`, `slottedDateTimeWindow` outside `minTime` and `maxTime`, `slottedDateTimeUnavailable` for a refused date or time and `slottedDateTimeIncomplete` while only one half is typed. In React, the value stays in your state and you validate it on submit. Submit without a value to see the required error, type a date in September to see the bound error, then reset.
+
+<Example name="form" />
+
+## Keyboard and the trigger's name
+
+Alt+ArrowDown opens the panel from the field and leaves focus in the field, so typing keeps working. The calendar button opens it with Enter, Space or ArrowDown and moves focus into the calendar, or into the list when `openTo` is `time`. Tab and Shift+Tab move between the head, the calendar, the list and the footer until the panel closes. In the list, ArrowUp and ArrowDown move between times, PageUp and PageDown move to the previous or next hour, Home and End move to the first and last time, and typing jumps to a matching time. Enter or Space chooses. Moving through the list does not change the value until a time is chosen. Escape closes the panel and returns focus to the calendar button. The button's accessible name carries the chosen date and time, and `messages` replaces it: `choose` while no value is set and `change`, with the value in its `{date}` slot, once one is. `onOpenChange` in React and `(openChange)` in Angular report why the panel opened or closed.
+
+<Example name="keyboard" />
+
+## Narrow screens
+
+The calendar and the list sit side by side when the panel has room for both, and stack, calendar first, when it does not; nothing is hidden and no tabs are added. Under 480 pixels on a touch screen, the panel opens as a sheet attached to the bottom of the viewport. The markup stays the same; the positioner carries `data-presentation="sheet"`. Shortcuts added with `presets` in React or `slDateTimePickerPresets` in Angular sit in the head beside Now and wrap inside the panel's width.
+
+<Example name="narrow" />
+
+## Carrier pickup slot
+
+A carrier collects in four fixed windows on weekdays, and each window takes three trucks. `options` lists the windows, `isTimeUnavailable` refuses a full window on its own day, and the row drawn by `renderOption` in React or an `ng-template` with `slDateTimePickerOption` in Angular shows the trucks left. The row keeps its role, its states and its keyboard; only its content is yours. `closeOnSelect="never"` keeps the panel open while the reader compares days, and Done closes it.
+
+<Example name="carrier-pickup" />
+
+## Publish at a set time
+
+A price list goes live at a set time in New York. `min` stops the reader before the moment the form opened, shortcuts set the two times the team uses most, and `timeZone` makes today and Now follow New York. The value stays a wall-clock time; the description names the zone, so the reader and your server read it the same way.
+
+<Example name="publish-at" />

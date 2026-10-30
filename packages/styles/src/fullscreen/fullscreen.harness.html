@@ -1,0 +1,793 @@
+<!--
+  The region at rest paints nothing, so every scene writes the consumer's own
+  container around it: a panel with a title, a bar of controls and a chart
+  drawn as bars. What the family paints is the region once it is full screen
+  and the control, and those are what the scenes compare.
+
+  A scene of the region in full screen declares `data-fixed`, which makes the
+  stage the containing block of a `position: fixed` layer, so `layout` is
+  photographed inside its cell instead of over the page. `native` is drawn by
+  the agent's own sheet (`position: fixed; inset: 0`), which a page cannot
+  load; its scene restates those two declarations inline, and the rest of the
+  picture is this family's.
+
+  The control's mark is an icon drawing the family's glyph for the state. The
+  last scene passes a consumer's icon node in the icon part instead.
+-->
+
+<section data-scene="region">
+  <style>
+    /* The consumer's card, at rest only: in full screen the region is the
+       screen, and a card's edge at the edge of the screen is a frame around
+       nothing. This is how a consumer writes it. */
+    [data-demo-panel]:not([data-fullscreen]) {
+      background: var(--slotted-surface-raised);
+      border: var(--slotted-border-width-thin) solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-lg);
+      display: grid;
+      gap: var(--slotted-space-5);
+      padding: var(--slotted-space-6);
+    }
+
+    /* In full screen the region is the family's column; the header keeps
+       its distance from the chart by its own margin. */
+    [data-demo-header] {
+      display: grid;
+      gap: var(--slotted-space-3);
+    }
+
+    [data-demo-panel][data-fullscreen] > [data-demo-header] {
+      margin-block-end: var(--slotted-space-5);
+    }
+
+    /* The consumer's card inside a region, framed in every state: the lone
+       child that is given the height. */
+    [data-demo-card] {
+      background: var(--slotted-surface-raised);
+      border: var(--slotted-border-width-thin) solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-lg);
+      display: grid;
+      align-content: start;
+      gap: var(--slotted-space-5);
+      padding: var(--slotted-space-6);
+    }
+
+    [data-demo-media] {
+      background: var(--slotted-surface-sunken);
+    }
+
+    [data-demo-head] {
+      align-items: center;
+      display: flex;
+      gap: var(--slotted-space-4);
+      justify-content: space-between;
+      min-inline-size: 0;
+    }
+
+    [data-demo-title] {
+      font-size: var(--slotted-font-size-lg);
+      font-weight: var(--slotted-font-weight-semibold);
+      margin: 0;
+      min-inline-size: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    [data-demo-meta] {
+      color: var(--slotted-text-muted);
+      font-size: var(--slotted-font-size-sm);
+      margin: 0;
+    }
+
+    [data-demo-bars] {
+      align-items: end;
+      block-size: 120px;
+      border-block-end: var(--slotted-border-width-thin) solid var(--slotted-border-subtle);
+      display: flex;
+      gap: var(--slotted-space-3);
+    }
+
+    [data-demo-bars] > span {
+      background: var(--slotted-tone-accent-subtle-active);
+      border-start-end-radius: var(--slotted-radius-sm);
+      border-start-start-radius: var(--slotted-radius-sm);
+      flex: 1;
+    }
+
+    /* Given the height of the content part, the chart takes it. */
+    [data-demo-fullscreen] [data-part='content'] > [data-demo-bars] {
+      block-size: auto;
+      min-block-size: 120px;
+    }
+
+    [data-demo-column] {
+      display: grid;
+      gap: var(--slotted-space-6);
+    }
+
+    [data-demo-row] {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--slotted-space-4);
+    }
+
+    [data-demo-label] {
+      color: var(--slotted-text-muted);
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      margin: 0;
+    }
+  </style>
+
+  <div
+    data-ui="fullscreen"
+    data-ui-fullscreen=""
+    data-part="root"
+    data-part-root=""
+    data-demo-panel
+    id="r1"
+  >
+    <header data-demo-header>
+      <div data-demo-head>
+        <h3 data-demo-title>Revenue by month</h3>
+        <button
+          data-ui="fullscreen"
+          data-ui-fullscreen=""
+          data-part="trigger"
+          data-part-trigger=""
+          data-size="sm"
+          data-variant="ghost"
+          data-icon-only
+          type="button"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Tela cheia</span>
+        </button>
+      </div>
+      <p data-demo-meta>Jan – Jun 2026 · R$ mil</p>
+    </header>
+    <div data-ui="fullscreen" data-ui-fullscreen="" data-part="content" data-part-content="">
+      <div data-demo-bars aria-hidden="true">
+        <span style="block-size: 42%"></span>
+        <span style="block-size: 58%"></span>
+        <span style="block-size: 51%"></span>
+        <span style="block-size: 74%"></span>
+        <span style="block-size: 66%"></span>
+        <span style="block-size: 88%"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="layout" data-fixed>
+  <p data-demo-meta>The page underneath, locked and covered.</p>
+  <div
+    data-ui="fullscreen"
+    data-ui-fullscreen=""
+    data-part="root"
+    data-part-root=""
+    data-demo-panel
+    data-demo-fullscreen
+    data-fullscreen
+    data-mode="layout"
+  >
+    <header data-demo-header>
+      <div data-demo-head>
+        <h3 data-demo-title>Revenue by month</h3>
+        <button
+          data-ui="fullscreen"
+          data-ui-fullscreen=""
+          data-part="trigger"
+          data-part-trigger=""
+          data-size="sm"
+          data-variant="ghost"
+          data-fullscreen
+          type="button"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Sair da tela cheia</span>
+        </button>
+      </div>
+      <p data-demo-meta>Jan – Jun 2026 · R$ mil</p>
+    </header>
+    <div data-ui="fullscreen" data-ui-fullscreen="" data-part="content" data-part-content="">
+      <div data-demo-bars aria-hidden="true">
+        <span style="block-size: 42%"></span>
+        <span style="block-size: 58%"></span>
+        <span style="block-size: 51%"></span>
+        <span style="block-size: 74%"></span>
+        <span style="block-size: 66%"></span>
+        <span style="block-size: 88%"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="native" data-fixed>
+  <div
+    data-ui="fullscreen"
+    data-ui-fullscreen=""
+    data-part="root"
+    data-part-root=""
+    data-demo-panel
+    data-demo-fullscreen
+    data-fullscreen
+    data-mode="native"
+    style="position: absolute; inset: 0"
+  >
+    <header data-demo-header>
+      <div data-demo-head>
+        <h3 data-demo-title>Revenue by month</h3>
+        <button
+          data-ui="fullscreen"
+          data-ui-fullscreen=""
+          data-part="trigger"
+          data-part-trigger=""
+          data-size="sm"
+          data-variant="outline"
+          data-fullscreen
+          type="button"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Sair da tela cheia</span>
+        </button>
+      </div>
+      <p data-demo-meta>Jan – Jun 2026 · R$ mil</p>
+    </header>
+    <div data-ui="fullscreen" data-ui-fullscreen="" data-part="content" data-part-content="">
+      <div data-demo-bars aria-hidden="true">
+        <span style="block-size: 42%"></span>
+        <span style="block-size: 58%"></span>
+        <span style="block-size: 51%"></span>
+        <span style="block-size: 74%"></span>
+        <span style="block-size: 66%"></span>
+        <span style="block-size: 88%"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="trigger">
+  <div data-demo-column>
+    <p data-demo-label>ghost · sm · md · lg</p>
+    <div data-demo-row>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-size="sm"
+        data-variant="ghost"
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-size="md"
+        data-variant="ghost"
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-size="lg"
+        data-variant="ghost"
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+    </div>
+    <p data-demo-label>outline · sm · md · lg</p>
+    <div data-demo-row>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-size="sm"
+        data-variant="outline"
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-size="md"
+        data-variant="outline"
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-size="lg"
+        data-variant="outline"
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+    </div>
+    <p data-demo-label>fullscreen · the label and the mark state the next step</p>
+    <div data-demo-row>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-variant="ghost"
+        data-fullscreen
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Sair da tela cheia</span>
+      </button>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-variant="outline"
+        data-fullscreen
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Sair da tela cheia</span>
+      </button>
+    </div>
+    <p data-demo-label>desabilitado</p>
+    <div data-demo-row>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-variant="ghost"
+        data-disabled
+        disabled
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-variant="outline"
+        data-disabled
+        disabled
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="icon-only">
+  <div data-demo-column>
+    <p data-demo-label>mark only · sm · md · lg · fullscreen · outline</p>
+    <div data-demo-row>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-size="sm"
+        data-variant="ghost"
+        data-icon-only
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-size="md"
+        data-variant="ghost"
+        data-icon-only
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-size="lg"
+        data-variant="ghost"
+        data-icon-only
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-variant="ghost"
+        data-icon-only
+        data-fullscreen
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Sair da tela cheia</span>
+      </button>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-variant="outline"
+        data-icon-only
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-variant="outline"
+        data-icon-only
+        data-disabled
+        disabled
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Tela cheia</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="long">
+  <div data-demo-column>
+    <p data-demo-label>translated, long label in a narrow container</p>
+    <div style="inline-size: 180px; max-inline-size: 100%">
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-variant="outline"
+        data-fullscreen
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Vollbildmodus beenden und zurückkehren</span>
+      </button>
+    </div>
+    <p data-demo-label>the consumer's icon in the icon part</p>
+    <div data-demo-row>
+      <button
+        data-ui="fullscreen"
+        data-ui-fullscreen=""
+        data-part="trigger"
+        data-part-trigger=""
+        data-variant="outline"
+        type="button"
+      >
+        <span data-part="icon" data-part-icon="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="presentation"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Apresentar</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="lone" data-fixed>
+  <div
+    data-ui="fullscreen"
+    data-ui-fullscreen=""
+    data-part="root"
+    data-part-root=""
+    data-fullscreen
+    data-mode="layout"
+  >
+    <article data-demo-card>
+      <div data-demo-head>
+        <h3 data-demo-title>Open orders</h3>
+        <button
+          data-ui="fullscreen"
+          data-ui-fullscreen=""
+          data-part="trigger"
+          data-part-trigger=""
+          data-size="sm"
+          data-variant="ghost"
+          data-icon-only
+          data-fullscreen
+          type="button"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Sair da tela cheia</span>
+        </button>
+      </div>
+      <p data-demo-meta>The only child receives the height: the card frame reaches the bottom.</p>
+    </article>
+  </div>
+</section>
+
+<section data-scene="media" data-fixed>
+  <div
+    data-ui="fullscreen"
+    data-ui-fullscreen=""
+    data-part="root"
+    data-part-root=""
+    data-demo-media
+    data-fullscreen
+    data-mode="layout"
+  >
+    <img
+      alt="Warehouse floor plan, top view"
+      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Crect width='1600' height='900' fill='%233b82f6'/%3E%3Crect x='120' y='120' width='600' height='660' fill='%2393c5fd'/%3E%3Crect x='820' y='120' width='660' height='300' fill='%23bfdbfe'/%3E%3Crect x='820' y='480' width='660' height='300' fill='%2360a5fa'/%3E%3C/svg%3E"
+    />
+  </div>
+</section>
+
+<section data-scene="scroll" data-fixed>
+  <div
+    data-ui="fullscreen"
+    data-ui-fullscreen=""
+    data-part="root"
+    data-part-root=""
+    data-demo-fullscreen
+    data-fullscreen
+    data-mode="layout"
+  >
+    <div data-demo-column>
+      <div data-demo-head>
+        <h3 data-demo-title>Termos do contrato</h3>
+        <button
+          data-ui="fullscreen"
+          data-ui-fullscreen=""
+          data-part="trigger"
+          data-part-trigger=""
+          data-variant="ghost"
+          data-icon-only
+          data-fullscreen
+          type="button"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Sair da tela cheia</span>
+        </button>
+      </div>
+      <p style="margin: 0; line-height: var(--slotted-line-height-md)">
+        The region scrolls by itself when the content is taller than the screen, and the scrolling
+        does not pass to the page underneath. Clause 1: the supplier delivers the service within the
+        agreed deadlines. Clause 2: the customer pays invoices within thirty days. Clause 3: the
+        parties keep the terms confidential. Clause 4: the contract renews for periods of twelve
+        months unless notice to the contrary is given sixty days in advance.
+      </p>
+      <p style="margin: 0; line-height: var(--slotted-line-height-md)">
+        Clause 5: any amendment requires written agreement of both parties. Clause 6: the competent
+        court is that of the supplier's registered seat. Clause 7: the annexes are an integral part
+        of the contract. Clause 8: communications are made by email to the addresses indicated.
+        Clause 9: the nullity of one clause does not affect the others. Clause 10: the contract
+        takes effect on the date of the last signature.
+      </p>
+      <p style="margin: 0; line-height: var(--slotted-line-height-md)">
+        Annex A: price table by service, reviewed annually by the agreed index. Annex B: service
+        levels, with response times by severity and the compensation due when they are not met.
+        Annex C: contact list of both parties for each type of communication. Annex D: continuity
+        and disaster recovery plan.
+      </p>
+    </div>
+  </div>
+</section>

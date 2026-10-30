@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 5,
+  "family": "list",
+  "ui": "list",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Vertical list of items with sections."
+  },
+  "pattern": null,
+  "patternAbsent": {
+    "index": "https://www.w3.org/WAI/ARIA/apg/patterns/",
+    "reason": "The Authoring Practices publish no pattern for a static list. They name Listbox and Grid for interactive collections and nothing between those and plain content, so the governing sources are the platform and the roles model.",
+    "platform": "https://html.spec.whatwg.org/multipage/grouping-content.html",
+    "roles": "https://www.w3.org/TR/wai-aria-1.2/#list"
+  },
+  "itemFamily": "list-item",
+  "roles": {
+    "root": "list",
+    "section-list": "list"
+  },
+  "rootRole": {
+    "value": "list",
+    "condition": "always",
+    "source": "https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html",
+    "reason": "The row is a two-column layout of a content box and its independent targets, and CSS has no `display` that is both `list-item` and a grid, so the family draws its own marker and the native one is always gone. Safari and VoiceOver drop list semantics whenever CSS removes the marker, and the article's own answer is `role=\"list\"` on the element. Writing it always is therefore a consequence of the layout rather than a habit: MUI never writes it and loses the semantics in Safari, Angular Material writes it without saying why."
+  },
+  "wiring": {
+    "aria-busy": "true on the root while the list is loading, which ARIA 1.2 section 5.2.6 requires of a container whose required owned elements have not arrived",
+    "aria-label": "the consumer's own name for the set, forwarded from `label`",
+    "aria-labelledby": "forwarded from `labelledBy`; a section's heading names its own nested list this way",
+    "role": "list, on the root and on every section's nested list, because the family draws its own marker and the native one is gone"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next focusable element; every control a row holds is in the page tab sequence",
+      "focus": "the next focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous focusable element, under the same rule",
+      "focus": "the previous focusable element",
+      "source": "platform"
+    }
+  ],
+  "escapeBound": false,
+  "rovingTabindex": false,
+  "keyboardDeparture": {
+    "keys": ["ArrowDown", "ArrowUp", "Home", "End", "typeahead"],
+    "source": "https://www.w3.org/WAI/ARIA/apg/patterns/",
+    "reason": "Fluent, React Aria and Angular Material each bind arrows over a list, and each first changes the role to one that permits them. `docs/component-features.md` section 10 refuses `role=\"list\"` with an invented keyboard, so the collection keyboard is deferred to `listbox` and `table` in wave 6 rather than written here under a role that cannot carry it.",
+    "cost": "A reader tabbing through a hundred rows presses Tab a hundred times. That is the platform's behaviour for any page of links; a labelled `nav` around the list is what a screen reader jumps by instead."
+  },
+  "declined": {
+    "selection": {
+      "deferTo": "listbox",
+      "reason": "ARIA 1.2 does not allow `aria-selected` on `listitem`, so a selection model here would announce nothing. The row still paints a selection the page owns through `data-selected`, and the control that announces it is a `checkbox` composed into the row's `start`."
+    },
+    "virtualization": {
+      "deferTo": "the collection engine, wave 6",
+      "reason": "`docs/process/build-order.md` retires `virtual-list` as a family and makes windowing a capability of the collection engine, whose first consumer is `listbox`."
+    },
+    "orientation": {
+      "deferTo": "inline",
+      "reason": "A list that flows sideways is `<Inline>` around the same rows, and `inline` already answers gap, alignment and wrapping: `<Inline gap=\"4\">{rows}</Inline>`."
+    },
+    "landmark": {
+      "reason": "A landmark is a page-structure decision the page owns, and `breadcrumb` already holds the one case where the family is the navigation. One line composes it: `<nav aria-label=\"Sections\"><List>…</List></nav>`."
+    }
+  },
+  "section": {
+    "part": "section",
+    "element": "li",
+    "holds": ["section-label", "section-list"],
+    "reason": "A group inside a list is an `li` holding a heading and a nested list, which is the grouping HTML already has. MUI, Angular Material, Primer and React Aria each place the heading loose among the rows instead, so a reader hears a heading inside a set rather than a set with a name."
+  },
+  "sticky": {
+    "part": "section-label",
+    "token": "--slotted-z-index-sticky",
+    "reason": "MUI's `ListSubheader` is sticky unless it is told not to be. Composing it needs the family's own surface token and stack level; a consumer writing `position: sticky` alone gets a heading with rows showing through it."
+  },
+  "empty": {
+    "part": "empty",
+    "element": "li",
+    "reason": "A message placed outside the `ul` is outside the box the family paints, and the reader hears \"list, 0 items\" and then nothing. Inside, the reader hears the message. The family supplies the box and the row height; `result-state` supplies the words."
+  },
+  "axes": {
+    "variant": ["plain", "ruled", "framed", "separated"],
+    "size": ["sm", "md", "lg"],
+    "marker": ["none", "bullet", "number"]
+  },
+  "resolution": {
+    "variant": ["prop", "defaults", "plain"],
+    "size": ["prop", "defaults", "md"],
+    "marker": ["prop", "defaults", "none"],
+    "inset": ["prop", "defaults", false],
+    "ordered": ["prop", false],
+    "loading": ["prop", false]
+  },
+  "marker": {
+    "drawnBy": "list-item",
+    "counter": "slotted-list-item",
+    "bullet": "the `--slotted-icon-dot` glyph, as a mask",
+    "number": "a CSS counter the set resets and the row increments",
+    "reason": "A character is never an icon — `docs/token-foundation.md` rule 3 — so the bullet is the library's own dot geometry rather than a `•` in a `content` string. The counter is the one name the two families share; no selector in either stylesheet reaches the other's `data-ui`, which is the rule `accordion` and `collapsible` set."
+  },
+  "provides": {
+    "listDefaults": ["variant", "size", "marker", "inset"],
+    "toItems": ["variant", "size", "marker", "inset"]
+  },
+  "stateAttributes": {
+    "loading": "data-loading"
+  },
+  "members": {
+    "list": {
+      "nativeElement": "ul",
+      "defaults": {
+        "variant": "plain",
+        "size": "md",
+        "marker": "none",
+        "ordered": false,
+        "inset": false,
+        "loading": false,
+        "level": "3",
+        "sticky": false
+      },
+      "capabilities": ["appearance", "size", "loading", "wiring"],
+      "states": ["default", "loading"],
+      "parts": ["root", "section", "section-label", "section-end", "section-list", "empty"]
+    }
+  },
+  "scenarios": {
+    "list": [
+      "playground",
+      "variant",
+      "marker",
+      "sections",
+      "inset",
+      "states",
+      "content",
+      "composition",
+      "accessibility"
+    ]
+  },
+  "sectionLabel": {
+    "variants": ["caption", "ruled"],
+    "default": "caption",
+    "caption": "The small muted name of the group.",
+    "ruled": "The name in the text colour over a rule, with no ground behind it.",
+    "end": "What stands at the end of the heading on the line of the name, a day balance or a count, in tabular figures. React takes it as the end prop of ListSection; Angular marks an element of the heading with slListSectionEnd."
+  }
+}

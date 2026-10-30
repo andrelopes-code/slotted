@@ -1,0 +1,3803 @@
+<style>
+  /* The list the histogram scene sets its rows in; scaffolding of this page. */
+  [data-scene='histogram'] [data-part='list'] {
+    display: grid;
+    inline-size: 100%;
+    max-inline-size: 30rem;
+  }
+  [data-scene='histogram'] [data-part='row'] {
+    align-items: center;
+    border-block-end: 1px solid var(--slotted-border-subtle);
+    color: var(--slotted-text);
+    column-gap: var(--slotted-space-5);
+    display: flex;
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--slotted-font-size-sm);
+    justify-content: space-between;
+    padding-block: var(--slotted-space-4);
+  }
+</style>
+<!--
+  The input member is native radios, so every group writes a `name` and every
+  scene with one is a `form`: the harness renders each scene once per scheme
+  and width, and radios group by name within their form owner.
+
+  The display reads `--slotted-rating-fill` on each item and the summary reads
+  `--slotted-rating-share` on each bar; the fragment writes the numbers the
+  binding would. The script at the end wires what the bindings wire — the
+  keys, clearing, the finger dragged along the row, the word for the value
+  under the pointer and the levels that filter — from `@slotted/core/rating`,
+  so the page can be exercised as the component will be.
+-->
+
+<section data-scene="default">
+  <form style="display: grid; gap: 12px; justify-items: start">
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="warning"
+      data-max="5"
+      role="radiogroup"
+      aria-label="Rating"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-default"
+            value="1"
+            aria-label="1 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-default"
+            value="2"
+            aria-label="2 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-default"
+            value="3"
+            aria-label="3 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" data-checked
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-default"
+            value="4"
+            aria-label="4 de 5"
+            checked /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-default"
+            value="5"
+            aria-label="5 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">Bom</span>
+    </div>
+  </form>
+</section>
+
+<section data-scene="half">
+  <form style="display: grid; gap: 12px; justify-items: start">
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="warning"
+      data-max="5"
+      data-step="0.5"
+      role="radiogroup"
+      aria-label="Rating by half points"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            data-half
+            type="radio"
+            name="rt-half"
+            value="0.5"
+            aria-label="0,5 de 5" /><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-half"
+            value="1"
+            aria-label="1 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            data-half
+            type="radio"
+            name="rt-half"
+            value="1.5"
+            aria-label="1,5 de 5" /><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-half"
+            value="2"
+            aria-label="2 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            data-half
+            type="radio"
+            name="rt-half"
+            value="2.5"
+            aria-label="2,5 de 5" /><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-half"
+            value="3"
+            aria-label="3 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" data-checked
+          ><input
+            data-part="input"
+            data-part-input=""
+            data-half
+            type="radio"
+            name="rt-half"
+            value="3.5"
+            aria-label="3,5 de 5"
+            checked /><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-half"
+            value="4"
+            aria-label="4 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            data-half
+            type="radio"
+            name="rt-half"
+            value="4.5"
+            aria-label="4,5 de 5" /><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-half"
+            value="5"
+            aria-label="5 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">3,5</span>
+    </div>
+  </form>
+</section>
+
+<section data-scene="empty">
+  <form style="display: grid; gap: 12px; justify-items: start">
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="warning"
+      data-max="5"
+      role="radiogroup"
+      aria-label="Required rating"
+      aria-required="true"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-empty"
+            value="1"
+            aria-label="1 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-empty"
+            value="2"
+            aria-label="2 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-empty"
+            value="3"
+            aria-label="3 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-empty"
+            value="4"
+            aria-label="4 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-empty"
+            value="5"
+            aria-label="5 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">Toque numa estrela</span>
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="warning"
+      data-max="5"
+      role="radiogroup"
+      aria-label="Required rating"
+      data-invalid
+      aria-invalid="true"
+      aria-required="true"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-invalid"
+            value="1"
+            aria-label="1 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-invalid"
+            value="2"
+            aria-label="2 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-invalid"
+            value="3"
+            aria-label="3 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-invalid"
+            value="4"
+            aria-label="4 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-invalid"
+            value="5"
+            aria-label="5 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">Choose a rating</span>
+    </div>
+  </form>
+</section>
+
+<section data-scene="states">
+  <form style="display: grid; gap: 12px; justify-items: start">
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="warning"
+      data-max="5"
+      role="radiogroup"
+      aria-label="Read-only rating"
+      data-readonly
+      aria-readonly="true"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-readonly"
+            value="1"
+            aria-label="1 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-readonly"
+            value="2"
+            aria-label="2 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-readonly"
+            value="3"
+            aria-label="3 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" data-checked
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-readonly"
+            value="4"
+            aria-label="4 de 5"
+            checked /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-readonly"
+            value="5"
+            aria-label="5 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">Bom</span>
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="warning"
+      data-max="5"
+      role="radiogroup"
+      aria-label="Disabled rating"
+      data-disabled
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-disabled"
+            value="1"
+            aria-label="1 de 5"
+            disabled /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" data-checked
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-disabled"
+            value="2"
+            aria-label="2 de 5"
+            checked
+            disabled /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-disabled"
+            value="3"
+            aria-label="3 de 5"
+            disabled /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-disabled"
+            value="4"
+            aria-label="4 de 5"
+            disabled /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-disabled"
+            value="5"
+            aria-label="5 de 5"
+            disabled /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">Ruim</span>
+    </div>
+  </form>
+</section>
+
+<section data-scene="sizes">
+  <form style="display: grid; gap: 12px; justify-items: start">
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="sm"
+      data-tone="warning"
+      data-max="5"
+      role="radiogroup"
+      aria-label="Pequena"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-sm"
+            value="1"
+            aria-label="1 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-sm"
+            value="2"
+            aria-label="2 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-sm"
+            value="3"
+            aria-label="3 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" data-checked
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-sm"
+            value="4"
+            aria-label="4 de 5"
+            checked /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-sm"
+            value="5"
+            aria-label="5 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="warning"
+      data-max="5"
+      role="radiogroup"
+      aria-label="Average"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-md"
+            value="1"
+            aria-label="1 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-md"
+            value="2"
+            aria-label="2 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-md"
+            value="3"
+            aria-label="3 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" data-checked
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-md"
+            value="4"
+            aria-label="4 de 5"
+            checked /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-md"
+            value="5"
+            aria-label="5 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      data-tone="warning"
+      data-max="5"
+      role="radiogroup"
+      aria-label="Grande"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-lg"
+            value="1"
+            aria-label="1 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-lg"
+            value="2"
+            aria-label="2 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-lg"
+            value="3"
+            aria-label="3 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" data-checked
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-lg"
+            value="4"
+            aria-label="4 de 5"
+            checked /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-lg"
+            value="5"
+            aria-label="5 de 5" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+    </div>
+  </form>
+</section>
+
+<section data-scene="display">
+  <div style="display: grid; gap: 12px; justify-items: start">
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="warning"
+      role="img"
+      aria-label="Rating 4.6 of 5, 1,284 ratings"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0.6"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">4,6</span>
+      <span data-part="count" data-part-count="" aria-hidden="true">(1.284)</span>
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="sm"
+      data-tone="warning"
+      role="img"
+      aria-label="Rating 4.6 of 5, 1,284 ratings"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0.6"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">4,6</span>
+      <span data-part="count" data-part-count="" aria-hidden="true">(1.284)</span>
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      data-tone="warning"
+      role="img"
+      aria-label="Rating 3.5 of 5"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0.5"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">3,5</span>
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="warning"
+      role="img"
+      aria-label="Rating 0 of 5, 0 ratings"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">0,0</span>
+      <span data-part="count" data-part-count="" aria-hidden="true">(0)</span>
+    </div>
+  </div>
+</section>
+
+<section data-scene="compact">
+  <div style="display: grid; gap: 12px; justify-items: start">
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="sm"
+      data-tone="warning"
+      data-variant="compact"
+      role="img"
+      aria-label="Rating 4.6 of 5, 1,284 ratings"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">4,6</span>
+      <span data-part="count" data-part-count="" aria-hidden="true">(1.284)</span>
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="warning"
+      data-variant="compact"
+      role="img"
+      aria-label="Rating 4.6 of 5, 1,284 ratings"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">4,6</span>
+      <span data-part="count" data-part-count="" aria-hidden="true">(1.284)</span>
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      data-tone="warning"
+      data-variant="compact"
+      role="img"
+      aria-label="Rating 3.2 of 5, 87 ratings"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">3,3</span>
+      <span data-part="count" data-part-count="" aria-hidden="true">(87)</span>
+    </div>
+  </div>
+</section>
+
+<section data-scene="summary">
+  <div style="display: grid; gap: 12px; justify-items: start">
+    <section
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-variant="summary"
+      data-size="md"
+      data-tone="warning"
+      aria-label="Customer ratings"
+    >
+      <div data-part="aggregate" data-part-aggregate="">
+        <span data-part="value" data-part-value="">4,7</span>
+        <span data-part="scale" data-part-scale="">de 5</span>
+        <div
+          data-ui="rating"
+          data-ui-rating=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-tone="warning"
+          role="img"
+          aria-label="Rating 4.7 of 5"
+        >
+          <div data-part="symbols" data-part-symbols="">
+            <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+              ><span data-part="symbol" data-part-symbol=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+              ><span data-part="fill" data-part-fill=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ></span>
+            <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+              ><span data-part="symbol" data-part-symbol=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+              ><span data-part="fill" data-part-fill=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ></span>
+            <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+              ><span data-part="symbol" data-part-symbol=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+              ><span data-part="fill" data-part-fill=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ></span>
+            <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+              ><span data-part="symbol" data-part-symbol=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+              ><span data-part="fill" data-part-fill=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ></span>
+            <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0.7"
+              ><span data-part="symbol" data-part-symbol=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+              ><span data-part="fill" data-part-fill=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ></span>
+          </div>
+        </div>
+        <span data-part="count" data-part-count="">Based on 1,284 ratings</span>
+      </div>
+      <ul data-part="distribution" data-part-distribution="" aria-label="Distribution by stars">
+        <li>
+          <button
+            data-part="level"
+            data-part-level=""
+            type="button"
+            aria-pressed="true"
+            data-pressed
+            aria-label="5 stars: 1,052 ratings. 82%"
+          >
+            <span data-part="level-label" data-part-level-label=""
+              ><span>5</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="track" data-part-track="" aria-hidden="true"
+              ><span
+                data-part="indicator"
+                data-part-indicator=""
+                style="--slotted-rating-share: 0.8193"
+              ></span></span
+            ><span data-part="level-count" data-part-level-count="">1.052</span>
+          </button>
+        </li>
+        <li>
+          <button
+            data-part="level"
+            data-part-level=""
+            type="button"
+            aria-pressed="false"
+            aria-label="4 stars: 158 ratings. 12%"
+          >
+            <span data-part="level-label" data-part-level-label=""
+              ><span>4</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="track" data-part-track="" aria-hidden="true"
+              ><span
+                data-part="indicator"
+                data-part-indicator=""
+                style="--slotted-rating-share: 0.1231"
+              ></span></span
+            ><span data-part="level-count" data-part-level-count="">158</span>
+          </button>
+        </li>
+        <li>
+          <button
+            data-part="level"
+            data-part-level=""
+            type="button"
+            aria-pressed="false"
+            aria-label="3 stars: 47 ratings. 4%"
+          >
+            <span data-part="level-label" data-part-level-label=""
+              ><span>3</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="track" data-part-track="" aria-hidden="true"
+              ><span
+                data-part="indicator"
+                data-part-indicator=""
+                style="--slotted-rating-share: 0.0366"
+              ></span></span
+            ><span data-part="level-count" data-part-level-count="">47</span>
+          </button>
+        </li>
+        <li>
+          <button
+            data-part="level"
+            data-part-level=""
+            type="button"
+            aria-pressed="false"
+            aria-label="2 stars: 18 ratings. 1%"
+          >
+            <span data-part="level-label" data-part-level-label=""
+              ><span>2</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="track" data-part-track="" aria-hidden="true"
+              ><span
+                data-part="indicator"
+                data-part-indicator=""
+                style="--slotted-rating-share: 0.014"
+              ></span></span
+            ><span data-part="level-count" data-part-level-count="">18</span>
+          </button>
+        </li>
+        <li>
+          <button
+            data-part="level"
+            data-part-level=""
+            type="button"
+            aria-pressed="false"
+            aria-label="1 star: 9 ratings. 1%"
+          >
+            <span data-part="level-label" data-part-level-label=""
+              ><span>1</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="track" data-part-track="" aria-hidden="true"
+              ><span
+                data-part="indicator"
+                data-part-indicator=""
+                style="--slotted-rating-share: 0.007"
+              ></span></span
+            ><span data-part="level-count" data-part-level-count="">9</span>
+          </button>
+        </li>
+      </ul>
+    </section>
+  </div>
+</section>
+
+<section data-scene="summary-empty">
+  <div style="display: grid; gap: 12px; justify-items: start">
+    <section
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-variant="summary"
+      data-size="md"
+      data-tone="warning"
+      aria-label="No ratings"
+    >
+      <div data-part="aggregate" data-part-aggregate="">
+        <div
+          data-ui="rating"
+          data-ui-rating=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-tone="warning"
+          role="img"
+          aria-label="Rating 0 of 5"
+        >
+          <div data-part="symbols" data-part-symbols="">
+            <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+              ><span data-part="symbol" data-part-symbol=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+              ><span data-part="fill" data-part-fill=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ></span>
+            <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+              ><span data-part="symbol" data-part-symbol=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+              ><span data-part="fill" data-part-fill=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ></span>
+            <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+              ><span data-part="symbol" data-part-symbol=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+              ><span data-part="fill" data-part-fill=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ></span>
+            <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+              ><span data-part="symbol" data-part-symbol=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+              ><span data-part="fill" data-part-fill=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ></span>
+            <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+              ><span data-part="symbol" data-part-symbol=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+              ><span data-part="fill" data-part-fill=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ></span>
+          </div>
+        </div>
+        <span data-part="count" data-part-count="">No ratings yet</span>
+      </div>
+      <ul data-part="distribution" data-part-distribution="" aria-label="Distribution by stars">
+        <li>
+          <div
+            data-part="level"
+            data-part-level=""
+            aria-label="5 stars: 0 ratings. 0%"
+            role="group"
+          >
+            <span data-part="level-label" data-part-level-label=""
+              ><span>5</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="track" data-part-track="" aria-hidden="true"
+              ><span
+                data-part="indicator"
+                data-part-indicator=""
+                style="--slotted-rating-share: 0"
+              ></span></span
+            ><span data-part="level-count" data-part-level-count="">0</span>
+          </div>
+        </li>
+        <li>
+          <div
+            data-part="level"
+            data-part-level=""
+            aria-label="4 stars: 0 ratings. 0%"
+            role="group"
+          >
+            <span data-part="level-label" data-part-level-label=""
+              ><span>4</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="track" data-part-track="" aria-hidden="true"
+              ><span
+                data-part="indicator"
+                data-part-indicator=""
+                style="--slotted-rating-share: 0"
+              ></span></span
+            ><span data-part="level-count" data-part-level-count="">0</span>
+          </div>
+        </li>
+        <li>
+          <div
+            data-part="level"
+            data-part-level=""
+            aria-label="3 stars: 0 ratings. 0%"
+            role="group"
+          >
+            <span data-part="level-label" data-part-level-label=""
+              ><span>3</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="track" data-part-track="" aria-hidden="true"
+              ><span
+                data-part="indicator"
+                data-part-indicator=""
+                style="--slotted-rating-share: 0"
+              ></span></span
+            ><span data-part="level-count" data-part-level-count="">0</span>
+          </div>
+        </li>
+        <li>
+          <div
+            data-part="level"
+            data-part-level=""
+            aria-label="2 stars: 0 ratings. 0%"
+            role="group"
+          >
+            <span data-part="level-label" data-part-level-label=""
+              ><span>2</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="track" data-part-track="" aria-hidden="true"
+              ><span
+                data-part="indicator"
+                data-part-indicator=""
+                style="--slotted-rating-share: 0"
+              ></span></span
+            ><span data-part="level-count" data-part-level-count="">0</span>
+          </div>
+        </li>
+        <li>
+          <div data-part="level" data-part-level="" aria-label="1 star: 0 ratings. 0%" role="group">
+            <span data-part="level-label" data-part-level-label=""
+              ><span>1</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="track" data-part-track="" aria-hidden="true"
+              ><span
+                data-part="indicator"
+                data-part-indicator=""
+                style="--slotted-rating-share: 0"
+              ></span></span
+            ><span data-part="level-count" data-part-level-count="">0</span>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </div>
+</section>
+
+<section data-scene="tones">
+  <div style="display: grid; gap: 12px; justify-items: start">
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="warning"
+      role="img"
+      aria-label="Rating 4 of 5"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="accent"
+      role="img"
+      aria-label="Rating 4 of 5"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="success"
+      role="img"
+      aria-label="Rating 4 of 5"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="danger"
+      role="img"
+      aria-label="Rating 4 of 5"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="content">
+  <form style="display: grid; gap: 12px; justify-items: start">
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      data-tone="warning"
+      data-max="10"
+      role="radiogroup"
+      aria-label="Escala de dez"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-ten"
+            value="1"
+            aria-label="1 de 10" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-ten"
+            value="2"
+            aria-label="2 de 10" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-ten"
+            value="3"
+            aria-label="3 de 10" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-ten"
+            value="4"
+            aria-label="4 de 10" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-ten"
+            value="5"
+            aria-label="5 de 10" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-ten"
+            value="6"
+            aria-label="6 de 10" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" data-checked
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-ten"
+            value="7"
+            aria-label="7 de 10"
+            checked /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-ten"
+            value="8"
+            aria-label="8 de 10" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-ten"
+            value="9"
+            aria-label="9 de 10" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item=""
+          ><input
+            data-part="input"
+            data-part-input=""
+            type="radio"
+            name="rt-ten"
+            value="10"
+            aria-label="10 de 10" /><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true"
+        >Superou as expectativas em quase tudo</span
+      >
+    </div>
+    <div
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-tone="warning"
+      role="img"
+      aria-label="Rating 8.2 of 10, 12,408,117 ratings"
+    >
+      <div data-part="symbols" data-part-symbols="">
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0.25"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+        <span data-part="item" data-part-item="" style="--slotted-rating-fill: 0"
+          ><span data-part="symbol" data-part-symbol=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ><span data-part="fill" data-part-fill=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+        ></span>
+      </div>
+      <span data-part="value" data-part-value="" aria-hidden="true">8,2</span>
+      <span data-part="count" data-part-count="" aria-hidden="true">(12.408.117)</span>
+    </div>
+  </form>
+</section>
+
+<section data-scene="spectrum">
+  <div style="display: grid; gap: 40px">
+    <section
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-variant="spectrum"
+      data-tone="warning"
+      aria-label="Ratings summary"
+      style="--slotted-rating-mean: 4.734; --slotted-rating-low: 4.697; --slotted-rating-high: 4.77"
+    >
+      <div data-part="aggregate" data-part-aggregate="">
+        <span data-part="value" data-part-value="">4,7</span>
+        <span data-part="scale" data-part-scale="">de 5</span>
+        <span data-part="insight" data-part-insight="" data-tone="success">Strong consensus</span>
+        <span data-part="count" data-part-count="">1,284 ratings · margin of&nbsp;±&nbsp;0.04</span>
+      </div>
+      <div data-part="plot" data-part-plot="">
+        <div data-part="field" data-part-field="">
+          <div data-part="columns" data-part-columns="">
+            <button
+              data-part="column"
+              data-part-column=""
+              type="button"
+              aria-pressed="false"
+              style="--slotted-rating-share: 0.0086"
+              aria-label="1 star: 9 ratings, 1%"
+            >
+              <span data-part="bar" data-part-bar=""></span></button
+            ><button
+              data-part="column"
+              data-part-column=""
+              type="button"
+              aria-pressed="false"
+              style="--slotted-rating-share: 0.0171"
+              aria-label="2 stars: 18 ratings, 1%"
+            >
+              <span data-part="bar" data-part-bar=""></span></button
+            ><button
+              data-part="column"
+              data-part-column=""
+              type="button"
+              aria-pressed="false"
+              style="--slotted-rating-share: 0.0447"
+              aria-label="3 stars: 47 ratings, 4%"
+            >
+              <span data-part="bar" data-part-bar=""></span></button
+            ><button
+              data-part="column"
+              data-part-column=""
+              type="button"
+              aria-pressed="false"
+              style="--slotted-rating-share: 0.1502"
+              aria-label="4 stars: 158 ratings, 12%"
+            >
+              <span data-part="bar" data-part-bar=""></span></button
+            ><button
+              data-part="column"
+              data-part-column=""
+              type="button"
+              aria-pressed="false"
+              style="--slotted-rating-share: 1"
+              aria-label="5 stars: 1,052 ratings, 82%"
+            >
+              <span data-part="bar" data-part-bar=""></span>
+            </button>
+          </div>
+          <span data-part="interval" data-part-interval="" aria-hidden="true"></span>
+          <span data-part="mean" data-part-mean="" aria-hidden="true"
+            ><span data-part="mean-label" data-part-mean-label="">4,7</span></span
+          >
+        </div>
+        <div data-part="axis" data-part-axis="" aria-hidden="true">
+          <span data-part="tick" data-part-tick=""
+            ><span data-part="tick-label" data-part-tick-label=""
+              ><span>1</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="tick-share" data-part-tick-share="">1%</span></span
+          ><span data-part="tick" data-part-tick=""
+            ><span data-part="tick-label" data-part-tick-label=""
+              ><span>2</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="tick-share" data-part-tick-share="">1%</span></span
+          ><span data-part="tick" data-part-tick=""
+            ><span data-part="tick-label" data-part-tick-label=""
+              ><span>3</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="tick-share" data-part-tick-share="">4%</span></span
+          ><span data-part="tick" data-part-tick=""
+            ><span data-part="tick-label" data-part-tick-label=""
+              ><span>4</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="tick-share" data-part-tick-share="">12%</span></span
+          ><span data-part="tick" data-part-tick=""
+            ><span data-part="tick-label" data-part-tick-label=""
+              ><span>5</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="tick-share" data-part-tick-share="">82%</span></span
+          >
+        </div>
+      </div>
+      <p data-part="sentiment" data-part-sentiment="">
+        <span data-part="bucket" data-part-bucket="" data-tone="success"
+          ><span data-part="swatch" data-part-swatch="" aria-hidden="true"></span
+          ><strong>94%</strong> positivas</span
+        >
+        <span data-part="bucket" data-part-bucket="" data-tone="secondary"
+          ><span data-part="swatch" data-part-swatch="" aria-hidden="true"></span
+          ><strong>4%</strong> neutras</span
+        >
+        <span data-part="bucket" data-part-bucket="" data-tone="danger"
+          ><span data-part="swatch" data-part-swatch="" aria-hidden="true"></span
+          ><strong>2%</strong> negativas</span
+        >
+      </p>
+    </section>
+    <section
+      data-ui="rating"
+      data-ui-rating=""
+      data-part="root"
+      data-part-root=""
+      data-variant="spectrum"
+      data-tone="warning"
+      aria-label="Ratings summary, few and divided"
+      style="--slotted-rating-mean: 3.25; --slotted-rating-low: 1.965; --slotted-rating-high: 4.535"
+    >
+      <div data-part="aggregate" data-part-aggregate="">
+        <span data-part="value" data-part-value="">3,3</span>
+        <span data-part="scale" data-part-scale="">de 5</span>
+        <span data-part="insight" data-part-insight="" data-tone="warning">Divided opinions</span>
+        <span data-part="count" data-part-count=""
+          >8 ratings · uncertain average, between 2.0&nbsp;and&nbsp;4.5</span
+        >
+      </div>
+      <div data-part="plot" data-part-plot="">
+        <div data-part="field" data-part-field="">
+          <div data-part="columns" data-part-columns="">
+            <button
+              data-part="column"
+              data-part-column=""
+              type="button"
+              aria-pressed="false"
+              style="--slotted-rating-share: 0.75"
+              aria-label="1 star: 3 ratings, 38%"
+            >
+              <span data-part="bar" data-part-bar=""></span></button
+            ><button
+              data-part="column"
+              data-part-column=""
+              type="button"
+              aria-pressed="false"
+              style="--slotted-rating-share: 0"
+              aria-label="2 stars: 0 ratings, 0%"
+            >
+              <span data-part="bar" data-part-bar=""></span></button
+            ><button
+              data-part="column"
+              data-part-column=""
+              type="button"
+              aria-pressed="false"
+              style="--slotted-rating-share: 0.25"
+              aria-label="3 stars: 1 rating, 13%"
+            >
+              <span data-part="bar" data-part-bar=""></span></button
+            ><button
+              data-part="column"
+              data-part-column=""
+              type="button"
+              aria-pressed="false"
+              style="--slotted-rating-share: 0"
+              aria-label="4 stars: 0 ratings, 0%"
+            >
+              <span data-part="bar" data-part-bar=""></span></button
+            ><button
+              data-part="column"
+              data-part-column=""
+              type="button"
+              aria-pressed="false"
+              style="--slotted-rating-share: 1"
+              aria-label="5 stars: 4 ratings, 50%"
+            >
+              <span data-part="bar" data-part-bar=""></span>
+            </button>
+          </div>
+          <span data-part="interval" data-part-interval="" aria-hidden="true"></span>
+          <span data-part="mean" data-part-mean="" aria-hidden="true"
+            ><span data-part="mean-label" data-part-mean-label="">3,3</span></span
+          >
+        </div>
+        <div data-part="axis" data-part-axis="" aria-hidden="true">
+          <span data-part="tick" data-part-tick=""
+            ><span data-part="tick-label" data-part-tick-label=""
+              ><span>1</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="tick-share" data-part-tick-share="">38%</span></span
+          ><span data-part="tick" data-part-tick=""
+            ><span data-part="tick-label" data-part-tick-label=""
+              ><span>2</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="tick-share" data-part-tick-share="">0%</span></span
+          ><span data-part="tick" data-part-tick=""
+            ><span data-part="tick-label" data-part-tick-label=""
+              ><span>3</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="tick-share" data-part-tick-share="">13%</span></span
+          ><span data-part="tick" data-part-tick=""
+            ><span data-part="tick-label" data-part-tick-label=""
+              ><span>4</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="tick-share" data-part-tick-share="">0%</span></span
+          ><span data-part="tick" data-part-tick=""
+            ><span data-part="tick-label" data-part-tick-label=""
+              ><span>5</span
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="tick-share" data-part-tick-share="">50%</span></span
+          >
+        </div>
+      </div>
+      <p data-part="sentiment" data-part-sentiment="">
+        <span data-part="bucket" data-part-bucket="" data-tone="success"
+          ><span data-part="swatch" data-part-swatch="" aria-hidden="true"></span
+          ><strong>50%</strong> positivas</span
+        >
+        <span data-part="bucket" data-part-bucket="" data-tone="secondary"
+          ><span data-part="swatch" data-part-swatch="" aria-hidden="true"></span
+          ><strong>13%</strong> neutras</span
+        >
+        <span data-part="bucket" data-part-bucket="" data-tone="danger"
+          ><span data-part="swatch" data-part-swatch="" aria-hidden="true"></span
+          ><strong>38%</strong> negativas</span
+        >
+      </p>
+    </section>
+  </div>
+</section>
+
+<section data-scene="histogram">
+  <div data-part="list" data-part-list="">
+    <div data-part="row" data-part-row="">
+      <span data-part="name" data-part-name="">Fone Studio Pro</span>
+      <div
+        data-ui="rating"
+        data-ui-rating=""
+        data-part="root"
+        data-part-root=""
+        data-variant="histogram"
+        data-tone="warning"
+        role="img"
+        aria-label="Average 4.7 of 5, 1,284 ratings, strong consensus"
+      >
+        <div data-part="symbols" data-part-symbols="">
+          <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+            ><span data-part="symbol" data-part-symbol=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="fill" data-part-fill=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ></span>
+        </div>
+        <span data-part="value" data-part-value="" aria-hidden="true">4,7</span>
+        <span data-part="histogram" data-part-histogram="" aria-hidden="true"
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.0086"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.0171"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.0447"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.1502"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 1"></span
+        ></span>
+        <span data-part="count" data-part-count="" aria-hidden="true">1.284</span>
+      </div>
+    </div>
+    <div data-part="row" data-part-row="">
+      <span data-part="name" data-part-name="">Fone Studio Max</span>
+      <div
+        data-ui="rating"
+        data-ui-rating=""
+        data-part="root"
+        data-part-root=""
+        data-variant="histogram"
+        data-tone="warning"
+        role="img"
+        aria-label="Average 4.3 of 5, 312 ratings, strong consensus"
+      >
+        <div data-part="symbols" data-part-symbols="">
+          <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+            ><span data-part="symbol" data-part-symbol=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="fill" data-part-fill=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ></span>
+        </div>
+        <span data-part="value" data-part-value="" aria-hidden="true">4,3</span>
+        <span data-part="histogram" data-part-histogram="" aria-hidden="true"
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.027"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.0608"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.2095"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.8108"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 1"></span
+        ></span>
+        <span data-part="count" data-part-count="" aria-hidden="true">312</span>
+      </div>
+    </div>
+    <div data-part="row" data-part-row="">
+      <span data-part="name" data-part-name="">Fone Studio Mini</span>
+      <div
+        data-ui="rating"
+        data-ui-rating=""
+        data-part="root"
+        data-part-root=""
+        data-variant="histogram"
+        data-tone="warning"
+        role="img"
+        aria-label="Average 3.3 of 5, 8 ratings, divided opinions"
+      >
+        <div data-part="symbols" data-part-symbols="">
+          <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+            ><span data-part="symbol" data-part-symbol=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="fill" data-part-fill=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ></span>
+        </div>
+        <span data-part="value" data-part-value="" aria-hidden="true">3,3</span>
+        <span data-part="histogram" data-part-histogram="" aria-hidden="true"
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.75"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.25"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 1"></span
+        ></span>
+        <span data-part="count" data-part-count="" aria-hidden="true">8</span>
+      </div>
+    </div>
+    <div data-part="row" data-part-row="">
+      <span data-part="name" data-part-name="">Cabo USB-C</span>
+      <div
+        data-ui="rating"
+        data-ui-rating=""
+        data-part="root"
+        data-part-root=""
+        data-variant="histogram"
+        data-tone="warning"
+        role="img"
+        aria-label="Average 3.3 of 5, 136 ratings, divided opinions"
+      >
+        <div data-part="symbols" data-part-symbols="">
+          <span data-part="item" data-part-item="" style="--slotted-rating-fill: 1"
+            ><span data-part="symbol" data-part-symbol=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+            ><span data-part="fill" data-part-fill=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="star"></svg></span></span
+          ></span>
+        </div>
+        <span data-part="value" data-part-value="" aria-hidden="true">3,3</span>
+        <span data-part="histogram" data-part-histogram="" aria-hidden="true"
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.6667"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.2"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.1667"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 0.2333"></span
+          ><span data-part="bar" data-part-bar="" style="--slotted-rating-share: 1"></span
+        ></span>
+        <span data-part="count" data-part-count="" aria-hidden="true">136</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  import { formatRating, ratingAtPoint, ratingForKey } from '@slotted/core/rating';
+
+  const WORDS = ['Terrible', 'Poor', 'Fair', 'Good', 'Excellent'];
+
+  function scaleOf(root) {
+    return { max: Number(root.dataset.max ?? 5), step: root.dataset.step === '0.5' ? 0.5 : 1 };
+  }
+  function checked(root) {
+    const input = root.querySelector('[data-part="input"]:checked');
+    return input ? Number(input.value) : null;
+  }
+  function inputFor(root, value) {
+    return [...root.querySelectorAll('[data-part="input"]')].find((i) => Number(i.value) === value);
+  }
+  function word(root, value) {
+    const { max, step } = scaleOf(root);
+    if (value === null) return root.dataset.empty ?? '';
+    return step === 1 && max === 5 ? WORDS[value - 1] : formatRating(value, 'pt-BR');
+  }
+  function caption(root, value) {
+    const part = root.querySelector(':scope > [data-part="value"]');
+    if (part) part.textContent = word(root, value);
+  }
+  function mark(root) {
+    for (const item of root.querySelectorAll('[data-part="item"]')) {
+      item.toggleAttribute('data-checked', !!item.querySelector('[data-part="input"]:checked'));
+    }
+  }
+  function set(root, value, focus) {
+    for (const input of root.querySelectorAll('[data-part="input"]')) input.checked = false;
+    const input = value === null ? null : inputFor(root, value);
+    if (input) input.checked = true;
+    if (focus) (input ?? focus).focus();
+    mark(root);
+    caption(root, value);
+  }
+
+  for (const root of document.querySelectorAll('[data-ui="rating"][role="radiogroup"]')) {
+    const inert = () => root.hasAttribute('data-readonly') || root.hasAttribute('data-disabled');
+    const row = root.querySelector('[data-part="symbols"]');
+    const rtl = () => getComputedStyle(root).direction === 'rtl';
+    root.dataset.empty = root.querySelector(':scope > [data-part="value"]')?.textContent ?? '';
+    if (checked(root) !== null) caption(root, checked(root));
+
+    root.addEventListener('keydown', (event) => {
+      if (inert() && event.key !== 'Tab') return;
+      const next = ratingForKey(event.key, checked(root), scaleOf(root), {
+        rtl: rtl(),
+        clearable: true,
+      });
+      if (next === undefined) return;
+      event.preventDefault();
+      set(root, next, event.target);
+    });
+
+    let pressedChecked = false;
+    root.addEventListener('pointerdown', (event) => {
+      if (inert()) return;
+      pressedChecked = event.target.matches?.('[data-part="input"]:checked') ?? false;
+      if (event.pointerType === 'mouse') return;
+      root.setAttribute('data-dragging', '');
+      row.setPointerCapture(event.pointerId);
+    });
+    row.addEventListener('pointermove', (event) => {
+      if (!root.hasAttribute('data-dragging')) return;
+      const box = row.getBoundingClientRect();
+      set(root, ratingAtPoint({ x: event.clientX }, box, scaleOf(root), rtl()));
+    });
+    const release = () => root.removeAttribute('data-dragging');
+    row.addEventListener('pointerup', release);
+    row.addEventListener('pointercancel', release);
+
+    root.addEventListener('click', (event) => {
+      if (inert()) {
+        event.preventDefault();
+        return;
+      }
+      if (!event.target.matches?.('[data-part="input"]')) return;
+      if (pressedChecked && event.detail > 0) set(root, null, event.target);
+      else set(root, Number(event.target.value));
+    });
+
+    root.addEventListener('pointerover', (event) => {
+      if (inert() || !event.target.matches?.('[data-part="input"]')) return;
+      caption(root, Number(event.target.value));
+    });
+    root.addEventListener('pointerleave', () => caption(root, checked(root)));
+  }
+
+  for (const level of document.querySelectorAll('[data-ui="rating"] button[data-part="level"]')) {
+    level.addEventListener('click', () => {
+      const on = level.getAttribute('aria-pressed') !== 'true';
+      level.setAttribute('aria-pressed', String(on));
+      level.toggleAttribute('data-pressed', on);
+    });
+  }
+</script>

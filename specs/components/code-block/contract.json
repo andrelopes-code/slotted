@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 5,
+  "family": "code-block",
+  "ui": "code-block",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Highlighted source code with copy and line limits."
+  },
+  "rootRole": "none",
+  "pattern": null,
+  "patternAbsent": {
+    "reason": "The WAI-ARIA Authoring Practices index holds no code pattern, and no ARIA role describes a block of source. Code is text and is read as text; Carbon's role=textbox with aria-readonly on a block nobody can edit is a role that lies, and it is refused",
+    "governedBy": [
+      {
+        "requirement": "WCAG 2.2 SC 2.1.1 Keyboard, Level A",
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html",
+        "effect": "A block wider than its box has to be scrollable by keyboard, which scroll-area supplies"
+      },
+      {
+        "requirement": "scrollable-region-focusable",
+        "url": "https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/",
+        "effect": "The rule the criterion is tested by; the tab stop it asks for owes a name, and the name is the title, then aria-label, then messages.region"
+      },
+      {
+        "requirement": "WCAG 2.2 SC 1.4.10 Reflow, Level AA",
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/reflow.html",
+        "effect": "Code is the named exception to one-dimensional reflow, and the wrap control answers it anyway"
+      },
+      {
+        "requirement": "HTML — the code element",
+        "url": "https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-code-element",
+        "effect": "The language is written as class=language-<x> on the code element, the specification's own convention and what every engine keys on"
+      }
+    ]
+  },
+  "input": {
+    "code": "a string; the family draws plainLines(code) synchronously and never receives HTML",
+    "tokens": "CodeLine[] from @slotted/core/code — text in spans with a data-token scope, so an engine's output is never written with innerHTML",
+    "highlight": "(code, language) => CodeLine[] | Promise<CodeLine[]>; resolved in an effect and swapped line by line into the grid the text already laid out, so nothing moves",
+    "adapters": "fromPrismTokens and fromShikiTokens in @slotted/core/code map the two engines' token shapes onto twelve scopes and import neither engine",
+    "failure": "a rejected highlighter leaves the plain text and reports through onHighlightError"
+  },
+  "scopes": [
+    "comment",
+    "keyword",
+    "string",
+    "number",
+    "function",
+    "type",
+    "variable",
+    "property",
+    "punctuation",
+    "tag",
+    "attribute",
+    "constant"
+  ],
+  "palette": {
+    "tokens": "--slotted-code-<scope>, twelve, component layer, scheme axis, root, forced colour CanvasText",
+    "ground": "--slotted-surface-sunken, the fence's ground prose already draws",
+    "ratio": "4.5:1 in light and dark, 7:1 in high-contrast, measured by packages/themes/test/default-theme.test.mjs",
+    "reason": "the five tones give five hues and a language has more than five kinds of word; painting a keyword with danger would make one tone mean two things on a page that also has an error — the bar upload's file-kind scale cleared"
+  },
+  "composes": {
+    "body": "scroll-area, worn as data-ui: the region role, the tab stop and the name exist only while the code overflows; no scroll measure of this family's own",
+    "copy": "description-list's control: @slotted/core/clipboard, data-complete for two seconds, the check glyph in place of the two sheets, the outcome announced politely",
+    "loading": "skeleton lines inside the frame at the height collapseAfter, or six lines, would give",
+    "icon": "fileKind from @slotted/core/upload picks the file-kind glyph beside a filename"
+  },
+  "marks": {
+    "shape": "{ highlight?, add?, remove?, focus?, error?, warning? }, each '1,4-6' or number[], parsed once by parseLineRanges",
+    "precedence": ["remove", "add", "error", "warning", "highlight"],
+    "focus": "separate: dims every line outside its range with data-dim, lifted on hover and focus-within, dropped under forced colours",
+    "magicComments": "not parsed; a Markdown pipeline that has them hands the family marks"
+  },
+  "copy": {
+    "text": "copyText(code, marks, { includeRemoved }): the code the consumer gave, never the DOM's text; a gutter, a marker or a wrapped line changes nothing on the clipboard",
+    "removed": "remove lines are dropped unless copyRemoved, because the code after the change is what a reader pastes",
+    "off": "copy: false removes the control"
+  },
+  "wrap": {
+    "value": "pre-wrap on the pre under data-wrap; overflow-wrap anywhere so an unbroken token breaks rather than escapes",
+    "control": "aria-pressed, drawn only while some line overflows, read from scroll-area's inline edge state",
+    "continuation": "a wrapped continuation is indented to the line's own leading whitespace, measured once per line in ch"
+  },
+  "collapse": {
+    "axis": "collapseAfter, in lines, unset by default",
+    "revealed": "the word description-list put in the vocabulary for a clamped value shown whole; the hidden lines stay in the DOM and in a selection",
+    "escape": "Escape with focus inside the revealed block collapses it and keeps focus",
+    "maxLines": "the other bound: the body scrolls past it and never collapses; the two compose"
+  },
+  "direction": "ltr on the pre whatever the page's direction, prose's rule; the header keeps the page's",
+  "density": "the inset and the gutter follow the density scale; the type does not, because code at dense is still read one character at a time",
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "the copy control, the wrap control, the reveal control, then the body when it overflows",
+      "focus": "the next of them",
+      "source": "platform; scroll-area"
+    },
+    {
+      "key": "ArrowUp / ArrowDown / ArrowLeft / ArrowRight / PageUp / PageDown / Home / End / Space",
+      "effect": "in the body: the platform's scroll",
+      "focus": "unchanged",
+      "source": "scroll-area writes none of them"
+    },
+    {
+      "key": "Enter / Space",
+      "effect": "on copy, wrap or reveal: the button",
+      "focus": "unchanged",
+      "source": "platform"
+    },
+    {
+      "key": "Escape",
+      "effect": "with focus inside a revealed block: collapses it, reason escape",
+      "focus": "kept, on the body",
+      "source": "this family"
+    }
+  ],
+  "declined": {
+    "tabs": "tabs owns a row of panels: <Tabs><Tabs.Panel><CodeBlock/></Tabs.Panel></Tabs>",
+    "inline": "a span in running text is typography — prose draws code in a sentence, kbd draws a key, description-list's copy is a copyable inline value",
+    "terminalFrame": "one implementation; data-language=sh is in the DOM for a consumer's stylesheet",
+    "disabled": "a block of text has no action to disable; the copy control is a button and takes disabled as any button does",
+    "virtualization": "a block that is not all in the DOM is not copyable by selection; maxLines bounds what is painted through the scrollport",
+    "engine": "no grammar is written or bundled; the highlight engine is an optional package the consumer loads, docs/component-features.md §10"
+  },
+  "provides": {
+    "codeBlockDefaults": ["highlight", "lineNumbers", "copy"]
+  },
+  "messages": [
+    "collapse",
+    "copied",
+    "copy",
+    "copyFailed",
+    "loading",
+    "region",
+    "reveal",
+    "unwrap",
+    "wrap"
+  ],
+  "imperative": ["copy()", "scrollToLine(n)"],
+  "axes": {
+    "lineNumbers": ["false", "true"],
+    "copy": ["true", "false"],
+    "copyRemoved": ["false", "true"]
+  },
+  "resolution": {
+    "highlight": ["prop", "defaults", "none"],
+    "lineNumbers": ["prop", "defaults", "false"],
+    "copy": ["prop", "defaults", "true"]
+  },
+  "stateAttributes": {
+    "pressed": "data-pressed",
+    "revealed": "data-revealed",
+    "complete": "data-complete",
+    "loading": "data-loading"
+  },
+  "dataAttributes": {
+    "data-language": "on the root",
+    "data-wrap": "on the root while wrapped",
+    "data-line-numbers": "on the root while numbered",
+    "data-empty": "on the root when code is empty",
+    "data-overflow": "on the root while a line overflows the box, which is when the wrap control is drawn",
+    "data-line": "on a line, its number",
+    "data-mark": "on a line, one of highlight, add, remove, error, warning",
+    "data-dim": "on a line outside the focus range",
+    "data-token": "on a token, its scope"
+  },
+  "stateModel": {
+    "pressed": {
+      "controlled": "wrap",
+      "uncontrolled": "defaultWrap",
+      "request": "onWrapChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    },
+    "revealed": {
+      "controlled": "revealed",
+      "uncontrolled": "defaultRevealed",
+      "request": "onRevealedChange",
+      "reasons": ["pointer", "keyboard", "escape", "programmatic"]
+    }
+  },
+  "literals": {
+    "gutter digits": "the counter's width is calc(<digits>ch + inset), digits from the line count; ch is a measure of the mono face, not a scale"
+  },
+  "members": {
+    "codeBlock": {
+      "nativeElement": "div",
+      "defaults": {
+        "language": "text",
+        "lineNumbers": false,
+        "start": 1,
+        "copy": true,
+        "copyRemoved": false,
+        "defaultWrap": false,
+        "defaultRevealed": false,
+        "loading": false
+      },
+      "capabilities": ["content", "pressed", "revealed", "copyable", "loading", "wiring"],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "pressed",
+        "revealed",
+        "complete",
+        "loading"
+      ],
+      "parts": [
+        "root",
+        "header",
+        "icon",
+        "title",
+        "language",
+        "actions",
+        "wrap",
+        "copy",
+        "body",
+        "pre",
+        "code",
+        "line",
+        "text",
+        "number",
+        "marker",
+        "token",
+        "reveal"
+      ]
+    }
+  },
+  "scenarios": {
+    "codeBlock": [
+      "playground",
+      "highlight",
+      "engines",
+      "lineNumbers",
+      "marks",
+      "diff",
+      "focus",
+      "wrap",
+      "title",
+      "collapse",
+      "maxLines",
+      "copy",
+      "loading",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

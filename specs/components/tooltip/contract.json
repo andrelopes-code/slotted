@@ -1,0 +1,351 @@
+{
+  "schemaVersion": 5,
+  "family": "tooltip",
+  "ui": "tooltip",
+  "catalog": {
+    "group": "Overlays",
+    "summary": "Short label shown on hover or focus."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/",
+  "patternStatus": "The APG page carries its own notice: this pattern is work in progress and does not yet have task force consensus, tracked in w3c/aria-practices#128. The settled requirement for the same behaviour is WCAG 2.2 SC 1.4.13, cited below, and where the two could disagree the criterion wins.",
+  "criterion": {
+    "source": "https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus.html",
+    "name": "WCAG 2.2 SC 1.4.13 Content on Hover or Focus (Level AA)",
+    "requirements": {
+      "dismissible": {
+        "answeredBy": "escape",
+        "reason": "Escape dismisses the layer without moving the pointer or the focus. The key is answered by the topmost dismissable layer, so a tooltip opened over a popover takes it first."
+      },
+      "hoverable": {
+        "answeredBy": "hoverable",
+        "reason": "The pointer may leave the trigger and reach the painted surface without the layer disappearing, because the distance between them is the layer's own padding rather than empty space. A gap made of the positioner's side offset is a gap the pointer falls through, and this criterion is exactly the requirement that it must not."
+      },
+      "persistent": {
+        "answeredBy": "closeDelay",
+        "reason": "The layer stays until the pointer leaves both the trigger and the layer, until Escape, or until the trigger is pressed. Nothing times it out on its own."
+      }
+    }
+  },
+  "roles": {
+    "content": "tooltip"
+  },
+  "focusable": false,
+  "modal": false,
+  "composes": ["positioner", "presence", "portal", "dismissable-layer"],
+  "layer": {
+    "modal": false,
+    "scrollLock": false,
+    "branches": ["the trigger element"],
+    "depthProperty": "--slotted-layer-depth",
+    "zIndexToken": "--slotted-z-index-popover",
+    "reason": "A tooltip is a dismissable layer so that Escape, the outside press and the stacking all come from the one mechanism the overlay infrastructure already owns. It draws above the popover it was opened inside because it is a later layer, not because the stacking scale gained a step. The trigger is registered as a branch so that a press on it is not an outside press: the family closes on it deliberately, with the reason pointer."
+  },
+  "wiring": {
+    "aria-describedby": "the trigger names the layer while describes is description",
+    "aria-labelledby": "the trigger names the layer instead while describes is label",
+    "role": "tooltip, on the content part and never on the layer, so the layer is free to carry the animation",
+    "aria-hidden": "the arrow, which is decoration the reader has no use for, and the content while describes is none, so a hint that repeats the trigger's own name is not read twice",
+    "data-open": "on the layer and on the trigger, so a consumer can style the trigger while its tooltip is showing"
+  },
+  "whenClipped": {
+    "default": false,
+    "measuredAt": "the moment the hint would open",
+    "reason": "A name truncated to \"Op…\" is unreadable and a name that fits needs nothing said about it, so the hint that answers the first must not open over the second. The family measures its own trigger — `scrollWidth` against `clientWidth`, and only where the box hides what does not fit — at the moment it would open, rather than watching every trigger on the page: a column dragged wider stops opening a hint without anything being told, and a grid of thirty columns keeps no observers. It is an axis here rather than a capability of `table` and `data-grid` because both need it, and `side-navigation` already measured the same thing for itself."
+  },
+  "describes": {
+    "values": ["description", "label", "none"],
+    "default": "description",
+    "attribute": {
+      "description": "aria-describedby",
+      "label": "aria-labelledby",
+      "none": null
+    },
+    "forcesMount": "eager",
+    "reason": "The most common tooltip in a product sits on an icon-only button whose only words are the tooltip's. Described by it and named by nothing, that button is announced as \"button\". Under label the reference is the accessible name, so the layer has to exist before it is opened, and mount is forced to eager rather than silently producing a control with no name. Under none the trigger writes neither reference and the content is hidden from the reader: the hint a truncated name opens repeats an accessible name the trigger already carries, and a reference to it would have the reader hear the same words twice."
+  },
+  "keyboard": [
+    {
+      "key": "Escape",
+      "effect": "dismisses the tooltip",
+      "focus": "stays on the trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "Tab",
+      "effect": "moves to the next focusable element; a tooltip opened by focus is dismissed when the trigger loses it",
+      "focus": "the next focusable element, never the layer",
+      "source": "pattern"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous focusable element, under the same rule",
+      "focus": "the previous focusable element, never the layer",
+      "source": "pattern"
+    },
+    {
+      "key": "Enter",
+      "effect": "activates the trigger, which is the consumer's own control, and dismisses the tooltip while closeOnPress holds",
+      "focus": "stays on the trigger",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "activates the trigger under the same rule",
+      "focus": "stays on the trigger",
+      "source": "platform"
+    }
+  ],
+  "delays": {
+    "openDelay": {
+      "default": 600,
+      "reason": "Long enough that a pointer crossing a toolbar opens nothing, short enough that a deliberate hover is answered before the reader gives up. The surveyed field spans 600 to 1500 and disagrees with itself; this is its floor."
+    },
+    "closeDelay": {
+      "default": 150,
+      "reason": "The window the pointer has to travel from the trigger onto the layer. Zero makes a hoverable tooltip unreachable, which is SC 1.4.13 Hoverable failing while the option that satisfies it is switched on."
+    },
+    "groupDelay": {
+      "default": 400,
+      "reason": "After one tooltip closes, the next opens with no delay inside this window, so reading a row of icon buttons pays the warmup once. The timestamp lives on the defaults provider, because a value held per tooltip could not say what \"the next one\" means."
+    },
+    "touchDelay": {
+      "default": 500,
+      "reason": "A long press opens the tooltip on a coarse pointer, where there is no hover at all. A tap does not, because a tap is the control's own action."
+    },
+    "focus": {
+      "default": 0,
+      "reason": "Focus opens the tooltip in the same task. A delay a reader cannot shorten by moving faster is a delay for nothing."
+    }
+  },
+  "dismissal": {
+    "pointerLeave": {
+      "emits": "pointer",
+      "effect": "closes after closeDelay once the pointer is off both the trigger and the layer"
+    },
+    "triggerPress": {
+      "emits": "pointer",
+      "effect": "closes while closeOnPress holds, so a tooltip is not left over the dialog its button just opened"
+    },
+    "outsidePress": {
+      "emits": "pointer",
+      "reason": "Reported as pointer rather than as outsidePress. From the reader's side a press on the trigger and a press on the page are the same gesture taking the hint away, and a consumer writing one handler for it should not have to write two."
+    },
+    "escape": {
+      "emits": "escape",
+      "effect": "the topmost layer only"
+    },
+    "blur": {
+      "emits": "blur",
+      "effect": "focus leaves the trigger"
+    },
+    "detached": {
+      "emits": null,
+      "effect": "the layer is hidden while its anchor is out of the clipping ancestor, and shows again when the anchor comes back",
+      "reason": "`hideWhenDetached` answers one question — is the anchor still on screen — and answers it in the stylesheet, through `data-detached`. Closing as well would answer a second: whether the reader is done with the hint. Radix, Base UI and Ark all hide without closing, and closing would also mean a consumer's `open` moved for a reason they never acted on. The pointer leaving the trigger is what closes a tooltip."
+    }
+  },
+  "touch": {
+    "opensOn": "long press",
+    "movementThreshold": 8,
+    "reason": "There is no hover on a coarse pointer, and docs/component-features.md §2.7 forbids important behaviour from depending on it. The consequence is written on the reference page rather than hidden by the API: a fact reachable only by long press is a fact half a product's readers will not find, so a tooltip may never be the only place one is written."
+  },
+  "arrow": {
+    "placedBy": "positioner",
+    "drawnBy": "family",
+    "element": "a square rotated 45 degrees, a child of the layer at z-index -1 so the content paints over its inner half and only the two outer edges show",
+    "coordinates": "physical",
+    "reason": "The engine measures the arrow from the layer's own left and top, in the same physical coordinates transform-origin is written in, and data-side names a physical edge. Placing one against the other takes a physical inset; packages/styles/src/logical.test.mjs was taught the exemption, one selector wide, before this family read it."
+  },
+  "mount": {
+    "active": "the layer exists only while it is open, which is what an overlay wants by default",
+    "lazy": "built on the first open and kept afterwards",
+    "eager": "exists from the start, closed, which is what describes=\"label\" forces because a name has to exist before it is read",
+    "default": "active",
+    "reason": "One axis with three values rather than the three or four booleans the field ships — forceMount, keepMounted, lazyMount, unmountOnExit — which admit combinations that mean nothing. It is the same axis collapsible settled, minus until-found, which is a disclosure's answer to find-in-page and not a layer's."
+  },
+  "motion": {
+    "property": "scale",
+    "companion": "opacity",
+    "companionPart": "content",
+    "origin": "--slotted-positioner-transform-origin",
+    "measured": false,
+    "reason": "The layer grows from the anchor rather than appearing whole, which is what says where it came from. scale rather than transform: scale() so the animation does not take the property the positioner was told to leave alone, and so a consumer animating translate of their own does not fight it. Every duration is a motion token, so the theme's one reduced-motion query collapses all of them."
+  },
+  "runtimeProperties": [
+    "--slotted-layer-depth",
+    "--slotted-positioner-anchor-width",
+    "--slotted-positioner-arrow-x",
+    "--slotted-positioner-arrow-y",
+    "--slotted-positioner-available-height",
+    "--slotted-positioner-available-width",
+    "--slotted-positioner-transform-origin"
+  ],
+  "positioning": {
+    "sideOffset": 0,
+    "alignOffset": 0,
+    "collisionPadding": 8,
+    "arrowPadding": 8,
+    "reason": "The side offset is the gap the arrow stands in and the distance the pointer crosses under hoverable. The collision padding keeps the layer off the viewport edge; the arrow padding keeps the arrow off the layer's own rounded corner, which is where a start-aligned layer would otherwise put it.",
+    "gap": {
+      "token": "--slotted-tooltip-gap",
+      "default": "var(--slotted-space-4)",
+      "reason": "The distance between the trigger and the painted surface is the layer's own padding, not the positioner's side offset. A gap made of offset is empty space the pointer falls through, and SC 1.4.13 Hoverable is exactly the requirement that it must not; a gap made of padding belongs to the layer, so the pointer crosses it without leaving. `sideOffset` is therefore 0 by default and means additional distance beyond the standard gap. It is also what makes the bridge one symmetric declaration rather than four rules keyed on a physical side."
+    }
+  },
+  "declined": {
+    "interactiveContent": {
+      "deferTo": "popover",
+      "reason": "The pattern is explicit that a tooltip does not receive focus and that a hover containing focusable elements is a non-modal dialog. That is popover, built in the same session, and preview-card in wave 8 for the hover-opened case."
+    },
+    "closeOnScroll": {
+      "reason": "One of the four surveyed implementations closes on scroll. The positioner already repositions on scroll and hideWhenDetached already answers the anchor leaving the screen, so closing as well would take a hint away from a reader scrolling in order to read it."
+    },
+    "disabledState": {
+      "reason": "The family holds the disabled capability and declares no disabled visual state. A disabled tooltip never opens, so under the default mount there is no element to carry data-disabled and nothing to paint; declaring the state would put a selector in the contract that selects a box no reader ever sees. The capability is observable where it happens: no layer is created, and the trigger's data-open never appears."
+    },
+    "tone": {
+      "deferTo": "inline-message",
+      "reason": "A tooltip tinted for danger is a validation message, and a validation message belongs under the control it is about, where it is not conditional on hover."
+    },
+    "triggerPart": {
+      "reason": "`data-part` names a part of the family that owns the element, and a trigger is the consumer's own — very often another Slotted family's root. Sixteen stylesheets in this repository key on `[data-part='root']`, so writing `trigger` over it would silently unstyle a `badge`, an `avatar` or a `checkbox` used as a trigger, and nothing would report it. The family therefore writes only the wiring and the state on the trigger: the ARIA relationship, and `data-open` so a consumer can style their own element while the layer is showing."
+    },
+    "closeOnDetached": {
+      "reason": "Considered and dropped while the behavioural tests were written. It made `hideWhenDetached` do two things, and the second one moved a controlled consumer's state from under them because a rectangle changed size."
+    },
+    "contentCapability": {
+      "reason": "The `content` capability in `specs/contract.schema.mjs` names a family that takes adornments through `start` and `end` props. This family takes its content as children, so declaring it would oblige the reference page to document two props that do not exist."
+    }
+  },
+  "axes": {
+    "variant": ["inverse", "surface"],
+    "size": ["sm", "md"],
+    "describes": ["description", "label", "none"],
+    "openOn": ["hover", "focus", "manual"],
+    "side": ["top", "bottom", "inline-start", "inline-end", "left", "right"],
+    "align": ["start", "center", "end"],
+    "mount": ["active", "lazy", "eager"],
+    "strategy": ["absolute", "fixed"],
+    "arrow": [true, false],
+    "hoverable": [true, false],
+    "closeOnPress": [true, false],
+    "flip": [true, false],
+    "shift": [true, false],
+    "hideWhenDetached": [true, false],
+    "portal": [true, false],
+    "disabled": [true, false],
+    "whenClipped": [true, false]
+  },
+  "resolution": {
+    "variant": ["prop", "defaults", "inverse"],
+    "size": ["prop", "defaults", "md"],
+    "describes": ["prop", "defaults", "description"],
+    "openOn": ["prop", "defaults", "hover"],
+    "side": ["prop", "defaults", "top"],
+    "align": ["prop", "defaults", "center"],
+    "mount": ["prop", "defaults", "active"],
+    "strategy": ["prop", "defaults", "absolute"],
+    "arrow": ["prop", "defaults", true],
+    "hoverable": ["prop", "defaults", true],
+    "closeOnPress": ["prop", "defaults", true],
+    "flip": ["prop", "defaults", true],
+    "shift": ["prop", "defaults", true],
+    "hideWhenDetached": ["prop", "defaults", true],
+    "portal": ["prop", "defaults", true],
+    "disabled": ["prop", "defaults", false],
+    "whenClipped": ["prop", "defaults", false]
+  },
+  "provides": {
+    "tooltipDefaults": [
+      "variant",
+      "size",
+      "describes",
+      "openOn",
+      "side",
+      "align",
+      "mount",
+      "strategy",
+      "arrow",
+      "hoverable",
+      "closeOnPress",
+      "flip",
+      "shift",
+      "hideWhenDetached",
+      "portal",
+      "openDelay",
+      "closeDelay",
+      "groupDelay",
+      "touchDelay",
+      "sideOffset",
+      "alignOffset",
+      "collisionPadding",
+      "arrowPadding",
+      "whenClipped"
+    ]
+  },
+  "stateAttributes": {
+    "open": "data-open"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "blur", "programmatic"]
+    }
+  },
+  "members": {
+    "tooltip": {
+      "nativeElement": "div",
+      "defaults": {
+        "variant": "inverse",
+        "size": "md",
+        "describes": "description",
+        "openOn": "hover",
+        "side": "top",
+        "align": "center",
+        "mount": "active",
+        "strategy": "absolute",
+        "arrow": true,
+        "hoverable": true,
+        "closeOnPress": true,
+        "flip": true,
+        "shift": true,
+        "hideWhenDetached": true,
+        "portal": true,
+        "disabled": false,
+        "openDelay": 600,
+        "closeDelay": 150,
+        "groupDelay": 400,
+        "touchDelay": 500,
+        "sideOffset": 0,
+        "alignOffset": 0,
+        "collisionPadding": 8,
+        "arrowPadding": 8,
+        "whenClipped": false
+      },
+      "capabilities": ["open", "placement", "size", "appearance", "disabled", "wiring"],
+      "states": ["default", "open"],
+      "parts": ["root", "content", "arrow"]
+    }
+  },
+  "scenarios": {
+    "tooltip": [
+      "playground",
+      "variant",
+      "sizes",
+      "placement",
+      "delay",
+      "describes",
+      "hoverable",
+      "content",
+      "disabled",
+      "composition",
+      "keyboard"
+    ]
+  },
+  "measure": {
+    "value": "18rem",
+    "reason": "A tooltip in a portal is `max-content` wide, so one long sentence would set a single line the width of the viewport. Every surveyed implementation caps it. The cap is the family's own token rather than a `measure` axis, because `docs/build-briefing.md` gives measure to `container` and to it alone; a consumer who needs a different one retunes `--slotted-tooltip-measure`, and a consumer who needs a paragraph is holding a popover."
+  }
+}

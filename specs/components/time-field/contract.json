@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 5,
+  "family": "time-field",
+  "ui": "time-field",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Typed time input split into segments."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/",
+  "patternStatus": "Read on 2026-09-10 and transcribed key by key The example the pattern links is deprecated for its visible increment and decrement buttons; its roles, its wrapping rule and its aria-valuetext guidance are taken whole and the buttons are not drawn.",
+  "controlPart": "segments",
+  "controlRole": "group",
+  "segmentRole": "spinbutton",
+  "rootRole": null,
+  "hiddenValueInput": true,
+  "hiddenValueFormat": "ISO 8601 HH:mm:ss",
+  "valueType": "PlainTime | null",
+  "zoned": false,
+  "zonedReason": "A zoned instant is the type every surveyed implementation gets wrong at a daylight boundary: holding one would owe an answer for the hour that happens twice and the hour that never happens. What this library holds is the wall-clock value the reader typed, and converting it is the application's, against the zone the application knows. Decided in wave 7 and recorded in docs/build-briefing.md.",
+  "core": ["@slotted/core/date", "@slotted/core/state"],
+  "engine": {
+    "module": "packages/core/src/date/segments.ts",
+    "shared": true,
+    "widened": "SegmentState gains hour, minute, second and dayPeriod; the reference parameter gains the same four and the hour cycle, all optional, so every date-field call site compiles unchanged; fieldRange gains four rows and an hourCycle. The engine steps a number inside a range, wraps it, takes typed digits and ends a run when no further digit fits, and it does not know what a field means.",
+    "why": "A second engine would be one behaviour corrected in two places, and datetime-field needs one SegmentState holding both halves — two states side by side would make \"the reader is typing\" two questions with two answers."
+  },
+  "stateSource": "field",
+  "mirrorsState": true,
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "aria-disabled",
+  "wiring": {
+    "id": "always",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "aria-disabled": "disabled",
+    "aria-readonly": "readOnly"
+  },
+  "ariaValue": ["aria-valuenow", "aria-valuemin", "aria-valuemax", "aria-valuetext"],
+  "fields": ["hour", "minute", "second", "dayPeriod"],
+  "fieldOrder": "the locale's, from Intl.DateTimeFormat.formatToParts",
+  "hourCycles": {
+    "h11": { "min": 0, "max": 11, "dayPeriod": true },
+    "h12": { "min": 1, "max": 12, "dayPeriod": true },
+    "h23": { "min": 0, "max": 23, "dayPeriod": false },
+    "h24": { "min": 1, "max": 24, "dayPeriod": false }
+  },
+  "hourCycleReason": "Intl resolves four cycles and a boolean can say two. ja-JP writes midnight as hour zero under h11, and a family that stores 12 there is wrong in a way nobody notices until a Japanese reader reports it. The public axis stays 12 | 24, because that is the question a consumer asks; which variant of each the locale writes is the locale's.",
+  "dayPeriod": {
+    "range": { "min": 0, "max": 1 },
+    "announcedBy": "aria-valuetext",
+    "typedBy": "the first letter of the locale name",
+    "drawnWhen": "the resolved hour cycle is h11 or h12",
+    "why": "Two values in a range is a spin button, so ArrowUp, ArrowDown, Home and End need no special case. aria-valuenow is 0 or 1, which is not user-friendly, and the pattern names aria-valuetext as the answer."
+  },
+  "keyboard": [
+    { "key": "ArrowUp", "effect": "step", "by": 1, "wraps": "within the segment" },
+    { "key": "ArrowDown", "effect": "step", "by": -1, "wraps": "within the segment" },
+    { "key": "PageUp", "effect": "step", "by": "page" },
+    { "key": "PageDown", "effect": "step", "by": "-page" },
+    { "key": "Home", "effect": "bound", "edge": "min" },
+    { "key": "End", "effect": "bound", "edge": "max" },
+    { "key": "ArrowRight", "effect": "move", "to": "next segment in writing order" },
+    { "key": "ArrowLeft", "effect": "move", "to": "previous segment in writing order" },
+    { "key": "0-9", "effect": "type", "advances": "when no further digit fits" },
+    {
+      "key": "a-z",
+      "effect": "type",
+      "scope": "dayPeriod",
+      "matches": "the first letter of a locale name"
+    },
+    { "key": "Backspace", "effect": "clear", "scope": "segment" },
+    { "key": "Delete", "effect": "clear", "scope": "segment" },
+    { "key": "+", "effect": "relative", "opens": "the duration expression" },
+    { "key": "-", "effect": "relative", "opens": "the duration expression" },
+    { "key": "=", "effect": "relative", "opens": "the duration expression, holding now" },
+    { "key": "Enter", "effect": "commit", "scope": "the duration expression" },
+    { "key": "Escape", "effect": "abandon", "scope": "the duration expression" }
+  ],
+  "pageStep": { "hour": 3, "minute": 15, "second": 15, "dayPeriod": 1 },
+  "departures": {
+    "pageStep": "The APG spin-button example steps every button by five. Fifteen minutes is the page a reader of a time field means and the step a quarter-hour panel offers, so the two agree; three hours is a quarter of a twelve-hour cycle. The cost is a reader who learned five from another spin button on the same page and finds this one moves further.",
+    "noArrowButtons": "The example the pattern links is deprecated for its visible increment and decrement buttons, which duplicate keys the reader already has. Its roles, its wrapping rules and its aria-valuetext guidance are the spin-button pattern's and are taken whole. No arrow buttons are drawn.",
+    "arrowsAcross": "The pattern has no key for moving between spin buttons, because its example holds one. ArrowRight and ArrowLeft move between the fields and are logical rather than physical: in a right-to-left document the arrow that walks forward is the one pointing along the writing direction. The cost is that a reader who expects the caret behaviour of a text input finds a whole field moving instead.",
+    "relativeKeys": "+, - and = are not printable characters the value can hold, and the pattern says any other character does not change the value. They open a second entry mode instead. The cost is a reader who types + expecting nothing and gets an expression; the mode is abandoned whole by Escape, and relative={false} removes it."
+  },
+  "entryModel": {
+    "digitsAre": "one segment at a time",
+    "runEndsWhen": "the segment is full, or one more digit could not fit under its maximum",
+    "requestEmittedOn": "the end of a run, never inside one",
+    "keysAreConsumed": "a key the field acts on is stopped, not only defaulted",
+    "whyKeysAreConsumed": "Every application that binds a bare key guards it with \"is the target an editable element\", and that guard tests for input, textarea and contenteditable. A div with role=spinbutton is none of the three, so a reader typing a time fires every single-key shortcut on the page. preventDefault does not help: a shortcut handler reads the key, not the default. Recorded first by date-field and inherited unchanged.",
+    "whyRequestWaits": "Typing 23 into an hour passes through 2, and 2 is a time the arithmetic accepts and nobody meant. The segments move on every keystroke and the value moves when the run ends: on the digit that fills the field, on the key that leaves it, or on blur.",
+    "wraps": "inside the segment, never carrying into the next",
+    "emptySegmentStepsTo": "the reference time's own value",
+    "clearedSegment": "the placeholder, and the value becomes null",
+    "pasteParsed": true,
+    "pasteOrder": ["the locale pattern", "ISO 8601 HH:mm[:ss]", "a relative expression"],
+    "secondsDrawnWhen": "granularity is second"
+  },
+  "relative": {
+    "opensOn": ["+", "-", "="],
+    "anchor": "now, or referenceTime when the consumer states one",
+    "whyNow": "One rule, stated once. Resolving against the value the field already holds would make + mean two different things depending on whether the field is empty, and the brief this answers says \"a duration from now\".",
+    "commitsOn": "Enter, or blur when the expression resolves",
+    "abandonsOn": "Escape, or blur when it does not",
+    "grammar": {
+      "sign": "+ by default, - for a time already past",
+      "units": ["h", "m", "s"],
+      "bareNumber": "minutes, which is the unit a booking flow asks in and the unit step is written in",
+      "compound": "1h30 and 1:30 are both an hour and a half",
+      "now": "0 and = alone",
+      "localeWords": "not parsed. The grammar is symbols and unit letters because those are what a numeric keyboard offers in every locale, and daqui a 40 minutos would work in one language and none of the others. The placeholder states the grammar."
+    },
+    "preview": {
+      "part": "preview",
+      "live": "polite",
+      "shows": "the time the expression resolves to, before anything commits",
+      "whyLive": "The reader is being asked to accept a value they did not write, so the value has to be perceivable before Enter — including to a reader who cannot see it."
+    },
+    "midnight": "+90m at 23:00 resolves to 00:30, which is a different day. The preview carries data-crosses-midnight, the announcement names it, and the request carries crossesMidnight so a consumer holding a PlainDateTime beside this field knows to add one. No surveyed implementation says anything at all.",
+    "reachableWithout": [
+      "typing the segments",
+      "the arrow keys on every segment",
+      "the now control at the head of time-picker's panel"
+    ]
+  },
+  "placeholder": {
+    "from": "Intl.DisplayNames dateTimeField",
+    "example": { "pt-BR": "hh:mm", "en-US": "hh:mm AM", "ja-JP": "hh:mm" }
+  },
+  "range": {
+    "min": "min",
+    "max": "max",
+    "unavailable": "isTimeUnavailable"
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"],
+    "hourCycle": [12, 24],
+    "granularity": ["hour", "minute", "second"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "locale": ["prop", "slotted", "en-US"],
+    "timeZone": ["prop", "defaults", "runtime"],
+    "hourCycle": ["prop", "defaults", "locale"],
+    "granularity": ["prop", "defaults", "minute"]
+  },
+  "provides": {
+    "timeFieldDefaults": ["granularity", "hourCycle", "relative", "size", "timeZone", "variant"]
+  },
+  "messages": ["clear", "duration", "nextDay", "hour", "minute", "second", "dayPeriod"],
+  "imperative": ["focus", "clear"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "required": "data-required"
+  },
+  "dataAttributes": {
+    "data-field": "which of hour, minute, second or dayPeriod a segment holds",
+    "data-placeholder": "the segment has no value and is drawing its placeholder",
+    "data-cycle": "12 or 24, so a stylesheet can size the row that holds a day period",
+    "data-granularity": "hour, minute or second",
+    "data-relative": "an expression is open in place of the segments",
+    "data-crosses-midnight": "the expression resolved into the next day",
+    "data-resolved": "the preview holds a time the expression resolves to"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["keyboard", "clear", "blur", "programmatic"],
+      "carries": ["value", "previous", "segments", "crossesMidnight", "reason", "event"]
+    }
+  },
+  "literals": {
+    "--slotted-time-field-segment-min-inline-size": "A segment is sized from the widest digit its field can hold, which is arithmetic over the control type scale rather than a literal; the floor under the whole control is --slotted-control-height-*, which the theme owns.",
+    "--slotted-time-field-period-min-inline-size": "The day-period part is sized from the widest of the two names the locale actually writes, measured in ch against the control's own type, because es-MX writes a.m. and a locale may write a word."
+  },
+  "members": {
+    "timeField": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "granularity": "minute",
+        "clearable": false,
+        "relative": true
+      },
+      "capabilities": [
+        "value",
+        "appearance",
+        "size",
+        "content",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "readonly",
+        "required"
+      ],
+      "parts": [
+        "root",
+        "segments",
+        "segment",
+        "literal",
+        "duration",
+        "preview",
+        "value-text",
+        "start",
+        "end",
+        "clear",
+        "hidden-input"
+      ]
+    }
+  },
+  "scenarios": {
+    "timeField": [
+      "playground",
+      "locale",
+      "hour-cycle",
+      "granularity",
+      "relative",
+      "midnight",
+      "sizes",
+      "variants",
+      "range",
+      "unavailable",
+      "states",
+      "clear",
+      "adornments",
+      "forms",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

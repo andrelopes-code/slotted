@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 5,
+  "family": "context-menu",
+  "ui": "context-menu",
+  "catalog": {
+    "group": "Overlays",
+    "summary": "Menu opened by right click on a target."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/menubar/",
+  "triggerPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/",
+  "patternStatus": "The APG has no context-menu pattern. The surface is the menu pattern's, held by specs/components/menu/contract.json; the four keys of the menu-button pattern are not taken on the target, because a region is not a button. The two keys that open a context menu from the keyboard — Shift+F10 and the ContextMenu key — are a platform convention, named by docs/component-features.md §8, and shipped by none of the four surveyed libraries. Both pages were read on 2026-09-16 and the target's own keys are transcribed",
+  "roles": {
+    "root": "none. The target is a generic region the consumer wraps; the surface's roles are menu's."
+  },
+  "holds": "menu",
+  "holdsReason": "The family is a target over the menu family rather than a second copy of it. Radix's ContextMenu re-exports the sixteen parts its DropdownMenu already has and its two documentation pages repeat each other nearly line for line; Ark adds one ContextTrigger to the menu it has, and the Angular CDK one directive. This family takes the second shape, as menubar did: a consumer imports MenuContent and its items from menu, and nothing is re-exported. The cost is one context, paid in menu once: the surface has to know its anchor is a point and where focus goes back, which are the two capabilities menu's own contract promised — a virtual anchor (inventory l. 117) and finalFocus (focus.finalFocus) — and had not shipped.",
+  "composes": [],
+  "composesReason": "Every overlay module reaches the family through menu. The family itself builds a PositionerAnchor — an object with getBoundingClientRect — and hands it to the menu; it imports the type and no module.",
+  "rootReason": "menu and popover record that a trigger is not a part: a control that opens a surface is the consumer's own element and very often another family's root. A context target is not a control. It is a region — a row, a card, a canvas — that the consumer wraps, and the wrapper is the family's own element: Radix renders a span, Base UI a div, Ark a button it names context-trigger. The root renders a div and takes render for a row; a consumer rendering it onto another family's element keeps that element's identity, because the other family's props are spread after this one's.",
+  "opening": {
+    "contextmenu": {
+      "anchor": "a 0×0 rectangle at the pointer",
+      "emits": "pointer",
+      "effect": "preventDefault while the family is enabled. While the surface is open the anchor moves to the new point and the surface repositions; no request is emitted, because open did not change."
+    },
+    "longPress": {
+      "anchor": "the pointer at pointerdown",
+      "emits": "pointer",
+      "effect": "touch and pen only. data-pressed from pointerdown to release; movement past the threshold, pointerup or pointercancel before the delay cancels. A contextmenu the platform fires afterwards is prevented and moves nothing."
+    },
+    "keyboard": {
+      "anchor": "the target element",
+      "emits": "keyboard",
+      "effect": "Shift+F10 and the ContextMenu key, with focus on the target. The contextmenu event Windows fires for the key is prevented and ignored."
+    },
+    "programmatic": {
+      "anchor": "the target element",
+      "emits": "programmatic",
+      "effect": "open() on the handle"
+    }
+  },
+  "longPress": {
+    "default": true,
+    "delay": 500,
+    "movementThreshold": 10,
+    "reason": "Radix, Base UI, Ark and React Aria open a menu on a long press, and there is no secondary button on a coarse pointer. 500 ms is the value tooltip already holds as touchDelay; Ark uses roughly 700. The threshold is what tells a press from the start of a scroll."
+  },
+  "closing": {
+    "primaryPress": {
+      "emits": "outsidePress",
+      "reason": "The target is registered as a branch of the layer, so the menu's own machinery treats a press on it as inside; the family says otherwise for the primary button alone, because the target is elsewhere from the reader's side."
+    },
+    "contextmenuInsideLayer": "prevented, so the browser does not draw its own menu over the family's",
+    "rest": "escape, outsidePress, select, dismiss and programmatic are the menu's"
+  },
+  "keyboard": [
+    {
+      "key": "Shift+F10",
+      "effect": "opens the menu anchored to the target",
+      "focus": "the first item",
+      "source": "platform"
+    },
+    {
+      "key": "ContextMenu",
+      "effect": "opens the menu anchored to the target",
+      "focus": "the first item",
+      "source": "platform"
+    },
+    {
+      "key": "Escape",
+      "effect": "closes the menu holding focus",
+      "focus": "the element that held focus when the menu opened, or the target",
+      "source": "pattern"
+    },
+    {
+      "key": "Tab",
+      "effect": "closes every surface and moves on",
+      "focus": "the next element in the page after the target",
+      "source": "pattern"
+    }
+  ],
+  "keyboardReason": "Every key inside the surface is the menu's and is held by its contract. The menu-button pattern's four trigger keys — Enter, Space, ArrowDown, ArrowUp — are deliberately not bound on the target: a row uses them for itself.",
+  "focus": {
+    "onOpen": "first item",
+    "restore": "the element that held focus when the menu opened, captured at that moment; the target when nothing did",
+    "restoreMechanism": "finalFocus on the menu, a ref the family writes at open",
+    "exempt": ["outsidePress", "programmatic"],
+    "tabindex": "never written by the family",
+    "tabindexReason": "A target the consumer did not make focusable cannot be opened from the keyboard, and the reference page says so. A tabindex written here would add a tab stop to every wrapped region, which a grid with roving focus cannot afford; a row that is keyboard-reachable is already focusable."
+  },
+  "wiring": {
+    "data-open": "on the root while the surface shows",
+    "data-pressed": "on the root while a long press is running",
+    "data-disabled": "on the root while the family lets the browser's own menu through",
+    "id": "the menu's triggerId, so the surface is named by the target's text unless MenuContent is given aria-label",
+    "aria-haspopup": "never written. It is not permitted on a generic element, none of the four surveyed implementations writes it, and a context menu is found by convention — which is why every action in it exists by another path as well."
+  },
+  "naming": {
+    "default": "aria-labelledby the target, which the menu writes when its content has no aria-label",
+    "reason": "For a row or a card the target's text is the name of the thing the commands act on. For a canvas or a document the consumer gives MenuContent an aria-label, and the reference page shows both."
+  },
+  "declined": {
+    "menuApi": {
+      "deferTo": "menu",
+      "reason": "Items, groups, separators, submenus, checkbox and radio items, shortcuts, typeahead, loop, closeOnSelect, mount and the layer's positioning axes are menu's and are imported from it. Re-exporting them here would be Radix's shape, where two copies of one machine drift."
+    },
+    "modal": {
+      "deferTo": "dialog",
+      "reason": "Radix defaults its context menu to modal and Base UI ships a Backdrop. menu declined modality for the reason docs/component-features.md §8 gives the modal surface to Dialog, and applyInert would inert the target itself."
+    },
+    "alignOffset": {
+      "reason": "Base UI offsets a root context menu 2 px from the pointer. Windows and macOS put the surface's corner on the point; a gap between the pointer and the surface is a gap the pointer has to cross, and the first item is highlighted by movement rather than by arrival."
+    },
+    "triggerKeys": {
+      "reason": "Enter, Space, ArrowDown and ArrowUp open a menu button and are not bound on the target: a region is not a button, and a row uses those keys for itself."
+    },
+    "triggerAria": {
+      "reason": "aria-haspopup is not permitted on a generic element and would announce a popup a screen reader cannot reach by the announced means. The cost — a reader is not told the region has a menu — is paid by the rule that every action exists elsewhere."
+    }
+  },
+  "axes": {
+    "longPress": [true, false],
+    "disabled": [true, false]
+  },
+  "resolution": {
+    "longPress": ["prop", "defaults", true],
+    "disabled": ["prop", "defaults", false]
+  },
+  "provides": {
+    "contextMenuDefaults": ["longPress", "longPressDelay", "disabled"]
+  },
+  "stateAttributes": {
+    "open": "data-open",
+    "pressed": "data-pressed",
+    "disabled": "data-disabled"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "escape",
+        "outsidePress",
+        "select",
+        "dismiss",
+        "programmatic"
+      ]
+    }
+  },
+  "stateModelReason": "The menu's own model, surfaced by the family. ContextMenu in React renders the Menu and forwards open, defaultOpen and onOpenChange; in Angular the state is sl-menu [(open)] itself and the directive only asks it to move, so there is no second owner.",
+  "members": {
+    "contextMenu": {
+      "nativeElement": "div",
+      "defaults": {
+        "longPress": true,
+        "longPressDelay": 500,
+        "disabled": false
+      },
+      "capabilities": ["open", "disabled", "wiring"],
+      "states": ["default", "open", "pressed", "disabled"],
+      "parts": ["root"]
+    }
+  },
+  "statesReason": "The root paints nothing at rest, on hover or on focus: its content is the consumer's. open draws the mark Finder and Explorer leave on the row whose menu is showing; pressed turns off text selection and the iOS callout for the duration of a long press and nothing else; disabled says the browser's own menu is the one that will open.",
+  "scenarios": {
+    "contextMenu": [
+      "playground",
+      "target",
+      "rows",
+      "keyboard",
+      "touch",
+      "other-path",
+      "disabled",
+      "states"
+    ]
+  }
+}

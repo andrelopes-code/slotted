@@ -1,0 +1,1013 @@
+@layer slotted.components {
+  /**
+   * ── Two fields in one frame, a trigger, and a calendar behind them ─────
+   *
+   *   ┌─ root ──────────────────────────────────────────────────────────────┐
+   *   │  ┌─ control ── the frame ─────────────────────────────────────────┐ │
+   *   │  │  ┌ start ─────┐     ┌ end ───────┐                             │ │
+   *   │  │  │ date-field │  –  │ date-field │        ┌ clear ┐ ┌ trigger ┐ │ │
+   *   │  │  └────────────┘     └────────────┘        └───────┘ └─────────┘ │ │
+   *   │  └────────────────────────────────────────────────────────────────┘ │
+   *   └─────────────────────────────────────────────────────────────────────┘
+   *          ┌─ positioner ─ the layer ───────────────────────────────────┐
+   *          │  ┌─ content ─ the surface ─────────────────────────────┐   │
+   *          │  │  head: start – end · length · limit                 │   │
+   *          │  │  presets │ calendar                                 │   │
+   *          │  │  footer                                             │   │
+   *          │  └─────────────────────────────────────────────────────┘   │
+   *          └───────────────────────────────────────────────────────────┘
+   *
+   * The three families inside keep their own `data-ui`. Nothing here selects a
+   * segment or a day: this stylesheet owns the frame, the separator, the two
+   * buttons in it, the layer, and the band that says what the reader has.
+   *
+   * **The frame speaks to the two fields through their tokens and never
+   * through their parts.** A `date-field` in `variant="plain"` still draws its
+   * own border width, its own inline padding, its hover wash and its focus ring
+   * — each is a decision the field takes for the case where it stands alone.
+   * Inside this frame each of them is zeroed on the wrapper the field sits in,
+   * by restating the custom property the field reads, so the frame is the one
+   * box a reader sees and the field's stylesheet is not reached into.
+   */
+  [data-ui-date-range-picker][data-part-root] {
+    display: block;
+    /* In a flex row the item's basis is its content, not the whole row. */
+    flex-basis: content;
+    /* The anchor the positioner measures is the control, and a block root
+       lets the frame take the width the form gave it. */
+    inline-size: 100%;
+  }
+
+  /* ── The frame ────────────────────────────────────────────────────────
+   *
+   * The same frame `date-field` draws for one date, drawn once for two: the
+   * control scales for height, type and gutter, and the field's own variant
+   * tokens for the ground, so a form holding a date and a range shows one
+   * frame twice rather than two frames.
+   */
+  [data-ui-date-range-picker] [data-part-control] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_border-width: var(--slotted-control-border-width, 1px);
+
+    /* The same inner-control box every family in the library draws: the glyph,
+       and one step of air on each side, bounded by the frame's own height. */
+    --_action-size: var(
+      --slotted-date-range-picker-action-size,
+      min(
+        calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)),
+        calc(var(--_height) - var(--_border-width) * 2 - var(--slotted-space-2, 0.25rem))
+      )
+    );
+
+    align-items: center;
+    background-color: var(
+      --slotted-date-range-picker-background,
+      var(--slotted-control-surface, Field)
+    );
+    border: var(--_border-width) solid
+      var(
+        --slotted-date-range-picker-border-color,
+        var(--slotted-control-border-color, ButtonBorder)
+      );
+    border-radius: var(--slotted-date-range-picker-radius, var(--slotted-control-radius, 4px));
+    box-shadow: var(--slotted-date-range-picker-shadow, var(--slotted-control-shadow, none));
+    box-sizing: border-box;
+    color: var(--slotted-date-range-picker-color, var(--slotted-text, CanvasText));
+    display: flex;
+    /* One line, whatever the frame's width. Two dates do not fit a frame
+       narrower than about 300 pixels, and the end used to drop to a second
+       line — a control two lines tall broke every row it stood in and read
+       as a different control from the field beside it. The two fields now
+       give way as `date-field` does, each clipping its own digits at its
+       edge, and the buttons at the reading end stay where they are because
+       they stand out of the flow. The field the reader steps into scrolls
+       its own digits into view. */
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    gap: var(--slotted-space-1, 0.125rem);
+    inline-size: 100%;
+    min-block-size: var(--_height);
+    min-inline-size: 0;
+    padding-inline: var(--_padding-inline);
+    position: relative;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * The two buttons stand out of the flow, at the reading end, and the frame
+   * keeps their room as padding. Two things follow. The buttons are inset by
+   * their own gutter less than the value is, so the glyph ends where the
+   * digits begin — the arithmetic `text-field` records. And when the frame is
+   * too narrow for two dates, the fields give way and the trigger does not:
+   * an in-flow trigger was the first thing to be pushed, and the guaranteed
+   * way in was the first thing lost.
+   */
+  [data-ui-date-range-picker] [data-part-control] {
+    --_action-inset: max(
+      0px,
+      calc(var(--_padding-inline) - (var(--_action-size) - var(--_icon-size)) / 2)
+    );
+    --_actions: 1;
+
+    padding-inline-end: calc(
+      var(--_action-inset) + var(--_action-size) * var(--_actions) +
+        var(--slotted-space-1, 0.125rem) * (var(--_actions) - 1) + var(--slotted-space-2, 0.25rem)
+    );
+  }
+
+  [data-ui-date-range-picker] [data-part-control]:has(> [data-part-clear]) {
+    --_actions: 2;
+  }
+
+  [data-ui-date-range-picker][data-part-root][data-size='sm'] [data-part-control] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 11px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+  }
+
+  [data-ui-date-range-picker][data-part-root][data-size='lg'] [data-part-control] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 15px);
+    --_gap: var(--slotted-control-gap-lg, 10px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+  }
+
+  /* ── Variant ──────────────────────────────────────────────────────────
+   *
+   * The three steps `text-field` set, through the field's own variant tokens,
+   * so a theme that retunes `subtle` for one date retunes it for two.
+   */
+  [data-ui-date-range-picker][data-part-root][data-variant='subtle'] [data-part-control] {
+    background-color: var(
+      --slotted-date-range-picker-subtle-background,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    border-color: var(
+      --slotted-date-range-picker-subtle-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+  }
+
+  [data-ui-date-range-picker][data-part-root][data-variant='plain'] [data-part-control] {
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: var(--slotted-radius-none, 0px);
+    box-shadow: none;
+  }
+
+  /* ── The two ends ─────────────────────────────────────────────────────
+   *
+   * Each holds one `date-field` in `plain`, and speaks to it in the only
+   * language this stylesheet is allowed: the tokens the field reads. The
+   * field's border, inline padding, hover wash, invalid edge and focus ring
+   * are all zeroed here, and the frame answers each of them once for both.
+   */
+  [data-ui-date-range-picker] [data-part-start],
+  [data-ui-date-range-picker] [data-part-end] {
+    --slotted-control-border-width: 0px;
+    --slotted-control-padding-inline-sm: 0px;
+    --slotted-control-padding-inline-md: 0px;
+    --slotted-control-padding-inline-lg: 0px;
+    --slotted-control-height-sm: calc(var(--_height) - var(--_border-width) * 2);
+    --slotted-control-height-md: calc(var(--_height) - var(--_border-width) * 2);
+    --slotted-control-height-lg: calc(var(--_height) - var(--_border-width) * 2);
+    --slotted-date-field-plain-hover-background: transparent;
+    --slotted-date-field-invalid-border-color: transparent;
+    --slotted-date-field-shadow: none;
+    --slotted-control-shadow-focus-geometry: 0 0 0 0;
+    --slotted-focus-ring-width: 0px;
+
+    display: flex;
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    position: relative;
+  }
+
+  /**
+   * The end being edited. `position` says which, and the mark is an underline
+   * at the frame's inner edge rather than a ring: a ring inside a ring is two
+   * rings, and at `dense` there is no room for two. It is painted only while
+   * the reader is in the control — the panel open, or focus inside the frame —
+   * because at rest there is no "next press" for it to name.
+   */
+  [data-ui-date-range-picker] [data-part-start]::after,
+  [data-ui-date-range-picker] [data-part-end]::after {
+    background-color: var(
+      --slotted-date-range-picker-current-color,
+      var(--slotted-tone-accent-solid)
+    );
+    block-size: var(--slotted-date-range-picker-current-size, 2px);
+    border-start-end-radius: var(--slotted-radius-xs, 2px);
+    border-start-start-radius: var(--slotted-radius-xs, 2px);
+    content: '';
+    inset-block-end: 0;
+    inset-inline: 0;
+    opacity: 0;
+    position: absolute;
+    transition: opacity var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-date-range-picker][data-part-root]:is(
+      [data-open],
+      :has([data-part-control]:focus-within)
+    )
+    :is([data-part-start], [data-part-end])[data-current]::after {
+    opacity: 1;
+  }
+
+  /* A dash between the two ends, in the adornment's ink: it annotates, and a
+     reader looking for either date should not have to step over it. */
+  [data-ui-date-range-picker] [data-part-separator] {
+    color: var(--slotted-date-range-picker-separator-color, var(--slotted-text-muted, GrayText));
+    flex: 0 0 auto;
+    padding-inline: var(--slotted-space-2, 0.25rem);
+    user-select: none;
+  }
+
+  /* ── The two buttons ──────────────────────────────────────────────────
+   *
+   * Clear and trigger take the inner-control box, at the reading end. The
+   * trigger is always drawn: ChromeOS turns `Alt`+`ArrowDown` into `PageDown`
+   * before the browser sees it, so the chord cannot be the only way in.
+   */
+  [data-ui-date-range-picker] [data-part-clear],
+  [data-ui-date-range-picker] [data-part-trigger] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_action-size);
+    border: 0;
+    border-radius: var(--slotted-date-range-picker-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-date-range-picker-action-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    inline-size: var(--_action-size);
+    /* Centred on the first line of the frame, whichever line the end is on. */
+    inset-block-start: calc((var(--_height) - var(--_border-width) * 2 - var(--_action-size)) / 2);
+    inset-inline-end: var(--_action-inset);
+    justify-content: center;
+    padding: 0;
+    position: absolute;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-date-range-picker] [data-part-clear] {
+    inset-inline-end: calc(
+      var(--_action-inset) + var(--_action-size) + var(--slotted-space-1, 0.125rem)
+    );
+  }
+
+  /* The hit area, recovered outside the paint, exactly as every other inner
+     control in the library recovers it. */
+  [data-ui-date-range-picker] [data-part-clear]::after,
+  [data-ui-date-range-picker] [data-part-trigger]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: the ground and the focus ring stay square, and
+     the hit area above grows to 44 pixels around them. Side by side, neither
+     button reaches across the edge the two share. */
+  @media (pointer: coarse) {
+    [data-ui-date-range-picker] :is([data-part-clear], [data-part-trigger])::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+    }
+
+    [data-ui-date-range-picker] [data-part-clear]:has(+ [data-part-trigger]:not([hidden]))::after {
+      inset-inline-end: 0;
+    }
+
+    [data-ui-date-range-picker] [data-part-clear]:not([hidden]) + [data-part-trigger]::after {
+      inset-inline-start: 0;
+    }
+  }
+
+  /* The cross and the calendar are `Glyph` elements the binding draws, at the
+     field's icon step. The calendar does not turn and does not become a
+     chevron while the surface is open: what opens is a month, not a list, and
+     the trigger goes on saying what kind of value it holds. */
+
+  [data-ui-date-range-picker] [data-part-clear]:hover:not(:disabled):not([data-disabled]),
+  [data-ui-date-range-picker] [data-part-trigger]:hover:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-date-range-picker-action-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-date-range-picker] [data-part-clear]:active:not(:disabled):not([data-disabled]),
+  [data-ui-date-range-picker] [data-part-trigger]:active:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-date-range-picker-action-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  /* Their own rings: tabbing from the last segment to a button has to move
+     something visible, and the frame's ring would sit still. */
+  [data-ui-date-range-picker] [data-part-clear]:focus-visible,
+  [data-ui-date-range-picker] [data-part-trigger]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-date-range-picker] [data-part-clear]:disabled,
+  [data-ui-date-range-picker] [data-part-trigger]:disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  /* ── States on the frame ──────────────────────────────────────────────
+   *
+   * Written strongest last, and each weaker one guarded against every stronger
+   * one it can meet, which is the order `STATE_PRECEDENCE` sets.
+   */
+
+  [data-ui-date-range-picker][data-part-root]:not([data-disabled]):not([data-readonly]):not(
+      [data-invalid]
+    )
+    [data-part-control]:hover {
+    border-color: var(
+      --slotted-date-range-picker-hover-border-color,
+      var(--slotted-tone-accent-border)
+    );
+  }
+
+  [data-ui-date-range-picker][data-part-root][data-variant='subtle']:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid])
+    [data-part-control]:hover {
+    background-color: var(
+      --slotted-date-range-picker-subtle-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-date-range-picker][data-part-root][data-variant='plain']:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid])
+    [data-part-control]:hover {
+    background-color: var(
+      --slotted-date-range-picker-plain-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    border-color: transparent;
+  }
+
+  /**
+   * The frame's ring says the control has the reader's attention, once for
+   * both fields; the band on one segment — the field's own — says which of
+   * the six a key will move. The two buttons in the frame draw their own ring
+   * and are excluded here, so a focused trigger is not two rings.
+   *
+   * `:focus-within` and not `:focus-visible`, for the reason `date-field`
+   * records: every part of a segmented field is a `div`, and a browser refuses
+   * `:focus-visible` on a `div` a pointer focused.
+   */
+  [data-ui-date-range-picker]
+    [data-part-control]:focus-within:not(
+      :has(> [data-part-clear]:focus, > [data-part-trigger]:focus)
+    ) {
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * The ring of a control whose box is not its own is drawn inside that box,
+   * the way the inner controls draw theirs inside the frame: two pixels past
+   * the control is two pixels over the next row's rule. No lift either — a
+   * shadow that appears only under focus is a cell that changes size when it
+   * is used.
+   */
+  [data-ui-date-range-picker][data-part-root][data-variant='plain']
+    [data-part-control]:focus-within:not(
+      :has(> [data-part-clear]:focus, > [data-part-trigger]:focus)
+    ) {
+    box-shadow: none;
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* Invalid outranks hover and is written after it. The ring is retargeted
+     rather than repainted, so the frame's outline and the ring on the two
+     buttons all move at once. */
+  [data-ui-date-range-picker][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-date-range-picker-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+  }
+
+  [data-ui-date-range-picker][data-part-root][data-invalid] [data-part-control] {
+    --_invalid-edge-width: var(
+      --slotted-date-range-picker-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+    --_invalid-edge-color: var(
+      --slotted-date-range-picker-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    --_invalid-edge: inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color);
+
+    border-color: var(
+      --slotted-date-range-picker-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger border is the resting edge's black. The line
+     * is a shadow inside the border, so neither box nor text moves, and it
+     * takes the resting lift's place.
+     */
+    box-shadow: var(--_invalid-edge);
+  }
+
+  [data-ui-date-range-picker][data-invalid]
+    [data-part-control]:focus-within:not(
+      :has(> [data-part-clear]:focus, > [data-part-trigger]:focus)
+    ) {
+    box-shadow:
+      var(--_invalid-edge),
+      var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+        var(--slotted-focus-ring-color, Highlight);
+  }
+
+  [data-ui-date-range-picker][data-part-root][data-variant='plain'][data-invalid]
+    [data-part-control]:focus-within:not(
+      :has(> [data-part-clear]:focus, > [data-part-trigger]:focus)
+    ) {
+    /* The ring lies inside the box here, over the border and an edge as wide as
+       it; the edge reaches past the ring. */
+    box-shadow: inset 0 0 0
+      calc(
+        var(--slotted-focus-ring-offset, 2px) - var(--_border-width) + var(--_invalid-edge-width)
+      )
+      var(--_invalid-edge-color);
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The
+   * width comes back as an outline inside the border, and a focused invalid
+   * control draws its ring double, which a valid ring is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-date-range-picker][data-part-root][data-invalid] [data-part-control] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(-1 * (var(--_border-width) + var(--_invalid-edge-width)));
+    }
+
+    [data-ui-date-range-picker][data-invalid]
+      [data-part-control]:focus-within:not(
+        :has(> [data-part-clear]:focus, > [data-part-trigger]:focus)
+      ) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(--slotted-focus-ring-offset, 2px);
+    }
+
+    [data-ui-date-range-picker][data-part-root][data-variant='plain'][data-invalid]
+      [data-part-control]:focus-within:not(
+        :has(> [data-part-clear]:focus, > [data-part-trigger]:focus)
+      ) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: calc(
+        -1 * (var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width))
+      );
+    }
+  }
+
+  /* Read-only stays focusable, readable and copyable, and must not be
+     mistakable for disabled: the ground says "not yours to change". */
+  [data-ui-date-range-picker][data-part-root][data-readonly] [data-part-control] {
+    background-color: var(
+      --slotted-date-range-picker-readonly-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    cursor: default;
+  }
+
+  /* Muted to the colour the theme measures rather than faded by opacity: a
+     disabled form still has to say what it holds. */
+  [data-ui-date-range-picker][data-part-root][data-disabled] [data-part-control] {
+    background-color: var(
+      --slotted-date-range-picker-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(
+      --slotted-date-range-picker-disabled-border-color,
+      var(--slotted-disabled-border)
+    );
+    box-shadow: none;
+    color: var(--slotted-date-range-picker-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+  }
+
+  [data-ui-date-range-picker][data-part-root][data-disabled] [data-part-separator] {
+    color: var(--slotted-disabled-foreground);
+  }
+
+  /* ── The layer ────────────────────────────────────────────────────────
+   *
+   * What `packages/core/src/positioner` writes `position`, `left` and `top`
+   * onto. The painted surface is one element in, as every overlay is built.
+   */
+  [data-ui-date-range-picker][data-part-positioner] {
+    /* Only the block inset: the positioner writes `left` and never `right`,
+       and `inset-inline-start` would resolve to `right` in a right-to-left
+       document and win over the measured value. */
+    position: absolute;
+    inset-block-start: 0;
+
+    box-sizing: border-box;
+    isolation: isolate;
+    /* The layer is only a frame around the surface; the surface takes the
+       pointer, and the frame must not swallow a press meant for the page. */
+    pointer-events: none;
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+
+    /* The layer arrives along the axis it opens on and never along the inline
+       one, which is the rule `select` records. */
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+    opacity: 0;
+    translate: 0 calc(-1 * var(--_enter-distance));
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-exit),
+      translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-date-range-picker][data-part-positioner][data-side='top'] {
+    translate: 0 var(--_enter-distance);
+  }
+
+  /* A lateral side has no block direction to arrive from, so it only fades. */
+  [data-ui-date-range-picker][data-part-positioner]:is([data-side='left'], [data-side='right']) {
+    translate: 0 0;
+  }
+
+  [data-ui-date-range-picker][data-part-positioner][data-open] {
+    opacity: 1;
+    translate: 0 0;
+    transition: none;
+  }
+
+  /* The entrance is a keyframe animation and not a transition, for the reason
+     `select` records: a transition starts from the style the browser computed
+     last, and the positioner writes `data-side` in the same style update as
+     the family opens the layer. Only a layer the positioner placed arrives. */
+  [data-ui-date-range-picker][data-part-positioner][data-open][data-positioned] {
+    animation: slotted-date-range-picker-enter-down var(--slotted-duration-medium)
+      var(--slotted-easing-enter);
+  }
+
+  [data-ui-date-range-picker][data-part-positioner][data-open][data-positioned][data-side='top'] {
+    animation-name: slotted-date-range-picker-enter-up;
+  }
+
+  [data-ui-date-range-picker][data-part-positioner][data-open][data-positioned]:is(
+      [data-side='left'],
+      [data-side='right']
+    ) {
+    animation-name: slotted-date-range-picker-fade;
+  }
+
+  @keyframes slotted-date-range-picker-enter-down {
+    from {
+      opacity: 0;
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-date-range-picker-enter-up {
+    from {
+      opacity: 0;
+      translate: 0 var(--_enter-distance);
+    }
+  }
+
+  @keyframes slotted-date-range-picker-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Stillness keeps the fade and drops the movement. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-date-range-picker][data-part-positioner],
+    [data-ui-date-range-picker][data-part-positioner][data-side='top'],
+    [data-ui-date-range-picker][data-part-positioner][data-side='left'],
+    [data-ui-date-range-picker][data-part-positioner][data-side='right'] {
+      translate: 0 0;
+      transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-date-range-picker][data-part-positioner][data-open][data-positioned],
+    [data-ui-date-range-picker][data-part-positioner][data-open][data-positioned][data-side='top'],
+    [data-ui-date-range-picker][data-part-positioner][data-open][data-positioned][data-side='left'],
+    [data-ui-date-range-picker][data-part-positioner][data-open][data-positioned][data-side='right'] {
+      animation-name: slotted-date-range-picker-fade;
+    }
+  }
+
+  /* The anchor scrolled out of its own clipper. The calendar is still open and
+     still belongs to a control the reader can no longer see. */
+  [data-ui-date-range-picker][data-part-positioner][data-detached] {
+    visibility: hidden;
+  }
+
+  /**
+   * The surface. It is sized by the calendar inside it rather than by the
+   * control it hangs from, and it is a grid of `auto` tracks for the reason
+   * `date-picker` records: a percentage flex basis against a shrink-wrapped
+   * container makes the surface wider than anything in it.
+   */
+  [data-ui-date-range-picker] [data-part-content] {
+    background-color: var(
+      --slotted-date-range-picker-surface,
+      var(--slotted-surface-raised, Canvas)
+    );
+    border: var(--slotted-border-width-thin, 1px) solid
+      var(
+        --slotted-date-range-picker-content-border-color,
+        var(--slotted-border-subtle, ButtonBorder)
+      );
+    border-radius: var(--slotted-date-range-picker-content-radius, var(--slotted-radius-lg, 8px));
+    box-shadow: var(--slotted-date-range-picker-content-shadow, var(--slotted-shadow-md));
+    box-sizing: border-box;
+    color: var(--slotted-date-range-picker-content-color, var(--slotted-text, CanvasText));
+    display: grid;
+    gap: var(--slotted-space-5, 0.75rem);
+    grid-template-areas: 'head' 'panels' 'footer';
+    /* `minmax(0, 1fr)` and not `auto`: an `auto` track takes the calendar's
+       own two-month width as its floor, and the cap below is then a cap on a
+       box the track has already overflowed. A zero floor lets the track be
+       the room there is, and the calendar's `max-inline-size: 100%` follows. */
+    grid-template-columns: minmax(0, 1fr);
+    /* Capped by the room the positioner measured, so two months that do not
+       fit beside each other wrap under one another — the calendar's own
+       container rule — instead of running past the edge of the screen. */
+    max-inline-size: var(--slotted-positioner-available-width, 100vw);
+    padding: var(--slotted-date-range-picker-content-padding, var(--slotted-space-5, 0.75rem));
+    /* The layer above gave up the pointer; the surface takes it back. */
+    pointer-events: auto;
+  }
+
+  /**
+   * The shortcuts and the calendar, as a wrapping row. Where there is room
+   * the column of shortcuts stands beside the grid; where there is not, the
+   * grid drops under it and the column stretches into a list across the
+   * surface — no container query, because a surface sized by its contents
+   * has no width of its own to ask about, which is the rule `datetime-picker`
+   * records for its own two panels.
+   */
+  [data-ui-date-range-picker] [data-part-panels] {
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-5, 0.75rem);
+    grid-area: panels;
+    min-inline-size: 0;
+  }
+
+  [data-ui-date-range-picker] [data-part-panels] > [data-ui-calendar] {
+    flex: 0 1 auto;
+  }
+
+  /* ── The band ─────────────────────────────────────────────────────────
+   *
+   * What the reader has so far, and how long it is. The two ends are drawn
+   * as they stand, the one not yet chosen as its placeholder, and the length
+   * answers the question the reader is actually asking while the run is
+   * being drawn.
+   *
+   * It renders at the panel's width and contributes nothing to it, by the
+   * pair `datetime-picker` records: `inline-size: 0` takes the band out of the
+   * grid's measurement and `min-inline-size: 100%` puts it back at the track's
+   * own width, so the calendar decides how wide the panel is and the band
+   * wraps inside whatever it decides.
+   */
+  [data-ui-date-range-picker] [data-part-head] {
+    box-sizing: border-box;
+    inline-size: 0;
+    min-inline-size: 100%;
+
+    align-items: baseline;
+    border-block-end: var(--slotted-border-width-thin, 1px) solid
+      var(
+        --slotted-date-range-picker-content-border-color,
+        var(--slotted-border-subtle, ButtonBorder)
+      );
+    column-gap: var(--slotted-space-2, 0.25rem);
+    display: flex;
+    flex-wrap: wrap;
+    grid-area: head;
+    /* Air under the words before the rule — the same step the footer keeps
+       between its rule and its buttons, so the two bands hold the surface
+       symmetrically. */
+    padding-block-end: var(--slotted-space-3, 0.375rem);
+    row-gap: var(--slotted-space-1, 0.125rem);
+  }
+
+  /* The two ends and the dash between them are one run, and the run does not
+     break inside itself: "12 Sep –" on one line and "16 Sep" on the next is a
+     range read twice. */
+  [data-ui-date-range-picker] [data-part-head] > [data-part-head-start],
+  [data-ui-date-range-picker] [data-part-head] > [data-part-head-end] {
+    color: var(--slotted-date-range-picker-content-color, var(--slotted-text, CanvasText));
+    font-size: var(--slotted-font-size-sm, 13px);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    /* A date in words is a mixed run — a month name beside numbers — so it is
+       laid out by its own content rather than by the paragraph. */
+    unicode-bidi: plaintext;
+    white-space: nowrap;
+  }
+
+  /* The dash between the two ends is a text node the bindings write between
+     the two spans, and not a pseudo-element on either: each span lays its own
+     date out by that date's first strong character, and a pseudo-element on
+     one of them followed the date's direction rather than the band's. As a
+     flex item of its own the dash stands between the two ends in the band's
+     direction, which is the only direction it has. */
+
+  /* The end not yet written, drawn as its placeholder beside the one that is;
+     and the pending one, which is a proposal and reads as the band's own
+     proposal in the calendar does. */
+  [data-ui-date-range-picker]
+    [data-part-head]
+    :is([data-part-head-start], [data-part-head-end])[data-placeholder] {
+    color: var(--slotted-date-range-picker-placeholder-color, var(--slotted-text-muted, GrayText));
+    font-weight: var(--slotted-font-weight-regular, 400);
+  }
+
+  [data-ui-date-range-picker]
+    [data-part-head]
+    :is([data-part-head-start], [data-part-head-end])[data-pending] {
+    color: var(--slotted-date-range-picker-pending-color, var(--slotted-tone-accent-text));
+  }
+
+  /**
+   * The length. It stands at the reading end of the band, in the accent's
+   * text tone, because it is the number the band exists to say; pending, it
+   * keeps the tone and drops a step of weight, the way the calendar's pending
+   * band keeps the tint and drops a step of share.
+   */
+  [data-ui-date-range-picker] [data-part-length] {
+    color: var(--slotted-date-range-picker-length-color, var(--slotted-tone-accent-text));
+    font-size: var(--slotted-font-size-sm, 13px);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    margin-inline-start: auto;
+    padding-inline-start: var(--slotted-space-4, 0.5rem);
+    /* "10 days" is a number and a word, and a right-to-left band would put
+       the word first; the run is laid out by its own first strong character. */
+    unicode-bidi: plaintext;
+    white-space: nowrap;
+  }
+
+  [data-ui-date-range-picker] [data-part-length][data-pending] {
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  /* An empty length still holds its line, so the band does not grow a row
+     when the first end is chosen. */
+  [data-ui-date-range-picker] [data-part-length]:empty::before {
+    content: '\200B';
+  }
+
+  /* The limit, on a row of its own under the ends: a rule the grid enforces
+     is a rule the band names. */
+  [data-ui-date-range-picker] [data-part-limit] {
+    color: var(--slotted-date-range-picker-limit-color, var(--slotted-text-muted, GrayText));
+    flex-basis: 100%;
+    font-size: var(--slotted-font-size-xs, 11px);
+    unicode-bidi: plaintext;
+  }
+
+  /* ── The shortcuts ────────────────────────────────────────────────────
+   *
+   * This family ships no list of them: "last 7 days" is a business calendar,
+   * and a library that guessed at one would be guessing at a fiscal year. It
+   * ships the column they stand in and the button each one is.
+   */
+  [data-ui-date-range-picker] [data-part-presets] {
+    align-items: stretch;
+    display: flex;
+    /* It grows: beside the grid it takes what the surface leaves, and alone
+       on a line — the grid having dropped under it — it becomes a list across
+       the surface rather than a column against one edge. No rule between the
+       two: a rule on the end edge is right beside the grid and wrong above
+       it, and the column cannot know which it is. */
+    flex: 1 0 auto;
+    flex-direction: column;
+    gap: var(--slotted-space-1, 0.125rem);
+  }
+
+  /**
+   * One shortcut. Quiet — no edge, the surface's ink — and reading from the
+   * start edge: stretched and centred, four labels form a ragged column with
+   * no left edge to run down. Selected, it takes the accent's subtle ground
+   * and text, which is the pair `calendar` gives a day inside the run.
+   */
+  [data-ui-date-range-picker] [data-part-preset] {
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--slotted-date-range-picker-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-date-range-picker-content-color, var(--slotted-text, CanvasText));
+    cursor: pointer;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--slotted-font-size-sm, 13px);
+    line-height: var(--slotted-line-height-sm, 1.4);
+    min-block-size: var(--slotted-target-min, 24px);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    text-align: start;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-date-range-picker] [data-part-preset]:hover:not(:disabled):not([data-selected]) {
+    background-color: var(
+      --slotted-date-range-picker-preset-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-date-range-picker] [data-part-preset]:active:not(:disabled):not([data-selected]) {
+    background-color: var(
+      --slotted-date-range-picker-preset-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  [data-ui-date-range-picker] [data-part-preset][data-selected] {
+    background-color: var(
+      --slotted-date-range-picker-preset-selected-background,
+      var(--slotted-tone-accent-subtle-hover)
+    );
+    color: var(--slotted-date-range-picker-preset-selected-color, var(--slotted-tone-accent-text));
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-date-range-picker] [data-part-preset]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-date-range-picker] [data-part-preset]:disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  [data-ui-date-range-picker] [data-part-footer] {
+    box-sizing: border-box;
+    inline-size: 0;
+    min-inline-size: 100%;
+
+    align-items: center;
+    border-block-start: var(--slotted-border-width-thin, 1px) solid
+      var(
+        --slotted-date-range-picker-content-border-color,
+        var(--slotted-border-subtle, ButtonBorder)
+      );
+    display: flex;
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-area: footer;
+    justify-content: flex-end;
+    padding-block-start: var(--slotted-space-4, 0.5rem);
+  }
+
+  /* ── Narrow, on a finger ──────────────────────────────────────────────
+   *
+   * §2.7 of `docs/component-features.md` asks for it by name: a popover on the
+   * desktop and a sheet in a narrow viewport. The DOM does not change, so the
+   * decision is testable without a device.
+   */
+  @media (max-width: 480px) and (pointer: coarse) {
+    [data-ui-date-range-picker][data-part-positioner][data-presentation='sheet'] {
+      /* A sheet is not placed against an anchor, it is placed against the
+         screen. */
+      inset: auto 0 0;
+      position: fixed;
+      translate: 0 var(--slotted-space-9, 2rem);
+    }
+
+    [data-ui-date-range-picker][data-part-positioner][data-presentation='sheet'][data-open] {
+      translate: 0 0;
+    }
+
+    [data-ui-date-range-picker][data-part-positioner][data-presentation='sheet']
+      [data-part-content] {
+      border-end-end-radius: 0;
+      border-end-start-radius: 0;
+      border-inline: 0;
+      border-block-end: 0;
+      inline-size: var(--slotted-date-range-picker-sheet-inline-size, 100%);
+      max-inline-size: none;
+      /* Two months wider than the screen would scroll sideways; the grid
+         inside answers its own width and drops to one column instead. */
+      justify-content: center;
+    }
+
+    [data-ui-date-range-picker][data-part-positioner][data-presentation='sheet']
+      [data-part-presets] {
+      /* Beside the grid there is no room for a column of shortcuts, so they
+         become a row above it and keep their labels. */
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    /**
+     * The grip every bottom sheet carries, in the drawer's geometry and line
+     * colour: a pill three rem by a quarter, centred in a row one target tall
+     * that the content keeps clear at its top. A pull down on it dismisses the
+     * sheet; Escape and the press outside stay the accessible ways out.
+     */
+    [data-ui-date-range-picker][data-part-positioner][data-presentation='sheet']
+      > [data-part-content] {
+      padding-block-start: var(--slotted-target-min, 24px);
+      position: relative;
+    }
+
+    [data-ui-date-range-picker][data-part-positioner][data-presentation='sheet']
+      > [data-part-content]
+      > [data-part-grip] {
+      background-clip: content-box;
+      background-color: var(
+        --slotted-drawer-resizer-line-color,
+        var(--slotted-border-strong, ButtonBorder)
+      );
+      block-size: var(--slotted-space-2, 0.25rem);
+      border-radius: var(--slotted-radius-full, 9999px);
+      box-sizing: content-box;
+      cursor: grab;
+      inline-size: var(--slotted-space-11, 3rem);
+      inset-block-start: 0;
+      inset-inline: 0;
+      margin-inline: auto;
+      padding-block: calc((var(--slotted-target-min, 24px) - var(--slotted-space-2, 0.25rem)) / 2);
+      position: absolute;
+      touch-action: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    /* A transparent border has no system colour to be remapped to, so the
+       `plain` frame would lose its only edge where an edge matters most. */
+    [data-ui-date-range-picker][data-part-root][data-variant='plain'] [data-part-control] {
+      border-color: ButtonBorder;
+    }
+
+    /* The underline is painted with a background, and forced colours replace
+       a background that is not one of the system's own. */
+    [data-ui-date-range-picker] [data-part-start]::after,
+    [data-ui-date-range-picker] [data-part-end]::after {
+      forced-color-adjust: none;
+    }
+
+    /* The underline keeps its ink as the text's own: a tone has nothing to
+       map to here, and `currentcolor` is whatever the system gave the frame. */
+    [data-ui-date-range-picker] [data-part-start]::after,
+    [data-ui-date-range-picker] [data-part-end]::after {
+      background-color: currentcolor;
+    }
+
+    /* A tinted ground has nothing to tint in a palette the system replaced;
+       the selected shortcut takes the pair the system keeps legible. */
+    [data-ui-date-range-picker] [data-part-preset][data-selected] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+  }
+}

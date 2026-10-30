@@ -1,0 +1,54 @@
+---
+import { appliesToMember, type ApiRow, type Member } from '../../lib/reference';
+
+interface Props {
+  label: string;
+  rows: readonly ApiRow[];
+  member: Member;
+}
+
+const { label, rows, member } = Astro.props;
+
+/* A union breaks between its members, never inside one. */
+const unionMembers = (type: string) => type.split(' | ');
+/* A default is code when it is one value, prose when it is a sentence. */
+const isCode = (value: string) => value !== '—' && !/\s/.test(value);
+---
+
+{/*
+  A list rather than a four-column table: the descriptions are paragraphs, and a
+  column narrow enough to sit beside the name, the type and the default read as a
+  ribbon of three words a line. Each entry is its signature on one line and its
+  description at the column's full measure.
+*/}
+<dl class="docs-props" aria-label={label}>
+  {
+    rows.map((row) => (
+      <div class="docs-prop">
+        <dt class="docs-prop-head">
+          <code class="docs-prop-name">{row.name}</code>
+          <code class="docs-prop-type">
+            {unionMembers(row.type).map((part, index) => (
+              <>
+                {index > 0 && ' | '}
+                <span>{part}</span>
+              </>
+            ))}
+          </code>
+          {row.defaultValue !== '—' && (
+            <span class="docs-prop-default">
+              Default{' '}
+              {isCode(row.defaultValue) ? <code>{row.defaultValue}</code> : row.defaultValue}
+            </span>
+          )}
+        </dt>
+        <dd class="docs-prop-body">
+          {!appliesToMember(row.appliesTo, member) && (
+            <span class="docs-ref-applies">On {row.appliesTo}</span>
+          )}
+          {row.description}
+        </dd>
+      </div>
+    ))
+  }
+</dl>

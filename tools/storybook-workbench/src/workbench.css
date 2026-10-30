@@ -1,0 +1,2036 @@
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+
+:root {
+  --slotted-workbench-canvas: #eef1f5;
+  --slotted-workbench-panel: #ffffff;
+  --slotted-workbench-panel-subtle: #f6f7f9;
+  --slotted-workbench-panel-strong: #eaedf2;
+  --slotted-workbench-border: #d8dde6;
+  --slotted-workbench-border-strong: #c3cad6;
+  --slotted-workbench-text: #171a21;
+  --slotted-workbench-muted: #5f6878;
+  --slotted-workbench-accent: #4656c9;
+  --slotted-workbench-code: #11151d;
+  --slotted-workbench-scene-gap: clamp(20px, 2.6vw, 34px);
+
+  /**
+   * Mirrors `fonts.ts`, which explains why `ui-monospace` is absent from the
+   * code stack. `workbench.styles.test.mjs` holds the two copies equal.
+   */
+  --slotted-workbench-font-sans: 'Geist Variable', Geist, ui-sans-serif, system-ui, sans-serif;
+  --slotted-workbench-font-code:
+    'Geist Mono Variable', 'Geist Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono',
+    monospace;
+
+  font-family: var(--slotted-workbench-font-sans);
+}
+
+[data-slotted-scheme='dark'] {
+  --slotted-workbench-canvas: #09090b;
+  --slotted-workbench-panel: #111113;
+  --slotted-workbench-panel-subtle: #18181b;
+  --slotted-workbench-panel-strong: #27272a;
+  --slotted-workbench-border: #27272a;
+  --slotted-workbench-border-strong: #3f3f46;
+  --slotted-workbench-text: #fafafa;
+  --slotted-workbench-muted: #a1a1aa;
+  --slotted-workbench-accent: #d4d4d8;
+  --slotted-workbench-code: #050506;
+}
+
+.slotted-workbench-preview,
+.slotted-workbench-preview * {
+  box-sizing: border-box;
+}
+
+.slotted-workbench-preview {
+  background: var(--slotted-workbench-canvas);
+  color: var(--slotted-workbench-text);
+  min-block-size: 100vh;
+  padding: 24px;
+}
+
+/**
+ * The box a story is mounted in, whatever the renderer calls it.
+ *
+ * Storybook's Angular renderer mounts each story in a custom element named
+ * after the story id, and an unknown element is `display: inline` until
+ * something says otherwise. An inline box establishes no width of its own, so
+ * the intrinsic width of what is inside travels up instead: a `table` whose
+ * columns want 3823 pixels made the story canvas 3901 pixels wide inside a
+ * 1265-pixel page, and every scene on the reference page was drawn past the
+ * right edge and clipped. The same story rendered by React was 1265, because
+ * React mounts into a `div`.
+ *
+ * It is written as "the element that holds the preview" rather than as a list
+ * of renderer element names, so a renderer that invents another wrapper is
+ * covered by the same rule. Measured on `components-table--reference` at 1280
+ * pixels on 2026-09-09.
+ */
+:has(> .slotted-workbench-preview) {
+  display: block;
+  max-inline-size: 100%;
+}
+
+/**
+ * A story inside a reference page still needs a margin. Zero was the correction
+ * for a story that filled the viewport, and it overshot: the demonstration then
+ * started on the canvas border, and every scene header and every stage edge sat
+ * against it.
+ */
+.slotted-workbench-preview--embedded {
+  background: transparent;
+  min-block-size: 0;
+  padding: 16px;
+}
+
+.slotted-workbench-preview ::selection {
+  background: color-mix(in srgb, var(--slotted-workbench-accent) 28%, transparent);
+  color: var(--slotted-workbench-text);
+}
+
+/**
+ * The page's own controls take the page's grey ring. A family's controls do
+ * not: this rule is unlayered, so it outranked `slotted.components` on every
+ * `button` inside a demonstration, and a focused `Button` in the `dark` scheme
+ * read `#d4d4d8` where `--slotted-focus-ring-color` says `#60a5fa` (R3). The
+ * ring a demonstration shows is the one the family ships, so `[data-ui]` roots
+ * and their descendants are stood out of.
+ */
+.slotted-workbench-preview
+  :where(button, a, summary):where(:not([data-ui], [data-ui] *)):focus-visible,
+.slotted-matrix-scroll:focus-visible,
+.slotted-api-scroll:focus-visible,
+.slotted-token-scroll:focus-visible {
+  outline: 2px solid var(--slotted-workbench-accent);
+  outline-offset: 2px;
+}
+
+.slotted-reference-page {
+  background: var(--slotted-workbench-panel);
+  border: 1px solid var(--slotted-workbench-border);
+  border-radius: 14px;
+  margin-inline: auto;
+  max-inline-size: 1480px;
+  overflow: clip;
+}
+
+.slotted-reference-page__header {
+  background: var(--slotted-workbench-panel-subtle);
+  border-block-end: 1px solid var(--slotted-workbench-border);
+  padding: clamp(26px, 3vw, 38px) clamp(24px, 3.2vw, 42px);
+}
+
+.slotted-reference-page__header > p {
+  margin: 12px 0 0;
+  max-inline-size: 72ch;
+}
+
+.slotted-reference-page__section {
+  display: grid;
+  gap: clamp(24px, 3vw, 42px);
+  grid-template-columns: minmax(160px, 0.22fr) minmax(0, 1fr);
+  padding: clamp(24px, 2.6vw, 34px) clamp(24px, 3.2vw, 42px);
+}
+
+.slotted-reference-page__section + .slotted-reference-page__section {
+  border-block-start: 1px solid var(--slotted-workbench-border);
+}
+
+.slotted-reference-page__section-content {
+  min-inline-size: 0;
+}
+
+/**
+ * The page's own two headings — the title in the header and the label of
+ * each section — addressed as the page's children rather than as every `h1`
+ * and `h2` under it. Written as bare elements, the section label reached the
+ * heading a family renders inside a demonstration: the reset returns type
+ * and ink to the family, and `margin`, `align-self` and `letter-spacing` are
+ * not in it, so `notification-center`'s `h2` lost the `margin-inline-end:
+ * auto` that keeps its title at the start of the header and was drawn at
+ * the end of the row.
+ */
+.slotted-reference-page__title-row > h1 {
+  font-size: clamp(28px, 3vw, 38px);
+  font-weight: 720;
+  letter-spacing: -0.035em;
+  line-height: 1.06;
+  margin: 0;
+}
+
+.slotted-reference-page__section > h2 {
+  align-self: start;
+  font-size: 14px;
+  font-weight: 720;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  margin: 2px 0 0;
+}
+
+.slotted-reference-page p,
+.slotted-reference-page li {
+  color: var(--slotted-workbench-muted);
+  font-size: 13.5px;
+  line-height: 1.62;
+}
+
+/**
+ * The page's prose styling stops at the demonstration.
+ *
+ * `.slotted-reference-page p` is the reference page's own paragraph: muted,
+ * 13.5 pixels, and right for the sentence under a heading. It was also reaching
+ * every paragraph a family renders inside a canvas — `alert`'s description is a
+ * `p`, and on its own reference page it was drawn in the workbench's muted grey
+ * at the workbench's own type size. On a `solid` alert that is grey on a
+ * saturated ground: the one place a reader looks to judge the family was
+ * showing a contrast the family does not ship.
+ *
+ * A layer cannot fix this from the component's side. `@layer slotted.components`
+ * loses to every unlayered rule by construction, which is what lets an
+ * application retune the library — so the page that hosts the demonstration is
+ * the only place that can stand out of its way.
+ *
+ * `inherit` was the first answer to that, and it answered the wrong question:
+ * it does not restore the family's own declaration, it takes the workbench's.
+ * `inline-message` is a `p`, so a field error was drawn at the page's 16 pixels
+ * in the page's ink instead of at 12 pixels in the danger ink — the one place a
+ * reader opens to judge an error message showed neither its size nor its
+ * colour, and its mark was the only part of it still painted in red.
+ * `revert-layer` rolls each property back to `slotted.components` instead, so
+ * the family paints what it declares and inherits what it leaves open.
+ *
+ * The reset is addressed to library elements — a `[data-ui]` root, and anything
+ * inside one — so a demonstration's own prose in the same stage keeps the
+ * page's voice. Two attribute selectors is one more than
+ * `.slotted-reference-page p` carries, which is the rule this has to outrank.
+ *
+ * A demonstration primitive inside a library element is not a library element,
+ * and it is excluded. `app-shell` projects a product's own rows into its
+ * regions, and every one of them is a descendant of `[data-ui="app-shell"]`:
+ * the reset reverted their `font-size` to a layer that declares none and the
+ * rows were drawn at the page's sixteen pixels in the user agent's button face
+ * — the navigation the reviewer read as large and careless. The primitives'
+ * declarations are not the noise the reset exists to clear; they are the
+ * demonstration.
+ */
+.slotted-workbench-preview :is([data-ui], [data-ui] *):not([class*='slotted-demo-']),
+.slotted-reference-page :is([data-ui], [data-ui] *):not([class*='slotted-demo-']) {
+  color: revert-layer;
+  font-family: revert-layer;
+  font-size: revert-layer;
+  font-weight: revert-layer;
+  line-height: revert-layer;
+}
+
+.slotted-reference-page ul {
+  margin: 0;
+  padding-inline-start: 18px;
+}
+
+.slotted-reference-page li + li {
+  margin-block-start: 7px;
+}
+
+/**
+ * The two rules above are for the page's own prose lists — the accessibility
+ * notes and the composition surface — and they were reaching into every
+ * demonstration as well: a `ul` a family renders took eighteen pixels of inset
+ * *per level*, and every `li` after the first took seven pixels of margin.
+ *
+ * `tree` is where it became visible, because its guide line spans one row: a
+ * margin between rows broke the line into segments, and an inset per level
+ * walked every line inward as the tree got deeper. It was not a tree defect —
+ * `list`, `list-item` and `breadcrumb` had been carrying the same two numbers
+ * on their own reference pages, and nothing in either family said so.
+ *
+ * `revert-layer` rather than `0`, for the reason the block above uses it: it
+ * rolls the property back to `slotted.components`, so a family that does state
+ * an inset for its own list — `prose` states several — keeps the one it
+ * declares instead of being flattened to nothing.
+ */
+.slotted-reference-page :is([data-ui] :is(ul, ol), ul[data-ui], ol[data-ui]) {
+  padding-inline-start: revert-layer;
+}
+
+.slotted-reference-page [data-ui] li + li {
+  margin-block-start: revert-layer;
+}
+
+.slotted-reference-page__title-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.slotted-framework-badge {
+  background: var(--slotted-workbench-panel);
+  border: 1px solid var(--slotted-workbench-border-strong);
+  border-radius: 4px;
+  color: var(--slotted-workbench-muted);
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  padding: 4px 7px;
+  text-transform: uppercase;
+}
+
+.slotted-component-lab {
+  background: var(--slotted-workbench-panel);
+  border: 1px solid var(--slotted-workbench-border);
+  border-radius: 12px;
+  inline-size: 100%;
+  margin-inline: auto;
+  max-inline-size: 1480px;
+  overflow: clip;
+}
+
+.slotted-component-lab__section {
+  display: grid;
+  gap: clamp(24px, 3vw, 40px);
+  grid-template-columns: minmax(150px, 0.24fr) minmax(0, 1fr);
+  padding: clamp(22px, 2.6vw, 34px);
+}
+
+.slotted-component-lab__section + .slotted-component-lab__section {
+  border-block-start: 1px solid var(--slotted-workbench-border);
+}
+
+.slotted-component-lab__intro {
+  align-self: start;
+}
+
+.slotted-component-lab__intro h2 {
+  font-size: 15px;
+  font-weight: 730;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.slotted-component-lab__intro p {
+  color: var(--slotted-workbench-muted);
+  font-size: 12.5px;
+  line-height: 1.55;
+  margin: 7px 0 0;
+  max-inline-size: 26ch;
+}
+
+.slotted-component-lab__body {
+  min-inline-size: 0;
+}
+
+/**
+ * One column by default. Two used to be, and a scene that never asked for a
+ * width was reviewed at half the page — which is the whole page for a badge and
+ * far too little for anything that reflows. A component judged with more room
+ * than it will get is a mild inaccuracy; one judged in a third of the room it
+ * needs breaks in the picture and is corrected against a constraint the
+ * consumer will never impose. Asking for two or three is for members narrow
+ * enough to sit beside each other: a badge, a key, a chip, an avatar.
+ */
+.slotted-demo-grid {
+  display: grid;
+  gap: var(--slotted-workbench-scene-gap);
+  grid-auto-rows: auto;
+  grid-template-columns: repeat(var(--slotted-demo-columns, 1), minmax(0, 1fr));
+}
+
+.slotted-demo-grid[data-columns='2'] {
+  --slotted-demo-columns: 2;
+}
+
+.slotted-demo-grid[data-columns='3'] {
+  --slotted-demo-columns: 3;
+}
+
+.slotted-demo-scene {
+  display: grid;
+  min-inline-size: 0;
+}
+
+/**
+ * Two scenes side by side start their stages on the same line, whatever their
+ * captions say. Without the subgrid a three-line note pushed one stage lower
+ * than the one beside it, and the reader compared two components that were not
+ * on the same baseline — which is the one thing a comparison must not do.
+ *
+ * The alignment is asked for only where a grid can answer it. `subgrid` means
+ * nothing to an element that is not a grid item, and a section holding a single
+ * scene lays its body out as a block: there the declaration stopped the stage
+ * from growing past its own `min-block-size`, and a matrix five rows tall was
+ * drawn out of an 88-pixel box and over the two scenes beneath it.
+ */
+.slotted-demo-grid > .slotted-demo-scene {
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+}
+
+.slotted-demo-grid > .slotted-demo-scene[data-span='full'] {
+  grid-column: 1 / -1;
+}
+
+.slotted-demo-scene__header {
+  margin-block-end: 10px;
+  min-block-size: 39px;
+}
+
+.slotted-demo-scene__label {
+  color: var(--slotted-workbench-text);
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.slotted-demo-scene__note {
+  color: var(--slotted-workbench-muted);
+  display: block;
+  font-size: 11.5px;
+  line-height: 1.45;
+  margin-block-start: 3px;
+}
+
+/**
+ * The stage is a layout primitive, not a box with padding. Two demonstrations
+ * placed side by side used to touch unless the story remembered to wrap them
+ * in a row or a stack, and the ones that forgot were reviewed as if the
+ * component had no margin of its own. The gap is the stage's, so forgetting is
+ * no longer possible; `data-layout` chooses the direction, and a story that
+ * needs a different distance sets `--slotted-demo-gap` rather than writing an
+ * inline style.
+ */
+.slotted-demo-stage {
+  align-items: center;
+  background: var(--slotted-workbench-panel-subtle);
+  border: 1px solid var(--slotted-workbench-border);
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--slotted-demo-gap, 12px);
+  inline-size: 100%;
+  min-block-size: 88px;
+  min-inline-size: 0;
+  padding: clamp(16px, 2vw, 22px);
+}
+
+/**
+ * Everything placed on a stage shrinks to it. A story that wraps a wide thing
+ * — a matrix that declares a 760-pixel minimum, a table, a long row — in a
+ * plain `div` hands the stage a flex item whose `min-width` is `auto`, and the
+ * item then refuses to shrink and reaches out over whatever sits beside it.
+ * The stage answers for its own children rather than trusting each story to
+ * remember.
+ */
+.slotted-demo-stage > * {
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.slotted-demo-stage[data-align='start'] {
+  align-items: flex-start;
+}
+
+/** A column of examples: every child on its own line, none of them stretched. */
+.slotted-demo-stage[data-layout='stack'] {
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+/**
+ * A column whose children fill it, for a family whose members are blocks.
+ *
+ * `stack` is a column of things that keep their own width, which is right for a
+ * chip or a key and wrong for a message: `alert` declares
+ * `container-type: inline-size`, so its intrinsic width is zero by design, and
+ * on a stage that shrink-wraps its children every alert collapsed to one
+ * character wide and broke its text one letter per line. The collapse then
+ * travelled outwards — a painted surface holding one shrank with it — which is
+ * why this is a layout of its own rather than an override each story writes.
+ */
+.slotted-demo-stage[data-layout='block'] {
+  align-items: stretch;
+  flex-direction: column;
+  /**
+   * A column of blocks never wraps, and saying so is what keeps the stage's
+   * height honest. The stage is a grid item, so the grid hands it a definite
+   * block size; a wrapping column flex container with a definite main size and
+   * a stretched item resolves that circularity by growing — measured at 1292
+   * pixels for a demonstration whose content is 156 — and the whole scene grew
+   * with it. Nothing here wraps, so nothing here needs to.
+   */
+  flex-wrap: nowrap;
+}
+
+/** Running text, where the component is read inside a sentence. */
+.slotted-demo-stage[data-layout='prose'] {
+  align-items: stretch;
+  display: block;
+  font-family: var(--slotted-font-family-sans);
+  font-size: var(--slotted-font-size-md);
+  line-height: var(--slotted-line-height-md);
+}
+
+.slotted-demo-stage[data-layout='prose'] > * + * {
+  margin-block-start: var(--slotted-demo-gap, 12px);
+}
+
+.slotted-demo-stage[data-layout='prose'] p {
+  margin: 0;
+  max-inline-size: 62ch;
+}
+
+/**
+ * A surface to demonstrate on, so a story never reaches for an inline style to
+ * paint one. Every value is a foundation token, which is also what makes the
+ * demonstration answer the scheme switch in the toolbar.
+ */
+/**
+ * A painted ground examples stand on — and, like the stage, it owns the
+ * distance between them. Without the gap four shortcuts placed on an inverse
+ * surface touched each other: a surface was a plain block, and JSX siblings
+ * written on separate lines produce no whitespace text node to fall back on.
+ * The rule the stage states is that nothing placed on a ground can touch
+ * anything else; a surface is a ground.
+ */
+.slotted-demo-surface {
+  align-items: center;
+  border-radius: var(--slotted-radius-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--slotted-demo-gap, 12px);
+  padding: var(--slotted-space-5);
+}
+
+.slotted-demo-surface[data-surface='inverse'] {
+  background: var(--slotted-surface-inverse);
+  color: var(--slotted-text-inverse);
+}
+
+.slotted-demo-surface[data-surface='raised'] {
+  background: var(--slotted-surface-raised);
+  border: 1px solid var(--slotted-border-subtle);
+  color: var(--slotted-text);
+}
+
+.slotted-demo-surface[data-surface='sunken'] {
+  background: var(--slotted-surface-sunken);
+  color: var(--slotted-text);
+}
+
+/**
+ * A region that states its own colour scheme rather than inverting one surface.
+ *
+ * The two are not the same ground, and `alert` is where the difference stopped
+ * being academic. `--slotted-surface-inverse` flips one token and leaves every
+ * tone role calibrated against the page it came from, so a variant that borrows
+ * its ground borrows a foreground the theme never measured against that ground
+ * — the words go quiet. A region carrying `data-slotted-scheme` restates every
+ * token instead, which is what an application actually writes for a dark
+ * sidebar, and it is the ground a family has to be demonstrated on to show that
+ * its quiet variant survives one.
+ */
+.slotted-demo-surface[data-surface='scheme'] {
+  background: var(--slotted-surface);
+  border: 1px solid var(--slotted-border-subtle);
+  color: var(--slotted-text);
+}
+
+/**
+ * The painted ground as a column. A surface is a row by default, which is right
+ * for the chips and controls it was written for and wrong for a family whose
+ * members are blocks: two alerts side by side in a flex row are two alerts at
+ * half the width they would ever have in a page. A column never wraps, for
+ * the reason the block stage gives: a wrapping column with a definite height
+ * grows to resolve the circularity.
+ */
+.slotted-demo-surface[data-flow='stack'] {
+  align-items: stretch;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+/** A table-shaped context, for a family whose real home is a dense row. */
+.slotted-demo-rows {
+  border: 1px solid var(--slotted-border-subtle);
+  border-radius: var(--slotted-radius-md);
+  color: var(--slotted-text);
+  display: grid;
+  font-family: var(--slotted-font-family-sans);
+  font-size: var(--slotted-font-size-sm);
+  grid-template-columns: 1fr auto;
+  inline-size: 100%;
+  line-height: var(--slotted-line-height-sm);
+}
+
+.slotted-demo-rows > * {
+  align-items: center;
+  display: flex;
+  padding: var(--slotted-space-4) var(--slotted-space-5);
+}
+
+.slotted-demo-rows > *:nth-child(2n) {
+  color: var(--slotted-text-muted);
+  justify-content: flex-end;
+}
+
+.slotted-demo-rows > *:not(:nth-last-child(-n + 2)) {
+  border-block-end: 1px solid var(--slotted-border-subtle);
+}
+
+/**
+ * A row whose item is unavailable, marked on the label and reaching the value
+ * beside it. A family that lives at the end of a menu row can only be shown
+ * honestly next to a label that dims with it — `kbd`'s bare variant takes the
+ * colour of the text around it, and a row that dimmed the shortcut alone
+ * demonstrated the opposite of what the family does.
+ */
+.slotted-demo-rows > [data-disabled],
+.slotted-demo-rows > [data-disabled] + * {
+  color: var(--slotted-disabled-foreground);
+}
+
+.slotted-demo-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-inline-size: 0;
+}
+
+.slotted-demo-stack {
+  align-items: start;
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  min-inline-size: 0;
+}
+
+/**
+ * A column whose children take its width, inside a component of the story's
+ * own. A stage's block layout stretches its children, but a demonstration
+ * component is one child of the stage, and what it renders inside it had only
+ * the stack, which keeps each child at its own width: `message-scroller`'s
+ * frame and every row of a conversation were squeezed to their words.
+ */
+.slotted-demo-stack[data-stretch] {
+  justify-items: stretch;
+}
+
+/**
+ * A column of examples that is a real list. A set of choices is a list, and a
+ * family whose root can be substituted for a `li` needs somewhere valid to put
+ * it — but a `ul` brings a marker and an inset with it, and a stray bullet in a
+ * demonstration is the kind of defect a reader finds and a test does not.
+ */
+.slotted-demo-list {
+  align-items: start;
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  list-style: none;
+  margin: 0;
+  min-inline-size: 0;
+  padding: 0;
+}
+
+.slotted-demo-measure {
+  inline-size: min(100%, 360px);
+}
+
+/**
+ * A drawer's column, narrower than any family's own reflow threshold. `field`
+ * stacks a side label below 320 pixels of its own width and `alert` reflows
+ * below 360, so a demonstration of that reflow in a 360-pixel measure showed
+ * the wide layout under a caption promising the narrow one.
+ */
+.slotted-demo-measure[data-width='drawer'] {
+  inline-size: min(100%, 280px);
+}
+
+/**
+ * A box that stands in for the viewport, so a family that pins itself to an
+ * edge can be demonstrated inside a page rather than over it.
+ *
+ * `contain: paint` is the whole mechanism: it makes this element the
+ * containing block for a fixed-position descendant, which is otherwise the
+ * viewport itself. Without it a page-level progress bar renders once across
+ * the top of the reference page, over the navigation, and every scene that
+ * declares one draws in the same place.
+ *
+ * It is a preview of the composition rather than the composition: in an
+ * application the containing block *is* the viewport, and the caption of any
+ * scene using this has to say so.
+ */
+.slotted-demo-viewport {
+  background: var(--slotted-surface);
+  block-size: 4rem;
+  border: 1px dashed var(--slotted-border-subtle);
+  border-radius: 6px;
+  contain: paint;
+  inline-size: 100%;
+  /**
+   * `contain: paint` clips what escapes and does not make the box a *clipping
+   * ancestor* for a positioning engine: the engine walks `overflow`, so a layer
+   * measured inside this box was told the whole viewport was available and ran
+   * out of the scene. `tools/harness/audit.mjs` reported a 24rem panel 343
+   * pixels wide inside a 273-pixel box, which is the overflow it exists to
+   * catch. With this, the layer narrows to the room the box actually has —
+   * which is what it does in an application inside `overflow: hidden`.
+   */
+  overflow: hidden;
+  position: relative;
+}
+
+/**
+ * Four rems is enough to hold a bar across the top of a page and nothing
+ * enough to hold a panel. An overlay family — a dialog, a drawer, a sheet —
+ * needs a box tall enough for the layer to be centred in and for the scrim to
+ * read as a scrim, or every demonstration is a panel clipped at both edges.
+ *
+ * Added when `dialog` needed to show an open layer inside a scene rather than
+ * over the whole reference page.
+ */
+.slotted-demo-viewport[data-size='tall'] {
+  block-size: 22rem;
+}
+
+/**
+ * A box the size of a screen, for a family that **owns** one.
+ *
+ * Twenty-two rems is a panel with room around it. It is not a page: a page
+ * header that snaps on scroll, a shell with a rail and a content column, a
+ * split view — each of these is a whole screen's worth of decisions, and drawn
+ * in a box the height of a card it becomes a picture of something else. The
+ * reviewer's words for the version without this: a page header in four hundred
+ * by five hundred and twenty is horrible, and what it shows is not the family.
+ *
+ * The height is `80vh` rather than `100vh` because the box stands inside a
+ * documentation page that has a caption above it and a snippet below, and a
+ * demonstration that fills the window leaves no sign that either exists. The
+ * floor holds it up in a short window, where `vh` would collapse the same
+ * picture the size exists to give room to.
+ */
+.slotted-demo-viewport[data-size='screen'] {
+  block-size: min(80vh, 46rem);
+  min-block-size: 32rem;
+}
+
+/**
+ * A screen the family fills, rather than one it stands at the top of. A
+ * calendar on a phone is the whole screen: drawn at its content's height in a
+ * screen-sized box, its month ended half way down and read as a card. The
+ * child takes the box's height, and a family that has a height to give its
+ * body gives it; one that has not keeps its own.
+ */
+.slotted-demo-viewport[data-fill] > * {
+  block-size: 100%;
+}
+
+/**
+ * A window around a screen, for a family that owns one. A dashed edge says
+ * "diagram"; a solid edge, a corner and a shadow say "an application in a
+ * window", which is what the reviewer asked a shell demonstration to read as.
+ * The shadow is the workbench's own, not a foundation token: it is the page's
+ * ground casting it, and the page is not the family being demonstrated.
+ */
+.slotted-demo-viewport[data-frame='window'] {
+  border: 1px solid var(--slotted-workbench-border-strong);
+  border-radius: 10px;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.06),
+    0 12px 32px -12px rgb(0 0 0 / 0.22);
+}
+
+/**
+ * A box that **scrolls** rather than one that clips, for a family whose
+ * behaviour is about what happens while the reader scrolls past it.
+ *
+ * The plain viewport hides its overflow, which is right for a layer that must
+ * not escape and wrong for a demonstration of stickiness: `table`'s header can
+ * stay inside its own scroller or inside whatever scrolls outside it, and the
+ * second has no demonstration at all unless the story can stand a table inside
+ * something that scrolls. A story may not reach for an inline style, so the
+ * ground it needs is a primitive rather than a `style` attribute.
+ */
+.slotted-demo-viewport[data-scroll] {
+  contain: none;
+  overflow: auto;
+}
+
+/**
+ * The scrolling box read as a **page**: a column with the padding and the
+ * rhythm a screen has, so what is above and below a demonstration scrolls past
+ * it the way it would in an application.
+ *
+ * Added when `table`'s `stickyTo="page"` had nothing to stick against. A
+ * scrolling box holding only the table shows a header that never leaves, which
+ * is the same picture the family's own scroller draws — the behaviour is only
+ * legible when a heading and a paragraph scroll away above the table while the
+ * header stays. A story may not reach for an inline style, so the page it needs
+ * is a primitive rather than a `style` attribute.
+ */
+.slotted-demo-viewport[data-layout='page'] {
+  display: block;
+  /**
+   * The box that scrolls carries no padding of its own. A sticky element
+   * resolves against the scrollport **inset by the scroll container's own
+   * padding**, so a padded scroller holds a sticky header that far from the
+   * top — a gap nobody asked for and no token explains. The padding goes on
+   * the content instead, which is where a page shell puts it.
+   */
+  padding: 0;
+}
+
+/* The content of that page: the column an application lays its screen out in. */
+.slotted-demo-page {
+  display: grid;
+  gap: var(--slotted-space-5, 12px);
+  padding: var(--slotted-space-6, 1rem);
+}
+
+/* The page's own prose, with the browser's margins off: the grid already owns
+   the rhythm, and two spacings on one gap read as neither. */
+.slotted-demo-page > :is(h1, h2, h3, h4, h5, p) {
+  margin: 0;
+}
+
+/**
+ * A bar across the top of that page, held there while the page scrolls. It is
+ * what an application shell is, and it is the reason a table states where its
+ * own header stops: two sticky things at the same edge need the second to know
+ * how tall the first is.
+ */
+/**
+ * The shell owns the bar, so the shell states where a sticky header stops.
+ * `--slotted-table-sticky-offset` is set once here and every table under it
+ * stops below the bar rather than under it — which is the whole of how that
+ * token is meant to be used, and what a page with no bar leaves at nought.
+ */
+.slotted-demo-page:has(> .slotted-demo-page__bar) {
+  --slotted-table-sticky-offset: 2.5rem;
+}
+
+.slotted-demo-page__bar {
+  align-items: center;
+  background: var(--slotted-surface);
+  border-block-end: 1px solid var(--slotted-border-subtle);
+  display: flex;
+  font-weight: 600;
+  inset-block-start: 0;
+  justify-content: space-between;
+  margin-inline: calc(var(--slotted-space-6, 1rem) * -1);
+  min-block-size: 2.5rem;
+  padding-inline: var(--slotted-space-6, 1rem);
+  position: sticky;
+  z-index: 2;
+}
+
+/**
+ * A region drawn as itself: a dashed outline and the part's own name.
+ *
+ * A reference page made of finished screens cannot say which lines the family
+ * draws and which the demonstration brought — `app-shell`'s reviewer asked for
+ * exactly that separation, having read fourteen scenes of a logistics product
+ * without ever seeing the frame on its own. The primitive is the frame's
+ * content reduced to a label, so the scene beside it is the same anatomy with
+ * a product in it.
+ */
+.slotted-demo-slot {
+  align-items: center;
+  block-size: 100%;
+  border: 1px dashed var(--slotted-border-subtle);
+  border-radius: var(--slotted-radius-sm);
+  color: var(--slotted-text-muted);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--slotted-font-family-mono);
+  font-size: var(--slotted-font-size-xs);
+  /* The bar's brand part sets a weight, and a label is not the thing it
+     labels: every slot reads at the same weight wherever it stands. */
+  font-weight: var(--slotted-font-weight-regular);
+  gap: var(--slotted-space-1);
+  justify-content: center;
+  min-block-size: var(--slotted-control-height-md);
+  /* A slot gives way where a control would not: the bar keeps a control's
+     width and lets what is beside it shrink, and a slot is what is beside it. */
+  flex-shrink: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  padding: var(--slotted-space-3);
+  text-align: center;
+}
+.slotted-demo-slot > * {
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/**
+ * A region whose box is the whole track it stands in, rather than the width of
+ * its own label: a frame's content region is not a chip in a row.
+ */
+.slotted-demo-slot[data-fill] {
+  flex: 1 1 auto;
+  inline-size: 100%;
+}
+/** What the part is for, in the reader's own face rather than in the code one. */
+.slotted-demo-slot__note {
+  font-family: var(--slotted-font-family-sans);
+  font-weight: var(--slotted-font-weight-regular);
+}
+/* The extra ancestor is the same one the destination rows need, and for the
+   same reason: the preview reverts `color` inside a `[data-ui]` subtree. */
+[data-ui] .slotted-demo-slot,
+.slotted-demo-slot {
+  color: var(--slotted-text-muted);
+}
+
+/**
+ * A height for a demonstration that has to overflow. A story may not write one
+ * inline — an inline length answers no density and no scheme — and a scroller
+ * with no height has nothing to scroll, so the two demands meet in a primitive.
+ */
+.slotted-demo-bound {
+  max-block-size: 13rem;
+}
+
+.slotted-demo-bound--tall {
+  max-block-size: 22rem;
+}
+
+/**
+ * A frame for a demonstration whose family paints none of its own. A scroll
+ * area is the box a product puts a border round, and the border is the thing
+ * its anatomy decision is about — the frame on one element and the veil on
+ * another — so a page that never shows one has not shown the decision. A story
+ * may not write the border inline, and a frame drawn in a literal answers no
+ * scheme; this reads the foundation's own edge and radius.
+ */
+.slotted-demo-frame {
+  border: 1px solid var(--slotted-border-subtle);
+  border-radius: var(--slotted-radius-md);
+}
+
+/**
+ * The step between the two. Four rems holds a bar across the top of a page and
+ * twenty-two holds a dialog; a layer anchored beside its own trigger needs
+ * neither, and `tooltip`'s first rendered page showed why — a 34-pixel button
+ * at the top of a 352-pixel box, and the rest of the box blank. That is the
+ * empty canvas `.claude/skills/component/references/stories.md` refuses.
+ */
+.slotted-demo-viewport[data-size='layer'] {
+  block-size: 13rem;
+}
+
+/**
+ * A screen as tall as what it holds. A dashboard owns a screen's width and
+ * decides its own height — four figures and a chart are three hundred pixels
+ * at twelve columns and fourteen hundred at one — so every fixed step either
+ * clips it or leaves the empty canvas the page contract refuses. The room
+ * still states the width; this lets the height follow, with the inset a page
+ * gives its content.
+ *
+ * Added when `dashboard-grid` needed its three size classes shown in rooms.
+ */
+.slotted-demo-viewport[data-size='content'] {
+  block-size: auto;
+  padding: var(--slotted-space-6);
+}
+
+/**
+ * Puts what the box holds in the middle of it, at any size.
+ *
+ * An anchored family is demonstrated by opening a layer beside its trigger, so
+ * the trigger belongs in the centre and the layer has room on either side of
+ * it. A family that pins something to an edge of the box wants the opposite,
+ * which is why this is an attribute of its own rather than part of a height.
+ */
+.slotted-demo-viewport[data-place='center'] {
+  align-items: center;
+  display: grid;
+  justify-items: center;
+}
+
+/**
+ * The same, with the trigger held near the top instead of the middle. A layer
+ * that opens *below* its trigger and is taller than the trigger — a popover
+ * panel, where a tooltip is one line — needs the room under it rather than
+ * around it, and a centred trigger clipped the panel against the bottom of the
+ * box.
+ */
+.slotted-demo-viewport[data-place='top'] {
+  align-items: start;
+  display: grid;
+  justify-items: center;
+  padding-block-start: var(--slotted-space-6, 1rem);
+}
+
+/**
+ * The same box as two tracks: a panel in the flow and the page beside it.
+ *
+ * It is the shape an *inline* drawer lives in, and it has to be written out
+ * rather than hidden inside a family's own stylesheet, because it is what
+ * replaces Angular Material's `push` and MUI's `persistent`. The sibling
+ * reflows because this grid says so, not because the family wrote a margin on
+ * an element it does not own — and a demonstration that hid the grid would be
+ * claiming the family does something it deliberately does not.
+ *
+ * Added when `drawer` needed to show a persistent panel beside a page.
+ */
+.slotted-demo-viewport[data-layout='shell'] {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+/**
+ * The page half of it. The primitive owns both tracks, or a story would have to
+ * reach for an inline style to keep its own text off the panel's edge — which
+ * is the thing `specs/reference-pages.test.mjs` refuses, and rightly: an inline
+ * padding answers no density and no scheme.
+ */
+.slotted-demo-viewport[data-layout='shell'] > :last-child {
+  min-inline-size: 0;
+  padding: var(--slotted-space-6);
+}
+
+/**
+ * Two regions with a movable boundary between them, which is the only ground a
+ * separator can be demonstrated on: a bar with nothing either side of it shows
+ * nothing, and a bar whose regions are painted by a story reaches for the
+ * inline style `specs/reference-pages.test.mjs` refuses.
+ *
+ * The first region's measure is `--slotted-splitter-value`, which is the
+ * property `splitter` writes on the element it was handed. The primitive reads
+ * it rather than setting it, so the picture is driven by the family under
+ * demonstration and by nothing else — a workspace that held its own number
+ * would be a workspace that still moved with the family removed.
+ *
+ * A fallback is stated because the property is absent until the family's first
+ * effect runs, and a region with no measure at all collapses the demonstration
+ * for one frame.
+ */
+.slotted-demo-workspace {
+  display: flex;
+  min-block-size: 0;
+  overflow: hidden;
+  border: var(--slotted-border-width-thin) solid var(--slotted-border-subtle);
+  border-radius: var(--slotted-radius-md);
+  block-size: 100%;
+}
+
+.slotted-demo-workspace[data-orientation='horizontal'] {
+  flex-direction: column;
+}
+
+/**
+ * The region the bar sizes. It takes the property; the one after it takes
+ * whatever is left, so a consumer's own layout never has to hold two numbers
+ * that must agree.
+ */
+.slotted-demo-workspace__region {
+  flex: none;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: auto;
+  padding: var(--slotted-space-5);
+  background: var(--slotted-surface-sunken);
+  inline-size: calc(var(--slotted-splitter-value, 0.34) * 100%);
+}
+
+.slotted-demo-workspace[data-orientation='horizontal'] > .slotted-demo-workspace__region {
+  inline-size: auto;
+  block-size: calc(var(--slotted-splitter-value, 0.34) * 100%);
+}
+
+/** Whatever the region and the bar leave. */
+.slotted-demo-workspace__body {
+  flex: 1;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: auto;
+  padding: var(--slotted-space-5);
+}
+
+/**
+ * The box a family that pins something to a scroll container is demonstrated
+ * inside. A sticky heading holds still only while something scrolls past it,
+ * and a page-length stage cannot show that in a screenshot: the reader has to
+ * be able to scroll a few rows without scrolling the page.
+ *
+ * Added when `list` needed to show a group heading staying put over its own
+ * rows. The height is short on purpose — enough content has to run past the
+ * heading for the behaviour to be visible in one view.
+ */
+.slotted-demo-scroll {
+  background: var(--slotted-surface);
+  block-size: 12rem;
+  border: 1px dashed var(--slotted-border-subtle);
+  border-radius: 6px;
+  inline-size: 100%;
+  overflow: auto;
+}
+
+/**
+ * The room a screen is read in, stated by the scene rather than taken from the
+ * page.
+ *
+ * A family that answers its own width cannot be demonstrated at whatever width
+ * the documentation column happens to be. `top-navigation` folds at three
+ * steps — 1024, 768 and 480 pixels — and the column is about a thousand pixels
+ * at a 1280 window with the sidebar open: the bar's widest step never showed,
+ * and inside a two- or three-column grid every step had folded, so the page
+ * demonstrated one picture eighteen times. The reviewer's words: nothing fits,
+ * everything is squeezed by the width.
+ *
+ * So the scene names the room — one of four a reader recognises — and the
+ * viewport inside takes that width whatever the page gives. Where the page is
+ * narrower than the room, the room scrolls sideways, which is what the matrix
+ * does with a table wider than the column; `tools/harness/audit.mjs` reads a
+ * box that scrolls as one that owns its overflow. The four widths are literal
+ * because they are what the rooms are, not steps of any family's scale: a
+ * family's own breakpoints stand in its stylesheet, and a scene picks the room
+ * that lands where it wants to be seen. The desktop is the narrowest desktop
+ * rather than the widest, because the page's column is about 1030 pixels at a
+ * 1920 window and a room the column cannot hold is a room the reader scrolls.
+ */
+.slotted-demo-room {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  padding-block-end: 4px;
+  scrollbar-color: var(--slotted-workbench-border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.slotted-demo-room > .slotted-demo-viewport {
+  /* The stated width is the room the family gets, borders outside it: a bar
+     whose widest step is 1024 has to be 1024 in a room named 1024. */
+  box-sizing: content-box;
+  flex: none;
+  inline-size: var(--slotted-demo-room);
+}
+
+/* A desktop monitor, for a family whose widest step starts at 1024 pixels of
+   its own width and is shown on a ground inset inside the room. */
+.slotted-demo-room[data-room='wide'] {
+  --slotted-demo-room: 1280px;
+}
+
+.slotted-demo-room[data-room='desktop'] {
+  --slotted-demo-room: 1024px;
+}
+
+.slotted-demo-room[data-room='laptop'] {
+  --slotted-demo-room: 900px;
+}
+
+.slotted-demo-room[data-room='tablet'] {
+  --slotted-demo-room: 640px;
+}
+
+.slotted-demo-room[data-room='phone'] {
+  --slotted-demo-room: 375px;
+}
+
+/**
+ * One demonstration: caption, canvas, source. The three belong together and
+ * are spaced as one unit, so a page of eight demonstrations reads as eight
+ * things rather than twenty-four.
+ */
+.slotted-reference-scenes {
+  display: grid;
+  gap: calc(var(--slotted-workbench-scene-gap) * 1.4);
+}
+
+.slotted-reference-scene__header {
+  margin-block-end: 10px;
+}
+
+.slotted-reference-scene__header h3 {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.slotted-reference-scene__header p {
+  color: var(--slotted-workbench-muted);
+  font-size: 12.5px;
+  line-height: 1.55;
+  margin: 4px 0 0;
+  max-inline-size: 68ch;
+}
+
+.slotted-reference-scene .slotted-code-drawer {
+  margin-block-start: 10px;
+}
+
+.slotted-reference-import {
+  display: grid;
+}
+
+/**
+ * An import statement is one long line and a table cell can hold a token
+ * longer than its column. Both used to run past the right edge of the page,
+ * where a scroll container clipped them without saying so — the reader saw a
+ * sentence that stopped mid-word.
+ *
+ * The highlighter ships its own block; what it does not ship is a guarantee
+ * that the line wraps rather than disappearing under the edge.
+ *
+ * The `code` inside needs the rule as much as the `pre` does, and the first
+ * version of this fix gave it only to the `pre`. The docs theme sets
+ * `white-space: pre` on the inner element, which beats inheritance, so a
+ * hundred-character import grew the block to 771 pixels inside a 710-pixel
+ * column and the last words of it were clipped by an ancestor. One family's
+ * page showed the defect; every page with a long import had it.
+ */
+.slotted-reference-import pre,
+.slotted-reference-import pre code {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+/**
+ * The highlighted block sits inside the drawer, so the drawer's own corner and
+ * ground stay the ones the reader sees. Its padding is the drawer's decision:
+ * code that starts on the border of its box is code nobody can read the first
+ * character of.
+ */
+/**
+ * The palette the local highlighter paints with. One colour per kind, chosen
+ * against the code ground rather than inherited from a theme that only exists
+ * inside a rendered docs page.
+ */
+.slotted-code-drawer__source [data-token='comment'],
+.slotted-reference-import [data-token='comment'] {
+  color: #71717a;
+}
+
+.slotted-code-drawer__source [data-token='string'],
+.slotted-reference-import [data-token='string'] {
+  color: #a3e635;
+}
+
+.slotted-code-drawer__source [data-token='keyword'],
+.slotted-reference-import [data-token='keyword'] {
+  color: #c084fc;
+}
+
+.slotted-code-drawer__source [data-token='tag'],
+.slotted-reference-import [data-token='tag'] {
+  color: #60a5fa;
+}
+
+.slotted-code-drawer__source [data-token='attr'],
+.slotted-reference-import [data-token='attr'] {
+  color: #fbbf24;
+}
+
+.slotted-code-drawer__source [data-token='property'],
+.slotted-reference-import [data-token='property'] {
+  color: #67e8f9;
+}
+
+.slotted-code-drawer__source [data-token='number'],
+.slotted-reference-import [data-token='number'] {
+  color: #fda4af;
+}
+
+.slotted-code-drawer__source,
+.slotted-reference-import pre {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font: 12.5px/1.65 var(--slotted-workbench-font-code) !important;
+  margin: 0 !important;
+  padding: 16px 18px 20px !important;
+  tab-size: 2;
+}
+
+.slotted-code-drawer__source {
+  overflow: auto;
+}
+
+/**
+ * The block declares the monospaced family; nothing inside it inherited that.
+ * The user-agent sheet gives `<code>` its own `font-family: monospace`, and the
+ * docs theme gives every highlighted token span its own `fontBase` — the sans
+ * stack. Both beat inheritance, so the snippet a reader copies was set in a
+ * proportional face: `import` and `<Button` never lined up under each other,
+ * which is the one thing a code block is for.
+ */
+.slotted-code-drawer__source code,
+.slotted-code-drawer__source code *,
+.slotted-reference-import pre code,
+.slotted-reference-import pre code * {
+  font: inherit;
+}
+
+.slotted-code-drawer__source > *,
+.slotted-reference-import > * {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+/**
+ * The highlighter offers its own copy button, positioned over the corner of a
+ * block it assumes is its own. Inside these two it lands half outside the
+ * rounded corner; the drawer already carries a copy button that works.
+ */
+.slotted-code-drawer__source button,
+.slotted-reference-import button {
+  display: none !important;
+}
+
+.slotted-reference-import {
+  background: var(--slotted-workbench-code);
+  border-radius: 8px;
+  color: #fafafa;
+  overflow: clip;
+}
+
+/**
+ * A long token breaks; a column heading does not. Allowing both to break
+ * anywhere collapsed every column to its narrowest word — "ELE MEN T" over
+ * three lines — and left the sentence in the last column no room at all.
+ */
+.slotted-api-table th,
+.slotted-token-table th {
+  white-space: nowrap;
+}
+
+.slotted-api-table td code,
+.slotted-token-table td code {
+  overflow-wrap: anywhere;
+}
+
+/**
+ * The first column holds a part name or a prop name, and breaking one of those
+ * in the middle — `data-part="ro` on one line, `ot"` on the next — is worse
+ * than the column being a little wider than its neighbours.
+ */
+.slotted-api-table td:first-child,
+.slotted-token-table td:first-child {
+  min-inline-size: 17ch;
+}
+
+/**
+ * The same argument one column over, and the reason it was missed is that no
+ * family had a long type until one did: `Ref<HTMLSpanElement | HTMLDivElement>`
+ * met a column with no floor and `overflow-wrap: anywhere`, and came out as a
+ * vertical ribbon one character wide and four hundred pixels tall. The table
+ * already scrolls; a column that is too narrow to read does not.
+ */
+.slotted-api-table td:nth-child(2) {
+  min-inline-size: 20ch;
+}
+
+.slotted-api-table td:last-child,
+.slotted-token-table td:last-child {
+  min-inline-size: 26ch;
+}
+
+/**
+ * Three corrections, all found on one rendered page rather than in this file.
+ *
+ * The padding carries `!important` for the reason the code block above it
+ * does: the docs theme resets a `dl` and wins on specificity, so the labels
+ * sat flush against the container's own edge with no inset at all.
+ *
+ * `minmax(0, 1fr)` rather than `1fr`, because a `fr` track keeps a min-content
+ * floor: a value naming three selectors made the row wider than the block and
+ * pushed the label out of line with it.
+ *
+ * `baseline`, so a label sits on the same line as the value it names instead
+ * of on the bottom of a taller row.
+ */
+.slotted-reference-import__facts {
+  align-items: baseline;
+  border-block-start: 1px solid #27272a;
+  display: grid;
+  font-size: 12px;
+  gap: 4px 14px;
+  grid-template-columns: auto minmax(0, 1fr);
+  margin: 0;
+  padding: 12px 18px 14px !important;
+}
+
+.slotted-reference-import__facts dt {
+  color: #a1a1aa;
+}
+
+.slotted-reference-import__facts dd {
+  margin: 0;
+}
+
+.slotted-split-action {
+  max-inline-size: 100%;
+}
+
+.slotted-split-action > [data-slotted-component='button'] {
+  min-inline-size: min(10rem, calc(100vw - 9rem));
+}
+
+.slotted-split-action > [data-slotted-component='icon-button'] {
+  flex: none;
+}
+
+.slotted-matrix-scroll,
+.slotted-api-scroll,
+.slotted-token-scroll {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-color: var(--slotted-workbench-border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.slotted-matrix-scroll {
+  background: var(--slotted-workbench-panel);
+  border: 1px solid var(--slotted-workbench-border);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.slotted-matrix {
+  border-collapse: separate;
+  border-spacing: 0;
+  inline-size: 100%;
+  min-inline-size: 760px;
+  table-layout: fixed;
+}
+
+.slotted-matrix__corner,
+.slotted-matrix__row-label {
+  inline-size: 104px;
+}
+
+.slotted-matrix__heading,
+.slotted-matrix__row-label,
+.slotted-matrix__cell {
+  block-size: 66px;
+  border-block-end: 1px solid var(--slotted-workbench-border);
+  padding: 11px 13px;
+  vertical-align: middle;
+}
+
+.slotted-matrix__heading,
+.slotted-matrix__row-label,
+.slotted-matrix__corner {
+  background: var(--slotted-workbench-panel-subtle);
+}
+
+.slotted-matrix__heading,
+.slotted-matrix__row-label {
+  color: var(--slotted-workbench-muted);
+  font-size: 10.5px;
+  font-weight: 760;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.slotted-matrix__row-label {
+  border-inline-end: 1px solid var(--slotted-workbench-border);
+  inset-inline-start: 0;
+  position: sticky;
+  text-align: start;
+  z-index: 1;
+}
+
+.slotted-matrix__cell {
+  background: var(--slotted-workbench-panel);
+  border-inline-end: 1px solid var(--slotted-workbench-border);
+  text-align: center;
+}
+
+.slotted-matrix__cell:last-child {
+  border-inline-end: 0;
+}
+
+.slotted-matrix__cell > * {
+  vertical-align: middle;
+}
+
+.slotted-matrix__cell > .slotted-button:not([data-part-root='icon']) {
+  min-inline-size: 92px;
+}
+
+.slotted-matrix__cell > .slotted-demo-row {
+  justify-content: center;
+}
+
+.slotted-matrix tbody tr:last-child > * {
+  border-block-end: 0;
+}
+
+.slotted-api-table,
+.slotted-token-table {
+  border-collapse: collapse;
+  font-size: 12.5px;
+  inline-size: 100%;
+  min-inline-size: 680px;
+}
+
+.slotted-api-table th,
+.slotted-api-table td,
+.slotted-token-table th,
+.slotted-token-table td {
+  border-block-end: 1px solid var(--slotted-workbench-border);
+  padding: 11px 13px;
+  text-align: start;
+  vertical-align: top;
+}
+
+.slotted-api-table tbody tr:last-child > *,
+.slotted-token-table tbody tr:last-child > * {
+  border-block-end: 0;
+}
+
+.slotted-api-table th,
+.slotted-token-table th {
+  background: var(--slotted-workbench-panel-subtle);
+  color: var(--slotted-workbench-muted);
+  font-size: 10.5px;
+  font-weight: 760;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.slotted-api-table code,
+.slotted-token-table code {
+  font: 11.5px/1.5 var(--slotted-workbench-font-code);
+}
+
+/**
+ * The drawer is a quiet row until it is opened. Nine demonstrations each
+ * followed by a black slab made the page read as code with pictures between it,
+ * so the closed state takes the page's own ground and only the source is dark.
+ */
+.slotted-code-drawer {
+  background: var(--slotted-workbench-panel);
+  border: 1px solid var(--slotted-workbench-border);
+  border-radius: 8px;
+  color: var(--slotted-workbench-text);
+  inline-size: 100%;
+  overflow: clip;
+}
+
+.slotted-code-drawer[open] {
+  background: var(--slotted-workbench-code);
+  border-color: var(--slotted-workbench-code);
+  color: #fafafa;
+}
+
+.slotted-code-drawer + .slotted-code-drawer {
+  margin-block-start: 10px;
+}
+
+.slotted-code-drawer summary {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 660;
+  list-style-position: inside;
+  padding: 11px 14px;
+}
+
+.slotted-code-drawer:not([open]) summary:hover {
+  background: var(--slotted-workbench-panel-subtle);
+}
+
+.slotted-code-drawer summary:hover,
+.slotted-code-drawer summary:focus-visible {
+  color: #ffffff;
+}
+
+.slotted-code-drawer summary:focus-visible,
+.slotted-code-drawer button:focus-visible {
+  outline: 2px solid #d4d4d8;
+  outline-offset: 2px;
+}
+
+.slotted-code-drawer__toolbar {
+  align-items: center;
+  border-block-start: 1px solid #27272a;
+  color: #a1a1aa;
+  display: flex;
+  font-size: 10.5px;
+  justify-content: space-between;
+  padding: 8px 12px;
+}
+
+.slotted-code-drawer__toolbar button {
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 4px;
+  color: #fafafa;
+  cursor: pointer;
+  font: inherit;
+  padding: 5px 8px;
+}
+
+.slotted-code-drawer__toolbar button:hover {
+  background: #3f3f46;
+}
+
+.slotted-code-drawer pre {
+  font: 12.5px/1.65 var(--slotted-workbench-font-code);
+  margin: 0;
+  overflow: auto;
+  padding: 16px 18px 20px;
+  tab-size: 2;
+}
+
+.slotted-visually-hidden {
+  block-size: 1px;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+
+.sbdocs-wrapper,
+.sbdocs-content {
+  background: var(--slotted-workbench-canvas) !important;
+  color: var(--slotted-workbench-text);
+  max-inline-size: none !important;
+}
+
+@media (max-width: 980px) {
+  .slotted-reference-page__section,
+  .slotted-component-lab__section {
+    gap: 18px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .slotted-component-lab__intro p {
+    max-inline-size: 62ch;
+  }
+
+  .slotted-demo-grid[data-columns='3'] {
+    --slotted-demo-columns: 2;
+  }
+}
+
+@media (max-width: 760px) {
+  .slotted-workbench-preview:not(.slotted-workbench-preview--embedded) {
+    padding: 12px;
+  }
+
+  .slotted-reference-page,
+  .slotted-component-lab {
+    border-radius: 10px;
+  }
+
+  .slotted-reference-page__header,
+  .slotted-reference-page__section,
+  .slotted-component-lab__section {
+    padding: 20px;
+  }
+
+  .slotted-demo-grid,
+  .slotted-demo-grid[data-columns='3'] {
+    --slotted-demo-columns: 1;
+  }
+
+  .slotted-demo-scene__header {
+    min-block-size: 0;
+  }
+
+  .slotted-demo-stage {
+    min-block-size: 78px;
+  }
+}
+
+/**
+ * Two panes side by side inside a page that fills: a list and the detail it
+ * opens, each scrolling on its own. It exists for `page`'s `fill` axis, whose
+ * demonstration has to show two scrollers under one header; a story may not
+ * write the grid inline, so the ground is a primitive.
+ */
+.slotted-demo-split {
+  display: grid;
+  gap: var(--slotted-space-6, 1rem);
+  grid-template-columns: minmax(10rem, 1fr) minmax(0, 3fr);
+  min-block-size: 0;
+}
+
+.slotted-demo-split__pane {
+  background: var(--slotted-surface);
+  border: 1px solid var(--slotted-border-subtle);
+  border-radius: var(--slotted-radius-lg, 8px);
+  min-block-size: 0;
+  overflow: auto;
+  padding: var(--slotted-space-5, 12px);
+}
+
+/**
+ * The scenes stack in an implicit `auto` track, and an `auto` track is at
+ * least as wide as the widest line inside it: one open code drawer with a
+ * hundred-column snippet carried every stage on the page-header reference
+ * page 37 pixels past the column and under the page's own outline. A track
+ * that may shrink to nothing keeps the drawer scrolling inside its box.
+ */
+.slotted-reference-scenes {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/**
+ * Below 760 pixels every grid is one column — the three-column grid had its
+ * own rule there and the two-column grid did not, because the attribute
+ * selector outranks the class the rule was written on. Two page screens side
+ * by side in a 430-pixel column stood 186 pixels wide each.
+ */
+@media (max-width: 760px) {
+  .slotted-demo-grid[data-columns='2'] {
+    --slotted-demo-columns: 1;
+  }
+}
+
+/**
+ * A destination in an application shell's navigation region: a mark, a label,
+ * and a count where the product has one.
+ *
+ * The row belongs to `side-navigation`, wave 8, and until that family exists
+ * `app-shell`'s reference pages would show the region holding bare links —
+ * which photographs the missing family rather than the one being documented.
+ * `references/stories.md` allows a primitive here, with a test, for exactly
+ * this: a ground the demonstrations need and the family does not own.
+ *
+ * **Every number is one the shell publishes.** The shell says what a row is —
+ * its inset, its mark box, its gap, its height, its type size and its line
+ * height — and the rows here read the six and state nothing of their own,
+ * which is what a product's own list does. Before the six existed the rows
+ * carried control geometry and control type, and the reset above reverted
+ * both: a column at the page's sixteen pixels, in the user agent's button
+ * face, with two lines of text crushed into one row's height.
+ */
+.slotted-demo-nav {
+  --slotted-demo-nav-inset: var(--slotted-app-shell-row-inset, var(--slotted-space-4));
+  --slotted-demo-nav-mark: var(--slotted-app-shell-row-mark, var(--slotted-avatar-size-sm));
+  --slotted-demo-nav-gap: var(--slotted-app-shell-row-gap, var(--slotted-control-gap-md));
+  --slotted-demo-nav-height: var(--slotted-app-shell-row-height, var(--slotted-demo-nav-mark));
+  --slotted-demo-nav-font-size: var(--slotted-app-shell-row-font-size, var(--slotted-font-size-sm));
+  --slotted-demo-nav-line-height: var(
+    --slotted-app-shell-row-line-height,
+    var(--slotted-line-height-sm)
+  );
+  --slotted-demo-nav-label: calc(
+    var(--slotted-demo-nav-inset) + var(--slotted-demo-nav-mark) + var(--slotted-demo-nav-gap)
+  );
+}
+
+a.slotted-demo-nav-item,
+.slotted-demo-nav-item,
+.slotted-demo-nav-brand {
+  align-items: center;
+  border-radius: var(--slotted-radius-md);
+  color: var(--slotted-text-muted);
+  display: flex;
+  font-family: var(--slotted-font-family-sans);
+  font-size: var(--slotted-demo-nav-font-size);
+  font-weight: var(--slotted-font-weight-regular);
+  gap: var(--slotted-demo-nav-gap);
+  line-height: var(--slotted-demo-nav-line-height);
+  min-block-size: var(--slotted-demo-nav-height);
+  min-inline-size: 0;
+  padding-inline: var(--slotted-demo-nav-inset);
+  text-decoration: none;
+}
+a.slotted-demo-nav-item:hover,
+.slotted-demo-nav-item:hover {
+  background-color: var(--slotted-tone-secondary-subtle-hover);
+  color: var(--slotted-text);
+}
+.slotted-demo-nav-item:focus-visible,
+.slotted-demo-nav-account:focus-visible {
+  outline: var(--slotted-focus-ring-width) solid var(--slotted-focus-ring-color);
+  outline-offset: calc(var(--slotted-focus-ring-offset) * -1);
+}
+a.slotted-demo-nav-item[aria-current='page'],
+.slotted-demo-nav-item[aria-current='page'] {
+  background-color: var(--slotted-tone-accent-surface);
+  color: var(--slotted-tone-accent-text);
+  font-weight: var(--slotted-font-weight-medium);
+}
+
+/** The mark column: the shell's mark box, with the glyph centred in it. */
+.slotted-demo-nav-item__mark {
+  block-size: var(--slotted-demo-nav-mark);
+  display: grid;
+  flex: 0 0 var(--slotted-demo-nav-mark);
+  place-items: center;
+}
+.slotted-demo-nav-item__label {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.slotted-demo-nav-item__count {
+  flex: 0 0 auto;
+}
+
+/**
+ * The two rows a navigation column pins at its ends: the workspace at the top
+ * and the account at the bottom. Both are a destination row with two lines of
+ * text instead of one — the same inset, the same mark column, the same corner
+ * radius — and block padding of their own, because two lines in one row's
+ * height is the row the reviewer read as crushed. `-aside` is the part only a
+ * wide region has room for; the names wrapped one character per line inside
+ * the rail before it existed.
+ */
+.slotted-demo-nav-brand {
+  color: var(--slotted-text);
+  inline-size: 100%;
+  padding-block: var(--slotted-space-2);
+}
+.slotted-demo-nav-aside {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-inline-size: 0;
+  text-align: start;
+}
+.slotted-demo-nav-aside > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/**
+ * The account row is pressable, so it is a control and looks like one: the
+ * geometry of every other row in the column, plus the hover, the focus ring and
+ * the trailing mark that say a menu opens from it. It was a bare `span` with an
+ * avatar beside two lines of text — no target, no feedback, and its own
+ * spacing — which is the row the reviewer named.
+ */
+button.slotted-demo-nav-account,
+.slotted-demo-nav-account {
+  appearance: none;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--slotted-demo-nav-font-size);
+  line-height: var(--slotted-demo-nav-line-height);
+  text-align: start;
+}
+.slotted-demo-nav-account:hover {
+  background-color: var(--slotted-tone-secondary-subtle-hover);
+}
+/* The mark that says the row opens something, on the far edge of the row. */
+.slotted-demo-nav-account__more {
+  color: var(--slotted-text-muted);
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+/**
+ * A strip of module marks — the shell's `nav-rail` — ends with what is not a
+ * module: the settings and the control that moves the region, pushed to the
+ * foot of the strip by the room they take.
+ */
+.slotted-demo-rail-end {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--slotted-space-1);
+  margin-block-start: auto;
+}
+
+/** The column beside the strip is titled by the module it holds. */
+.slotted-demo-rail-title {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-inline-size: 0;
+  padding-inline-start: var(--slotted-demo-nav-inset, var(--slotted-space-4));
+}
+
+/**
+ * A wash behind the frame, stated once through the family's own token: two
+ * soft pools of the accent tone, which the scheme retunes with the tone.
+ */
+.slotted-demo-frame-wash {
+  --slotted-app-shell-frame-image:
+    radial-gradient(
+      60% 80% at 0% 0%,
+      color-mix(in oklab, var(--slotted-tone-accent-surface) 90%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      50% 70% at 100% 100%,
+      color-mix(in oklab, var(--slotted-tone-accent-surface) 70%, transparent),
+      transparent
+    );
+}
+
+/** The heading over a run of destinations, on the label column. */
+.slotted-demo-nav-group {
+  color: var(--slotted-text-muted);
+  font-size: var(--slotted-font-size-xs);
+  font-weight: var(--slotted-font-weight-medium);
+  letter-spacing: 0.06em;
+  line-height: var(--slotted-line-height-xs);
+  margin-block: var(--slotted-space-5) var(--slotted-space-2);
+  padding-inline-start: var(--slotted-demo-nav-label, var(--slotted-space-4));
+  text-transform: uppercase;
+}
+/* The first heading keeps its air: the workspace row above it is a row like any
+   other, and a group that begins tight against it reads as part of it. */
+.slotted-demo-nav-group:first-child {
+  margin-block-start: var(--slotted-space-2);
+}
+
+/**
+ * What a bar's middle holds, in a product. A search that is a field rather than
+ * a button — the first page put a button there and the reviewer read it as no
+ * shell anyone ships — and a trail for the product whose bar holds the route.
+ */
+.slotted-demo-bar-search {
+  inline-size: min(100%, 24rem);
+}
+.slotted-demo-bar-crumbs {
+  align-items: center;
+  color: var(--slotted-text-muted);
+  display: flex;
+  font-family: var(--slotted-font-family-sans);
+  font-size: var(--slotted-font-size-sm);
+  gap: var(--slotted-space-3);
+  line-height: var(--slotted-line-height-sm);
+  min-inline-size: 0;
+  white-space: nowrap;
+}
+.slotted-demo-bar-crumbs > * {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.slotted-demo-bar-crumbs > [aria-current] {
+  color: var(--slotted-text);
+  font-weight: var(--slotted-font-weight-medium);
+}
+.slotted-demo-bar-crumbs > [aria-hidden] {
+  flex: 0 0 auto;
+}
+/** The application's name beside its mark. */
+.slotted-demo-bar-wordmark {
+  color: var(--slotted-text);
+  font-family: var(--slotted-font-family-sans);
+  font-size: var(--slotted-font-size-sm);
+  font-weight: var(--slotted-font-weight-semibold);
+  line-height: var(--slotted-line-height-sm);
+}
+
+/**
+ * What a pane's body holds, in a product: a record's fields, and a title that
+ * is one line. The shell gives the pane its head, its body and its foot, and
+ * the body stands on the inset the head stands on, so the first field's label
+ * starts where the title does without a padding written here.
+ */
+.slotted-demo-pane-fields {
+  display: grid;
+  font-family: var(--slotted-font-family-sans);
+  font-size: var(--slotted-font-size-sm);
+  gap: var(--slotted-space-2) var(--slotted-space-5);
+  grid-template-columns: max-content minmax(0, 1fr);
+  line-height: var(--slotted-line-height-sm);
+  margin: 0;
+}
+.slotted-demo-pane-fields > dt {
+  color: var(--slotted-text-muted);
+}
+.slotted-demo-pane-fields > dd {
+  color: var(--slotted-text);
+  margin: 0;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+.slotted-demo-pane-title {
+  color: var(--slotted-text);
+  font-family: var(--slotted-font-family-sans);
+  font-size: var(--slotted-font-size-sm);
+  font-weight: var(--slotted-font-weight-semibold);
+  line-height: var(--slotted-line-height-sm);
+}
+/* A pane holding a form: the fields stand on the pane body's own inset. */
+.slotted-demo-pane-form {
+  display: grid;
+  gap: var(--slotted-space-5);
+}
+
+/**
+ * A frame repainted region by region, for the scene that shows a product doing
+ * it. The declarations are the demonstration — a story may not write them
+ * inline, because an inline paint answers no scheme switch and no density, and
+ * `specs/reference-pages.test.mjs` refuses one.
+ *
+ * The column's ground is read from *inside* the column, which is the whole
+ * point of the pair: `data-slotted-scheme` on the region restates every tone
+ * in it, so `var(--slotted-surface-sunken)` resolves to that scheme's ground
+ * and the destinations, the counts and the focus ring are calibrated against
+ * the ground they are actually on.
+ */
+.slotted-demo-shell-repaint {
+  --slotted-app-shell-banner-surface: var(--slotted-surface-raised);
+  --slotted-app-shell-radius: var(--slotted-radius-md);
+}
+.slotted-demo-shell-repaint-nav {
+  --slotted-app-shell-nav-surface: var(--slotted-surface-sunken);
+}
+
+/**
+ * What the bar sheds first. The application's search reads as a field while
+ * the bar is wide and disappears when the navigation has taken most of the
+ * frame — the bar's own query container says which, the same way the column's
+ * says whether a destination shows its label. A product would fold it into a
+ * control; the demonstration drops it, because the control that would hold it
+ * belongs to `menu` and not to this page.
+ */
+@container slotted-app-shell-banner (inline-size < 30rem) {
+  .slotted-demo-bar-search,
+  .slotted-demo-bar-label {
+    display: none;
+  }
+}
+@container slotted-app-shell-banner (inline-size < 20rem) {
+  .slotted-demo-bar-optional {
+    display: none;
+  }
+}
+
+/* The rail: below the width a word needs, a destination is its mark alone, and
+   the region's own container query is what says so. */
+@container slotted-app-shell-nav (inline-size < 120px) {
+  .slotted-demo-nav-item,
+  .slotted-demo-nav-brand {
+    justify-content: center;
+    padding-inline: 0;
+  }
+  .slotted-demo-nav-item__label,
+  .slotted-demo-nav-item__count,
+  .slotted-demo-nav-account__more,
+  .slotted-demo-nav-group,
+  .slotted-demo-nav-aside {
+    display: none;
+  }
+  /* A rail is fifty pixels wide and a part's name is not: the anatomy scene
+     keeps the region's box and drops the words, the way a real column keeps
+     the mark and drops the label. */
+  .slotted-demo-slot {
+    padding: var(--slotted-space-1);
+  }
+  .slotted-demo-slot > * {
+    display: none;
+  }
+}

@@ -1,0 +1,27 @@
+export {
+  CODE_MARK_PRECEDENCE,
+  CODE_SCOPES,
+  copyText,
+  fromPrismTokens,
+  fromShikiTokens,
+  gutterDigits,
+  leadingColumns,
+  lineMarks,
+  lineText,
+  parseLineRanges,
+  plainLines,
+  splitLines,
+} from './code';
+export type {
+  CodeHighlighter,
+  CodeLine,
+  CodeMark,
+  CodeMarks,
+  CodeScope,
+  CodeToken,
+  CopyTextOptions,
+  LineMark,
+  LineRanges,
+  PrismTokenLike,
+  ShikiTokenLike,
+} from './code';

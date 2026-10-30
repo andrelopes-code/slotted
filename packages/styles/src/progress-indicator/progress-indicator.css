@@ -1,0 +1,1641 @@
+/**
+ * The percentage every part of an indicator reads, registered so it can be
+ * transitioned at all: an unregistered custom property has no type and
+ * interpolates by discrete jumps.
+ *
+ * `inherits: true` is the whole mechanism. One transition on the root moves
+ * the number, and the four things derived from it — the indicator's length,
+ * the trailing track's start, the arc's dash and the buffer's edge — recompute
+ * together on every frame. Transitioning each of them separately is what makes
+ * a bar whose fill arrives before its gap does, which is the defect this
+ * costs one declaration to prevent.
+ */
+@property --slotted-progress-indicator-percent {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --slotted-progress-indicator-buffer-percent {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+/**
+ * Where the travelling bar of an indeterminate wavy indicator starts and how
+ * long it is, as percentages of the track: the wavy bar cuts a window out of
+ * its path at the two numbers. The plain bar travels the same journey by
+ * `translate` and `scale`, which the compositor runs.
+ */
+@property --slotted-progress-indicator-travel-start {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --slotted-progress-indicator-travel-size {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 100;
+}
+
+/**
+ * Where the wave is in its own cycle, from nought to one.
+ *
+ * A registered number rather than an animated dash offset, because a keyframe
+ * moving `stroke-dashoffset` between two `var()`-bearing values interpolated
+ * discretely: the arc held still for half a cycle and then jumped 45 degrees.
+ * A registered `<number>` interpolates by its declared syntax, and every
+ * angle, length and dash derived from it recomputes each frame.
+ *
+ * It inherits, because the paths read it from the root.
+ */
+@property --slotted-progress-indicator-wave-phase {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+/**
+ * How high the crests stand, from nought to one.
+ *
+ * `WavyProgressIndicatorDefaults.indicatorAmplitude` is M3's own API for this:
+ * a function of the progress, whose default is a switch — nought at or below
+ * a tenth and at or above ninety-five hundredths — that a 500-millisecond
+ * animator then chases. That switch is what made the wave die all at once at
+ * ninety-five per cent while the fill still had a visible remainder, and
+ * arrive all at once at ten. The function here is a ramp instead: nought to
+ * six per cent, rising to one at sixteen, one until eighty-four, falling to
+ * nought at ninety-six. The fill's own spring is what moves it, so the crests
+ * settle as the bar arrives rather than on a timer of their own.
+ *
+ * It is registered so the paths read an interpolated number each frame, and so
+ * the ramp follows the transitioning percentage rather than the stated value.
+ */
+@property --slotted-progress-indicator-wave-amplitude {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
+@layer slotted.components {
+  /* ── The box ────────────────────────────────────────────────────────────
+   *
+   * A quantity a consumer states and this family draws. It is never a
+   * command: it answers no hover, gives no press feedback, takes no focus and
+   * has nothing to disable — a component that moved its own value would be
+   * reporting a task it cannot see.
+   *
+   * Three geometries share this box, and `data-shape` is what tells them
+   * apart. It is written by the component rather than chosen by a consumer,
+   * for the reason `button` writes `data-shape` for its icon member: one
+   * authored stylesheet has to know which of three things it is painting, and
+   * a prop would be a fourth way to pick a component already picked.
+   */
+  [data-ui-progress-indicator][data-part-root] {
+    /**
+     * The ink, and it is the tone's `text` role rather than its `solid` one.
+     * Two reasons, and the second is the one that decides it. The indicator is
+     * a graphic bearing meaning, so WCAG 2.2 1.4.11 binds it at 3:1; the tone
+     * `text` roles are the steps the theme's contrast test holds to the 4.5:1
+     * reading ratio against every surface, which clears it with room over.
+     * And `--slotted-tone-secondary-solid` is the surface's own colour in
+     * `light` and the page's own white in `high-contrast` — a secondary bar
+     * painted from it would be an invisible bar in two schemes out of three,
+     * which is the deviation `button` recorded and could not fix inside its
+     * own family. `status-indicator` reached the same role for the same
+     * measurement.
+     */
+    --_ink: var(--slotted-progress-indicator-indicator-color, var(--slotted-tone-accent-text));
+    /**
+     * The ground, computed rather than taken from the tone's `surface` role,
+     * and the three schemes are why. That role is `#dbeafe` in `light` — a
+     * pale blue, exactly right — and then `#181b22` in `dark`, one step off a
+     * `#131316` page, and `#ffffff` in `high-contrast`, which *is* the page.
+     * A track painted from it disappears in two schemes.
+     *
+     * Mixing the ink toward the surface moves away from the ground in every
+     * scheme instead, because the ink is the far end of each scheme's own
+     * range. Twenty-four per cent is measured rather than chosen: it is the
+     * lowest ratio at which the track separates from the page in all three
+     * schemes at a 2-pixel bar, half the thinnest one this family draws,
+     * and low enough that a column of bars does not read as a column of
+     * filled bars.
+     */
+    --_track-color: var(
+      --slotted-progress-indicator-track-color,
+      color-mix(in oklab, var(--_ink) 24%, var(--slotted-surface))
+    );
+    /**
+     * The second quantity, halfway between the two: received but not yet
+     * processed. It has to be legible as *neither* — a buffer the colour of
+     * the track says nothing has arrived, and a buffer the colour of the
+     * indicator says the work is done.
+     */
+    --_buffer-color: var(--slotted-progress-indicator-buffer-color, transparent);
+    --_percent: var(--slotted-progress-indicator-percent, 0);
+    --_buffer-percent: var(--slotted-progress-indicator-buffer-percent, 0);
+    /** The further of the two edges, which is where the remaining track starts. */
+    --_lead: max(var(--_percent), var(--_buffer-percent));
+
+    /**
+     * Type from the control scale, the only one the theme restates per
+     * density, so a bar in a dense table shrinks its words and keeps its bar.
+     * The gap between the words comes from the space scale: a density step
+     * inside a distance this small would be sub-pixel, and density already
+     * moves the type.
+     */
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_text-gap: var(--slotted-space-4, 0.5rem);
+    --_row-gap: var(--slotted-space-3, 0.375rem);
+    --_thickness: var(--slotted-progress-indicator-thickness, var(--slotted-space-3, 0.375rem));
+    --_size: var(--slotted-progress-indicator-size, var(--slotted-control-height-md, 34px));
+    --_radius: var(--slotted-progress-indicator-radius, var(--slotted-radius-full, 9999px));
+    /**
+     * M3's indicator–track gap, and the stop indicator's diameter, are both
+     * 4dp at the 4dp track. Making them one thickness is the proportional form
+     * of that decision rather than a copy of the number: a fixed 4-pixel gap
+     * would be the whole `sm` bar and half the `lg` one.
+     */
+    --_gap: var(--slotted-progress-indicator-gap, var(--_thickness));
+
+    font-family: var(--slotted-control-font-family, sans-serif);
+    font-size: var(--_font-size);
+    line-height: var(--slotted-line-height-md, 1.5);
+    /**
+     * The indicator never widens the box that holds it: its own minimum is
+     * the longest word of a label it did not choose, and a grid or flex parent
+     * sizes its track from that minimum. Zero hands the decision back to the
+     * container, and the label breaks instead — the correction
+     * `status-indicator` recorded after a container digest pushed a 220-pixel
+     * column out to 420.
+     */
+    min-inline-size: 0;
+    /**
+     * The one transition, and everything derived from the number moves with
+     * it: the fill, the gap, the arc, the buffer's edge and the wave's window.
+     *
+     * The curve is M3's own. `ProgressIndicatorDefaults.ProgressAnimationSpec`
+     * is a critically damped spring at `StiffnessVeryLow` — stiffness 50, no
+     * bounce — which settles to a thousandth in 1.3 seconds and has covered
+     * nine tenths of the distance after half of one. `linear()` writes that
+     * spring out: `1 - (1 + ωt)·e^(-ωt)` sampled at twenty steps, with `ωT`
+     * at 9.2. A bar that arrives fast and eases into place over the last
+     * second is what makes the wave's flatten, which starts at ninety-five per
+     * cent, land while the fill is still settling rather than after it has
+     * stopped.
+     *
+     * Four times `--slotted-duration-long` is the 1.3 seconds of that spring,
+     * from the scale rather than a literal, and the theme collapses the scale
+     * under `prefers-reduced-motion`, so a reader who asked for stillness gets
+     * the number without the travel.
+     */
+    --_settle: calc(4 * var(--slotted-duration-long));
+    --_spring: linear(
+      0,
+      0.078,
+      0.235,
+      0.401,
+      0.549,
+      0.669,
+      0.762,
+      0.831,
+      0.882,
+      0.918,
+      0.944,
+      0.962,
+      0.974,
+      0.982,
+      0.988,
+      0.992,
+      0.995,
+      0.996,
+      0.998,
+      0.998,
+      1
+    );
+    transition:
+      --slotted-progress-indicator-percent var(--_settle) var(--_spring),
+      --slotted-progress-indicator-buffer-percent var(--_settle) var(--_spring);
+  }
+
+  /**
+   * The withheld indicator. `delay` has not elapsed, so there is nothing to
+   * report yet and nothing is drawn — no box, no role, no reserved band. The
+   * rule exists because the root's own `display` would otherwise win over the
+   * user agent's `[hidden]`, and a family that painted through its own
+   * withdrawal would flash exactly what the delay exists to prevent.
+   */
+  [data-ui-progress-indicator][hidden] {
+    display: none;
+  }
+
+  /* ── Tone ─────────────────────────────────────────────────────────────
+   *
+   * Five colours the theme owns, and the family adds none. Only the ink is
+   * stated: the track and the buffer are derived from it, so a sixth tone
+   * added by an application is one declaration rather than three.
+   */
+
+  /**
+   * The one tone whose ink is not its own `text` role, and the capture is what
+   * decided it. `--slotted-tone-secondary-text` is `#172033` in `light` and
+   * `#000000` in `high-contrast`: a background job drawn from it was the
+   * darkest thing on the page, which is the opposite of what `secondary`
+   * means. `--slotted-border-strong` is the neutral the theme holds to 3:1
+   * against every surface it separates — the ratio a meaningful graphic needs
+   * and no more — so a secondary indicator reads as grey rather than as ink.
+   * It is the same substitution `badge` and `status-indicator` make for their
+   * own neutral marks, for the same reason.
+   */
+  [data-ui-progress-indicator][data-part-root][data-tone='secondary'] {
+    --_ink: var(--slotted-progress-indicator-indicator-color, var(--slotted-border-strong));
+  }
+
+  [data-ui-progress-indicator][data-part-root][data-tone='success'] {
+    --_ink: var(--slotted-progress-indicator-indicator-color, var(--slotted-tone-success-text));
+  }
+
+  [data-ui-progress-indicator][data-part-root][data-tone='info'] {
+    --_ink: var(--slotted-progress-indicator-indicator-color, var(--slotted-tone-info-text));
+  }
+
+  [data-ui-progress-indicator][data-part-root][data-tone='warning'] {
+    --_ink: var(--slotted-progress-indicator-indicator-color, var(--slotted-tone-warning-text));
+  }
+
+  [data-ui-progress-indicator][data-part-root][data-tone='danger'] {
+    --_ink: var(--slotted-progress-indicator-indicator-color, var(--slotted-tone-danger-text));
+  }
+
+  [data-ui-progress-indicator][data-part-root][data-buffered] {
+    --_buffer-color: var(
+      --slotted-progress-indicator-buffer-color,
+      color-mix(in oklab, var(--_ink) 52%, var(--slotted-surface))
+    );
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────
+   *
+   * One axis, three geometries. The bar reads a thickness from the space
+   * scale — 4, 6 and 8 pixels, so no step draws a hairline in a table cell —
+   * while the circle and the loader read the control height scale, so a
+   * spinner standing beside a button is the same height as the button at
+   * every density. Neither needs a scale of this family's own, and the
+   * component layer of the token contract stays as `avatar` left it.
+   */
+
+  [data-ui-progress-indicator][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_text-gap: var(--slotted-space-3, 0.375rem);
+    --_thickness: var(--slotted-progress-indicator-thickness, var(--slotted-space-2, 0.25rem));
+    --_size: var(--slotted-progress-indicator-size, var(--slotted-control-height-sm, 30px));
+  }
+
+  [data-ui-progress-indicator][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_row-gap: var(--slotted-space-4, 0.5rem);
+    --_thickness: var(--slotted-progress-indicator-thickness, var(--slotted-space-4, 0.5rem));
+    --_size: var(--slotted-progress-indicator-size, var(--slotted-control-height-lg, 38px));
+  }
+
+  /* ── The words ────────────────────────────────────────────────────────
+   *
+   * The label wraps and the value does not. A label is a sentence a consumer
+   * wrote in a language this family does not know — “Verificando assinaturas
+   * do pacote” is four words that have to break somewhere — and a number is
+   * never improved by being broken in half.
+   *
+   * `overflow-wrap: break-word` rather than `anywhere`, which is the
+   * distinction `status-indicator` was caught by: both break the unbreakable
+   * token, and only `anywhere` also reports a min-content size of one
+   * character, so a grid column sized to its content collapses to that
+   * character.
+   */
+  [data-ui-progress-indicator] [data-part-label] {
+    color: var(--slotted-text, CanvasText);
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+  }
+
+  /**
+   * Tabular figures, and the reason is the whole point of the part: the value
+   * changes while the reader is looking at it, and a proportional `1` is
+   * narrower than a `7`, so a counting bar jitters its own label. The colour
+   * is the muted step, because the number annotates the bar rather than
+   * naming it.
+   */
+  [data-ui-progress-indicator] [data-part-value] {
+    color: var(--slotted-text-muted, GrayText);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* ── Linear ───────────────────────────────────────────────────────────
+   *
+   * Two rows of a grid: the label and the value share the first, and the
+   * track spans both columns of the second. The empty row costs nothing when
+   * neither word is rendered, because a part a consumer did not ask for is
+   * absent from the DOM rather than present and empty — so auto-placement
+   * puts the track in the first row and the row gap never applies.
+   *
+   * `justify-self: end` and `grid-column` are logical: the value sits at the
+   * inline end, which is the right edge of an English page and the left edge
+   * of an Arabic one, with no mirrored rule to write.
+   */
+  [data-ui-progress-indicator][data-part-root][data-shape='linear'] {
+    align-items: baseline;
+    column-gap: var(--_text-gap);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    row-gap: var(--_row-gap);
+  }
+
+  [data-ui-progress-indicator][data-shape='linear'] > [data-part-label] {
+    grid-column: 1;
+  }
+
+  [data-ui-progress-indicator][data-shape='linear'] > [data-part-value] {
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  [data-ui-progress-indicator][data-shape='linear'] > [data-part-track] {
+    grid-column: 1 / -1;
+  }
+
+  /**
+   * The track, which paints the buffer and nothing else. The remaining track
+   * is a pseudo-element rather than this element's own background, because
+   * M3's gap is air between two rounded bars: a background that ran the whole
+   * length would fill it, and a gradient stopped at a percentage would need a
+   * mirrored copy for every right-to-left document.
+   *
+   * `overflow: clip` is what the indeterminate indicator travels inside, and
+   * it is what rounds the travelling bar's ends against the track's own. It is
+   * stated per axis rather than once, because a wave is taller than the band
+   * it belongs to: the inline axis still holds the travelling bar, and the
+   * block axis has to let a crest out. A single `clip` is what sliced the
+   * crests flat in the first capture of this family.
+   */
+  [data-ui-progress-indicator][data-shape='linear'] [data-part-track] {
+    background-color: var(--_buffer-color);
+    block-size: var(--_thickness);
+    border-radius: var(--_radius);
+    inline-size: 100%;
+    isolation: isolate;
+    overflow-x: clip;
+    overflow-y: visible;
+    position: relative;
+  }
+
+  /**
+   * The track that is left, from one gap past the further of the two edges to
+   * the end. It carries the same radius, so the indicator and the remainder
+   * read as two bars with air between them rather than as one bar with a
+   * notch — the shape M3 took in 2024 and the one no other surveyed
+   * implementation draws.
+   */
+  [data-ui-progress-indicator][data-shape='linear'] [data-part-track]::before {
+    background-color: var(--_track-color);
+    border-radius: inherit;
+    content: '';
+    inset-block: 0;
+    inset-inline-end: 0;
+    inset-inline-start: calc(1% * var(--_lead) + var(--_gap));
+    position: absolute;
+  }
+
+  /**
+   * The stop indicator: a dot of one thickness at the end of the track, in the
+   * indicator's own ink. It is what tells a reader where the bar is going,
+   * and it is the detail that makes a bar at four per cent read as four per
+   * cent of something rather than as a stray mark.
+   */
+  [data-ui-progress-indicator][data-shape='linear'] [data-part-track]::after {
+    background-color: var(--_ink);
+    border-radius: var(--slotted-radius-full, 9999px);
+    content: '';
+    inline-size: var(--_thickness);
+    inset-block: 0;
+    inset-inline-end: 0;
+    position: absolute;
+  }
+
+  [data-ui-progress-indicator][data-shape='linear'] [data-part-indicator] {
+    background-color: var(--_ink);
+    block-size: 100%;
+    border-radius: inherit;
+    inline-size: calc(1% * var(--_percent));
+    /* Above the remaining track, which is painted by the pseudo-element the
+       browser draws before this element's own box. */
+    position: relative;
+  }
+
+  /**
+   * Complete, and there is nothing left to separate. The remaining track goes
+   * and the stop indicator goes with it: a dot in the indicator's colour on
+   * top of a full indicator is a dot nobody can see, and leaving the gap
+   * would put a notch a whole thickness wide at the end of a finished bar.
+   *
+   * The switch reads the transitioning percentage rather than `data-complete`.
+   * The attribute is written from the stated value the moment it reaches the
+   * top of the range, and the fill takes 1.3 seconds to get there: keyed on
+   * the attribute, the remaining track vanished while the fill was still half
+   * way along it. Keyed on the number, it goes when the fill arrives.
+   */
+  @container style(--slotted-progress-indicator-percent: 100) {
+    [data-ui-progress-indicator][data-shape='linear'] [data-part-track]::before,
+    [data-ui-progress-indicator][data-shape='linear'] [data-part-track]::after {
+      content: none;
+    }
+  }
+
+  /**
+   * Indeterminate: the whole track shows, there is no end to mark, and the
+   * indicator becomes a short bar travelling the length of it.
+   */
+  [data-ui-progress-indicator][data-shape='linear'][data-indeterminate] [data-part-track]::before {
+    inset-inline-start: 0;
+  }
+
+  [data-ui-progress-indicator][data-shape='linear'][data-indeterminate] [data-part-track]::after {
+    content: none;
+  }
+
+  /**
+   * The bar is the whole track, scaled to its length from the inline start
+   * and translated along it. `translate` and `scale` are the only properties
+   * the animation moves, so the compositor runs it: the bar is the sign that
+   * the page is busy, and a bar moved by its inset and its width needed a
+   * layout on the main thread every frame and froze under any long task.
+   * Two properties with keyframes of their own keep the journey the
+   * registered numbers draw for the wavy bar: the travel eases once from end
+   * to end, the length swells and shrinks in two steps.
+   */
+  [data-ui-progress-indicator][data-shape='linear'][data-indeterminate]:not([data-wave])
+    [data-part-indicator] {
+    animation: slotted-progress-indicator-glide var(--slotted-duration-loop-slow)
+      var(--slotted-easing-standard) infinite;
+    inline-size: 100%;
+    inset-block: 0;
+    inset-inline-start: 0;
+    position: absolute;
+    scale: 0.14 1;
+    transform-origin: left;
+    translate: -14% 0;
+  }
+
+  /* Translation and origin are physical: a right-to-left track runs the
+     mirrored journey from its right edge. */
+  [data-ui-progress-indicator][data-shape='linear'][data-indeterminate]:not([data-wave])
+    [data-part-indicator]:dir(rtl) {
+    animation-name: slotted-progress-indicator-glide-rtl;
+    transform-origin: right;
+    translate: 14% 0;
+  }
+
+  @keyframes slotted-progress-indicator-glide {
+    0% {
+      scale: 0.14 1;
+      translate: -14% 0;
+    }
+
+    45% {
+      scale: 0.46 1;
+    }
+
+    100% {
+      scale: 0.14 1;
+      translate: 100% 0;
+    }
+  }
+
+  @keyframes slotted-progress-indicator-glide-rtl {
+    0% {
+      scale: 0.14 1;
+      translate: 14% 0;
+    }
+
+    45% {
+      scale: 0.46 1;
+    }
+
+    100% {
+      scale: 0.14 1;
+      translate: -100% 0;
+    }
+  }
+
+  /**
+   * The journey as two registered numbers, for the wavy bar, which cuts a
+   * window out of its path at them: a short bar that grows as it crosses and
+   * shrinks as it leaves, M3's disjoint indicator drawn with one bar rather
+   * than two. The width changes because a bar of constant length reads as a
+   * scrollbar being dragged; a bar that swells in the middle of its journey
+   * reads as something in progress. `glide` draws the same journey.
+   */
+  @keyframes slotted-progress-indicator-travel {
+    0% {
+      --slotted-progress-indicator-travel-size: 14;
+      --slotted-progress-indicator-travel-start: -14;
+    }
+
+    45% {
+      --slotted-progress-indicator-travel-size: 46;
+    }
+
+    100% {
+      --slotted-progress-indicator-travel-size: 14;
+      --slotted-progress-indicator-travel-start: 100;
+    }
+  }
+
+  /* ── The page-level bar ───────────────────────────────────────────────
+   *
+   * The whole of what `loading-bar` was. It is pinned to the top edge of the
+   * viewport, it has no corner to round because it has no corner, and its
+   * track is transparent: a permanent grey band across the top of a page
+   * reads as a rule under the header rather than as a wait — the decision
+   * that family recorded.
+   *
+   * The stacking layer is a token, so an application's own stacking contract
+   * still decides. Every router progress bar in the field types a number here.
+   */
+  [data-ui-progress-indicator][data-part-root][data-placement='page'] {
+    --_radius: var(--slotted-progress-indicator-radius, var(--slotted-radius-none, 0px));
+    --_track-color: var(--slotted-progress-indicator-track-color, transparent);
+    --_gap: var(--slotted-progress-indicator-gap, 0);
+
+    inset-block-start: 0;
+    inset-inline: 0;
+    position: fixed;
+    z-index: var(--slotted-z-index-sticky, 100);
+  }
+
+  [data-ui-progress-indicator][data-placement='page'] [data-part-track]::after {
+    content: none;
+  }
+
+  /* ── The edge bar ─────────────────────────────────────────────────────
+   *
+   * The page-level bar on the edge of any box instead of the viewport's: the
+   * block-start edge under `edge-start`, the block-end edge under `edge-end`,
+   * the whole inline size of the nearest positioned box. It is drawn over the
+   * line that edge already draws — a seam, a card's border, a header's
+   * hairline — so it reserves nothing and nothing moves when it comes or
+   * goes. The box is the placer's, and its corners clip the bar: `app-shell`
+   * and `page-header` each render one as their `progress` part.
+   *
+   * No stacking layer of its own. The bar is the last thing its box paints,
+   * and the box decides where it stands among its neighbours.
+   *
+   * `--slotted-progress-indicator-position` is the box's answer when the box
+   * is taller than the screen: `sticky` keeps the bar on the visible part of
+   * the edge. `app-shell` writes it for a content region that scrolls with
+   * the document. It is a composition value, not a design token.
+   */
+  [data-ui-progress-indicator][data-part-root]:is(
+      [data-placement='edge-start'],
+      [data-placement='edge-end']
+    ) {
+    --_radius: var(--slotted-progress-indicator-radius, var(--slotted-radius-none, 0px));
+    --_track-color: var(--slotted-progress-indicator-track-color, transparent);
+    --_gap: var(--slotted-progress-indicator-gap, 0);
+
+    inset-inline: 0;
+    position: var(--slotted-progress-indicator-position, absolute);
+  }
+
+  [data-ui-progress-indicator][data-part-root][data-placement='edge-start'] {
+    inset-block-start: 0;
+  }
+
+  [data-ui-progress-indicator][data-part-root][data-placement='edge-end'] {
+    inset-block-end: 0;
+  }
+
+  [data-ui-progress-indicator]:is([data-placement='edge-start'], [data-placement='edge-end'])
+    [data-part-track]::after {
+    content: none;
+  }
+
+  /**
+   * A bar standing on an edge grows out of the line it stands on and goes
+   * back into it, which is M3's `outward` show and `inward` hide for a linear
+   * indicator. It is a clip rather than a scale: the root holds the label,
+   * clipped but read, and a box that holds text is never scaled. The clip
+   * starts from no thickness rather than from most of one, because the line
+   * it grows out of is already drawn, so the bar never comes from nowhere,
+   * and a bar that began at nine tenths of two pixels would be a bar that
+   * blinked on. The opacity travels with it so the first frames are not a
+   * hard sliver of ink.
+   *
+   * `inset()` takes physical sides and has no logical form; the top and the
+   * bottom are the block-start and block-end edges in every horizontal
+   * writing mode, which is every mode the library lays out. The page-level
+   * bar shares the motion, as the edge bar of the viewport.
+   *
+   * Enter is the medium step on the entering curve; exit is the short step on
+   * the leaving one, so a wait that has ended is gone before the eye returns
+   * to it. `display` is transitioned as a discrete property, so `hidden` —
+   * the withheld and withdrawn state — takes effect once the bar has gone
+   * back into its edge rather than on the frame it is asked to. The theme
+   * collapses both steps under `prefers-reduced-motion`.
+   */
+  [data-ui-progress-indicator][data-part-root]:is(
+      [data-placement='page'],
+      [data-placement='edge-start'],
+      [data-placement='edge-end']
+    ) {
+    --_withdrawn: inset(0 0 100% 0);
+
+    clip-path: inset(0);
+    transition:
+      --slotted-progress-indicator-percent var(--_settle) var(--_spring),
+      --slotted-progress-indicator-buffer-percent var(--_settle) var(--_spring),
+      clip-path var(--slotted-duration-medium) var(--slotted-easing-enter),
+      opacity var(--slotted-duration-medium) var(--slotted-easing-enter);
+
+    @starting-style {
+      clip-path: var(--_withdrawn);
+      opacity: 0;
+    }
+  }
+
+  [data-ui-progress-indicator][data-part-root][data-placement='edge-end'] {
+    --_withdrawn: inset(100% 0 0 0);
+  }
+
+  [data-ui-progress-indicator][data-part-root]:is(
+      [data-placement='page'],
+      [data-placement='edge-start'],
+      [data-placement='edge-end']
+    )[hidden] {
+    clip-path: var(--_withdrawn);
+    opacity: 0;
+    transition:
+      clip-path var(--slotted-duration-short) var(--slotted-easing-exit),
+      opacity var(--slotted-duration-short) var(--slotted-easing-exit),
+      display var(--slotted-duration-short) allow-discrete;
+  }
+
+  /* ── Circular ─────────────────────────────────────────────────────────
+   *
+   * The ring, the name and the number on one line. The number sits beside the
+   * ring rather than inside it, and that is a measurement rather than a
+   * preference: the largest ring this family draws is 38 pixels across with a
+   * 4.75-pixel stroke, which leaves 28 pixels of hole, and a percentage
+   * centred in it would be four-pixel type. Ant Design and MUI both put it
+   * inside because both draw rings twice this size.
+   */
+  [data-ui-progress-indicator][data-part-root][data-shape='circular'],
+  [data-ui-progress-indicator][data-part-root][data-shape='morph'] {
+    align-items: center;
+    column-gap: var(--_text-gap);
+    display: inline-flex;
+  }
+
+  /**
+   * The stroke is stated in the viewBox's own units, and six of forty-eight is
+   * one eighth of the diameter at every size. It is the ratio `button` derived
+   * for its own loading ring — “two pixels is a sixth of the ring at the dense
+   * small step and a ninth of it at the large one” — so the ring in a button
+   * and this family's circle are the same object, and Button can stop drawing
+   * its own.
+   */
+  [data-ui-progress-indicator][data-shape='circular'] svg {
+    --_stroke: var(--slotted-progress-indicator-stroke, 6);
+
+    block-size: var(--_size);
+    flex: none;
+    inline-size: var(--_size);
+    /* The arc starts at twelve o'clock. An SVG angle is measured from three,
+       and rotating the whole box is what keeps one dash arithmetic for the
+       plain ring and the wavy one. */
+    rotate: -90deg;
+  }
+
+  [data-ui-progress-indicator][data-shape='circular'] [data-part-track],
+  [data-ui-progress-indicator][data-shape='circular'] [data-part-indicator] {
+    fill: none;
+    stroke-linecap: round;
+    stroke-width: var(--_stroke);
+    /* `pathLength="100"` is on the element, so a dash is a percentage and the
+       transition on the number moves the arc. The dash itself is not
+       transitioned: smoothing a value that is already on the spring would lag
+       it by a second smoothing. */
+  }
+
+  [data-ui-progress-indicator][data-shape='circular'] [data-part-indicator] {
+    stroke: var(--_ink);
+    stroke-dasharray: var(--_percent) 100;
+    /**
+     * A round cap on a dash of zero length is a dot, and a dot at twelve
+     * o'clock on an empty ring reads as a rendering fault. There is no `if` in
+     * CSS and nothing to compare against, so the opacity is a clamp: nought at
+     * nought per cent, one at anything above a thousandth of a per cent.
+     */
+    stroke-opacity: clamp(0, calc(var(--_percent) * 1000), 1);
+  }
+
+  /**
+   * The track is drawn only where the indicator is not, one gap short at each
+   * end — M3's indicator–track gap, in a circle. Three and two tenths of the
+   * path is four device pixels of a 44-pixel ring, which is the gap M3
+   * specifies for the bar.
+   */
+  [data-ui-progress-indicator][data-shape='circular'] [data-part-track] {
+    /**
+     * Three and two tenths of the path is four device pixels of a 44-pixel
+     * ring, and it collapses to nothing at nought per cent by the same clamp
+     * the indicator's opacity uses. The first capture is why: an empty ring
+     * carried a gap at twelve o'clock, which is a bite out of a circle for an
+     * indicator that is not there.
+     */
+    --_arc-gap: calc(3.2 * clamp(0, calc(var(--_percent) * 1000), 1));
+
+    stroke: var(--_track-color);
+    stroke-dasharray: calc(100 - var(--_percent) - 2 * var(--_arc-gap)) 100;
+    stroke-dashoffset: calc(-1 * (var(--_percent) + var(--_arc-gap)));
+  }
+
+  /**
+   * Complete, and the ring closes: the gap goes, so a finished circle is a
+   * ring rather than a ring with a bite out of it. It reads the transitioning
+   * percentage for the reason the bar does: the track has to outlast the arc's
+   * travel, not the stated value.
+   */
+  @container style(--slotted-progress-indicator-percent: 100) {
+    [data-ui-progress-indicator][data-shape='circular'] [data-part-track] {
+      stroke: transparent;
+    }
+  }
+
+  /**
+   * Indeterminate: no track at all, which is M3's own answer — its circular
+   * track colour is transparent — and the reason is sound. An arc with no
+   * value has no remainder to show, and a ring behind it would claim there is
+   * one.
+   *
+   * The arc grows and shrinks while the whole ring turns, at two periods that
+   * do not divide into each other, so the sweep never repeats the same shape
+   * in the same orientation.
+   */
+  [data-ui-progress-indicator][data-shape='circular'][data-indeterminate] [data-part-track] {
+    stroke: transparent;
+  }
+
+  [data-ui-progress-indicator][data-shape='circular'][data-indeterminate] svg {
+    animation: slotted-progress-indicator-turn var(--slotted-duration-loop) linear infinite;
+  }
+
+  [data-ui-progress-indicator][data-shape='circular'][data-indeterminate] [data-part-indicator] {
+    animation: slotted-progress-indicator-sweep var(--slotted-duration-loop-slow)
+      var(--slotted-easing-standard) infinite;
+    stroke-opacity: 1;
+    /* The transition belongs to a value that changes; a sweep changes every
+       frame, and interpolating an interpolation is what makes it stutter. */
+    transition: none;
+  }
+
+  @keyframes slotted-progress-indicator-turn {
+    from {
+      rotate: -90deg;
+    }
+
+    to {
+      rotate: 270deg;
+    }
+  }
+
+  @keyframes slotted-progress-indicator-sweep {
+    0% {
+      stroke-dasharray: 4 100;
+      stroke-dashoffset: 0;
+    }
+
+    50% {
+      stroke-dasharray: 62 100;
+      stroke-dashoffset: -18;
+    }
+
+    100% {
+      stroke-dasharray: 4 100;
+      stroke-dashoffset: -100;
+    }
+  }
+
+  /* ── The wavy indicator ───────────────────────────────────────────────
+   *
+   * M3 Expressive's wavy active indicator, on the bar and on the ring, and
+   * the one capability in this family no headless library and no other
+   * design system surveyed ships at all.
+   *
+   * Both are drawn the way M3 draws them: the indicator is a stroked path,
+   * and what is shown of it is a window cut along its length with round caps
+   * at both ends. `LinearWavyProgressModifiers` and
+   * `CircularWavyProgressModifiers` cut that window with a `PathMeasure`; a
+   * stylesheet cuts it with a dash. Nothing is masked and nothing is clipped
+   * square, which is why the bar ends in its own crest at every value and the
+   * ring's arc keeps its cap on the wave.
+   *
+   * Three things move, and each is one number:
+   *
+   *   the phase     — `--slotted-progress-indicator-wave-phase`, a clock from
+   *                   nought to one that the root carries and the paths read;
+   *   the amplitude — `--slotted-progress-indicator-wave-amplitude`, a ramp
+   *                   the value sets, that a paused animation scrubs into a
+   *                   position on `d`;
+   *   the value     — `--slotted-progress-indicator-percent`, which the dash
+   *                   reads as it already does for the plain shapes.
+   */
+
+  /**
+   * The clock. It runs on the root and the paths inherit it, and its travel
+   * is `linear`, which is M3's own answer: `waveSpeed` defaults to one
+   * wavelength per second with no easing. A crest that accelerated and slowed
+   * would read as a wobble rather than as a wave moving past.
+   *
+   * The crests travel toward the start of the track — against the fill — on
+   * both shapes. Drawn the other way, toward the finish, the wave read on
+   * screen as sliding back against the fill; drawn this way it reads as the
+   * fill flowing forward. The reading was checked on the bar and on the ring
+   * at fast and slow loads, and the geometry below carries the sign once per
+   * shape.
+   */
+  [data-ui-progress-indicator][data-part-root][data-wave] {
+    --slotted-progress-indicator-wave-amplitude: min(
+      clamp(0, calc((var(--_percent) - 6) / 10), 1),
+      clamp(0, calc((96 - var(--_percent)) / 12), 1)
+    );
+
+    animation: slotted-progress-indicator-wave var(--slotted-duration-loop) linear infinite;
+  }
+
+  /**
+   * An indeterminate wave has no value to ramp against and is wavy
+   * throughout, which is what M3 draws: `hasWavyEffect(isDeterminate)` is the
+   * flag that separates the two.
+   */
+  [data-ui-progress-indicator][data-part-root][data-wave][data-indeterminate] {
+    --slotted-progress-indicator-wave-amplitude: 1;
+  }
+
+  @keyframes slotted-progress-indicator-wave {
+    from {
+      --slotted-progress-indicator-wave-phase: 0;
+    }
+
+    to {
+      --slotted-progress-indicator-wave-phase: 1;
+    }
+  }
+
+  /* ── The wavy bar ─────────────────────────────────────────────────────
+   *
+   * The indicator is an `svg` laid over the whole track, and inside it one
+   * path from `@slotted/core/progress`: M3's sine, in a user space where one
+   * unit is one thickness. A 40dp wavelength and a 3dp amplitude on a 4dp
+   * stroke are ten thicknesses and three quarters of one, and the viewBox is
+   * sized so a unit *is* a thickness at every size and density — the box is
+   * twelve hundred thicknesses long and two and a half tall, which is the
+   * crest plus half the stroke either side of the centre line.
+   *
+   * The crest needs room the band does not have. `margin-block` reserves it on
+   * the track, and the track's block axis does not clip, so the wave is
+   * bounded by its own geometry rather than by a box. The track is also the
+   * container the path measures itself against: `cqi` is how a dash stated in
+   * thicknesses learns how many thicknesses the track is.
+   */
+  [data-ui-progress-indicator][data-shape='linear'][data-wave] [data-part-track] {
+    container-type: inline-size;
+    margin-block: calc(0.75 * var(--_thickness));
+  }
+
+  [data-ui-progress-indicator][data-shape='linear'][data-wave] [data-part-indicator] {
+    /** One wavelength, in thicknesses. */
+    --_wave-length: 10;
+
+    background-color: transparent;
+    block-size: calc(2.5 * var(--_thickness));
+    /* The reach is `PROGRESS_WAVE_BAR_REACH`, and the viewBox in the markup
+       states the same number; `progress.test.ts` holds the two together. */
+    inline-size: calc(1200 * var(--_thickness));
+    inset-block: calc(-0.75 * var(--_thickness)) auto;
+    inset-inline-start: 0;
+    overflow: visible;
+    position: absolute;
+  }
+
+  /**
+   * The crest travels with the text. The path is drawn from its own left, so
+   * a right-to-left document mirrors the box about its centre — the box is
+   * anchored to the inline start, and its centre is the one point that stays
+   * inside the track.
+   */
+  [data-ui-progress-indicator][data-shape='linear'][data-wave] [data-part-indicator]:dir(rtl) {
+    transform: scaleX(-1);
+  }
+
+  /**
+   * The window, and the three numbers that place it.
+   *
+   * The path carries `pathLength` equal to its extent along the inline axis,
+   * so a dash of one unit is one thickness of travel whatever the amplitude —
+   * the arc length of a sine is longer than its span, and normalising the
+   * length to the span is what lets the end sit at the value while `d` is
+   * mid-transition between flat and wavy.
+   *
+   * The phase moves the path back by one wavelength over the cycle, and the
+   * dash offset hides the same distance, so the window always begins at the
+   * track's start whatever crest happens to be there. The crests therefore
+   * pass toward the start, and the cycle closes on itself because the path
+   * has moved exactly one period. The half unit either
+   * side is the cap: the dash starts half a thickness in and ends half a
+   * thickness short, so the round caps land on the track's edges exactly where
+   * the plain bar's rounded box does — which is how M3 insets the segment by
+   * the stroke's radius before capping it.
+   *
+   * The dash is at least nought. Below one thickness the window is a dot of
+   * one thickness, and at nought it is not painted at all, by the same clamp
+   * the ring uses on its own cap.
+   */
+  [data-ui-progress-indicator][data-shape='linear'][data-wave] [data-part-indicator] path {
+    /** The track's length, in thicknesses: a ratio of two lengths, read as a number. */
+    --_track-units: tan(atan2(100cqi, var(--_thickness)));
+    --_window-start: 0;
+    --_window-size: var(--_percent);
+    --_hidden: calc(var(--slotted-progress-indicator-wave-phase) * var(--_wave-length));
+
+    fill: none;
+    stroke: var(--_ink);
+    stroke-dasharray: max(0, calc(var(--_window-size) * var(--_track-units) / 100 - 1)) 100000;
+    stroke-dashoffset: calc(
+      -1 * (var(--_hidden) + var(--_window-start) * var(--_track-units) / 100 + 0.5)
+    );
+    stroke-linecap: round;
+    stroke-opacity: clamp(0, calc(var(--_window-size) * 1000), 1);
+    stroke-width: 1;
+    transform: translateX(calc(-1 * var(--_hidden) * 1px));
+  }
+
+  /**
+   * The amplitude, scrubbed. The keyframes below run `d` from the wave to the
+   * flat fitting; the animation is paused and a negative delay picks the frame
+   * that the amplitude names, so the crests stand exactly as high as the value
+   * says at every moment of the fill's own transition. An indeterminate bar
+   * carries a different path and is left to the markup.
+   */
+  [data-ui-progress-indicator][data-shape='linear'][data-wave]:not([data-indeterminate])
+    [data-part-indicator]
+    path {
+    animation: slotted-progress-indicator-flatten-bar var(--_scrub) var(--_taper) both paused;
+    animation-delay: calc(
+      -1 * var(--_scrub) * (1 - var(--slotted-progress-indicator-wave-amplitude))
+    );
+  }
+
+  /**
+   * The travelling wave. M3 tightens the wavelength to 20dp while the value
+   * is unknown — `IndeterminateActiveWaveWavelength` — so the markup carries
+   * the tighter path, and the window is the travelling bar's own two numbers.
+   */
+  [data-ui-progress-indicator][data-shape='linear'][data-wave][data-indeterminate]
+    [data-part-indicator] {
+    --_wave-length: 5;
+
+    animation: slotted-progress-indicator-travel var(--slotted-duration-loop-slow)
+      var(--slotted-easing-standard) infinite;
+  }
+
+  [data-ui-progress-indicator][data-shape='linear'][data-wave][data-indeterminate]
+    [data-part-indicator]
+    path {
+    --_window-start: var(--slotted-progress-indicator-travel-start);
+    --_window-size: var(--slotted-progress-indicator-travel-size);
+  }
+
+  /* ── The wavy ring ────────────────────────────────────────────────────
+   *
+   * The track stays a circle and the indicator becomes the wave, which is
+   * what `CircularWavyProgressModifiers` draws: its track polygon is
+   * `RoundedPolygon.circle` and only the active indicator morphs.
+   *
+   * The ring is drawn a fifth again as wide as its step, with the stroke it
+   * had. That is M3's own measurement — `WaveSize` is 48dp where `Size` is
+   * 40dp, both at a 4dp stroke — because a crest needs radial room a plain
+   * stroke does not. Five of forty-eight in a box a fifth larger is the same
+   * pixel stroke as six of forty-eight in the plain box, so a ring that turns
+   * wavy keeps its weight, and the crest may pass the viewBox by the tenth of
+   * a unit the stroke needs.
+   */
+  [data-ui-progress-indicator][data-shape='circular'][data-wave] svg {
+    --_stroke: var(--slotted-progress-indicator-stroke, 5);
+
+    block-size: calc(1.2 * var(--_size));
+    inline-size: calc(1.2 * var(--_size));
+    overflow: visible;
+  }
+
+  /**
+   * The phase is a rotation, and that is not an approximation. A travelling
+   * wave `R + A·sin(Nθ + ωt)` is the standing one rotated by `-ωt/N`, so
+   * rotating the path by one crest — 45 degrees at eight — returns the
+   * identical shape and the loop has no seam. `CircularWavyProgressModifiers`
+   * rotates its own progress path by the same offset angle. The rotation is
+   * anticlockwise, against the arc: the crests travel toward the arc's start,
+   * as the bar's do.
+   *
+   * The dash follows the rotation back, so the arc stays where the value put
+   * it while the crests travel under it. One crest is 12.5 of the hundred
+   * units `pathLength` declares, and a negative offset moves the pattern
+   * away from the path's start — the direction that cancels a rotation
+   * carrying it the other way. The gap is restated as `100 - dash` so the pattern
+   * repeats exactly once per revolution: with the plain ring's gap of 100 the
+   * far end fell into the gap as the pattern shifted, and a full ring opened
+   * a hole at twelve o'clock.
+   */
+  [data-ui-progress-indicator][data-shape='circular'][data-wave] [data-part-indicator] {
+    rotate: calc(-45deg * var(--slotted-progress-indicator-wave-phase));
+    stroke-dasharray: var(--_percent) calc(100 - var(--_percent));
+    stroke-dashoffset: calc(-12.5 * var(--slotted-progress-indicator-wave-phase));
+    /* The rotation is about the viewBox's own centre, which is where the ring
+       is; a fill box would turn it about the path's bounding box instead. */
+    transform-box: view-box;
+    transform-origin: 50% 50%;
+  }
+
+  [data-ui-progress-indicator][data-shape='circular'][data-wave]:not([data-indeterminate])
+    [data-part-indicator] {
+    animation: slotted-progress-indicator-flatten-ring var(--_scrub) var(--_taper) both paused;
+    animation-delay: calc(
+      -1 * var(--_scrub) * (1 - var(--slotted-progress-indicator-wave-amplitude))
+    );
+  }
+
+  /* ── The amplitude ────────────────────────────────────────────────────
+   *
+   * Two keyframes per shape, from the wave the markup draws to the same
+   * fitting at amplitude nought, and a paused animation the two rules above
+   * scrub with a negative delay. The frame shown is the amplitude, so the
+   * flatten is not an animator of its own with a duration and an easing that
+   * can land early or late: it is the fill's spring, read through the ramp.
+   *
+   * `--_scrub` is the length of the timeline being scrubbed, and any length
+   * would draw the same frames: the delay is the same fraction of it. It is
+   * taken from the scale rather than written as a literal so the stylesheet
+   * states no duration of its own, and the collapsed scale under reduced motion
+   * scrubs a shorter timeline to the same frame. `--_taper` is the shape of
+   * the ramp, not its speed — an S-curve, so the crests leave and return gently
+   * at both ends of the ramp rather than at a constant rate. The two paths of
+   * each pair must share a command list, and `progress.test.ts` holds both
+   * copies to `@slotted/core/progress`.
+   */
+  [data-ui-progress-indicator][data-part-root][data-wave] {
+    --_scrub: var(--slotted-duration-long);
+    --_taper: cubic-bezier(0.45, 0, 0.55, 1);
+  }
+
+  @keyframes slotted-progress-indicator-flatten-bar {
+    from {
+      d: path(
+        'M0-0.75c1.82 0 3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5s3.18 1.5 5 1.5s3.18-1.5 5-1.5'
+      );
+    }
+
+    to {
+      d: path(
+        'M0 0c1.82 0 3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0s3.18 0 5 0'
+      );
+    }
+  }
+
+  @keyframes slotted-progress-indicator-flatten-ring {
+    from {
+      d: path(
+        'M45.6 24C45.6 26.83 41.92 28.82 41 31.04C40.08 33.27 41.27 37.27 39.27 39.27C37.27 41.27 33.27 40.08 31.04 41C28.82 41.92 26.83 45.6 24 45.6C21.17 45.6 19.18 41.92 16.96 41C14.73 40.08 10.73 41.27 8.73 39.27C6.73 37.27 7.92 33.27 7 31.04C6.08 28.82 2.4 26.83 2.4 24C2.4 21.17 6.08 19.18 7 16.96C7.92 14.73 6.73 10.73 8.73 8.73C10.73 6.73 14.73 7.92 16.96 7C19.18 6.08 21.17 2.4 24 2.4C26.83 2.4 28.82 6.08 31.04 7C33.27 7.92 37.27 6.73 39.27 8.73C41.27 10.73 40.08 14.73 41 16.96C41.92 19.18 45.6 21.17 45.6 24Z'
+      );
+    }
+
+    to {
+      d: path(
+        'M44 24C44 26.62 43.48 29.23 42.48 31.65C41.48 34.07 39.99 36.29 38.14 38.14C36.29 39.99 34.07 41.48 31.65 42.48C29.23 43.48 26.62 44 24 44C21.38 44 18.77 43.48 16.35 42.48C13.93 41.48 11.71 39.99 9.86 38.14C8.01 36.29 6.52 34.07 5.52 31.65C4.52 29.23 4 26.62 4 24C4 21.38 4.52 18.77 5.52 16.35C6.52 13.93 8.01 11.71 9.86 9.86C11.71 8.01 13.93 6.52 16.35 5.52C18.77 4.52 21.38 4 24 4C26.62 4 29.23 4.52 31.65 5.52C34.07 6.52 36.29 8.01 38.14 9.86C39.99 11.71 41.48 13.93 42.48 16.35C43.48 18.77 44 21.38 44 24Z'
+      );
+    }
+  }
+
+  /* ── The loader ───────────────────────────────────────────────────────
+   *
+   * M3 Expressive's loading indicator, which Google recommends *instead of* an
+   * indeterminate circular indicator for a wait under five seconds. Nothing
+   * else surveyed ships it.
+   *
+   * A shape morphs through a sequence while it turns. The two are separate
+   * animations at periods that do not divide into each other, so the sequence
+   * never shows the same shape in the same orientation twice — which is what
+   * makes a five-second wait bearable to watch and a spinning ring not.
+   */
+  [data-ui-progress-indicator][data-shape='morph'] [data-part-track] {
+    block-size: var(--_size);
+    border-radius: var(--slotted-radius-full, 9999px);
+    display: grid;
+    flex: none;
+    inline-size: var(--_size);
+    place-items: center;
+  }
+
+  /**
+   * The container M3 draws behind the shape, and the ratio is M3's own: a
+   * 38-point indicator inside a 48-point container. The contrast between the
+   * two is the family's derived track tint against the ink, which is the same
+   * pair the bar's own track holds and clears the 3:1 the loading indicator
+   * documentation asks for between a contained shape and its container.
+   */
+  [data-ui-progress-indicator][data-shape='morph'][data-contained] [data-part-track] {
+    background-color: var(--_track-color);
+  }
+
+  /**
+   * The rotation, and it is two parcels summed — which is the whole mechanism
+   * and the thing a constant spin gets wrong.
+   *
+   * `LoadingIndicatorAnimatorDelegate.java` decomposes it:
+   * `CONSTANT_ROTATION_PER_SHAPE_DEGREES = 50` advances with a linear clock,
+   * `EXTRA_ROTATION_PER_SHAPE_DEGREES = 90` is driven by the *same*
+   * `SpringAnimation` that drives the morph, and the two are added. Ninety of
+   * every hundred and forty degrees therefore lurch with the shape: the object
+   * throws itself around as it changes form and settles as it arrives. The
+   * fifty is the minority parcel and exists so it never freezes between forms.
+   *
+   * A single constant turn — this family's first answer — is the *old*
+   * circular indicator's behaviour, and it is what the loading indicator was
+   * introduced to replace.
+   *
+   * CSS has no way to add two animations of one property without
+   * `animation-composition`, so the sum is expressed geometrically instead: the
+   * container carries the linear parcel and the shape inside it carries the
+   * sprung one, and nested rotations multiply. The container is a circle with a
+   * flat fill, so turning it is invisible — it is turning its child.
+   *
+   * `--slotted-easing-emphasized` is `cubic-bezier(0.3, 0, 0, 1.3)`, and the
+   * `1.3` is the spring: the shape and its rotation both carry a little past
+   * each target and settle. Both animations take it, at the same period and on
+   * the same keyframe boundaries, because in M3 they are one spring.
+   */
+  [data-ui-progress-indicator][data-shape='morph'] [data-part-track] {
+    animation: slotted-progress-indicator-drift calc(2 * var(--slotted-duration-loop-slow)) linear
+      infinite;
+  }
+
+  /**
+   * Two times the slow loop is 3.2 seconds over five shapes — 640 milliseconds
+   * each, which is `DURATION_PER_SHAPE_IN_MS = 650` to within the scale's own
+   * resolution. Multiplying a loop token is deliberate rather than a shortcut
+   * around the motion scale: the three loop durations are the ones the theme
+   * does not collapse, because an endless animation has to stop rather than
+   * hurry, and a multiple of one inherits that where a fourth token would be a
+   * scale step added for a single family.
+   */
+  [data-ui-progress-indicator][data-shape='morph'] [data-part-indicator] {
+    animation:
+      slotted-progress-indicator-morph calc(2 * var(--slotted-duration-loop-slow))
+        var(--slotted-easing-emphasized) infinite,
+      slotted-progress-indicator-lurch calc(2 * var(--slotted-duration-loop-slow))
+        var(--slotted-easing-emphasized) infinite;
+    background-color: var(--_ink);
+    block-size: 100%;
+    inline-size: 100%;
+  }
+
+  /**
+   * M3's 38-in-48, rounded to an even number of pixels — and the rounding is
+   * the whole rule rather than a tidy-up.
+   *
+   * A grid centres a box by splitting the remainder in half, so a shape whose
+   * size leaves an odd remainder inside its container sits half a pixel off
+   * centre and the browser rasterises that half-pixel to one side. At `lg` the
+   * ratio happens to land on 30 inside 38 and the shape is centred; at `md` it
+   * lands on 26.86 inside 34, and the capture showed it low and to one side.
+   *
+   * Every control height this family reads is an even number at every density,
+   * so an even shape leaves an even remainder and the two halves are whole
+   * pixels. `round()` is what states that, and it states it once for the three
+   * steps rather than as three numbers.
+   */
+  [data-ui-progress-indicator][data-shape='morph'][data-contained] [data-part-indicator] {
+    --_shape: round(nearest, calc(0.79 * var(--_size)), 2px);
+
+    block-size: var(--_shape);
+    inline-size: var(--_shape);
+  }
+
+  /** Fifty degrees a shape, five shapes, one linear turn of the container. */
+  @keyframes slotted-progress-indicator-drift {
+    to {
+      rotate: 250deg;
+    }
+  }
+
+  /**
+   * Ninety degrees a shape, on the morph's own boundaries and the morph's own
+   * curve, so the throw and the change of form are one movement.
+   */
+  @keyframes slotted-progress-indicator-lurch {
+    0% {
+      rotate: 0deg;
+    }
+
+    20% {
+      rotate: 90deg;
+    }
+
+    40% {
+      rotate: 180deg;
+    }
+
+    60% {
+      rotate: 270deg;
+    }
+
+    80% {
+      rotate: 360deg;
+    }
+
+    100% {
+      rotate: 450deg;
+    }
+  }
+
+  @keyframes slotted-progress-indicator-morph {
+    0% {
+      clip-path: polygon(
+        50% 0%,
+        59.8% 1%,
+        69.1% 3.8%,
+        77.8% 8.4%,
+        85.4% 14.6%,
+        91.6% 22.2%,
+        96.2% 30.9%,
+        99% 40.2%,
+        100% 50%,
+        99% 59.8%,
+        96.2% 69.1%,
+        91.6% 77.8%,
+        85.4% 85.4%,
+        77.8% 91.6%,
+        69.1% 96.2%,
+        59.8% 99%,
+        50% 100%,
+        40.2% 99%,
+        30.9% 96.2%,
+        22.2% 91.6%,
+        14.6% 85.4%,
+        8.4% 77.8%,
+        3.8% 69.1%,
+        1% 59.8%,
+        0% 50%,
+        1% 40.2%,
+        3.8% 30.9%,
+        8.4% 22.2%,
+        14.6% 14.6%,
+        22.2% 8.4%,
+        30.9% 3.8%,
+        40.2% 1%
+      );
+    }
+
+    20% {
+      clip-path: polygon(
+        50% 0%,
+        59.3% 3.4%,
+        65.9% 11.5%,
+        69.9% 20.3%,
+        73.6% 26.4%,
+        79.7% 30.1%,
+        88.5% 34.1%,
+        96.6% 40.7%,
+        100% 50%,
+        96.6% 59.3%,
+        88.5% 65.9%,
+        79.7% 69.9%,
+        73.6% 73.6%,
+        69.9% 79.7%,
+        65.9% 88.5%,
+        59.3% 96.6%,
+        50% 100%,
+        40.7% 96.6%,
+        34.1% 88.5%,
+        30.1% 79.7%,
+        26.4% 73.6%,
+        20.3% 69.9%,
+        11.5% 65.9%,
+        3.4% 59.3%,
+        0% 50%,
+        3.4% 40.7%,
+        11.5% 34.1%,
+        20.3% 30.1%,
+        26.4% 26.4%,
+        30.1% 20.3%,
+        34.1% 11.5%,
+        40.7% 3.4%
+      );
+    }
+
+    40% {
+      clip-path: polygon(
+        50% 6.9%,
+        59.5% 2.1%,
+        68.9% 4.3%,
+        74.7% 13%,
+        77% 23%,
+        80.2% 29.8%,
+        87.4% 34.5%,
+        96% 40.8%,
+        100% 50%,
+        96% 59.2%,
+        87.4% 65.5%,
+        80.2% 70.2%,
+        77% 77%,
+        74.7% 87%,
+        68.9% 95.7%,
+        59.5% 97.9%,
+        50% 93.1%,
+        42.7% 86.7%,
+        35.9% 83.9%,
+        26.8% 84.7%,
+        16.1% 83.9%,
+        8.5% 77.7%,
+        7.7% 67.5%,
+        11.5% 57.7%,
+        13.8% 50%,
+        11.5% 42.3%,
+        7.7% 32.5%,
+        8.5% 22.3%,
+        16.1% 16.1%,
+        26.8% 15.3%,
+        35.9% 16.1%,
+        42.7% 13.3%
+      );
+    }
+
+    60% {
+      clip-path: polygon(
+        50% 9.7%,
+        56.8% 15.7%,
+        62% 21%,
+        67.1% 24.4%,
+        73.7% 26.3%,
+        82% 28.6%,
+        90.7% 33.2%,
+        97.4% 40.6%,
+        100% 50%,
+        97.4% 59.4%,
+        90.7% 66.8%,
+        82% 71.4%,
+        73.7% 73.7%,
+        67.1% 75.6%,
+        62% 79%,
+        56.8% 84.3%,
+        50% 90.3%,
+        41.1% 94.8%,
+        31.1% 95.5%,
+        22.3% 91.4%,
+        16.6% 83.4%,
+        14.9% 73.5%,
+        16.2% 64%,
+        18.3% 56.3%,
+        19.4% 50%,
+        18.3% 43.7%,
+        16.2% 36%,
+        14.9% 26.5%,
+        16.6% 16.6%,
+        22.3% 8.6%,
+        31.1% 4.5%,
+        41.1% 5.2%
+      );
+    }
+
+    80% {
+      clip-path: polygon(
+        50% 23.1%,
+        55.4% 22.7%,
+        61.6% 22%,
+        68.9% 21.7%,
+        77.2% 22.8%,
+        85.7% 26.2%,
+        93.1% 32.2%,
+        98.2% 40.4%,
+        100% 50%,
+        98.2% 59.6%,
+        93.1% 67.8%,
+        85.7% 73.8%,
+        77.2% 77.2%,
+        68.9% 78.3%,
+        61.6% 78%,
+        55.4% 77.3%,
+        50% 76.9%,
+        44.6% 77.3%,
+        38.4% 78%,
+        31.1% 78.3%,
+        22.8% 77.2%,
+        14.3% 73.8%,
+        6.9% 67.8%,
+        1.8% 59.6%,
+        0% 50%,
+        1.8% 40.4%,
+        6.9% 32.2%,
+        14.3% 26.2%,
+        22.8% 22.8%,
+        31.1% 21.7%,
+        38.4% 22%,
+        44.6% 22.7%
+      );
+    }
+
+    100% {
+      clip-path: polygon(
+        50% 0%,
+        59.8% 1%,
+        69.1% 3.8%,
+        77.8% 8.4%,
+        85.4% 14.6%,
+        91.6% 22.2%,
+        96.2% 30.9%,
+        99% 40.2%,
+        100% 50%,
+        99% 59.8%,
+        96.2% 69.1%,
+        91.6% 77.8%,
+        85.4% 85.4%,
+        77.8% 91.6%,
+        69.1% 96.2%,
+        59.8% 99%,
+        50% 100%,
+        40.2% 99%,
+        30.9% 96.2%,
+        22.2% 91.6%,
+        14.6% 85.4%,
+        8.4% 77.8%,
+        3.8% 69.1%,
+        1% 59.8%,
+        0% 50%,
+        1% 40.2%,
+        3.8% 30.9%,
+        8.4% 22.2%,
+        14.6% 14.6%,
+        22.2% 8.4%,
+        30.9% 3.8%,
+        40.2% 1%
+      );
+    }
+  }
+
+  /* ── Reduced motion ───────────────────────────────────────────────────
+   *
+   * Stopped, not slowed. `spinner` slowed its ring on the grounds that a
+   * stopped ring says nothing, and the token foundation now refuses that
+   * reading in as many words: an animation that repeats forever needs to stop
+   * rather than to hurry.
+   *
+   * The cost is paid rather than hidden. An indeterminate indicator that does
+   * not move is a static graphic, so its meaning has to come from somewhere
+   * else — the `progressbar` role, the accessible name both bindings require,
+   * and the visible label the reference page recommends for the loader. The
+   * three loop durations are the ones the theme deliberately does not
+   * shorten, which is what makes stopping the only available answer.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    /**
+     * Important, and that is the point of the rule: the preference outranks
+     * every animated rule in the family whatever its specificity. Without it
+     * the travelling bar, the turning ring, the sweep, the drift and the
+     * morph all kept moving, because each is started by a selector that names
+     * its shape and its state and so outweighs one that names the part. A
+     * `path` is left out: the wave's paths carry the paused ramp below, which
+     * is a value and survives.
+     */
+    [data-ui-progress-indicator][data-part-root],
+    [data-ui-progress-indicator] [data-part-indicator]:not(path),
+    [data-ui-progress-indicator] [data-part-track],
+    [data-ui-progress-indicator] svg {
+      animation: none !important;
+    }
+
+    /**
+     * The travelling bar has nowhere to be when it stops. Halfway along the
+     * track at its widest is the one position that reads as a wait rather
+     * than as a value: pinned to either end it would read as nought per cent
+     * or as a hundred, which is a number this indicator does not have.
+     */
+    [data-ui-progress-indicator][data-shape='linear'][data-indeterminate] [data-part-indicator] {
+      --slotted-progress-indicator-travel-size: 46;
+      --slotted-progress-indicator-travel-start: 27;
+    }
+
+    [data-ui-progress-indicator][data-shape='linear'][data-indeterminate]:not([data-wave])
+      [data-part-indicator] {
+      scale: 0.46 1;
+      translate: 27% 0;
+    }
+
+    [data-ui-progress-indicator][data-shape='linear'][data-indeterminate]:not([data-wave])
+      [data-part-indicator]:dir(rtl) {
+      translate: -27% 0;
+    }
+
+    /**
+     * The same question for the arc, and the same answer: a third of the ring
+     * is unmistakably a fraction of something rather than a full circle or an
+     * empty one.
+     */
+    [data-ui-progress-indicator][data-shape='circular'][data-indeterminate] [data-part-indicator] {
+      stroke-dasharray: 34 100;
+    }
+
+    /**
+     * The wave stands still. The ramp that flattens it at either end of the
+     * range survives, because it is a value rather than motion: a ring at four
+     * per cent is a circle whether or not anything moves.
+     */
+    [data-ui-progress-indicator][data-part-root][data-wave] {
+      animation: none;
+    }
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────
+   *
+   * The operating system replaces every author colour, so the tone is gone
+   * whatever the family writes and the five tones become one indicator. What
+   * is left to decide is whether the geometry survives, and three things do
+   * not survive on their own: a `color-mix` of two forced colours is still a
+   * mix and paints an author colour the system did not choose; a masked
+   * indicator is masked by artwork the system does not replace; and a
+   * `clip-path` shape has no edge of its own to be seen by.
+   *
+   * The remaining track therefore moves from the pseudo-element to the track
+   * itself, which is a real element the system palette reaches — a decorative
+   * rule may not name a system colour at all, and
+   * `packages/styles/src/fallbacks.test.mjs` is what holds that. The gap goes
+   * with it, and a gap is a refinement rather than a meaning.
+   */
+  @media (forced-colors: active) {
+    [data-ui-progress-indicator][data-shape='linear'] [data-part-track] {
+      background-color: Canvas;
+      outline: var(--slotted-border-width-thin, 1px) solid ButtonBorder;
+      outline-offset: calc(-1 * var(--slotted-border-width-thin, 1px));
+    }
+
+    [data-ui-progress-indicator][data-shape='linear'] [data-part-track]::before,
+    [data-ui-progress-indicator][data-shape='linear'] [data-part-track]::after {
+      content: none;
+    }
+
+    /**
+     * An edge bar keeps no track of its own. The box it stands on already
+     * draws its edge in a system colour, and an outline here would be a
+     * second line beside the first.
+     */
+    [data-ui-progress-indicator]:is([data-placement='edge-start'], [data-placement='edge-end'])
+      [data-part-track] {
+      background-color: transparent;
+      outline: none;
+    }
+
+    [data-ui-progress-indicator] [data-part-indicator] {
+      background-color: Highlight;
+    }
+
+    /**
+     * The wavy bar is a stroke, so it keeps its crests under the palette the
+     * way the ring does: the box behind it stays clear and the path takes
+     * the highlight.
+     */
+    [data-ui-progress-indicator][data-shape='linear'][data-wave] [data-part-indicator] {
+      background-color: transparent;
+    }
+
+    [data-ui-progress-indicator][data-shape='linear'][data-wave] [data-part-indicator] path {
+      stroke: Highlight;
+    }
+
+    [data-ui-progress-indicator][data-shape='circular'] [data-part-indicator] {
+      background-color: transparent;
+      stroke: Highlight;
+    }
+
+    [data-ui-progress-indicator][data-shape='circular'] [data-part-track] {
+      stroke: ButtonBorder;
+    }
+
+    /**
+     * The morphing shape keeps its silhouette — that is the whole reason the
+     * loader exists — and loses the container behind it, which in a forced
+     * palette would be a `Canvas` disc on a `Canvas` page.
+     */
+    [data-ui-progress-indicator][data-shape='morph'][data-contained] [data-part-track] {
+      background-color: Canvas;
+    }
+  }
+}

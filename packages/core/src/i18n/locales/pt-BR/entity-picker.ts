@@ -1,0 +1,28 @@
+import type { EntityPickerMessages } from '../../messages/entity-picker';
+
+export const ptBR: EntityPickerMessages = {
+  added: '{label} adicionado, {count} escolhidos',
+  chips: '{label}, {count} escolhidos',
+  chosen: 'Escolhidos',
+  clear: 'Limpar',
+  complete: 'Limite de {max} atingido',
+  count: '{count, plural, one {# resultado} other {# resultados}}',
+  create: 'Criar “{query}”',
+  empty: 'Nenhum resultado',
+  error: 'Não foi possível carregar os resultados',
+  favorites: 'Favoritos',
+  loading: 'Carregando…',
+  loadingChip: 'Carregando…, {id}',
+  minQuery: 'Digite {count, plural, one {# caractere ou mais} other {# caracteres ou mais}}',
+  more: '+{count}',
+  moreLabel: 'Mais {count} escolhidos',
+  recent: 'Recentes',
+  remove: 'Remover {label}',
+  removed: '{label} removido, {count} escolhidos',
+  results: 'Resultados',
+  retry: 'Tentar de novo',
+  scope: 'Pesquisar em',
+  trigger: 'Mostrar resultados',
+  unresolved: 'Indisponível',
+  unresolvedChip: 'Indisponível, {id}',
+};

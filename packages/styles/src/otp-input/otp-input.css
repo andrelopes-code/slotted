@@ -1,0 +1,535 @@
+@layer slotted.components {
+  /**
+   * ── The one-time code ──────────────────────────────────────────────────
+   *
+   * One real `input` and N painted boxes. The input is the control — value,
+   * name, form, `autocomplete="one-time-code"`, one tab stop, one accessible
+   * name — and it lies *over* the boxes, transparent: it is what receives
+   * the click, the long press with "Paste" on iOS and the keyboard's own
+   * autofill bar. The boxes are paint, hidden from assistive technology, and
+   * each one shows one character of the value the input holds.
+   *
+   * Every rule keys on `data-ui` and `data-part`. The field around the control
+   * mirrors its state onto the root rather than styling through, so a control
+   * used outside a field looks the same as one inside it.
+   */
+  [data-ui-otp-input][data-part-root] {
+    /**
+     * A box is a square on the control's height at this density, so a code
+     * beside a text field in the same form sits on the same row height. Its
+     * type is one step of the text scale rather than the control scale: a
+     * character alone in a box reads one size larger than a word in a field,
+     * and the box does not shrink with density the way the text does.
+     */
+    --_height: var(--slotted-control-height-md, 34px);
+    --_font-size: var(--slotted-font-size-md, 0.875rem);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_radius: var(--slotted-otp-input-radius, var(--slotted-control-radius, 4px));
+    /* The width of the fake caret, from the border scale: a rule the weight of
+       a thin edge, which is what the browser's own caret is at this size. */
+    --_caret-width: var(--slotted-otp-input-caret-width, var(--slotted-border-width-thin, 1px));
+
+    align-items: center;
+    color: var(--slotted-otp-input-color, var(--slotted-text, CanvasText));
+    /**
+     * A code is a number, and a number does not mirror. In a right-to-left
+     * `<input>` the bidi algorithm keeps a run of digits left-to-right; the
+     * SMS shows `482 915` in that order; and a row of boxes that read
+     * `519 284` from the right would be the one place the code was reversed.
+     * The row is therefore left-to-right in both directions, and so is the
+     * input over it, so ArrowRight moves the cursor toward the box on its
+     * right. The root still sits where the page puts it — at the start edge
+     * of a right-to-left line — because its own position is its parent's.
+     */
+    direction: ltr;
+    display: inline-flex;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-otp-input-font-weight, var(--slotted-font-weight-medium, 500));
+    /* Digits that do not shift as the code is typed over. */
+    font-variant-numeric: tabular-nums;
+    /* The distance between two groups holds the separator with air each side. */
+    gap: var(--slotted-otp-input-group-gap, var(--slotted-space-4, 0.5rem));
+    /**
+     * As wide as its boxes and no wider. Stretched to a field's full column
+     * the row would pack its boxes at its own left — the row is left-to-right
+     * whatever the page does — and a right-to-left field would show them at
+     * the far end of the line rather than at its start.
+     */
+    inline-size: fit-content;
+    line-height: 1;
+    /* Never wider than what holds it: the boxes give up width first. */
+    max-inline-size: 100%;
+    /* The containing block of the input laid over the boxes. */
+    position: relative;
+  }
+
+  /**
+   * The control. It gives up everything it would paint — text, caret,
+   * selection, ground, edge, ring — and keeps everything that makes it a text
+   * control: the value, the native selection the boxes mirror, and every
+   * native attribute a consumer wrote. `opacity: 1` rather than 0, because iOS
+   * shows no paste menu on an invisible control (input-otp, `input.tsx`).
+   */
+  [data-ui-otp-input] > [data-part-input] {
+    appearance: none;
+    background-color: transparent;
+    block-size: 100%;
+    border: 0;
+    box-shadow: none;
+    caret-color: transparent;
+    color: transparent;
+    font: inherit;
+    inline-size: 100%;
+    inset: 0;
+    margin: 0;
+    /* The boxes draw the ring for it, so two rings never nest. */
+    outline: none;
+    padding: 0;
+    position: absolute;
+    /* The pointer reaches the input, and the family maps it to a box. */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-fill-color: transparent;
+    /* Above the boxes: the paint never intercepts the control. */
+    z-index: 1;
+  }
+
+  /**
+   * The selected character is painted by the browser in its own selection
+   * ink, over the element's transparent fill, so the selection has to be
+   * transparent in every property Chrome reads for it. And a press on a
+   * selected character starts a drag of that text, with a ghost of the
+   * character floating under the pointer: a full code has a character
+   * selected at every press, so the drag is refused — here for the engines
+   * that read the property, and in both bindings on `dragstart`.
+   */
+  [data-ui-otp-input] > [data-part-input]::selection {
+    /**
+     * `!important`, the only one in the library. An application that styles
+     * its own `::selection` — and the workbench does, unlayered — outranks a
+     * layered rule, and the selected character then paints in that page's
+     * ink at the input's left edge, beside the boxes: a second copy of the
+     * digit, floating. An important declaration in a layer beats every normal
+     * declaration outside it, which is the one thing this rule needs.
+     */
+    background-color: transparent !important;
+    color: transparent !important;
+    text-shadow: none !important;
+    -webkit-text-fill-color: transparent !important;
+  }
+
+  [data-ui-otp-input] > [data-part-input] {
+    -webkit-user-drag: none;
+  }
+
+  /**
+   * Autofill. The input lies over the boxes, so the classic repair — a
+   * hundred-pixel inset shadow in the tint — painted over every box, its edge
+   * and the gaps between them. The browser's own ground is held back instead,
+   * by a transition that never starts, and the boxes take the tint: an
+   * autofilled code is a fact worth seeing, on the accent surface the theme
+   * owns rather than on the browser's yellow.
+   */
+  [data-ui-otp-input] > [data-part-input]:autofill {
+    transition: background-color 0s 600000s;
+    -webkit-text-fill-color: transparent;
+  }
+
+  [data-ui-otp-input][data-part-root]:has(> [data-part-input]:autofill) [data-part-slot] {
+    background-color: var(
+      --slotted-otp-input-autofill-background,
+      var(--slotted-tone-accent-surface)
+    );
+  }
+
+  /* ── Groups and the separator ─────────────────────────────────────────
+   *
+   * `groups` partitions the boxes; `123-456` is how the SMS arrives. Each
+   * group is a row of boxes, and between two groups a short rule is drawn —
+   * never a character, which would be read by nothing and mirrored by nothing.
+   */
+  [data-ui-otp-input] > [data-part-group] {
+    align-items: center;
+    display: flex;
+    gap: var(--_gap);
+    min-inline-size: 0;
+  }
+
+  [data-ui-otp-input] > [data-part-separator] {
+    background-color: var(
+      --slotted-otp-input-separator-color,
+      var(--slotted-control-border-color, ButtonBorder)
+    );
+    block-size: var(--slotted-border-width-thick, 2px);
+    border-radius: var(--slotted-radius-full, 9999px);
+    flex: 0 0 auto;
+    inline-size: var(--slotted-otp-input-separator-size, var(--slotted-space-4, 0.5rem));
+  }
+
+  /* ── The box ──────────────────────────────────────────────────────────
+   *
+   * A square on the control height, framed like a text field: the control
+   * step of the border scale, the control radius, the resting lift every
+   * framed control carries. It shrinks before the row overflows — a code in a
+   * 240-pixel column loses width, not boxes.
+   */
+  [data-ui-otp-input] [data-part-slot] {
+    align-items: center;
+    background-color: var(--slotted-otp-input-background, var(--slotted-control-surface, Field));
+    block-size: var(--_height);
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-otp-input-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--_radius);
+    box-shadow: var(--slotted-otp-input-shadow, var(--slotted-control-shadow, none));
+    box-sizing: border-box;
+    display: flex;
+    flex: 0 1 auto;
+    inline-size: var(--_height);
+    justify-content: center;
+    /**
+     * How narrow a box may go before the row overflows instead: six tenths
+     * of its height, which still holds a digit at every step and density. A
+     * floor of zero let a field that shrink-wrapped to its label column
+     * squeeze the boxes to the width of the digit inside them.
+     */
+    min-inline-size: calc(var(--_height) * 0.6);
+    /* The containing block of the caret. */
+    position: relative;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    /* A character in a box is a character, not a line: nothing wraps. */
+    white-space: nowrap;
+  }
+
+  /**
+   * The placeholder, on an empty box only. `attr()` reads the character the
+   * binding distributed to this box; a pseudo-element leaves `:empty` true,
+   * so the caret and the filled state keep reading the DOM rather than the
+   * paint.
+   */
+  [data-ui-otp-input] [data-part-slot]:empty::before {
+    color: var(--slotted-otp-input-placeholder-color, var(--slotted-text-muted));
+    content: attr(data-placeholder);
+  }
+
+  /**
+   * The mask. The input is `type="password"` and each filled box shows the
+   * bullet a password field shows — a character standing for a hidden
+   * character, which is the platform's own convention and not an icon. It is
+   * set two steps up the type scale: at the text's own size the bullet is a
+   * four-pixel speck in a thirty-four-pixel box, and a PIN pad draws its dots
+   * larger than its digits.
+   */
+  [data-ui-otp-input][data-mask] [data-part-slot]:not(:empty) {
+    font-size: var(--slotted-otp-input-mask-size, var(--slotted-font-size-2xl, 1.25rem));
+  }
+
+  /* ── Attached ─────────────────────────────────────────────────────────
+   *
+   * The boxes of a group share their edges and keep a corner only at the
+   * ends, the shape shadcn draws by default and Chakra names `attached`. Each
+   * box pulls one border width over its neighbour, so the seam is one line
+   * rather than two, and the raised box — hovered, current, focused — comes
+   * forward so its whole edge is seen.
+   */
+  [data-ui-otp-input][data-attached] > [data-part-group] {
+    gap: 0;
+  }
+
+  [data-ui-otp-input][data-attached] [data-part-slot] {
+    border-radius: 0;
+  }
+
+  [data-ui-otp-input][data-attached] [data-part-slot]:not(:first-child) {
+    margin-inline-start: calc(var(--slotted-control-border-width, 1px) * -1);
+  }
+
+  [data-ui-otp-input][data-attached] [data-part-slot]:first-child {
+    border-start-start-radius: var(--_radius);
+    border-end-start-radius: var(--_radius);
+  }
+
+  [data-ui-otp-input][data-attached] [data-part-slot]:last-child {
+    border-start-end-radius: var(--_radius);
+    border-end-end-radius: var(--_radius);
+  }
+
+  [data-ui-otp-input][data-attached] [data-part-slot][data-current] {
+    z-index: 1;
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────
+   *
+   * Three steps, matching the field the control sits in. The box height is
+   * the control height at that step; the type is the text scale's step of the
+   * same name, so a `lg` code is a `lg` word's size and one step larger than
+   * a `lg` field's text.
+   */
+  [data-ui-otp-input][data-part-root][data-size='sm'] {
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_font-size: var(--slotted-font-size-sm, 0.8125rem);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+  }
+
+  [data-ui-otp-input][data-part-root][data-size='md'] {
+    --_height: var(--slotted-control-height-md, 34px);
+    --_font-size: var(--slotted-font-size-md, 0.875rem);
+    --_gap: var(--slotted-control-gap-md, 8px);
+  }
+
+  [data-ui-otp-input][data-part-root][data-size='lg'] {
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_font-size: var(--slotted-font-size-lg, 1rem);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+  }
+
+  /* ── Variant ──────────────────────────────────────────────────────────
+   *
+   * `outline` takes the ground it is placed on; `subtle` sinks into the page.
+   * The same two steps `text-field` draws, with the same tokens behind them,
+   * so a code under a text field in one form is one form.
+   */
+  [data-ui-otp-input][data-variant='subtle'] [data-part-slot] {
+    background-color: var(
+      --slotted-otp-input-subtle-background,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    border-color: var(
+      --slotted-otp-input-subtle-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+  }
+
+  /* ── The caret ────────────────────────────────────────────────────────
+   *
+   * The browser's caret is transparent, so the box where the cursor is draws
+   * one: a rule the height of the type, in the text's ink, on the box that is
+   * current and empty. A current box that holds a character is selected
+   * instead — typing replaces it — and shows the selection, not a caret.
+   *
+   * It blinks on the loop scale, and under reduced motion it stands still
+   * rather than blinking faster: an endless animation stops, it does not
+   * hurry.
+   */
+  [data-ui-otp-input][data-part-root]:has(> [data-part-input]:focus)
+    [data-part-slot][data-current]:empty::after {
+    animation: slotted-otp-input-blink var(--slotted-duration-loop) step-end infinite;
+    background-color: currentcolor;
+    block-size: 1em;
+    content: '';
+    inline-size: var(--_caret-width);
+    position: absolute;
+  }
+
+  @keyframes slotted-otp-input-blink {
+    0%,
+    50% {
+      opacity: 1;
+    }
+
+    50.01%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-otp-input][data-part-root]:has(> [data-part-input]:focus)
+      [data-part-slot][data-current]:empty::after {
+      animation: none;
+    }
+  }
+
+  /* ── States ───────────────────────────────────────────────────────────
+   *
+   * Written strongest last, and each weaker one guarded against every stronger
+   * one it can meet, which is the order `STATE_PRECEDENCE` sets. The pointer
+   * is always over the input, never over a box, so hover is the root's and it
+   * lights the whole row: the row is one control.
+   */
+  [data-ui-otp-input][data-part-root]:hover:not([data-disabled]):not([data-readonly]):not(
+      [data-invalid]
+    )
+    [data-part-slot] {
+    border-color: var(--slotted-otp-input-hover-border-color, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-otp-input][data-part-root][data-variant='subtle']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid])
+    [data-part-slot] {
+    background-color: var(
+      --slotted-otp-input-subtle-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  /**
+   * Where the reader is. The box holding the cursor, or every box inside the
+   * selection, takes the accent edge; a *filled* current box is a selected
+   * character and tints its ground as well, so the reader can see that the
+   * next key replaces rather than inserts. Both are drawn only while the
+   * control has focus: a current box in a blurred control would be a caret in
+   * a field nobody is in. Invalid outranks the accent edge — a code in error
+   * keeps its danger edge on every box, and the ring says where the cursor
+   * is — while the tint survives, because it says what the next key does.
+   */
+  [data-ui-otp-input][data-part-root]:not([data-invalid]):has(> [data-part-input]:focus)
+    [data-part-slot][data-current] {
+    border-color: var(--slotted-otp-input-current-border-color, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-otp-input][data-part-root]:has(> [data-part-input]:focus)
+    [data-part-slot][data-current]:not(:empty) {
+    background-color: var(
+      --slotted-otp-input-selection-background,
+      var(--slotted-tone-accent-surface)
+    );
+  }
+
+  /**
+   * The ring belongs to the current box, and it answers the control's focus
+   * rather than the box's: a browser matches `:focus-visible` on a text input
+   * for a pointer press as well as for a Tab, which is right for a control
+   * whose caret is the thing that moved. A ring around the whole row would sit
+   * still while the cursor moved inside it.
+   */
+  [data-ui-otp-input][data-part-root]:has(> [data-part-input]:focus-visible)
+    [data-part-slot][data-current] {
+    /**
+     * The resting shadow, recoloured. The geometry is the foundation's and the
+     * ink is the focus ring's, so the lift under the box and the ring around
+     * it are one colour and the state decides which colour that is.
+     */
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-control-focus-ring-offset, var(--slotted-focus-ring-offset, 2px));
+  }
+
+  /**
+   * Invalid outranks hover and is written after it for that reason. The ring
+   * is retargeted rather than repainted: every rule that draws focus reads
+   * `--slotted-focus-ring-color`, so pointing that one name at the invalid
+   * colour on the root moves all of them at once — the rule `text-field`
+   * wrote and every field family inherits.
+   */
+  [data-ui-otp-input][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-otp-input-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+  }
+
+  [data-ui-otp-input][data-part-root][data-invalid] [data-part-slot] {
+    --_invalid-edge-width: var(
+      --slotted-otp-input-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+    --_invalid-edge-color: var(
+      --slotted-otp-input-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    --_invalid-edge: inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color);
+
+    border-color: var(--slotted-otp-input-invalid-border-color, var(--slotted-tone-danger-border));
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger border is the resting edge's black. The line
+     * is a shadow inside the border, so neither box nor text moves, and it
+     * takes the resting lift's place.
+     */
+    box-shadow: var(--_invalid-edge);
+  }
+
+  [data-ui-otp-input][data-part-root][data-invalid]:has(> [data-part-input]:focus-visible)
+    [data-part-slot][data-current] {
+    box-shadow:
+      var(--_invalid-edge),
+      var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+        var(--slotted-focus-ring-color, Highlight);
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The
+   * width comes back as an outline inside the border, and a focused invalid
+   * control draws its ring double, which a valid ring is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-otp-input][data-part-root][data-invalid] [data-part-slot] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(
+        -1 * (var(--slotted-control-border-width, 1px) + var(--_invalid-edge-width))
+      );
+    }
+
+    [data-ui-otp-input][data-part-root][data-invalid]:has(> [data-part-input]:focus-visible)
+      [data-part-slot][data-current] {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(
+        --slotted-control-focus-ring-offset,
+        var(--slotted-focus-ring-offset, 2px)
+      );
+    }
+  }
+
+  /**
+   * Read-only stays focusable, selectable and legible, and it must not be
+   * mistakable for disabled: the value is still real and still submitted. The
+   * ground says "not yours to change" and the ink says nothing at all. No
+   * caret either — there is nothing to type.
+   */
+  [data-ui-otp-input][data-part-root][data-readonly] [data-part-slot] {
+    background-color: var(
+      --slotted-otp-input-readonly-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    cursor: default;
+  }
+
+  [data-ui-otp-input][data-part-root][data-readonly] [data-part-slot]::after {
+    content: none;
+  }
+
+  /**
+   * `:disabled` on the control is matched beside `data-disabled` on the root,
+   * because a control can be disabled by something that never told it so: a
+   * disabled `fieldset` disables every control inside it, and the control has
+   * no way to know.
+   */
+  [data-ui-otp-input][data-part-root][data-disabled],
+  [data-ui-otp-input][data-part-root]:has(> [data-part-input]:disabled) {
+    color: var(--slotted-otp-input-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+  }
+
+  [data-ui-otp-input][data-part-root][data-disabled] [data-part-slot],
+  [data-ui-otp-input][data-part-root]:has(> [data-part-input]:disabled) [data-part-slot] {
+    background-color: var(
+      --slotted-otp-input-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(--slotted-otp-input-disabled-border-color, var(--slotted-disabled-border));
+    /* Nothing a person cannot reach is lifted off the page. */
+    box-shadow: none;
+  }
+
+  /**
+   * The one rule the theme cannot write for the family. Forced colours give
+   * every text its system ink, and the transparent text laid over the boxes
+   * would come back as a second copy of the code. The input keeps its own
+   * colours — all of them transparent — and the boxes read the tokens the
+   * theme already remaps.
+   */
+  @media (forced-colors: active) {
+    [data-ui-otp-input] > [data-part-input] {
+      forced-color-adjust: none;
+    }
+  }
+}

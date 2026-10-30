@@ -1,0 +1,396 @@
+{
+  "schemaVersion": 5,
+  "family": "data-list",
+  "ui": "data-list",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Records as stacked label and value items."
+  },
+  "pattern": null,
+  "patternAbsent": {
+    "index": "https://www.w3.org/WAI/ARIA/apg/patterns/",
+    "reason": "The Authoring Practices publish no pattern for a list of records. The set is list's role=list, read 2026-09-24, and every interactive part is a native element or a borrowed pattern below.",
+    "roles": "https://www.w3.org/TR/wai-aria-1.2/#list"
+  },
+  "borrowed": {
+    "more": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/ — role button; aria-expanded true while the content is visible; aria-controls names the content; Enter and Space toggle",
+    "sort": "https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/ — role button with aria-haspopup menu and aria-expanded; Enter, Space and ArrowDown open on the first item, ArrowUp on the last; the menu's own keys are menu's"
+  },
+  "composes": ["list", "list-item", "checkbox", "menu", "button", "result-state", "skeleton"],
+  "rootElement": "div",
+  "rootRole": "none",
+  "roleReason": "The root holds the header, the list and the footer. The set is the list, named by label; a role on the root would name the same set twice.",
+  "anatomy": {
+    "root": "div[data-ui=data-list], the query container slotted-data-list; carries data-loading and aria-busy while rows are refreshed",
+    "header": "div above the list: select-all, count and sort, in that order",
+    "select-all": "span holding checkbox's DOM; present in selectionMode multiple",
+    "count": "output with aria-live polite: messages.count without a selection, messages.selectedCount with one",
+    "sort": "span holding button's DOM, the menu's trigger; carries data-direction for the first key; present when a column is sortable",
+    "selection": "span in list-item's start holding the record's checkbox",
+    "media": "span in list-item's start holding renderMedia or ng-template[slDataListMedia]",
+    "title": "a with href, button with activatable, span otherwise; inside list-item's label; its ::after covers the item",
+    "fields": "dl of the record's fields, a child of list-item's content placed from the text column to the row's end (from the start edge below list-item's 22rem)",
+    "field": "div holding one pair, the grouping HTML allows inside a dl",
+    "field-label": "dt, the column's label",
+    "field-value": "dd, drawn by the column's cell template with { column, row, value, text }",
+    "field-empty": "span in an empty field-value: a drawn rule and messages.empty, visually hidden",
+    "more": "button after fields, in the same grid placement, toggling the fields past fields; aria-expanded, aria-controls the dl",
+    "trailing": "span in list-item's end holding the trailing column's value",
+    "empty": "div holding result-state: empty, no-results or error",
+    "loader": "div holding skeleton's region and skeletonRows skeleton records",
+    "footer": "div under the list: load-more, and the consumer's own footer content",
+    "load-more": "span holding button's DOM; present with hasMore"
+  },
+  "data": {
+    "rows": "the consumer's array, read every render and never mutated",
+    "rowKey": "a field name or a function of the row; every state model names rows by it",
+    "columns": "GridColumn<Row>[] of @slotted/core/grid, the type data-grid, column-manager and saved-views read",
+    "columnState": "Partial<GridColumnState>, read for order and hidden; widths and pins mean nothing in a list",
+    "query": "GridQuery of @slotted/core/grid: sort, filter, search, page, group",
+    "mode": "client applies the query with applyQuery; server draws the rows it is given and reads totalCount. Resolved to server when totalCount is given, client otherwise.",
+    "reason": "The item needs the columns to place a value and the sort menu needs them to name a key, so the family reads a column model; table's rows are the consumer's children and hold none. The model is data-grid's so one query drives a grid and a list."
+  },
+  "columns": {
+    "title": "the column named by title; else the first visible column with rowHeader true; else the first visible data column",
+    "subtitle": "the column named by subtitle, drawn in list-item's description; none by default",
+    "trailing": "the column named by trailing, drawn in list-item's end; none by default",
+    "actions": "every visible column of kind actions, drawn in list-item's actions in declared order",
+    "fields": "the remaining visible columns: numbered priority ascending, ties in declared order, then those without a priority in declared order — the order columnsOutOfSpace removes them in, reversed. The first fields appear; the rest appear while the record is expanded.",
+    "excluded": "a column with popin: false, and a column hidden by columnState, is drawn nowhere — the pop-in leaves it out for the same reason"
+  },
+  "fields": {
+    "element": "dl > div > dt + dd",
+    "geometry": "grid-template-columns repeat(auto-fill, minmax(min(9rem, 100%), 1fr)), column-gap space-4, row-gap space-2; the label over the value in font-size-xs and text-muted; under 19rem of fields, the label beside the value in minmax(0, 7.5rem) minmax(0, 1fr)",
+    "value": "wraps with overflow-wrap anywhere and never truncates",
+    "reason": "description-list answers its own container at panel thresholds — rows become a stack under 26rem, two columns become one under 34rem — so in a record's body on a phone, 17 to 20rem, it always gives one stacked column, two lines a field. The pop-in's geometry gives two columns of fields from 18rem, and a record reads the same in data-grid's pop-in and in this list. The cost is a third stylesheet drawing a term and a value."
+  },
+  "activation": {
+    "link": "href(row) makes title an a",
+    "button": "activatable makes title a button, which emits activate with { key, row, reason, event }",
+    "target": "title::after, inset 0 over the li at position relative; selection, more, actions and any control inside a value stand above it at z-index 1",
+    "name": "the title alone: a dl is not phrasing content and may not sit inside a button, and a link named by every field is a sentence nobody reads twice",
+    "cost": "the fields' text cannot be selected with a pointer on an activatable record"
+  },
+  "current": {
+    "input": "current, a row key the application holds; never moved by the family",
+    "aria": "list-item's aria-current on the li: page when the title is a link, true otherwise",
+    "attribute": "list-item's data-current"
+  },
+  "sort": {
+    "control": "menu with two radio groups: the column — every sortable visible column and messages.sortNone — and the direction, disabled without a column",
+    "writes": "choosing a column replaces query.sort with [{ column, direction }], keeping the direction or ascending; choosing a direction rewrites the first key; sortNone empties query.sort",
+    "reads": "every key; the trigger shows the first key's column and messages.sortMore for the rest",
+    "announce": "the whole order, politely, through @slotted/core/live-announcer",
+    "indicator": "a mask from --slotted-icon-chevron-down, turned a half turn for ascending, table's own indicator"
+  },
+  "selection": {
+    "module": "packages/core/src/collection",
+    "function": "nextSelection",
+    "control": "checkbox, in single as in multiple — table's decision, so a reader moving between the two forms meets the same control",
+    "range": "Shift while pressing a record's checkbox selects every record from the anchor to that one",
+    "selectAll": "covers every key the query left — every page in client mode, the page in server mode — is indeterminate while some are selected, and states the count in its name",
+    "forbidden": "aria-selected",
+    "forbiddenReason": "listitem does not support it; the record paints data-selected and the checkbox announces it, the division list and table recorded",
+    "value": {
+      "single": "string | null",
+      "multiple": "readonly string[]",
+      "none": "string | null"
+    },
+    "disabled": "disabledKeys: the record is list-item disabled, its checkbox disabled, its activation refused, and nextSelection skips it"
+  },
+  "expansion": {
+    "control": "more",
+    "set": "row keys",
+    "rendered": "the fields past fields are not rendered while closed, as data-grid's detail"
+  },
+  "group": {
+    "source": "query.group through applyQuery",
+    "renders": "list's section, section-label and section-list per group node; the label is the column's label, the value and the count",
+    "open": "always; a list has no collapsible group row"
+  },
+  "loading": {
+    "first": {
+      "when": "loading with no rows",
+      "composes": "skeleton",
+      "draws": "skeletonRows records with the item's anatomy: the title line, the subtitle line when a subtitle column is named, the trailing value when one is named, and fields pairs whose labels are real",
+      "region": "skeleton's region: aria-busy and one polite announcement of messages.loading"
+    },
+    "refresh": "loading over rows already shown: aria-busy and data-loading on the root, the rows dimmed and kept; nothing moves",
+    "more": "load-more takes button's loading while loading is true over rows",
+    "record": "loadingKeys: the record is list-item loading — aria-busy, activation refused, width kept",
+    "timing": "loadingDelay before the skeleton appears and loadingMinDuration it stays, through @slotted/core/loading"
+  },
+  "empty": {
+    "part": "empty",
+    "composes": "result-state",
+    "states": {
+      "empty": "no rows at all",
+      "no-results": "the query left nothing; offers messages.clearFilters, which empties query.filter and query.search in one change with reason clear",
+      "error": "error is set; offers messages.retry, which emits retry. Over rows already shown the rows stay and the message stands above them."
+    }
+  },
+  "focus": {
+    "removal": "when the record holding focus leaves rows, focus goes to the next record's first control, else the previous record's, else empty; never to the body"
+  },
+  "wiring": {
+    "aria-label": "the consumer's label on the list, required by the types as label or labelledBy",
+    "aria-labelledby": "the consumer's labelledBy on the list",
+    "aria-busy": "true on the root while loading over rows, and on skeleton's region on the first load",
+    "aria-current": "on the current record's li, written by list-item: page with href, true otherwise",
+    "aria-expanded": "on more",
+    "aria-controls": "more names its record's fields",
+    "aria-describedby": "a checkbox's name comes from messages.selectRow with the title; nothing else is described"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves through the header — select-all, sort — and then each record's controls in order: checkbox, title when it is a link or a button, more, actions",
+      "focus": "the next control",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves back under the same rule",
+      "focus": "the previous control",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "follows a link title; activates a button title; toggles more; opens the sort menu",
+      "focus": "stays on the control; the sort menu moves it to the first item",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "toggles a checkbox; activates a button title; toggles more; opens the sort menu",
+      "focus": "stays on the control; the sort menu moves it to the first item",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Space",
+      "effect": "on a record's checkbox in multiple, selects from the anchor to that record",
+      "focus": "stays on the checkbox",
+      "source": "family"
+    }
+  ],
+  "keyboardDeparture": {
+    "keys": ["ArrowDown", "ArrowUp", "Home", "End", "PageDown", "PageUp", "typeahead"],
+    "source": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
+    "deferTo": "data-grid for records with a cell cursor, listbox for options",
+    "reason": "The scope refuses grid navigation, and role=list admits no arrow keys — list's keyboardDeparture. React Aria's GridList binds the arrows by changing the role to grid.",
+    "cost": "a reader tabbing through twenty records presses Tab once per control; the header's count and the list's name are what a screen reader jumps by"
+  },
+  "declined": {
+    "descriptionList": {
+      "deferTo": "fields",
+      "reason": "written in fields.reason"
+    },
+    "filterControl": {
+      "deferTo": "filter-bar",
+      "composition": "<FilterBar fields={…} value={query.filter} onValueChange={(filter) => setQuery({ ...query, filter })} /> above the list"
+    },
+    "search": {
+      "deferTo": "text-field",
+      "composition": "<TextField value={query.search} onValueChange={(search) => setQuery({ ...query, search })} />; the list applies query.search"
+    },
+    "pagination": {
+      "deferTo": "pagination",
+      "composition": "the footer holds the consumer's pagination bound to query.page; the list applies the page in client mode"
+    },
+    "reorder": {
+      "deferTo": "data-grid",
+      "reason": "a manual order is undone by a sort; data-grid owns row-handle and @slotted/core/drag"
+    },
+    "virtualization": {
+      "deferTo": "data-grid",
+      "reason": "the family is for a small set; hasMore and query.page bound the DOM"
+    },
+    "cardGrid": {
+      "deferTo": "grid",
+      "composition": "<Grid columns={3}>{rows.map((row) => <Card key={row.id}>…</Card>)}</Grid>"
+    },
+    "multiSortEditor": {
+      "deferTo": "data-grid",
+      "reason": "the menu edits the first key; the other keys are read and announced"
+    }
+  },
+  "messages": [
+    "count",
+    "selectAll",
+    "ascending",
+    "clearFilters",
+    "descending",
+    "empty",
+    "emptyTitle",
+    "errorTitle",
+    "false",
+    "less",
+    "loading",
+    "loadMore",
+    "more",
+    "noResultsTitle",
+    "retry",
+    "selectedCount",
+    "selectRow",
+    "sort",
+    "sortCleared",
+    "sortColumn",
+    "sortDirection",
+    "sortedBy",
+    "sortedByAscending",
+    "sortedByDescending",
+    "sortNamed",
+    "sortSummary",
+    "sortNone",
+    "true"
+  ],
+  "pluralMessages": ["count", "selectAll", "sortSummary"],
+  "messagesReason": "The words the family says come from the dataList catalog of the language in force, laid over by one messages input. The two whose wording turns on a count, count and selectAll, are plural messages, so each language states its own forms.",
+  "literals": {
+    "--_field-min": "9rem, the pop-in's field floor: two fields side by side from 18rem",
+    "--_field-label-inline": "7.5rem, the pop-in's label track when one field fills the row"
+  },
+  "axes": {
+    "variant": ["plain", "ruled", "framed"],
+    "size": ["sm", "md", "lg"],
+    "selectionMode": ["none", "single", "multiple"],
+    "mode": ["client", "server"],
+    "activatable": [true, false]
+  },
+  "resolution": {
+    "variant": ["prop", "defaults", "ruled"],
+    "size": ["prop", "defaults", "md"],
+    "selectionMode": ["prop", "defaults", "none"],
+    "fields": ["prop", "defaults", 4],
+    "mode": ["prop", "inferred from totalCount", "client"],
+    "activatable": ["prop", "defaults", false]
+  },
+  "provides": {
+    "dataListDefaults": [
+      "variant",
+      "size",
+      "fields",
+      "selectionMode",
+      "skeletonRows",
+      "loadingDelay",
+      "loadingMinDuration"
+    ]
+  },
+  "stateAttributes": {
+    "selected": "data-selected",
+    "current": "data-current",
+    "expanded": "data-expanded",
+    "disabled": "data-disabled",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "sort": {
+      "controlled": "query",
+      "uncontrolled": "defaultQuery",
+      "request": "onQueryChange",
+      "scope": "the query, as data-grid holds it; the request carries change: sort | filter | search | page | group beside the reason",
+      "reasons": ["pointer", "keyboard", "clear", "programmatic"]
+    },
+    "filter": {
+      "controlled": "query",
+      "uncontrolled": "defaultQuery",
+      "request": "onQueryChange",
+      "scope": "the same query object as sort",
+      "reasons": ["pointer", "keyboard", "clear", "programmatic"]
+    },
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "clear", "programmatic"]
+    },
+    "open": {
+      "controlled": "expanded",
+      "uncontrolled": "defaultExpanded",
+      "request": "onExpandedChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "members": {
+    "dataList": {
+      "nativeElement": "div",
+      "defaults": {
+        "variant": "ruled",
+        "size": "md",
+        "selectionMode": "none",
+        "fields": 4,
+        "activatable": false,
+        "loading": false,
+        "skeletonRows": 5,
+        "loadingDelay": 200,
+        "loadingMinDuration": 400
+      },
+      "capabilities": [
+        "sort",
+        "filter",
+        "selection",
+        "open",
+        "appearance",
+        "size",
+        "content",
+        "loading",
+        "live",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "selected",
+        "current",
+        "expanded",
+        "disabled",
+        "loading"
+      ],
+      "parts": [
+        "root",
+        "header",
+        "select-all",
+        "count",
+        "sort",
+        "selection",
+        "media",
+        "title",
+        "fields",
+        "field",
+        "field-label",
+        "field-value",
+        "field-empty",
+        "more",
+        "trailing",
+        "empty",
+        "loader",
+        "footer",
+        "load-more"
+      ]
+    }
+  },
+  "scenarios": {
+    "dataList": [
+      "playground",
+      "anatomy",
+      "fields",
+      "activation",
+      "selection",
+      "sorting",
+      "filtering",
+      "grouping",
+      "expansion",
+      "states",
+      "loading",
+      "empty-and-error",
+      "load-more",
+      "with-table",
+      "content",
+      "keyboard",
+      "accessibility"
+    ]
+  },
+  "disabledReason": "The family holds no disabled of its own: a list is read, not operated as one control. A record is disabled by disabledKeys, which list-item paints and every control of the record honours."
+}

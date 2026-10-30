@@ -1,0 +1,1233 @@
+<!--
+  The markup below is the DOM both bindings render, written a third time. It
+  drifts, so it is re-read whenever either binding's markup changes: the parts,
+  the roles, the attributes and the states are compared against the contract and
+  against React and Angular.
+
+  A closed panel carries `inert` exactly as `mount="eager"` renders it, and the
+  stylesheet takes it out of the accessibility tree with `content-visibility`.
+  The two agree; the attribute is what a browser without the property still
+  honours.
+-->
+<section data-scene="states">
+  <style>
+    [data-demo-column] {
+      display: grid;
+      gap: var(--slotted-space-8);
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    [data-demo-label] {
+      color: var(--slotted-text-muted);
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      margin: 0;
+    }
+
+    [data-demo-body] {
+      color: var(--slotted-text);
+      font-family: var(--slotted-font-family-sans);
+      font-size: var(--slotted-font-size-md);
+      line-height: var(--slotted-line-height-md);
+      margin: 0;
+    }
+
+    [data-demo-surface] {
+      background-color: var(--slotted-surface-sunken);
+      border-radius: var(--slotted-radius-md);
+      padding: var(--slotted-space-6);
+    }
+
+    [data-demo-narrow] {
+      max-inline-size: 320px;
+    }
+
+    [data-demo-action] {
+      background-color: transparent;
+      border: 1px solid var(--slotted-control-border-color);
+      border-radius: var(--slotted-radius-sm);
+      color: var(--slotted-text);
+      font-family: var(--slotted-font-family-sans);
+      font-size: var(--slotted-font-size-xs);
+      padding: 2px 8px;
+    }
+  </style>
+
+  <div data-demo-column>
+    <p data-demo-label>closed</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="plain"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="eager"
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="states-closed-trigger"
+          aria-controls="states-closed-panel"
+          aria-expanded="false"
+        >
+          <span data-part="label" data-part-label="">Delivery address</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="states-closed-panel"
+        aria-labelledby="states-closed-trigger"
+        inert
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Rua das Laranjeiras, 402 — Rio de Janeiro.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>open</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="plain"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="eager"
+      data-open
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="states-open-trigger"
+          aria-controls="states-open-panel"
+          aria-expanded="true"
+        >
+          <span data-part="label" data-part-label="">Delivery address</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="states-open-panel"
+        aria-labelledby="states-open-trigger"
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Rua das Laranjeiras, 402 — Rio de Janeiro.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>disabled</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="plain"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="eager"
+      data-disabled
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="states-disabled-trigger"
+          aria-controls="states-disabled-panel"
+          aria-expanded="false"
+          disabled
+        >
+          <span data-part="label" data-part-label="">Delivery address</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="states-disabled-panel"
+        aria-labelledby="states-disabled-trigger"
+        inert
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Rua das Laranjeiras, 402 — Rio de Janeiro.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>aria-disabled, the header a group refuses to let close</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="plain"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="eager"
+      data-open
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="states-held-trigger"
+          aria-controls="states-held-panel"
+          aria-expanded="true"
+          aria-disabled="true"
+        >
+          <span data-part="label" data-part-label="">Delivery address</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="states-held-panel"
+        aria-labelledby="states-held-trigger"
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Rua das Laranjeiras, 402 — Rio de Janeiro.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>loading, open with the content not yet arrived</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="plain"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="lazy"
+      data-loading
+      data-open
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="states-loading-trigger"
+          aria-controls="states-loading-panel"
+          aria-expanded="true"
+        >
+          <span data-part="label" data-part-label="">Delivery history</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="states-loading-panel"
+        aria-labelledby="states-loading-trigger"
+        aria-busy="true"
+      >
+        <div data-part="content" data-part-content="">
+          <!--
+            The family reserves the box and says it is busy; what stands in for
+            the content is `skeleton`'s, composed by the consumer. A second
+            family drawing placeholder geometry would be two answers to one
+            question.
+          -->
+          <span
+            style="--slotted-skeleton-inline-size: 16rem"
+            data-ui="skeleton"
+            data-ui-skeleton=""
+            data-part="root"
+            data-part-root=""
+            data-shape="text"
+            data-size="md"
+            data-animation="shimmer"
+            data-loading=""
+            aria-hidden="true"
+          ></span>
+          <span
+            style="--slotted-skeleton-inline-size: 9rem"
+            data-ui="skeleton"
+            data-ui-skeleton=""
+            data-part="root"
+            data-part-root=""
+            data-shape="text"
+            data-size="md"
+            data-animation="shimmer"
+            data-loading=""
+            aria-hidden="true"
+          ></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="variant">
+  <div data-demo-column>
+    <p data-demo-label>plain</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="plain"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="eager"
+      data-open
+    >
+      <h3 data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="variant-plain-trigger"
+          aria-controls="variant-plain-panel"
+          aria-expanded="true"
+        >
+          <span data-part="label" data-part-label="">Payment methods</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </h3>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="variant-plain-panel"
+        aria-labelledby="variant-plain-trigger"
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Credit card, ACH transfer and Zelle.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>ruled</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="ruled"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="eager"
+      data-open
+    >
+      <h3 data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="variant-ruled-trigger"
+          aria-controls="variant-ruled-panel"
+          aria-expanded="true"
+        >
+          <span data-part="label" data-part-label="">Payment methods</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </h3>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="variant-ruled-panel"
+        aria-labelledby="variant-ruled-trigger"
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Credit card, ACH transfer and Zelle.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>framed</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="framed"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="eager"
+      data-open
+    >
+      <h3 data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="variant-framed-trigger"
+          aria-controls="variant-framed-panel"
+          aria-expanded="true"
+        >
+          <span data-part="label" data-part-label="">Payment methods</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </h3>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="variant-framed-panel"
+        aria-labelledby="variant-framed-trigger"
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Credit card, ACH transfer and Zelle.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="indicator">
+  <div data-demo-column>
+    <p data-demo-label>chevron, at the end</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="ruled"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="eager"
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="indicator-chevron-trigger"
+          aria-controls="indicator-chevron-panel"
+          aria-expanded="false"
+        >
+          <span data-part="label" data-part-label="">Invoice</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="indicator-chevron-panel"
+        aria-labelledby="indicator-chevron-trigger"
+        inert
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Emitida em 3 de setembro.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>plus-minus, closed</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="ruled"
+      data-indicator="plus-minus"
+      data-toggle-placement="end"
+      data-mount="eager"
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="indicator-plus-trigger"
+          aria-controls="indicator-plus-panel"
+          aria-expanded="false"
+        >
+          <span data-part="label" data-part-label="">Invoice</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="indicator-plus-panel"
+        aria-labelledby="indicator-plus-trigger"
+        inert
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Emitida em 3 de setembro.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>plus-minus, open</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="ruled"
+      data-indicator="plus-minus"
+      data-toggle-placement="end"
+      data-mount="eager"
+      data-open
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="indicator-minus-trigger"
+          aria-controls="indicator-minus-panel"
+          aria-expanded="true"
+        >
+          <span data-part="label" data-part-label="">Invoice</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg></span
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="indicator-minus-panel"
+        aria-labelledby="indicator-minus-trigger"
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Emitida em 3 de setembro.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>toggle-placement="start"</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="ruled"
+      data-indicator="chevron"
+      data-toggle-placement="start"
+      data-mount="eager"
+      data-open
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="indicator-start-trigger"
+          aria-controls="indicator-start-panel"
+          aria-expanded="true"
+        >
+          <span data-part="label" data-part-label="">Invoice</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="indicator-start-panel"
+        aria-labelledby="indicator-start-trigger"
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Emitida em 3 de setembro.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>indicator="none"</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="ruled"
+      data-indicator="none"
+      data-toggle-placement="end"
+      data-mount="eager"
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="indicator-none-trigger"
+          aria-controls="indicator-none-panel"
+          aria-expanded="false"
+        >
+          <span data-part="label" data-part-label="">Invoice</span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="indicator-none-panel"
+        aria-labelledby="indicator-none-trigger"
+        inert
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Emitida em 3 de setembro.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sizes">
+  <div data-demo-column>
+    <p data-demo-label>sm</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="sm"
+      data-variant="framed"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="eager"
+      data-open
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="size-sm-trigger"
+          aria-controls="size-sm-panel"
+          aria-expanded="true"
+        >
+          <span data-part="label" data-part-label="">Resumo</span>
+          <span data-part="description" data-part-description="">3 de 12 itens</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="size-sm-panel"
+        aria-labelledby="size-sm-trigger"
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Delivery expected on September 12.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>md</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="framed"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="eager"
+      data-open
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="size-md-trigger"
+          aria-controls="size-md-panel"
+          aria-expanded="true"
+        >
+          <span data-part="label" data-part-label="">Resumo</span>
+          <span data-part="description" data-part-description="">3 de 12 itens</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="size-md-panel"
+        aria-labelledby="size-md-trigger"
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Delivery expected on September 12.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>lg</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      data-variant="framed"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="eager"
+      data-open
+    >
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="size-lg-trigger"
+          aria-controls="size-lg-panel"
+          aria-expanded="true"
+        >
+          <span data-part="label" data-part-label="">Resumo</span>
+          <span data-part="description" data-part-description="">3 de 12 itens</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="size-lg-panel"
+        aria-labelledby="size-lg-trigger"
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Delivery expected on September 12.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="actions">
+  <div data-demo-column>
+    <p data-demo-label>a control beside the heading, outside the button</p>
+    <div
+      data-ui="collapsible"
+      data-ui-collapsible=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="framed"
+      data-indicator="chevron"
+      data-toggle-placement="end"
+      data-mount="eager"
+      data-open
+    >
+      <h3 data-part="header" data-part-header="">
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          type="button"
+          id="actions-trigger"
+          aria-controls="actions-panel"
+          aria-expanded="true"
+        >
+          <span data-part="label" data-part-label="">Regras de frete</span>
+          <span data-part="description" data-part-description="">2 regras ativas</span>
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </h3>
+      <div data-part="actions" data-part-actions="">
+        <button data-demo-action type="button">Edit</button>
+      </div>
+      <div
+        data-part="panel"
+        data-part-panel=""
+        id="actions-panel"
+        aria-labelledby="actions-trigger"
+      >
+        <div data-part="content" data-part-content="">
+          <p data-demo-body>Free shipping over $250.00 for the Southeast region.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>the same set inside 320 pixels, where the row breaks</p>
+    <div data-demo-narrow>
+      <div
+        data-ui="collapsible"
+        data-ui-collapsible=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-variant="framed"
+        data-indicator="chevron"
+        data-toggle-placement="end"
+        data-mount="eager"
+        data-open
+      >
+        <h3 data-part="header" data-part-header="">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            id="actions-narrow-trigger"
+            aria-controls="actions-narrow-panel"
+            aria-expanded="true"
+          >
+            <span data-part="label" data-part-label="">Regras de frete</span>
+            <span data-part="description" data-part-description="">2 regras ativas</span>
+            <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </h3>
+        <div data-part="actions" data-part-actions="">
+          <button data-demo-action type="button">Edit</button>
+        </div>
+        <div
+          data-part="panel"
+          data-part-panel=""
+          id="actions-narrow-panel"
+          aria-labelledby="actions-narrow-trigger"
+        >
+          <div data-part="content" data-part-content="">
+            <p data-demo-body>Free shipping over $250.00 for the Southeast region.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="content">
+  <div data-demo-column>
+    <p data-demo-label>a title longer than the row, wrapping</p>
+    <div data-demo-narrow>
+      <div
+        data-ui="collapsible"
+        data-ui-collapsible=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-variant="ruled"
+        data-indicator="chevron"
+        data-toggle-placement="end"
+        data-mount="eager"
+      >
+        <div data-part="header" data-part-header="">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            id="content-long-trigger"
+            aria-controls="content-long-panel"
+            aria-expanded="false"
+          >
+            <span data-part="label" data-part-label=""
+              >Return conditions for international orders with an invoice issued abroad</span
+            >
+            <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="panel"
+          data-part-panel=""
+          id="content-long-panel"
+          aria-labelledby="content-long-trigger"
+          inert
+        >
+          <div data-part="content" data-part-content="">
+            <p data-demo-body>Trinta dias corridos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>the same title with truncate</p>
+    <div data-demo-narrow>
+      <div
+        data-ui="collapsible"
+        data-ui-collapsible=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-variant="ruled"
+        data-indicator="chevron"
+        data-toggle-placement="end"
+        data-mount="eager"
+        data-truncate
+      >
+        <div data-part="header" data-part-header="">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            id="content-truncate-trigger"
+            aria-controls="content-truncate-panel"
+            aria-expanded="false"
+          >
+            <span data-part="label" data-part-label=""
+              >Return conditions for international orders with an invoice issued abroad</span
+            >
+            <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="panel"
+          data-part-panel=""
+          id="content-truncate-panel"
+          aria-labelledby="content-truncate-trigger"
+          inert
+        >
+          <div data-part="content" data-part-content="">
+            <p data-demo-body>Trinta dias corridos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>an unbroken token, and a right-to-left title</p>
+    <div data-demo-narrow>
+      <div
+        data-ui="collapsible"
+        data-ui-collapsible=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-variant="ruled"
+        data-indicator="chevron"
+        data-toggle-placement="end"
+        data-mount="eager"
+      >
+        <div data-part="header" data-part-header="">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            id="content-token-trigger"
+            aria-controls="content-token-panel"
+            aria-expanded="false"
+          >
+            <span data-part="label" data-part-label=""
+              >a3f9c1e77b04d2a6f8e5c30b19d7a4f2c6b8e0d1</span
+            >
+            <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="panel"
+          data-part-panel=""
+          id="content-token-panel"
+          aria-labelledby="content-token-trigger"
+          inert
+        >
+          <div data-part="content" data-part-content="">
+            <p data-demo-body>Commit of the last release.</p>
+          </div>
+        </div>
+      </div>
+      <div
+        data-ui="collapsible"
+        data-ui-collapsible=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-variant="ruled"
+        data-indicator="chevron"
+        data-toggle-placement="end"
+        data-mount="eager"
+      >
+        <div data-part="header" data-part-header="">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            id="content-rtl-trigger"
+            aria-controls="content-rtl-panel"
+            aria-expanded="false"
+          >
+            <span data-part="label" data-part-label="">تفاصيل الشحن الدولي</span>
+            <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="panel"
+          data-part-panel=""
+          id="content-rtl-panel"
+          aria-labelledby="content-rtl-trigger"
+          inert
+        >
+          <div data-part="content" data-part-content="">
+            <p data-demo-body>Trinta dias corridos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p data-demo-label>a disclosure inside a panel, which is why nothing is a descendant rule</p>
+    <div data-demo-surface>
+      <div
+        data-ui="collapsible"
+        data-ui-collapsible=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-variant="framed"
+        data-indicator="chevron"
+        data-toggle-placement="end"
+        data-mount="eager"
+        data-open
+      >
+        <div data-part="header" data-part-header="">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            id="content-outer-trigger"
+            aria-controls="content-outer-panel"
+            aria-expanded="true"
+          >
+            <span data-part="label" data-part-label="">Advanced settings</span>
+            <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="panel"
+          data-part-panel=""
+          id="content-outer-panel"
+          aria-labelledby="content-outer-trigger"
+        >
+          <div data-part="content" data-part-content="">
+            <div
+              data-ui="collapsible"
+              data-ui-collapsible=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="ruled"
+              data-indicator="chevron"
+              data-toggle-placement="end"
+              data-mount="eager"
+            >
+              <div data-part="header" data-part-header="">
+                <button
+                  data-part="trigger"
+                  data-part-trigger=""
+                  type="button"
+                  id="content-inner-trigger"
+                  aria-controls="content-inner-panel"
+                  aria-expanded="false"
+                >
+                  <span data-part="label" data-part-label="">HTTP headers</span>
+                  <span data-part="indicator" data-part-indicator="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="chevron-down"
+                      ></svg></span
+                  ></span>
+                </button>
+              </div>
+              <div
+                data-part="panel"
+                data-part-panel=""
+                id="content-inner-panel"
+                aria-labelledby="content-inner-trigger"
+                inert
+              >
+                <div data-part="content" data-part-content="">
+                  <p data-demo-body>The inner panel stays closed.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

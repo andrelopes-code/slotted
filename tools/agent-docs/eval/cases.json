@@ -1,0 +1,214 @@
+{
+  "model": "claude-sonnet-5-5",
+  "runs": 3,
+  "bindings": ["react", "angular"],
+  "cases": [
+    {
+      "id": "orders-list",
+      "skill": "compose-screen",
+      "prompt": "Write the orders list screen in src/: a searchable, filterable, paged list of orders (number, customer, status, total, date) read from fetchOrders(query) in src/api.ts, which you also write as a stub returning a Promise.",
+      "assertions": [
+        { "kind": "uses-family", "family": "data-grid" },
+        { "kind": "uses-family", "family": "filter-bar" },
+        { "kind": "uses-family", "family": "pagination" },
+        { "kind": "no-literal" }
+      ]
+    },
+    {
+      "id": "customer-record",
+      "skill": "compose-screen",
+      "prompt": "Write the page of one customer in src/: its name, status, three figures (open orders, lifetime revenue, overdue balance) and two related lists, orders and activity, read from fetchCustomer(id) in src/api.ts, which you also write as a stub.",
+      "assertions": [
+        { "kind": "uses-family", "family": "page-header" },
+        { "kind": "uses-family", "family": "stat-card" },
+        { "kind": "uses-family", "family": "tabs" },
+        { "kind": "no-literal" }
+      ]
+    },
+    {
+      "id": "customer-form",
+      "skill": "compose-screen",
+      "prompt": "Write the create-customer form in src/: name, email, phone, credit limit; submit calls createCustomer(input) in src/api.ts, a stub that can reject with field errors keyed by field name.",
+      "assertions": [
+        { "kind": "uses-family", "family": "form" },
+        { "kind": "uses-family", "family": "field" },
+        { "kind": "mentions", "pattern": "loading" },
+        { "kind": "no-literal" }
+      ]
+    },
+    {
+      "id": "sales-overview",
+      "skill": "compose-screen",
+      "prompt": "Write a sales overview screen in src/: four figures for this month and a chart of revenue per week, read from fetchOverview() in src/api.ts, a stub.",
+      "assertions": [
+        { "kind": "uses-family", "family": "stat-card" },
+        { "kind": "uses-family", "family": "chart" },
+        { "kind": "no-literal" }
+      ]
+    },
+    {
+      "id": "metrics-card-loading",
+      "skill": "waiting-states",
+      "prompt": "In src/, write a card that shows three metrics read from fetchMetrics() in src/api.ts (a stub that resolves after two seconds). Show what the card draws while it waits.",
+      "assertions": [
+        { "kind": "uses-family", "family": "skeleton" },
+        { "kind": "uses-family", "family": "card" },
+        { "kind": "no-literal" }
+      ]
+    },
+    {
+      "id": "save-button-wait",
+      "skill": "waiting-states",
+      "prompt": "In src/, write a settings panel with a Save button that calls saveSettings(values) in src/api.ts, a stub that resolves after one second. A second press while saving must do nothing.",
+      "assertions": [
+        { "kind": "uses-family", "family": "button" },
+        { "kind": "mentions", "pattern": "loading" },
+        { "kind": "no-literal" }
+      ]
+    },
+    {
+      "id": "notifications-empty",
+      "skill": "waiting-states",
+      "prompt": "In src/, write a notifications list read from fetchNotifications() in src/api.ts, a stub that can resolve to an empty array or reject. Handle every state the list can be in.",
+      "assertions": [
+        {
+          "kind": "any",
+          "of": [
+            { "kind": "uses-family", "family": "skeleton" },
+            { "kind": "mentions", "pattern": "(\\[loading\\]|\\bloading)\\s*=" }
+          ]
+        },
+        { "kind": "uses-family", "family": "result-state" },
+        { "kind": "no-literal" }
+      ]
+    },
+    {
+      "id": "report-export-progress",
+      "skill": "waiting-states",
+      "prompt": "In src/, write an Export button for a report; exportReport(onProgress) in src/api.ts is a stub that reports percent done ten times over three seconds.",
+      "assertions": [
+        {
+          "kind": "any",
+          "of": [
+            { "kind": "uses-family", "family": "progress-indicator" },
+            { "kind": "mentions", "pattern": "(\\[loading\\]|\\bloading)\\s*=" }
+          ]
+        },
+        { "kind": "no-literal" }
+      ]
+    },
+    {
+      "id": "sticky-summary",
+      "skill": "compose-screen",
+      "prompt": "Write the new-order screen in src/: a page whose header stays while the page scrolls, a long form of order lines on the left, and beside it a summary column (subtotal, tax, total, Place order) that stays in view while the form scrolls; submit calls placeOrder(input) in src/api.ts, which you also write as a stub.",
+      "assertions": [
+        { "kind": "no-literal" },
+        {
+          "kind": "mentions",
+          "pattern": "inset-block-start[^;]*--slotted-page-sticky-top|top[^;]*--slotted-page-sticky-top"
+        }
+      ]
+    },
+    {
+      "id": "own-element",
+      "skill": "compose-screen",
+      "prompt": "Write the team capacity screen in src/: a strip of the next 30 days, one focusable and selectable cell per day, each cell tinted by the day's load (low, normal, high, over), with the selected day's assignments listed below the strip; read from fetchCapacity() in src/api.ts, which you also write as a stub returning a Promise.",
+      "assertions": [
+        { "kind": "no-literal" },
+        { "kind": "mentions", "pattern": "focus-visible[\\s\\S]{0,400}--slotted-focus-ring-" },
+        { "kind": "mentions", "pattern": "--slotted-tone-" }
+      ]
+    },
+    {
+      "id": "review-orders",
+      "skill": "review-screen",
+      "seed": "review-orders",
+      "prompt": "Review the orders screen in src/ against the library's guidelines and fix every defect you find.",
+      "assertions": [
+        { "kind": "no-literal" },
+        { "kind": "absent", "pattern": "data-part=" },
+        { "kind": "mentions", "pattern": "loading" }
+      ]
+    },
+    {
+      "id": "review-overview",
+      "skill": "review-screen",
+      "seed": "review-overview",
+      "prompt": "Review the overview screen in src/ against the library's guidelines and fix every defect you find.",
+      "assertions": [
+        { "kind": "no-literal" },
+        { "kind": "mentions", "pattern": "fill=[\"']plain[\"']" }
+      ]
+    },
+    {
+      "id": "seat-map",
+      "skill": "build-own-element",
+      "prompt": "Write a seat picker in src/: a map of 8 rows by 12 seats read from fetchSeats() in src/api.ts, which you also write as a stub returning a Promise. Each seat is free, taken or selected; a free seat toggles its selection by pointer and by keyboard, a taken seat cannot be chosen, and the number of selected seats shows under the map.",
+      "assertions": [
+        { "kind": "no-literal" },
+        {
+          "kind": "any",
+          "of": [
+            { "kind": "uses-family", "family": "toggle" },
+            { "kind": "uses-family", "family": "toggle-group" },
+            { "kind": "uses-family", "family": "checkbox" },
+            { "kind": "mentions", "pattern": "focus-visible[\\s\\S]{0,400}--slotted-focus-ring-" }
+          ]
+        },
+        {
+          "kind": "any",
+          "of": [
+            { "kind": "uses-family", "family": "toggle" },
+            { "kind": "uses-family", "family": "toggle-group" },
+            { "kind": "uses-family", "family": "checkbox" },
+            { "kind": "mentions", "pattern": "--slotted-target-" }
+          ]
+        },
+        {
+          "kind": "any",
+          "of": [
+            { "kind": "uses-family", "family": "toggle" },
+            { "kind": "uses-family", "family": "toggle-group" },
+            { "kind": "uses-family", "family": "checkbox" },
+            { "kind": "mentions", "pattern": "forced-colors" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "brand-theme",
+      "skill": "theme-app",
+      "prompt": "Give this application the brand colour #0f766e on every family, and let each reader switch between light, dark and the system's preference from a control in the header; write the change in src/.",
+      "assertions": [
+        {
+          "kind": "mentions",
+          "pattern": "seed-accent|\\baccent['\"]?\\s*:\\s*(['\"]#0f766e|[A-Za-z_$])"
+        },
+        { "kind": "mentions", "pattern": "0f766e" },
+        { "kind": "mentions", "pattern": "system" },
+        { "kind": "absent", "pattern": "--slotted-tone-accent-[a-z-]+\\s*:" }
+      ]
+    },
+    {
+      "id": "section-notices",
+      "skill": "compose-screen",
+      "prompt": "Write a settings section in src/ for market data: a list of price sources read from fetchSources() in src/api.ts, which you also write as a stub returning a Promise. When no source is enabled the section says so and offers to enable the suggested one; while an update runs it says the prices are being refreshed; when the backend refuses a change it says the change was not saved. Each source has an API key field that says when the key is malformed.",
+      "assertions": [
+        { "kind": "uses-family", "family": "alert" },
+        { "kind": "absent", "pattern": "(InlineMessage|slInlineMessage)[^>]*size=\"md\"" }
+      ]
+    },
+    {
+      "id": "record-link",
+      "skill": "compose-screen",
+      "prompt": "Write an invoices table in src/: rows read from fetchInvoices() in src/api.ts, which you also write as a stub returning a Promise. The invoice number in each row links to the invoice's record at /invoices/<id> through the application's router: react-router-dom in a React application, @angular/router in an Angular one.",
+      "assertions": [
+        { "kind": "uses-family", "family": "link" },
+        {
+          "kind": "absent",
+          "pattern": "<\\w*Link\\b(?![^>]*\\{\\.\\.\\.)[^>]*\\bto=|<a\\b(?![^>]*slLink)[^>]*routerLink"
+        }
+      ]
+    }
+  ]
+}

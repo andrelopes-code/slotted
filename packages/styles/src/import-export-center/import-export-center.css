@@ -1,0 +1,1154 @@
+@layer slotted.components {
+  /**
+   * The jobs an application runs away from the page — imports and exports —
+   * and everything the reader can do about each one.
+   *
+   *   ┌──────────────────────────────────────────────────────────────┐
+   *   │ header ▸ title (count) · clear · actions                     │
+   *   ├──────────────────────────────────────────────────────────────┤
+   *   │ views ▸ tabs (list only)                                     │
+   *   ├──────────────────────────────────────────────────────────────┤
+   *   │ list ▸ job …                                                 │
+   *   │   job ▸ visual · body ▸ heading ▸ job-title                  │
+   *   │                             meta                             │
+   *   │                         status ▸ mark · word · stage         │
+   *   │                         progress ▸ bar · progress-text       │
+   *   │                         summary · message                    │
+   *   │               controls ▸ download · retry · cancel · toggle  │
+   *   │                          · job-actions · remove              │
+   *   │               details ▸ counts · files · errors              │
+   *   │ more · empty · error                                         │
+   *   ├──────────────────────────────────────────────────────────────┤
+   *   │ footer                                                       │
+   *   └──────────────────────────────────────────────────────────────┘
+   *
+   * The bar, the buttons, the tabs, the table, the skeleton and the
+   * result-state are their families'. This sheet arranges them and reaches
+   * them only through its own parts, with child combinators, so a `title` or
+   * a `label` of theirs is never restyled.
+   *
+   * Below 40rem a job is two columns — the tile, and everything else with the
+   * controls under the words. From 40rem the status, the bar and the message
+   * take a column of their own beside the name, and a list of jobs reads as a
+   * table: the reader scans the names down one edge and the states down
+   * another. The threshold is the family's own, for the reason `list-item`
+   * and `card` keep theirs: it answers the job's content, not the page.
+   */
+  [data-ui-import-export-center] {
+    --_text: var(--slotted-text, CanvasText);
+    --_muted: var(--slotted-text-muted, GrayText);
+    --_rule: var(--slotted-import-export-center-border, var(--slotted-border-subtle, ButtonBorder));
+    --_ground: var(--slotted-import-export-center-background, var(--slotted-surface, Canvas));
+    --_hover: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+    --_active: var(--slotted-tone-secondary-subtle-active, ButtonFace);
+    --_inset-inline: var(
+      --slotted-import-export-center-inset-inline-md,
+      var(--slotted-space-6, 1rem)
+    );
+    --_inset-block: var(
+      --slotted-import-export-center-inset-block-md,
+      var(--slotted-space-5, 0.75rem)
+    );
+    --_gap: var(--slotted-import-export-center-gap-md, var(--slotted-space-5, 0.75rem));
+    --_title-size: var(--slotted-font-size-lg, 1rem);
+    --_title-line-height: var(--slotted-line-height-lg, 1.5);
+    --_job-title-size: var(--slotted-font-size-md, 0.875rem);
+    --_job-title-line-height: var(--slotted-line-height-md, 1.5);
+    --_meta-size: var(--slotted-font-size-sm, 0.8125rem);
+    --_meta-line-height: var(--slotted-line-height-sm, 1.45);
+    --_small-size: var(--slotted-font-size-xs, 0.75rem);
+    --_small-line-height: var(--slotted-line-height-xs, 1.4);
+    /**
+     * The tile: two glyphs wide at the control scale, which is the square
+     * `upload` draws a file in. A CSV is the same tile in the field it was
+     * chosen from and in the job that imports it.
+     */
+    --_glyph: var(--slotted-control-icon-size-md, 16px);
+    --_tile: calc(2 * var(--_glyph));
+    /** The family's own icon control: the glyph at the small step, the box capped by the inner-control scale. */
+    --_control-glyph: var(--slotted-control-icon-size-sm, 14px);
+    --_control: min(
+      calc(var(--_control-glyph) + 2 * var(--slotted-space-2, 0.25rem)),
+      var(--slotted-control-inner-size-md, 24px)
+    );
+    /** A count beside words: the chip `notification-center` draws, a step below the meta size. */
+    --_count-size: var(--slotted-font-size-xs, 0.75rem);
+    --_count-box: calc(
+      var(--_count-size) + 2 * var(--slotted-space-1, 0.125rem) + 2 *
+        var(--slotted-border-width-thin, 1px)
+    );
+    --_rule-size: var(--slotted-border-width-thin, 1px);
+    /**
+     * The air between a status mark and its words. A step below the 8 pixels
+     * the other marks keep: this mark is the line's own size, 13 pixels at
+     * `md`, and its artwork is inset a pixel inside its box, so eight read as
+     * a gap the eye had to cross.
+     */
+    --_mark-gap: var(--slotted-space-3, 0.375rem);
+    /** The dot between two items of a line, and the gap it hangs in. */
+    --_separator: 3px;
+    --_separator-gap: var(--slotted-space-5, 0.75rem);
+    /** The narrowest the status column may be in the wide job: its controls fit on one line. */
+    --_status-column: var(--slotted-import-export-center-status-column, 16rem);
+    --_duration: var(--slotted-control-transition-duration);
+    --_easing: var(--slotted-control-transition-easing);
+
+    background-color: var(--_ground);
+    color: var(--_text);
+    container-name: import-export-center;
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    min-inline-size: 0;
+  }
+
+  /**
+   * The popover's and the drawer's step. A root with inline-size containment
+   * contributes no intrinsic width, so inside a panel sized to its content it
+   * would collapse to nothing; `sm` states a floor capped by the viewport, as
+   * `notification-center` does for the same host.
+   */
+  [data-ui-import-export-center][data-size='sm'] {
+    min-inline-size: var(
+      --slotted-import-export-center-min-inline-size-sm,
+      min(24rem, calc(100vw - var(--slotted-space-8, 2rem)))
+    );
+    --_inset-inline: var(
+      --slotted-import-export-center-inset-inline-sm,
+      var(--slotted-space-5, 0.75rem)
+    );
+    --_inset-block: var(
+      --slotted-import-export-center-inset-block-sm,
+      var(--slotted-space-4, 0.5rem)
+    );
+    --_gap: var(--slotted-import-export-center-gap-sm, var(--slotted-space-4, 0.5rem));
+    --_title-size: var(--slotted-font-size-md, 0.875rem);
+    --_title-line-height: var(--slotted-line-height-md, 1.5);
+    --_job-title-size: var(--slotted-font-size-sm, 0.8125rem);
+    --_job-title-line-height: var(--slotted-line-height-sm, 1.45);
+    --_meta-size: var(--slotted-font-size-xs, 0.75rem);
+    --_meta-line-height: var(--slotted-line-height-xs, 1.4);
+    --_glyph: var(--slotted-control-icon-size-sm, 14px);
+    --_control: min(
+      calc(var(--_control-glyph) + 2 * var(--slotted-space-2, 0.25rem)),
+      var(--slotted-control-inner-size-sm, 22px)
+    );
+  }
+
+  /* ── The header ──────────────────────────────────────────────────────── */
+
+  /**
+   * The title pushes the rest to the end; a control that wraps lands at the
+   * end of its own line, under the one before it.
+   */
+  [data-ui-import-export-center] > [data-part-header] {
+    align-items: center;
+    border-block-end: var(--_rule-size) solid var(--_rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-3, 0.375rem) var(--_gap);
+    justify-content: flex-end;
+    min-inline-size: 0;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+  }
+
+  [data-ui-import-export-center] > [data-part-header] > [data-part-title] {
+    align-items: center;
+    color: var(--_text);
+    display: inline-flex;
+    flex-wrap: wrap;
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--_title-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    gap: var(--slotted-space-3, 0.375rem);
+    letter-spacing: -0.01em;
+    line-height: var(--_title-line-height);
+    margin: 0;
+    margin-inline-end: auto;
+    min-inline-size: 0;
+  }
+
+  /**
+   * How many jobs are still moving: a chip on the smallest type step in
+   * tabular figures, in the accent pair, because what it counts is what is
+   * running. Absent at nought.
+   */
+  [data-ui-import-export-center] > [data-part-header] > [data-part-title] > [data-part-count] {
+    align-items: center;
+    background-color: var(--slotted-tone-accent-surface, Canvas);
+    block-size: var(--_count-box);
+    border: var(--slotted-border-width-thin, 1px) solid
+      color-mix(in oklab, currentcolor 20%, transparent);
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-sizing: border-box;
+    color: var(--slotted-tone-accent-text, Highlight);
+    display: inline-flex;
+    font-size: var(--_count-size);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    justify-content: center;
+    letter-spacing: 0;
+    line-height: 1;
+    min-inline-size: var(--_count-box);
+    padding-block: 0;
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    white-space: nowrap;
+  }
+
+  /**
+   * The family's clear and the consumer's actions wrap as one group, so a
+   * narrow header keeps the title on its line and the controls together on
+   * the next, at the end.
+   */
+  [data-ui-import-export-center] > [data-part-header] > [data-part-tools] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-control-gap-sm, 6px);
+    justify-content: flex-end;
+    min-inline-size: 0;
+  }
+
+  [data-ui-import-export-center] [data-part-tools] > [data-part-clear],
+  [data-ui-import-export-center] [data-part-tools] > [data-part-actions] {
+    align-items: center;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-control-gap-sm, 6px);
+  }
+
+  /* ── The views ───────────────────────────────────────────────────────── */
+
+  /** The strip sits on the header's rule, so the tabs family's own track is off. */
+  [data-ui-import-export-center] > [data-part-views] {
+    border-block-end: var(--_rule-size) solid var(--_rule);
+    min-inline-size: 0;
+    padding-inline: var(--_inset-inline);
+  }
+
+  /* ── The list ────────────────────────────────────────────────────────── */
+
+  /**
+   * The one part that gives way. A host with a height — a popover, a drawer
+   * — bounds the list alone and the header keeps its row; a page gets the
+   * whole list and no bar.
+   */
+  [data-ui-import-export-center] > [data-part-list] {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    min-block-size: 0;
+    min-inline-size: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0;
+    scrollbar-color: var(--slotted-border-strong, ButtonBorder) transparent;
+    scrollbar-width: thin;
+  }
+
+  /** The list is where focus lands when the last job it held leaves; it draws the ring inward. */
+  [data-ui-import-export-center] > [data-part-list]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* ── A job ───────────────────────────────────────────────────────────── */
+
+  /**
+   * The tile, the words, the controls. A rule under each, so a list of forty
+   * reads as rows and not as a column of cards. The tile sits on the job
+   * title's first line; the details, when shown, run under the words and the
+   * controls, never under the tile.
+   */
+  [data-ui-import-export-center] > [data-part-list] > [data-part-job] {
+    /**
+     * The status, in the tone of the outcome. The rows below retune the roles;
+     * the status glyph itself is the binding's, chosen from the same state.
+     */
+    --_tone-text: var(--slotted-tone-secondary-text, CanvasText);
+    --_tone-solid: var(--slotted-tone-secondary-solid, CanvasText);
+
+    align-items: start;
+    border-block-end: var(--_rule-size) solid var(--_rule);
+    column-gap: var(--_gap);
+    display: grid;
+    grid-template-areas:
+      'visual body'
+      'visual controls'
+      '. details';
+    grid-template-columns: var(--_tile) minmax(0, 1fr);
+    min-inline-size: 0;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    row-gap: var(--slotted-space-4, 0.5rem);
+  }
+
+  [data-ui-import-export-center] > [data-part-list] > [data-part-job]:last-child {
+    border-block-end: 0;
+  }
+
+  [data-ui-import-export-center] > [data-part-list] > [data-part-job][data-status='running'] {
+    --_tone-text: var(--slotted-tone-accent-text, Highlight);
+    --_tone-solid: var(--slotted-tone-accent-solid, Highlight);
+  }
+
+  [data-ui-import-export-center] > [data-part-list] > [data-part-job][data-outcome='success'] {
+    --_tone-text: var(--slotted-tone-success-text, CanvasText);
+    --_tone-solid: var(--slotted-tone-success-solid, CanvasText);
+  }
+
+  [data-ui-import-export-center] > [data-part-list] > [data-part-job][data-outcome='partial'] {
+    --_tone-text: var(--slotted-tone-warning-text, CanvasText);
+    --_tone-solid: var(--slotted-tone-warning-solid, CanvasText);
+  }
+
+  [data-ui-import-export-center] > [data-part-list] > [data-part-job][data-outcome='failed'] {
+    --_tone-text: var(--slotted-tone-danger-text, CanvasText);
+    --_tone-solid: var(--slotted-tone-danger-solid, CanvasText);
+  }
+
+  [data-ui-import-export-center] > [data-part-list] > [data-part-job][data-outcome='canceled'] {
+    --_tone-text: var(--_muted);
+    --_tone-solid: var(--_muted);
+  }
+
+  /**
+   * The tile. The kind's colour from the File kind scale `upload` owns, the
+   * kind's glyph — an `Icon` the binding draws from the kind — knocked out of
+   * it in the scale's foreground. Aligned to the job title's first line box,
+   * so the tile and the name start on one line.
+   */
+  [data-ui-import-export-center] [data-part-job] > [data-part-visual] {
+    --_kind-tile: var(--slotted-upload-kind-other);
+    --slotted-icon-size: var(--_glyph);
+
+    align-items: center;
+    background-color: var(--_kind-tile);
+    block-size: var(--_tile);
+    border-radius: var(--slotted-radius-sm, 4px);
+    color: var(--slotted-upload-kind-foreground);
+    display: inline-flex;
+    grid-area: visual;
+    inline-size: var(--_tile);
+    justify-content: center;
+    /*
+     * Centred on the name and the first line of meta, the pair the eye reads
+     * as the job's label, rather than hung from the name's line box: the tile
+     * is shorter than the two lines, and top-aligned it stood above them.
+     */
+    margin-block-start: round(
+      nearest,
+      calc(
+        (
+            var(--_job-title-size) * var(--_job-title-line-height) + var(--_meta-size) *
+              var(--_meta-line-height) - var(--_tile)
+          ) /
+          2
+      ),
+      1px
+    );
+  }
+
+  [data-ui-import-export-center] [data-part-job] > [data-part-visual][data-kind='pdf'] {
+    --_kind-tile: var(--slotted-upload-kind-pdf);
+  }
+
+  [data-ui-import-export-center] [data-part-job] > [data-part-visual][data-kind='document'] {
+    --_kind-tile: var(--slotted-upload-kind-document);
+  }
+
+  [data-ui-import-export-center] [data-part-job] > [data-part-visual][data-kind='spreadsheet'] {
+    --_kind-tile: var(--slotted-upload-kind-spreadsheet);
+  }
+
+  [data-ui-import-export-center] [data-part-job] > [data-part-visual][data-kind='presentation'] {
+    --_kind-tile: var(--slotted-upload-kind-presentation);
+  }
+
+  [data-ui-import-export-center] [data-part-job] > [data-part-visual][data-kind='image'] {
+    --_kind-tile: var(--slotted-upload-kind-image);
+  }
+
+  [data-ui-import-export-center] [data-part-job] > [data-part-visual][data-kind='video'] {
+    --_kind-tile: var(--slotted-upload-kind-video);
+  }
+
+  [data-ui-import-export-center] [data-part-job] > [data-part-visual][data-kind='audio'] {
+    --_kind-tile: var(--slotted-upload-kind-audio);
+  }
+
+  [data-ui-import-export-center] [data-part-job] > [data-part-visual][data-kind='archive'] {
+    --_kind-tile: var(--slotted-upload-kind-archive);
+  }
+
+  /* ── What a job says ─────────────────────────────────────────────────── */
+
+  /**
+   * The column that shrinks. Its rows are the heading, the status, the bar,
+   * the summary and the message, each present only when it has something to
+   * say; the gap between them is the one the meta line keeps from the title.
+   */
+  [data-ui-import-export-center] [data-part-job] > [data-part-body] {
+    display: grid;
+    gap: var(--slotted-space-3, 0.375rem);
+    grid-area: body;
+    grid-template-columns: minmax(0, 1fr);
+    min-inline-size: 0;
+  }
+
+  [data-ui-import-export-center] [data-part-job] > [data-part-body] > [data-part-heading] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-1, 0.125rem);
+    min-inline-size: 0;
+  }
+
+  /**
+   * The job's name, on the line the tile's top edge is aligned with: the
+   * tile is two glyphs tall and the name's line box is shorter, so the name
+   * is set on a line of the tile's own height, and the meta line under it
+   * starts where the tile ends.
+   */
+  [data-ui-import-export-center] [data-part-heading] > [data-part-job-title] {
+    align-self: flex-start;
+    color: var(--_text);
+    font-size: var(--_job-title-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--_job-title-line-height);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-import-export-center] [data-part-heading] > a[data-part-job-title] {
+    border-radius: var(--slotted-radius-xs, 2px);
+    text-decoration-color: transparent;
+    text-decoration-line: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color var(--_duration) var(--_easing);
+  }
+
+  [data-ui-import-export-center]
+    [data-part-heading]
+    > a[data-part-job-title]:not([data-disabled]):hover {
+    text-decoration-color: currentcolor;
+  }
+
+  [data-ui-import-export-center] [data-part-heading] > a[data-part-job-title]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /** A title the family focuses — reveal(), a withdrawn control — without making it a tab stop. */
+  [data-ui-import-export-center] [data-part-heading] > span[data-part-job-title]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * What the job is about, in the muted voice on one line that wraps between
+   * its items and never inside one: direction, format, the file, its size,
+   * who ran it, when. The items are separated by a dot drawn as a shape — a
+   * character in `content` would be read aloud — hung in the middle of the
+   * gap before each item. The line clips its inline overflow, so the dot of
+   * an item that wrapped to the start of a line hangs outside the box and is
+   * not drawn: a line never begins with a separator.
+   */
+  [data-ui-import-export-center] [data-part-heading] > [data-part-meta] {
+    align-items: baseline;
+    color: var(--_muted);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--_meta-size);
+    gap: 0 var(--_separator-gap);
+    line-height: var(--_meta-line-height);
+    margin: 0;
+    min-inline-size: 0;
+    overflow-x: clip;
+  }
+
+  /**
+   * An item of a secondary line wraps as a unit — "1.204 de 5.000 linhas"
+   * never leaves "linhas" alone on the next line — and an item longer than
+   * the whole line shrinks to an ellipsis rather than overflowing it.
+   *
+   * The item clips with a margin the width of the gap, so the separator it
+   * hangs in that gap is still painted; `overflow: hidden` cut the dot off.
+   * The margin is a bare `var()`: a `calc()` there computes to nought
+   * (`docs/token-foundation.md`, rule 7).
+   */
+  [data-ui-import-export-center] [data-part-meta] > *,
+  [data-ui-import-export-center] [data-part-summary] > *,
+  [data-ui-import-export-center] [data-part-progress-text] > * {
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    overflow: clip;
+    overflow-clip-margin: var(--_separator-gap);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-import-export-center] [data-part-meta] > * + *::before,
+  [data-ui-import-export-center] [data-part-summary] > * + *::before,
+  [data-ui-import-export-center] [data-part-progress-text] > * + *::before,
+  [data-ui-import-export-center] [data-part-status-label] > [data-part-stage]::before {
+    background-color: currentcolor;
+    block-size: var(--_separator);
+    border-radius: var(--slotted-radius-full, 9999px);
+    content: '';
+    display: inline-block;
+    inline-size: var(--_separator);
+    /* Hung in the middle of the gap before the item: the two margins add up to
+       minus the dot's own width, so the words do not move. */
+    margin-inline-end: calc((var(--_separator-gap) - var(--_separator)) / 2);
+    margin-inline-start: calc((var(--_separator-gap) + var(--_separator)) / -2);
+    opacity: 0.6;
+    /* The dot's centre on the middle of the x-height, measured from the
+       baseline rather than from the line box, so it sits where the lowercase
+       letters are at every size and in every face. */
+    vertical-align: calc(0.5ex - var(--_separator) / 2);
+  }
+
+  /**
+   * A file name is content the family did not choose. The stem shrinks with
+   * an ellipsis and the extension does not, so the part that says what the
+   * file is survives; the whole name stays in the DOM. The run is one
+   * bidi-isolated item in the name's own direction.
+   */
+  /*
+   * The name is one item of the line, and the item is a plain span in the
+   * line's own direction: the separator hangs on the item's inline start, and
+   * an item carrying `dir="auto"` would hang it on the wrong side of an
+   * Arabic name in a left-to-right page.
+   */
+  [data-ui-import-export-center] [data-part-meta] > :has(> [data-part-file-name]) {
+    max-inline-size: 100%;
+    white-space: nowrap;
+  }
+
+  [data-ui-import-export-center] [data-part-meta] [data-part-file-name] {
+    display: inline-flex;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    unicode-bidi: isolate;
+  }
+
+  [data-ui-import-export-center] [data-part-file-name] > [data-part-name] {
+    min-inline-size: 1ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-import-export-center] [data-part-file-name] > [data-part-extension] {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  [data-ui-import-export-center] [data-part-meta] > [data-part-time] {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /**
+   * The status line: the mark, the word in the outcome's tone, and the
+   * consumer's stage in the muted voice. The mark takes the line's own size
+   * and sits a step of air before the word.
+   *
+   * It is centred on the band `toast` measured for a mark beside a line of
+   * text: the midpoint of the cap height and the x-height, `(1cap + 1ex) / 2`
+   * tall from the baseline, so the mark's centre is half that band above the
+   * baseline. The box is baseline-aligned — its bottom edge on the baseline,
+   * its centre `0.5em` above it — and moved down by the difference, rounded
+   * to a whole pixel so the mark snaps with the glyphs beside it. The first
+   * version put the centre on the band's top instead of its middle, and the
+   * mark stood four pixels above the words at every size.
+   */
+  [data-ui-import-export-center] [data-part-body] > [data-part-status] {
+    align-items: baseline;
+    color: var(--_tone-text);
+    column-gap: var(--_mark-gap);
+    display: grid;
+    font-size: var(--_meta-size);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    grid-template-columns: auto minmax(0, 1fr);
+    line-height: var(--_meta-line-height);
+    min-inline-size: 0;
+  }
+
+  /**
+   * The mark has a column of its own and the words the column beside it, so
+   * the two never part: a narrow job wraps the words inside their column,
+   * under the first word and never under the mark.
+   */
+  [data-ui-import-export-center] [data-part-status] > [data-part-mark] {
+    --slotted-icon-size: 1em;
+    --slotted-spinner-size: 1em;
+
+    align-self: baseline;
+    block-size: 1em;
+    inline-size: 1em;
+    position: relative;
+    inset-block-start: round(nearest, calc(0.5em - (1cap + 1ex) / 4), 1px);
+  }
+
+  /**
+   * The word and the stage, one run: the stage follows the word on its line
+   * while there is room and starts the next line flush with the word when
+   * there is not, its separator clipped as the meta line clips its own.
+   */
+  [data-ui-import-export-center] [data-part-status] > [data-part-status-label] {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--_separator-gap);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    overflow-x: clip;
+  }
+
+  [data-ui-import-export-center] [data-part-status-label] > * {
+    min-inline-size: 0;
+  }
+
+  /**
+   * The stage is one line. It is the consumer's phrase for what the server is
+   * doing now, it changes while the reader watches, and five wrapped lines of
+   * it at a narrow width pushed the bar out of the row. It shrinks to an
+   * ellipsis on its own line when it does not fit beside the word; the whole
+   * phrase stays in the DOM, and the binding repeats it in `title`.
+   */
+  [data-ui-import-export-center] [data-part-status-label] > [data-part-stage] {
+    max-inline-size: 100%;
+    overflow: clip;
+    overflow-clip-margin: var(--_separator-gap);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /*
+   * The icon fills the mark out of flow. The mark then has no content to take
+   * a baseline from, so it sits on the line by its bottom edge, which is what
+   * the offset above measures from; an icon in flow gave the mark the icon's
+   * baseline and raised it off the line.
+   */
+  [data-ui-import-export-center] [data-part-status] > [data-part-mark] > [data-ui-icon],
+  [data-ui-import-export-center] [data-part-status] > [data-part-mark] > [data-ui-spinner] {
+    inset: 0;
+    position: absolute;
+  }
+
+  [data-ui-import-export-center] [data-part-status-label] > [data-part-stage] {
+    color: var(--_muted);
+    font-weight: var(--slotted-font-weight-regular, 400);
+  }
+
+  /**
+   * A running job's mark is `spinner`, the ring every family shows for an
+   * indeterminate wait: an arc that opens and closes around a faint track,
+   * repainted by angle rather than a glyph set turning. It stands in the
+   * glyph's box at the glyph's size — the ring keeps the inset the icon set
+   * keeps — so the running line and the finished line are one measure, and
+   * it freezes on its own track under reduced motion. The first version
+   * turned `loader-circle` here, the static arc the spinner was built to
+   * replace.
+   */
+
+  /**
+   * The bar and what it measures. The bar is `progress-indicator`'s, at its
+   * small step; the words beside it are the family's, in tabular figures so
+   * a number that moves does not move the rest of the line.
+   */
+  [data-ui-import-export-center] [data-part-body] > [data-part-progress] {
+    display: grid;
+    gap: var(--slotted-space-2, 0.25rem);
+    min-inline-size: 0;
+  }
+
+  [data-ui-import-export-center] [data-part-progress] > [data-part-progress-text] {
+    color: var(--_muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--_separator-gap);
+    overflow-x: clip;
+    font-size: var(--_small-size);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--_small-line-height);
+    min-inline-size: 0;
+  }
+
+  [data-ui-import-export-center] [data-part-body] > [data-part-summary] {
+    color: var(--_muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--_separator-gap);
+    overflow-x: clip;
+    font-size: var(--_meta-size);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--_meta-line-height);
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  /**
+   * The sentence about the job. A failure and a partial result say it in
+   * the outcome's tone, because it is what went wrong; an expiry or a
+   * permission says it in the muted voice, because it is what to know.
+   */
+  [data-ui-import-export-center] [data-part-body] > [data-part-message] {
+    color: var(--_muted);
+    font-size: var(--_meta-size);
+    line-height: var(--_meta-line-height);
+    margin: 0;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-import-export-center]
+    [data-part-job][data-outcome='failed']
+    [data-part-body]
+    > [data-part-message],
+  [data-ui-import-export-center]
+    [data-part-job][data-outcome='partial']
+    [data-part-body]
+    > [data-part-message] {
+    color: var(--_tone-text);
+  }
+
+  /* ── The controls ────────────────────────────────────────────────────── */
+
+  /**
+   * Under the words, from the words' own edge. The family's text controls
+   * are `button`'s at its small step, each in a slot named for the part; the
+   * remove control is the family's own icon button and sits at the far end,
+   * away from the controls that start something.
+   */
+  [data-ui-import-export-center] [data-part-job] > [data-part-controls] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-control-gap-sm, 6px);
+    grid-area: controls;
+    min-inline-size: 0;
+  }
+
+  [data-ui-import-export-center] [data-part-controls] > [data-part-download],
+  [data-ui-import-export-center] [data-part-controls] > [data-part-cancel],
+  [data-ui-import-export-center] [data-part-controls] > [data-part-retry],
+  [data-ui-import-export-center] [data-part-controls] > [data-part-toggle],
+  [data-ui-import-export-center] [data-part-controls] > [data-part-job-actions] {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--slotted-control-gap-sm, 6px);
+  }
+
+  [data-ui-import-export-center] [data-part-controls] > [data-part-remove] {
+    margin-inline-start: auto;
+  }
+
+  /**
+   * The disclosure's mark, inside the button's end slot: a chevron that
+   * turns to point at the details it opened. The turn is a state the eye
+   * follows, so it carries the control's own transition.
+   */
+  [data-ui-import-export-center] [data-part-toggle] [data-part-chevron] {
+    --slotted-icon-size: var(--_control-glyph);
+
+    block-size: var(--_control-glyph);
+    display: flex;
+    inline-size: var(--_control-glyph);
+    transition: transform var(--_duration) var(--_easing);
+  }
+
+  [data-ui-import-export-center] [data-part-toggle][data-expanded] [data-part-chevron] {
+    transform: rotate(180deg);
+  }
+
+  /** The family's own icon control: muted at rest, the text ink under the pointer. */
+  [data-ui-import-export-center] button[data-part-remove] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_control);
+    border: 0;
+    border-radius: var(--slotted-control-radius, 4px);
+    color: var(--_muted);
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--_control);
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    transition:
+      background-color var(--_duration) var(--_easing),
+      color var(--_duration) var(--_easing);
+  }
+
+  /** The target reaches the WCAG minimum through a transparent halo, as every inner control does. */
+  [data-ui-import-export-center] button[data-part-remove]::after {
+    content: '';
+    inset: min(0px, calc((var(--_control) - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /* The cross is an `Icon` the binding draws inside the control. */
+  [data-ui-import-export-center] button[data-part-remove] > [data-ui-icon] {
+    --slotted-icon-size: var(--_control-glyph);
+  }
+
+  [data-ui-import-export-center] button[data-part-remove]:not([data-disabled]):hover {
+    background-color: var(--_hover);
+    color: var(--_text);
+  }
+
+  [data-ui-import-export-center] button[data-part-remove]:not([data-disabled]):active {
+    background-color: var(--_active);
+  }
+
+  [data-ui-import-export-center] button[data-part-remove]:focus-visible {
+    color: var(--_text);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── The details ─────────────────────────────────────────────────────── */
+
+  /**
+   * What the toggle shows, under the words and the controls: the counts, the
+   * files and the rows that failed, on the sunken ground so the region reads
+   * as the job's own and not as the next job.
+   */
+  [data-ui-import-export-center] [data-part-job] > [data-part-details] {
+    background-color: var(--slotted-surface-sunken, Canvas);
+    /* The family's rule as the region's edge: faint on the sunken ground in light and dark, and the one separation left where high-contrast paints the sunken ground as the page. */
+    border: var(--_rule-size) solid var(--_rule);
+    border-radius: var(--slotted-radius-md, 6px);
+    display: grid;
+    gap: var(--_gap);
+    grid-area: details;
+    grid-template-columns: minmax(0, 1fr);
+    min-inline-size: 0;
+    padding-block: var(--slotted-space-5, 0.75rem);
+    padding-inline: var(--slotted-space-5, 0.75rem);
+  }
+
+  [data-ui-import-export-center] [data-part-job] > [data-part-details][hidden] {
+    display: none;
+  }
+
+  /**
+   * The counts: figures a reader compares, so each is a label over a
+   * number, in tabular figures, laid out in as many columns as fit.
+   */
+  [data-ui-import-export-center] [data-part-details] > [data-part-counts] {
+    display: grid;
+    gap: var(--slotted-space-4, 0.5rem) var(--slotted-space-7, 1.25rem);
+    grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  [data-ui-import-export-center] [data-part-counts] > div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-1, 0.125rem);
+    min-inline-size: 0;
+  }
+
+  [data-ui-import-export-center] [data-part-counts] dt {
+    color: var(--_muted);
+    font-size: var(--_small-size);
+    line-height: var(--_small-line-height);
+  }
+
+  [data-ui-import-export-center] [data-part-counts] dd {
+    color: var(--_text);
+    font-size: var(--_job-title-size);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--_job-title-line-height);
+    margin: 0;
+  }
+
+  [data-ui-import-export-center] [data-part-counts] > div[data-count='failed'] dd {
+    color: var(--slotted-tone-danger-text, CanvasText);
+  }
+
+  /** The files: one row each — what the file is, its name, its availability, its control. */
+  [data-ui-import-export-center] [data-part-details] > [data-part-files] {
+    display: grid;
+    gap: var(--slotted-space-3, 0.375rem);
+    list-style: none;
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+  }
+
+  [data-ui-import-export-center] [data-part-files] > [data-part-file] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--_meta-size);
+    gap: var(--slotted-space-2, 0.25rem) var(--slotted-space-4, 0.5rem);
+    justify-content: space-between;
+    line-height: var(--_meta-line-height);
+    min-inline-size: 0;
+  }
+
+  /** The words take the row and the control follows them; a row too narrow for both puts the control under them. */
+  [data-ui-import-export-center] [data-part-file] > [data-part-meta] {
+    flex: 1 1 14rem;
+    align-items: baseline;
+    color: var(--_muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--_separator-gap);
+    min-inline-size: 0;
+    overflow-x: clip;
+  }
+
+  [data-ui-import-export-center] [data-part-file] > [data-part-meta] > strong {
+    color: var(--_text);
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-import-export-center] [data-part-file] > [data-part-download] {
+    display: inline-flex;
+  }
+
+  /**
+   * The rows that failed: `table`'s, framed, in a box of a stated block
+   * size that scrolls, so twelve thousand rows do not become the page. The
+   * caption is the table's; the note under it is the family's.
+   */
+  [data-ui-import-export-center] [data-part-details] > [data-part-errors] {
+    display: grid;
+    gap: var(--slotted-space-3, 0.375rem);
+    min-inline-size: 0;
+  }
+
+  [data-ui-import-export-center] [data-part-errors] > [data-ui-table] {
+    max-block-size: var(--slotted-import-export-center-errors-max-block-size, 16rem);
+    min-inline-size: 0;
+    overflow: auto;
+  }
+
+  [data-ui-import-export-center] [data-part-errors] > [data-part-errors-note] {
+    align-items: center;
+    color: var(--_muted);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--_small-size);
+    gap: var(--slotted-space-3, 0.375rem) var(--slotted-space-5, 0.75rem);
+    justify-content: space-between;
+    line-height: var(--_small-line-height);
+    margin: 0;
+  }
+
+  /* ── More, empty, error, footer ──────────────────────────────────────── */
+
+  /** The end of what has been loaded: a pill on the control scale, the idiom `notification-center` set. */
+  [data-ui-import-export-center] > button[data-part-more] {
+    align-items: center;
+    appearance: none;
+    background-color: var(--_ground);
+    border: var(--_rule-size) solid var(--_rule);
+    border-radius: var(--slotted-radius-full, 9999px);
+    color: var(--_text);
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-size: var(--_meta-size);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    gap: var(--slotted-control-gap-sm, 6px);
+    inline-size: fit-content;
+    justify-content: center;
+    line-height: var(--slotted-control-line-height, 1);
+    margin-block: var(--_inset-block);
+    margin-inline: auto;
+    min-block-size: var(--slotted-control-height-sm, 30px);
+    padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    transition:
+      background-color var(--_duration) var(--_easing),
+      border-color var(--_duration) var(--_easing);
+  }
+
+  [data-ui-import-export-center] > button[data-part-more]:not([data-loading]):enabled:hover {
+    background-color: var(--_hover);
+  }
+
+  [data-ui-import-export-center] > button[data-part-more]:not([data-loading]):enabled:active {
+    background-color: var(--_active);
+  }
+
+  [data-ui-import-export-center] > button[data-part-more][data-loading] {
+    color: var(--_muted);
+    cursor: progress;
+  }
+
+  [data-ui-import-export-center] > button[data-part-more]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  [data-ui-import-export-center] > [data-part-empty],
+  [data-ui-import-export-center] > [data-part-error] {
+    min-inline-size: 0;
+    padding-block: var(--slotted-space-9, 2rem);
+    padding-inline: var(--_inset-inline);
+  }
+
+  [data-ui-import-export-center] > [data-part-footer] {
+    align-items: center;
+    border-block-start: var(--_rule-size) solid var(--_rule);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--_meta-size);
+    gap: var(--_gap);
+    justify-content: center;
+    line-height: var(--_meta-line-height);
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+  }
+
+  /* ── Loading ─────────────────────────────────────────────────────────── */
+
+  /**
+   * The first wait: skeleton jobs with the anatomy of a job — the tile, the
+   * name, the meta line and the bar — in the boxes the loaded jobs occupy.
+   */
+  [data-ui-import-export-center]
+    > [data-part-list]
+    > [data-part-job][aria-hidden='true']
+    > [data-part-visual] {
+    background-color: transparent;
+  }
+
+  [data-ui-import-export-center]
+    [data-part-job][aria-hidden='true']
+    > [data-part-visual]
+    > [data-ui-skeleton] {
+    block-size: 100%;
+    inline-size: 100%;
+  }
+
+  /**
+   * Below 22rem the details give up the tile's column: a table of errors
+   * needs the width more than the edge needs to line up with the words.
+   */
+  @container import-export-center (inline-size < 22rem) {
+    [data-ui-import-export-center] > [data-part-list] > [data-part-job] {
+      grid-template-areas:
+        'visual body'
+        'visual controls'
+        'details details';
+    }
+  }
+
+  /* ── The wide job ────────────────────────────────────────────────────── */
+
+  /**
+   * From 42rem the list is one grid and every job a subgrid of it, so the
+   * columns line up down the whole list: the tile, the name and its meta,
+   * and the status column — the state, the bar, the summary, the message and
+   * under them the controls. A list of jobs then reads as a table with one
+   * edge of names and one of states, and the remove control of every job
+   * sits on one line at the end. The body lets its parts into the job's
+   * grid (`display: contents`; a div has no semantics to lose), the heading
+   * spans the status column's rows, and the details run under both.
+   *
+   * The tile's track is `auto`: a subgrid's padding is added to its edge
+   * tracks, and a track stated at the tile's width could not hold it.
+   *
+   * The job's rows have no gap, because an empty row would still hold one;
+   * the status column spaces its own parts instead.
+   */
+  @container import-export-center (inline-size >= 42rem) {
+    [data-ui-import-export-center] > [data-part-list] {
+      column-gap: var(--_gap);
+      display: grid;
+      grid-template-columns: auto minmax(0, 6fr) minmax(var(--_status-column), 5fr);
+    }
+
+    [data-ui-import-export-center] > [data-part-list] > [data-part-job] {
+      grid-column: 1 / -1;
+      grid-template-areas: none;
+      grid-template-columns: subgrid;
+      grid-template-rows: repeat(5, auto) auto;
+      row-gap: 0;
+    }
+
+    [data-ui-import-export-center] [data-part-job] > [data-part-visual] {
+      grid-column: 1;
+      grid-row: 1 / span 5;
+    }
+
+    [data-ui-import-export-center] [data-part-job] > [data-part-body] {
+      display: contents;
+    }
+
+    [data-ui-import-export-center] [data-part-job] > [data-part-body] > [data-part-heading] {
+      grid-column: 2;
+      grid-row: 1 / span 5;
+    }
+
+    [data-ui-import-export-center] [data-part-job] > [data-part-body] > :not([data-part-heading]) {
+      grid-column: 3;
+    }
+
+    [data-ui-import-export-center]
+      [data-part-job]
+      > [data-part-body]
+      > :not([data-part-heading])
+      + :not([data-part-heading]) {
+      margin-block-start: var(--slotted-space-3, 0.375rem);
+    }
+
+    [data-ui-import-export-center] [data-part-job] > [data-part-controls] {
+      grid-column: 3;
+      grid-row: 5;
+      margin-block-start: var(--slotted-space-4, 0.5rem);
+    }
+
+    [data-ui-import-export-center] [data-part-job] > [data-part-details] {
+      grid-column: 2 / -1;
+      grid-row: 6;
+      margin-block-start: var(--_gap);
+    }
+  }
+
+  /* ── Forced colours ──────────────────────────────────────────────────── */
+
+  @media (forced-colors: active) {
+    /**
+     * The separator dot is a painted background, and this mode replaces a
+     * painted background with the system's own. `forced-color-adjust: none`
+     * keeps the author's `currentcolor`, which has already been forced, so the
+     * dot is drawn in the system's palette.
+     */
+    [data-ui-import-export-center] [data-part-meta] > * + *::before,
+    [data-ui-import-export-center] [data-part-summary] > * + *::before,
+    [data-ui-import-export-center] [data-part-progress-text] > * + *::before,
+    [data-ui-import-export-center] [data-part-status-label] > [data-part-stage]::before {
+      forced-color-adjust: none;
+    }
+
+    /** The tile loses its kind's colour, as every tone does here; its edge keeps the square. */
+    [data-ui-import-export-center] [data-part-job] > [data-part-visual] {
+      border: var(--slotted-border-width-thin, 1px) solid CanvasText;
+      color: CanvasText;
+    }
+
+    [data-ui-import-export-center] [data-part-job] > [data-part-details] {
+      border-color: CanvasText;
+    }
+  }
+}

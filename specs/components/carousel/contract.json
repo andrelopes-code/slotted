@@ -1,0 +1,346 @@
+{
+  "schemaVersion": 5,
+  "family": "carousel",
+  "ui": "carousel",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Slides that scroll one page at a time."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/carousel/",
+  "roles": {
+    "root": "region",
+    "slide": "group",
+    "indicators": "tablist",
+    "indicator": "tab"
+  },
+  "roleDescriptions": {
+    "root": "carousel",
+    "slide": "slide",
+    "words": "messages.roleDescription and messages.slideRoleDescription, so a screen reader says the role in the page's own language"
+  },
+  "wiring": {
+    "root": "aria-label or aria-labelledby from the consumer; the name never repeats the word the role description already says",
+    "slide": "aria-label from messages.slide unless the consumer names it",
+    "previous": "aria-controls names the viewport",
+    "next": "aria-controls names the viewport",
+    "indicator": "aria-selected on the current page, aria-controls names the first slide of the page",
+    "counter": "aria-hidden, because the slide names and the announcement already carry the position"
+  },
+  "rotation": {
+    "part": "autoplay",
+    "pressedState": false,
+    "messages": ["stop", "start"],
+    "firstInSequence": true,
+    "keyboardFocus": "stop",
+    "hover": "pause",
+    "hiddenDocument": "pause",
+    "reducedMotion": "does not start",
+    "lastPageWithoutLoop": "stops with reason timeout",
+    "defaultDelay": 5000,
+    "timer": "the current indicator fills over the delay and freezes while the rotation pauses"
+  },
+  "ends": {
+    "attribute": "aria-disabled",
+    "nativeDisabled": false,
+    "reason": "a disabled button drops the focus it holds onto the body; the control stays focusable and does nothing"
+  },
+  "inView": {
+    "attribute": "data-inview",
+    "hiddenBy": "inert",
+    "threshold": 0.5,
+    "peekPress": "a press on a slide out of view reaches the viewport, which asks for that slide's page with reason pointer"
+  },
+  "announcement": {
+    "engine": "@slotted/core/live-announcer",
+    "politeness": "polite",
+    "when": "a page change the reader asked for; never during the rotation"
+  },
+  "loop": {
+    "clones": false,
+    "behaviour": "next on the last page asks for the first, previous on the first asks for the last; the scroll travels back across the track"
+  },
+  "pages": {
+    "measured": true,
+    "source": "the slides' own boxes in the viewport, so a container query that changes how many fit changes the pages",
+    "slidesPerMove": "a number, or page for the slides wholly in view",
+    "snapAttribute": "data-snap"
+  },
+  "keyboard": [
+    {
+      "key": "ArrowRight",
+      "target": "viewport",
+      "effect": "next page in a horizontal carousel, mirrored to previous in a right-to-left one",
+      "focus": "stays on the viewport",
+      "source": "@slotted/core/carousel"
+    },
+    {
+      "key": "ArrowLeft",
+      "target": "viewport",
+      "effect": "previous page in a horizontal carousel, mirrored to next in a right-to-left one",
+      "focus": "stays on the viewport",
+      "source": "@slotted/core/carousel"
+    },
+    {
+      "key": "ArrowDown",
+      "target": "viewport",
+      "effect": "next page in a vertical carousel, nothing in a horizontal one so the page keeps scrolling",
+      "focus": "stays on the viewport",
+      "source": "@slotted/core/carousel"
+    },
+    {
+      "key": "ArrowUp",
+      "target": "viewport",
+      "effect": "previous page in a vertical carousel, nothing in a horizontal one",
+      "focus": "stays on the viewport",
+      "source": "@slotted/core/carousel"
+    },
+    {
+      "key": "PageDown",
+      "target": "viewport",
+      "effect": "next page",
+      "focus": "stays on the viewport",
+      "source": "@slotted/core/carousel"
+    },
+    {
+      "key": "PageUp",
+      "target": "viewport",
+      "effect": "previous page",
+      "focus": "stays on the viewport",
+      "source": "@slotted/core/carousel"
+    },
+    {
+      "key": "Home",
+      "target": "viewport",
+      "effect": "first page",
+      "focus": "stays on the viewport",
+      "source": "@slotted/core/carousel"
+    },
+    {
+      "key": "End",
+      "target": "viewport",
+      "effect": "last page",
+      "focus": "stays on the viewport",
+      "source": "@slotted/core/carousel"
+    },
+    {
+      "key": "Tab",
+      "target": "indicators",
+      "effect": "moves focus into the slide picker",
+      "focus": "the current page's indicator, the only one in the tab sequence",
+      "source": "@slotted/core/focus roving tabindex"
+    },
+    {
+      "key": "ArrowRight",
+      "target": "indicators",
+      "effect": "next indicator, and its page, with no wrap at the end; mirrored in right-to-left",
+      "focus": "the indicator moved to",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "ArrowLeft",
+      "target": "indicators",
+      "effect": "previous indicator, and its page, with no wrap at the start; mirrored in right-to-left",
+      "focus": "the indicator moved to",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Home",
+      "target": "indicators",
+      "effect": "first indicator and its page",
+      "focus": "the first indicator",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "End",
+      "target": "indicators",
+      "effect": "last indicator and its page",
+      "focus": "the last indicator",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Enter",
+      "target": "buttons",
+      "effect": "activates the rotation, previous or next control",
+      "focus": "stays on the control, so it can be pressed again",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "target": "buttons",
+      "effect": "activates the rotation, previous or next control",
+      "focus": "stays on the control",
+      "source": "platform"
+    }
+  ],
+  "repeatedKeysAnimate": false,
+  "motion": {
+    "scroll": "a critically damped spring, stiffness 8 over --_scroll-duration (the theme's long duration), launched at the speed the scroller already has; a request for the page already in flight keeps the flight",
+    "reducedMotion": "the duration collapses and the scroll lands at once"
+  },
+  "indicators": {
+    "activation": "automatic",
+    "loop": false,
+    "adaptiveFrom": 8,
+    "adaptive": "past eight pages, dots more than two steps away shrink and those outside the window collapse; every one stays in the arrow ring"
+  },
+  "pointer": {
+    "mouseDrag": "draggable, from a threshold of four pixels along the axis; the click after a drag is cancelled",
+    "touch": "the platform's own scroll, with snap",
+    "fadeSwipe": "a swipe of forty pixels in fade asks for the neighbour page",
+    "release": "one page in the way the hand moves when the release speed passes 0.25 px/ms, otherwise the page the release speed coasts to in 200 ms; never more than one page from where the drag began; the spring sets off at the release speed",
+    "edges": "past an end the slides follow the pointer less and less (rubber band, constant 0.55 of the viewport) and spring back on release"
+  },
+  "declined": {
+    "clones": {
+      "reason": "a cloned slide duplicates the consumer's ids, focus targets, form controls and component state, and makes the index a fiction; the loop travels back instead"
+    },
+    "marquee": {
+      "reason": "a continuous ticker is motion with no state and no action, which the rubric refuses; a consumer composes it from a translate animation over duplicated content marked aria-hidden"
+    },
+    "wheelGestures": {
+      "reason": "a trackpad already scrolls the inline axis natively; a vertical mouse wheel is the page's, and taking it would trap the reader inside the carousel"
+    },
+    "scrollButtonPseudoElements": {
+      "reason": "::scroll-button() and ::scroll-marker ship in Chromium alone, and their names come from CSS content, which no message provider reaches"
+    }
+  },
+  "axes": {
+    "orientation": ["horizontal", "vertical"],
+    "transition": ["slide", "fade"],
+    "align": ["start", "center"],
+    "arrows": ["inset", "outside"],
+    "size": ["sm", "md", "lg"]
+  },
+  "partAxes": {
+    "indicators": { "variant": ["dots", "line", "thumbnails"] },
+    "controls": { "placement": ["below", "overlay"] }
+  },
+  "resolution": {
+    "orientation": ["prop", "defaults", "horizontal"],
+    "transition": ["prop", "defaults", "slide"],
+    "align": ["prop", "defaults", "start"],
+    "arrows": ["prop", "defaults", "inset"],
+    "size": ["prop", "defaults", "md"]
+  },
+  "provides": {
+    "carouselDefaults": [
+      "orientation",
+      "transition",
+      "align",
+      "arrows",
+      "size",
+      "loop",
+      "draggable",
+      "autoplayDelay"
+    ]
+  },
+  "imperative": ["scrollTo", "scrollToSlide", "refresh"],
+  "runtimeProperties": [
+    "--slotted-carousel-slides-per-view",
+    "--slotted-carousel-autoplay-delay",
+    "--slotted-carousel-overscroll"
+  ],
+  "familyAttributes": {
+    "data-playing": "root, while the rotation is on",
+    "data-paused": "root, while hover or a hidden document holds the rotation",
+    "data-inview": "slide, while half of it or more is in the viewport",
+    "data-snap": "slide, when a page starts at it",
+    "data-measured": "root, once the pages have been read from the layout",
+    "data-moving": "viewport, while the engine moves the scroll or a mouse drags it; written in the same task as the movement"
+  },
+  "messages": [
+    "announce",
+    "indicator",
+    "indicators",
+    "next",
+    "previous",
+    "roleDescription",
+    "slide",
+    "slideRoleDescription",
+    "start",
+    "stop",
+    "viewport"
+  ],
+  "stateAttributes": {
+    "current": "data-current",
+    "disabled": "data-disabled",
+    "dragging": "data-dragging"
+  },
+  "stateModel": {
+    "current": {
+      "controlled": "page",
+      "uncontrolled": "defaultPage",
+      "request": "onPageChange",
+      "reasons": ["pointer", "keyboard", "scroll", "timeout", "resize", "programmatic"]
+    },
+    "playback": {
+      "controlled": "playing",
+      "uncontrolled": "defaultPlaying",
+      "request": "onPlayingChange",
+      "reasons": ["pointer", "keyboard", "scroll", "timeout", "programmatic"]
+    }
+  },
+  "members": {
+    "carousel": {
+      "nativeElement": "section",
+      "defaults": {
+        "orientation": "horizontal",
+        "transition": "slide",
+        "align": "start",
+        "arrows": "inset",
+        "size": "md",
+        "loop": false,
+        "draggable": true,
+        "slidesPerView": 1,
+        "slidesPerMove": "page",
+        "autoplay": false,
+        "autoplayDelay": 5000,
+        "defaultPage": 0
+      },
+      "capabilities": [
+        "current",
+        "playback",
+        "orientation",
+        "size",
+        "appearance",
+        "arrangement",
+        "live",
+        "wiring"
+      ],
+      "states": ["default", "hover", "active", "focus-visible", "current", "disabled", "dragging"],
+      "parts": [
+        "root",
+        "viewport",
+        "slide",
+        "previous",
+        "next",
+        "controls",
+        "autoplay",
+        "indicators",
+        "indicator",
+        "counter"
+      ]
+    }
+  },
+  "scenarios": {
+    "carousel": [
+      "playground",
+      "orientation",
+      "transition",
+      "align",
+      "arrows",
+      "sizes",
+      "indicators",
+      "thumbnails",
+      "autoplay",
+      "multiple",
+      "loop",
+      "controlled",
+      "states",
+      "content",
+      "empty",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

@@ -1,0 +1,388 @@
+@layer slotted.components {
+  /**
+   * The named views of a grid, and the one in use.
+   *
+   *   root ▸ trigger (name · modified · chevron) · revert
+   *
+   *   panel (in the popover)
+   *   ┌──────────────────────────────────────┐
+   *   │ list ▸ item ▸ apply (✓ name ⌖) actions│
+   *   │        item ▸ form | confirm          │
+   *   │ form (save as)                        │
+   *   │ footer ▸ Save as new view… · Save     │
+   *   └──────────────────────────────────────┘
+   *
+   * The panel is portalled out of the root, so it carries the family's
+   * `data-ui` itself — the answer `filter-bar`'s rule and `table`'s filter
+   * panel already give — and the locals below are declared on both. The
+   * buttons, the field and the menu inside are their families', reached
+   * with child combinators so a `label` or a `root` of theirs is never
+   * restyled.
+   */
+  [data-ui-saved-views] {
+    --_text: var(--slotted-text, CanvasText);
+    --_muted: var(--slotted-text-muted, GrayText);
+    --_hover: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+    --_active: var(--slotted-tone-secondary-subtle-active, ButtonFace);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_height-sm: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_icon-size-sm: var(--slotted-control-icon-size-sm, 14px);
+    --_radius: var(--slotted-control-radius, 4px);
+    --_duration: var(--slotted-control-transition-duration);
+    --_easing: var(--slotted-control-transition-easing);
+
+    box-sizing: border-box;
+    color: var(--_text);
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    line-height: var(--slotted-line-height-md, 1.5);
+  }
+
+  /* ── The row on the page ─────────────────────────────────────────────── */
+
+  /**
+   * The trigger and revert on one row that wraps: at 240 pixels the revert
+   * control drops under the trigger rather than pushing it out of the box.
+   */
+  [data-ui-saved-views][data-part-root] {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--slotted-space-3, 0.375rem);
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
+  /**
+   * A control at rest, as a select's closed control is: the resting edge, the
+   * control shadow and the control surface, so the view in use reads as a
+   * value the reader can change rather than as a heading.
+   */
+  [data-ui-saved-views] > [data-part-trigger] {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--_gap);
+    box-sizing: border-box;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    min-block-size: var(--_height);
+    margin: 0;
+    padding-block: 0;
+    padding-inline: var(--_padding-inline);
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-control-border-color, ButtonBorder);
+    border-radius: var(--_radius);
+    background: var(--slotted-control-surface, Canvas);
+    box-shadow: var(--slotted-control-shadow, none);
+    color: var(--_text);
+    font: inherit;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    cursor: pointer;
+    transition: background-color var(--_duration) var(--_easing);
+  }
+
+  /** Truncated on one line; the whole name stays in the DOM and in the button's name. */
+  [data-ui-saved-views] > [data-part-trigger] > [data-label] {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /** The chevron, an `icon` after the name, turning over while the layer is open. */
+  [data-ui-saved-views] > [data-part-trigger] > [data-ui-icon] {
+    margin-inline-end: calc(var(--slotted-space-2, 0.25rem) * -1);
+    color: var(--_muted);
+    transition: rotate var(--_duration) var(--_easing);
+  }
+
+  [data-ui-saved-views][data-open] > [data-part-trigger] > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  [data-ui-saved-views] > [data-part-trigger]:hover:not(:disabled) {
+    background: var(--_hover);
+  }
+
+  [data-ui-saved-views] > [data-part-trigger]:active:not(:disabled) {
+    background: var(--_active);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /**
+   * The mark: a dot in the accent solid and the word, in the muted ink and
+   * the regular weight, so the name stays the loudest thing in the control
+   * and the state is never colour alone.
+   */
+  [data-ui-saved-views] > [data-part-trigger] > [data-part-modified] {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--slotted-space-2, 0.25rem);
+    color: var(--_muted);
+    /* The trigger's own size: the type scale's small step is larger than the
+       control's text at dense, and the mark outgrew the name it qualifies. */
+    font-size: inherit;
+    font-weight: var(--slotted-font-weight-regular, 400);
+  }
+
+  [data-ui-saved-views] > [data-part-trigger] > [data-part-modified]::before {
+    content: '';
+    flex: none;
+    inline-size: var(--slotted-space-4, 0.5rem);
+    block-size: var(--slotted-space-4, 0.5rem);
+    border-radius: var(--slotted-radius-full, 9999px);
+    background-color: var(--slotted-tone-accent-solid);
+  }
+
+  /** Revert: a ghost control with the counter-clockwise arrow, at the trigger's height. */
+  [data-ui-saved-views] > [data-part-revert] {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--slotted-space-3, 0.375rem);
+    box-sizing: border-box;
+    min-block-size: var(--_height);
+    margin: 0;
+    padding-block: 0;
+    padding-inline: var(--slotted-space-4, 0.5rem);
+    border: var(--slotted-control-border-width, 1px) solid transparent;
+    border-radius: var(--_radius);
+    background: transparent;
+    color: var(--slotted-tone-accent-text, LinkText);
+    font: inherit;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    cursor: pointer;
+    transition: background-color var(--_duration) var(--_easing);
+  }
+
+  [data-ui-saved-views] > [data-part-revert]:hover:not(:disabled) {
+    background: var(--slotted-tone-accent-subtle-hover, ButtonFace);
+  }
+
+  [data-ui-saved-views] > [data-part-revert]:active:not(:disabled) {
+    background: var(--slotted-tone-accent-subtle-active, ButtonFace);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  [data-ui-saved-views] > [data-part-trigger]:focus-visible,
+  [data-ui-saved-views] > [data-part-revert]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── The panel ───────────────────────────────────────────────────────── */
+
+  /**
+   * A width of its own, for the reason `filter-bar`'s editor has one: a
+   * popover shrink-wraps, and a list that took the width of its longest name
+   * would change width as views are renamed. The padding keeps a row's hover
+   * ground off the popover's rounded edge.
+   */
+  [data-ui-saved-views][data-part-panel] {
+    display: grid;
+    /* One track that grows to the token and gives way to zero: the panel's
+       min-content is nothing and its max-content the token, so a popover
+       with less room than 18rem narrows the panel instead of clipping it. */
+    grid-template-columns: minmax(0, var(--slotted-saved-views-panel-inline-size, 18rem));
+    gap: var(--slotted-space-4, 0.5rem);
+    max-inline-size: 100%;
+    padding: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-saved-views][data-part-panel] > [data-part-list] {
+    display: grid;
+    gap: var(--slotted-space-1, 0.125rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /** A row: the view's name across, its actions at the inline end. */
+  [data-ui-saved-views][data-part-panel] > [data-part-list] > [data-part-item] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--slotted-space-1, 0.125rem);
+    margin: 0;
+  }
+
+  [data-ui-saved-views][data-part-panel] > [data-part-list] > [data-part-item][data-editing] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /**
+   * The view's name as a row-wide button: a column for the check the view in
+   * use carries, the name, then the default mark right after the name, on
+   * its first line.
+   * The check's column is reserved on every row, so the names line up: the
+   * binding draws the check on the view in use alone, and the name keeps the
+   * second column whether the check stands before it or not.
+   */
+  [data-ui-saved-views][data-part-panel] [data-part-apply] {
+    display: grid;
+    grid-template-columns: var(--_icon-size-sm) minmax(0, max-content) auto;
+    justify-content: start;
+    align-content: center;
+    /* The marks beside the name share its baseline: an empty box offers its
+       bottom edge, and each mark moves down from there onto the text band. */
+    align-items: baseline;
+    column-gap: var(--slotted-space-4, 0.5rem);
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: var(--_height-sm);
+    margin: 0;
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--slotted-space-4, 0.5rem);
+    border: 0;
+    border-radius: var(--_radius);
+    background: transparent;
+    color: var(--_text);
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+    transition: background-color var(--_duration) var(--_easing);
+  }
+
+  /**
+   * The check, an `icon` on the name's first line and on its text rather than
+   * its line box (`docs/build-briefing.md`, Decisions already taken). Its
+   * bottom sits on the baseline; the translate lowers it by half its size less
+   * half the band, the midpoint of cap height and x-height, so its centre is
+   * the band's.
+   */
+  [data-ui-saved-views][data-part-panel] [data-part-apply] > [data-ui-icon] {
+    color: var(--slotted-tone-accent-text);
+    translate: 0 calc(var(--_icon-size-sm) / 2 - (1cap + 1ex) / 4);
+  }
+
+  [data-ui-saved-views][data-part-panel] [data-part-item][data-current] > [data-part-apply] {
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  /** A long name wraps inside the row; nothing is cut. */
+  [data-ui-saved-views][data-part-panel] [data-part-apply] > [data-label] {
+    grid-column: 2;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-saved-views][data-part-panel] [data-part-apply]:hover:not(:disabled),
+  [data-ui-saved-views][data-part-panel] [data-part-actions]:hover:not(:disabled) {
+    background: var(--_hover);
+  }
+
+  [data-ui-saved-views][data-part-panel] [data-part-apply]:active:not(:disabled),
+  [data-ui-saved-views][data-part-panel] [data-part-actions]:active:not(:disabled) {
+    background: var(--_active);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /** The pin: the view a visit opens on. The word beside it is for the ear only. */
+  [data-ui-saved-views][data-part-panel] [data-part-apply] > [data-part-default-mark] {
+    /* A flex box, so the pin `icon` inside is laid out as an item and not on
+       a line of its own that would stand taller than the mark. */
+    display: flex;
+    position: relative;
+    inline-size: var(--_icon-size-sm);
+    block-size: var(--_icon-size-sm);
+    /* A mark of the name, not a third column: half the row's gap from it. */
+    margin-inline-start: calc(var(--slotted-space-2, 0.25rem) - var(--slotted-space-4, 0.5rem));
+    translate: 0 calc(var(--_icon-size-sm) / 2 - (1cap + 1ex) / 4);
+    color: var(--_muted);
+  }
+
+  [data-ui-saved-views][data-part-panel] [data-part-default-mark] > span:not([data-ui-icon]) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /**
+   * The row's menu: a square at the small control height with the ellipsis
+   * `icon`, muted at rest and on the text ink under the pointer.
+   */
+  [data-ui-saved-views][data-part-panel] [data-part-actions] {
+    display: inline-grid;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: var(--_height-sm);
+    block-size: var(--_height-sm);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--_radius);
+    background: transparent;
+    color: var(--_muted);
+    cursor: pointer;
+    transition:
+      background-color var(--_duration) var(--_easing),
+      color var(--_duration) var(--_easing);
+  }
+
+  [data-ui-saved-views][data-part-panel] [data-part-actions][data-open],
+  [data-ui-saved-views][data-part-panel] [data-part-actions]:hover:not(:disabled) {
+    color: var(--_text);
+  }
+
+  /** Drawn inward: the rows sit one space step apart and an outward ring would cross the next. */
+  [data-ui-saved-views][data-part-panel] [data-part-apply]:focus-visible,
+  [data-ui-saved-views][data-part-panel] [data-part-actions]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* ── Forms, confirmation, footer ─────────────────────────────────────── */
+
+  /**
+   * The name form, in a row for a rename and above the footer for a new
+   * view; and the confirmation, in the row being deleted. Both stand on the
+   * sunken surface so the row reads as one being edited.
+   */
+  [data-ui-saved-views][data-part-panel] [data-part-form],
+  [data-ui-saved-views][data-part-panel] [data-part-confirm] {
+    display: grid;
+    gap: var(--slotted-space-4, 0.5rem);
+    margin: 0;
+    padding: var(--slotted-space-4, 0.5rem);
+    border-radius: var(--_radius);
+    background: var(--slotted-surface-sunken, Canvas);
+  }
+
+  [data-ui-saved-views][data-part-panel] [data-part-confirm] > p {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-saved-views][data-part-panel]
+    :is([data-part-form], [data-part-confirm])
+    > [data-buttons] {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--slotted-space-3, 0.375rem);
+  }
+
+  /** Save as new view… then Save, at the inline end, under a rule. */
+  [data-ui-saved-views][data-part-panel] > [data-part-footer] {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--slotted-space-3, 0.375rem);
+    padding-block-start: var(--slotted-space-4, 0.5rem);
+    border-block-start: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-border-subtle, transparent);
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-saved-views] > [data-part-trigger] > [data-part-modified]::before {
+      forced-color-adjust: none;
+    }
+  }
+}

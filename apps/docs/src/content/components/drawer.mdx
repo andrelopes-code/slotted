@@ -1,0 +1,104 @@
+---
+title: Drawer
+description: A panel that comes in from an edge of the screen, over the page or beside it, for the details of a record, a form or a set of filters the reader opens without leaving their place.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Sides
+
+`side` picks the edge the panel comes from: `end` (the default) for the details of a row, `start` for navigation, `top` for a notice about the whole screen, and `bottom` for a sheet on a phone. `start` and `end` are logical, so the drawer changes sides in a right-to-left document.
+
+<Example name="sides" />
+
+## Sizes
+
+`size` sets the panel's width on `start` and `end` to one of five steps: `sm` (18rem) for one field or a short list, `md` (24rem, the default) for the details of a record, `lg` (30rem) for a record with a table, `xl` (40rem) for two columns, and `full` for the whole screen. A step wider than the screen is held to the screen's width. Set `--slotted-drawer-extent` on the drawer for a width the steps do not hold.
+
+<Example name="sizes" />
+
+## Bottom sheet
+
+On `top` and `bottom` the drawer is as tall as its content, up to 4rem short of the screen, and on a wide screen it is at most 40rem wide and centred. `DrawerResizer` (`slDrawerResizer`) draws the grip above the header. On a touch screen the reader can drag the sheet from anywhere on its body; a drag released near the bottom edge, or a fast flick downwards, closes it.
+
+<Example name="sheet" />
+
+## Snap points
+
+`snapPoints` lists the heights a sheet stops at, as fractions of the screen. On `top` and `bottom` the height of the content is a stop as well. A drag is released onto the nearest stop, the arrow keys on the grip move to the next stop, and Home and End move to the first and the last. Start the sheet on a stop with `defaultExtent` in React or `[(extent)]` in Angular.
+
+<Example name="snap-points" />
+
+## Resizing
+
+`DrawerResizer` (`slDrawerResizer`) on the panel's inner edge lets the reader set the width: drag it, or focus it and use the arrow keys, 16 pixels at a time and 64 with Shift. Home and End go to `minExtent` and `maxExtent`, Enter collapses the panel to its minimum and restores it, and a double click returns it to its size step. The width is a fraction of the screen: `onExtentChange` in React and `[(extent)]` in Angular report it, and `undefined` means the size step decides.
+
+<Example name="resize" />
+
+## Non-modal
+
+`modal={false}` leaves the page behind interactive: nothing is made inert, the page scroll is not locked, focus can leave the panel, and the panel has no `aria-modal`. The scrim still covers the page and still takes a pointer press, so add `scrimFrom={1}` to remove it and `outsidePress="none"` so working on the page does not close the drawer. Here the reader types a rate from the drawer into the field behind it.
+
+<Example name="non-modal" />
+
+## Beside the page
+
+`mode="inline"` puts the drawer in your own layout instead of over the page: no portal, no scrim, no focus trap, and the panel writes no role. Opening and closing animates the drawer's own width, so the content beside it reflows through your own layout; here a wrapping flex row, which puts the list under the panel on a narrow screen. The drawer takes no focus when it opens: focus stays on the trigger, which shows and hides the panel.
+
+<Example name="inline" wide />
+
+## Switching between overlay and inline
+
+`mode` can change while the drawer is open, for example at your own breakpoint or from a pin button. The panel's content is kept across the switch, so a half-written note survives it. Type a note, pin the drawer beside the order, then unpin it.
+
+<Example name="pin" wide />
+
+## Long content
+
+The body is the only row that scrolls. The header and the footer stay in place, so the actions are always in reach.
+
+<Example name="long-content" />
+
+## A form in a drawer
+
+Put the `form` in the body and point the footer's submit button at it with the `form` attribute, so the actions stay in the footer row. Validate on submit, show each error in its field, and close the drawer only when the data is valid. Copy the saved values into the form when the drawer opens, so Cancel discards the edits.
+
+<Example name="form" />
+
+## Refusing a close with unsaved changes
+
+Every way of closing, from the ✕, Escape, a press outside or the browser's back gesture, goes through one request: `onOpenChange` in React and `(openChangeRequest)` in Angular. Call `request.cancel()` to keep the drawer open. Here an edited instruction keeps the drawer open and asks in the footer whether to discard the change. Edit the text, then press Escape.
+
+<Example name="unsaved-changes" />
+
+## Loading content
+
+`loading` marks the body as busy with `aria-busy` while the header, the ✕ and Escape stay available. Fill the body with skeletons in the shape of the content that is coming, so nothing moves when it arrives.
+
+<Example name="loading" />
+
+## A drawer over a drawer
+
+A drawer opened from inside another stacks above it. Escape and a press outside close only the top one, and focus returns to the button in the drawer below.
+
+<Example name="nested" />
+
+## Defaults for a section
+
+`DrawerDefaultsProvider` in React and `provideDrawerDefaults` in Angular set `mode`, `side`, `size`, `mount`, `modal`, `escape`, `outsidePress`, `back` and `drag` once for every drawer under them. A value set on one drawer still wins.
+
+<Example name="defaults" />
+
+## Order details beside a table
+
+A non-modal drawer shows the record of the row the reader chose and leaves the table usable. The drawer has no trigger: each row's button sets the order and opens it, and choosing another row while it is open replaces the content in place.
+
+<Example name="detail-panel" wide />
+
+## Filtering a list
+
+The filters are a draft while the drawer is open. The apply button shows how many orders the draft matches, Reset returns the draft to every order, and closing the drawer any other way leaves the applied filters as they were.
+
+<Example name="filters" />

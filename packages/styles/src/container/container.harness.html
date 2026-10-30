@@ -1,0 +1,502 @@
+<section data-scene="measure">
+  <!--
+    The rules below belong to the harness, not to the family. Container paints
+    nothing and the page carries only this family's stylesheet, so the column
+    needs an edge and the prose needs a size before there is anything to look
+    at. The block sits inside the first scene because the builder emits scenes
+    and drops everything around them.
+  -->
+  <style>
+    [data-demo-label] {
+      color: var(--slotted-text-muted);
+      display: block;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      margin: 0;
+      padding-block-end: var(--slotted-space-3);
+    }
+
+    /* The box the container is given. Its edge is what the gutters are measured from. */
+    [data-demo-space] {
+      background: var(--slotted-surface-sunken);
+      border: 1px dashed var(--slotted-border-strong);
+      border-radius: var(--slotted-radius-md);
+    }
+
+    /* Anything inside the bounded column, so the column's own edges are visible. */
+    [data-demo-block] {
+      background: var(--slotted-surface-raised);
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-sm);
+      box-sizing: border-box;
+      color: var(--slotted-text);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px;
+      margin: 0;
+      padding-block: var(--slotted-space-3);
+      padding-inline: var(--slotted-space-4);
+    }
+
+    [data-demo-prose] {
+      color: var(--slotted-text);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    /* A breakout is only legible against something that is not one. */
+    [data-demo-strip] {
+      background: var(--slotted-surface-inverse);
+      box-sizing: border-box;
+      color: var(--slotted-text-inverse);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px;
+      margin: 0;
+      padding-block: var(--slotted-space-4);
+      padding-inline: var(--slotted-space-4);
+    }
+
+    [data-demo-rows] {
+      display: grid;
+      gap: var(--slotted-space-3);
+    }
+
+    [data-demo-scenes] {
+      display: grid;
+      gap: var(--slotted-space-8);
+    }
+
+    /*
+      The maxima, retuned small, so four steps that all exceed this stage are
+      still four different columns. It is also the whole theming story: the
+      bound is a token, and nothing else in the family changes.
+    */
+    [data-demo-retuned] {
+      --slotted-container-measure: 16ch;
+      --slotted-container-content: 14rem;
+      --slotted-container-wide: 22rem;
+    }
+
+    /* The same prose with no wrapping help, so the column's own guarantee shows. */
+    [data-demo-prose='unbroken'] {
+      overflow-wrap: normal;
+    }
+  </style>
+
+  <div data-demo-scenes>
+    <div>
+      <span data-demo-label>size measure · the comfortable line, counted in characters</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="measure"
+        >
+          <p data-demo-prose>
+            Invoices are issued on the first working day of each month and settle against the
+            payment method on file. A line this long is where a reader starts to lose the beginning
+            of the next one, which is the whole reason the bound exists.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>size full · the same paragraph across the whole space</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="full"
+        >
+          <p data-demo-prose>
+            Invoices are issued on the first working day of each month and settle against the
+            payment method on file. A line this long is where a reader starts to lose the beginning
+            of the next one, which is the whole reason the bound exists.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="bounds">
+  <div data-demo-scenes data-demo-retuned>
+    <div>
+      <span data-demo-label>measure · 16ch here</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="measure"
+        >
+          <div data-demo-block>Bounded</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>content · 14rem here · the default</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="content"
+        >
+          <div data-demo-block>Bounded</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>wide · 22rem here</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="wide"
+        >
+          <div data-demo-block>Bounded</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>full · the frame, up to the ceiling a theme sets</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="full"
+        >
+          <div data-demo-block>Bounded by the space it was given, or by 120rem</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>bleed · no maximum, and the gutters remain</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="bleed"
+        >
+          <div data-demo-block>Every pixel the frame has: a grid, a board, a canvas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="breakout">
+  <div data-demo-scenes>
+    <div>
+      <span data-demo-label>a bounded page holding a strip that reaches both edges</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="measure"
+          data-inset="6"
+        >
+          <p data-demo-prose>
+            Usage this month. The summary below is billed per seat and settles with the invoice.
+          </p>
+          <div data-part="breakout" data-part-breakout="" data-demo-strip>
+            A breakout spans every track, so it reaches the edge of the container and not the edge
+            of the viewport. Nested, scrolled or half-width, it is the same rule.
+          </div>
+          <p data-demo-prose>Bounded content resumes after it, at the same column.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>a container inside a breakout returns to a bound of its own</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="measure"
+          data-inset="2"
+        >
+          <p data-demo-prose>Outer column, inset 2.</p>
+          <div data-part="breakout" data-part-breakout="" data-demo-strip>
+            <div
+              data-ui="container"
+              data-ui-container=""
+              data-part="root"
+              data-part-root=""
+              data-size="full"
+              data-inset="9"
+            >
+              <div data-demo-block>Inner container, inset 9, inside the strip</div>
+            </div>
+          </div>
+          <p data-demo-prose>Outer column again.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="placement">
+  <div data-demo-scenes data-demo-retuned>
+    <div>
+      <span data-demo-label>align center · the default</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="content"
+          data-align="center"
+        >
+          <div data-demo-block>Centred</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>align start · mirrors in a right-to-left document</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="content"
+          data-align="start"
+        >
+          <div data-demo-block>At the start edge, still inset</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>align end</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="content"
+          data-align="end"
+        >
+          <div data-demo-block>At the end edge</div>
+        </div>
+      </div>
+    </div>
+
+    <!--
+      The gutter is floored by the inset rather than collapsed, so `align start`
+      is not the same as no gutter at all. The pair below is the proof: only the
+      second one reaches the container's own edge.
+    -->
+    <div>
+      <span data-demo-label>align start, inset 9 · the gutter is floored, not collapsed</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="content"
+          data-align="start"
+          data-inset="9"
+        >
+          <div data-demo-block>Floored at the inset</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>align start, inset 0 · and only now it touches the edge</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="content"
+          data-align="start"
+          data-inset="0"
+        >
+          <div data-demo-block>Flush</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>inset 0 · 2 · 6 · 9, at size full</span>
+      <div data-demo-rows>
+        <div data-demo-space>
+          <div
+            data-ui="container"
+            data-ui-container=""
+            data-part="root"
+            data-part-root=""
+            data-size="full"
+            data-inset="0"
+          >
+            <div data-demo-block>inset 0</div>
+          </div>
+        </div>
+        <div data-demo-space>
+          <div
+            data-ui="container"
+            data-ui-container=""
+            data-part="root"
+            data-part-root=""
+            data-size="full"
+            data-inset="2"
+          >
+            <div data-demo-block>inset 2</div>
+          </div>
+        </div>
+        <div data-demo-space>
+          <div
+            data-ui="container"
+            data-ui-container=""
+            data-part="root"
+            data-part-root=""
+            data-size="full"
+            data-inset="6"
+          >
+            <div data-demo-block>inset 6</div>
+          </div>
+        </div>
+        <div data-demo-space>
+          <div
+            data-ui="container"
+            data-ui-container=""
+            data-part="root"
+            data-part-root=""
+            data-size="full"
+            data-inset="9"
+          >
+            <div data-demo-block>inset 9</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="extremes">
+  <div data-demo-scenes>
+    <div>
+      <span data-demo-label>
+        a token longer than the column, given nothing to break it: the column keeps its width and
+        the child overflows, rather than the column widening and the page scrolling sideways
+      </span>
+      <div data-demo-space data-demo-retuned>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="measure"
+          data-align="start"
+        >
+          <div data-demo-block>The column is this wide</div>
+          <p data-demo-prose="unbroken">Kraftfahrzeughaftpflichtversicherungsbedingungen</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>the same token, with the child allowed to break it</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="measure"
+        >
+          <p data-demo-prose>
+            postgresql://reporting-service@analytics-primary.internal:5432/warehouse_events
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>right to left · the same component mirrored</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="measure"
+          data-align="start"
+          lang="ar"
+          dir="rtl"
+        >
+          <p data-demo-prose>
+            تصدر الفواتير في أول يوم عمل من كل شهر وتسوى وفق طريقة الدفع المسجلة.
+          </p>
+          <div data-part="breakout" data-part-breakout="" data-demo-strip>
+            شريط يمتد إلى حافتي الحاوية.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>
+        the cost of the grid: a bare string is wrapped in an item nothing can select, so it is
+        auto-placed into the start gutter instead of the column. Wrap text in an element.
+      </span>
+      <div data-demo-space data-demo-retuned>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="content"
+        >
+          Not wrapped in an element
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span data-demo-label>a container holding nothing</span>
+      <div data-demo-space>
+        <div
+          data-ui="container"
+          data-ui-container=""
+          data-part="root"
+          data-part-root=""
+          data-size="content"
+        ></div>
+      </div>
+    </div>
+  </div>
+</section>

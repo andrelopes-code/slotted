@@ -1,0 +1,1501 @@
+@layer slotted.components {
+  /**
+   * A chart is a figure: a caption that names it, a toolbar of its own
+   * controls, a legend of toggles, and a plot the engine draws marks into and
+   * the family draws every interaction over. The table is a view of the plot,
+   * shown in the plot's own box.
+   *
+   *   ┌ figure [data-ui-chart] ─────────────────────────────────────────┐
+   *   │ header   title (help) · description         actions  toolbar   │
+   *   │ legend   ▬ Revenue  ■ Cost  ● Visits  +3                        │
+   *   │ plot     ┌ canvas (engine) · table-region (the table view) ───┐ │
+   *   │          │ crosshair · markers · tooltip  (family, over it)   │ │
+   *   │          └────────────────────────────────────────────────────┘ │
+   *   └─────────────────────────────────────────────────────────────────┘
+   *
+   * One set of boxes for every state. The legend holds one line, the table
+   * opens inside the plot, the skeleton, the empty and the failed plot stand in
+   * the plot's box, so a card does not change height when its data arrives, its
+   * series change or its reader opens the table (the `loading-states` skill,
+   * section 3).
+   *
+   * The engine reads its look from this sheet: the root declares the private
+   * properties `--_chart-*`, and `readChartTheme` in `@slotted/core/chart`
+   * resolves them at the plot, so a scheme, a density, a palette or a token a
+   * consumer overrides on a wrapper reaches the marks through the cascade.
+   */
+  [data-ui-chart] {
+    --_gap: var(--slotted-chart-gap, var(--slotted-space-5, 0.75rem));
+    --_plot-size: var(--slotted-chart-plot-block-size, calc(var(--slotted-space-12, 4rem) * 4));
+    --_radius: var(--slotted-chart-radius, var(--slotted-radius-md, 6px));
+
+    /**
+     * ── Colour ──────────────────────────────────────────────────────────
+     *
+     * Declared on the root so the legend, the tooltip, the markers and the
+     * engine read one palette. `--slotted-chart-color-1` … `-8` retune it for
+     * every chart under a wrapper, or for one chart; unset, it is the theme's
+     * data scale. A series names a step with `slot` and a meaning with
+     * `tone`; no series takes a colour value (`docs/component-features.md`
+     * §2.4).
+     */
+    --_chart-slot-1: var(--slotted-chart-color-1, var(--slotted-data-1));
+    --_chart-slot-2: var(--slotted-chart-color-2, var(--slotted-data-2));
+    --_chart-slot-3: var(--slotted-chart-color-3, var(--slotted-data-3));
+    --_chart-slot-4: var(--slotted-chart-color-4, var(--slotted-data-4));
+    --_chart-slot-5: var(--slotted-chart-color-5, var(--slotted-data-5));
+    --_chart-slot-6: var(--slotted-chart-color-6, var(--slotted-data-6));
+    --_chart-slot-7: var(--slotted-chart-color-7, var(--slotted-data-7));
+    --_chart-slot-8: var(--slotted-chart-color-8, var(--slotted-data-8));
+    --_chart-tone-neutral: var(--slotted-text-muted, GrayText);
+    --_chart-tone-accent: var(--slotted-tone-accent-text, CanvasText);
+    --_chart-tone-secondary: var(--slotted-tone-secondary-text, CanvasText);
+    --_chart-tone-success: var(--slotted-tone-success-text, CanvasText);
+    --_chart-tone-info: var(--slotted-tone-info-text, CanvasText);
+    --_chart-tone-warning: var(--slotted-tone-warning-text, CanvasText);
+    --_chart-tone-danger: var(--slotted-tone-danger-text, CanvasText);
+    --_chart-overflow: var(--slotted-text-muted, GrayText);
+    --_chart-text: var(--slotted-text, CanvasText);
+    --_chart-label: var(--slotted-chart-label-color, var(--slotted-text-muted, GrayText));
+    /* The grid is the faintest line the theme has: a guide the eye uses and
+       does not read. The axis the marks stand on is one step stronger, and a
+       reference line one more — three lines, three weights. */
+    --_chart-grid: var(--slotted-chart-grid-color, var(--slotted-border-subtle, GrayText));
+    --_chart-axis: var(--slotted-chart-axis-color, var(--slotted-control-border-color, GrayText));
+    --_chart-reference: var(
+      --slotted-chart-reference-color,
+      var(--slotted-border-strong, GrayText)
+    );
+    /* The ground the marks sit on: the ring around a marker and the gap
+       between two slices are painted in it. A card lays its own. */
+    --_chart-surface: var(--slotted-chart-surface, var(--slotted-surface, Canvas));
+    --_chart-label-size: var(--slotted-chart-label-size, var(--slotted-font-size-xs, 0.75rem));
+    --_chart-line-width: var(--slotted-chart-line-width, var(--slotted-border-width-thick, 2px));
+    --_chart-marker-size: var(--slotted-chart-marker-size, var(--slotted-space-4, 0.5rem));
+    --_chart-bar-radius: var(--slotted-chart-bar-radius, var(--slotted-radius-sm, 4px));
+    /* The wash under a line, as a share of the series colour. A number and
+       not a token step, for the reason `sparkline` records beside its own:
+       no scale in the foundation holds an opacity for a fill read through. */
+    --_chart-area-opacity: var(--slotted-chart-area-opacity, 0.18);
+    /* The room between the plot's edge and its marks and labels: the gap a
+       control keeps inside itself, so a dense page draws a tighter chart. */
+    --_chart-inset: var(--slotted-chart-inset, var(--slotted-control-gap-md, 0.5rem));
+    --_chart-duration: var(--slotted-duration-long);
+    --_chart-easing: var(--slotted-easing-standard);
+
+    box-sizing: border-box;
+    color: var(--slotted-text, CanvasText);
+    container: slotted-chart / inline-size;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-font-family-sans, system-ui, sans-serif);
+    font-size: var(--slotted-font-size-md, 0.875rem);
+    gap: var(--_gap);
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  /* Three heights on the space scale's top step: 12, 16 and 24 rem. A plot
+     is content, not a control, so the height does not follow density; what
+     density moves is the inset around the marks and the type on the axes. */
+  [data-ui-chart][data-size='sm'] {
+    --_plot-size: var(--slotted-chart-plot-block-size-sm, calc(var(--slotted-space-12, 4rem) * 3));
+  }
+
+  [data-ui-chart][data-size='lg'] {
+    --_plot-size: var(--slotted-chart-plot-block-size-lg, calc(var(--slotted-space-12, 4rem) * 6));
+  }
+
+  /**
+   * ── Palettes ───────────────────────────────────────────────────────────
+   *
+   * `sequential` is one hue — the theme's accent — stepped toward the ground,
+   * for ordered data (a ranking, shares of a whole, low to high) and for up
+   * to four series read by identity; past four the steps stop separating.
+   * `focus` is one series in the accent read against the rest in muted steps:
+   * this year against the last ones, one product against the market. Both
+   * are mixed in CSS from tokens the theme already owns, so they follow every
+   * scheme and brand with no scale of their own.
+   */
+  [data-ui-chart][data-palette='sequential'] {
+    --_hue: var(--slotted-chart-sequential-color, var(--slotted-tone-accent-text, CanvasText));
+    --_chart-slot-1: var(--_hue);
+    --_chart-slot-2: color-mix(in oklab, var(--_hue) 76%, var(--_chart-surface));
+    --_chart-slot-3: color-mix(in oklab, var(--_hue) 56%, var(--_chart-surface));
+    --_chart-slot-4: color-mix(in oklab, var(--_hue) 40%, var(--_chart-surface));
+    --_chart-slot-5: color-mix(in oklab, var(--_hue) 28%, var(--_chart-surface));
+    --_chart-slot-6: color-mix(in oklab, var(--_hue) 20%, var(--_chart-surface));
+    --_chart-slot-7: color-mix(in oklab, var(--_hue) 14%, var(--_chart-surface));
+    --_chart-slot-8: color-mix(in oklab, var(--_hue) 10%, var(--_chart-surface));
+  }
+
+  [data-ui-chart][data-palette='focus'] {
+    --_muted: var(--slotted-text-muted, GrayText);
+    --_chart-slot-1: var(--slotted-chart-focus-color, var(--slotted-tone-accent-text, CanvasText));
+    --_chart-slot-2: color-mix(in oklab, var(--_muted) 70%, var(--_chart-surface));
+    --_chart-slot-3: color-mix(in oklab, var(--_muted) 52%, var(--_chart-surface));
+    --_chart-slot-4: color-mix(in oklab, var(--_muted) 38%, var(--_chart-surface));
+    --_chart-slot-5: color-mix(in oklab, var(--_muted) 30%, var(--_chart-surface));
+    --_chart-slot-6: color-mix(in oklab, var(--_muted) 24%, var(--_chart-surface));
+    --_chart-slot-7: color-mix(in oklab, var(--_muted) 20%, var(--_chart-surface));
+    --_chart-slot-8: color-mix(in oklab, var(--_muted) 16%, var(--_chart-surface));
+  }
+
+  /**
+   * ── The card ───────────────────────────────────────────────────────────
+   *
+   * The chart as a dashboard tile: the raised surface, edge, corner and inset
+   * `card` draws, read from the same semantic tokens, so a chart tile and a
+   * card beside it are one material. The tile takes the block size its grid
+   * cell gives it and the plot takes what the header and the legend leave —
+   * never less than its size step — so tiles in one row end on one line
+   * whatever their titles and legends hold.
+   */
+  [data-ui-chart][data-variant='card'] {
+    --_chart-surface: var(--slotted-chart-surface, var(--slotted-surface-raised, Canvas));
+
+    background-color: var(--_chart-surface);
+    border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle, CanvasText);
+    border-radius: var(--slotted-chart-card-radius, var(--slotted-radius-lg, 8px));
+    padding-block: var(--slotted-chart-card-padding-block, var(--slotted-space-6, 1rem));
+    padding-inline: var(--slotted-chart-card-padding-inline, var(--slotted-space-6, 1rem));
+  }
+
+  /* ── Header ───────────────────────────────────────────────────────────── */
+
+  /* The header's parts are selected through the header: `title`,
+     `description` and `actions` are also parts of the families a plot
+     composes — `result-state` in an empty or failed plot — and a bare
+     descendant selector restyled theirs. */
+  [data-ui-chart] > [data-part-header] {
+    /* The controls sit on the title's first line and hang past their box by
+       the difference, so the row does not grow the header. The actions and
+       the toolbar share it, which is what puts them on one centre. */
+    --_control-bleed: calc(
+      (
+          var(--slotted-font-size-lg, 1rem) * var(--slotted-line-height-lg, 1.5) -
+            var(--slotted-control-height-sm, 1.75rem)
+        ) /
+        2
+    );
+
+    align-items: start;
+    display: flex;
+    gap: var(--slotted-space-4, 0.5rem);
+    min-inline-size: 0;
+  }
+
+  /* The heading block: title and help on one line, the description under. */
+  [data-ui-chart] > [data-part-header] > :first-child {
+    align-content: start;
+    display: grid;
+    flex: 1 1 auto;
+    gap: var(--slotted-space-1, 0.125rem);
+    min-inline-size: 0;
+  }
+
+  [data-ui-chart] > [data-part-header] > :first-child > :first-child {
+    align-items: center;
+    display: flex;
+    gap: var(--slotted-space-2, 0.25rem);
+    min-inline-size: 0;
+  }
+
+  [data-ui-chart] > [data-part-header] [data-part-title] {
+    color: var(--slotted-text, CanvasText);
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--slotted-font-size-lg, 1rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-lg, 1.5);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-chart] > [data-part-header] [data-part-description] {
+    color: var(--slotted-text-muted, GrayText);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    line-height: var(--slotted-line-height-sm, 1.45);
+    overflow-wrap: anywhere;
+  }
+
+  /* A tile's heading is one line of title and one of description, cut with
+     an ellipsis and whole in the DOM, so tiles in a row keep one header
+     height. The full text stays the figure's name and description. */
+  [data-ui-chart][data-variant='card']
+    > [data-part-header]
+    :is([data-part-title], [data-part-description]) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-chart][data-variant='card'] > [data-part-header] [data-part-title] {
+    font-size: var(--slotted-font-size-md, 0.875rem);
+    line-height: var(--slotted-line-height-md, 1.5);
+  }
+
+  /* A tile keeps the description's line whether it has one or not, so the
+     legends and the plots of a row start on one line too. */
+  [data-ui-chart][data-variant='card'] > [data-part-header] > :first-child {
+    min-block-size: calc(
+      var(--slotted-font-size-md, 0.875rem) * var(--slotted-line-height-md, 1.5) +
+        var(--slotted-space-1, 0.125rem) + var(--slotted-font-size-sm, 0.8125rem) *
+        var(--slotted-line-height-sm, 1.45)
+    );
+  }
+
+  [data-ui-chart] > [data-part-header] > [data-part-actions] {
+    /* An action slot states one size for the links it holds. */
+    --slotted-link-font-size: var(--slotted-font-size-sm, 0.8125rem);
+
+    align-items: center;
+    display: flex;
+    flex: none;
+    gap: var(--slotted-space-2, 0.25rem);
+    margin-block: var(--_control-bleed);
+  }
+
+  /**
+   * ── The chart's own controls ───────────────────────────────────────────
+   *
+   * Icon buttons one control-height square, quiet at rest — a chart's
+   * toolbar is read far less often than its marks — with the hover wash every
+   * secondary control carries. The toolbar can step back until the tile is
+   * hovered or holds focus (`toolbar="hover"`), and never where the device
+   * cannot hover.
+   */
+  [data-ui-chart] > [data-part-header] > [data-part-toolbar] {
+    align-items: center;
+    display: flex;
+    flex: none;
+    gap: var(--slotted-space-1, 0.125rem);
+    margin-block: var(--_control-bleed);
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-chart][data-toolbar='hover'] > [data-part-header] > [data-part-toolbar] {
+    opacity: 0;
+  }
+
+  /* While the plot waits, fails or has no data the toolbar keeps its width —
+     the title and the description wrap where they will wrap once it is ready —
+     and draws nothing: an action nobody can press yet is absent. */
+  [data-ui-chart] > [data-part-header] > [data-part-toolbar][data-waiting] {
+    visibility: hidden;
+  }
+
+  /* A chart has no disabled state; the guard is the precedence rule every
+     hover in the library states (`packages/styles/src/states.test.mjs`). */
+  [data-ui-chart][data-toolbar='hover']:is(:hover, :focus-within):not([data-disabled])
+    > [data-part-header]
+    > [data-part-toolbar] {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    [data-ui-chart][data-toolbar='hover'] > [data-part-header] > [data-part-toolbar] {
+      opacity: 1;
+    }
+  }
+
+  [data-ui-chart]
+    :is(
+      [data-part-zoom-reset],
+      [data-part-view-toggle],
+      [data-part-fullscreen-toggle],
+      [data-part-menu-trigger],
+      [data-part-help]
+    ) {
+    --_box: var(--slotted-control-height-sm, 1.75rem);
+
+    align-items: center;
+    background: transparent;
+    block-size: var(--_box);
+    border: 0;
+    border-radius: var(--slotted-control-radius, var(--slotted-radius-md, 6px));
+    color: var(--slotted-text-muted, GrayText);
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--_box);
+    justify-content: center;
+    padding: 0;
+    transition:
+      background-color var(--slotted-duration-short) var(--slotted-easing-standard),
+      color var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  /* Help sits beside the words it explains, a step smaller than the toolbar. */
+  [data-ui-chart] [data-part-help] {
+    --_box: var(--slotted-control-inner-size-sm, 1.25rem);
+
+    /* It hangs past the title's line by the difference rather than growing
+       it: a tile with help and a tile without start their plots on one line. */
+    margin-block: calc(
+      (var(--slotted-font-size-md, 0.875rem) * var(--slotted-line-height-md, 1.5) - var(--_box)) / 2
+    );
+  }
+
+  [data-ui-chart]
+    :is(
+      [data-part-zoom-reset],
+      [data-part-view-toggle],
+      [data-part-fullscreen-toggle],
+      [data-part-menu-trigger],
+      [data-part-help]
+    ):hover:not(:disabled) {
+    background-color: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+    color: var(--slotted-text, CanvasText);
+  }
+
+  /* On: the table standing in the plot, the menu or the help open. */
+  [data-ui-chart]
+    :is([data-part-view-toggle], [data-part-menu-trigger], [data-part-help])[data-pressed],
+  [data-ui-chart] :is([data-part-menu-trigger], [data-part-help])[data-open] {
+    background-color: var(--slotted-tone-secondary-surface, ButtonFace);
+    color: var(--slotted-text, CanvasText);
+  }
+
+  [data-ui-chart]
+    :is(
+      [data-part-zoom-reset],
+      [data-part-view-toggle],
+      [data-part-fullscreen-toggle],
+      [data-part-menu-trigger],
+      [data-part-help],
+      [data-part-legend-more],
+      [data-part-menu-item]
+    ):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: 0;
+  }
+
+  /**
+   * The menu and the help are layers over the page: the raised surface of
+   * every floating layer in the library. They are placed in the viewport's
+   * coordinates by the binding, through the chart's two runtime properties.
+   */
+  [data-ui-chart] :is([data-part-menu], [data-part-help-content]) {
+    background-color: var(--slotted-surface-raised, Canvas);
+    border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle, CanvasText);
+    border-radius: var(--slotted-radius-md, 6px);
+    box-shadow: var(--slotted-shadow-md, none);
+    box-sizing: border-box;
+    color: var(--slotted-text, CanvasText);
+    font-family: var(--slotted-font-family-sans, system-ui, sans-serif);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    inset: 0 auto auto 0;
+    line-height: var(--slotted-line-height-sm, 1.45);
+    margin: 0;
+    max-inline-size: min(20rem, calc(100vw - var(--slotted-space-8, 1.5rem)));
+    position: fixed;
+    transform: translate(var(--slotted-chart-x, 0px), var(--slotted-chart-y, 0px));
+    z-index: var(--slotted-z-index-popover, 1100);
+  }
+
+  /* A theme that paints the chart's floating layers as a translucent material blurs the plot under them. */
+  [data-ui-chart] :is([data-part-menu], [data-part-help-content], [data-part-tooltip]) {
+    -webkit-backdrop-filter: var(--slotted-chart-overlay-backdrop-filter, none);
+    backdrop-filter: var(--slotted-chart-overlay-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-chart] :is([data-part-menu], [data-part-help-content], [data-part-tooltip]) {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  [data-ui-chart] [data-part-menu] {
+    display: grid;
+    min-inline-size: 11rem;
+    padding: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-chart] [data-part-menu]:not(:popover-open, [data-open]) {
+    display: none;
+  }
+
+  [data-ui-chart] [data-part-help-content] {
+    padding-block: var(--slotted-space-4, 0.5rem);
+    padding-inline: var(--slotted-space-5, 0.75rem);
+  }
+
+  [data-ui-chart] [data-part-help-content]:not(:popover-open, [data-open]) {
+    display: none;
+  }
+
+  [data-ui-chart] [data-part-menu-item] {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: var(--slotted-radius-sm, 4px);
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    gap: var(--slotted-space-3, 0.375rem);
+    min-block-size: var(--slotted-control-height-sm, 1.75rem);
+    padding-inline: var(--slotted-space-4, 0.5rem);
+    text-align: start;
+  }
+
+  /* The table and full-screen controls are in the toolbar; the menu holds
+     them only where the toolbar gives them up (see Narrow). */
+  [data-ui-chart] [data-part-menu-item]:is([data-action='view'], [data-action='fullscreen']) {
+    display: none;
+  }
+
+  [data-ui-chart] [data-part-menu-item]:hover:not(:disabled) {
+    background-color: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+  }
+
+  /* ── Legend ───────────────────────────────────────────────────────────── */
+
+  /* One line: what does not fit waits behind `legend-more`, so a legend of
+     three and a legend of twelve are the same height. `legendOverflow="wrap"`
+     lets a chart that owns its own page wrap instead. */
+  [data-ui-chart] [data-part-legend] {
+    align-items: center;
+    display: flex;
+    flex: none;
+    flex-wrap: nowrap;
+    gap: var(--slotted-space-1, 0.125rem) var(--slotted-space-2, 0.25rem);
+    list-style: none;
+    margin: 0;
+    /* The items carry their own inline padding so their hover wash has room;
+       the row gives it back so the first marker lines up with the title. */
+    margin-inline-start: calc(var(--slotted-space-3, 0.375rem) * -1);
+    min-block-size: var(--slotted-target-min, 1.5rem);
+    min-inline-size: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  [data-ui-chart][data-legend-overflow='wrap'] [data-part-legend] {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  /**
+   * The colour of one series, resolved in the order the model resolves it:
+   * a tone says what the series means and wins, a slot says which one it is,
+   * and the ninth series and on — which the scale never cycles to — takes the
+   * muted step with a dash of its own. The legend, the markers and the
+   * tooltip read the palette the root declares, as the engine does.
+   */
+  [data-ui-chart] [data-slot='1'] {
+    --_series: var(--_chart-slot-1);
+  }
+  [data-ui-chart] [data-slot='2'] {
+    --_series: var(--_chart-slot-2);
+  }
+  [data-ui-chart] [data-slot='3'] {
+    --_series: var(--_chart-slot-3);
+  }
+  [data-ui-chart] [data-slot='4'] {
+    --_series: var(--_chart-slot-4);
+  }
+  [data-ui-chart] [data-slot='5'] {
+    --_series: var(--_chart-slot-5);
+  }
+  [data-ui-chart] [data-slot='6'] {
+    --_series: var(--_chart-slot-6);
+  }
+  [data-ui-chart] [data-slot='7'] {
+    --_series: var(--_chart-slot-7);
+  }
+  [data-ui-chart] [data-slot='8'] {
+    --_series: var(--_chart-slot-8);
+  }
+  [data-ui-chart] [data-tone='neutral'] {
+    --_series: var(--_chart-tone-neutral);
+  }
+  [data-ui-chart] [data-tone='accent'] {
+    --_series: var(--_chart-tone-accent);
+  }
+  [data-ui-chart] [data-tone='secondary'] {
+    --_series: var(--_chart-tone-secondary);
+  }
+  [data-ui-chart] [data-tone='success'] {
+    --_series: var(--_chart-tone-success);
+  }
+
+  [data-ui-chart] [data-tone='info'] {
+    --_series: var(--_chart-tone-info);
+  }
+  [data-ui-chart] [data-tone='warning'] {
+    --_series: var(--_chart-tone-warning);
+  }
+  [data-ui-chart] [data-tone='danger'] {
+    --_series: var(--_chart-tone-danger);
+  }
+  [data-ui-chart] [data-overflow] {
+    --_series: var(--_chart-overflow);
+  }
+
+  [data-ui-chart] :is([data-part-legend-item], [data-part-legend-more]) {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: var(--slotted-control-radius, var(--slotted-radius-md, 6px));
+    color: var(--slotted-text, CanvasText);
+    display: inline-flex;
+    flex: none;
+    font: inherit;
+    font-size: var(--slotted-control-font-size-sm, 0.75rem);
+    gap: var(--slotted-space-3, 0.375rem);
+    line-height: var(--slotted-line-height-sm, 1.45);
+    max-inline-size: 100%;
+    min-block-size: var(--slotted-target-min, 1.5rem);
+    min-inline-size: 0;
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    text-align: start;
+    transition:
+      background-color var(--slotted-duration-short) var(--slotted-easing-standard),
+      color var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-chart] :is([data-part-legend-item], [data-part-legend-more])[hidden] {
+    display: none;
+  }
+
+  [data-ui-chart] [data-part-legend-more] {
+    color: var(--slotted-text-muted, GrayText);
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  /* An entry moved into the `+N` layer stands in a column there. */
+  [data-ui-chart] [data-part-menu] [data-part-legend-item] {
+    inline-size: 100%;
+  }
+
+  [data-ui-chart] :is(button[data-part-legend-item], [data-part-legend-more]) {
+    cursor: pointer;
+  }
+
+  [data-ui-chart] :is(button[data-part-legend-item], [data-part-legend-more]):hover:not(:disabled) {
+    background-color: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+  }
+
+  [data-ui-chart] [data-part-legend-item]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: 0;
+  }
+
+  /**
+   * The marker is the shape of the mark it stands for, so a combined chart's
+   * legend reads without colour: a stroke for a line, a square for a bar, an
+   * area or a slice, a disc for a scatter.
+   */
+  [data-ui-chart] :is([data-part-legend-marker], [data-part-tooltip-marker]) {
+    background-color: var(--_series);
+    block-size: 0.625rem;
+    border-radius: var(--slotted-radius-xs, 2px);
+    flex: none;
+    inline-size: 0.625rem;
+  }
+
+  [data-ui-chart] :is([data-part-legend-marker], [data-part-tooltip-marker])[data-kind='line'] {
+    block-size: var(--slotted-border-width-thick, 2px);
+    border-radius: var(--slotted-radius-full, 9999px);
+    inline-size: 0.875rem;
+  }
+
+  [data-ui-chart] :is([data-part-legend-marker], [data-part-tooltip-marker])[data-kind='scatter'] {
+    border-radius: var(--slotted-radius-full, 9999px);
+  }
+
+  /* The line's own dash, drawn at the marker's scale, so three series that
+     share the muted colour past the eighth slot still read apart. */
+  [data-ui-chart] :is([data-part-legend-marker], [data-part-tooltip-marker])[data-stroke='dashed'] {
+    background: repeating-linear-gradient(to right, var(--_series) 0 3px, transparent 3px 5px);
+  }
+
+  [data-ui-chart] :is([data-part-legend-marker], [data-part-tooltip-marker])[data-stroke='dotted'] {
+    background: repeating-linear-gradient(to right, var(--_series) 0 2px, transparent 2px 4px);
+  }
+
+  [data-ui-chart]
+    :is([data-part-legend-marker], [data-part-tooltip-marker])[data-stroke='dash-dot'] {
+    background: repeating-linear-gradient(
+      to right,
+      var(--_series) 0 5px,
+      transparent 5px 7px,
+      var(--_series) 7px 9px,
+      transparent 9px 11px
+    );
+  }
+
+  [data-ui-chart] [data-part-legend-label] {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-chart] [data-part-legend-value] {
+    color: var(--slotted-text-muted, GrayText);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  [data-ui-chart] [data-part-legend-item][data-current] [data-part-legend-value] {
+    color: var(--slotted-text, CanvasText);
+  }
+
+  /**
+   * A hidden series keeps its place in the row — a legend that reflowed on
+   * every toggle would move the next item from under the pointer — and reads
+   * as off: the marker empties to its outline and the label mutes. The
+   * outline is the series colour, so the item still says which series it
+   * would bring back.
+   */
+  [data-ui-chart] button[data-part-legend-item]:not([data-pressed]) {
+    color: var(--slotted-text-muted, GrayText);
+  }
+
+  [data-ui-chart] button[data-part-legend-item]:not([data-pressed]) [data-part-legend-marker] {
+    background: transparent;
+    box-shadow: inset 0 0 0 var(--slotted-border-width-medium, 1.5px) var(--_series);
+  }
+
+  [data-ui-chart]
+    button[data-part-legend-item]:not([data-pressed])
+    [data-part-legend-marker][data-kind='line'] {
+    background: var(--_series);
+    box-shadow: none;
+    opacity: 0.4;
+  }
+
+  [data-ui-chart] button[data-part-legend-item]:not([data-pressed]) [data-part-legend-label] {
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in oklab, currentColor 55%, transparent);
+  }
+
+  /* ── Plot ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-chart] [data-part-plot] {
+    border-radius: var(--_radius);
+    /* Its size step, and whatever more a tile or the full screen gives it. */
+    flex: 1 0 var(--_plot-size);
+    min-block-size: var(--_plot-size);
+    /* The plot does not mirror: axes, time and bars read left to right in
+       every document (Material Design, Bidirectionality, "Charts and
+       graphs"). Its overlay is positioned in the engine's coordinates, which
+       are the same in both directions; the text laid over it takes the
+       document's direction back below. */
+    direction: ltr;
+    min-inline-size: 0;
+    position: relative;
+  }
+
+  [data-ui-chart] [data-part-plot]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  [data-ui-chart] [data-part-canvas] {
+    inset: 0;
+    position: absolute;
+    z-index: 1;
+  }
+
+  /* The engine keeps its size and its state behind the table, so the chart
+     comes back where the reader left it. */
+  [data-ui-chart]
+    [data-part-plot]:has(> [data-part-table-region]:not([hidden]))
+    > :is(
+      [data-part-canvas],
+      [data-part-crosshair],
+      [data-part-marker],
+      [data-part-tooltip],
+      [data-part-center]
+    ) {
+    visibility: hidden;
+  }
+
+  /**
+   * ── The overlay ───────────────────────────────────────────────────────
+   *
+   * Drawn by the family at the pixel the engine reports, for a pointer and a
+   * keyboard alike, through runtime properties the script writes:
+   * `--slotted-chart-x` and `--slotted-chart-y` for a point,
+   * `--slotted-chart-band-start` and `--slotted-chart-band-size` for the
+   * category a point sits in, and `--slotted-chart-frame-start` and
+   * `--slotted-chart-frame-size` for the grid across it. None of them is a
+   * design token.
+   */
+  [data-ui-chart] :is([data-part-crosshair], [data-part-marker], [data-part-tooltip]) {
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  /* A line under the marks for a line or an area, where the eye needs the
+     exact x; a band for bars, where the category is the whole slot. */
+  [data-ui-chart] [data-part-crosshair] {
+    background-color: var(--slotted-chart-crosshair-color, var(--slotted-border-strong, GrayText));
+    block-size: var(--slotted-chart-frame-size, 100%);
+    inline-size: 1px;
+    transform: translate(
+      calc(var(--slotted-chart-x, 0px) - 0.5px),
+      var(--slotted-chart-frame-start, 0px)
+    );
+    z-index: 0;
+  }
+
+  [data-ui-chart] [data-part-crosshair][data-band] {
+    background-color: var(
+      --slotted-chart-band-color,
+      color-mix(in oklab, var(--slotted-text, CanvasText) 6%, transparent)
+    );
+    border-radius: var(--slotted-radius-sm, 4px);
+    inline-size: var(--slotted-chart-band-size, 0px);
+    transform: translate(
+      var(--slotted-chart-band-start, 0px),
+      var(--slotted-chart-frame-start, 0px)
+    );
+  }
+
+  [data-ui-chart] [data-part-crosshair][data-orientation='horizontal'] {
+    block-size: 1px;
+    inline-size: var(--slotted-chart-frame-size, 100%);
+    transform: translate(
+      var(--slotted-chart-frame-start, 0px),
+      calc(var(--slotted-chart-y, 0px) - 0.5px)
+    );
+  }
+
+  [data-ui-chart] [data-part-crosshair][data-band][data-orientation='horizontal'] {
+    block-size: var(--slotted-chart-band-size, 0px);
+    transform: translate(
+      var(--slotted-chart-frame-start, 0px),
+      var(--slotted-chart-band-start, 0px)
+    );
+  }
+
+  /**
+   * The marker on the point the reader is on: the series colour with a ring
+   * of the ground around it, so it separates from the line it sits on and
+   * from a neighbouring series crossing at the same place.
+   */
+  [data-ui-chart] [data-part-marker] {
+    --_size: calc(var(--_chart-marker-size) + var(--slotted-space-2, 0.25rem));
+
+    background-color: var(--_series, var(--_chart-slot-1));
+    block-size: var(--_size);
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-shadow: 0 0 0 var(--slotted-border-width-thick, 2px) var(--_chart-surface);
+    inline-size: var(--_size);
+    transform: translate(
+      calc(var(--slotted-chart-x, 0px) - var(--_size) / 2),
+      calc(var(--slotted-chart-y, 0px) - var(--_size) / 2)
+    );
+    z-index: 2;
+  }
+
+  /* The point the reader chose stays marked after the pointer leaves: a ring
+     in the series colour around the ground, larger than the hover marker so
+     the two read as two states when they meet. */
+  [data-ui-chart] [data-part-marker][data-selected] {
+    --_size: calc(var(--_chart-marker-size) * 2 + var(--slotted-space-2, 0.25rem));
+
+    background-color: transparent;
+    box-shadow:
+      inset 0 0 0 var(--slotted-border-width-thick, 2px) var(--_series, CanvasText),
+      0 0 0 var(--slotted-border-width-thick, 2px) var(--_chart-surface);
+  }
+
+  /* ── Tooltip ──────────────────────────────────────────────────────────── */
+
+  /**
+   * The raised surface every floating layer in the library uses, and the
+   * reading order a tooltip is read in: what the point is, then each series
+   * with its value aligned on the right, then the total. The rows are a
+   * subgrid of one three-column grid, so the values line up whatever the
+   * labels' lengths.
+   */
+  [data-ui-chart] [data-part-tooltip] {
+    background-color: var(--slotted-chart-tooltip-surface, var(--slotted-surface-raised, Canvas));
+    border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle, CanvasText);
+    border-radius: var(--slotted-radius-md, 6px);
+    box-shadow: var(--slotted-shadow-md, none);
+    box-sizing: border-box;
+    color: var(--slotted-text, CanvasText);
+    column-gap: var(--slotted-space-4, 0.5rem);
+    display: grid;
+    font-size: var(--slotted-control-font-size-sm, 0.75rem);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    line-height: var(--slotted-line-height-sm, 1.45);
+    max-inline-size: min(18rem, 100%);
+    min-inline-size: 8rem;
+    opacity: 0;
+    padding-block: var(--slotted-space-4, 0.5rem);
+    padding-inline: var(--slotted-space-5, 0.75rem);
+    row-gap: var(--slotted-space-2, 0.25rem);
+    transform: translate(var(--slotted-chart-x, 0px), var(--slotted-chart-y, 0px));
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-standard),
+      transform var(--slotted-duration-short) var(--slotted-easing-standard);
+    visibility: hidden;
+    z-index: 3;
+  }
+
+  /**
+   * Docked: on a plot too narrow for a box beside the point — a phone, a
+   * narrow tile — the tooltip is a strip across the plot's top edge that the
+   * point never hides under, and the crosshair shows which point it is about.
+   * The binding docks it; `placeTooltip` says when.
+   */
+  [data-ui-chart] [data-part-tooltip][data-docked] {
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  /* The tooltip's text runs in the document's direction. Its box stays in the
+     plot's coordinates: an inset resolves against the element's own
+     direction, so the right-to-left box anchors at its inline end, which is
+     the same left edge the translation is measured from. */
+  [data-ui-chart]:dir(rtl) :is([data-part-tooltip], [data-part-center]) {
+    direction: rtl;
+  }
+
+  [data-ui-chart]:dir(rtl) [data-part-tooltip] {
+    inset-inline-end: 0;
+    inset-inline-start: auto;
+  }
+
+  [data-ui-chart] [data-part-tooltip][data-open] {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* A tooltip that appears slides into place from where it opened; one that
+     follows the pointer from point to point moves with it. Opening snaps the
+     position so the first frame is not a flight from the corner. */
+  [data-ui-chart] [data-part-tooltip]:not([data-open]) {
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-standard),
+      visibility var(--slotted-duration-instant) linear var(--slotted-duration-short);
+  }
+
+  [data-ui-chart] [data-part-tooltip-title] {
+    color: var(--slotted-text, CanvasText);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    grid-column: 1 / -1;
+    overflow-wrap: anywhere;
+  }
+
+  /* The label of a line on this category, the plot's own words for it. */
+  [data-ui-chart] [data-part-tooltip-note] {
+    color: var(--slotted-text-muted, GrayText);
+    grid-column: 1 / -1;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-chart] :is([data-part-tooltip-item], [data-part-tooltip-total]) {
+    align-items: center;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  [data-ui-chart] [data-part-tooltip-item] {
+    color: var(--slotted-text-muted, GrayText);
+  }
+
+  [data-ui-chart] [data-part-tooltip-item][data-current] {
+    color: var(--slotted-text, CanvasText);
+  }
+
+  [data-ui-chart] [data-part-tooltip-label] {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-chart] [data-part-tooltip-value] {
+    color: var(--slotted-text, CanvasText);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    text-align: end;
+    white-space: nowrap;
+  }
+
+  [data-ui-chart] [data-part-tooltip-total] {
+    border-block-start: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-border-subtle, CanvasText);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    margin-block-start: var(--slotted-space-2, 0.25rem);
+    padding-block-start: var(--slotted-space-3, 0.375rem);
+  }
+
+  [data-ui-chart] [data-part-tooltip-total] > :first-child {
+    grid-column: 1 / 3;
+  }
+
+  /* ── The centre of a donut ────────────────────────────────────────────── */
+
+  [data-ui-chart] [data-part-center] {
+    align-content: center;
+    display: grid;
+    inset: 0;
+    justify-items: center;
+    pointer-events: none;
+    position: absolute;
+    text-align: center;
+    z-index: 2;
+  }
+
+  [data-ui-chart] [data-part-center-value] {
+    font-size: var(--slotted-font-size-2xl, 1.25rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-2xl, 1.4);
+  }
+
+  [data-ui-chart] [data-part-center-label] {
+    color: var(--slotted-text-muted, GrayText);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    line-height: var(--slotted-line-height-xs, 1.4);
+  }
+
+  /* ── Waiting ──────────────────────────────────────────────────────────── */
+
+  /**
+   * The skeleton is the chart it stands in for, drawn in the skeleton
+   * family's fill at a lighter share of the ground: the value axis' labels in
+   * a column, the category axis' labels in a row, the grid the loaded chart
+   * draws, and the marks of its kind — bars of the heights data tends to
+   * have, a line and its wash, a pie's ring — under one shimmer. It fills the
+   * plot's box exactly, so nothing moves when the data lands.
+   */
+  [data-ui-chart] [data-part-skeleton] {
+    inset: var(--_chart-inset);
+    position: absolute;
+  }
+
+  [data-ui-chart] [data-part-skeleton] > [data-ui-skeleton] {
+    /* A tenth of the text over the ground: a step lighter than the ground
+       in a dark scheme and a step darker in a light one, where the skeleton
+       family's own fill, made for a sunken field, sank into a dark tile. */
+    --slotted-skeleton-fill: color-mix(
+      in oklab,
+      var(--slotted-text, CanvasText) 9%,
+      var(--_chart-surface)
+    );
+
+    block-size: 100%;
+    box-sizing: border-box;
+    column-gap: var(--_chart-inset);
+    display: grid;
+    grid-template-areas:
+      'y marks'
+      '. x';
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    inline-size: 100%;
+    row-gap: var(--_chart-inset);
+  }
+
+  [data-ui-chart] [data-part-skeleton] [data-skeleton='y'] {
+    align-items: end;
+    display: flex;
+    flex-direction: column;
+    grid-area: y;
+    justify-content: space-between;
+  }
+
+  [data-ui-chart] [data-part-skeleton] [data-skeleton='x'] {
+    display: flex;
+    grid-area: x;
+    justify-content: space-around;
+  }
+
+  /* An axis label is a short line at the axis type's height. */
+  [data-ui-chart]
+    [data-part-skeleton]
+    :is([data-skeleton='y'], [data-skeleton='x'])
+    > [data-ui-skeleton] {
+    block-size: 0.5rem;
+    border-radius: var(--slotted-radius-full, 9999px);
+    flex: none;
+    inline-size: 1.5rem;
+    min-block-size: 0;
+  }
+
+  [data-ui-chart] [data-part-skeleton] [data-skeleton='y'] > [data-ui-skeleton]:nth-child(odd) {
+    inline-size: 2rem;
+  }
+
+  /* Six category labels at their full width are 144 pixels, more than the
+     marks column of a quarter-width tile holds; they shrink together with it,
+     as the engine's labels thin out, rather than run past the plot. */
+  [data-ui-chart] [data-part-skeleton] [data-skeleton='x'] > [data-ui-skeleton] {
+    flex: 0 1 auto;
+    min-inline-size: 0;
+  }
+
+  [data-ui-chart] [data-part-skeleton] [data-skeleton='marks'] {
+    align-items: end;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--_chart-grid) 0 1px,
+      transparent 1px calc((100% - 1px) / 4)
+    );
+    display: flex;
+    grid-area: marks;
+    justify-content: space-around;
+    min-block-size: 0;
+    position: relative;
+  }
+
+  /* The skeleton family sizes a block on its own; inside the plot a bar takes
+     its share of the row and nothing more. */
+  [data-ui-chart] [data-part-skeleton] [data-skeleton='marks'] > [data-ui-skeleton] {
+    border-radius: var(--_chart-bar-radius) var(--_chart-bar-radius) 0 0;
+    flex: 0 1 9%;
+    inline-size: auto;
+    min-inline-size: 0;
+  }
+
+  [data-ui-chart]
+    [data-part-skeleton][data-kind='bar']
+    [data-skeleton='marks']
+    > [data-ui-skeleton]:nth-child(7n + 1) {
+    block-size: 38%;
+  }
+  [data-ui-chart]
+    [data-part-skeleton][data-kind='bar']
+    [data-skeleton='marks']
+    > [data-ui-skeleton]:nth-child(7n + 2) {
+    block-size: 62%;
+  }
+  [data-ui-chart]
+    [data-part-skeleton][data-kind='bar']
+    [data-skeleton='marks']
+    > [data-ui-skeleton]:nth-child(7n + 3) {
+    block-size: 50%;
+  }
+  [data-ui-chart]
+    [data-part-skeleton][data-kind='bar']
+    [data-skeleton='marks']
+    > [data-ui-skeleton]:nth-child(7n + 4) {
+    block-size: 74%;
+  }
+  [data-ui-chart]
+    [data-part-skeleton][data-kind='bar']
+    [data-skeleton='marks']
+    > [data-ui-skeleton]:nth-child(7n + 5) {
+    block-size: 56%;
+  }
+  [data-ui-chart]
+    [data-part-skeleton][data-kind='bar']
+    [data-skeleton='marks']
+    > [data-ui-skeleton]:nth-child(7n + 6) {
+    block-size: 44%;
+  }
+  [data-ui-chart]
+    [data-part-skeleton][data-kind='bar']
+    [data-skeleton='marks']
+    > [data-ui-skeleton]:nth-child(7n + 7) {
+    block-size: 68%;
+  }
+
+  /* A line is its stroke and the wash under it: two blocks over the whole
+     marks area, one cut to a band as thick as a line, one to the silhouette
+     under it at a third of the fill. */
+  [data-ui-chart]
+    [data-part-skeleton][data-kind='line']
+    [data-skeleton='marks']
+    > [data-ui-skeleton] {
+    block-size: 100%;
+    border-radius: 0;
+    inset: 0;
+    position: absolute;
+  }
+
+  [data-ui-chart]
+    [data-part-skeleton][data-kind='line']
+    [data-skeleton='marks']
+    > [data-ui-skeleton]:first-child {
+    clip-path: polygon(
+      0% 60.5%,
+      14% 46.5%,
+      28% 54.5%,
+      42% 28.5%,
+      57% 38.5%,
+      71% 20.5%,
+      86% 32.5%,
+      100% 12.5%,
+      100% 15.5%,
+      86% 35.5%,
+      71% 23.5%,
+      57% 41.5%,
+      42% 31.5%,
+      28% 57.5%,
+      14% 49.5%,
+      0% 63.5%
+    );
+  }
+
+  [data-ui-chart]
+    [data-part-skeleton][data-kind='line']
+    [data-skeleton='marks']
+    > [data-ui-skeleton]:last-child {
+    clip-path: polygon(
+      0% 62%,
+      14% 48%,
+      28% 56%,
+      42% 30%,
+      57% 40%,
+      71% 22%,
+      86% 34%,
+      100% 14%,
+      100% 100%,
+      0% 100%
+    );
+    opacity: 0.35;
+  }
+
+  /* A pie has no axes: its ring, centred, at the size the engine draws it. */
+  [data-ui-chart] [data-part-skeleton][data-kind='pie'] > [data-ui-skeleton] {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  [data-ui-chart] [data-part-skeleton][data-kind='pie'] [data-ui-skeleton][data-shape='circle'] {
+    aspect-ratio: 1;
+    block-size: 76%;
+    flex: none;
+    inline-size: auto;
+    mask-image: radial-gradient(
+      circle,
+      transparent calc(var(--slotted-chart-skeleton-hole, 64%) * 0.5),
+      #000 calc(var(--slotted-chart-skeleton-hole, 64%) * 0.5 + 0.5px)
+    );
+  }
+
+  /* A legend whose entries come with the data stands in as three short
+     lines of the entries' type height. */
+  [data-ui-chart] [data-part-legend] > [data-ui-skeleton] {
+    /* A tenth of the text over the ground: a step lighter than the ground
+       in a dark scheme and a step darker in a light one, where the skeleton
+       family's own fill, made for a sunken field, sank into a dark tile. */
+    --slotted-skeleton-fill: color-mix(
+      in oklab,
+      var(--slotted-text, CanvasText) 9%,
+      var(--_chart-surface)
+    );
+
+    --slotted-skeleton-block-size: 0.5rem;
+    --slotted-skeleton-min-block-size: 0;
+
+    align-self: center;
+    block-size: 0.5rem;
+    border-radius: var(--slotted-radius-full, 9999px);
+    flex: none;
+    inline-size: 4.5rem;
+    margin-inline-start: var(--slotted-space-3, 0.375rem);
+    min-block-size: 0;
+  }
+
+  [data-ui-chart] [data-part-legend] > [data-ui-skeleton]:nth-child(2) {
+    inline-size: 3.25rem;
+  }
+
+  /* ── Empty and failed ─────────────────────────────────────────────────── */
+
+  [data-ui-chart] :is([data-part-empty], [data-part-error]) {
+    /* A message about one chart, at the size of the chart's own words. */
+    --slotted-result-state-title-font-size: var(--slotted-font-size-md, 0.875rem);
+    --slotted-result-state-padding-block: var(--slotted-space-4, 0.5rem);
+
+    align-content: center;
+    display: grid;
+    inset: 0;
+    justify-items: center;
+    padding: var(--_chart-inset);
+    position: absolute;
+    z-index: 3;
+  }
+
+  /* An empty or failed plot keeps the baseline it would have drawn, so the box
+     reads as the chart's and not as a hole in the page. The baseline alone:
+     the message stands on no surface of its own, and the bands the grid drew
+     every quarter of the height crossed the empty title and ran between the
+     failed title and its retry. */
+  [data-ui-chart] [data-part-plot]:has(> :is([data-part-empty], [data-part-error])) {
+    background: linear-gradient(var(--_chart-grid), var(--_chart-grid)) 0 100% / 100% 1px no-repeat
+      content-box;
+    box-sizing: border-box;
+    padding: var(--_chart-inset) var(--_chart-inset) calc(var(--_chart-inset) * 3);
+  }
+
+  /* ── Text alternatives ────────────────────────────────────────────────── */
+
+  [data-ui-chart] [data-part-summary] {
+    block-size: 1px;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  /* The table view: in the plot's box, scrolling inside it, in the document's
+     direction, on the plot's ground. The ground has a token of its own because
+     `--slotted-chart-surface` is what the series mix with, so it stays opaque
+     where a translucent theme makes the table translucent. */
+  [data-ui-chart] [data-part-table-region] {
+    background-color: var(--slotted-chart-table-surface, var(--_chart-surface));
+    border-radius: var(--_radius);
+    inset: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    position: absolute;
+    z-index: 4;
+  }
+
+  [data-ui-chart]:dir(rtl) [data-part-table-region] {
+    direction: rtl;
+  }
+
+  /* The region scrolls, so it takes focus to be scrolled by keyboard. The ring
+     is drawn for a focus from the keyboard: a click on a cell focuses the region
+     too, and the next Shift would make it match `:focus-visible`
+     (`createFocusOrigin`). The browser's own ring is suppressed for the same focus. */
+  [data-ui-chart] [data-part-table-region]:focus {
+    outline: none;
+  }
+  [data-ui-chart] [data-part-table-region]:focus-visible[data-focus-origin='keyboard'] {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-width, 2px) * -1);
+  }
+
+  [data-ui-chart] [data-part-table-region][hidden] {
+    display: none;
+  }
+
+  [data-ui-chart] [data-part-table] {
+    border-collapse: collapse;
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    inline-size: 100%;
+    line-height: var(--slotted-line-height-sm, 1.45);
+  }
+
+  [data-ui-chart] [data-part-table] caption {
+    caption-side: bottom;
+    color: var(--slotted-text-muted, GrayText);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    padding-block: var(--slotted-space-3, 0.375rem);
+    text-align: start;
+  }
+
+  [data-ui-chart] [data-part-table] :is(th, td) {
+    border-block-end: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-border-subtle, CanvasText);
+    padding-block: var(--slotted-control-gap-sm, 0.375rem);
+    padding-inline: var(--slotted-space-4, 0.5rem);
+    text-align: start;
+    white-space: nowrap;
+  }
+
+  [data-ui-chart] [data-part-table] tbody th {
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-chart] [data-part-table] thead th {
+    background-color: var(
+      --slotted-chart-table-header-surface,
+      var(--slotted-chart-table-surface, var(--_chart-surface))
+    );
+    color: var(--slotted-text-muted, GrayText);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    inset-block-start: 0;
+    position: sticky;
+  }
+
+  [data-ui-chart] [data-part-table] [data-numeric] {
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+  }
+
+  [data-ui-chart] [data-part-table] tbody tr[data-current] {
+    background-color: var(--slotted-tone-secondary-subtle-hover, Highlight);
+  }
+
+  /* ── Full screen ──────────────────────────────────────────────────────── */
+
+  /**
+   * The same chart, given the whole screen: by the Fullscreen API where the
+   * page may use it, and as a layer fixed over the page where it may not —
+   * an iframe without `allowfullscreen`, an embedded webview. Both carry
+   * `data-fullscreen`; the plot takes the height the header and the legend
+   * leave, and the engine redraws at the new size on its own.
+   */
+  [data-ui-chart][data-fullscreen] {
+    --_chart-surface: var(--slotted-chart-surface, var(--slotted-surface, Canvas));
+
+    background-color: var(--_chart-surface);
+    block-size: 100%;
+    border: 0;
+    border-radius: 0;
+    inset: 0;
+    padding-block: var(--slotted-space-8, 1.5rem);
+    padding-inline: var(--slotted-space-9, 2rem);
+    position: fixed;
+    z-index: var(--slotted-z-index-overlay, 1000);
+  }
+
+  [data-ui-chart][data-fullscreen] [data-part-title] {
+    font-size: var(--slotted-font-size-xl, 1.125rem);
+  }
+
+  /* ── Narrow ───────────────────────────────────────────────────────────── */
+
+  /**
+   * Responsiveness changes what a chart shows first, not only its size
+   * (`docs/component-features.md` §2.7). Below 480 pixels — a phone, a third
+   * of a dashboard — the toolbar keeps only the menu, which holds its other
+   * controls, and the legend gives up its hover padding; below 360 the
+   * card gives up half its inset. The tooltip docks at the binding's word
+   * (`placeTooltip`), because it depends on the plot's width, not the
+   * figure's. Literal, as a container condition has to be
+   * (`docs/token-foundation.md`, rule 4).
+   */
+  @container slotted-chart (max-width: 480px) {
+    [data-ui-chart]
+      > [data-part-header]
+      > [data-part-toolbar]
+      > :is([data-part-view-toggle], [data-part-fullscreen-toggle]) {
+      display: none;
+    }
+
+    [data-ui-chart] [data-part-menu-item]:is([data-action='view'], [data-action='fullscreen']) {
+      display: flex;
+    }
+
+    [data-ui-chart] :is([data-part-legend-item], [data-part-legend-more]) {
+      padding-inline: var(--slotted-space-2, 0.25rem);
+    }
+  }
+
+  @container slotted-chart (max-width: 360px) {
+    [data-ui-chart][data-variant='card'] {
+      padding-block: var(--slotted-space-5, 0.75rem);
+      padding-inline: var(--slotted-space-5, 0.75rem);
+    }
+  }
+
+  /**
+   * A finger needs the comfortable target, not the minimum one.
+   *
+   * A row in the layer is as wide as the layer, so it grows. An entry in the
+   * legend's own line keeps the ground a mouse sees — a `+1` grown to the
+   * comfortable height stood 26 wide and 44 tall — and a transparent
+   * `::after` centred on it reaches 44 pixels in both axes. The line is that
+   * tall, so its clip does not cut the target, and wrapped lines stand that
+   * far apart, so one line's targets do not reach into the next. `+N` follows
+   * the last entry two pixels away and does not reach back across it.
+   */
+  @media (pointer: coarse) {
+    [data-ui-chart] [data-part-menu-item] {
+      min-block-size: var(--slotted-target-comfortable, 2.75rem);
+    }
+
+    [data-ui-chart] [data-part-menu] [data-part-legend-item] {
+      min-block-size: var(--slotted-target-comfortable, 2.75rem);
+      min-inline-size: var(--slotted-target-comfortable, 2.75rem);
+    }
+
+    [data-ui-chart] [data-part-legend] {
+      min-block-size: var(--slotted-target-comfortable, 2.75rem);
+      row-gap: calc(var(--slotted-target-comfortable, 2.75rem) - var(--slotted-target-min, 1.5rem));
+    }
+
+    [data-ui-chart] [data-part-legend] > :is([data-part-legend-item], [data-part-legend-more]) {
+      position: relative;
+    }
+
+    [data-ui-chart]
+      [data-part-legend]
+      > :is([data-part-legend-item], [data-part-legend-more])::after {
+      content: '';
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 2.75rem)) / 2));
+      position: absolute;
+    }
+
+    [data-ui-chart] [data-part-legend] > [data-part-legend-more]::after {
+      inset-inline-start: 0;
+    }
+
+    [data-ui-chart]
+      :is(
+        [data-part-zoom-reset],
+        [data-part-view-toggle],
+        [data-part-fullscreen-toggle],
+        [data-part-menu-trigger]
+      ) {
+      --_box: var(--slotted-target-comfortable, 2.75rem);
+    }
+  }
+
+  /* ── Print ────────────────────────────────────────────────────────────── */
+
+  /* Paper holds the marks and the words: no controls, no hover, no layer. */
+  @media print {
+    [data-ui-chart]
+      :is(
+        [data-part-toolbar],
+        [data-part-help],
+        [data-part-legend-more],
+        [data-part-tooltip],
+        [data-part-crosshair],
+        [data-part-marker]:not([data-selected])
+      ) {
+      display: none;
+    }
+
+    [data-ui-chart] [data-part-legend] {
+      flex-wrap: wrap;
+      overflow: visible;
+    }
+
+    [data-ui-chart] {
+      break-inside: avoid;
+    }
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────── */
+
+  /**
+   * Every series is one system colour here and the engine draws its textures,
+   * so the legend's filled markers would all read as one: they keep their
+   * shape, and the hidden state keeps its strike-through, which colour could
+   * not have carried anyway.
+   */
+  @media (forced-colors: active) {
+    [data-ui-chart] :is([data-part-legend-marker], [data-part-tooltip-marker], [data-part-marker]) {
+      forced-color-adjust: none;
+      background-color: CanvasText;
+    }
+
+    [data-ui-chart] [data-part-crosshair] {
+      background-color: GrayText;
+      forced-color-adjust: none;
+    }
+  }
+}

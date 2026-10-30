@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 5,
+  "family": "markdown",
+  "ui": "markdown",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Renders Markdown with an element allowlist."
+  },
+  "reference": "react-markdown, Streamdown, ngx-markdown, Ant Design X XMarkdown, mdast and mdast-util-to-hast, rehype-sanitize's GitHub schema, marked's lexer",
+  "composes": [
+    "prose",
+    "link",
+    "code-block",
+    "alert",
+    "checkbox",
+    "inline-message",
+    "button",
+    "skeleton"
+  ],
+  "engine": "@slotted/core/markdown",
+  "pattern": null,
+  "patternAbsent": {
+    "index": "https://www.w3.org/WAI/ARIA/apg/patterns/",
+    "reason": "The Authoring Practices publish patterns for widgets a reader operates, and a rendered document is not one. Every operable element inside it belongs to a composed family with its own pattern — link, checkbox, button, the scrolling region of prose — so the governing sources are the platform's semantics for the elements Markdown maps to and the footnote wiring GitHub's renderer established.",
+    "platform": "https://html.spec.whatwg.org/multipage/grouping-content.html",
+    "commonmark": "https://spec.commonmark.org/0.31.2/",
+    "gfm": "https://github.github.com/gfm/",
+    "footnotes": "https://github.com/syntax-tree/mdast-util-to-hast#footnotes"
+  },
+  "input": {
+    "shape": "mdast",
+    "spec": "https://github.com/syntax-tree/mdast",
+    "adapters": ["fromMarkedTokens"],
+    "source": "source takes the place of tree: parseMarkdown in @slotted/core/markdown reads a CommonMark subset — paragraphs, ATX headings, fenced code, block quotes, thematic breaks, bullet and ordered lists nested by indentation, code spans, strong, emphasis, links, backslash escapes and hard breaks — and reads the syntax of a type only when allow names it, so any other syntax stays text. While streaming, completeMarkdown closes the source before it is read. Dependency-free, for a language model's answer with no parser of the consumer's own",
+    "reason": "The family receives a tree and never HTML, as code-block receives tokens. mdast is the tree remark, react-markdown, Streamdown and MDX already produce, so their output passes through untouched; marked's lexer output is mapped by a function that imports nothing."
+  },
+  "document": {
+    "function": "prepareMarkdown",
+    "kinds": [
+      "heading",
+      "paragraph",
+      "blockquote",
+      "alert",
+      "list",
+      "item",
+      "code",
+      "thematicBreak",
+      "table",
+      "text",
+      "emphasis",
+      "strong",
+      "delete",
+      "inlineCode",
+      "break",
+      "link",
+      "image",
+      "footnoteReference",
+      "custom"
+    ],
+    "reason": "Both bindings walk one prepared document: references resolved, the URL policy and the allowlist applied, footnotes numbered, headings slugged and alerts read once, in core, with one test suite."
+  },
+  "sanitisation": {
+    "html": "dropped unless a renderer names the html type",
+    "unknownTypes": "dropped unless a renderer names the type",
+    "allow": "node types; the default is every CommonMark and GFM type except html",
+    "urls": {
+      "link": ["http", "https", "mailto", "tel", "relative"],
+      "image": ["http", "https", "relative"],
+      "refused": "a link renders its children, an image its alt text"
+    },
+    "reason": "No string of the input reaches innerHTML. The two ways content could still become active — raw HTML and a URL with an executable scheme — are closed by default and opened only by the consumer's own code."
+  },
+  "ids": {
+    "algorithm": "github-slugger",
+    "duplicates": "-1, -2 in document order",
+    "prefix": "idPrefix, on every generated id",
+    "reason": "A heading's id is the URL fragment a reader shares, so it follows the algorithm GitHub uses and stays readable; a prefix separates two regions on one page and is the defence rehype-sanitize applies against DOM clobbering."
+  },
+  "alerts": {
+    "syntax": "> [!NOTE] | [!TIP] | [!IMPORTANT] | [!WARNING] | [!CAUTION]",
+    "tones": {
+      "note": "accent",
+      "tip": "success",
+      "important": "secondary",
+      "warning": "warning",
+      "caution": "danger"
+    },
+    "renders": "alert, reach section, live off"
+  },
+  "fence": {
+    "meta": ["title=\"…\"", "{1,4-6}", "showLineNumbers"],
+    "renders": "code-block: title, marks.highlight, lineNumbers",
+    "reason": "code-block's design leaves magic comments and ranges to the Markdown pipeline that has them; the info string is where Docusaurus, rehype-pretty-code and Expressive Code put them."
+  },
+  "requests": {
+    "onTaskChange": {
+      "payload": "{ index, checked, offset }",
+      "reasons": ["pointer", "keyboard"],
+      "from": "a task checkbox, enabled only while the consumer listens"
+    },
+    "onRetry": {
+      "payload": "none",
+      "reasons": ["pointer", "keyboard"],
+      "from": "the error part's button"
+    }
+  },
+  "declined": {
+    "htmlSanitiser": {
+      "reason": "The family never holds an HTML string, so there is nothing to sanitise; ngx-markdown needs DomSanitizer because it writes innerHTML. A consumer who must render raw HTML registers a renderer for the html type and brings the sanitiser."
+    },
+    "math": {
+      "deferTo": "the consumer's renderer",
+      "compose": "renderers={{ math: (node) => <Katex tex={node.value} display /> }}",
+      "reason": "KaTeX and Mermaid are engines of hundreds of kilobytes, and docs/component-features.md section 2.10 puts engines in optional packages. remark-math already emits math and inlineMath nodes."
+    },
+    "caret": {
+      "compose": "the chat message's own status, beside the region",
+      "reason": "Streamdown draws a caret after the last token. The region already says it is busy through aria-busy; a caret is the conversation's indicator, and a second moving mark in the text is what the loading-states rule of one indicator per wait refuses."
+    },
+    "parsing": {
+      "deferTo": "the adapter the consumer runs, for CommonMark beyond the subset parseMarkdown reads and for GFM",
+      "reason": "docs/process/build-order.md makes the parser an adapter. A full parser inside the family would fix one dialect and one version for every consumer, and it is what makes react-markdown's bundle; the subset behind source covers the text a language model answers with."
+    }
+  },
+  "messages": [
+    "alerts.caution",
+    "alerts.important",
+    "alerts.note",
+    "alerts.tip",
+    "alerts.warning",
+    "anchor",
+    "backReference",
+    "empty",
+    "error",
+    "footnotes",
+    "loading",
+    "retry"
+  ],
+  "messagesReason": "The words the family says come from the markdown catalog of the language in force, laid over by one messages input on the root. The permalink is one message with the heading as a slot, and the back link a plural on the occurrence, so each language orders its own words and states its own forms.",
+  "stateAttributes": {
+    "loading": "data-loading"
+  },
+  "members": {
+    "markdown": {
+      "nativeElement": "div",
+      "defaults": {
+        "status": "ready",
+        "loading": false,
+        "streaming": false,
+        "external": "new-tab",
+        "headingAnchors": false,
+        "headingOffset": 0,
+        "idPrefix": "",
+        "alerts": true,
+        "unwrapDisallowed": false
+      },
+      "capabilities": ["appearance", "size", "status", "content", "loading", "external", "wiring"],
+      "states": ["default", "hover", "focus-visible", "loading"],
+      "parts": [
+        "root",
+        "embed",
+        "alert-body",
+        "task-list",
+        "task",
+        "task-body",
+        "backref",
+        "empty",
+        "error"
+      ]
+    }
+  },
+  "scenarios": {
+    "markdown": [
+      "playground",
+      "document",
+      "tables",
+      "code",
+      "tasks",
+      "alerts",
+      "footnotes",
+      "links",
+      "sanitisation",
+      "renderers",
+      "streaming",
+      "states",
+      "composition",
+      "accessibility"
+    ]
+  }
+}

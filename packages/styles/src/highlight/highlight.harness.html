@@ -1,0 +1,123 @@
+<!--
+  The mark is only ever seen inside a line of somebody else's text — an option
+  in a `combobox`, a row of a `command-palette`, a paragraph under a find bar —
+  so the page shows it the way a host shows it: inside a line of the host's own
+  text, with the same line beside it unmarked, which is the comparison the
+  metric rule exists for.
+-->
+<section data-scene="metric">
+  <style>
+    [data-demo-line] {
+      font-family: var(--slotted-control-font-family);
+      font-size: var(--slotted-control-font-size-md);
+      line-height: var(--slotted-line-height-md);
+    }
+
+    [data-demo-label] {
+      color: var(--slotted-text-muted);
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+    }
+
+    [data-demo-prose] {
+      font-family: var(--slotted-font-family-sans);
+      font-size: var(--slotted-font-size-md);
+      line-height: var(--slotted-line-height-md);
+      max-inline-size: 22rem;
+    }
+  </style>
+  <p data-demo-label>marked, then the same line unmarked</p>
+  <p data-demo-line>
+    <span data-part="label" data-part-label=""
+      ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+        >Blue<mark data-part="match" data-part-match="">berr</mark>y</span
+      ></span
+    >
+  </p>
+  <p data-demo-line><span data-part="label" data-part-label="">Blueberry</span></p>
+  <p data-demo-line>
+    <span data-part="label" data-part-label=""
+      ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+        >Rasp<mark data-part="match" data-part-match="">berr</mark>y</span
+      ></span
+    >
+  </p>
+  <p data-demo-line><span data-part="label" data-part-label="">Raspberry</span></p>
+</section>
+
+<section data-scene="runs">
+  <p data-demo-label>every occurrence, and a run at each end</p>
+  <p data-demo-line>
+    <span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+      ><mark data-part="match" data-part-match="">An</mark>a B<mark
+        data-part="match"
+        data-part-match=""
+        >anan</mark
+      >a</span
+    >
+  </p>
+  <p data-demo-line>
+    <span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+      >urn:acme:catalogue:<mark data-part="match" data-part-match="">9f2c41ab</mark></span
+    >
+  </p>
+  <p data-demo-line>
+    <span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+      ><mark data-part="match" data-part-match="">Ro</mark>man Pet<mark
+        data-part="match"
+        data-part-match=""
+        >ro</mark
+      >v</span
+    >
+  </p>
+</section>
+
+<section data-scene="wrapping">
+  <p data-demo-label>a run that wraps across a line</p>
+  <p data-demo-line style="inline-size: 9rem">
+    <span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+      >Report on <mark data-part="match" data-part-match="">consolidated annual</mark> sales</span
+    >
+  </p>
+</section>
+
+<section data-scene="current">
+  <p data-demo-label>a find bar standing on the second of three</p>
+  <p data-demo-prose>
+    <span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+      >The <mark data-part="match" data-part-match="">invoice</mark> was issued twice; the second
+      <mark data-part="match" data-part-match="" data-current>invoice</mark> supersedes the first,
+      and neither <mark data-part="match" data-part-match="">invoice</mark> has been paid.</span
+    >
+  </p>
+</section>
+
+<section data-scene="disabled">
+  <p data-demo-label>inside a row that answers nothing, and disabled on its own</p>
+  <p data-demo-line data-disabled style="color: var(--slotted-disabled-foreground)">
+    <span data-part="label" data-part-label=""
+      ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+        >Cloud<mark data-part="match" data-part-match="">berr</mark>y</span
+      ></span
+    >
+  </p>
+  <p data-demo-line style="color: var(--slotted-disabled-foreground)">
+    <span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root="" data-disabled
+      >Goose<mark data-part="match" data-part-match="">berr</mark>y,
+      <mark data-part="match" data-part-match="" data-current>berr</mark>ies</span
+    >
+  </p>
+</section>
+
+<section data-scene="grapheme">
+  <p data-demo-label>a query inside a flag and a decomposed accent</p>
+  <p data-demo-line>
+    <span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+      >🇧🇷 <mark data-part="match" data-part-match="">Bra</mark>sil · Cr<mark
+        data-part="match"
+        data-part-match=""
+        >è</mark
+      >me</span
+    >
+  </p>
+</section>

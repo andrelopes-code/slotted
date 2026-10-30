@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 5,
+  "family": "split-button",
+  "ui": "split-button",
+  "catalog": {
+    "group": "Actions",
+    "summary": "Main action with a menu of alternatives."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
+  "triggerPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/",
+  "patternStatus": "The APG has no split-button pattern. The primary is the Button pattern's button and the menu trigger is the Menu Button pattern's, each with its own tab stop, which is what Fluent, Atlassian, PrimeNG, Kendo, Ant, MUI and Carbon all do. Both pages were read on 2026-09-16 and the keys are transcribed",
+  "roles": {
+    "root": "group",
+    "primary": "button",
+    "menu-trigger": "button, with aria-haspopup=menu"
+  },
+  "holds": ["button", "menu"],
+  "holdsReason": "The two halves are button's Button and IconButton, unchanged: five tones, three variants, three sizes, loading with the width held. The menu is menu unchanged, and none of it is re-exported — a consumer imports MenuContent and its items from menu, as context-menu and menubar hold it. Fluent re-declares both halves as slots of a third component; here they are the families they are.",
+  "composes": [],
+  "composesReason": "Every overlay module reaches the family through menu. The family imports nothing from packages/core.",
+  "partIdentity": {
+    "rule": "primary and menu-trigger carry data-ui=button and this family's part name",
+    "parts": { "primary": "button", "menu-trigger": "button" },
+    "reason": "button selects itself by data-ui alone (packages/styles/src/button/button.css l. 23) and reads no data-part on its root, so the part slot is free for the family that owns the composition. Both bindings write the part after button has written its own. The alternative — the family painting two buttons — is a second button stylesheet."
+  },
+  "join": {
+    "ownedBy": "split-button",
+    "cites": "button-group",
+    "rules": [
+      "an overlap of one border width, so two joined edges occupy one column",
+      "one border painted in that column — the leading edge of the trigger — because two a pixel apart are one line on paper and two at 110%, 150% and 175% zoom",
+      "corners on the two ends of the bar and nowhere else",
+      "the seam between two solid halves in the tone's darkest step, read from data-tone",
+      "the frame stated by the family under pressed and disabled for outline and ghost, so a half does not redraw the bar around itself",
+      "only focus raised"
+    ],
+    "reason": "The root is the family's own element and button-group keys on its own identifier; a nested button-group is an element the DOM does not need and an element carries one data-ui. Cost: one seam decided in two places, each citing the measurement button-group made."
+  },
+  "naming": {
+    "menu-trigger": "the consumer's aria-label, required by the type in React and by the reference page in Angular",
+    "reason": "A split button whose second half is named by nothing announces 'button' beside 'Save'. A default string was declined: 'More options' names the menu for no reader, and Atlassian's 'More save options' needs the action's word."
+  },
+  "chevron": {
+    "glyph": "chevron-down",
+    "turns": false,
+    "reason": "The mark select draws for 'a list opens here', which is the promise a menu button keeps; not the ellipsis, which says 'more' without saying what opens. It does not turn while open: none of the six surveyed split buttons turns it, and a mark that flips says the surface will close, which is not what the reader is looking at. select turns its own because a select's arrow discloses the value's list; a menu button's chevron is a promise, not a state."
+  },
+  "loading": {
+    "primary": "button's indicator, the width and the name held",
+    "menu-trigger": "aria-disabled for the duration, focusable, name kept",
+    "reason": "Choosing 'Save as draft' while 'Save' is in flight is the double submission docs/component-features.md §15 blocks. No surveyed implementation says what the second half does while the first works."
+  },
+  "remember": {
+    "default": false,
+    "effect": "the menu's items are menu's radio items bound to the family's value; the consumer renders the primary's label from it",
+    "reason": "docs/process/build-order.md: the choice in the menu updates the primary action only under a declared option, because a silent update changes what the next click does. With remember the reader has been told — the item is announced as a checked radio and the primary's label is the one they chose. MUI's example moves the label silently; Kendo leaves it to onItemClick."
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "reaches the primary, then the menu trigger — two controls, two tab stops",
+      "focus": "each in turn",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "on the primary runs the action; on the trigger opens the menu",
+      "focus": "stays on the primary; the first item from the trigger",
+      "source": "platform; menu"
+    },
+    {
+      "key": "Enter",
+      "effect": "on the primary runs the action; on the trigger opens the menu",
+      "focus": "stays on the primary; the first item from the trigger",
+      "source": "platform; menu"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "on the trigger opens the menu; nothing on the primary",
+      "focus": "the first item",
+      "source": "menu, Menu Button pattern (optional)"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "on the trigger opens the menu; nothing on the primary",
+      "focus": "the last item",
+      "source": "menu, Menu Button pattern (optional)"
+    },
+    {
+      "key": "Escape",
+      "effect": "inside the menu closes it",
+      "focus": "the menu trigger",
+      "source": "menu"
+    }
+  ],
+  "keyboardReason": "Every key inside the surface is menu's. ArrowDown on the primary does not open the menu: no surveyed implementation binds it, and a key that opens a surface from a button whose name says the action is a surprise.",
+  "declined": {
+    "menuApi": {
+      "deferTo": "menu",
+      "reason": "Items, groups, separators, submenus, checkbox and radio items, shortcuts, typeahead, loop, closeOnSelect, mount and the layer's positioning axes are menu's and are imported from it."
+    },
+    "buttonApi": {
+      "deferTo": "button",
+      "reason": "start, end, type, loadingDelay, messages and focusableWhenDisabled reach the primary as Button's own props; shape reaches the trigger as IconButton's."
+    },
+    "orientation": {
+      "reason": "No surveyed implementation. A column of two actions is button-group vertical."
+    },
+    "itemsAsData": {
+      "deferTo": "menu",
+      "reason": "PrimeNG and Kendo take an array. Here the items are elements, so a submenu, a separator and a shortcut are what menu already ships."
+    },
+    "primaryArrowDown": {
+      "reason": "A key that opens a surface from a button whose name says the action; Fluent, Atlassian, PrimeNG and Carbon bind nothing there."
+    }
+  },
+  "axes": {
+    "tone": ["accent", "secondary", "neutral", "info", "success", "warning", "danger"],
+    "variant": ["solid", "outline", "ghost"],
+    "size": ["sm", "md", "lg"]
+  },
+  "resolution": {
+    "tone": ["prop", "defaults", "buttonDefaults", "accent"],
+    "variant": ["prop", "defaults", "buttonDefaults", "solid"],
+    "size": ["prop", "defaults", "buttonDefaults", "md"]
+  },
+  "provides": {
+    "splitButtonDefaults": ["tone", "variant", "size"],
+    "toHalves": ["tone", "variant", "size", "disabled", "loading"]
+  },
+  "stateAttributes": {
+    "open": "data-open",
+    "disabled": "data-disabled",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "escape",
+        "outsidePress",
+        "select",
+        "dismiss",
+        "programmatic"
+      ]
+    },
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard"]
+    }
+  },
+  "stateModelReason": "open is menu's own model surfaced by the family — the same reasons in the same order, forwarded to Menu in React and held by sl-menu [(open)] in Angular, so there is no second owner. selection is menu's radio-group model surfaced under remember: the value the family holds is the value its radio items are bound to.",
+  "members": {
+    "splitButton": {
+      "nativeElement": "div",
+      "defaults": {
+        "tone": "accent",
+        "variant": "solid",
+        "size": "md",
+        "fullWidth": false,
+        "remember": false,
+        "disabled": false,
+        "loading": false
+      },
+      "capabilities": [
+        "open",
+        "selection",
+        "appearance",
+        "size",
+        "fullWidth",
+        "disabled",
+        "loading",
+        "wiring"
+      ],
+      "states": ["default", "open", "disabled", "loading"],
+      "parts": ["root", "primary", "menu-trigger"]
+    }
+  },
+  "statesReason": "The root paints nothing of its own: hover, active and focus-visible are the two halves', painted by button. open sits on the trigger, written by menu; disabled and loading sit on the root and on the halves they reach.",
+  "scenarios": {
+    "splitButton": [
+      "playground",
+      "variants",
+      "sizes",
+      "remember",
+      "loading",
+      "states",
+      "width",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

@@ -1,0 +1,509 @@
+@layer slotted.components {
+  /**
+   * ── A set of two-state buttons that share one value ────────────────────
+   *
+   * The root is a `div` carrying `role="group"`; each item is a `button`
+   * carrying `aria-pressed`. There is no APG pattern called "toggle group":
+   * the container is a group, each item is the Button pattern's toggle button,
+   * and the movement between them is the Toolbar pattern's roving tabindex.
+   * That is why the arrows move focus here and never toggle — the family that
+   * moves its value with the arrows is `segmented-control`, and it is a radio
+   * group because that is what the pattern describing that interaction is.
+   *
+   * The items are this family's own rather than `button`'s ToggleButton, and
+   * the reason is state and not paint: ToggleButton owns `pressed` with a
+   * complete controlled and uncontrolled model, so inside a group that owns
+   * the value there would be two owners of one fact. What it costs is written
+   * here: one selected colour instead of five tones. A consumer who wants the
+   * whole palette in a joined bar writes `button-group` around ToggleButtons.
+   *
+   * "On" is one colour across the system — the accent ground inside the accent
+   * edge, which is the pair `docs/token-foundation.md` names for the chosen
+   * row, card, option and toggle, and the same pair `button` paints a pressed
+   * ToggleButton with.
+   *
+   * ── The bar is exactly as tall as a control ───────────────────────────
+   *
+   * The root states no frame, no padding and no edge of its own: the bar's
+   * frame is the items' own borders, joined. So the group is
+   * `--slotted-control-height-*` tall to the pixel, and a bar beside a text
+   * field in a form lines up with it instead of standing two pixels prouder.
+   * The first pass framed the root as well, and the reviewer read the result
+   * correctly: a coloured border inside a grey one, and an edge that was one
+   * pixel in places and two in others.
+   */
+  [data-ui-toggle-group][data-part-root] {
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_radius: var(--slotted-toggle-group-radius, var(--slotted-control-radius, 4px));
+    --_border-width: var(--slotted-control-border-width, 1px);
+    /** The overlap that puts two joined edges in one column instead of two. */
+    --_overlap: calc(-1 * var(--_border-width));
+    /**
+     * The distance between two items when the bar is not joined. Twice the
+     * control gap, for the reason `radio-group` states about its own row: the
+     * space between two choices has to read as larger than the space inside
+     * one, between a mark and the word it belongs to.
+     */
+    --_separation: calc(var(--_gap) * 2);
+    /** The edge of the bar, stated by the items that make it. */
+    --_border-color: var(
+      --slotted-toggle-group-border-color,
+      var(--slotted-control-border-color, ButtonBorder)
+    );
+
+    align-items: stretch;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    /* An item raised by focus or by being on is raised inside the group,
+       never over the page. */
+    isolation: isolate;
+    /**
+     * A flex or grid item is at least as wide as its content unless it is told
+     * otherwise, so a group nested in one would refuse to narrow below its
+     * widest item and push the layout out instead of letting the label clamp.
+     */
+    min-inline-size: 0;
+  }
+
+  /**
+   * A group that ends up holding nothing takes no room. An actions area built
+   * from a permission filter renders one often, and an empty box still eats a
+   * gap in the row that holds it — `button-group` records the same defect.
+   */
+  [data-ui-toggle-group][data-part-root]:empty {
+    display: none;
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-toggle-group][data-part-root][data-size='sm'] {
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+  }
+
+  [data-ui-toggle-group][data-part-root][data-size='lg'] {
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 16px);
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+  }
+
+  /* ── Orientation ──────────────────────────────────────────────────────── */
+
+  [data-ui-toggle-group][data-part-root][data-orientation='vertical'] {
+    flex-direction: column;
+  }
+
+  /* ── Width ────────────────────────────────────────────────────────────── */
+
+  /**
+   * Asking for the whole line means the items share it. Left alone the group
+   * shrinks to its content, which is what a set of formatting toggles beside a
+   * paragraph needs and what every surveyed implementation defaults to.
+   */
+  [data-ui-toggle-group][data-part-root][data-full-width] {
+    display: flex;
+    inline-size: 100%;
+  }
+
+  [data-ui-toggle-group][data-part-root][data-full-width] [data-part-item] {
+    flex: 1 1 0;
+  }
+
+  /* ── The item ─────────────────────────────────────────────────────────── */
+
+  [data-ui-toggle-group] [data-part-item] {
+    align-items: center;
+    appearance: none;
+    background: transparent;
+    block-size: var(--_height);
+    /**
+     * Always a border, and always the same width. A state changes its colour
+     * and never its presence: a border that appears when an item is pressed
+     * moves every label in the bar by a pixel.
+     */
+    border: var(--_border-width) solid transparent;
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    color: var(--slotted-toggle-group-color, var(--slotted-text, ButtonText));
+    cursor: pointer;
+    display: inline-flex;
+    /**
+     * An item gives way rather than pushing the page. A bar of three labels
+     * that will not shrink ran out through the side of a 240-pixel column and
+     * took the layout with it; shrinking, the labels clip at the ellipsis and
+     * the bar stays a control. `min-inline-size` is the floor, so no item is
+     * ever narrower than it is tall and the WCAG target holds.
+     */
+    flex: 0 1 auto;
+    font: inherit;
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-control-font-weight, 600);
+    gap: var(--_gap);
+    justify-content: center;
+    letter-spacing: var(--slotted-control-letter-spacing, 0);
+    line-height: var(--slotted-control-line-height, 1);
+    margin: 0;
+    min-inline-size: var(--_height);
+    padding-block: 0;
+    padding-inline: var(--_padding-inline);
+    position: relative;
+    /**
+     * Nothing here moves, and that is the right answer for this family: a
+     * toggle changes colour, and colour is what the eye has to follow. The
+     * duration is the control step, so a theme retunes every control's
+     * interaction feedback once and reduced motion collapses it to a frame.
+     */
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * An item with no words is a square holding one mark, so its inline padding
+   * is whatever centres that mark rather than the padding a label needs.
+   */
+  [data-ui-toggle-group] [data-part-item]:not(:has([data-part-label])) {
+    padding-inline: 0;
+  }
+
+  [data-ui-toggle-group] [data-part-icon] {
+    block-size: var(--_icon-size);
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--_icon-size);
+  }
+
+  /**
+   * The words get a box of their own, as they do in `tabs` and `tag`: it is
+   * what `text-overflow` needs to clip a label an equal share made too narrow,
+   * and what an icon beside it is aligned against. The string stays whole in
+   * the DOM — the library's rule is that truncation never removes content.
+   */
+  [data-ui-toggle-group] [data-part-label] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── The edge ─────────────────────────────────────────────────────────── */
+
+  [data-ui-toggle-group][data-part-root][data-variant='outline'] [data-part-item] {
+    border-color: var(--_border-color);
+    /* A framed item lifts off its ground at rest, as button's outline does. */
+    box-shadow: var(--slotted-toggle-group-shadow, var(--slotted-control-shadow, none));
+  }
+  [data-ui-toggle-group][data-part-root]:not([data-attached]) {
+    gap: var(--_separation);
+  }
+
+  /**
+   * ── Joined ────────────────────────────────────────────────────────────
+   *
+   * A joined bar has one edge, and one edge cannot be the sum of several
+   * opinions about their own. So the items make it between them, the way
+   * `button-group` makes it for the controls a consumer wrote:
+   *
+   * - each item keeps the corners on the outside of the bar and loses the ones
+   *   facing its neighbour;
+   * - the items overlap by one border width, so two joined edges occupy one
+   *   column rather than two;
+   * - exactly one border is painted in that column, because two of them are
+   *   the same line on paper and two different lines at 110%, 150% and 175%
+   *   zoom, where the browser snaps each border box to device pixels on its
+   *   own. `button-group` measured five uneven boundaries out of fifteen
+   *   before it wrote the same rule.
+   *
+   * The root states no edge of its own, so nothing is ever nested inside
+   * anything: an item that is on replaces the grey line in its column with its
+   * own, and the bar's outline stays one pixel everywhere.
+   */
+  [data-ui-toggle-group][data-part-root][data-attached]:not([data-orientation='vertical'])
+    [data-part-item]
+    + [data-part-item] {
+    margin-inline-start: var(--_overlap);
+  }
+
+  [data-ui-toggle-group][data-part-root][data-attached][data-orientation='vertical']
+    [data-part-item]
+    + [data-part-item] {
+    margin-block-start: var(--_overlap);
+  }
+
+  [data-ui-toggle-group][data-part-root][data-attached]:not([data-orientation='vertical'])
+    [data-part-item] {
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+  }
+
+  [data-ui-toggle-group][data-part-root][data-attached]:not([data-orientation='vertical'])
+    [data-part-item]:first-child {
+    border-end-start-radius: var(--_radius);
+    border-start-start-radius: var(--_radius);
+  }
+
+  [data-ui-toggle-group][data-part-root][data-attached]:not([data-orientation='vertical'])
+    [data-part-item]:last-child {
+    border-end-end-radius: var(--_radius);
+    border-start-end-radius: var(--_radius);
+  }
+
+  [data-ui-toggle-group][data-part-root][data-attached][data-orientation='vertical']
+    [data-part-item] {
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+  }
+
+  [data-ui-toggle-group][data-part-root][data-attached][data-orientation='vertical']
+    [data-part-item]:first-child {
+    border-start-end-radius: var(--_radius);
+    border-start-start-radius: var(--_radius);
+  }
+
+  [data-ui-toggle-group][data-part-root][data-attached][data-orientation='vertical']
+    [data-part-item]:last-child {
+    border-end-end-radius: var(--_radius);
+    border-end-start-radius: var(--_radius);
+  }
+
+  /**
+   * One border in each shared column: the trailing edge of the item before it
+   * gives way, and the leading edge of the item that follows is what is seen.
+   * An item that is on is the exception in both directions — it states its own
+   * four edges, and the neighbour after it gives up the leading edge that would
+   * otherwise be painted over the accent one.
+   */
+  [data-ui-toggle-group][data-part-root][data-variant='outline'][data-attached]:not(
+      [data-orientation='vertical']
+    )
+    [data-part-item]:not(:last-child):not([data-pressed]) {
+    border-inline-end-color: transparent;
+  }
+
+  [data-ui-toggle-group][data-part-root][data-variant='outline'][data-attached][data-orientation='vertical']
+    [data-part-item]:not(:last-child):not([data-pressed]) {
+    border-block-end-color: transparent;
+  }
+
+  [data-ui-toggle-group][data-part-root][data-variant='outline'][data-attached]:not(
+      [data-orientation='vertical']
+    )
+    [data-part-item][data-pressed]
+    + [data-part-item] {
+    border-inline-start-color: transparent;
+  }
+
+  [data-ui-toggle-group][data-part-root][data-variant='outline'][data-attached][data-orientation='vertical']
+    [data-part-item][data-pressed]
+    + [data-part-item] {
+    border-block-start-color: transparent;
+  }
+
+  /**
+   * ── Pressed ──────────────────────────────────────────────────────────
+   *
+   * The accent ground inside the accent edge, and the accent text on it. The
+   * item is raised inside the group's own stacking context so that its edge is
+   * the one seen in both of the columns it shares, rather than being covered
+   * by whichever neighbour the document order puts last.
+   *
+   * It sits above hover and below disabled, which is the order
+   * `STATE_PRECEDENCE` sets.
+   */
+  [data-ui-toggle-group] [data-part-item][data-pressed]:not(:disabled):not([data-disabled]) {
+    background: var(
+      --slotted-toggle-group-pressed-background,
+      var(--slotted-tone-accent-subtle-active, Highlight)
+    );
+    border-color: var(
+      --slotted-toggle-group-pressed-border-color,
+      var(--slotted-tone-accent-border, Highlight)
+    );
+    color: var(
+      --slotted-toggle-group-pressed-color,
+      var(--slotted-tone-accent-text, HighlightText)
+    );
+  }
+
+  [data-ui-toggle-group] [data-part-item][data-pressed] {
+    z-index: 1;
+  }
+
+  /**
+   * ── Hover and press, each held back for every stronger state ──────────
+   *
+   * An item that is off takes the neutral ground, whatever the bar is for: a
+   * tinted hover on a row of toggles read as five status chips before it read
+   * as five hovered controls, which is the reading `button` records. An item
+   * that is on answers the pointer on the accent ground's own steps, so the
+   * two states share no surface in any of theirs.
+   */
+  [data-ui-toggle-group]
+    [data-part-item]:hover:not(:disabled):not([data-disabled]):not([data-pressed]) {
+    background: var(
+      --slotted-toggle-group-hover-background,
+      var(--slotted-tone-secondary-subtle-hover, ButtonFace)
+    );
+  }
+
+  [data-ui-toggle-group]
+    [data-part-item]:active:not(:disabled):not([data-disabled]):not([data-pressed]) {
+    background: var(
+      --slotted-toggle-group-active-background,
+      var(--slotted-tone-secondary-subtle-active, ButtonFace)
+    );
+    /* The press lands on the frame it went down on and eases out at the
+       control's own pace, which is `button`'s rule for the same gesture: a
+       transition's timing is read from the state being entered. */
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  [data-ui-toggle-group] [data-part-item][data-pressed]:hover:not(:disabled):not([data-disabled]) {
+    background: var(
+      --slotted-toggle-group-pressed-hover-background,
+      var(--slotted-tone-accent-subtle-hover, Highlight)
+    );
+  }
+
+  [data-ui-toggle-group] [data-part-item][data-pressed]:active:not(:disabled):not([data-disabled]) {
+    background: var(
+      --slotted-toggle-group-pressed-background,
+      var(--slotted-tone-accent-subtle-active, Highlight)
+    );
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /**
+   * ── Chips ──────────────────────────────────────────────────────────────
+   *
+   * A short list of choices as separate rounded items that wrap onto a second
+   * line rather than overflow, never joined into a bar. A chip at rest has the
+   * control edge; the pressed one is the neutral tone's ink — its solid ground
+   * under its own label — which is the one state a chip has to say at a
+   * glance. Hover and press move the ground of a chip at rest only.
+   */
+  [data-ui-toggle-group][data-part-root][data-variant='chips'] {
+    flex-wrap: wrap;
+    gap: var(--slotted-toggle-group-chips-gap, var(--slotted-space-3, 0.375rem));
+  }
+
+  [data-ui-toggle-group][data-part-root][data-variant='chips'] [data-part-item] {
+    border-color: var(--_border-color);
+    border-radius: var(--slotted-toggle-group-chips-radius, var(--slotted-radius-full, 9999px));
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-toggle-group][data-part-root][data-variant='chips']
+    [data-part-item][data-pressed]:not(:disabled):not([data-disabled]),
+  [data-ui-toggle-group][data-part-root][data-variant='chips']
+    [data-part-item][data-pressed]:active:not(:disabled):not([data-disabled]) {
+    background: var(
+      --slotted-toggle-group-chips-pressed-background,
+      var(--slotted-tone-neutral-solid, CanvasText)
+    );
+    border-color: var(
+      --slotted-toggle-group-chips-pressed-background,
+      var(--slotted-tone-neutral-solid, CanvasText)
+    );
+    color: var(
+      --slotted-toggle-group-chips-pressed-color,
+      var(--slotted-tone-neutral-on-solid, Canvas)
+    );
+  }
+
+  [data-ui-toggle-group][data-part-root][data-variant='chips']
+    [data-part-item][data-pressed]:hover:not(:disabled):not([data-disabled]) {
+    background: var(--slotted-tone-neutral-solid-hover, CanvasText);
+    border-color: var(--slotted-tone-neutral-solid-hover, CanvasText);
+  }
+
+  [data-ui-toggle-group][data-part-root][data-variant='chips'] [data-part-item]:disabled,
+  [data-ui-toggle-group][data-part-root][data-variant='chips'] [data-part-item][data-disabled] {
+    border-color: var(--slotted-disabled-border, GrayText);
+  }
+
+  /* ── Focus ────────────────────────────────────────────────────────────── */
+
+  /**
+   * A separated bar has room around each item, so the ring is held off the
+   * edge the way every other control in the library holds it. The focused item
+   * is raised above every other, including one that is on.
+   */
+  [data-ui-toggle-group] [data-part-item]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+    z-index: 2;
+  }
+
+  /**
+   * A joined bar has no room at all: the items touch, so an outward ring is
+   * drawn over the neighbours either side of it. At offset zero it covered the
+   * neighbour's own edge and the seam beside a focused item read thicker than
+   * every other seam in the same bar — measured at 300% zoom, between a focused
+   * item and the one next to it that was on.
+   *
+   * So the ring is drawn *inside* the item, with its outer edge on the item's
+   * border box, which is what a negative offset of exactly the ring's width
+   * gives. It then replaces that item's own border rather than standing beside
+   * it, and every seam in the bar stays one line wide.
+   */
+  [data-ui-toggle-group][data-part-root][data-attached] [data-part-item]:focus-visible {
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /* ── Disabled ─────────────────────────────────────────────────────────── */
+
+  /**
+   * `[data-disabled]` as well as `:disabled`, because a whole group is taken
+   * out of action with a `fieldset` and its items then carry no attribute of
+   * their own.
+   */
+  [data-ui-toggle-group] [data-part-item]:disabled,
+  [data-ui-toggle-group] [data-part-item][data-disabled] {
+    background: transparent;
+    color: var(--slotted-toggle-group-disabled-color, var(--slotted-disabled-foreground, GrayText));
+    cursor: default;
+  }
+
+  [data-ui-toggle-group][data-part-root][data-variant='outline'] [data-part-item]:disabled,
+  [data-ui-toggle-group][data-part-root][data-variant='outline'] [data-part-item][data-disabled] {
+    border-color: var(
+      --slotted-toggle-group-disabled-border-color,
+      var(--slotted-disabled-border, GrayText)
+    );
+    /* Nothing a person cannot reach is lifted off the page. */
+    box-shadow: none;
+  }
+
+  /**
+   * An item that is on and unavailable keeps both facts. The ground says
+   * unavailable and the edge says on, in the same two places the live state
+   * uses them — so the reader still learns which of the three was chosen from
+   * a control they cannot change. In `high-contrast` the ground is the page's
+   * own white, and the edge is then the only thing carrying it.
+   */
+  [data-ui-toggle-group] [data-part-item][data-pressed]:disabled,
+  [data-ui-toggle-group] [data-part-item][data-pressed][data-disabled] {
+    background: var(
+      --slotted-toggle-group-disabled-pressed-background,
+      var(--slotted-disabled-background, ButtonFace)
+    );
+  }
+}

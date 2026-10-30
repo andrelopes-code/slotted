@@ -1,0 +1,463 @@
+{
+  "schemaVersion": 5,
+  "family": "menu",
+  "ui": "menu",
+  "catalog": {
+    "group": "Overlays",
+    "summary": "List of actions opened from a trigger."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/menubar/",
+  "triggerPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/",
+  "patternStatus": "Two pages answer this family. The menu and menubar pattern owns the surface, its roles and every key inside it; the menu button pattern owns the four keys on the control that opens it. Both were read on 2026-09-04 and transcribed",
+  "roles": {
+    "content": "menu",
+    "item": "menuitem",
+    "checkboxItem": "menuitemcheckbox",
+    "radioItem": "menuitemradio",
+    "group": "group",
+    "separator": "separator"
+  },
+  "modal": false,
+  "composes": [
+    "positioner",
+    "presence",
+    "portal",
+    "dismissable-layer",
+    "focus",
+    "typeahead",
+    "pointer-intent"
+  ],
+  "adds": {
+    "typeahead": {
+      "module": "packages/core/src/typeahead",
+      "reason": "A printable-character sequence matched against a list of labels, with the reset window the pattern describes, cycling on a repeated character, and a locale-sensitive comparison as docs/component-features.md §2.9 requires. No module in packages/core held it, and four of the five surveyed implementations ship it.",
+      "nextConsumer": "listbox"
+    },
+    "pointerIntent": {
+      "module": "packages/core/src/pointer-intent",
+      "reason": "Whether the pointer is still travelling toward a rectangle, so a submenu stays open while the pointer crosses the items between the parent item and the submenu. docs/component-features.md §8 asks for the grace area by name and no module held it.",
+      "nextConsumer": "preview-card"
+    }
+  },
+  "layer": {
+    "modal": false,
+    "scrollLock": false,
+    "branches": [
+      "the trigger element",
+      "the menubar root, when the menu belongs to one",
+      "the parent item, when the menu is a submenu"
+    ],
+    "depthProperty": "--slotted-layer-depth",
+    "zIndexToken": "--slotted-z-index-popover",
+    "reason": "One layer in the single stack, at the same token popover uses: both are anchored surfaces above the page and below a toast. A submenu records its parent menu as its own parent layer, so pressing inside the child never dismisses the parent, and Escape closes the topmost menu alone."
+  },
+  "wiring": {
+    "aria-haspopup": "menu, on the trigger and on any item that opens a submenu",
+    "aria-expanded": "true while the surface it controls is open, false while it is closed",
+    "aria-controls": "the trigger, and a parent item, name the surface they open",
+    "aria-labelledby": "the surface names its trigger, so a reader hears which button opened it",
+    "aria-label": "an instance may name the surface itself, which is what a menu opened from an icon-only button needs",
+    "aria-orientation": "horizontal on the separator, which is the orientation of the line rather than of the menu",
+    "aria-checked": "on a checkbox item and on a radio item, both of which the platform has no element for",
+    "aria-disabled": "on a disabled item, which stays focusable as the pattern requires",
+    "aria-keyshortcuts": "on an item that prints a shortcut, so the binding reaches a reader who cannot see it",
+    "aria-modal": "never written. The page behind a menu is still there and still reachable."
+  },
+  "keyboard": [
+    {
+      "key": "Enter",
+      "effect": "on an item with a submenu, opens it; on any other item, runs it and closes the menu unless closeOnSelect is false; on the trigger, opens the menu",
+      "focus": "the submenu's first item, or the trigger the menu returns to",
+      "source": "pattern"
+    },
+    {
+      "key": "Space",
+      "effect": "as Enter, and on a checkbox or radio item changes the state without closing the menu",
+      "focus": "unchanged on a checkbox or radio item, otherwise as Enter",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "moves to the next item, wrapping when loop is true; on a menubar trigger or a closed menu's trigger, opens the surface",
+      "focus": "the next item, or the surface's first item",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "moves to the previous item, wrapping when loop is true; on a trigger, opens the surface onto its last item, which is the pattern's optional behaviour",
+      "focus": "the previous item, or the surface's last item",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "the inline-end direction in a left-to-right document and the inline-start one in a right-to-left document: opens a submenu from an item that has one, moves to the next menubar trigger from an item that does not, and moves between triggers on a horizontal menubar",
+      "focus": "the submenu's first item, or the next menubar trigger, whose menu opens without focus entering it",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "the inline-start direction, and the mirror of ArrowRight in a right-to-left document: closes a submenu back to its parent item, or closes it and moves to the previous menubar trigger, and moves between triggers on a horizontal menubar",
+      "focus": "the parent item, or the previous menubar trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "moves to the first item of the surface holding focus",
+      "focus": "the first item",
+      "source": "pattern"
+    },
+    {
+      "key": "End",
+      "effect": "moves to the last item of the surface holding focus",
+      "focus": "the last item",
+      "source": "pattern"
+    },
+    {
+      "key": "Printable character",
+      "effect": "moves to the next item whose label begins with the sequence typed; the same character pressed again cycles through the items beginning with it",
+      "focus": "the matched item",
+      "source": "pattern"
+    },
+    {
+      "key": "Escape",
+      "effect": "closes the surface holding focus, and only that one",
+      "focus": "the trigger, or the parent item when the surface is a submenu",
+      "source": "pattern"
+    },
+    {
+      "key": "Tab",
+      "effect": "closes every open menu and moves focus out, which is the pattern's rule for a composite widget",
+      "focus": "the next element in the page after the trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "the same, backwards",
+      "focus": "the element before the trigger",
+      "source": "pattern"
+    }
+  ],
+  "focus": {
+    "onOpen": "first item",
+    "onOpenFromArrowUp": "last item",
+    "roving": true,
+    "contained": false,
+    "restore": "trigger",
+    "disabledItems": "A disabled item stays focusable and cannot be activated, which the pattern requires and which a native disabled button cannot do. The item carries aria-disabled and data-disabled and keeps its place in the ring.",
+    "finalFocus": {
+      "accepts": "an element, a ref or a selector",
+      "reason": "The trigger may be gone by the time the menu closes, which is what happens to the row-actions menu whose Delete removed its own row."
+    },
+    "guards": false,
+    "guardsReason": "popover needs two focus guards because Tab inside a non-modal portalled layer has nowhere to go. The pattern binds Tab itself here — it closes every menu and moves focus out — so a guard would answer a question the family has already answered.",
+    "removal": "When the item holding focus is removed while the menu is open, focus moves to the next item, then to the previous one, then to the surface. packages/core/src/focus/removal-focus holds it."
+  },
+  "submenu": {
+    "family": "menu",
+    "trigger": "item",
+    "side": "inline-end",
+    "align": "start",
+    "openDelay": 150,
+    "closeDelay": 300,
+    "graceArea": "pointer-intent",
+    "reason": "A submenu is this same family opened from an item rather than from a button, which is composition instead of a second component. The context decides the trigger element and three keys; nothing else changes, so a submenu holds every capability the menu holds, including the ones added after it."
+  },
+  "typeahead": {
+    "module": "typeahead",
+    "timeout": 500,
+    "label": "the item's textValue, or its label part's text",
+    "locale": "Intl.Collator at base sensitivity, so Ä matches a",
+    "reason": "The pattern marks it optional and four of the five surveyed implementations ship it. A menu of twenty commands is unusable by keyboard without it."
+  },
+  "shortcut": {
+    "part": "shortcut",
+    "resolvedBy": "@slotted/core/keys",
+    "announcedBy": "aria-keyshortcuts",
+    "bound": false,
+    "reason": "The item takes a shortcut in the library's own notation — Mod+K — and prints it with the platform's glyphs, which no surveyed implementation does: all five print the string the consumer wrote, on every operating system. The family does not listen for the key. An application binds its own shortcuts, and a menu that bound them would fire commands while the menu was closed."
+  },
+  "meta": {
+    "part": "meta",
+    "column": 3,
+    "typeahead": false,
+    "reason": "A count, a status or the value a submenu holds, at the end of the item and before its shortcut or chevron, in a column of its own so every item's meta lines up. ReUI places a Badge with ml-auto inside the item, which shares no edge from one row to the next. The meta reads as part of the item's name, and typeahead matches the label alone, so \"Companies 12\" is still reached by typing c."
+  },
+  "header": {
+    "part": "header",
+    "focusable": false,
+    "announcedBy": "aria-describedby",
+    "reason": "The identity block at the top of an account or workspace menu: an avatar, a name, an address. role=\"menu\" owns only menuitem, menuitemcheckbox, menuitemradio, group and separator, so the header is not a node a reader walks to. The surface names it with aria-describedby, joined to any description the consumer gave, so a reader hears it once as the menu opens; the arrows and typeahead never reach it. ReUI draws the same block as a free div, which lands in the icon column of a grid."
+  },
+  "item": {
+    "element": "button",
+    "kinds": ["command", "checkbox", "radio", "link", "submenu"],
+    "tone": ["accent", "secondary", "success", "warning", "danger"],
+    "reason": "A native button gives the press, the Enter and Space handling and the pointer semantics; role=\"menuitem\" replaces role=\"button\" so a reader hears an item. A link item substitutes an anchor and keeps the role. tone paints the label, the icon and the highlight from the theme's own tones, which is how a destructive command reads as one in all three schemes."
+  },
+  "overflow": {
+    "part": "content",
+    "property": "--slotted-positioner-available-height",
+    "reason": "Radix, Base UI and React Aria each publish the remaining height and none of them bounds itself by default, so a long menu runs off the bottom of the screen. The surface is bounded by the room the positioner reports and scrolls inside it."
+  },
+  "mount": {
+    "active": "the layer exists only while it is open",
+    "lazy": "built on the first open and kept afterwards",
+    "eager": "exists from the start, closed",
+    "default": "active",
+    "reason": "The same axis tooltip, popover and collapsible declare."
+  },
+  "motion": {
+    "property": "scale",
+    "companion": "opacity",
+    "companionPart": "content",
+    "origin": "--slotted-positioner-transform-origin",
+    "measured": false,
+    "reason": "The panel grows from the control that opened it, which is what says where it came from. The same grammar tooltip and popover use, so three anchored layers do not open three different ways."
+  },
+  "runtimeProperties": [
+    "--slotted-layer-depth",
+    "--slotted-positioner-anchor-width",
+    "--slotted-positioner-available-height",
+    "--slotted-positioner-available-width",
+    "--slotted-positioner-transform-origin"
+  ],
+  "positioning": {
+    "side": "bottom",
+    "align": "start",
+    "sideOffset": 0,
+    "alignOffset": 0,
+    "collisionPadding": 8,
+    "reason": "A menu hangs from the start edge of its own button rather than centred on it, because the button's text and the items' labels then share one edge. popover centres, and it points at something instead of hanging from it.",
+    "gap": {
+      "token": "--slotted-menu-gap",
+      "default": "var(--slotted-space-2)",
+      "reason": "The gap is the layer's own padding rather than the positioner's offset, so the pointer never crosses page between a parent item and its submenu — which is half of what makes the grace area work. Smaller than popover's, because a menu sits closer to its button than a panel does to its anchor."
+    }
+  },
+  "measure": {
+    "value": "14rem / 16rem / 20rem by size",
+    "reason": "Wide enough for a command with a shortcut beside it, narrow enough to hang off a button. The label column wraps at the cap and the shortcut column never shrinks, which is what stops a long translated label from eating its own shortcut. `width: 'anchor'` replaces the floor and the cap with the trigger's measured width, capped by the available width, as popover's does: an account switcher as wide as the sidebar row that opens it. A submenu is always `content`."
+  },
+  "declined": {
+    "modal": {
+      "deferTo": "dialog",
+      "reason": "Radix and Base UI both default their menu to modal. popover declined modality to dialog and this family declines it for the same reason: docs/component-features.md §8 gives the modal surface to Dialog. The mechanism agrees — applyInert in dismissable-layer inerts everything outside the layer, the trigger included, so a modal menu could not be closed by pressing its own button again, which is the press every reader tries first."
+    },
+    "arrow": {
+      "deferTo": "popover",
+      "reason": "Radix, Base UI and Ark all ship an arrow on a menu and none of their own examples draws one. A menu hangs from its own button at align=\"start\", so the button says where the menu came from; the anchored surface that points at something is popover."
+    },
+    "contextTrigger": {
+      "deferTo": "context-menu",
+      "reason": "docs/component-features.md §8 gives secondary click and Shift+F10 their own Extended family in wave 8. What that family needs from this one is an anchor that is a point rather than an element, which is adopted here: PositionerAnchor already accepts anything with getBoundingClientRect."
+    },
+    "longPress": {
+      "deferTo": "context-menu",
+      "reason": "React Aria and Ark both open a menu on long press, and both attach it to a pointer gesture, which is that family's subject. Composition until then: the consumer's own long-press handler calls open() on the handle this family exposes."
+    },
+    "filtering": {
+      "deferTo": "combobox",
+      "reason": "React Aria composes Autocomplete with Menu. A menu whose items are filtered by typing is a combobox by role, and answering it here would put two roles on one surface."
+    },
+    "virtualization": {
+      "deferTo": "collection",
+      "reason": "docs/component-features.md §2.10 makes virtualization a capability of the collection engine rather than a parallel component, and wave 6 reviews that engine. Bounded height and scrolling hold a hundred items until then, and the typeahead is what makes them reachable."
+    },
+    "triggerPart": {
+      "reason": "As popover records it: data-part names a part of the family that owns the element, and a standalone menu's trigger is the consumer's own — very often another Slotted family's root. Sixteen stylesheets in this repository key on [data-part='root'], so writing over it would silently unstyle a button or a badge used as a trigger, and nothing would report it. The family writes the wiring and data-open on it and nothing else. A menubar trigger and a submenu's parent item are the family's own elements and do carry a part."
+    },
+    "backdrop": {
+      "deferTo": "dialog",
+      "reason": "Base UI ships Menu.Backdrop. A backdrop darkens the page behind a modal and catches the press that closes it; modality is declined above and the press outside is already the dismissable layer's."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "width": ["content", "anchor"],
+    "side": ["bottom", "top", "inline-start", "inline-end", "left", "right"],
+    "align": ["start", "center", "end"],
+    "mount": ["active", "lazy", "eager"],
+    "strategy": ["absolute", "fixed"],
+    "closeOnSelect": [true, false],
+    "loop": [true, false],
+    "typeahead": [true, false],
+    "openOnHover": [true, false],
+    "closeOnEscape": [true, false],
+    "closeOnOutsidePress": [true, false],
+    "flip": [true, false],
+    "shift": [true, false],
+    "hideWhenDetached": [true, false],
+    "portal": [true, false],
+    "disabled": [true, false]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "width": ["prop", "defaults", "content"],
+    "side": ["prop", "defaults", "bottom"],
+    "align": ["prop", "defaults", "start"],
+    "mount": ["prop", "defaults", "active"],
+    "strategy": ["prop", "defaults", "absolute"],
+    "closeOnSelect": ["prop", "defaults", true],
+    "loop": ["prop", "defaults", true],
+    "typeahead": ["prop", "defaults", true],
+    "openOnHover": ["prop", "defaults", true],
+    "closeOnEscape": ["prop", "defaults", true],
+    "closeOnOutsidePress": ["prop", "defaults", true],
+    "flip": ["prop", "defaults", true],
+    "shift": ["prop", "defaults", true],
+    "hideWhenDetached": ["prop", "defaults", true],
+    "portal": ["prop", "defaults", true],
+    "disabled": ["prop", "defaults", false]
+  },
+  "provides": {
+    "menuDefaults": [
+      "size",
+      "width",
+      "side",
+      "align",
+      "mount",
+      "strategy",
+      "closeOnSelect",
+      "loop",
+      "typeahead",
+      "openOnHover",
+      "closeOnEscape",
+      "closeOnOutsidePress",
+      "flip",
+      "shift",
+      "hideWhenDetached",
+      "portal",
+      "disabled",
+      "sideOffset",
+      "alignOffset",
+      "collisionPadding",
+      "submenuOpenDelay",
+      "submenuCloseDelay",
+      "typeaheadTimeout"
+    ]
+  },
+  "stateAttributes": {
+    "open": "data-open",
+    "disabled": "data-disabled",
+    "checked": "data-checked",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "escape",
+        "outsidePress",
+        "select",
+        "dismiss",
+        "programmatic"
+      ]
+    },
+    "checked": {
+      "controlled": "checked",
+      "uncontrolled": "defaultChecked",
+      "request": "onCheckedChange",
+      "reasons": ["pointer", "keyboard"]
+    },
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard"]
+    }
+  },
+  "members": {
+    "menu": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "width": "content",
+        "side": "bottom",
+        "align": "start",
+        "mount": "active",
+        "strategy": "absolute",
+        "closeOnSelect": true,
+        "loop": true,
+        "typeahead": true,
+        "openOnHover": true,
+        "closeOnEscape": true,
+        "closeOnOutsidePress": true,
+        "flip": true,
+        "shift": true,
+        "hideWhenDetached": true,
+        "portal": true,
+        "disabled": false,
+        "loading": false,
+        "sideOffset": 0,
+        "alignOffset": 0,
+        "collisionPadding": 8,
+        "submenuOpenDelay": 150,
+        "submenuCloseDelay": 300,
+        "typeaheadTimeout": 500
+      },
+      "capabilities": [
+        "open",
+        "checked",
+        "selection",
+        "placement",
+        "size",
+        "appearance",
+        "disabled",
+        "loading",
+        "content",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "open",
+        "disabled",
+        "checked",
+        "loading"
+      ],
+      "parts": [
+        "root",
+        "content",
+        "header",
+        "group",
+        "group-label",
+        "item",
+        "indicator",
+        "icon",
+        "label",
+        "description",
+        "meta",
+        "shortcut",
+        "separator",
+        "empty"
+      ]
+    }
+  },
+  "scenarios": {
+    "menu": [
+      "playground",
+      "commands",
+      "icons",
+      "shortcuts",
+      "checkbox-items",
+      "radio-items",
+      "groups",
+      "submenu",
+      "submenu-open",
+      "header",
+      "meta",
+      "tone",
+      "placement",
+      "scrolling",
+      "states",
+      "keyboard",
+      "composition"
+    ]
+  }
+}

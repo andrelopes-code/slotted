@@ -1,0 +1,1401 @@
+<!--
+  The DOM the two bindings write, by hand. Every part the contract declares
+  appears at least once, and every state is staged: current, open (a section,
+  the panel, the search), disabled, and the three steps the bar folds at. The
+  logo is an inline SVG because a consumer's mark is what a mark is; every mark
+  the family draws itself — the chevron, the ellipsis, the magnifier, the
+  question, the bell — is a mask from the glyph scale.
+
+  The default scene declares 560, the one width in the medium step, and two
+  widths above the ones the page ships, because the first step folds at 1024
+  and the three defaults all sit under it.
+-->
+
+<section data-scene="default" data-widths="240 420 560 720 1024 1280">
+  <header
+    data-ui="top-navigation"
+    data-ui-top-navigation=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-frame
+  >
+    <a data-part="skip" data-part-skip="" href="#content">Skip to content</a>
+    <div data-part="brand" data-part-brand="">
+      <a data-part="home" data-part-home="" href="#home">
+        <span data-part="mark" data-part-mark="" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect
+              x="3"
+              y="3"
+              width="18"
+              height="18"
+              rx="5"
+              fill="var(--slotted-tone-accent-solid)"
+            />
+            <path
+              d="M7 15.5 12 7l5 8.5"
+              stroke="var(--slotted-tone-accent-on-solid)"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+        <span data-part="name" data-part-name="">Aurora Logistics</span>
+      </a>
+    </div>
+    <div data-part="context" data-part-context="">
+      <span
+        data-ui="badge"
+        data-ui-badge=""
+        data-part="root"
+        data-part-root=""
+        data-tone="warning"
+        data-variant="soft"
+        data-size="xs"
+        >Staging</span
+      >
+    </div>
+    <nav
+      data-part="nav"
+      data-part-nav=""
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-orientation="horizontal"
+      data-size="md"
+      aria-label="Navigation"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-priority="high" data-current="">
+          <a
+            data-part="link"
+            data-part-link=""
+            href="#dashboard"
+            aria-current="page"
+            data-current=""
+            >Dashboard</a
+          >
+        </li>
+        <li data-part="item" data-part-item="" data-priority="high">
+          <a data-part="link" data-part-link="" href="#cargas">Cargas</a>
+        </li>
+        <li data-part="item" data-part-item="" data-priority="medium">
+          <a data-part="link" data-part-link="" href="#rotas">Rotas</a>
+        </li>
+        <li data-part="item" data-part-item="" data-priority="medium">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            aria-controls="tn-section-1"
+            type="button"
+            aria-expanded="false"
+          >
+            Frota<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="tn-section-1" data-columns="1" hidden>
+            <ul data-part="links" data-part-links="">
+              <li><a data-part="link" data-part-link="" href="#veiculos">Vehicles</a></li>
+              <li><a data-part="link" data-part-link="" href="#motoristas">Drivers</a></li>
+              <li><a data-part="link" data-part-link="" href="#manutencao">Maintenance</a></li>
+            </ul>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-priority="low">
+          <a data-part="link" data-part-link="" href="#reports">Reports</a>
+        </li>
+        <li data-part="item" data-part-item="" data-priority="low">
+          <a data-part="link" data-part-link="" href="#billing">Billing</a>
+        </li>
+        <li data-part="item" data-part-item="">
+          <button
+            data-part="more"
+            data-part-more=""
+            type="button"
+            aria-label="Mais"
+            aria-expanded="false"
+            aria-controls="tn-panel"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+            ></span>
+          </button>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport=""></div>
+    </nav>
+    <div data-part="panel" data-part-panel="" id="tn-panel">
+      <ul data-part="panel-list" data-part-panel-list=""></ul>
+    </div>
+    <div data-part="search" data-part-search="">
+      <div
+        data-ui="text-field"
+        data-ui-text-field=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-variant="subtle"
+      >
+        <span data-part="start" data-part-start="" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="11" cy="11" r="6.5" />
+            <path d="m16 16 4.5 4.5" stroke-linecap="round" />
+          </svg>
+        </span>
+        <input
+          data-part="input"
+          data-part-input=""
+          type="search"
+          placeholder="Search loads, customers, routes…"
+        />
+        <span data-part="end" data-part-end="" aria-hidden="true">
+          <kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="root"
+            data-part-root=""
+            data-key="mod"
+            data-size="xs"
+            data-variant="soft"
+          >
+            <span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+              >⌘</span
+            ><span data-part="name" data-part-name="">Command</span></kbd
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="root"
+            data-part-root=""
+            data-key="k"
+            data-size="xs"
+            data-variant="soft"
+          >
+            <span data-part="legend" data-part-legend="" aria-hidden="true">K</span
+            ><span data-part="name" data-part-name="">K</span>
+          </kbd>
+        </span>
+      </div>
+      <button
+        data-part="search-close"
+        data-part-search-close=""
+        type="button"
+        aria-label="Close search"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+    <div data-part="actions" data-part-actions="">
+      <button
+        data-part="search-toggle"
+        data-part-search-toggle=""
+        type="button"
+        aria-label="Procurar"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg
+        ></span>
+      </button>
+      <a data-part="help" data-part-help="" href="#ajuda"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-question"></svg></span
+        >Ajuda</a
+      >
+      <button
+        data-part="notifications"
+        data-part-notifications=""
+        type="button"
+        aria-haspopup="dialog"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="bell"></svg
+        ></span>
+        <span data-part="count" data-part-count="">3</span>
+      </button>
+      <button data-part="account" data-part-account="" type="button" aria-label="Conta">
+        <span
+          data-ui="avatar"
+          data-ui-avatar=""
+          data-part="root"
+          data-part-root=""
+          data-size="xs"
+          data-shape="circle"
+          data-tone="accent"
+          data-variant="soft"
+          data-status="idle"
+          ><span data-part="fallback" data-part-fallback="">AB</span></span
+        >
+      </button>
+    </div>
+  </header>
+</section>
+
+<!--
+  The panel open at a width where every destination has folded, plus the
+  context and the help: what the script moves is written where it lands. The
+  scene is `data-fixed` because the panel hangs below the bar.
+-->
+<section data-scene="panel" data-fixed>
+  <div style="block-size: 20rem">
+    <header
+      data-ui="top-navigation"
+      data-ui-top-navigation=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-frame
+    >
+      <div data-part="brand" data-part-brand="">
+        <a data-part="home" data-part-home="" href="#home">
+          <span data-part="mark" data-part-mark="" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect
+                x="3"
+                y="3"
+                width="18"
+                height="18"
+                rx="5"
+                fill="var(--slotted-tone-accent-solid)"
+              />
+              <path
+                d="M7 15.5 12 7l5 8.5"
+                stroke="var(--slotted-tone-accent-on-solid)"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <span data-part="name" data-part-name="">Aurora Logistics</span>
+        </a>
+      </div>
+      <nav
+        data-part="nav"
+        data-part-nav=""
+        data-ui="navigation-menu"
+        data-ui-navigation-menu=""
+        data-orientation="horizontal"
+        data-size="md"
+        aria-label="Navigation"
+      >
+        <ul data-part="list" data-part-list="">
+          <li data-part="item" data-part-item="">
+            <button
+              data-part="more"
+              data-part-more=""
+              type="button"
+              aria-label="Mais, 6 destinos"
+              aria-expanded="true"
+              aria-controls="tn-panel-open"
+              data-overflow="6"
+              data-current=""
+              data-open=""
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+              ></span>
+            </button>
+          </li>
+        </ul>
+        <div data-part="viewport" data-part-viewport=""></div>
+      </nav>
+      <div data-part="panel" data-part-panel="" id="tn-panel-open" data-open="">
+        <div data-part="context" data-part-context="">
+          <span
+            data-ui="badge"
+            data-ui-badge=""
+            data-part="root"
+            data-part-root=""
+            data-tone="warning"
+            data-variant="soft"
+            data-size="xs"
+            >Staging</span
+          >
+        </div>
+        <ul data-part="panel-list" data-part-panel-list="">
+          <li
+            data-part="item"
+            data-part-item=""
+            data-priority="high"
+            data-collapsed=""
+            data-current=""
+          >
+            <a
+              data-part="link"
+              data-part-link=""
+              href="#dashboard"
+              aria-current="page"
+              data-current=""
+              >Dashboard</a
+            >
+          </li>
+          <li data-part="item" data-part-item="" data-priority="high" data-collapsed="">
+            <a data-part="link" data-part-link="" href="#cargas">Cargas</a>
+          </li>
+          <li data-part="item" data-part-item="" data-priority="medium" data-collapsed="">
+            <a data-part="link" data-part-link="" href="#rotas">Rotas</a>
+          </li>
+          <li
+            data-part="item"
+            data-part-item=""
+            data-priority="medium"
+            data-collapsed=""
+            data-open=""
+          >
+            <button
+              data-part="trigger"
+              data-part-trigger=""
+              aria-controls="tn-section-2"
+              type="button"
+              aria-expanded="true"
+              data-open=""
+            >
+              Frota<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </button>
+            <div
+              data-part="content"
+              data-part-content=""
+              id="tn-section-2"
+              data-columns="1"
+              data-open=""
+            >
+              <ul data-part="links" data-part-links="">
+                <li><a data-part="link" data-part-link="" href="#veiculos">Vehicles</a></li>
+                <li><a data-part="link" data-part-link="" href="#motoristas">Drivers</a></li>
+                <li><a data-part="link" data-part-link="" href="#manutencao">Maintenance</a></li>
+              </ul>
+            </div>
+          </li>
+          <li data-part="item" data-part-item="" data-priority="low" data-collapsed="">
+            <a data-part="link" data-part-link="" href="#reports">Reports</a>
+          </li>
+          <li
+            data-part="item"
+            data-part-item=""
+            data-priority="low"
+            data-collapsed=""
+            data-disabled=""
+          >
+            <a data-part="link" data-part-link="" href="#billing" aria-disabled="true">Billing</a>
+          </li>
+        </ul>
+        <a data-part="help" data-part-help="" href="#ajuda"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-question"></svg></span
+          >Ajuda</a
+        >
+      </div>
+      <div data-part="actions" data-part-actions="">
+        <button
+          data-part="search-toggle"
+          data-part-search-toggle=""
+          type="button"
+          aria-label="Procurar"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg
+          ></span>
+        </button>
+        <button
+          data-part="notifications"
+          data-part-notifications=""
+          type="button"
+          aria-haspopup="dialog"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="bell"></svg
+          ></span>
+          <span data-part="count" data-part-count="">12</span>
+        </button>
+        <button data-part="account" data-part-account="" type="button" aria-label="Conta">
+          <span
+            data-ui="avatar"
+            data-ui-avatar=""
+            data-part="root"
+            data-part-root=""
+            data-size="xs"
+            data-shape="circle"
+            data-tone="accent"
+            data-variant="soft"
+            data-status="idle"
+            ><span data-part="fallback" data-part-fallback="">AB</span></span
+          >
+        </button>
+      </div>
+    </header>
+  </div>
+</section>
+
+<!-- The search open below 600 pixels: the field takes the bar and the close stands at its end. -->
+<section data-scene="search">
+  <header
+    data-ui="top-navigation"
+    data-ui-top-navigation=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-frame
+    data-search-open=""
+  >
+    <div data-part="brand" data-part-brand="">
+      <a data-part="home" data-part-home="" href="#home">
+        <span data-part="mark" data-part-mark="" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect
+              x="3"
+              y="3"
+              width="18"
+              height="18"
+              rx="5"
+              fill="var(--slotted-tone-accent-solid)"
+            />
+          </svg>
+        </span>
+        <span data-part="name" data-part-name="">Aurora Logistics</span>
+      </a>
+    </div>
+    <nav
+      data-part="nav"
+      data-part-nav=""
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-orientation="horizontal"
+      data-size="md"
+      aria-label="Navigation"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-priority="high">
+          <a data-part="link" data-part-link="" href="#dashboard">Dashboard</a>
+        </li>
+        <li data-part="item" data-part-item="">
+          <button
+            data-part="more"
+            data-part-more=""
+            type="button"
+            aria-label="Mais"
+            aria-expanded="false"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+            ></span>
+          </button>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport=""></div>
+    </nav>
+    <div data-part="search" data-part-search="">
+      <div
+        data-ui="text-field"
+        data-ui-text-field=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-variant="subtle"
+      >
+        <span data-part="start" data-part-start="" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="11" cy="11" r="6.5" />
+            <path d="m16 16 4.5 4.5" stroke-linecap="round" />
+          </svg>
+        </span>
+        <input data-part="input" data-part-input="" type="search" value="Lisboa → Porto" />
+      </div>
+      <button
+        data-part="search-close"
+        data-part-search-close=""
+        type="button"
+        aria-label="Close search"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+    <div data-part="actions" data-part-actions="">
+      <button
+        data-part="search-toggle"
+        data-part-search-toggle=""
+        type="button"
+        aria-label="Procurar"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg
+        ></span>
+      </button>
+      <button data-part="account" data-part-account="" type="button" aria-label="Conta">
+        <span
+          data-ui="avatar"
+          data-ui-avatar=""
+          data-part="root"
+          data-part-root=""
+          data-size="xs"
+          data-shape="circle"
+          data-tone="accent"
+          data-variant="soft"
+          data-status="idle"
+          ><span data-part="fallback" data-part-fallback="">AB</span></span
+        >
+      </button>
+    </div>
+  </header>
+</section>
+
+<!--
+  The states a destination can be in, side by side, at every width: current,
+  a section open, disabled, and `more` carrying the current mark because the
+  destination it holds is folded.
+-->
+<section data-scene="states" data-widths="240 420 720 1280">
+  <header
+    data-ui="top-navigation"
+    data-ui-top-navigation=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-frame
+  >
+    <div data-part="brand" data-part-brand="">
+      <span data-part="home" data-part-home="">
+        <span data-part="mark" data-part-mark="" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect
+              x="3"
+              y="3"
+              width="18"
+              height="18"
+              rx="5"
+              fill="var(--slotted-tone-accent-solid)"
+            />
+          </svg>
+        </span>
+        <span data-part="name" data-part-name="">Cadence</span>
+      </span>
+    </div>
+    <nav
+      data-part="nav"
+      data-part-nav=""
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-orientation="horizontal"
+      data-size="md"
+      aria-label="Navigation"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-priority="high" data-current="">
+          <a data-part="link" data-part-link="" href="#corrente" aria-current="page" data-current=""
+            >Corrente</a
+          >
+        </li>
+        <li data-part="item" data-part-item="" data-priority="high">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            aria-controls="tn-section-3"
+            type="button"
+            aria-expanded="true"
+            data-open=""
+          >
+            Aberta<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="tn-section-3" data-columns="1" hidden>
+            <ul data-part="links" data-part-links="">
+              <li><a data-part="link" data-part-link="" href="#veiculos">Vehicles</a></li>
+              <li><a data-part="link" data-part-link="" href="#motoristas">Drivers</a></li>
+              <li><a data-part="link" data-part-link="" href="#manutencao">Maintenance</a></li>
+            </ul>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-priority="high" data-disabled="">
+          <a data-part="link" data-part-link="" href="#desativada" aria-disabled="true"
+            >Desativada</a
+          >
+        </li>
+        <li data-part="item" data-part-item="" data-priority="high">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            aria-controls="tn-section-4"
+            type="button"
+            aria-expanded="false"
+            disabled
+          >
+            Disabled section<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="tn-section-4" data-columns="1" hidden>
+            <ul data-part="links" data-part-links=""></ul>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-priority="low">
+          <a data-part="link" data-part-link="" href="#dobrada">Dobrada</a>
+        </li>
+        <li data-part="item" data-part-item="">
+          <button
+            data-part="more"
+            data-part-more=""
+            type="button"
+            aria-label="Mais, 1 destino"
+            aria-expanded="false"
+            data-overflow="1"
+            data-current=""
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+            ></span>
+          </button>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport=""></div>
+    </nav>
+    <div data-part="actions" data-part-actions="">
+      <button
+        data-part="search-toggle"
+        data-part-search-toggle=""
+        type="button"
+        aria-label="Procurar"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg
+        ></span>
+      </button>
+      <button data-part="help" data-part-help="" type="button" aria-haspopup="dialog" data-open="">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-question"></svg></span
+        >Ajuda
+      </button>
+      <button
+        data-part="notifications"
+        data-part-notifications=""
+        type="button"
+        aria-haspopup="dialog"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="bell"></svg
+        ></span>
+        <span data-part="count" data-part-count="">128</span>
+      </button>
+      <button data-part="account" data-part-account="" type="button" aria-label="Conta" disabled>
+        <span
+          data-ui="avatar"
+          data-ui-avatar=""
+          data-part="root"
+          data-part-root=""
+          data-size="xs"
+          data-shape="circle"
+          data-tone="secondary"
+          data-variant="soft"
+          data-status="idle"
+          ><span data-part="fallback" data-part-fallback="">JR</span></span
+        >
+      </button>
+    </div>
+  </header>
+</section>
+
+<!-- Inside the shell: a div in the banner, no frame, the brand on the shell's row inset over the column's marks. -->
+<section data-scene="shell" data-widths="240 420 720 1024">
+  <div style="block-size: 12rem; border: 1px dashed var(--slotted-border-strong)">
+    <div
+      data-ui="app-shell"
+      data-ui-app-shell=""
+      data-part="root"
+      data-part-root=""
+      data-primary="banner"
+      data-canvas="inset"
+      data-nav-mode="inline"
+      data-nav-side="start"
+      data-nav-size="md"
+      data-collapsed-to="rail"
+      data-scroll="content"
+      data-dividers
+      data-open
+      style="block-size: 100%"
+    >
+      <header data-part="banner" data-part-banner="">
+        <div
+          data-ui="top-navigation"
+          data-ui-top-navigation=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+        >
+          <div data-part="brand" data-part-brand="">
+            <button
+              data-part="nav-toggle"
+              data-part-nav-toggle=""
+              type="button"
+              aria-expanded="true"
+              aria-controls="tn-shell-nav"
+              aria-label="Close navigation"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="panel-close"></svg
+              ></span>
+            </button>
+            <a data-part="home" data-part-home="" href="#home">
+              <span data-part="mark" data-part-mark="" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect
+                    x="3"
+                    y="3"
+                    width="18"
+                    height="18"
+                    rx="5"
+                    fill="var(--slotted-tone-accent-solid)"
+                  />
+                  <path
+                    d="M7 15.5 12 7l5 8.5"
+                    stroke="var(--slotted-tone-accent-on-solid)"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+              <span data-part="name" data-part-name="">Aurora Logistics</span>
+            </a>
+          </div>
+          <nav
+            data-part="nav"
+            data-part-nav=""
+            data-ui="navigation-menu"
+            data-ui-navigation-menu=""
+            data-orientation="horizontal"
+            data-size="md"
+            aria-label="Navigation"
+          >
+            <ul data-part="list" data-part-list="">
+              <li data-part="item" data-part-item="" data-priority="high" data-current="">
+                <a
+                  data-part="link"
+                  data-part-link=""
+                  href="#dashboard"
+                  aria-current="page"
+                  data-current=""
+                  >Dashboard</a
+                >
+              </li>
+              <li data-part="item" data-part-item="" data-priority="medium">
+                <a data-part="link" data-part-link="" href="#cargas">Cargas</a>
+              </li>
+              <li data-part="item" data-part-item="" data-priority="low">
+                <a data-part="link" data-part-link="" href="#reports">Reports</a>
+              </li>
+              <li data-part="item" data-part-item="">
+                <button
+                  data-part="more"
+                  data-part-more=""
+                  type="button"
+                  aria-label="Mais"
+                  aria-expanded="false"
+                >
+                  <span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+                  ></span>
+                </button>
+              </li>
+            </ul>
+            <div data-part="viewport" data-part-viewport=""></div>
+          </nav>
+          <div data-part="search" data-part-search="">
+            <div
+              data-ui="text-field"
+              data-ui-text-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-variant="subtle"
+            >
+              <span data-part="start" data-part-start="" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="11" cy="11" r="6.5" />
+                  <path d="m16 16 4.5 4.5" stroke-linecap="round" />
+                </svg>
+              </span>
+              <input data-part="input" data-part-input="" type="search" placeholder="Procurar…" />
+            </div>
+            <button
+              data-part="search-close"
+              data-part-search-close=""
+              type="button"
+              aria-label="Close search"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </div>
+          <div data-part="actions" data-part-actions="">
+            <button
+              data-part="search-toggle"
+              data-part-search-toggle=""
+              type="button"
+              aria-label="Procurar"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg
+              ></span>
+            </button>
+            <a data-part="help" data-part-help="" href="#ajuda"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-question"></svg></span
+              >Ajuda</a
+            >
+            <button
+              data-part="notifications"
+              data-part-notifications=""
+              type="button"
+              aria-haspopup="dialog"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="bell"></svg
+              ></span>
+              <span data-part="count" data-part-count="">3</span>
+            </button>
+            <button data-part="account" data-part-account="" type="button" aria-label="Conta">
+              <span
+                data-ui="avatar"
+                data-ui-avatar=""
+                data-part="root"
+                data-part-root=""
+                data-size="xs"
+                data-shape="circle"
+                data-tone="accent"
+                data-variant="soft"
+                data-status="idle"
+                ><span data-part="fallback" data-part-fallback="">AB</span></span
+              >
+            </button>
+          </div>
+        </div>
+      </header>
+      <nav
+        data-part="nav"
+        data-part-nav=""
+        data-ui="navigation-menu"
+        data-ui-navigation-menu=""
+        data-orientation="horizontal"
+        data-size="md"
+        id="tn-shell-nav"
+        aria-label="Main navigation"
+      >
+        <div data-part="nav-body" data-part-nav-body=""></div>
+        <div data-part="viewport" data-part-viewport=""></div>
+      </nav>
+      <main data-part="main" data-part-main="" id="content" tabindex="-1"></main>
+    </div>
+  </div>
+</section>
+
+<!-- Three sizes, one bar each, at the width where nothing folds. -->
+<section data-scene="sizes" data-widths="240 420 720 1280">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="4">
+    <header
+      data-ui="top-navigation"
+      data-ui-top-navigation=""
+      data-part="root"
+      data-part-root=""
+      data-size="xs"
+      data-frame
+    >
+      <div data-part="brand" data-part-brand="">
+        <a data-part="home" data-part-home="" href="#home">
+          <span data-part="mark" data-part-mark="" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect
+                x="3"
+                y="3"
+                width="18"
+                height="18"
+                rx="5"
+                fill="var(--slotted-tone-accent-solid)"
+              />
+            </svg>
+          </span>
+          <span data-part="name" data-part-name="">Pequena</span>
+        </a>
+      </div>
+      <nav
+        data-part="nav"
+        data-part-nav=""
+        data-ui="navigation-menu"
+        data-ui-navigation-menu=""
+        data-orientation="horizontal"
+        data-size="md"
+        aria-label="Navigation"
+      >
+        <ul data-part="list" data-part-list="">
+          <li data-part="item" data-part-item="" data-priority="high" data-current="">
+            <a data-part="link" data-part-link="" href="#a" aria-current="page" data-current=""
+              >Dashboard</a
+            >
+          </li>
+          <li data-part="item" data-part-item="" data-priority="high">
+            <a data-part="link" data-part-link="" href="#b">Cargas</a>
+          </li>
+          <li data-part="item" data-part-item="">
+            <button
+              data-part="more"
+              data-part-more=""
+              type="button"
+              aria-label="Mais"
+              aria-expanded="false"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+              ></span>
+            </button>
+          </li>
+        </ul>
+        <div data-part="viewport" data-part-viewport=""></div>
+      </nav>
+      <div data-part="actions" data-part-actions="">
+        <button
+          data-part="search-toggle"
+          data-part-search-toggle=""
+          type="button"
+          aria-label="Procurar"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg
+          ></span>
+        </button>
+        <button data-part="notifications" data-part-notifications="" type="button">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="bell"></svg></span
+          ><span data-part="count" data-part-count="">3</span>
+        </button>
+        <button data-part="account" data-part-account="" type="button" aria-label="Conta">
+          <span
+            data-ui="avatar"
+            data-ui-avatar=""
+            data-part="root"
+            data-part-root=""
+            data-size="xs"
+            data-shape="circle"
+            data-tone="accent"
+            data-variant="soft"
+            data-status="idle"
+            ><span data-part="fallback" data-part-fallback="">AB</span></span
+          >
+        </button>
+      </div>
+    </header>
+    <header
+      data-ui="top-navigation"
+      data-ui-top-navigation=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-frame
+    >
+      <div data-part="brand" data-part-brand="">
+        <a data-part="home" data-part-home="" href="#home">
+          <span data-part="mark" data-part-mark="" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect
+                x="3"
+                y="3"
+                width="18"
+                height="18"
+                rx="5"
+                fill="var(--slotted-tone-accent-solid)"
+              />
+            </svg>
+          </span>
+          <span data-part="name" data-part-name="">Medium</span>
+        </a>
+      </div>
+      <nav
+        data-part="nav"
+        data-part-nav=""
+        data-ui="navigation-menu"
+        data-ui-navigation-menu=""
+        data-orientation="horizontal"
+        data-size="md"
+        aria-label="Navigation"
+      >
+        <ul data-part="list" data-part-list="">
+          <li data-part="item" data-part-item="" data-priority="high" data-current="">
+            <a data-part="link" data-part-link="" href="#a" aria-current="page" data-current=""
+              >Dashboard</a
+            >
+          </li>
+          <li data-part="item" data-part-item="" data-priority="high">
+            <a data-part="link" data-part-link="" href="#b">Cargas</a>
+          </li>
+          <li data-part="item" data-part-item="">
+            <button
+              data-part="more"
+              data-part-more=""
+              type="button"
+              aria-label="Mais"
+              aria-expanded="false"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+              ></span>
+            </button>
+          </li>
+        </ul>
+        <div data-part="viewport" data-part-viewport=""></div>
+      </nav>
+      <div data-part="actions" data-part-actions="">
+        <button
+          data-part="search-toggle"
+          data-part-search-toggle=""
+          type="button"
+          aria-label="Procurar"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg
+          ></span>
+        </button>
+        <button data-part="notifications" data-part-notifications="" type="button">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="bell"></svg></span
+          ><span data-part="count" data-part-count="">3</span>
+        </button>
+        <button data-part="account" data-part-account="" type="button" aria-label="Conta">
+          <span
+            data-ui="avatar"
+            data-ui-avatar=""
+            data-part="root"
+            data-part-root=""
+            data-size="xs"
+            data-shape="circle"
+            data-tone="accent"
+            data-variant="soft"
+            data-status="idle"
+            ><span data-part="fallback" data-part-fallback="">AB</span></span
+          >
+        </button>
+      </div>
+    </header>
+    <header
+      data-ui="top-navigation"
+      data-ui-top-navigation=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      data-frame
+    >
+      <div data-part="brand" data-part-brand="">
+        <a data-part="home" data-part-home="" href="#home">
+          <span data-part="mark" data-part-mark="" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect
+                x="3"
+                y="3"
+                width="18"
+                height="18"
+                rx="5"
+                fill="var(--slotted-tone-accent-solid)"
+              />
+            </svg>
+          </span>
+          <span data-part="name" data-part-name="">Grande</span>
+        </a>
+      </div>
+      <nav
+        data-part="nav"
+        data-part-nav=""
+        data-ui="navigation-menu"
+        data-ui-navigation-menu=""
+        data-orientation="horizontal"
+        data-size="md"
+        aria-label="Navigation"
+      >
+        <ul data-part="list" data-part-list="">
+          <li data-part="item" data-part-item="" data-priority="high" data-current="">
+            <a data-part="link" data-part-link="" href="#a" aria-current="page" data-current=""
+              >Dashboard</a
+            >
+          </li>
+          <li data-part="item" data-part-item="" data-priority="high">
+            <a data-part="link" data-part-link="" href="#b">Cargas</a>
+          </li>
+          <li data-part="item" data-part-item="">
+            <button
+              data-part="more"
+              data-part-more=""
+              type="button"
+              aria-label="Mais"
+              aria-expanded="false"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+              ></span>
+            </button>
+          </li>
+        </ul>
+        <div data-part="viewport" data-part-viewport=""></div>
+      </nav>
+      <div data-part="actions" data-part-actions="">
+        <button
+          data-part="search-toggle"
+          data-part-search-toggle=""
+          type="button"
+          aria-label="Procurar"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg
+          ></span>
+        </button>
+        <button data-part="notifications" data-part-notifications="" type="button">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="bell"></svg></span
+          ><span data-part="count" data-part-count="">3</span>
+        </button>
+        <button data-part="account" data-part-account="" type="button" aria-label="Conta">
+          <span
+            data-ui="avatar"
+            data-ui-avatar=""
+            data-part="root"
+            data-part-root=""
+            data-size="md"
+            data-shape="circle"
+            data-tone="accent"
+            data-variant="soft"
+            data-status="idle"
+            ><span data-part="fallback" data-part-fallback="">AB</span></span
+          >
+        </button>
+      </div>
+    </header>
+  </div>
+</section>
+
+<!-- Content the family did not choose: a long name, long labels, the account with a name beside the avatar. -->
+<section data-scene="content" data-widths="240 420 720 1280">
+  <header
+    data-ui="top-navigation"
+    data-ui-top-navigation=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-frame
+  >
+    <div data-part="brand" data-part-brand="">
+      <a data-part="home" data-part-home="" href="#home">
+        <span data-part="mark" data-part-mark="" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect
+              x="3"
+              y="3"
+              width="18"
+              height="18"
+              rx="5"
+              fill="var(--slotted-tone-accent-solid)"
+            />
+          </svg>
+        </span>
+        <span data-part="name" data-part-name=""
+          >Integrated Platform for International Logistics Operations Management</span
+        >
+      </a>
+    </div>
+    <nav
+      data-part="nav"
+      data-part-nav=""
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-orientation="horizontal"
+      data-size="md"
+      aria-label="Navigation"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-priority="high" data-current="">
+          <a data-part="link" data-part-link="" href="#a" aria-current="page" data-current=""
+            >Acompanhamento de encomendas</a
+          >
+        </li>
+        <li data-part="item" data-part-item="" data-priority="medium">
+          <a data-part="link" data-part-link="" href="#b">Planeamento de rotas</a>
+        </li>
+        <li data-part="item" data-part-item="" data-priority="low">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            aria-controls="tn-section-5"
+            type="button"
+            aria-expanded="false"
+          >
+            Reports and indicators<span
+              data-part="indicator"
+              data-part-indicator=""
+              aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="tn-section-5" data-columns="1" hidden>
+            <ul data-part="links" data-part-links="">
+              <li><a data-part="link" data-part-link="" href="#veiculos">Vehicles</a></li>
+              <li><a data-part="link" data-part-link="" href="#motoristas">Drivers</a></li>
+              <li><a data-part="link" data-part-link="" href="#manutencao">Maintenance</a></li>
+            </ul>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="">
+          <button
+            data-part="more"
+            data-part-more=""
+            type="button"
+            aria-label="Mais"
+            aria-expanded="false"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+            ></span>
+          </button>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport=""></div>
+    </nav>
+    <div data-part="actions" data-part-actions="">
+      <button
+        data-part="search-toggle"
+        data-part-search-toggle=""
+        type="button"
+        aria-label="Procurar"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg
+        ></span>
+      </button>
+      <button data-part="notifications" data-part-notifications="" type="button">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="bell"></svg></span
+        ><span data-part="count" data-part-count="">99+</span>
+      </button>
+      <button data-part="account" data-part-account="" type="button">
+        <span
+          data-ui="avatar"
+          data-ui-avatar=""
+          data-part="root"
+          data-part-root=""
+          data-size="xs"
+          data-shape="circle"
+          data-tone="accent"
+          data-variant="soft"
+          data-status="idle"
+          ><span data-part="fallback" data-part-fallback="">MB</span></span
+        >
+        <span>Maria Bartolomeu</span>
+      </button>
+    </div>
+  </header>
+</section>

@@ -1,0 +1,420 @@
+{
+  "schemaVersion": 5,
+  "family": "filter-bar",
+  "ui": "filter-bar",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Search and filter chips that build a query."
+  },
+  "rootRole": "search",
+  "valueType": "FilterGroup | null",
+  "valueRules": {
+    "shape": "{ join: 'and' | 'or', rules: (FilterRule | FilterGroup)[] }, where a FilterRule is { field, filter } and `filter` is the FilterDescriptor `table` edits in a column header, unchanged",
+    "engine": "@slotted/core/filter — group.ts holds the tree, the predicate, the sentence and the codec; the family invents no vocabulary",
+    "firstLevel": "a first-level rule for a field is the object a column header reads and writes through ruleFor and withRuleFor, so a screen offering both edits one value",
+    "inactive": "a leaf without every operand its operator needs is dropped before the join, and a group left empty is dropped with it — normalizeFilterGroup, the engine's rule one level up",
+    "null": "a value with no active rule is null, which is what a consumer stores and a URL carries",
+    "unknownField": "a rule over a field the consumer no longer declares is kept, drawn as a chip with the key and data-invalid, removable, and never evaluated"
+  },
+  "query": {
+    "value": "string, the one condition that belongs to no column",
+    "predicate": "createSearchPredicate: a contains text condition against every searchable field, or-joined, through the collator the typed conditions use",
+    "delay": "queryDelay in milliseconds, default 320, debounces the request under apply=live; under manual the query joins the draft",
+    "escape": "Escape in the search clears the query when it holds one, reason clear"
+  },
+  "pattern": {
+    "url": "https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/",
+    "title": "Toolbar Pattern",
+    "readOn": "2026-09-30",
+    "root": "role=search rather than role=toolbar, because the pattern asks a toolbar to avoid controls whose operation requires the pair of arrow keys used for toolbar navigation, and a text box is one",
+    "rows": "the pattern's note for toolbars with multiple rows: Left Arrow and Right Arrow wrap from row to row, so the pills, every chip's segments, add, clear and the actions are one roving set however many lines the bar takes",
+    "departure": "the optional 'focus is set on the control that last had focus' is taken; Delete and Backspace on a chip segment remove its condition, which the pattern does not describe and a chip row in tags-input already does"
+  },
+  "wiring": {
+    "root": "role=search with aria-label from the bar message unless the consumer wrote one",
+    "bar": "role=toolbar, aria-label from the filters message, one tab stop, roving tabindex from @slotted/core/focus over the pills, every chip segment that is a button, more, add, clear and the actions",
+    "pill": "button, a pinned field with no condition; aria-haspopup=dialog, because pressing it opens the value popover of the chip that takes its place",
+    "chip": "role=group inside the toolbar, named by the rule message (field and condition), wrapped in the incomplete message while its condition is inactive",
+    "count": "aria-live=polite on the part itself",
+    "builder": "drawer worn as data-ui, titled by the builder message",
+    "chipSegments": "chip-field is a span and never focusable; chip-operator a button with aria-haspopup=menu opening the operators of the field's kind; chip-value a button with aria-haspopup=dialog opening the operand in a popover, absent while the operator takes no operand, named by the whole list; chip-remove a button named by the remove message over the field, absent on a required field; chip-value holds the operator's words in a span with data-operator, drawn only under 36rem where the operator segment is not",
+    "add": "menu trigger listing the fields; with a chip in the bar it draws only its glyph, data-compact, and keeps the add message as its accessible name and title",
+    "ruleSummary": "a button with aria-expanded and aria-controls naming the rule's controls; one span with data-sentence holds three spans with data-field, data-operator and data-value, and the chevron follows it; drawn only in the card form",
+    "summary": "button, first in the bar's DOM order so the arrows reach it first where it is drawn; 'Filters (n)'"
+  },
+  "surfaces": {
+    "pill": "none of its own: pressing a pill draws the field's chip in the same place, incomplete, with the value popover open — the path add takes — so the popover is never anchored to an element that is about to become another",
+    "chip": "chip-operator opens a menu of operators; chip-value opens a popover holding the operand alone. Choosing an operator whose operands the rule lacks moves on to the value popover",
+    "builder": "a drawer on every width: from the inline end while the viewport is 36rem wide or more, from the bottom as a sheet sized to its content below that — a sheet is where a phone keeps a thumb, and the side a drawer opens from is the viewport's question, not the bar's. Below 30rem of its own width the builder lists each rule as a card (see builderCards)",
+    "summary": "below the narrow breakpoint the pills and the chips fold behind one button, 'Filters (n)', which opens the builder",
+    "reason": "a tree with a nested group needs a column; a popover anchored to a pill has neither the height nor the anchor for it",
+    "add": "a menu of the fields not yet filtered; choosing one draws its chip at once, incomplete, with the field's defaultOperator, and opens the value popover on it",
+    "narrow": "under 36rem of the bar a chip's value segment, a pill and the summary all open the builder, with the rule they name expanded — a popover anchored to a chip in a scrolling row has no room on a phone, and one surface for every edit is the one a thumb learns"
+  },
+  "apply": {
+    "live": "a popover commits every change and the engine's inactive rule keeps a half-typed condition out; the builder commits on Apply; removing a chip, Clear and choosing a preset commit at once",
+    "manual": "everything goes to a draft; apply commits with reason submit, reset discards, data-dirty on the root meanwhile; Enter in an operand applies",
+    "escape": "closes the surface and discards what it held"
+  },
+  "required": {
+    "rule": "a field with required: true has a defaultValue; Clear returns it to that value rather than to nothing",
+    "refusal": "a required field whose rule is inactive refuses Apply under manual and refuses removal under live: data-invalid on its chip, the required message over the field associated, focus moved to it",
+    "pinned": "a required field is pinned whether or not the consumer said so"
+  },
+  "preset": {
+    "shape": "{ key, label, value: FilterGroup }[]",
+    "select": "choosing one replaces the value, reason select; the value changing afterwards keeps the preset current and marks the root data-dirty",
+    "clear": "the control is clearable: clearing it requests null with reason clear and leaves the value standing, so leaving a preset is not deleting it",
+    "save": "onPresetSave(value) from the builder, and nothing else about saving — the name is typed in a dialog the application owns"
+  },
+  "responsive": {
+    "container": "filter-bar, inline-size, on the root; the grid is on frame, one element in, because a container query cannot restyle the element it measures",
+    "narrow": "under 36rem, literal by rule 4 of the token foundation: the search; then the bar as one row that scrolls sideways — the summary first, then every chip including the folded ones, then the empty pills; the consumer's controls; the count. A chip there draws its field, its value with the operator's words inside it, and its remove control; the operator segment, more, add, clear and the actions are not drawn",
+    "alignment": "every member of the first line starts at its top and is a control tall — the count centres its line in a control height beside the search, and keeps its type's height on a line of its own when narrow",
+    "lines": "36rem and up: the search, the consumer's controls and the count on the first line; the bar on the second, wrapping"
+  },
+  "sticky": {
+    "axis": "sticky, off by default",
+    "on": "position: sticky at --slotted-page-sticky-top; the root measures itself into --slotted-filter-bar-size and republishes --slotted-page-sticky-top for what follows as the sum, which is the rule section established and the briefing binds this family to"
+  },
+  "announcements": {
+    "count": "the count message (count, total), countOnly without a total — the count part is the live region",
+    "applied": "the field and its sentence, the same text the chip shows",
+    "removed": "the removed message over the field",
+    "cleared": "the cleared message, and clearedTo with the sentence a required field returns to",
+    "preset": "the preset's label",
+    "refused": "the required field's message"
+  },
+  "keyboard": [
+    {
+      "key": "Tab / Shift+Tab",
+      "effect": "search, then the bar, then what follows",
+      "focus": "into the bar: the last-focused control, else the first enabled",
+      "source": "toolbar pattern"
+    },
+    {
+      "key": "ArrowLeft / ArrowRight",
+      "effect": "previous / next control of the bar — a pill, a chip segment, more, add, clear, an action — wrapping from line to line and from the last to the first; mirrored under dir=rtl",
+      "focus": "the neighbour",
+      "source": "toolbar pattern, multiple rows"
+    },
+    {
+      "key": "ArrowUp / ArrowDown",
+      "effect": "nothing — the page scrolls",
+      "focus": "unchanged",
+      "source": "toolbar pattern, crossAxis false"
+    },
+    {
+      "key": "Home / End",
+      "effect": "first / last control of the bar",
+      "focus": "the first / the last",
+      "source": "toolbar pattern (optional)"
+    },
+    {
+      "key": "Enter / Space",
+      "effect": "on a pill: opens its editor. On chip-operator: opens the operator menu. On chip-value: opens the operand popover. On chip-remove: removes the condition. On add: opens the field menu",
+      "focus": "the first control inside the surface",
+      "source": "button"
+    },
+    {
+      "key": "Delete / Backspace",
+      "effect": "on any segment of a chip: removes the condition, reason remove; a required field's chip refuses and takes data-invalid",
+      "focus": "the segment of the same role on the next chip, else on the previous, else add",
+      "source": "tags-input; createRemovalFocus"
+    },
+    {
+      "key": "Escape",
+      "effect": "in the search: clears the query when it holds one, reason clear. In a surface: closes and discards",
+      "focus": "unchanged; the trigger, for a surface",
+      "source": "Polaris; dismissable-layer"
+    },
+    {
+      "key": "Enter",
+      "effect": "in an operand: what Apply does in that surface",
+      "focus": "unchanged",
+      "source": "table's panel"
+    },
+    {
+      "key": "shortcut",
+      "effect": "when set, focuses the search unless focus is in an editable element; default none. Drawn as a kbd at the end of the search, hidden where the primary input is a touch screen — (hover: none) and (pointer: coarse) — while the key keeps working",
+      "focus": "the search",
+      "source": "Polaris f; toolbar pattern note 3"
+    }
+  ],
+  "declined": {
+    "sort": "table and data-grid hold sort with a model of their own; a select in the end slot is the composition",
+    "columnChooser": "column-manager, docs/component-features.md §12; its trigger goes in the end slot",
+    "queryLanguage": "EUI and AG Grid both build a parser and an autocompleter over field names; the tree is the value here and the builder its editor. A product that wants the expression form parses to FilterGroup and passes value",
+    "applyingRows": "the consumer, or data-grid — createFilterGroupPredicate and createSearchPredicate are what it applies",
+    "presetLifecycle": "saving, renaming and deleting a preset are the application's; onPresetSave is the one request",
+    "reorder": "Alt with the arrows moving a chip, which ReUI ships: under join and the order of the conditions changes nothing a reader can see, and pinned fields keep their declared order",
+    "rowMenu": "duplicate, negate and wrap-in-group per builder row, which ReUI ships: the engine's operators already carry the negations and Add group composes the wrap; reopening recorded in docs/process/build-order.md",
+    "veto": "a veto before the change (ReUI onBeforeQueryChange): the controlled pair is the veto — a consumer that does not apply the request refuses it"
+  },
+  "provides": {
+    "filterBarDefaults": ["apply", "queryDelay", "chipLimit", "shortcut"]
+  },
+  "messages": [
+    "add",
+    "addGroup",
+    "addRule",
+    "appliedCount",
+    "apply",
+    "bar",
+    "builder",
+    "cancel",
+    "clear",
+    "cleared",
+    "clearedTo",
+    "clearRule",
+    "condition",
+    "count",
+    "countOnly",
+    "done",
+    "field",
+    "filters",
+    "from",
+    "incomplete",
+    "joins.and",
+    "joins.or",
+    "less",
+    "match",
+    "matchAll",
+    "matchAny",
+    "matches",
+    "more",
+    "moreValues",
+    "noValue",
+    "operator",
+    "operators.after",
+    "operators.anyOf",
+    "operators.before",
+    "operators.between",
+    "operators.contains",
+    "operators.empty",
+    "operators.endsWith",
+    "operators.equals",
+    "operators.greaterThan",
+    "operators.greaterThanOrEqual",
+    "operators.is",
+    "operators.isNot",
+    "operators.lessThan",
+    "operators.lessThanOrEqual",
+    "operators.noneOf",
+    "operators.notContains",
+    "operators.notEmpty",
+    "operators.notEquals",
+    "operators.startsWith",
+    "preset",
+    "presetNone",
+    "readOnly",
+    "remove",
+    "removed",
+    "removeGroup",
+    "removeRule",
+    "required",
+    "reset",
+    "rule",
+    "savePreset",
+    "search",
+    "summary",
+    "to",
+    "unknownField",
+    "value",
+    "where"
+  ],
+  "messagesReason": "The words the family says come from the filterBar catalog of the language in force, laid over by one messages input on the bar. The operator names are a group keyed by the engine (operators.contains), the map table and data-grid read for the same operators. Every sentence the bar speaks is one message with slots — the chip's rule and condition, the remove control over its name, the count, the announcements — so each language orders its own words; matches holds the join chooser where its {join} slot stands, and appliedCount is a plural message.",
+  "imperative": ["focusSearch()", "open(path?)"],
+  "axes": {
+    "apply": ["live", "manual"],
+    "sticky": ["false", "true"],
+    "size": ["sm", "md", "lg"]
+  },
+  "resolution": {
+    "apply": ["prop", "defaults", "live"],
+    "queryDelay": ["prop", "defaults", "320"],
+    "chipLimit": ["prop", "defaults", "6"],
+    "shortcut": ["prop", "defaults", "none"],
+    "size": ["prop", "defaults", "md"]
+  },
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "loading": "data-loading",
+    "open": "data-open",
+    "invalid": "data-invalid",
+    "revealed": "data-revealed",
+    "readonly": "data-readonly",
+    "expanded": "data-expanded"
+  },
+  "dataAttributes": {
+    "data-dirty": "on the root while the draft, or the value against the current preset, differs",
+    "data-apply": "live or manual, on the root",
+    "data-sticky": "on the root while sticky",
+    "data-kind": "on a rule, the field's kind",
+    "data-operands": "on a rule and on a chip, 0, 1 or 2",
+    "data-depth": "on a group, its nesting depth from 0",
+    "data-pinned": "on a chip whose field is pinned; removing its condition draws the field's pill in its place",
+    "data-incomplete": "on a chip while its condition lacks an operand",
+    "data-compact": "on add while a chip is in the bar: the glyph alone",
+    "data-operator": "on the span inside chip-value and rule-summary that holds the operator's words"
+  },
+  "stateModel": {
+    "filter": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "clear", "remove", "select", "submit", "programmatic"]
+    },
+    "value": {
+      "controlled": "query",
+      "uncontrolled": "defaultQuery",
+      "request": "onQueryChange",
+      "reasons": ["keyboard", "clear", "submit", "programmatic"]
+    },
+    "selection": {
+      "controlled": "preset",
+      "uncontrolled": "defaultPreset",
+      "request": "onPresetChange",
+      "reasons": ["select", "clear", "programmatic"]
+    },
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "escape",
+        "outsidePress",
+        "dismiss",
+        "submit",
+        "programmatic"
+      ]
+    },
+    "revealed": {
+      "controlled": "revealed",
+      "uncontrolled": "defaultRevealed",
+      "request": "onRevealedChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "literals": {
+    "--slotted-filter-bar-editor-size": "18rem: the width of the rule a pill opens, because a popover shrink-wraps",
+    "narrow breakpoint": "36rem, inside @container, where a custom property is invalid",
+    "--slotted-filter-bar-value-max": "12rem: the value segment truncates there and carries the whole list in its title and name; no scale holds a measure, and container owns the page's",
+    "builder cards": "30rem, the builder's own width, inside @container, where a custom property is invalid",
+    "--slotted-filter-bar-value-max-narrow": "9rem: the value segment's measure on a phone, where one chip and the start of the next should share 375 pixels"
+  },
+  "members": {
+    "filterBar": {
+      "nativeElement": "div",
+      "defaults": {
+        "apply": "live",
+        "sticky": false,
+        "size": "md",
+        "queryDelay": 320,
+        "chipLimit": 6,
+        "shortcut": null,
+        "disabled": false,
+        "loading": false,
+        "defaultQuery": "",
+        "defaultOpen": false,
+        "defaultRevealed": false,
+        "readOnly": false
+      },
+      "capabilities": [
+        "filter",
+        "value",
+        "selection",
+        "open",
+        "revealed",
+        "size",
+        "disabled",
+        "readOnly",
+        "loading",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "loading",
+        "readonly",
+        "open",
+        "expanded",
+        "invalid",
+        "revealed"
+      ],
+      "parts": [
+        "root",
+        "frame",
+        "search",
+        "bar",
+        "pill",
+        "add",
+        "clear",
+        "preset",
+        "actions",
+        "apply",
+        "reset",
+        "summary",
+        "end",
+        "chip",
+        "chip-field",
+        "chip-operator",
+        "chip-value",
+        "chip-remove",
+        "more",
+        "count",
+        "builder",
+        "group",
+        "join",
+        "rules",
+        "conjunction",
+        "rule",
+        "rule-summary",
+        "field",
+        "operator",
+        "operand",
+        "remove",
+        "add-rule",
+        "add-group",
+        "remove-group",
+        "save-preset"
+      ]
+    }
+  },
+  "scenarios": {
+    "filterBar": [
+      "playground",
+      "listing",
+      "pinned",
+      "chips",
+      "builder",
+      "groups",
+      "manual",
+      "required",
+      "presets",
+      "query",
+      "url",
+      "count",
+      "narrow",
+      "sticky",
+      "states",
+      "content",
+      "keyboard"
+    ]
+  },
+  "incomplete": {
+    "rule": "a chip whose condition lacks an operand its operator needs carries data-incomplete: a dashed edge, and the noValue message in the value segment",
+    "ownership": "the incomplete condition is the bar's own state and not the value's: the engine's inactive rule already keeps it out, onValueChange does not emit it, Escape closes its popover without deleting it; it goes when removed, when completed — it then enters the value — or when a controlled value replaces it from outside"
+  },
+  "builderCards": {
+    "when": "the builder's own width under 30rem — the builder is the container, so every group in it takes the same form; a nested group narrower than 30rem inside a wider builder only stacks its row",
+    "rule": "a card: rule-summary — the field, the operator and the value as one sentence, a button with aria-expanded — and the rule's remove control beside it. Pressing the sentence expands the card, data-expanded, and the field, the operator and the operand stack under it at the card's full width; pressing it again collapses it. One card is expanded at a time, and a rule just added opens expanded",
+    "nesting": "a nested group is a rail — a line on its inline-start edge and one step of inset — instead of a box with a gutter, so a level costs about ten pixels rather than eighty; the joining word stands on a line of its own between two cards, and the first row's 'Where' is not drawn",
+    "actions": "Add rule and Add group share a line in two equal columns; Clear all and Save as view take the line under them"
+  }
+}

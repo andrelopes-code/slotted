@@ -1,0 +1,355 @@
+{
+  "schemaVersion": 5,
+  "family": "time-picker",
+  "ui": "time-picker",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Time field with a picker popover."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/",
+  "patternStatus": "Read on 2026-09-10 and transcribed key by key The pattern's rule for where focus lands when a listbox receives it — the selected option, or the first when none is selected — is taken whole; the optional Home, End and type-ahead keys are all bound because the pattern recommends them above seven options and this list holds ninety-six; and the grouped-options rules are taken for the hour headings, which the pattern names as a group inside the listbox carrying an accessible name of its own.",
+  "controlPart": "control",
+  "rootRole": null,
+  "contentRole": "listbox",
+  "valueType": "PlainTime | null",
+  "composes": ["time-field"],
+  "core": [
+    "@slotted/core/date",
+    "@slotted/core/state",
+    "@slotted/core/presence",
+    "@slotted/core/portal",
+    "@slotted/core/positioner",
+    "@slotted/core/dismissable-layer",
+    "@slotted/core/typeahead",
+    "@slotted/core/focus"
+  ],
+  "stateSource": "field",
+  "mirrorsState": true,
+  "panel": {
+    "shape": "one list, one axis, a whole time on every row",
+    "role": "listbox",
+    "aria-haspopup": "listbox",
+    "why": "A reader choosing a slot is choosing one thing, and the row says what it is: 09:15 is legible at a glance where a 15 in a column of minutes is legible only beside the column next to it. One axis is also what makes every key in the listbox pattern mean something — Home, End, type-ahead and the two arrows all move through times rather than through halves of one.",
+    "everyTimeReachable": "by typing the segments, which is what time-field is for",
+    "scanning": "A day of quarter-hours is ninety-six rows, and the answer is not a heading: the hour is already on every row, so an hour heading repeats what the reader is reading. It was drawn, looked at, and withdrawn — every surveyed implementation ships a plain list for the same reason. What answers the length instead costs no row at all: the panel opens on the chosen time, type-ahead jumps to a typed one, and PageUp and PageDown move a whole hour."
+  },
+  "declined": {
+    "columns": {
+      "capability": "one listbox per unit, side by side",
+      "shipsIt": ["MUI X MultiSectionDigitalClock", "Ant Design TimePicker"],
+      "ownedInsteadBy": "time-field",
+      "reason": "A column panel exists to express two things a stepped list cannot: a precision finer than the list's step, and a set of times no single step describes. Both are answered without it. The precision is the field's — every hour, minute and second is typed, stepped, paged, bounded and cleared there, and docs/component-features.md §6 asks for exactly that relationship — and the arbitrary set is `options`, which hands the panel the times the consumer means, seconds included. What is left of the columns is their cost: three scroll surfaces where one press should be, a value null until every column has been visited, a second keyboard axis, and a popup that stops being a listbox. Withdrawn at the visual gate on the reviewer's reading; the reviewer then asked what covered seconds and irregular times, and `options` and the step floor's withdrawal are that answer.",
+      "cost": "A reader who wants to spin an hour and a minute independently, the way a mobile wheel does, has one list instead. For a long regular list that is a longer scroll, and type-ahead, the opening position and the hour keys are what answer it."
+    }
+  },
+  "wiring": {
+    "aria-haspopup": "listbox, on the trigger",
+    "aria-expanded": "the trigger, while the popup is showing",
+    "aria-controls": "the content, while the popup is showing",
+    "aria-label": "the trigger, carrying the selected time",
+    "aria-selected": "true on the chosen option, false on every other selectable one, which is what the listbox pattern requires",
+    "aria-disabled": "an option a bound or the predicate refuses, while unavailableOptions is disable",
+    "aria-activedescendant": "never written. Focus is real and moves with a roving tabindex, because the reader is inside the list rather than typing into a control that must keep focus.",
+    "aria-description": "the panel, while the list is truncated, naming that the remaining times are typed"
+  },
+  "triggerName": {
+    "empty": "the choose message",
+    "chosen": "the change message, with the whole time in words in its time slot",
+    "why": "Focus returns to the trigger when the popup closes, so the name is where the reader is told what was chosen. The APG's own date-picker example names this as an accessibility feature, and the sibling picker already takes it."
+  },
+  "keyboard": [
+    {
+      "key": "Alt+ArrowDown",
+      "effect": "open",
+      "from": "a segment",
+      "focus": "stays in the field, so typing keeps working"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "the trigger opens the panel and focus enters the list; inside the list, the next option",
+      "focus": "the selected option, or the first when none is selected"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "the previous option",
+      "focus": "moves"
+    },
+    {
+      "key": "PageDown",
+      "effect": "the first option of the next hour",
+      "scope": "the list"
+    },
+    {
+      "key": "PageUp",
+      "effect": "the first option of the previous hour",
+      "scope": "the list"
+    },
+    {
+      "key": "Home",
+      "effect": "the first option",
+      "optional": "recommended above five options"
+    },
+    {
+      "key": "End",
+      "effect": "the last option",
+      "optional": "recommended above five options"
+    },
+    {
+      "key": "a-z0-9",
+      "effect": "type-ahead",
+      "optional": "recommended above seven options"
+    },
+    {
+      "key": "Enter",
+      "effect": "select",
+      "closes": "when closeOnSelect says so"
+    },
+    {
+      "key": "Space",
+      "effect": "select",
+      "closes": "when closeOnSelect says so"
+    },
+    {
+      "key": "Escape",
+      "effect": "close",
+      "focusTo": "trigger",
+      "staged": "the field takes it first while an expression is open"
+    },
+    {
+      "key": "Tab",
+      "effect": "contained",
+      "while": "open"
+    }
+  ],
+  "selectionFollowsFocus": false,
+  "selectionFollowsFocusReason": "The listbox pattern lists it as optional and warns it can severely degrade accessibility in some circumstances. Here it is one of them: a reader arrowing through ninety-six quarter-hours would emit ninety-six requests, each one a value a consumer may be writing to a server. The highlight moves, and Enter, Space or a press moves the value.",
+  "step": {
+    "unit": "seconds",
+    "default": 900,
+    "base": "min when it is stated, midnight when it is not",
+    "source": "the platform's own rule for input[type=time], where the step base is min if specified, the value otherwise, and 0 if neither",
+    "floor": 1,
+    "floorReason": "A step finer than a minute is a real configuration: thirty-second slots inside a five-minute window is eleven rows. A floor of one minute was written at the visual gate and withdrawn on the reviewer's reading — it refused the window along with the day it was aimed at. The guard belongs on the length of the list, which is maxOptions, and not on the size of the step.",
+    "offStepIsInvalid": false,
+    "offStepReason": "A step of 900 with min 09:07 offers 09:07, 09:22, 09:37. The field still accepts 09:15 by typing, and the family reports invalid only when a bound or the predicate refuses the value — never because it fell between two options.",
+    "notTheFieldArrows": "The panel's step is the panel's. A segment steps by one of its own unit and pages by the page step, whatever the panel offers. input[type=time] ties the two and this family does not: a minute arrow that moved fifteen at a time would put :07 out of reach of the arrows, and the field's promise is that every value is reachable there."
+  },
+  "opensOn": ["the chosen time", "the nearest step to now", "the first available option"],
+  "scroll": "scrollIntoView({ block: 'nearest' })",
+  "panelBlocksTyping": false,
+  "panelBlocksTypingReason": "docs/component-features.md §6 states it: the panel complements and does not block typing. Alt+ArrowDown opens the panel and leaves focus in the field, so the segments keep every key they had.",
+  "highlightFollowsTyping": true,
+  "now": {
+    "part": "now",
+    "equals": "the zero case of time-field's relative expression",
+    "why": "A reader who never discovers that + opens an expression still has one labelled press for the current time, which is what Ant's showNow and MUI's action bar both ship. The shortcut is never the only way to a value."
+  },
+  "platformNotes": {
+    "altArrowDown": "ChromeOS turns Alt+ArrowDown into PageDown before the browser sees it, which Angular Material records for its own input. The trigger button is therefore the guaranteed path and the chord is a shortcut, never the only way in."
+  },
+  "dismissal": {
+    "escape": "through dismissable-layer, in the capture phase",
+    "outsidePress": true,
+    "closeOnSelect": "auto closes, because one press chooses a whole time"
+  },
+  "layer": {
+    "modal": false,
+    "scrollLock": false,
+    "branches": ["the trigger, so pressing it again closes rather than dismissing and reopening"],
+    "depthProperty": "--slotted-layer-depth",
+    "zIndexToken": "--slotted-z-index-popover",
+    "reason": "One layer in the single stack, at the token popover, menu and select already use. Modality is declined for the reason every anchored surface declines it: inerting the page would inert the field the panel exists to write into."
+  },
+  "responsive": {
+    "sheet": "below 480px on a coarse pointer, the content takes the sheet presentation",
+    "decidedIn": "the stylesheet; the DOM does not change"
+  },
+  "portalledIdentity": {
+    "elements": ["root", "positioner"],
+    "reason": "The family is two subtrees: the control where the consumer wrote it, and the popup portalled to the end of the document. A stylesheet cannot reach a subtree that is no longer inside the root, so data-ui is written on both — the decision select recorded and date-picker follows."
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"],
+    "placement": ["bottom-start", "bottom", "bottom-end", "top-start", "top", "top-end"],
+    "closeOnSelect": ["auto", "always", "never"],
+    "unavailableOptions": ["disable", "hide"],
+    "hourCycle": [12, 24],
+    "granularity": ["hour", "minute", "second"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "placement": ["prop", "defaults", "bottom-start"],
+    "closeOnSelect": ["prop", "defaults", "auto"],
+    "step": ["prop", "defaults", "900"],
+    "unavailableOptions": ["prop", "defaults", "disable"],
+    "locale": ["prop", "slotted", "en-US"],
+    "timeZone": ["prop", "defaults", "runtime"],
+    "hourCycle": ["prop", "defaults", "locale"],
+    "granularity": ["prop", "defaults", "minute"],
+    "maxOptions": ["prop", "defaults", "1440"]
+  },
+  "provides": {
+    "timePickerDefaults": [
+      "closeOnSelect",
+      "granularity",
+      "hourCycle",
+      "maxOptions",
+      "placement",
+      "size",
+      "step",
+      "timeZone",
+      "unavailableOptions",
+      "variant"
+    ]
+  },
+  "messages": ["change", "choose", "empty", "now", "truncated"],
+  "imperative": ["focus", "open", "close"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "required": "data-required",
+    "open": "data-open",
+    "selected": "data-selected",
+    "current": "data-current"
+  },
+  "dataAttributes": {
+    "data-placement": "the side and alignment the positioner resolved",
+    "data-presentation": "popover or sheet",
+    "data-granularity": "hour, minute or second",
+    "data-truncated": "the list stops short of the times the configuration asked for, at maxOptions"
+  },
+  "statePrecedence": {
+    "order": ["disabled", "selected", "current", "hover"],
+    "guard": "every weaker rule carries a :not() for each stronger state it can meet, because specificity rather than source order is what decides between them: :hover with one :not() outweighs a plain [data-selected], and the chosen row turned grey under the pointer until each was guarded. Found by the reviewer at the visual gate; states.test.mjs guards the disabled half of STATE_PRECEDENCE and nothing else.",
+    "selectedHover": "the chosen row answers the pointer one step darker in its own tone rather than changing colour family"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "clear", "blur", "programmatic"],
+      "carries": ["value", "previous", "segments", "crossesMidnight", "reason", "event"]
+    },
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "outsidePress", "select"],
+      "carries": ["value", "previous", "reason", "event"]
+    },
+    "current": {
+      "controlled": "highlightedValue",
+      "uncontrolled": "defaultHighlightedValue",
+      "request": "onHighlightedValueChange",
+      "reasons": ["pointer", "keyboard", "programmatic"],
+      "carries": ["value", "previous", "reason", "event"]
+    }
+  },
+  "literals": {
+    "--slotted-time-picker-sheet-inline-size": "100%, which the shared exemption list already holds.",
+    "--slotted-time-picker-list-block-size": "Eight rows and half of the ninth, counted in the row height the panel states once. The half is deliberate: a list cut on a row boundary looks like the whole list, and a reader who cannot see that ninety-six times are available never scrolls for them."
+  },
+  "members": {
+    "timePicker": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "placement": "bottom-start",
+        "closeOnSelect": "auto",
+        "step": 900,
+        "unavailableOptions": "disable",
+        "granularity": "minute",
+        "clearable": false,
+        "maxOptions": 1440
+      },
+      "capabilities": [
+        "value",
+        "open",
+        "current",
+        "placement",
+        "appearance",
+        "size",
+        "content",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "readonly",
+        "required",
+        "open",
+        "selected",
+        "current"
+      ],
+      "parts": [
+        "root",
+        "control",
+        "trigger",
+        "positioner",
+        "content",
+        "grip",
+        "head",
+        "now",
+        "presets",
+        "list",
+        "option",
+        "empty",
+        "footer"
+      ]
+    }
+  },
+  "scenarios": {
+    "timePicker": [
+      "playground",
+      "panel",
+      "explicit",
+      "seconds",
+      "step",
+      "range-bounds",
+      "unavailable",
+      "now",
+      "relative",
+      "presets",
+      "sizes",
+      "variants",
+      "placement",
+      "states",
+      "forms",
+      "narrow",
+      "composition",
+      "keyboard"
+    ]
+  },
+  "hourJump": {
+    "keys": ["PageUp", "PageDown"],
+    "moves": "to the first option of the previous or next hour",
+    "why": "The coarse axis a reader navigates by — some time after two — without spending a row of the list on it. The listbox pattern has no key for it because its example is short; this list is not."
+  },
+  "options": {
+    "prop": "options",
+    "type": "readonly PlainTime[]",
+    "replaces": "step, min and max as the source of the list; the bounds and the predicate still mark what is refused",
+    "why": "A step describes a regular list and a great many real ones are not: a clinic open at 09:00, 09:20 and 13:45, a broadcast schedule, a set of second-level marks. isTimeUnavailable can only subtract from a stepped list, so it reaches none of those. This is the prop that makes every arrangement expressible, and it is the half of the columns question that a decline had to answer rather than avoid — a consumer wanting seconds on a surface states the seconds they mean.",
+    "content": "renderOption in React, an ng-template in Angular. The row is the family's; what is written in it is the consumer's.",
+    "order": "the consumer's own. The family does not sort a list it was given."
+  },
+  "maxOptions": {
+    "default": 1440,
+    "why": "A whole day at a one-minute step, which is the finest whole-day list any surveyed implementation offers and a number a browser lays out without complaint. A day at a one-second step is 86 400 and is a configuration mistake rather than a list.",
+    "beyondIt": "the list is cut and the fact is written in the DOM as data-truncated on the list, and into the panel's accessible description. Nothing is hidden and nothing freezes; the times past the cut are typed into the field.",
+    "raisable": "a consumer who means a longer list states maxOptions and owns the consequence"
+  }
+}

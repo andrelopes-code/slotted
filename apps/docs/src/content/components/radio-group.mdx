@@ -1,0 +1,80 @@
+---
+title: Radio Group
+description: One choice out of a short set of options a reader can see at once.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Orientation
+
+A set flows vertically by default. `orientation="horizontal"` lays the options in a row for short labels, such as periods or units, and the row wraps instead of scrolling when it runs out of width. The arrow keys move through the set the same way in both orientations.
+
+<Example name="orientation" wide />
+
+## Tiles
+
+`variant="tile"` frames every option and makes its whole surface the target, for a choice that needs a sentence or a price beside its name, such as a plan picker. The radio group does not arrange the tiles: put a Grid around them for equal widths and equal heights. Keyboard behaviour does not change.
+
+<Example name="tiles" wide />
+
+## Sizes
+
+`size` sets the circle, the type and the spacing: `sm` for dense panels and toolbars, `md` for most forms, `lg` for sparse forms. Inside a field group the radio group takes the group's size, so one prop sizes the legend and the options together.
+
+<Example name="sizes" />
+
+## Label placement
+
+`labelPlacement="start"` puts each label first and the circles in a column at the end of the row, as in a settings panel where the labels are read first. The placement is set once for the set, so the circles line up with each other.
+
+<Example name="label-placement" />
+
+## Descriptions
+
+A description under one option says what that option costs or does. It joins that option's accessible description only, so a reader on the second option hears the second sentence and not every sentence in the set.
+
+<Example name="descriptions" />
+
+## States
+
+`invalid` sets `aria-invalid` on the group and draws every circle in the danger tone; the field group's error says what is wrong. Set `readOnly` and `disabled` on the field group, which passes them to the radio group: read-only keeps every option focusable and refuses every change, and disabled takes the whole set out of the tab order and out of form submission.
+
+<Example name="states" />
+
+## Unavailable option
+
+`disabled` on one Radio takes that option alone out of the set. The arrow keys skip it, and its description can say why it is unavailable.
+
+<Example name="disabled-option" />
+
+## Without a field group
+
+A radio group outside a field group keeps `role="radiogroup"` and needs a name of its own: write `aria-label`, or `aria-labelledby` pointing at a visible heading. Inside a field group, the legend names the set and the radio group drops its role, so the set is not announced twice.
+
+<Example name="standalone" />
+
+## Controlled
+
+Pass `value` and update it from `onValueChange` when other parts of the screen depend on the choice. Without `value`, the radio group keeps the choice itself and starts from `defaultValue`.
+
+<Example name="controlled" />
+
+## Refusing a change
+
+`onValueChange` runs before the value moves. Call `cancel()` on its request to keep the current option checked, then say why. Choose Starter: the workspace has more seats in use than the plan includes, so the choice stays on Team.
+
+<Example name="refuse" />
+
+## Validation on submit
+
+A radio group with no `defaultValue` starts with nothing chosen. Inside a required field group it carries `aria-required`. Validate when the form is submitted, then set `invalid` and write the field group's error; `live="polite"` announces the error once, and `reserve` keeps its line open so the options do not move. In Angular the radio group is also a form control: bind `formControl`, `formControlName` or `ngModel` on it, and inside a required field group its validator fails with `required` while nothing is chosen. Submit without a choice, then choose a reason and submit again.
+
+<Example name="validation" />
+
+## Defaults for a section
+
+A defaults provider sets `orientation`, `labelPlacement`, `variant` and `size` once for every radio group under it. A radio group that states a value of its own keeps it, and a field or field group around it decides `size` before the provider does.
+
+<Example name="defaults" />

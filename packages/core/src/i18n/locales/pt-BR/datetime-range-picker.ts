@@ -1,0 +1,25 @@
+import type { DatetimeRangePickerMessages } from '../../messages/datetime-range-picker';
+
+export const ptBR: DatetimeRangePickerMessages = {
+  bounds: 'Fora do intervalo permitido',
+  change: 'Alterar período, {start} – {end}, {length}',
+  changeReversed: 'Alterar período, {start} – {end}',
+  choose: 'Escolher período',
+  chooseDay: '{end}: escolha um dia',
+  chooseTime: '{end}: escolha um horário em {day}',
+  clear: 'Limpar período',
+  done: 'Concluído',
+  empty: 'Nenhum horário disponível',
+  end: 'Fim',
+  length: 'Fora da duração permitida',
+  limit: {
+    between: 'de {min} a {max}',
+    atLeast: 'pelo menos {min}',
+    atMost: 'no máximo {max}',
+  },
+  now: 'Agora',
+  order: 'O fim deve vir depois do início',
+  start: 'Início',
+  truncated: 'Só os primeiros horários são listados; digite os demais no campo',
+  unavailable: 'Passa por um dia ou horário indisponível',
+};

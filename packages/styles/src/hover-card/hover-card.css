@@ -1,0 +1,93 @@
+@layer slotted.components {
+  /**
+   * The trigger of a hover card: the link a reader hovers or focuses to see a
+   * preview of where it goes, or of who it names.
+   *
+   *   root ─ the trigger ─ <a> ─ data-open
+   *         └─ [data-ui-popover] ─ unchanged, autoFocus off ─┐
+   *            │  header / body / footer — the consumer's      │
+   *            │  arrow                                        │
+   *            └───────────────────────────────────────────────┘
+   *
+   * The family owns this one part and no surface: the card is `popover`,
+   * imported as it is, the way `menubar` holds `menu`. Radix's `HoverCard`
+   * restates `Popover.Content` under a second name, and two copies drift.
+   *
+   * ── Why the trigger is painted at all ────────────────────────────────
+   *
+   * A bare `<a>` is the browser's blue. When the consumer renders the trigger
+   * onto `link`, that family's paint wins and these rules never match; when
+   * the family renders its own anchor, it owes the reader a link that reads as
+   * one and says, while the card shows, which word the card is about.
+   */
+  [data-ui-hover-card] {
+    --_text: var(--slotted-hover-card-color, var(--slotted-tone-accent-text, LinkText));
+    /* The underline at rest is the text at less than half strength, as
+       `link` draws it: present enough to say "link", quiet enough that a
+       paragraph of mentions is not a paragraph of bars. */
+    --_underline: var(
+      --slotted-hover-card-underline-color,
+      color-mix(in oklab, var(--_text) 40%, transparent)
+    );
+    /* The ground behind the word while its card is open. A band with no edge
+       to pair with is mixed from the tone's text at the share `highlight` uses
+       for the band behind a matched span (`docs/token-foundation.md`,
+       Highlight), rather than taken from the tone's surface: the surface is
+       painted the page's own white in `high-contrast`, where a state that has
+       to be seen would then not be. */
+    --_tint: var(
+      --slotted-hover-card-tint,
+      color-mix(
+        in oklab,
+        var(--_text) calc(var(--slotted-highlight-tint-opacity, 0.075) * 100%),
+        transparent
+      )
+    );
+    --_halo: var(--slotted-hover-card-halo, var(--slotted-space-1, 0.125rem));
+
+    border-radius: var(--slotted-hover-card-radius, var(--slotted-radius-xs, 2px));
+    color: var(--_text);
+    text-decoration-color: var(--_underline);
+    text-decoration-line: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.15em;
+    transition:
+      background-color var(--slotted-duration-short) var(--slotted-easing-standard),
+      box-shadow var(--slotted-duration-short) var(--slotted-easing-standard),
+      text-decoration-color var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  /* Hover fills the underline. The card itself waits for `openDelay`, so this
+     is the only thing that answers the pointer at once. */
+  [data-ui-hover-card]:not([data-disabled]):hover {
+    text-decoration-color: currentColor;
+  }
+
+  /**
+   * While the card shows, the word it is about is marked: the tint behind it
+   * and a halo of the same colour drawn as a spread shadow, so the inline box
+   * grows by one step of space without moving the line it sits on. A padding
+   * would have reflowed the paragraph on every open.
+   */
+  [data-ui-hover-card][data-open] {
+    background-color: var(--_tint);
+    box-shadow: 0 0 0 var(--_halo) var(--_tint);
+    text-decoration-color: currentColor;
+  }
+
+  [data-ui-hover-card]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * Forced colours remove backgrounds, so the open mark would vanish with them;
+   * a link the reader is looking at is underlined in the system's own link
+   * colour instead, which is the one thing forced colours keep.
+   */
+  @media (forced-colors: active) {
+    [data-ui-hover-card][data-open] {
+      text-decoration-thickness: var(--slotted-border-width-thick, 2px);
+    }
+  }
+}

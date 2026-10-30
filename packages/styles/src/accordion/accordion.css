@@ -1,0 +1,96 @@
+@layer slotted.components {
+  /**
+   * A set of disclosures that share a value.
+   *
+   * Nothing here selects into `collapsible`. A rule reaching
+   * `[data-ui-collapsible]` from this stylesheet would make one family's DOM
+   * part of another's contract, so moving an item inside a wrapper would change
+   * its appearance with no test to notice — the rule `checkbox-group` set for
+   * every group family in the library. The group arranges its items and draws
+   * the chrome that belongs to the set; the appearance of one item is handed to
+   * it through the binding, as a value, and the item draws itself.
+   *
+   * The set is a single column. A horizontally stacked set of sections of which
+   * one is open is a tab list, and `tabs` owns it.
+   */
+  [data-ui-accordion] {
+    --_rule-size: var(--slotted-border-width-thin, 1px);
+    /**
+     * The distance between two cards under `separated`. Every other variant
+     * stacks its items against each other, because a hairline between two rows
+     * is the thing that says they are one list.
+     */
+    --_gap: var(--slotted-space-4, 0.5rem);
+
+    display: grid;
+    grid-auto-flow: row;
+    grid-auto-rows: min-content;
+    min-inline-size: 0;
+  }
+
+  [data-ui-accordion][data-size='sm'] {
+    --_gap: var(--slotted-space-3, 0.375rem);
+  }
+
+  [data-ui-accordion][data-size='lg'] {
+    --_gap: var(--slotted-space-5, 0.75rem);
+  }
+
+  /**
+   * ── The rule under the last item ───────────────────────────────────────
+   *
+   * Each item draws a rule above itself, which is what makes the stack read as
+   * one list and what keeps an item from having to know whether it is the last
+   * one. The bottom of the stack is the set's own edge, so the set draws it.
+   */
+  [data-ui-accordion][data-variant='ruled'] {
+    border-block-end: var(--_rule-size) solid
+      var(--slotted-accordion-rule-color, var(--slotted-border-subtle, ButtonBorder));
+  }
+
+  /**
+   * One frame around the whole set. The items are still ruled, so the frame's
+   * own edge is the rule above the first item and below the last, and `clip` is
+   * what makes the corner an item's hover fill meets the corner the frame drew.
+   */
+  [data-ui-accordion][data-variant='framed'] {
+    background-color: var(--slotted-accordion-surface, var(--slotted-surface-raised, Canvas));
+    border: var(--_rule-size) solid
+      var(--slotted-accordion-rule-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: var(--slotted-accordion-radius, var(--slotted-radius-md, 6px));
+    overflow: clip;
+  }
+
+  /**
+   * The frame's own edge is the line above the first item, so that item must
+   * not draw a second one a pixel below it. The `high-contrast` capture is what
+   * found it: two hairlines a pixel apart read as one thick line, and the top
+   * of the set came out heavier than its sides.
+   *
+   * The child is reached structurally rather than by its identity. Which
+   * element is first is the group's own layout fact; what that element is
+   * inside remains the item family's, which is why nothing here names
+   * `[data-ui-collapsible]` or one of its parts.
+   */
+  [data-ui-accordion][data-variant='framed'] > :first-child {
+    border-block-start-color: transparent;
+  }
+
+  /**
+   * A card each. The items are handed `framed`, so every one draws its own
+   * border and radius, and the only thing left for the set is the air between
+   * them.
+   */
+  [data-ui-accordion][data-variant='separated'] {
+    row-gap: var(--slotted-accordion-gap, var(--_gap));
+  }
+
+  /**
+   * A set taken out of action. The attribute reaches every trigger as the
+   * native one, which is what actually stops the press; this is the colour that
+   * says so for the words the set draws itself, if a consumer puts any in it.
+   */
+  [data-ui-accordion][data-disabled] {
+    color: var(--slotted-disabled-foreground, GrayText);
+  }
+}

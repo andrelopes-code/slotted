@@ -1,0 +1,406 @@
+{
+  "schemaVersion": 5,
+  "family": "side-navigation",
+  "ui": "side-navigation",
+  "catalog": {
+    "group": "Navigation",
+    "summary": "Vertical navigation with groups and counts."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation-hybrid/",
+  "patternStatus": "Read on 2026-09-15 from the rendered example page, with the plain Disclosure Navigation Menu example and the Navigation Treeview example beside it. The treeview example's own caution — that the tree role requires functionality a site's navigation does not need, and that the disclosure pattern is better suited — is why no tree role is written here. The keyboard table transcribes the hybrid example's Keyboard Support section, optional keys included.",
+  "composes": [
+    "disclosure",
+    "portal",
+    "positioner",
+    "presence",
+    "dismissable-layer",
+    "tooltip",
+    "skeleton",
+    "text"
+  ],
+  "roles": {
+    "root": "navigation",
+    "list": "list",
+    "item": "listitem",
+    "link": "link | button",
+    "trigger": "button",
+    "group": "list",
+    "divider": "separator",
+    "reason": "Every role is the element's own. The APG example is nav > ul > li > (a | button) + ul, and a screen reader announces each level as a list of N items without the family writing a role."
+  },
+  "element": {
+    "root": "nav | div",
+    "section": "div",
+    "section-label": "div",
+    "list": "ul",
+    "item": "li",
+    "link": "a | button",
+    "trigger": "button",
+    "group": "ul",
+    "divider": "li",
+    "skeleton": "li",
+    "flyout": "div",
+    "reason": "The root is a nav where the family stands alone and a div inside app-shell's nav region, which is already the navigation landmark; two nested landmarks with one name between them is what the resolution order below prevents.",
+    "count": "span"
+  },
+  "anatomy": {
+    "root": "the query container the whole family answers: container-name slotted-side-navigation, container-type inline-size. A nav with an aria-label when landmark resolves true",
+    "section": "a titled run of destinations. Several may stand under one root",
+    "section-label": "the section's title. Hidden in compact mode and replaced by a rule",
+    "list": "the items of one level: the top level, or a section's",
+    "item": "a row: a link, or a trigger, or both, plus optional actions and a group. It carries data-current, data-expanded, data-open and data-disabled",
+    "link": "the destination: an a with an href. The same part is a button for a command that lives in the column — new record, sign out, open a dialog — with the same row, mark, label and count; it takes no href and no aria-current, and value never names it. aria-disabled and a refused activation while disabled, so the destination stays in the DOM and reachable",
+    "trigger": "the disclosure button of the group. Alone it is the whole row; beside a link it is a mark-only button at the end of the row, named by the row's label through aria-labelledby",
+    "icon": "the box the mark stands in, the width of app-shell's row mark. What is left of a row in compact mode",
+    "label": "the row's text: one line, cut at the end or in the middle by truncate and carried whole by the row's tooltip when it is cut; wrapped under truncate=none. In compact mode it leaves the eye and not the DOM",
+    "description": "the second line of a row. Hidden in compact mode",
+    "end": "the suffix: a badge, a count, a key. Hidden in compact mode, and the mark carries a dot while it is",
+    "count": "a quantity beside a destination — unread, pending — drawn by the family as tabular figures on the description's type step in the row's muted ink, taking the current row's ink. A count that carries a tone is a badge composed into end. Hidden in compact mode, and the mark carries a dot while it is",
+    "indicator": "the trigger's chevron, the chevron-right Glyph element turned a quarter turn while expanded. Hidden in compact mode",
+    "actions": "controls beside the row and outside its a or button, because interactive content may not nest in either. Hidden in compact mode",
+    "group": "an item's children. Inline it is indented under the parent's label with a guide; in compact mode it is presented inside the flyout",
+    "divider": "a rule between items that keeps the list a list: an li with role=separator",
+    "skeleton": "a row with an item's geometry whose mark and label are skeleton boxes, aria-hidden",
+    "flyout": "the layer that presents one group beside the rail. Composed from portal, positioner, presence and dismissable-layer; it carries its own data-ui because it stands outside the root"
+  },
+  "container": {
+    "name": "slotted-side-navigation",
+    "type": "inline-size",
+    "reason": "The rail is a width, which is what app-shell decided when it made its nav region a query container of its own: what a destination shows at fifty pixels is this family's decision to take against the room it has. A literal in the condition because @container (min-width: var(--x)) is invalid — docs/token-foundation.md rule 4"
+  },
+  "compactAt": 96,
+  "compactAtReason": "Below it a row cannot hold a mark, a gap and a word: at comfortable the rail is 50 pixels and the narrowest labelled column a product ships is 208. The number is declared here because the stylesheet needs it literal in the container condition and the script needs it to decide data-compact; side-navigation.styles.test.mjs compares the two",
+  "mode": {
+    "auto": "compact below compactAt and expanded at or above it, by the root's own inline size",
+    "expanded": "never compact, whatever the width",
+    "compact": "always compact, whatever the width",
+    "default": "auto",
+    "firstPaint": "The stylesheet decides the picture from the width alone, before any script. data-compact exists only once the ResizeObserver has measured, and it is what turns on the tooltip and the flyout — the two behaviours that need a script anyway. A server render of a rail is a rail with no tooltip, which is the quieter of the two possible mistakes"
+  },
+  "compact": {
+    "hides": ["label", "description", "end", "count", "actions", "indicator", "section-label"],
+    "keeps": ["icon"],
+    "tooltip": "every link and trigger composes tooltip with side=inline-end and the label's text as content, opened by hover and by visible focus, while data-compact — and, under truncate, on a row whose label the binding measured as clipped",
+    "dot": "an item whose end or count part exists draws a dot on its mark while they are hidden, so a count the rail cannot show is not a count lost",
+    "hybrid": "an item with both a link and a trigger shows the link alone: the mark navigates, the trigger is hidden, and the children are reached by the route or by widening the region"
+  },
+  "flyout": {
+    "opens": "a trigger without a link, pressed while data-compact",
+    "presents": "the item's group, inside a div[data-ui=side-navigation][data-part=flyout] appended to the portal container and placed at the item's inline end by positioner",
+    "closes": "escape and outsidePress through dismissable-layer with the trigger as a branch; blur when focus leaves the layer; select when a link inside it is pressed; resize when compact mode ends",
+    "focus": "ArrowDown on the trigger moves into the first link of the layer; Escape returns focus to the trigger",
+    "writesExpanded": false,
+    "reason": "Ant and UI5 both present a collapsed parent's children in a popup. One branch at a time and transient, because a flyout that wrote into expanded would open every group the reader had open the moment the shell collapsed",
+    "cost": "Tab from the trigger goes to the next row of the column, not into the layer: the layer stands outside the DOM flow. The arrow keys are what enter it"
+  },
+  "current": {
+    "attribute": "data-current",
+    "aria": "aria-current",
+    "value": "page",
+    "precedence": ["link", "value"],
+    "precedenceReason": "A link with an explicit current, or an aria-current a router wrote on it, wins over the root's value: the consumer's explicit value always does",
+    "parentWhen": "closed or compact",
+    "parentReason": "An item holding the current destination carries data-current while its group is closed or the region is compact, so the reader sees where they are when the destination itself is out of sight. Only the link carries aria-current",
+    "painted": "the row's ground in --slotted-tone-accent-surface under its text in --slotted-tone-accent-text, the pair the foundation calibrates against each other"
+  },
+  "autoExpand": {
+    "reason": "Vaadin and Ant open the ancestors of the current item. When value moves into a closed group, the family asks expanded to include that group with the reason select; a consumer who refuses keeps the parent marked instead"
+  },
+  "disabled": {
+    "link": "aria-disabled=true, the click refused, the href kept: the destination stays reachable and the reader hears why it is unavailable — list-item's rule",
+    "trigger": "the native disabled attribute",
+    "item": "data-disabled, never aria-disabled, which ARIA 1.2 deprecates on listitem"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next link or trigger; every one of them is in the page tab sequence, and a closed group is hidden",
+      "focus": "the next link or trigger",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous link or trigger, under the same rule",
+      "focus": "the previous link or trigger",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "follows a link and asks value to move with the reason keyboard; toggles a trigger's group",
+      "focus": "unchanged",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "toggles a trigger's group; scrolls the page on a link. The APG example scripts Space to follow the link, and the family leaves the platform's answer in place — list-item took the same decision for the same row",
+      "focus": "unchanged",
+      "source": "departure"
+    },
+    {
+      "key": "Escape",
+      "effect": "closes the group that contains focus with the reason escape; in the flyout, closes the layer",
+      "focus": "the trigger of the group that closed",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "moves to the next visible link or trigger in DOM order, through open groups and into the flyout",
+      "focus": "that link or trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "the same as ArrowDown; the pattern lists the two as one key and neither points anywhere, so dir does not mirror it",
+      "focus": "the next visible link or trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "moves to the previous visible link or trigger",
+      "focus": "that link or trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "the same as ArrowUp",
+      "focus": "the previous visible link or trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "moves to the first visible link or trigger of the root",
+      "focus": "the first visible link or trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "End",
+      "effect": "moves to the last visible link or trigger of the root",
+      "focus": "the last visible link or trigger",
+      "source": "pattern"
+    }
+  ],
+  "keyboardReason": "The arrow keys, Home and End are optional in the pattern and adopted: the APG says they serve keyboard users who run no screen reader, because a screen reader in reading mode takes those keys for itself. The family flattens the pattern's two levels into one visible sequence, because a navigation with three levels has no second sequence a reader could expect",
+  "rovingTabindex": false,
+  "reads": [
+    "--slotted-app-shell-row-inset",
+    "--slotted-app-shell-row-mark",
+    "--slotted-app-shell-row-gap",
+    "--slotted-app-shell-row-height",
+    "--slotted-app-shell-row-font-size",
+    "--slotted-app-shell-row-line-height",
+    "--slotted-app-shell-row-ring-inset"
+  ],
+  "readsReason": "app-shell publishes the geometry of a row so that every row in its frame stands on the same left edge as its toggle and its account control. size=md reads it, with the control scale as the fallback outside the shell; sm and lg read their own steps of the control scale, because an explicit size is an explicit consumer value. The ring inset is read at every size: a row reaches back into the padding the navigation parts add for an outward focus ring, so its box keeps its edge",
+  "messages": ["navigation"],
+  "declined": {
+    "drawer": {
+      "deferTo": "app-shell",
+      "reason": "Below 768 pixels the shell already puts its nav region over the content as a dismissable layer, contains focus and returns it to the nav-toggle. Outside the shell, <Drawer><SideNavigation/></Drawer> is the two lines. A second dismissable layer inside this family would be the implementation docs/component-features.md §15 forbids"
+    },
+    "header": {
+      "deferTo": "app-shell",
+      "reason": "nav-header and nav-footer already pin the ends of the column. UI5's header and fixedItems, shadcn's SidebarHeader and SidebarFooter are those two parts"
+    },
+    "horizontal": {
+      "deferTo": "top-navigation",
+      "reason": "PatternFly and Ant have a horizontal variant of the same component. Wave 9 builds the bar as its own family"
+    },
+    "collapsibleSection": {
+      "reason": "Vaadin and UI5 let a titled section collapse. An item with a trigger and a group and no link is that shape already: <Item><Trigger>Admin</Trigger><Group>…</Group></Item>. Two anatomies for one question"
+    },
+    "hoverExpand": {
+      "reason": "Carbon's rail widens the whole column on hover and focus. One source, and docs/component-features.md §2.7 forbids important behaviour that depends on hover; the column is app-shell's and has a toggle"
+    },
+    "tone": {
+      "reason": "Mantine takes a color per NavLink. One source; the theme retunes --slotted-side-navigation-current-* once"
+    },
+    "shortcut": {
+      "reason": "shadcn binds ⌘B to the sidebar. One source, and the column it moves is app-shell's"
+    },
+    "drilldown": {
+      "reason": "PatternFly and a deprecated Atlassian package stack levels one at a time. Another focus model and another anatomy; command-palette in wave 9 stacks subcommands and is the family that answers it"
+    },
+    "empty": {
+      "reason": "No surveyed implementation has an empty state. A navigation with no destinations is a product with no routes, and result-state inside the region is the consumer's answer"
+    },
+    "virtualization": {
+      "reason": "No surveyed implementation windows a navigation. The items are the consumer's DOM, not a collection, and app-shell's nav-body scrolls"
+    },
+    "bar": {
+      "reason": "Carbon and PatternFly say current with a bar on the row's start edge. packages/styles/src/state-rail.test.mjs refuses one for every family (R1): list-item carried a two-pixel bar and lost it, and the state is said by the ground and the ink instead. A marker axis with one value is not an axis"
+    },
+    "reorder": {
+      "deferTo": "a reopening after drag-and-drop",
+      "reason": "Pinned destinations a reader reorders — Slack's sidebar sections, Linear's favourites — compose @slotted/core/drag over the items, the way listbox, tree and tags-input are promised the same reopening in docs/process/build-order.md"
+    },
+    "filter": {
+      "reason": "Slack and Notion search the column. A text-field above the list and a consumer that renders the items it keeps is the composition; the family draws whatever items it is given and never owns the set"
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "mode": ["auto", "expanded", "compact"],
+    "multiple": [true, false],
+    "autoExpand": [true, false],
+    "guides": [true, false],
+    "landmark": [true, false],
+    "compactAt": [96],
+    "truncate": ["end", "middle", "none"]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "mode": ["prop", "defaults", "auto"],
+    "multiple": ["prop", "defaults", true],
+    "autoExpand": ["prop", "defaults", true],
+    "guides": ["prop", "defaults", true],
+    "landmark": ["prop", "app-shell", "defaults", true],
+    "compactAt": ["prop", "defaults", 96],
+    "truncate": ["prop", "defaults", "end"]
+  },
+  "provides": {
+    "sideNavigationDefaults": [
+      "size",
+      "mode",
+      "multiple",
+      "autoExpand",
+      "guides",
+      "truncate",
+      "landmark",
+      "compactAt"
+    ]
+  },
+  "stateModel": {
+    "open": {
+      "expanded": {
+        "controlled": "expanded",
+        "uncontrolled": "defaultExpanded",
+        "request": "onExpandedChange",
+        "reasons": ["pointer", "keyboard", "select", "escape", "programmatic"],
+        "attributeOn": "item",
+        "reason": "The set of item values open inline, over @slotted/core/disclosure: under multiple=false a request carries the whole set, so the sibling that leaves it does so under the reason of the press that opened the other. select is the parent opened because value landed inside it (autoExpand); escape is the group holding focus closed by the key, as the pattern asks"
+      },
+      "flyout": {
+        "controlled": "flyout",
+        "uncontrolled": "defaultFlyout",
+        "request": "onFlyoutChange",
+        "reasons": [
+          "pointer",
+          "keyboard",
+          "select",
+          "escape",
+          "outsidePress",
+          "blur",
+          "resize",
+          "programmatic"
+        ],
+        "attributeOn": "item",
+        "reason": "The value of the one item whose group is shown in the layer, or null. blur is focus leaving the layer, resize is compact mode ending, select is a link inside the layer pressed"
+      }
+    },
+    "current": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "programmatic"],
+      "attributeOn": "link",
+      "reason": "The value of the current destination. Pressing a link asks value to move; the navigation itself is the anchor's"
+    }
+  },
+  "stateAttributes": {
+    "current": "data-current",
+    "expanded": "data-expanded",
+    "open": "data-open",
+    "disabled": "data-disabled"
+  },
+  "members": {
+    "sideNavigation": {
+      "nativeElement": "nav",
+      "defaults": {
+        "size": "md",
+        "mode": "auto",
+        "multiple": true,
+        "autoExpand": true,
+        "guides": true,
+        "landmark": true,
+        "compactAt": 96,
+        "truncate": "end"
+      },
+      "capabilities": ["open", "current", "size", "appearance", "disabled", "wiring"],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "current",
+        "expanded",
+        "open",
+        "disabled"
+      ],
+      "parts": [
+        "root",
+        "section",
+        "section-label",
+        "list",
+        "item",
+        "link",
+        "trigger",
+        "icon",
+        "label",
+        "description",
+        "end",
+        "count",
+        "indicator",
+        "actions",
+        "group",
+        "divider",
+        "skeleton",
+        "flyout"
+      ],
+      "defaultsReason": "Axis defaults only. The uncontrolled starting values are the state models' own uncontrolled names and exist in React alone: Angular ships one model() for each of expanded, flyout and value, which is both sides. Listing them here would oblige the Angular reference page to document props it does not have"
+    }
+  },
+  "scenarios": {
+    "sideNavigation": [
+      "playground",
+      "anatomy",
+      "groups",
+      "hybrid",
+      "sections",
+      "current",
+      "compact",
+      "flyout",
+      "size",
+      "states",
+      "content",
+      "loading",
+      "shell",
+      "defaults",
+      "composition",
+      "keyboard",
+      "accessibility"
+    ]
+  },
+  "indicator": {
+    "closed": "the chevron-right Glyph element in a directional icon box, pointing along the reading direction — the way the children are folded away",
+    "open": "the same mark turned a quarter turn to point down",
+    "rtl": "mirrored with scale, applied after the rotation, so the closed mark points the other way and the open mark still points down",
+    "reason": "A chevron that points down while closed says a list opens here, which is select's promise; one that points along the line says the children are folded past it, and it is what Ant, Fluent, PatternFly and Carbon draw on a closed branch"
+  },
+  "depth": {
+    "first": "a group under a row with a mark is indented by the mark's box plus the gap, so its labels stand under the parent's words, and its guide runs down the mark's centre",
+    "deeper": "a group under a row with no mark steps by --slotted-side-navigation-indent-step (one space step, 20 pixels at comfortable), and its guide stands on the parent's own text edge",
+    "reason": "Five levels of the first indent would have left a fifth-level label fifty pixels wide in a fifteen-rem column. Ant indents twenty-four pixels a level and shadcn's submenu twenty-four; a constant step below the marked level keeps a fifth level readable, and Vaadin's advice — three levels at most — is the product's to follow",
+    "motion": "the track opens on --slotted-duration-medium, the rows inside fade in after one short step and out before the track folds, and the chevron turns on the track's own --slotted-duration-medium so the two end together; a press answers on --slotted-duration-instant. The item packs its tracks at the start (align-content: start): a stretched auto track took the free space of a track between 0fr and 1fr and the row bounced from 34 to 60 pixels at the middle of every open"
+  },
+  "truncate": {
+    "end": "one line; the tail is replaced by an ellipsis by the stylesheet. The default: a row keeps one height, which is what a column of destinations is read by, and the cut falls where a reader expects it",
+    "middle": "one line; the binding keeps the start and the end of the text and replaces the middle with an ellipsis, measured against the label's own box with @slotted/core/text. For names that differ only at the end — Monthly report · February, Monthly report · October — an end cut makes two rows one row; the tail is the last word when it is short and the last six graphemes otherwise. The whole text is written as the row's aria-label, so the accessible name is the name and not the cut, and the tooltip shows it",
+    "none": "the label wraps, and an unbroken token breaks inside itself with overflow-wrap: anywhere. Opt-in: a row twice the height of its neighbours breaks the column's rhythm, which is why wrapping is not the default",
+    "reveal": "a row whose label or description the binding measured as clipped carries data-clipped and opens the same tooltip compact mode uses, with the whole label and, under it, the whole description — on hover, on visible focus, and on press-and-hold on touch. A row that fits opens nothing: a tooltip repeating a visible label is noise. The measurement runs on the root's ResizeObserver and after document.fonts.ready, not per frame",
+    "priority": "the label is the only part that shrinks. The mark, the count, the suffix, the chevron and the actions keep their width, so a number is never cut to a digit and a chevron never leaves the row; a deeper level takes its indent from the label's room, which is why the indent below the marked level is a constant step",
+    "sectionLabel": "wraps: it is not a row, has no tooltip, and a title clipped over a list it names is a title lost",
+    "count": "never truncates. What a product shows past a thousand — 999+, 1,2k — is the product's format; the family draws the string it is given",
+    "ellipsis": "an ellipsis rather than a fade, because a fade hides that anything is missing",
+    "reason": "docs/build-briefing.md: truncation never removes content from the DOM, and a truncated string is reachable in full when it matters. Ant and shadcn clip and reveal nothing; Vaadin and PatternFly wrap. This family clips, says so, and hands the whole over on demand"
+  }
+}

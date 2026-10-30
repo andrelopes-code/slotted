@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 5,
+  "family": "color-picker",
+  "ui": "color-picker",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Color panel and color field in four notations."
+  },
+  "controlPart": "input",
+  "rootRole": null,
+  "stateSource": "field",
+  "mirrorsState": true,
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "disabled",
+  "wiring": {
+    "id": "always",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "disabled": "disabled",
+    "readonly": "readOnly"
+  },
+  "composes": ["text-field", "popover"],
+  "core": [
+    "@slotted/core/color",
+    "@slotted/core/state",
+    "@slotted/core/presence",
+    "@slotted/core/portal",
+    "@slotted/core/positioner",
+    "@slotted/core/dismissable-layer",
+    "@slotted/core/focus"
+  ],
+  "valueType": "string in the current format",
+  "formats": ["hex", "rgb", "hsl", "oklch"],
+  "gamut": {
+    "space": "srgb",
+    "outside": "kept as written; data-out-of-gamut and the gamut part say so",
+    "attribute": "data-out-of-gamut"
+  },
+  "keyboard": [
+    {
+      "key": "ArrowLeft / ArrowRight",
+      "on": "area",
+      "effect": "saturation ∓1"
+    },
+    {
+      "key": "ArrowDown / ArrowUp",
+      "on": "area",
+      "effect": "brightness ∓1"
+    },
+    {
+      "key": "Shift+Arrow, PageUp / PageDown",
+      "on": "area and channel",
+      "effect": "a step of 10"
+    },
+    {
+      "key": "ArrowLeft / ArrowDown, ArrowRight / ArrowUp",
+      "on": "channel",
+      "effect": "∓1"
+    },
+    {
+      "key": "Home / End",
+      "on": "channel",
+      "effect": "the channel's minimum and maximum"
+    },
+    {
+      "key": "Enter",
+      "on": "input",
+      "effect": "commits the text, or restores the last valid value"
+    },
+    {
+      "key": "Arrow keys",
+      "on": "presets",
+      "effect": "roving focus and selection, the radio group's"
+    }
+  ],
+  "escapeBound": false,
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle"],
+    "format": ["hex", "rgb", "hsl", "oklch"],
+    "alpha": [true, false]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "format": ["prop", "value", "defaults", "hex"]
+  },
+  "provides": {
+    "colorPickerDefaults": ["size", "variant", "format", "presets"]
+  },
+  "messages": [
+    "alpha",
+    "area",
+    "areaRoleDescription",
+    "contrastLevels.AAA",
+    "contrastLevels.AA",
+    "contrastLevels.AALarge",
+    "contrastLevels.fail",
+    "contrastSample",
+    "eyedropper",
+    "format",
+    "gamut",
+    "hue",
+    "input",
+    "presets",
+    "previous",
+    "trigger"
+  ],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "open": "data-open",
+    "selected": "data-selected"
+  },
+  "dataAttributes": {
+    "data-channel": "hue or alpha, on a channel and its thumb",
+    "data-format": "the current format, on the root",
+    "data-out-of-gamut": "the value lies outside sRGB",
+    "data-level": "AAA, AA, AA-large or fail, on the contrast part",
+    "data-dragging": "a thumb is being dragged, on the area or the channel"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "programmatic"]
+    },
+    "format": {
+      "controlled": "format",
+      "uncontrolled": "defaultFormat",
+      "request": "onFormatChange",
+      "reasons": ["select"]
+    },
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "outsidePress"]
+    }
+  },
+  "contrast": {
+    "part": "contrast",
+    "against": "contrastWith",
+    "measure": "WCAG 2 relative luminance",
+    "levels": ["AAA", "AA", "AA-large", "fail"]
+  },
+  "previous": {
+    "part": "previous",
+    "holds": "the value the panel opened with",
+    "restores": "select"
+  },
+  "members": {
+    "colorPicker": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "format": "hex",
+        "alpha": true
+      },
+      "capabilities": [
+        "value",
+        "format",
+        "appearance",
+        "size",
+        "content",
+        "disabled",
+        "readOnly",
+        "invalid",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "readonly",
+        "invalid",
+        "selected"
+      ],
+      "parts": [
+        "root",
+        "area",
+        "area-thumb",
+        "channel",
+        "channel-thumb",
+        "row",
+        "swatch",
+        "previous",
+        "input",
+        "format",
+        "eyedropper",
+        "presets",
+        "preset",
+        "contrast",
+        "contrast-sample",
+        "contrast-ratio",
+        "contrast-level",
+        "gamut"
+      ]
+    },
+    "colorField": {
+      "nativeElement": "input",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "format": "hex",
+        "alpha": true
+      },
+      "capabilities": [
+        "value",
+        "format",
+        "open",
+        "appearance",
+        "size",
+        "disabled",
+        "readOnly",
+        "invalid",
+        "required",
+        "wiring"
+      ],
+      "states": ["default", "hover", "focus-visible", "disabled", "readonly", "invalid", "open"],
+      "parts": ["root", "input", "trigger", "content"]
+    }
+  },
+  "scenarios": {
+    "colorPicker": [
+      "playground",
+      "field",
+      "panel",
+      "formats",
+      "alpha",
+      "presets",
+      "contrast",
+      "states",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

@@ -1,0 +1,315 @@
+{
+  "schemaVersion": 5,
+  "family": "dashboard-grid",
+  "ui": "dashboard-grid",
+  "catalog": {
+    "group": "Layout",
+    "summary": "Grid of widgets that reorder and resize."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/examples/listbox-rearrangeable/",
+  "patternStatus": "No APG pattern names a dashboard of widgets. Read on 2026-09-24: the Listboxes with Rearrangeable Options example supplies Alt+ArrowUp and Alt+ArrowDown to move, Delete to remove, aria-keyshortcuts on the control, focus staying on the moved item and a live confirmation; the Menu Button pattern (https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) is the handle's menu, composed from the menu family; WCAG 2.2 SC 2.5.7 is answered by that menu.",
+  "reference": "react-grid-layout 2, gridstack.js 14, angular-gridster2, Kendo UI TileLayout, Syncfusion DashboardLayout, Grafana 13 dashboards, APG Listboxes with Rearrangeable Options, APG Menu Button, WCAG 2.2 SC 2.5.7",
+  "composes": ["card", "button", "menu", "result-state", "skeleton"],
+  "engine": "@slotted/core/dashboard-grid for the layout arithmetic, the spans per size class, the moves, the resizes and the codec; @slotted/core/drag for the pointer move; @slotted/core/live-announcer for every change; @slotted/core/state for the two models",
+  "rootElement": "div",
+  "rootRole": "none; the list inside it is named by the consumer's aria-label or aria-labelledby",
+  "roles": {
+    "grid": "list, the native ul with role=list restated because a list styled as a grid loses its role in WebKit",
+    "widget": "listitem, the native li",
+    "card": "article, the card family rendered as an article, aria-labelledby its title",
+    "edit-bar": "group, aria-label messages.editBar",
+    "handle": "button with aria-haspopup=menu and aria-expanded: the trigger of the menu family"
+  },
+  "anatomy": {
+    "root": "a div carrying data-ui=dashboard-grid, data-editing and, once measured, data-size-class; the container, named dashboard-grid, that the size class is read from",
+    "edit-bar": "the row above the grid while editing and editBar is true: edit-status, then add, reset, cancel and done",
+    "edit-status": "messages.editStatus, the instructions every handle is described by; visually hidden when the edit bar is absent",
+    "edit-actions": "the group of the edit bar's buttons, held at the inline end and wrapping under the status before any button is squeezed",
+    "add": "a button opening a menu of the hidden widgets by title, messages.add with the plus glyph; rendered only while a widget is hidden",
+    "reset": "a button asking for the empty layout, messages.reset",
+    "cancel": "a button asking for the layout editing started from, then leaving editing, messages.cancel",
+    "done": "a button leaving editing, messages.done; the edit bar's primary action",
+    "grid": "a ul, one element in from the root, whose tracks the container query changes: repeat(columns) tracks and rows of --slotted-dashboard-grid-row-size; the containing block of a widget in hand; its ::before is the lattice shown while editing in the expanded class, one dot in the middle of each cell",
+    "widget": "an li at its cell: grid-column --_dg-x / span --_dg-w and grid-row --_dg-y / span --_dg-h in the expanded class, span --_dg-span-medium in the medium class, one column in the compact class; data-key, data-status, data-loading, data-movable, data-resizable, data-dragging, data-resizing",
+    "title": "the card's heading, h2 to h6 by headingLevel; auto is one rank under the heading outline around the grid (HeadingLevel / slHeadingLevel, as section reads it), never above h2; two lines, then an ellipsis, with the whole title in the accessible name",
+    "description": "the line under the title, when the consumer gives one",
+    "detail": "an a with href, or a button when only onDetail is given: the external glyph and messages.detail; the widget's way to its own page. A router's link takes its place: renderDetail (React) receives every attribute, href included, and a[slDashboardWidgetDetail] (Angular) is the application's anchor with the family's part, look, mark and name",
+    "handle": "a button of the family's own, a pill of six dots standing on the card's top edge while editing: the menu trigger, the Alt+Arrow and Shift+Arrow shortcuts, aria-describedby edit-status, and where a finger picks the widget up",
+    "skeleton": "a block of the skeleton family filling the card's body while loading and the consumer gave no skeleton of its own",
+    "message": "a div around the result-state family, reach=section and centred, for status empty or error",
+    "retry": "the button of the error message: messages.retry and the rotate glyph; rendered when onRetry is given",
+    "busy-indicator": "a line at the top of the card's body while busy: indeterminate, aria-hidden; the region itself carries aria-busy",
+    "resize-handle": "five spans per widget while editing and resizable, data-edge start, end, bottom, bottom-start or bottom-end: a strip of hit area straddling the edge with a pill at its middle, or an arc on a bottom corner; data-active on the one being pulled; aria-hidden, the pointer's; hidden in the compact class, and the start edges in the medium class",
+    "size-readout": "a chip of the accent at the corner being pulled: messages.size in cells; aria-hidden, since the change is announced",
+    "empty": "what the grid shows when no widget is visible: messages.empty, or messages.emptyEditing with the add control while editing",
+    "placeholder": "an li during a gesture: the cells the widget in hand will land in, in the accent's lightest wash with a hairline of the accent; aria-hidden"
+  },
+  "wiring": {
+    "aria-label / aria-labelledby": "the consumer's, written on the component, land on the grid, which is what a reader meets as a list",
+    "aria-labelledby (card)": "each article names itself by its title",
+    "aria-describedby (handle)": "edit-status, the instructions",
+    "aria-keyshortcuts (handle)": "Alt+ArrowUp Alt+ArrowDown Alt+ArrowLeft Alt+ArrowRight Shift+ArrowUp Shift+ArrowDown Shift+ArrowLeft Shift+ArrowRight, and Delete when removable",
+    "aria-busy": "on the article while loading or busy",
+    "live": "every committed change is announced politely through the shared live announcer: messages.moved, messages.resized, messages.hidden, messages.shown, messages.resetDone, messages.cancelled; a pointer drag speaks through @slotted/core/drag's messages"
+  },
+  "request": {
+    "layout": "ChangeRequest<DashboardLayout> & { change: { kind: move | resize | hide | show | reset | cancel, key: string | null } }: one request per gesture, at its end; the layout is [{ key, x, y, w, h, hidden? }] in cells of the expanded class; the preview while a pointer carries or pulls is the family's own and emits nothing",
+    "editing": "ChangeRequest<boolean>: done asks for false with the reason submit, cancel with dismiss after the layout request, the consumer's own button with whatever it passes",
+    "equal": "a request for a layout equal to the current one is not emitted: a drop where the widget started, a resize clamped to the size it had"
+  },
+  "rules": {
+    "model": "layout is a list of { key, x, y, w, h, hidden? } in cells of the expanded class. The grid has gravity: every widget rises until something stops it, and a widget put where another stands pushes that one down; a widget with movable=false is fixed and the others flow around it. The DOM holds the widgets by row, then column, so the reading order and the focus order are the picture's",
+    "widgets": "the widgets are the consumer's children; a widget with no entry in layout takes the first cell it fits at its defaultColumns and defaultRows, in the order of the children; an entry with no widget stays in the value and is not drawn, because dropping it would change the value without a request",
+    "sizeClass": "expanded from 1024px of the root's inline size places every widget at its cell of columns; medium from 600px flows the same order with each width a half or the whole of ceil(columns / 2): a half for half the expanded columns or less, the whole above; compact below 600px is one column, each widget as tall as its content. columns may also be { expanded, medium, compact }. expandedFrom moves the expanded threshold, in pixels of the root's inline size. Once measured, the binding writes the class as data-size-class and the stylesheet follows the attribute; before the first measurement the container queries draw the classes at 600 and 1024px",
+    "contentRows": "rows=auto on a widget draws it as many rows as its content measures (observeContentRows: the card less its body, plus the extent of the body's last child, in rows of the grid's track and gap), within minRows and maxRows, and the widgets below make room. The measured rows are drawn and never stored: the stored h, which a resize sets, stays the minimum",
+    "clamp": "a place and a size are drawn within [min, max] of the widget and within the columns; the stored value is not rewritten by a clamp",
+    "movable": "a widget with movable=false is fixed at its cell: it is never pushed, the others flow around it, and it offers no move in its menu",
+    "resizable": "a widget with resizable=false has no edges, no Shift+Arrow and no size items in its menu; in the compact class no widget has a size to pull",
+    "removable": "a widget with removable=false offers no hide; the default is true",
+    "editing": "entering editing keeps the layout it started from. Cancel asks for that layout back, then leaves; done leaves; reset asks for the empty layout. Escape outside a gesture does nothing: losing an edit to one key is the most expensive error of the mode",
+    "focus": "after a keyboard move the widget's handle keeps focus, restored after the li changes place; after hide focus goes to the next visible widget's handle, else the previous, else add; leaving editing from the edit bar returns focus to the element that held it when editing began, when it is still connected",
+    "pointer": "a press that travels 5 pixels on a card, by a mouse or a pen, or on the handle, by anything, lifts the widget: it leaves its cell, follows the pointer and a placeholder takes the cells it would land in — the cell its leading corner is nearest in the expanded class, the widget under the pointer to trade places with in the classes that flow; the widgets it would cover make room, and no node moves until the drop. A finger on a card scrolls the page",
+    "resize": "a press on an edge pulls the widget: the card follows the pointer at any size and the placeholder shows the whole cells it will take; the start edge keeps the end edge still. On release the card settles into the placeholder. Escape or a lost pointer puts the size back. The top edge is not offered: gravity decides a widget's top",
+    "loading": "the header stays painted; the body shows the consumer's skeleton, or a skeleton block filling it; delay and minDuration are the skeleton family's",
+    "status": "empty shows result-state reach=section with the consumer's empty content; error shows result-state status=error, with retry when onRetry is given; busy keeps the content and draws the busy indicator",
+    "overflow": "a body taller than its widget scrolls inside the card; the card never grows past its rows"
+  },
+  "itemAttributes": {
+    "key": "data-key",
+    "dragging": "data-dragging",
+    "resizing": "data-resizing: the widget whose size a pointer is changing; a family attribute rather than a state, since it is a drag of one corner and the vocabulary's dragging names the move",
+    "loading": "data-loading",
+    "status": "data-status: ready, empty or error",
+    "movable": "data-movable: the widget can be picked up; the header takes the grab cursor",
+    "resizable": "data-resizable: the widget carries a resize handle while editing",
+    "edge": "data-edge on a resize handle and on the size readout: start, end, bottom, bottom-start, bottom-end",
+    "active": "data-active on the resize handle a pointer is pulling",
+    "gesture": "data-gesture on the grid while a widget is carried or pulled: the lattice comes forward"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "native order: the edit bar, then per widget its header's controls, the handle last in the corner, then the body's content",
+      "focus": "the next tabbable element",
+      "source": "platform"
+    },
+    {
+      "key": "Enter / Space / ArrowDown",
+      "effect": "on the handle: opens the widget's menu — move up, down, left, right; wider, narrower, taller, shorter; hide",
+      "focus": "the first item; ArrowUp opens on the last",
+      "source": "pattern"
+    },
+    {
+      "key": "Alt+ArrowLeft / Alt+ArrowRight",
+      "effect": "on the handle: one column toward the inline start or end in the expanded class, the previous or the next widget in the reading order when the grid flows; mirrored in right-to-left",
+      "focus": "stays on the handle",
+      "source": "pattern"
+    },
+    {
+      "key": "Alt+ArrowUp / Alt+ArrowDown",
+      "effect": "on the handle: trades places with the widget drawn above or below; the previous or the next in the reading order when the grid flows",
+      "focus": "stays on the handle",
+      "source": "pattern"
+    },
+    {
+      "key": "Shift+ArrowRight / Shift+ArrowLeft",
+      "effect": "on the handle: the end edge one column out or in, toward the start at the last column; between a half and the whole in the medium class; mirrored in right-to-left",
+      "focus": "stays on the handle",
+      "source": "family, after Kendo's Ctrl+Arrow, which macOS takes for Spaces"
+    },
+    {
+      "key": "Shift+ArrowDown / Shift+ArrowUp",
+      "effect": "on the handle: the bottom edge one row out or in",
+      "focus": "stays on the handle",
+      "source": "family"
+    },
+    {
+      "key": "Delete",
+      "effect": "on the handle of a removable widget: hides it",
+      "focus": "the next visible widget's handle, else the previous, else add",
+      "source": "pattern"
+    },
+    {
+      "key": "Escape",
+      "effect": "during a pointer move or resize: cancels it; taken by the drag module in the capture phase for a move, by the family for a resize",
+      "focus": "stays",
+      "source": "platform"
+    }
+  ],
+  "departures": {
+    "gridRole": {
+      "reason": "The APG layout grid would make every widget a cell and take the arrow keys from the charts and tables inside it.",
+      "cost": "No arrow-key travel between widgets; Tab walks them, as it walks any page."
+    },
+    "escapeKeepsEditing": {
+      "reason": "Grafana leaves edit mode from a button and asks before discarding; one key throwing away a rearranged dashboard is the failure the mode must not have.",
+      "cost": "Leaving editing always takes the edit bar or the consumer's own control."
+    },
+    "clone": {
+      "reason": "@slotted/core/drag draws a clone under the pointer by default; the theme's tokens are declared on the application's theme scope, so a clone in the body lost every glyph and colour. The widget itself is lifted instead, with preview false.",
+      "cost": "The widget leaves its cell for the length of a carry, and the placeholder stands for it."
+    }
+  },
+  "declined": {
+    "layoutPerBreakpoint": {
+      "composition": "columns as { expanded, medium, compact }",
+      "reason": "Only react-grid-layout keeps one layout per breakpoint; a reader who rearranges on a phone would undo the desktop's. The medium and compact classes derive from the expanded layout's reading order."
+    },
+    "dragIn": {
+      "composition": "onClick={() => setLayout([...layout, { key, columns: 4, rows: 2 }])} on the product's catalogue",
+      "reason": "gridstack and react-grid-layout accept a drop from outside; the catalogue of new widgets is the product's."
+    },
+    "groups": {
+      "deferTo": "section",
+      "reason": "Grafana's collapsible rows and gridstack's sub-grids are a section holding a dashboard-grid."
+    },
+    "persistenceWrite": {
+      "composition": "usePersistedDashboardLayout({ key, storage }) in React, persistedDashboardLayout({ key, storage }) in Angular",
+      "reason": "Emitted, never written by the component; the helpers read and write a store the application names, as persistedGridView does."
+    },
+    "topEdge": {
+      "composition": "Alt+ArrowUp, or a pull of the bottom edge of the widget above",
+      "reason": "The grid has gravity, so a widget's top is where what stands above it ends; react-grid-layout offers the n handle and it moves nothing under vertical compaction."
+    }
+  },
+  "axes": {
+    "editBar": [true, false],
+    "headingLevel": ["auto", "2", "3", "4", "5", "6"],
+    "status": ["ready", "empty", "error"]
+  },
+  "resolution": {
+    "columns": ["prop", "defaults", 12],
+    "editBar": ["prop", "defaults", true],
+    "headingLevel": ["prop", "defaults", "auto"]
+  },
+  "provides": {
+    "dashboardGridDefaults": ["columns", "editBar", "headingLevel"]
+  },
+  "messages": [
+    "add",
+    "cancel",
+    "cancelled",
+    "detail",
+    "done",
+    "editBar",
+    "editStatus",
+    "empty",
+    "emptyEditing",
+    "emptyTitle",
+    "errorTitle",
+    "handle",
+    "hidden",
+    "hide",
+    "moved",
+    "movedInOrder",
+    "moveDown",
+    "moveEnd",
+    "moveStart",
+    "moveUp",
+    "narrower",
+    "reset",
+    "resetDone",
+    "resized",
+    "retry",
+    "shorter",
+    "shown",
+    "size",
+    "taller",
+    "wider"
+  ],
+  "literals": {
+    "--slotted-dashboard-grid-row-size": {
+      "value": "4.5rem",
+      "reason": "The unit a widget's height is counted in: one row holds a card header and one line of body at md, two rows hold a figure and its trend. The space scale stops at 4rem, and a height of content is not a separation."
+    }
+  },
+  "stateAttributes": {
+    "editing": "data-editing",
+    "dragging": "data-dragging",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "layout": {
+      "controlled": "layout",
+      "uncontrolled": "defaultLayout",
+      "request": "onLayoutChange",
+      "reasons": ["pointer", "keyboard", "remove", "dismiss", "programmatic"]
+    },
+    "editing": {
+      "controlled": "editing",
+      "uncontrolled": "defaultEditing",
+      "request": "onEditingChange",
+      "reasons": ["pointer", "keyboard", "submit", "dismiss", "programmatic"]
+    }
+  },
+  "members": {
+    "dashboard-grid": {
+      "nativeElement": "div",
+      "defaults": {
+        "columns": 12,
+        "editBar": true,
+        "headingLevel": "auto",
+        "editing": false,
+        "status": "ready",
+        "loading": false,
+        "busy": false,
+        "defaultColumns": 4,
+        "defaultRows": 2,
+        "minColumns": 2,
+        "minRows": 2,
+        "movable": true,
+        "resizable": true,
+        "removable": true
+      },
+      "capabilities": [
+        "layout",
+        "editing",
+        "arrangement",
+        "status",
+        "loading",
+        "live",
+        "content",
+        "wiring"
+      ],
+      "states": ["default", "hover", "active", "focus-visible", "editing", "dragging", "loading"],
+      "parts": [
+        "root",
+        "edit-bar",
+        "edit-status",
+        "edit-actions",
+        "add",
+        "reset",
+        "cancel",
+        "done",
+        "grid",
+        "widget",
+        "title",
+        "description",
+        "detail",
+        "handle",
+        "skeleton",
+        "message",
+        "retry",
+        "busy-indicator",
+        "resize-handle",
+        "size-readout",
+        "placeholder",
+        "empty"
+      ]
+    }
+  },
+  "scenarios": {
+    "dashboard-grid": [
+      "playground",
+      "anatomy",
+      "editing",
+      "keyboard",
+      "constraints",
+      "states",
+      "responsive",
+      "persistence",
+      "labels",
+      "accessibility"
+    ]
+  }
+}

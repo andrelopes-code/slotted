@@ -1,0 +1,551 @@
+@layer slotted.components {
+  /**
+   * A block of source: a header that names the file and holds the two
+   * controls, a body that is a `scroll-area`, and inside it a `pre` whose
+   * every line is a grid row — the number, the marker, the tokens.
+   *
+   * The fence agrees with `prose`'s in every measure, so a Markdown page that
+   * upgrades a fence to this family moves nothing: the sunken ground, the
+   * subtle edge, the medium radius, the same inset, the mono face at the small
+   * step. Colour for a kind of word comes from the theme's own code scale and
+   * never from an engine, which is what lets a scheme switch reach every one.
+   *
+   * The type does not follow density; the inset and the gutter do. Code at
+   * `dense` is still read one character at a time.
+   */
+  [data-ui-code-block] {
+    --_ground: var(--slotted-code-block-surface, var(--slotted-surface-sunken, Canvas));
+    --_edge: var(--slotted-code-block-border-color, var(--slotted-border-subtle, GrayText));
+    --_ink: var(--slotted-code-block-color, var(--slotted-text, CanvasText));
+    --_muted: var(--slotted-code-block-color-muted, var(--slotted-text-muted, GrayText));
+    --_radius: var(--slotted-code-block-radius, var(--slotted-radius-md, 6px));
+    --_inset-block: var(--slotted-code-block-inset-block, var(--slotted-space-5, 0.75rem));
+    --_inset-inline: var(--slotted-code-block-inset-inline, var(--slotted-space-6, 1rem));
+    --_font-size: var(--slotted-code-block-font-size, var(--slotted-font-size-sm, 0.8125rem));
+    --_line-height: var(--slotted-code-block-line-height, var(--slotted-line-height-md, 1.5));
+    --_line: calc(var(--_font-size) * var(--_line-height));
+    --_icon: var(--slotted-control-icon-size-md, 16px);
+    --_hit: calc((var(--slotted-target-min, 24px) - var(--_icon)) / 2);
+    --_duration: var(--slotted-control-transition-duration, var(--slotted-duration-short));
+    --_easing: var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+    /**
+     * The gutter: as many characters as the last number has, plus half the
+     * inset on each side. `--slotted-code-block-digits` is written by the
+     * binding from the line count — a fact about the content, not a token.
+     */
+    --_digits: var(--slotted-code-block-digits, 1);
+    --_gutter: calc(var(--_digits) * 1ch + var(--slotted-space-4, 0.5rem) * 2);
+    /**
+     * A marked line tints the ground from the tone's text role at the band
+     * share the highlight scale states, for the reason that scale gives: a
+     * tone's surface role is a ground, and a fill from it takes `string` in
+     * the light scheme below the text ratio.
+     */
+    --_tint: var(--slotted-highlight-tint-opacity, 0.075);
+
+    background-color: var(--_ground);
+    border: var(--slotted-border-width-thin, 1px) solid var(--_edge);
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    color: var(--_ink);
+    display: grid;
+    font-family: var(--slotted-code-block-font-family, var(--slotted-font-family-mono, monospace));
+    font-size: var(--_font-size);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    line-height: var(--_line-height);
+    min-inline-size: 0;
+    position: relative;
+  }
+
+  /* ── Header ─────────────────────────────────────────────────────────────
+   *
+   * The filename, the language at the end, and the two controls. It keeps the
+   * page's direction while the code below keeps its own, so a title reads in
+   * the reader's language and the code in its own.
+   */
+  [data-ui-code-block] > [data-part-header] {
+    align-items: center;
+    border-block-end: var(--slotted-border-width-thin, 1px) solid var(--_edge);
+    display: flex;
+    font-family: var(--slotted-font-family-sans, inherit);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    gap: var(--slotted-control-gap-sm, 6px);
+    min-inline-size: 0;
+    padding-block: var(--slotted-space-3, 0.375rem);
+    padding-inline: var(--_inset-inline) var(--slotted-space-4, 0.5rem);
+  }
+
+  /* The file's kind, an `Icon` the binding draws from the name's extension. */
+  [data-ui-code-block] > [data-part-header] > [data-part-icon] {
+    --slotted-icon-size: var(--_icon);
+
+    block-size: var(--_icon);
+    color: var(--_muted);
+    display: flex;
+    flex: none;
+    inline-size: var(--_icon);
+  }
+
+  [data-ui-code-block] > [data-part-header] > [data-part-title] {
+    font-family: var(--slotted-code-block-font-family, var(--slotted-font-family-mono, monospace));
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-code-block] > [data-part-header] > [data-part-language] {
+    color: var(--_muted);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    letter-spacing: 0.02em;
+    margin-inline-start: auto;
+    text-transform: uppercase;
+  }
+
+  [data-ui-code-block] > [data-part-header] > [data-part-title] + [data-part-language],
+  [data-ui-code-block] > [data-part-header] > [data-part-icon] + [data-part-language] {
+    margin-inline-start: auto;
+  }
+
+  [data-ui-code-block] > [data-part-header] > [data-part-actions] {
+    align-items: center;
+    display: flex;
+    gap: var(--slotted-space-1, 0.125rem);
+    margin-inline-start: auto;
+  }
+
+  [data-ui-code-block] > [data-part-header] > [data-part-language] + [data-part-actions] {
+    margin-inline-start: var(--slotted-space-3, 0.375rem);
+  }
+
+  /**
+   * A block with no header at all keeps its controls: they float over the
+   * inline end of the first line, on the ground's own colour, so the code
+   * beneath them is still there when the pointer leaves.
+   */
+  [data-ui-code-block] > [data-part-actions] {
+    align-items: center;
+    background-color: var(--_ground);
+    border-radius: var(--slotted-control-radius, 4px);
+    display: flex;
+    gap: var(--slotted-space-1, 0.125rem);
+    inset-block-start: var(--slotted-space-2, 0.25rem);
+    inset-inline-end: var(--slotted-space-2, 0.25rem);
+    position: absolute;
+    z-index: 1;
+  }
+
+  /* ── The two controls, description-list's ────────────────────────────── */
+
+  /* Each holds an `Icon`: text-wrap, and copy that turns to a check once done. */
+  [data-ui-code-block] :is([data-part-copy], [data-part-wrap]) {
+    --slotted-icon-size: var(--_icon);
+
+    align-items: center;
+    appearance: none;
+    background: none;
+    block-size: var(--slotted-target-min, 24px);
+    border: 0;
+    border-radius: var(--slotted-control-radius, var(--slotted-radius-sm, 4px));
+    color: var(--_muted);
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    inline-size: var(--slotted-target-min, 24px);
+    justify-content: center;
+    padding: var(--_hit);
+    transition:
+      color var(--_duration) var(--_easing),
+      background-color var(--_duration) var(--_easing);
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: a transparent `::before` centred on each control
+     reaches 44 pixels, and the ground and the ring stay square. The two
+     stand two pixels apart, so neither reaches across the edge they share. */
+  @media (pointer: coarse) {
+    [data-ui-code-block] :is([data-part-copy], [data-part-wrap]) {
+      position: relative;
+    }
+
+    [data-ui-code-block] :is([data-part-copy], [data-part-wrap])::before {
+      content: '';
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+      position: absolute;
+    }
+
+    [data-ui-code-block] [data-part-wrap]:has(+ [data-part-copy])::before {
+      inset-inline-end: 0;
+    }
+
+    [data-ui-code-block] [data-part-wrap] + [data-part-copy]::before {
+      inset-inline-start: 0;
+    }
+  }
+
+  [data-ui-code-block] :is([data-part-copy], [data-part-wrap]):enabled:not([data-complete]):hover {
+    background-color: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+    color: var(--_ink);
+  }
+
+  [data-ui-code-block] :is([data-part-copy], [data-part-wrap]):enabled:not([data-complete]):active {
+    background-color: var(--slotted-tone-secondary-subtle-active, ButtonFace);
+  }
+
+  [data-ui-code-block] [data-part-wrap][data-pressed] {
+    background-color: var(--slotted-tone-accent-surface, Canvas);
+    color: var(--slotted-tone-accent-text, CanvasText);
+  }
+
+  /** A copy that finished: the mark changes as well as the colour, and returns on its own. */
+  [data-ui-code-block] [data-part-copy][data-complete] {
+    color: var(--slotted-tone-success-text, CanvasText);
+  }
+
+  [data-ui-code-block] :is([data-part-copy], [data-part-wrap], [data-part-reveal]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── Body ───────────────────────────────────────────────────────────────
+   *
+   * A `scroll-area` worn as `data-ui`: the region role, the tab stop and the
+   * name exist only while the code overflows, and the bar is the platform's.
+   * The block's radius reaches it through `inherit`, and the mask
+   * scroll-area draws at an overflowing edge is what a wide line fades into.
+   */
+  [data-ui-code-block] > [data-part-body] {
+    border-radius: 0 0 var(--_radius) var(--_radius);
+    min-inline-size: 0;
+  }
+
+  [data-ui-code-block] > [data-part-body]:first-child {
+    border-radius: var(--_radius);
+  }
+
+  [data-ui-code-block] > [data-part-body][data-max-lines] > [data-part-viewport] {
+    max-block-size: calc(
+      var(--slotted-code-block-max-lines) * var(--_line) + var(--_inset-block) * 2
+    );
+  }
+
+  [data-ui-code-block] > [data-part-body] > [data-part-viewport]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-code-block] [data-part-pre] {
+    /**
+     * Code reads left to right whatever the page does: the order of the
+     * characters is what the code means. `prose` decided it for a fence.
+     */
+    direction: ltr;
+    font: inherit;
+    margin: 0;
+    min-inline-size: max-content;
+    padding-block: var(--_inset-block);
+    tab-size: var(--slotted-code-block-tab-size, 2);
+    white-space: pre;
+  }
+
+  [data-ui-code-block][data-wrap] [data-part-pre] {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  [data-ui-code-block] [data-part-code] {
+    display: grid;
+    font: inherit;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* ── A line ─────────────────────────────────────────────────────────────
+   *
+   * Three columns: the number, the marker, the text. The two gutters take
+   * `user-select: none` so a selection across the block copies code and
+   * nothing else, and `aria-hidden` so a reader hears the code and not a
+   * count. Under wrap, the continuation of a line is indented to the line's
+   * own leading whitespace — the binding measures it once into
+   * `--slotted-code-block-indent`, in characters.
+   */
+  [data-ui-code-block] [data-part-line] {
+    --_indent: calc(var(--slotted-code-block-indent, 0) * 1ch);
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: var(--_number, 0px) var(--_marker, 0px) minmax(0, 1fr);
+    min-block-size: var(--_line);
+    padding-inline: var(--_inset-inline);
+    position: relative;
+  }
+
+  [data-ui-code-block][data-line-numbers] [data-part-line] {
+    --_number: var(--_gutter);
+    padding-inline-start: 0;
+  }
+
+  /** The number is in the DOM whether or not it is drawn, so turning numbers on moves no line. */
+  [data-ui-code-block]:not([data-line-numbers]) [data-part-number] {
+    display: none;
+  }
+
+  [data-ui-code-block][data-marks] [data-part-line] {
+    --_marker: var(--slotted-space-6, 1rem);
+  }
+
+  [data-ui-code-block] [data-part-number] {
+    color: var(--_muted);
+    font-variant-numeric: tabular-nums;
+    grid-column: 1;
+    padding-inline-end: var(--slotted-space-4, 0.5rem);
+    text-align: end;
+    user-select: none;
+  }
+
+  [data-ui-code-block] [data-part-marker] {
+    grid-column: 2;
+    text-align: center;
+    user-select: none;
+  }
+
+  [data-ui-code-block] [data-part-line] > [data-part-token],
+  [data-ui-code-block] [data-part-line] > [data-part-text] {
+    grid-column: 3;
+  }
+
+  /** The tokens flow as one inline run inside the third column. */
+  [data-ui-code-block] [data-part-line] > [data-part-text] {
+    display: block;
+    min-inline-size: 0;
+  }
+
+  [data-ui-code-block][data-wrap] [data-part-line] > [data-part-text] {
+    padding-inline-start: var(--_indent);
+    text-indent: calc(var(--_indent) * -1);
+  }
+
+  /* ── Scopes ─────────────────────────────────────────────────────────── */
+
+  [data-ui-code-block] [data-token='comment'] {
+    color: var(--slotted-code-comment, var(--slotted-text-muted, GrayText));
+    font-style: italic;
+  }
+  [data-ui-code-block] [data-token='keyword'] {
+    color: var(--slotted-code-keyword, var(--slotted-text, CanvasText));
+  }
+  [data-ui-code-block] [data-token='string'] {
+    color: var(--slotted-code-string, var(--slotted-text, CanvasText));
+  }
+  [data-ui-code-block] [data-token='number'] {
+    color: var(--slotted-code-number, var(--slotted-text, CanvasText));
+  }
+  [data-ui-code-block] [data-token='function'] {
+    color: var(--slotted-code-function, var(--slotted-text, CanvasText));
+  }
+  [data-ui-code-block] [data-token='type'] {
+    color: var(--slotted-code-type, var(--slotted-text, CanvasText));
+  }
+  [data-ui-code-block] [data-token='variable'] {
+    color: var(--slotted-code-variable, var(--slotted-text, CanvasText));
+  }
+  [data-ui-code-block] [data-token='property'] {
+    color: var(--slotted-code-property, var(--slotted-text, CanvasText));
+  }
+  [data-ui-code-block] [data-token='punctuation'] {
+    color: var(--slotted-code-punctuation, var(--slotted-text, CanvasText));
+  }
+  [data-ui-code-block] [data-token='tag'] {
+    color: var(--slotted-code-tag, var(--slotted-text, CanvasText));
+  }
+  [data-ui-code-block] [data-token='attribute'] {
+    color: var(--slotted-code-attribute, var(--slotted-text, CanvasText));
+  }
+  [data-ui-code-block] [data-token='constant'] {
+    color: var(--slotted-code-constant, var(--slotted-text, CanvasText));
+  }
+
+  /* ── Marks ──────────────────────────────────────────────────────────────
+   *
+   * A tint of the tone's text over the ground, a bar at the inline start for
+   * a highlight and the two levels, and a sign in the marker column for the
+   * diff pair. The sign is text in a gutter nobody can select, so it never
+   * reaches a clipboard.
+   */
+  [data-ui-code-block] [data-part-line][data-mark] {
+    --_tone: var(--slotted-tone-accent-text, CanvasText);
+    background-color: color-mix(in srgb, var(--_tone) calc(var(--_tint) * 100%), transparent);
+  }
+
+  [data-ui-code-block]
+    [data-part-line]:is(
+      [data-mark='highlight'],
+      [data-mark='error'],
+      [data-mark='warning']
+    )::before {
+    background-color: var(--_tone);
+    content: '';
+    inline-size: var(--slotted-border-width-thick, 2px);
+    inset-block: 0;
+    inset-inline-start: 0;
+    position: absolute;
+  }
+
+  [data-ui-code-block] [data-part-line][data-mark='add'] {
+    --_tone: var(--slotted-tone-success-text, CanvasText);
+  }
+
+  [data-ui-code-block] [data-part-line][data-mark='remove'] {
+    --_tone: var(--slotted-tone-danger-text, CanvasText);
+  }
+
+  [data-ui-code-block] [data-part-line][data-mark='error'] {
+    --_tone: var(--slotted-tone-danger-text, CanvasText);
+  }
+
+  [data-ui-code-block] [data-part-line][data-mark='warning'] {
+    --_tone: var(--slotted-tone-warning-text, CanvasText);
+  }
+
+  [data-ui-code-block] [data-part-line][data-mark='add'] > [data-part-marker]::before {
+    color: var(--_tone);
+    content: '+';
+  }
+
+  [data-ui-code-block] [data-part-line][data-mark='remove'] > [data-part-marker]::before {
+    color: var(--_tone);
+    content: '−';
+  }
+
+  [data-ui-code-block] [data-part-line][data-mark='remove'] > [data-part-text] {
+    opacity: 0.72;
+  }
+
+  /**
+   * Focus: every line outside the range is dimmed and blurred, and the block
+   * lifts the dim when the pointer is over it or focus is inside, so a reader
+   * who wants the rest can have it. The blur is decoration and goes under
+   * reduced motion with the transition; the dim stays, because it is the
+   * information.
+   */
+  [data-ui-code-block] [data-part-line][data-dim] {
+    color: var(--_muted);
+    filter: blur(1px);
+    transition:
+      filter var(--slotted-duration-medium) var(--slotted-easing-standard),
+      color var(--slotted-duration-medium) var(--slotted-easing-standard);
+  }
+
+  [data-ui-code-block] [data-part-line][data-dim] [data-part-token] {
+    color: inherit;
+  }
+
+  [data-ui-code-block]:not([data-loading]):is(:hover, :focus-within) [data-part-line][data-dim] {
+    color: var(--_ink);
+    filter: none;
+  }
+
+  [data-ui-code-block]:not([data-loading]):is(:hover, :focus-within)
+    [data-part-line][data-dim]
+    [data-part-token] {
+    color: revert-layer;
+  }
+
+  /* ── Collapse ───────────────────────────────────────────────────────────
+   *
+   * Past `collapseAfter` lines the body takes a maximum and the last visible
+   * line fades into the reveal control through a mask on the viewport; the
+   * hidden lines stay in the DOM and in a selection. Revealed, the limit
+   * goes and the control reads "show less".
+   */
+  [data-ui-code-block][data-collapse]:not([data-revealed])
+    > [data-part-body]
+    > [data-part-viewport] {
+    --_visible: calc(var(--slotted-code-block-collapse) * var(--_line) + var(--_inset-block));
+    mask-image: linear-gradient(
+      to bottom,
+      #000 calc(var(--_visible) - var(--_line)),
+      transparent var(--_visible)
+    );
+    max-block-size: var(--_visible);
+    overflow-y: hidden;
+  }
+
+  [data-ui-code-block] > [data-part-reveal] {
+    appearance: none;
+    background: none;
+    border: 0;
+    border-block-start: var(--slotted-border-width-thin, 1px) solid var(--_edge);
+    color: var(--slotted-tone-accent-text, LinkText);
+    cursor: pointer;
+    font-family: var(--slotted-font-family-sans, inherit);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    min-block-size: var(--slotted-control-height-sm, 30px);
+    padding-block: 0;
+    padding-inline: var(--_inset-inline);
+    text-align: start;
+    transition: background-color var(--_duration) var(--_easing);
+  }
+
+  /** The control is flush with the block's edge, so its ring is drawn inside it and takes the block's corners. */
+  [data-ui-code-block] > [data-part-reveal]:focus-visible {
+    border-end-end-radius: var(--_radius);
+    border-end-start-radius: var(--_radius);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-code-block] > [data-part-reveal]:enabled:hover {
+    background-color: var(--slotted-tone-accent-subtle-hover, ButtonFace);
+  }
+
+  [data-ui-code-block] > [data-part-reveal]:enabled:active {
+    background-color: var(--slotted-tone-accent-subtle-active, ButtonFace);
+  }
+
+  /* ── Loading, empty ─────────────────────────────────────────────────── */
+
+  [data-ui-code-block][data-loading] [data-part-code] {
+    gap: var(--slotted-space-3, 0.375rem);
+    padding-inline: var(--_inset-inline);
+  }
+
+  [data-ui-code-block][data-loading] [data-part-code] > [data-ui-skeleton] {
+    block-size: var(--_font-size);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-code-block] [data-part-line][data-dim] {
+      filter: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    /* The system owns the palette: a mark keeps its bar and its sign and loses its tint; the dim goes. */
+    [data-ui-code-block] [data-part-line][data-mark] {
+      background-color: transparent;
+    }
+
+    [data-ui-code-block] [data-part-line][data-dim] {
+      color: inherit;
+      filter: none;
+    }
+  }
+
+  @media print {
+    [data-ui-code-block] [data-part-pre] {
+      min-inline-size: 0;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    [data-ui-code-block][data-collapse] > [data-part-body] > [data-part-viewport] {
+      mask-image: none;
+      max-block-size: none;
+    }
+
+    [data-ui-code-block] > [data-part-reveal],
+    [data-ui-code-block] [data-part-wrap] {
+      display: none;
+    }
+  }
+}

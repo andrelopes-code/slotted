@@ -1,0 +1,27 @@
+import type { SavedViewsMessages } from '../../messages/saved-views';
+
+export const ptBR: SavedViewsMessages = {
+  actions: 'Ações de {name}',
+  applied: 'Visualização {name} aplicada',
+  builtIn: 'Padrão',
+  cancel: 'Cancelar',
+  confirmDelete: 'Excluir “{name}”?',
+  create: 'Salvar visualização',
+  defaultChanged: '{name} agora é a visualização padrão',
+  delete: 'Excluir',
+  deleted: 'Visualização {name} excluída',
+  duplicate: 'Já existe uma visualização com este nome',
+  empty: 'Digite um nome para a visualização',
+  isDefault: 'padrão',
+  label: 'Visualizações',
+  modified: 'Modificada',
+  name: 'Nome da visualização',
+  rename: 'Renomear',
+  renameView: 'Renomear {name}',
+  renamed: 'Visualização renomeada para {name}',
+  revert: 'Reverter',
+  save: 'Salvar',
+  saveAs: 'Salvar como nova visualização…',
+  saved: 'Visualização {name} salva',
+  setDefault: 'Definir como padrão',
+};

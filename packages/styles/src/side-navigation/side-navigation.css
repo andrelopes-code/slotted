@@ -1,0 +1,1093 @@
+@layer slotted.components {
+  /**
+   * A column of destinations, grouped and nested, that reads the room it is
+   * given: a labelled list above ninety-six pixels and a rail of marks below.
+   *
+   *   root ▸ (section ▸ section-label · list) | list
+   *     list ▸ item ▸ link | trigger | link + trigger · actions · group ▸ item…
+   *                 ▸ divider · skeleton
+   *     link | trigger ▸ icon · label · description · end · indicator
+   *
+   * The item is a grid of two rows: the row the reader presses on the first
+   * and the group on the second. The group's track transitions between `0fr`
+   * and `1fr`, so it opens at its own height without being measured — the
+   * technique `collapsible` uses for its panel.
+   *
+   * ── The rail is a width ─────────────────────────────────────────────────
+   *
+   * `app-shell` made its `nav` region a query container and said the family
+   * inside it answers the rail without being told: the root is a container of
+   * its own, and below `compactAt` (96, declared in the contract and compared
+   * by `side-navigation.styles.test.mjs`) every part but the mark leaves the
+   * eye. Nothing leaves the DOM: the label is clipped rather than removed, so
+   * the link keeps its name and the tooltip the script adds repeats it.
+   *
+   * ── Geometry is the shell's ─────────────────────────────────────────────
+   *
+   * The six row properties `app-shell` publishes are read first and the
+   * control scale second, so a row here stands on the same left edge as the
+   * shell's toggle and its account control. Outside the shell the fallbacks
+   * are the same numbers the shell composes its own from.
+   */
+  [data-ui-side-navigation] {
+    --_row-height: var(--slotted-app-shell-row-height, var(--slotted-control-height-md, 34px));
+    /** The mark's box is the row's height: a square the mark is centred in. */
+    --_mark: var(--slotted-app-shell-row-mark, var(--_row-height));
+    --_inset: var(--slotted-app-shell-row-inset, var(--slotted-space-4, 0.5rem));
+    /**
+     * How far a row's own box stands off the column's inline edges. A row is a
+     * chip with a radius, and a radius drawn against the edge of the region it
+     * sits in reads as a corner cut away: under the shell's flush plane the
+     * region meets the window, and the chip met it too — measured at zero
+     * pixels from the frame, against twelve on the inset plane, where the
+     * region's own margin had been hiding the same fact.
+     *
+     * It is taken out of the row's inset rather than added to it, so the mark
+     * stays on the left edge the shell's own controls stand on. `min` is for a
+     * product that sets the inset to nothing: the standoff never exceeds what
+     * there is to give.
+     */
+    --_standoff: min(var(--slotted-space-2, 0.25rem), var(--_inset));
+    /**
+     * The inline padding `app-shell`'s navigation parts add for an outward
+     * focus ring, read so a row's box keeps the edge it had there: the row
+     * reaches back into that padding, and its own ring is drawn inside. Nought
+     * outside those parts.
+     */
+    --_ring-inset: var(--slotted-app-shell-row-ring-inset, 0px);
+    --_gap: var(--slotted-app-shell-row-gap, var(--slotted-control-gap-md, 8px));
+    --_font-size: var(--slotted-app-shell-row-font-size, var(--slotted-font-size-sm, 0.8125rem));
+    --_line-height: var(--slotted-app-shell-row-line-height, var(--slotted-line-height-sm, 1.45));
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_description-font-size: var(--slotted-font-size-xs, 0.75rem);
+    --_section-font-size: var(--slotted-font-size-xs, 0.75rem);
+    /**
+     * A child's label stands under its parent's label: the indent is the
+     * mark's box and the gap after it, which is where the parent's words begin.
+     */
+    --_indent: var(--slotted-side-navigation-indent, calc(var(--_mark) + var(--_gap)));
+    /**
+     * A row without a mark has no box for its children to stand under, so the
+     * levels below it step by a smaller, constant distance: Ant's inline menu
+     * indents 24 pixels a level, shadcn's submenu 24. Five levels of the
+     * first indent would have left a fifth-level label fifty pixels wide.
+     */
+    --_indent-step: var(--slotted-side-navigation-indent-step, var(--slotted-space-7, 1.25rem));
+    --_radius: var(--slotted-side-navigation-radius, var(--slotted-radius-md, 6px));
+    --_row-gap: var(--slotted-side-navigation-row-gap, var(--slotted-space-1, 0.125rem));
+    --_section-gap: var(--slotted-side-navigation-section-gap, var(--slotted-space-5, 0.75rem));
+    --_guide-width: var(--slotted-border-width-thin, 1px);
+    --_dot-size: var(--slotted-side-navigation-dot-size, var(--slotted-space-3, 0.375rem));
+
+    --_color: var(--slotted-side-navigation-color, var(--slotted-text-muted, GrayText));
+    --_hover-color: var(--slotted-side-navigation-hover-color, var(--slotted-text, CanvasText));
+    --_hover-background: var(
+      --slotted-side-navigation-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    --_active-background: var(
+      --slotted-side-navigation-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+    --_current-color: var(--slotted-side-navigation-current-color, var(--slotted-tone-accent-text));
+    --_current-background: var(
+      --slotted-side-navigation-current-background,
+      var(--slotted-tone-accent-surface)
+    );
+    /**
+     * The state is a pair, ground and edge: in `high-contrast` every tone
+     * ground is the page's own white and the edge is what is left to say where
+     * the reader is. The edge is the foundation's `--slotted-current-edge`:
+     * transparent in `light` and `dark`, where the accent ground and the
+     * accent ink say the state and a grey line around a tinted row read as a
+     * chosen option rather than a place; black in `high-contrast`, where it
+     * carries the state alone. Drawn as an inset shadow, so it changes no
+     * measurement and moves no text.
+     */
+    --_current-edge: var(
+      --slotted-side-navigation-current-edge,
+      var(--slotted-current-edge, transparent)
+    );
+    --_dot-color: var(--slotted-side-navigation-dot-color, var(--slotted-tone-accent-solid));
+    --_section-color: var(
+      --slotted-side-navigation-section-color,
+      var(--slotted-text-muted, GrayText)
+    );
+    --_description-color: var(
+      --slotted-side-navigation-description-color,
+      var(--slotted-text-muted, GrayText)
+    );
+    /**
+     * The second line of the current row is the page's own ink, not the
+     * tone's: the muted ink measures 4.47:1 over the accent surface in
+     * `light`, under the floor, and the tone's text would make the two lines
+     * one colour. The default ink keeps the line secondary by size and weight.
+     */
+    --_current-description-color: var(
+      --slotted-side-navigation-current-description-color,
+      var(--slotted-text, CanvasText)
+    );
+    /** The air between a title and its second line. */
+    --_description-gap: var(
+      --slotted-side-navigation-description-gap,
+      var(--slotted-space-1, 0.125rem)
+    );
+    --_guide-color: var(
+      --slotted-side-navigation-guide-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+    --_disabled-color: var(--slotted-disabled-foreground, GrayText);
+
+    --_duration: var(--slotted-control-transition-duration, var(--slotted-duration-short));
+    --_easing: var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+
+    box-sizing: border-box;
+    color: var(--_color);
+    font-family: var(--slotted-control-font-family, inherit);
+    font-size: var(--_font-size);
+    line-height: var(--_line-height);
+    min-inline-size: 0;
+  }
+
+  [data-ui-side-navigation][data-size='sm'] {
+    --_row-height: var(--slotted-control-height-sm, 30px);
+    --_mark: var(--_row-height);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    --_font-size: var(--slotted-font-size-xs, 0.75rem);
+    --_line-height: var(--slotted-line-height-xs, 1.4);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+  }
+
+  [data-ui-side-navigation][data-size='lg'] {
+    --_row-height: var(--slotted-control-height-lg, 38px);
+    --_mark: var(--_row-height);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+    --_font-size: var(--slotted-font-size-md, 0.875rem);
+    --_line-height: var(--slotted-line-height-md, 1.5);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_description-font-size: var(--slotted-font-size-sm, 0.8125rem);
+  }
+
+  /* ── The root ─────────────────────────────────────────────────────────── */
+
+  [data-ui-side-navigation][data-part-root] {
+    container-name: slotted-side-navigation;
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: var(--_section-gap);
+    /**
+     * `container-type: inline-size` makes the box's intrinsic width nought,
+     * so the width is stated: the shell's rail centres the children of its
+     * body, and a root left to `auto` there measured nothing and drew nothing.
+     */
+    inline-size: 100%;
+  }
+
+  [data-ui-side-navigation] [data-part-section] {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  /**
+   * The section's title starts where the mark's ink starts — the row's inset
+   * plus the air the box keeps around the glyph — rather than on the label
+   * column: a navigation whose rows carry no marks keeps its titles near its
+   * words, and one whose rows do keeps them on the glyphs' own edge.
+   */
+  [data-ui-side-navigation] [data-part-section-label] {
+    color: var(--_section-color);
+    font-size: var(--_section-font-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-xs, 1.4);
+    /* Air between the title and the first row's box: with the row current, the
+       two grounds stood a pixel apart and read as one shape. */
+    margin-block-end: var(
+      --slotted-side-navigation-section-label-gap,
+      var(--slotted-space-2, 0.25rem)
+    );
+    min-inline-size: 0;
+    padding-block: var(--slotted-space-2, 0.25rem);
+    overflow-wrap: anywhere;
+    padding-inline: calc(var(--_inset) + (var(--_mark) - var(--_icon-size)) / 2);
+  }
+
+  [data-ui-side-navigation] [data-part-list],
+  [data-ui-side-navigation] [data-part-group] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--_row-gap);
+    list-style: none;
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+  }
+
+  /* ── The item: a row, and a group under it ────────────────────────────── */
+
+  /**
+   * Three columns for the row — the link, the trigger beside it, the actions —
+   * and a second row for the group. A trigger that is the whole row spans the
+   * three columns; the group always does.
+   */
+  [data-ui-side-navigation] [data-part-item] {
+    /**
+     * `start`, not the default stretch. While the second track is between
+     * `0fr` and `1fr` the grid holds free space, and a stretched `auto` first
+     * track takes it: measured, the row grew from 34 to 60 pixels at the
+     * middle of every open and close and came back — a bounce on the row the
+     * reader had just pressed. Packed at the start, the row stays 34.
+     */
+    align-content: start;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-rows: auto 0fr;
+    min-inline-size: 0;
+    position: relative;
+    /**
+     * ── Motion, planned ─────────────────────────────────────────────────
+     *
+     * Four things move in this family, each on one token:
+     *
+     * 1. A group opening and closing: the track, `--slotted-duration-medium`
+     *    on the standard curve, and the rows inside it fading on
+     *    `--slotted-duration-short` — in on the way open, so they arrive as
+     *    the room for them does, and out on the way closed, so the track
+     *    never folds over words that are still fully painted.
+     * 2. The chevron turning a quarter turn, on the track's own
+     *    `--slotted-duration-medium`, so the turn and the opening end together.
+     * 3. A row's ground and ink under hover and current,
+     *    `--slotted-control-transition-duration`; a press answers at once,
+     *    on `--slotted-duration-instant`, because feedback that fades in is
+     *    feedback that arrives late.
+     * 4. The flyout, on the overlay rule every layer follows (R7).
+     *
+     * What does not move: the label leaving for the rail. The region's width
+     * is what animates there, in `app-shell`, and the query flips the row at
+     * ninety-six pixels; a fade on top of a width already in motion is two
+     * animations for one change.
+     */
+    transition: grid-template-rows var(--slotted-duration-medium) var(--_easing);
+  }
+
+  [data-ui-side-navigation] [data-part-item][data-expanded] {
+    grid-template-rows: auto 1fr;
+  }
+
+  [data-ui-side-navigation] [data-part-item] > [data-part-group] {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-block-size: 0;
+    overflow: hidden;
+    /**
+     * A closed group is out of the tab sequence and the accessibility tree
+     * from the moment the track has finished closing, and back in it from the
+     * moment it starts to open: `step-end` on the way out, `step-start` on
+     * the way in.
+     */
+    opacity: 0;
+    /* The air above the first child belongs to the open state: closed, the
+       track is nought and a closed item is the height of its row alone. */
+    padding-block-start: 0;
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-exit),
+      padding-block-start var(--slotted-duration-medium) var(--_easing),
+      visibility var(--slotted-duration-medium) step-end;
+    visibility: hidden;
+  }
+
+  [data-ui-side-navigation] [data-part-item][data-expanded] > [data-part-group] {
+    opacity: 1;
+    padding-block-start: var(--_row-gap);
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-enter)
+        var(--slotted-duration-short),
+      padding-block-start var(--slotted-duration-medium) var(--_easing),
+      visibility var(--slotted-duration-medium) step-start;
+    visibility: visible;
+  }
+
+  /**
+   * The nested list is inset so its labels stand under the parent's, and a
+   * guide runs down the mark's centre: shadcn and Primer both draw it, and it
+   * is what tells a third level from a second.
+   */
+  [data-ui-side-navigation] [data-part-item] > [data-part-group] {
+    padding-inline-start: var(--_indent-step);
+    position: relative;
+  }
+
+  /* Under a row with a mark, the children stand under the parent's words. */
+  [data-ui-side-navigation]
+    [data-part-item]:has(> :is([data-part-link], [data-part-trigger]) > [data-part-icon])
+    > [data-part-group] {
+    padding-inline-start: var(--_indent);
+  }
+
+  [data-ui-side-navigation][data-guides] [data-part-item] > [data-part-group]::before {
+    background-color: var(--_guide-color);
+    content: '';
+    inline-size: var(--_guide-width);
+    inset-block: var(--_row-gap) 0;
+    /* On the parent's own text edge, for a parent with no mark … */
+    inset-inline-start: var(--_inset);
+    position: absolute;
+  }
+
+  /* … and down the centre of the mark for one that has it. */
+  [data-ui-side-navigation][data-guides]
+    [data-part-item]:has(> :is([data-part-link], [data-part-trigger]) > [data-part-icon])
+    > [data-part-group]::before {
+    inset-inline-start: calc(var(--_inset) + var(--_mark) / 2 - var(--_guide-width) / 2);
+  }
+
+  /* ── The row: a link, or a trigger ────────────────────────────────────── */
+
+  [data-ui-side-navigation] :is([data-part-link], [data-part-trigger]) {
+    align-content: center;
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    color: inherit;
+    cursor: pointer;
+    display: grid;
+    font: inherit;
+    grid-column: 1;
+    grid-row: 1;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-rows: auto auto;
+    margin-block: 0;
+    margin-inline: calc(var(--_standoff) - var(--_ring-inset));
+    min-block-size: var(--_row-height);
+    min-inline-size: 0;
+    padding-block: 0;
+    padding-inline: calc(var(--_inset) - var(--_standoff) + var(--_ring-inset));
+    position: relative;
+    text-align: start;
+    text-decoration: none;
+    transition:
+      background-color var(--_duration) var(--_easing),
+      color var(--_duration) var(--_easing);
+  }
+
+  [data-ui-side-navigation]
+    [data-part-item]:not([data-disabled])
+    > :is([data-part-link], [data-part-trigger]):active {
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  [data-ui-side-navigation] [data-part-item] > [data-part-trigger] {
+    grid-column: 1 / -1;
+  }
+
+  /**
+   * Beside a link, the trigger is a mark-only button at the end of the row —
+   * the APG hybrid example's second control — the height of the row and the
+   * width of a mark, so the pair reads as one row with a chevron on it.
+   */
+  [data-ui-side-navigation] [data-part-item]:has(> [data-part-link]) > [data-part-trigger] {
+    grid-column: 2;
+    grid-template-columns: auto;
+    inline-size: var(--_mark);
+    padding-inline: 0;
+    place-items: center;
+  }
+
+  [data-ui-side-navigation] [data-part-actions] {
+    align-items: center;
+    align-self: center;
+    column-gap: var(--slotted-space-2, 0.25rem);
+    display: flex;
+    grid-column: 3;
+    grid-row: 1;
+    /* Air on both sides: from the row it stands beside, and from the column's edge. */
+    margin-inline-start: var(--slotted-space-2, 0.25rem);
+    padding-inline-end: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-side-navigation] :is([data-part-link], [data-part-trigger]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-offset, 2px));
+  }
+
+  /* ── The parts of a row ───────────────────────────────────────────────── */
+
+  /**
+   * The mark's box sizes what it holds: a bare svg by the child rule below,
+   * an icon box through `--slotted-icon-size`, and a glyph host such as
+   * `ng-icon` — which sizes itself at `1em` — through the font-size. Nothing
+   * placed here is drawn at the row's type size.
+   */
+  [data-ui-side-navigation] [data-part-icon] {
+    --slotted-icon-size: var(--_icon-size);
+
+    block-size: var(--_mark);
+    color: inherit;
+    display: grid;
+    font-size: var(--_icon-size);
+    grid-column: 1;
+    grid-row: 1;
+    inline-size: var(--_mark);
+    /**
+     * The mark's box starts where the row's inset ends, in a labelled column
+     * and in the rail alike: the rail is the box plus an inset a side, so a
+     * row with no padding and its mark centred puts the mark where a padded
+     * row put it. Nothing moves when the region changes width.
+     */
+    margin-inline-end: var(--_gap);
+    place-items: center;
+    position: relative;
+  }
+
+  [data-ui-side-navigation] [data-part-icon] > svg {
+    block-size: var(--_icon-size);
+    inline-size: var(--_icon-size);
+  }
+
+  /**
+   * ── Nothing is lost ─────────────────────────────────────────────────
+   *
+   * Truncation is five decisions, and each is written in the contract under
+   * `truncate`. Where the cut falls: at the end, by this sheet, or in the
+   * middle, by the binding, which keeps the start and the tail so two names
+   * that differ only at the end stay two names. How the whole is reached: the
+   * binding marks a row it measured as clipped with `data-clipped` and the
+   * row's tooltip carries the whole text — on hover, on visible focus, on
+   * press-and-hold — and a row that fits opens nothing. What gives way: the
+   * label alone shrinks; the mark, the count, the suffix, the chevron and the
+   * actions keep their width. What never clips: the count and the section
+   * title, which wraps instead. And the opt-out, `truncate="none"`, wraps the
+   * label, with `overflow-wrap: anywhere` breaking an unbroken token inside
+   * itself rather than letting it set the width of the column.
+   *
+   * An ellipsis rather than a fade, because a fade hides that anything is
+   * missing. `isolate` keeps a title in another script from reordering the
+   * row around it. The text is in the DOM in every mode, which is what
+   * `docs/build-briefing.md` requires.
+   */
+  [data-ui-side-navigation] [data-part-label] {
+    grid-column: 2;
+    grid-row: 1;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    unicode-bidi: isolate;
+  }
+
+  [data-ui-side-navigation]:not([data-truncate='none']) [data-part-label] {
+    overflow: hidden;
+    overflow-wrap: normal;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* The binding has already placed the ellipsis; a second one at the edge would be a lie. */
+  [data-ui-side-navigation][data-truncate='middle'] [data-part-label] {
+    text-overflow: clip;
+  }
+
+  [data-ui-side-navigation] [data-part-description] {
+    color: var(--_description-color);
+    font-size: var(--_description-font-size);
+    font-weight: var(--slotted-font-weight-regular, 400);
+    grid-column: 2;
+    grid-row: 2;
+    line-height: var(--slotted-line-height-xs, 1.4);
+    margin-block-start: var(--_description-gap);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    unicode-bidi: isolate;
+  }
+
+  [data-ui-side-navigation]:not([data-truncate='none']) [data-part-description] {
+    overflow: hidden;
+    overflow-wrap: normal;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /**
+   * Every part but the description stands in the first track, and the mark
+   * decides that track's height. A part spanning both tracks would hand half
+   * its height to the empty second one, which put every one-line label in the
+   * top half of its row. A two-line row is the exception: there the second
+   * track has words in it, so the mark, the suffix and the chevron span the
+   * pair and centre on it, and the two lines sit on their own line boxes with
+   * nothing between — the first version put the title on the mark's own
+   * thirty-four pixels and the description under that, which read as a gap.
+   */
+  [data-ui-side-navigation]
+    :is([data-part-link], [data-part-trigger]):has(> [data-part-description]) {
+    padding-block: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-side-navigation]
+    :is([data-part-link], [data-part-trigger]):has(> [data-part-description])
+    > :is([data-part-icon], [data-part-end], [data-part-count], [data-part-indicator]) {
+    grid-row: 1 / -1;
+  }
+
+  [data-ui-side-navigation]
+    :is([data-part-link], [data-part-trigger]):has(> [data-part-description])
+    > [data-part-label] {
+    align-self: end;
+    line-height: var(--slotted-line-height-xs, 1.4);
+  }
+
+  [data-ui-side-navigation]
+    :is([data-part-link], [data-part-trigger]):has(> [data-part-description])
+    > [data-part-description] {
+    align-self: start;
+  }
+
+  [data-ui-side-navigation] [data-part-end] {
+    align-items: center;
+    display: flex;
+    grid-column: 3;
+    grid-row: 1;
+    margin-inline-start: var(--_gap);
+  }
+
+  /**
+   * A quantity beside a destination — unread, pending, overdue — is a number
+   * and not a status, and it is drawn as one: tabular figures on the
+   * description's type step, in the row's muted ink, taking the current
+   * row's ink with it. The digits keep their column across rows so twelve
+   * under three lines up. A count that carries a tone — three overdue — is a
+   * `badge`, composed into `end`, and the two are told apart on purpose:
+   * every row with a number would otherwise be a row with a pill.
+   */
+  [data-ui-side-navigation] [data-part-count] {
+    color: var(--_description-color);
+    font-size: var(--_description-font-size);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    grid-column: 3;
+    grid-row: 1;
+    line-height: 1;
+    margin-inline-start: var(--_gap);
+    min-inline-size: 2ch;
+    text-align: end;
+  }
+
+  [data-ui-side-navigation] [data-part-link][data-current] > [data-part-description] {
+    color: var(--_current-description-color);
+  }
+
+  [data-ui-side-navigation] [data-part-link][data-current] > [data-part-count],
+  [data-ui-side-navigation]
+    [data-part-item][data-current]
+    > [data-part-trigger]
+    > [data-part-count] {
+    color: inherit;
+  }
+
+  [data-ui-side-navigation] [data-part-indicator] {
+    --slotted-icon-size: var(--_icon-size);
+
+    display: flex;
+    grid-column: 4;
+    grid-row: 1;
+    margin-inline-start: var(--_gap);
+  }
+
+  /**
+   * The mark is the `chevron-right` Glyph element in a `directional` icon box.
+   * Closed, it points along the reading direction — the way the children are
+   * folded away — and turns a quarter turn to point down when they are shown.
+   * The box mirrors itself in a right-to-left document, where the reading
+   * direction is the other way; the open mark points down in both, turning the
+   * other way where it is mirrored.
+   */
+  [data-ui-side-navigation] [data-part-indicator] > [data-ui-icon] {
+    /* The same duration as the track it announces, so the turn and the opening end together. */
+    transition: rotate var(--slotted-duration-medium) var(--_easing);
+  }
+
+  [data-ui-side-navigation]
+    [data-part-item]:has(> [data-part-link])
+    > [data-part-trigger]
+    > [data-part-indicator] {
+    grid-column: 1;
+    margin-inline-start: 0;
+  }
+
+  [data-ui-side-navigation]
+    [data-part-item][data-expanded]
+    > [data-part-trigger]
+    > [data-part-indicator]
+    > [data-ui-icon] {
+    rotate: 90deg;
+  }
+
+  /* The mirror is applied before the turn, so the mirrored mark turns the other way to land on down. */
+  [data-ui-side-navigation]
+    [data-part-item][data-expanded]
+    > [data-part-trigger]
+    > [data-part-indicator]
+    > [data-ui-icon]:dir(rtl) {
+    rotate: -90deg;
+  }
+
+  /* ── The ink, centred rather than the line box ────────────────────────── */
+
+  /**
+   * A grid track centres the *line box*, and a line box is not symmetric
+   * around the letters in it: the ascender reaches further above the cap than
+   * the descender reaches below the baseline, so a label centred beside a
+   * mark sits high — the reviewer read the words as "more up than down".
+   * `text-box` trims each line to the cap and the baseline, and the padding
+   * gives the half-leading back on both sides equally, so the box the track
+   * centres is symmetric around the ink and the row keeps the height it had.
+   * It is the treatment `button`, `badge`, `kbd` and `tag` already take.
+   *
+   * The count is trimmed too, so a figure's cap centre and the label's cap
+   * centre are the same line; the section title and the description follow
+   * for the same reason. `0.75em` stands for the cap height, as it does in
+   * `button`: a proportion of the type, which is what the trim removes.
+   */
+  @supports (text-box: trim-both cap alphabetic) {
+    [data-ui-side-navigation] [data-part-label] {
+      padding-block: calc((var(--_line-height) * 1em - 0.75em) / 2);
+      text-box: trim-both cap alphabetic;
+    }
+
+    [data-ui-side-navigation] [data-part-description],
+    [data-ui-side-navigation] [data-part-section-label] {
+      padding-block: calc((var(--slotted-line-height-xs, 1.4) * 1em - 0.75em) / 2);
+      text-box: trim-both cap alphabetic;
+    }
+
+    [data-ui-side-navigation] [data-part-count] {
+      line-height: var(--slotted-line-height-xs, 1.4);
+      padding-block: calc((var(--slotted-line-height-xs, 1.4) * 1em - 0.75em) / 2);
+      text-box: trim-both cap alphabetic;
+    }
+  }
+
+  /* ── States ───────────────────────────────────────────────────────────── */
+
+  [data-ui-side-navigation]
+    [data-part-item]:not([data-disabled])
+    > [data-part-link]:not([data-current]):hover,
+  [data-ui-side-navigation]
+    [data-part-item]:not([data-disabled]):not([data-current])
+    > [data-part-trigger]:enabled:hover {
+    background-color: var(--_hover-background);
+    color: var(--_hover-color);
+  }
+
+  /* A trigger whose group is in the flyout holds the pressed ground while the layer is open. */
+  [data-ui-side-navigation] [data-part-item][data-open]:not([data-current]) > [data-part-trigger],
+  [data-ui-side-navigation]
+    [data-part-item]:not([data-disabled])
+    > [data-part-link]:not([data-current]):active,
+  [data-ui-side-navigation]
+    [data-part-item]:not([data-disabled]):not([data-current])
+    > [data-part-trigger]:enabled:active {
+    background-color: var(--_active-background);
+  }
+
+  /**
+   * The current destination, and the parent that hides it: the tone's ground
+   * under its text, the pair the foundation calibrates against each other.
+   * Carbon and PatternFly draw a bar on the row's start edge instead, and
+   * `state-rail.test.mjs` refuses one (R1): the state is said by the ground.
+   */
+  [data-ui-side-navigation] [data-part-link][data-current],
+  [data-ui-side-navigation] [data-part-item][data-current] > [data-part-trigger] {
+    background-color: var(--_current-background);
+    box-shadow: inset 0 0 0 var(--_guide-width) var(--_current-edge);
+    color: var(--_current-color);
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-side-navigation]
+    [data-part-item][data-disabled]
+    > :is([data-part-link], [data-part-trigger]),
+  [data-ui-side-navigation] [data-part-trigger]:disabled {
+    color: var(--_disabled-color);
+    cursor: not-allowed;
+  }
+
+  [data-ui-side-navigation]
+    [data-part-item][data-disabled]
+    > [data-part-link]
+    > [data-part-description] {
+    color: var(--_disabled-color);
+  }
+
+  /* ── The divider and the skeleton row ─────────────────────────────────── */
+
+  [data-ui-side-navigation] [data-part-divider] {
+    border: 0;
+    border-block-start: var(--_guide-width) solid var(--_guide-color);
+    margin-block: var(--slotted-space-2, 0.25rem);
+    margin-inline: var(--_inset);
+  }
+
+  [data-ui-side-navigation] [data-part-skeleton] {
+    align-items: center;
+    display: grid;
+    gap: var(--_gap);
+    grid-template-columns: var(--_mark) minmax(0, 1fr);
+    min-block-size: var(--_row-height);
+    padding-inline: var(--_inset);
+  }
+
+  [data-ui-side-navigation] [data-part-skeleton] > [data-part-icon] {
+    margin-inline: 0;
+  }
+
+  /* The boxes are `skeleton`'s; this family only says how big a mark is. */
+  [data-ui-side-navigation] [data-part-skeleton] > [data-part-icon] > [data-ui-skeleton] {
+    --slotted-skeleton-block-size: var(--_icon-size);
+    --slotted-skeleton-inline-size: var(--_icon-size);
+  }
+
+  [data-ui-side-navigation] [data-part-skeleton] > [data-part-label] {
+    display: block;
+    min-inline-size: 0;
+    overflow: visible;
+  }
+
+  /* ── Compact: the rail ────────────────────────────────────────────────── */
+
+  /**
+   * What leaves the eye and what stays. The label is clipped rather than
+   * removed, so the link keeps its name; the trigger beside a link is removed,
+   * because a rail has no room for two controls in a row and the mark is the
+   * link's. The rules are written twice — once under the container query for
+   * `auto`, once under `mode="compact"` — because a container's own query
+   * cannot select it and there is no third selector that says "either".
+   */
+  @container slotted-side-navigation (inline-size < 96px) {
+    [data-ui-side-navigation][data-mode='auto'] [data-part-label],
+    [data-ui-side-navigation][data-mode='auto'] [data-part-description],
+    [data-ui-side-navigation][data-mode='auto'] [data-part-end],
+    [data-ui-side-navigation][data-mode='auto'] [data-part-count] {
+      block-size: 1px;
+      clip-path: inset(50%);
+      inline-size: 1px;
+      margin: 0;
+      overflow: hidden;
+      position: absolute;
+      white-space: nowrap;
+    }
+
+    [data-ui-side-navigation][data-mode='auto'] [data-part-indicator],
+    [data-ui-side-navigation][data-mode='auto'] [data-part-actions],
+    [data-ui-side-navigation][data-mode='auto']
+      [data-part-item]:has(> [data-part-link])
+      > [data-part-trigger] {
+      display: none;
+    }
+
+    [data-ui-side-navigation][data-mode='auto'] :is([data-part-link], [data-part-trigger]) {
+      grid-template-columns: auto;
+      inline-size: var(--_mark);
+      justify-content: center;
+      justify-self: center;
+      padding: 0;
+    }
+
+    [data-ui-side-navigation][data-mode='auto'] [data-part-icon] {
+      margin: 0;
+    }
+
+    [data-ui-side-navigation][data-mode='auto'] [data-part-item] {
+      grid-template-rows: auto 0fr;
+    }
+
+    [data-ui-side-navigation][data-mode='auto'] [data-part-item] > [data-part-group] {
+      visibility: hidden;
+    }
+
+    [data-ui-side-navigation][data-mode='auto'] [data-part-section-label] {
+      block-size: 0;
+      border-block-start: var(--_guide-width) solid var(--_guide-color);
+      color: transparent;
+      margin-block: var(--slotted-space-2, 0.25rem);
+      margin-inline: var(--_inset);
+      overflow: hidden;
+      padding: 0;
+    }
+
+    [data-ui-side-navigation][data-mode='auto'] [data-part-skeleton] {
+      grid-template-columns: var(--_mark);
+      justify-content: center;
+      padding-inline: 0;
+    }
+
+    [data-ui-side-navigation][data-mode='auto'] [data-part-skeleton] > :not([data-part-icon]) {
+      display: none;
+    }
+
+    [data-ui-side-navigation][data-mode='auto']
+      :is([data-part-link], [data-part-trigger]):has(> :is([data-part-end], [data-part-count]))
+      > [data-part-icon]::after {
+      background-color: var(--_dot-color);
+      block-size: var(--_dot-size);
+      border-radius: var(--slotted-radius-full, 9999px);
+      content: '';
+      inline-size: var(--_dot-size);
+      inset-block-start: var(--slotted-space-2, 0.25rem);
+      inset-inline-end: var(--slotted-space-2, 0.25rem);
+      position: absolute;
+    }
+  }
+
+  [data-ui-side-navigation][data-mode='compact'] [data-part-label],
+  [data-ui-side-navigation][data-mode='compact'] [data-part-description],
+  [data-ui-side-navigation][data-mode='compact'] [data-part-end],
+  [data-ui-side-navigation][data-mode='compact'] [data-part-count] {
+    block-size: 1px;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: 0;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  [data-ui-side-navigation][data-mode='compact'] [data-part-indicator],
+  [data-ui-side-navigation][data-mode='compact'] [data-part-actions],
+  [data-ui-side-navigation][data-mode='compact']
+    [data-part-item]:has(> [data-part-link])
+    > [data-part-trigger] {
+    display: none;
+  }
+
+  [data-ui-side-navigation][data-mode='compact'] :is([data-part-link], [data-part-trigger]) {
+    grid-template-columns: auto;
+    inline-size: var(--_mark);
+    justify-content: center;
+    justify-self: center;
+    padding: 0;
+  }
+
+  [data-ui-side-navigation][data-mode='compact'] [data-part-icon] {
+    margin: 0;
+  }
+
+  [data-ui-side-navigation][data-mode='compact'] [data-part-item] {
+    grid-template-rows: auto 0fr;
+  }
+
+  [data-ui-side-navigation][data-mode='compact'] [data-part-item] > [data-part-group] {
+    visibility: hidden;
+  }
+
+  [data-ui-side-navigation][data-mode='compact'] [data-part-section-label] {
+    block-size: 0;
+    border-block-start: var(--_guide-width) solid var(--_guide-color);
+    color: transparent;
+    margin-block: var(--slotted-space-2, 0.25rem);
+    margin-inline: var(--_inset);
+    overflow: hidden;
+    padding: 0;
+  }
+
+  [data-ui-side-navigation][data-mode='compact'] [data-part-skeleton] {
+    grid-template-columns: var(--_mark);
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  [data-ui-side-navigation][data-mode='compact'] [data-part-skeleton] > :not([data-part-icon]) {
+    display: none;
+  }
+
+  [data-ui-side-navigation][data-mode='compact']
+    :is([data-part-link], [data-part-trigger]):has(> :is([data-part-end], [data-part-count]))
+    > [data-part-icon]::after {
+    background-color: var(--_dot-color);
+    block-size: var(--_dot-size);
+    border-radius: var(--slotted-radius-full, 9999px);
+    content: '';
+    inline-size: var(--_dot-size);
+    inset-block-start: var(--slotted-space-2, 0.25rem);
+    inset-inline-end: var(--slotted-space-2, 0.25rem);
+    position: absolute;
+  }
+
+  /* ── The flyout: one group beside the rail ────────────────────────────── */
+
+  /**
+   * The layer `packages/core/src/positioner` writes `left` and `top` onto, in
+   * the portal container and outside the root — which is why it carries
+   * `data-ui` of its own and why the root's geometry is stated on `[data-ui]`
+   * rather than on the root part. The group inside it is a plain list again:
+   * no indent, no guide, the raised surface under it.
+   */
+  [data-ui-side-navigation][data-part-flyout] {
+    --_surface: var(
+      --slotted-side-navigation-flyout-surface,
+      var(--slotted-surface-raised, Canvas)
+    );
+    --_border-color: var(
+      --slotted-side-navigation-flyout-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+    --_shadow: var(--slotted-side-navigation-flyout-shadow, var(--slotted-shadow-md));
+    --_flyout-radius: var(--slotted-side-navigation-flyout-radius, var(--slotted-radius-lg, 8px));
+    --_measure: var(--slotted-side-navigation-flyout-measure, 16rem);
+
+    box-sizing: border-box;
+    inline-size: max-content;
+    inset-block-start: 0;
+    isolation: isolate;
+    max-inline-size: min(var(--_measure), var(--slotted-positioner-available-width, 100vw));
+    min-inline-size: var(--slotted-side-navigation-flyout-min-measure, 12rem);
+    /* The layer is only a frame around the surface; the surface takes the
+       pointer, and the frame must not swallow a press meant for the page. */
+    padding-block: 0;
+    padding-inline: var(--slotted-space-2, 0.25rem);
+    pointer-events: none;
+    position: absolute;
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+
+    opacity: 0;
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+    translate: 0 calc(-1 * var(--_enter-distance));
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-exit),
+      translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-side-navigation][data-part-flyout][data-side='top'] {
+    translate: 0 var(--_enter-distance);
+  }
+
+  /* The layer arrives along the inline axis it opens on: from one step inside
+     the rail's edge, the way a submenu does. */
+  [data-ui-side-navigation][data-part-flyout][data-side='right'] {
+    translate: calc(-1 * var(--_enter-distance)) 0;
+  }
+
+  [data-ui-side-navigation][data-part-flyout][data-side='left'] {
+    translate: var(--_enter-distance) 0;
+  }
+
+  [data-ui-side-navigation][data-part-flyout][data-open] {
+    opacity: 1;
+    translate: 0 0;
+    transition: none;
+  }
+
+  [data-ui-side-navigation][data-part-flyout][data-open][data-positioned] {
+    animation: slotted-side-navigation-enter-down var(--slotted-duration-medium)
+      var(--slotted-easing-enter);
+  }
+
+  [data-ui-side-navigation][data-part-flyout][data-open][data-positioned][data-side='top'] {
+    animation-name: slotted-side-navigation-enter-up;
+  }
+
+  [data-ui-side-navigation][data-part-flyout][data-open][data-positioned][data-side='right'] {
+    animation-name: slotted-side-navigation-enter-from-start;
+  }
+
+  [data-ui-side-navigation][data-part-flyout][data-open][data-positioned][data-side='left'] {
+    animation-name: slotted-side-navigation-enter-from-end;
+  }
+
+  @keyframes slotted-side-navigation-enter-down {
+    from {
+      opacity: 0;
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-side-navigation-enter-up {
+    from {
+      opacity: 0;
+      translate: 0 var(--_enter-distance);
+    }
+  }
+
+  @keyframes slotted-side-navigation-enter-from-start {
+    from {
+      opacity: 0;
+      translate: calc(-1 * var(--_enter-distance)) 0;
+    }
+  }
+
+  @keyframes slotted-side-navigation-enter-from-end {
+    from {
+      opacity: 0;
+      translate: var(--_enter-distance) 0;
+    }
+  }
+
+  @keyframes slotted-side-navigation-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Stillness keeps the fade and drops the movement (R7). */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-side-navigation][data-part-flyout],
+    [data-ui-side-navigation][data-part-flyout][data-side='top'],
+    [data-ui-side-navigation][data-part-flyout][data-side='left'],
+    [data-ui-side-navigation][data-part-flyout][data-side='right'] {
+      translate: 0 0;
+      transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-side-navigation][data-part-flyout][data-open][data-positioned],
+    [data-ui-side-navigation][data-part-flyout][data-open][data-positioned][data-side='top'],
+    [data-ui-side-navigation][data-part-flyout][data-open][data-positioned][data-side='left'],
+    [data-ui-side-navigation][data-part-flyout][data-open][data-positioned][data-side='right'] {
+      animation-name: slotted-side-navigation-fade;
+    }
+  }
+
+  /* The anchor scrolled out of its own clipper: the layer waits, hidden. */
+  [data-ui-side-navigation][data-part-flyout][data-detached] {
+    visibility: hidden;
+  }
+
+  [data-ui-side-navigation][data-part-flyout] > [data-part-group] {
+    background-color: var(--_surface);
+    border: var(--_guide-width) solid var(--_border-color);
+    border-radius: var(--_flyout-radius);
+    box-shadow: var(--_shadow);
+    color: var(--_color);
+    padding: var(--slotted-space-2, 0.25rem);
+    pointer-events: auto;
+  }
+
+  [data-ui-side-navigation][data-part-flyout]
+    > [data-part-group]
+    > [data-part-item]
+    > [data-part-group] {
+    padding-inline-start: var(--_indent);
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────── */
+
+  @media (forced-colors: active) {
+    [data-ui-side-navigation] [data-part-link][data-current],
+    [data-ui-side-navigation] [data-part-item][data-current] > [data-part-trigger] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-side-navigation]
+      [data-part-item][data-disabled]
+      > :is([data-part-link], [data-part-trigger]),
+    [data-ui-side-navigation] [data-part-trigger]:disabled {
+      color: GrayText;
+    }
+
+    [data-ui-side-navigation][data-part-flyout] > [data-part-group] {
+      border-color: CanvasText;
+    }
+  }
+}

@@ -1,0 +1,292 @@
+@layer slotted.components {
+  /**
+   * ── A form, its summary of errors and its row of actions ───────────────
+   *
+   * The family paints two things and arranges nothing else. Vertical rhythm
+   * between fields belongs to `stack` and to `field-group`, which already own
+   * arrangement; a form that laid its own children out would be a second
+   * answer to a question two families have answered.
+   *
+   * What it does own is the summary — the region a reader is sent to after a
+   * failed submit — and the action row, whose reflow below a container width
+   * needs a container query a consumer should not write for every form.
+   *
+   * Both stand anywhere inside the form, and so do other families' parts of
+   * the same names — a `table`'s summary row, a `section`'s actions. The two
+   * carry the family's identifier, and every rule names them by it: a rule
+   * that reached `[data-part-summary]` as any descendant painted a table's
+   * totals as an error panel.
+   */
+  [data-ui-form][data-part-root] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+
+    /**
+     * The form is the container, not the action row. A container cannot answer
+     * its own query — `@container` asks the nearest ancestor container — so a
+     * `container-type` on the row itself left the reflow rule matching nothing,
+     * and the 240-pixel capture showed two buttons still side by side.
+     */
+    container-name: slotted-form;
+    container-type: inline-size;
+
+    color: var(--slotted-form-color, var(--slotted-text, CanvasText));
+    display: block;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    /**
+     * A form takes the width it is offered. Its intrinsic width is its
+     * min-content width, which for a column of fields is the longest word in
+     * it: in a shrink-to-fit stage the React reference page printed every
+     * label one character per line and every button as a vertical strip.
+     */
+    inline-size: 100%;
+    /* And in a grid track narrower than that, it shrinks. */
+    min-inline-size: 0;
+  }
+
+  /**
+   * A form waiting on its own submission says so with the cursor as well as
+   * with `aria-busy`, because the pointer is where a reader who just pressed
+   * the button already is.
+   */
+  [data-ui-form][data-part-root][data-loading] {
+    cursor: progress;
+  }
+
+  /* ── The summary ──────────────────────────────────────────────────────
+   *
+   * The four things the GOV.UK error summary states a summary must do: focus
+   * moves to it, it carries a heading, it links to each answer in error, and
+   * its messages are the same strings the fields show.
+   *
+   * It is a danger-toned panel rather than a bare list, because a reader
+   * arriving at the top of a page after a failed submit has to find it before
+   * they read it. The tone tokens are the theme's, so the panel answers the
+   * scheme switch instead of being a red box that turns black.
+   */
+  [data-ui-form][data-part-summary] {
+    background-color: var(--slotted-form-summary-background, var(--slotted-tone-danger-surface));
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-form-summary-border-color, var(--slotted-tone-danger-border));
+    /**
+     * The edge that carries the tone. A panel bordered evenly reads as a card;
+     * the thicker start edge is what a reader's eye finds first in the reading
+     * direction, and it survives the high-contrast scheme, where every border
+     * is the same black.
+     */
+    border-inline-start-width: var(--slotted-border-width-thick, 2px);
+    border-radius: var(--slotted-form-summary-radius, var(--slotted-radius-md, 6px));
+    color: var(--slotted-form-summary-color, var(--slotted-tone-danger-text));
+    display: block;
+    font-size: var(--_font-size);
+    margin-block-end: var(--slotted-space-6, 1rem);
+    padding-block: var(--slotted-space-5, 0.75rem);
+    padding-inline: var(--slotted-space-6, 1rem);
+  }
+
+  /**
+   * The region is focusable so the summary can be reached rather than merely
+   * announced, and the ring is the family's own: a `tabindex="-1"` target that
+   * showed nothing on focus would move a reader somewhere they cannot see.
+   */
+  [data-ui-form][data-part-summary]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  [data-ui-form][data-part-summary] > [data-part-summary-title] {
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin: 0;
+  }
+
+  [data-ui-form][data-part-summary] > [data-part-summary-list] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-2, 0.25rem);
+    line-height: var(--slotted-line-height-sm, 1.45);
+    /**
+     * The markers are withdrawn and the list stays a list. A reader using a
+     * screen reader is told how many errors there are by the element; a reader
+     * looking at the page is told by the links.
+     */
+    list-style: none;
+    /**
+     * A hundred errors is a real answer from a real server. The list scrolls
+     * rather than truncating, because `docs/rebuild-briefing.md` refuses to
+     * take content out of the DOM. The ceiling is twelve lines of its own
+     * type rather than a fraction of the viewport: a summary that grew with
+     * the screen would push the actions off a laptop and not off a phone.
+     */
+    margin-block: var(--slotted-space-3, 0.375rem) 0;
+    max-block-size: calc(12em * var(--slotted-line-height-sm, 1.45));
+    overflow-y: auto;
+    /* Room for the ring on a link at the edge of a scrolled box. */
+    padding-block: var(--slotted-space-1, 0.125rem);
+    padding-inline-start: 0;
+  }
+
+  [data-ui-form][data-part-summary] > [data-part-summary-list] > li > [data-part-summary-item] {
+    color: inherit;
+    text-decoration-line: underline;
+    text-underline-offset: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-form][data-part-summary]
+    > [data-part-summary-list]
+    > li
+    > [data-part-summary-item]:hover:not(:disabled) {
+    text-decoration-thickness: var(--slotted-border-width-thick, 2px);
+  }
+
+  [data-ui-form][data-part-summary]
+    > [data-part-summary-list]
+    > li
+    > [data-part-summary-item]:focus-visible {
+    border-radius: var(--slotted-radius-xs, 2px);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * Two fields written one after the other directly inside the form stand
+   * apart by a step of the space scale. The root is a block and drew no
+   * distance at all, so a form written from the minimal example rendered its
+   * fields touching. A layout the page draws itself — a grid of two columns, a
+   * stack with its own gap — is not a field, and keeps its own spacing.
+   */
+  [data-ui-form][data-part-root]
+    > :is([data-ui-field], [data-ui-field-group])
+    + :is([data-ui-field], [data-ui-field-group]) {
+    margin-block-start: var(--slotted-form-field-gap, var(--slotted-space-6, 1rem));
+  }
+
+  /**
+   * Two sections stand apart by a step larger than the one between two fields
+   * of a section: at the same 1rem, a form split into topics showed none.
+   */
+  [data-ui-form][data-part-root] > [data-ui-field-group] + [data-ui-field-group] {
+    margin-block-start: var(--slotted-form-section-gap, var(--slotted-space-9, 2rem));
+  }
+
+  /**
+   * One column at a bounded measure: a field never spans a wide page, and the
+   * summary and the actions end where the fields end.
+   */
+  [data-ui-form][data-part-root]
+    > :is(
+      [data-ui-field],
+      [data-ui-field-group],
+      [data-ui-form][data-part-summary],
+      [data-ui-form][data-part-actions]
+    ) {
+    max-inline-size: var(--slotted-form-measure, 40rem);
+  }
+
+  /* ── The aside ────────────────────────────────────────────────────────
+   *
+   * A form that holds one is a grid of one column at the measure. The aside's
+   * track is implicit: it exists only once the aside is placed in it, which
+   * happens from the form's own breakpoint, because the root cannot change its
+   * template under a query on itself. Below it the aside follows in source
+   * order, after the last field when it is written there.
+   */
+  [data-ui-form][data-part-root]:has(> [data-ui-form][data-part-aside]) {
+    column-gap: var(--slotted-space-9, 2rem);
+    display: grid;
+    grid-auto-columns: minmax(0, var(--slotted-form-aside-size, 20rem));
+    grid-template-columns: minmax(0, var(--slotted-form-measure, 40rem));
+    justify-content: space-between;
+  }
+
+  [data-ui-form][data-part-aside] {
+    margin-block-start: var(--slotted-form-section-gap, var(--slotted-space-9, 2rem));
+    min-inline-size: 0;
+  }
+
+  /**
+   * Beside the column, every child of the form keeps to the first track and
+   * the aside spans the rows they fill, so it stays in view under the page's
+   * chrome while the fields scroll. shortcut: the span covers 100 children of
+   * the form; past them the aside stops following.
+   */
+  @container slotted-form (min-width: 75rem) {
+    [data-ui-form][data-part-root]:has(> [data-ui-form][data-part-aside]) > * {
+      grid-column: 1;
+    }
+
+    [data-ui-form][data-part-root] > [data-ui-form][data-part-aside] {
+      align-self: start;
+      grid-column: 2;
+      grid-row: 1 / span 100;
+      inset-block-start: calc(var(--slotted-page-sticky-top, 0px) + var(--slotted-space-6, 1rem));
+      margin-block-start: 0;
+      position: sticky;
+    }
+  }
+
+  /* ── The action row ───────────────────────────────────────────────────
+   *
+   * Its own container, because the question it answers is how much room the
+   * row has and not how wide the page is. The breakpoint is a literal: CSS
+   * forbids a custom property in a container condition, which
+   * `docs/token-foundation.md` rule 4 records.
+   */
+  [data-ui-form][data-part-actions] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-4, 0.5rem);
+    justify-content: flex-end;
+    margin-block-start: var(--slotted-space-8, 1.5rem);
+  }
+
+  [data-ui-form][data-part-actions][data-align='start'] {
+    justify-content: flex-start;
+  }
+
+  [data-ui-form][data-part-actions][data-align='between'] {
+    justify-content: space-between;
+  }
+
+  [data-ui-form][data-part-actions][data-align='stretch'] > * {
+    flex: 1 1 0;
+  }
+
+  /**
+   * Below the breakpoint two buttons side by side stop being two buttons and
+   * become two half-buttons. The row becomes a column and every action takes
+   * the whole width — the arrangement a phone needs, decided by the row's own
+   * width rather than by the viewport's, so a form in a narrow panel on a wide
+   * screen gets it too.
+   *
+   * The order reverses with it. In a row the primary action sits at the
+   * reading end; in a column the reader's thumb is at the bottom, and the
+   * action they came to take belongs first.
+   */
+  @container slotted-form (max-width: 360px) {
+    [data-ui-form][data-part-actions] {
+      flex-direction: column-reverse;
+    }
+
+    [data-ui-form][data-part-actions] > * {
+      inline-size: 100%;
+    }
+  }
+
+  /**
+   * The one block the theme cannot write for the family. The summary's start
+   * edge is what tells a forced-colours reader that the panel is the errors
+   * and not a note, and a tone surface flattened to `Canvas` would leave the
+   * panel with nothing but its border.
+   */
+  @media (forced-colors: active) {
+    [data-ui-form][data-part-summary] {
+      border-color: CanvasText;
+      border-inline-start-color: Highlight;
+    }
+  }
+}

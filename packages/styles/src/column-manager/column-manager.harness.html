@@ -1,0 +1,1879 @@
+<!--
+  The third place this family's DOM is written, after React and Angular. Every
+  `data-part` the contract declares appears here:
+
+    div[data-ui='column-manager'][data-part='root'][role='group']
+      div[data-part='header']
+        h2[data-part='title']
+        span[data-part='summary']
+      div[data-part='search'] > text-field (an icon in its start slot)
+      div[data-part='list']
+        div[data-part='section'][role='group']
+          div[data-part='section-label']
+          div[data-part='drop-indicator']            only while a drag hovers
+          div[data-part='item']
+            button[data-part='handle']
+            div[data-part='visibility'] > checkbox
+              label > span[data-part='status']
+              p[data-part='description']
+            button[data-part='pin']
+        div[data-part='empty']                       only when the search matches nothing
+      div[data-part='footer']
+        button[data-part='show-all'] · button[data-part='reset']
+        button[data-part='cancel'] · button[data-part='apply']    only under apply=confirm
+    button[data-part='trigger'][data-column-manager-trigger] > span[data-part='count']
+
+  The page has no script, so what script writes is written by hand: the drag
+  state in `reorder`, the disabled handles in `search`, the popover's position.
+-->
+
+<section data-scene="popover" data-fixed>
+  <button
+    data-ui="button"
+    data-ui-button=""
+    data-part="trigger"
+    data-part-trigger=""
+    data-tone="secondary"
+    data-variant="outline"
+    data-size="md"
+    data-open
+    data-column-manager-trigger
+    type="button"
+    aria-haspopup="dialog"
+    aria-expanded="true"
+    aria-controls="cm-p"
+    style="margin: 8px"
+  >
+    <span data-part="label" data-part-label=""
+      >Columns<span data-part="count" data-part-count="" aria-hidden="true">2</span>
+      <span data-ui="visually-hidden" data-ui-visually-hidden="" data-part="root" data-part-root=""
+        >2 hidden columns</span
+      ></span
+    >
+  </button>
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="lg"
+    data-width="auto"
+    data-open
+    data-positioned
+    style="top: 52px; left: 8px"
+  >
+    <div
+      data-part="content"
+      data-part-content=""
+      role="dialog"
+      tabindex="-1"
+      aria-labelledby="cm-p-title"
+    >
+      <div
+        data-ui="column-manager"
+        data-ui-column-manager=""
+        data-part="root"
+        data-part-root=""
+        data-presentation="popover"
+        data-apply="live"
+        role="group"
+        id="cm-p"
+        aria-labelledby="cm-p-title"
+      >
+        <div data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="cm-p-title">Columns</h2>
+          <span data-part="summary" data-part-summary="">7 of 9 shown</span>
+        </div>
+        <div data-part="search" data-part-search="">
+          <div
+            data-ui="text-field"
+            data-ui-text-field=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="outline"
+          >
+            <span data-part="start" data-part-start=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+            ></span>
+            <input
+              data-part="input"
+              data-part-input=""
+              type="search"
+              placeholder="Search columns"
+              aria-label="Search columns"
+            />
+          </div>
+        </div>
+        <div data-part="list" data-part-list="">
+          <div
+            data-part="section"
+            data-part-section=""
+            data-zone="start"
+            role="group"
+            aria-labelledby="cm-p-s1"
+          >
+            <div data-part="section-label" data-part-section-label="" id="cm-p-s1">
+              Pinned to start
+            </div>
+            <div
+              data-part="item"
+              data-part-item=""
+              data-column="order"
+              data-locked
+              data-pinned="start"
+            >
+              <button
+                data-part="handle"
+                data-part-handle=""
+                type="button"
+                aria-label="Reorder Order"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+                ></span>
+              </button>
+              <div data-part="visibility" data-part-visibility="">
+                <div
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                  data-checked
+                  data-disabled
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="cm-p-order"
+                    checked
+                    disabled
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="cm-p-order"
+                    >Order <span data-part="status" data-part-status="">Required</span></label
+                  >
+                </div>
+              </div>
+              <button
+                data-part="pin"
+                data-part-pin=""
+                data-pinned
+                type="button"
+                aria-label="Pin Order"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+                ></span>
+              </button>
+            </div>
+          </div>
+          <div
+            data-part="section"
+            data-part-section=""
+            data-zone="middle"
+            role="group"
+            aria-labelledby="cm-p-s2"
+          >
+            <div data-part="section-label" data-part-section-label="" id="cm-p-s2">Columns</div>
+            <div data-part="item" data-part-item="" data-column="customer">
+              <button
+                data-part="handle"
+                data-part-handle=""
+                type="button"
+                aria-label="Reorder Customer"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+                ></span>
+              </button>
+              <div data-part="visibility" data-part-visibility="">
+                <div
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                  data-checked
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="cm-p-customer"
+                    checked
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="cm-p-customer">Customer</label>
+                </div>
+              </div>
+              <button
+                data-part="pin"
+                data-part-pin=""
+                type="button"
+                aria-label="Pin Customer"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+                ></span>
+              </button>
+            </div>
+            <div data-part="item" data-part-item="" data-column="status">
+              <button
+                data-part="handle"
+                data-part-handle=""
+                type="button"
+                aria-label="Reorder Status"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+                ></span>
+              </button>
+              <div data-part="visibility" data-part-visibility="">
+                <div
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                  data-checked
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="cm-p-status"
+                    checked
+                    aria-describedby="cm-p-status-d"
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="cm-p-status">Status</label>
+                  <p data-part="description" data-part-description="" id="cm-p-status-d">
+                    Fulfilment stage, from Draft to Delivered.
+                  </p>
+                </div>
+              </div>
+              <button
+                data-part="pin"
+                data-part-pin=""
+                type="button"
+                aria-label="Pin Status"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+                ></span>
+              </button>
+            </div>
+            <div data-part="item" data-part-item="" data-column="total">
+              <button
+                data-part="handle"
+                data-part-handle=""
+                type="button"
+                aria-label="Reorder Total"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+                ></span>
+              </button>
+              <div data-part="visibility" data-part-visibility="">
+                <div
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                  data-checked
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="cm-p-total"
+                    checked
+                    aria-describedby="cm-p-total-d"
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="cm-p-total">Total</label>
+                  <p data-part="description" data-part-description="" id="cm-p-total-d">
+                    Order value with tax, in the order’s currency.
+                  </p>
+                </div>
+              </div>
+              <button
+                data-part="pin"
+                data-part-pin=""
+                type="button"
+                aria-label="Pin Total"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+                ></span>
+              </button>
+            </div>
+            <div data-part="item" data-part-item="" data-column="due">
+              <button
+                data-part="handle"
+                data-part-handle=""
+                type="button"
+                aria-label="Reorder Due date"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+                ></span>
+              </button>
+              <div data-part="visibility" data-part-visibility="">
+                <div
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                  data-checked
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="cm-p-due"
+                    checked
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="cm-p-due">Due date</label>
+                </div>
+              </div>
+              <button
+                data-part="pin"
+                data-part-pin=""
+                type="button"
+                aria-label="Pin Due date"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+                ></span>
+              </button>
+            </div>
+            <div data-part="item" data-part-item="" data-column="region" data-space-hidden>
+              <button
+                data-part="handle"
+                data-part-handle=""
+                type="button"
+                aria-label="Reorder Region"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+                ></span>
+              </button>
+              <div data-part="visibility" data-part-visibility="">
+                <div
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                  data-checked
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="cm-p-region"
+                    checked
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="cm-p-region"
+                    >Region
+                    <span data-part="status" data-part-status="">Hidden for space</span></label
+                  >
+                </div>
+              </div>
+              <button
+                data-part="pin"
+                data-part-pin=""
+                type="button"
+                aria-label="Pin Region"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+                ></span>
+              </button>
+            </div>
+            <div data-part="item" data-part-item="" data-column="owner" data-hidden>
+              <button
+                data-part="handle"
+                data-part-handle=""
+                type="button"
+                aria-label="Reorder Owner"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+                ></span>
+              </button>
+              <div data-part="visibility" data-part-visibility="">
+                <div
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                >
+                  <input data-part="control" data-part-control="" type="checkbox" id="cm-p-owner" />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="cm-p-owner">Owner</label>
+                </div>
+              </div>
+              <button
+                data-part="pin"
+                data-part-pin=""
+                type="button"
+                aria-label="Pin Owner"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+                ></span>
+              </button>
+            </div>
+            <div data-part="item" data-part-item="" data-column="notes" data-hidden>
+              <button
+                data-part="handle"
+                data-part-handle=""
+                type="button"
+                aria-label="Reorder Notes"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+                ></span>
+              </button>
+              <div data-part="visibility" data-part-visibility="">
+                <div
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                >
+                  <input data-part="control" data-part-control="" type="checkbox" id="cm-p-notes" />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="cm-p-notes">Notes</label>
+                </div>
+              </div>
+              <button
+                data-part="pin"
+                data-part-pin=""
+                type="button"
+                aria-label="Pin Notes"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+                ></span>
+              </button>
+            </div>
+          </div>
+          <div
+            data-part="section"
+            data-part-section=""
+            data-zone="end"
+            role="group"
+            aria-labelledby="cm-p-s3"
+          >
+            <div data-part="section-label" data-part-section-label="" id="cm-p-s3">
+              Pinned to end
+            </div>
+            <div data-part="item" data-part-item="" data-column="actions" data-pinned="end">
+              <button
+                data-part="handle"
+                data-part-handle=""
+                type="button"
+                aria-label="Reorder Actions"
+                aria-disabled="true"
+                data-disabled
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+                ></span>
+              </button>
+              <div data-part="visibility" data-part-visibility="">
+                <div
+                  data-ui="checkbox"
+                  data-ui-checkbox=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="end"
+                  data-checked
+                >
+                  <input
+                    data-part="control"
+                    data-part-control=""
+                    type="checkbox"
+                    id="cm-p-actions"
+                    checked
+                  />
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                  ></span>
+                  <label data-part="label" data-part-label="" for="cm-p-actions">Actions</label>
+                </div>
+              </div>
+              <button
+                data-part="pin"
+                data-part-pin=""
+                data-pinned
+                type="button"
+                aria-label="Pin Actions"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+                ></span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="show-all"
+            data-part-show-all=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Show all</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="reset"
+            data-part-reset=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Restore defaults</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- The page under the layer: a layer gives its stage no height. -->
+  <div aria-hidden="true" style="block-size: 640px"></div>
+</section>
+
+<!--
+  A pointer drag in progress: Due date is lifted, the section is the drop
+  target, and the line stands before Status — where the drop would land.
+  Apply is armed because the draft differs from the state.
+-->
+<section data-scene="reorder">
+  <div
+    data-ui="column-manager"
+    data-ui-column-manager=""
+    data-part="root"
+    data-part-root=""
+    data-presentation="inline"
+    data-apply="confirm"
+    role="group"
+    aria-labelledby="cm-r-title"
+  >
+    <div data-part="header" data-part-header="">
+      <h2 data-part="title" data-part-title="" id="cm-r-title">Columns</h2>
+      <span data-part="summary" data-part-summary="">5 of 5 shown</span>
+    </div>
+    <div data-part="search" data-part-search="">
+      <div
+        data-ui="text-field"
+        data-ui-text-field=""
+        data-part="root"
+        data-part-root=""
+        data-size="sm"
+        data-variant="outline"
+      >
+        <span data-part="start" data-part-start=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+        ></span>
+        <input
+          data-part="input"
+          data-part-input=""
+          type="search"
+          placeholder="Search columns"
+          aria-label="Search columns"
+        />
+      </div>
+    </div>
+    <div data-part="list" data-part-list="">
+      <div
+        data-part="section"
+        data-part-section=""
+        data-zone="middle"
+        data-sole
+        data-drop-target
+        role="group"
+        aria-labelledby="cm-r-s"
+      >
+        <div data-part="section-label" data-part-section-label="" id="cm-r-s">Columns</div>
+        <div data-part="item" data-part-item="" data-column="customer">
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Reorder Customer"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+            ></span>
+          </button>
+          <div data-part="visibility" data-part-visibility="">
+            <div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+              data-checked
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                id="cm-r-customer"
+                checked
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span>
+              <label data-part="label" data-part-label="" for="cm-r-customer">Customer</label>
+            </div>
+          </div>
+          <button
+            data-part="pin"
+            data-part-pin=""
+            type="button"
+            aria-label="Pin Customer"
+            aria-haspopup="menu"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="drop-indicator" data-part-drop-indicator=""></div>
+        <div data-part="item" data-part-item="" data-column="status">
+          <button data-part="handle" data-part-handle="" type="button" aria-label="Reorder Status">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+            ></span>
+          </button>
+          <div data-part="visibility" data-part-visibility="">
+            <div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+              data-checked
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                id="cm-r-status"
+                checked
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span>
+              <label data-part="label" data-part-label="" for="cm-r-status">Status</label>
+            </div>
+          </div>
+          <button
+            data-part="pin"
+            data-part-pin=""
+            type="button"
+            aria-label="Pin Status"
+            aria-haspopup="menu"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" data-column="total">
+          <button data-part="handle" data-part-handle="" type="button" aria-label="Reorder Total">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+            ></span>
+          </button>
+          <div data-part="visibility" data-part-visibility="">
+            <div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+              data-checked
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                id="cm-r-total"
+                checked
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span>
+              <label data-part="label" data-part-label="" for="cm-r-total">Total</label>
+            </div>
+          </div>
+          <button
+            data-part="pin"
+            data-part-pin=""
+            type="button"
+            aria-label="Pin Total"
+            aria-haspopup="menu"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" data-column="due" data-dragging>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Reorder Due date"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+            ></span>
+          </button>
+          <div data-part="visibility" data-part-visibility="">
+            <div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+              data-checked
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                id="cm-r-due"
+                checked
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span>
+              <label data-part="label" data-part-label="" for="cm-r-due">Due date</label>
+            </div>
+          </div>
+          <button
+            data-part="pin"
+            data-part-pin=""
+            type="button"
+            aria-label="Pin Due date"
+            aria-haspopup="menu"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" data-column="owner">
+          <button data-part="handle" data-part-handle="" type="button" aria-label="Reorder Owner">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+            ></span>
+          </button>
+          <div data-part="visibility" data-part-visibility="">
+            <div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+              data-checked
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                id="cm-r-owner"
+                checked
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span>
+              <label data-part="label" data-part-label="" for="cm-r-owner">Owner</label>
+            </div>
+          </div>
+          <button
+            data-part="pin"
+            data-part-pin=""
+            type="button"
+            aria-label="Pin Owner"
+            aria-haspopup="menu"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div data-part="footer" data-part-footer="">
+      <button
+        data-ui="button"
+        data-ui-button=""
+        data-part="show-all"
+        data-part-show-all=""
+        data-tone="secondary"
+        data-variant="ghost"
+        data-size="sm"
+        data-disabled
+        disabled
+        type="button"
+      >
+        <span data-part="label" data-part-label="">Show all</span>
+      </button>
+      <button
+        data-ui="button"
+        data-ui-button=""
+        data-part="reset"
+        data-part-reset=""
+        data-tone="secondary"
+        data-variant="ghost"
+        data-size="sm"
+        type="button"
+      >
+        <span data-part="label" data-part-label="">Restore defaults</span>
+      </button>
+      <button
+        data-ui="button"
+        data-ui-button=""
+        data-part="cancel"
+        data-part-cancel=""
+        data-tone="secondary"
+        data-variant="outline"
+        data-size="sm"
+        type="button"
+      >
+        <span data-part="label" data-part-label="">Cancel</span>
+      </button>
+      <button
+        data-ui="button"
+        data-ui-button=""
+        data-part="apply"
+        data-part-apply=""
+        data-tone="accent"
+        data-variant="solid"
+        data-size="sm"
+        type="button"
+      >
+        <span data-part="label" data-part-label="">Apply</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!--
+  A query: "date" matches Due date by its label and Status by its
+  description; every handle is disabled while the query stands.
+-->
+<section data-scene="search">
+  <div
+    data-ui="column-manager"
+    data-ui-column-manager=""
+    data-part="root"
+    data-part-root=""
+    data-presentation="inline"
+    data-apply="live"
+    role="group"
+    aria-labelledby="cm-s-title"
+  >
+    <div data-part="header" data-part-header="">
+      <h2 data-part="title" data-part-title="" id="cm-s-title">Columns</h2>
+      <span data-part="summary" data-part-summary="">7 of 9 shown</span>
+    </div>
+    <div data-part="search" data-part-search="">
+      <div
+        data-ui="text-field"
+        data-ui-text-field=""
+        data-part="root"
+        data-part-root=""
+        data-size="sm"
+        data-variant="outline"
+      >
+        <span data-part="start" data-part-start=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+        ></span>
+        <input
+          data-part="input"
+          data-part-input=""
+          type="search"
+          value="date"
+          placeholder="Search columns"
+          aria-label="Search columns"
+        />
+      </div>
+    </div>
+    <div data-part="list" data-part-list="">
+      <div
+        data-part="section"
+        data-part-section=""
+        data-zone="middle"
+        data-sole
+        role="group"
+        aria-labelledby="cm-s-s"
+      >
+        <div data-part="section-label" data-part-section-label="" id="cm-s-s">Columns</div>
+        <div data-part="item" data-part-item="" data-column="status">
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Reorder Status"
+            aria-disabled="true"
+            data-disabled
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+            ></span>
+          </button>
+          <div data-part="visibility" data-part-visibility="">
+            <div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+              data-checked
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                id="cm-s-status"
+                checked
+                aria-describedby="cm-s-status-d"
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span>
+              <label data-part="label" data-part-label="" for="cm-s-status">Status</label>
+              <p data-part="description" data-part-description="" id="cm-s-status-d">
+                Fulfilment stage, updated when the shipping date is confirmed.
+              </p>
+            </div>
+          </div>
+          <button
+            data-part="pin"
+            data-part-pin=""
+            type="button"
+            aria-label="Pin Status"
+            aria-haspopup="menu"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" data-column="due">
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Reorder Due date"
+            aria-disabled="true"
+            data-disabled
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+            ></span>
+          </button>
+          <div data-part="visibility" data-part-visibility="">
+            <div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+              data-checked
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                id="cm-s-due"
+                checked
+                aria-describedby="cm-s-due-d"
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span>
+              <label data-part="label" data-part-label="" for="cm-s-due">Due date</label>
+              <p data-part="description" data-part-description="" id="cm-s-due-d">
+                The date promised to the customer.
+              </p>
+            </div>
+          </div>
+          <button
+            data-part="pin"
+            data-part-pin=""
+            type="button"
+            aria-label="Pin Due date"
+            aria-haspopup="menu"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div data-part="footer" data-part-footer="">
+      <button
+        data-ui="button"
+        data-ui-button=""
+        data-part="show-all"
+        data-part-show-all=""
+        data-tone="secondary"
+        data-variant="ghost"
+        data-size="sm"
+        type="button"
+      >
+        <span data-part="label" data-part-label="">Show all</span>
+      </button>
+      <button
+        data-ui="button"
+        data-ui-button=""
+        data-part="reset"
+        data-part-reset=""
+        data-tone="secondary"
+        data-variant="ghost"
+        data-size="sm"
+        type="button"
+      >
+        <span data-part="label" data-part-label="">Restore defaults</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- A query that matches nothing, and the last shown column's box disabled. -->
+<section data-scene="empty">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="column-manager"
+      data-ui-column-manager=""
+      data-part="root"
+      data-part-root=""
+      data-presentation="inline"
+      data-apply="live"
+      role="group"
+      aria-labelledby="cm-e-title"
+    >
+      <div data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="cm-e-title">Columns</h2>
+        <span data-part="summary" data-part-summary="">7 of 9 shown</span>
+      </div>
+      <div data-part="search" data-part-search="">
+        <div
+          data-ui="text-field"
+          data-ui-text-field=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="outline"
+        >
+          <span data-part="start" data-part-start=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+          ></span>
+          <input
+            data-part="input"
+            data-part-input=""
+            type="search"
+            value="margin"
+            placeholder="Search columns"
+            aria-label="Search columns"
+          />
+        </div>
+      </div>
+      <div data-part="list" data-part-list="">
+        <div data-part="empty" data-part-empty="" role="status">No columns match</div>
+      </div>
+      <div data-part="footer" data-part-footer="">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="show-all"
+          data-part-show-all=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Show all</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="reset"
+          data-part-reset=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Restore defaults</span>
+        </button>
+      </div>
+    </div>
+    <div
+      data-ui="column-manager"
+      data-ui-column-manager=""
+      data-part="root"
+      data-part-root=""
+      data-presentation="inline"
+      data-apply="live"
+      role="group"
+      aria-labelledby="cm-l-title"
+    >
+      <div data-part="header" data-part-header="">
+        <h2 data-part="title" data-part-title="" id="cm-l-title">Columns</h2>
+        <span data-part="summary" data-part-summary="">1 of 3 shown</span>
+      </div>
+      <div data-part="list" data-part-list="">
+        <div
+          data-part="section"
+          data-part-section=""
+          data-zone="middle"
+          data-sole
+          role="group"
+          aria-labelledby="cm-l-s"
+        >
+          <div data-part="section-label" data-part-section-label="" id="cm-l-s">Columns</div>
+          <div data-part="item" data-part-item="" data-column="customer">
+            <button
+              data-part="handle"
+              data-part-handle=""
+              type="button"
+              aria-label="Reorder Customer"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+              ></span>
+            </button>
+            <div data-part="visibility" data-part-visibility="">
+              <div
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-label-placement="end"
+                data-checked
+                data-disabled
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  id="cm-l-customer"
+                  checked
+                  disabled
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <label data-part="label" data-part-label="" for="cm-l-customer">Customer</label>
+              </div>
+            </div>
+            <button
+              data-part="pin"
+              data-part-pin=""
+              type="button"
+              aria-label="Pin Customer"
+              aria-haspopup="menu"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+              ></span>
+            </button>
+          </div>
+          <div data-part="item" data-part-item="" data-column="owner" data-hidden>
+            <button data-part="handle" data-part-handle="" type="button" aria-label="Reorder Owner">
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+              ></span>
+            </button>
+            <div data-part="visibility" data-part-visibility="">
+              <div
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-label-placement="end"
+              >
+                <input data-part="control" data-part-control="" type="checkbox" id="cm-l-owner" />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <label data-part="label" data-part-label="" for="cm-l-owner">Owner</label>
+              </div>
+            </div>
+            <button
+              data-part="pin"
+              data-part-pin=""
+              type="button"
+              aria-label="Pin Owner"
+              aria-haspopup="menu"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+              ></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  Content the family did not choose: a German label that does not break, a
+  description of three lines, a status beside a long name.
+-->
+<section data-scene="long">
+  <div
+    data-ui="column-manager"
+    data-ui-column-manager=""
+    data-part="root"
+    data-part-root=""
+    data-presentation="inline"
+    data-apply="live"
+    role="group"
+    aria-labelledby="cm-g-title"
+  >
+    <div data-part="header" data-part-header="">
+      <h2 data-part="title" data-part-title="" id="cm-g-title">Spalten</h2>
+      <span data-part="summary" data-part-summary="">3 von 4 angezeigt</span>
+    </div>
+    <div data-part="list" data-part-list="">
+      <div
+        data-part="section"
+        data-part-section=""
+        data-zone="middle"
+        data-sole
+        role="group"
+        aria-labelledby="cm-g-s"
+      >
+        <div data-part="section-label" data-part-section-label="" id="cm-g-s">Spalten</div>
+        <div data-part="item" data-part-item="" data-column="deadline">
+          <button data-part="handle" data-part-handle="" type="button" aria-label="Neu anordnen">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+            ></span>
+          </button>
+          <div data-part="visibility" data-part-visibility="">
+            <div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+              data-checked
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                id="cm-g-deadline"
+                checked
+                aria-describedby="cm-g-deadline-d"
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span>
+              <label data-part="label" data-part-label="" for="cm-g-deadline"
+                >Liefertermin­vereinbarungs­bestätigungsdatum</label
+              >
+              <p data-part="description" data-part-description="" id="cm-g-deadline-d">
+                Das Datum, an dem der Kunde den vereinbarten Liefertermin schriftlich bestätigt hat;
+                leer, solange die Bestätigung aussteht.
+              </p>
+            </div>
+          </div>
+          <button
+            data-part="pin"
+            data-part-pin=""
+            type="button"
+            aria-label="Anheften"
+            aria-haspopup="menu"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="item" data-part-item="" data-column="region" data-space-hidden>
+          <button data-part="handle" data-part-handle="" type="button" aria-label="Neu anordnen">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-vertical"></svg
+            ></span>
+          </button>
+          <div data-part="visibility" data-part-visibility="">
+            <div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+              data-checked
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                id="cm-g-region"
+                checked
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span>
+              <label data-part="label" data-part-label="" for="cm-g-region"
+                >Vertriebsregion des Kunden<span data-part="status" data-part-status=""
+                  >Aus Platzgründen ausgeblendet</span
+                ></label
+              >
+            </div>
+          </div>
+          <button
+            data-part="pin"
+            data-part-pin=""
+            type="button"
+            aria-label="Anheften"
+            aria-haspopup="menu"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="trigger">
+  <div data-ui="inline" data-ui-inline="" data-part="root" data-part-root="" data-gap="4" data-wrap>
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="trigger"
+      data-part-trigger=""
+      data-tone="secondary"
+      data-variant="outline"
+      data-size="md"
+      data-column-manager-trigger
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+    >
+      <span data-part="label" data-part-label="">Columns</span>
+    </button>
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="trigger"
+      data-part-trigger=""
+      data-tone="secondary"
+      data-variant="outline"
+      data-size="md"
+      data-column-manager-trigger
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+    >
+      <span data-part="label" data-part-label=""
+        >Columns<span data-part="count" data-part-count="" aria-hidden="true">1</span
+        ><span
+          data-ui="visually-hidden"
+          data-ui-visually-hidden=""
+          data-part="root"
+          data-part-root=""
+          >1 hidden column</span
+        ></span
+      >
+    </button>
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="trigger"
+      data-part-trigger=""
+      data-tone="secondary"
+      data-variant="ghost"
+      data-size="sm"
+      data-column-manager-trigger
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+    >
+      <span data-part="label" data-part-label=""
+        >Columns<span data-part="count" data-part-count="" aria-hidden="true">12</span
+        ><span
+          data-ui="visually-hidden"
+          data-ui-visually-hidden=""
+          data-part="root"
+          data-part-root=""
+          >12 hidden columns</span
+        ></span
+      >
+    </button>
+  </div>
+</section>

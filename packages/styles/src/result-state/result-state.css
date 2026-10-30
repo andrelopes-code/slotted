@@ -1,0 +1,973 @@
+@layer slotted.components {
+  /**
+   * ── The region that stands in for content ──────────────────────────────
+   *
+   * A mark, a title, a description, the controls that get the reader out of
+   * the situation, and a line of documentation under them. It does not sit
+   * beside the content the way `alert` does — it is where the content would
+   * have been.
+   *
+   * The box is a `section`, not a live region. MDN's `alert` role reference
+   * says the role "should only be used for text content, not interactive
+   * elements such as links or buttons", and this family has a row of buttons
+   * in it. The region that announces is `content`, which holds the title and
+   * the description and nothing else; `media`, `actions` and `footer` are its
+   * siblings outside it. It is `alert`'s shape, deliberately: two neighbouring
+   * families answering the same question differently would be two answers to
+   * one question.
+   *
+   * The family owns its own container, because both of its composition changes
+   * answer the width of the box rather than the width of the window: a run of
+   * actions stacks when the box is narrow, and the `inline` row becomes a
+   * column at the same point.
+   */
+  [data-ui-result-state][data-part-root] {
+    /**
+     * Prose sizes come from the type scale, which does not vary by density,
+     * and the mark comes from the control scales, which do. That is where
+     * density reaches this family: the mark and the consumer's own buttons
+     * tighten, and the words keep their size.
+     *
+     * The alternative was `alert`'s — control type for the prose as well — and
+     * it does not survive `page`, where the largest control font size is
+     * fourteen pixels and a route-level headline needs twenty-four. A family
+     * that read one scale at two reaches and another at the third would be two
+     * scales pretending to be one.
+     *
+     * The ladder is `sm` / `xl` / `3xl` for the title against `xs` / `md` /
+     * `lg` for the description, which is two steps of the scale between the two
+     * lines at every reach. It started one step apart at `section` — sixteen
+     * over fourteen — and the 720-pixel capture showed the title and the
+     * sentence under it reading as one block of text with one of them in bold.
+     */
+    --_title-font-size: var(
+      --slotted-result-state-title-font-size,
+      var(--slotted-font-size-xl, 1.125rem)
+    );
+    --_title-line-height: var(--slotted-line-height-xl, 1.45);
+    --_description-font-size: var(
+      --slotted-result-state-description-font-size,
+      var(--slotted-font-size-md, 0.875rem)
+    );
+
+    /**
+     * The box artwork the page supplies takes, and the geometry a raster
+     * illustration inherits from it. Because the box is sized before its
+     * content arrives, an image that has not loaded reserves the space it will
+     * occupy and nothing below it moves when it does. Atlassian spends four
+     * props on this and Polaris a skeleton and an effect.
+     *
+     * `page` is a proportion of the largest control height rather than a sixth
+     * step on a scale. Control geometry is the only size scale the theme
+     * restates per density, and a proportion of a box is geometry — the rule
+     * Avatar's own scale is written under. The three values it produces are
+     * whole pixels at all three densities.
+     */
+    --_media-size: var(--slotted-result-state-media-size, var(--slotted-control-height-md, 34px));
+
+    /**
+     * Each measure is named once and a reach moves only the value it falls
+     * back to, so an application that retunes `--slotted-result-state-row-gap`
+     * retunes all three reaches rather than discovering that the name it set
+     * was the one the default reach happened to read.
+     */
+    --_inset-block: var(--slotted-result-state-padding-block, var(--slotted-space-9, 2rem));
+    --_inset-inline: var(--slotted-result-state-padding-inline, var(--slotted-space-6, 1rem));
+    --_row-gap: var(--slotted-result-state-row-gap, var(--slotted-space-6, 1rem));
+    --_column-gap: var(--slotted-result-state-column-gap, var(--slotted-space-4, 0.5rem));
+    /**
+     * Eight pixels between the title and the sentence under it. Six glued the
+     * description to an eighteen- and a twenty-four-pixel title; ReUI's three
+     * blocks hold eight.
+     */
+    --_text-gap: var(--slotted-result-state-text-gap, var(--slotted-space-4, 0.5rem));
+    /**
+     * The distance from the message to the controls under it, one step wider
+     * than the row gap. The picture and the words are one statement and the
+     * controls are the answer to it, so the eye is given the pause between the
+     * two rather than between the picture and its title. ReUI holds 28 pixels
+     * there against 16 above the title (dossier § 3); 28 has no step, and 24 at
+     * `section` and 32 at `page` keep the one-step difference the reach already
+     * keeps everywhere else.
+     */
+    --_actions-gap: var(--slotted-result-state-actions-block-gap, var(--slotted-space-8, 1.5rem));
+    /**
+     * Headline tracking, the value `page-header` and `section` set on their own
+     * titles. ReUI closes its titles by 0.025em, which at eighteen pixels of this
+     * theme's face starts to touch the round letters.
+     */
+    --_title-tracking: var(--slotted-result-state-title-letter-spacing, -0.01em);
+
+    /**
+     * The one length every drawing is built from: the largest control height,
+     * so the illustration tightens with density the way the old mark did and
+     * the words do not. Each drawing derives its own boxes from it below, and
+     * every box it produces is a whole pixel at all three densities.
+     */
+    --_art: var(--slotted-control-height-lg, 38px);
+    --_art-glyph: var(--slotted-control-icon-size-lg, 18px);
+
+    /**
+     * A container name rather than the anonymous form, because a result state
+     * inside a card inside a page would otherwise resolve against whichever
+     * ancestor happened to be a container first.
+     */
+    container-name: slotted-result-state;
+    container-type: inline-size;
+    /**
+     * `container-type: inline-size` applies `contain: inline-size`, which makes
+     * the box's intrinsic width zero. In normal flow the box fills its parent
+     * and nothing is wrong; in a column that shrink-wraps its children the
+     * whole region collapses to one character and breaks its text a letter per
+     * line. `collapsible`, `pagination` and `stepper` each shipped that way,
+     * and `specs/story-layout.test.mjs` is what refuses it now.
+     */
+    inline-size: 100%;
+
+    box-sizing: border-box;
+    color: var(--slotted-text);
+    display: grid;
+    font-family: var(
+      --slotted-result-state-font-family,
+      var(--slotted-font-family-sans, sans-serif)
+    );
+    /**
+     * The root's own type is the title's, so `1lh` on any child resolves
+     * against the line box the title actually draws. It is what puts the mark
+     * and the row of actions on the message's first line at `inline` reach
+     * without a number saying how — the rule `alert` and `status-indicator`
+     * both draw their marks with.
+     *
+     * Stating it here rather than on the mark is the correction the first draft
+     * needed: `1lh` read on the mark itself resolved against the mark's own
+     * inherited twelve pixels and `normal`, which is a fourteen-pixel line box
+     * against the title's nineteen. The mark sat two and a half pixels above
+     * the line it was supposed to be centred on, which is visible and was
+     * reported from the picture rather than by a test.
+     */
+    font-size: var(--_title-font-size);
+    grid-template-columns: minmax(0, 1fr);
+    /**
+     * The layers behind a stack of cards paint beneath the front card, and a
+     * layer with a negative stacking order paints beneath the nearest
+     * stacking context's own blocks. Without one here, that context is
+     * whatever the page happens to have — a card around the region, say — and
+     * the layers vanish under its surface.
+     */
+    isolation: isolate;
+    line-height: var(--_title-line-height);
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    row-gap: var(--_row-gap);
+    /**
+     * The entry, which runs only where the arrival is the message (the
+     * `@starting-style` rule under Motion). A transition is read from the
+     * state being entered, so the shown box carries the entering curve and the
+     * hidden box carries the leaving one.
+     */
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-enter),
+      display var(--slotted-duration-short) var(--slotted-easing-enter);
+    transition-behavior: allow-discrete;
+  }
+
+  /* ── Status: what the region is reporting ─────────────────────────────
+   *
+   * Seven values, and the stylesheet draws none of them (RS1).
+   *
+   * Each one used to set a tone and a silhouette — a tray, a struck magnifier,
+   * a lock — painted as a mask above the title. R5's limit is what removed it:
+   * a tone glyph alone on an empty surface, at no distance from anything and
+   * in relation to nothing, is the pattern the rule exists to refuse, and an
+   * empty state is a title, a description and an action. Nothing is lost by not
+   * painting it, because what the region is reporting is in the words; the
+   * attribute is still on the root, which is what a page keys its own
+   * illustration on.
+   */
+
+  /* ── Reach: which scope the message applies to ────────────────────────
+   *
+   * The same three words `alert` uses, with the same meaning. It is not a size
+   * axis: a size would say the same message can be drawn large or small, and
+   * this says which scope it applies to, with the geometry following.
+   */
+
+  /**
+   * A table cell, a tile, a row. One line of type, the mark at control-glyph
+   * size, and no illustration box at all — the guide requires a compact state
+   * for card, panel and cell, and requires that an illustration not dominate a
+   * dense operational screen.
+   *
+   * The row is packed to its own content rather than stretched, so `align`
+   * decides where it sits in the cell instead of the text alignment deciding
+   * it. The middle track can still shrink below its content, which is what
+   * lets a long sentence wrap inside a narrow cell.
+   */
+  [data-ui-result-state][data-part-root][data-reach='inline'] {
+    --_title-font-size: var(
+      --slotted-result-state-title-font-size,
+      var(--slotted-font-size-sm, 0.8125rem)
+    );
+    --_title-line-height: var(--slotted-line-height-sm, 1.45);
+    --_description-font-size: var(
+      --slotted-result-state-description-font-size,
+      var(--slotted-font-size-xs, 0.75rem)
+    );
+    --_media-size: var(
+      --slotted-result-state-media-size,
+      var(--slotted-control-icon-size-md, 16px)
+    );
+    --_inset-block: var(--slotted-result-state-padding-block, var(--slotted-space-4, 0.5rem));
+    --_inset-inline: var(--slotted-result-state-padding-inline, var(--slotted-space-4, 0.5rem));
+    --_row-gap: var(--slotted-result-state-row-gap, var(--slotted-space-3, 0.375rem));
+    --_title-tracking: var(--slotted-result-state-title-letter-spacing, 0);
+
+    /* No column gap: the distance from the mark to the words belongs to the
+       mark, and the distance from the words to the controls to the controls,
+       so a row with no mark starts its words at the inset. */
+    grid-template-columns: auto minmax(0, auto) auto;
+  }
+
+  /**
+   * The whole route. A mark half again the largest control, and the title at
+   * the type scale's top step — the size a page-level heading takes in this
+   * library, and one no control font size can reach.
+   */
+  [data-ui-result-state][data-part-root][data-reach='page'] {
+    --_title-font-size: var(
+      --slotted-result-state-title-font-size,
+      var(--slotted-font-size-3xl, 1.5rem)
+    );
+    --_title-line-height: var(--slotted-line-height-3xl, 1.3);
+    --_description-font-size: var(
+      --slotted-result-state-description-font-size,
+      var(--slotted-font-size-lg, 1rem)
+    );
+    --_media-size: var(
+      --slotted-result-state-media-size,
+      calc(var(--slotted-control-height-lg, 38px) * 1.5)
+    );
+    --_inset-block: var(--slotted-result-state-padding-block, var(--slotted-space-12, 4rem));
+    /**
+     * One step further apart than `section`, because the things being kept
+     * apart are larger: a fifty-seven-pixel mark and a twenty-four-pixel
+     * headline read as crowded at the distance a thirty-four-pixel mark and an
+     * eighteen-pixel one read as settled.
+     */
+    --_row-gap: var(--slotted-result-state-row-gap, var(--slotted-space-8, 1.5rem));
+    --_actions-gap: var(--slotted-result-state-actions-block-gap, var(--slotted-space-9, 2rem));
+    /* Half again, the proportion the page's own media box already takes. */
+    --_art: calc(var(--slotted-control-height-lg, 38px) * 1.5);
+    --_art-glyph: calc(var(--slotted-control-icon-size-lg, 18px) * 1.5);
+  }
+
+  /* ── Align ────────────────────────────────────────────────────────────
+   *
+   * Carbon left-aligns its empty states inside data-dense views; the other six
+   * surveyed implementations centre unconditionally. Both readings are real,
+   * and one axis is cheaper than a second family.
+   *
+   * `justify-items` places the boxes and `text-align` places the words inside
+   * them, because a centred box holding left-aligned prose is the defect this
+   * would otherwise ship: the title looks centred until the description wraps
+   * onto a second line.
+   */
+  [data-ui-result-state][data-part-root][data-align='center'] {
+    justify-items: center;
+    text-align: center;
+  }
+
+  [data-ui-result-state][data-part-root][data-align='start'] {
+    justify-items: start;
+    text-align: start;
+  }
+
+  [data-ui-result-state][data-part-root][data-reach='inline'][data-align='center'] {
+    justify-content: center;
+    justify-items: stretch;
+  }
+
+  [data-ui-result-state][data-part-root][data-reach='inline'][data-align='start'] {
+    justify-content: start;
+    justify-items: stretch;
+  }
+
+  /* ── The picture, when there is one ───────────────────────────────────
+   *
+   * The box holds artwork the page supplies, and nothing else. It held a mask
+   * per status until RS1 — a tray, a lock, a circled exclamation, drawn at the
+   * title's size above the title — and R5's limit is what removed it.
+   *
+   * With nothing in it the box is withdrawn rather than left standing at zero:
+   * a box of no height is still an item in the grid, and the region's row gap
+   * would keep a band of empty space above the title exactly where the glyph
+   * used to be. Withdrawn, the region is the title, the description and the
+   * action, with one gap between them.
+   *
+   * `--slotted-result-state-media` is the way to put a picture there without
+   * projecting a node: the page names its own illustration and shows the box in
+   * the same rule, which is one snippet in the family's documentation. It is
+   * painted as an image rather than as a mask, because what goes there now is a
+   * drawing in its own colours and not a silhouette in a tone; and when nothing
+   * names it, the declaration is invalid at computed-value time and the box
+   * paints nothing at all.
+   */
+  [data-ui-result-state] > [data-part-media]:empty {
+    background: var(--slotted-result-state-media) center / contain no-repeat;
+    block-size: var(--_media-size);
+    display: none;
+    inline-size: var(--_media-size);
+  }
+
+  /**
+   * Artwork the page projected into the box.
+   *
+   * The block size is the illustration's box and the inline size is released:
+   * the height is what reserves the space, and an illustration is rarely
+   * square. Anything inside is held to the box's height and keeps its own
+   * ratio, so a wide drawing and a square one both land on the same baseline.
+   * Because the box is sized before its content arrives, an image that has not
+   * loaded reserves the room it will take and nothing below it moves when it
+   * does.
+   */
+  [data-ui-result-state] > [data-part-media]:not(:empty) {
+    align-items: center;
+    background-color: transparent;
+    block-size: var(--_media-size);
+    display: flex;
+    inline-size: auto;
+    justify-content: center;
+    min-inline-size: var(--_media-size);
+  }
+
+  [data-ui-result-state] > [data-part-media]:not(:empty) > * {
+    block-size: 100%;
+    inline-size: auto;
+    max-inline-size: 100%;
+  }
+
+  /** Supplied artwork on the same line, centred on the same axis by its own size. */
+  [data-ui-result-state][data-reach='inline'] > [data-part-media]:not(:empty) {
+    align-self: start;
+    grid-column: 1;
+    grid-row: 1;
+    margin-block-start: calc((1lh - var(--_media-size)) / 2);
+    margin-inline-end: var(--_column-gap);
+  }
+
+  /* ── Illustration: the picture the family draws around the page's glyph ─
+   *
+   * Three drawings, each made of the surface and border roles a card is
+   * painted in, with the page's glyph in the muted text role. R5's third band
+   * refuses a tone glyph enlarged on an empty surface and admits an
+   * illustration drawn for the space; none of these takes a tone, and each
+   * gives the glyph a geometric relation to something — a frame, a stack, a
+   * row it stands in for.
+   *
+   * `inline` reach draws none of them: a table cell holds a line of text, and
+   * the guide forbids an illustration from dominating a dense screen. The
+   * artwork the page supplied is drawn there as it is.
+   *
+   * Under forced colours the browser would replace every fill with `Canvas`
+   * and leave each drawing as outlines laid on top of one another. The theme
+   * already maps the roles used here to system colours in that mode, so the
+   * drawing opts out of the browser's adjustment and keeps the theme's.
+   */
+
+  /**
+   * A framed tile: a ring on the sunken surface around a raised card, with
+   * the glyph in the card. The inner card is the largest control height, the
+   * ring one step of air around it, so the whole tile is 46, 40 and 38 pixels
+   * at the three densities and its corners stay concentric — the outer radius
+   * is the inner one plus the ring.
+   */
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='tile']
+    > [data-part-media]:not(:empty) {
+    --_ring: var(--slotted-space-2, 0.25rem);
+    --_inner-radius: var(--slotted-radius-lg, 8px);
+
+    background-color: var(--slotted-surface-sunken);
+    block-size: calc(var(--_art) + 2 * var(--_ring));
+    border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
+    border-radius: calc(var(--_inner-radius) + var(--_ring));
+    box-sizing: border-box;
+    color: var(--slotted-text-muted);
+    forced-color-adjust: none;
+    inline-size: calc(var(--_art) + 2 * var(--_ring));
+    min-inline-size: 0;
+    position: relative;
+    transition:
+      opacity var(--slotted-duration-medium) var(--slotted-easing-enter),
+      scale var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  /**
+   * The inner card, set in from the ring by the ring less the border it sits
+   * inside, so it is exactly `--_art` square. It paints beneath the glyph
+   * because the root is the stacking context (`isolation` above) and the tile
+   * is not one.
+   */
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='tile']
+    > [data-part-media]:not(:empty)::before {
+    background-color: var(--slotted-surface-raised);
+    border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
+    border-radius: var(--_inner-radius);
+    box-shadow: var(--slotted-shadow-xs);
+    content: '';
+    inset: calc(var(--_ring) - var(--slotted-border-width-thin, 1px));
+    position: absolute;
+    z-index: -1;
+  }
+
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='tile']
+    > [data-part-media]:not(:empty)
+    > * {
+    block-size: var(--_art-glyph);
+    inline-size: var(--_art-glyph);
+    position: relative;
+  }
+
+  /**
+   * Three layers leaning back from the reader, the glyph on the front one.
+   *
+   * Each layer is a square of `--_side` — the largest control height plus a
+   * step, 42, 36 and 34 pixels — sheared by `skewY(-26deg)` and narrowed by
+   * `scaleX(0.9)`: the matrix ReUI's stack draws with, `matrix(1, -0.4877, 0,
+   * 1, 0, 0)`, where 0.4877 is the tangent of 26 degrees. The layers behind
+   * step back by (−0.36, −0.3) of a side in the tile's own coordinates, which
+   * after the shear and the narrowing is the (−13.65, −6.04) pixels ReUI steps
+   * its layers by at a 42-pixel side.
+   *
+   * Three layers and two pseudo-elements: the front face is `::before`, the
+   * middle layer `::after`, and the farthest is the box's own shadow, drawn
+   * twice — a fill, then a pixel wider in the border colour — because a
+   * shadow has no border of its own. The box itself paints nothing, since a
+   * transformed box is a stacking context and its own background would sit
+   * above nothing and beneath both pseudo-elements.
+   *
+   * The drawing's visual bounds are wider and taller than the box, so the box
+   * reserves the difference in its margins and is moved back onto the centre
+   * of those bounds: 0.325 of a side along the lean and 0.145 down, the
+   * centre of the sheared stack measured against the centre of the square.
+   */
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='stack']
+    > [data-part-media]:not(:empty) {
+    --_side: calc(var(--_art) + var(--slotted-space-2, 0.25rem));
+    --_lean: 1;
+    --_step-x: calc(var(--_side) * -0.36 * var(--_lean));
+    --_step-y: calc(var(--_side) * -0.3);
+    --_layer-border: var(--slotted-border-width-thin, 1px);
+    --_far: color-mix(in oklab, var(--slotted-border-subtle) 60%, transparent);
+
+    block-size: var(--_side);
+    border-radius: var(--slotted-radius-lg, 8px);
+    box-shadow:
+      calc(2 * var(--_step-x)) calc(2 * var(--_step-y)) 0 0 var(--slotted-surface-raised),
+      calc(2 * var(--_step-x)) calc(2 * var(--_step-y)) 0 var(--_layer-border) var(--_far);
+    box-sizing: border-box;
+    color: var(--slotted-text-muted);
+    forced-color-adjust: none;
+    inline-size: var(--_side);
+    margin-block: calc(var(--_side) * 0.37);
+    margin-inline: calc(var(--_side) * 0.28);
+    min-inline-size: 0;
+    position: relative;
+    transform: skewY(calc(-26deg * var(--_lean))) scaleX(0.9);
+    transition: box-shadow var(--slotted-duration-long) var(--slotted-easing-enter);
+    translate: calc(var(--_side) * 0.325 * var(--_lean)) calc(var(--_side) * 0.145);
+  }
+
+  /** Depth is read from the reading edge, so the stack leans the other way. */
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='stack']:dir(rtl)
+    > [data-part-media]:not(:empty) {
+    --_lean: -1;
+  }
+
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='stack']
+    > [data-part-media]:not(:empty)::before,
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='stack']
+    > [data-part-media]:not(:empty)::after {
+    background-color: var(--slotted-surface-raised);
+    border: var(--_layer-border) solid var(--slotted-border-subtle);
+    border-radius: inherit;
+    content: '';
+    inset: 0;
+    position: absolute;
+  }
+
+  /**
+   * The front face, a shade stronger at its edge than the layers behind it
+   * — ReUI's front stroke is half again as opaque as the others — with a
+   * lift under it for the ground the stack stands on. The shade is mixed
+   * from the two border roles rather than borrowed from the control edge,
+   * because a face drawn in the control edge is read by `field-surface.test.mjs`
+   * as a field, and this is a drawing.
+   */
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='stack']
+    > [data-part-media]:not(:empty)::before {
+    border-color: color-mix(
+      in oklab,
+      var(--slotted-border-subtle),
+      var(--slotted-border-strong) 30%
+    );
+    box-shadow: var(--slotted-shadow-sm);
+    z-index: -1;
+  }
+
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='stack']
+    > [data-part-media]:not(:empty)::after {
+    transition: translate var(--slotted-duration-long) var(--slotted-easing-enter);
+    translate: var(--_step-x) var(--_step-y);
+    z-index: -2;
+  }
+
+  /**
+   * The glyph on the front face, sheared with it. Half a side is 21, 18 and
+   * 17 pixels, where ReUI sets 24 on a 42-pixel face; the face here is the
+   * same size and the glyph is a size smaller, because a glyph as tall as
+   * the title's line box competes with the title.
+   */
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='stack']
+    > [data-part-media]:not(:empty)
+    > * {
+    block-size: calc(var(--_side) * 0.5);
+    inline-size: calc(var(--_side) * 0.5);
+  }
+
+  /**
+   * A stack of cards: the front card holds the page's glyph where a row's
+   * thumbnail would be and two lines where its text would be, and two cards
+   * behind it show a step of their top edges above it.
+   *
+   * Every length is ReUI's (`c-empty-15`, dossier § 3) on the nearest step:
+   * the card is 208 pixels wide, its padding sixteen, the thumbnail the
+   * smallest control height, the gap to the lines twelve, each card behind
+   * set in twelve pixels a side and twelve pixels higher. The card's height is
+   * the thumbnail plus its padding, 62, 58 and 56 pixels.
+   *
+   * The cards behind are the two pseudo-elements, beneath the front card
+   * because the root is the stacking context and the card is not one; they
+   * stand above the box, which reserves their two steps in its top margin.
+   *
+   * ReUI fades the bottom of the drawing into `--background`. That supposes
+   * the colour of the ground, and a result state inside a card or on the
+   * sunken surface is on another one; a mask would clip the cards behind,
+   * which stand outside the box. The drawing does not fade.
+   */
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='cards'] > [data-part-media] {
+    --_pad: var(--slotted-space-6, 1rem);
+    --_gap: var(--slotted-space-5, 0.75rem);
+    --_thumb: var(--slotted-control-height-sm, 30px);
+    --_step: var(--slotted-space-5, 0.75rem);
+    --_line: var(--slotted-space-4, 0.5rem);
+    --_line-2: var(--slotted-space-3, 0.375rem);
+    --_line-gap: var(--slotted-space-3, 0.375rem);
+    /* Where the lines start: after the thumbnail when there is one. */
+    --_lines-x: calc(var(--_pad) + var(--_thumb) + var(--_gap));
+    /* The two lines are 75 and 50 per cent of the room ReUI's card leaves them. */
+    --_line-1-length: calc(
+      (
+          var(--slotted-space-11, 3rem) * 4 + var(--slotted-space-6, 1rem) - var(--_lines-x) -
+            var(--_pad)
+        ) *
+        0.75
+    );
+    --_line-2-length: calc(
+      (
+          var(--slotted-space-11, 3rem) * 4 + var(--slotted-space-6, 1rem) - var(--_lines-x) -
+            var(--_pad)
+        ) *
+        0.5
+    );
+    /* A length, not a percentage: a percentage in a background offset is a
+       share of the room the layer leaves, which differs for each line height
+       and set the two lines four and three pixels above centre. */
+    --_line-1-y: calc(
+      (var(--_thumb) + 2 * var(--_pad) - var(--_line) - var(--_line-gap) - var(--_line-2)) / 2
+    );
+    /* `background-position` has no logical keyword, so the edge is a value. */
+    --_edge: left;
+    --_ink: var(--slotted-border-subtle);
+    /**
+     * Mixed with the card's own surface rather than with transparency: each
+     * cap overlaps its bar by half a line, and a translucent ink doubles where
+     * the two overlap, which drew a darker bead at both ends of the line.
+     */
+    --_ink-2: color-mix(in oklab, var(--slotted-border-subtle) 60%, var(--slotted-surface-raised));
+
+    align-items: center;
+    /**
+     * The lines are drawn in the card's own background, each a bar with a
+     * round cap at either end — a disc the line's height across, then the bar
+     * between the two discs — so the ends are the pill a skeleton line is,
+     * not the square end a gradient on its own draws.
+     */
+    background:
+      radial-gradient(closest-side, var(--_ink) calc(100% - 0.5px), transparent) var(--_edge)
+        var(--_lines-x) top var(--_line-1-y) / var(--_line) var(--_line) no-repeat,
+      radial-gradient(closest-side, var(--_ink) calc(100% - 0.5px), transparent) var(--_edge)
+        calc(var(--_lines-x) + var(--_line-1-length) - var(--_line)) top var(--_line-1-y) /
+        var(--_line) var(--_line) no-repeat,
+      linear-gradient(var(--_ink), var(--_ink)) var(--_edge)
+        calc(var(--_lines-x) + var(--_line) / 2) top var(--_line-1-y) /
+        calc(var(--_line-1-length) - var(--_line)) var(--_line) no-repeat,
+      radial-gradient(closest-side, var(--_ink-2) calc(100% - 0.5px), transparent) var(--_edge)
+        var(--_lines-x) top calc(var(--_line-1-y) + var(--_line) + var(--_line-gap)) /
+        var(--_line-2) var(--_line-2) no-repeat,
+      radial-gradient(closest-side, var(--_ink-2) calc(100% - 0.5px), transparent) var(--_edge)
+        calc(var(--_lines-x) + var(--_line-2-length) - var(--_line-2)) top
+        calc(var(--_line-1-y) + var(--_line) + var(--_line-gap)) / var(--_line-2) var(--_line-2)
+        no-repeat,
+      linear-gradient(var(--_ink-2), var(--_ink-2)) var(--_edge)
+        calc(var(--_lines-x) + var(--_line-2) / 2) top
+        calc(var(--_line-1-y) + var(--_line) + var(--_line-gap)) /
+        calc(var(--_line-2-length) - var(--_line-2)) var(--_line-2) no-repeat,
+      var(--slotted-surface-raised);
+    /* Offsets are measured from the card's outer edge, where the thumbnail's
+       padding is measured from too. */
+    background-origin: border-box;
+    block-size: calc(var(--_thumb) + 2 * var(--_pad));
+    border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
+    border-radius: var(--slotted-radius-lg, 8px);
+    box-shadow: var(--slotted-shadow-sm);
+    box-sizing: border-box;
+    color: var(--slotted-text-muted);
+    display: flex;
+    forced-color-adjust: none;
+    inline-size: calc(var(--slotted-space-11, 3rem) * 4 + var(--slotted-space-6, 1rem));
+    justify-content: flex-start;
+    margin-block-start: calc(2 * var(--_step));
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    padding-inline: calc(var(--_pad) - var(--slotted-border-width-thin, 1px));
+    position: relative;
+  }
+
+  /** No thumbnail without a glyph: the lines start at the padding. */
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='cards']
+    > [data-part-media]:empty {
+    --_lines-x: var(--_pad);
+  }
+
+  /**
+   * Right to left, the thumbnail moves to the inline start by itself and the
+   * lines are placed from the right edge. The card is not mirrored with a
+   * transform: a transformed box is a stacking context, and the cards behind
+   * would then paint over the front one.
+   */
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='cards']:dir(rtl)
+    > [data-part-media] {
+    --_edge: right;
+  }
+
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='cards']
+    > [data-part-media]::before,
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='cards']
+    > [data-part-media]::after {
+    background-color: var(--slotted-surface-sunken);
+    block-size: 100%;
+    border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
+    border-radius: inherit;
+    box-sizing: border-box;
+    content: '';
+    inset-block-start: calc(-1 * var(--slotted-border-width-thin, 1px));
+    position: absolute;
+    transition: translate var(--slotted-duration-long) var(--slotted-easing-enter);
+    z-index: -1;
+  }
+
+  /** The farthest card, painted first. */
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='cards']
+    > [data-part-media]::before {
+    border-color: var(--_ink-2);
+    inset-inline: calc(2 * var(--_step) - var(--slotted-border-width-thin, 1px));
+    translate: 0 calc(-2 * var(--_step));
+  }
+
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='cards']
+    > [data-part-media]::after {
+    inset-inline: calc(var(--_step) - var(--slotted-border-width-thin, 1px));
+    translate: 0 calc(-1 * var(--_step));
+  }
+
+  /**
+   * The thumbnail is the page's glyph on the sunken surface, padded from its
+   * edge to the glyph size.
+   */
+  [data-ui-result-state]:not([data-reach='inline'])[data-illustration='cards']
+    > [data-part-media]
+    > * {
+    background-color: var(--slotted-surface-sunken);
+    block-size: var(--_thumb);
+    border-radius: var(--slotted-radius-sm, 4px);
+    box-sizing: border-box;
+    flex: none;
+    inline-size: var(--_thumb);
+    padding: calc((var(--_thumb) - var(--slotted-control-icon-size-md, 16px)) / 2);
+  }
+
+  /* ── The words, which are the live region ─────────────────────────────
+   *
+   * `min-inline-size: 0` is what lets the column shrink below its content
+   * inside the grid, and it is the half of the pair that `minmax(0, …)` on the
+   * track cannot supply on its own.
+   */
+  [data-ui-result-state] > [data-part-content] {
+    display: grid;
+    min-inline-size: 0;
+    row-gap: var(--_text-gap);
+  }
+
+  [data-ui-result-state][data-reach='inline'] > [data-part-content] {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  /**
+   * `balance` is what keeps a two-line title from leaving one word on the
+   * second line, and it is the reason a centred region reads as a shape rather
+   * than as a ragged edge. It is capped by the browser at a handful of lines,
+   * so a long title is unaffected rather than slow.
+   *
+   * `break-word` breaks the one string a result state is likeliest to carry
+   * that no language can break — a resource id, a host name without a hyphen.
+   * Nothing is removed: the whole string stays in the DOM, in the accessibility
+   * tree, and findable by a page search.
+   */
+  [data-ui-result-state] [data-part-title] {
+    font-family: var(
+      --slotted-result-state-title-font-family,
+      var(
+        --slotted-font-family-heading,
+        var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+      )
+    );
+    font-size: var(--_title-font-size);
+    font-weight: var(
+      --slotted-result-state-title-font-weight,
+      var(--slotted-font-weight-semibold, 600)
+    );
+    letter-spacing: var(--_title-tracking);
+    line-height: var(--_title-line-height);
+    margin: 0;
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+    text-wrap: balance;
+  }
+
+  /**
+   * The muted text role, because the title is what the reader is meant to read
+   * first and two lines of equal weight give them no order to read in. It is
+   * the pair the theme measures against all three neutral surfaces.
+   */
+  [data-ui-result-state] [data-part-description] {
+    color: var(--slotted-text-muted);
+    font-size: var(--_description-font-size);
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin: 0;
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+  }
+
+  /* ── The actions ──────────────────────────────────────────────────────
+   *
+   * Outside the live region, so a reader hearing the message is not read the
+   * labels of two buttons in the middle of it. What goes in is the consumer's
+   * own `button` and `a`, because those families already own what a button and
+   * a link are.
+   */
+  [data-ui-result-state] > [data-part-actions] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-result-state-actions-gap, var(--slotted-space-4, 0.5rem));
+    min-inline-size: 0;
+  }
+
+  [data-ui-result-state][data-align='center'] > [data-part-actions] {
+    justify-content: center;
+  }
+
+  /** The pause between the message and its answer (`--_actions-gap`). */
+  [data-ui-result-state]:not([data-reach='inline']) > [data-part-content] + [data-part-actions] {
+    margin-block-start: calc(var(--_actions-gap) - var(--_row-gap));
+  }
+
+  /**
+   * On the same line as the mark, and for the same reason. The grid row is as
+   * tall as its tallest item, so a control taller than a line of text made the
+   * row thirty pixels deep: the mark and the words then sat at the top of it
+   * while the control sat in the middle, and a row with one thing at the top
+   * and another in the centre reads as a mistake. Reported from the picture.
+   *
+   * The box is one line box tall and the control is centred in it, which lets
+   * the control stand proud of the line by the same distance above and below —
+   * a distance the region's own block inset already holds.
+   */
+  [data-ui-result-state][data-reach='inline'] > [data-part-actions] {
+    /**
+     * `align-content` rather than `align-items`, because the row is allowed to
+     * wrap and a wrapping flex container aligns its *lines*: with the line
+     * taller than the box, `align-items: center` centres the control inside a
+     * line that is itself parked at the top, which left the control exactly
+     * half its overhang too low.
+     */
+    align-content: center;
+    align-self: start;
+    block-size: 1lh;
+    grid-column: 3;
+    grid-row: 1;
+    margin-inline-start: var(--_column-gap);
+  }
+
+  /**
+   * The line under the actions: the documentation link that is not a call to
+   * action. Polaris calls it `footerContent` and Atlassian a `tertiaryAction`,
+   * and both are right that it is neither of the two buttons above it — so it
+   * is set one step down and in the muted role rather than made a third
+   * control.
+   */
+  [data-ui-result-state] > [data-part-footer] {
+    color: var(--slotted-text-muted);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    line-height: var(--slotted-line-height-sm, 1.45);
+    min-inline-size: 0;
+  }
+
+  [data-ui-result-state][data-reach='inline'] > [data-part-footer] {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  /* ── Focus ────────────────────────────────────────────────────────────
+   *
+   * The root carries `tabindex="-1"`, so an application that has just emptied
+   * a table can send the reader to the message; a reader who arrives that way
+   * has to see where they are. It is the only state the family paints, and it
+   * is not animated: a focus indicator that fades in is a focus indicator that
+   * is not there yet.
+   */
+  [data-ui-result-state][data-part-root]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── A narrow box ─────────────────────────────────────────────────────
+   *
+   * Two buttons wrapping into two ragged lines is worse than two buttons
+   * stacked, and the `inline` row has nowhere left to put a third column. This
+   * is the composition change the 240-pixel capture exists to check.
+   */
+  @container slotted-result-state (max-width: 20rem) {
+    [data-ui-result-state] > [data-part-actions] {
+      /**
+       * Stacked, and each control still its own width. How wide a control is
+       * belongs to the control, and `button` already ships `fullWidth` for a
+       * consumer who wants it.
+       */
+      flex-direction: column;
+    }
+
+    [data-ui-result-state][data-align='center'] > [data-part-actions] {
+      align-items: center;
+    }
+
+    [data-ui-result-state][data-align='start'] > [data-part-actions] {
+      align-items: flex-start;
+    }
+
+    [data-ui-result-state][data-reach='inline'] {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    /**
+     * Below the words now, so the box goes back to its own height: a row of
+     * controls held to one line box only makes sense while it is on that line.
+     */
+    [data-ui-result-state][data-reach='inline'] > [data-part-actions] {
+      block-size: auto;
+      grid-column: 2;
+      grid-row: 2;
+      margin-inline-start: 0;
+    }
+
+    [data-ui-result-state][data-reach='inline'] > [data-part-footer] {
+      grid-column: 2;
+      grid-row: 3;
+    }
+  }
+
+  /* ── Motion ───────────────────────────────────────────────────────────
+   *
+   * The exit. A hidden region keeps its element for the reason a hidden
+   * `alert` does — a live region has to be in the document before its text
+   * changes — and fades out on the leaving curve, carrying `display` so the
+   * box holds its place until the fade is over. `display: none` is restated
+   * because the root's own `display: grid` would win over the user agent's
+   * rule for `[hidden]`.
+   */
+  [data-ui-result-state][data-part-root][hidden] {
+    display: none;
+    opacity: 0;
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-exit),
+      display var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  /**
+   * The entry belongs to a region that announces, for `alert`'s reason:
+   * `@starting-style` applies on first paint as well, and a region with
+   * `live="off"` is one the page has decided is not an arrival. The words
+   * fade in; the drawing assembles — the layers behind a stack and the cards
+   * behind a card start hidden behind the front one and open to where they
+   * rest, the second a short step after the first, and a tile settles from a
+   * shade smaller. Every duration is on the motion scale, which the theme
+   * collapses under reduced motion.
+   */
+  @starting-style {
+    [data-ui-result-state][data-part-root]:is([data-live='polite'], [data-live='assertive']) {
+      opacity: 0;
+    }
+
+    [data-ui-result-state][data-part-root]:is([data-live='polite'], [data-live='assertive'])
+      > [data-part-media] {
+      --_step-x: 0px;
+      --_step-y: 0px;
+    }
+
+    [data-ui-result-state][data-part-root]:is(
+        [data-live='polite'],
+        [data-live='assertive']
+      )[data-illustration='tile']
+      > [data-part-media] {
+      opacity: 0;
+      scale: 0.96;
+    }
+
+    [data-ui-result-state][data-part-root]:is(
+        [data-live='polite'],
+        [data-live='assertive']
+      )[data-illustration='cards']
+      > [data-part-media]::before,
+    [data-ui-result-state][data-part-root]:is(
+        [data-live='polite'],
+        [data-live='assertive']
+      )[data-illustration='cards']
+      > [data-part-media]::after {
+      translate: 0 0;
+    }
+  }
+
+  /** The farther of two moving layers leaves a short step after the nearer. */
+  [data-ui-result-state][data-illustration='cards'] > [data-part-media]::before {
+    transition-delay: var(--slotted-duration-short);
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────
+   *
+   * Nothing beyond the drawings' own `forced-color-adjust`, above. The
+   * operating system replaces every author colour, the theme already remaps
+   * `--slotted-text` and `--slotted-text-muted`, and the words carry the
+   * region as they do everywhere else.
+   */
+}

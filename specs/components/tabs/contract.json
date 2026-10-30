@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 5,
+  "family": "tabs",
+  "ui": "tabs",
+  "catalog": {
+    "group": "Navigation",
+    "summary": "Switches between panels of related content."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/tabs/",
+  "roles": {
+    "list": "tablist",
+    "item": "presentation",
+    "tab": "tab",
+    "panel": "tabpanel"
+  },
+  "labelPart": {
+    "part": "label",
+    "reason": "The words get a box of their own, as they do in `tag`: it is what `text-overflow` needs to clip a share that fit=equal made too narrow, what `unicode-bidi: plaintext` needs to let one right-to-left label read its own way, and what an icon beside the label is aligned against."
+  },
+  "adornments": {
+    "parts": ["start", "end"],
+    "reason": "An icon before the words and a count after them stand beside the label, inside the tab, as `tag` places its own: inside the label they would be clipped with the words under fit=equal and turned with them by `unicode-bidi: plaintext`, and the tab's gap would not reach them."
+  },
+  "controlElement": {
+    "default": "button",
+    "withHref": "a"
+  },
+  "wiring": {
+    "aria-controls": "the tab names its panel",
+    "aria-labelledby": "the panel names its tab",
+    "aria-selected": "true on the selected tab, false on every other",
+    "aria-orientation": "written on the list only when vertical",
+    "aria-keyshortcuts": "Delete, on a dismissible tab",
+    "panelTabIndex": "0"
+  },
+  "marker": {
+    "part": "marker",
+    "drawnOn": "the list's edge, under the selected tab's content box",
+    "measured": true,
+    "directionAttribute": "data-activation-direction",
+    "directions": ["forward", "backward", "none"]
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves focus into the list",
+      "focus": "the selected tab, which is the only tab in the tab sequence",
+      "source": "roving tabindex"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "moves to the next tab in a horizontal list and wraps at the end; activates it when activation is automatic",
+      "focus": "the tab moved to",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "moves to the previous tab in a horizontal list and wraps at the start; activates it when activation is automatic",
+      "focus": "the tab moved to",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "the same as ArrowRight in a vertical list, and nothing in a horizontal one so the page keeps scrolling",
+      "focus": "the tab moved to, in a vertical list",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "the same as ArrowLeft in a vertical list, and nothing in a horizontal one so the page keeps scrolling",
+      "focus": "the tab moved to, in a vertical list",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Home",
+      "effect": "moves to the first tab that is not disabled; activates it when activation is automatic",
+      "focus": "the first enabled tab",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "End",
+      "effect": "moves to the last tab that is not disabled; activates it when activation is automatic",
+      "focus": "the last enabled tab",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Enter",
+      "effect": "activates the focused tab",
+      "focus": "stays on the tab",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "activates the focused tab",
+      "focus": "stays on the tab",
+      "source": "platform"
+    },
+    {
+      "key": "Delete",
+      "effect": "dismisses the focused tab when it is dismissible",
+      "focus": "the following tab, the preceding one when the dismissed tab was last, or the list itself when none is left",
+      "source": "@slotted/core/focus removal focus"
+    }
+  ],
+  "escapeBound": false,
+  "crossAxisNavigates": false,
+  "declined": {
+    "Shift+F10": {
+      "deferTo": "menu",
+      "reason": "the APG opens a tab's popup menu with it, and no menu exists until wave 5. A key bound to nothing is worse than a key a reader has to discover once."
+    },
+    "deselectable": {
+      "deferTo": "collapsible",
+      "reason": "Ark UI alone ships it. A tabs family holding no selection shows no panel, and content that closes entirely is what collapsible and accordion are for."
+    },
+    "panelTransition": {
+      "reason": "Angular Material alone ships a sliding panel. It needs a clipping viewport that traps horizontal scrolling and fights the list's own scroll; the panel fades instead, which is what says it changed."
+    },
+    "toolbarWrapper": {
+      "deferTo": "toolbar",
+      "reason": "the row beside the list is a toolbar the consumer places in the actions part, not a second keyboard model inside this family."
+    }
+  },
+  "axes": {
+    "activation": ["automatic", "manual"],
+    "orientation": ["horizontal", "vertical"],
+    "size": ["sm", "md", "lg"],
+    "variant": ["line", "contained"],
+    "track": ["line", "none"],
+    "fit": ["auto", "equal"],
+    "mount": ["active", "lazy", "eager"]
+  },
+  "resolution": {
+    "activation": ["prop", "defaults", "automatic"],
+    "orientation": ["prop", "defaults", "horizontal"],
+    "size": ["prop", "defaults", "md"],
+    "variant": ["prop", "defaults", "line"],
+    "track": ["prop", "defaults", "line"],
+    "fit": ["prop", "defaults", "auto"],
+    "mount": ["prop", "defaults", "active"]
+  },
+  "provides": {
+    "tabsDefaults": [
+      "activation",
+      "orientation",
+      "size",
+      "variant",
+      "track",
+      "fit",
+      "mount",
+      "loop"
+    ],
+    "toTabs": ["activation", "disabled", "orientation", "size", "value"]
+  },
+  "overflow": {
+    "behaviour": "scroll",
+    "pagingControls": 2,
+    "pagingControlsInTabSequence": false,
+    "engine": "@slotted/core/overflow"
+  },
+  "dismissal": {
+    "part": "dismiss",
+    "tabIndex": -1,
+    "request": "onTabDismiss",
+    "reasons": ["pointer", "keyboard"],
+    "movesSelectionWithReason": "remove"
+  },
+  "stateAttributes": {
+    "selected": "data-selected",
+    "disabled": "data-disabled"
+  },
+  "stateModel": {
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "remove", "programmatic"]
+    }
+  },
+  "members": {
+    "tabs": {
+      "nativeElement": "div",
+      "defaults": {
+        "activation": "automatic",
+        "orientation": "horizontal",
+        "size": "md",
+        "variant": "line",
+        "track": "line",
+        "fit": "auto",
+        "mount": "active",
+        "loop": true,
+        "disabled": false
+      },
+      "capabilities": [
+        "selection",
+        "orientation",
+        "size",
+        "appearance",
+        "disabled",
+        "removable",
+        "wiring"
+      ],
+      "states": ["default", "hover", "active", "focus-visible", "selected", "disabled"],
+      "parts": [
+        "root",
+        "list",
+        "item",
+        "tab",
+        "start",
+        "label",
+        "end",
+        "dismiss",
+        "marker",
+        "panel",
+        "scroll",
+        "actions"
+      ]
+    }
+  },
+  "scenarios": {
+    "tabs": [
+      "playground",
+      "activation",
+      "orientation",
+      "variant",
+      "sizes",
+      "fit",
+      "states",
+      "mount",
+      "dismissible",
+      "overflow",
+      "links",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  },
+  "trackless": {
+    "axis": "track",
+    "value": "none",
+    "reason": "A set of tabs sitting on a card header's edge, a table's own rule or a panel that already draws its top border has a line the family cannot see. Two hairlines a pixel apart read as one smudge, and the only answer the field offers is Cloudscape's whole `container` variant — a second family's worth of paint to remove one line. With no track the marker sits on the item's own edge, so it lands on the line the page already drew."
+  }
+}

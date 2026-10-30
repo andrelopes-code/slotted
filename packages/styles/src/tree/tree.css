@@ -1,0 +1,992 @@
+@layer slotted.components {
+  /**
+   * A hierarchy the reader opens, walks and chooses from.
+   *
+   *   ┌─ root ─ the query container ─ the frame ───────────────────────┐
+   *   │  ┌─ canvas ─ role="tree" ─ scrolls ─ one tab stop ─────────┐   │
+   *   │  │  ┌─ node ─ role="treeitem" ────────────────────────┐    │   │
+   *   │  │  │  ┌─ row ─ the band, the target, the indent ─┐   │    │   │
+   *   │  │  │  │ guide │ expander │ indicator │ icon      │   │    │   │
+   *   │  │  │  │ label │ meta │ loader │ actions          │   │    │   │
+   *   │  │  │  └───────────────────────────────────────────┘   │    │   │
+   *   │  │  │  ┌─ group ─ role="group" ─ only while open ──┐   │    │   │
+   *   │  │  │  │  node ▸ …                                 │   │    │   │
+   *   │  │  │  └───────────────────────────────────────────┘   │    │   │
+   *   │  │  └──────────────────────────────────────────────────┘    │   │
+   *   │  │  empty                                                   │   │
+   *   │  └──────────────────────────────────────────────────────────┘   │
+   *   └─────────────────────────────────────────────────────────────────┘
+   *
+   * ── Why the indent is on the row and not on the group ───────────────
+   *
+   * The band a hovered or selected row paints spans the whole width of the
+   * tree. Indenting the group — which is what a nested list does on its own —
+   * starts that band at the indent, and a selected file three levels down then
+   * paints a rectangle that begins in the middle of the page. So the group
+   * carries no inset at all, and the row states its own with
+   * `padding-inline-start`, from a depth the family writes per node.
+   *
+   * ── Why the guide is one element ────────────────────────────────────
+   *
+   * A line per ancestor level is a line per ancestor element, and depth twenty
+   * is then twenty elements on every row. One element, sized `depth × step`,
+   * with a repeating gradient at the step, draws the same picture at any depth
+   * for one box. The cost is that no elbow can be drawn at a last child, which
+   * none of the surveyed implementations draws either.
+   *
+   * ── Why the selected band has no radius ─────────────────────────────
+   *
+   * With a cascade, a chosen folder and its children are selected together and
+   * their bands are adjacent. A radius on each one meets its neighbour at a
+   * waist and the column reads as a stack of pills rather than as one block —
+   * the defect `selection-block.test.mjs` holds `listbox` to. A tree cannot fix
+   * it the way a listbox does, because two adjacent selected rows are often a
+   * parent and a child and therefore in two different lists, where `:has(+ …)`
+   * cannot reach. A square band has no waist to fix.
+   *
+   * ── Density ─────────────────────────────────────────────────────────
+   *
+   * A row is a control, so its height, inset, type, glyph and gap all read
+   * control geometry. A dense tree holds more rows and is the same component;
+   * only the frame's own inset, radius and shadow come off the space, radius
+   * and shadow scales.
+   */
+  [data-ui-tree] {
+    --_surface: var(--slotted-tree-surface, var(--slotted-surface, #ffffff));
+    --_text: var(--slotted-tree-text, var(--slotted-text, #0f172a));
+    --_muted: var(--slotted-tree-text-muted, var(--slotted-text-muted, #5b6b7f));
+    --_border-color: var(--slotted-tree-border-color, var(--slotted-control-border-color));
+    --_border-width: var(--slotted-border-width-thin, 1px);
+    --_radius: var(--slotted-tree-radius, var(--slotted-radius-md, 6px));
+    --_shadow: var(--slotted-tree-shadow, var(--slotted-control-shadow));
+
+    /**
+     * One quiet ground for hover and for the row the keyboard is on, told apart
+     * by the ring rather than by two greys. It is the rule `listbox` settled:
+     * a second, darker grey made the pointer's feedback shout louder than the
+     * keyboard's position.
+     */
+    --_highlight: var(--slotted-tree-highlight, var(--slotted-tone-secondary-subtle-hover));
+    --_highlight-active: var(
+      --slotted-tree-highlight-active,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+    --_selected-surface: var(--slotted-tree-selected-surface, var(--slotted-tone-accent-surface));
+    --_selected-text: var(--slotted-tree-selected-text, var(--slotted-tone-accent-text));
+    --_selected-edge: var(--slotted-tree-selected-edge, var(--slotted-tone-accent-border));
+
+    /**
+     * The line that says which parent a row belongs to.
+     *
+     * Measured against the surface it is drawn on: the subtle step alone is
+     * 1.23:1 in `light` and 1.25:1 in `dark`, which is a line a reader has to
+     * look for; the strong step is 3.59:1 and 3.84:1, which is a separator's
+     * weight repeated once per level and reads as a table of columns. The
+     * guide is neither — it is a redundant aid, because the indent and
+     * `aria-level` already carry the hierarchy — so it wants to be seen at a
+     * glance and to stay under the text.
+     *
+     * Six parts of the strong step to four of the subtle lands between them:
+     * `#a1aebd` at 2.26:1 in `light` and `#525258` at 2.39:1 in `dark`,
+     * measured on the built page. The dark scheme takes the higher of the two
+     * on purpose — a thin light line on a dark ground reads weaker than the
+     * same ratio does on white.
+     *
+     * Mixing the two ends of the scale rather than mixing one end into
+     * transparency is what keeps `high-contrast` right: there both ends are
+     * black, so the mix is black, the line stays at 21:1, and no rule has to
+     * read the scheme.
+     */
+    --_guide-color: var(
+      --slotted-tree-guide-color,
+      color-mix(in oklab, var(--slotted-border-strong) 60%, var(--slotted-border-subtle))
+    );
+
+    /**
+     * One step of depth, stated from the glyph rather than taken from the space
+     * scale.
+     *
+     * What a reader sees on a row is the distance from its deepest guide line
+     * to its own chevron, and that distance is `step - glyph / 2`, because the
+     * line sits on the centre of the chevron one level up. With the step read
+     * from the space scale and the glyph from the control scale, the two moved
+     * apart: measured on the built page, five pixels at `sm`, eight at `md`,
+     * eleven at `lg`, and nought at 240 pixels, where the line met the chevron.
+     * The tree looked tighter at one size than at another for a reason nobody
+     * could name.
+     *
+     * Half a glyph plus a fixed step of the space scale holds it at eight
+     * pixels everywhere, and leaves `md` at exactly the sixteen it already was.
+     */
+    --_indent: var(
+      --slotted-tree-indent,
+      calc(var(--_icon-size) / 2 + var(--slotted-space-4, 0.5rem))
+    );
+
+    --_inset-block: var(--slotted-tree-padding-block, var(--slotted-space-2, 0.25rem));
+    --_inset-inline: var(--slotted-tree-padding-inline, var(--slotted-space-2, 0.25rem));
+    --_row-inset: var(--slotted-control-padding-inline-md, 0.8125rem);
+    --_row-height: var(--slotted-control-height-md, 34px);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_gap: var(--slotted-control-gap-md, 0.5rem);
+    --_check-size: var(--slotted-selection-size-md, 16px);
+
+    /**
+     * How many rows tall the box is. A tree with no bound is a tree that pushes
+     * the page down as its branches open, and a windowed one has no viewport at
+     * all.
+     */
+    --_rows: var(--slotted-tree-rows, 12);
+
+    /**
+     * The cap. Measure belongs to `container`, so the family offers no axis for
+     * it and still has to stop a `max-content` row from setting one label the
+     * width of the page.
+     */
+    --_measure: var(--slotted-tree-measure, 28rem);
+
+    /**
+     * `--slotted-tree-depth` is deliberately not aliased here.
+     *
+     * A custom property composed on an ancestor resolves its `var()` calls
+     * there: `--_depth: var(--slotted-tree-depth, 0)` written on this element
+     * would substitute the root's own value — nothing, so nought — and every
+     * row would inherit that one number however deep its node is. The family
+     * writes the depth per node and the two rules that need it read it
+     * directly. It is the same trap `--slotted-control-shadow-focus-geometry`
+     * is shaped around, and `docs/token-foundation.md` records that one.
+     */
+
+    box-sizing: border-box;
+    color: var(--_text);
+    /**
+     * The query container is the root and the tracks are one element in:
+     * `container-type: inline-size` makes an element a query container for its
+     * descendants and not for itself, and what answers the width here is the
+     * indent the rows inside carry.
+     */
+    container-name: slotted-tree;
+    container-type: inline-size;
+    display: block;
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--_font-size);
+    inline-size: 100%;
+    max-inline-size: var(--_measure);
+    text-align: start;
+  }
+
+  [data-ui-tree][data-size='sm'] {
+    --_row-inset: var(--slotted-control-padding-inline-sm, 0.625rem);
+    --_row-height: var(--slotted-control-height-sm, 30px);
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_secondary-font-size: var(--slotted-font-size-xs, 0.75rem);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_gap: var(--slotted-control-gap-sm, 0.375rem);
+    --_check-size: var(--slotted-selection-size-sm, 14px);
+  }
+
+  [data-ui-tree][data-size='lg'] {
+    --_row-inset: var(--slotted-control-padding-inline-lg, 1rem);
+    --_row-height: var(--slotted-control-height-lg, 38px);
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_secondary-font-size: var(--slotted-control-font-size-md, 13px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_gap: var(--slotted-control-gap-lg, 0.5rem);
+    --_check-size: var(--slotted-selection-size-lg, 18px);
+  }
+
+  /**
+   * `framed` is the standalone control; `plain` is what a tree renders as
+   * inside a panel, a drawer or a page region that already has an edge.
+   */
+  [data-ui-tree][data-variant='framed'] {
+    background-color: var(--_surface);
+    border: var(--_border-width) solid var(--_border-color);
+    border-radius: var(--_radius);
+    box-shadow: var(--_shadow);
+  }
+
+  [data-ui-tree] [data-part-canvas] {
+    /**
+     * The block cap is stated rather than the height: a tree of four branches
+     * is four rows tall, and one of four hundred stops at `rows` and scrolls.
+     * The inset is added so the last row is not cut in half by the padding the
+     * frame reserved for itself.
+     */
+    max-block-size: calc(var(--_rows) * var(--_row-height) + 2 * var(--_inset-block));
+    outline: none;
+    overflow: auto;
+    padding-block: var(--_inset-block);
+    padding-inline: 0;
+  }
+
+  [data-ui-tree] :is([data-part-canvas], [data-part-group]) {
+    list-style: none;
+    margin-block: 0;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+
+  /**
+   * The group carries no inset: the row states the whole indent, so the band
+   * can span the tree's full width at every level.
+   */
+  [data-ui-tree] [data-part-group] {
+    padding-block: 0;
+    padding-inline: 0;
+  }
+
+  /**
+   * A node states its own box rather than inheriting one.
+   *
+   * The family is built on `ul` and `li`, so it is exposed to whatever reset
+   * the page around it has: the reference page gave every `li` after the first
+   * seven pixels of margin, and the guide line — which spans one row — broke
+   * into segments at each of them. The page was fixed where the page is, and a
+   * family that only works under one reset is a family waiting for the next
+   * one.
+   */
+  [data-ui-tree] [data-part-node] {
+    display: block;
+    margin-block: 0;
+    margin-inline: 0;
+    padding-block: 0;
+    padding-inline: 0;
+    /**
+     * The node holds focus and the row draws the ring, so the node draws none
+     * of its own. Left to the user agent it drew one anyway — Chrome's is a
+     * white line inside a dark one — and a focused branch showed two rings at
+     * once: the browser's around the whole subtree, and the family's inside it
+     * around the row. Suppressing it is only safe because the row replaces it,
+     * which is the condition the rule below satisfies.
+     */
+    outline: none;
+  }
+
+  [data-ui-tree] [data-part-row] {
+    align-items: center;
+    background-color: transparent;
+    color: inherit;
+    /**
+     * ── The hand, and where the library's two answers meet ───────────────
+     *
+     * `menu`, `menubar` and `listbox` keep the arrow: an option is one of a set
+     * the reader picks from, and the set is the control. `button`, `select` and
+     * `combobox` draw the hand, and SL11 records why the arrow was wrong for a
+     * trigger — the one control in a form that said nothing happens when it is
+     * pressed.
+     *
+     * A tree row is on both sides of that line. It is an option in a set, and
+     * under the default `expandOn="row"` it is also the disclosure that opens
+     * its own branch. Drawing the arrow on the element that opens the branch
+     * would be the defect SL11 fixed, and drawing two cursors inside one tree —
+     * the hand on a branch, the arrow on a leaf that selects — is worse than
+     * either answer on its own, which is what this stylesheet did until now.
+     *
+     * So: the hand on every row that does something, and the arrow on a row
+     * that does nothing, which is a leaf in a tree that selects nothing.
+     */
+    cursor: pointer;
+    display: flex;
+    /**
+     * No `gap`. A gap is drawn between two cells even when one of them is
+     * empty, so a tree whose nodes carry no icon opened with a gutter down its
+     * start edge and a tree with no mark opened with two. Each optional cell
+     * carries its own margin instead, and a cell nothing occupies costs
+     * nothing — which is `menu`'s rule and `listbox`'s, and the defect the
+     * visual gate found here.
+     */
+    min-block-size: var(--_row-height);
+    outline: none;
+    padding-block: 0;
+    /**
+     * Every level of depth, plus the frame's own inset, before the first cell.
+     * The end inset is the frame's alone: a row is as deep as its node and as
+     * wide as the tree.
+     */
+    padding-inline: calc(var(--_inset-inline) + var(--slotted-tree-depth, 0) * var(--_indent))
+      var(--_row-inset);
+    position: relative;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+    user-select: none;
+  }
+
+  /**
+   * One element, `depth × step` wide, one line per ancestor level, drawn as a
+   * gradient that repeats at the step.
+   *
+   * ── Where the line sits ──────────────────────────────────────────────
+   *
+   * Under the centre of the chevron of the level above, which is half a glyph
+   * from the start of that level's cell — not half a step. The two agree only
+   * at `md`, where the step and the glyph are both sixteen pixels; at `sm` and
+   * `lg` they differ by a pixel, and under the narrow container queries, where
+   * the step drops to twelve and to eight while the glyph does not, by two and
+   * by four. Every line was off its chevron at five of the nine combinations.
+   *
+   * ── Why the line does not stop at the last child ─────────────────────
+   *
+   * It did, at half the row's height, which is where an elbow would turn. With
+   * no elbow to turn into, a chain of only children — every one of them a last
+   * child — drew a staircase of short segments with a gap under each, and the
+   * picture read as broken rather than as ended. A straight line through every
+   * row is what `VS Code`, Primer and Carbon all draw, and what the reviewer
+   * asked for at the visual gate.
+   */
+  [data-ui-tree] [data-part-guide] {
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--_guide-color) 0 var(--_border-width),
+      transparent var(--_border-width) var(--_indent)
+    );
+    inline-size: calc(var(--slotted-tree-depth, 0) * var(--_indent));
+    inset-block: 0;
+    inset-inline-start: calc(var(--_inset-inline) + var(--_icon-size) / 2);
+    pointer-events: none;
+    position: absolute;
+  }
+
+  [data-ui-tree] [data-part-guide]:dir(rtl) {
+    background-image: repeating-linear-gradient(
+      to left,
+      var(--_guide-color) 0 var(--_border-width),
+      transparent var(--_border-width) var(--_indent)
+    );
+  }
+
+  [data-ui-tree][data-guides='false'] [data-part-guide] {
+    background-image: none;
+  }
+
+  /**
+   * The chevron: the `Glyph` the binding draws inside this box for a branch.
+   * One glyph turned, rather than two glyphs swapped, so the two states read
+   * as one control moving. A leaf keeps the box and the binding draws nothing
+   * in it, which is what holds every label in one column whatever its node is.
+   */
+  [data-ui-tree] [data-part-expander] {
+    /**
+     * The glyph is the icon size and never the box: under `expandOn="expander"`
+     * the box grows by padding to the target minimum, and the `icon` box stays
+     * in the content box at the size of the icons beside it.
+     */
+    --slotted-icon-size: var(--_icon-size);
+    block-size: var(--_icon-size);
+    color: var(--_muted);
+    display: flex;
+    flex: none;
+    inline-size: var(--_icon-size);
+    /**
+     * The hit area the artwork does not have is drawn with padding taken back
+     * as a negative margin, rather than with a pseudo-element hanging out of
+     * the box: `overflow-clip-margin` does not contain what hangs out, which is
+     * the measurement `docs/token-foundation.md` records.
+     */
+    margin-inline-end: var(--_gap);
+  }
+
+  [data-ui-tree] [data-part-expander] > [data-ui-icon] {
+    transition: rotate var(--slotted-control-transition-duration, var(--slotted-duration-short))
+      var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-tree] [data-part-expander]:dir(rtl) > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  [data-ui-tree]
+    [data-part-node][data-expanded]
+    > [data-part-row]
+    [data-part-expander]
+    > [data-ui-icon] {
+    rotate: 90deg;
+  }
+
+  /**
+   * The chevron is the target under `expandOn="expander"`, and the whole row is
+   * the target otherwise. Under the first the box is grown to the WCAG minimum
+   * without the artwork growing, and the growth is taken back so no label moves.
+   */
+  [data-ui-tree][data-expand-on='expander']
+    [data-part-node][data-branch]
+    > [data-part-row]
+    [data-part-expander] {
+    box-sizing: content-box;
+    cursor: pointer;
+    margin-block: calc((var(--slotted-target-min, 24px) - var(--_icon-size)) / -2);
+    /**
+     * The start is pulled back by exactly what the padding adds, so the artwork
+     * does not move off the guide line under it. The end keeps a real gap
+     * instead of the whole one: taking the growth off both sides left the
+     * chevron and the box touching, and the pair read as one glyph.
+     */
+    margin-inline-end: calc(
+      var(--_gap) - (var(--slotted-target-min, 24px) - var(--_icon-size)) / 2
+    );
+    margin-inline-start: calc((var(--slotted-target-min, 24px) - var(--_icon-size)) / -2);
+    padding-block: calc((var(--slotted-target-min, 24px) - var(--_icon-size)) / 2);
+    padding-inline: calc((var(--slotted-target-min, 24px) - var(--_icon-size)) / 2);
+  }
+
+  /**
+   * A row that does nothing takes the arrow back. With nothing to select, a
+   * leaf is text; and with the chevron as the only target, no row is pressed at
+   * all.
+   */
+  [data-ui-tree][data-selection='none'][data-expand-on='expander'] [data-part-row],
+  [data-ui-tree][data-selection='none'] [data-part-node]:not([data-branch]) > [data-part-row] {
+    cursor: default;
+  }
+
+  /**
+   * A tree the reader may read and not move keeps the arrow throughout, as
+   * `listbox` does with the same word.
+   */
+  [data-ui-tree][data-readonly] [data-part-row] {
+    cursor: default;
+  }
+
+  /**
+   * ── The box, and why `highlight` has none ──────────────────────────────
+   *
+   * `highlight` says the selection with the row's ground and its ink, and
+   * draws no mark at all. A mark needs a cell, a cell that is empty on every
+   * unchosen row is a gutter down the start edge of the whole tree, and a tree
+   * already spends one cell on the chevron and one per level on the indent.
+   * Every surveyed implementation that highlights — Primer, Carbon, the APG's
+   * own examples — draws no mark either, and under forced colours the row takes
+   * `Highlight` and `HighlightText`, which is the system's own selection rather
+   * than a colour of ours. `listbox` keeps its check because a flat list has
+   * one cell to spare and no indent; this is where the two families part, and
+   * the reason is the indent.
+   *
+   * A tree that wants a mark asks for `checkbox`, and then the mark is a box
+   * the reader can press.
+   *
+   * ── Why the box is the one `checkbox` draws ────────────────────────────
+   *
+   * Same square from the selection scale, same medium edge in the strong
+   * border colour, same smallest radius, same solid ground when chosen, and the
+   * same mark: a whole two pixels of clearance on every side, at every step,
+   * revealed by a clip that opens along the stroke rather than by a scale that
+   * grows out of the middle. The clearance is a whole number and not a
+   * fraction for the reason `checkbox` states at length — a fraction of a
+   * sixteen-pixel box rasterises the mark and the square onto different
+   * subpixels — and the two families are held together by
+   * `tree.styles.test.mjs`, which reads `checkbox.css` and compares them.
+   */
+  [data-ui-tree] [data-part-indicator] {
+    --_mark-inset: var(--slotted-tree-mark-inset, 2px);
+    --_check-border: var(--slotted-border-width-medium, 1.5px);
+    --_mark-size: calc(var(--_check-size) - 2 * var(--_mark-inset));
+    --slotted-icon-size: var(--_mark-size);
+
+    background-color: var(--_surface);
+    block-size: var(--_check-size);
+    border: var(--_check-border) solid var(--slotted-border-strong);
+    border-radius: var(--slotted-radius-xs, 2px);
+    box-sizing: border-box;
+    cursor: pointer;
+    flex: none;
+    inline-size: var(--_check-size);
+    margin-inline-end: var(--_gap);
+    position: relative;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      border-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  /**
+   * The mark is the `Glyph` the binding draws inside the box — the check, or
+   * the dash while the node is indeterminate — rather than a second part, so a
+   * node stays one part in the DOM. Its `icon` box is placed against the
+   * border box and not the content box: `2px - 1.5px` from the padding edge is
+   * two whole pixels from the outside of the square, which is where `checkbox`
+   * puts its own.
+   */
+  [data-ui-tree] [data-part-indicator] > [data-ui-icon] {
+    /* Physical on purpose: a check is not mirrored in a right-to-left row, so
+       neither is the hand that draws it. `checkbox` states the same. */
+    clip-path: inset(0% 100% 0% 0%);
+    color: var(--slotted-tone-accent-on-solid);
+    inset-block-start: calc(var(--_mark-inset) - var(--_check-border));
+    inset-inline-start: calc(var(--_mark-inset) - var(--_check-border));
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition:
+      clip-path var(--slotted-duration-medium)
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      opacity var(--slotted-duration-medium)
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-tree]
+    [data-part-node]:is([data-selected], [data-indeterminate])
+    > [data-part-row]
+    [data-part-indicator] {
+    background-color: var(--slotted-tone-accent-solid);
+    border-color: var(--slotted-tone-accent-solid);
+  }
+
+  [data-ui-tree]
+    [data-part-node]:is([data-selected], [data-indeterminate])
+    > [data-part-row]
+    [data-part-indicator]
+    > [data-ui-icon] {
+    clip-path: inset(0% 0% 0% 0%);
+    opacity: 1;
+  }
+
+  [data-ui-tree] [data-part-node][data-disabled] > [data-part-row] [data-part-indicator] {
+    background-color: var(--slotted-disabled-background, Canvas);
+    border-color: var(--slotted-disabled-border, GrayText);
+    cursor: not-allowed;
+  }
+
+  /**
+   * Only the box mode draws a cell. `highlight` and `none` render no indicator
+   * at all, and the rule is written so a consumer who leaves the element in the
+   * markup still gets the tree the axis promises.
+   */
+  [data-ui-tree]:is([data-indicator='highlight'], [data-indicator='none']) [data-part-indicator] {
+    display: none;
+  }
+
+  /**
+   * The node's own picture, which the consumer supplies. The family owns no
+   * folder glyph: a folder is content, and the glyph scale holds none.
+   */
+  [data-ui-tree] [data-part-icon] {
+    block-size: var(--_icon-size);
+    color: var(--_muted);
+    flex: none;
+    inline-size: var(--_icon-size);
+    margin-inline-end: var(--_gap);
+  }
+
+  /**
+   * A tree where some nodes carry a picture and others do not keeps every name
+   * in one column: a row with no icon opens the same cell the icon would have
+   * taken. Primer asks the consumer to pass a visual on every item or to accept
+   * two columns of names; the fact is one the tree can read for itself.
+   */
+  [data-ui-tree][data-part-root]:has([data-part-icon])
+    [data-part-row]:not(:has([data-part-icon]))
+    [data-part-label] {
+    margin-inline-start: calc(var(--_icon-size) + var(--_gap));
+  }
+
+  /**
+   * The three parts that hold the consumer's own words take their direction
+   * from those words rather than from the document.
+   *
+   * `unicode-bidi: plaintext` reads the first strong character and sets the
+   * base direction from it, which is what a file tree needs and what the
+   * harness showed: in a right-to-left document an English `4 kB` was laid out
+   * as `kB 4`, and `“invoices”` had its closing quote moved to the front.
+   * `isolate` does not fix either — it gives the span its own context and still
+   * takes the base direction from the document. A node's name, its second line
+   * and its count are data of unknown direction, and each one is now its own
+   * paragraph.
+   */
+  [data-ui-tree]
+    :is([data-part-label], [data-part-description], [data-part-meta], [data-part-empty]) {
+    unicode-bidi: plaintext;
+  }
+
+  /**
+   * The label shrinks to its own words rather than growing to the row.
+   *
+   * A label that took the free space put its text at the far edge of that box
+   * once `unicode-bidi: plaintext` had given it its own direction: in a
+   * right-to-left tree an English name sat against the opposite edge from the
+   * indent that placed it. Shrink-wrapping the label and pushing the trailing
+   * cells to the end with an automatic margin puts every name against the
+   * reader's own start edge in both directions, and leaves the truncation
+   * where it was.
+   */
+  [data-ui-tree] [data-part-label] {
+    flex: 0 1 auto;
+    line-height: var(--slotted-line-height-sm, 1.45);
+    /**
+     * The one part that gives way. A label that is one unbroken token truncates
+     * and stays whole in the DOM, which is the library's standing decision on
+     * truncation.
+     */
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /**
+   * A placeholder row has no words to shrink to, so its label takes the space a
+   * name would have taken. Without this the skeleton resolved to nothing and a
+   * branch fetching its children drew a one-pixel mark where a row should be —
+   * which is what the harness showed.
+   */
+  /**
+   * A placeholder row has no words to shrink to, so its label takes the space a
+   * name would have taken. Without this the skeleton resolved to nothing and a
+   * branch fetching its children drew a one-pixel mark where a row should be.
+   *
+   * The three widths are what stop a fetching branch from reading as a table of
+   * identical bars: names are not all one length, and a placeholder that claims
+   * they are is a placeholder the eye refuses. They are literals because they
+   * are a proportion of a row rather than a step on any scale.
+   */
+  [data-ui-tree] [data-part-label]:has([data-ui-skeleton]) {
+    flex: 1 1 auto;
+    max-inline-size: 62%;
+  }
+
+  [data-ui-tree]
+    [data-part-node]:nth-child(2n)
+    > [data-part-row]
+    [data-part-label]:has([data-ui-skeleton]) {
+    max-inline-size: 44%;
+  }
+
+  [data-ui-tree]
+    [data-part-node]:nth-child(3n)
+    > [data-part-row]
+    [data-part-label]:has([data-ui-skeleton]) {
+    max-inline-size: 73%;
+  }
+
+  /**
+   * The band behind a matched span, mixed from the tone's ink rather than taken
+   * from its ground, which is the rule `--slotted-highlight-tint-opacity`
+   * states and what `select` and `combobox` already draw.
+   */
+  [data-ui-tree] [data-part-label] mark {
+    background-color: color-mix(
+      in oklab,
+      var(--slotted-tone-accent-text) calc(var(--slotted-highlight-tint-opacity, 0.075) * 100%),
+      transparent
+    );
+    color: inherit;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  /**
+   * A matched span on a chosen row keeps its weight and drops its band. The
+   * band is seven and a half per cent of the tone's ink mixed into the surface,
+   * and over the tone's own ground it is neither visible nor clean — two washes
+   * of one colour, one of them too faint to read as deliberate.
+   */
+  [data-ui-tree] [data-part-node][data-selected] > [data-part-row] [data-part-label] mark {
+    background-color: transparent;
+  }
+
+  [data-ui-tree] [data-part-description] {
+    color: var(--_muted);
+    margin-inline-start: var(--_gap);
+    flex: 0 1 auto;
+    font-size: var(--_secondary-font-size);
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /**
+   * The trailing count. It keeps its intrinsic width so a label twice as long
+   * in translation pushes on itself rather than on the number beside it.
+   */
+  [data-ui-tree] [data-part-meta] {
+    color: var(--_muted);
+    flex: none;
+    font-size: var(--_secondary-font-size);
+    font-variant-numeric: tabular-nums;
+    /**
+     * The automatic margin pushes the count to the end of the row, and collapses
+     * to nothing the moment the name fills the row — which left a truncated
+     * label touching its own count. The padding is the separation that does not
+     * depend on there being room to spare.
+     */
+    margin-inline-start: auto;
+    padding-inline-start: var(--_gap);
+  }
+
+  /**
+   * The wait is `progress-indicator`'s ring, standing where the chevron stands.
+   * A family that drew an arc of its own would be a second answer to the same
+   * wait, drifting from the first the moment one of them is retuned.
+   */
+  /**
+   * The wait is `progress-indicator`'s ring, in the chevron's own cell and at
+   * the chevron's own size, so a branch that starts fetching moves nothing: the
+   * name does not step sideways and the rows below do not step down. A family
+   * that drew an arc of its own would be a second answer to the same wait,
+   * drifting from the first the moment one of them is retuned.
+   */
+  [data-ui-tree] [data-part-loader] {
+    --slotted-spinner-size: var(--_icon-size);
+
+    block-size: var(--_icon-size);
+    color: var(--_muted);
+    flex: none;
+    inline-size: var(--_icon-size);
+    margin-inline-end: var(--_gap);
+  }
+
+  /**
+   * The consumer's trailing controls. They are always in the DOM and always
+   * reachable: revealing them on hover alone puts a control behind a gesture a
+   * touch reader does not have.
+   */
+  [data-ui-tree] [data-part-actions] {
+    align-items: center;
+    display: flex;
+    flex: none;
+    gap: var(--slotted-space-1, 0.125rem);
+    margin-inline-start: auto;
+    padding-inline-start: var(--_gap);
+  }
+
+  /* The free space is taken once. With a count before them, the controls sit a
+     gap after it rather than splitting the row between the two. */
+  [data-ui-tree] [data-part-meta] ~ [data-part-actions] {
+    margin-inline-start: 0;
+  }
+
+  [data-ui-tree] [data-part-empty] {
+    color: var(--_muted);
+    padding-block: var(--slotted-space-5, 0.75rem);
+    padding-inline: var(--_row-inset);
+    text-align: center;
+  }
+
+  /**
+   * ── States ─────────────────────────────────────────────────────────
+   *
+   * A weaker state holds itself back for every stronger one, in the order
+   * `STATE_PRECEDENCE` names.
+   */
+  [data-ui-tree] [data-part-node]:not([data-disabled]):not([data-loading]) > [data-part-row]:hover {
+    background-color: var(--_highlight);
+  }
+
+  [data-ui-tree]
+    [data-part-node]:not([data-disabled]):not([data-loading])
+    > [data-part-row]:active {
+    background-color: var(--_highlight-active);
+  }
+
+  /**
+   * The row the keyboard is on paints the same quiet ground as hover, and the
+   * ring is what tells the two apart.
+   */
+  [data-ui-tree] [data-part-node][data-current]:not([data-disabled]) > [data-part-row] {
+    background-color: var(--_highlight);
+  }
+
+  [data-ui-tree] [data-part-node][data-selected]:not([data-disabled]) > [data-part-row] {
+    background-color: var(--_selected-surface);
+    color: var(--_selected-text);
+  }
+
+  [data-ui-tree]
+    [data-part-node][data-selected]:not([data-disabled])
+    > [data-part-row]
+    :is([data-part-icon], [data-part-meta], [data-part-expander]) {
+    color: inherit;
+  }
+
+  /**
+   * A collapsed branch holding a selected descendant. Carbon states the rule
+   * and ships no API for it: a selection that disappears when its branch closes
+   * is a selection the reader has lost.
+   *
+   * It is said in ink rather than with a bar on the start edge. R1 —
+   * `state-rail.test.mjs` — refuses the bar for `current`, `selected`,
+   * `active` and `checked`, and a fact that stands in for a selection is the
+   * same claim in a quieter voice; a family allowed to draw the rail here would
+   * have found the way around the rule rather than an exception to it. Ink is
+   * one of the three devices R1 names, and it is quieter than a ground, which
+   * is right: the reader chose the descendant and not this.
+   */
+  [data-ui-tree]
+    [data-part-node][data-selected-within]:not([data-selected]):not([data-disabled])
+    > [data-part-row] {
+    color: var(--_selected-text);
+  }
+
+  [data-ui-tree]
+    [data-part-node][data-selected-within]:not([data-selected]):not([data-disabled])
+    > [data-part-row]
+    [data-part-expander] {
+    color: inherit;
+  }
+
+  [data-ui-tree] [data-part-node][data-disabled] > [data-part-row] {
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: not-allowed;
+  }
+
+  [data-ui-tree]
+    [data-part-node][data-disabled]
+    > [data-part-row]
+    :is([data-part-icon], [data-part-meta], [data-part-expander], [data-part-description]) {
+    color: inherit;
+  }
+
+  [data-ui-tree] [data-part-node][data-loading] > [data-part-row] {
+    cursor: progress;
+  }
+
+  /**
+   * The ring is drawn inside the row rather than around it, so a focused row at
+   * the top or the bottom of a scrolling canvas is not clipped by its own
+   * viewport.
+   */
+  [data-ui-tree] [data-part-node]:focus-visible > [data-part-row],
+  [data-ui-tree] [data-part-canvas]:focus-visible [data-part-node][data-current] > [data-part-row] {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  [data-ui-tree][data-invalid] {
+    --slotted-focus-ring-color: var(--slotted-focus-ring-color-invalid);
+    --_border-color: var(--slotted-tone-danger-border);
+    /* Width as well as colour (WCAG 1.4.1): in `high-contrast` the danger
+       border is the resting edge's black. An edge inside the border, so
+       nothing moves, in place of the resting lift — the one `text-field`
+       draws. */
+    --_invalid-edge-width: var(--slotted-control-invalid-edge-width, 1px);
+    --_shadow: inset 0 0 0 var(--_invalid-edge-width) var(--slotted-tone-danger-border);
+  }
+
+  [data-ui-tree][data-disabled] {
+    color: var(--slotted-disabled-foreground, GrayText);
+  }
+
+  [data-ui-tree][data-disabled][data-variant='framed'] {
+    background-color: var(--slotted-disabled-background, Canvas);
+    border-color: var(--slotted-disabled-border, GrayText);
+    box-shadow: none;
+  }
+
+  /**
+   * ── The windowed shape ─────────────────────────────────────────────
+   *
+   * The scroller moves to the root and the canvas becomes the thing that is
+   * sized, which is the split `listbox` already draws: a `ul` cannot be both
+   * the box that scrolls and the box that states the height of a list it only
+   * holds a slice of. The canvas falls back to `auto`, so a flat tree with no
+   * window is laid out exactly as a nested one.
+   */
+  [data-ui-tree][data-structure='flat'] {
+    max-block-size: calc(var(--_rows) * var(--_row-height) + 2 * var(--_inset-block));
+    overflow: auto;
+  }
+
+  [data-ui-tree][data-structure='flat'] [data-part-canvas] {
+    block-size: var(--_canvas-size, auto);
+    max-block-size: none;
+    overflow: visible;
+    padding-block-start: calc(var(--_inset-block) + var(--_canvas-offset, 0px));
+    position: relative;
+  }
+
+  /**
+   * A row the window does not cover and the family renders anyway: the active
+   * node, and the anchor a range is measured from. Without it the element
+   * `aria-activedescendant` names leaves the document under a momentum scroll,
+   * and the reader is operating a widget with no focused node at all.
+   *
+   * It sits at its own place on the canvas rather than being pulled into view,
+   * because the reader scrolled it out and moving it back would take the
+   * scrollbar away from them.
+   */
+  [data-ui-tree] [data-part-node][data-pinned] {
+    inset-block-start: var(--slotted-tree-row-offset, 0px);
+    inset-inline: 0;
+    position: absolute;
+  }
+
+  /**
+   * ── The narrow container ───────────────────────────────────────────
+   *
+   * The indent is the first thing to give way, because a tree that has lost a
+   * step of indent is still readable and one that has lost its labels is not.
+   * The breakpoints are literal: `@container (min-width: var(--x))` is invalid
+   * CSS, which `docs/token-foundation.md` records.
+   *
+   * The retuned value lands on the canvas rather than on the root. A container
+   * query styles the container's descendants and never the container itself, so
+   * a rule for `[data-ui-tree]` inside this block matches nothing — the tree
+   * is not its own descendant. Written on the root it looked correct and did
+   * nothing, and the harness at 240 pixels is what showed the indent had not
+   * moved. It is the second half of the two-element decision the briefing
+   * records, and the half that is easy to write and hard to see.
+   */
+  @container slotted-tree (max-width: 320px) {
+    [data-ui-tree] [data-part-canvas] {
+      --_indent: calc(var(--_icon-size) / 2 + var(--slotted-space-3, 0.375rem));
+    }
+  }
+
+  @container slotted-tree (max-width: 240px) {
+    [data-ui-tree] [data-part-canvas] {
+      --_indent: calc(var(--_icon-size) / 2 + var(--slotted-space-2, 0.25rem));
+      --_row-inset: var(--slotted-control-padding-inline-sm, 0.625rem);
+    }
+
+    /* The second line has no room to sit beside the first at this width. */
+    [data-ui-tree] [data-part-description] {
+      display: none;
+    }
+  }
+
+  /**
+   * The one thing the theme cannot reach. Every tone surface becomes `Canvas`
+   * under forced colours, so a selection said with a tinted ground alone would
+   * say nothing in the mode that needs it most — and under the `highlight`
+   * indicator there is no mark to fall back on. `accent` is the selected tone
+   * and the theme maps it to `Highlight`, which is what is restated here.
+   */
+  @media (forced-colors: active) {
+    [data-ui-tree] [data-part-node][data-selected] > [data-part-row] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-tree] [data-part-node][data-disabled] > [data-part-row] {
+      color: GrayText;
+    }
+
+    /*
+     * The box and its mark are painted from a tone. The theme maps `accent` to
+     * `Highlight` and `on-solid` to `HighlightText`, so the chosen box keeps
+     * both; the mark opts out as well, or the system forces its ink to the
+     * text colour and the tick loses its contrast with the box it stands on.
+     */
+    [data-ui-tree] [data-part-indicator] > [data-ui-icon] {
+      forced-color-adjust: none;
+    }
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The width
+   * comes back as an outline inside the border; the
+   * ring belongs to a row and leaves it alone.
+   */
+  @media (forced-colors: active) {
+    [data-ui-tree][data-variant='framed'][data-invalid] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(-1 * (var(--_border-width) + var(--_invalid-edge-width)));
+    }
+  }
+}

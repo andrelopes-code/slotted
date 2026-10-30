@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 5,
+  "family": "menubar",
+  "ui": "menubar",
+  "catalog": {
+    "group": "Navigation",
+    "summary": "Horizontal bar of menus, as in desktop apps."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/menubar/",
+  "patternStatus": "The same page menu answers, read on 2026-09-04. Everything the pattern says about the bar is here; everything it says about the surface is in specs/components/menu/contract.json.",
+  "roles": {
+    "root": "menubar",
+    "trigger": "menuitem"
+  },
+  "holds": "menu",
+  "holdsReason": "The bar is a container over the menu family rather than a second copy of it. Radix's Menubar re-exports the sixteen parts its DropdownMenu already has, which is why its two documentation pages repeat each other nearly line for line and why the two machines are free to drift; Base UI reached the same shape this family takes, where the bar is one element and the menus inside it are ordinary menus. The cost is one context: a menu has to know it belongs to a bar, which is what makes the inline arrows move between triggers.",
+  "composes": ["focus", "typeahead"],
+  "wiring": {
+    "role": "menubar on the root, menuitem on each trigger",
+    "aria-orientation": "vertical on a vertical bar; horizontal is the role's own default and is not written",
+    "aria-label": "the consumer names the bar, and the reference page says so: a bar with no name reads as an unlabelled list of commands",
+    "aria-haspopup": "menu, on every trigger",
+    "aria-expanded": "true on the trigger whose menu is open",
+    "aria-controls": "the trigger names the surface it opens",
+    "aria-disabled": "on a disabled trigger, which stays focusable as the pattern requires"
+  },
+  "keyboard": [
+    {
+      "key": "Enter",
+      "effect": "opens the trigger's menu",
+      "focus": "the menu's first item",
+      "source": "pattern"
+    },
+    {
+      "key": "Space",
+      "effect": "opens the trigger's menu",
+      "focus": "the menu's first item",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "on a horizontal bar, opens the trigger's menu; on a vertical bar, moves to the next trigger",
+      "focus": "the menu's first item, or the next trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "on a horizontal bar, opens the trigger's menu onto its last item, which is the pattern's optional behaviour; on a vertical bar, moves to the previous trigger",
+      "focus": "the menu's last item, or the previous trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "the inline-end direction, mirrored in a right-to-left document: on a horizontal bar moves to the next trigger, wrapping when loop is true; on a vertical bar opens the trigger's menu",
+      "focus": "the next trigger, whose menu opens without focus entering it when a menu was already open",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "the inline-start direction, mirrored in a right-to-left document: the previous trigger on a horizontal bar, and on a vertical bar the key that closes the open menu back to its trigger",
+      "focus": "the previous trigger, or the trigger of the menu that closed",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "moves to the first trigger",
+      "focus": "the first trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "End",
+      "effect": "moves to the last trigger",
+      "focus": "the last trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "Printable character",
+      "effect": "moves to the next trigger whose label begins with the sequence typed, which the pattern asks of a menubar as well as of a menu",
+      "focus": "the matched trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "Escape",
+      "effect": "closes the open menu and leaves the bar focused",
+      "focus": "the trigger whose menu closed",
+      "source": "pattern"
+    },
+    {
+      "key": "Tab",
+      "effect": "moves focus out of the bar entirely and closes every open menu; the bar is one tab stop",
+      "focus": "the next element in the page after the bar",
+      "source": "pattern"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "the same, backwards",
+      "focus": "the element before the bar",
+      "source": "pattern"
+    }
+  ],
+  "focus": {
+    "tabStops": 1,
+    "roving": true,
+    "remembersLastItem": true,
+    "onTab": "focus moves out of the bar entirely and every open menu closes",
+    "onOpen": "the first item of the menu the trigger opens",
+    "disabledItems": "A disabled trigger stays focusable and opens nothing, which is what the pattern asks of every item in a menu or menubar.",
+    "reason": "packages/core/src/focus/roving-tabindex holds the single tab stop and the arrow movement; the bar keeps the index it last had, which is the optional half of the pattern's Tab rule."
+  },
+  "valueReason": "The capability is selection rather than value: a bar chooses one of its menus, and the vocabulary's `value` is the text a control holds. A bar has at most one open menu, so its state is the identifier of that menu rather than a boolean on each. A boolean per menu can represent two open menus at once, which is a state the pattern does not allow and which no consumer can recover from.",
+  "switching": {
+    "on": "pointerenter",
+    "requires": "an already open menu",
+    "focus": "the trigger entered",
+    "reason": "Moving the pointer along a bar with a menu already open switches menus without a press, and moving it along a closed bar opens nothing. It is the behaviour that separates a menubar from a row of buttons, and Radix, Base UI and the Angular CDK all ship it."
+  },
+  "orientationReason": "A vertical bar writes aria-orientation=\"vertical\" and swaps the two arrow pairs, as the pattern's fifth note requires; horizontal is the role's own default and is left unwritten. A sidebar of commands is a vertical menubar.",
+  "menuSide": {
+    "horizontal": "bottom",
+    "vertical": "inline-end",
+    "reason": "A menu opens away from the bar rather than over it. The side is the bar's own decision and a menu inside it may still state its own."
+  },
+  "declined": {
+    "menuApi": {
+      "deferTo": "menu",
+      "reason": "Every part inside the bar's menus belongs to the menu family and is imported from it. The bar re-exports nothing, so a capability added to menu reaches every menubar without a second edit."
+    },
+    "overflow": {
+      "deferTo": "toolbar",
+      "reason": "A bar with more triggers than room is the overflow question, and docs/process/build-order.md gives it to toolbar at the end of this wave. A menubar names four to eight commands by convention; one that needs an overflow menu is a toolbar whose actions happen to open menus."
+    },
+    "modal": {
+      "deferTo": "dialog",
+      "reason": "Base UI's menubar is modal by default. This family declines modality for the reason menu declines it, and a bar whose own triggers were inert could not switch menus with the pointer."
+    },
+    "triggerContent": {
+      "reason": "A trigger holds the consumer's own text and nothing the family imposes: no icon slot, no chevron, no shortcut. A menubar trigger is a word, and every surveyed implementation renders it as one."
+    }
+  },
+  "axes": {
+    "orientation": ["horizontal", "vertical"],
+    "size": ["sm", "md", "lg"],
+    "loop": [true, false],
+    "typeahead": [true, false],
+    "disabled": [true, false]
+  },
+  "resolution": {
+    "orientation": ["prop", "defaults", "horizontal"],
+    "size": ["prop", "defaults", "md"],
+    "loop": ["prop", "defaults", true],
+    "typeahead": ["prop", "defaults", true],
+    "disabled": ["prop", "defaults", false]
+  },
+  "provides": {
+    "menubarDefaults": ["orientation", "size", "loop", "typeahead", "disabled"]
+  },
+  "stateAttributes": {
+    "open": "data-open",
+    "disabled": "data-disabled"
+  },
+  "stateModel": {
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "escape",
+        "outsidePress",
+        "select",
+        "dismiss",
+        "programmatic"
+      ]
+    }
+  },
+  "members": {
+    "menubar": {
+      "nativeElement": "div",
+      "defaults": {
+        "orientation": "horizontal",
+        "size": "md",
+        "loop": true,
+        "typeahead": true,
+        "disabled": false
+      },
+      "capabilities": [
+        "selection",
+        "orientation",
+        "size",
+        "appearance",
+        "disabled",
+        "content",
+        "wiring"
+      ],
+      "states": ["default", "hover", "active", "focus-visible", "open", "disabled"],
+      "parts": ["root", "trigger"]
+    }
+  },
+  "scenarios": {
+    "menubar": [
+      "playground",
+      "bar",
+      "submenus",
+      "checkbox-and-radio",
+      "orientation",
+      "states",
+      "keyboard",
+      "composition"
+    ]
+  }
+}

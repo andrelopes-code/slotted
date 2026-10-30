@@ -1,0 +1,2051 @@
+@layer slotted.components {
+  /**
+   * The outer frame of a route: the regions that do not change when the
+   * content does.
+   *
+   *   div[data-ui-app-shell]
+   *   ├─ skip ▸ a · a · a
+   *   ├─ banner ▸ brand ▸ nav-toggle · … | centre ▸ … | actions ▸ …
+   *   ├─ nav ▸ nav-header · nav-body · nav-footer
+   *   ├─ scrim
+   *   ├─ main ▸ page ▸ …
+   *   ├─ aside ▸ aside-header ▸ … · aside-toggle | aside-body | aside-footer
+   *   ├─ footer
+   *   └─ layer
+   *
+   * ── One grid of measures, and every row in the frame stands on it ─────────
+   *
+   * `--_gutter` is the air around anything the frame holds. `--_row-inset` is
+   * how far a *row* sits inside the region that holds it, and `--_row-mark` is
+   * the box its mark occupies. Three numbers, published as tokens, and every
+   * left edge in the shell is one of two sums of them: the mark column at
+   * `gutter + inset`, and the text column at `gutter + inset + mark + gap`.
+   *
+   * The control in the bar, the workspace mark at the head of the navigation,
+   * every destination's mark and the account at its foot therefore share one
+   * edge; the wordmark, the labels, the group headings and the account's name
+   * share the other. Before the three numbers existed there were five edges
+   * within twenty pixels of each other, which is what a column of things that
+   * do not line up looks like.
+   *
+   * `side-navigation`, wave 8, reads the same three and needs no agreement
+   * with this family beyond them.
+   *
+   * ── The chrome recedes and the content advances ───────────────────────────
+   *
+   * Under `canvas="inset"`, the default, the frame is painted the sunken
+   * ground and carries no surface of its own; the content is a raised card
+   * inset from it with a radius and an edge, and **no rule is drawn anywhere**
+   * — the gutter separates. `canvas="flush"` is the arrangement every surveyed
+   * implementation ships: regions on the surface, content on the ground, a
+   * hairline between. In the light scheme the two page surfaces are two per
+   * cent apart, which is why the hairline was doing all the work there and
+   * none of it here.
+   *
+   * ── The mode decides the geometry; the width only decides the mode ────────
+   *
+   * `data-nav-mode` is the single source of truth for where the navigation is
+   * drawn, and the binding writes it. `overlay` is a layer at *any* width,
+   * because a consumer may state the axis on a wide screen. Keying the layer's
+   * geometry on the container query instead was a defect: with the mode forced
+   * on a wide screen the script applied the veil, the focus scope and `inert`
+   * while the stylesheet left the region a static column underneath, so the
+   * screen went dark and nothing else happened.
+   *
+   * The container query is the *fallback*, and only that: before the binding
+   * has measured — a server render, the frame before hydration — there is no
+   * attribute, and a wide shell draws the column while a narrow one draws
+   * nothing. That is the safe half of the answer either way.
+   *
+   * `container-type: inline-size` makes an element a query container for its
+   * descendants and not for itself, so the root never rewrites its own
+   * template: it states its tracks once and each region places itself.
+   *
+   * ── One element in all three modes ────────────────────────────────────────
+   *
+   * The rail is the same `nav` at another inline size, which is what keeps the
+   * focus and the scroll position where the reader left them; Carbon remounts
+   * its side nav between the two and loses both.
+   */
+  [data-ui-app-shell] {
+    /**
+     * The air around anything the frame holds. Composed from the control gap
+     * rather than stated on the space scale, so it answers density: a dense
+     * screen tightens its frame along with its controls.
+     */
+    --_gutter: var(
+      --slotted-app-shell-gutter,
+      calc(var(--slotted-control-gap-lg, 8px) + var(--slotted-space-2, 0.25rem))
+    );
+    /** How far a row sits inside its region, over and above the gutter. */
+    --_row-inset: var(--slotted-app-shell-row-inset-size, var(--slotted-space-4, 0.5rem));
+    /** The box a row's mark occupies: a control's own size, so the two agree. */
+    --_row-mark: var(--slotted-app-shell-row-mark-size, var(--slotted-control-height-md, 34px));
+    --_row-gap: var(--slotted-control-gap-md, 8px);
+    /**
+     * How far a focus ring drawn outside a control reaches past its box: the
+     * ring's width and its offset, 4px with the default theme. The three parts
+     * of the navigation column pad their inline sides by it, because the body
+     * scrolls and clips at its padding box, and a full-width control's ring
+     * stood outside that box on both sides.
+     */
+    --_row-ring-inset: calc(
+      var(--slotted-focus-ring-width, 2px) + var(--slotted-focus-ring-offset, 2px)
+    );
+
+    /**
+     * A row's type. A list of destinations is text and not a control, so it
+     * composes the type scale rather than the control scale — the two agree at
+     * thirteen pixels today and a theme may move either. `normal` is not a
+     * line height: it varies by font, and a two-line row needs the number.
+     */
+    --_row-font-size: var(
+      --slotted-app-shell-row-text-size,
+      var(--slotted-font-size-sm, 0.8125rem)
+    );
+    --_row-line-height: var(
+      --slotted-app-shell-row-text-line-height,
+      var(--slotted-line-height-sm, 1.45)
+    );
+
+    /**
+     * Published, because the rows inside the regions are not this family's:
+     * `side-navigation` and `top-navigation` read them in wave 8, and a
+     * consumer who brings its own list has nothing to align to otherwise. Six
+     * numbers, and every left edge, row height and label in the frame is one.
+     */
+    --slotted-app-shell-row-inset: var(--_row-inset);
+    --slotted-app-shell-row-mark: var(--_row-mark);
+    --slotted-app-shell-row-gap: var(--_row-gap);
+    --slotted-app-shell-row-height: var(--_row-mark);
+    --slotted-app-shell-row-font-size: var(--_row-font-size);
+    --slotted-app-shell-row-line-height: var(--_row-line-height);
+
+    --_nav-size: var(--slotted-app-shell-nav-size-md, 15rem);
+    /**
+     * The layer is wider than the column. A column shares the screen with the
+     * content and earns every pixel; a layer covers content the reader cannot
+     * reach, so its width costs nothing but the strip that says where to press
+     * to leave — one mark and the gutters, kept by the `min()` below.
+     */
+    --_nav-overlay-size: var(--slotted-app-shell-nav-overlay-size, 20rem);
+    --_aside-size: var(--slotted-app-shell-aside-size-md, 20rem);
+    /**
+     * A rail is one mark column with a row's inset on each side, so a closed
+     * region is exactly as wide as the marks it holds and reads as a centred
+     * strip rather than as a column with its air on one side.
+     */
+    --_rail-size: var(
+      --slotted-app-shell-rail-size,
+      calc(var(--_row-mark) + var(--_row-inset) * 2)
+    );
+    /**
+     * How far the frame's own edge is from the regions that run along it. It is
+     * the gutter on the inset plane, where every region is a card standing off
+     * the edge, and nothing on the flush plane, where they meet it. The bar and
+     * the footer read it so that their rows stand on the same left edge as the
+     * column's — measured, the control in the bar was twelve pixels to the
+     * right of the marks under `flush` and over them under `inset`.
+     */
+    --_edge: var(--_gutter);
+    /**
+     * How far the navigation's rows stand inside the region's own box, and
+     * how much of the region's width its edges take. Both are nothing on the
+     * inset plane, where the column is the frame's ground and its box is the
+     * strip a reader sees; each other plane gives the region an edge — the
+     * screen's, a card's, a seam — and a row whose ground meets an edge reads
+     * as a column with no padding. The inset is on both sides, so the closed
+     * strip stays centred in itself, and the closed width is written once,
+     * from both, for every plane.
+     */
+    --_nav-inset: 0px;
+    --_nav-edges: 0px;
+
+    --_frame: var(--slotted-app-shell-frame, var(--slotted-surface-sunken, Canvas));
+    --_canvas: var(--slotted-app-shell-canvas, var(--slotted-surface, Canvas));
+    --_ink: var(--slotted-app-shell-color, var(--slotted-text, CanvasText));
+    /**
+     * The bar of a scrolling body: the thumb at the strong border step, which
+     * is the step `scroll-area` gives it and the one the foundation holds to
+     * 3:1 against every surface; the track the column's own ground, because a
+     * groove down the side of a navigation column is a second column.
+     */
+    --_scrollbar-thumb: var(
+      --slotted-app-shell-scrollbar-thumb-color,
+      var(--slotted-border-strong, ButtonBorder)
+    );
+    --_scrollbar-track: var(--slotted-app-shell-scrollbar-track-color, transparent);
+
+    /**
+     * ── The palette, region by region ──────────────────────────────────────
+     *
+     * Every region reads its own ground and its own ink, and every one of them
+     * falls back to the plane's. A shell whose column is dark over a light
+     * frame is one declaration, and it does not have to be paid for by every
+     * shell that wants none of it. `--_frame` and `--_canvas` stay as the two
+     * coarse knobs; these are what a product reaches for when the coarse pair
+     * is not enough.
+     *
+     * The defaults differ by plane and that is the whole of what `canvas`
+     * decides: under `inset` the regions are transparent and the frame shows
+     * through, under `flush` the regions carry the surface and the content
+     * carries the ground. Stating one of these properties overrules the plane
+     * for that region alone.
+     *
+     * Each chain is written *at the region* rather than resolved into a local
+     * on the frame, and that is not a style: a `var()` resolves where the
+     * declaration stands, so a default held on the root resolves in the root's
+     * scope and hands a region carrying `data-slotted-scheme="dark"` the light
+     * scheme's ink over its own dark ground. Written here, the last fallback is
+     * read inside the region, so a repainted column is one declaration and its
+     * ink follows the scheme it was given.
+     *
+     * A tint is a background. A *palette* — the tones the controls inside the
+     * region read, the borders, the focus ring — is `data-slotted-scheme` on
+     * the region itself, because a ground swapped without its tones leaves
+     * every control calibrated against a page it is no longer on.
+     */
+    --_rule: var(--slotted-app-shell-border-color, var(--slotted-border-subtle, ButtonBorder));
+    --_rule-width: var(--slotted-border-width-thin, 1px);
+    --_radius: var(--slotted-app-shell-radius, var(--slotted-radius-lg, 8px));
+    --_elevation: var(--slotted-app-shell-elevation, var(--slotted-shadow-xs));
+    /**
+     * The line a seam draws, stated once. `separation="tone"` sets it to
+     * `none` and the forced-colours block below sets it back, so every seam
+     * rule is written once and reads the axis through this property.
+     */
+    --_seam: var(--_rule-width) solid var(--_rule);
+    --_seam-width: var(--_rule-width);
+    /** The corner of a region whose corner is the card's: the radius inside the edge. */
+    --_inner-radius: calc(var(--_radius) - var(--_rule-width));
+    --_scrim: var(--slotted-app-shell-scrim, var(--slotted-scrim, Canvas));
+    --_banner-size: var(
+      --slotted-app-shell-banner-block-size,
+      calc(var(--slotted-control-height-lg, 38px) + var(--slotted-space-5, 0.75rem) * 2)
+    );
+    --_duration: var(--slotted-duration-medium);
+    --_easing: var(--slotted-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+
+    background-color: var(--_frame);
+    /**
+     * A wash or a photograph behind the frame is a theme's decision, not a
+     * prop: one layer over the frame's colour, sized to cover the frame and
+     * nothing when the token is unset.
+     */
+    background-image: var(--slotted-app-shell-frame-image, none);
+    background-position: center;
+    background-size: cover;
+    color: var(--_ink);
+    container-name: slotted-app-shell;
+    container-type: inline-size;
+    display: grid;
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    /**
+     * Four rows — banner, body, the row the secondary pane drops into when the
+     * shell is narrow, and footer — and three columns, each sized by what is
+     * in it. A track with nothing in it is nought, so the rows and columns a
+     * layout does not use cost it nothing.
+     */
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    min-block-size: 100%;
+    min-inline-size: 0;
+    /**
+     * ── The frame clips its inline axis ───────────────────────────────────
+     *
+     * A closed layer stands one whole width outside the frame, and a
+     * transformed box still counts towards the scrollable overflow of every
+     * scroll container above it — `visibility: hidden` takes it off the screen
+     * and not out of the geometry. Measured in the `navModes` story: the closed
+     * end-side panel gave the document 192 pixels of horizontal overflow once
+     * the demo frame's clip was lifted, and inside that frame the focus scope's
+     * first `focus()` scrolled the frame 240 pixels to the hidden panel, which
+     * the slide then clamped back frame by frame — the whole page jumped and
+     * returned (`tools/harness` reading, Chrome 150).
+     *
+     * `clip` and not `hidden`: `hidden` is a scroll container, which is the
+     * thing `focus()` would scroll; `clip` is not, and it does not establish a
+     * formatting context either, so nothing about the grid changes. Per axis
+     * rather than once, as `progress-indicator` states it: the block axis stays
+     * open because the frame grows with its content under `scroll='document'`,
+     * and a focus ring on the frame's last row has to be drawn past its edge.
+     * No `overflow-clip-margin`: it applies only when both axes clip, and the
+     * margin it leaves is a strip of the layer still counted — four pixels of
+     * the same jump, measured. The logical pair follows the physical one for
+     * the engines that read it, as `scroll-area` writes the same rule.
+     */
+    overflow-x: clip;
+    overflow-y: visible;
+    overflow-inline: clip;
+    overflow-block: visible;
+    position: relative;
+  }
+
+  [data-ui-app-shell][data-nav-size='sm'] {
+    --_nav-size: var(--slotted-app-shell-nav-size-sm, 13rem);
+  }
+  [data-ui-app-shell][data-nav-size='lg'] {
+    --_nav-size: var(--slotted-app-shell-nav-size-lg, 18rem);
+  }
+  [data-ui-app-shell][data-aside-size='sm'] {
+    --_aside-size: var(--slotted-app-shell-aside-size-sm, 16rem);
+  }
+  [data-ui-app-shell][data-aside-size='lg'] {
+    --_aside-size: var(--slotted-app-shell-aside-size-lg, 26rem);
+  }
+
+  /**
+   * `content` is the shell that owns the viewport: it is the height it was
+   * given and only the content scrolls. `100%` chains to the viewport when the
+   * shell is the top of the document, and the maximum is what closes the gap
+   * every surveyed implementation leaves open — a mobile browser's collapsing
+   * toolbar makes `100vh` taller than the space there is, and `100dvh` is the
+   * space there is.
+   */
+  [data-ui-app-shell][data-scroll='content'] {
+    block-size: 100%;
+    /**
+     * Both axes, under `content` alone: the shell's height is the space it was
+     * given and never its content's, so containing it costs nothing — and it
+     * is what lets the pane, as a row under the content at a narrow width,
+     * take half the shell in `cqb` rather than the whole of it.
+     */
+    container-type: size;
+    max-block-size: 100dvh;
+  }
+
+  /* ── Skip links ──────────────────────────────────────────────────────── */
+
+  /**
+   * The first focusable thing in the document, and out of the flow until it is
+   * focused: the reader who does not need it never meets it, and the reader
+   * who does finds it before the chrome.
+   */
+  [data-ui-app-shell] > [data-part-skip] {
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    position: absolute;
+    z-index: var(--slotted-z-index-popover, 1100);
+  }
+
+  [data-ui-app-shell] > [data-part-skip] > a {
+    background-color: var(--_canvas);
+    border: var(--_rule-width) solid var(--_rule);
+    border-radius: var(--slotted-control-radius, 4px);
+    box-shadow: var(--slotted-shadow-md);
+    color: var(--slotted-text, CanvasText);
+    display: inline-block;
+    font-size: var(--slotted-control-font-size-md, 13px);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    inset-block-start: var(--_gutter);
+    inset-inline-start: var(--_gutter);
+    padding-block: var(--slotted-space-3, 0.375rem);
+    padding-inline: var(--slotted-space-5, 0.75rem);
+    position: absolute;
+    text-decoration: none;
+    transition: translate var(--_duration) var(--_easing);
+    translate: 0 -200%;
+    white-space: nowrap;
+  }
+
+  [data-ui-app-shell] > [data-part-skip] > a:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+    translate: 0 0;
+  }
+
+  /* ── What each region is, before where it is ─────────────────────────── */
+
+  /**
+   * Two clusters and the space between them, each starting on the row inset so
+   * the control in the bar stands over the marks in the column. The shell owns
+   * where a top bar's things go and owns none of what they are:
+   * `top-navigation` in wave 8 fills `actions`.
+   */
+  /**
+   * The bar is a query container of its own, for the same reason the column is:
+   * under `primary='nav'` it is the frame's width less the navigation's, so
+   * what it holds has to answer *its* width rather than the frame's. Nothing
+   * in the family reads the query — the bar carries an application's own search
+   * and its own account, and those are the things that shed a label first.
+   */
+  [data-ui-app-shell] > [data-part-banner] {
+    align-items: center;
+    background-color: var(--slotted-app-shell-banner-surface, transparent);
+    color: var(
+      --slotted-app-shell-banner-color,
+      var(--slotted-app-shell-color, var(--slotted-text, CanvasText))
+    );
+    container-name: slotted-app-shell-banner;
+    container-type: inline-size;
+    display: flex;
+    gap: var(--_row-gap);
+    grid-area: 1 / 1 / 2 / -1;
+    min-block-size: var(--_banner-size);
+    min-inline-size: 0;
+    padding-inline: var(--_edge);
+  }
+
+  [data-ui-app-shell] [data-part-brand] {
+    align-items: center;
+    display: flex;
+    flex: 0 1 auto;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    gap: var(--_row-gap);
+    min-inline-size: 0;
+    padding-inline-start: var(--_row-inset);
+  }
+
+  /** Pushed to the end by the space it takes, so an empty cluster costs nothing. */
+  /**
+   * Nothing in the bar may push the frame wider than the space there is. A
+   * wordmark is one word and one word does not wrap, so under `primary='nav'`
+   * at 420 pixels the mark reported ninety-three pixels of content inside a
+   * sixty-five-pixel box and the whole frame grew with it. What the bar holds
+   * shortens instead; the control is exempt, because a control that shrinks
+   * below its target is a defect of a different kind.
+   */
+  [data-ui-app-shell] [data-part-brand] > *:not([data-part-nav-toggle]) {
+    min-inline-size: 0;
+    overflow: var(--slotted-app-shell-brand-overflow, hidden);
+    text-overflow: ellipsis;
+    white-space: var(--slotted-app-shell-brand-wrap, nowrap);
+  }
+  [data-ui-app-shell] > [data-part-banner] > [data-part-actions] {
+    align-items: center;
+    display: flex;
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    gap: var(--slotted-control-gap-sm, 6px);
+    margin-inline-start: auto;
+    padding-inline-end: var(--_row-inset);
+  }
+  /**
+   * A control keeps its width. Left to shrink with the cluster, a button in a
+   * bar too narrow for it broke its own label one letter per line, which is a
+   * defect of a different kind from a bar that has run out of room. What runs
+   * out of room is the middle, which is what `centre` is for.
+   */
+  [data-ui-app-shell] > [data-part-banner] > [data-part-actions] > * {
+    flex-shrink: 0;
+  }
+
+  /**
+   * The middle of the bar, and the one cluster that grows: a search, a trail, a
+   * route title, tabs. Without it a bar is two clusters and a void — which is
+   * what the first reference page photographed, a control at one end and three
+   * at the other with twelve hundred pixels of nothing between. What it holds
+   * is the consumer's; that it may be narrower than what it holds is the
+   * shell's, for the reason `actions` carries `min-inline-size: 0`.
+   */
+  [data-ui-app-shell] > [data-part-banner] > [data-part-centre] {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    gap: var(--_row-gap);
+    min-inline-size: 0;
+  }
+
+  /**
+   * A query container of its own, so the family inside it answers the rail
+   * without the shell telling it anything. The rail is a width, and what a
+   * destination shows at that width — a mark alone, a mark and a word — is
+   * `side-navigation`'s decision to take against the room it has.
+   */
+  [data-ui-app-shell] > [data-part-nav] {
+    background-color: var(--slotted-app-shell-nav-surface, transparent);
+    box-sizing: border-box;
+    color: var(
+      --slotted-app-shell-nav-color,
+      var(--slotted-app-shell-color, var(--slotted-text, CanvasText))
+    );
+    container-name: slotted-app-shell-nav;
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    grid-area: 2 / 1 / 3 / 2;
+    min-block-size: 0;
+    /**
+     * A grid item's automatic minimum size is its content's, so a rail asked
+     * for fifty pixels stood at whatever the longest destination measured.
+     */
+    min-inline-size: 0;
+    /**
+     * The inline axis clips, which the width transition between open and rail
+     * needs. The block axis scrolls: a region holding one column taller than
+     * itself instead of `nav-header`, `nav-body` and `nav-footer` keeps its
+     * foot reachable. With the three parts the body scrolls and the region
+     * never overflows.
+     */
+    overflow-x: hidden;
+    overflow-y: auto;
+    overflow-inline: hidden;
+    overflow-block: auto;
+    overscroll-behavior: contain;
+    transition:
+      inline-size var(--_duration) var(--_easing),
+      visibility var(--_duration) step-start;
+  }
+
+  /**
+   * The column pins its ends and scrolls its middle. Ant and Mantine let the
+   * list overflow the region, which takes the account control off the screen
+   * the moment an application has more destinations than height.
+   *
+   * The ends hold a row, and a row here is often two lines — a workspace and
+   * its perimeter, a person and their role. Block padding is what gives a
+   * two-line block its own air; without it both were crushed against the group
+   * heading below and the frame's footer beneath.
+   */
+  [data-ui-app-shell] > [data-part-nav] > [data-part-nav-header],
+  [data-ui-app-shell] > [data-part-nav] > [data-part-nav-footer] {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: var(--_row-gap);
+    min-block-size: var(--_rail-size);
+    min-inline-size: 0;
+    /**
+     * The gutter the body reserves, reserved here too. `scrollbar-gutter`
+     * applies to a scroll container only, and `hidden` is the overflow that
+     * makes one without a bar of its own: with classic scrollbars the body's
+     * content box ended one bar width (10px in Chrome) before the head's and
+     * the foot's. Nothing is clipped that was drawn before: the ring inset
+     * keeps a control's focus ring inside the padding box. The bar's width is
+     * the body's, or the gutter is the platform's full bar (15px in Chrome).
+     */
+    overflow: hidden;
+    padding-block: var(--_row-inset);
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+  }
+  /**
+   * The inset is the rows', not the region's: on the parts, a seam drawn by
+   * one of them — the rule over the foot — still runs the column's full width,
+   * and a strip of the rail's own beside the column needs none.
+   */
+  [data-ui-app-shell]
+    > [data-part-nav]
+    > :is([data-part-nav-header], [data-part-nav-body], [data-part-nav-footer]) {
+    /**
+     * Published where it pads, beside the row geometry the root publishes:
+     * `side-navigation` reads it to keep its rows' box on the edge it had,
+     * and a row it reaches outside these parts reads nothing.
+     */
+    --slotted-app-shell-row-ring-inset: var(--_row-ring-inset);
+    padding-inline: calc(var(--_nav-inset) + var(--_row-ring-inset));
+  }
+  /**
+   * The body scrolls the way `scroll-area` scrolls, and for the reasons written
+   * there. `scrollbar-gutter: stable` reserves the bar's column before the
+   * list overflows, so a destination added at the bottom moves no row
+   * sideways. `scrollbar-width: thin` is still the platform's bar — the trough
+   * click and the context menu survive — and it is what makes the bar the
+   * family's to colour: an overlay bar drawn by the platform over the rows sat
+   * on the chevron of every parent, because a row ends one inset from the
+   * column's edge and the platform's bar is wider than that inset. A thin
+   * classic bar stands in the gutter instead, beside the rows.
+   *
+   * The inline axis is hidden, not `auto`: while the region's width moves
+   * between open and rail, the rows stand wider than the body, and an `auto`
+   * inline axis drew a horizontal bar for the length of the transition.
+   */
+  [data-ui-app-shell] > [data-part-nav] > [data-part-nav-body] {
+    align-items: stretch;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: var(--slotted-space-1, 0.125rem);
+    min-block-size: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overflow-inline: hidden;
+    overflow-block: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--slotted-space-4, 0.5rem);
+    scrollbar-color: var(--_scrollbar-thumb) var(--_scrollbar-track);
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+  }
+
+  [data-ui-app-shell] > [data-part-main] {
+    background-color: var(
+      --slotted-app-shell-main-surface,
+      var(--slotted-app-shell-canvas, var(--slotted-surface, Canvas))
+    );
+    color: var(
+      --slotted-app-shell-main-color,
+      var(--slotted-app-shell-color, var(--slotted-text, CanvasText))
+    );
+    grid-area: 2 / 2 / 3 / 3;
+    /**
+     * Whatever the content stacks, it stacks inside the content: a sticky
+     * page-header raises itself three steps over the sticky layer, and
+     * without a context of its own here it would paint over the wait drawn
+     * on this region's edge.
+     */
+    isolation: isolate;
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+  [data-ui-app-shell][data-scroll='content'] > [data-part-main] {
+    overflow: auto;
+  }
+
+  /**
+   * The wait for the next page, on the line between the chrome and the
+   * content. The frame is the box of `main` — its grid area here, its margins
+   * and its corners wherever a canvas states them, because every such rule
+   * below names both parts — and it paints nothing: the one progress bar it
+   * holds stands on its block-start edge. It is a frame rather than a strip
+   * so the card's corners clip the bar; a strip two pixels tall given the
+   * card's radius has its radii scaled down to half its height, and its ends
+   * would be square against a rounded card.
+   *
+   * Strict containment keeps the travelling bar's per-frame layout inside
+   * this box, and its paint inside the corners.
+   */
+  [data-ui-app-shell] > [data-part-progress] {
+    contain: strict;
+    grid-area: 2 / 2 / 3 / 3;
+    inset-block-start: calc(-1 * var(--_progress-lift, 0px));
+    min-block-size: 0;
+    min-inline-size: 0;
+    overflow: clip;
+    pointer-events: none;
+    position: relative;
+    z-index: 1;
+  }
+  /**
+   * The content scrolls with the document under `document`, and the frame
+   * with it; the bar holds the top of the viewport once the banner, which is
+   * not sticky there, has gone.
+   */
+  [data-ui-app-shell][data-scroll='document'] > [data-part-progress] {
+    --slotted-progress-indicator-position: sticky;
+  }
+
+  /** A skip link's destination takes focus; it draws no ring for a pointer. */
+  [data-ui-app-shell] > [data-part-main]:focus {
+    outline: none;
+  }
+  [data-ui-app-shell] > [data-part-main]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /**
+   * Below the content until the shell is wide enough to hold it beside: at a
+   * narrow width a column beside the content is two columns of nothing.
+   *
+   * The pane opens and closes the way the navigation does, and its closed
+   * state is the navigation's `hidden`: out of the layout, out of the tab
+   * order, out of the accessibility tree. A pane has no rail — its content is
+   * the thing it shows or nothing — and a region at nought pixels that still
+   * lays its children out puts content outside the box that owns it.
+   */
+  [data-ui-app-shell] > [data-part-aside] {
+    background-color: var(
+      --slotted-app-shell-aside-surface,
+      var(--slotted-app-shell-canvas, var(--slotted-surface, Canvas))
+    );
+    box-sizing: border-box;
+    color: var(
+      --slotted-app-shell-aside-color,
+      var(--slotted-app-shell-color, var(--slotted-text, CanvasText))
+    );
+    display: flex;
+    flex-direction: column;
+    grid-area: 3 / 1 / 4 / -1;
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+  [data-ui-app-shell][data-scroll='content'] > [data-part-aside] {
+    overflow: auto;
+  }
+  [data-ui-app-shell]:not([data-aside-mode='overlay']) > [data-part-aside]:not([data-open]) {
+    display: none;
+  }
+
+  /**
+   * The pane pins its ends and scrolls its middle, the discipline the column
+   * already has: a pane with more content than height took its actions off the
+   * screen. The head holds the title and the control that closes the pane; the
+   * foot holds the actions that close its task. Both stand on the row inset
+   * plus the edge, so the title's left edge is the content card's.
+   */
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-header],
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-footer] {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: var(--_row-gap);
+    min-block-size: var(--_rail-size);
+    min-inline-size: 0;
+    padding-block: var(--_row-inset);
+    padding-inline: calc(var(--_row-inset) + var(--_row-gap));
+  }
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-header] {
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+  /** The title takes the room and the control keeps its own. */
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-header] > :not([data-part]) {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-footer] {
+    justify-content: flex-end;
+  }
+  /**
+   * The pane's body scrolls as the column's does, bar and gutter included. It
+   * stands on the inset the head and the foot stand on, so what it holds lines
+   * up with the pane's title and no consumer pads it by hand.
+   */
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-body] {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    min-inline-size: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overflow-inline: hidden;
+    overflow-block: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--slotted-space-5, 0.75rem);
+    padding-inline: calc(var(--_row-inset) + var(--_row-gap));
+    scrollbar-color: var(--_scrollbar-thumb) var(--_scrollbar-track);
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+  }
+  /* Content that brings its own inset — a page, a detail panel, a list to the edges. */
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-body][data-inset='none'] {
+    padding: 0;
+  }
+
+  /**
+   * The pane's inner edge, which the reader moves: a focusable `separator`
+   * from the WAI-ARIA Window Splitter pattern. Rendering the part is the
+   * capability, and the column is the only arrangement it moves — a layer keeps
+   * its size step and a row under the content has no inline edge — so it is
+   * drawn nowhere here and shown by the wide query alone.
+   *
+   * A strip lying over the pane's inner edge, inside the box: the pane scrolls
+   * under `scroll="content"`, and a scroll container clips what stands outside
+   * it. The strip is the rows' own inset wide, so it covers padding and no
+   * content. `::before` is the reach, transparent and the WCAG 2.2 floor wide.
+   * Where the pane is a column the strip moves onto the seam or the gutter
+   * (the wide query below).
+   *
+   * It draws the `splitter` family's mark from that family's tokens: two
+   * hairlines fading away from a grip, visible at rest. Under the hand, the
+   * drag and the keyboard the lines run the strip in the active step, and the
+   * keyboard alone adds the ring. The measures are `splitter.css`'s.
+   */
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-resizer] {
+    --_resizer-thickness: var(--slotted-space-6, 1rem);
+    --_resizer-reach: var(--slotted-target-min, 24px);
+    --_resizer-gap: min(var(--slotted-space-9, 2rem), 12%);
+    --_resizer-dot: var(--slotted-space-2, 0.25rem);
+    --_resizer-rest: var(--slotted-splitter-line-color, var(--slotted-border-strong, ButtonBorder));
+    --_resizer-active: var(
+      --slotted-splitter-line-active-color,
+      var(--slotted-text-muted, ButtonText)
+    );
+    align-items: center;
+    background: transparent;
+    box-sizing: border-box;
+    cursor: col-resize;
+    display: none;
+    flex-direction: column;
+    gap: var(--_resizer-gap);
+    inline-size: var(--_resizer-thickness);
+    inset-block: 0;
+    inset-inline-start: 0;
+    justify-content: center;
+    position: absolute;
+    touch-action: none;
+    transition: gap var(--_duration) var(--_easing);
+    z-index: 1;
+  }
+  [data-ui-app-shell][data-nav-side='end'] > [data-part-aside] > [data-part-aside-resizer] {
+    inset-inline-end: 0;
+    inset-inline-start: auto;
+  }
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-resizer]::before {
+    content: '';
+    inset-block: 0;
+    inset-inline: calc((var(--_resizer-reach) - var(--_resizer-thickness)) / -2);
+    position: absolute;
+  }
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-resizer] > [data-part-line] {
+    border-radius: var(--slotted-radius-sm, 2px);
+    flex: 0 1 min(var(--slotted-space-12, 4rem), 20%);
+    inline-size: var(--slotted-border-width-thin, 1px);
+    min-block-size: 0;
+    transition:
+      flex-basis var(--_duration) var(--_easing),
+      background-color var(--_duration) var(--_easing);
+  }
+  [data-ui-app-shell]
+    > [data-part-aside]
+    > [data-part-aside-resizer]
+    > [data-part-line]:first-child {
+    background: linear-gradient(to bottom, transparent, var(--_resizer-rest));
+  }
+  [data-ui-app-shell]
+    > [data-part-aside]
+    > [data-part-aside-resizer]
+    > [data-part-line]:last-child {
+    background: linear-gradient(to top, transparent, var(--_resizer-rest));
+  }
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-resizer] > [data-part-grip] {
+    background-image: radial-gradient(circle at center, currentColor 40%, transparent 42%);
+    background-repeat: repeat;
+    background-size: var(--_resizer-dot) var(--_resizer-dot);
+    block-size: calc(3 * var(--_resizer-dot));
+    color: var(--_resizer-rest);
+    flex: none;
+    inline-size: calc(2 * var(--_resizer-dot));
+    transition: color var(--_duration) var(--_easing);
+  }
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-resizer]:not([data-disabled]):hover,
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-resizer]:focus-visible,
+  [data-ui-app-shell][data-dragging] > [data-part-aside] > [data-part-aside-resizer] {
+    --_resizer-gap: var(--slotted-space-4, 0.5rem);
+    --_resizer-rest: var(--_resizer-active);
+  }
+  [data-ui-app-shell]
+    > [data-part-aside]
+    > [data-part-aside-resizer]:not([data-disabled]):hover
+    > [data-part-line],
+  [data-ui-app-shell]
+    > [data-part-aside]
+    > [data-part-aside-resizer]:focus-visible
+    > [data-part-line],
+  [data-ui-app-shell][data-dragging]
+    > [data-part-aside]
+    > [data-part-aside-resizer]
+    > [data-part-line] {
+    background: var(--_resizer-active);
+    flex-basis: 100%;
+  }
+  [data-ui-app-shell] > [data-part-aside] > [data-part-aside-resizer]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-offset, 2px));
+  }
+
+  /**
+   * The application's own footer, and the one region a product most often does
+   * not have: a bar across the bottom of every route costs a row of the screen
+   * for a version string. It exists because `contentinfo` has to be reachable
+   * where a product does have one — a licence, a status, an environment — and
+   * it takes only the height of its own line.
+   */
+  [data-ui-app-shell] > [data-part-footer] {
+    align-items: center;
+    background-color: var(--slotted-app-shell-footer-surface, transparent);
+    color: var(
+      --slotted-app-shell-footer-color,
+      var(--slotted-app-shell-color, var(--slotted-text-muted, GrayText))
+    );
+    display: flex;
+    font-size: var(--slotted-control-font-size-sm, 12px);
+    gap: var(--_row-gap);
+    grid-area: 4 / 1 / 5 / -1;
+    min-inline-size: 0;
+    padding-block: var(--slotted-space-3, 0.375rem);
+    padding-inline: calc(var(--_edge) + var(--_row-inset));
+  }
+
+  /**
+   * The application's portal root. `display: contents` leaves no box at all,
+   * so a layer put here is laid out by its own rules and the grid never sees
+   * it. What it is a containing block for is the shell rather than the
+   * viewport, because `container-type` contains layout.
+   */
+  [data-ui-app-shell] > [data-part-layer] {
+    display: contents;
+  }
+
+  /* ── The inset canvas ────────────────────────────────────────────────── */
+
+  /**
+   * Everything the frame holds is a box inset from it by the gutter, and the
+   * gutter is a *margin* rather than padding on purpose: the navigation's own
+   * box is then the strip a reader sees, so a rail is centred in itself rather
+   * than being a column with its air on one side. That was the reviewer's
+   * finding — the closed strip had twelve pixels to its right, where the
+   * content card begins, and nothing to its left.
+   */
+  [data-ui-app-shell][data-canvas='inset'] > [data-part-nav] {
+    /* The navigation stands on the sunken frame, which the secondary tone's
+       hover is 0.011 lighter than in the light scheme: a row's hover was the
+       frame itself. Both steps are recomputed from the ground it stands on. */
+    --slotted-tone-secondary-subtle-hover: color-mix(
+      in oklab,
+      var(--slotted-app-shell-nav-surface, var(--_frame)),
+      var(--slotted-text) 4%
+    );
+    --slotted-tone-secondary-subtle-active: color-mix(
+      in oklab,
+      var(--slotted-app-shell-nav-surface, var(--_frame)),
+      var(--slotted-text) 7%
+    );
+
+    /* Invisible on the transparent default; a product that paints the column
+       gets a region with the plane's corners rather than a square block. */
+    border-radius: var(--_radius);
+    margin-block: var(--_gutter);
+    margin-inline-start: var(--_gutter);
+  }
+  [data-ui-app-shell][data-canvas='floating'] > [data-part-main],
+  [data-ui-app-shell][data-canvas='floating'] > [data-part-aside],
+  [data-ui-app-shell][data-canvas='inset'] > [data-part-main],
+  [data-ui-app-shell][data-canvas='inset'] > [data-part-aside] {
+    border: var(--_rule-width) solid var(--_rule);
+    border-radius: var(--_radius);
+    box-shadow: var(--_elevation);
+    margin-block: var(--_gutter);
+    margin-inline: var(--_gutter);
+  }
+  [data-ui-app-shell][data-canvas='floating'] > [data-part-aside],
+  [data-ui-app-shell][data-canvas='inset'] > [data-part-aside] {
+    margin-inline-start: 0;
+  }
+  [data-ui-app-shell][data-canvas='floating'] > [data-part-footer],
+  [data-ui-app-shell][data-canvas='panel'] > [data-part-footer],
+  [data-ui-app-shell][data-canvas='inset'] > [data-part-footer] {
+    padding-block-start: 0;
+  }
+  /**
+   * The card is a wide screen's arrangement. On a phone, where the navigation
+   * has become a layer, a gutter on every side and rounded corners against the
+   * screen's own frame a column of content that has no room to spare. The
+   * content then meets the frame's edges and keeps one rule, under the banner,
+   * for the seam the gutter used to draw. Keyed on the mode, as every layer
+   * rule is; the width answers only for a shell not yet measured, below.
+   */
+  [data-ui-app-shell][data-canvas='floating'][data-nav-mode='overlay'] > [data-part-main],
+  [data-ui-app-shell][data-canvas='inset'][data-nav-mode='overlay'] > [data-part-main] {
+    border-block-end: 0;
+    border-inline: 0;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+  }
+
+  /* ── The flush canvas ────────────────────────────────────────────────── */
+
+  /**
+   * The plane turned inside out: the regions carry the surface and the content
+   * carries the ground. Stated as the same six properties, so a product that
+   * repaints one region keeps its choice under either plane.
+   */
+  [data-ui-app-shell][data-canvas='flush'] {
+    --_edge: var(--_row-inset);
+    --_nav-edges: var(--_seam-width);
+    --_nav-inset: var(--_row-inset);
+  }
+  [data-ui-app-shell][data-canvas='flush'] > [data-part-banner] {
+    background-color: var(
+      --slotted-app-shell-banner-surface,
+      var(--slotted-app-shell-canvas, var(--slotted-surface, Canvas))
+    );
+  }
+  [data-ui-app-shell][data-canvas='flush'] > [data-part-nav] {
+    background-color: var(
+      --slotted-app-shell-nav-surface,
+      var(--slotted-app-shell-canvas, var(--slotted-surface, Canvas))
+    );
+  }
+  [data-ui-app-shell][data-canvas='flush'] > [data-part-main] {
+    background-color: var(--slotted-app-shell-main-surface, transparent);
+  }
+  [data-ui-app-shell][data-canvas='flush'] > [data-part-aside] {
+    background-color: var(
+      --slotted-app-shell-aside-surface,
+      var(--slotted-app-shell-canvas, var(--slotted-surface, Canvas))
+    );
+  }
+  [data-ui-app-shell][data-canvas='flush'] > [data-part-footer] {
+    background-color: var(
+      --slotted-app-shell-footer-surface,
+      var(--slotted-app-shell-canvas, var(--slotted-surface, Canvas))
+    );
+  }
+  /**
+   * Block air, the gutter; inline air, the row inset on both sides, from
+   * `--_nav-inset`. A padding on one side alone is what put the closed strip
+   * off-centre on this plane once; none at all put every row's ground against
+   * the screen's edge and against the seam.
+   */
+  [data-ui-app-shell][data-canvas='flush'] > [data-part-nav] {
+    padding-block: var(--_gutter);
+  }
+  [data-ui-app-shell][data-canvas='flush'] > [data-part-banner] {
+    border-block-end: var(--_seam);
+  }
+  [data-ui-app-shell][data-canvas='flush'] > [data-part-footer] {
+    border-block-start: var(--_seam);
+  }
+  [data-ui-app-shell][data-canvas='flush'] > [data-part-aside] {
+    border-block-start: var(--_seam);
+  }
+  /* The seams inside a region: wherever regions touch without a gutter, which
+     is every seam of `flush` and every seam inside the `panel` card. */
+  [data-ui-app-shell]:is([data-canvas='flush'], [data-canvas='panel'])
+    > [data-part-nav]
+    > [data-part-nav-footer] {
+    border-block-start: var(--_seam);
+  }
+  [data-ui-app-shell]:is([data-canvas='flush'], [data-canvas='panel'])
+    > [data-part-aside]
+    > [data-part-aside-header] {
+    border-block-end: var(--_seam);
+  }
+  [data-ui-app-shell]:is([data-canvas='flush'], [data-canvas='panel'])
+    > [data-part-aside]
+    > [data-part-aside-footer] {
+    border-block-start: var(--_seam);
+  }
+
+  /* ── The floating canvas ─────────────────────────────────────────────── */
+
+  /**
+   * The inset plane with the navigation lifted onto a card of its own: two
+   * cards on the sunken ground, a gutter apart, each with the edge, the radius
+   * and the elevation the content card has. The margin is the inset plane's,
+   * so the strip a reader sees is still the region's own box. A rail is one
+   * mark column and a row's inset each side, and the card's edge is added to
+   * it rather than taken from the marks.
+   */
+  [data-ui-app-shell][data-canvas='floating'] > [data-part-nav] {
+    background-color: var(
+      --slotted-app-shell-nav-surface,
+      var(--slotted-app-shell-canvas, var(--slotted-surface, Canvas))
+    );
+    border: var(--_rule-width) solid var(--_rule);
+    border-radius: var(--_radius);
+    box-shadow: var(--_elevation);
+    margin-block: var(--_gutter);
+    margin-inline-start: var(--_gutter);
+  }
+  /* A card has an edge the column never had: the rows stand one inset in, as
+     they do on the overlay card, and the bar's rows stand over them. */
+  [data-ui-app-shell][data-canvas='floating'] {
+    --_edge: calc(var(--_gutter) + var(--_rule-width) + var(--_row-inset));
+    --_nav-edges: calc(2 * var(--_rule-width));
+    --_nav-inset: var(--_row-inset);
+  }
+  [data-ui-app-shell][data-canvas='floating'][data-nav-side='end'] > [data-part-nav] {
+    margin-inline: 0 var(--_gutter);
+  }
+
+  /* ── A card over more than one region ────────────────────────────────── */
+
+  /**
+   * The card that holds the banner and the content under `primary="main"`,
+   * and every region under `panel`, is one box: the root's `::before`, placed
+   * on the grid area the regions share. Two boxes with half a card each drew
+   * the shadow of one across the other at the seam. The pseudo-element is the
+   * grid's first item, so it paints under every region, and the regions over
+   * it keep their own grounds — clipped at the card's corners where their
+   * corners are the card's, so a sticky header scrolling inside the content
+   * does not square off the card's rounded edge.
+   *
+   * A layer is a phone's arrangement, and a phone has no room for a frame: the
+   * card goes wherever the navigation is a layer, as the inset card does.
+   */
+  [data-ui-app-shell]:is(
+      [data-canvas='floating'],
+      [data-canvas='inset']
+    )[data-primary='main']::before,
+  [data-ui-app-shell][data-canvas='panel']::before {
+    background-color: var(
+      --slotted-app-shell-main-surface,
+      var(--slotted-app-shell-canvas, var(--slotted-surface))
+    );
+    border: var(--_rule-width) solid var(--_rule);
+    border-radius: var(--_radius);
+    box-shadow: var(--_elevation);
+    content: '';
+    grid-area: 1 / 2 / 3 / 3;
+    margin: var(--_gutter);
+    min-inline-size: 0;
+  }
+  [data-ui-app-shell][data-canvas='panel']::before {
+    grid-area: 2 / 1 / 3 / -1;
+    margin: 0;
+  }
+  [data-ui-app-shell][data-canvas='panel']:is([data-primary='nav'], [data-primary='main'])::before {
+    grid-area: 1 / 1 / 3 / -1;
+  }
+  [data-ui-app-shell][data-nav-mode='overlay'][data-canvas]::before {
+    content: none;
+  }
+
+  /* ── The banner in the plane of the content ──────────────────────────── */
+
+  /**
+   * The banner and the content are one card: the banner takes the card's top
+   * edge and sides and draws no ground of its own, the content takes the rest
+   * and keeps its ground with the card's lower corners. Between them is a
+   * seam, and `separation` decides it.
+   */
+  [data-ui-app-shell]:is([data-canvas='floating'], [data-canvas='inset'])[data-primary='main']
+    > [data-part-banner] {
+    margin-block-start: calc(var(--_gutter) + var(--_rule-width));
+    margin-inline: calc(var(--_gutter) + var(--_rule-width));
+    padding-inline: 0;
+  }
+  [data-ui-app-shell]:is([data-canvas='floating'], [data-canvas='inset'])[data-primary='main']
+    > [data-part-main] {
+    border: none;
+    border-radius: 0 0 var(--_inner-radius) var(--_inner-radius);
+    box-shadow: none;
+    margin-block: 0 calc(var(--_gutter) + var(--_rule-width));
+    margin-inline: calc(var(--_gutter) + var(--_rule-width));
+  }
+  [data-ui-app-shell][data-primary='main'] > [data-part-banner],
+  [data-ui-app-shell][data-primary='main'][data-nav-side='end'] > [data-part-banner],
+  [data-ui-app-shell][data-canvas='panel'][data-primary='nav'] > [data-part-banner],
+  [data-ui-app-shell][data-canvas='panel'][data-primary='nav'][data-nav-side='end']
+    > [data-part-banner] {
+    border-block-end: var(--_seam);
+    grid-column: 2 / 3;
+  }
+  [data-ui-app-shell][data-primary='main'][data-nav-mode='overlay'] > [data-part-banner] {
+    margin: 0;
+    padding-inline: var(--_edge);
+  }
+  [data-ui-app-shell]:is(
+      [data-canvas='floating'],
+      [data-canvas='inset']
+    )[data-primary='main'][data-nav-mode='overlay']
+    > [data-part-main] {
+    border-radius: 0;
+    margin: 0;
+  }
+
+  /* ── The panel canvas ────────────────────────────────────────────────── */
+
+  /**
+   * One card holds every region but the footer, and the banner too once the
+   * column or the content is primary. The frame's air is the root's padding,
+   * so the grid's tracks are the card's inside and no region has to repeat a
+   * margin the card has: the regions meet each other at seams, and the seams
+   * are `separation`'s. The banner above the card stands on the frame at the
+   * card's own edge, which is why the edge is nought here as under `flush`.
+   *
+   * The padding is dropped where the navigation is a layer. A shell not yet
+   * measured below the compact width keeps it for one frame: the root cannot
+   * query its own width, and that frame is the cost.
+   */
+  [data-ui-app-shell][data-canvas='panel'] {
+    --_edge: calc(var(--_rule-width) + var(--_row-inset));
+    --_nav-edges: var(--_seam-width);
+    --_nav-inset: var(--_row-inset);
+  }
+  /* Once the navigation is a layer the card beside the bar is gone, and the
+     bar's rows stand where the inset plane's do. */
+  [data-ui-app-shell][data-canvas='floating'][data-nav-mode='overlay'],
+  [data-ui-app-shell][data-canvas='panel'][data-nav-mode='overlay'] {
+    --_edge: var(--_gutter);
+  }
+  [data-ui-app-shell][data-canvas='panel']:not([data-nav-mode='overlay']) {
+    box-sizing: border-box;
+    padding-block-end: var(--_gutter);
+    padding-inline: var(--_gutter);
+  }
+  [data-ui-app-shell][data-canvas='panel']:not([data-nav-mode='overlay']):is(
+      [data-primary='nav'],
+      [data-primary='main']
+    ) {
+    padding-block-start: var(--_gutter);
+  }
+  [data-ui-app-shell][data-canvas='panel']:not([data-nav-mode='overlay']) > [data-part-nav] {
+    border-end-start-radius: var(--_inner-radius);
+    border-start-start-radius: var(--_inner-radius);
+    margin: var(--_rule-width) 0 var(--_rule-width) var(--_rule-width);
+  }
+  [data-ui-app-shell][data-canvas='panel']:not([data-nav-mode='overlay'])[data-nav-side='end']
+    > [data-part-nav] {
+    border-radius: 0 var(--_inner-radius) var(--_inner-radius) 0;
+    margin: var(--_rule-width) var(--_rule-width) var(--_rule-width) 0;
+  }
+  [data-ui-app-shell][data-canvas='panel']:not([data-nav-mode='overlay']) > [data-part-main] {
+    border-end-end-radius: var(--_inner-radius);
+    margin-block-end: var(--_rule-width);
+    margin-inline-end: var(--_rule-width);
+  }
+  [data-ui-app-shell][data-canvas='panel'][data-primary='banner']:not([data-nav-mode='overlay'])
+    > [data-part-main] {
+    border-start-end-radius: var(--_inner-radius);
+    margin-block-start: var(--_rule-width);
+  }
+  [data-ui-app-shell][data-canvas='panel']:not([data-nav-mode='overlay']):not(
+      [data-primary='banner']
+    )
+    > [data-part-banner] {
+    margin-block-start: var(--_rule-width);
+    margin-inline-end: var(--_rule-width);
+  }
+  /* The corner the content shares with the card is the pane's once the pane
+     stands beside it. */
+  [data-ui-app-shell][data-canvas='panel']:not([data-nav-mode='overlay']):has(
+      > [data-part-aside][data-open]
+    )
+    > [data-part-main] {
+    border-end-end-radius: 0;
+    border-start-end-radius: 0;
+    margin-inline-end: 0;
+  }
+  [data-ui-app-shell][data-canvas='panel']:not([data-nav-mode='overlay']):has(
+      > [data-part-aside][data-open]
+    )
+    > [data-part-banner] {
+    margin-inline-end: 0;
+  }
+  [data-ui-app-shell][data-canvas='panel']:not([data-nav-mode='overlay']):not(
+      [data-aside-mode='overlay']
+    )
+    > [data-part-aside] {
+    border-end-end-radius: var(--_inner-radius);
+    border-start-end-radius: var(--_inner-radius);
+    margin: var(--_rule-width) var(--_rule-width) var(--_rule-width) 0;
+  }
+  [data-ui-app-shell][data-canvas='panel'][data-nav-mode='overlay'] > [data-part-main] {
+    border-block-start: var(--_rule-width) solid var(--_rule);
+  }
+
+  /* ── The line the wait is drawn on ───────────────────────────────────── */
+
+  /**
+   * Where the line between the chrome and the content is the banner's seam
+   * rather than an edge of `main`, the frame of the wait stands that seam's
+   * width higher, so the bar covers the line instead of sitting under it:
+   * every seam of `flush`, the seam inside the card of `primary="main"`, and
+   * the seam inside the `panel` card when the banner is in it. Above a
+   * `panel` card it is the card's own top edge. Under `separation="tone"`
+   * the seam is nought pixels wide and so is the lift. Where `main` keeps an
+   * edge of its own — the inset and floating cards, and the top rule `panel`
+   * gives it once the navigation is a layer — the frame is the box of `main`
+   * and covers that edge already.
+   */
+  [data-ui-app-shell]:is([data-canvas='flush'], [data-primary='main']),
+  [data-ui-app-shell][data-canvas='panel'][data-primary='nav'] {
+    --_progress-lift: var(--_seam-width);
+  }
+  [data-ui-app-shell][data-canvas='panel'][data-primary='banner'] {
+    --_progress-lift: var(--_rule-width);
+  }
+  [data-ui-app-shell][data-canvas='panel'][data-nav-mode='overlay'] {
+    --_progress-lift: 0px;
+  }
+
+  /* ── The frame of the wait, on the box of the content ────────────────── */
+
+  /**
+   * Every margin and every corner `main` takes above, restated for the frame
+   * in the same order and at the same specificity, so the frame is the box of
+   * `main` in every arrangement and the bar on its edge is clipped by the
+   * card's own corners. Only the geometry: the frame draws no edge, no ground
+   * and no lift. The two twins of a shell not yet measured stand beside
+   * their originals in the narrow query below. `app-shell.styles.test.mjs`
+   * holds every rule that gives `main` a margin or a radius to its twin.
+   */
+  [data-ui-app-shell][data-canvas='floating'] > [data-part-progress],
+  [data-ui-app-shell][data-canvas='inset'] > [data-part-progress] {
+    border-radius: var(--_radius);
+    margin-block: var(--_gutter);
+    margin-inline: var(--_gutter);
+  }
+  [data-ui-app-shell][data-canvas='floating'][data-nav-mode='overlay'] > [data-part-progress],
+  [data-ui-app-shell][data-canvas='inset'][data-nav-mode='overlay'] > [data-part-progress] {
+    border-radius: 0;
+    margin: 0;
+  }
+  [data-ui-app-shell]:is([data-canvas='floating'], [data-canvas='inset'])[data-primary='main']
+    > [data-part-progress] {
+    border-radius: 0 0 var(--_inner-radius) var(--_inner-radius);
+    margin-block: 0 calc(var(--_gutter) + var(--_rule-width));
+    margin-inline: calc(var(--_gutter) + var(--_rule-width));
+  }
+  [data-ui-app-shell]:is(
+      [data-canvas='floating'],
+      [data-canvas='inset']
+    )[data-primary='main'][data-nav-mode='overlay']
+    > [data-part-progress] {
+    border-radius: 0;
+    margin: 0;
+  }
+  [data-ui-app-shell][data-canvas='panel']:not([data-nav-mode='overlay']) > [data-part-progress] {
+    border-end-end-radius: var(--_inner-radius);
+    margin-block-end: var(--_rule-width);
+    margin-inline-end: var(--_rule-width);
+  }
+  [data-ui-app-shell][data-canvas='panel'][data-primary='banner']:not([data-nav-mode='overlay'])
+    > [data-part-progress] {
+    border-start-end-radius: var(--_inner-radius);
+    margin-block-start: var(--_rule-width);
+  }
+  [data-ui-app-shell][data-canvas='panel']:not([data-nav-mode='overlay']):has(
+      > [data-part-aside][data-open]
+    )
+    > [data-part-progress] {
+    border-end-end-radius: 0;
+    border-start-end-radius: 0;
+    margin-inline-end: 0;
+  }
+
+  /**
+   * The seam re-read in each region's scope. `--_seam` declared on the root
+   * holds the root's `--slotted-app-shell-border-color`, so the property written
+   * on a region recoloured nothing. Declared again on every region, the chain
+   * resolves where the region stands: a colour written there recolours the
+   * seams the region and its parts draw, and `transparent` removes them. The
+   * tone rules below state the same two declarations at a higher specificity.
+   */
+  [data-ui-app-shell] > [data-part] {
+    --_rule: var(--slotted-app-shell-border-color, var(--slotted-border-subtle, ButtonBorder));
+    --_seam: var(--_rule-width) solid var(--_rule);
+  }
+  /* ── Separation by tone ──────────────────────────────────────────────── */
+
+  /**
+   * No line: the chrome regions take a ground of their own and the content
+   * keeps the surface. The tone is 4.5 per cent of the ink over the surface,
+   * 0.036 OKLab L from it in light and in dark; the two page surfaces this
+   * arrangement used to rely on are 0.02 apart, which read as nothing.
+   *
+   * A ground swapped without its tones leaves every control calibrated against
+   * a page it is not on: the subtle hover a destination and the disclosure
+   * control draw was the tone itself, and pressing a row changed nothing.
+   * Inside a toned region the pair is recomputed from the region's ground, and
+   * every control in it reads the pair it now stands on. The chain is written
+   * at the region, for the reason the palette above is: a `var()` resolves
+   * where it is declared, and a region carrying a scheme of its own must mix
+   * its own ink.
+   */
+  [data-ui-app-shell][data-separation='tone'],
+  [data-ui-app-shell][data-separation='tone'] > [data-part] {
+    --_seam: none;
+    --_seam-width: 0px;
+  }
+  [data-ui-app-shell][data-canvas='flush'][data-separation='tone'] > [data-part-footer] {
+    --_ground: var(
+      --slotted-app-shell-footer-surface,
+      var(
+        --slotted-app-shell-tone-surface,
+        color-mix(in oklab, var(--slotted-surface), var(--slotted-text) 4.5%)
+      )
+    );
+  }
+  [data-ui-app-shell][data-canvas='flush'][data-separation='tone']:not([data-primary='main'])
+    > [data-part-banner] {
+    --_ground: var(
+      --slotted-app-shell-banner-surface,
+      var(
+        --slotted-app-shell-tone-surface,
+        color-mix(in oklab, var(--slotted-surface), var(--slotted-text) 4.5%)
+      )
+    );
+  }
+  [data-ui-app-shell]:is([data-canvas='flush'], [data-canvas='panel'])[data-separation='tone']
+    > [data-part-nav] {
+    --_ground: var(
+      --slotted-app-shell-nav-surface,
+      var(
+        --slotted-app-shell-tone-surface,
+        color-mix(in oklab, var(--slotted-surface), var(--slotted-text) 4.5%)
+      )
+    );
+  }
+  [data-ui-app-shell]:is([data-canvas='flush'], [data-canvas='panel'])[data-separation='tone']
+    > [data-part-aside] {
+    --_ground: var(
+      --slotted-app-shell-aside-surface,
+      var(
+        --slotted-app-shell-tone-surface,
+        color-mix(in oklab, var(--slotted-surface), var(--slotted-text) 4.5%)
+      )
+    );
+  }
+  [data-ui-app-shell][data-separation='tone'] > [data-part-nav] > [data-part-nav-rail] {
+    --_ground: var(
+      --slotted-app-shell-tone-surface,
+      color-mix(in oklab, var(--slotted-surface), var(--slotted-text) 4.5%)
+    );
+  }
+  [data-ui-app-shell][data-canvas='flush'][data-separation='tone']:not([data-primary='main'])
+    > [data-part-banner],
+  [data-ui-app-shell][data-canvas='flush'][data-separation='tone'] > [data-part-footer],
+  [data-ui-app-shell]:is([data-canvas='flush'], [data-canvas='panel'])[data-separation='tone']
+    > :is([data-part-nav], [data-part-aside]),
+  [data-ui-app-shell][data-separation='tone'] > [data-part-nav] > [data-part-nav-rail] {
+    --slotted-tone-secondary-subtle-hover: color-mix(
+      in oklab,
+      var(--_ground),
+      var(--slotted-text) 4%
+    );
+    --slotted-tone-secondary-subtle-active: color-mix(
+      in oklab,
+      var(--_ground),
+      var(--slotted-text) 7%
+    );
+
+    background-color: var(--_ground);
+  }
+  /* The content keeps the surface under a toned frame: on the flush plane it
+     carried the sunken ground, which is 0.014 from the tone. */
+  [data-ui-app-shell][data-canvas='flush'][data-separation='tone'] > [data-part-main] {
+    background-color: var(
+      --slotted-app-shell-main-surface,
+      var(--slotted-app-shell-canvas, var(--slotted-surface, Canvas))
+    );
+  }
+
+  /* ── A rail of its own ───────────────────────────────────────────────── */
+
+  /**
+   * A strip of marks before the column: the first level of a two-level
+   * navigation, inside the one navigation region and under its one open state.
+   * The region becomes two columns, the strip at the rail's width and the
+   * column at the navigation's, and closing to `rail` narrows the region to
+   * the strip: the column is cut by the region's own overflow while the width
+   * moves, and leaves the tab order and the accessibility tree at the end of
+   * the move — `visibility` steps at the end on the way out and at the start
+   * on the way in. `:has()` recognises the part, so no script writes an
+   * attribute and a server render has the grid on its first paint.
+   */
+  [data-ui-app-shell] > [data-part-nav]:has(> [data-part-nav-rail]) {
+    display: grid;
+    grid-template-columns: var(--_rail-size) minmax(var(--_nav-size), 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+  [data-ui-app-shell] > [data-part-nav] > [data-part-nav-rail] {
+    align-items: center;
+    border-inline-end: var(--_seam);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-1, 0.125rem);
+    grid-area: 1 / 1 / -1 / 2;
+    min-block-size: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--_row-inset);
+    scrollbar-width: none;
+  }
+  [data-ui-app-shell] > [data-part-nav]:has(> [data-part-nav-rail]) > [data-part-nav-header] {
+    grid-area: 1 / 2 / 2 / 3;
+  }
+  [data-ui-app-shell] > [data-part-nav]:has(> [data-part-nav-rail]) > [data-part-nav-body] {
+    grid-area: 2 / 2 / 3 / 3;
+  }
+  [data-ui-app-shell] > [data-part-nav]:has(> [data-part-nav-rail]) > [data-part-nav-footer] {
+    grid-area: 3 / 2 / 4 / 3;
+  }
+  /* The strip's rule is an edge, and a row whose ground meets it reads as a
+     column with no padding. */
+  [data-ui-app-shell]
+    > [data-part-nav]:has(> [data-part-nav-rail])
+    > :is([data-part-nav-header], [data-part-nav-body], [data-part-nav-footer]) {
+    padding-inline-start: calc(var(--_row-inset) + var(--_row-ring-inset));
+    transition: visibility var(--_duration) step-start;
+  }
+  [data-ui-app-shell][data-nav-mode='inline'][data-open]
+    > [data-part-nav]:has(> [data-part-nav-rail]) {
+    inline-size: calc(var(--_rail-size) + var(--_nav-size) + var(--_nav-edges));
+  }
+  /* Closed, the region is the strip and its edges: the strip holds a row's
+     inset on each side of its marks already. */
+  [data-ui-app-shell][data-nav-mode='inline']:not([data-open])
+    > [data-part-nav]:has(> [data-part-nav-rail]) {
+    inline-size: calc(var(--_rail-size) + var(--_nav-edges));
+  }
+  [data-ui-app-shell][data-nav-mode='inline']:not([data-open])
+    > [data-part-nav]:has(> [data-part-nav-rail])
+    > :is([data-part-nav-header], [data-part-nav-body], [data-part-nav-footer]) {
+    transition: visibility var(--_duration) step-end;
+    visibility: hidden;
+  }
+  /* A closed strip is the region's edge, and the edge is the plane's to draw. */
+  [data-ui-app-shell][data-nav-mode='inline']:not([data-open])
+    > [data-part-nav]
+    > [data-part-nav-rail] {
+    border-inline-end: none;
+  }
+
+  /* ── Forced colours ──────────────────────────────────────────────────── */
+
+  /**
+   * Every ground is `Canvas` here, so a tone separates nothing: the seams are
+   * drawn whatever `separation` says. The theme cannot reach a boundary the
+   * family draws with a ground, which is the case the briefing allows a family
+   * a forced-colours rule of its own for.
+   */
+  @media (forced-colors: active) {
+    [data-ui-app-shell][data-separation='tone'],
+    [data-ui-app-shell][data-separation='tone'] > [data-part] {
+      --_seam: var(--_rule-width) solid CanvasText;
+      --_seam-width: var(--_rule-width);
+    }
+    /* A gradient resolves to nothing here, so the edge's mark takes flat system colours. */
+    [data-ui-app-shell] > [data-part-aside] > [data-part-aside-resizer] > [data-part-line] {
+      background: ButtonBorder;
+      forced-color-adjust: none;
+    }
+    [data-ui-app-shell] > [data-part-aside] > [data-part-aside-resizer] > [data-part-grip] {
+      background-color: ButtonBorder;
+      background-image: none;
+      forced-color-adjust: none;
+    }
+  }
+
+  /* ── The disclosure controls ─────────────────────────────────────────── */
+
+  /**
+   * The mark draws the region it toggles: a frame with a bar down one side,
+   * and a chevron saying which way pressing sends it. Three bars would say
+   * "a menu is here" and say nothing about which menu or where it goes; a
+   * double chevron says "all the way to the end", which is what `pagination`
+   * draws it for. Both were on this control before this one was.
+   *
+   * Its box is the row's mark column, so the control in the bar stands over
+   * the marks in the navigation rather than three pixels off them.
+   *
+   * The pane's control is the same control: the same box, the same ink, the
+   * same pair of marks. What differs is which way the artwork faces, below.
+   */
+  [data-ui-app-shell] [data-part-nav-toggle],
+  [data-ui-app-shell] [data-part-aside-toggle] {
+    --slotted-icon-size: var(--slotted-control-icon-size-md, 16px);
+
+    background-color: transparent;
+    block-size: var(--_row-mark);
+    border: none;
+    border-radius: var(--slotted-control-radius, 4px);
+    /**
+     * Quieter than the region it stands in, and *of* it: the control appears
+     * in the bar and in the column's foot, and either may have been repainted.
+     * Read from a token instead, it kept the light scheme's ink over a dark
+     * column and the mark disappeared.
+     */
+    color: color-mix(in oklab, currentcolor 70%, transparent);
+    cursor: pointer;
+    display: inline-grid;
+    flex: 0 0 auto;
+    inline-size: var(--_row-mark);
+    padding: 0;
+    place-items: center;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing, cubic-bezier(0.2, 0, 0, 1)),
+      color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing, cubic-bezier(0.2, 0, 0, 1));
+  }
+
+  /**
+   * The artwork is the `panel-open` or `panel-close` Glyph element, chosen by
+   * the binding from the region's state. It is direction-sensitive — the bar
+   * is on one side of the frame and the chevron points along the line — so
+   * the family turns it whole wherever the region is not at the start of the
+   * line. The pane is on the end the navigation is not, so its control is the
+   * navigation's turned, and turns back under the same conditions the
+   * navigation's turns. The box is not `directional`: which side the region
+   * stands on is this family's fact, not the reading direction's alone.
+   */
+  [data-ui-app-shell][data-nav-side='end'] [data-part-nav-toggle] > [data-ui-icon],
+  [dir='rtl'] [data-ui-app-shell] [data-part-nav-toggle] > [data-ui-icon],
+  [data-ui-app-shell]:not([data-nav-side='end']) [data-part-aside-toggle] > [data-ui-icon],
+  [dir='rtl'] [data-ui-app-shell][data-nav-side='end'] [data-part-aside-toggle] > [data-ui-icon] {
+    scale: -1 1;
+  }
+  [dir='rtl'] [data-ui-app-shell][data-nav-side='end'] [data-part-nav-toggle] > [data-ui-icon],
+  [dir='rtl']
+    [data-ui-app-shell]:not([data-nav-side='end'])
+    [data-part-aside-toggle]
+    > [data-ui-icon] {
+    scale: 1 1;
+  }
+
+  [data-ui-app-shell] [data-part-nav-toggle]:enabled:hover,
+  [data-ui-app-shell] [data-part-aside-toggle]:enabled:hover {
+    background-color: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+    color: currentcolor;
+  }
+  [data-ui-app-shell] [data-part-nav-toggle]:enabled:active,
+  [data-ui-app-shell] [data-part-aside-toggle]:enabled:active {
+    background-color: var(--slotted-tone-secondary-subtle-active, ButtonFace);
+  }
+  [data-ui-app-shell] [data-part-nav-toggle]:focus-visible,
+  [data-ui-app-shell] [data-part-aside-toggle]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── The navigation as a column ──────────────────────────────────────── */
+
+  /**
+   * Keyed on the mode and not on the width, because a consumer may state the
+   * mode at any width. The container query further down is the fallback for
+   * the frame before the binding has measured, and nothing else.
+   */
+  /* The rail holds the parts' ring inset on each side as well, so a control
+     at the mark's size keeps its focus ring inside the body beside the gutter. */
+  [data-ui-app-shell][data-nav-mode='inline'] > [data-part-nav] {
+    inline-size: calc(
+      var(--_rail-size) + 2 * (var(--_nav-inset) + var(--_row-ring-inset)) + var(--_nav-edges)
+    );
+  }
+  [data-ui-app-shell][data-nav-mode='inline'][data-open] > [data-part-nav] {
+    inline-size: var(--_nav-size);
+  }
+  /**
+   * The rail centres its marks, all three rows together: a head centred over a
+   * body that is not reads as two columns in one strip.
+   */
+  [data-ui-app-shell][data-nav-mode='inline']:not([data-open])
+    > [data-part-nav]
+    > [data-part-nav-header],
+  [data-ui-app-shell][data-nav-mode='inline']:not([data-open])
+    > [data-part-nav]
+    > [data-part-nav-footer] {
+    /* Two marks in one end of a rail — the control and the account — stand
+       one over the other: the rail is one mark column wide, so a row of two
+       is a row that overflows it. */
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  [data-ui-app-shell][data-nav-mode='inline']:not([data-open])
+    > [data-part-nav]
+    > [data-part-nav-body] {
+    align-items: center;
+  }
+  /**
+   * Nothing left behind: the region keeps no measure and no tab stop. Mantine
+   * and Ant leave a zero-width navbar in the flow and `Tab` still crosses every
+   * destination in it. `display: none` rather than a width of nought, because a
+   * region at nought pixels still lays its children out and puts content
+   * outside the box that owns it — `content-visibility: hidden` was tried and
+   * preserves the last measured size instead. The cost is written: closing to
+   * `hidden` does not animate, because it is a removal rather than a change of
+   * width.
+   */
+  [data-ui-app-shell][data-nav-mode='inline'][data-collapsed-to='hidden']:not([data-open])
+    > [data-part-nav] {
+    display: none;
+  }
+
+  [data-ui-app-shell][data-nav-side='end'] > [data-part-nav] {
+    grid-area: 2 / 3 / 3 / 4;
+  }
+  [data-ui-app-shell][data-canvas='inset'][data-nav-side='end'] > [data-part-nav] {
+    margin-inline: 0 var(--_gutter);
+  }
+  [data-ui-app-shell][data-canvas='flush'][data-nav-side='end'] > [data-part-nav] {
+    padding-inline: 0 var(--_gutter);
+  }
+  [data-ui-app-shell]:is([data-canvas='flush'], [data-canvas='panel']) > [data-part-nav] {
+    border-inline-end: var(--_seam);
+  }
+  [data-ui-app-shell]:is([data-canvas='flush'], [data-canvas='panel'])[data-nav-side='end']
+    > [data-part-nav] {
+    border-inline-end: none;
+    border-inline-start: var(--_seam);
+  }
+
+  /** Reaching the corner: the navigation spans every row instead. */
+  [data-ui-app-shell]:is([data-primary='nav'], [data-primary='main']) > [data-part-nav] {
+    grid-area: 1 / 1 / -1 / 2;
+  }
+  [data-ui-app-shell]:is([data-primary='nav'], [data-primary='main'])[data-nav-side='end']
+    > [data-part-nav] {
+    grid-area: 1 / 3 / -1 / 4;
+  }
+  /**
+   * The navigation's own head takes the banner's height, so the workspace mark
+   * and whatever the bar carries sit on one line rather than being two headers
+   * of different sizes in the same row of the screen.
+   */
+  [data-ui-app-shell]:is([data-primary='nav'], [data-primary='main'])
+    > [data-part-nav]
+    > [data-part-nav-header] {
+    /* The head's own padding is inside the banner's height, or the mark stands
+       its padding lower than the bar beside it. */
+    box-sizing: border-box;
+    min-block-size: var(--_banner-size);
+  }
+  [data-ui-app-shell]:is([data-primary='nav'], [data-primary='main']) > [data-part-banner],
+  [data-ui-app-shell]:is([data-primary='nav'], [data-primary='main']) > [data-part-footer] {
+    grid-column: 2 / -1;
+  }
+  [data-ui-app-shell]:is([data-primary='nav'], [data-primary='main'])[data-nav-side='end']
+    > [data-part-banner],
+  [data-ui-app-shell]:is([data-primary='nav'], [data-primary='main'])[data-nav-side='end']
+    > [data-part-footer] {
+    grid-column: 1 / -2;
+  }
+  /**
+   * The banner in the plane of the content stands over the content's column
+   * alone: the pane beside it, as a column, spans the banner's row. Under
+   * `panel` the banner is inside the card whether the column or the content
+   * is primary, so `nav` draws what `main` draws there.
+   */
+  [data-ui-app-shell][data-primary='main'] > [data-part-banner],
+  [data-ui-app-shell][data-canvas='panel'][data-primary='nav'] > [data-part-banner] {
+    grid-column: 2 / 3;
+  }
+
+  /* ── The navigation as a layer ───────────────────────────────────────── */
+
+  /**
+   * Out of flow, so the track it was in collapses on its own and the root's
+   * template is never rewritten.
+   *
+   * `grid-area: 2 / 1 / -1 / -1` is what makes the panel stop under the banner
+   * and be the height of everything below it. An absolutely positioned grid
+   * child placed into a definite area takes *that area* as its containing
+   * block, not the grid's padding box — so the rows say where the panel ends
+   * without anyone measuring the banner, and a banner that wraps to two lines
+   * moves the panel with it.
+   *
+   * The alternative is a sheet over everything, which Material draws and which
+   * puts the veil over the bar as well: the reader then has no fixed point on
+   * the screen at all.
+   */
+  [data-ui-app-shell][data-nav-mode='overlay'] > [data-part-nav] {
+    /* A layer has an edge on every plane, so its rows stand one inset in. The
+       inset is read by the parts, which take it from here. */
+    --_nav-inset: var(--_row-inset);
+
+    /* A layer over the content is opaque or it is unreadable, so the plane's
+       transparent default does not reach it — the product's own choice still
+       does, which is why this is the property and not the colour. */
+    background-color: var(
+      --slotted-app-shell-nav-surface,
+      var(--slotted-app-shell-canvas, var(--slotted-surface, Canvas))
+    );
+    border-block-start: var(--_rule-width) solid var(--_rule);
+    box-shadow: var(--slotted-shadow-lg);
+    display: flex;
+    grid-area: 2 / 1 / -1 / -1;
+    inline-size: min(var(--_nav-overlay-size), calc(100% - var(--_row-mark) - 2 * var(--_gutter)));
+    inset-block: 0;
+    inset-inline-start: 0;
+    margin: 0;
+    padding-inline: 0;
+    position: absolute;
+    transition:
+      translate var(--_duration) var(--slotted-easing-exit, cubic-bezier(0.3, 0, 0.8, 0.15)),
+      visibility var(--_duration) step-end;
+    translate: -100% 0;
+    visibility: hidden;
+    z-index: var(--slotted-z-index-overlay, 1000);
+  }
+  [data-ui-app-shell][data-nav-mode='overlay'][data-open] > [data-part-nav] {
+    transition:
+      translate var(--_duration) var(--slotted-easing-enter, cubic-bezier(0.05, 0.7, 0.1, 1)),
+      visibility var(--_duration) step-start;
+    translate: 0 0;
+    visibility: visible;
+  }
+  [data-ui-app-shell][data-nav-mode='overlay'][data-nav-side='end'] > [data-part-nav] {
+    inset-inline-end: 0;
+    inset-inline-start: auto;
+    translate: 100% 0;
+  }
+
+  /**
+   * On the inset plane the panel is a card like every other region, so it takes
+   * the same gutter, the same radius and the same elevation rather than being
+   * a sheet welded to the frame's edge — the one region that ignored the plane
+   * it slid onto. The closed position then has to clear the gutter as well, or
+   * the panel leaves a strip of itself against the edge.
+   *
+   * A card has an edge the column never had, and rows whose ground meets that
+   * edge read as a panel with no padding. One row inset on the card, for all
+   * three parts: the marks keep one column, and a consumer's header row that
+   * writes the same inset stays over them.
+   */
+  [data-ui-app-shell][data-canvas='floating'][data-nav-mode='overlay'] > [data-part-nav],
+  [data-ui-app-shell][data-canvas='panel'][data-nav-mode='overlay'] > [data-part-nav],
+  [data-ui-app-shell][data-canvas='inset'][data-nav-mode='overlay'] > [data-part-nav] {
+    border: var(--_rule-width) solid var(--_rule);
+    border-radius: var(--_radius);
+    box-shadow: var(--slotted-shadow-lg);
+    margin-block: var(--_gutter);
+    margin-inline-start: var(--_gutter);
+    translate: calc(-100% - var(--_gutter)) 0;
+  }
+  [data-ui-app-shell]:not([data-canvas='flush'])[data-nav-mode='overlay'][data-nav-side='end']
+    > [data-part-nav] {
+    margin-inline-end: var(--_gutter);
+    margin-inline-start: 0;
+    translate: calc(100% + var(--_gutter)) 0;
+  }
+  [data-ui-app-shell]:not([data-canvas='flush'])[data-nav-mode='overlay'][data-open]
+    > [data-part-nav] {
+    translate: 0 0;
+  }
+
+  /* ── The pane as a layer ─────────────────────────────────────────────── */
+
+  /**
+   * The navigation's layer, from the other end of the line: the same rows of
+   * the grid, the same elevation, the same pair of easings, and the mirror of
+   * every inline distance. It slides in from the end the navigation is not on,
+   * which is the end the pane stands at as a column.
+   */
+  [data-ui-app-shell][data-aside-mode='overlay'] > [data-part-aside] {
+    background-color: var(
+      --slotted-app-shell-aside-surface,
+      var(--slotted-app-shell-canvas, var(--slotted-surface, Canvas))
+    );
+    border-block-start: var(--_rule-width) solid var(--_rule);
+    box-shadow: var(--slotted-shadow-lg);
+    display: flex;
+    grid-area: 2 / 1 / -1 / -1;
+    inline-size: var(--_aside-size);
+    inset-block: 0;
+    inset-inline-end: 0;
+    inset-inline-start: auto;
+    margin: 0;
+    max-inline-size: 80%;
+    position: absolute;
+    transition:
+      translate var(--_duration) var(--slotted-easing-exit, cubic-bezier(0.3, 0, 0.8, 0.15)),
+      visibility var(--_duration) step-end;
+    translate: 100% 0;
+    visibility: hidden;
+    z-index: var(--slotted-z-index-overlay, 1000);
+  }
+  [data-ui-app-shell][data-aside-mode='overlay'] > [data-part-aside][data-open] {
+    transition:
+      translate var(--_duration) var(--slotted-easing-enter, cubic-bezier(0.05, 0.7, 0.1, 1)),
+      visibility var(--_duration) step-start;
+    translate: 0 0;
+    visibility: visible;
+  }
+  [data-ui-app-shell][data-aside-mode='overlay'][data-nav-side='end'] > [data-part-aside] {
+    inset-inline-end: auto;
+    inset-inline-start: 0;
+    translate: -100% 0;
+  }
+  [data-ui-app-shell][data-canvas='floating'][data-aside-mode='overlay'] > [data-part-aside],
+  [data-ui-app-shell][data-canvas='panel'][data-aside-mode='overlay'] > [data-part-aside],
+  [data-ui-app-shell][data-canvas='inset'][data-aside-mode='overlay'] > [data-part-aside] {
+    border: var(--_rule-width) solid var(--_rule);
+    border-radius: var(--_radius);
+    box-shadow: var(--slotted-shadow-lg);
+    margin-block: var(--_gutter);
+    margin-inline-end: var(--_gutter);
+    translate: calc(100% + var(--_gutter)) 0;
+  }
+  [data-ui-app-shell]:not([data-canvas='flush'])[data-aside-mode='overlay'][data-nav-side='end']
+    > [data-part-aside] {
+    margin-inline-end: 0;
+    margin-inline-start: var(--_gutter);
+    translate: calc(-100% - var(--_gutter)) 0;
+  }
+  [data-ui-app-shell]:not([data-canvas='flush'])[data-aside-mode='overlay']
+    > [data-part-aside][data-open] {
+    translate: 0 0;
+  }
+
+  /* ── Before the binding has measured ─────────────────────────────────── */
+
+  /**
+   * The breakpoint is a literal because `@container (inline-size: var(--x))` is
+   * invalid CSS. It is `COMPACT_BELOW` of `@slotted/core/measure`, the limit
+   * of the compact size class; `specs/components/app-shell/contract.json`
+   * states the same number under `overlayAt`, and `app-shell.styles.test.mjs`
+   * compares every condition here against it.
+   *
+   * The first two blocks answer one question only: what a shell whose mode has
+   * not been decided yet draws. A server render and the frame before hydration
+   * carry no `data-nav-mode`, and a wide one is then a column while a narrow
+   * one is nothing. Once the binding writes the attribute, the rules above own
+   * the geometry at every width.
+   *
+   * The pane is the other way round: where it stands is a question of room
+   * rather than of mode, so the width answers it and the width alone.
+   */
+  @container slotted-app-shell (inline-size >= 600px) {
+    [data-ui-app-shell]:not([data-nav-mode]) > [data-part-nav] {
+      inline-size: calc(
+        var(--_rail-size) + 2 * (var(--_nav-inset) + var(--_row-ring-inset)) + var(--_nav-edges)
+      );
+    }
+    [data-ui-app-shell]:not([data-nav-mode])[data-open] > [data-part-nav] {
+      inline-size: var(--_nav-size);
+    }
+
+    /* The pane as a column, where there is room. `:not(overlay)`: a layer is
+       placed by its mode and not by the width, exactly as the navigation's is,
+       and these rules are for the column and the row alone. */
+    /* The extent the reader set, when there is one, and the size step when
+       not. The binding writes it in `cqi`: the root is the query container, so
+       the unit resolves against the shell's own inline size from inside this
+       `auto` track, where a percentage would resolve against the track the
+       pane itself sizes. */
+    [data-ui-app-shell]:not([data-aside-mode='overlay']) > [data-part-aside] {
+      grid-area: 2 / 3 / 3 / 4;
+      inline-size: var(--slotted-app-shell-aside-extent, var(--_aside-size));
+      position: relative;
+    }
+    [data-ui-app-shell]:not([data-aside-mode='overlay'])
+      > [data-part-aside]
+      > [data-part-aside-resizer]:not([hidden]) {
+      display: flex;
+    }
+    [data-ui-app-shell]:not([data-aside-mode='overlay'])[data-nav-side='end'] > [data-part-aside] {
+      grid-area: 2 / 1 / 3 / 2;
+    }
+    /* Under `primary="main"` the pane, as a column, stands beside the card
+       that holds the banner and the content, so it spans the banner's row. */
+    [data-ui-app-shell]:not([data-aside-mode='overlay'])[data-primary='main'] > [data-part-aside],
+    [data-ui-app-shell]:not([data-aside-mode='overlay'])[data-canvas='panel'][data-primary='nav']
+      > [data-part-aside] {
+      grid-row: 1 / 3;
+    }
+    [data-ui-app-shell]:not([data-aside-mode='overlay']):is(
+        [data-canvas='floating'],
+        [data-canvas='inset']
+      )[data-nav-side='end']
+      > [data-part-aside] {
+      margin-inline: var(--_gutter) 0;
+    }
+    /* The strip lies on the line between the pane and the content: the seam
+       where they meet, the gutter's centre where the gutter separates them.
+       The pane then does not scroll itself — its body does — so it does not
+       clip the half of the strip that stands outside it. */
+    [data-ui-app-shell][data-scroll='content']:not([data-aside-mode='overlay'])
+      > [data-part-aside] {
+      overflow: visible;
+    }
+    [data-ui-app-shell]:not([data-aside-mode='overlay'])
+      > [data-part-aside]
+      > [data-part-aside-resizer] {
+      --_resizer-offset: calc(var(--_seam-width) / -2 - var(--_resizer-thickness) / 2);
+
+      inset-inline-start: var(--_resizer-offset);
+    }
+    [data-ui-app-shell]:not([data-aside-mode='overlay']):is(
+        [data-canvas='floating'],
+        [data-canvas='inset']
+      )
+      > [data-part-aside]
+      > [data-part-aside-resizer] {
+      --_resizer-offset: calc(
+        -1 * (var(--_rule-width) + var(--_gutter) / 2) - var(--_resizer-thickness) / 2
+      );
+    }
+    [data-ui-app-shell]:not([data-aside-mode='overlay'])[data-nav-side='end']
+      > [data-part-aside]
+      > [data-part-aside-resizer] {
+      inset-inline-end: var(--_resizer-offset);
+      inset-inline-start: auto;
+    }
+    [data-ui-app-shell]:not([data-aside-mode='overlay'])[data-canvas='flush'] > [data-part-aside] {
+      border-block-start: none;
+    }
+    [data-ui-app-shell]:not([data-aside-mode='overlay']):is(
+        [data-canvas='flush'],
+        [data-canvas='panel']
+      )
+      > [data-part-aside] {
+      border-inline-start: var(--_seam);
+    }
+    [data-ui-app-shell]:not([data-aside-mode='overlay']):is(
+        [data-canvas='flush'],
+        [data-canvas='panel']
+      )[data-nav-side='end']
+      > [data-part-aside] {
+      border-inline-end: var(--_seam);
+      border-inline-start: none;
+    }
+  }
+
+  @container slotted-app-shell (inline-size < 600px) {
+    [data-ui-app-shell]:not([data-nav-mode]) > [data-part-nav] {
+      display: none;
+    }
+    /* The content flush to the frame, as it is once the mode says overlay. */
+    [data-ui-app-shell]:not([data-nav-mode])[data-canvas='floating'] > [data-part-main],
+    [data-ui-app-shell]:not([data-nav-mode])[data-canvas='inset'] > [data-part-main] {
+      border-block-end: 0;
+      border-inline: 0;
+      border-radius: 0;
+      box-shadow: none;
+      margin: 0;
+    }
+    /* The card of `primary="main"` goes with the gutter. The root cannot
+       query its own width, but its pseudo-element is a child of the query
+       container and reads it. */
+    [data-ui-app-shell]:not([data-nav-mode]):is(
+        [data-canvas='floating'],
+        [data-canvas='inset']
+      )[data-primary='main']::before {
+      content: none;
+    }
+    [data-ui-app-shell]:not([data-nav-mode])[data-primary='main'] > [data-part-banner] {
+      margin: 0;
+      padding-inline: var(--_edge);
+    }
+    [data-ui-app-shell]:not([data-nav-mode])[data-canvas='panel'] > [data-part-main] {
+      border-block-start: var(--_rule-width) solid var(--_rule);
+      border-radius: 0;
+    }
+    [data-ui-app-shell]:not([data-nav-mode])[data-canvas='floating'] > [data-part-progress],
+    [data-ui-app-shell]:not([data-nav-mode])[data-canvas='inset'] > [data-part-progress] {
+      border-radius: 0;
+      margin: 0;
+    }
+    [data-ui-app-shell]:not([data-nav-mode])[data-canvas='panel'] > [data-part-progress] {
+      border-radius: 0;
+    }
+    [data-ui-app-shell]:not([data-aside-mode='overlay']):is(
+        [data-canvas='floating'],
+        [data-canvas='inset']
+      )
+      > [data-part-aside] {
+      margin-inline: var(--_gutter);
+    }
+    /* A row under the content takes at most half the shell, so the content
+       keeps the other half: a pane whose record is taller than the screen
+       left the content a line high, with the pane scrolling and the content
+       gone. Only where the shell owns its height; under `document` the page
+       scrolls and the row takes its content's height. */
+    [data-ui-app-shell][data-scroll='content']:not([data-aside-mode='overlay'])
+      > [data-part-aside] {
+      max-block-size: 50cqb;
+    }
+    /* The pane as a row under the content, in the inline mode alone: a pane
+       whose mode is not yet decided draws nothing at a narrow width, the safe
+       half of the answer, for the reason the navigation draws nothing. */
+    [data-ui-app-shell]:not([data-aside-mode]) > [data-part-aside] {
+      display: none;
+    }
+  }
+
+  /* ── The veil ────────────────────────────────────────────────────────── */
+
+  /** It stops where the panel stops, so the bar above stays a fixed point. */
+  [data-ui-app-shell] > [data-part-scrim] {
+    background-color: var(--_scrim);
+    grid-area: 2 / 1 / -1 / -1;
+    inset: 0;
+    opacity: 1;
+    position: absolute;
+    transition: opacity var(--_duration) var(--_easing);
+    z-index: calc(var(--slotted-z-index-overlay, 1000) - 1);
+  }
+  [data-ui-app-shell] > [data-part-scrim][data-status='entering'],
+  [data-ui-app-shell] > [data-part-scrim][data-status='exiting'] {
+    opacity: 0;
+  }
+}

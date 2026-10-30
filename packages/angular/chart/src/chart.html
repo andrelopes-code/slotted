@@ -1,0 +1,573 @@
+@let current = chartModel(); @if (title() !== undefined || description() !== undefined ||
+resolvedToolbar() !== 'none') {
+<figcaption data-part="header" data-part-header="">
+  <div>
+    <div>
+      @if (title() !== undefined) {
+      <span data-part="title" data-part-title="" [id]="id + '-title'">{{ title() }}</span>
+      } @if (help() !== undefined) {
+      <button
+        #helpControl
+        type="button"
+        data-part="help"
+        data-part-help=""
+        [attr.aria-label]="t('help')"
+        [attr.aria-controls]="id + '-help'"
+        [attr.aria-expanded]="layerOpen()['help'] ?? false"
+        [attr.data-open]="layerOpen()['help'] ? '' : null"
+        (click)="toggleLayer('help')"
+      >
+        <span slIcon><svg slGlyph name="circle-info"></svg></span>
+      </button>
+      <div
+        #helpLayer
+        popover="auto"
+        data-part="help-content"
+        data-part-help-content=""
+        role="note"
+        [id]="id + '-help'"
+        (toggle)="onLayerToggle('help', $event, helpControl, 'start', false)"
+      >
+        {{ help() }}
+      </div>
+      }
+    </div>
+    @if (description() !== undefined) {
+    <span data-part="description" data-part-description="" [id]="id + '-description'"
+      >{{ description() }}</span
+    >
+    }
+  </div>
+  <div data-part="actions" data-part-actions=""><ng-content select="[slChartActions]" /></div>
+  <!-- The box stands in every state, so the header's words wrap at one width; it
+       holds nothing a reader can reach until the plot has something to act on. -->
+  @if (resolvedToolbar() !== 'none') { @let ready = usable();
+  <div
+    data-part="toolbar"
+    data-part-toolbar=""
+    [attr.role]="ready ? 'toolbar' : null"
+    [attr.aria-label]="ready ? t('toolbar') : null"
+    [attr.aria-hidden]="ready ? null : 'true'"
+    [attr.inert]="ready ? null : ''"
+    [attr.data-waiting]="ready ? null : ''"
+  >
+    @if (zoomed()) {
+    <button
+      type="button"
+      data-part="zoom-reset"
+      data-part-zoom-reset=""
+      [attr.aria-label]="t('resetZoom')"
+      [attr.title]="t('resetZoom')"
+      (click)="resetZoomFromToolbar($event)"
+    >
+      <span slIcon><svg slGlyph name="rotate-ccw"></svg></span>
+    </button>
+    }
+    <button
+      type="button"
+      data-part="view-toggle"
+      data-part-view-toggle=""
+      [attr.aria-label]="t('tableView')"
+      [attr.title]="t('tableView')"
+      [attr.aria-pressed]="tableOpen()"
+      [attr.data-pressed]="tableOpen() ? '' : null"
+      (click)="requestTable(!tableOpen(), pressReason(), $event)"
+    >
+      <span slIcon><svg slGlyph name="file-spreadsheet"></svg></span>
+    </button>
+    <button
+      type="button"
+      data-part="fullscreen-toggle"
+      data-part-fullscreen-toggle=""
+      [attr.aria-label]="fullscreen() ? t('exitFullscreen') : t('fullscreen')"
+      [attr.title]="fullscreen() ? t('exitFullscreen') : t('fullscreen')"
+      (click)="requestFullscreen(!fullscreen(), pressReason(), $event)"
+    >
+      <span slIcon><svg slGlyph [name]="fullscreen() ? 'minimize' : 'maximize'"></svg></span>
+    </button>
+    <button
+      #menuControl
+      type="button"
+      data-part="menu-trigger"
+      data-part-menu-trigger=""
+      aria-haspopup="menu"
+      [attr.aria-label]="t('more')"
+      [attr.title]="t('more')"
+      [attr.aria-expanded]="layerOpen()['menu'] ?? false"
+      [attr.data-open]="layerOpen()['menu'] ? '' : null"
+      (click)="toggleLayer('menu')"
+    >
+      <span slIcon><svg slGlyph name="ellipsis"></svg></span>
+    </button>
+    <div
+      #menu
+      popover="auto"
+      data-part="menu"
+      data-part-menu=""
+      role="menu"
+      [attr.aria-label]="t('more')"
+      (toggle)="onLayerToggle('menu', $event, menuControl, 'end')"
+      (keydown)="onLayerKeyDown($event)"
+    >
+      <button
+        type="button"
+        role="menuitem"
+        data-part="menu-item"
+        data-part-menu-item=""
+        data-action="view"
+        (click)="menuAction('view', $event)"
+      >
+        {{ t('tableView') }}
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        data-part="menu-item"
+        data-part-menu-item=""
+        data-action="fullscreen"
+        (click)="menuAction('fullscreen', $event)"
+      >
+        {{ fullscreen() ? t('exitFullscreen') : t('fullscreen') }}
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        data-part="menu-item"
+        data-part-menu-item=""
+        data-action="csv"
+        (click)="menuAction('csv', $event)"
+      >
+        {{ t('downloadCsv') }}
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        data-part="menu-item"
+        data-part-menu-item=""
+        data-action="image"
+        (click)="menuAction('image', $event)"
+      >
+        {{ t('downloadImage') }}
+      </button>
+    </div>
+  </div>
+  }
+</figcaption>
+} @if (legend()) {
+<div
+  #legendRow
+  data-part="legend"
+  data-part-legend=""
+  [attr.role]="legendWaiting() ? null : legendInteractive() ? 'toolbar' : 'list'"
+  [attr.aria-label]="legendWaiting() ? null : t('legend')"
+  (keydown)="onLegendKeyDown($event)"
+>
+  @if (legendWaiting()) { @for (line of repeat(3); track line) {
+  <span
+    data-ui="skeleton"
+    data-ui-skeleton=""
+    data-part="root"
+    data-part-root=""
+    data-shape="block"
+    data-size="md"
+    data-animation="shimmer"
+    data-loading
+    aria-hidden="true"
+  ></span>
+  } } @else if (current) { @for (entry of current.legend; track entry.key; let index = $index) {
+  <ng-container
+    *ngTemplateOutlet="legendItem; context: { $implicit: entry, rowHidden: collapsed().includes(index), inLayer: false }"
+  />
+  }
+  <button
+    #moreControl
+    type="button"
+    data-part="legend-more"
+    data-part-legend-more=""
+    aria-haspopup="true"
+    [attr.aria-label]="legendMoreName()"
+    [hidden]="collapsed().length === 0"
+    [attr.tabindex]="rovingKey() === null ? 0 : -1"
+    [attr.aria-expanded]="layerOpen()['more'] ?? false"
+    [attr.data-open]="layerOpen()['more'] ? '' : null"
+    (click)="toggleLayer('more')"
+  >
+    {{ t('moreSeries', { count: collapsed().length }) }}
+  </button>
+  <div
+    #moreLayer
+    popover="auto"
+    data-part="menu"
+    data-part-menu=""
+    role="group"
+    [attr.aria-label]="t('legend')"
+    (toggle)="onLayerToggle('more', $event, moreControl, 'start')"
+    (keydown)="onLayerKeyDown($event)"
+  >
+    @for (index of collapsed(); track index) { @if (current.legend[index]; as entry) {
+    <ng-container
+      *ngTemplateOutlet="legendItem; context: { $implicit: entry, rowHidden: false, inLayer: true }"
+    />
+    } }
+  </div>
+  }
+</div>
+}
+<ng-template #legendItem let-entry let-rowHidden="rowHidden" let-inLayer="inLayer">
+  @let color = colorOf(entry.color); @if (legendInteractive()) {
+  <button
+    type="button"
+    data-part="legend-item"
+    data-part-legend-item=""
+    [attr.data-key]="entry.key"
+    [attr.data-slot]="color.slot"
+    [attr.data-tone]="color.tone"
+    [attr.data-overflow]="color.overflow"
+    [attr.data-current]="isCurrent(entry) ? '' : null"
+    [attr.aria-pressed]="entry.visible"
+    [attr.data-pressed]="entry.visible ? '' : null"
+    [attr.tabindex]="inLayer || rovingKey() === entry.key ? 0 : -1"
+    [hidden]="rowHidden"
+    (click)="onLegendClick(entry, $event)"
+    (keydown)="onLegendItemKey(entry, $event)"
+    (focus)="legendFocus.set(inLayer ? legendFocus() : entry.key); emphasize(entry.visible ? entry.key : null)"
+    (blur)="emphasize(null)"
+    (pointerenter)="entry.visible && emphasize(entry.key)"
+    (pointerleave)="emphasize(null)"
+  >
+    <ng-container *ngTemplateOutlet="legendContent; context: { $implicit: entry }" />
+  </button>
+  } @else {
+  <span
+    role="listitem"
+    data-part="legend-item"
+    data-part-legend-item=""
+    [attr.data-key]="entry.key"
+    [attr.data-slot]="color.slot"
+    [attr.data-tone]="color.tone"
+    [attr.data-overflow]="color.overflow"
+    [attr.data-current]="isCurrent(entry) ? '' : null"
+    [hidden]="rowHidden"
+    (pointerenter)="entry.visible && emphasize(entry.key)"
+    (pointerleave)="emphasize(null)"
+  >
+    <ng-container *ngTemplateOutlet="legendContent; context: { $implicit: entry }" />
+  </span>
+  }
+</ng-template>
+<ng-template #legendContent let-entry>
+  @if (legendItemTemplate(); as custom) {
+  <ng-container
+    *ngTemplateOutlet="custom.template; context: { $implicit: entry, value: legendValue(entry), current: isCurrent(entry) }"
+  />
+  } @else {
+  <span
+    data-part="legend-marker"
+    data-part-legend-marker=""
+    [attr.data-kind]="entry.kind === 'area' || entry.kind === 'bar' || entry.kind === 'pie' ? 'bar' : entry.kind"
+    [attr.data-stroke]="strokeOf(entry)"
+  ></span>
+  <span data-part="legend-label" data-part-legend-label="" [attr.title]="entry.label"
+    >{{ entry.label }}</span
+  >
+  @if (legendValues()) {
+  <span data-part="legend-value" data-part-legend-value="">{{ legendValue(entry) }}</span>
+  } }
+</ng-template>
+<div
+  #plot
+  data-part="plot"
+  data-part-plot=""
+  role="group"
+  tabindex="0"
+  [attr.aria-roledescription]="t('roledescription')"
+  [attr.aria-labelledby]="title() !== undefined ? id + '-title' : null"
+  [attr.aria-label]="title() === undefined ? (ariaLabel() ?? t('roledescription')) : null"
+  [attr.aria-describedby]="describedBy()"
+  [attr.aria-busy]="loading() ? 'true' : null"
+  (keydown)="onPlotKeyDown($event)"
+  (focus)="onPlotFocus($event)"
+  (blur)="requestActive(null, 'blur', $event)"
+>
+  @let overlayNow = overlay();
+  <div
+    data-part="crosshair"
+    data-part-crosshair=""
+    [hidden]="!overlayNow.crosshair"
+    [attr.data-band]="overlayNow.crosshair?.isBand ? '' : null"
+    [attr.data-orientation]="current?.orientation ?? 'vertical'"
+    [style.--slotted-chart-x]="px(overlayNow.crosshair?.x)"
+    [style.--slotted-chart-y]="px(overlayNow.crosshair?.y)"
+    [style.--slotted-chart-band-start]="px(overlayNow.crosshair?.band?.start)"
+    [style.--slotted-chart-band-size]="px(overlayNow.crosshair?.band?.size)"
+    [style.--slotted-chart-frame-start]="px(overlayNow.crosshair?.frame?.start)"
+    [style.--slotted-chart-frame-size]="px(overlayNow.crosshair?.frame?.size)"
+  ></div>
+  <div
+    #canvas
+    data-part="canvas"
+    data-part-canvas=""
+    aria-hidden="true"
+    [hidden]="!drawable()"
+  ></div>
+  @for (marker of overlayNow.markers; track marker.key) { @let markerColor = colorOf(marker.color);
+  <div
+    data-part="marker"
+    data-part-marker=""
+    aria-hidden="true"
+    [attr.data-slot]="markerColor.slot"
+    [attr.data-tone]="markerColor.tone"
+    [attr.data-overflow]="markerColor.overflow"
+    [attr.data-selected]="marker.selected ? '' : null"
+    [attr.data-current]="marker.current ? '' : null"
+    [style.--slotted-chart-x]="px(marker.at.x)"
+    [style.--slotted-chart-y]="px(marker.at.y)"
+  ></div>
+  }
+  <div
+    #tooltipBox
+    data-part="tooltip"
+    data-part-tooltip=""
+    aria-hidden="true"
+    [attr.data-open]="overlayNow.tooltip ? '' : null"
+    [attr.data-docked]="overlayNow.docked ? '' : null"
+  >
+    @if (overlayNow.tooltip && current) { @if (tooltipTemplate(); as custom) {
+    <ng-container
+      *ngTemplateOutlet="custom.template; context: { $implicit: overlayNow.tooltip, model: current }"
+    />
+    } @else {
+    <div data-part="tooltip-title" data-part-tooltip-title="">{{ overlayNow.tooltip.title }}</div>
+    @for (note of overlayNow.tooltip.notes; track note) {
+    <div data-part="tooltip-note" data-part-tooltip-note="">{{ note }}</div>
+    } @for (item of overlayNow.tooltip.items; track item.series + item.label) { @let itemColor =
+    colorOf(item.color);
+    <div
+      data-part="tooltip-item"
+      data-part-tooltip-item=""
+      [attr.data-current]="overlayNow.tooltip.items.length > 1 && item.current ? '' : null"
+      [attr.data-slot]="itemColor.slot"
+      [attr.data-tone]="itemColor.tone"
+      [attr.data-overflow]="itemColor.overflow"
+    >
+      @if (resolvedTooltip().indicator !== 'none') {
+      <span
+        data-part="tooltip-marker"
+        data-part-tooltip-marker=""
+        [attr.data-kind]="markerKind(item.kind, resolvedTooltip().indicator)"
+        [attr.data-stroke]="strokeOf(item)"
+      ></span>
+      }
+      <span data-part="tooltip-label" data-part-tooltip-label="">{{ item.label }}</span>
+      <span data-part="tooltip-value" data-part-tooltip-value=""
+        >{{ item.share ? item.share + ' · ' + item.formatted : item.formatted }}</span
+      >
+    </div>
+    } @if (overlayNow.tooltip.total; as total) {
+    <div data-part="tooltip-total" data-part-tooltip-total="">
+      <span>{{ t('total') }}</span>
+      <span data-part="tooltip-value" data-part-tooltip-value="">{{ total.formatted }}</span>
+    </div>
+    } } }
+  </div>
+  @if (drawable() && current?.shape === 'pie' && (current?.series[0]?.innerRadius ?? 0) > 0) {
+  <div data-part="center" data-part-center="" aria-hidden="true">
+    @if (centerTemplate(); as custom) {
+    <ng-container *ngTemplateOutlet="custom.template; context: { $implicit: current }" />
+    } @else {
+    <span data-part="center-value" data-part-center-value=""
+      >{{ current!.series[0]!.format(current!.total) }}</span
+    >
+    <span data-part="center-label" data-part-center-label="">{{ t('total') }}</span>
+    }
+  </div>
+  } @if (table(); as rows) {
+  <div
+    #tableRegion
+    data-part="table-region"
+    data-part-table-region=""
+    role="region"
+    tabindex="0"
+    [attr.aria-labelledby]="title() !== undefined ? id + '-title' : null"
+  >
+    <table data-part="table" data-part-table="">
+      <caption>
+        {{ title() }}
+      </caption>
+      <thead>
+        <tr>
+          @for (column of rows.columns; track column.key; let index = $index) {
+          <th scope="col" [attr.data-numeric]="index > 0 ? '' : null">{{ column.label }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows.rows; track row.key) {
+        <tr [attr.data-current]="row.key === activeKey() ? '' : null">
+          @for (cell of row.cells; track $index; let index = $index) { @if (index === 0) {
+          <th scope="row">{{ cell.text }}</th>
+          } @else {
+          <td data-numeric>{{ cell.text }}</td>
+          } }
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  } @if (loading()) {
+  <div
+    data-part="skeleton"
+    data-part-skeleton=""
+    aria-hidden="true"
+    [attr.data-kind]="skeletonKind()"
+  >
+    <div
+      data-ui="skeleton"
+      data-ui-skeleton=""
+      data-part="region"
+      data-part-region=""
+      data-animation="shimmer"
+      data-loading
+    >
+      @if (skeletonKind() === 'pie') {
+      <span
+        data-ui="skeleton"
+        data-ui-skeleton=""
+        data-part="root"
+        data-part-root=""
+        data-shape="circle"
+        data-size="md"
+        data-animation="shimmer"
+        data-loading
+        aria-hidden="true"
+      ></span>
+      } @else {
+      <div data-skeleton="y">
+        @for (line of repeat(5); track line) {
+        <span
+          data-ui="skeleton"
+          data-ui-skeleton=""
+          data-part="root"
+          data-part-root=""
+          data-shape="block"
+          data-size="md"
+          data-animation="shimmer"
+          data-loading
+          aria-hidden="true"
+        ></span>
+        }
+      </div>
+      <div data-skeleton="marks">
+        @for (mark of repeat(skeletonKind() === 'bar' ? 7 : 2); track mark) {
+        <span
+          data-ui="skeleton"
+          data-ui-skeleton=""
+          data-part="root"
+          data-part-root=""
+          data-shape="block"
+          data-size="md"
+          data-animation="shimmer"
+          data-loading
+          aria-hidden="true"
+        ></span>
+        }
+      </div>
+      <div data-skeleton="x">
+        @for (line of repeat(6); track line) {
+        <span
+          data-ui="skeleton"
+          data-ui-skeleton=""
+          data-part="root"
+          data-part-root=""
+          data-shape="block"
+          data-size="md"
+          data-animation="shimmer"
+          data-loading
+          aria-hidden="true"
+        ></span>
+        }
+      </div>
+      }
+    </div>
+  </div>
+  } @else if (failed()) {
+  <div data-part="error" data-part-error="">
+    @if (errorTemplate(); as custom) {
+    <ng-container *ngTemplateOutlet="custom.template" />
+    } @else {
+    <section
+      data-ui="result-state"
+      data-ui-result-state=""
+      data-part="root"
+      data-part-root=""
+      data-status="error"
+      data-reach="section"
+      data-align="center"
+      data-live="polite"
+    >
+      <div data-part="media" data-part-media="" aria-hidden="true"></div>
+      <div data-part="content" data-part-content="" role="status">
+        <div data-part="title" data-part-title="">{{ t('error') }}</div>
+      </div>
+      <div data-part="actions" data-part-actions="">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-variant="outline"
+          data-tone="secondary"
+          data-size="sm"
+          type="button"
+          (click)="onRetry()"
+        >
+          <span data-part="label" data-part-label="">{{ t('retry') }}</span>
+        </button>
+      </div>
+    </section>
+    }
+  </div>
+  } @else if (current?.empty; as reason) {
+  <div data-part="empty" data-part-empty="">
+    @if (emptyTemplate(); as custom) {
+    <ng-container *ngTemplateOutlet="custom.template; context: { $implicit: reason }" />
+    } @else {
+    <section
+      data-ui="result-state"
+      data-ui-result-state=""
+      data-part="root"
+      data-part-root=""
+      data-reach="section"
+      data-align="center"
+      data-live="polite"
+      [attr.data-status]="reason === 'all-hidden' ? 'no-results' : 'empty'"
+    >
+      <div data-part="media" data-part-media="" aria-hidden="true"></div>
+      <div data-part="content" data-part-content="" role="status">
+        <div data-part="title" data-part-title="">
+          {{ reason === 'all-hidden' ? t('allHidden') : t('noData') }}
+        </div>
+      </div>
+      @if (reason === 'all-hidden') {
+      <div data-part="actions" data-part-actions="">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-variant="outline"
+          data-tone="secondary"
+          data-size="sm"
+          type="button"
+          (click)="showAll($event)"
+        >
+          <span data-part="label" data-part-label="">{{ t('showAll') }}</span>
+        </button>
+      </div>
+      }
+    </section>
+    }
+  </div>
+  }
+  <p data-part="summary" data-part-summary="" [id]="id + '-summary'">{{ summary() }}</p>
+</div>

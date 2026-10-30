@@ -1,0 +1,25 @@
+import type { ColumnManagerMessages } from '../../messages/column-manager';
+
+export const ptBR: ColumnManagerMessages = {
+  apply: 'Aplicar',
+  cancel: 'Cancelar',
+  hiddenBySpace: 'Oculta por falta de espaço',
+  hiddenCount: '{count, plural, one {# coluna oculta} other {# colunas ocultas}}',
+  inRow: 'Mostrada na linha',
+  moved: '{column} movida para a posição {position}',
+  noResults: 'Nenhuma coluna corresponde',
+  pin: 'Fixar {column}',
+  pinEnd: 'Fixar no fim',
+  pinnedEnd: 'Fixadas no fim',
+  pinnedStart: 'Fixadas no início',
+  pinStart: 'Fixar no início',
+  reorder: 'Reordenar {column}',
+  required: 'Obrigatória',
+  reset: 'Restaurar padrões',
+  search: 'Pesquisar colunas',
+  showAll: 'Mostrar todas',
+  title: 'Colunas',
+  unpin: 'Desafixar',
+  unpinned: 'Colunas',
+  visibleCount: '{visible} de {total} visíveis',
+};

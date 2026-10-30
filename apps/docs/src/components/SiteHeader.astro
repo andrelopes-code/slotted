@@ -1,0 +1,69 @@
+---
+import { getCollection } from 'astro:content';
+
+import HeaderTools, { type SearchEntry } from '../islands/HeaderTools';
+import { SITE_NAME } from '../lib/site';
+import type { Framework } from '../runtime/frameworks';
+import { docsNav } from '../lib/nav';
+
+interface Props {
+  framework?: Framework | undefined;
+  frameworkHrefs?: { react: string | null; angular: string | null } | undefined;
+}
+
+const { framework, frameworkHrefs = { react: null, angular: null } } = Astro.props;
+const docsFramework = framework ?? 'react';
+const path = Astro.url.pathname;
+const nav = await docsNav(docsFramework);
+
+const search: SearchEntry[] = [
+  ...(await getCollection('foundations'))
+    .sort((a, b) => a.data.order - b.data.order)
+    .map((entry) => ({
+      id: `foundation-${entry.id}`,
+      label: entry.data.title,
+      description: entry.data.description,
+      group: 'Get started',
+      href: `/foundations/${entry.id}/`,
+    })),
+  ...(await getCollection('components'))
+    .sort((a, b) => a.data.title.localeCompare(b.data.title))
+    .map((entry) => ({
+      id: `component-${entry.id}`,
+      label: entry.data.title,
+      description: entry.data.description,
+      group: 'Components',
+      href: `/${docsFramework}/components/${entry.id}/`,
+    })),
+];
+
+const links = [
+  { label: 'Docs', href: '/foundations/introduction/', match: '/foundations/' },
+  { label: 'Components', href: `/${docsFramework}/components/field/`, match: '/components/' },
+];
+---
+
+<header class="docs-header">
+  <div class="docs-header-inner">
+    <a class="docs-brand" href="/">{SITE_NAME}</a>
+    <nav class="docs-header-nav" aria-label="Primary">
+      {
+        links.map((link) => (
+          <a href={link.href} aria-current={path.includes(link.match) ? 'page' : undefined}>
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+    <div class="docs-header-tools">
+      <HeaderTools
+        client:idle={{ timeout: 1500 }}
+        framework={framework}
+        frameworkHrefs={frameworkHrefs}
+        search={search}
+        nav={nav}
+        path={path}
+      />
+    </div>
+  </div>
+</header>

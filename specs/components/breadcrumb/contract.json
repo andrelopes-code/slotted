@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 5,
+  "family": "breadcrumb",
+  "ui": "breadcrumb",
+  "catalog": {
+    "group": "Navigation",
+    "summary": "Trail of links to the current page's ancestors."
+  },
+  "rootRole": "navigation",
+  "currentValue": "page",
+  "currentSource": "aria-current",
+  "separator": "geometry",
+  "trigger": {
+    "element": "button",
+    "composes": "menu",
+    "current": "aria-current",
+    "glyph": "chevron-down",
+    "keyboard": "menu",
+    "reason": "A crumb that switches between siblings — organisation, project, environment — opens a menu of them. A `link` is an `a`, and an `a` without `href` takes no focus, so the switching crumb is a `button` part of its own. The consumer composes `menu` around it; `current` keeps `aria-current=\"page\"` on the page's own switcher, which the surveyed ReUI shell drops."
+  },
+  "collapse": {
+    "control": "ellipsis",
+    "reveals": "in place",
+    "hides": "the hidden attribute",
+    "focusAfterExpand": "the first revealed link",
+    "measurement": "@slotted/core/overflow — `createCollapse` over the visible items, while the trail is collapsed and `overflow` is `collapse`",
+    "order": "the middle crumbs fold from the one nearest the root to the one nearest the page, so the folded run stays next to the ellipsis; the `itemsBeforeCollapse` and `itemsAfterCollapse` crumbs never fold",
+    "degradation": "a trail whose fixed crumbs alone exceed its width wraps, and the widest crumb truncates",
+    "expanded": "an expanded trail does not fold: expanding was the reader's choice, and a narrower column wraps it instead",
+    "reports": "`data-collapsed` on the root carries the count of hidden crumbs, and the ellipsis names the same count"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to each link in the trail, and to the ellipsis when the trail is collapsed",
+      "focus": "the next control",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "follows the focused link",
+      "focus": "the destination",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "expands a collapsed trail when the ellipsis has focus",
+      "focus": "the first revealed link, because the ellipsis stops existing",
+      "source": "family"
+    },
+    {
+      "key": "Space",
+      "effect": "expands a collapsed trail when the ellipsis has focus",
+      "focus": "the first revealed link, because the ellipsis stops existing",
+      "source": "platform"
+    }
+  ],
+  "declined": {
+    "skeleton": {
+      "deferTo": "skeleton",
+      "reason": "A trail whose labels are still loading is a trail of skeletons, and skeleton already ships the shape. Two families drawing a loading placeholder would be two answers to one question."
+    },
+    "size": {
+      "deferTo": "the density axis",
+      "reason": "Carbon is the only surveyed implementation with a size step, and the three densities already restate the control scale. A second scale would contradict them at two of the three."
+    },
+    "menu": {
+      "deferTo": "menu",
+      "reason": "shadcn and MUI both put the collapsed crumbs in an overlay. This family expands them in place instead, which needs no layer, no positioner and no dismissal policy; a consumer who wants the overlay composes menu around the ellipsis in wave 5."
+    },
+    "collapsedState": {
+      "deferTo": "the layout",
+      "reason": "What folded for want of width is read from the browser. A controlled pair over it would let a consumer assert that a trail fits when the layout says it does not; `toolbar` declines the same pair for the same reason. The count is in the DOM instead."
+    },
+    "disabled": {
+      "deferTo": "the page part",
+      "reason": "React Aria alone disables a crumb. A crumb that leads nowhere is a `page` part, which the family already ships, and a disabled link in a trail is an ancestor the reader is told about and cannot reach."
+    }
+  },
+  "axes": {
+    "overflow": ["collapse", "wrap"]
+  },
+  "resolution": {
+    "overflow": ["prop", "defaults", "collapse"]
+  },
+  "provides": {
+    "breadcrumbDefaults": ["maxItems", "itemsBeforeCollapse", "itemsAfterCollapse", "overflow"]
+  },
+  "messages": ["label", "showHidden"],
+  "stateAttributes": {
+    "expanded": "data-expanded",
+    "open": "data-open"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "expanded",
+      "uncontrolled": "defaultExpanded",
+      "request": "onExpandedChange",
+      "reasons": ["pointer", "keyboard"]
+    }
+  },
+  "literals": {
+    "--slotted-breadcrumb-separator-skew": "The angle a one-pixel rule is rotated through to read as a slash. It is a shape rather than a step on a scale, and docs/token-foundation.md holds no scale of angles."
+  },
+  "members": {
+    "breadcrumb": {
+      "nativeElement": "nav",
+      "defaults": {
+        "maxItems": 8,
+        "itemsBeforeCollapse": 1,
+        "itemsAfterCollapse": 2,
+        "defaultExpanded": false,
+        "overflow": "collapse"
+      },
+      "capabilities": ["open", "wiring", "overflow"],
+      "states": ["default", "hover", "active", "focus-visible", "expanded", "open"],
+      "parts": ["root", "list", "item", "link", "page", "trigger", "separator", "ellipsis"]
+    }
+  },
+  "scenarios": {
+    "breadcrumb": [
+      "playground",
+      "collapse",
+      "separator",
+      "current",
+      "context",
+      "content",
+      "composition",
+      "switcher",
+      "overflow",
+      "keyboard"
+    ]
+  }
+}

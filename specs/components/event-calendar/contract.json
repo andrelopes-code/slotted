@@ -1,0 +1,716 @@
+{
+  "schemaVersion": 5,
+  "family": "event-calendar",
+  "ui": "event-calendar",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Month, week, day and list views of events."
+  },
+  "pattern": {
+    "url": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
+    "title": "Grid (Interactive Tabular Data and Layout Containers) Pattern",
+    "absent": "WAI-ARIA APG has no pattern for an event calendar; the layout grid whose cells contain widgets is the closest, with the day as the cell",
+    "sections": ["Keyboard Interaction For Layout Grids", "Editing and Navigating Inside a Cell"]
+  },
+  "core": [
+    "@slotted/core/event-calendar",
+    "@slotted/core/recurrence",
+    "@slotted/core/date",
+    "@slotted/core/state",
+    "@slotted/core/measure",
+    "@slotted/core/loading",
+    "@slotted/core/live-announcer"
+  ],
+  "composes": [
+    "segmented-control",
+    "menu",
+    "popover",
+    "drawer",
+    "context-menu",
+    "progress-indicator"
+  ],
+  "composesNot": {
+    "button": "button fixes its own data-part to root, so it cannot carry previous, today, next or filter; the family draws the four with the control tokens and masked glyphs, the precedent of calendar and pagination"
+  },
+  "rootElement": "div",
+  "rootRole": null,
+  "roleReason": "The root holds a toolbar, a heading and a grid or a list; the grid is the widget, and a role on the root would name the whole thing twice.",
+  "anatomy": {
+    "root": "div; container slotted-event-calendar; data-view, data-layout, data-loading",
+    "header": "div; the heading and the controls that move the calendar",
+    "title": "h2 by default (level); the period in view; its own polite live region; names the grid",
+    "navigation": "div role=group; previous, today, next",
+    "previous": "button; one period back; chevron glyph mirrored in RTL",
+    "today": "button; to the period holding today in the calendar's zone",
+    "next": "button; one period forward",
+    "views": "segmented-control of the offered views; absent with one view",
+    "filter": "menu trigger; checkbox items, one per calendar, with its swatch; absent with fewer than two calendars",
+    "actions": "div; the consumer's controls",
+    "body": "div; aria-busy while loading; the grid or the list",
+    "loader": "div; an indeterminate linear progress-indicator on the body's top edge, after loadingDelay",
+    "error": "div; the consumer's message and retry, above the grid, which stays usable",
+    "month": "table role=grid, labelled by title",
+    "weekdays": "tr of column headers",
+    "week-number-header": "th; the week-number column's header, visually hidden text",
+    "weekday": "th scope=col; short weekday name; abbr holds the full name",
+    "week": "tr; one week row; --slotted-event-calendar-lanes on it",
+    "week-number": "th scope=row; ISO week number",
+    "day": "td role=gridcell; roving tabindex; data-today, data-outside-month, data-selected, data-offset-change",
+    "day-header": "div; holds the day number",
+    "day-number": "button tabindex=-1; drills down to the day view; full date as its name",
+    "day-content": "div; the consumer's content for the day — a holiday, a price, a count of free slots — from renderDayContent; in the month's day header and under the date of a column header",
+    "day-events": "div; lanes of events, one grid row per lane",
+    "event": "a with href, button without; tabindex=-1 inside a grid; data-all-day, data-continues-before, data-continues-after, data-clipped-start, data-clipped-end, data-status, data-color, data-open",
+    "event-time": "span; the start, or the range, in the locale's hour cycle",
+    "event-title": "span; truncated with an ellipsis, never removed",
+    "event-location": "span; in the day and list layouts",
+    "event-meta": "span, visually hidden; calendar, status, recurrence and the full time range",
+    "continuation": "span, visually hidden; a multi-day bar continuing through this day",
+    "more": "button tabindex=-1; +N; the trigger of a popover listing every event of the day",
+    "time-grid": "div role=grid, labelled by title; week and day",
+    "time-head": "div role=rowgroup; the part that does not scroll",
+    "columns": "div role=row; the column headers",
+    "zone": "div role=columnheader; the zone's short offset, over the gutter",
+    "column-header": "div role=columnheader; weekday and date; data-today, data-offset-change",
+    "offset-change": "span; the offset change of that day, the full sentence in its name",
+    "all-day-row": "div role=row",
+    "all-day-label": "div role=rowheader",
+    "all-day-cell": "div role=gridcell; lanes of all-day and multi-day bars",
+    "scroller": "div role=rowgroup; scrolls the hours",
+    "time-row": "div role=row",
+    "gutter": "div role=rowheader; its name is the timed row's label, the hours are aria-hidden",
+    "hour": "span aria-hidden; an hour label",
+    "column": "div role=gridcell; one day's timed events; data-today",
+    "off-hours": "div aria-hidden; a stretch of the column outside workingHours, from offHoursOn",
+    "now": "div aria-hidden; the current time line in today's column",
+    "offset-line": "div aria-hidden; the minute the zone's offset changes",
+    "selection": "div aria-hidden; the chosen stretch of a column",
+    "list": "div; the list layout",
+    "list-day": "section, labelled by its heading; data-today",
+    "list-day-heading": "h3 by default (level + 1)",
+    "list-weekday": "span",
+    "detail-day": "span",
+    "detail-range": "span",
+    "list-date": "span",
+    "list-events": "ul role=list",
+    "empty": "div; the list layout's empty state and the consumer's slot",
+    "resize-handle": "span aria-hidden; the end an edit pulls: the bottom of a block, the inline end of a bar; only on an editable event, where it ends in this drawing"
+  },
+  "time": {
+    "values": "PlainDate for an all-day event, PlainDateTime for a timed one; the kind of start decides, and there is no allDay flag to contradict it",
+    "end": {
+      "allDay": "the last day, inclusive",
+      "timed": "exclusive; an event ending at 00:00 occupies only the day before",
+      "missing": "a point occurrence, drawn at the minimum height with its start alone"
+    },
+    "zone": "timeZone decides today, the now line and the gutter's label; unset is the runtime's own",
+    "conversion": "the application's, with wallClockIn(instant, timeZone) from @slotted/core/date",
+    "dst": {
+      "skippedHour": "drawn; no conversion produces an event in it",
+      "repeatedHour": "two events at the same wall-clock time share the place and are laid out as overlapping",
+      "duration": "wall-clock; a zero-length result is a point occurrence and its name states both times",
+      "recurrence": "repeats the wall-clock time, as RFC 5545 does with TZID",
+      "marker": "data-offset-change on the day, offset-change in its header and offset-line at the minute, from offsetChangeOn(date, timeZone)"
+    }
+  },
+  "recurrence": {
+    "module": "@slotted/core/recurrence",
+    "keys": ["FREQ", "INTERVAL", "COUNT", "UNTIL", "BYDAY", "BYMONTHDAY", "BYMONTH", "WKST"],
+    "frequencies": ["daily", "weekly", "monthly", "yearly"],
+    "refused": "BYSETPOS, BYYEARDAY, BYWEEKNO, BYHOUR, BYMINUTE, BYSECOND and the frequencies below daily",
+    "parse": "total: an unknown key, frequency or malformed value gives null, and the event degrades to a single occurrence",
+    "first": "the start date is always the first occurrence and counts toward COUNT, as DTSTART does",
+    "exceptions": "exceptions on the series (EXDATE); an event with recurrenceOf and occurrence replaces that date (RECURRENCE-ID)",
+    "key": "id, or id@YYYY-MM-DD for an occurrence of a series; a replaced occurrence keeps the key",
+    "maxPeriods": 50000
+  },
+  "views": {
+    "month": {
+      "range": "the weeks of monthGrid from @slotted/core/date; six with fixedWeeks",
+      "step": "1 month, the day clamped"
+    },
+    "week": {
+      "range": "the week holding date from firstDayOfWeek, without Saturday and Sunday under weekends=hidden",
+      "step": "7 days"
+    },
+    "day": {
+      "range": "date",
+      "step": "1 day; skips the weekend under weekends=hidden"
+    },
+    "list": {
+      "range": "the week or month holding date, by listRange",
+      "step": "one listRange"
+    }
+  },
+  "layout": {
+    "order": "start, then longer first, then all-day before timed, then title by the locale's collator, then key",
+    "month": "each occurrence takes the first lane free on all its days in the row; maxEvents lanes are drawn and a day with occurrences in hidden lanes shows more, on a line of its own below the lanes",
+    "monthTimed": "a timed occurrence of one day is a dot, a time and a title with no ground; an all-day or multi-day occurrence is a bar",
+    "overlap": "columns: occurrences linked by transitive overlap form a cluster; each takes the first column whose last occurrence has ended, then spans the free columns to its end",
+    "overflow": "a cluster wider than the columns it may take draws one fewer and a more in the last, covering the time of the rest; it may take maxColumns, and never more than blocks of 56 pixels fit in the measured day, with two as soon as the day is 88 pixels wide",
+    "clipping": "an occurrence outside dayHours is cut with a square edge, data-clipped-start or data-clipped-end, and its name states the full range",
+    "crossingMidnight": "one segment per day in the time grid; a bar in the month, labelled with its start"
+  },
+  "focusModel": "roving tabindex over the grid's cells; exactly one cell in the tab sequence, the one holding date; widgets inside cells are tabindex=-1",
+  "keyboard": [
+    {
+      "key": "ArrowLeft",
+      "effect": "month: one day back; time grid: one column back; pages at the edge",
+      "focus": "the new cell",
+      "mirroredInRtl": true,
+      "source": "APG layout grid"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "month: one day forward; time grid: one column forward; pages at the edge",
+      "focus": "the new cell",
+      "mirroredInRtl": true,
+      "source": "APG layout grid"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "month: one week back; time grid: the row above (header, all-day, hours)",
+      "focus": "the new cell",
+      "source": "APG layout grid"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "month: one week forward; time grid: the row below",
+      "focus": "the new cell",
+      "source": "APG layout grid"
+    },
+    {
+      "key": "Home",
+      "effect": "the first day of the week row, or the first column",
+      "focus": "that cell",
+      "source": "APG layout grid"
+    },
+    {
+      "key": "End",
+      "effect": "the last day of the week row, or the last column",
+      "focus": "that cell",
+      "source": "APG layout grid"
+    },
+    {
+      "key": "Control+Home",
+      "effect": "month: the first day of the month; time grid: as Home",
+      "focus": "that cell",
+      "source": "APG data grid"
+    },
+    {
+      "key": "Control+End",
+      "effect": "month: the last day of the month; time grid: as End",
+      "focus": "that cell",
+      "source": "APG data grid"
+    },
+    {
+      "key": "PageUp",
+      "effect": "one period back; the month clamps the day",
+      "focus": "the cell of the new date",
+      "source": "APG layout grid, author-determined"
+    },
+    {
+      "key": "PageDown",
+      "effect": "one period forward; the month clamps the day",
+      "focus": "the cell of the new date",
+      "source": "APG layout grid, author-determined"
+    },
+    {
+      "key": "Shift+PageUp",
+      "effect": "month: one year back",
+      "focus": "the cell of the new date",
+      "source": "APG date picker dialog, carried over from calendar"
+    },
+    {
+      "key": "Shift+PageDown",
+      "effect": "month: one year forward",
+      "focus": "the cell of the new date",
+      "source": "APG date picker dialog, carried over from calendar"
+    },
+    {
+      "key": "Enter",
+      "effect": "on a cell: moves into it; on a widget: activates it",
+      "focus": "the cell's first widget; unchanged on a widget",
+      "source": "APG, Editing and Navigating Inside a Cell"
+    },
+    {
+      "key": "F2",
+      "effect": "on a cell: moves into it; on a widget: back to the cell",
+      "focus": "the first widget, or the cell",
+      "source": "APG, Editing and Navigating Inside a Cell"
+    },
+    {
+      "key": "Space",
+      "effect": "with selectionMode range: selects the day, or the slot at scrollTime in the hours row; on a widget: activates it",
+      "focus": "unchanged",
+      "source": "platform for the widget; the family for the cell"
+    },
+    {
+      "key": "Shift+Arrow",
+      "effect": "extends the selection from its anchor: days in the month and the all-day row, one slot in the hours row",
+      "focus": "the cell at the moving end",
+      "source": "the family"
+    },
+    {
+      "key": "Escape",
+      "effect": "on a widget: back to the cell; on a cell: clears the selection; in a popover: closes it",
+      "focus": "the cell, or the widget that opened the popover",
+      "source": "APG, Editing and Navigating Inside a Cell"
+    },
+    {
+      "key": "ArrowUp/ArrowDown inside a cell",
+      "effect": "the previous or next widget of the cell, without wrapping",
+      "focus": "that widget",
+      "source": "the family; APG leaves the keys inside a cell to the author"
+    },
+    {
+      "key": "Alt+Arrow",
+      "effect": "on an editable event: moves it — Left and Right a day, mirrored in RTL; Up and Down a slot in the hours, a week in the month; a destination canDrop refused is passed over for the next allowed one",
+      "focus": "stays on the event, which is found again by its key where it lands",
+      "source": "the family; the alternative to dragging that §2.8 of the feature guide asks for"
+    },
+    {
+      "key": "Alt+Shift+Arrow",
+      "effect": "on an editable event: moves its end — a slot in the hours, a day on a bar; a refused end is passed over as a move is",
+      "focus": "stays on the event",
+      "source": "the family; the alternative to the resize handle"
+    },
+    {
+      "key": "Shift+F10 / ContextMenu",
+      "effect": "with a context menu: opens it on the focused event, or on the selection or the day of the focused cell",
+      "focus": "the menu's first item; on close, back to the event or cell",
+      "source": "the context-menu family"
+    },
+    {
+      "key": "Tab",
+      "effect": "leaves the grid",
+      "focus": "the next control after the grid",
+      "source": "APG grid"
+    }
+  ],
+  "focus": {
+    "removed": "a widget that disappears while focused (a filter hides the event) returns focus to its cell",
+    "popover": "closing a popover returns focus to the widget that opened it",
+    "view": "changing view keeps date and puts the tab stop on its cell; focus stays on the control that asked"
+  },
+  "wiring": {
+    "gridName": "aria-labelledby the title",
+    "eventName": "the event's own content: time, title, then event-meta with the calendar, the status, the recurrence and the full time range",
+    "continuation": "each day a multi-day bar crosses after its first holds a visually hidden continuation naming the event",
+    "cellName": "aria-labelledby the day-number and a visually hidden count of the day's events",
+    "open": "aria-expanded on the event whose detail is open, aria-haspopup=dialog when renderEventDetail is given",
+    "more": "aria-haspopup=dialog, aria-expanded; the popover is labelled by the day's full date",
+    "live": "the title is a polite region; a keyboard selection is announced once through live-announcer"
+  },
+  "facts": {
+    "onRangeChange": "{ start, end, view } after the visible range changes, the first render included; a fact the family states, not a model"
+  },
+  "loading": {
+    "indicator": "one indeterminate linear progress-indicator in loader, on the body's top edge",
+    "grid": "the grid is structure known from the date and stays painted with its real content",
+    "events": "no skeleton: the position of an event is its data, and a placeholder block would state a time nobody chose",
+    "refresh": "events already drawn stay until the new ones arrive; the body takes aria-busy",
+    "timing": "loadingDelay and loadingMinDuration through nextLoadingVisibility of @slotted/core/loading",
+    "announcement": "one polite message through live-announcer when the indicator appears"
+  },
+  "workingHours": {
+    "shape": "[{ days: number[], start: PlainTime, end: PlainTime }]; several entries make a split day; end 00:00 is the end of the day",
+    "grid": "off-hours shades the stretches of each column outside them; a day no entry names is data-non-working and shaded whole",
+    "absent": "no entries: every day is a working day and nothing is shaded",
+    "selection": "shading informs and does not refuse: a slot outside working hours can still be selected, because the rule for refusing belongs to the application"
+  },
+  "dayContent": {
+    "react": "renderDayContent(date, context) returning a node, or null for none",
+    "angular": "ng-template[slEventCalendarDayContent] with the date as its implicit context",
+    "reason": "a booking calendar shows a price, a clinic a count of free slots, a team calendar a holiday: the day header is the one place every domain writes into, and the family cannot know what it holds"
+  },
+  "compact": {
+    "threshold": "COMPACT_BELOW of @slotted/core/measure (600px), the root's width, by createWidthGate",
+    "applies": ["month", "week"],
+    "view": "does not change: the list covers the same range, data-layout says list, and the view switcher keeps the chosen view",
+    "keep": "with compact=keep the grid stays and draws events as marks of colour, their names kept for assistive technology; in the month the day number opens the day's events as a sheet",
+    "off": "compact=keep",
+    "sheets": "below the threshold the \"+N\" panel and the detail are bottom drawers (side=bottom) inside the root rather than popovers: the whole width, a title, a close and the platform's back; a region that contains fixed layers keeps them; focus returns to the widget that opened them"
+  },
+  "partIdentity": {
+    "rule": "with a context menu the body carries data-ui=context-menu and this family's part name",
+    "parts": { "body": "context-menu" }
+  },
+  "contextMenu": {
+    "family": "context-menu: the body is its one target (data-ui=context-menu, data-part=body); the menu's items are the application's",
+    "react": "renderContextMenu(target) returns the items (MenuItem, MenuSeparator, a nested Menu)",
+    "angular": "ng-template[slEventCalendarContextMenu] let-target holds the items; [slEventCalendarContextMenuFor] narrows the targets that have a menu",
+    "target": "{ kind: 'event', occurrence } on an event; otherwise { kind: 'slot', slot }: the selection when the pointer or the focus is inside it, one step of the hours at the pointer in a timed column, or the day (contextSlot of @slotted/core/event-calendar)",
+    "opens": "a secondary click, a long press on touch and pen, Shift+F10 and the ContextMenu key on a focused event or cell",
+    "anchor": "the point pressed; from the keyboard the event, the selection drawn in the column, or the day's header",
+    "nothing": "a press at no event and no day, or at a target the application gives no items for, is not prevented: the browser's own menu opens",
+    "mark": "the event carries data-context and is drawn as the solid slot; a stretch is drawn as the selection being made; the family's inward mark is set to nothing on the body",
+    "label": "the menu is labelled by the event's title or by the stretch in words"
+  },
+  "runtimeProperties": [
+    {
+      "name": "--slotted-event-lane",
+      "on": "event in a lane row",
+      "value": "the grid row of its lane, from 1"
+    },
+    {
+      "name": "--slotted-event-span",
+      "on": "event",
+      "value": "days a bar covers in its row, or columns a block spans"
+    },
+    {
+      "name": "--slotted-event-start",
+      "on": "event, now, offset-line, selection",
+      "value": "minutes from the first visible hour"
+    },
+    {
+      "name": "--slotted-event-length",
+      "on": "event, selection",
+      "value": "minutes it lasts inside the visible hours"
+    },
+    {
+      "name": "--slotted-event-column",
+      "on": "event in a column",
+      "value": "its column in the cluster, from 0"
+    },
+    {
+      "name": "--slotted-event-columns",
+      "on": "event in a column",
+      "value": "the cluster's column count"
+    },
+    {
+      "name": "--slotted-event-calendar-days",
+      "on": "time-grid",
+      "value": "the number of day columns"
+    },
+    {
+      "name": "--slotted-event-calendar-lanes",
+      "on": "week, all-day-row",
+      "value": "the lanes drawn in the row"
+    },
+    {
+      "name": "--slotted-event-calendar-slot",
+      "on": "time-grid",
+      "value": "slotDuration in minutes, 5 to 120: the period of the lighter rules"
+    }
+  ],
+  "declined": {
+    "resources": "deferred to resource-scheduler, §16: the resource model — people and rooms side by side, conflicts and capacity — belongs to that package",
+    "singleLetterShortcuts": "declined: the calendar lives in a page with shortcuts of its own, and a bare letter inside a grid collides with a screen reader's quick navigation",
+    "secondZone": "declined: a second gutter would need instants, which the library does not hold",
+    "arbitraryColour": "declined: colour is a calendar's slot of the data scale, never a value (docs/component-features.md §2.4)"
+  },
+  "messages": [
+    "allDay",
+    "calendars",
+    "cancelled",
+    "continues",
+    "dayEvents",
+    "dropInvalid",
+    "empty.day",
+    "empty.month",
+    "empty.week",
+    "eventDetail",
+    "events",
+    "from",
+    "loading",
+    "more",
+    "moreEvents",
+    "navigation",
+    "next.day",
+    "next.list",
+    "next.month",
+    "next.week",
+    "offsetChange",
+    "offsetChangeShort",
+    "previous.day",
+    "previous.list",
+    "previous.month",
+    "previous.week",
+    "recurring",
+    "selected",
+    "tentative",
+    "timed",
+    "titleContinues",
+    "today",
+    "until",
+    "view.day",
+    "view.list",
+    "view.month",
+    "view.week",
+    "views",
+    "weekNumber"
+  ],
+  "axes": {
+    "view": ["month", "week", "day", "list"],
+    "weekends": ["shown", "hidden"],
+    "listRange": ["week", "month"],
+    "compact": ["list", "keep"],
+    "selectionMode": ["none", "range"],
+    "weekNumbers": ["off", "on"],
+    "fixedWeeks": ["off", "on"],
+    "status": ["confirmed", "tentative", "cancelled"],
+    "color": [1, 2, 3, 4, 5, 6, 7, 8]
+  },
+  "resolution": {
+    "locale": ["prop", "slotted", "en-US"],
+    "timeZone": ["prop", "defaults", "runtime"],
+    "firstDayOfWeek": ["prop", "defaults", "locale"],
+    "hourCycle": ["prop", "defaults", "locale"],
+    "weekends": ["prop", "defaults", "shown"],
+    "slotDuration": ["prop", "defaults", 30],
+    "dayHours": ["prop", "defaults", "[0, 24]"],
+    "scrollTime": ["prop", "defaults", "07:00"],
+    "maxEvents": ["prop", "defaults", 3],
+    "maxColumns": ["prop", "defaults", 6],
+    "listRange": ["prop", "defaults", "week"],
+    "compact": ["prop", "defaults", "list"],
+    "color": ["calendar color", "the calendar's position in calendars, from 1, no cycling"]
+  },
+  "provides": {
+    "eventCalendarDefaults": [
+      "compact",
+      "dayHours",
+      "firstDayOfWeek",
+      "fixedWeeks",
+      "hourCycle",
+      "listRange",
+      "loadingDelay",
+      "loadingMinDuration",
+      "maxColumns",
+      "maxEvents",
+      "scrollTime",
+      "slotDuration",
+      "timeZone",
+      "weekends",
+      "weekNumbers"
+    ]
+  },
+  "imperative": ["focus", "focusDate", "focusEvent", "scrollToTime"],
+  "container": {
+    "name": "slotted-event-calendar",
+    "on": "root",
+    "breakpoints": [480],
+    "reflow": "under 480px the header puts the title on a row of its own above the controls"
+  },
+  "literals": {
+    "hourSize": "two small control heights: a thirty-minute slot is one small control tall, so density shrinks the grid as it shrinks a control; arithmetic over tokens",
+    "tint": "14%: the share of a calendar's slot mixed into the surface under an event, the smallest share that separates the eight slots from each other on a white page; a data slot has no surface role to read, which is the reason --slotted-highlight-tint-opacity documents",
+    "tintHover": "21% and 27%: hover and press, seven and thirteen points over the rest; the edge takes 34% at rest and 50% on hover, and the dark scheme takes 24, 32, 38 and 44, 60 through light-dark()",
+    "scrollerSize": "40rem: the hours' block size when the root is given none, ten comfortable hours; a root with a definite height gives the scroller the rest of it",
+    "columnCounts": "7 and the day count are the shape of a week, not a value a theme retunes"
+  },
+  "stateAttributes": {
+    "selected": "data-selected",
+    "open": "data-open",
+    "loading": "data-loading",
+    "dragging": "data-dragging"
+  },
+  "dataAttributes": {
+    "data-view": "the view the reader chose",
+    "data-date": "YYYY-MM-DD on every cell and list day: the day it stands for",
+    "data-row": "day, header, all-day or timed on every grid cell: which row of the grid it is in",
+    "data-key": "the occurrence key on an event",
+    "data-layout": "grid or list: what is drawn, which differs from data-view below the compact size class",
+    "data-today": "the day, column or list day holding today in timeZone",
+    "data-outside-month": "a day of the month either side",
+    "data-non-working": "a day no workingHours entry names",
+    "data-offset-change": "the zone's offset changes on this day",
+    "data-all-day": "an all-day occurrence",
+    "data-continues-before": "a bar or segment that began before this row or day",
+    "data-continues-after": "a bar or segment that goes on after this row or day",
+    "data-clipped-start": "an occurrence that begins before the visible hours",
+    "data-clipped-end": "an occurrence that ends after the visible hours",
+    "data-status": "tentative or cancelled; confirmed writes nothing",
+    "data-color": "the calendar's slot, 1 to 8; absent is the neutral",
+    "data-bar": "an event drawn across days in a lane: all-day, or a timed one crossing midnight in the month",
+    "data-short": "a block in a column shorter than 45 minutes, which puts its time after its title on one line",
+    "data-slot-duration": "on the root: the minutes between the column’s lighter rules, 5 to 120",
+    "data-editable": "an event the reader can move and resize in a grid",
+    "data-dragging": "the event a pointer is moving, drawn where it would land",
+    "data-drop-invalid": "on the event being dragged, while canDrop refuses where it would land",
+    "data-past": "on an event that ended before now: drawn a step back",
+    "data-context": "on the event a context menu is open on: drawn as the solid slot, as the open event is"
+  },
+  "stateModel": {
+    "current": {
+      "date": {
+        "controlled": "date",
+        "uncontrolled": "defaultDate",
+        "request": "onDateChange",
+        "reasons": ["pointer", "keyboard", "programmatic"]
+      },
+      "view": {
+        "controlled": "view",
+        "uncontrolled": "defaultView",
+        "request": "onViewChange",
+        "reasons": ["pointer", "keyboard", "programmatic"]
+      }
+    },
+    "visibility": {
+      "controlled": "visibleCalendars",
+      "uncontrolled": "defaultVisibleCalendars",
+      "request": "onVisibleCalendarsChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    },
+    "selection": {
+      "controlled": "selection",
+      "uncontrolled": "defaultSelection",
+      "request": "onSelectionChange",
+      "reasons": ["pointer", "keyboard", "escape", "programmatic"]
+    },
+    "open": {
+      "controlled": "openEvent",
+      "uncontrolled": "defaultOpenEvent",
+      "request": "onOpenEventChange",
+      "reasons": ["pointer", "keyboard", "dismiss", "escape", "outsidePress", "programmatic"]
+    }
+  },
+  "members": {
+    "eventCalendar": {
+      "nativeElement": "div",
+      "defaults": {
+        "view": "month",
+        "views": ["month", "week", "day", "list"],
+        "weekends": "shown",
+        "listRange": "week",
+        "compact": "list",
+        "selectionMode": "none",
+        "slotDuration": 30,
+        "dayHours": [0, 24],
+        "scrollTime": "07:00",
+        "maxEvents": 3,
+        "maxColumns": 6,
+        "weekNumbers": false,
+        "fixedWeeks": false,
+        "level": 2,
+        "loading": false,
+        "loadingDelay": 200,
+        "loadingMinDuration": 400,
+        "editable": false
+      },
+      "capabilities": [
+        "current",
+        "visibility",
+        "selection",
+        "open",
+        "content",
+        "loading",
+        "live",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "selected",
+        "open",
+        "loading",
+        "dragging"
+      ],
+      "parts": [
+        "root",
+        "header",
+        "title",
+        "navigation",
+        "previous",
+        "today",
+        "next",
+        "views",
+        "filter",
+        "actions",
+        "body",
+        "loader",
+        "error",
+        "month",
+        "weekdays",
+        "week-number-header",
+        "weekday",
+        "week",
+        "week-number",
+        "day",
+        "day-header",
+        "day-number",
+        "day-content",
+        "day-events",
+        "event",
+        "event-time",
+        "event-title",
+        "event-location",
+        "event-meta",
+        "resize-handle",
+        "continuation",
+        "more",
+        "time-grid",
+        "time-head",
+        "columns",
+        "zone",
+        "column-header",
+        "offset-change",
+        "all-day-row",
+        "all-day-label",
+        "all-day-cell",
+        "scroller",
+        "time-row",
+        "gutter",
+        "hour",
+        "column",
+        "off-hours",
+        "now",
+        "offset-line",
+        "selection",
+        "list",
+        "list-day",
+        "list-day-heading",
+        "detail-day",
+        "detail-range",
+        "list-weekday",
+        "list-date",
+        "list-events",
+        "empty"
+      ]
+    }
+  },
+  "scenarios": {
+    "eventCalendar": [
+      "playground",
+      "views",
+      "month",
+      "week",
+      "day",
+      "list",
+      "all-day",
+      "overlap",
+      "recurrence",
+      "time-zone",
+      "calendars",
+      "working-hours",
+      "day-content",
+      "detail",
+      "context-menu",
+      "selection",
+      "editing",
+      "loading",
+      "empty",
+      "error",
+      "compact",
+      "custom-event",
+      "locale",
+      "density",
+      "keyboard"
+    ]
+  },
+  "editing": {
+    "who": "editable: a boolean, or a predicate per occurrence; the family holds no event",
+    "request": "onEventChange / eventChangeRequest: { key, event, occurrence, recurring, kind: move | resize, start, end } in the kind the event holds, with reason pointer or keyboard, cancellable; the application answers by changing events",
+    "notAModel": "deliberately not mutable, for the reason read and removable are not: the event lives in the application's store, and a family that moved it itself would show it moved while the store still held it where it was",
+    "pointer": "a press that travels four pixels picks the event up; in the hours the pointer's height gives minutes, snapped to slotDuration, and the column under it the day; in the month and the all-day row the cell under it gives the day; the resize handle moves the end only",
+    "preview": "the occurrence is laid out where it would land, with withPlacement, and marked data-dragging; Escape during the drag puts it back and asks for nothing",
+    "shortest": "a resize never makes an event shorter than one slot, or one day for an all-day event",
+    "recurring": "an occurrence of a series is asked for with its original date in occurrence; whether the move applies to the occurrence or to the series is the application's",
+    "announce": "an accepted request is announced once: the title and its new range",
+    "canDrop": "canDrop(change) returns whether a destination is allowed, and reads the change onEventChange would receive; the pointer asks it at every step of a drag, and a refused destination marks the event data-drop-invalid and the root's cursor not-allowed, where letting go puts the event back and asks for nothing; Alt+Arrow asks each step with nextAllowedPlacement from @slotted/core/event-calendar and lands on the first allowed one, and with none in reach the event stays and dropInvalid is announced; absent, every destination is allowed",
+    "canDropShape": "one object for both questions: ReUI asks canDropEvent while dragging and onEventUpdate after, with two shapes; here the change that canDrop allowed is the change onEventChange receives"
+  }
+}

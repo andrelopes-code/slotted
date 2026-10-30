@@ -1,0 +1,470 @@
+@layer slotted.components {
+  /**
+   * ── The badge box ──────────────────────────────────────────────────────
+   *
+   * A short, non-editable piece of metadata: a count, a status, a label. It is
+   * never a command, so it answers no hover and gives no press feedback.
+   *
+   * Two attributes on every selector, always. `anchor` is the one part in the
+   * library that contains its family's root instead of sitting inside it, so it
+   * carries `data-ui` itself and the pair is what tells the frame from the box.
+   *
+   * There is no height token. The block size is the badge's own line box plus a
+   * symmetric inset from the space scale, so a badge never disagrees with the
+   * type it contains and no density can leave it clipped. `--_block-size`
+   * restates that sum for the two places that need it as a number: the minimum
+   * that keeps an icon-only badge the same height as a text one, and the
+   * minimum inline size that makes a one-figure pill a circle.
+   */
+  [data-ui-badge][data-part-root] {
+    /**
+     * Tone. The default is the one a badge carrying a value should speak in: a
+     * badge with no tone stated is holding a number, not an opinion.
+     *
+     * The neutral fill is the tone's `solid-hover` step rather than its
+     * `solid` one. `solid` is the same colour as `surface` in all three
+     * schemes, so a filled neutral badge and a tinted one were the same
+     * rectangle, and neither of them read as filled. One step down the tone's
+     * own ramp — 1.48:1 against the light surface where `solid` is 1.23:1,
+     * 1.78:1 in `dark` where it is 1.25:1 — is a chip the eye finds without
+     * becoming an announcement.
+     */
+    --_solid: var(--slotted-tone-secondary-solid-hover);
+    --_on-solid: var(--slotted-tone-secondary-on-solid);
+    --_surface: var(--slotted-tone-secondary-surface);
+    --_border: var(--slotted-tone-secondary-border);
+    --_text: var(--slotted-tone-secondary-text);
+    /**
+     * What a filled badge draws around itself, and for four of the five tones
+     * the answer is nothing: the edge is the fill, so there is no rim. A rim on
+     * a filled chip reads as a second, quieter chip drawn behind the first.
+     *
+     * `secondary` is the exception, and it is the only one. Its fill is
+     * `#e6e6e6` against the page's own white in `high-contrast` — 1.25:1 — so a
+     * filled neutral badge with no edge is not a badge there, it is a run of
+     * text. Every other tone carries its own boundary: 6.70, 5.02 and 4.83 in
+     * `light`, 9 to 10 in `high-contrast`, and `warning` is chromatic rather
+     * than luminous at 1.53 but unmistakably yellow on white.
+     */
+    --_edge: var(--_solid);
+
+    /**
+     * Size. Type and glyph come from the control scale, which is the only scale
+     * that moves with density, so a badge shrinks beside the controls it sits
+     * with. Inset and gap come from the space scale: a density step inside an
+     * inset this small would be sub-pixel, and density moves the type, which
+     * moves the box.
+     */
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_inset-block: var(--slotted-space-1, 0.125rem);
+    --_inset-inline: var(--slotted-space-4, 0.5rem);
+    --_gap: var(--slotted-space-2, 0.25rem);
+    /**
+     * The disc is as wide as the type it stands beside, rather than a step of
+     * the space scale chosen for it. Two readings of the harness produced the
+     * rule: at six pixels the 3:1 rim left four pixels of tone and every small
+     * dot read as dark rather than as its own colour, and at a free sixteen the
+     * large dot stood taller than the fourteen-pixel words next to it. A mark
+     * that accompanies text is the height of that text, it can never outgrow
+     * it, and it answers density without a third scale saying how.
+     */
+    --_dot-size: var(--_font-size);
+
+    --_line-height: var(--slotted-line-height-xs, 1.4);
+    --_edge-width: var(--slotted-badge-border-width, var(--slotted-border-width-thin, 1px));
+    --_block-size: calc(
+      var(--_font-size) * var(--_line-height) + 2 * var(--_inset-block) + 2 * var(--_edge-width)
+    );
+
+    align-items: center;
+    border: var(--_edge-width) solid transparent;
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-sizing: border-box;
+    display: inline-flex;
+    font-family: var(--slotted-badge-font-family, var(--slotted-control-font-family, sans-serif));
+    font-size: var(--_font-size);
+    /**
+     * A count that ticks 8 → 9 → 10 grows by one figure width instead of
+     * jittering on every digit, because every figure is the same width.
+     */
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-badge-font-weight, var(--slotted-font-weight-medium, 500));
+    gap: var(--_gap);
+    justify-content: center;
+    line-height: var(--_line-height);
+    /**
+     * One line, always. A badge holds a count, a status or a short piece of
+     * metadata, and a badge that reflows into a paragraph has stopped being
+     * one — the length is the content's error, and the family reports it rather
+     * than absorbing it. `tag` holds an entity's name and will answer the same
+     * question for itself.
+     *
+     * The clipping is visual only: `text-overflow` shortens nothing, so the
+     * whole string stays in the DOM, stays in the accessibility tree, and a
+     * page search still finds it. That is what the briefing's rule protects —
+     * it forbids removing content, not clipping it.
+     */
+    max-inline-size: 100%;
+    min-block-size: var(--_block-size);
+    min-inline-size: var(--_block-size);
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    /**
+     * `render` can make the root an `<a>`, and a rule the browser writes on
+     * every anchor would put a line under the words inside a pill. The chip is
+     * the affordance; the underline belongs to `link`, on a link.
+     */
+    text-decoration: none;
+    /* Written inside a sentence, a badge sits on the text's centre. */
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  /* ── Tone: which of the five semantic colours the badge speaks in ─────── */
+
+  [data-ui-badge][data-part-root][data-tone='secondary'] {
+    --_edge: var(--_border);
+  }
+
+  [data-ui-badge][data-part-root][data-tone='accent'] {
+    --_solid: var(--slotted-tone-accent-solid);
+    --_on-solid: var(--slotted-tone-accent-on-solid);
+    --_surface: var(--slotted-tone-accent-surface);
+    --_border: var(--slotted-tone-accent-border);
+    --_text: var(--slotted-tone-accent-text);
+  }
+
+  [data-ui-badge][data-part-root][data-tone='success'] {
+    --_solid: var(--slotted-tone-success-solid);
+    --_on-solid: var(--slotted-tone-success-on-solid);
+    --_surface: var(--slotted-tone-success-surface);
+    --_border: var(--slotted-tone-success-border);
+    --_text: var(--slotted-tone-success-text);
+  }
+
+  [data-ui-badge][data-part-root][data-tone='info'] {
+    --_solid: var(--slotted-tone-info-solid);
+    --_on-solid: var(--slotted-tone-info-on-solid);
+    --_surface: var(--slotted-tone-info-surface);
+    --_border: var(--slotted-tone-info-border);
+    --_text: var(--slotted-tone-info-text);
+  }
+
+  [data-ui-badge][data-part-root][data-tone='warning'] {
+    --_solid: var(--slotted-tone-warning-solid);
+    --_on-solid: var(--slotted-tone-warning-on-solid);
+    --_surface: var(--slotted-tone-warning-surface);
+    --_border: var(--slotted-tone-warning-border);
+    --_text: var(--slotted-tone-warning-text);
+  }
+
+  [data-ui-badge][data-part-root][data-tone='danger'] {
+    --_solid: var(--slotted-tone-danger-solid);
+    --_on-solid: var(--slotted-tone-danger-on-solid);
+    --_surface: var(--slotted-tone-danger-surface);
+    --_border: var(--slotted-tone-danger-border);
+    --_text: var(--slotted-tone-danger-text);
+  }
+
+  /**
+   * ── Variant: three paintings, and only two of them have an edge ────────
+   *
+   * `solid` fills and draws no rim: its edge is its own fill, so the chip is
+   * one shape. `soft` fills with the tone's tinted `surface` role and draws the
+   * tone's `border` role around it. `outline` is that edge with nothing behind
+   * it. The three read as filled, tinted and outlined rather than as three
+   * weights of the same rimmed chip, which is what a shared edge made of them.
+   *
+   * `soft` keeps its edge for a reason the light scheme hides: in
+   * `high-contrast` every tone `surface` collapses to the page's own white, so
+   * a tinted badge with no edge is a run of text. There it converges with
+   * `outline`, which is what a high-contrast scheme is for.
+   *
+   * Button reached the opposite conclusion for its own `outline` variant — a
+   * neutral edge, with the tone left in the label — because five saturated
+   * rectangles in a row of actions read as status chips before they read as
+   * words. A badge is a status chip. The two families agree about what a tone
+   * border looks like and disagree about which of them should wear it.
+   */
+
+  [data-ui-badge][data-part-root][data-variant='solid'] {
+    background-color: var(--_solid, ButtonFace);
+    border-color: var(--_edge, ButtonFace);
+    color: var(--_on-solid, ButtonText);
+  }
+
+  [data-ui-badge][data-part-root][data-variant='soft'] {
+    background-color: var(--_surface, ButtonFace);
+    border-color: var(--_border, ButtonBorder);
+    color: var(--_text, ButtonText);
+  }
+
+  [data-ui-badge][data-part-root][data-variant='outline'] {
+    background-color: transparent;
+    border-color: var(--_border, ButtonBorder);
+    color: var(--_text, ButtonText);
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-badge][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    /* `0px` rather than `0`: a unitless zero inside the `--_block-size` sum
+       makes the whole calculation invalid, and `min-block-size` silently fell
+       back to `auto` for the one size that stated it. */
+    --_inset-block: 0px;
+    --_inset-inline: var(--slotted-space-3, 0.375rem);
+    --_gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  /**
+   * The glyph scale has three steps and the badge's own three span less of it,
+   * so `sm` and `md` land on the same one. That is the right answer rather than
+   * a rounding error: a 12px badge and a 13px badge should not carry visibly
+   * different glyphs.
+   */
+  [data-ui-badge][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_inset-block: var(--slotted-space-2, 0.25rem);
+    --_inset-inline: var(--slotted-space-5, 0.75rem);
+    --_gap: var(--slotted-space-3, 0.375rem);
+  }
+
+  /* ── Shape ────────────────────────────────────────────────────────────── */
+
+  [data-ui-badge][data-part-root][data-shape='square'] {
+    border-radius: var(--slotted-badge-radius, var(--slotted-radius-sm, 4px));
+  }
+
+  /**
+   * The mark that carries no value. It is a shape and not a boolean because it
+   * is the same badge, the same tone and the same hidden text, drawn without a
+   * number.
+   *
+   * It is also the only badge whose entire meaning is a graphic, so WCAG 2.2
+   * 1.4.11 binds its edge rather than merely decorating it. The rim is
+   * `--slotted-border-strong`, the one border token the theme holds to 3:1
+   * against the surface it separates: a `secondary` dot rimmed with its own
+   * tone border would measure 2.56:1 in `light` and 1.78:1 in `dark`.
+   *
+   * A dot renders no value, so nothing is clipped. Text a consumer forces into
+   * one overflows rather than disappearing.
+   */
+  [data-ui-badge][data-part-root][data-shape='dot'] {
+    block-size: var(--_dot-size);
+    border-color: var(--slotted-badge-dot-border-color, var(--slotted-border-strong, CanvasText));
+    border-radius: var(--slotted-radius-full, 9999px);
+    inline-size: var(--_dot-size);
+    min-block-size: 0;
+    min-inline-size: 0;
+    padding-block: 0;
+    padding-inline: 0;
+  }
+
+  /* ── Focus ────────────────────────────────────────────────────────────── */
+
+  /**
+   * A badge is not focusable on its own. It is painted anyway, because `render`
+   * can make the root an `<a>` and a ring that appears only where a family
+   * expects focus is a ring that goes missing.
+   */
+  [data-ui-badge][data-part-root]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── The words, and the glyphs on either side of them ─────────────────── */
+
+  /**
+   * The text has a box of its own, as it does in `button`, and that box is what
+   * makes the badge's one real typographic problem solvable.
+   *
+   * A flex container centres the *line box*, and a line box is not symmetric
+   * around the letters inside it: the ascender reaches further above the cap
+   * than the descender reaches below the baseline. Measured on this family
+   * before the part existed, a word with no descender sat 2.19 pixels high in a
+   * 24-pixel badge — six pixels of clearance above the ink and eight below it —
+   * while a word with a descender looked correct. `text-box` trims the line box
+   * to the cap and the baseline, so what is centred is the ink rather than the
+   * font's metrics, and every word sits the same way whatever letters it holds.
+   *
+   * It is applied here rather than on the root because `text-box-trim` needs a
+   * block container and a flex container has none: its text lives in an
+   * anonymous item no selector can reach. Measured in Chrome 150 — the
+   * declaration on an `inline-block` takes an 18.19-pixel line box to 9, and on
+   * an `inline-flex` it does nothing at all.
+   */
+  /**
+   * Where the line is clipped. `min-inline-size: 0` is what lets the box shrink
+   * below its content inside the flex root, which is the condition
+   * `text-overflow` needs to have anything to do.
+   */
+  [data-ui-badge] [data-part-label] {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @supports (text-box: trim-both cap alphabetic) {
+    [data-ui-badge] [data-part-label] {
+      /**
+       * A descender and a tall diacritic both live outside a box trimmed to the
+       * cap and the baseline, and `overflow: hidden` cut them off — visible in
+       * the first capture as a beheaded `g` in `Awaiting`. The padding gives
+       * the clip region room for them and the negative margin gives the space
+       * straight back, so the box the root centres is still the trimmed one and
+       * the badge is the height it was.
+       *
+       * A proportion of the type rather than a step of any scale: what has to
+       * be cleared is the font's own overshoot, and it scales with the font.
+       */
+      margin-block: -0.3em;
+      padding-block: 0.3em;
+      text-box: trim-both cap alphabetic;
+    }
+  }
+
+  /**
+   * The slot sizes what it holds: an icon box reads `--slotted-icon-size`
+   * from its container, and a bare glyph host such as `ng-icon` reads the
+   * slot's font-size, so both are the glyph scale.
+   */
+  [data-ui-badge] [data-part-start],
+  [data-ui-badge] [data-part-end] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    block-size: var(--_icon-size);
+    box-sizing: border-box;
+    display: inline-flex;
+    flex: none;
+    font-size: var(--_icon-size);
+    inline-size: var(--_icon-size);
+    justify-content: center;
+    line-height: 1;
+  }
+
+  [data-ui-badge] [data-part-start] > *,
+  [data-ui-badge] [data-part-end] > * {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+  }
+
+  /**
+   * ── The frame ──────────────────────────────────────────────────────────
+   *
+   * What places a badge on the corner of something else. It wraps the host
+   * rather than rewriting it: neither binding can safely reach into an element
+   * it did not render, and a family that only works when the host is one of the
+   * elements it knows is a family that fails silently.
+   *
+   * `--_dir` is the one physical fact in the sheet. `translate` has no logical
+   * form, so the inline half of the overhang is multiplied by the direction the
+   * frame is read in. Everything else — which corner, how far in from it — is
+   * written in logical insets and mirrors on its own.
+   */
+  [data-ui-badge][data-part-anchor] {
+    --_dir: 1;
+    /* Half the badge's own size. A proportion of the box rather than a step of
+       any scale, which is why it is geometry here and not a token. */
+    --_overhang-inline: 50%;
+    --_overhang-block: -50%;
+    /* How far in from the corner the badge starts. A rectangle overhangs the
+       corner itself; a circle's corner is empty, so the badge moves in far
+       enough to meet the curve. */
+    --_anchor-inset: 0%;
+    /**
+     * The correction the frame cannot compute. `overlap` has two values and
+     * hosts have many: how far a badge should sit into one depends on that
+     * host's own curve, shadow and optical weight, and the last pixel or two is
+     * the page's to state (BD1). Nought on both axes, so a frame that says
+     * nothing places the badge exactly where the overhang put it.
+     *
+     * The inline correction is multiplied by the direction below, with the
+     * overhang it corrects: a badge nudged two pixels into its host stays two
+     * pixels into it in a mirrored document, rather than jumping to the far
+     * side of the corner. The block correction has no such axis and is used as
+     * it is written.
+     */
+    --_offset-inline: var(--slotted-badge-anchor-offset-x, 0px);
+    --_offset-block: var(--slotted-badge-anchor-offset-y, 0px);
+
+    display: inline-flex;
+    position: relative;
+    vertical-align: middle;
+  }
+
+  [data-ui-badge][data-part-anchor]:dir(rtl) {
+    --_dir: -1;
+  }
+
+  [data-ui-badge][data-part-anchor][data-overlap='circle'] {
+    --_anchor-inset: 14%;
+  }
+
+  [data-ui-badge][data-part-anchor][data-placement='top-start'],
+  [data-ui-badge][data-part-anchor][data-placement='bottom-start'] {
+    --_overhang-inline: -50%;
+  }
+
+  [data-ui-badge][data-part-anchor][data-placement='bottom-start'],
+  [data-ui-badge][data-part-anchor][data-placement='bottom-end'] {
+    --_overhang-block: 50%;
+  }
+
+  [data-ui-badge][data-part-anchor] > [data-ui-badge][data-part-root] {
+    /**
+     * The ring is what separates the badge from whatever it is sitting on.
+     * It is a token rather than a boolean, because a badge inside a card, a
+     * toolbar or a coloured row is not sitting on the page's own surface.
+     */
+    box-shadow: 0 0 0 var(--slotted-badge-ring-width, var(--slotted-border-width-thick, 2px))
+      var(--slotted-badge-ring-color, var(--slotted-surface, Canvas));
+    /* A count is short by construction and sits outside its host's box, so it
+       is the one badge with nothing to be clipped by. */
+    max-inline-size: none;
+    position: absolute;
+    translate: calc((var(--_overhang-inline) + var(--_offset-inline)) * var(--_dir))
+      calc(var(--_overhang-block) + var(--_offset-block));
+    z-index: 1;
+  }
+
+  [data-ui-badge][data-part-anchor][data-placement='top-end'] > [data-part-root],
+  [data-ui-badge][data-part-anchor][data-placement='top-start'] > [data-part-root] {
+    inset-block-start: var(--_anchor-inset);
+  }
+
+  [data-ui-badge][data-part-anchor][data-placement='bottom-end'] > [data-part-root],
+  [data-ui-badge][data-part-anchor][data-placement='bottom-start'] > [data-part-root] {
+    inset-block-end: var(--_anchor-inset);
+  }
+
+  [data-ui-badge][data-part-anchor][data-placement='top-end'] > [data-part-root],
+  [data-ui-badge][data-part-anchor][data-placement='bottom-end'] > [data-part-root] {
+    inset-inline-end: var(--_anchor-inset);
+  }
+
+  [data-ui-badge][data-part-anchor][data-placement='top-start'] > [data-part-root],
+  [data-ui-badge][data-part-anchor][data-placement='bottom-start'] > [data-part-root] {
+    inset-inline-start: var(--_anchor-inset);
+  }
+
+  /**
+   * ── Forced colours ─────────────────────────────────────────────────────
+   *
+   * The one place a family may write its own rule: the theme maps every tone
+   * ground to `ButtonFace` or `Canvas` and every tone border to `ButtonBorder`,
+   * so an `outline` badge, a `soft` badge and a `solid` badge become the same
+   * rectangle, and a badge whose edge happened to match its fill has no edge at
+   * all. `currentColor` is the only paint left that still separates the badge
+   * from the page.
+   */
+  @media (forced-colors: active) {
+    [data-ui-badge][data-part-root] {
+      border-color: currentColor;
+    }
+  }
+}

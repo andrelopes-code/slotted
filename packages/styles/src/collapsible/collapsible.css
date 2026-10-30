@@ -1,0 +1,542 @@
+@layer slotted.components {
+  /**
+   * One disclosure: a header the reader operates and a panel it controls.
+   *
+   * The family is a two-column, two-row grid. The header takes the first cell
+   * and the always-visible actions the second, because the APG requires the
+   * trigger to be the only element inside the heading — an action inside it
+   * would be a control inside a `button`, which is invalid besides. The panel
+   * spans both columns on the second row.
+   *
+   *   ┌──────────────────────────────┬───────────┐
+   *   │ header ▸ trigger             │ actions   │
+   *   ├──────────────────────────────┴───────────┤
+   *   │ panel ▸ content                           │
+   *   └───────────────────────────────────────────┘
+   *
+   * Every part the family owns is reached with a child combinator rather than
+   * a descendant one. A collapsible inside another collapsible's panel is the
+   * ordinary case — a nested accordion is two of these — and a descendant rule
+   * would open the inner panel because the outer one is open.
+   */
+  [data-ui-collapsible] {
+    /**
+     * The control scales, read once at the root, so `size` and the three
+     * densities are one decision each rather than one per rule.
+     */
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 0.8125rem);
+    --_gap: var(--slotted-control-gap-md, 0.5rem);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    /**
+     * ── Why the title is not on the control type scale ──────────────────
+     *
+     * The first capture showed a header set smaller than the paragraph it
+     * revealed, which is a heading that reads as a caption. The control type
+     * scale is 12, 13 and 14 pixels, because it is the scale of a label inside
+     * a button; a disclosure header is prose that happens to be inside one, and
+     * the outline it belongs to is set on the type scale like every other
+     * heading in the library.
+     *
+     * Density still moves everything geometric — the row's height, its padding,
+     * the gap and the mark all come from the control scales — so a dense
+     * accordion is a tighter accordion rather than a smaller one. That is what
+     * "density changes size without changing meaning" asks for.
+     */
+    --_font-size: var(--slotted-font-size-md, 0.875rem);
+    --_description-font-size: var(--slotted-font-size-xs, 0.75rem);
+    /* The panel's own text, so a consumer who writes bare prose in it gets the
+       step the header was set against rather than the document's. */
+    --_panel-font-size: var(--slotted-font-size-md, 0.875rem);
+    /**
+     * The air above and below the words. It is not the control's own padding,
+     * because a header is a line of prose rather than a button's label: it
+     * wraps, and a wrapped second line needs the same distance from the rule as
+     * the first has from the one above it.
+     */
+    --_padding-block: var(--slotted-space-4, 0.5rem);
+    --_rule-size: var(--slotted-border-width-thin, 1px);
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    /**
+     * `container-type: inline-size` below applies `contain: inline-size`, which
+     * makes the box's intrinsic width zero — that is the whole point of the
+     * containment, and it is why the width is stated rather than left to
+     * `auto`. `alert` learned it first, and this family relearned it in its own
+     * rendered reference page: on a stage that shrink-wraps its children every
+     * disclosure collapsed to one character wide and set its title one letter
+     * per line. A consumer writing `<Stack>` around three of these would find
+     * the same thing.
+     */
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  [data-ui-collapsible][data-size='sm'] {
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_font-size: var(--slotted-font-size-sm, 0.8125rem);
+    --_description-font-size: var(--slotted-font-size-xs, 0.75rem);
+    --_panel-font-size: var(--slotted-font-size-sm, 0.8125rem);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 0.625rem);
+    --_gap: var(--slotted-control-gap-sm, 0.375rem);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_padding-block: var(--slotted-space-3, 0.375rem);
+  }
+
+  [data-ui-collapsible][data-size='lg'] {
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_font-size: var(--slotted-font-size-lg, 1rem);
+    --_description-font-size: var(--slotted-font-size-sm, 0.8125rem);
+    --_panel-font-size: var(--slotted-font-size-md, 0.875rem);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 1rem);
+    --_gap: var(--slotted-control-gap-lg, 0.5rem);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_padding-block: var(--slotted-space-5, 0.75rem);
+  }
+
+  /* ── The header, which is a heading ───────────────────────────────────── */
+
+  /**
+   * `level` renders `h1` through `h6`, and the browser's own heading margins
+   * and type size would then make one disclosure taller than the next. The
+   * family states both, so the outline is semantic and the picture is not.
+   */
+  [data-ui-collapsible] > [data-part-header] {
+    font: inherit;
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  /* ── The trigger ──────────────────────────────────────────────────────── */
+
+  /**
+   * Two columns and two rows: the words take the first column, over one or two
+   * rows, and the indicator keeps a column of its own so a title that wraps
+   * grows the row instead of pushing the mark off the line. Carbon truncates
+   * that title instead; the row growing is the honest answer, and `truncate`
+   * is the word for the case where it may not.
+   */
+  [data-ui-collapsible] > [data-part-header] > [data-part-trigger] {
+    /* A height above the content's would otherwise be split over both rows,
+       the empty description row included, and lift the title off centre. */
+    align-content: center;
+    align-items: center;
+    appearance: none;
+    background-color: var(--slotted-collapsible-background, transparent);
+    border: 0;
+    color: var(--slotted-collapsible-color, var(--slotted-text, CanvasText));
+    column-gap: var(--_gap);
+    cursor: pointer;
+    display: grid;
+    font-family: var(--slotted-control-font-family, inherit);
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    /* A `button` does not stretch into its grid cell on its own, and the mark
+       then sits against the last word instead of at the row's end. */
+    justify-self: stretch;
+    letter-spacing: var(--slotted-control-letter-spacing, 0);
+    line-height: var(--slotted-line-height-md, 1.5);
+    min-block-size: var(--_height);
+    min-inline-size: 0;
+    padding-block: var(--_padding-block);
+    padding-inline: var(--slotted-collapsible-padding-inline, var(--_padding-inline));
+    text-align: start;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-collapsible] > [data-part-header] > [data-part-trigger]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-offset, 2px));
+  }
+
+  /**
+   * The words and the second line share the first column; the mark sits in the
+   * second across both rows, so it is centred on the pair rather than on the
+   * title alone.
+   */
+  [data-ui-collapsible] > [data-part-header] > [data-part-trigger] > [data-part-label] {
+    grid-column: 1;
+    grid-row: 1;
+    min-inline-size: 0;
+    /**
+     * ── Isolated, not plaintext; break-word, not anywhere ──────────────
+     *
+     * A title in another script has to read its own way without reordering the
+     * row around it, and an unbroken token has to break inside itself rather
+     * than set the width of the row.
+     *
+     * `break-word` rather than `anywhere`, and the difference is the whole of
+     * why the reference page found it: `anywhere` counts toward the box's
+     * min-content size, so a disclosure placed on a stage that sizes to its
+     * content collapsed to one character wide and set every title one letter
+     * per line. `break-word` breaks the same unbroken token when the row is
+     * too narrow and leaves the min-content width the longest word, which is
+     * what a shrink-to-fit parent asks for.
+     *
+     * `tag` and `tabs` use `plaintext`, which takes the base direction from the
+     * string's own first strong character. That is right for a chip whose whole
+     * box is the string, and wrong here: `start` is then resolved against the
+     * string rather than the page, and the first right-to-left capture showed a
+     * Latin title stranded at the far edge of an Arabic page, hugging the mark.
+     * `isolate` keeps the string from reordering anything outside it and leaves
+     * the base direction — and therefore the alignment — to the page, which is
+     * what a heading in an outline needs.
+     */
+    overflow-wrap: break-word;
+    unicode-bidi: isolate;
+  }
+
+  [data-ui-collapsible][data-truncate]
+    > [data-part-header]
+    > [data-part-trigger]
+    > [data-part-label] {
+    overflow: hidden;
+    overflow-wrap: normal;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /**
+   * The second line. It is inside the trigger, so it is part of the accessible
+   * name — "Delivery, 3 of 12 items" is what a reader hears, which is what a
+   * summary of the hidden content is for.
+   */
+  [data-ui-collapsible] > [data-part-header] > [data-part-trigger] > [data-part-description] {
+    color: var(--slotted-collapsible-description-color, var(--slotted-text-muted, GrayText));
+    font-size: var(--_description-font-size);
+    font-weight: var(--slotted-font-weight-regular, 400);
+    grid-column: 1;
+    grid-row: 2;
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+    unicode-bidi: isolate;
+  }
+
+  [data-ui-collapsible][data-truncate]
+    > [data-part-header]
+    > [data-part-trigger]
+    > [data-part-description] {
+    overflow: hidden;
+    overflow-wrap: normal;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── The indicator ────────────────────────────────────────────────────── */
+
+  /**
+   * The mark is the library's own `Glyph` — an `<svg>` the binding draws inside
+   * an `icon` box, chevron or plus and minus as the indicator and state say —
+   * never a character or a mask. This part is the slot it stands in: the box
+   * takes the part's size through `--slotted-icon-size`, and the part is a flex
+   * container so the box's own baseline shift does not move it off the slot.
+   * The chevron turns rather than pointing along the inline axis: a chevron
+   * that pointed at the start edge would need mirrored artwork for a
+   * right-to-left document, and a mark that rotates between down and up is the
+   * same mark in every direction.
+   */
+  [data-ui-collapsible] > [data-part-header] > [data-part-trigger] > [data-part-indicator] {
+    /**
+     * On the first line of the title, by R5, and not on the middle of what the
+     * trigger holds. Centred over both rows the mark stood 9.25 to 10.25 pixels
+     * under the line it annotates wherever a description was written, and 32
+     * pixels under it where the title wrapped to three lines — the disclosure's
+     * own version of what AL1 fixed in `alert` and SL7 in `select` (CL1).
+     *
+     * `1lh` resolves against *this* element's line box, and this element
+     * inherits the trigger's font and line-height, so the line it measures is
+     * the line the title sets. The mark keeps its own row: spanning both put it
+     * in a box the description made taller, which is what centred it there.
+     */
+    --slotted-icon-size: var(--_icon-size);
+    align-self: start;
+    block-size: var(--_icon-size);
+    color: var(--slotted-collapsible-indicator-color, currentColor);
+    display: flex;
+    flex: none;
+    grid-column: 2;
+    grid-row: 1;
+    inline-size: var(--_icon-size);
+    margin-block-start: calc((1lh - var(--_icon-size)) / 2);
+  }
+
+  [data-ui-collapsible]
+    > [data-part-header]
+    > [data-part-trigger]
+    > [data-part-indicator]
+    > [data-ui-icon] {
+    transition: rotate var(--slotted-duration-medium)
+      var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-collapsible][data-open]
+    > [data-part-header]
+    > [data-part-trigger]
+    > [data-part-indicator]
+    > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  /**
+   * The other pair the scale holds, drawn on one grid: the same bar, with a
+   * second crossing it. The binding swaps the glyph with the state, and nothing
+   * rotates, because a plus turning into a minus by rotation is a plus with a
+   * stroke that vanished.
+   */
+  [data-ui-collapsible][data-indicator='plus-minus']
+    > [data-part-header]
+    > [data-part-trigger]
+    > [data-part-indicator]
+    > [data-ui-icon] {
+    rotate: none;
+  }
+
+  /**
+   * The mark before the words. The two columns swap and nothing else moves,
+   * which is what a logical grid is for.
+   */
+  [data-ui-collapsible][data-toggle-placement='start'] > [data-part-header] > [data-part-trigger] {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  [data-ui-collapsible][data-toggle-placement='start']
+    > [data-part-header]
+    > [data-part-trigger]
+    > [data-part-indicator] {
+    grid-column: 1;
+  }
+
+  [data-ui-collapsible][data-toggle-placement='start']
+    > [data-part-header]
+    > [data-part-trigger]
+    > [data-part-label],
+  [data-ui-collapsible][data-toggle-placement='start']
+    > [data-part-header]
+    > [data-part-trigger]
+    > [data-part-description] {
+    grid-column: 2;
+  }
+
+  /**
+   * The body lines up with the title rather than with the mark. With the mark
+   * at the end the two edges are already the same; with it at the start the
+   * title begins a column further in, and a panel left at the box's own inset
+   * hangs to the left of the heading it belongs to — which was what the first
+   * capture showed.
+   */
+  [data-ui-collapsible][data-toggle-placement='start'] > [data-part-panel] > [data-part-content] {
+    padding-inline-start: calc(
+      var(--slotted-collapsible-padding-inline, var(--_padding-inline)) + var(--_icon-size) +
+        var(--_gap)
+    );
+  }
+
+  /* ── The actions beside the header ────────────────────────────────────── */
+
+  /**
+   * A slot on the header's own row, outside the heading and outside the
+   * button. What belongs in it is a `toolbar`: one tab stop for however many
+   * controls the page puts there, and the reader reaches it after the trigger
+   * rather than inside it.
+   */
+  [data-ui-collapsible] > [data-part-actions] {
+    align-items: center;
+    align-self: center;
+    column-gap: var(--_gap);
+    display: flex;
+    grid-column: 2;
+    grid-row: 1;
+    padding-inline-end: var(--slotted-collapsible-padding-inline, var(--_padding-inline));
+  }
+
+  /* ── The panel ────────────────────────────────────────────────────────── */
+
+  /**
+   * ── Opening without a measurement ─────────────────────────────────────
+   *
+   * The panel is a one-row grid whose track runs between `0fr` and `1fr`, and
+   * `1fr` is the content's own height at every frame. Radix writes
+   * `--radix-collapsible-content-height` from a layout read, Base UI writes
+   * `--collapsible-panel-height`, and Ark and Angular Material each measure in
+   * their own words; all four are wrong for one frame in a server response and
+   * stale until a resize observer fires. Nothing here reads the layout, so the
+   * family is right during the first paint and right when the content grows
+   * while the panel is open.
+   *
+   * `::details-content` would have been the platform's answer and is not
+   * available: animating it to an intrinsic height needs `interpolate-size`,
+   * which is not baseline.
+   */
+  [data-ui-collapsible] > [data-part-panel] {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-rows: 0fr;
+    min-inline-size: 0;
+    transition: grid-template-rows var(--slotted-duration-medium)
+      var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-collapsible][data-open] > [data-part-panel] {
+    grid-template-rows: 1fr;
+  }
+
+  /**
+   * The box the track clips. `content-visibility` is what takes closed content
+   * out of the accessibility tree, out of the tab sequence and out of the
+   * browser's page search, and `allow-discrete` is what keeps it visible for
+   * the length of the closing transition instead of vanishing at the first
+   * frame. The binding writes `inert` alongside it, so a browser without the
+   * property still cannot put focus inside a closed panel.
+   */
+  [data-ui-collapsible] > [data-part-panel] > [data-part-content] {
+    color: var(--slotted-collapsible-panel-color, var(--slotted-text, CanvasText));
+    content-visibility: hidden;
+    font-size: var(--_panel-font-size);
+    line-height: var(--slotted-line-height-md, 1.5);
+    min-block-size: 0;
+    opacity: 0;
+    overflow: hidden;
+    /**
+     * The air under the content belongs to the open panel. A `0fr` track sizes
+     * to its item's minimum contribution, and padding is part of that even
+     * where the content itself contributes nothing — so a closed panel kept
+     * eight pixels of dead space under every header, which the reference page
+     * showed as a gap between the last row and the rule that closes the set.
+     */
+    padding-block-end: 0;
+    padding-inline: var(--slotted-collapsible-padding-inline, var(--_padding-inline));
+    transition:
+      content-visibility var(--slotted-duration-medium) allow-discrete,
+      opacity var(--slotted-duration-medium)
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-collapsible][data-open] > [data-part-panel] > [data-part-content] {
+    content-visibility: visible;
+    opacity: 1;
+    padding-block-end: var(--_padding-block);
+  }
+
+  /**
+   * A panel whose content has not arrived. The box is held open at a line's
+   * height so the reader is not handed an empty frame, and `aria-busy` on the
+   * panel is what says the emptiness is temporary. What stands in for the
+   * content is `skeleton`'s, composed by the consumer: a second family drawing
+   * placeholder geometry would be two answers to one question.
+   */
+  [data-ui-collapsible][data-loading][data-open] > [data-part-panel] > [data-part-content] {
+    min-block-size: calc(var(--_panel-font-size) * var(--slotted-line-height-md, 1.5));
+  }
+
+  /* ── The states a trigger paints ──────────────────────────────────────── */
+
+  /**
+   * Hover raises the ink and lays a wash under the row; press goes one step
+   * further. Both hold themselves back for `:disabled`, which the browser has
+   * already taken out of action — the library learned that from a defect, and
+   * `states.test.mjs` is what keeps it from being relearned the same way.
+   */
+  [data-ui-collapsible]:not([data-disabled])
+    > [data-part-header]
+    > [data-part-trigger]:enabled:hover {
+    background-color: var(
+      --slotted-collapsible-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    color: var(--slotted-collapsible-hover-color, var(--slotted-text, CanvasText));
+  }
+
+  [data-ui-collapsible]:not([data-disabled])
+    > [data-part-header]
+    > [data-part-trigger]:enabled:active {
+    background-color: var(
+      --slotted-collapsible-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  [data-ui-collapsible] > [data-part-header] > [data-part-trigger]:disabled {
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: not-allowed;
+  }
+
+  /**
+   * A header the group refuses to let close. It is the APG's own
+   * `aria-disabled="true"`, so it is still focusable and still announced — the
+   * mark simply says the press will do nothing.
+   */
+  [data-ui-collapsible]
+    > [data-part-header]
+    > [data-part-trigger][aria-disabled='true']
+    > [data-part-indicator] {
+    opacity: 0.45;
+  }
+
+  [data-ui-collapsible][data-disabled] {
+    color: var(--slotted-disabled-foreground, GrayText);
+  }
+
+  /* ── Appearance ───────────────────────────────────────────────────────── */
+
+  /**
+   * A rule above the header, which is what makes a stack of these read as one
+   * list. The group closes the bottom of the stack with a rule of its own, so
+   * the item never has to know whether it is the last one.
+   */
+  [data-ui-collapsible][data-variant='ruled'] {
+    border-block-start: var(--_rule-size) solid
+      var(--slotted-collapsible-rule-color, var(--slotted-border-subtle, ButtonBorder));
+  }
+
+  /**
+   * Its own card. It is the standalone disclosure's shape, and it is what an
+   * accordion hands its items under `separated`.
+   */
+  [data-ui-collapsible][data-variant='framed'] {
+    background-color: var(--slotted-collapsible-surface, var(--slotted-surface-raised, Canvas));
+    border: var(--_rule-size) solid
+      var(--slotted-collapsible-rule-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: var(--slotted-collapsible-radius, var(--slotted-radius-md, 6px));
+    /* The trigger's own background is drawn to the frame's edge, so the corner
+       it meets has to be the corner the frame draws. */
+    overflow: clip;
+  }
+
+  /* ── Density, direction and the narrow container ──────────────────────── */
+
+  /**
+   * Below this the actions leave the header's row and take one of their own.
+   * The literal is the rule the foundation states for container conditions:
+   * `@container (min-inline-size: var(--x))` is invalid CSS, so a reflowing
+   * family owns its container and writes the number.
+   */
+  [data-ui-collapsible] {
+    container-name: slotted-collapsible;
+    container-type: inline-size;
+  }
+
+  @container slotted-collapsible (max-inline-size: 22rem) {
+    [data-ui-collapsible] > [data-part-actions] {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      justify-content: flex-end;
+      padding-block-end: var(--_padding-block);
+      padding-inline-start: var(--slotted-collapsible-padding-inline, var(--_padding-inline));
+    }
+
+    [data-ui-collapsible] > [data-part-panel] {
+      grid-row: 3;
+    }
+  }
+}

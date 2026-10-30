@@ -1,0 +1,1075 @@
+@layer slotted.components {
+  /**
+   * ── An ordinal value drawn as a row of symbols ─────────────────────────
+   *
+   * Three members share this sheet and `data-ui='rating'`:
+   *
+   * - `rating`, a `div role="radiogroup"` whose items each hold one native
+   *   radio per value the reader can pick — two when the step is a half —
+   *   under a star drawn by the `Glyph` element;
+   * - `ratingDisplay`, a `div role="img"` with the same items and no radio, a
+   *   value the page reports; `data-variant='compact'` draws one star;
+   * - `ratingSummary`, `data-variant='summary'`, the aggregate of many ratings
+   *   and the distribution across levels, whose levels may filter a list.
+   *
+   * How much of a star is lit is `--_fill`, from 0 to 1. The display reads it
+   * from `--slotted-rating-fill`, which the binding writes on each item. The
+   * input derives it here, from which radio is checked and which one is under
+   * the pointer, so the picture is the platform's state.
+   */
+  [data-ui-rating][data-part-root] {
+    /**
+     * The symbol does not follow density. The selection scale settled the same
+     * question for a checkbox: the thing the value is read from keeps its size,
+     * and density moves the text beside it. `md` is twenty pixels, the size
+     * ReUI, MUI and Mantine draw an input at; `sm` is the sixteen a product
+     * card reports with (ReUI `review-3`, `product-card-9`).
+     */
+    --_symbol: var(--slotted-rating-symbol-size, var(--slotted-space-7, 1.25rem));
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    /**
+     * The paint. A lit star is one solid shape in the tone's solid step; an
+     * unlit star is the same shape in the neutral ground a secondary control
+     * stands on — the Salesforce, Airbnb and Fluent reading, which draws the
+     * row as five equal marks of which some are lit, not as outlines beside
+     * solids.
+     *
+     * `--slotted-rating-edge` is the edge both shapes are stroked with:
+     * transparent in `light` and `dark`, black in `high-contrast`, where every
+     * tone ground is the page's white and the edge is what is left to draw the
+     * shape with. Only the theme knows which scheme it is painting, so the
+     * edge is a token of the component layer (`docs/token-foundation.md`,
+     * Rating edge).
+     */
+    --_on: var(--slotted-rating-lit-color, var(--slotted-tone-warning-solid));
+    --_off: var(--slotted-rating-empty-color, var(--slotted-tone-secondary-surface));
+    --_edge: var(--slotted-rating-edge, transparent);
+    --_off-edge: var(--_edge);
+    --_stroke: 1.5;
+    --_halo: var(--slotted-rating-hover-background, var(--slotted-tone-secondary-subtle-hover));
+    --_halo-active: var(
+      --slotted-rating-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+
+    align-items: center;
+    color: var(--slotted-text, CanvasText);
+    /* Between the row of symbols, the value and the count; text that wraps
+       to a line of its own starts at the line's edge. */
+    column-gap: var(--_gap);
+    display: inline-flex;
+    flex-wrap: wrap;
+    /* The text is trimmed to its ink below, so a line it wraps onto needs the
+       air the line box used to give it. */
+    row-gap: var(--slotted-space-3, 0.375rem);
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    line-height: var(--slotted-line-height-md, 1.5);
+    max-inline-size: 100%;
+    vertical-align: middle;
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-rating][data-part-root][data-size='sm'] {
+    --_symbol: var(--slotted-rating-symbol-size, var(--slotted-space-6, 1rem));
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+  }
+
+  [data-ui-rating][data-part-root][data-size='lg'] {
+    --_symbol: var(--slotted-rating-symbol-size, var(--slotted-space-8, 1.5rem));
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+  }
+
+  /* ── Tone ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-rating][data-part-root][data-tone='accent'] {
+    --_on: var(--slotted-rating-lit-color, var(--slotted-tone-accent-solid));
+  }
+
+  [data-ui-rating][data-part-root][data-tone='success'] {
+    --_on: var(--slotted-rating-lit-color, var(--slotted-tone-success-solid));
+  }
+
+  [data-ui-rating][data-part-root][data-tone='info'] {
+    --_on: var(--slotted-rating-lit-color, var(--slotted-tone-info-solid));
+  }
+
+  [data-ui-rating][data-part-root][data-tone='danger'] {
+    --_on: var(--slotted-rating-lit-color, var(--slotted-tone-danger-solid));
+  }
+
+  /* ── The row of symbols ───────────────────────────────────────────────── */
+
+  /**
+   * The symbols are one row that never breaks: a rating wrapped after its
+   * eighth star reads as eight of eight and then two more. When the row is
+   * wider than the space it is given it shrinks instead — every item stays
+   * square and the star inside it follows — and the text beside it is what
+   * moves to a line of its own.
+   *
+   * The display sets its symbols two pixels apart: Lucide draws the star
+   * inside a twenty-four unit box with a unit and a half of air a side, so two
+   * pixels between boxes reads as the five ReUI's rows read at.
+   */
+  [data-ui-rating] [data-part-symbols] {
+    column-gap: var(--slotted-rating-gap, var(--slotted-space-1, 0.125rem));
+    display: flex;
+    flex: 0 1 auto;
+    min-inline-size: 0;
+  }
+
+  /**
+   * The input's targets touch, so the air between two of them is inside them.
+   * A finger dragged along the row is the binding's to read, so the row keeps
+   * vertical panning for the page and takes the horizontal gesture.
+   */
+  [data-ui-rating] [data-part-symbols]:has([data-part-input]) {
+    column-gap: 0;
+    touch-action: pan-y;
+  }
+
+  [data-ui-rating] [data-part-item] {
+    --_fill: var(--slotted-rating-fill, 0);
+    /*
+     * The curve of the next change of the lit share, read at the moment it
+     * starts: a rule that lights a symbol states the enter curve, and the rule
+     * it falls back to states the exit curve. A transition takes its timing
+     * from the state it moves to, so the curve follows the direction without
+     * a script telling it which way.
+     */
+    --_fill-easing: var(--slotted-easing-exit);
+    --_box: var(--_symbol);
+    --_air: 0px;
+
+    aspect-ratio: 1;
+    /* The star inside reads the item's width, so a shrunk item draws a
+       smaller star rather than clipping one. */
+    container-type: inline-size;
+    display: grid;
+    /* Stated, not a flex basis: under inline-size containment an item has no
+       width of its own, and a basis alone let the row shrink with room left. */
+    flex: 0 1 auto;
+    inline-size: var(--_box);
+    /* A reported value shrinks to half its size before the row overflows. */
+    min-inline-size: calc(var(--_symbol) / 2);
+    /* The symbols and the radios are stacked in one cell; the radios sit
+       under the symbols and take the pointer through them. */
+    isolation: isolate;
+    place-items: center;
+    position: relative;
+  }
+
+  /**
+   * An item of the input is a target, and the WCAG minimum is its floor,
+   * shrinking included: at `sm` and `md` the box is twenty-four pixels, at
+   * `lg` the symbol plus two pixels of air a side, twenty-eight.
+   */
+  [data-ui-rating] [data-part-item]:has(> [data-part-input]) {
+    --_air: var(--slotted-space-1, 0.125rem);
+    --_box: max(var(--slotted-target-min, 24px), calc(var(--_symbol) + 2 * var(--_air)));
+
+    min-inline-size: var(--slotted-target-min, 24px);
+  }
+
+  [data-ui-rating] :is([data-part-symbol], [data-part-fill]) {
+    --_drawn: min(var(--_symbol), 100cqi - 2 * var(--_air));
+    --slotted-icon-size: var(--_drawn);
+
+    block-size: var(--_drawn);
+    display: flex;
+    grid-area: 1 / 1;
+    inline-size: var(--_drawn);
+    pointer-events: none;
+    transition: scale var(--slotted-duration-short) var(--slotted-easing-standard);
+    z-index: 2;
+  }
+
+  [data-ui-rating] :is([data-part-symbol], [data-part-fill]) svg {
+    stroke-width: var(--_stroke);
+    transition:
+      fill var(--slotted-control-transition-duration) var(--slotted-control-transition-easing),
+      stroke var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-rating] [data-part-symbol] svg {
+    fill: var(--_off);
+    stroke: var(--_off-edge);
+  }
+
+  /**
+   * The lit star is the same drawing, clipped from the inline-start edge to
+   * the share `--_fill` names; the clip moves on the medium step, so a value
+   * that changes by three stars is seen travelling rather than swapped.
+   */
+  [data-ui-rating] [data-part-fill] {
+    clip-path: inset(0 calc((1 - var(--_fill)) * 100%) 0 0);
+    transition:
+      scale var(--slotted-duration-short) var(--slotted-easing-standard),
+      clip-path var(--slotted-duration-medium) var(--_fill-easing);
+  }
+
+  [data-ui-rating][data-part-root]:dir(rtl) [data-part-fill] {
+    clip-path: inset(0 0 0 calc((1 - var(--_fill)) * 100%));
+  }
+
+  [data-ui-rating] [data-part-fill] svg {
+    fill: var(--_on);
+    stroke: var(--_edge);
+  }
+
+  /* ── The radios ───────────────────────────────────────────────────────── */
+
+  /**
+   * Each radio is the item's own box, under the symbols: the pointer lands on
+   * the native control, so a press checks it and the form sees it. The half
+   * radio covers the inline-start half of the box and is stacked above the
+   * whole one — it comes first in the DOM, so at the same level the whole
+   * radio painted over it and took every press meant for the half.
+   *
+   * The box is a circle: its ground is the halo the pointer lights, and its
+   * edge is where the focus ring is drawn.
+   */
+  [data-ui-rating] [data-part-input] {
+    appearance: none;
+    background-color: transparent;
+    block-size: 100%;
+    border: 0;
+    border-radius: var(--slotted-radius-full, 9999px);
+    cursor: pointer;
+    inline-size: 100%;
+    inset: 0;
+    margin: 0;
+    /* The ring is the item's, drawn below; the browser's goes. */
+    outline: none;
+    position: absolute;
+    transition: background-color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+    z-index: 0;
+  }
+
+  [data-ui-rating] [data-part-input][data-half] {
+    border-end-end-radius: 0;
+    border-start-end-radius: 0;
+    inline-size: 50%;
+    inset-inline-end: auto;
+    z-index: 1;
+  }
+
+  /**
+   * What the reader has picked: every symbol before the checked radio's item
+   * is lit, and that item is lit whole or by half.
+   */
+  [data-ui-rating] [data-part-item]:has(~ [data-part-item] > [data-part-input]:checked),
+  [data-ui-rating] [data-part-item]:has(> [data-part-input]:not([data-half]):checked) {
+    --_fill: 1;
+    --_fill-easing: var(--slotted-easing-enter);
+  }
+
+  [data-ui-rating] [data-part-item]:has(> [data-part-input][data-half]:checked) {
+    --_fill: 0.5;
+    --_fill-easing: var(--slotted-easing-enter);
+  }
+
+  /**
+   * What the reader is about to pick. While the pointer is over a radio the
+   * row shows the value under it instead of the one held, the way every
+   * surveyed input previews; nothing is requested until the press.
+   */
+  [data-ui-rating][data-part-root]:not([data-readonly], [data-disabled]):has(
+      [data-part-input]:hover:not(:disabled)
+    )
+    [data-part-item] {
+    --_fill: 0;
+    --_fill-easing: var(--slotted-easing-exit);
+  }
+
+  [data-ui-rating][data-part-root]:not([data-readonly], [data-disabled]):has(
+      [data-part-input]:hover:not(:disabled)
+    )
+    [data-part-item]:is(
+      :has(~ [data-part-item] > [data-part-input]:hover:not(:disabled)),
+      :has(> [data-part-input]:not([data-half]):hover:not(:disabled))
+    ) {
+    --_fill: 1;
+    --_fill-easing: var(--slotted-easing-enter);
+  }
+
+  [data-ui-rating][data-part-root]:not([data-readonly], [data-disabled])
+    [data-part-item]:has(> [data-part-input][data-half]:hover:not(:disabled)) {
+    --_fill: 0.5;
+    --_fill-easing: var(--slotted-easing-enter);
+  }
+
+  /**
+   * While a finger drags along the row the binding checks the radio under it
+   * and marks the root `data-dragging`; the transitions of the lit share step
+   * aside, so the row follows the finger rather than trailing it.
+   */
+  [data-ui-rating][data-part-root][data-dragging] [data-part-fill] {
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /* ── States ───────────────────────────────────────────────────────────── */
+
+  /**
+   * Hover is the lit share following the pointer, and a round wash under the
+   * symbol in the neutral subtle step, which the theme holds 0.02 in OKLab
+   * lightness above every surface. Nothing grows: the row previews the value,
+   * and a star that jumps toward the pointer reads as a toy. Press settles the
+   * symbol six per cent below its size and darkens the wash, and the release
+   * brings both back on the standard curve.
+   */
+  [data-ui-rating][data-part-root]:not([data-readonly], [data-disabled])
+    [data-part-input]:hover:not(:disabled) {
+    background-color: var(--_halo);
+  }
+
+  [data-ui-rating][data-part-root]:not([data-readonly], [data-disabled])
+    [data-part-input]:active:not(:disabled) {
+    background-color: var(--_halo-active);
+  }
+
+  [data-ui-rating][data-part-root]:not([data-readonly], [data-disabled])
+    [data-part-item]:has(> [data-part-input]:active:not(:disabled))
+    > :is([data-part-symbol], [data-part-fill]) {
+    scale: 0.94;
+  }
+
+  /**
+   * The ring is the item's, a circle drawn one width inside its box: the
+   * boxes touch, and a ring outside them would draw over the next star. A
+   * half radio is half of a star and the ring still encloses the whole star,
+   * because the star is what the reader is on.
+   */
+  [data-ui-rating] [data-part-item]:has(> [data-part-input]:focus-visible) {
+    border-radius: var(--slotted-radius-full, 9999px);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /**
+   * Invalid is the empty stars in the danger pair — a ground and the edge
+   * that holds the ratio against it — so a required rating left empty is
+   * marked on the stars themselves, beside the message `field` writes.
+   */
+  [data-ui-rating][data-part-root][data-invalid] {
+    --_off: var(--slotted-rating-invalid-color, var(--slotted-tone-danger-surface));
+    --_off-edge: var(--slotted-tone-danger-border);
+    --slotted-focus-ring-color: var(--slotted-focus-ring-color-invalid);
+  }
+
+  /*
+   * Width as well as colour (WCAG 1.4.1): in `high-contrast` the danger pair is
+   * the page's white and the edge's black, which an empty star already wears.
+   * The empty star's outline grows by the edge every invalid control adds. A
+   * stroke grows about its path inside the drawing's own box, so no star and
+   * no label moves.
+   */
+  [data-ui-rating][data-part-root][data-invalid] [data-part-symbol] svg {
+    stroke-width: calc(
+      var(--_stroke) * 1px +
+        var(--slotted-rating-invalid-edge-width, var(--slotted-control-invalid-edge-width, 1px))
+    );
+  }
+
+  [data-ui-rating][data-part-root][data-readonly] [data-part-input] {
+    cursor: default;
+  }
+
+  /**
+   * Disabled keeps the value readable: the lit shapes stay solid in the
+   * disabled ink and the unlit ones stay on the disabled ground, so three of
+   * five reads as three of five and not as an absent control.
+   */
+  [data-ui-rating][data-part-root][data-disabled] {
+    --_on: var(--slotted-disabled-foreground);
+    --_off: var(--slotted-disabled-background);
+
+    color: var(--slotted-disabled-foreground);
+  }
+
+  [data-ui-rating][data-part-root][data-disabled] [data-part-input] {
+    cursor: not-allowed;
+  }
+
+  /* ── Text beside the symbols ──────────────────────────────────────────── */
+
+  /**
+   * The value is the number or the word the symbols stand for; the count is
+   * how many readings the number is made of. Figures are tabular, so a row of
+   * products lines its numbers up.
+   */
+  [data-ui-rating] [data-part-value] {
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    white-space: nowrap;
+  }
+
+  [data-ui-rating] [data-part-count] {
+    color: var(--slotted-text-muted, GrayText);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /**
+   * The input's value names the pick in words — a hint beside the control
+   * rather than a figure — so it is set muted, as a description is, and a
+   * long one wraps inside the row rather than running past it.
+   */
+  [data-ui-rating][data-part-root]:has([data-part-input]) > [data-part-value] {
+    color: var(--slotted-text-muted, GrayText);
+    font-weight: var(--slotted-font-weight-regular, 400);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    transition: color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+    white-space: normal;
+  }
+
+  /* While the pointer previews a value the word names it, and reads as the
+     answer to the pointer rather than as a hint. */
+  [data-ui-rating][data-part-root]:not([data-readonly], [data-disabled]):has(
+      [data-part-input]:hover:not(:disabled)
+    )
+    > [data-part-value] {
+    color: var(--slotted-text, CanvasText);
+  }
+
+  [data-ui-rating][data-part-root][data-disabled] > [data-part-value] {
+    color: var(--slotted-disabled-foreground);
+  }
+
+  /**
+   * The text beside the stars is centred on its ink, not on its line box. A
+   * flex row centres the line box, and a line box is not symmetric around the
+   * letters: the ascender reaches further above the cap than the descender
+   * reaches below the baseline, so every figure sat high beside a star whose
+   * drawing is centred in its box. `text-box` trims the box to the cap and the
+   * baseline — the decision `badge` measured first — so the capitals and the
+   * figures share the star's centre. Each part is a flex or grid item, which is
+   * a block container, the condition `text-box-trim` needs; the level's
+   * number is its own `span` for the same reason, because the text of an
+   * `inline-flex` lives in an anonymous item no selector reaches. A wrapped
+   * word keeps its inner lines; only the outer edges are trimmed.
+   *
+   * The summary's figure, its scale and its count are left as they are: they
+   * sit on a shared baseline and above the stars, not beside them, and a
+   * trimmed figure pulled the stars up against its baseline.
+   */
+  @supports (text-box: trim-both cap alphabetic) {
+    [data-ui-rating][data-part-root] > :is([data-part-value], [data-part-count]),
+    [data-ui-rating] [data-part-level-count],
+    [data-ui-rating] [data-part-level-label] > span:not([data-ui]) {
+      text-box: trim-both cap alphabetic;
+    }
+  }
+
+  /* ── Compact display ──────────────────────────────────────────────────── */
+
+  /**
+   * One lit star, the figure and the count: the reading a list row or a table
+   * cell has room for, and the one Fluent calls `compact`. The star is the
+   * mark of the figure, not a share of it, so it is always lit whole.
+   */
+  [data-ui-rating][data-part-root][data-variant='compact'] {
+    column-gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-rating][data-part-root][data-variant='compact'] [data-part-item] {
+    --_fill: 1;
+  }
+
+  /* ── Summary ──────────────────────────────────────────────────────────── */
+
+  /**
+   * The aggregate beside the distribution: the figure a page leads with,
+   * the stars that draw it, and how many readings it is made of; then one
+   * bar per level. The two blocks sit side by side while both fit and stack
+   * when they do not — a wrap on the flex line rather than a container
+   * query, because the break is where the content stops fitting and nowhere
+   * else.
+   */
+  [data-ui-rating][data-part-root][data-variant='summary'] {
+    --_bar: var(--slotted-rating-bar-size, var(--slotted-space-4, 0.5rem));
+
+    align-items: start;
+    display: flex;
+    gap: var(--slotted-space-8, 1.5rem) var(--slotted-space-9, 2rem);
+    /* A block of the page, not a run of text: it takes the width it is
+       given, which is what lets the two blocks stand side by side. */
+    inline-size: 100%;
+  }
+
+  [data-ui-rating] [data-part-aggregate] {
+    align-content: start;
+    column-gap: var(--slotted-space-3, 0.375rem);
+    display: grid;
+    flex: 0 0 auto;
+    grid-template-columns: auto 1fr;
+    row-gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  /**
+   * The figure is set at the key-figure step `stat-card` reads, on its own
+   * line height, and the scale beside it sits on its baseline.
+   */
+  [data-ui-rating] [data-part-aggregate] > [data-part-value] {
+    align-self: baseline;
+    font-size: var(--slotted-font-size-4xl, 2rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-4xl, 1.2);
+  }
+
+  [data-ui-rating] [data-part-scale] {
+    align-self: baseline;
+    color: var(--slotted-text-muted, GrayText);
+  }
+
+  [data-ui-rating] [data-part-aggregate] > :not([data-part-value], [data-part-scale]) {
+    grid-column: 1 / -1;
+  }
+
+  [data-ui-rating] [data-part-aggregate] > [data-part-count] {
+    white-space: normal;
+  }
+
+  /**
+   * The distribution is one grid whose rows are subgrids, so every label,
+   * bar and count lines up with the one above it whatever the numbers.
+   */
+  [data-ui-rating] [data-part-distribution] {
+    display: grid;
+    flex: 1 1 15rem;
+    grid-template-columns: auto minmax(4rem, 1fr) auto;
+    list-style: none;
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+    row-gap: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-rating] [data-part-distribution] > li {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  [data-ui-rating] [data-part-level] {
+    align-items: center;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--slotted-radius-sm, 4px);
+    color: inherit;
+    column-gap: var(--slotted-space-5, 0.75rem);
+    display: grid;
+    font: inherit;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    margin: 0;
+    /* The row is a target: the control height of its size step, whatever the
+       bar draws inside it. */
+    min-block-size: var(--slotted-control-height-sm, 30px);
+    padding-block: 0;
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    text-align: start;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-rating] button[data-part-level] {
+    cursor: pointer;
+  }
+
+  [data-ui-rating] button[data-part-level]:hover:not(:disabled) {
+    background-color: var(--_halo);
+  }
+
+  [data-ui-rating] button[data-part-level]:active:not(:disabled) {
+    background-color: var(--_halo-active);
+  }
+
+  [data-ui-rating] button[data-part-level]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /**
+   * A level the reader filters by carries the tone's surface inside a hairline
+   * of the tone's border, and its count at full weight; the other levels stay
+   * as they are, so the filter reads as one row lit among five rather than
+   * four rows dimmed.
+   */
+  [data-ui-rating] [data-part-level][data-pressed] {
+    background-color: var(--slotted-tone-warning-surface);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px) var(--slotted-tone-warning-border);
+  }
+
+  [data-ui-rating] [data-part-level][data-pressed] [data-part-level-count] {
+    color: var(--slotted-text, CanvasText);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  [data-ui-rating] button[data-part-level]:disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: default;
+  }
+
+  [data-ui-rating] [data-part-level-label] {
+    --slotted-icon-size: var(--slotted-control-icon-size-sm, 14px);
+
+    align-items: center;
+    column-gap: var(--slotted-space-1, 0.125rem);
+    display: inline-flex;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  [data-ui-rating] [data-part-level-label] svg {
+    fill: currentColor;
+    stroke-width: var(--_stroke);
+  }
+
+  [data-ui-rating] [data-part-level-label] > [data-ui-icon] {
+    color: var(--slotted-text-muted, GrayText);
+  }
+
+  /* The track takes the symbols' edge: nothing in `light` and `dark`, a black
+     hairline in `high-contrast`, where its ground is the page's white. */
+  [data-ui-rating] [data-part-track] {
+    background-color: var(--_off);
+    block-size: var(--_bar);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px) var(--_edge);
+    border-radius: var(--slotted-radius-full, 9999px);
+    overflow: hidden;
+  }
+
+  /**
+   * The bar grows from the inline start to its share on the long step and
+   * the enter curve, the first time it is drawn and every time the share
+   * changes, so a summary that loads reads as filling rather than popping.
+   */
+  [data-ui-rating] [data-part-indicator] {
+    background-color: var(--slotted-rating-bar-color, var(--_on));
+    block-size: 100%;
+    border-radius: inherit;
+    display: block;
+    inline-size: calc(var(--slotted-rating-share, 0) * 100%);
+    transition: inline-size var(--slotted-duration-long) var(--slotted-easing-enter);
+  }
+
+  @starting-style {
+    [data-ui-rating] [data-part-indicator] {
+      inline-size: 0;
+    }
+  }
+
+  [data-ui-rating] [data-part-level-count] {
+    color: var(--slotted-text-muted, GrayText);
+    font-variant-numeric: tabular-nums;
+    justify-self: end;
+    white-space: nowrap;
+  }
+
+  [data-ui-rating][data-disabled] [data-part-indicator],
+  [data-ui-rating] button[data-part-level]:disabled [data-part-indicator] {
+    background-color: var(--slotted-disabled-foreground);
+  }
+
+  /* ── Spectrum ─────────────────────────────────────────────────────────── */
+
+  /**
+   * The second reading of a summary, for a page that has to say more than the
+   * mean. The mean hides the shape and the confidence: 3.3 of five may be half
+   * ones and half fives, and 4.9 from seven readings is worth less than 4.7
+   * from a thousand. So the distribution is drawn as columns on the scale's own
+   * axis, the mean is a line at its exact place on that axis, the 95% interval
+   * of the mean is a band behind the columns, and one conclusion stands above
+   * (`@slotted/core/rating`, `summariseRatings`). Every figure, the interval
+   * included, is also written as text.
+   */
+  [data-ui-rating][data-part-root][data-variant='spectrum'] {
+    --_g: var(--slotted-space-3, 0.375rem);
+    --_plot: var(--slotted-space-12, 4rem);
+    --_col: calc((100% - 4 * var(--_g)) / 5);
+    --_mean: var(--slotted-rating-mean, 3);
+    --_low: var(--slotted-rating-low, var(--_mean));
+    --_high: var(--slotted-rating-high, var(--_mean));
+
+    display: grid;
+    gap: var(--slotted-space-6, 1rem);
+    inline-size: 100%;
+  }
+
+  [data-ui-rating][data-variant='spectrum'] > [data-part-aggregate] {
+    align-items: baseline;
+    column-gap: var(--slotted-space-3, 0.375rem);
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-rating][data-variant='spectrum'] > [data-part-aggregate] > [data-part-count] {
+    color: var(--slotted-text-muted, GrayText);
+    flex-basis: 100%;
+  }
+
+  /**
+   * The conclusion is a pill in its tone's surface, edge and text roles, the
+   * pair a badge reads, pushed to the inline end of the figure's line.
+   */
+  [data-ui-rating] [data-part-insight] {
+    align-self: center;
+    background-color: var(--_tint-surface);
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px) var(--_tint-border);
+    color: var(--_tint-text);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    margin-inline-start: auto;
+    padding-block: var(--slotted-space-1, 0.125rem);
+    padding-inline: var(--slotted-space-4, 0.5rem);
+    white-space: nowrap;
+  }
+
+  [data-ui-rating] :is([data-part-insight], [data-part-bucket])[data-tone='success'] {
+    --_tint-surface: var(--slotted-tone-success-surface);
+    --_tint-border: var(--slotted-tone-success-border);
+    --_tint-text: var(--slotted-tone-success-text);
+    --_mark: var(--slotted-tone-success-solid);
+  }
+
+  [data-ui-rating] :is([data-part-insight], [data-part-bucket])[data-tone='warning'] {
+    --_tint-surface: var(--slotted-tone-warning-surface);
+    --_tint-border: var(--slotted-tone-warning-border);
+    --_tint-text: var(--slotted-tone-warning-text);
+    --_mark: var(--slotted-tone-warning-solid);
+  }
+
+  [data-ui-rating] :is([data-part-insight], [data-part-bucket])[data-tone='secondary'] {
+    --_tint-surface: var(--slotted-tone-secondary-surface);
+    --_tint-border: var(--slotted-tone-secondary-border);
+    --_tint-text: var(--slotted-text-muted, GrayText);
+    --_mark: var(--slotted-tone-secondary-border);
+  }
+
+  [data-ui-rating] :is([data-part-insight], [data-part-bucket])[data-tone='danger'] {
+    --_tint-surface: var(--slotted-tone-danger-surface);
+    --_tint-border: var(--slotted-tone-danger-border);
+    --_tint-text: var(--slotted-tone-danger-text);
+    --_mark: var(--slotted-tone-danger-solid);
+  }
+
+  [data-ui-rating] [data-part-plot] {
+    display: grid;
+    row-gap: var(--slotted-space-3, 0.375rem);
+  }
+
+  /* The drawing area: its top margin is the room the mean's label stands in. */
+  [data-ui-rating] [data-part-field] {
+    block-size: var(--_plot);
+    border-block-end: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
+    margin-block-start: var(--slotted-space-7, 1.25rem);
+    position: relative;
+  }
+
+  [data-ui-rating] :is([data-part-columns], [data-part-axis]) {
+    column-gap: var(--_g);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  [data-ui-rating] [data-part-columns] {
+    block-size: 100%;
+    isolation: isolate;
+    position: relative;
+    z-index: 1;
+  }
+
+  [data-ui-rating] [data-part-column] {
+    align-items: end;
+    background-color: transparent;
+    border: 0;
+    border-start-end-radius: var(--slotted-radius-sm, 4px);
+    border-start-start-radius: var(--slotted-radius-sm, 4px);
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    transition: background-color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-rating] button[data-part-column] {
+    cursor: pointer;
+  }
+
+  [data-ui-rating] button[data-part-column]:hover:not(:disabled) {
+    background-color: var(--_halo);
+  }
+
+  [data-ui-rating] button[data-part-column]:active:not(:disabled) {
+    background-color: var(--_halo-active);
+  }
+
+  [data-ui-rating] button[data-part-column]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * A column is a bar at most forty pixels wide, centred, as tall as its
+   * level's share of the largest level. A level nobody chose draws nothing;
+   * any other is at least two pixels, so one reading is never invisible. It
+   * grows from the baseline on the long step and the enter curve.
+   */
+  [data-ui-rating] [data-part-column] > [data-part-bar] {
+    background-color: var(--_on);
+    block-size: max(
+      min(var(--slotted-space-1, 0.125rem), var(--slotted-rating-share, 0) * 100rem),
+      calc(var(--slotted-rating-share, 0) * 100%)
+    );
+    border-start-end-radius: var(--slotted-radius-sm, 4px);
+    border-start-start-radius: var(--slotted-radius-sm, 4px);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px) var(--_edge);
+    inline-size: min(100%, var(--slotted-space-10, 2.5rem));
+    transition:
+      block-size var(--slotted-duration-long) var(--slotted-easing-enter),
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing);
+  }
+
+  @starting-style {
+    [data-ui-rating] [data-part-column] > [data-part-bar] {
+      block-size: 0;
+    }
+  }
+
+  [data-ui-rating]
+    [data-part-columns]:has([data-pressed])
+    [data-part-column]:not([data-pressed])
+    > [data-part-bar] {
+    background-color: var(--_off);
+  }
+
+  /**
+   * A value on the scale is placed on the columns' axis: the centre of the
+   * first column, plus one column and one gap per unit. The interval sits
+   * behind the columns and the mean in front of them.
+   */
+  [data-ui-rating] :is([data-part-interval], [data-part-mean]) {
+    pointer-events: none;
+    position: absolute;
+  }
+
+  [data-ui-rating] [data-part-interval] {
+    background-color: color-mix(
+      in oklab,
+      var(--slotted-text) calc(var(--slotted-highlight-tint-opacity, 0.075) * 100%),
+      transparent
+    );
+    border-radius: var(--slotted-radius-sm, 4px);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px) var(--_edge);
+    inline-size: max(
+      var(--slotted-space-1, 0.125rem),
+      calc((var(--_high) - var(--_low)) * (var(--_col) + var(--_g)))
+    );
+    inset-block: 0;
+    inset-inline-start: calc(var(--_col) / 2 + (var(--_low) - 1) * (var(--_col) + var(--_g)));
+    transition:
+      inset-inline-start var(--slotted-duration-long) var(--slotted-easing-standard),
+      inline-size var(--slotted-duration-long) var(--slotted-easing-standard);
+    z-index: 0;
+  }
+
+  [data-ui-rating] [data-part-mean] {
+    border-inline-start: var(--slotted-border-width-thick, 2px) solid var(--slotted-text);
+    inset-block: calc(-1 * var(--slotted-space-5, 0.75rem)) 0;
+    inset-inline-start: calc(
+      var(--_col) / 2 + (var(--_mean) - 1) * (var(--_col) + var(--_g)) -
+        var(--slotted-border-width-thin, 1px)
+    );
+    transition: inset-inline-start var(--slotted-duration-long) var(--slotted-easing-standard);
+    z-index: 2;
+  }
+
+  [data-ui-rating] [data-part-mean-label] {
+    background-color: var(--slotted-surface-inverse);
+    border-radius: var(--slotted-radius-full, 9999px);
+    color: var(--slotted-text-inverse);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    inset-block-end: 100%;
+    inset-inline-start: 0;
+    line-height: var(--slotted-line-height-xs, 1.4);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    position: absolute;
+    translate: -50% 0;
+    white-space: nowrap;
+  }
+
+  [data-ui-rating][data-part-root]:dir(rtl) [data-part-mean-label] {
+    translate: 50% 0;
+  }
+
+  [data-ui-rating] [data-part-tick] {
+    display: grid;
+    justify-items: center;
+    row-gap: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-rating] [data-part-tick-label] {
+    --slotted-icon-size: var(--slotted-control-icon-size-sm, 14px);
+
+    align-items: center;
+    column-gap: var(--slotted-space-1, 0.125rem);
+    display: inline-flex;
+    font-variant-numeric: tabular-nums;
+  }
+
+  [data-ui-rating] [data-part-tick-label] svg {
+    fill: currentColor;
+    stroke-width: var(--_stroke);
+  }
+
+  [data-ui-rating] [data-part-tick-label] > [data-ui-icon] {
+    color: var(--slotted-text-muted, GrayText);
+  }
+
+  [data-ui-rating] [data-part-tick-share] {
+    color: var(--slotted-text-muted, GrayText);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The executive reading: positive, neutral and negative shares, each with
+     its tone's mark, which never carries the meaning alone. */
+  [data-ui-rating] [data-part-sentiment] {
+    color: var(--slotted-text-muted, GrayText);
+    column-gap: var(--slotted-space-6, 1rem);
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    row-gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-rating] [data-part-bucket] {
+    align-items: center;
+    column-gap: var(--slotted-space-2, 0.25rem);
+    display: inline-flex;
+  }
+
+  [data-ui-rating] [data-part-bucket] > strong {
+    color: var(--slotted-text, CanvasText);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  [data-ui-rating] [data-part-swatch] {
+    background-color: var(--_mark);
+    block-size: var(--slotted-space-4, 0.5rem);
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px) var(--_edge);
+    flex: none;
+    inline-size: var(--slotted-space-4, 0.5rem);
+  }
+
+  /* ── Histogram display ────────────────────────────────────────────────── */
+
+  /**
+   * The display's third reading, for a cell or a list row: one star, the
+   * mean, five columns the height of a capital and a half on a baseline, and
+   * the count. Two rows at 3.3 stop looking alike when one is split between
+   * the ends.
+   */
+  [data-ui-rating][data-part-root][data-variant='histogram'] {
+    column-gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-rating][data-part-root][data-variant='histogram'] [data-part-item] {
+    --_fill: 1;
+  }
+
+  [data-ui-rating] [data-part-histogram] {
+    align-items: end;
+    block-size: calc(1cap + 0.5em);
+    border-block-end: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-strong);
+    column-gap: var(--slotted-border-width-thin, 1px);
+    display: inline-grid;
+    grid-template-columns: repeat(5, var(--slotted-space-2, 0.25rem));
+    margin-inline: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-rating] [data-part-histogram] > [data-part-bar] {
+    background-color: var(--_on);
+    block-size: max(
+      min(var(--slotted-border-width-thin, 1px), var(--slotted-rating-share, 0) * 100rem),
+      calc(var(--slotted-rating-share, 0) * 100%)
+    );
+    border-start-end-radius: var(--slotted-radius-xs, 2px);
+    border-start-start-radius: var(--slotted-radius-xs, 2px);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px) var(--_edge);
+  }
+
+  /**
+   * A coarse pointer grows each target to the comfortable size, as the theme
+   * grows every control; the symbol stays, so the row spreads and nothing
+   * scales.
+   */
+  @media (pointer: coarse) {
+    [data-ui-rating] [data-part-item]:has(> [data-part-input]) {
+      --_box: max(var(--slotted-target-comfortable, 44px), var(--_symbol));
+    }
+
+    [data-ui-rating] [data-part-level] {
+      min-block-size: var(--slotted-target-comfortable, 44px);
+    }
+  }
+
+  /**
+   * Under forced colours every tone becomes a button face, which is the page's
+   * own ground, and a lit star would be indistinguishable from an unlit one.
+   * The lit shape is filled with the text colour and the unlit one outlined in
+   * it — the shape carries the value, as it does in every scheme.
+   */
+  @media (forced-colors: active) {
+    [data-ui-rating][data-part-root] {
+      --_on: CanvasText;
+      --_off: Canvas;
+      --_edge: CanvasText;
+      --_off-edge: CanvasText;
+    }
+
+    [data-ui-rating][data-part-root][data-disabled] {
+      --_on: GrayText;
+      --_edge: GrayText;
+      --_off-edge: GrayText;
+    }
+
+    [data-ui-rating] [data-part-track] {
+      border: var(--slotted-border-width-thin, 1px) solid CanvasText;
+    }
+
+    [data-ui-rating] :is([data-part-insight], [data-part-swatch]) {
+      border: var(--slotted-border-width-thin, 1px) solid CanvasText;
+    }
+
+    [data-ui-rating] [data-part-column][data-pressed] {
+      outline: var(--slotted-border-width-thick, 2px) solid Highlight;
+    }
+
+    [data-ui-rating] [data-part-level][data-pressed] {
+      outline: var(--slotted-border-width-thick, 2px) solid Highlight;
+    }
+
+    [data-ui-rating] [data-part-item]:has(> [data-part-input]:focus-visible) {
+      outline-color: Highlight;
+    }
+  }
+}

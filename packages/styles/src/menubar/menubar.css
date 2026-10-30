@@ -1,0 +1,170 @@
+@layer slotted.components {
+  /**
+   * A row of triggers with one tab stop, each opening a `menu`.
+   *
+   *   ┌─ root ─ role="menubar" ───────────────────────────────┐
+   *   │  trigger   trigger   trigger   trigger                │
+   *   └───────────────────────────────────────────────────────┘
+   *
+   * The bar holds two parts and no third, because everything a bar opens
+   * belongs to `menu` and is imported from it. Radix's menubar re-exports the
+   * sixteen parts its dropdown menu already has; two copies of one machine
+   * drift, and the second copy is where a capability added later goes missing.
+   *
+   * ── Why the bar paints no ground ─────────────────────────────────────
+   *
+   * A menubar sits in an application's own header, beside its logo and its
+   * account control, and that header owns the ground under all three. A bar
+   * that painted its own surface would either disagree with the header or
+   * force the header to match it. The weight is carried by the triggers, which
+   * is where a reader's pointer goes.
+   */
+  [data-ui-menubar] {
+    --_gap: var(--slotted-menubar-gap, var(--slotted-space-1, 0.125rem));
+
+    --_text: var(--slotted-menubar-text, var(--slotted-text, #0f172a));
+    --_trigger-radius: var(--slotted-menubar-trigger-radius, var(--slotted-control-radius));
+    --_trigger-height: var(--slotted-control-height-md, 34px);
+    --_trigger-inset: var(--slotted-control-padding-inline-md, 0.8125rem);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+
+    /* The same pair a menu item uses for its highlight, so a trigger and the
+       items under it belong to one control rather than to two. */
+    --_highlight: var(--slotted-menubar-highlight, var(--slotted-tone-secondary-subtle-hover));
+    --_highlight-active: var(
+      --slotted-menubar-highlight-active,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+
+    align-items: center;
+    box-sizing: border-box;
+    color: var(--_text);
+    display: flex;
+    /**
+     * More triggers than room is the overflow question, and it belongs to
+     * `toolbar` at the end of this wave. Until then the bar wraps: at 240
+     * pixels a bar of four translated titles laid out on one line put its last
+     * trigger outside the header that holds it, where nothing could reach it —
+     * and a trigger a reader cannot see is worse than a bar two lines tall.
+     */
+    flex-wrap: wrap;
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--_font-size);
+    gap: var(--_gap);
+  }
+
+  /**
+   * A sidebar of commands is a vertical menubar, and the pattern defines the
+   * key swap for it. The triggers stretch rather than centring, because a
+   * column of labels reads from one edge.
+   */
+  [data-ui-menubar][data-orientation='vertical'] {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  [data-ui-menubar][data-size='sm'] {
+    --_trigger-height: var(--slotted-control-height-sm, 30px);
+    --_trigger-inset: var(--slotted-control-padding-inline-sm, 0.625rem);
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+  }
+
+  [data-ui-menubar][data-size='lg'] {
+    --_trigger-height: var(--slotted-control-height-lg, 38px);
+    --_trigger-inset: var(--slotted-control-padding-inline-lg, 1rem);
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+  }
+
+  /* ── The triggers ─────────────────────────────────────────────────────── */
+
+  /**
+   * A native `button` carrying `role="menuitem"`, for the reason a menu item
+   * is one: the platform gives the press and the two keys, and the role says
+   * what a reader has landed on.
+   *
+   * The trigger holds the consumer's own text and nothing the family imposes —
+   * no icon slot, no chevron, no shortcut. A menubar trigger is a word.
+   */
+  [data-ui-menubar] > [data-part-trigger] {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    border-radius: var(--_trigger-radius);
+    box-sizing: border-box;
+    color: inherit;
+    cursor: default;
+    font: inherit;
+    /* A trigger is a label a reader scans, not a call to action. Control
+       typography sets a control's own weight at semibold, which reads as five
+       buttons in a row where the field — and every desktop menu bar — sets a
+       menu title one step lighter. */
+    font-weight: var(--slotted-menubar-trigger-font-weight, var(--slotted-font-weight-medium, 500));
+    min-block-size: var(--_trigger-height);
+    padding-block: 0;
+    padding-inline: var(--_trigger-inset);
+    text-align: center;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+    white-space: nowrap;
+  }
+
+  [data-ui-menubar][data-orientation='vertical'] > [data-part-trigger] {
+    text-align: start;
+  }
+
+  /**
+   * Hover answers here and not on a menu item, and the difference is what the
+   * two are: a bar is a persistent row a pointer crosses on its way elsewhere,
+   * where a menu is a list the reader is already inside. The bar's own
+   * highlight follows the pointer; once a menu is open, entering another
+   * trigger opens it and focus moves, so hover and focus agree again.
+   */
+  [data-ui-menubar] > [data-part-trigger]:not([data-disabled]):hover {
+    background-color: var(--_highlight);
+  }
+
+  [data-ui-menubar] > [data-part-trigger]:not([data-disabled]):active {
+    background-color: var(--_highlight-active);
+  }
+
+  [data-ui-menubar] > [data-part-trigger][data-open] {
+    background-color: var(--_highlight-active);
+  }
+
+  [data-ui-menubar] > [data-part-trigger]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid
+      var(--slotted-focus-ring-color, currentColor);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /**
+   * A disabled trigger stays focusable and opens nothing, which is what the
+   * pattern asks of every item in a menubar. It answers focus quietly, as a
+   * disabled menu item does.
+   */
+  [data-ui-menubar] > [data-part-trigger][data-disabled] {
+    color: var(--slotted-disabled-foreground, #64748b);
+  }
+
+  [data-ui-menubar] > [data-part-trigger][data-disabled]:focus {
+    background-color: var(--slotted-disabled-background, #e2e8f0);
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────── */
+
+  /**
+   * The tone surface the open and hovered states are painted with becomes
+   * `Canvas` under forced colours, and an open trigger is the one thing on the
+   * bar that has to stay distinguishable from the other three.
+   */
+  @media (forced-colors: active) {
+    [data-ui-menubar] > [data-part-trigger][data-open] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+  }
+}

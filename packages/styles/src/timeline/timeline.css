@@ -1,0 +1,1584 @@
+@layer slotted.components {
+  /**
+   * An ordered list of events on one line, each with a marker, a machine
+   * timestamp and a body — and, in feed mode, the APG Feed pattern drawn the
+   * same way.
+   *
+   * The whole family is drawn from the control glyph size. An empty marker is
+   * a dot as large as the glyph a badge holds, so a dot, a spinner and the
+   * glyph inside a badge are one size; a marker holding a glyph is a badge the
+   * control icon wide plus one step of air on each side, and a marker holding
+   * an avatar is the smallest avatar. The rail is a
+   * column as wide as the widest marker the timeline holds. The connector is a
+   * hairline that runs from the centre of one marker to the centre of the
+   * next. Everything else — how far the words stand off the rail, the rhythm
+   * between events — is the control gap plus a step, so density moves the
+   * whole timeline together.
+   *
+   * Every width a centre depends on — the dot, its core, the badge, the rail —
+   * is the line's own width plus an even number of pixels, rounded up to it.
+   * The line then stands a whole number of pixels inside each of them. An
+   * eight-pixel dot on a one-pixel line put the line three and a half pixels
+   * in, the browser rounded the half to a whole CSS pixel, and the line was
+   * drawn one device pixel off the dot's centre at 100%, 150% and 200%.
+   */
+  [data-ui-timeline] {
+    --_icon: var(--slotted-control-icon-size-md, 16px);
+    --_font-size: var(--slotted-timeline-font-size, var(--slotted-control-font-size-md, 13px));
+    /**
+     * The actor, the description, the group heading and the two pills: the
+     * title's size, told apart from it by weight and ink. A fixed
+     * `--slotted-font-size-sm` stood a description of 13 under a title of 12
+     * at `sm` and in the tighter densities, and its 19.5-pixel line put every
+     * event after the first at half a pixel.
+     */
+    --_meta-size: var(--slotted-timeline-meta-font-size, var(--_font-size));
+    /* The control gap and one step more: a mark eight pixels from a word reads as touching it. */
+    --_gap: var(
+      --slotted-timeline-gap,
+      calc(var(--slotted-control-gap-md, 8px) + var(--slotted-space-2, 0.25rem))
+    );
+    /* The glyph a badge holds, and the size of a dot and of a spinner: the glyph less a step of air a side. */
+    --_glyph: calc(var(--_icon) - 2 * var(--slotted-space-1, 0.125rem));
+    --_dot: calc(var(--_rule) + round(up, var(--_glyph) - var(--_rule), 2px));
+    /* The solid centre of a dot, a proportion of it: the literal the contract records. */
+    --_core: calc(
+      var(--_rule) +
+        round(nearest, var(--_dot) * var(--slotted-timeline-core-ratio, 0.4) - var(--_rule), 2px)
+    );
+    /* The badge around a glyph: the control icon and one step of air on each side, 21 at `md`. */
+    --_badge: calc(
+      var(--_rule) +
+        round(up, var(--_icon) + 2 * var(--slotted-space-1, 0.125rem) - var(--_rule), 2px)
+    );
+    /**
+     * A face in the marker: the smallest avatar, rounded to the line's parity.
+     * The badge's 21 put the initials at 8.4 pixels, under
+     * `--slotted-avatar-size-xs`, the smallest step `avatar` draws; this is 25
+     * at comfortable density and 21 at the two tighter ones, where that step
+     * is 20.
+     */
+    --_avatar: calc(
+      var(--_rule) + round(up, var(--slotted-avatar-size-xs, 24px) - var(--_rule), 2px)
+    );
+    --_rail: var(--_dot);
+    --_rule: var(--slotted-timeline-connector-thickness, var(--slotted-border-width-thin, 1px));
+    /* The ring of a hollow dot, and of the halo around the current one. */
+    --_edge: var(--slotted-border-width-medium, 1.5px);
+    /* How far the current ring stands outside its marker. */
+    --_reach: calc(var(--_edge) + var(--slotted-border-width-thick, 2px));
+    /* The gap and one step more, so the rhythm between events tightens with density. */
+    --_item-gap: var(
+      --slotted-timeline-item-gap,
+      calc(var(--_gap) + var(--slotted-space-2, 0.25rem))
+    );
+    /* The air the line leaves around each marker, drawn as a halo of the ground. */
+    --_line-gap: var(--slotted-timeline-line-gap, var(--slotted-space-1, 0.125rem));
+    --_opposite: var(--slotted-timeline-opposite-size, 8rem);
+    --_line-height: var(--slotted-timeline-line-height, var(--slotted-line-height-md, 1.5));
+    /**
+     * The ratio set in whole pixels: 20 at `md` rather than 19.5. Every event
+     * is a stack of these lines, and a one-line event of 19.5 put the next
+     * event, its marker and its ring at half a pixel.
+     */
+    --_leading: round(up, calc(var(--_font-size) * var(--_line-height)), 1px);
+    --_muted: var(--slotted-timeline-color-muted, var(--slotted-text-muted, GrayText));
+    --_strong: var(--slotted-timeline-color, var(--slotted-text, CanvasText));
+    /**
+     * The track is decoration and may be faint; the marker's ring is the
+     * frame of the mark itself and holds the 3:1 a non-text element needs —
+     * the split `stepper` records for the same two parts.
+     */
+    --_line: var(--slotted-timeline-connector-color, var(--slotted-border-subtle, GrayText));
+    --_ring: var(
+      --slotted-timeline-marker-border,
+      var(--slotted-control-border-color, ButtonBorder)
+    );
+    --_surface: var(--slotted-timeline-marker-surface, var(--slotted-surface, Canvas));
+
+    color: var(--_strong);
+    container-name: slotted-timeline;
+    container-type: inline-size;
+    display: block;
+    font-family: var(--slotted-timeline-font-family, var(--slotted-font-family-sans, inherit));
+    font-size: var(--_font-size);
+    line-height: var(--_leading);
+  }
+
+  [data-ui-timeline][data-size='sm'] {
+    --_icon: var(--slotted-control-icon-size-sm, 14px);
+    --_font-size: var(--slotted-timeline-font-size, var(--slotted-control-font-size-sm, 12px));
+    --_gap: var(
+      --slotted-timeline-gap,
+      calc(var(--slotted-control-gap-sm, 6px) + var(--slotted-space-2, 0.25rem))
+    );
+  }
+
+  [data-ui-timeline][data-size='lg'] {
+    --_icon: var(--slotted-control-icon-size-lg, 18px);
+    --_font-size: var(--slotted-timeline-font-size, var(--slotted-control-font-size-lg, 14px));
+    --_gap: var(
+      --slotted-timeline-gap,
+      calc(var(--slotted-control-gap-lg, 8px) + var(--slotted-space-2, 0.25rem))
+    );
+  }
+
+  /**
+   * One badge anywhere widens the rail everywhere, groups included, so the
+   * dots of the plain events stay on the same centre as the badge and every
+   * title starts at the same indent. A spinner and the check of a finished
+   * dot are a dot's size and widen nothing.
+   */
+  [data-ui-timeline]:has([data-part-marker] > :not([data-ui-spinner], [data-check])) {
+    --_rail: var(--_badge);
+  }
+
+  [data-ui-timeline]:has([data-part-marker] > [data-ui-avatar]) {
+    --_rail: max(var(--_badge), var(--_avatar));
+  }
+
+  /* ── Tone ───────────────────────────────────────────────────────────────
+   *
+   * Five tones, each read on the item so one event can be a failure in a list
+   * of successes. The root states the tone every item starts from, and an
+   * item that names its own wins by being nearer.
+   */
+
+  [data-ui-timeline],
+  [data-ui-timeline] [data-tone='secondary'] {
+    --_tone-solid: var(--slotted-tone-secondary-solid, ButtonFace);
+    --_tone-on-solid: var(--slotted-tone-secondary-on-solid, ButtonText);
+    --_tone-surface: var(--slotted-tone-secondary-surface, Canvas);
+    --_tone-border: var(--slotted-tone-secondary-border, ButtonBorder);
+    --_tone-text: var(--slotted-tone-secondary-text, CanvasText);
+    /**
+     * The ink of a dot. A tone's border step, which holds 3:1 on the page;
+     * for `secondary` the theme's strong border, because the secondary fill
+     * is a ground and a grey dot in it vanishes on white.
+     */
+    --_tone-mark: var(--slotted-border-strong, GrayText);
+  }
+
+  [data-ui-timeline][data-tone='accent'],
+  [data-ui-timeline] [data-tone='accent'] {
+    --_tone-solid: var(--slotted-tone-accent-solid, Highlight);
+    --_tone-on-solid: var(--slotted-tone-accent-on-solid, HighlightText);
+    --_tone-surface: var(--slotted-tone-accent-surface, Canvas);
+    --_tone-border: var(--slotted-tone-accent-border, Highlight);
+    --_tone-mark: var(--slotted-tone-accent-border, Highlight);
+    --_tone-text: var(--slotted-tone-accent-text, Highlight);
+  }
+
+  [data-ui-timeline][data-tone='success'],
+  [data-ui-timeline] [data-tone='success'] {
+    --_tone-solid: var(--slotted-tone-success-solid, ButtonFace);
+    --_tone-on-solid: var(--slotted-tone-success-on-solid, ButtonText);
+    --_tone-surface: var(--slotted-tone-success-surface, Canvas);
+    --_tone-border: var(--slotted-tone-success-border, ButtonBorder);
+    --_tone-mark: var(--slotted-tone-success-border, ButtonBorder);
+    --_tone-text: var(--slotted-tone-success-text, CanvasText);
+  }
+
+  [data-ui-timeline][data-tone='info'],
+  [data-ui-timeline] [data-tone='info'] {
+    --_tone-solid: var(--slotted-tone-info-solid, ButtonFace);
+    --_tone-on-solid: var(--slotted-tone-info-on-solid, ButtonText);
+    --_tone-surface: var(--slotted-tone-info-surface, Canvas);
+    --_tone-border: var(--slotted-tone-info-border, ButtonBorder);
+    --_tone-mark: var(--slotted-tone-info-border, ButtonBorder);
+    --_tone-text: var(--slotted-tone-info-text, CanvasText);
+  }
+
+  [data-ui-timeline][data-tone='warning'],
+  [data-ui-timeline] [data-tone='warning'] {
+    --_tone-solid: var(--slotted-tone-warning-solid, ButtonFace);
+    --_tone-on-solid: var(--slotted-tone-warning-on-solid, ButtonText);
+    --_tone-surface: var(--slotted-tone-warning-surface, Canvas);
+    --_tone-border: var(--slotted-tone-warning-border, ButtonBorder);
+    --_tone-mark: var(--slotted-tone-warning-border, ButtonBorder);
+    --_tone-text: var(--slotted-tone-warning-text, CanvasText);
+  }
+
+  [data-ui-timeline][data-tone='danger'],
+  [data-ui-timeline] [data-tone='danger'] {
+    --_tone-solid: var(--slotted-tone-danger-solid, Mark);
+    --_tone-on-solid: var(--slotted-tone-danger-on-solid, MarkText);
+    --_tone-surface: var(--slotted-tone-danger-surface, Canvas);
+    --_tone-border: var(--slotted-tone-danger-border, Mark);
+    --_tone-mark: var(--slotted-tone-danger-border, Mark);
+    --_tone-text: var(--slotted-tone-danger-text, MarkText);
+  }
+
+  /* ── The list ───────────────────────────────────────────────────────────
+   *
+   * An `ol`, or a `div[role="feed"]`; both are painted the same, because what
+   * changes between them is what a reader hears, not what a timeline looks
+   * like. A group nests a second list of the same kind.
+   */
+
+  [data-ui-timeline] :is([data-part-list], [data-part-group-list]) {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /**
+   * The opposite column exists when any item in the list projects one. It is
+   * read from the list rather than declared, so a consumer who writes the part
+   * on one event gets the column on every event and the titles keep lining up.
+   */
+  [data-ui-timeline] [data-part-list]:has([data-part-opposite]) {
+    --_opposite-column: var(--_opposite);
+  }
+
+  /* ── The item ───────────────────────────────────────────────────────────
+   *
+   * Three columns: the opposite side, the rail, and the body. The rail is
+   * stretched to the row so the line can run its whole height; the body and
+   * the opposite side share a baseline so a timestamp set smaller than the
+   * title still sits on the title's first line.
+   */
+
+  [data-ui-timeline] [data-part-item] {
+    align-items: stretch;
+    column-gap: var(--_gap);
+    display: grid;
+    grid-template-columns:
+      [opposite] var(--_opposite-column, 0)
+      [rail] var(--_rail)
+      [content] minmax(0, 1fr);
+    position: relative;
+  }
+
+  [data-ui-timeline] :where([data-part-list]:not(:has([data-part-opposite]))) [data-part-item] {
+    grid-template-columns: [rail] var(--_rail) [content] minmax(0, 1fr);
+  }
+
+  /**
+   * The space between two events is the item's margin, so a focus ring drawn
+   * around an article wraps the event and not the air under it; the connector
+   * runs on through the margin to the next marker.
+   */
+  [data-ui-timeline] [data-part-item] {
+    margin-block-end: var(--_item-gap);
+  }
+
+  [data-ui-timeline] [data-part-item]:last-child {
+    margin-block-end: 0;
+  }
+
+  [data-ui-timeline] [data-part-content] {
+    align-self: baseline;
+    grid-column: content;
+    /**
+     * The row is named on all three cells. Auto-placement puts a cell whose
+     * column lies before the cursor on the next row, so with the body before
+     * the rail in the columns and after it in the DOM the body dropped a row.
+     */
+    grid-row: 1;
+    min-inline-size: 0;
+  }
+
+  [data-ui-timeline] [data-part-opposite] {
+    align-self: baseline;
+    color: var(--_muted);
+    grid-column: opposite;
+    grid-row: 1;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    text-align: end;
+  }
+
+  /* ── The rail ───────────────────────────────────────────────────────────
+   *
+   * The column the marker and the line share, the full height of the row.
+   * Its type is the title's, so `1lh` here is the title's first line, and the
+   * middle of that line is where every marker centres and where every
+   * connector starts and ends — whatever size the marker is.
+   */
+
+  [data-ui-timeline] [data-part-rail] {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    grid-column: rail;
+    grid-row: 1;
+    line-height: var(--_leading);
+    position: relative;
+  }
+
+  /**
+   * A dot when the marker is empty or holds a spinner, a badge when it holds
+   * a glyph or an avatar. The marker is pushed from the top of the row by half
+   * the difference between one line and itself, the rule `toast` and `alert`
+   * draw their marks with, so a dot and a badge in the same list centre on the
+   * same line. It stands above the connector and wears a halo of the ground,
+   * which is the air the line leaves around it; a halo rather than a shortened
+   * line, because the line then runs centre to centre and never has to know
+   * how big the next marker is.
+   *
+   * A dot is drawn in three layers of one box: the box's ground, its border,
+   * and a core laid over it at a whole-pixel inset. There is no smaller box
+   * centred by arithmetic, so the core lands where the ring does.
+   */
+  [data-ui-timeline] [data-part-marker] {
+    --_marker: var(--_dot);
+    /**
+     * Rounded to a whole pixel: a line of 19.5 put a 13-pixel dot at a
+     * quarter pixel and antialiased its edge on both sides.
+     */
+    --_lift: round(nearest, calc((1lh - var(--_marker)) / 2), 1px);
+    /* The tone's ink faded into the ground: the soft disc a dot sits in. */
+    --_tint: color-mix(in srgb, var(--_tone-mark) 16%, var(--_surface));
+
+    align-items: center;
+    background-color: var(--_tint);
+    block-size: var(--_marker);
+    border: 0 solid transparent;
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-shadow: 0 0 0 var(--_line-gap) var(--_surface);
+    box-sizing: border-box;
+    color: var(--_muted);
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--_marker);
+    justify-content: center;
+    margin-block-start: var(--_lift);
+    /* The halo and the current ring are outside the box; nothing inside may push it wider. */
+    overflow: hidden;
+    position: relative;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    z-index: 1;
+  }
+
+  /**
+   * The core, on one box that fills the marker: inset by a whole number of
+   * pixels, since the dot and the core differ by an even number. A finished
+   * dot holds its check instead, so it is not empty and draws no core.
+   */
+  [data-ui-timeline] [data-part-marker]:empty::after {
+    background-color: var(--_tone-mark);
+    border-radius: inherit;
+    content: '';
+    inset: calc((var(--_marker) - var(--_core)) / 2);
+    position: absolute;
+  }
+
+  /**
+   * A badge. The glyph is the control icon less one step of air on each side,
+   * made the badge's parity: 13 in a badge of 21 at `md`, four whole pixels
+   * off each edge. The badge is odd so the line runs through its middle; a
+   * glyph of 12 stood four and a half pixels in, the browser painted it on
+   * the next whole pixel, and its ink sat half a CSS pixel right of and below
+   * the disc's centre at every zoom — two device pixels at 400%, measured on
+   * the painted capture. The avatar fills its own marker without a ring.
+   *
+   * The check of a finished dot is the one icon the family puts in a marker
+   * itself, marked `data-check` by the binding so it is never read as a badge:
+   * the marker stays a dot, and every rule a dot takes names it beside
+   * `:empty`.
+   */
+  [data-ui-timeline] [data-part-marker]:not(:empty, :has(> [data-ui-spinner], > [data-check])) {
+    --_marker: var(--_badge);
+
+    background-color: var(--_surface);
+    border-color: var(--_ring);
+    border-width: var(--slotted-border-width-thin, 1px);
+  }
+
+  [data-ui-timeline] [data-part-marker] > [data-ui-icon] {
+    --slotted-icon-size: calc(
+      var(--_badge) - 2 * round(down, (var(--_badge) - var(--_glyph)) / 2, 1px)
+    );
+
+    color: inherit;
+  }
+
+  /* A spinner is a dot: the same box, and the same size as the glyph in a badge. */
+  [data-ui-timeline] [data-part-marker] > [data-ui-spinner] {
+    --slotted-spinner-size: var(--_dot);
+
+    color: inherit;
+  }
+
+  [data-ui-timeline] [data-part-marker] > [data-ui-avatar] {
+    --slotted-avatar-size: var(--_avatar);
+  }
+
+  [data-ui-timeline] [data-part-marker]:has(> [data-ui-avatar]) {
+    --_marker: var(--_avatar);
+
+    background-color: transparent;
+    border-width: 0;
+  }
+
+  /* ── Variants ───────────────────────────────────────────────────────────
+   *
+   * Four emphases, read on the item, each drawn twice: once as a dot, once as
+   * a badge. `subtle` is the default and the quiet one — a solid core in a
+   * soft disc of its own tone, or a badge on the tone's ground with its edge,
+   * the pair rule `docs/token-foundation.md` states under semantic colour.
+   * `outline` is the hollow ring, `solid` fills, and `plain` drops every frame:
+   * the core alone, threaded on the line, or the bare glyph over it.
+   */
+
+  [data-ui-timeline] [data-variant='outline'] [data-part-marker]:is(:empty, :has(> [data-check])) {
+    background-color: var(--_surface);
+    border-color: var(--_tone-mark);
+    border-width: var(--_edge);
+  }
+
+  [data-ui-timeline] [data-variant='outline'] [data-part-marker]:empty::after,
+  [data-ui-timeline] [data-variant='solid'] [data-part-marker]:empty::after {
+    content: none;
+  }
+
+  [data-ui-timeline] [data-variant='solid'] [data-part-marker]:is(:empty, :has(> [data-check])) {
+    background-color: var(--_tone-mark);
+    /* A border as wide as the radius, so forced colours, which drop the ground, keep the disc. */
+    border-color: var(--_tone-mark);
+    border-width: calc(var(--_marker) / 2);
+  }
+
+  /* The core alone, on the line: the ground and the halo give way so the line runs into it. */
+  [data-ui-timeline] [data-variant='plain'] [data-part-marker]:is(:empty, :has(> [data-check])) {
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  /* The glyph of a hairline or frameless badge is drawn in the dot's own ink. */
+  [data-ui-timeline] [data-variant='outline'] [data-part-marker]:not(:empty, :has(> [data-check])) {
+    color: var(--_tone-mark);
+  }
+
+  [data-ui-timeline]
+    [data-variant='outline'][data-tone]:not([data-tone='secondary'])
+    [data-part-marker]:not(:empty, :has(> [data-ui-spinner], > [data-check])) {
+    border-color: var(--_tone-border);
+  }
+
+  [data-ui-timeline]
+    [data-variant='solid']
+    [data-part-marker]:not(:empty, :has(> [data-ui-spinner], > [data-check])) {
+    background-color: var(--_tone-solid);
+    border-color: var(--_tone-solid);
+    color: var(--_tone-on-solid);
+  }
+
+  [data-ui-timeline]
+    [data-variant='subtle']
+    [data-part-marker]:not(:empty, :has(> [data-ui-spinner], > [data-check])) {
+    background-color: var(--_tone-surface);
+    border-color: var(--_tone-border);
+    color: var(--_tone-text);
+  }
+
+  [data-ui-timeline] [data-variant='plain'] [data-part-marker]:not(:empty, :has(> [data-check])) {
+    background-color: var(--_surface);
+    border-color: transparent;
+    color: var(--_tone-mark);
+  }
+
+  /* ── Statuses ───────────────────────────────────────────────────────────
+   *
+   * Each one is a shape as well as a colour, because `high-contrast` paints
+   * every tone in one ink and forced colours paint every ring in one. Pending
+   * is the variant's own mark; complete is a filled disc with the check
+   * knocked out of it; current is a filled disc with a ring around it, a
+   * target; loading is the shared spinner. The ring is a shadow and not an
+   * outline, because an outline in this library is the focus ring and a ring
+   * in the tone's ink around a marker would read as focus; forced colours drop
+   * the shadow, and the block at the end draws it there as an outline in the
+   * system's ink, where no colour can be mistaken.
+   */
+
+  /**
+   * A finished dot fills with its ground, not with a border as wide as its
+   * radius: that border would leave the check no box to stand in. Forced
+   * colours keep the ground through the block at the end.
+   */
+  [data-ui-timeline] [data-complete]:not([data-current]) [data-part-marker]:has(> [data-check]) {
+    background-color: var(--_tone-mark);
+    border-width: 0;
+  }
+
+  [data-ui-timeline] [data-current] [data-part-marker]:empty {
+    background-color: var(--_tone-mark);
+    border-color: var(--_tone-mark);
+    border-width: calc(var(--_marker) / 2);
+  }
+
+  [data-ui-timeline] [data-current] [data-part-marker]:empty::after {
+    content: none;
+  }
+
+  /**
+   * The check is knocked out of the disc in the ground's own colour, so it
+   * reads in every tone and scheme without a token of its own; it is the
+   * dot less a step a side, the same air a badge gives its glyph.
+   */
+  [data-ui-timeline] [data-part-marker] > [data-ui-icon][data-check] {
+    --slotted-icon-size: calc(var(--_marker) - 2 * var(--slotted-space-1, 0.125rem));
+
+    color: var(--_surface);
+  }
+
+  [data-ui-timeline] [data-current] [data-part-marker] {
+    box-shadow:
+      0 0 0 var(--slotted-border-width-thick, 2px) var(--_surface),
+      0 0 0 var(--_reach) var(--_tone-mark),
+      0 0 0 calc(var(--_reach) + var(--_line-gap)) var(--_surface);
+  }
+
+  [data-ui-timeline]
+    [data-complete]:not([data-current])
+    [data-part-marker]:not(:empty, :has(> [data-ui-spinner], > [data-check])),
+  [data-ui-timeline]
+    [data-current]
+    [data-part-marker]:not(:empty, :has(> [data-ui-spinner], > [data-check])) {
+    background-color: var(--_tone-solid);
+    border-color: var(--_tone-solid);
+    color: var(--_tone-on-solid);
+  }
+
+  /**
+   * An event still arriving. The ring is `spinner`'s — one arc, drawn once,
+   * for every family that waits — standing bare on the ground, the size of a
+   * dot, in the tone's ink.
+   */
+  [data-ui-timeline] [data-loading][data-variant] [data-part-marker] {
+    background-color: var(--_surface);
+    border-color: transparent;
+    box-shadow: 0 0 0 var(--_line-gap) var(--_surface);
+    color: var(--_tone-mark);
+  }
+
+  [data-ui-timeline] [data-loading] > [data-part-content] {
+    color: var(--_muted);
+  }
+
+  /* ── The connector ──────────────────────────────────────────────────────
+   *
+   * A hairline from the middle of this row's first line to the middle of the
+   * next row's, which are the two markers' centres; the markers stand above
+   * it and their halo opens the gap. It is a border rather than a painted
+   * background, so `dashed` is a word rather than a gradient and the line
+   * keeps its colour under forced colours. The last item of a list draws
+   * none, because there is nothing after it.
+   */
+
+  [data-ui-timeline] [data-part-connector] {
+    /* Both edges named, so the dashed style below reaches only the one drawn. */
+    border-block-start: 0 solid var(--_line);
+    border-inline-start: var(--_rule) solid var(--_line);
+    display: block;
+    inline-size: 0;
+    inset-block-end: calc(-0.5lh - var(--_item-gap));
+    inset-block-start: 0.5lh;
+    inset-inline-start: calc(50% - var(--_rule) / 2);
+    position: absolute;
+    transition: border-color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-timeline] [data-connector='dashed'] [data-part-connector] {
+    border-block-start-style: dashed;
+    border-inline-start-style: dashed;
+  }
+
+  [data-ui-timeline] [data-connector='none'] [data-part-connector],
+  [data-ui-timeline] [data-part-item]:last-child [data-part-connector] {
+    display: none;
+  }
+
+  /**
+   * The line after a finished event is painted in its tone, so a tracking
+   * timeline reads as a filled track up to where the reader is.
+   */
+  [data-ui-timeline] [data-complete] [data-part-connector] {
+    border-color: var(--_tone-mark);
+  }
+
+  /* ── The body ───────────────────────────────────────────────────────────
+   *
+   * Title and timestamp on the first line, the actor under them, then the
+   * description, whatever the consumer wrote, and the actions. The timestamp
+   * keeps to the end of the line while there is room and drops under the
+   * title when there is not.
+   *
+   * Two columns and no named areas: the title takes the first cell and the
+   * time the second, and everything else spans both and follows the DOM. A
+   * body laid out by named areas put a consumer's own child in the first
+   * empty cell — the actor's row — above the description it was written
+   * under.
+   */
+
+  [data-ui-timeline] [data-part-content] {
+    /**
+     * No column gap: the timestamp carries the distance itself, so a body
+     * with no timestamp has no empty column and no gap beside it.
+     */
+    column-gap: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    /* No row gap either: an empty row would still cost one, so each line
+       below the first carries its own distance. */
+    row-gap: 0;
+  }
+
+  [data-ui-timeline] [data-part-content] > :not([data-part-title], [data-part-time]) {
+    grid-column: 1 / -1;
+  }
+
+  [data-ui-timeline] [data-part-content] > :is([data-part-actor], [data-part-description]) {
+    margin-block-start: var(--slotted-timeline-content-gap, var(--slotted-space-2, 0.25rem));
+  }
+
+  [data-ui-timeline] [data-part-title] {
+    color: var(--_strong);
+    font-weight: var(--slotted-timeline-title-weight, var(--slotted-font-weight-medium, 500));
+    grid-column: 1;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-timeline] [data-part-content] > [data-part-time] {
+    grid-column: 2;
+    grid-row: 1;
+    margin-inline-start: var(--_gap);
+  }
+
+  [data-ui-timeline] [data-part-time] {
+    color: var(--_muted);
+    font-size: var(--slotted-timeline-time-font-size, var(--slotted-font-size-xs, 0.75rem));
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  [data-ui-timeline] [data-part-actor] {
+    align-items: center;
+    color: var(--_muted);
+    column-gap: var(--slotted-space-3, 0.375rem);
+    display: flex;
+    font-size: var(--_meta-size);
+    min-inline-size: 0;
+  }
+
+  [data-ui-timeline] [data-part-description] {
+    color: var(--_muted);
+    font-size: var(--_meta-size);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-timeline] [data-part-actions] {
+    column-gap: var(--_gap);
+    display: flex;
+    flex-wrap: wrap;
+    margin-block-start: var(--slotted-space-4, 0.5rem);
+    row-gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  /* ── The article ────────────────────────────────────────────────────────
+   *
+   * In feed mode every item is a tab stop, so it draws the theme's ring when
+   * the keyboard lands on it. The ring stands off the item by the offset the
+   * theme states, around the whole row rather than around the words.
+   */
+
+  [data-ui-timeline] [data-part-item][tabindex]:focus-visible {
+    border-radius: var(--slotted-timeline-radius, var(--slotted-control-radius, 4px));
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── Groups ─────────────────────────────────────────────────────────────
+   *
+   * A period with a heading and its own list. The heading spans the whole
+   * width and the line breaks at it: a group is a break in time, and the
+   * track that ran into it would say the opposite.
+   */
+
+  [data-ui-timeline] [data-part-group] {
+    display: block;
+  }
+
+  [data-ui-timeline] [data-part-group] + [data-part-group] {
+    margin-block-start: var(--_item-gap);
+  }
+
+  /**
+   * A flex box, so a trigger inside it is the whole line: an inline-flex
+   * trigger on the heading's baseline added the font's descent under its
+   * 24 pixels, and the heading measured 26.5.
+   */
+  [data-ui-timeline] [data-part-group-label] {
+    align-items: center;
+    color: var(--_muted);
+    display: flex;
+    font-size: var(--_meta-size);
+    font-weight: var(--slotted-timeline-group-weight, var(--slotted-font-weight-semibold, 600));
+    line-height: var(--_leading);
+    margin: 0 0 var(--slotted-timeline-group-gap, var(--slotted-space-4, 0.5rem));
+  }
+
+  [data-ui-timeline] [data-part-group-trigger] {
+    align-items: center;
+    appearance: none;
+    background: none;
+    border: 0;
+    border-radius: var(--slotted-timeline-radius, var(--slotted-control-radius, 4px));
+    color: inherit;
+    column-gap: var(--slotted-space-2, 0.25rem);
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    /* The row's own height, so the target is never under the minimum. */
+    min-block-size: var(--slotted-target-min, 24px);
+    padding: 0;
+    text-align: start;
+    transition:
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing),
+      translate var(--slotted-duration-instant) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-timeline] [data-part-group-trigger]:enabled:hover {
+    color: var(--_strong);
+  }
+
+  /**
+   * The heading has no ground to step, and its hover already takes the
+   * strongest ink, so a press answers in place: the label settles by a
+   * hairline, the press `button` draws on a solid fill.
+   */
+  [data-ui-timeline] [data-part-group-trigger]:enabled:active {
+    color: var(--_strong);
+    translate: 0 var(--slotted-border-width-thin, 1px);
+  }
+
+  [data-ui-timeline] [data-part-group-trigger]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * The binding's `chevron-down` glyph, turned rather than swapped: a chevron
+   * that rotates between down and up is the same mark in every direction. The
+   * part sizes the icon box and the box turns.
+   */
+  [data-ui-timeline] [data-part-group-indicator] {
+    --slotted-icon-size: var(--_icon);
+
+    display: inline-flex;
+    flex: none;
+  }
+
+  /**
+   * A fold is one movement: the chevron, the list's height, its ink and the
+   * heading's distance to it share a duration and a curve, the disclosure
+   * motion `collapsible` draws. Measured frame by frame before this rule, the
+   * list faded while the page below stood still and then jumped 56 pixels in
+   * one frame, the exiting curve held the list at 0.9 for the first fifty-five milliseconds
+   * after the press, and the chevron finished seventy milliseconds after the list had gone.
+   */
+  [data-ui-timeline] [data-part-group] {
+    --_fold: var(--slotted-duration-medium)
+      var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-timeline] [data-part-group-indicator] > [data-ui-icon] {
+    rotate: -90deg;
+    transition: rotate var(--_fold);
+  }
+
+  [data-ui-timeline]
+    [data-open]
+    > [data-part-group-label]
+    [data-part-group-indicator]
+    > [data-ui-icon] {
+    rotate: 0deg;
+  }
+
+  /**
+   * A folded list stays laid out at no height rather than leaving the page:
+   * the page below then slides with it instead of jumping, and a group open
+   * at the first render has no earlier style to grow from, so nothing moves
+   * while a page loads. `hidden` still says what it did — the binding writes
+   * it, and `visibility` takes the folded events out of the accessibility
+   * tree and the tab order, at the end of the fold and at the start of an
+   * opening. The clip margin keeps the current marker's ring and a focus
+   * ring at the list's edge whole.
+   */
+  [data-ui-timeline] [data-part-group-list] {
+    interpolate-size: allow-keywords;
+    opacity: 1;
+    overflow: clip;
+    overflow-clip-margin: max(
+      round(up, var(--_reach), 1px),
+      calc(var(--slotted-focus-ring-width, 2px) + var(--slotted-focus-ring-offset, 2px))
+    );
+    transition:
+      block-size var(--_fold),
+      opacity var(--_fold),
+      visibility var(--_fold);
+  }
+
+  [data-ui-timeline] [data-part-group-list][hidden] {
+    block-size: 0;
+    display: flex;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  /* A folded group ends at its heading; the distance to the next is the group's own. */
+  [data-ui-timeline] [data-part-group-label] {
+    transition: margin-block-end var(--_fold);
+  }
+
+  [data-ui-timeline] [data-part-group-label]:has(+ [data-part-group-list][hidden]) {
+    margin-block-end: 0;
+  }
+
+  /* ── Fresh, more and empty ──────────────────────────────────────────────
+   *
+   * Three things that are not events. `fresh` is the pill that holds new
+   * events back until the reader asks for them; `more` is the end of what has
+   * been loaded; `empty` is the list with nothing in it yet.
+   */
+
+  [data-ui-timeline] [data-part-fresh],
+  [data-ui-timeline] button[data-part-more] {
+    align-items: center;
+    appearance: none;
+    background-color: var(--_surface);
+    border: var(--slotted-border-width-thin, 1px) solid var(--_ring);
+    border-radius: var(--slotted-radius-full, 9999px);
+    color: var(--_strong);
+    column-gap: var(--_gap);
+    cursor: pointer;
+    /* Block-level, so no line box of the list's leading stands around it. */
+    display: flex;
+    font: inherit;
+    font-size: var(--_meta-size);
+    font-weight: var(--slotted-timeline-title-weight, var(--slotted-font-weight-medium, 500));
+    inline-size: fit-content;
+    justify-content: center;
+    line-height: var(--slotted-control-line-height, 1);
+    min-block-size: var(--slotted-control-height-sm, 30px);
+    padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-timeline] [data-part-fresh] {
+    --_tone-solid: var(--slotted-tone-accent-solid, Highlight);
+    --_tone-surface: var(--slotted-tone-accent-surface, Canvas);
+    --_tone-border: var(--slotted-tone-accent-border, Highlight);
+    --_tone-text: var(--slotted-tone-accent-text, Highlight);
+    /**
+     * The pill arrives and leaves as the group lists fold: its height, its
+     * border, the distance under it and its ink move together, so the events
+     * below slide by the pill's height rather than jumping by it in a frame.
+     */
+    --_fold: var(--slotted-duration-medium)
+      var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+
+    background-color: var(--_tone-surface);
+    border-color: var(--_tone-border);
+    color: var(--_tone-text);
+    interpolate-size: allow-keywords;
+    margin-block-end: var(--_item-gap);
+    opacity: 1;
+    overflow: clip;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing),
+      block-size var(--_fold),
+      min-block-size var(--_fold),
+      border-block-width var(--_fold),
+      margin-block-end var(--_fold),
+      opacity var(--_fold),
+      display var(--_fold) allow-discrete;
+  }
+
+  /**
+   * The bindings keep the pill mounted once it has appeared and write
+   * `hidden` at a count of zero; `allow-discrete` holds it on the page until
+   * it has folded away. Its first appearance grows from nothing, because the
+   * pill arriving is itself the news. Scale is not used: the pill holds text
+   * (`text-scale.test.mjs`).
+   */
+  @starting-style {
+    [data-ui-timeline] [data-part-fresh]:not([hidden]) {
+      block-size: 0;
+      border-block-width: 0;
+      margin-block-end: 0;
+      min-block-size: 0;
+      opacity: 0;
+    }
+  }
+
+  [data-ui-timeline] [data-part-fresh][hidden] {
+    block-size: 0;
+    border-block-width: 0;
+    display: none;
+    margin-block-end: 0;
+    min-block-size: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /**
+   * The pill answers with a state layer: its own text colour, at a low
+   * strength, mixed into the tinted ground, the step `tag` and `avatar` take
+   * for the same reason. The tinted ramp ends at the surface the pill rests
+   * on — `subtle-hover` lightened it toward the page in the light scheme, and
+   * matched the page in the dark one, and `subtle-active` was the rest colour.
+   */
+  [data-ui-timeline] [data-part-fresh]:enabled:hover {
+    background-color: color-mix(
+      in oklab,
+      var(--_tone-surface),
+      currentColor var(--slotted-timeline-state-layer-hover, 8%)
+    );
+  }
+
+  [data-ui-timeline] [data-part-fresh]:enabled:active {
+    background-color: color-mix(
+      in oklab,
+      var(--_tone-surface),
+      currentColor var(--slotted-timeline-state-layer-active, 14%)
+    );
+  }
+
+  [data-ui-timeline] button[data-part-more]:enabled:hover {
+    background-color: var(--slotted-tone-secondary-subtle-hover, Canvas);
+  }
+
+  [data-ui-timeline] button[data-part-more]:enabled:active {
+    background-color: var(--slotted-tone-secondary-subtle-active, Canvas);
+  }
+
+  /* A press lands at once, as a `button` does; the release eases back. */
+  [data-ui-timeline] :is([data-part-fresh], button[data-part-more]):enabled:active {
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  [data-ui-timeline] [data-part-fresh]:focus-visible,
+  [data-ui-timeline] button[data-part-more]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * The end of the loaded list, in the body's own column so it reads as the
+   * next event's place rather than as a footer.
+   */
+  [data-ui-timeline] [data-part-more] {
+    margin-block-start: var(--_item-gap);
+    margin-inline-start: calc(var(--_opposite-column, 0px) + var(--_rail) + var(--_gap));
+  }
+
+  [data-ui-timeline] [data-part-list]:has([data-part-opposite]) ~ [data-part-more] {
+    margin-inline-start: calc(var(--_opposite) + var(--_rail) + 2 * var(--_gap));
+  }
+
+  [data-ui-timeline] div[data-part-more] {
+    align-items: center;
+    color: var(--_muted);
+    column-gap: var(--_gap);
+    display: flex;
+    font-size: var(--_meta-size);
+    min-block-size: var(--slotted-control-height-sm, 30px);
+  }
+
+  [data-ui-timeline] [data-part-more] > [data-ui-spinner] {
+    --slotted-spinner-size: var(--_icon);
+  }
+
+  [data-ui-timeline] [data-part-empty] {
+    color: var(--_muted);
+    padding-block: var(--_item-gap);
+    text-align: center;
+  }
+
+  /* ── Placement ──────────────────────────────────────────────────────────
+   *
+   * `start` mirrors the row: the body before the rail, the opposite side
+   * after it. `alternate` gives every row both sides and the items take turns,
+   * so the rail runs down the middle. Both are logical: in a right-to-left
+   * document `start` is the same timeline mirrored.
+   */
+
+  [data-ui-timeline][data-placement='start'] [data-part-item] {
+    grid-template-columns:
+      [content] minmax(0, 1fr)
+      [rail] var(--_rail)
+      [opposite] var(--_opposite-column, 0);
+  }
+
+  [data-ui-timeline][data-placement='start']
+    :where([data-part-list]:not(:has([data-part-opposite])))
+    [data-part-item] {
+    grid-template-columns: [content] minmax(0, 1fr) [rail] var(--_rail);
+  }
+
+  [data-ui-timeline][data-placement='start'] [data-part-content] {
+    text-align: end;
+  }
+
+  [data-ui-timeline][data-placement='start'] [data-part-content] {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  [data-ui-timeline][data-placement='start'] [data-part-content] > [data-part-title] {
+    grid-column: 2;
+  }
+
+  [data-ui-timeline][data-placement='start'] [data-part-content] > [data-part-time] {
+    grid-column: 1;
+    margin-inline: 0 var(--_gap);
+  }
+
+  [data-ui-timeline][data-placement='start'] :is([data-part-actor], [data-part-actions]) {
+    justify-content: flex-end;
+  }
+
+  [data-ui-timeline][data-placement='start'] [data-part-opposite] {
+    text-align: start;
+  }
+
+  [data-ui-timeline][data-placement='start'] [data-part-more] {
+    margin-inline-start: 0;
+  }
+
+  /**
+   * The first side is a whole number of pixels and the second takes the
+   * rest: two equal fractions of an odd remainder put the rail, and every
+   * marker on it, at half a pixel.
+   */
+  [data-ui-timeline][data-placement='alternate'] [data-part-item] {
+    grid-template-columns:
+      [before] round(down, calc((100% - var(--_rail)) / 2 - var(--_gap)), 1px)
+      [rail] var(--_rail)
+      [after] minmax(0, 1fr);
+  }
+
+  [data-ui-timeline][data-placement='alternate'] [data-part-content] {
+    grid-column: after;
+  }
+
+  [data-ui-timeline][data-placement='alternate'] [data-part-opposite] {
+    grid-column: before;
+  }
+
+  /**
+   * Even rows swap sides. Parity is read from the list rather than written by
+   * a binding, and an item that names its own side wins.
+   */
+  [data-ui-timeline][data-placement='alternate']
+    [data-part-item]:nth-child(even)
+    [data-part-content],
+  [data-ui-timeline][data-placement='alternate'] [data-side='start'] [data-part-content] {
+    grid-column: before;
+    text-align: end;
+  }
+
+  [data-ui-timeline][data-placement='alternate']
+    [data-part-item]:nth-child(even)
+    [data-part-opposite],
+  [data-ui-timeline][data-placement='alternate'] [data-side='start'] [data-part-opposite] {
+    grid-column: after;
+    text-align: start;
+  }
+
+  [data-ui-timeline][data-placement='alternate'] [data-side='end'] [data-part-content] {
+    grid-column: after;
+    text-align: start;
+  }
+
+  [data-ui-timeline][data-placement='alternate'] [data-side='end'] [data-part-opposite] {
+    grid-column: before;
+    text-align: end;
+  }
+
+  [data-ui-timeline][data-placement='alternate']
+    [data-part-item]:nth-child(even)
+    [data-part-content],
+  [data-ui-timeline][data-placement='alternate'] [data-side='start'] [data-part-content] {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  [data-ui-timeline][data-placement='alternate']
+    [data-part-item]:nth-child(even)
+    [data-part-content]
+    > [data-part-title],
+  [data-ui-timeline][data-placement='alternate']
+    [data-side='start']
+    [data-part-content]
+    > [data-part-title] {
+    grid-column: 2;
+  }
+
+  [data-ui-timeline][data-placement='alternate']
+    [data-part-item]:nth-child(even)
+    [data-part-content]
+    > [data-part-time],
+  [data-ui-timeline][data-placement='alternate']
+    [data-side='start']
+    [data-part-content]
+    > [data-part-time] {
+    grid-column: 1;
+    margin-inline: 0 var(--_gap);
+  }
+
+  [data-ui-timeline][data-placement='alternate']
+    [data-part-item]:nth-child(even)
+    :is([data-part-actor], [data-part-actions]),
+  [data-ui-timeline][data-placement='alternate']
+    [data-side='start']
+    :is([data-part-actor], [data-part-actions]) {
+    justify-content: flex-end;
+  }
+
+  [data-ui-timeline][data-placement='alternate'] [data-part-more] {
+    margin-inline-start: calc(50% + var(--_rail) / 2 + var(--_gap));
+  }
+
+  /* ── Horizontal ─────────────────────────────────────────────────────────
+   *
+   * The same grid turned on its side: the rail above the body, the line
+   * running along the marker's centre to the next item, and the list rolling
+   * in the inline axis when there are more events than width. Every item is
+   * the same width, so the markers stay a track apart however long the
+   * titles are.
+   */
+
+  [data-ui-timeline][data-orientation='horizontal'] [data-part-list] {
+    display: grid;
+    grid-auto-columns: minmax(
+      var(--slotted-timeline-track-min, var(--slotted-space-12, 4rem)),
+      1fr
+    );
+    grid-auto-flow: column;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    /**
+     * A scroll container clips what stands outside it, and the ring of the
+     * current marker stands outside the rail by its offset and its width: the
+     * list keeps that much room above and before the first marker, rounded
+     * up to a whole pixel: the ring's 3.5 put every marker and every scene
+     * below the list at half a pixel.
+     */
+    padding-block: round(up, var(--_reach), 1px) var(--slotted-space-2, 0.25rem);
+    padding-inline: round(up, var(--_reach), 1px);
+  }
+
+  [data-ui-timeline][data-orientation='horizontal'] [data-part-item] {
+    /**
+     * The rows keep their own height. Every item in the row is stretched to
+     * the tallest, and `auto` rows would share that extra space out — which
+     * put the marker of a one-line event seven pixels under its neighbours'.
+     */
+    align-content: start;
+    align-items: start;
+    column-gap: 0;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: [before] auto [rail] auto [after] auto;
+    margin-block-end: 0;
+    padding-inline-end: var(--_item-gap);
+    /* The distance is on the cells, so an empty row above the rail costs nothing. */
+    row-gap: 0;
+  }
+
+  [data-ui-timeline][data-orientation='horizontal'] [data-part-item]:last-child {
+    padding-inline-end: 0;
+  }
+
+  /**
+   * A square as tall and as wide as the rail at the start of the item, with
+   * the marker centred in it, so every centre sits half a rail in and the
+   * line runs from one to the next along the same row.
+   */
+  [data-ui-timeline][data-orientation='horizontal'] [data-part-rail] {
+    align-items: start;
+    align-self: start;
+    block-size: var(--_rail);
+    grid-column: 1;
+    grid-row: rail;
+    justify-content: center;
+  }
+
+  [data-ui-timeline][data-orientation='horizontal'] [data-part-marker] {
+    --_lift: 0px;
+
+    margin-inline-start: calc((var(--_rail) - var(--_marker)) / 2);
+  }
+
+  [data-ui-timeline][data-orientation='horizontal'] [data-part-connector] {
+    /* Widths only: the colour and the dash are the rules above, for both edges. */
+    border-block-start-width: var(--_rule);
+    border-inline-start-width: 0;
+    block-size: 0;
+    inline-size: auto;
+    inset-block-end: auto;
+    inset-block-start: calc(50% - var(--_rule) / 2);
+    inset-inline-end: calc(-1 * var(--_item-gap) - var(--_rail) / 2);
+    inset-inline-start: calc(var(--_rail) / 2);
+  }
+
+  [data-ui-timeline][data-orientation='horizontal'] [data-part-content] {
+    align-self: start;
+    grid-column: 1;
+    grid-row: after;
+    margin-block: var(--_gap) 0;
+    text-align: start;
+  }
+
+  [data-ui-timeline][data-orientation='horizontal'] [data-part-opposite] {
+    align-self: start;
+    grid-column: 1;
+    grid-row: before;
+    margin-block: 0 var(--_gap);
+    text-align: start;
+  }
+
+  [data-ui-timeline][data-orientation='horizontal'][data-placement='start'] [data-part-content],
+  [data-ui-timeline][data-orientation='horizontal'][data-placement='alternate']
+    [data-part-item]:nth-child(even)
+    [data-part-content] {
+    grid-column: 1;
+    grid-row: before;
+    margin-block: 0 var(--_gap);
+    text-align: start;
+  }
+
+  [data-ui-timeline][data-orientation='horizontal'][data-placement='start'] [data-part-opposite],
+  [data-ui-timeline][data-orientation='horizontal'][data-placement='alternate']
+    [data-part-item]:nth-child(even)
+    [data-part-opposite] {
+    grid-column: 1;
+    grid-row: after;
+    margin-block: var(--_gap) 0;
+  }
+
+  /**
+   * One column, as a flex column rather than as a one-column grid: the areas
+   * the placements swap are then irrelevant, and the DOM order — title, time,
+   * actor, description, actions — is the order a narrow body reads in.
+   */
+  [data-ui-timeline][data-orientation='horizontal'] [data-part-content] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* On a line of its own the timestamp may wrap: nowrap is for the title's line. */
+  [data-ui-timeline][data-orientation='horizontal'] [data-part-content] > [data-part-time] {
+    margin-inline: 0;
+    white-space: normal;
+  }
+
+  [data-ui-timeline][data-orientation='horizontal'] :is([data-part-actor], [data-part-actions]) {
+    justify-content: flex-start;
+  }
+
+  [data-ui-timeline][data-orientation='horizontal'] [data-part-more] {
+    margin-block-start: var(--_gap);
+    margin-inline-start: 0;
+  }
+
+  /* ── Narrow width ───────────────────────────────────────────────────────
+   *
+   * Two things give way when the column is narrow. The timestamp leaves the
+   * title's line and takes its own, so a title of nine words keeps the whole
+   * measure; and below the breakpoint a horizontal timeline becomes a column
+   * and an alternating one keeps to one side — the composition change section
+   * 2.7 of `docs/component-features.md` asks for rather than a smaller version
+   * of the same row. A timeline the consumer set to `reflow={false}` is left
+   * alone.
+   *
+   * The breakpoints are literals because `@container (min-width: var(--x))` is
+   * invalid CSS, which rule 4 of `docs/token-foundation.md` states.
+   */
+
+  @container slotted-timeline (max-width: 20rem) {
+    [data-ui-timeline][data-orientation='vertical'] [data-part-content] {
+      display: flex;
+      flex-direction: column;
+    }
+
+    [data-ui-timeline][data-orientation='vertical'] [data-part-content] > [data-part-time] {
+      margin-inline: 0;
+      white-space: normal;
+    }
+
+    /**
+     * The opposite column gives way: eight rem of a twenty-rem column is the
+     * body's measure. The opposite side takes the line above the body, and
+     * the rail spans both.
+     */
+    [data-ui-timeline][data-orientation='vertical']:not([data-reflow='false'])
+      [data-part-list]
+      [data-part-item]:nth-child(n) {
+      grid-template-columns: [rail] var(--_rail) [content] minmax(0, 1fr);
+    }
+
+    [data-ui-timeline][data-orientation='vertical']:not([data-reflow='false'])
+      [data-part-item]:nth-child(n)
+      > [data-part-opposite] {
+      grid-column: content;
+      grid-row: 1;
+      text-align: start;
+    }
+
+    [data-ui-timeline][data-orientation='vertical']:not([data-reflow='false'])
+      [data-part-item]:nth-child(n):has(> [data-part-opposite])
+      > [data-part-content] {
+      grid-row: 2;
+    }
+
+    [data-ui-timeline][data-orientation='vertical']:not([data-reflow='false'])
+      [data-part-item]:nth-child(n):has(> [data-part-opposite])
+      > [data-part-rail] {
+      grid-row: 1 / 3;
+    }
+
+    [data-ui-timeline][data-orientation='vertical']:not([data-reflow='false'])
+      [data-part-item]:nth-child(n)
+      > [data-part-content] {
+      grid-column: content;
+      text-align: start;
+    }
+
+    [data-ui-timeline][data-orientation='vertical']:not([data-reflow='false'])
+      [data-part-item]:nth-child(n)
+      :is([data-part-actor], [data-part-actions]) {
+      justify-content: flex-start;
+    }
+
+    [data-ui-timeline][data-orientation='vertical']:not([data-reflow='false']) [data-part-more] {
+      margin-inline-start: calc(var(--_rail) + var(--_gap));
+    }
+  }
+
+  @container slotted-timeline (max-width: 30rem) {
+    [data-ui-timeline][data-orientation='horizontal']:not([data-reflow='false']) [data-part-list] {
+      display: flex;
+      flex-direction: column;
+      overflow-x: visible;
+      padding: 0;
+    }
+
+    [data-ui-timeline][data-orientation='horizontal']:not([data-reflow='false']) [data-part-item] {
+      align-items: stretch;
+      column-gap: var(--_gap);
+      grid-template-columns: [rail] var(--_rail) [content] minmax(0, 1fr);
+      grid-template-rows: none;
+      margin-block-end: var(--_item-gap);
+      padding-inline-end: 0;
+      row-gap: 0;
+    }
+
+    [data-ui-timeline][data-orientation='horizontal']:not([data-reflow='false'])
+      [data-part-item]:last-child {
+      margin-block-end: 0;
+    }
+
+    [data-ui-timeline][data-orientation='horizontal']:not([data-reflow='false']) [data-part-rail] {
+      align-items: center;
+      align-self: stretch;
+      block-size: auto;
+      grid-column: rail;
+      /* Two rows when the opposite side takes the first; one row otherwise. */
+      grid-row: 1 / 3;
+      justify-content: flex-start;
+    }
+
+    [data-ui-timeline][data-orientation='horizontal']:not([data-reflow='false'])
+      [data-part-marker] {
+      --_lift: round(nearest, calc((1lh - var(--_marker)) / 2), 1px);
+
+      margin-inline-start: 0;
+    }
+
+    [data-ui-timeline][data-orientation='horizontal']:not([data-reflow='false'])
+      [data-part-connector] {
+      border-block-start-width: 0;
+      border-inline-start-width: var(--_rule);
+      block-size: auto;
+      inline-size: 0;
+      inset-block-end: calc(-0.5lh - var(--_item-gap));
+      inset-block-start: 0.5lh;
+      inset-inline-end: auto;
+      inset-inline-start: calc(50% - var(--_rule) / 2);
+    }
+
+    /**
+     * `:nth-child(n)` weighs the same as the parity the alternate rules name,
+     * so the column wins over them here; a container query adds no weight of
+     * its own.
+     */
+    [data-ui-timeline][data-orientation='horizontal']:not([data-reflow='false'])
+      [data-part-item]:nth-child(n)
+      > [data-part-opposite] {
+      align-self: baseline;
+      grid-column: content;
+      grid-row: 1;
+      margin-block: 0;
+      text-align: start;
+    }
+
+    [data-ui-timeline][data-orientation='horizontal']:not([data-reflow='false'])
+      [data-part-item]:nth-child(n)
+      > [data-part-content] {
+      align-self: baseline;
+      grid-column: content;
+      grid-row: auto;
+      margin-block: 0;
+      text-align: start;
+    }
+
+    [data-ui-timeline][data-orientation='horizontal']:not([data-reflow='false']) [data-part-more] {
+      margin-block-start: var(--_item-gap);
+      margin-inline-start: calc(var(--_rail) + var(--_gap));
+    }
+
+    /**
+     * Alternate keeps one side: two columns of a hundred and eighty pixels each
+     * are two columns of three words. The opposite side takes the line above
+     * the body, in reading order.
+     */
+    [data-ui-timeline][data-orientation='vertical'][data-placement='alternate']:not(
+        [data-reflow='false']
+      )
+      [data-part-item] {
+      grid-template-columns: [rail] var(--_rail) [content] minmax(0, 1fr);
+    }
+
+    [data-ui-timeline][data-orientation='vertical'][data-placement='alternate']:not(
+        [data-reflow='false']
+      )
+      [data-part-item]
+      :is([data-part-content], [data-part-opposite]) {
+      grid-column: content;
+      text-align: start;
+    }
+
+    [data-ui-timeline][data-orientation='vertical'][data-placement='alternate']:not(
+        [data-reflow='false']
+      )
+      [data-part-item]
+      [data-part-opposite] {
+      grid-row: 1;
+    }
+
+    [data-ui-timeline][data-orientation='vertical'][data-placement='alternate']:not(
+        [data-reflow='false']
+      )
+      [data-part-item]:has(> [data-part-opposite])
+      > [data-part-content] {
+      grid-row: 2;
+    }
+
+    [data-ui-timeline][data-orientation='vertical'][data-placement='alternate']:not(
+        [data-reflow='false']
+      )
+      [data-part-item]:has(> [data-part-opposite])
+      > [data-part-rail] {
+      grid-row: 1 / 3;
+    }
+
+    [data-ui-timeline][data-orientation='vertical'][data-placement='alternate']:not(
+        [data-reflow='false']
+      )
+      [data-part-item]:nth-child(n)
+      [data-part-content] {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    [data-ui-timeline][data-orientation='vertical'][data-placement='alternate']:not(
+        [data-reflow='false']
+      )
+      [data-part-item]:nth-child(n)
+      [data-part-content]
+      > [data-part-title] {
+      grid-column: 1;
+    }
+
+    [data-ui-timeline][data-orientation='vertical'][data-placement='alternate']:not(
+        [data-reflow='false']
+      )
+      [data-part-item]:nth-child(n)
+      [data-part-content]
+      > [data-part-time] {
+      grid-column: 2;
+      margin-inline: var(--_gap) 0;
+    }
+
+    [data-ui-timeline][data-orientation='vertical'][data-placement='alternate']:not(
+        [data-reflow='false']
+      )
+      [data-part-item]
+      :is([data-part-actor], [data-part-actions]) {
+      justify-content: flex-start;
+    }
+
+    [data-ui-timeline][data-orientation='vertical'][data-placement='alternate']:not(
+        [data-reflow='false']
+      )
+      [data-part-more] {
+      margin-inline-start: calc(var(--_rail) + var(--_gap));
+    }
+  }
+
+  /* ── Forced colours ─────────────────────────────────────────────────────
+   *
+   * The system replaces every painted surface with the page's own background
+   * and every border with one ink, and drops every shadow. The shapes survive
+   * that — core, hollow, filled, filled and ringed — because the filled disc
+   * is drawn in borders, the core keeps the system's text ink through
+   * `forced-color-adjust`, and the current ring is redrawn here as an outline.
+   * A finished marker keeps its fill, so it reads apart from a pending one in
+   * the system's highlight. The chevron and the check are `Glyph` elements
+   * drawn in `currentColor`, which the system has already forced.
+   */
+
+  @media (forced-colors: active) {
+    /* The core in the marker's own ink, which the system has already forced. */
+    [data-ui-timeline] [data-part-marker]:empty::after {
+      background-color: currentColor;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-timeline] [data-complete]:not([data-current]) [data-part-marker] {
+      background-color: Highlight;
+      border-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    /* The check in the finished disc's forced ink, not the author's ground. */
+    [data-ui-timeline] [data-part-marker] > [data-ui-icon][data-check] {
+      color: inherit;
+    }
+
+    [data-ui-timeline] [data-current]:not([data-loading]) [data-part-marker] {
+      outline: var(--_edge) solid CanvasText;
+      outline-offset: var(--slotted-border-width-thick, 2px);
+    }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 5,
+  "family": "date-field",
+  "ui": "date-field",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Typed date input split into segments."
+  },
+  "controlPart": "segments",
+  "controlRole": "group",
+  "segmentRole": "spinbutton",
+  "rootRole": null,
+  "hiddenValueInput": true,
+  "hiddenValueFormat": "ISO 8601 YYYY-MM-DD",
+  "valueType": "PlainDate | null",
+  "core": ["@slotted/core/date", "@slotted/core/state"],
+  "stateSource": "field",
+  "mirrorsState": true,
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "aria-disabled",
+  "wiring": {
+    "id": "always",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "aria-disabled": "disabled",
+    "aria-readonly": "readOnly"
+  },
+  "ariaValue": ["aria-valuenow", "aria-valuemin", "aria-valuemax", "aria-valuetext"],
+  "fields": ["year", "month", "day"],
+  "fieldOrder": "the locale's, from Intl.DateTimeFormat.formatToParts",
+  "keyboard": [
+    { "key": "ArrowUp", "effect": "step", "by": 1, "wraps": "within the segment" },
+    { "key": "ArrowDown", "effect": "step", "by": -1, "wraps": "within the segment" },
+    { "key": "PageUp", "effect": "step", "by": "page" },
+    { "key": "PageDown", "effect": "step", "by": "-page" },
+    { "key": "Home", "effect": "bound", "edge": "min" },
+    { "key": "End", "effect": "bound", "edge": "max" },
+    { "key": "ArrowRight", "effect": "move", "to": "next segment in writing order" },
+    { "key": "ArrowLeft", "effect": "move", "to": "previous segment in writing order" },
+    { "key": "0-9", "effect": "type", "advances": "when no further digit fits" },
+    { "key": "Backspace", "effect": "clear", "scope": "segment" },
+    { "key": "Delete", "effect": "clear", "scope": "segment" }
+  ],
+  "pageStep": {
+    "day": 5,
+    "month": 5,
+    "year": 10
+  },
+  "departures": {
+    "yearPage": "The APG spin-button example steps every button by five. Five years is not a page of years, and the year is the segment a reader is furthest from; ten is the step the calendar's year view uses, so the two agree. The cost is a reader who learned five from another spin button on the page.",
+    "noArrowButtons": "The APG example is deprecated for its visible increment and decrement buttons, which duplicate keys the reader already has. Its roles, its wrapping rules and its aria-valuetext guidance are the spin-button pattern's and are taken whole. No arrow buttons are drawn."
+  },
+  "entryModel": {
+    "digitsAre": "one segment at a time",
+    "runEndsWhen": "the segment is full, or one more digit could not fit under its maximum",
+    "requestEmittedOn": "the end of a run, never inside one",
+    "keysAreConsumed": "a key the field acts on is stopped, not only defaulted",
+    "whyKeysAreConsumed": "Every application that binds a bare key guards it with \"is the target an editable element\", and that guard tests for input, textarea and contenteditable. A div with role=spinbutton is none of the three, so a reader typing a date fires every single-key shortcut on the page. In Storybook, pressing 1 moved focus out of the story and into the sidebar. preventDefault does not help: a shortcut handler reads the key, not the default.",
+    "whyRequestWaits": "Typing 2026 into a year passes through 2, 20 and 202, and the arithmetic accepts every one of them as a date. A request per digit would ask a consumer's server about the year 2. The segments move on every keystroke and the value moves when the run ends: on the digit that fills the field, on the key that leaves it, or on blur, where a short year resolves through the pivot.",
+    "wraps": "inside the segment, never carrying into the next",
+    "emptySegmentStepsTo": "the reference date's own value",
+    "clearedSegment": "the placeholder, and the value becomes null",
+    "pasteParsed": true,
+    "pasteOrder": ["the locale pattern", "ISO 8601"],
+    "yearDigits": 4,
+    "yearPivot": 20,
+    "intendedDayHeld": true
+  },
+  "placeholder": {
+    "from": "Intl.DisplayNames dateTimeField",
+    "example": { "pt-BR": "dd/mm/aaaa", "en-US": "mm/dd/yyyy", "de-DE": "tt.mm.jjjj" }
+  },
+  "range": {
+    "min": "min",
+    "max": "max",
+    "unavailable": "isDateUnavailable"
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"],
+    "calendar": ["gregory"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "locale": ["prop", "slotted", "en-US"],
+    "timeZone": ["prop", "defaults", "runtime"],
+    "firstDayOfWeek": ["prop", "defaults", "locale"],
+    "yearPivot": ["prop", "defaults", "20"],
+    "calendar": ["prop", "defaults", "gregory"]
+  },
+  "provides": {
+    "dateFieldDefaults": ["calendar", "firstDayOfWeek", "size", "timeZone", "variant", "yearPivot"]
+  },
+  "messages": ["clear", "day", "month", "year"],
+  "imperative": ["focus", "clear"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "required": "data-required"
+  },
+  "dataAttributes": {
+    "data-field": "which of year, month or day a segment holds",
+    "data-placeholder": "the segment has no value and is drawing its placeholder"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["keyboard", "clear", "blur", "programmatic"],
+      "carries": ["value", "previous", "segments", "reason", "event"]
+    }
+  },
+  "literals": {
+    "--slotted-date-field-segment-min-inline-size": "A segment is sized from the widest digit its field can hold, which is arithmetic over the control type scale rather than a literal; the floor under the whole control is --slotted-control-height-*, which the theme owns."
+  },
+  "members": {
+    "dateField": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "calendar": "gregory",
+        "clearable": false,
+        "yearPivot": 20
+      },
+      "capabilities": [
+        "value",
+        "appearance",
+        "size",
+        "content",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "readonly",
+        "required"
+      ],
+      "parts": ["root", "segments", "segment", "literal", "start", "end", "clear", "hidden-input"]
+    }
+  },
+  "scenarios": {
+    "dateField": [
+      "playground",
+      "locale",
+      "sizes",
+      "variants",
+      "range",
+      "states",
+      "clear",
+      "adornments",
+      "forms",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

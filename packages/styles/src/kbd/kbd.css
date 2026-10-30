@@ -1,0 +1,502 @@
+@layer slotted.components {
+  /**
+   * ── The key cap ────────────────────────────────────────────────────────
+   *
+   * One key of a keyboard, drawn so a reader can find it on theirs. It is not a
+   * control: nothing here is focusable, nothing answers hover, and nothing
+   * binds a shortcut.
+   *
+   * Two attributes on every selector, always. `shortcut` is the part that
+   * contains this family's own roots rather than sitting inside one — the shape
+   * `badge` proved with `anchor` — so it carries `data-ui` itself and the pair
+   * is what tells a whole combination from one key of it.
+   *
+   * The height is a step of a scale, never a sum of what is inside. A key cap
+   * whose height followed its legend drew `⌘` taller than `Esc` (K1), and a
+   * cap whose height followed its variant drew a `raised` key one pixel taller
+   * than an `outline` one beside it (25.19 against 24.19). Every size states
+   * one whole-pixel height, and every legend and every variant fits inside it.
+   * The same length is the minimum inline size, which is what makes a
+   * one-letter cap square instead of a slot.
+   */
+  [data-ui-kbd] {
+    /**
+     * The height comes from the space scale — 16, 20, 24, 28 — and not from
+     * the control geometry. A cap on its own is a glyph box, not a control,
+     * and the inner-size steps (22, 24, 28) leave no room below `sm` for the
+     * key a caption or a tooltip needs. The type still comes from the control
+     * scale, the one that moves with density, so a dense page draws a smaller
+     * legend inside the same box.
+     */
+    --_size: var(--slotted-space-8, 1.5rem);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_inset-inline: var(--slotted-space-3, 0.375rem);
+    --_radius: var(--slotted-kbd-radius, var(--slotted-radius-md, 6px));
+    --_gap: var(--slotted-space-2, 0.25rem);
+
+    /**
+     * The rim, and the edge the face sits above.
+     *
+     * `raised` draws its bottom edge as a thicker border rather than as a
+     * shadow. Chrome drops `box-shadow` outright under `forced-colors: active`
+     * — measured while `badge` was built — so a key made of a shadow is a flat
+     * key exactly where the reader most needs the affordance. A border
+     * survives, and a face sitting a pixel above its own bottom edge is what
+     * a keycap looks like anyway. The thicker edge sits inside the stated
+     * height: it lifts the legend half a pixel and never grows the cap.
+     */
+    --_edge-width: var(--slotted-kbd-border-width, var(--slotted-border-width-thin, 1px));
+    --_base-width: var(--_edge-width);
+
+    /**
+     * Inside a control — a shortcut hint at the end of a search field — the
+     * cap is the height the foundation gives the inside of a control,
+     * `--slotted-control-inner-size`, which the field writes on its adornment
+     * from its own size step. On its own the cap keeps its size step. A
+     * 24-pixel cap sat in a 26-pixel field at dense before this
+     * (`docs/token-foundation.md`, Control geometry).
+     */
+    --_block-size: var(--slotted-control-inner-size, var(--_size));
+
+    /**
+     * `--slotted-kbd-surface`, `--slotted-kbd-border-color` and
+     * `--slotted-kbd-color` are the family's own handle on its ground, rim and
+     * ink: a theme that re-tints the tone tokens inside a region (a translucent
+     * glass scope) sets them to keep a key cap opaque, while the tone tokens
+     * keep driving buttons and the other families. `outline` and `plain` own
+     * no ground, so they read the rim and the ink, and `plain` only the ink.
+     *
+     * The ground, the rim and the ink. `raised` is the default: the rim a
+     * control draws on three sides, and `--slotted-border-strong` below, the
+     * one border token the theme holds to 3:1 against the surface. The strong
+     * edge on all four sides was a frame drawn round a word; on the base alone
+     * it is the shadow a key casts, and it is still the signal that says the
+     * word inside is a key.
+     */
+    --_background: var(--slotted-kbd-surface, var(--slotted-surface-raised, Canvas));
+    --_face: none;
+    --_border: var(--slotted-kbd-border-color, var(--slotted-control-border-color, ButtonBorder));
+    --_base: var(--slotted-border-strong, ButtonBorder);
+    --_color: var(--slotted-kbd-color, var(--slotted-text, CanvasText));
+  }
+
+  [data-ui-kbd][data-part-root] {
+    background-color: var(--_background);
+    background-image: var(--_face);
+    /**
+     * The height the family states, not the height the legend asks for. A key
+     * is a cap of a fixed size with a symbol drawn on it, and a row of caps
+     * whose tops disagree by three pixels is a row of caps of different keys.
+     */
+    block-size: var(--_block-size);
+    border: var(--_edge-width) solid var(--_border);
+    border-block-end: var(--_base-width) solid var(--_base);
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    color: var(--_color);
+    /**
+     * One cell, and the legend centred in it on both axes. A grid of one cell
+     * centres what is inside it against the cell rather than against the line
+     * box the text opened, which is the half of the fix that keeps a symbol
+     * from sitting low once the box stops following it.
+     */
+    display: inline-grid;
+    /**
+     * The interface face, the one the label beside the key is set in. The
+     * monospaced face drew `Backspace` 70.45px wide against the interface
+     * face's narrower word, and it does not carry `⌘ ⇧ ⌥ ↩ ⌫`, so every
+     * modifier came from a second face and a cap held two typefaces. Equal
+     * advance, the one thing a monospaced legend gave, the square minimum
+     * width already gives a one-letter key, and `tabular-nums` gives figures.
+     */
+    font-family: var(--slotted-kbd-font-family, var(--slotted-control-font-family, sans-serif));
+    font-size: var(--_font-size);
+    /* A shortcut that counts — `⌘1` to `⌘9` — must not jitter as the figure
+       changes, which is the rule `badge` applies to its own count. */
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-kbd-font-weight, var(--slotted-font-weight-medium, 500));
+    /**
+     * The legend's own line box is the em box and nothing more. Leading is what
+     * a fallback font varies — the strut and the glyph's own box are aligned on
+     * the baseline and each carries half of its font's leading — so a line box
+     * that stops at 1 is a line box no substituted glyph can grow. The air
+     * around the legend is the stated height less the em box, and it belongs
+     * to the cap, not to the legend.
+     */
+    line-height: 1;
+    min-inline-size: var(--_block-size);
+    place-items: center;
+    /* The stated height holds the air; the cell centres the legend in it. */
+    padding-block: 0;
+    padding-inline: var(--_inset-inline);
+    /**
+     * A key label is never truncated. Half a key name is a wrong instruction,
+     * where a wrapped shortcut is only a taller row — so the cap keeps its word
+     * whole and the combination around it is what breaks.
+     */
+    white-space: nowrap;
+    /* Written inside a sentence, a key sits on the text's centre. */
+    vertical-align: middle;
+    /**
+     * The one state pair this family has. A menu row that becomes unavailable
+     * fades; a cap inside it that snapped would be the only thing on the row
+     * that moved instantly. Nothing else here animates, and there is no looping
+     * animation to stop under reduced motion.
+     */
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  /* ── The word, and the word behind it ──────────────────────────────────── */
+
+  /**
+   * The legend has a box of its own, as the words do in `button` and `badge`,
+   * and that box is what makes the family's one typographic problem solvable.
+   *
+   * The cell centres the *line box*, and a line box is not symmetric around the
+   * letters inside it: the ascender reaches further above the cap than the
+   * descender reaches below the baseline. `text-box` trims the line to
+   * the cap and the baseline, so what is centred is the ink rather than the
+   * font's metrics, and `K`, `Esc` and `Åpy` all sit the same way.
+   *
+   * It is applied here rather than on the root because `text-box-trim` needs a
+   * block container and a grid container has none: its own text lives in an
+   * anonymous item no selector can reach.
+   *
+   * No clip region is involved, which is what makes this simpler than the same
+   * rule in `badge`: `⌘`, `↑` and a descender all reach outside a box trimmed
+   * to the cap and the baseline, and here they paint into the inset instead of
+   * being cut off. The block size is still computed from the untrimmed metrics,
+   * so the trim moves the ink and never the box.
+   */
+  @supports (text-box: trim-both cap alphabetic) {
+    [data-ui-kbd] [data-part-legend] {
+      text-box: trim-both cap alphabetic;
+    }
+
+    /**
+     * A mark is not trimmed, and this is the half of the rule that had to be
+     * looked at rather than reasoned out. `cap alphabetic` are Latin metrics: a
+     * box trimmed to them centres the cap band, and `⌘`, `↩` and `⌫` have no
+     * relation to a cap height or an alphabetic baseline — measured here, all
+     * three sat visibly high in the cap. Left untrimmed, what gets centred is
+     * the em box, which is where a mark is drawn.
+     */
+    [data-ui-kbd] [data-part-legend][data-legend='symbol'] {
+      text-box: normal;
+    }
+  }
+
+  /**
+   * The interface face for a mark, whatever face the legend is set in. A
+   * consumer who sets `--slotted-kbd-font-family` to a monospaced face keeps
+   * `⌘ ⇧ ⌥ ↩ ⌫` at the weight of the interface type: measured with the
+   * monospaced legend, every mark rendered thinner and smaller than `Esc` in the
+   * same cap. A tenth larger than the legend: at 1em `⌘` and `↵` stood
+   * below the cap height of `K`, and at 1.15em `⌫` stood wider than the
+   * `Esc` beside it.
+   */
+  [data-ui-kbd] [data-part-legend][data-legend='symbol'] {
+    font-family: var(--slotted-kbd-symbol-font-family, var(--slotted-font-family-sans, sans-serif));
+    font-size: 1.1em;
+  }
+
+  /**
+   * What a reader hears in place of a symbol. It is content rather than a
+   * label because ARIA in HTML maps `kbd` to no role and declares it Naming
+   * Prohibited, so `aria-label` is not available to this family at all.
+   *
+   * The rule is `visually-hidden`'s, restated here rather than depended on: a
+   * key cap must not reserve a millimetre for a word nobody sees, and a family
+   * whose accessible name disappears when a consumer forgets an import has no
+   * accessible name.
+   */
+  [data-ui-kbd] [data-part-name] {
+    block-size: 1px;
+    border: 0;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  /* ── The whole combination ─────────────────────────────────────────────── */
+
+  /**
+   * `direction: ltr`, and it is the deliberate part of this rule.
+   *
+   * A combination is one formula. The bidi algorithm renders `Ctrl + K` inside
+   * an Arabic paragraph as a single left-to-right run, which is also what
+   * macOS and Windows show in a right-to-left locale, so a mirrored `K + ⌘` is
+   * a shortcut no operating system displays. The combination as a whole still
+   * sits where the paragraph puts it; only the order of the caps inside it is
+   * pinned. A key legend written in Arabic still renders right-to-left within
+   * its own cap, because that is a run of its own.
+   */
+  [data-ui-kbd][data-part-shortcut] {
+    align-items: center;
+    direction: ltr;
+    display: inline-flex;
+    /* The root is a `kbd`: without these it keeps the user agent's monospace
+       face and its line box, which a key in the combination does not share. */
+    font-family: var(--slotted-kbd-font-family, var(--slotted-control-font-family, sans-serif));
+    line-height: 1;
+    /**
+     * A shortcut wider than its column wraps between caps and never inside
+     * one. The row gets taller; no instruction gets shorter.
+     */
+    flex-wrap: wrap;
+    gap: var(--_gap);
+    /**
+     * Without this the wrapping above is only ever a coincidence. An
+     * `inline-flex` box is sized by its content, so a five-key combination in a
+     * 360-pixel column simply ran out of it — the wrap happened where the
+     * container narrowed the box and nowhere else. Read at 1280 in a measured
+     * column, `Win + Ctrl + Alt + Shift + Backspace` overflowed its stage on
+     * one line.
+     */
+    max-inline-size: 100%;
+    vertical-align: middle;
+  }
+
+  /**
+   * A Mac joins with nothing, so the gap is the only thing holding the
+   * combination together — and at the shared step it was exactly the width of
+   * the space between two separate shortcuts on the same line, which made
+   * `⌥⇧⌘P` and `⌘K` read as one run of six keys. One step tighter is what says
+   * these caps are one shortcut. Everywhere else the `+` says it instead.
+   */
+  [data-ui-kbd][data-part-shortcut][data-platform='mac'] {
+    --_gap: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-kbd][data-part-shortcut][data-platform='mac'][data-size='inherit'] {
+    --_gap: 0.125em;
+  }
+
+  /**
+   * `+` between two keys pressed together, and the word between two steps of a
+   * sequence. The plus is hidden from assistive technology — it is punctuation
+   * joining two caps, and “Command Shift K” is what the operating systems
+   * announce for the same shortcut. The word is not hidden: it is the only
+   * thing that tells a sequence from a combination.
+   */
+  [data-ui-kbd] [data-part-separator] {
+    color: var(--slotted-text-muted, GrayText);
+    flex: none;
+    font-family: var(--slotted-kbd-font-family, var(--slotted-control-font-family, sans-serif));
+    font-size: var(--_font-size);
+    line-height: 1;
+  }
+
+  [data-ui-kbd] [data-part-separator][data-separator='then'] {
+    font-family: var(--slotted-control-font-family, sans-serif);
+    /**
+     * A step boundary is a bigger break than a key join, so it gets more air
+     * than the plus does. Read at the shared gap, `Ctrl + K then Ctrl + S` was
+     * four caps in a row with a word somewhere in it.
+     */
+    padding-inline: var(--slotted-space-2, 0.25rem);
+  }
+
+  /* ── Size ──────────────────────────────────────────────────────────────── */
+
+  /**
+   * Four absolute steps, 16 to 28 pixels in steps of four, and one relative
+   * step. The radius is a quarter of the height or near it (4/16, 6/20, 6/24,
+   * 8/28), so a small cap is as round as a large one and not a pill.
+   *
+   * `xs` is the cap a caption, a tooltip or a dense table cell needs, where a
+   * 20-pixel key stood taller than the 12-pixel line it sat in. The type
+   * scale starts at 12px, and 12px in a 16-pixel cap left one pixel of air
+   * above an ascender, so this step writes the one size the scale lacks.
+   */
+  [data-ui-kbd][data-size='xs'] {
+    --_size: var(--slotted-space-6, 1rem);
+    --_font-size: 0.6875rem;
+    --_inset-inline: var(--slotted-space-2, 0.25rem);
+    --_radius: var(--slotted-kbd-radius, var(--slotted-radius-sm, 4px));
+    --_gap: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-kbd][data-size='sm'] {
+    --_size: var(--slotted-space-7, 1.25rem);
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_inset-inline: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-kbd][data-size='lg'] {
+    --_size: calc(var(--slotted-space-8, 1.5rem) + var(--slotted-space-2, 0.25rem));
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_inset-inline: var(--slotted-space-4, 0.5rem);
+    --_radius: var(--slotted-kbd-radius, var(--slotted-radius-lg, 8px));
+  }
+
+  /**
+   * The step no surveyed implementation ships, and the one prose needs. Every
+   * absolute size makes a key inside an `h2` a stamp and one in fine print a
+   * slab; here the cap is a proportion of the text it interrupts, so it is the
+   * right size in both. The insets go with it, in the same relative unit, or a
+   * large key would carry a small key's padding.
+   *
+   * The height is 1.5 of the legend, which is 1.2 of the surrounding text: it
+   * stays inside a line box of 1.3 or more, so a key in a paragraph never
+   * pushes its line away from the next one. The previous sum, legend line plus
+   * insets plus edges, made 25.8px on 16px text set at 24px lines. The radius
+   * is a quarter of that height, the proportion of the absolute steps.
+   */
+  [data-ui-kbd][data-size='inherit'] {
+    --_size: 1.5em;
+    --_font-size: 0.8em;
+    --_inset-inline: 0.4em;
+    --_radius: var(--slotted-kbd-radius, 0.375em);
+    --_gap: 0.25em;
+  }
+
+  /* A fractional height puts both horizontal edges between pixels. */
+  @supports (inline-size: round(nearest, 1.5em, 1px)) {
+    [data-ui-kbd][data-size='inherit'] {
+      --_size: round(nearest, 1.5em, 1px);
+    }
+  }
+
+  /* ── Painting ──────────────────────────────────────────────────────────── */
+
+  /**
+   * The bottom edge is the whole of the difference between a raised key and an
+   * outlined one, and it is why `raised` is the default: it is the only value
+   * that reads as an object rather than as a box drawn round a word.
+   */
+  [data-ui-kbd][data-variant='raised'] {
+    --_base-width: var(--slotted-kbd-base-width, var(--slotted-border-width-thick, 2px));
+    /**
+     * The skirt. The lower part of the face turns a tenth of the way toward
+     * the base colour, so the face runs into the thick edge instead of meeting
+     * it at a line: `#ffffff` to `#f1f3f6` in light, `#171719` to `#202023` in
+     * dark. The top 40% stays the flat face, which is where the legend's cap
+     * band sits. A gradient is an image, so forced colours drop it with the
+     * ground and leave the edges, which is the whole key there.
+     */
+    --_face: linear-gradient(
+      to bottom,
+      var(--_background) 40%,
+      color-mix(in oklab, var(--_background), var(--_base) 10%)
+    );
+  }
+
+  /**
+   * No ground of its own, so it carries over any surface the page puts under
+   * it — a card, a sunken panel, a solid banner.
+   *
+   * And no ink of its own either, which is the half that had to be looked at.
+   * Read on `--slotted-surface-inverse`, an outlined key kept `--slotted-text`
+   * and was near-black type on a near-black ground: the variant that exists to
+   * survive an unknown surface was the one variant that could not. A box that
+   * borrows its ground borrows its foreground with it.
+   */
+  [data-ui-kbd][data-variant='outline'] {
+    --_background: transparent;
+    /* The edge is all this variant draws, so it is the strong one all round. */
+    --_border: var(--slotted-kbd-border-color, var(--slotted-border-strong, ButtonBorder));
+    --_base: var(--_border);
+    --_color: var(--slotted-kbd-color, inherit);
+  }
+
+  /**
+   * The tinted chip, painted from the neutral tone rather than from a surface
+   * token. `--slotted-surface-sunken` is the page's own colour on a sunken
+   * panel, where a key painted with it would disappear; the neutral tone's
+   * surface is the step `badge` calibrated to read on both.
+   */
+  [data-ui-kbd][data-variant='soft'] {
+    --_background: var(--slotted-kbd-surface, var(--slotted-tone-secondary-surface));
+    /**
+     * The tinted key draws the tone's own edge, as every `badge` variant does,
+     * and it is not decoration here either. In the `high-contrast` scheme the
+     * neutral surface is the page's own white: read in that scheme with no
+     * edge, the chip was gone outright and `Ctrl + B` was a run of text. The
+     * edge is also what carries it through forced colours, where the ground
+     * flattens to `Canvas` for the same reason.
+     */
+    --_border: var(--slotted-kbd-border-color, var(--slotted-tone-secondary-border));
+    --_base: var(--_border);
+    --_color: var(--slotted-kbd-color, var(--slotted-tone-secondary-text));
+  }
+
+  /**
+   * A key that is only its word. In a dense menu a column of boxes is noise,
+   * and the shortcut there is what macOS and VS Code both draw: muted type, no
+   * frame, nothing between it and the row it belongs to.
+   */
+  /**
+   * A key that is only its word, and it takes the colour of the text it sits
+   * in rather than choosing one. React Spectrum's `Keyboard` is the surveyed
+   * implementation that gets this right — it “provides no specific styling by
+   * itself, but receives styling from the parent container” — and inheriting is
+   * also what makes the row work: a menu item that dims dims its shortcut with
+   * it, with no state to set and nothing left bright at the end of a grey row.
+   */
+  [data-ui-kbd][data-variant='plain'] {
+    --_background: transparent;
+    --_border: transparent;
+    --_base: transparent;
+    --_color: var(--slotted-kbd-color, inherit);
+  }
+
+  [data-ui-kbd][data-part-root][data-variant='plain'] {
+    min-inline-size: 0;
+    padding-inline: 0;
+  }
+
+  /* ── Disabled ──────────────────────────────────────────────────────────── */
+
+  /**
+   * Presentational only, and the strongest state this family has — there is no
+   * hover and no press for it to hold itself back for. The item the shortcut
+   * belongs to owns the semantics: `kbd` may carry only the global ARIA
+   * attributes, and `aria-disabled` is not one of them.
+   */
+  [data-ui-kbd][data-disabled] {
+    --_background: var(--slotted-disabled-background, Canvas);
+    --_face: none;
+    --_border: var(--slotted-disabled-border, GrayText);
+    --_base: var(--slotted-disabled-border, GrayText);
+    --_color: var(--slotted-disabled-foreground, GrayText);
+  }
+
+  [data-ui-kbd][data-disabled] [data-part-separator] {
+    color: var(--slotted-disabled-foreground, GrayText);
+  }
+
+  /**
+   * The two variants that own no ground keep owning none. A disabled `outline`
+   * that filled itself grey would be a grey rectangle on whatever surface it
+   * was placed over, which is the one thing the variant exists to avoid.
+   */
+  [data-ui-kbd][data-variant='outline'][data-disabled],
+  [data-ui-kbd][data-variant='plain'][data-disabled] {
+    --_background: transparent;
+  }
+
+  [data-ui-kbd][data-variant='plain'][data-disabled] {
+    --_border: transparent;
+    --_base: transparent;
+  }
+
+  /**
+   * This family writes no `forced-colors` rule, and the reason is worth
+   * recording because it was nearly written twice. Every ground it paints is a
+   * token the theme already remaps — `--slotted-surface-raised` to `Canvas`,
+   * the neutral tone's surface to `Canvas` — and every edge it draws is a
+   * border token remapped to `CanvasText` or `ButtonBorder`. There is no filled
+   * variant whose edge is its own fill, which is the case `badge` had to write
+   * a rule for. Nothing here is painted with anything the theme cannot reach.
+   */
+}

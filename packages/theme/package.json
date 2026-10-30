@@ -1,0 +1,64 @@
+{
+  "name": "@slotted/theme",
+  "version": "0.1.0-beta.29",
+  "description": "The Slotted theme contract, defineTheme, extendTheme and the slotted-build-theme CLI.",
+  "keywords": [
+    "slotted",
+    "theme",
+    "design-tokens",
+    "css"
+  ],
+  "homepage": "https://github.com/andrelopes-code/slotted/tree/main/packages/theme#readme",
+  "bugs": "https://github.com/andrelopes-code/slotted/issues",
+  "author": "André Lopes",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrelopes-code/slotted.git",
+    "directory": "packages/theme"
+  },
+  "type": "module",
+  "files": [
+    "dist",
+    "src/contract.json",
+    "cli",
+    "conformance"
+  ],
+  "bin": {
+    "slotted-build-theme": "./cli/build-theme.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./layer-order": {
+      "types": "./dist/types/layer-order.d.ts",
+      "import": "./dist/layer-order.js"
+    },
+    "./seeds": {
+      "types": "./dist/types/seeds.d.ts",
+      "import": "./dist/seeds.js"
+    },
+    "./contract.json": "./src/contract.json",
+    "./conformance": "./conformance/theme-conformance.mjs",
+    "./styles.css": "./dist/styles.css"
+  },
+  "scripts": {
+    "generate": "node scripts/generate-sources.mjs",
+    "build": "vite build && tsc -p tsconfig.build.json && node scripts/write-styles.mjs",
+    "test": "vitest run && node --test test/*.test.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit --pretty false",
+    "verify": "pnpm build && pnpm test && pnpm typecheck"
+  },
+  "dependencies": {
+    "lightningcss": "1.33.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "jsdom": "30.0.1",
+    "typescript": "6.0.3",
+    "vite": "8.2.2",
+    "vitest": "4.1.11"
+  }
+}

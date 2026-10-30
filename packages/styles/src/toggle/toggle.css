@@ -1,0 +1,327 @@
+@layer slotted.components {
+  /**
+   * ── A two-state button standing on its own ─────────────────────────────
+   *
+   * A `button` carrying `aria-pressed` in both states: the Button pattern's
+   * toggle button, whose label does not change when its state does. It is a
+   * mode — Bold, Wrap, Pin — and a mode is neutral until it is on and one
+   * colour when it is: the accent ground inside the accent edge, which is the
+   * pair `docs/token-foundation.md` names for the chosen row, card, option
+   * and toggle. `button`'s ToggleButton is the other member, an action that
+   * persists — Follow, Subscribe — which reaches a server, waits, and stands
+   * in one of five tones beside the other actions of a page.
+   *
+   * ── The picture is `toggle-group`'s item ──────────────────────────────
+   *
+   * The same geometry, the same two variants, the same "on", the same hover,
+   * the same press timing, the same disabled-and-on reading and the same
+   * icon alignment, under this family's own prefix. The group keeps its item
+   * so the value has one owner; the reopen recorded in `docs/process/build-order.md`
+   * makes that item this family and the duplicated rules leave. A rule
+   * changed in one sheet is changed in the other until then.
+   *
+   * What differs is the room around the control: a standalone toggle has
+   * some, so the ring is held off the edge at the foundation's offset, where
+   * the joined bar draws it inward.
+   */
+  [data-ui-toggle][data-part-root] {
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_radius: var(--slotted-toggle-radius, var(--slotted-control-radius, 4px));
+    --_border-width: var(--slotted-control-border-width, 1px);
+    --_border-color: var(
+      --slotted-toggle-border-color,
+      var(--slotted-control-border-color, ButtonBorder)
+    );
+
+    align-items: center;
+    appearance: none;
+    background: transparent;
+    block-size: var(--_height);
+    /**
+     * Always a border, and always the same width. A state changes its colour
+     * and never its presence: a border that appears when the control is on
+     * moves its label by a pixel.
+     */
+    border: var(--_border-width) solid transparent;
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    color: var(--slotted-toggle-color, var(--slotted-text, ButtonText));
+    cursor: pointer;
+    display: inline-flex;
+    font-family: var(--slotted-control-font-family, ui-sans-serif, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-control-font-weight, 600);
+    gap: var(--_gap);
+    justify-content: center;
+    letter-spacing: var(--slotted-control-letter-spacing, 0);
+    line-height: var(--slotted-control-line-height, 1);
+    margin: 0;
+    /**
+     * A control never pushes past the container it was placed in: the label
+     * clamps rather than the page scrolling. `min-inline-size` is the floor,
+     * so the control is never narrower than it is tall and the WCAG target
+     * holds.
+     */
+    max-inline-size: 100%;
+    min-inline-size: var(--_height);
+    padding-block: 0;
+    padding-inline: var(--_padding-inline);
+    position: relative;
+    /* No tap delay waiting for a second tap the control cannot use. */
+    touch-action: manipulation;
+    /**
+     * Nothing here moves: a toggle changes colour, and colour is what the eye
+     * has to follow. The duration is the control step, so a theme retunes
+     * every control's interaction feedback once and reduced motion collapses
+     * it to a frame.
+     */
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    user-select: none;
+    /* A control written inside a sentence sits on the text's centre. */
+    vertical-align: middle;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-toggle][data-part-root][data-size='sm'] {
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+  }
+
+  [data-ui-toggle][data-part-root][data-size='lg'] {
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 16px);
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+  }
+
+  /* ── Content ──────────────────────────────────────────────────────────── */
+
+  /**
+   * A control with no words is a square holding one mark, so its inline
+   * padding is whatever centres that mark rather than the padding a label
+   * needs, and its width is its height. An empty label box counts as no
+   * words: the Angular binding projects the words into a box it always
+   * renders, and a box with nothing in it must not hold the gap open either.
+   */
+  [data-ui-toggle][data-part-root]:not(:has([data-part-label]:not(:empty))) {
+    inline-size: var(--_height);
+    padding-inline: 0;
+  }
+
+  [data-ui-toggle] [data-part-label]:empty {
+    display: none;
+  }
+
+  /**
+   * The slot sizes what it holds: an icon box reads `--slotted-icon-size`
+   * from its container, and a bare glyph host such as `ng-icon` reads the
+   * slot's font-size, so both are the glyph scale.
+   */
+  [data-ui-toggle] [data-part-icon] {
+    --slotted-icon-size: var(--_icon-size);
+
+    block-size: var(--_icon-size);
+    display: inline-flex;
+    flex: none;
+    font-size: var(--_icon-size);
+    inline-size: var(--_icon-size);
+  }
+
+  [data-ui-toggle] [data-part-icon] > * {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+  }
+
+  /**
+   * The words get a box of their own, as they do in `tabs` and `tag`: it is
+   * what `text-overflow` needs to clip a label a narrow container made too
+   * long, and what an icon beside it is aligned against. The string stays
+   * whole in the DOM — the library's rule is that truncation never removes
+   * content.
+   */
+  [data-ui-toggle] [data-part-label] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── The edge ─────────────────────────────────────────────────────────── */
+
+  [data-ui-toggle][data-part-root][data-variant='outline'] {
+    border-color: var(--_border-color);
+    /* A framed control lifts off its ground at rest, as button's outline does. */
+    box-shadow: var(--slotted-toggle-shadow, var(--slotted-control-shadow, none));
+  }
+
+  /**
+   * ── On ───────────────────────────────────────────────────────────────
+   *
+   * The accent ground inside the accent edge, and the accent text on it. It
+   * sits above hover and below disabled, which is the order
+   * `STATE_PRECEDENCE` sets. Both variants take the edge: a ghost toggle that
+   * is on has become a framed thing, and the edge is half of what says so.
+   */
+  [data-ui-toggle][data-part-root][data-pressed]:not(:disabled):not([data-disabled]) {
+    background: var(
+      --slotted-toggle-pressed-background,
+      var(--slotted-tone-accent-subtle-active, Highlight)
+    );
+    border-color: var(
+      --slotted-toggle-pressed-border-color,
+      var(--slotted-tone-accent-border, Highlight)
+    );
+    color: var(--slotted-toggle-pressed-color, var(--slotted-tone-accent-text, HighlightText));
+  }
+
+  /**
+   * ── Hover and press, each held back for every stronger state ──────────
+   *
+   * A control that is off takes the neutral ground, whatever it is for: a
+   * tinted hover on a row of toggles read as status chips before it read as
+   * hovered controls, which is the reading `button` records. A control that
+   * is on answers the pointer on the accent ground's own steps, so the two
+   * states share no surface in any of theirs.
+   */
+  [data-ui-toggle][data-part-root]:hover:not(:disabled):not([data-disabled]):not([data-pressed]) {
+    background: var(
+      --slotted-toggle-hover-background,
+      var(--slotted-tone-secondary-subtle-hover, ButtonFace)
+    );
+  }
+
+  [data-ui-toggle][data-part-root]:active:not(:disabled):not([data-disabled]):not([data-pressed]) {
+    background: var(
+      --slotted-toggle-active-background,
+      var(--slotted-tone-secondary-subtle-active, ButtonFace)
+    );
+    /* The press lands on the frame it went down on and eases out at the
+       control's own pace, which is `button`'s rule for the same gesture: a
+       transition's timing is read from the state being entered. */
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  [data-ui-toggle][data-part-root][data-pressed]:hover:not(:disabled):not([data-disabled]) {
+    background: var(
+      --slotted-toggle-pressed-hover-background,
+      var(--slotted-tone-accent-subtle-hover, Highlight)
+    );
+  }
+
+  [data-ui-toggle][data-part-root][data-pressed]:active:not(:disabled):not([data-disabled]) {
+    background: var(
+      --slotted-toggle-pressed-background,
+      var(--slotted-tone-accent-subtle-active, Highlight)
+    );
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /**
+   * ── Chips ──────────────────────────────────────────────────────────────
+   *
+   * The same chip `toggle-group` draws: a rounded item with the control edge,
+   * pressed in the neutral tone's ink.
+   */
+  [data-ui-toggle][data-part-root][data-variant='chips'] {
+    border-color: var(--_border-color);
+    border-radius: var(--slotted-toggle-chips-radius, var(--slotted-radius-full, 9999px));
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-toggle][data-part-root][data-variant='chips'][data-pressed]:not(:disabled):not(
+      [data-disabled]
+    ),
+  [data-ui-toggle][data-part-root][data-variant='chips'][data-pressed]:active:not(:disabled):not(
+      [data-disabled]
+    ) {
+    background: var(
+      --slotted-toggle-chips-pressed-background,
+      var(--slotted-tone-neutral-solid, CanvasText)
+    );
+    border-color: var(
+      --slotted-toggle-chips-pressed-background,
+      var(--slotted-tone-neutral-solid, CanvasText)
+    );
+    color: var(--slotted-toggle-chips-pressed-color, var(--slotted-tone-neutral-on-solid, Canvas));
+  }
+
+  [data-ui-toggle][data-part-root][data-variant='chips'][data-pressed]:hover:not(:disabled):not(
+      [data-disabled]
+    ) {
+    background: var(--slotted-tone-neutral-solid-hover, CanvasText);
+    border-color: var(--slotted-tone-neutral-solid-hover, CanvasText);
+  }
+
+  [data-ui-toggle][data-part-root][data-variant='chips']:disabled,
+  [data-ui-toggle][data-part-root][data-variant='chips'][data-disabled] {
+    border-color: var(--slotted-disabled-border, GrayText);
+  }
+
+  /* ── Focus ────────────────────────────────────────────────────────────── */
+
+  /**
+   * A standalone control has room around it, so the ring is held off the
+   * edge the way every other control in the library holds it.
+   */
+  [data-ui-toggle][data-part-root]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── Disabled ─────────────────────────────────────────────────────────── */
+
+  /**
+   * `[data-disabled]` as well as `:disabled`, because a control taken out of
+   * action with a `fieldset` carries no attribute of its own.
+   */
+  [data-ui-toggle][data-part-root]:disabled,
+  [data-ui-toggle][data-part-root][data-disabled] {
+    background: transparent;
+    color: var(--slotted-toggle-disabled-color, var(--slotted-disabled-foreground, GrayText));
+    cursor: not-allowed;
+  }
+
+  [data-ui-toggle][data-part-root][data-variant='outline']:disabled,
+  [data-ui-toggle][data-part-root][data-variant='outline'][data-disabled] {
+    border-color: var(
+      --slotted-toggle-disabled-border-color,
+      var(--slotted-disabled-border, GrayText)
+    );
+    /* Nothing a person cannot reach is lifted off the page. */
+    box-shadow: none;
+  }
+
+  /**
+   * A control that is on and unavailable keeps both facts. The ground says
+   * unavailable and the edge says on, in the same two places the live state
+   * uses them — so the reader still learns the mode from a control they
+   * cannot change. In `high-contrast` the ground is the page's own white, and
+   * the edge is then the only thing carrying it.
+   */
+  [data-ui-toggle][data-part-root][data-pressed]:disabled,
+  [data-ui-toggle][data-part-root][data-pressed][data-disabled] {
+    background: var(
+      --slotted-toggle-disabled-pressed-background,
+      var(--slotted-disabled-background, ButtonFace)
+    );
+    border-color: var(
+      --slotted-toggle-pressed-border-color,
+      var(--slotted-tone-accent-border, Highlight)
+    );
+  }
+}

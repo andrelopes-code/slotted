@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 5,
+  "family": "stepper",
+  "ui": "stepper",
+  "catalog": {
+    "group": "Navigation",
+    "summary": "Shows progress through ordered steps."
+  },
+  "rootRole": "none",
+  "listElement": "ol",
+  "currentValue": "step",
+  "currentSource": "aria-current",
+  "mirrorsCurrent": "data-current on the item, because the item is a different element from the trigger",
+  "logic": "@slotted/core/steps",
+  "triggerElement": {
+    "button": "button",
+    "link": "a",
+    "none": "span",
+    "decidedBy": "navigation"
+  },
+  "unreachableAttribute": "aria-disabled",
+  "advance": {
+    "react": "useStepper()",
+    "angular": "slStepperPrevious and slStepperNext",
+    "reason": "Moving one step is a handler on the consumer's own button, not a button this family paints. Angular Material reaches the same conclusion with matStepperNext, which is a directive placed on a mat-button; a family that shipped its own would ship a second button nobody could theme with the first."
+  },
+  "statuses": ["pending", "current", "complete"],
+  "reflow": {
+    "container": "slotted-stepper",
+    "breakpoint": "30rem",
+    "below": "vertical",
+    "appliesTo": "a stepper the consumer left horizontal",
+    "reason": "Five labels in a row at 320 pixels are five columns two characters wide. Section 2.7 of docs/component-features.md asks responsiveness to change composition rather than size."
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to each trigger, including one a linear flow has not opened",
+      "focus": "the next control",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "moves to the focused step when it is reachable",
+      "focus": "stays on the trigger",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "moves to the focused step when it is reachable",
+      "focus": "stays on the trigger",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "horizontal only: focuses the next trigger in the reading direction, wrapping. It reaches every header, including one a linear flow has not opened, because Tab does",
+      "focus": "that trigger",
+      "source": "family"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "horizontal only: focuses the previous trigger in the reading direction, wrapping. It reaches every header, including one a linear flow has not opened, because Tab does",
+      "focus": "that trigger",
+      "source": "family"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "vertical only: focuses the next trigger, wrapping. It reaches every header, because Tab does",
+      "focus": "that trigger",
+      "source": "family"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "vertical only: focuses the previous trigger, wrapping. It reaches every header, because Tab does",
+      "focus": "that trigger",
+      "source": "family"
+    },
+    {
+      "key": "Home",
+      "effect": "focuses the first trigger",
+      "focus": "that trigger",
+      "source": "family"
+    },
+    {
+      "key": "End",
+      "effect": "focuses the last trigger",
+      "focus": "that trigger",
+      "source": "family"
+    }
+  ],
+  "declined": {
+    "tabRole": {
+      "deferTo": "tabs",
+      "reason": "Angular Material gives a horizontal stepper role=tablist. Section 7 of docs/component-features.md forbids it in the Tabs entry itself: tabs are for peer views in one context, not for the steps of a process. The cost is written in the accessibility notes."
+    },
+    "progressBar": {
+      "deferTo": "progress-indicator",
+      "reason": "MUI ships a MobileStepper with a bar. The connector already paints how far the flow has come, the percentage is exposed to the consumer, and progress-indicator owns the bar itself."
+    },
+    "validation": {
+      "deferTo": "the consumer",
+      "reason": "Zag ships isStepValid and onStepInvalid, and Angular Material reads a stepControl. The change request in docs/state-and-events.md is already cancellable and already carries a reason, so a consumer refuses a move by cancelling it rather than through a second pair of hooks."
+    },
+    "size": {
+      "deferTo": "the density axis",
+      "reason": "Ant Design is the only surveyed implementation with a size step, and the three densities already restate the control scale."
+    },
+    "panelAnimation": {
+      "deferTo": "the consumer",
+      "reason": "Angular Material animates between panels. The panel is a disclosure and a fade delays reading; the connector and the marker transition instead, because those are the changes the eye has to follow."
+    }
+  },
+  "provides": {
+    "stepperDefaults": ["orientation", "labelPlacement", "navigation", "linear"],
+    "toItems": ["orientation", "labelPlacement", "navigation", "linear", "count"]
+  },
+  "messages": ["complete", "current", "label", "invalid", "loading", "position", "unavailable"],
+  "messagesReason": "The words the family says come from the stepper catalog of the language in force, laid over by one messages input on the root: the list's name (label), the position counted from one, and the five statuses. A step announces them as one list written with Intl.ListFormat in the locale in force, so each language joins its own descriptors.",
+  "stateAttributes": {
+    "current": "data-current",
+    "complete": "data-complete",
+    "invalid": "data-invalid",
+    "disabled": "data-disabled",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "current": {
+      "controlled": "step",
+      "uncontrolled": "defaultStep",
+      "request": "onStepChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "literals": {
+    "--slotted-stepper-reflow-breakpoint": "The inline size below which a horizontal stepper becomes a column. A container query cannot read a custom property, which docs/token-foundation.md rule 4 states.",
+    "--slotted-stepper-marker-ratio": "The marker is a circle two thirds again the height of the type it holds, which is a proportion of a box rather than a step on a scale."
+  },
+  "axes": {
+    "orientation": ["horizontal", "vertical"],
+    "labelPlacement": ["end", "bottom"],
+    "navigation": ["button", "link", "none"]
+  },
+  "resolution": {
+    "orientation": ["prop", "defaults", "horizontal"],
+    "labelPlacement": ["prop", "defaults", "end"],
+    "navigation": ["prop", "defaults", "button"],
+    "linear": ["prop", "defaults", false]
+  },
+  "members": {
+    "stepper": {
+      "nativeElement": "div",
+      "defaults": {
+        "defaultStep": 0,
+        "orientation": "horizontal",
+        "labelPlacement": "end",
+        "navigation": "button",
+        "linear": false,
+        "autoComplete": false,
+        "disabled": false,
+        "loading": false,
+        "invalid": false
+      },
+      "capabilities": [
+        "current",
+        "orientation",
+        "placement",
+        "disabled",
+        "loading",
+        "invalid",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "loading",
+        "invalid",
+        "current",
+        "complete"
+      ],
+      "parts": [
+        "root",
+        "list",
+        "item",
+        "trigger",
+        "marker",
+        "label",
+        "description",
+        "status",
+        "separator",
+        "panel"
+      ]
+    }
+  },
+  "scenarios": {
+    "stepper": [
+      "playground",
+      "orientation",
+      "statuses",
+      "linear",
+      "navigation",
+      "placement",
+      "panels",
+      "compact",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

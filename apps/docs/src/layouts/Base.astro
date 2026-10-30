@@ -1,0 +1,65 @@
+---
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
+import '@slotted/theme/styles.css';
+import '@slotted/themes/default.css';
+import '../styles/site.css';
+
+import SiteHeader from '../components/SiteHeader.astro';
+import type { Framework } from '../runtime/frameworks';
+
+interface Props {
+  title: string;
+  description: string;
+  /** The framework this page is written for; neutral pages have none. */
+  framework?: Framework | undefined;
+  frameworkHrefs?: { react: string | null; angular: string | null } | undefined;
+  /** The Markdown of this page, for an agent that asks for it (llmstxt.org). */
+  markdownHref?: string | undefined;
+}
+
+const { title, description, framework, frameworkHrefs, markdownHref } = Astro.props;
+const pageTitle = title === 'Slotted' ? title : `${title} — Slotted`;
+---
+
+<!doctype html>
+<html lang="en" data-slotted-theme="default" data-slotted-density="comfortable">
+  <head>
+    <style is:inline>
+      /* First thing in the document (ADR 0001): a layer takes its position from
+         its first mention, and this site imports every family from source, so
+         a family sheet can reach the page before the token sheet that carries
+         the order. Declared here, the order no longer depends on load order. */
+      @layer slotted.reset, slotted.tokens, slotted.theme, slotted.components, docs;
+    </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="data:," />
+    <link rel="describedby" href="/llms.txt" />
+    {markdownHref && <link rel="alternate" type="text/markdown" href={markdownHref} />}
+    <title>{pageTitle}</title>
+    <script is:inline>
+      /* Before first paint: the reader's scheme, else the system's, so a dark
+         reader never sees a light frame flash. */
+      (function () {
+        var stored = null;
+        try {
+          stored = localStorage.getItem('docs-scheme');
+        } catch (error) {}
+        var scheme =
+          stored === 'light' || stored === 'dark' || stored === 'high-contrast'
+            ? stored
+            : matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+        document.documentElement.setAttribute('data-slotted-scheme', scheme);
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="docs-skip" href="#content">Skip to content</a>
+    <SiteHeader framework={framework} frameworkHrefs={frameworkHrefs} />
+    <slot />
+  </body>
+</html>

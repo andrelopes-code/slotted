@@ -1,0 +1,1005 @@
+<!--
+  Every scene that holds a layer declares `data-fixed`, which gives the stage
+  `contain: layout paint` and makes it the containing block a `position: fixed`
+  layer needs. Without it one page's nine cells each paint a full-viewport layer
+  over the whole page and over each other.
+
+  The page behind each scrim is written out rather than left empty: the scrim is
+  half the picture, and a scrim over nothing shows nothing.
+-->
+
+<section data-scene="page-behind" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-5)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Projects</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      Everything under the scrim is inert while a modal layer is open: the browser is told so by the
+      <code>inert</code> attribute, not only by the paint.
+    </p>
+    <button
+      style="justify-self: start"
+      data-part="trigger"
+      data-part-trigger=""
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="true"
+    >
+      Edit project
+    </button>
+  </div>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="md"
+    data-placement="center"
+    data-scroll="content"
+    data-full-screen="narrow"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="d1-title"
+        aria-describedby="d1-description"
+      >
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="d1-title">Edit project</h2>
+          <p data-part="description" data-part-description="" id="d1-description">
+            Names are visible to everyone in the workspace.
+          </p>
+          <button
+            data-part="fullscreen"
+            data-part-fullscreen=""
+            type="button"
+            aria-label="Full screen"
+            aria-pressed="false"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="maximize"></svg
+            ></span>
+          </button>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </header>
+        <div data-part="body" data-part-body="">
+          <p style="margin: 0">
+            A dialog holds one task. The row between the header and the actions is the only one that
+            scrolls, which is what keeps the actions on screen.
+          </p>
+        </div>
+        <footer data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ghost"
+            data-tone="secondary"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Cancel</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-variant="solid"
+            data-tone="accent"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Save changes</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="long-body" data-fixed>
+  <p style="margin: 0; color: var(--slotted-text-muted)">Ten paragraphs, one footer.</p>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="md"
+    data-scroll="content"
+    data-full-screen="never"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="d2-title"
+      >
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="d2-title">Terms of service</h2>
+          <p data-part="description" data-part-description="">Updated 4 September 2026.</p>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </header>
+        <div data-part="body" data-part-body="">
+          <p style="margin-block: 0 var(--slotted-space-5)">
+            The body is the middle row of a three-row grid, and the grid's middle track is
+            <code>minmax(0, 1fr)</code>. Bounded, it scrolls; unbounded, it would push the footer
+            past the fold and the reader could not reach Accept.
+          </p>
+          <p style="margin-block: 0 var(--slotted-space-5)">
+            Radix and React Aria ship no layout at all, so this is the default outcome of following
+            either library's own example.
+          </p>
+          <p style="margin-block: 0 var(--slotted-space-5)">
+            A third paragraph, so the row has something to scroll.
+          </p>
+          <p style="margin-block: 0 var(--slotted-space-5)">And a fourth.</p>
+          <p style="margin-block: 0 var(--slotted-space-5)">And a fifth.</p>
+          <p style="margin: 0">And a sixth, which is below the fold.</p>
+        </div>
+        <footer data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ghost"
+            data-tone="secondary"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Decline</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-variant="solid"
+            data-tone="accent"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Accept</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="alert-danger" data-fixed>
+  <p style="margin: 0; color: var(--slotted-text-muted)">A step that cannot be undone.</p>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="sm"
+    data-tone="danger"
+    data-full-screen="never"
+    data-outside-press="none"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="a1-title"
+        aria-describedby="a1-description"
+      >
+        <header data-part="header" data-part-header="">
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="status-danger"></svg></span
+          ></span>
+          <h2 data-part="title" data-part-title="" id="a1-title">Delete this project?</h2>
+          <p data-part="description" data-part-description="" id="a1-description">
+            <strong>Atlas</strong> and its 42 documents are removed for everyone. This cannot be
+            undone.
+          </p>
+        </header>
+        <footer data-part="footer" data-part-footer="">
+          <button
+            data-part="cancel"
+            data-part-cancel=""
+            data-ui="button"
+            data-ui-button=""
+            data-variant="outline"
+            data-tone="secondary"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Keep project</span>
+          </button>
+          <button
+            data-part="action"
+            data-part-action=""
+            data-ui="button"
+            data-ui-button=""
+            data-variant="solid"
+            data-tone="danger"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Delete project</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="alert-warning" data-fixed>
+  <p style="margin: 0; color: var(--slotted-text-muted)">A tone that is not danger.</p>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="sm"
+    data-tone="warning"
+    data-full-screen="never"
+    data-outside-press="none"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="a2-title"
+        aria-describedby="a2-description"
+      >
+        <header data-part="header" data-part-header="">
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="status-warning"></svg></span
+          ></span>
+          <h2 data-part="title" data-part-title="" id="a2-title">Leave without saving?</h2>
+          <p data-part="description" data-part-description="" id="a2-description">
+            Your last three edits are not saved yet.
+          </p>
+        </header>
+        <div data-part="body" data-part-body="">
+          <p style="margin: 0">
+            A body is optional in an alert dialog and is here to be looked at.
+          </p>
+        </div>
+        <footer data-part="footer" data-part-footer="">
+          <button
+            data-part="cancel"
+            data-part-cancel=""
+            data-ui="button"
+            data-ui-button=""
+            data-variant="outline"
+            data-tone="secondary"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Keep editing</span>
+          </button>
+          <button
+            data-part="action"
+            data-part-action=""
+            data-ui="button"
+            data-ui-button=""
+            data-variant="solid"
+            data-tone="warning"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Discard edits</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="full-screen" data-fixed>
+  <p style="margin: 0; color: var(--slotted-text-muted)">Edge to edge, at every width.</p>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="lg"
+    data-full-screen="always"
+    data-scroll="content"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="d3-title"
+      >
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="d3-title">New invoice</h2>
+          <p data-part="description" data-part-description="">No radius, no margins, no measure.</p>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </header>
+        <div data-part="body" data-part-body="">
+          <p style="margin: 0">The panel spends the whole layer.</p>
+        </div>
+        <footer data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-variant="solid"
+            data-tone="accent"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Create</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="fullscreen-toggle" data-fixed>
+  <p style="margin: 0; color: var(--slotted-text-muted)">
+    The reader’s own control, and the state it writes.
+  </p>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-fullscreen
+    data-size="md"
+    data-full-screen="never"
+    data-scroll="content"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="d12-title"
+      >
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="d12-title">Reconciliation</h2>
+          <p data-part="description" data-part-description="">
+            Pressed, so the panel has the layer.
+          </p>
+          <button
+            data-part="fullscreen"
+            data-part-fullscreen=""
+            type="button"
+            aria-label="Full screen"
+            aria-pressed="true"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg
+            ></span>
+          </button>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </header>
+        <div data-part="body" data-part-body="">
+          <p style="margin: 0">
+            The mark says what the next press does, so it is the opposite of the state the panel is
+            in.
+          </p>
+        </div>
+        <footer data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-variant="solid"
+            data-tone="accent"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Done</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="loading" data-fixed>
+  <p style="margin: 0; color: var(--slotted-text-muted)">Open before its content arrived.</p>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-loading
+    data-size="md"
+    data-full-screen="never"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="d4-title"
+      >
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="d4-title">Invoice 4471</h2>
+          <p data-part="description" data-part-description="">Fetching the line items.</p>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </header>
+        <div data-part="body" data-part-body="" aria-busy="true">
+          <p style="display: grid; gap: var(--slotted-space-4); margin: 0">
+            <span
+              data-ui="skeleton"
+              data-ui-skeleton=""
+              data-part="root"
+              data-part-root=""
+              data-shape="text"
+              data-size="md"
+              data-animation="shimmer"
+              data-loading=""
+              aria-hidden="true"
+            ></span>
+            <span
+              style="--slotted-skeleton-inline-size: 80%"
+              data-ui="skeleton"
+              data-ui-skeleton=""
+              data-part="root"
+              data-part-root=""
+              data-shape="text"
+              data-size="md"
+              data-animation="shimmer"
+              data-loading=""
+              aria-hidden="true"
+            ></span>
+            <span
+              style="--slotted-skeleton-inline-size: 60%"
+              data-ui="skeleton"
+              data-ui-skeleton=""
+              data-part="root"
+              data-part-root=""
+              data-shape="text"
+              data-size="md"
+              data-animation="shimmer"
+              data-loading=""
+              aria-hidden="true"
+            ></span>
+          </p>
+        </div>
+        <footer data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ghost"
+            data-tone="secondary"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Close</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="hostile-content" data-fixed>
+  <p style="margin: 0; color: var(--slotted-text-muted)">A title with nowhere to break.</p>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="sm"
+    data-full-screen="never"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="d5-title"
+      >
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="d5-title">
+            deployment-pipeline-eu-west-1-production-rollback-2026-09-04T01
+          </h2>
+          <p data-part="description" data-part-description="">
+            Bestätigungsdialog für unwiderrufliche Aktionen mit einer außergewöhnlich langen
+            Beschreibung.
+          </p>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </header>
+        <footer data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ghost"
+            data-tone="secondary"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Abbrechen</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-variant="solid"
+            data-tone="accent"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Zurücksetzen</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="nested" data-fixed>
+  <p style="margin: 0; color: var(--slotted-text-muted)">One layer over another.</p>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="lg"
+    data-full-screen="never"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="d6-title"
+      >
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="d6-title">Billing</h2>
+          <p data-part="description" data-part-description="">The layer underneath.</p>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </header>
+        <div data-part="body" data-part-body="">
+          <p style="margin: 0">Escape reaches the topmost layer only.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- The depth is written by `dismissable-layer` at runtime; the harness states
+       the value the second layer would actually carry. -->
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="sm"
+    data-tone="danger"
+    data-full-screen="never"
+    style="--slotted-layer-depth: 1"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="d7-title"
+        aria-describedby="d7-description"
+      >
+        <header data-part="header" data-part-header="">
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="status-danger"></svg></span
+          ></span>
+          <h2 data-part="title" data-part-title="" id="d7-title">Cancel the subscription?</h2>
+          <p data-part="description" data-part-description="" id="d7-description">
+            Billing stops at the end of the period.
+          </p>
+        </header>
+        <footer data-part="footer" data-part-footer="">
+          <button
+            data-part="cancel"
+            data-part-cancel=""
+            data-ui="button"
+            data-ui-button=""
+            data-variant="outline"
+            data-tone="secondary"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Keep it</span>
+          </button>
+          <button
+            data-part="action"
+            data-part-action=""
+            data-ui="button"
+            data-ui-button=""
+            data-variant="solid"
+            data-tone="danger"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Cancel subscription</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="closed" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-5)">
+    <p style="margin: 0">
+      A layer mounted and closed. Nothing of it is painted, nothing of it is hit, and the binding
+      writes <code>inert</code> on it so nothing of it holds focus.
+    </p>
+    <button
+      style="justify-self: start"
+      data-part="trigger"
+      data-part-trigger=""
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+    >
+      Edit project
+    </button>
+  </div>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-mount="eager"
+    inert
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="d8-title"
+      >
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="d8-title">Edit project</h2>
+          <p data-part="description" data-part-description="">Not on the page.</p>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </header>
+        <div data-part="body" data-part-body="">
+          <p style="margin: 0">Not on the page either.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="header-content" data-fixed>
+  <p style="margin: 0; color: var(--slotted-text-muted)">A badge the family did not place.</p>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="md"
+    data-full-screen="never"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="d9-title"
+      >
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="d9-title">Invoice 4471</h2>
+          <p data-part="description" data-part-description="">Issued on September 3.</p>
+          <span
+            data-ui="status-indicator"
+            data-ui-status-indicator=""
+            data-part="root"
+            data-part-root=""
+            data-status="warning"
+            data-mark="dot"
+            data-size="sm"
+            ><span data-part="mark" data-part-mark="" aria-hidden="true"></span
+            ><span data-part="label" data-part-label="">Em atraso</span></span
+          >
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </header>
+        <div data-part="body" data-part-body="">
+          <p style="margin: 0">
+            Everything in the header lands in the words column unless the family placed it somewhere
+            else. The badge is under the description, not where the mark would go.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="plain-surface" data-fixed>
+  <p style="margin: 0; color: var(--slotted-text-muted)">
+    The layer, and a box the consumer paints.
+  </p>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="md"
+    data-surface="plain"
+    data-full-screen="never"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="d10-title"
+      >
+        <div
+          data-ui="card"
+          data-ui-card=""
+          data-part="root"
+          data-part-root=""
+          data-variant="raised"
+          data-size="md"
+        >
+          <div data-part="body" data-part-body="">
+            <h2
+              data-part="title"
+              data-part-title=""
+              id="d10-title"
+              style="margin: 0 0 var(--slotted-space-4)"
+            >
+              Um card, dentro da layer
+            </h2>
+            <p data-part="description" data-part-description="" style="margin: 0">
+              The family paints nothing here: no surface, no border, no radius, no shadow and no
+              lines. The portal, the scrim, the contained focus and the close policy remain.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="custom-measure" data-fixed>
+  <p style="margin: 0; color: var(--slotted-text-muted)">A measure the five steps do not hold.</p>
+
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="md"
+    data-full-screen="never"
+    style="--slotted-dialog-measure: 26rem"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="d11-title"
+      >
+        <header data-part="header" data-part-header="">
+          <h2 data-part="title" data-part-title="" id="d11-title">Twenty-six rems</h2>
+          <p data-part="description" data-part-description="">
+            Neither sm nor md: the measure comes from --slotted-dialog-measure, and wins over the
+            requested step.
+          </p>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </header>
+        <div data-part="body" data-part-body="">
+          <p style="margin: 0">The footer below is the new inset.</p>
+        </div>
+        <footer data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ghost"
+            data-tone="secondary"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Cancelar</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-variant="solid"
+            data-tone="accent"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>

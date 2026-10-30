@@ -1,0 +1,458 @@
+@layer slotted.components {
+  /**
+   * The actions that finish a task on a page or in a panel.
+   *
+   * Three families in this library put controls in a row and each owns one
+   * question. `button-group` owns the shape of a run — gap, join, orientation.
+   * `toolbar` owns the keyboard of a set of tools — one tab stop, arrows,
+   * `Home`, `End`. This one owns **which action never gives way, and where the
+   * bar assents**: the rank, the anchor that keeps the confirming action still,
+   * and the offset that stops a sticky bar covering the page's own footer.
+   *
+   * So there is no roving focus here and no `toolbar` role: `Tab` reaches every
+   * action, because these are the page's own form actions and a reader walking
+   * a form expects to arrive at Cancel and then at Save. A strip of ten icon
+   * buttons is a `toolbar`, and that family already binds the arrows.
+   *
+   * The bar paints itself, its own rule and the one control it draws — the
+   * overflow trigger. Everything else a reader sees belongs to the control the
+   * consumer placed.
+   */
+  [data-ui-action-bar] {
+    /**
+     * The bar's own rhythm, from the control scales, so the three densities
+     * move it without a rule of their own.
+     */
+    --_gap: var(--slotted-control-gap-md, 0.5rem);
+    --_inset-block: var(--slotted-space-4, 0.5rem);
+    --_inset-inline: var(--slotted-space-5, 0.75rem);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_font-size: var(--slotted-control-font-size-md, 0.8125rem);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_separator-inset: var(--slotted-space-2, 0.25rem);
+    --_duration: var(--slotted-control-transition-duration);
+    --_easing: var(--slotted-control-transition-easing);
+
+    align-items: center;
+    box-sizing: border-box;
+    /**
+     * The bar answers its own width rather than the viewport's, and the query
+     * that stacks it reaches `actions` — a container is a container for its
+     * descendants and not for itself, which is the split
+     * `docs/build-briefing.md` records.
+     */
+    container-name: slotted-action-bar;
+    container-type: inline-size;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-action-bar-gap, var(--_gap));
+    /* A size container has no intrinsic inline size: as a flex item — the
+       page footer's actions row — the bar shrank to nothing and stacked its
+       letters. A bar is as wide as the line it stands on. */
+    inline-size: 100%;
+    min-block-size: calc(var(--_height) + 2 * var(--_inset-block));
+    min-inline-size: 0;
+    padding-block: var(--slotted-action-bar-inset-block, var(--_inset-block));
+    padding-inline: var(--slotted-action-bar-inset-inline, var(--_inset-inline));
+  }
+
+  [data-ui-action-bar][data-size='sm'] {
+    --_gap: var(--slotted-control-gap-sm, 0.375rem);
+    --_inset-block: var(--slotted-space-3, 0.375rem);
+    --_inset-inline: var(--slotted-space-4, 0.5rem);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_font-size: var(--slotted-control-font-size-sm, 0.75rem);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_separator-inset: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-action-bar][data-size='lg'] {
+    --_gap: var(--slotted-control-gap-lg, 0.5rem);
+    --_inset-block: var(--slotted-space-5, 0.75rem);
+    --_inset-inline: var(--slotted-space-6, 1rem);
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_font-size: var(--slotted-control-font-size-lg, 0.875rem);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_separator-inset: var(--slotted-space-3, 0.375rem);
+  }
+
+  /**
+   * A bar that ends up holding nothing takes no room. An actions area built
+   * from a permission filter renders an empty container often, and an empty box
+   * still consumes the gap of the column that holds it — and, under `raised`,
+   * draws a rule straight across the screen with nothing under it.
+   */
+  [data-ui-action-bar]:not(:has([data-part-actions] > *:not([hidden]))):not(
+      :has([data-part-status])
+    ) {
+    display: none;
+  }
+
+  /* ── Appearance ───────────────────────────────────────────────────────── */
+
+  /**
+   * `plain` is the default and paints nothing: the bar inside `page`'s footer
+   * is already standing on a ground that family painted, and a second one there
+   * reads as a box nobody asked for.
+   *
+   * `raised` is the bar with no page around it — in a drawer, a dialog, a card,
+   * or above a table. It takes the surface and one hairline at the top, which
+   * is the whole of the separation a bar at the end of a region needs.
+   */
+  [data-ui-action-bar][data-variant='raised'] {
+    background-color: var(--slotted-action-bar-background, var(--slotted-surface, Canvas));
+    border-block-start: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-action-bar-border-color, var(--slotted-border-subtle, ButtonBorder));
+    /* A theme that paints this surface as a translucent material blurs what moves behind it. */
+    -webkit-backdrop-filter: var(--slotted-action-bar-backdrop-filter, none);
+    backdrop-filter: var(--slotted-action-bar-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-action-bar][data-variant='raised'] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /* ── Sticky ───────────────────────────────────────────────────────────── */
+
+  /**
+   * Stuck and never fixed, for the reason `page` already wrote into its own
+   * contract: a fixed bar covers the last line of content, and every
+   * implementation that uses one then pads the body by a number no token
+   * explains. A sticky bar takes its own height in the flow.
+   *
+   * The offset is what the page publishes on the element that scrolls, so a
+   * sticky action bar inside a page that has a footer stops **above** that
+   * footer rather than sliding under it. With no page around it the property is
+   * unset and the fallback sticks the bar to the end of whatever scrolls. None
+   * of the surveyed implementations composes with the page's own chrome; each
+   * of them fixes the bar and then compensates.
+   */
+  [data-ui-action-bar][data-sticky] {
+    inset-block-end: var(--slotted-page-sticky-bottom, 0px);
+    position: sticky;
+    z-index: var(--slotted-z-index-sticky, 100);
+  }
+
+  /**
+   * Entering from below and leaving the same way, held through the exit by
+   * `@slotted/core/presence`. A bulk bar appears when a selection starts and a
+   * contextual save bar when a field is edited, and a bar that popped into
+   * existence under the reader's hands is the jump
+   * `docs/component-features.md` §11 forbids by name.
+   */
+  [data-ui-action-bar][data-status] {
+    transition:
+      translate var(--_duration) var(--_easing),
+      opacity var(--_duration) var(--_easing);
+  }
+
+  [data-ui-action-bar]:is([data-status='entering'], [data-status='exiting']) {
+    opacity: 0;
+    translate: 0 100%;
+  }
+
+  /* ── The two regions ──────────────────────────────────────────────────── */
+
+  /**
+   * The sentence at the start: a dirty-state marker, a timestamp, the count of
+   * what is selected. It takes what is left over and gives way first, so a long
+   * message shortens itself rather than pushing the actions off the bar.
+   */
+  [data-ui-action-bar] [data-part-status] {
+    align-items: center;
+    color: var(--slotted-action-bar-status-color, var(--slotted-text-muted, GrayText));
+    display: flex;
+    flex: 1 1 auto;
+    font-family: var(--slotted-control-font-family, inherit);
+    font-size: var(--_font-size);
+    gap: var(--_gap);
+    min-inline-size: 0;
+  }
+
+  /**
+   * **The anchor, and it is the whole of the third scope line.** The run is
+   * pushed to the bar's end edge by a margin rather than placed by a
+   * `justify-content`, so it is anchored to that edge and not to its
+   * neighbours: a message appearing in `status`, a button going busy, and a
+   * permission filter removing a control all move what is *before* the last
+   * action and never the last action itself. The property is logical, so the
+   * anchor mirrors with the bar in a right-to-left document.
+   */
+  [data-ui-action-bar] [data-part-actions] {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: var(--_gap);
+    justify-content: flex-end;
+    margin-inline-start: auto;
+    /**
+     * The run is content-sized, which is what lets it sit against the end edge,
+     * and content-sized means it does not shrink: two German labels are wider
+     * than the bar, and without a ceiling the second one is drawn past its
+     * edge. Read at 420 pixels, where `Zur Genehmigung einreichen` was cut
+     * mid-word. The ceiling is what turns the run's own `flex-wrap` on.
+     */
+    max-inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  /**
+   * `align` places the run in the room left after the status, and it is the
+   * axis the field disagrees about: Salesforce centres a docked footer's
+   * buttons, Polaris puts them at the end, Fluent at the start. The anchor is
+   * what `end` is, so the other two are the ones that state a margin.
+   */
+  [data-ui-action-bar][data-align='start'] [data-part-actions] {
+    justify-content: flex-start;
+    margin-inline: 0 auto;
+  }
+
+  [data-ui-action-bar][data-align='center'] [data-part-actions] {
+    justify-content: center;
+    margin-inline: auto;
+  }
+
+  /**
+   * A bar with no status region at all still puts its run where `align` says,
+   * which without this is where the first `auto` margin happens to leave it.
+   */
+  [data-ui-action-bar][data-align='center']:not(:has([data-part-status])) [data-part-actions] {
+    margin-inline: auto;
+  }
+
+  /* ── A unit, and what the collapse does to it ─────────────────────────── */
+
+  /**
+   * One action the bar may give up, and the rank it gives way at. It is a box
+   * rather than nothing, because the family is what hides it and a family
+   * cannot hide what it does not own.
+   *
+   * It paints nothing: everything a reader sees inside it belongs to the
+   * control the consumer placed.
+   */
+  [data-ui-action-bar] [data-part-action] {
+    align-items: center;
+    display: inline-flex;
+    flex: none;
+    min-inline-size: 0;
+  }
+
+  /**
+   * `display: none` written here rather than left to the user agent, for the
+   * reason `breadcrumb` and `toolbar` both record: an author's `display: flex`
+   * on the same element beats the user agent's own `[hidden] { display: none }`,
+   * and without this every collapsed unit stays on the bar and the collapse
+   * does nothing at all.
+   */
+  [data-ui-action-bar]
+    :is([data-part-action], [data-part-separator], [data-part-overflow])[hidden] {
+    display: none;
+  }
+
+  /* ── The separator ────────────────────────────────────────────────────── */
+
+  /**
+   * A hairline between two runs, and the answer to the one line of
+   * `docs/component-features.md` §5 that names no mechanism: a destructive
+   * action does not sit flush against a frequent one. Half a gap on each side,
+   * so the boundary a rule draws is wider than the boundary a gap draws; a step
+   * short of the controls across the axis, because a rule at their full height
+   * reads as the edge of a box that is not there.
+   *
+   * It is a part of this family rather than the `divider` family because its
+   * geometry belongs to the bar: it is measured against the controls beside it.
+   */
+  [data-ui-action-bar] [data-part-separator] {
+    align-self: stretch;
+    background-color: var(
+      --slotted-action-bar-separator-color,
+      var(--slotted-border-strong, ButtonBorder)
+    );
+    border: 0;
+    flex: none;
+    inline-size: var(--slotted-border-width-thin, 1px);
+    margin-block: var(--_separator-inset);
+    margin-inline: calc(var(--_gap) / 2);
+    min-block-size: calc(var(--_height) - 2 * var(--_separator-inset));
+  }
+
+  /* ── The control that holds what did not fit ──────────────────────────── */
+
+  /**
+   * `menu`'s own trigger wearing this family's geometry: the bar's height, the
+   * WCAG 2.2 minimum in the other axis, and the muted ink the library gives a
+   * control a family draws itself. The mark is the `ellipsis` Glyph element in
+   * an `icon` box sized here to the glyph scale, because a character is never
+   * an icon.
+   *
+   * Its accessible name carries the count, so what a reader hears is a number
+   * rather than three dots.
+   */
+  [data-ui-action-bar] [data-part-overflow] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    --slotted-icon-size: var(--_icon-size);
+
+    border-radius: var(--slotted-control-radius, 4px);
+    color: var(--slotted-action-bar-overflow-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    font-family: var(--slotted-control-font-family, inherit);
+    justify-content: center;
+    line-height: 1;
+    /**
+     * Half a gap more than the distance between two actions, so the control
+     * that holds what is missing does not read as one more action. It is the
+     * same distance the separator puts between two runs, for the same reason.
+     */
+    margin-inline-start: calc(var(--_gap) / 2);
+    min-block-size: var(--_height);
+    /**
+     * A square the height of the bar's controls, which is where this family
+     * parts from `toolbar`. There the trigger is an inner control among icon
+     * buttons and was deliberately narrowed to the glyph plus a step of air;
+     * here it stands at the end of a run of **labelled** buttons, and three
+     * muted dots at 24 pixels beside a solid `Guardar` read as a stray glyph
+     * rather than as a control. Read at 420 in the collapsed `priority` scene.
+     */
+    min-inline-size: max(var(--slotted-target-min, 24px), var(--_height));
+    padding: 0;
+    transition:
+      background-color var(--_duration) var(--_easing),
+      color var(--_duration) var(--_easing);
+  }
+
+  /* The ground moves under the pointer and nothing else does. */
+  [data-ui-action-bar] [data-part-overflow]:not(:disabled):hover {
+    background-color: var(
+      --slotted-action-bar-overflow-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    color: var(--slotted-action-bar-overflow-hover-color, var(--slotted-text, CanvasText));
+  }
+
+  [data-ui-action-bar] [data-part-overflow]:not(:disabled):active {
+    background-color: var(
+      --slotted-action-bar-overflow-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  /**
+   * The surface is open, and the control that opened it says so: without it a
+   * reader who moved the pointer off the trigger loses every sign of which
+   * control the layer belongs to.
+   */
+  [data-ui-action-bar] [data-part-overflow][data-open] {
+    background-color: var(
+      --slotted-action-bar-overflow-open-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+    color: var(--slotted-action-bar-overflow-hover-color, var(--slotted-text, CanvasText));
+  }
+
+  /**
+   * A bar out of action is a `<fieldset disabled>` around it, and the platform
+   * disables every control inside — this one included. It says so rather than
+   * looking operable, and it answers neither hover nor press, which is the
+   * precedence `docs/state-and-events.md` fixes.
+   */
+  [data-ui-action-bar] [data-part-overflow]:disabled {
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: default;
+  }
+
+  [data-ui-action-bar] [data-part-overflow]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── The narrow bar ───────────────────────────────────────────────────── */
+
+  /**
+   * Below the breakpoint the run becomes a full-width column with the action
+   * that confirms on top — the composition change `docs/component-features.md`
+   * §2.7 asks for, rather than the same row at a smaller size. A bar of
+   * sentences has nowhere to go sideways: a `Guardar` reached by scrolling
+   * horizontally is a `Guardar` nobody finds.
+   *
+   * The number is literal because `@container (width < var(--x))` is invalid —
+   * rule 4 of `docs/token-foundation.md` — and it is written **once**. The
+   * property below is what the binding reads back to know the bar is stacked,
+   * so the measurement and the layout cannot disagree about where the
+   * breakpoint is. While it is raised the collapse does not run: a column has
+   * room for every action, and a surface holding what did not fit would be a
+   * menu for nothing.
+   *
+   * A bar that holds an overflow control does not stack: it keeps one row, the
+   * actions without a counterpart stay and the rest fold into the menu. It
+   * stacked once, hid its control, and three actions with counterparts stood
+   * in a bar 164 pixels tall on a 358 pixel phone.
+   */
+  @container slotted-action-bar (width < 24rem) {
+    /**
+     * `column-reverse` is what puts the confirming action on top without moving
+     * it in the DOM: the tab order stays the order the author wrote, which is
+     * the order a form is read in, and only the paint is reversed. `stretch`
+     * fills the column, because a column of natural widths is a ragged edge.
+     */
+    [data-ui-action-bar]:not(:has([data-part-overflow])) [data-part-actions] {
+      --_stacked: 1;
+
+      align-items: stretch;
+      flex: 1 1 100%;
+      flex-direction: column-reverse;
+      margin-inline: 0;
+    }
+
+    [data-ui-action-bar]:not(:has([data-part-overflow])) [data-part-action] > * {
+      inline-size: 100%;
+    }
+
+    /**
+     * A rule that divided two controls in a row divides two rows here, so it
+     * turns with them.
+     */
+    [data-ui-action-bar]:not(:has([data-part-overflow])) [data-part-separator] {
+      block-size: var(--slotted-border-width-thin, 1px);
+      inline-size: auto;
+      margin-block: calc(var(--_gap) / 2);
+      margin-inline: var(--_separator-inset);
+      min-block-size: 0;
+    }
+
+    [data-ui-action-bar]:not(:has([data-part-overflow])) [data-part-status] {
+      flex: 1 1 100%;
+    }
+
+    /* What the consumer put in the status, addressed as the part's child and
+       never by a class of its own: while the bar is a column the status fills
+       the row, as an action does two rules above. */
+    [data-ui-action-bar]:not(:has([data-part-overflow])) [data-part-status] > * {
+      align-content: space-between;
+      inline-size: 100%;
+    }
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────── */
+
+  /**
+   * A rule painted with a background disappears when the system flattens every
+   * background to `Canvas`, and the separator is a background rather than a
+   * border. Keeping the paint is the only way the boundary between a
+   * destructive action and a frequent one is still there to read.
+   */
+  @media (forced-colors: active) {
+    [data-ui-action-bar] [data-part-separator] {
+      background-color: CanvasText;
+      forced-color-adjust: none;
+    }
+  }
+}

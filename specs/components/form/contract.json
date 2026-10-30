@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 5,
+  "family": "form",
+  "ui": "form",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Form with validation, error summary and submit."
+  },
+  "rootElement": "form",
+  "rootRole": null,
+  "core": "@slotted/core/form",
+  "apgPattern": null,
+  "sources": [
+    "https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html",
+    "https://design-system.service.gov.uk/components/error-summary/",
+    "https://html.spec.whatwg.org/multipage/forms.html#the-form-element"
+  ],
+  "ownsFieldState": false,
+  "nativeValidation": {
+    "attribute": "novalidate",
+    "writtenByDefault": true,
+    "harvest": "checkValidity",
+    "message": "validationMessage"
+  },
+  "errorKey": "name",
+  "errorOrder": "document",
+  "errorSources": ["errors", "constraint", "submit"],
+  "errorMerge": "replace",
+  "errorClearedBy": ["input", "submit", "reset"],
+  "unlinkedErrorsKept": true,
+  "summary": {
+    "role": "alert",
+    "focusable": true,
+    "title": "messages.summaryTitle",
+    "itemElement": "a[href]",
+    "linksTo": "control"
+  },
+  "submit": {
+    "values": "FormData",
+    "async": true,
+    "reentrant": false,
+    "busyAttribute": "aria-busy"
+  },
+  "guardUnsaved": "beforeunload",
+  "containerName": "slotted-form",
+  "reflowBreakpoint": "360px",
+  "asideBreakpoint": "75rem",
+  "angular": {
+    "reactiveForms": "ControlContainer",
+    "touchOnSubmit": "markAllAsTouched",
+    "messageRegistry": "SL_FORM_ERROR_MESSAGES",
+    "signalForms": "ControlValueAccessor"
+  },
+  "axes": {
+    "validate": ["submit", "blur", "change", "none"],
+    "errorFocus": ["summary", "control", "none"],
+    "summary": ["auto", "none"],
+    "align": ["end", "start", "between", "stretch"]
+  },
+  "resolution": {
+    "validate": ["prop", "defaults", "submit"],
+    "errorFocus": ["prop", "defaults", "summary"],
+    "summary": ["prop", "defaults", "auto"],
+    "align": ["prop", "defaults", "end"]
+  },
+  "provides": {
+    "formDefaults": [
+      "validate",
+      "errorFocus",
+      "summary",
+      "summaryDescription",
+      "align",
+      "nativeValidation"
+    ]
+  },
+  "messages": [
+    "summaryTitle",
+    "errors.required",
+    "errors.email",
+    "errors.min",
+    "errors.max",
+    "errors.minlength",
+    "errors.maxlength",
+    "errors.pattern"
+  ],
+  "imperative": ["validate", "submit", "reset", "focusFirstError"],
+  "stateAttributes": {
+    "invalid": "data-invalid",
+    "loading": "data-loading",
+    "disabled": "data-disabled"
+  },
+  "stateModel": {
+    "validity": {
+      "controlled": "errors",
+      "uncontrolled": "defaultErrors",
+      "request": "onErrorsChange",
+      "reasons": ["submit", "keyboard", "clear", "programmatic"]
+    }
+  },
+  "literals": {
+    "reflowBreakpoint": "360px is literal because CSS forbids a custom property in a container condition, which docs/token-foundation.md rule 4 records. It is the width below which two buttons side by side stop being two buttons and become two half-buttons. The container is the form rather than the action row, because a container cannot answer its own query.",
+    "asideBreakpoint": "75rem is literal for the same reason: the form's inline size from which the aside stands beside the column of fields, a 40rem column, a 20rem aside and the gap between them with room to spare.",
+    "--slotted-form-measure": "40rem is a line length rather than a step on a scale: the longest column of fields a reader follows without losing the label of the row. No scale in docs/token-foundation.md holds a line length.",
+    "--slotted-form-aside-size": "20rem is a line length rather than a step on a scale: a preview or a summary in words at the md step. No scale in docs/token-foundation.md holds a line length."
+  },
+  "fieldGap": "two field or field-group roots written one after the other directly inside the form stand apart by --slotted-form-field-gap (space-6), two field-group roots by --slotted-form-section-gap (space-9); the fields, the summary and the actions stand at most --slotted-form-measure wide; a layout the page draws itself keeps its own spacing",
+  "members": {
+    "form": {
+      "nativeElement": "form",
+      "defaults": {
+        "validate": "submit",
+        "errorFocus": "summary",
+        "summary": "auto",
+        "align": "end",
+        "nativeValidation": false,
+        "guardUnsaved": false,
+        "loading": false
+      },
+      "capabilities": ["validity", "appearance", "loading", "disabled", "wiring"],
+      "states": ["default", "invalid", "loading", "disabled"],
+      "parts": [
+        "root",
+        "summary",
+        "summary-title",
+        "summary-list",
+        "summary-item",
+        "actions",
+        "aside"
+      ]
+    }
+  },
+  "scenarios": {
+    "form": [
+      "playground",
+      "validation",
+      "errors",
+      "summary",
+      "submit",
+      "actions",
+      "states",
+      "content",
+      "composition",
+      "accessibility"
+    ]
+  }
+}

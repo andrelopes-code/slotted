@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 5,
+  "family": "section",
+  "ui": "section",
+  "catalog": {
+    "group": "Layout",
+    "summary": "Titled block of content within a page."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/",
+  "composes": ["typography"],
+  "anatomy": {
+    "root": "a section element. A region when it has a heading to be named by; a plain section otherwise",
+    "header": "the row above the body: the title column and the actions. Sticky under the page chrome when asked",
+    "title": "eyebrow, heading, tags, description, in that order. It lays out no box of its own: its parts join the header row, so the heading, the tags and the actions share one line and one baseline",
+    "eyebrow": "a short overline — a count, a category — in small capitals. Structural, not status: status is a tag",
+    "heading": "the h2, or whichever rank the outline gives, or the element the consumer substitutes. A label in tracked small capitals; in a section nested in another, mixed case in the muted tone, one step larger",
+    "tags": "badges or tags beside the heading — a count, a status — on the heading's baseline. Outside the heading, so they are not read as part of its name",
+    "description": "a paragraph under the heading, in the muted text, with a measure",
+    "actions": "the end of the header row: a button, a toolbar, a link",
+    "body": "the content, one outline step deeper"
+  },
+  "roles": {
+    "root": "region"
+  },
+  "wiring": {
+    "aria-labelledby": "on the root, naming the heading, whenever a heading is rendered",
+    "unnamed": "a section with no heading writes no name and is not a landmark, which is what the APG says of an unnamed section element",
+    "id": "on the root, from useId or the consumer's own, so an anchor can reach it"
+  },
+  "heading": {
+    "provider": "typography",
+    "body": "+1",
+    "reason": "The heading takes the rank typography's outline context gives, or the level axis when written; the body is wrapped one step deeper, so a nested section takes the next rank. An h2 never appears under an h4 by accident, and the skip warning typography already emits covers a consumer who writes the wrong level"
+  },
+  "sticky": {
+    "part": "header",
+    "offset": "var(--slotted-page-sticky-top, 0px)",
+    "reason": "The header of a long section stays in view under the page chrome, which is what Sirius solved with a separate directive and PatternFly with stickyOnBreakpoint. Without a page the property is absent and the header sticks to the top of whatever scrolls",
+    "stuck": "The header carries data-stuck while content passes under it, written by the binding on the element and not through state. Its background reads --slotted-section-header-background, which defaults to the page ground, so a theme whose page ground is translucent fills it only while stuck"
+  },
+  "ground": {
+    "none": "transparent. Separation comes from the space between sections, which is the family's own (--slotted-section-spacing after a section, --slotted-section-subsection-spacing before a subsection that follows content), from the heading's form, or from the divider",
+    "surface": "--slotted-surface-raised with a subtle border and the large radius, inset by one step; no shadow, no hover, no action. A surface and not a card, which is the distinction docs/component-features.md §4 asks for"
+  },
+  "anchors": {
+    "deferTo": "anchor-nav",
+    "scrollMargin": "var(--slotted-page-sticky-top, 0px)",
+    "id": "the root carries an id from useId or the consumer's own, so a hash link reaches it",
+    "reason": "docs/component-features.md §7 lists Table of Contents / Anchor Nav as its own Extended family. It observes which sections are in view, marks the current one and scrolls to one. This family gives it an id to reach and a scroll margin so the jump lands under the page chrome, and page-header gives it the tabs slot to sit in"
+  },
+  "declined": {
+    "card": {
+      "reason": "docs/component-features.md §4: a section is not turned into a card. ground=surface is a surface with no elevation and no interaction; a card is the card family"
+    },
+    "collapsible": {
+      "deferTo": "collapsible",
+      "reason": "no surveyed implementation collapses a section, and the body composes collapsible when a product wants one"
+    },
+    "anchorBar": {
+      "deferTo": "anchor-nav",
+      "reason": "See anchors"
+    },
+    "padding": {
+      "deferTo": "container",
+      "reason": "PatternFly's padding and isWidthLimited are the page's measure and inset. The section owns one distance: the gap between its header and its body"
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "level": ["auto", "1", "2", "3", "4", "5", "6"],
+    "divider": [false, true],
+    "ground": ["none", "surface"],
+    "sticky": [false, true]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "divider": ["prop", "defaults", false],
+    "ground": ["prop", "defaults", "none"],
+    "sticky": ["prop", "defaults", false]
+  },
+  "provides": {
+    "sectionDefaults": ["size", "divider", "ground", "sticky"]
+  },
+  "stateAttributes": {},
+  "members": {
+    "section": {
+      "nativeElement": "section",
+      "defaults": {
+        "size": "md",
+        "level": "auto",
+        "divider": false,
+        "ground": "none",
+        "sticky": false
+      },
+      "capabilities": ["size", "appearance", "wiring"],
+      "states": ["default"],
+      "parts": [
+        "root",
+        "header",
+        "title",
+        "eyebrow",
+        "heading",
+        "tags",
+        "description",
+        "actions",
+        "body"
+      ]
+    }
+  },
+  "scenarios": {
+    "section": [
+      "playground",
+      "anatomy",
+      "level",
+      "size",
+      "separation",
+      "sticky",
+      "nested",
+      "content",
+      "composition",
+      "defaults",
+      "accessibility"
+    ]
+  }
+}

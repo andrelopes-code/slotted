@@ -1,0 +1,798 @@
+<!--
+  The harness runs no script, so the popover's layer is written open and in
+  flow, as `filter-bar`'s editor scene writes it: `position: relative` in
+  place of the positioner's coordinates, and the room it would measure
+  stated as the stage's width.
+
+  The domain is an orders listing: the built-in Default view, and the three
+  views a sales desk keeps — Late orders, My region, High value.
+-->
+<section data-scene="trigger">
+  <div
+    style="display: grid; grid-template-columns: minmax(0, 1fr); justify-items: start; gap: 16px"
+  >
+    <div
+      data-ui="saved-views"
+      data-ui-saved-views=""
+      data-part="root"
+      data-part-root=""
+      role="group"
+      aria-label="Views"
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        title="Default"
+      >
+        <span data-label>Default</span>
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+        ></span>
+      </button>
+    </div>
+    <div
+      data-ui="saved-views"
+      data-ui-saved-views=""
+      data-part="root"
+      data-part-root=""
+      role="group"
+      aria-label="Views"
+      data-modified
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        title="Late orders"
+      >
+        <span data-label>Late orders</span>
+        <span data-part="modified" data-part-modified="">Modified</span>
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+        ></span>
+      </button>
+      <button data-part="revert" data-part-revert="" type="button">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-directional
+          aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="rotate-ccw"></svg></span
+        >Revert
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="panel">
+  <div
+    data-ui="saved-views"
+    data-ui-saved-views=""
+    data-part="root"
+    data-part-root=""
+    role="group"
+    aria-label="Views"
+    data-open
+  >
+    <button
+      data-part="trigger"
+      data-part-trigger=""
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="true"
+      title="Late orders"
+    >
+      <span data-label>Late orders</span>
+      <span
+        data-ui="icon"
+        data-ui-icon=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        aria-hidden="true"
+        ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+      ></span>
+    </button>
+  </div>
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      margin-block-start: 4px;
+      inline-size: max-content;
+      max-inline-size: 100%;
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div data-part="content" data-part-content="" role="dialog" tabindex="-1" aria-label="Views">
+      <div data-ui="saved-views" data-ui-saved-views="" data-part="panel" data-part-panel="">
+        <ul data-part="list" data-part-list="" role="list">
+          <li data-part="item" data-part-item="" data-built-in>
+            <button data-part="apply" data-part-apply="" type="button">
+              <span data-label>Default</span>
+            </button>
+            <button
+              data-part="actions"
+              data-part-actions=""
+              type="button"
+              aria-haspopup="menu"
+              aria-label="Actions for Default"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+              ></span>
+            </button>
+          </li>
+          <li data-part="item" data-part-item="" data-current data-default>
+            <button data-part="apply" data-part-apply="" type="button" aria-current="true">
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg
+              ></span>
+              <span data-label>Late orders</span
+              ><span data-part="default-mark" data-part-default-mark=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg></span
+                ><span>default</span></span
+              >
+            </button>
+            <button
+              data-part="actions"
+              data-part-actions=""
+              type="button"
+              aria-haspopup="menu"
+              aria-label="Actions for Late orders"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+              ></span>
+            </button>
+          </li>
+          <li data-part="item" data-part-item="">
+            <button data-part="apply" data-part-apply="" type="button">
+              <span data-label>My region</span>
+            </button>
+            <button
+              data-part="actions"
+              data-part-actions=""
+              type="button"
+              aria-haspopup="menu"
+              aria-label="Actions for My region"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+              ></span>
+            </button>
+          </li>
+          <li data-part="item" data-part-item="">
+            <button data-part="apply" data-part-apply="" type="button">
+              <span data-label>High value</span>
+            </button>
+            <button
+              data-part="actions"
+              data-part-actions=""
+              type="button"
+              aria-haspopup="menu"
+              aria-label="Actions for High value"
+              data-open
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+              ></span>
+            </button>
+          </li>
+        </ul>
+        <div data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Save as new view…</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="built-in">
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: max-content;
+      max-inline-size: 100%;
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div data-part="content" data-part-content="" role="dialog" tabindex="-1" aria-label="Views">
+      <div data-ui="saved-views" data-ui-saved-views="" data-part="panel" data-part-panel="">
+        <ul data-part="list" data-part-list="" role="list">
+          <li data-part="item" data-part-item="" data-built-in data-current data-default>
+            <button data-part="apply" data-part-apply="" type="button" aria-current="true">
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg
+              ></span>
+              <span data-label>Default</span
+              ><span data-part="default-mark" data-part-default-mark=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg></span
+                ><span>default</span></span
+              >
+            </button>
+            <button
+              data-part="actions"
+              data-part-actions=""
+              type="button"
+              aria-haspopup="menu"
+              aria-label="Actions for Default"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+              ></span>
+            </button>
+          </li>
+          <li data-part="item" data-part-item="">
+            <button data-part="apply" data-part-apply="" type="button">
+              <span data-label>Late orders</span>
+            </button>
+            <button
+              data-part="actions"
+              data-part-actions=""
+              type="button"
+              aria-haspopup="menu"
+              aria-label="Actions for Late orders"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+              ></span>
+            </button>
+          </li>
+        </ul>
+        <div data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Save as new view…</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+            disabled
+            data-disabled
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="forms">
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: max-content;
+      max-inline-size: 100%;
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div data-part="content" data-part-content="" role="dialog" tabindex="-1" aria-label="Views">
+      <div data-ui="saved-views" data-ui-saved-views="" data-part="panel" data-part-panel="">
+        <ul data-part="list" data-part-list="" role="list">
+          <li data-part="item" data-part-item="" data-built-in>
+            <button data-part="apply" data-part-apply="" type="button">
+              <span data-label>Default</span>
+            </button>
+            <button
+              data-part="actions"
+              data-part-actions=""
+              type="button"
+              aria-haspopup="menu"
+              aria-label="Actions for Default"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+              ></span>
+            </button>
+          </li>
+          <li data-part="item" data-part-item="" data-editing>
+            <form data-part="form" data-part-form="" aria-label="Rename Late orders">
+              <div
+                data-ui="field"
+                data-ui-field=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-label-placement="top"
+                data-necessity="mark"
+              >
+                <label data-part="label" data-part-label="" for="rename-late">View name</label>
+                <div
+                  data-ui="text-field"
+                  data-ui-text-field=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-variant="outline"
+                >
+                  <input
+                    data-part="input"
+                    data-part-input=""
+                    id="rename-late"
+                    value="Late orders — East"
+                  />
+                </div>
+              </div>
+              <div data-buttons>
+                <button
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  type="button"
+                >
+                  <span data-part="label" data-part-label="">Cancel</span>
+                </button>
+                <button
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="accent"
+                  data-variant="solid"
+                  data-size="sm"
+                  type="submit"
+                >
+                  <span data-part="label" data-part-label="">Rename</span>
+                </button>
+              </div>
+            </form>
+          </li>
+          <li data-part="item" data-part-item="" data-editing>
+            <div
+              data-part="confirm"
+              data-part-confirm=""
+              role="group"
+              aria-labelledby="confirm-high"
+            >
+              <p id="confirm-high">Delete “High value”?</p>
+              <div data-buttons>
+                <button
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  type="button"
+                >
+                  <span data-part="label" data-part-label="">Cancel</span>
+                </button>
+                <button
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="danger"
+                  data-variant="solid"
+                  data-size="sm"
+                  type="button"
+                >
+                  <span data-part="label" data-part-label="">Delete</span>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <form data-part="form" data-part-form="" aria-label="Save as new view">
+          <div
+            data-ui="field"
+            data-ui-field=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-label-placement="top"
+            data-necessity="mark"
+            data-invalid
+          >
+            <label data-part="label" data-part-label="" for="save-as">View name</label>
+            <div
+              data-ui="text-field"
+              data-ui-text-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-invalid
+            >
+              <input
+                data-part="input"
+                data-part-input=""
+                id="save-as"
+                value="my region"
+                aria-invalid="true"
+                aria-describedby="save-as-error"
+              />
+            </div>
+            <p
+              data-ui="inline-message"
+              data-ui-inline-message=""
+              data-mark="none"
+              data-part="root"
+              data-part-root=""
+              data-tone="danger"
+              data-size="sm"
+              data-live="off"
+              id="save-as-error"
+            >
+              <span data-part="prefix" data-part-prefix="">Error:</span>
+              <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+              <span data-part="text" data-part-text="">A view with this name already exists</span>
+            </p>
+          </div>
+          <div data-buttons>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="root"
+              data-part-root=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="sm"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Cancel</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="root"
+              data-part-root=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="sm"
+              type="submit"
+            >
+              <span data-part="label" data-part-label="">Save view</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="long-names">
+  <div
+    style="display: grid; grid-template-columns: minmax(0, 1fr); justify-items: start; gap: 16px"
+  >
+    <div
+      data-ui="saved-views"
+      data-ui-saved-views=""
+      data-part="root"
+      data-part-root=""
+      role="group"
+      aria-label="Views"
+      data-modified
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        title="Late orders from the Midwest distributors awaiting carrier confirmation"
+      >
+        <span data-label
+          >Late orders from the Midwest distributors awaiting carrier confirmation</span
+        >
+        <span data-part="modified" data-part-modified="">Modified</span>
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+        ></span>
+      </button>
+      <button data-part="revert" data-part-revert="" type="button">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-directional
+          aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="rotate-ccw"></svg></span
+        >Revert
+      </button>
+    </div>
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="auto"
+      data-open
+      style="
+        position: relative;
+        inline-size: max-content;
+        max-inline-size: 100%;
+        --slotted-positioner-available-width: 100%;
+      "
+    >
+      <div data-part="content" data-part-content="" role="dialog" tabindex="-1" aria-label="Views">
+        <div data-ui="saved-views" data-ui-saved-views="" data-part="panel" data-part-panel="">
+          <ul data-part="list" data-part-list="" role="list">
+            <li data-part="item" data-part-item="" data-built-in>
+              <button data-part="apply" data-part-apply="" type="button">
+                <span data-label>Default</span>
+              </button>
+              <button
+                data-part="actions"
+                data-part-actions=""
+                type="button"
+                aria-haspopup="menu"
+                aria-label="Actions for Default"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+                ></span>
+              </button>
+            </li>
+            <li data-part="item" data-part-item="" data-current data-default>
+              <button data-part="apply" data-part-apply="" type="button" aria-current="true">
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg
+                ></span>
+                <span data-label
+                  >Late orders from the Midwest distributors awaiting carrier confirmation</span
+                ><span data-part="default-mark" data-part-default-mark=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    data-size="sm"
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="pin"></svg></span
+                  ><span>default</span></span
+                >
+              </button>
+              <button
+                data-part="actions"
+                data-part-actions=""
+                type="button"
+                aria-haspopup="menu"
+                aria-label="Actions for Late orders from the Midwest distributors"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+                ></span>
+              </button>
+            </li>
+            <li data-part="item" data-part-item="">
+              <button data-part="apply" data-part-apply="" type="button">
+                <span data-label>SO-2026-Q3-HELIOS-AUTOMATION-GMBH-PREPAID-OVER-10000-USD</span>
+              </button>
+              <button
+                data-part="actions"
+                data-part-actions=""
+                type="button"
+                aria-haspopup="menu"
+                aria-label="Actions for SO-2026-Q3-HELIOS"
+              >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="ellipsis"></svg
+                ></span>
+              </button>
+            </li>
+          </ul>
+          <div data-part="footer" data-part-footer="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="root"
+              data-part-root=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="sm"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Save as new view…</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="root"
+              data-part-root=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="sm"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Save</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

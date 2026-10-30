@@ -1,0 +1,198 @@
+@layer slotted.components {
+  /**
+   * Container bounds the inline size of a region, insets it from the edge of
+   * the space it was given, and places it inside that space. It paints
+   * nothing: a layout that carried a colour would be a surface, and a surface
+   * is another family's decision.
+   *
+   * The root lays three tracks — a start gutter, the bounded column, an end
+   * gutter — rather than setting a maximum on the box itself. The reason is
+   * the breakout: a child that has to reach both edges needs a track to span,
+   * and a box bounded by its own maximum has nothing to offer it. Inset for
+   * the same reason is a floor on the two gutters and never a pad on the box,
+   * because a pad would inset the breakout too.
+   *
+   * Every value travels through a private property so the three axes can be
+   * read against each other in one declaration instead of restating the
+   * template four times.
+   */
+  [data-ui-container] {
+    --_max: var(--slotted-container-content, 56rem);
+    --_inset: var(--slotted-space-6, 1rem);
+    --_start-track: 1fr;
+    --_end-track: 1fr;
+
+    display: grid;
+    /**
+     * The column takes the smaller of its maximum and what is left after both
+     * gutters, so it collapses continuously as the container narrows. There is
+     * no breakpoint to be unstable around, and nothing to reflow.
+     */
+    grid-template-columns:
+      [full-start] minmax(var(--_inset), var(--_start-track))
+      [content-start] min(100% - 2 * var(--_inset), var(--_max))
+      [content-end] minmax(var(--_inset), var(--_end-track))
+      [full-end];
+    /**
+     * The maximum belongs to the column, so the box itself takes everything it
+     * is offered. Without this a container placed in a flex row would size to
+     * its content and bound nothing.
+     */
+    inline-size: 100%;
+  }
+
+  /**
+   * A grid item is at least as wide as its content unless it is told
+   * otherwise, so a single unbroken token — a URL, an identifier — would widen
+   * the track past its maximum and scroll the page sideways, which is the
+   * failure WCAG SC 1.4.10 names. The column holds; what to do with the
+   * overflow is the child's decision.
+   */
+  [data-ui-container] > * {
+    grid-column: content;
+    min-inline-size: 0;
+  }
+
+  /**
+   * A child that leaves the bound behind and reaches both edges of the
+   * container: a table, a banner, a strip of media inside a page of prose.
+   * It answers the container rather than the viewport, so it is still correct
+   * nested, inside a scroll region, and in a container that does not fill the
+   * page — none of which the `50% - 50vw` recipe survives. Bounded content
+   * returns inside it by nesting another container.
+   */
+  [data-ui-container] > [data-part-breakout] {
+    grid-column: full;
+  }
+
+  /**
+   * The steps are named for what they bound. `sm`/`md`/`lg` is this library's
+   * word for control geometry, and a container's maximum is not that: it is
+   * chosen by what is inside it, and a letter hides the choice.
+   *
+   * `measure` is stated in characters because that is the unit a measure has.
+   * A maximum stated in pixels gets *longer* in characters when the reader
+   * enlarges the text, which is the opposite of what the bound is for; `ch`
+   * follows the inherited type and the reader's zoom. WCAG SC 1.4.8 caps a
+   * line at eighty characters, and `ch` is the advance of "0" — wider than the
+   * average glyph in a proportional face — so sixty-five of them land under
+   * that ceiling rather than over it.
+   *
+   * The two page steps state a literal because the foundation has no scale of
+   * widths: space stops at 4rem and is about separation, not extent. Three
+   * values read by one family is not a scale, so they stay family tokens.
+   */
+  [data-ui-container][data-size='measure'] {
+    --_max: var(--slotted-container-measure, 65ch);
+  }
+
+  [data-ui-container][data-size='content'] {
+    --_max: var(--slotted-container-content, 56rem);
+  }
+
+  [data-ui-container][data-size='wide'] {
+    --_max: var(--slotted-container-wide, 80rem);
+  }
+
+  /**
+   * `full` is what the frame gives, up to a ceiling, and `bleed` is the
+   * absence of a ceiling. The names are that way round because the value
+   * written without thinking has to be the safe one: `full` is what a person
+   * types to mean "use the screen", and an application that typed it on every
+   * route was unreadable on an ultra-wide display — a line of text three
+   * thousand pixels long, a form whose label and field were a screen apart.
+   * 120rem is a 1920-pixel display, where `full` and `bleed` are the same
+   * picture; past it the content stops and centres.
+   *
+   * `bleed` keeps the old behaviour and has to be asked for by name: a data
+   * grid, a board, a canvas — content that is worth every pixel it is given,
+   * and reads better at three thousand pixels than at nineteen hundred.
+   * Neither removes the container: the gutters stay in both.
+   */
+  [data-ui-container][data-size='full'] {
+    --_max: var(--slotted-container-full, 120rem);
+  }
+
+  [data-ui-container][data-size='bleed'] {
+    --_max: 100%;
+  }
+
+  /**
+   * The inset is a step of the space scale the layout families take their gap
+   * from, so a page gutter and a stack gap are retuned by one theme decision.
+   * It does not answer density: how tightly controls are packed is not a
+   * composition decision, and a page frame that moved every time a table got
+   * denser would be the page reflowing for no reason.
+   */
+  [data-ui-container][data-inset='0'] {
+    --_inset: 0px;
+  }
+
+  [data-ui-container][data-inset='1'] {
+    --_inset: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-container][data-inset='2'] {
+    --_inset: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-container][data-inset='3'] {
+    --_inset: var(--slotted-space-3, 0.375rem);
+  }
+
+  [data-ui-container][data-inset='4'] {
+    --_inset: var(--slotted-space-4, 0.5rem);
+  }
+
+  [data-ui-container][data-inset='5'] {
+    --_inset: var(--slotted-space-5, 0.75rem);
+  }
+
+  [data-ui-container][data-inset='6'] {
+    --_inset: var(--slotted-space-6, 1rem);
+  }
+
+  [data-ui-container][data-inset='7'] {
+    --_inset: var(--slotted-space-7, 1.25rem);
+  }
+
+  [data-ui-container][data-inset='8'] {
+    --_inset: var(--slotted-space-8, 1.5rem);
+  }
+
+  [data-ui-container][data-inset='9'] {
+    --_inset: var(--slotted-space-9, 2rem);
+  }
+
+  [data-ui-container][data-inset='10'] {
+    --_inset: var(--slotted-space-10, 2.5rem);
+  }
+
+  [data-ui-container][data-inset='11'] {
+    --_inset: var(--slotted-space-11, 3rem);
+  }
+
+  [data-ui-container][data-inset='12'] {
+    --_inset: var(--slotted-space-12, 4rem);
+  }
+
+  /**
+   * Where the column sits when there is spare space. It is expressed as the
+   * growth limit of a gutter: `1fr` takes a share of what is free, and the
+   * inset itself pins a gutter to its floor. Track order follows the writing
+   * direction, so a right-to-left document is the same component mirrored
+   * rather than a second stylesheet.
+   */
+  [data-ui-container][data-align='center'] {
+    --_start-track: 1fr;
+    --_end-track: 1fr;
+  }
+
+  [data-ui-container][data-align='start'] {
+    --_start-track: var(--_inset);
+  }
+
+  [data-ui-container][data-align='end'] {
+    --_end-track: var(--_inset);
+  }
+}

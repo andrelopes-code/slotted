@@ -1,0 +1,797 @@
+@layer slotted.components {
+  /**
+   * ── One number, and the two buttons that move it ───────────────────────
+   *
+   * A frame around an `input`, rather than the `input` itself — the shape
+   * `text-field` established, and for the same WAI-ARIA reason: a `spinbutton`,
+   * like a `textbox`, may hold only non-interactive presentational children, so
+   * the two steppers are siblings of the control inside a frame with no role.
+   *
+   * The control is `type="text"`, never `type="number"`: the HTML value
+   * sanitization algorithm empties a number input whenever the text is not a
+   * valid floating-point number, so no grouping separator, no decimal comma and
+   * no currency affix survives it.
+   *
+   * Every rule keys on `data-ui` and `data-part`. The field around the control
+   * mirrors its state onto the frame rather than styling through, so a control
+   * used outside a field looks the same as one inside it.
+   */
+  [data-ui-number-field][data-part-root] {
+    /**
+     * Type, height, inline padding, gap and glyph size all come from the
+     * control scales — the only ones the theme restates per density — so an
+     * amount in a dense table shrinks whole rather than in parts.
+     */
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    /** The floor under the glyph scale at the dense step (SL3); a family token so a theme can retune it. */
+    --_icon-floor: var(--slotted-number-field-icon-size-min, 14px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-md, 16px));
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+
+    /**
+     * The stepper's cross measurement — the column's width when the two halves
+     * are stacked, and each button's width when they are split.
+     *
+     * It is the glyph plus a step of air on each side — the box every inner
+     * control in the library draws (R2) — capped at the inner size of a
+     * control at this step (`--slotted-control-inner-size-*`) so the column
+     * stays square-ish, and floored at the WCAG 2.2 minimum so the inline axis
+     * is never short.
+     * The block axis is answered per arrangement further down.
+     */
+    --_stepper-size: var(
+      --slotted-number-field-stepper-size,
+      max(
+        var(--slotted-target-min, 24px),
+        min(calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)), var(--_inner-size))
+      )
+    );
+
+    /**
+     * The split buttons are the inner controls `text-field` draws: the glyph
+     * plus a step of air, capped at the inner size, inset concentrically — the
+     * air beside a button equals the air above and below it, and its corner is
+     * the frame's less that air.
+     */
+    --_action-size: var(
+      --slotted-number-field-action-size,
+      min(calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)), var(--_inner-size))
+    );
+    --_inset: max(
+      0px,
+      calc(
+        (var(--_height) - 2 * var(--slotted-control-border-width, 1px) - var(--_action-size)) / 2
+      )
+    );
+    --_action-radius: max(
+      var(--slotted-radius-xs, 2px),
+      calc(var(--slotted-number-field-radius, var(--slotted-control-radius, 4px)) - var(--_inset))
+    );
+
+    /**
+     * The stacked column is inset by the smallest step rather than by
+     * `--_inset`: two halves share the frame's height, and the larger air
+     * left each half 12 pixels tall at `md`.
+     */
+    --_column-inset: var(--slotted-space-1, 2px);
+    --_column-radius: max(
+      var(--slotted-radius-xs, 2px),
+      calc(
+        var(--slotted-number-field-radius, var(--slotted-control-radius, 4px)) -
+          var(--_column-inset)
+      )
+    );
+
+    align-items: center;
+    background-color: var(--slotted-number-field-background, var(--slotted-control-surface, Field));
+    /**
+     * The control step of the border scale rather than the strong one: a
+     * separator between two surfaces and the edge of a control are the same
+     * ratio and not the same weight.
+     */
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-number-field-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--slotted-number-field-radius, var(--slotted-control-radius, 4px));
+    box-shadow: var(--slotted-number-field-shadow, var(--slotted-control-shadow, none));
+    box-sizing: border-box;
+    color: var(--slotted-number-field-color, var(--slotted-text, CanvasText));
+    display: flex;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    gap: var(--_gap);
+    /* In a flex row the item's basis is its content, not the whole row. */
+    flex-basis: content;
+    inline-size: 100%;
+    /* A control in a grid track narrower than its intrinsic width has to shrink. */
+    min-inline-size: 0;
+    /* A minimum rather than a height: the frame is the taller of the control
+       scale and whatever a consumer put in an adornment. */
+    min-block-size: var(--_height);
+    padding-inline: var(--_padding-inline);
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * The control. It gives up its own frame entirely and keeps everything that
+   * makes it a text control: the value, the caret, the selection and every
+   * native attribute a consumer wrote.
+   *
+   * The figures are tabular without an axis to ask for it. A number field whose
+   * digits change width as they are typed over is a number field whose value
+   * moves under the reader's eye, and no other family has a stronger claim on
+   * the setting.
+   */
+  [data-ui-number-field] > [data-part-input] {
+    background-color: transparent;
+    /* The frame's border box, not its content box: on a coarse pointer the frame
+       is the touch target's height and the control it holds is too. Stretched
+       rather than a percentage of the frame, which is indefinite wherever the
+       frame is not stretched itself — a search field in a bar measured 17
+       pixels. The control paints no ground, so the frame's edge still shows. */
+    align-self: stretch;
+    margin-block: calc(var(--slotted-control-border-width, 1px) * -1);
+    border: 0;
+    color: inherit;
+    flex: 1 1 auto;
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    /* The frame draws the ring for it, so two rings never nest. */
+    outline: none;
+    padding: 0;
+    /* The intrinsic width of an `input` is about twenty characters, and a flex
+       item refuses to shrink below it without this. */
+    min-inline-size: 0;
+    text-overflow: ellipsis;
+    /**
+     * The value is its own bidi run, ordered by its own content.
+     *
+     * A number has no strong character in it — digits, a sign and two
+     * separators are all weak or neutral — so in a right-to-left document the
+     * whole run took the paragraph's direction and `-1.480,00` printed as
+     * `1.480,00-`, with the sign after the amount. The right-to-left capture
+     * showed it in the `content` scene.
+     *
+     * `plaintext` resolves a run with no strong character to left-to-right,
+     * which is the order every numbering system writes a number in, while the
+     * element's own direction still decides which end of the frame the value is
+     * aligned to. It is the same declaration the adornments carry, for the same
+     * reason.
+     */
+    unicode-bidi: plaintext;
+  }
+
+  /**
+   * The one place this family names a side.
+   *
+   * `plaintext` above pins the value's run to left-to-right, and `text-align`
+   * resolves `start` against that pinned direction rather than against the
+   * document's — so a right-to-left form drew the amount against the stepper
+   * column with the reading edge empty. There is no logical value that says
+   * "the document's start edge, whatever the run inside is doing", so the
+   * alignment is named once, under a guard that is itself the direction.
+   */
+  [data-ui-number-field]:dir(rtl) > [data-part-input] {
+    text-align: right;
+  }
+
+  [data-ui-number-field] > [data-part-input]::placeholder {
+    color: var(--slotted-number-field-placeholder-color, var(--slotted-text-muted, GrayText));
+    text-overflow: ellipsis;
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────
+   *
+   * Three steps, matching the field the control sits in and the sibling text
+   * control beside it. One library, one scale.
+   */
+
+  [data-ui-number-field][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-sm, 14px));
+    --_inner-size: var(--slotted-control-inner-size-sm, 22px);
+  }
+
+  [data-ui-number-field][data-part-root][data-size='md'] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-md, 16px));
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+  }
+
+  [data-ui-number-field][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 16px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-lg, 18px));
+    --_inner-size: var(--slotted-control-inner-size-lg, 28px);
+  }
+
+  /* ── Variant ──────────────────────────────────────────────────────────
+   *
+   * The three `text-field` ships, unchanged: `outline` takes the ground it is
+   * placed on, `subtle` sinks into the page, and `plain` shows nothing at rest,
+   * which is what a dense table needs.
+   */
+
+  [data-ui-number-field][data-part-root][data-variant='subtle'] {
+    background-color: var(
+      --slotted-number-field-subtle-background,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    border-color: var(
+      --slotted-number-field-subtle-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+  }
+
+  /* No edge, no lift, no ground and no corner of its own: the cell it sits in
+     is the box, the row is the ground, a cell has no corner, and the resting
+     shadow would draw the cell where there is none. */
+  [data-ui-number-field][data-part-root][data-variant='plain'] {
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: var(--slotted-radius-none, 0px);
+    box-shadow: none;
+  }
+
+  /**
+   * The one rule the theme cannot write for the family. A transparent border
+   * has no system colour to be remapped to, so the `plain` control would lose
+   * its only edge exactly where an edge matters most.
+   */
+  @media (forced-colors: active) {
+    [data-ui-number-field][data-part-root][data-variant='plain'] {
+      border-color: ButtonBorder;
+    }
+  }
+
+  /* ── Adornments ───────────────────────────────────────────────────────
+   *
+   * A symbol beside the number rather than inside it. A symbol that belongs
+   * inside the value — a currency, a percent sign, a unit — is `format`'s job
+   * and arrives through `Intl` as part of the string the control holds.
+   */
+  [data-ui-number-field] > [data-part-start],
+  [data-ui-number-field] > [data-part-end] {
+    align-items: center;
+    color: var(--slotted-number-field-adornment-color, var(--slotted-text-muted, GrayText));
+    display: inline-flex;
+    /* Never squeezed: the value gives up width first, because the value is the
+       part that can scroll. */
+    flex: 0 0 auto;
+    gap: var(--slotted-space-2, 0.25rem);
+    line-height: 1;
+    /**
+     * Its own bidi run, ordered by its own content, so `R$` reads as itself in
+     * a right-to-left document instead of resolving to the paragraph.
+     */
+    unicode-bidi: plaintext;
+
+    --slotted-icon-size: var(--_icon-size);
+  }
+
+  [data-ui-number-field] > [data-part-start] > svg,
+  [data-ui-number-field] > [data-part-end] > svg {
+    block-size: var(--_icon-size);
+    inline-size: var(--_icon-size);
+  }
+
+  /**
+   * Optical alignment between the two kinds of adornment: a glyph fills the
+   * whole box and its artwork does not, while a character fills only its own
+   * advance width. An adornment that draws no glyph takes the margin the glyph
+   * box already has, on both sides — the measurement `text-field` derived.
+   */
+  [data-ui-number-field] > [data-part-start]:not(:has(svg, img, [data-ui-icon])),
+  [data-ui-number-field] > [data-part-end]:not(:has(svg, img, [data-ui-icon])) {
+    padding-inline: calc(var(--_icon-size) / 8);
+  }
+
+  /**
+   * A mark that moves the number when it is dragged sideways — the design
+   * tools' gesture. The adornment holding it stands the frame's full height,
+   * so the target is the frame's height rather than the mark's.
+   *
+   * Hover lifts the mark from the adornments' quiet ink to the value's: the
+   * mark is not a button, it has no ground to change, and the cursor alone
+   * said nothing a reader would look at.
+   */
+  [data-ui-number-field] > :is([data-part-start], [data-part-end]):has(> [data-part-scrub]) {
+    align-self: stretch;
+  }
+
+  [data-ui-number-field] [data-part-scrub] {
+    align-items: center;
+    align-self: stretch;
+    cursor: ew-resize;
+    display: inline-flex;
+    gap: var(--slotted-space-2, 0.25rem);
+    /* The drag is the gesture; a pan or a text selection would take it. */
+    touch-action: none;
+    transition: color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+    /* Its own bidi run: as a flex container its text is a new block, and a
+       mark of more than one character read backwards in a right-to-left page. */
+    unicode-bidi: plaintext;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  [data-ui-number-field]:not([data-disabled]):not([data-readonly])
+    [data-part-scrub]:is(:hover, [data-scrubbing]) {
+    color: var(--slotted-number-field-scrub-active-color, var(--slotted-text, CanvasText));
+  }
+
+  [data-ui-number-field]:is([data-disabled], [data-readonly]) [data-part-scrub] {
+    cursor: default;
+    touch-action: auto;
+  }
+
+  /* ── The two steppers ─────────────────────────────────────────────────
+   *
+   * Real buttons, out of the tab order — the APG's "the text field is usually
+   * the only focusable component" — with real names and `aria-controls`, so a
+   * screen-reader cursor still reaches them. Their glyphs are the `Glyph`
+   * element the binding renders: a character is never an icon.
+   */
+  [data-ui-number-field] > [data-part-stepper] > button,
+  [data-ui-number-field] > [data-part-decrement],
+  [data-ui-number-field] > [data-part-increment] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    color: var(--slotted-number-field-stepper-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    justify-content: center;
+    padding: 0;
+    /* The containing block of the hit area recovered below. */
+    position: relative;
+    /* No tap delay waiting for a second tap the button cannot use. */
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The `icon` box inside each button is drawn at the control's own icon
+     step rather than at the icon family's default. */
+  [data-ui-number-field] [data-part-decrement],
+  [data-ui-number-field] [data-part-increment] {
+    --slotted-icon-size: var(--_icon-size);
+  }
+
+  /**
+   * Stacked, the marks are chevrons: two halves of one column, pointing at the
+   * direction the value moves. The binding draws the down chevron in both, and
+   * the up one is that artwork turned half a turn — the glyph scale does not
+   * carry two drawings of one shape.
+   *
+   * Split, they are the minus and the plus — one pair on one grid. A chevron
+   * pointing along the inline axis would read as "previous" and "next" and
+   * would have to be mirrored in a right-to-left document; less and more do not
+   * change with the reading direction.
+   */
+  [data-ui-number-field][data-stepper='stacked'] [data-part-increment] > [data-ui-icon] {
+    rotate: 0.5turn;
+  }
+
+  /* ── Stacked: one column at the inline end ────────────────────────────
+   *
+   * The column stands `--_column-inset` inside the frame's edge, in the block
+   * axis and at the inline end, with no rule of its own: each half paints a
+   * ground concentric with the frame when it is hovered, pressed or at its
+   * bound, and that ground is the only edge a half needs. The two lines the
+   * column drew before separated nothing — the value, the column and its
+   * halves are one surface. The paint gives the inset back to the pointer:
+   * each half's hit area reaches the frame below.
+   */
+  [data-ui-number-field][data-part-root][data-stepper='stacked'] {
+    padding-inline-end: 0;
+  }
+
+  [data-ui-number-field] > [data-part-stepper] {
+    align-self: stretch;
+    box-sizing: content-box;
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    inline-size: var(--_stepper-size);
+    padding-block: var(--_column-inset);
+    padding-inline-end: var(--_column-inset);
+  }
+
+  [data-ui-number-field] > [data-part-stepper] > button {
+    /* Two halves of the column, whatever the frame's height turns out to be. */
+    block-size: 50%;
+    border-radius: var(--_column-radius);
+    inline-size: 100%;
+  }
+
+  [data-ui-number-field]
+    > [data-part-stepper]
+    > :is([data-part-increment], [data-part-decrement])::after {
+    content: '';
+    inset-inline: 0 calc(var(--_column-inset) * -1);
+    position: absolute;
+  }
+
+  [data-ui-number-field] > [data-part-stepper] > [data-part-increment]::after {
+    inset-block: calc(var(--_column-inset) * -1) 0;
+  }
+
+  [data-ui-number-field] > [data-part-stepper] > [data-part-decrement]::after {
+    inset-block: 0 calc(var(--_column-inset) * -1);
+  }
+
+  /**
+   * The glyph box is the control's own, bounded by the half that holds it.
+   *
+   * A chevron's artwork occupies about a quarter of its box in the block axis,
+   * so a box shrunk to leave visible air left a mark three pixels tall beside a
+   * minus and a plus drawn at full size — the two arrangements read as two
+   * different families. The box now fills the half and the artwork supplies its
+   * own air; `min()` keeps it inside the half at the tightest step, where the
+   * whole control is 24 pixels tall.
+   *
+   * Size containment keeps the drawing out of the column's intrinsic height.
+   * While the frame measures its content the half has no height yet, so the
+   * percentage falls back to the `<svg>`'s own square, and two of them plus the
+   * divider stood a pixel taller than the value and grew the frame.
+   */
+  [data-ui-number-field] > [data-part-stepper] > button > [data-ui-icon] {
+    block-size: min(var(--_icon-size), 100%);
+    contain: size;
+  }
+
+  /* ── Split: one button at each end ────────────────────────────────────
+   *
+   * The quantity picker's arrangement. Each button is a square inner control
+   * inset concentrically, and the frame's padding is that inset on both
+   * sides; the value takes the gap as its own inset and sits centred between
+   * the two buttons, which is where a quantity belongs. No rule divides a
+   * button from the value: the ground it paints is its edge.
+   */
+  [data-ui-number-field][data-part-root][data-stepper='split'] {
+    gap: 0;
+    padding-inline: var(--_inset);
+  }
+
+  [data-ui-number-field][data-stepper='split'] > [data-part-decrement],
+  [data-ui-number-field][data-stepper='split'] > [data-part-increment] {
+    block-size: var(--_action-size);
+    border-radius: var(--_action-radius);
+    inline-size: var(--_action-size);
+  }
+
+  [data-ui-number-field][data-stepper='split'] > [data-part-input] {
+    padding-inline: var(--_gap);
+    text-align: center;
+  }
+
+  [data-ui-number-field][data-stepper='split'] > [data-part-start] {
+    padding-inline-start: var(--_gap);
+  }
+
+  [data-ui-number-field][data-stepper='split'] > [data-part-end] {
+    padding-inline-end: var(--_gap);
+  }
+
+  /**
+   * The hit area, recovered outside the paint. At `sm` with `dense` the whole
+   * control is 24 pixels tall, so a button bounded by the frame cannot also be
+   * 24 in both axes. This grows the target to the minimum and leaves a larger
+   * one alone — the correction `docs/token-foundation.md` leaves to the family.
+   *
+   * Only the split arrangement takes it. Two stacked halves cannot both grow
+   * to 24 pixels inside a 34-pixel control without meeting in the middle, and a
+   * boundary strip that belongs to whichever button paints last is worse than a
+   * small target. That shortfall is the arrangement's own, and `split` is the
+   * answer to it.
+   */
+  [data-ui-number-field][data-stepper='split'] > [data-part-decrement]::after,
+  [data-ui-number-field][data-stepper='split'] > [data-part-increment]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /**
+   * On a finger the target is the comfortable size. The paint stays the inset
+   * square a mouse sees; only the hit area grows.
+   *
+   * Split, each button's hit area reaches 44 in both axes.
+   *
+   * Stacked, the two halves of one column cannot each be 44 tall inside a
+   * 44-pixel frame. Each keeps its own half of the column in the block axis —
+   * reaching the frame's edge, as on a fine pointer — and reaches 44 in the
+   * inline axis, over the value's edge and past the frame's.
+   */
+  @media (pointer: coarse) {
+    [data-ui-number-field][data-stepper='split']
+      > :is([data-part-decrement], [data-part-increment])::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+    }
+
+    [data-ui-number-field]
+      > [data-part-stepper]
+      > :is([data-part-increment], [data-part-decrement])::after {
+      inset-inline: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+    }
+  }
+
+  /* ── Stepper states ───────────────────────────────────────────────────
+   *
+   * Written strongest last, and each weaker one guarded against the stronger
+   * ones it can meet, which is the order `STATE_PRECEDENCE` sets.
+   */
+
+  [data-ui-number-field] [data-part-decrement]:hover:not(:disabled),
+  [data-ui-number-field] [data-part-increment]:hover:not(:disabled) {
+    background-color: var(
+      --slotted-number-field-stepper-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-number-field] [data-part-decrement]:active:not(:disabled),
+  [data-ui-number-field] [data-part-increment]:active:not(:disabled) {
+    background-color: var(
+      --slotted-number-field-stepper-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  /**
+   * A stepper at its bound is disabled rather than silently inert, so its name
+   * still announces and its appearance says why nothing happens. It is also
+   * what a disabled or read-only control's steppers look like: the family keeps
+   * drawing them, because a number field without its stepper is a different
+   * component and a disabled form still has to say what it holds.
+   */
+  [data-ui-number-field] [data-part-decrement]:disabled,
+  [data-ui-number-field] [data-part-increment]:disabled {
+    /**
+     * The ground as well as the ink. The disabled foreground and the resting
+     * stepper colour are two steps of one neutral and differ by about a shade,
+     * so a stepper at its bound painted only in ink read as available — the
+     * capture of the `stepper` scene showed a decrement at nought that nothing
+     * distinguished from the one above it. The switched-off segment says it in
+     * the ground, which is how the frame says the same word.
+     */
+    background-color: var(
+      --slotted-number-field-stepper-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    color: var(--slotted-number-field-stepper-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+  }
+
+  /**
+   * The steppers are out of the tab order, so this answers the pointer-lock
+   * path on touch and a screen-reader cursor activating one directly. It sits
+   * inside the frame's own edge, so the ring never doubles the border.
+   */
+  [data-ui-number-field] [data-part-decrement]:focus-visible,
+  [data-ui-number-field] [data-part-increment]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* ── Frame states ─────────────────────────────────────────────────────── */
+
+  [data-ui-number-field][data-part-root]:hover:not([data-disabled]):not([data-readonly]):not(
+      [data-invalid]
+    ) {
+    border-color: var(--slotted-number-field-hover-border-color, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-number-field][data-part-root][data-variant='subtle']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid]) {
+    background-color: var(
+      --slotted-number-field-subtle-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-number-field][data-part-root][data-variant='plain']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid]) {
+    background-color: var(
+      --slotted-number-field-plain-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    /* The accent edge the other variants take would draw the cell's outline. */
+    border-color: transparent;
+  }
+
+  /**
+   * The ring belongs to the frame and answers the control's focus: a browser
+   * matches `:focus-visible` on a text input for a pointer press as well as for
+   * a Tab, which is right for a control whose caret is the thing that moved.
+   */
+  [data-ui-number-field][data-part-root]:has(> [data-part-input]:focus-visible) {
+    /* The resting shadow, recoloured: the lift under the control and the ring
+       around it are one colour, and the state decides which colour that is. */
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-control-focus-ring-offset, var(--slotted-focus-ring-offset, 2px));
+  }
+
+  /**
+   * The ring of a control whose box is not its own is drawn inside that box,
+   * the way the inner controls draw theirs inside the frame: two pixels past
+   * the control is two pixels over the next row's rule. No lift either — a
+   * shadow that appears only under focus is a cell that changes size when it
+   * is used.
+   */
+  [data-ui-number-field][data-part-root][data-variant='plain']:has(
+      > [data-part-input]:focus-visible
+    ) {
+    box-shadow: none;
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /**
+   * Invalid outranks hover and is written after it for that reason. The ring is
+   * retargeted rather than repainted: every rule that draws focus reads
+   * `--slotted-focus-ring-color`, so pointing that one name at the invalid
+   * colour on the element moves the outline, the shadow and both steppers'
+   * rings at once.
+   */
+  [data-ui-number-field][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-number-field-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+    --_invalid-edge-width: var(
+      --slotted-number-field-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+    --_invalid-edge-color: var(
+      --slotted-number-field-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    --_invalid-edge: inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color);
+
+    border-color: var(
+      --slotted-number-field-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger border is the resting edge's black. The line
+     * is a shadow inside the border, so neither box nor text moves, and it
+     * takes the resting lift's place.
+     */
+    box-shadow: var(--_invalid-edge);
+  }
+
+  [data-ui-number-field][data-part-root][data-invalid]:has(> [data-part-input]:focus-visible) {
+    box-shadow:
+      var(--_invalid-edge),
+      var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+        var(--slotted-focus-ring-color, Highlight);
+  }
+
+  [data-ui-number-field][data-part-root][data-variant='plain'][data-invalid]:has(
+      > [data-part-input]:focus-visible
+    ) {
+    /* The ring lies inside the box here, over the border and an edge as wide as
+       it; the edge reaches past the ring. */
+    box-shadow: inset 0 0 0
+      calc(
+        var(--slotted-focus-ring-offset, 2px) - var(--slotted-control-border-width, 1px) +
+          var(--_invalid-edge-width)
+      )
+      var(--_invalid-edge-color);
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The
+   * width comes back as an outline inside the border, and a focused invalid
+   * control draws its ring double, which a valid ring is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-number-field][data-part-root][data-invalid] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(
+        -1 * (var(--slotted-control-border-width, 1px) + var(--_invalid-edge-width))
+      );
+    }
+
+    [data-ui-number-field][data-part-root][data-invalid]:has(> [data-part-input]:focus-visible) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(
+        --slotted-control-focus-ring-offset,
+        var(--slotted-focus-ring-offset, 2px)
+      );
+    }
+
+    [data-ui-number-field][data-part-root][data-variant='plain'][data-invalid]:has(
+        > [data-part-input]:focus-visible
+      ) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: calc(
+        -1 * (var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width))
+      );
+    }
+  }
+
+  /**
+   * Read-only stays focusable, selectable and legible, and must not be
+   * mistakable for disabled: the value is still real and still submitted. The
+   * ground says "not yours to change" and the ink says nothing at all.
+   */
+  [data-ui-number-field][data-part-root][data-readonly] {
+    background-color: var(
+      --slotted-number-field-readonly-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    /**
+     * The edge as well as the ground. In the dark scheme the subtle ground sits
+     * within a couple of steps of the surface, and the state's capture showed a
+     * read-only control that nothing distinguished from the one above it —
+     * worse than looking like disabled, which is the failure the rule was
+     * written against. The control's edge stepping down to the separator weight
+     * is visible in every scheme, and it is not the disabled edge: disabled
+     * keeps its own border and mutes the ink, while read-only keeps the ink at
+     * full strength because the value is real and still submitted.
+     */
+    border-color: var(
+      --slotted-number-field-readonly-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+    cursor: default;
+  }
+
+  /**
+   * `:disabled` on the control is matched beside `data-disabled` on the frame,
+   * because a control can be disabled by something that never told it so: a
+   * disabled `fieldset` disables every control inside it, and the control has
+   * no way to know.
+   */
+  [data-ui-number-field][data-part-root][data-disabled],
+  [data-ui-number-field][data-part-root]:has(> [data-part-input]:disabled) {
+    background-color: var(
+      --slotted-number-field-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(--slotted-number-field-disabled-border-color, var(--slotted-disabled-border));
+    /* Nothing a person cannot reach is lifted off the page. */
+    box-shadow: none;
+    color: var(--slotted-number-field-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+  }
+
+  /**
+   * Muted to the colour the theme measures rather than faded by opacity: a
+   * value nobody can read is a field nobody can check.
+   */
+  [data-ui-number-field][data-part-root][data-disabled] > [data-part-start],
+  [data-ui-number-field][data-part-root][data-disabled] > [data-part-end] {
+    color: var(--slotted-disabled-foreground);
+  }
+}

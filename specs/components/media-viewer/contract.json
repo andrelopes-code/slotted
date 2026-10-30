@@ -1,0 +1,337 @@
+{
+  "schemaVersion": 5,
+  "family": "media-viewer",
+  "ui": "media-viewer",
+  "catalog": {
+    "group": "Overlays",
+    "summary": "Full-screen viewer of files: fitted, zoomed, stepped."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+  "layerPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+  "patternStatus": "No APG pattern names a viewer. The dialog pattern answers the layer: focus enters it, Tab and Shift+Tab stay inside, Escape closes, focus returns to the trigger; the dialog family this one composes answers each item. Initial focus is the stage, after the pattern's first note: the content is a picture, not a control. Read on 2026-10-30.",
+  "nativeElement": {
+    "considered": "dialog element with an img",
+    "refused": false,
+    "reason": "The layer is dialog's; inside it every medium is the platform's own element — img, an iframe for the browser's PDF and text reader, video and audio with the platform's controls."
+  },
+  "composes": ["dialog", "icon", "live-announcer"],
+  "composedFamilies": {
+    "dialog": "the layer, the scrim, presence, portal, focus containment and restoration, Escape, back and the single z-index stack, with fullScreen always and surface plain. Nothing of the layer is redrawn.",
+    "icon": "every glyph the family draws: close, chevrons, zoom, fit, rotate, download and the kind of an unsupported file."
+  },
+  "dialog": {
+    "fullScreen": "always",
+    "surface": "plain",
+    "initialFocus": "stage",
+    "fullscreenToggle": "passed through to dialog, whose fullscreen state model answers it; the viewer holds no second one"
+  },
+  "items": {
+    "key": "id",
+    "fields": [
+      "id",
+      "src",
+      "name",
+      "type",
+      "caption",
+      "downloadHref",
+      "thumbnail",
+      "width",
+      "height"
+    ],
+    "type": "a MIME type, as File.type and attachment's file.type",
+    "removed": "a value no longer in items moves to the next item, or to the previous when it was the last, with the reason remove; an empty set asks to close with programmatic"
+  },
+  "kinds": {
+    "image/*": {
+      "element": "img",
+      "zoom": true,
+      "rotate": true,
+      "swipe": true
+    },
+    "application/pdf": {
+      "element": "iframe",
+      "zoom": false,
+      "rotate": false,
+      "swipe": false,
+      "sandbox": false
+    },
+    "text/*": {
+      "element": "pre",
+      "zoom": false,
+      "rotate": false,
+      "swipe": false,
+      "sandbox": false
+    },
+    "video/*": {
+      "element": "video",
+      "zoom": false,
+      "rotate": false,
+      "swipe": true
+    },
+    "audio/*": {
+      "element": "audio",
+      "zoom": false,
+      "rotate": false,
+      "swipe": true
+    },
+    "other": {
+      "element": "div",
+      "zoom": false,
+      "rotate": false,
+      "swipe": true
+    }
+  },
+  "sandbox": "",
+  "sandboxReason": "No frame runs a file the application did not write: text is drawn by the family as text. The PDF frame carries no sandbox, measured by upload: Chrome's reader refuses a sandboxed frame, and a document served as application/pdf runs no script.",
+  "view": {
+    "fit": "the scale at which the whole picture stands inside the stage, never above the picture's own size; level 1 is the fit, drawn by the stylesheet alone",
+    "centre": "the stage is a flex scroll container and the picture has margin auto: centred while it fits, every edge reachable once it does not",
+    "zoomAround": "a step keeps the point under the pointer still, or the stage's centre for a button or a key, by moving the stage's scroll",
+    "wheel": {
+      "pixelsPerStep": 100,
+      "lineHeight": 16,
+      "page": "the stage's block size",
+      "plain": "a wheel without a modifier adds zoomStep for every pixelsPerStep of deltaY",
+      "pinch": "with ctrlKey, the trackpad's pinch, the level is multiplied by 2 to the power of -deltaY / pixelsPerStep"
+    },
+    "pan": "the stage's own scroll: a finger, a mouse drag, the arrows while zoomed",
+    "doubleClick": "toggles between the fit and twice the fit, around the point",
+    "swipe": "a horizontal touch swipe steps while the level is the fit; zoomed, the finger pans",
+    "pullDown": "a touch drag down from the fit beyond a quarter of the stage closes, with the reason pointer",
+    "ground": "a click on the stage outside the medium closes with outsidePress, unless the pointer moved further than the click slop or a pinch took place",
+    "reset": "a step to another item puts the level back to 1 and the rotation to 0, with the reason select",
+    "error": "an image that failed to load shows the status with the download, and no zoom pill: there is nothing to zoom"
+  },
+  "scheme": {
+    "ground": "--slotted-media-viewer-ground, the same in light and dark",
+    "rule": "the root writes data-slotted-scheme dark, unless the scheme nearest the trigger is high-contrast, which is kept"
+  },
+  "keyboard": [
+    {
+      "key": "Escape",
+      "effect": "closes the viewer",
+      "focus": "the trigger",
+      "source": "dialog"
+    },
+    {
+      "key": "Tab",
+      "effect": "the next control inside the viewer, wrapping",
+      "focus": "contained",
+      "source": "dialog"
+    },
+    {
+      "key": "ArrowRight",
+      "when": "the level is the fit",
+      "effect": "the next item",
+      "focus": "unchanged",
+      "source": "family"
+    },
+    {
+      "key": "ArrowLeft",
+      "when": "the level is the fit",
+      "effect": "the previous item",
+      "focus": "unchanged",
+      "source": "family"
+    },
+    {
+      "key": "Arrows",
+      "when": "zoomed",
+      "effect": "pan the stage by a tenth of its size",
+      "focus": "unchanged",
+      "source": "family"
+    },
+    {
+      "key": "Home",
+      "effect": "the first item",
+      "focus": "unchanged",
+      "source": "family"
+    },
+    {
+      "key": "End",
+      "effect": "the last item",
+      "focus": "unchanged",
+      "source": "family"
+    },
+    {
+      "key": "+",
+      "when": "an image",
+      "effect": "zoomStep up, around the stage's centre; = does the same",
+      "focus": "unchanged",
+      "source": "family"
+    },
+    {
+      "key": "-",
+      "when": "an image",
+      "effect": "zoomStep down",
+      "focus": "unchanged",
+      "source": "family"
+    },
+    {
+      "key": "0",
+      "when": "an image",
+      "effect": "the fit",
+      "focus": "unchanged",
+      "source": "family"
+    },
+    {
+      "key": "r",
+      "when": "an image",
+      "effect": "a quarter turn clockwise",
+      "focus": "unchanged",
+      "source": "family"
+    }
+  ],
+  "keyboardScope": "the keys of the family act on the viewer unless focus is in a video, an audio, an iframe or an editable field, whose own keys win",
+  "direction": {
+    "rtl": "ArrowLeft steps to the next item and ArrowRight to the previous; previous sits at the inline start and its chevron mirrors"
+  },
+  "announce": "a step announces the item's name and its position through live-announcer, politely",
+  "responsive": "previous and next are hidden below 600 pixels of the root's inline size, where the swipe steps",
+  "motion": "the level and the step move on the motion scale; under reduced motion both snap, and the layer follows dialog",
+  "declined": {
+    "slideshow": "carousel owns autoplay; in a viewer the reader takes the step",
+    "flip": "one surveyed implementation ships it",
+    "hash": "the application's router writes value"
+  },
+  "messages": [
+    "label",
+    "close",
+    "previous",
+    "next",
+    "zoomIn",
+    "zoomOut",
+    "fit",
+    "rotate",
+    "download",
+    "position",
+    "zoomLevel",
+    "unsupportedTitle",
+    "unsupported",
+    "errorTitle",
+    "error",
+    "retry",
+    "truncated",
+    "loading",
+    "announce"
+  ],
+  "dataAttributes": {
+    "data-kind": "image, pdf, text, video, audio or other, on the root and the stage",
+    "data-zoomed": "on the root and the stage while the level is above the fit",
+    "data-error": "on the stage when the medium failed to load",
+    "data-rotation": "0, 90, 180 or 270 on the stage",
+    "data-panning": "on the stage while a drag or a finger pans",
+    "data-sized": "on the frame while the binding writes its size: zoomed or turned. At the fit the stylesheet sizes the picture alone"
+  },
+  "stateAttributes": {
+    "open": "data-open",
+    "disabled": "data-disabled",
+    "loading": "data-loading",
+    "current": "data-current"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "outsidePress", "back", "programmatic"]
+    },
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "remove", "programmatic"]
+    },
+    "zoom": {
+      "zoom": {
+        "controlled": "zoom",
+        "uncontrolled": "defaultZoom",
+        "request": "onZoomChange",
+        "reasons": ["pointer", "keyboard", "select", "programmatic"]
+      },
+      "rotation": {
+        "controlled": "rotation",
+        "uncontrolled": "defaultRotation",
+        "request": "onRotationChange",
+        "reasons": ["pointer", "keyboard", "select", "programmatic"]
+      }
+    }
+  },
+  "members": {
+    "mediaViewer": {
+      "nativeElement": "div",
+      "defaults": {
+        "minZoom": 1,
+        "maxZoom": 4,
+        "zoomStep": 0.25,
+        "loop": false
+      },
+      "capabilities": ["open", "value", "zoom", "content", "wiring"],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "open",
+        "disabled",
+        "loading",
+        "current"
+      ],
+      "parts": [
+        "root",
+        "bar",
+        "close",
+        "heading",
+        "title",
+        "position",
+        "actions",
+        "download",
+        "stage",
+        "frame",
+        "text",
+        "media",
+        "unsupported",
+        "tile",
+        "status",
+        "retry",
+        "previous",
+        "next",
+        "zoom",
+        "zoom-out",
+        "zoom-level",
+        "zoom-in",
+        "fit",
+        "rotate",
+        "caption",
+        "thumbnails",
+        "thumbnail"
+      ]
+    }
+  },
+  "scenarios": {
+    "mediaViewer": [
+      "images",
+      "zoom",
+      "kinds",
+      "states",
+      "content",
+      "thumbnails",
+      "composition",
+      "controlled",
+      "keyboard"
+    ]
+  },
+  "parts": {
+    "heading": "the title and the position, one column of the bar",
+    "frame": "the box the picture occupies at the current level, axes swapped at a quarter turn; the stage scrolls over it",
+    "text": "the page a text file is set on: the pre and, past the limit, the truncated note",
+    "tile": "the mark of a file the viewer cannot draw, or did not load, with its extension across its foot",
+    "retry": "loads the shown file again after it failed"
+  },
+  "kindsByName": "a type that is absent or application/octet-stream is read by the name's extension: .json, .yaml, .csv, .md, .log, source files and their kin are text; application/json, application/xml, the +json and +xml types and the YAML, TOML, SQL and script types are text whatever their top-level type",
+  "text": {
+    "drawn": "fetched and set in the monospace face inside a pre; never executed, so an HTML file shows its source and no frame is needed",
+    "json": "indented by two spaces when it parses, as written when it does not",
+    "limit": "the first 1 MiB of characters; past it, the truncated message under the page"
+  },
+  "fallback": "a file the browser cannot draw, and one that did not load, share one anatomy: the tile with the kind's mark and the extension, a heading, one sentence, and the actions — retry (outlined) for a failure, download (solid) for both"
+}

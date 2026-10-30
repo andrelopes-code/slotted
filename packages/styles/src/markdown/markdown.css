@@ -1,0 +1,168 @@
+/**
+ * Markdown — a document rendered from a tree, in `prose`'s typography.
+ *
+ * Almost nothing here is painted by this family. The region is `prose`, a link
+ * is `link`, a fence is `code-block`, an alert is `alert`, a task's box is
+ * `checkbox`; this stylesheet holds only what exists because a renderer wrote
+ * the markup: the task item that hangs its box where the marker was, a table
+ * cell's alignment, the footnote back link, and the three states drawn
+ * outside the region — empty, error and loading.
+ *
+ * No selector here reaches another family's `data-ui`; a composed family is
+ * placed by the part that holds it, which is the rule `prose` set.
+ */
+
+@layer slotted.components {
+  [data-ui-markdown][data-part-root] {
+    display: block;
+    min-inline-size: 0;
+  }
+
+  /* ── Tasks ────────────────────────────────────────────────────────────
+   *
+   * GitHub's arrangement: a task item draws no marker, and its box hangs in
+   * the space the marker had, so the task's text starts on the same edge as
+   * an ordinary item's text beside it. The item is a two-column grid rather
+   * than an inline box pulled by a negative margin, because the box is
+   * `checkbox`'s own grid and a grid does not sit on a line.
+   *
+   * The box is centred on the item's first line box: `1lh` is the item's line,
+   * and the checkbox's own line is its control type at the body line height,
+   * which is the height its lift already centres the square in.
+   */
+
+  [data-ui-markdown] [data-part-task] {
+    display: grid;
+    grid-template-columns:
+      calc(var(--slotted-prose-list-inset, 1.5em) + var(--slotted-prose-marker-gap, 0.25em))
+      minmax(0, 1fr);
+    list-style: none;
+    margin-inline-start: calc(-1 * var(--slotted-prose-list-inset, 1.5em));
+    padding-inline-start: 0;
+  }
+
+  /* The box ends where an ordinary item's marker ends, one step before the text. */
+  [data-ui-markdown] [data-part-task] > :first-child {
+    justify-self: end;
+    margin-block-start: calc(
+      (1lh - var(--slotted-control-font-size-md, 13px) * var(--slotted-line-height-md, 1.5)) / 2
+    );
+    margin-inline-end: var(--slotted-markdown-task-gap, var(--slotted-space-3));
+  }
+
+  [data-ui-markdown] [data-part-task-body] {
+    min-inline-size: 0;
+  }
+
+  /* ── Composed blocks ──────────────────────────────────────────────────
+   *
+   * A fence and an alert are another family's root, and `prose` spaces only
+   * the elements it knows. Each is held by an `embed` that takes the region's
+   * flow — `prose`'s own tokens, read from the flow the root repeats — as a
+   * gap on the block that arrives, the one direction `prose` spaces in.
+   */
+
+  [data-ui-markdown] [data-part-embed] {
+    margin-block: var(--slotted-prose-flow-normal, 1.15em) 0;
+  }
+
+  [data-ui-markdown][data-flow='tight'] [data-part-embed] {
+    margin-block-start: var(--slotted-prose-flow-tight, 0.75em);
+  }
+
+  [data-ui-markdown][data-flow='loose'] [data-part-embed] {
+    margin-block-start: var(--slotted-prose-flow-loose, 1.6em);
+  }
+
+  [data-ui-markdown] [data-part-embed]:first-child,
+  [data-ui-markdown] [data-part-alert-body] > :first-child {
+    margin-block-start: 0;
+  }
+
+  /* ── Tables ───────────────────────────────────────────────────────────
+   *
+   * Markdown's `:--` and `--:` are written as `left` and `right`, and mean
+   * the reading start and end: a table typed for a left-to-right page and
+   * shown in a right-to-left one keeps its numbers against the edge the
+   * reader's eye ends on.
+   */
+
+  [data-ui-markdown] :where(th, td)[data-align='start'] {
+    text-align: start;
+  }
+
+  [data-ui-markdown] :where(th, td)[data-align='center'] {
+    text-align: center;
+  }
+
+  [data-ui-markdown] :where(th, td)[data-align='end'] {
+    text-align: end;
+  }
+
+  /* ── Footnotes ────────────────────────────────────────────────────────
+   *
+   * The back link returns the reader up the page to the reference, so its
+   * glyph is an arrow pointing up: the binding's `arrow-left` turned a
+   * quarter, which reads the same in either direction and so is not mirrored.
+   */
+
+  [data-ui-markdown] [data-part-backref] {
+    --_glyph: var(--slotted-markdown-backref-size, 0.9em);
+    --_box: var(--slotted-target-min, 24px);
+    --slotted-icon-size: var(--_glyph);
+
+    block-size: var(--_box);
+    display: inline-block;
+    inline-size: var(--_box);
+    /* The focus ring is drawn on this box; the step keeps it off the sentence's last glyph. */
+    margin-inline-start: var(--slotted-space-1);
+    position: relative;
+    /* An inline box with nothing in flow sits on the baseline by its bottom
+       edge, so this puts its centre at half a capital above the baseline. */
+    vertical-align: calc(0.5cap - 0.5 * var(--_box));
+  }
+
+  /* Out of flow, so the box keeps the baseline of a box with nothing in it. */
+  [data-ui-markdown] [data-part-backref] > [data-ui-icon] {
+    inset: 0;
+    margin: auto;
+    position: absolute;
+    rotate: 90deg;
+  }
+
+  /* ── Empty and error ──────────────────────────────────────────────────
+   *
+   * Both are drawn outside the region's typography, at the size the body
+   * text would have been, so a message that replaces a paragraph reads as a
+   * paragraph's worth of space rather than as a banner.
+   */
+
+  [data-ui-markdown] [data-part-empty] {
+    color: var(--slotted-text-muted);
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--slotted-font-size-md);
+    line-height: var(--slotted-line-height-md);
+    margin: 0;
+  }
+
+  [data-ui-markdown] [data-part-error] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-3) var(--slotted-space-4);
+  }
+
+  /* ── Print ────────────────────────────────────────────────────────────
+   *
+   * A printed page cannot be followed, so an external link prints the address
+   * it stood for after its text.
+   */
+
+  @media print {
+    [data-ui-markdown] a[href^='http']::after {
+      content: ' (' attr(href) ')';
+      font-size: 0.875em;
+      overflow-wrap: anywhere;
+    }
+  }
+}

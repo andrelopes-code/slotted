@@ -1,0 +1,479 @@
+@layer slotted.components {
+  /**
+   * ── A date field, a trigger, and a calendar behind them ────────────────
+   *
+   *   ┌─ root ──────────────────────────────────────────────────────────┐
+   *   │  ┌─ control ─────────────────────────────────────────────────┐  │
+   *   │  │  date-field                                    ┌ trigger ┐ │  │
+   *   │  └───────────────────────────────────────────────────────────┘  │
+   *   └─────────────────────────────────────────────────────────────────┘
+   *          ┌─ positioner ─ the layer ────────────────────────────────┐
+   *          │  ┌─ content ─ the surface ──────────────────────────┐   │
+   *          │  │  presets │ calendar                              │   │
+   *          │  │  footer                                          │   │
+   *          │  └──────────────────────────────────────────────────┘   │
+   *          └────────────────────────────────────────────────────────┘
+   *
+   * The two families inside keep their own `data-ui`, so nothing here restyles
+   * a segment or a day: this stylesheet owns the frame that holds them, the
+   * trigger, and the layer the calendar stands on. A family that reached into
+   * another family's parts would be a second place to fix one defect.
+   */
+  [data-ui-date-picker][data-part-root] {
+    display: block;
+    /* In a flex row the item's basis is its content, not the whole row. */
+    flex-basis: content;
+    /* The anchor the positioner measures is the control, and a block root
+       lets the frame take the width the form gave it. */
+    inline-size: 100%;
+  }
+
+  /**
+   * The box the positioner measures, and nothing else.
+   *
+   * It draws no frame: the `date-field` inside it draws its own, and the
+   * trigger is handed to that field's `end` slot by the binding. A second
+   * border here would be a second place to fix one defect, and this stylesheet
+   * would then have to reach into another family's parts to suppress the first
+   * — which is the rule the whole family is built to keep.
+   */
+  [data-ui-date-picker] [data-part-control] {
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_height: var(--slotted-control-height-md, 34px);
+
+    align-items: center;
+    display: flex;
+    inline-size: 100%;
+    min-inline-size: 0;
+    position: relative;
+  }
+
+  /**
+   * The `date-field` is the control's flex item, and its own basis is its
+   * content. It grows to the control, so the frame takes the width the field
+   * gave the root: the whole field at `full`, the step at `short` and `medium`.
+   */
+  [data-ui-date-picker] [data-part-control] > [data-ui-date-field] {
+    flex: 1 1 auto;
+  }
+
+  [data-ui-date-picker][data-part-root][data-size='sm'] [data-part-control] {
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_height: var(--slotted-control-height-sm, 30px);
+  }
+
+  [data-ui-date-picker][data-part-root][data-size='lg'] [data-part-control] {
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_height: var(--slotted-control-height-lg, 38px);
+  }
+
+  /**
+   * The button that opens the calendar. It sits inside the field's frame, at
+   * the reading end, and takes the same inner-control box every other family
+   * puts inside a frame.
+   *
+   * It is always drawn. Angular Material records why: ChromeOS turns
+   * `Alt`+`ArrowDown` into `PageDown` before the browser sees it, so the chord
+   * cannot be the only way in.
+   */
+  [data-ui-date-picker] [data-part-trigger] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(
+      --slotted-date-picker-trigger-size,
+      min(
+        calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)),
+        calc(
+          var(--_height) - var(--slotted-control-border-width, 1px) * 2 -
+            var(--slotted-space-2, 0.25rem)
+        )
+      )
+    );
+    border: 0;
+    border-radius: var(--slotted-date-picker-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-date-picker-trigger-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    inline-size: var(
+      --slotted-date-picker-trigger-size,
+      min(
+        calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)),
+        calc(
+          var(--_height) - var(--slotted-control-border-width, 1px) * 2 -
+            var(--slotted-space-2, 0.25rem)
+        )
+      )
+    );
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The hit area, recovered outside the paint, exactly as every other inner
+     control in the library recovers it. */
+  [data-ui-date-picker] [data-part-trigger]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: the ground and the focus ring stay square, and
+     the hit area above grows to 44 pixels around them. Before the field's
+     clear it does not reach across it. */
+  @media (pointer: coarse) {
+    [data-ui-date-picker] [data-part-trigger]::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+    }
+
+    [data-ui-date-picker]
+      [data-part-end]:has(+ [data-part-clear]:not([hidden]))
+      > [data-part-trigger]::after {
+      inset-inline-end: 0;
+    }
+  }
+
+  /**
+   * The mark is the calendar `Glyph` the binding draws inside an `icon` box, at
+   * the field's icon step. It does not turn, and does not become a chevron while the surface is
+   * open. A chevron says "a list opens here", which is the promise `select`
+   * makes and this control does not keep: what opens is a month. The state is
+   * carried by `aria-expanded` and by the surface itself, and the trigger goes
+   * on saying what kind of value it holds — which is the one thing about it
+   * that never changes.
+   */
+
+  [data-ui-date-picker] [data-part-trigger]:hover:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-date-picker-trigger-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-date-picker] [data-part-trigger]:active:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-date-picker-trigger-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  /* Its own ring: tabbing from the last segment to the trigger has to move
+     something visible, and the frame's ring would sit still. */
+  [data-ui-date-picker] [data-part-trigger]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-date-picker][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-date-picker-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+  }
+
+  [data-ui-date-picker] [data-part-trigger]:disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  /* ── The layer ────────────────────────────────────────────────────────
+   *
+   * What `packages/core/src/positioner` writes `position`, `left` and `top`
+   * onto. The painted surface is one element in, as `tooltip`, `popover`,
+   * `menu` and `select` are all built.
+   */
+  [data-ui-date-picker][data-part-positioner] {
+    /* Only the block inset: the positioner writes `left` and never `right`,
+       and `inset-inline-start` would resolve to `right` in a right-to-left
+       document and win over the measured value. */
+    position: absolute;
+    inset-block-start: 0;
+
+    box-sizing: border-box;
+    isolation: isolate;
+    /* The layer is only a frame around the surface; the surface takes the
+       pointer, and the frame must not swallow a press meant for the page. */
+    pointer-events: none;
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+
+    /* The layer arrives along the axis it opens on and never along the inline
+       one, which is the rule `select` records: a scale from the corner the
+       positioner named as origin moved the far edge and read as an entrance
+       from the side. */
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+    translate: 0 calc(-1 * var(--_enter-distance));
+    transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-date-picker][data-part-positioner][data-side='top'] {
+    translate: 0 var(--_enter-distance);
+  }
+
+  /* A lateral side has no block direction to arrive from, so it only fades. */
+  [data-ui-date-picker][data-part-positioner]:is([data-side='left'], [data-side='right']) {
+    translate: 0 0;
+  }
+
+  [data-ui-date-picker][data-part-positioner][data-open] {
+    translate: 0 0;
+    transition: none;
+  }
+
+  /**
+   * The entrance is a keyframe animation and not a transition, for the reason
+   * `select` records: a transition starts from the style the browser computed
+   * last, and the positioner writes `data-side` in the same style update as
+   * the family opens the layer.
+   *
+   * Only a layer the positioner placed arrives. A layer written open in static
+   * markup — the harness, a docs snippet — is simply there, and is
+   * photographed where it stands.
+   */
+  [data-ui-date-picker][data-part-positioner][data-open][data-positioned] {
+    animation: slotted-date-picker-enter-down var(--slotted-duration-medium)
+      var(--slotted-easing-enter);
+  }
+
+  [data-ui-date-picker][data-part-positioner][data-open][data-positioned][data-side='top'] {
+    animation-name: slotted-date-picker-enter-up;
+  }
+
+  @keyframes slotted-date-picker-enter-down {
+    from {
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-date-picker-enter-up {
+    from {
+      translate: 0 var(--_enter-distance);
+    }
+  }
+
+  @keyframes slotted-date-picker-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /**
+   * The fade belongs to the part that paints the surface, and the layer only
+   * moves. In Chromium an ancestor with `opacity` below one is the Backdrop Root
+   * of what it holds, so a `backdrop-filter` on the content blurs nothing until
+   * the layer is opaque and then appears at once. The content's own opacity
+   * leaves its own filter drawn on every frame of the motion.
+   */
+  [data-ui-date-picker][data-part-positioner] > [data-part-content] {
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-date-picker][data-part-positioner][data-open] > [data-part-content] {
+    opacity: 1;
+    transition: none;
+  }
+
+  [data-ui-date-picker][data-part-positioner][data-open][data-positioned] > [data-part-content] {
+    animation: slotted-date-picker-fade var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  /* Stillness keeps the fade and drops the movement. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-date-picker][data-part-positioner],
+    [data-ui-date-picker][data-part-positioner][data-side='top'],
+    [data-ui-date-picker][data-part-positioner][data-side='left'],
+    [data-ui-date-picker][data-part-positioner][data-side='right'] {
+      translate: 0 0;
+      transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-date-picker][data-part-positioner][data-open][data-positioned],
+    [data-ui-date-picker][data-part-positioner][data-open][data-positioned][data-side='top'],
+    [data-ui-date-picker][data-part-positioner][data-open][data-positioned][data-side='left'],
+    [data-ui-date-picker][data-part-positioner][data-open][data-positioned][data-side='right'] {
+      animation-name: none;
+    }
+  }
+
+  /* The anchor scrolled out of its own clipper. The calendar is still open and
+     still belongs to a control the reader can no longer see. */
+  [data-ui-date-picker][data-part-positioner][data-detached] {
+    visibility: hidden;
+  }
+
+  /**
+   * The surface. It is sized by the calendar inside it rather than by the
+   * control it hangs from: a month is seven columns wide and a field is as
+   * wide as the form, and forcing one to the other would either crush the grid
+   * or stretch it.
+   */
+  [data-ui-date-picker] [data-part-content] {
+    background-color: var(--slotted-date-picker-surface, var(--slotted-surface-raised, Canvas));
+    border: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-date-picker-content-border-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: var(--slotted-date-picker-content-radius, var(--slotted-radius-lg, 8px));
+    box-shadow: var(--slotted-date-picker-content-shadow, var(--slotted-shadow-md));
+    box-sizing: border-box;
+    color: var(--slotted-date-picker-content-color, var(--slotted-text, CanvasText));
+    /**
+     * A grid of `auto` tracks rather than a wrapping flex row.
+     *
+     * The footer has to run the whole width, and as a flex item that means
+     * `flex-basis: 100%` — a percentage against a container whose own width is
+     * being shrink-wrapped from its contents. The browser resolves the circle
+     * by making the surface wider than anything in it: the first capture of
+     * this family showed 195 pixels of empty ground to the right of the grid.
+     * `auto` tracks have no such circle, and `grid-area` says which cell each
+     * part is in without a second element to carry the row.
+     */
+    display: grid;
+    gap: var(--slotted-space-5, 0.75rem);
+    grid-template-areas: 'calendar' 'footer';
+    grid-template-columns: auto;
+    padding: var(--slotted-date-picker-content-padding, var(--slotted-space-5, 0.75rem));
+    /* The layer above gave up the pointer; the surface takes it back. */
+    pointer-events: auto;
+    /* A theme that paints this surface as a translucent material blurs what moves behind it. */
+    -webkit-backdrop-filter: var(--slotted-date-picker-content-backdrop-filter, none);
+    backdrop-filter: var(--slotted-date-picker-content-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-date-picker] [data-part-content] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /* The shortcuts take a column of their own only when there are any. */
+  [data-ui-date-picker] [data-part-content]:has([data-part-presets]) {
+    grid-template-areas: 'presets calendar' 'footer footer';
+    grid-template-columns: auto auto;
+  }
+
+  [data-ui-date-picker] [data-part-content] > [data-ui-calendar] {
+    grid-area: calendar;
+  }
+
+  /**
+   * The consumer's own shortcuts. This family ships no list of them: "last 7
+   * days" is a business calendar and a library that guessed at one would be
+   * guessing at a fiscal year. What it ships is the column they stand in.
+   */
+  [data-ui-date-picker] [data-part-presets] {
+    /* A list of shortcuts reads from the start edge. Stretched, each button
+       centred its own label and the four labels formed a ragged column with
+       no left edge to run down. */
+    align-items: flex-start;
+    border-inline-end: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-date-picker-content-border-color, var(--slotted-border-subtle, ButtonBorder));
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-area: presets;
+    padding-inline-end: var(--slotted-space-5, 0.75rem);
+  }
+
+  [data-ui-date-picker] [data-part-footer] {
+    align-items: center;
+    border-block-start: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-date-picker-content-border-color, var(--slotted-border-subtle, ButtonBorder));
+    display: flex;
+    gap: var(--slotted-space-2, 0.25rem);
+    /* The whole width under whatever the surface is holding, so the actions
+       sit under the calendar rather than beside it. */
+    grid-area: footer;
+    justify-content: flex-end;
+    padding-block-start: var(--slotted-space-4, 0.5rem);
+  }
+
+  /* ── Narrow, on a finger ──────────────────────────────────────────────
+   *
+   * §2.7 of `docs/component-features.md` asks for it by name: a popover on the
+   * desktop and a sheet in a narrow viewport. The DOM does not change, so the
+   * decision is testable without a device — and the query is on the viewport
+   * rather than on a container because a layer in a portal has no container to
+   * ask, and the question really is how much screen there is.
+   */
+  @media (max-width: 480px) and (pointer: coarse) {
+    [data-ui-date-picker][data-part-positioner][data-presentation='sheet'] {
+      /* The positioner's own measurement is overridden here on purpose: a
+         sheet is not placed against an anchor, it is placed against the
+         screen. */
+      inset: auto 0 0;
+      position: fixed;
+      /* Nothing arrives sideways, and the sheet rises from the edge it is
+         attached to. */
+      translate: 0 var(--slotted-space-9, 2rem);
+    }
+
+    [data-ui-date-picker][data-part-positioner][data-presentation='sheet'][data-open] {
+      translate: 0 0;
+    }
+
+    [data-ui-date-picker][data-part-positioner][data-presentation='sheet'] [data-part-content] {
+      border-end-end-radius: 0;
+      border-end-start-radius: 0;
+      border-inline: 0;
+      border-block-end: 0;
+      inline-size: 100%;
+      /* A calendar wider than the screen would scroll sideways; the grid
+         inside answers its own width and drops to one month instead. */
+      justify-content: center;
+    }
+
+    [data-ui-date-picker][data-part-positioner][data-presentation='sheet'] [data-part-presets] {
+      /* Beside the grid there is no room for a column of shortcuts, so they
+         become a row above it and keep their labels. */
+      border-inline-end: 0;
+      border-block-end: var(--slotted-border-width-thin, 1px) solid
+        var(--slotted-date-picker-content-border-color, var(--slotted-border-subtle, ButtonBorder));
+      flex-direction: row;
+      flex-wrap: wrap;
+      padding-block-end: var(--slotted-space-4, 0.5rem);
+      padding-inline-end: 0;
+    }
+
+    /**
+     * The grip every bottom sheet carries, in the drawer's geometry and line
+     * colour: a pill three rem by a quarter, centred in a row one target tall
+     * that the content keeps clear at its top. A pull down on it dismisses the
+     * sheet; Escape and the press outside stay the accessible ways out.
+     */
+    [data-ui-date-picker][data-part-positioner][data-presentation='sheet'] > [data-part-content] {
+      padding-block-start: var(--slotted-target-min, 24px);
+      position: relative;
+    }
+
+    [data-ui-date-picker][data-part-positioner][data-presentation='sheet']
+      > [data-part-content]
+      > [data-part-grip] {
+      background-clip: content-box;
+      background-color: var(
+        --slotted-drawer-resizer-line-color,
+        var(--slotted-border-strong, ButtonBorder)
+      );
+      block-size: var(--slotted-space-2, 0.25rem);
+      border-radius: var(--slotted-radius-full, 9999px);
+      box-sizing: content-box;
+      cursor: grab;
+      inline-size: var(--slotted-space-11, 3rem);
+      inset-block-start: 0;
+      inset-inline: 0;
+      margin-inline: auto;
+      padding-block: calc((var(--slotted-target-min, 24px) - var(--slotted-space-2, 0.25rem)) / 2);
+      position: absolute;
+      touch-action: none;
+    }
+  }
+}

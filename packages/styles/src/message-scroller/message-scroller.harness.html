@@ -1,0 +1,632 @@
+<!--
+  An incident conversation in a frame 360 pixels tall. The `live` scene runs
+  `@slotted/core/message-scroller`: the controls under the frame send a turn,
+  stream a reply into it, load older rows above the reader, and jump to a row.
+  The `states` scene is static: the jump control active with a count, the
+  loader, the unread line, a separator stuck to the top, a row just jumped to.
+-->
+<style>
+  .harness-frame {
+    block-size: 360px;
+    border: 1px solid var(--slotted-border-subtle);
+    border-radius: var(--slotted-radius-lg);
+    background: var(--slotted-surface);
+    overflow: hidden;
+  }
+
+  .harness-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-3);
+    margin-block-start: var(--slotted-space-4);
+  }
+</style>
+
+<section data-scene="live">
+  <div class="harness-frame">
+    <div
+      data-ui="message-scroller"
+      data-ui-message-scroller=""
+      data-part="root"
+      data-part-root=""
+      data-live
+    >
+      <div
+        data-part="viewport"
+        data-part-viewport=""
+        role="region"
+        aria-label="Mensagens"
+        tabindex="0"
+        data-pending
+      >
+        <div data-part="content" data-part-content="" role="log" aria-relevant="additions">
+          <div data-part="item" data-part-item="">
+            <div data-part="separator" data-part-separator="" data-sticky>
+              <span>Yesterday</span>
+            </div>
+          </div>
+          <div data-part="item" data-part-item="" data-message-id="q1" data-anchor="true">
+            <article
+              data-ui="message"
+              data-ui-message=""
+              data-part="root"
+              data-part-root=""
+              data-align="end"
+              data-layout="bubble"
+              data-actions="hover"
+              aria-label="Tu"
+            >
+              <div data-part="body" data-part-body="">
+                <div
+                  data-ui="message"
+                  data-ui-message=""
+                  data-part="bubble"
+                  data-part-bubble=""
+                  data-variant="solid"
+                  data-tone="accent"
+                >
+                  <div data-part="content" data-part-content="">
+                    The Stripe webhook is returning 500 on charge.refunded.
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div data-part="item" data-part-item="" data-message-id="a1">
+            <article
+              data-ui="message"
+              data-ui-message=""
+              data-part="root"
+              data-part-root=""
+              data-align="start"
+              data-layout="bubble"
+              data-actions="hover"
+              aria-label="Assistente"
+            >
+              <div data-part="body" data-part-body="">
+                <div
+                  data-ui="message"
+                  data-ui-message=""
+                  data-part="bubble"
+                  data-part-bubble=""
+                  data-variant="plain"
+                  data-tone="secondary"
+                >
+                  <div data-part="content" data-part-content="">
+                    The handler fails before acknowledging, so Stripe delivers the same event again.
+                    Each new attempt takes the same path and the queue grows instead of draining.
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div data-part="item" data-part-item="" data-message-id="q2" data-anchor="true">
+            <article
+              data-ui="message"
+              data-ui-message=""
+              data-part="root"
+              data-part-root=""
+              data-align="end"
+              data-layout="bubble"
+              data-actions="hover"
+              aria-label="Tu"
+            >
+              <div data-part="body" data-part-body="">
+                <div
+                  data-ui="message"
+                  data-ui-message=""
+                  data-part="bubble"
+                  data-part-bubble=""
+                  data-variant="solid"
+                  data-tone="accent"
+                >
+                  <div data-part="content" data-part-content="">What exactly is failing?</div>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div data-part="item" data-part-item="" data-message-id="a2">
+            <article
+              data-ui="message"
+              data-ui-message=""
+              data-part="root"
+              data-part-root=""
+              data-align="start"
+              data-layout="bubble"
+              data-actions="hover"
+              aria-label="Assistente"
+            >
+              <div data-part="body" data-part-body="">
+                <div
+                  data-ui="message"
+                  data-ui-message=""
+                  data-part="bubble"
+                  data-part-bubble=""
+                  data-variant="plain"
+                  data-tone="secondary"
+                >
+                  <div data-part="content" data-part-content="">
+                    The refund branch reads charge.payment_intent, which comes back null on refunds
+                    created in the dashboard. The null reaches the lookup helper, which fails before
+                    the 200 is sent.
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div data-part="item" data-part-item="">
+            <div data-part="separator" data-part-separator="" data-sticky><span>Today</span></div>
+          </div>
+          <div data-part="item" data-part-item="" data-message-id="q3" data-anchor="true">
+            <article
+              data-ui="message"
+              data-ui-message=""
+              data-part="root"
+              data-part-root=""
+              data-align="end"
+              data-layout="bubble"
+              data-actions="hover"
+              aria-label="Tu"
+            >
+              <div data-part="body" data-part-body="">
+                <div
+                  data-ui="message"
+                  data-ui-message=""
+                  data-part="bubble"
+                  data-part-bubble=""
+                  data-variant="solid"
+                  data-tone="accent"
+                >
+                  <div data-part="content" data-part-content="">
+                    Give me the smallest patch that unblocks the queue.
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div data-part="item" data-part-item="" data-message-id="a3">
+            <article
+              data-ui="message"
+              data-ui-message=""
+              data-part="root"
+              data-part-root=""
+              data-align="start"
+              data-layout="bubble"
+              data-actions="hover"
+              aria-label="Assistente"
+            >
+              <div data-part="body" data-part-body="">
+                <div
+                  data-ui="message"
+                  data-ui-message=""
+                  data-part="bubble"
+                  data-part-bubble=""
+                  data-variant="plain"
+                  data-tone="secondary"
+                >
+                  <div data-part="content" data-part-content="">
+                    Return 200 as soon as the signature is verified and process the refund in a
+                    queue. A webhook acknowledges receipt, not success.
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+      <button
+        data-part="jump"
+        data-part-jump=""
+        data-direction="end"
+        data-active="false"
+        type="button"
+        aria-label="Jump to latest"
+        inert
+        tabindex="-1"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="arrow-left"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+  <div class="harness-controls">
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-variant="outline"
+      data-size="sm"
+      type="button"
+      data-action="ask"
+    >
+      <span data-part="label" data-part-label="">Send question</span>
+    </button>
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-variant="outline"
+      data-size="sm"
+      type="button"
+      data-action="stream"
+    >
+      <span data-part="label" data-part-label="">Resposta em streaming</span>
+    </button>
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-variant="outline"
+      data-size="sm"
+      type="button"
+      data-action="older"
+    >
+      <span data-part="label" data-part-label="">Load earlier</span>
+    </button>
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-variant="outline"
+      data-size="sm"
+      type="button"
+      data-action="jump"
+    >
+      <span data-part="label" data-part-label="">Go to the first question</span>
+    </button>
+  </div>
+</section>
+
+<section data-scene="states">
+  <div class="harness-frame">
+    <div
+      data-ui="message-scroller"
+      data-ui-message-scroller=""
+      data-part="root"
+      data-part-root=""
+      data-scrollable="start end"
+    >
+      <div
+        data-part="viewport"
+        data-part-viewport=""
+        role="region"
+        aria-label="Mensagens"
+        tabindex="0"
+        data-scrollable="start end"
+      >
+        <div data-part="content" data-part-content="" role="log" aria-relevant="additions">
+          <div data-part="loader" data-part-loader="" role="status">
+            <span data-ui="spinner" data-ui-spinner="" aria-hidden="true"></span
+            ><span>Loading earlier messages</span>
+          </div>
+          <div data-part="item" data-part-item="">
+            <div data-part="separator" data-part-separator="" data-sticky>
+              <span>Segunda, 28 de setembro</span>
+            </div>
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            data-message-id="s1"
+            data-anchor="true"
+            data-current
+          >
+            <article
+              data-ui="message"
+              data-ui-message=""
+              data-part="root"
+              data-part-root=""
+              data-align="end"
+              data-layout="bubble"
+              data-actions="hover"
+              aria-label="Tu"
+            >
+              <div data-part="body" data-part-body="">
+                <div
+                  data-ui="message"
+                  data-ui-message=""
+                  data-part="bubble"
+                  data-part-bubble=""
+                  data-variant="solid"
+                  data-tone="accent"
+                >
+                  <div data-part="content" data-part-content="">
+                    Why was the export empty on Friday?
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div data-part="item" data-part-item="" data-message-id="s2">
+            <article
+              data-ui="message"
+              data-ui-message=""
+              data-part="root"
+              data-part-root=""
+              data-align="start"
+              data-layout="bubble"
+              data-actions="hover"
+              aria-label="Assistente"
+            >
+              <div data-part="body" data-part-body="">
+                <div
+                  data-ui="message"
+                  data-ui-message=""
+                  data-part="bubble"
+                  data-part-bubble=""
+                  data-variant="plain"
+                  data-tone="secondary"
+                >
+                  <div data-part="content" data-part-content="">
+                    The saved view had a date range that excluded everything recent.
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div data-part="item" data-part-item="">
+            <div data-part="unread" data-part-unread=""><span>Novas mensagens</span></div>
+          </div>
+          <div data-part="item" data-part-item="" data-message-id="s3">
+            <article
+              data-ui="message"
+              data-ui-message=""
+              data-part="root"
+              data-part-root=""
+              data-align="start"
+              data-layout="bubble"
+              data-actions="hover"
+              aria-label="Marta Silva"
+            >
+              <div data-part="body" data-part-body="">
+                <div
+                  data-ui="message"
+                  data-ui-message=""
+                  data-part="bubble"
+                  data-part-bubble=""
+                  data-variant="soft"
+                  data-tone="secondary"
+                >
+                  <div data-part="content" data-part-content="">
+                    I already fixed the filter in the customer's workspace.
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+      <button
+        data-part="jump"
+        data-part-jump=""
+        data-direction="end"
+        data-active="true"
+        type="button"
+        aria-label="Jump to latest, 3 new"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="arrow-left"></svg
+        ></span>
+        <span data-part="jump-count" data-part-jump-count="">3 novas</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="short">
+  <div class="harness-frame">
+    <div data-ui="message-scroller" data-ui-message-scroller="" data-part="root" data-part-root="">
+      <div
+        data-part="viewport"
+        data-part-viewport=""
+        role="region"
+        aria-label="Mensagens"
+        tabindex="0"
+      >
+        <div data-part="content" data-part-content="" role="log" aria-relevant="additions">
+          <div data-part="item" data-part-item="" data-message-id="h1" data-anchor="true">
+            <article
+              data-ui="message"
+              data-ui-message=""
+              data-part="root"
+              data-part-root=""
+              data-align="end"
+              data-layout="bubble"
+              data-actions="hover"
+              aria-label="Tu"
+            >
+              <div data-part="body" data-part-body="">
+                <div
+                  data-ui="message"
+                  data-ui-message=""
+                  data-part="bubble"
+                  data-part-bubble=""
+                  data-variant="solid"
+                  data-tone="accent"
+                >
+                  <div data-part="content" data-part-content="">
+                    Hello. Are there still seats in Thursday's training?
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div data-part="item" data-part-item="" data-message-id="h2">
+            <article
+              data-ui="message"
+              data-ui-message=""
+              data-part="root"
+              data-part-root=""
+              data-align="start"
+              data-layout="bubble"
+              data-actions="hover"
+              aria-label="Assistente"
+            >
+              <div data-part="body" data-part-body="">
+                <div
+                  data-ui="message"
+                  data-ui-message=""
+                  data-part="bubble"
+                  data-part-bubble=""
+                  data-variant="soft"
+                  data-tone="secondary"
+                >
+                  <div data-part="content" data-part-content="">
+                    <span data-part="typing" data-part-typing="" role="img" aria-label="A escrever"
+                      ><span></span><span></span><span></span
+                    ></span>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+      <button
+        data-part="jump"
+        data-part-jump=""
+        data-direction="end"
+        data-active="false"
+        type="button"
+        aria-label="Jump to latest"
+        inert
+        tabindex="-1"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="arrow-left"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  import { formatMessage } from '@slotted/core/i18n';
+  import { createMessageScroller } from '@slotted/core/message-scroller';
+
+  const replies = [
+    'I can write the patch and leave the resend script alongside. Want me to open the pull request?',
+    'The queue drains on its own after the deploy: Stripe keeps failed events for three days.',
+    'The guard is one line: if payment_intent comes back null, the helper returns early and the 200 is sent.',
+  ];
+
+  function row(id, { own, text, anchor }) {
+    const item = document.createElement('div');
+    item.setAttribute('data-part', 'item');
+    item.setAttribute('data-message-id', id);
+    if (anchor) item.setAttribute('data-anchor', 'true');
+    item.innerHTML = `<article data-ui="message" data-ui-message="" data-part="root" data-part-root="" data-align="${own ? 'end' : 'start'}" data-layout="bubble" data-actions="hover"><div data-part="body" data-part-body=""><div data-ui="message" data-ui-message="" data-part="bubble" data-part-bubble="" data-variant="${own ? 'solid' : 'plain'}" data-tone="${own ? 'accent' : 'secondary'}"><div data-part="content" data-part-content=""></div></div></div></article>`;
+    item.querySelector('[data-part="content"]').textContent = text;
+    return item;
+  }
+
+  for (const root of document.querySelectorAll(
+    '[data-ui="message-scroller"][data-part="root"][data-live]',
+  )) {
+    const viewport = root.querySelector('[data-part="viewport"]');
+    const content = root.querySelector('[data-part="content"]');
+    const jump = root.querySelector('[data-part="jump"]');
+    const scroller = createMessageScroller({
+      follow: true,
+      defaultPosition: 'last-anchor',
+      peek: 48,
+      scrollMargin: 8,
+    });
+    scroller.connect({ root, viewport, content });
+
+    const paint = () => {
+      const { scrollable, newCount } = scroller.getState();
+      const active = scrollable.end;
+      jump.setAttribute('data-active', String(active));
+      jump.toggleAttribute('inert', !active);
+      jump.tabIndex = active ? 0 : -1;
+      let count = jump.querySelector('[data-part="jump-count"]');
+      if (newCount > 0) {
+        const words = formatMessage(
+          '{count, plural, one {# new} other {# new}}',
+          { count: newCount },
+          'pt-BR',
+        );
+        if (!count) {
+          count = document.createElement('span');
+          count.setAttribute('data-part', 'jump-count');
+          jump.append(count);
+        }
+        count.textContent = words;
+        jump.setAttribute(
+          'aria-label',
+          formatMessage(
+            'Jump to latest, {count, plural, one {# new} other {# new}}',
+            { count: newCount },
+            'pt-BR',
+          ),
+        );
+      } else {
+        count?.remove();
+        jump.setAttribute('aria-label', 'Jump to latest');
+      }
+    };
+    scroller.subscribe(paint);
+    paint();
+    jump.addEventListener('click', () => scroller.scrollToEnd({ behavior: 'smooth' }));
+
+    const scene = root.closest('[data-scene]');
+    let turn = 0;
+    let older = 0;
+    scene.querySelector('[data-action="ask"]').addEventListener('click', () => {
+      turn += 1;
+      content.append(
+        row(`live-q${turn}`, {
+          own: true,
+          anchor: true,
+          text: `Pergunta ${turn}: e se o evento vier sem assinatura?`,
+        }),
+      );
+      window.setTimeout(
+        () =>
+          content.append(
+            row(`live-a${turn}`, { own: false, text: replies[turn % replies.length] }),
+          ),
+        600,
+      );
+    });
+    scene.querySelector('[data-action="stream"]').addEventListener('click', () => {
+      turn += 1;
+      const item = row(`live-s${turn}`, { own: false, text: '' });
+      const target = item.querySelector('[data-part="content"]');
+      content.append(item);
+      const words = (replies.join(' ') + ' ' + replies.join(' ')).split(' ');
+      let index = 0;
+      const tick = () => {
+        if (index >= words.length) return;
+        target.textContent += (index ? ' ' : '') + words[index];
+        index += 1;
+        window.setTimeout(tick, 60);
+      };
+      tick();
+    });
+    scene.querySelector('[data-action="older"]').addEventListener('click', () => {
+      for (let index = 0; index < 3; index += 1) {
+        older += 1;
+        content.prepend(
+          row(`old-${older}`, {
+            own: older % 2 === 0,
+            text: `Mensagem anterior ${older}: contexto do incidente.`,
+          }),
+        );
+      }
+    });
+    scene.querySelector('[data-action="jump"]').addEventListener('click', () => {
+      scroller.scrollToMessage('q1', { behavior: 'smooth', highlight: true, scrollMargin: 8 });
+    });
+  }
+</script>

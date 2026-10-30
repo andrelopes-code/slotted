@@ -1,0 +1,743 @@
+<!--
+  The harness runs no script, so every layer carries exactly what
+  `packages/core/src/positioner` would have written on it — `top`, `left`,
+  `data-side`, `--slotted-positioner-arrow-x` or `-arrow-y`, the transform
+  origin, and the room the engine says is left. The arrow offsets and the
+  available width are percentages of the layer and the stage rather than the
+  engine's pixels: an inset percentage resolves against the same box, so one
+  value holds at all three capture widths. The room is measured from the
+  layer's own edge, as the engine measures it, so a layer set 8px in from the
+  stage has `calc(100% - 8px)` of it; a scene that gave it the whole stage
+  overflowed by those 8px at 240px (P2).
+
+  `--slotted-positioner-available-height` is stated only in the scene that is
+  about it. Everywhere else the family's own `100vh` fallback is the right
+  answer, because nothing is constraining the panel.
+-->
+<section data-scene="anatomy" data-fixed>
+  <div style="position: relative; display: flex; justify-content: center; padding-block: 232px">
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="root"
+      data-part-root=""
+      data-tone="accent"
+      data-variant="solid"
+      data-size="md"
+      type="button"
+    >
+      <span data-part="label" data-part-label="">Filters</span>
+    </button>
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="top"
+      data-align="center"
+      data-size="md"
+      data-width="auto"
+      data-open
+      style="
+        top: 8px;
+        left: 50%;
+        translate: -50% 0;
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-arrow-x: calc(50% - 0.3125rem);
+        --slotted-positioner-transform-origin: center bottom;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-labelledby="popover-anatomy-title"
+      >
+        <div data-part="header" data-part-header="">
+          <div data-part="title" data-part-title="" id="popover-anatomy-title">Filter invoices</div>
+          <p data-part="description" data-part-description="">Applies to the current view only.</p>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="body" data-part-body="">
+          Unpaid, overdue and disputed invoices issued in the last quarter.
+        </div>
+        <div data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Reset</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!--
+  The three width and type steps, stacked so the inset and the title's step are
+  read against each other rather than against the page.
+-->
+<section data-scene="sizes" data-fixed>
+  <div style="position: relative; padding-block: 8px">
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="sm"
+      data-width="auto"
+      data-open
+      style="
+        top: 8px;
+        left: 8px;
+        --slotted-positioner-available-width: calc(100% - 8px);
+        --slotted-positioner-arrow-x: 1.5rem;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-labelledby="popover-size-sm"
+      >
+        <div data-part="header" data-part-header="">
+          <div data-part="title" data-part-title="" id="popover-size-sm">Small</div>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="body" data-part-body="">
+          Sixteen rem, the tighter inset and the medium type step.
+        </div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="auto"
+      data-open
+      style="
+        top: 152px;
+        left: 8px;
+        --slotted-positioner-available-width: calc(100% - 8px);
+        --slotted-positioner-arrow-x: 1.5rem;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-labelledby="popover-size-md"
+      >
+        <div data-part="header" data-part-header="">
+          <div data-part="title" data-part-title="" id="popover-size-md">Medium</div>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="body" data-part-body="">
+          Twenty rem, and the step every popover starts at.
+        </div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="lg"
+      data-width="auto"
+      data-open
+      style="
+        top: 296px;
+        left: 8px;
+        --slotted-positioner-available-width: calc(100% - 8px);
+        --slotted-positioner-arrow-x: 1.5rem;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-labelledby="popover-size-lg"
+      >
+        <div data-part="header" data-part-header="">
+          <div data-part="title" data-part-title="" id="popover-size-lg">Large</div>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="body" data-part-body="">
+          Twenty-four rem, for a panel that holds a form rather than a sentence.
+        </div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!--
+  The two horizontal sides. They are the pair that proves the arrow is placed in
+  the engine's own physical coordinates: a right-to-left capture leaves both
+  panels where they are and mirrors only the words inside them.
+-->
+<section data-scene="sides" data-fixed>
+  <div style="position: relative; padding-block: 8px">
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="left"
+      data-align="center"
+      data-size="sm"
+      data-width="auto"
+      data-open
+      style="
+        top: 8px;
+        left: 0;
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-arrow-y: calc(50% - 0.3125rem);
+        --slotted-positioner-transform-origin: right center;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-label="Physical left"
+      >
+        <div data-part="body" data-part-body="">Physical left, arrow on the right.</div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="right"
+      data-align="center"
+      data-size="sm"
+      data-width="auto"
+      data-open
+      style="
+        top: 152px;
+        left: auto;
+        right: 0;
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-arrow-y: calc(50% - 0.3125rem);
+        --slotted-positioner-transform-origin: left center;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-label="Physical right"
+      >
+        <div data-part="body" data-part-body="">Physical right, arrow on the left.</div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!--
+  The scene the three-row grid exists for. The engine says how much room is
+  left; the header keeps its own height, the footer keeps its own, and the body
+  takes what is between them and scrolls. A panel bounded as a whole would have
+  scrolled its title out of sight, which is how a reader loses track of what
+  they are in.
+-->
+<section data-scene="scrolling" data-fixed>
+  <div style="position: relative; padding-block: 8px">
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="auto"
+      data-open
+      style="
+        top: 8px;
+        left: 8px;
+        --slotted-positioner-available-width: calc(100% - 8px);
+        --slotted-positioner-available-height: 260px;
+        --slotted-positioner-arrow-x: 1.5rem;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-labelledby="popover-scroll-title"
+      >
+        <div data-part="header" data-part-header="">
+          <div data-part="title" data-part-title="" id="popover-scroll-title">
+            Notification settings
+          </div>
+          <button data-part="close" data-part-close="" type="button" aria-label="Close">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="body" data-part-body="">
+          <p style="margin: 0 0 var(--slotted-space-4)">
+            Send me an email when an invoice is issued.
+          </p>
+          <p style="margin: 0 0 var(--slotted-space-4)">Send me an email when a payment fails.</p>
+          <p style="margin: 0 0 var(--slotted-space-4)">
+            Send me a weekly summary on Monday morning.
+          </p>
+          <p style="margin: 0 0 var(--slotted-space-4)">
+            Send me an email when a dispute is opened.
+          </p>
+          <p style="margin: 0 0 var(--slotted-space-4)">
+            Send me an email when a refund is settled.
+          </p>
+          <p style="margin: 0">Send me an email when the balance falls below the threshold.</p>
+        </div>
+        <div data-part="footer" data-part-footer="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+        </div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!--
+  `width="anchor"` above `width="auto"`. The first is the filter panel that has
+  to line its edges up with the field it hangs from; the second sizes itself to
+  its own content and stops at the measure.
+-->
+<section data-scene="width" data-fixed>
+  <div style="position: relative; padding-block: 8px">
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="anchor"
+      data-open
+      style="
+        top: 8px;
+        left: 8px;
+        --slotted-positioner-available-width: calc(100% - 8px);
+        --slotted-positioner-anchor-width: 260px;
+        --slotted-positioner-arrow-x: 1.5rem;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-label="Anchor width"
+      >
+        <div data-part="body" data-part-body="">
+          Exactly as wide as the 260-pixel field above it.
+        </div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="auto"
+      data-open
+      style="
+        top: 128px;
+        left: 8px;
+        --slotted-positioner-available-width: calc(100% - 8px);
+        --slotted-positioner-arrow-x: 1.5rem;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-label="Automatic width"
+      >
+        <div data-part="body" data-part-body="">As wide as its own words, up to the measure.</div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!--
+  Content the family did not choose. A panel with a body and nothing else, one
+  whose title is long enough to wrap beside the close control, and one written
+  in another script — the last proves that `plaintext` takes each paragraph's
+  direction from its own first strong character rather than from the page.
+-->
+<section data-scene="content" data-fixed>
+  <div style="position: relative; padding-block: 8px">
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="auto"
+      data-open
+      style="
+        top: 8px;
+        left: 8px;
+        --slotted-positioner-available-width: calc(100% - 8px);
+        --slotted-positioner-arrow-x: 1.5rem;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-label="Body only"
+      >
+        <div data-part="body" data-part-body="">
+          A body and nothing else, inset on all four sides.
+        </div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="auto"
+      data-open
+      style="
+        top: 112px;
+        left: 8px;
+        --slotted-positioner-available-width: calc(100% - 8px);
+        --slotted-positioner-arrow-x: 1.5rem;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-labelledby="popover-long-title"
+      >
+        <div data-part="header" data-part-header="">
+          <div data-part="title" data-part-title="" id="popover-long-title">
+            Benachrichtigungseinstellungen für ausstehende Rechnungen
+          </div>
+          <button data-part="close" data-part-close="" type="button" aria-label="Schließen">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="body" data-part-body="">webhook_delivery_failure_retry_backoff_seconds</div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="auto"
+      data-open
+      style="
+        top: 300px;
+        left: 8px;
+        --slotted-positioner-available-width: calc(100% - 8px);
+        --slotted-positioner-arrow-x: 1.5rem;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-labelledby="popover-rtl-title"
+      >
+        <div data-part="header" data-part-header="">
+          <div data-part="title" data-part-title="" id="popover-rtl-title">إعدادات الإشعارات</div>
+          <button data-part="close" data-part-close="" type="button" aria-label="إغلاق">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="body" data-part-body="">
+          أرسل لي بريدًا إلكترونيًا عند إصدار فاتورة جديدة.
+        </div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!--
+  Closed, which is where a popover spends most of its life. The layer is in the
+  document — `mount="eager"` — and paints nothing, occupies nothing and passes
+  the pointer through. Anything visible here would be the defect.
+-->
+<section data-scene="closed" data-fixed>
+  <div style="position: relative; display: flex; justify-content: center; padding-block: 48px">
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-variant="outline"
+      data-size="md"
+      type="button"
+    >
+      <span data-part="label" data-part-label="">Nothing below me</span>
+    </button>
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="center"
+      data-size="md"
+      data-width="auto"
+      style="
+        top: 96px;
+        left: 50%;
+        translate: -50% 0;
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-arrow-x: calc(50% - 0.3125rem);
+        --slotted-positioner-transform-origin: center top;
+      "
+    >
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="dialog" tabindex="-1" aria-label="Closed">
+        <div data-part="body" data-part-body="">This must not appear.</div>
+      </div>
+      <span data-part="focus-guard" data-part-focus-guard="" tabindex="0" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!--
+  An anchor at the top-right corner: the layer ends at the stage's edge and
+  the positioner puts the arrow `arrowPadding` (12px) from the layer's right,
+  which is inside the layer's gap and over the panel's rounded corner. The
+  stylesheet clamps it back onto the straight edge.
+-->
+<section data-scene="corner" data-fixed>
+  <div
+    style="position: relative; display: flex; justify-content: flex-end; padding-block: 16px 232px"
+  >
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-variant="outline"
+      data-size="md"
+      type="button"
+    >
+      <span data-part="label" data-part-label="">Account</span>
+    </button>
+    <div
+      data-ui="popover"
+      data-ui-popover=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="end"
+      data-size="md"
+      data-width="auto"
+      data-open
+      style="
+        top: calc(16px + 2.25rem);
+        right: 0;
+        --slotted-positioner-available-width: calc(100% - 8px);
+        --slotted-positioner-arrow-x: calc(100% - 12px - 0.625rem);
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        tabindex="-1"
+        aria-labelledby="popover-corner-title"
+      >
+        <div data-part="header" data-part-header="">
+          <div data-part="title" data-part-title="" id="popover-corner-title">
+            Signed in as Ana Souza
+          </div>
+          <p data-part="description" data-part-description="">Workspace owner · 3 workspaces</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,135 @@
+@layer slotted.components {
+  /**
+   * ── The span a query found ─────────────────────────────────────────────
+   *
+   * One mark, drawn once. Every list a reader types into says the same thing
+   * about the same span — this is the part of the label your query matched —
+   * and `combobox` drew it in its own sheet, so `select` with a filter,
+   * `multi-select` and `command-palette` would each have drawn it again, with
+   * their own answers (R6). Until wave 10 it was a shared sheet those hosts
+   * wore as `data-ui='highlight'` on the mark itself; it is now a family, and
+   * the host's label holds one root of it.
+   *
+   * The root is the element that holds the text. It has no rule: it is inline,
+   * it inherits everything, and the whole of what the family paints is the
+   * `mark` inside it. The element is a `mark`, so a reader whose browser
+   * exposes the role hears the emphasis as well as sees it.
+   *
+   * **The mark changes no metric.** A mark that is heavier, padded, or spaced
+   * differently from the text around it makes the word wider than the same
+   * word unmarked, and a filter that marks a different span on every keystroke
+   * reflows the label under the reader's eyes: at 600 weight and 0.1em of
+   * inline padding, `Blueberry` measured 70.03px marked against 63.17px plain,
+   * and the run moved 6.86px as the query grew (CB6). Weight, spacing and
+   * padding are therefore the label's own, and the mark is carried entirely by
+   * colour: the accent's text tone over a band mixed from that same tone, with
+   * a rule of the accent's border tone under it.
+   *
+   * The rule is `text-decoration` rather than a shadow, so it follows the
+   * letters across a line break and is drawn by the same machinery that draws
+   * every other underline the reader has met.
+   *
+   * **The band is not a `*-surface` tone.** `accent-surface` is a ground, and
+   * a ground is calibrated to sit under text on the page rather than to
+   * separate from it: it measured 1.220 | 1.014 | 1.000:1 against the panel in
+   * `light` | `dark` | `high-contrast`, so in two schemes out of three the band
+   * did not exist and the mark was carried by its colour and its rule alone
+   * (CB10, the same fact CK7 found under the pointer halo). The band is mixed
+   * from `accent-text` instead — the one role every scheme keeps legible over
+   * the surface — so one share gives one gesture in all three: 1.120 | 1.165 |
+   * 1.140:1 against the panel, and 1.115 to 1.165 across every ground a marked
+   * label can land on.
+   *
+   * The share is 0.075 and not the halo's 0.12 because a band is read through
+   * and a halo is not. The mark's own text has to keep the ratio its scheme
+   * promises while sitting on the band, and in `high-contrast` — 7:1, over a
+   * highlighted row — that caps the share: 0.075 leaves 7.078:1, 0.08 leaves
+   * 7.001:1, and 0.12 leaves 6.540:1.
+   */
+  [data-ui-highlight] [data-part-match] {
+    background-color: var(
+      --slotted-highlight-background,
+      color-mix(
+        in oklab,
+        var(--slotted-tone-accent-text) calc(var(--slotted-highlight-tint-opacity, 0.075) * 100%),
+        transparent
+      )
+    );
+    /**
+     * A run that wraps is two boxes, and each of them carries the ground and
+     * the rule: without this the tint runs to the end of the first line and
+     * stops, and the second half of the word is unmarked.
+     */
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    /* No corner: a radius is a box around the letters, and the mark is a band
+       behind them. */
+    border-radius: var(--slotted-radius-none, 0px);
+    color: var(--slotted-highlight-color, var(--slotted-tone-accent-text));
+    font-weight: inherit;
+    letter-spacing: inherit;
+    padding: 0;
+    text-decoration-color: var(--slotted-highlight-rule-color, var(--slotted-tone-accent-border));
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--slotted-border-width-thin, 1px);
+    /* One step of the space scale between the letters and the rule, which is
+       the smallest the scale holds. */
+    text-underline-offset: var(--slotted-space-1, 0.125rem);
+  }
+
+  /**
+   * The match a find bar is standing on. Every browser's own find draws the
+   * active match apart from the others, and it does so by filling it: the band
+   * cannot be made stronger by degrees — 0.075 is the cap the 7:1 promise sets
+   * in `high-contrast`, and doubling it leaves 6.5:1 — so the current mark
+   * takes the accent's solid ground and the ink the theme pairs with it, which
+   * is a ratio the theme already promises. The rule goes: drawn in the ink it
+   * sits inside the fill and reads as nothing, which the capture showed. An
+   * outline is not used: R3 reserves it for the focus ring.
+   */
+  [data-ui-highlight] [data-part-match][data-current] {
+    background-color: var(--slotted-highlight-current-background, var(--slotted-tone-accent-solid));
+    color: var(--slotted-highlight-current-color, var(--slotted-tone-accent-on-solid));
+    text-decoration-line: none;
+  }
+
+  /**
+   * A disabled row's mark steps down with the rest of it. The mark says "this
+   * is why the option is here", and saying it in the accent tone on a row that
+   * answers nothing puts the loudest thing on the surface on the one option a
+   * reader cannot take. The rule stays: the reader still has to see which span
+   * matched, and it is the part of the mark that costs no colour.
+   *
+   * The state is the root's own, or any row's above it: the host's option
+   * already carries `data-disabled`, and the family reads it from there rather
+   * than asking the host to say it twice.
+   */
+  [data-ui-highlight]:is([data-disabled], [data-disabled] *) [data-part-match] {
+    background-color: var(--slotted-highlight-disabled-background, transparent);
+    color: inherit;
+    /* Restated for the current match, which gave the rule up for its fill. */
+    text-decoration-line: underline;
+  }
+
+  /**
+   * Under forced colours the accent ground becomes `Canvas` and the mark would
+   * vanish. `Mark` and `MarkText` are the system pair for exactly this element,
+   * and they are the one case where this sheet names a system colour because
+   * the theme has no token that maps to it. The current match takes
+   * `Highlight` and `HighlightText`, the pair the user agent draws its own
+   * active find match in.
+   */
+  @media (forced-colors: active) {
+    [data-ui-highlight] [data-part-match],
+    [data-ui-highlight]:is([data-disabled], [data-disabled] *) [data-part-match] {
+      background-color: Mark;
+      color: MarkText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-highlight] [data-part-match][data-current] {
+      background-color: Highlight;
+      color: HighlightText;
+    }
+  }
+}

@@ -1,0 +1,469 @@
+{
+  "schemaVersion": 5,
+  "family": "listbox",
+  "ui": "listbox",
+  "catalog": {
+    "group": "Forms",
+    "summary": "List of options for single or multiple choice."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/",
+  "patternStatus": "Read on 2026-09-04 from the rendered page and from content/patterns/listbox/listbox-pattern.html in w3c/aria-practices, so the optional and alternative keyboard models are transcribed from the source rather than from the page's summary. The keyboard table, the roles and the properties are below.",
+  "roles": {
+    "root": "listbox",
+    "canvas": "presentation",
+    "group": "group",
+    "option": "option"
+  },
+  "element": {
+    "root": "div",
+    "option": "div",
+    "reason": "role=\"listbox\" replaces ul's implicit list role and role=\"option\" replaces li's listitem, so the two elements would contribute nothing but a promise the roles then break. The windowed shape also needs a role=\"presentation\" element between the root and its options, which is not a valid child of ul. The cost is that nothing is inherited: the family writes aria-setsize and aria-posinset itself. list and list-item keep ul and li because they are a static list with no role to replace."
+  },
+  "composes": ["collection", "state", "typeahead"],
+  "navigation": {
+    "module": "packages/core/src/collection",
+    "function": "moveIndex",
+    "rowStep": "A row in a two-dimensional arrangement is pageDown with page set to columns: the page arithmetic already clamps rather than wrapping and lands on the nearest enabled option inward, which is exactly what a row step needs. columns is therefore a number at the call site instead of two more intents in the shared vocabulary.",
+    "reason": "The select and combobox session added moveIndex to the collection engine while this family was being designed. Writing a second movement function in the same module is the duplication the engine exists to prevent, and the navigateDisabled axis is expressed as the enabled mask rather than as a second option."
+  },
+  "typeahead": {
+    "module": "typeahead",
+    "timeout": 500,
+    "label": "textValue, or the label part text",
+    "locale": "Intl.Collator at base sensitivity, so Ä matches a",
+    "reason": "The pattern recommends type-ahead for all listboxes and especially above seven options, and all four component implementations surveyed ship it. Space mid-sequence is a character rather than a selection, which is what makes an option named in two words reachable."
+  },
+  "selection": {
+    "attribute": "aria-selected",
+    "forbidden": "aria-checked",
+    "reason": "The pattern forbids a listbox that carries both, and this library's data-selected already means the reader's own choice. Writing aria-selected=\"false\" on every selectable option is the other half of the requirement: an option with no attribute at all is not selectable, which is what the reader hears.",
+    "models": {
+      "toggle": "The recommended model. A plain press changes the state of one option and holds no modifier, which is what the pattern names first and what a touch reader can reach at all.",
+      "replace": "The alternative model. Moving without a modifier collapses the selection onto the option moved to, and Control moves without selecting. It is what a file list and <select multiple> do."
+    },
+    "range": {
+      "anchor": "the option the last plain press or range started from",
+      "toggle": "adds the span to what the reader already had",
+      "replace": "makes the span the selection"
+    },
+    "forcedColors": "Under forced-colors: active every tone surface becomes Canvas, so a family that said \"selected\" with a tinted ground alone would say nothing in the mode that needs it most. The mark is what survives, and it is the same failure WCAG 2.2 SC 1.4.1 describes for colour on its own.",
+    "indicatorNone": "The accent ground and the accent ink alone, with no mark and no rail (R1). It is what a listbox whose rows are wide enough for the ground to be unambiguous takes; under forced colours the system's own selected pair says it."
+  },
+  "value": {
+    "single": "string | null",
+    "multiple": "readonly string[]",
+    "none": "string | null",
+    "reason": "Three of the four surveyed implementations give single selection a scalar; the Angular CDK's array-always shape is what makes every consumer in the application write value[0]. The prop is the union in both bindings rather than a generic that narrows on selectionMode: a generic narrows in React and cannot narrow in Angular, where an input's value does not type a template, so the two bindings would hold different public shapes for one contract."
+  },
+  "focus": {
+    "tabStops": 1,
+    "auto": {
+      "virtual": "activedescendant",
+      "otherwise": "roving",
+      "reason": "A roving tabindex is the better model when it works: real focus means the platform draws the ring, announces the option and scrolls it into view. It stops working the moment a window recycles rows, because the element carrying tabindex=\"0\" is removed while it holds focus and focus falls to the body. The Angular CDK asks the consumer to know that useActiveDescendant exists and React Aria never offers it; the fact that decides it is one the family already holds."
+    },
+    "onFocus": "The selected option when there is one, otherwise the first option, which is what the pattern requires of both a single-select and a multi-select listbox.",
+    "disabledOptions": "A disabled option carries aria-disabled and data-disabled, never the native attribute, and keeps its place in the set. navigateDisabled decides whether the arrows land on it; the APG allows both, and skipping is the default.",
+    "removal": "When the active option is removed while the listbox holds focus, the active option becomes the one that took its place, then the last option, then nothing. packages/core/src/focus/removal-focus holds the same rule for real focus under the roving model.",
+    "ring": "Drawn on the active option from the listbox, with :focus-within on the root rather than :focus-visible on the option: under roving the focus is on the option and under activedescendant it is on the root, so keying on the option would draw nothing in the model where the option never holds focus. The root draws its own ring only under activedescendant, where the root is what the reader operates. The cost is that a pointer press also raises the ring."
+  },
+  "virtual": {
+    "module": "packages/core/src/collection",
+    "functions": ["virtualWindow", "createRowMetrics", "offsetForIndex", "shouldLoadMore"],
+    "canvasRole": "presentation",
+    "pinned": ["the active option", "the range anchor"],
+    "itemSize": "required whenever virtual is set, rather than optional. A window over rows whose height depends on how their own text wrapped is the measured variant the engine deferred, and accepting it silently would produce a list that drifts further from its canvas with every row.",
+    "sections": "With groups the family builds createRowMetrics over the row list, because a group label is not an option's height. Without them it passes itemSize and the engine keeps its two multiplications.",
+    "placement": "transform: translateY on a positioned wrapper inside the canvas, so no option carries a layout offset of its own and the option subgrid survives.",
+    "reason": "docs/component-features.md §2.10: virtualisation is an optional capability of a collection and not a parallel component. docs/process/build-order.md wave 6 retires virtual-list for it, and this family is the engine's first caller that windows and selects at the same time."
+  },
+  "incremental": {
+    "request": "onLoadMore",
+    "inputs": ["hasMore", "loading", "totalCount"],
+    "threshold": 0,
+    "part": "loader",
+    "reason": "React Aria's ListBoxLoadMoreItem is the only surveyed answer, and the pattern supplies what it omits: aria-setsize and aria-posinset are required exactly when the complete set is not in the DOM. The threshold defaults to nought — the request goes out once the last loaded option is rendered — because a larger number is a claim about how fast the consumer's fetch returns."
+  },
+  "forms": {
+    "name": "name",
+    "angular": "ControlValueAccessor and Validator",
+    "react": "One hidden input per selected key, under the name the consumer gave, so a bare form submits the set without a controlled value. Validity is the field's, through aria-invalid, because a hidden input cannot be focused and a browser cannot report it.",
+    "reason": "docs/component-features.md §6 puts Listbox among the collection controls a form holds a choice in, and the Angular CDK is the one surveyed implementation that answers forms at all."
+  },
+  "wiring": {
+    "aria-multiselectable": "true on the root only in multiple. The pattern lets the default false stay implied, so nothing is written otherwise.",
+    "aria-orientation": "horizontal on the root only when the options are arranged horizontally. vertical is the role's own default.",
+    "aria-activedescendant": "on the root, under that focus model, naming the active option's id",
+    "aria-selected": "true or false on every selectable option, never absent, and never beside aria-checked",
+    "aria-disabled": "on a disabled option and on a disabled root, so a disabled option keeps its place in the set",
+    "aria-setsize": "on every option of a collection the family was handed, and on none when the options were written as children. The pattern requires the pair exactly when the complete set is not in the DOM, which is what windowing and incremental loading produce; with declarative children the whole set is in the DOM and the platform counts it. Writing it there anyway would mean reading the DOM during render, which is nothing on the server and a count on the client — a hydration mismatch for a number nobody needed.",
+    "aria-posinset": "the one-based position in the whole set rather than in the rendered window, written under the same condition as aria-setsize",
+    "aria-labelledby": "the root names itself by a visible label, and a group names itself by its own group-label part",
+    "aria-label": "an instance may name the root itself, which is what a listbox with no visible label needs",
+    "aria-readonly": "true on the root when the selection is fixed but the options stay reachable",
+    "aria-required": "true on the root when a choice has to be made",
+    "aria-invalid": "true on the root when the field around it says so",
+    "aria-busy": "true on the root while loading, which ARIA 1.2 §5.2.6 asks of a container whose owned elements have not arrived"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves into and out of the listbox; the whole set is one tab stop",
+      "focus": "the active option under roving, the root under activedescendant, or the next element in the page",
+      "source": "pattern"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "the same, backwards",
+      "focus": "the element before the listbox",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "moves to the next option along the block axis, wrapping only when loop is true; with selectOnFocus the selection moves with it; with columns greater than one it moves one row down",
+      "focus": "that option",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "moves to the previous option along the block axis, under the same rules",
+      "focus": "that option",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "the inline-end direction, mirrored in a right-to-left document: the next option in a horizontal listbox, and one option along the row when columns is greater than one",
+      "focus": "that option",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "the inline-start direction, and the mirror of ArrowRight",
+      "focus": "that option",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "moves to the first option",
+      "focus": "the first option",
+      "source": "pattern"
+    },
+    {
+      "key": "End",
+      "effect": "moves to the last option",
+      "focus": "the last option",
+      "source": "pattern"
+    },
+    {
+      "key": "PageDown",
+      "effect": "moves ten options on, clamped at the end and never wrapping",
+      "focus": "that option",
+      "source": "platform"
+    },
+    {
+      "key": "PageUp",
+      "effect": "moves ten options back, clamped at the start",
+      "focus": "that option",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "changes the selection state of the active option; while a typeahead sequence is open it is a character instead, which is what makes an option named in two words reachable",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "Enter",
+      "effect": "as Space",
+      "focus": "unchanged",
+      "source": "departure"
+    },
+    {
+      "key": "Shift+ArrowDown",
+      "effect": "moves to the next option and toggles its selected state",
+      "focus": "that option",
+      "source": "pattern"
+    },
+    {
+      "key": "Shift+ArrowUp",
+      "effect": "moves to the previous option and toggles its selected state",
+      "focus": "that option",
+      "source": "pattern"
+    },
+    {
+      "key": "Shift+Space",
+      "effect": "selects every option from the anchor to the active option, inclusive",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "Control+Shift+Home",
+      "effect": "selects the active option and every option up to the first, and moves there",
+      "focus": "the first option",
+      "source": "pattern"
+    },
+    {
+      "key": "Control+Shift+End",
+      "effect": "selects the active option and every option down to the last, and moves there",
+      "focus": "the last option",
+      "source": "pattern"
+    },
+    {
+      "key": "Control+A",
+      "effect": "selects every enabled option; pressed again it clears, which is the pattern's optional second half. disallowSelectAll refuses it",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "Control+ArrowDown",
+      "effect": "moves to the next option without changing any selection. Only under selectionBehavior replace, which is the pattern's alternative model",
+      "focus": "that option",
+      "source": "pattern"
+    },
+    {
+      "key": "Control+ArrowUp",
+      "effect": "moves to the previous option without changing any selection, under the same model",
+      "focus": "that option",
+      "source": "pattern"
+    },
+    {
+      "key": "Control+Space",
+      "effect": "changes the selection state of the active option, under the alternative model where a plain Space would replace the selection",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "Printable character",
+      "effect": "moves to the next option whose textValue begins with the sequence typed; the same character pressed again cycles through the options beginning with it",
+      "focus": "the matched option",
+      "source": "pattern"
+    }
+  ],
+  "departures": {
+    "Enter": {
+      "reason": "The pattern defines no Enter for a listbox, and it is the key a reader tries first on an option they have arrowed to.",
+      "cost": "A consumer who wanted Enter to submit the form around the listbox has to stop the event on the root. The alternative — the key a reader tries first doing nothing at all — is the worse of the two."
+    },
+    "element": {
+      "reason": "div and div rather than ul and li, because both implicit roles are replaced and the windowed shape needs a presentation element the list elements cannot hold.",
+      "cost": "Nothing is inherited, so aria-setsize and aria-posinset are written on every option rather than left to the platform, and a stylesheet cannot reach ::marker."
+    },
+    "hover": {
+      "reason": "Hover does not move the active option, unlike menu, whose pointer owns its one highlight.",
+      "cost": "A pointer reader gets no highlight until they press. Moving the active option on hover would fight the arrow keys a reader is holding down, because a listbox has a selection as well as a highlight."
+    }
+  },
+  "declined": {
+    "trigger": {
+      "deferTo": "select",
+      "reason": "Headless UI's Listbox ships a button, a popup and a component that displays the value, so its listbox is never presented on its own. docs/component-features.md §11 makes this family the primitive Select, Combobox and the pickers are built from, and a family that opened its own layer would be select under another name."
+    },
+    "filtering": {
+      "deferTo": "combobox",
+      "reason": "A list whose options are filtered by typing is a combobox by role, and answering it here would put two roles on one surface. It is the same decline menu recorded, and packages/core/src/collection/filter.ts is where the composition already lives."
+    },
+    "dragToReorder": {
+      "deferTo": "drag-and-drop",
+      "reason": "React Aria ships dragAndDropHooks and the APG has a rearrangeable example. docs/component-features.md §3 makes drag-and-drop its own Extended module in wave 8, with the keyboard alternative that a gesture bolted onto this family would not have. The family exposes data-dragging for it and adds no gesture of its own."
+    },
+    "action": {
+      "deferTo": "menu",
+      "reason": "React Aria's onAction runs a command when an option is pressed or Enter is held. An option is a value and not a command: a list of commands is menu, which owns menuitem and the press semantics that go with it. Enter here selects, which is the departure recorded above."
+    },
+    "separator": {
+      "composition": "the group part's own border, drawn by the stylesheet between two groups",
+      "reason": "ARIA 1.2 allows a listbox to own option and group and nothing else, so a separator element inside one is an owned element with no permitted role. HTML added hr inside select for the same visual need and gives it no semantics either."
+    },
+    "checkboxOption": {
+      "composition": "indicator draws the check mark that a checkbox column would, in the same gutter the icon uses",
+      "reason": "Ark and Fluent both draw a real checkbox inside a multi-select option. The pattern forbids aria-checked beside aria-selected, so the control would be decoration with a second tab stop inside an option the role says has none."
+    },
+    "measure": {
+      "deferTo": "container",
+      "reason": "The briefing's decision: measure belongs to container and to it alone, and two families offering a maximum measure would be two answers to one question. The listbox caps its own width so a max-content surface cannot set one option the width of the page, and offers no axis for it."
+    },
+    "compareWith": {
+      "composition": "getKey, which turns the consumer's own object into the string the collection holds",
+      "reason": "The Angular CDK's cdkListboxCompareWith exists because its value holds the consumer's objects. Here a key is a string produced once, and the consumer's object never enters the contract, so there is no comparison to configure."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["plain", "framed"],
+    "selectionMode": ["none", "single", "multiple"],
+    "selectionBehavior": ["toggle", "replace"],
+    "orientation": ["vertical", "horizontal"],
+    "focusMode": ["auto", "roving", "activedescendant"],
+    "indicator": ["check", "none"],
+    "loop": [true, false],
+    "typeahead": [true, false],
+    "selectOnFocus": [true, false],
+    "navigateDisabled": [true, false],
+    "disallowEmptySelection": [true, false],
+    "disallowSelectAll": [true, false],
+    "virtual": [true, false],
+    "disabled": [true, false]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "variant": ["prop", "defaults", "framed"],
+    "selectionMode": ["prop", "defaults", "single"],
+    "selectionBehavior": ["prop", "defaults", "toggle"],
+    "orientation": ["prop", "defaults", "vertical"],
+    "focusMode": ["prop", "defaults", "auto"],
+    "indicator": ["prop", "defaults", "check"],
+    "loop": ["prop", "defaults", false],
+    "typeahead": ["prop", "defaults", true],
+    "selectOnFocus": ["prop", "defaults", false],
+    "navigateDisabled": ["prop", "defaults", false],
+    "disallowEmptySelection": ["prop", "defaults", false],
+    "disallowSelectAll": ["prop", "defaults", false],
+    "virtual": ["prop", "defaults", false],
+    "disabled": ["prop", "field", "defaults", false]
+  },
+  "provides": {
+    "listboxDefaults": [
+      "size",
+      "variant",
+      "selectionMode",
+      "selectionBehavior",
+      "orientation",
+      "focusMode",
+      "indicator",
+      "loop",
+      "typeahead",
+      "selectOnFocus",
+      "navigateDisabled",
+      "disallowEmptySelection",
+      "disallowSelectAll",
+      "virtual",
+      "disabled",
+      "rows",
+      "columns",
+      "itemSize",
+      "sectionSize",
+      "overscan",
+      "loadMoreThreshold",
+      "typeaheadTimeout",
+      "pageSize"
+    ]
+  },
+  "stateAttributes": {
+    "selected": "data-selected",
+    "current": "data-current",
+    "disabled": "data-disabled",
+    "loading": "data-loading",
+    "readonly": "data-readonly",
+    "invalid": "data-invalid",
+    "required": "data-required"
+  },
+  "stateModel": {
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "clear", "programmatic"]
+    },
+    "current": {
+      "controlled": "activeKey",
+      "uncontrolled": "defaultActiveKey",
+      "request": "onActiveKeyChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "members": {
+    "listbox": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "framed",
+        "selectionMode": "single",
+        "selectionBehavior": "toggle",
+        "orientation": "vertical",
+        "focusMode": "auto",
+        "indicator": "check",
+        "loop": false,
+        "typeahead": true,
+        "selectOnFocus": false,
+        "navigateDisabled": false,
+        "disallowEmptySelection": false,
+        "disallowSelectAll": false,
+        "virtual": false,
+        "disabled": false,
+        "loading": false,
+        "hasMore": false,
+        "rows": 7,
+        "columns": 1,
+        "itemSize": 36,
+        "sectionSize": 28,
+        "overscan": 4,
+        "loadMoreThreshold": 0,
+        "typeaheadTimeout": 500,
+        "pageSize": 10
+      },
+      "capabilities": [
+        "selection",
+        "current",
+        "virtualization",
+        "appearance",
+        "size",
+        "orientation",
+        "arrangement",
+        "disabled",
+        "loading",
+        "readOnly",
+        "required",
+        "invalid",
+        "content",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "selected",
+        "current",
+        "disabled",
+        "loading",
+        "readonly",
+        "invalid",
+        "required"
+      ],
+      "parts": [
+        "root",
+        "canvas",
+        "group",
+        "group-label",
+        "option",
+        "indicator",
+        "icon",
+        "label",
+        "description",
+        "meta",
+        "empty",
+        "loader"
+      ]
+    }
+  },
+  "scenarios": {
+    "listbox": [
+      "playground",
+      "selection",
+      "behavior",
+      "sections",
+      "size",
+      "variant",
+      "layout",
+      "states",
+      "typeahead",
+      "empty-and-loading",
+      "virtualization",
+      "content",
+      "forms",
+      "composition",
+      "keyboard",
+      "accessibility"
+    ]
+  }
+}

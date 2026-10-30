@@ -1,0 +1,1292 @@
+<!--
+  The DOM both bindings render, written a third time. One domain throughout —
+  the life of one invoice in a billing product — so the events read as one
+  product rather than as a bag of fragments, and the awkward ones (a failed
+  payment with two actions, a title of nine words, an unbroken token) are the
+  events a real feed has.
+
+  The rail holds the marker and the connector; the body holds the title, the
+  timestamp, the actor, the description and the actions, in that order, and a
+  part the event does not have is not written.
+-->
+<section data-scene="default">
+  <div
+    data-mode="list"
+    data-order="oldest-first"
+    data-orientation="vertical"
+    data-part="root"
+    data-part-root=""
+    data-placement="end"
+    data-size="md"
+    data-ui="timeline"
+    data-ui-timeline=""
+  >
+    <ol aria-label="Invoice activity" data-part="list" data-part-list="">
+      <li data-part="item" data-part-item="" data-variant="subtle">
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""></span>
+          <span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Invoice created</div>
+          <time data-part="time" data-part-time="" datetime="2026-09-08T09:12:00Z"
+            >8 Sept 2026, 09:12</time
+          >
+          <div data-part="actor" data-part-actor="">
+            <span
+              aria-label="Ana Ribeiro"
+              data-part="root"
+              data-part-root=""
+              data-shape="circle"
+              data-size="xs"
+              data-status="idle"
+              data-tone="accent"
+              data-ui="avatar"
+              data-ui-avatar=""
+              data-variant="soft"
+              role="img"
+              ><span data-part="fallback" data-part-fallback="">AR</span></span
+            >
+            Ana Ribeiro
+          </div>
+          <div data-part="description" data-part-description="">
+            Draft INV-4821 for Solaris Freight, 12 line items.
+          </div>
+        </div>
+      </li>
+      <li data-part="item" data-part-item="" data-variant="subtle">
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""></span>
+          <span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Sent to client</div>
+          <time data-part="time" data-part-time="" datetime="2026-09-08T09:15:00Z"
+            >8 Sept 2026, 09:15</time
+          >
+          <div data-part="description" data-part-description="">
+            To billing@solarisfreight.example, with the PDF attached.
+          </div>
+        </div>
+      </li>
+      <li data-part="item" data-part-item="" data-tone="danger" data-variant="subtle">
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""
+            ><span
+              aria-hidden="true"
+              data-part="root"
+              data-part-root=""
+              data-ui="icon"
+              data-ui-icon=""
+              ><svg
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path d="M18 6 6 18M6 6l12 12" /></svg></span
+          ></span>
+          <span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Payment failed</div>
+          <time data-part="time" data-part-time="" datetime="2026-09-11T08:30:00Z"
+            >11 Sept 2026, 08:30</time
+          >
+          <div data-part="description" data-part-description="">
+            Card ending 4421 was declined by the issuer.
+          </div>
+          <div data-part="actions" data-part-actions="">
+            <button
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-tone="accent"
+              data-ui="button"
+              data-ui-button=""
+              data-variant="outline"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Retry payment</span>
+            </button>
+            <button
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-tone="secondary"
+              data-ui="button"
+              data-ui-button=""
+              data-variant="ghost"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Contact client</span>
+            </button>
+          </div>
+        </div>
+      </li>
+      <li data-part="item" data-part-item="" data-tone="success" data-variant="subtle">
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Paid in full</div>
+          <time data-part="time" data-part-time="" datetime="2026-09-14T10:32:00Z"
+            >14 Sept 2026, 10:32</time
+          >
+          <div data-part="actor" data-part-actor="">
+            <span
+              aria-label="Solaris Freight"
+              data-part="root"
+              data-part-root=""
+              data-shape="square"
+              data-size="xs"
+              data-status="idle"
+              data-tone="secondary"
+              data-ui="avatar"
+              data-ui-avatar=""
+              data-variant="soft"
+              role="img"
+              ><span data-part="fallback" data-part-fallback="">SF</span></span
+            >
+            Solaris Freight
+          </div>
+          <div data-part="description" data-part-description="">R$ 18.240,00 by bank transfer.</div>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- A tracking timeline: the events before the current one are complete and
+     fill their line, the current one is a target, the line after it is dashed,
+     and the last one is still arriving. -->
+<section data-scene="statuses">
+  <div
+    data-mode="list"
+    data-order="oldest-first"
+    data-orientation="vertical"
+    data-part="root"
+    data-part-root=""
+    data-placement="end"
+    data-size="md"
+    data-tone="accent"
+    data-ui="timeline"
+    data-ui-timeline=""
+  >
+    <ol aria-label="Order tracking" data-part="list" data-part-list="">
+      <li data-complete="" data-part="item" data-part-item="" data-variant="subtle">
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-check=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+          <span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Order confirmed</div>
+          <time data-part="time" data-part-time="" datetime="2026-09-12T16:40:00Z"
+            >12 Sept, 16:40</time
+          >
+        </div>
+      </li>
+      <li data-complete="" data-part="item" data-part-item="" data-variant="subtle">
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-check=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+          <span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Packed at Seattle warehouse</div>
+          <time data-part="time" data-part-time="" datetime="2026-09-13T09:05:00Z"
+            >13 Sept, 09:05</time
+          >
+        </div>
+      </li>
+      <li
+        aria-current="true"
+        data-connector="dashed"
+        data-current=""
+        data-part="item"
+        data-part-item=""
+        data-variant="subtle"
+      >
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""></span>
+          <span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">
+            In transit<span data-ui="visually-hidden" data-ui-visually-hidden="">, current</span>
+          </div>
+          <time data-part="time" data-part-time="" datetime="2026-09-14T07:20:00Z"
+            >14 Sept, 07:20</time
+          >
+          <div data-part="description" data-part-description="">
+            Left the Campinas hub on truck 118.
+          </div>
+        </div>
+      </li>
+      <li data-connector="dashed" data-part="item" data-part-item="" data-variant="subtle">
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""></span>
+          <span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Out for delivery</div>
+        </div>
+      </li>
+      <li data-loading="" data-part="item" data-part-item="" data-variant="subtle">
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""
+            ><span
+              aria-label="Loading"
+              data-part="root"
+              data-part-root=""
+              data-ui="spinner"
+              data-ui-spinner=""
+              role="progressbar"
+            ></span
+          ></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Delivered</div>
+          <div data-part="description" data-part-description="">
+            Waiting for the carrier's confirmation.
+          </div>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- The three variants, each across the five tones, in one list per variant. -->
+<section data-scene="appearance">
+  <div
+    style="
+      display: grid;
+      gap: var(--slotted-space-8);
+      grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    "
+  >
+    <div
+      data-mode="list"
+      data-orientation="vertical"
+      data-part="root"
+      data-part-root=""
+      data-placement="end"
+      data-size="md"
+      data-ui="timeline"
+      data-ui-timeline=""
+    >
+      <ol aria-label="Outline" data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-tone="secondary" data-variant="outline">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Outline, secondary</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="accent" data-variant="outline">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Accent</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="success" data-variant="outline">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Success</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="warning" data-variant="outline">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Warning</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="danger" data-variant="outline">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Danger</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+    <div
+      data-mode="list"
+      data-orientation="vertical"
+      data-part="root"
+      data-part-root=""
+      data-placement="end"
+      data-size="md"
+      data-ui="timeline"
+      data-ui-timeline=""
+    >
+      <ol aria-label="Solid" data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-tone="secondary" data-variant="solid">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Solid, secondary</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="accent" data-variant="solid">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Accent</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="success" data-variant="solid">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Success</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="warning" data-variant="solid">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Warning</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="danger" data-variant="solid">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Danger</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+    <div
+      data-mode="list"
+      data-orientation="vertical"
+      data-part="root"
+      data-part-root=""
+      data-placement="end"
+      data-size="md"
+      data-ui="timeline"
+      data-ui-timeline=""
+    >
+      <ol aria-label="Subtle" data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-tone="secondary" data-variant="subtle">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Subtle, secondary</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="accent" data-variant="subtle">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Accent</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="success" data-variant="subtle">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Success</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="warning" data-variant="subtle">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Warning</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="danger" data-variant="subtle">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Danger</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+    <div
+      data-mode="list"
+      data-orientation="vertical"
+      data-part="root"
+      data-part-root=""
+      data-placement="end"
+      data-size="md"
+      data-ui="timeline"
+      data-ui-timeline=""
+    >
+      <ol aria-label="Plain" data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-tone="secondary" data-variant="plain">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Plain, secondary</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="accent" data-variant="plain">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Accent</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="success" data-variant="plain">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Success</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="warning" data-variant="plain">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Warning</div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="danger" data-variant="plain">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Danger</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- The timestamp on the other side of the line, in a column of its own. -->
+<section data-scene="opposite">
+  <div
+    data-mode="list"
+    data-orientation="vertical"
+    data-part="root"
+    data-part-root=""
+    data-placement="end"
+    data-size="md"
+    data-ui="timeline"
+    data-ui-timeline=""
+  >
+    <ol aria-label="Invoice activity" data-part="list" data-part-list="">
+      <li data-part="item" data-part-item="" data-variant="subtle">
+        <div data-part="opposite" data-part-opposite="">
+          <time data-part="time" data-part-time="" datetime="2026-09-08T09:12:00Z"
+            >8 Sept, 09:12</time
+          >
+        </div>
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""></span
+          ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Invoice created</div>
+          <div data-part="description" data-part-description="">
+            Draft INV-4821 for Solaris Freight, 12 line items.
+          </div>
+        </div>
+      </li>
+      <li data-part="item" data-part-item="" data-variant="subtle">
+        <div data-part="opposite" data-part-opposite="">
+          <time data-part="time" data-part-time="" datetime="2026-09-08T09:15:00Z"
+            >8 Sept, 09:15</time
+          >
+        </div>
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""></span
+          ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Sent to client</div>
+        </div>
+      </li>
+      <li data-part="item" data-part-item="" data-tone="success" data-variant="subtle">
+        <div data-part="opposite" data-part-opposite="">
+          <time data-part="time" data-part-time="" datetime="2026-09-14T10:32:00Z"
+            >14 Sept, 10:32</time
+          >
+        </div>
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Paid in full</div>
+          <div data-part="description" data-part-description="">R$ 18.240,00 by bank transfer.</div>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- Content before the line, and the rail down the middle with the events
+     taking turns. -->
+<section data-scene="placement">
+  <div style="display: grid; gap: var(--slotted-space-8)">
+    <div
+      data-mode="list"
+      data-orientation="vertical"
+      data-part="root"
+      data-part-root=""
+      data-placement="start"
+      data-size="md"
+      data-ui="timeline"
+      data-ui-timeline=""
+    >
+      <ol aria-label="Invoice activity" data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-variant="subtle">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Invoice created</div>
+            <time data-part="time" data-part-time="" datetime="2026-09-08T09:12:00Z"
+              >8 Sept, 09:12</time
+            >
+            <div data-part="description" data-part-description="">
+              Draft INV-4821 for Solaris Freight.
+            </div>
+          </div>
+          <div data-part="opposite" data-part-opposite="">Ana Ribeiro</div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="success" data-variant="subtle">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Paid in full</div>
+            <time data-part="time" data-part-time="" datetime="2026-09-14T10:32:00Z"
+              >14 Sept, 10:32</time
+            >
+          </div>
+          <div data-part="opposite" data-part-opposite="">Solaris Freight</div>
+        </li>
+      </ol>
+    </div>
+    <div
+      data-mode="list"
+      data-orientation="vertical"
+      data-part="root"
+      data-part-root=""
+      data-placement="alternate"
+      data-size="md"
+      data-ui="timeline"
+      data-ui-timeline=""
+    >
+      <ol aria-label="Release history" data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-tone="accent" data-variant="solid">
+          <div data-part="opposite" data-part-opposite="">
+            <time data-part="time" data-part-time="" datetime="2026-06-02T00:00:00Z"
+              >June 2026</time
+            >
+          </div>
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">2.12 — Recurring invoices</div>
+            <div data-part="description" data-part-description="">
+              Schedules, pauses and per-client templates.
+            </div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="accent" data-variant="solid">
+          <div data-part="opposite" data-part-opposite="">
+            <time data-part="time" data-part-time="" datetime="2026-07-20T00:00:00Z"
+              >July 2026</time
+            >
+          </div>
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">2.13 — Multi-currency</div>
+            <div data-part="description" data-part-description="">
+              Invoices in the client's currency, settled in yours.
+            </div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="accent" data-variant="solid">
+          <div data-part="opposite" data-part-opposite="">
+            <time data-part="time" data-part-time="" datetime="2026-09-14T00:00:00Z"
+              >September 2026</time
+            >
+          </div>
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">2.14 — Payment retries</div>
+            <div data-part="description" data-part-description="">
+              A declined card is retried on a schedule the client sees.
+            </div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- A row of events, rolling in the inline axis. -->
+<section data-scene="horizontal">
+  <div
+    data-mode="list"
+    data-orientation="horizontal"
+    data-part="root"
+    data-part-root=""
+    data-placement="end"
+    data-size="md"
+    data-ui="timeline"
+    data-ui-timeline=""
+  >
+    <ol aria-label="Release history" data-part="list" data-part-list="">
+      <li
+        data-complete=""
+        data-part="item"
+        data-part-item=""
+        data-tone="accent"
+        data-variant="subtle"
+      >
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-check=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+          ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Draft</div>
+          <time data-part="time" data-part-time="" datetime="2026-09-08T09:12:00Z">8 Sept</time>
+        </div>
+      </li>
+      <li
+        data-complete=""
+        data-part="item"
+        data-part-item=""
+        data-tone="accent"
+        data-variant="subtle"
+      >
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-check=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+          ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Sent</div>
+          <time data-part="time" data-part-time="" datetime="2026-09-08T09:15:00Z">8 Sept</time>
+        </div>
+      </li>
+      <li
+        aria-current="true"
+        data-connector="dashed"
+        data-current=""
+        data-part="item"
+        data-part-item=""
+        data-tone="accent"
+        data-variant="subtle"
+      >
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""></span
+          ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">
+            Awaiting payment<span data-ui="visually-hidden" data-ui-visually-hidden=""
+              >, current</span
+            >
+          </div>
+          <time data-part="time" data-part-time="" datetime="2026-09-11T08:30:00Z">11 Sept</time>
+        </div>
+      </li>
+      <li data-part="item" data-part-item="" data-tone="accent" data-variant="subtle">
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">Paid</div>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- Two periods, one of them folded. -->
+<section data-scene="groups">
+  <div
+    data-mode="list"
+    data-orientation="vertical"
+    data-part="root"
+    data-part-root=""
+    data-placement="end"
+    data-size="md"
+    data-ui="timeline"
+    data-ui-timeline=""
+  >
+    <ol aria-label="Invoice activity" data-part="list" data-part-list="">
+      <li data-open="" data-part="group" data-part-group="">
+        <h3 data-part="group-label" data-part-group-label="">
+          <button
+            aria-controls="timeline-groups-today"
+            aria-expanded="true"
+            data-part="group-trigger"
+            data-part-group-trigger=""
+            type="button"
+          >
+            <span aria-hidden="true" data-part="group-indicator" data-part-group-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+            Today
+          </button>
+        </h3>
+        <ol data-part="group-list" data-part-group-list="" id="timeline-groups-today">
+          <li data-part="item" data-part-item="" data-tone="success" data-variant="subtle">
+            <div data-part="rail" data-part-rail="">
+              <span data-part="marker" data-part-marker=""></span
+              ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+            </div>
+            <div data-part="content" data-part-content="">
+              <div data-part="title" data-part-title="">Paid in full</div>
+              <time
+                data-part="time"
+                data-part-time=""
+                datetime="2026-09-14T10:32:00Z"
+                title="14 Sept 2026, 10:32"
+                >2 hours ago</time
+              >
+            </div>
+          </li>
+          <li data-part="item" data-part-item="" data-variant="subtle">
+            <div data-part="rail" data-part-rail="">
+              <span data-part="marker" data-part-marker=""></span>
+            </div>
+            <div data-part="content" data-part-content="">
+              <div data-part="title" data-part-title="">Receipt sent</div>
+              <time
+                data-part="time"
+                data-part-time=""
+                datetime="2026-09-14T10:33:00Z"
+                title="14 Sept 2026, 10:33"
+                >2 hours ago</time
+              >
+            </div>
+          </li>
+        </ol>
+      </li>
+      <li data-part="group" data-part-group="">
+        <h3 data-part="group-label" data-part-group-label="">
+          <button
+            aria-controls="timeline-groups-week"
+            aria-expanded="false"
+            data-part="group-trigger"
+            data-part-group-trigger=""
+            type="button"
+          >
+            <span aria-hidden="true" data-part="group-indicator" data-part-group-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+            Last week
+          </button>
+        </h3>
+        <ol data-part="group-list" data-part-group-list="" hidden id="timeline-groups-week">
+          <li data-part="item" data-part-item="" data-variant="subtle">
+            <div data-part="rail" data-part-rail="">
+              <span data-part="marker" data-part-marker=""></span>
+            </div>
+            <div data-part="content" data-part-content="">
+              <div data-part="title" data-part-title="">Invoice created</div>
+            </div>
+          </li>
+        </ol>
+      </li>
+      <li data-part="group" data-part-group="">
+        <h3 data-part="group-label" data-part-group-label="">August</h3>
+        <ol data-part="group-list" data-part-group-list="">
+          <li data-part="item" data-part-item="" data-variant="subtle">
+            <div data-part="rail" data-part-rail="">
+              <span data-part="marker" data-part-marker=""></span
+              ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+            </div>
+            <div data-part="content" data-part-content="">
+              <div data-part="title" data-part-title="">Client added</div>
+              <time data-part="time" data-part-time="" datetime="2026-08-27T11:00:00Z"
+                >27 Aug, 11:00</time
+              >
+            </div>
+          </li>
+          <li data-part="item" data-part-item="" data-variant="subtle">
+            <div data-part="rail" data-part-rail="">
+              <span data-part="marker" data-part-marker=""></span>
+            </div>
+            <div data-part="content" data-part-content="">
+              <div data-part="title" data-part-title="">Rate card agreed</div>
+              <time data-part="time" data-part-time="" datetime="2026-08-29T15:30:00Z"
+                >29 Aug, 15:30</time
+              >
+            </div>
+          </li>
+        </ol>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- The feed: articles a reader can land on, fresh events held behind a pill,
+     and the end of what has been loaded. -->
+<section data-scene="feed">
+  <div style="display: grid; gap: var(--slotted-space-8)">
+    <div
+      data-growing="button"
+      data-mode="feed"
+      data-order="newest-first"
+      data-orientation="vertical"
+      data-part="root"
+      data-part-root=""
+      data-placement="end"
+      data-size="md"
+      data-ui="timeline"
+      data-ui-timeline=""
+    >
+      <button data-part="fresh" data-part-fresh="" type="button">3 new events</button>
+      <div aria-label="Account activity" data-part="list" data-part-list="" role="feed">
+        <article
+          aria-describedby="timeline-feed-d1"
+          aria-labelledby="timeline-feed-t1 timeline-feed-a1 timeline-feed-m1"
+          aria-posinset="1"
+          aria-setsize="-1"
+          data-part="item"
+          data-part-item=""
+          data-tone="success"
+          data-variant="subtle"
+          tabindex="0"
+        >
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="" id="timeline-feed-t1">Paid in full</div>
+            <time
+              data-part="time"
+              data-part-time=""
+              datetime="2026-09-14T10:32:00Z"
+              id="timeline-feed-m1"
+              title="14 Sept 2026, 10:32"
+              >2 hours ago</time
+            >
+            <div data-part="actor" data-part-actor="" id="timeline-feed-a1">
+              <span
+                aria-label="Solaris Freight"
+                data-part="root"
+                data-part-root=""
+                data-shape="square"
+                data-size="xs"
+                data-status="idle"
+                data-tone="secondary"
+                data-ui="avatar"
+                data-ui-avatar=""
+                data-variant="soft"
+                role="img"
+                ><span data-part="fallback" data-part-fallback="">SF</span></span
+              >
+              Solaris Freight
+            </div>
+            <div data-part="description" data-part-description="" id="timeline-feed-d1">
+              R$ 18.240,00 by bank transfer.
+            </div>
+          </div>
+        </article>
+        <article
+          aria-describedby="timeline-feed-d2"
+          aria-labelledby="timeline-feed-t2 timeline-feed-m2"
+          aria-posinset="2"
+          aria-setsize="-1"
+          data-part="item"
+          data-part-item=""
+          data-tone="warning"
+          data-variant="subtle"
+          tabindex="0"
+        >
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="" id="timeline-feed-t2">Reminder sent</div>
+            <time
+              data-part="time"
+              data-part-time=""
+              datetime="2026-09-12T10:00:00Z"
+              id="timeline-feed-m2"
+              title="12 Sept 2026, 10:00"
+              >2 days ago</time
+            >
+            <div data-part="description" data-part-description="" id="timeline-feed-d2">
+              Second notice, 3 days after the due date.
+            </div>
+          </div>
+        </article>
+        <article
+          aria-labelledby="timeline-feed-t3 timeline-feed-m3"
+          aria-posinset="3"
+          aria-setsize="-1"
+          data-part="item"
+          data-part-item=""
+          data-variant="subtle"
+          tabindex="0"
+        >
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="" id="timeline-feed-t3">Sent to client</div>
+            <time
+              data-part="time"
+              data-part-time=""
+              datetime="2026-09-08T09:15:00Z"
+              id="timeline-feed-m3"
+              title="8 Sept 2026, 09:15"
+              >6 days ago</time
+            >
+          </div>
+        </article>
+      </div>
+      <button data-part="more" data-part-more="" type="button">Load more</button>
+    </div>
+    <div
+      aria-busy="true"
+      data-growing="scroll"
+      data-loading=""
+      data-mode="feed"
+      data-order="newest-first"
+      data-orientation="vertical"
+      data-part="root"
+      data-part-root=""
+      data-placement="end"
+      data-size="md"
+      data-ui="timeline"
+      data-ui-timeline=""
+    >
+      <div
+        aria-busy="true"
+        aria-label="Account activity"
+        data-part="list"
+        data-part-list=""
+        role="feed"
+      >
+        <article
+          aria-labelledby="timeline-feed-t4"
+          aria-posinset="1"
+          aria-setsize="-1"
+          data-part="item"
+          data-part-item=""
+          data-variant="subtle"
+          tabindex="0"
+        >
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="" id="timeline-feed-t4">Sent to client</div>
+          </div>
+        </article>
+      </div>
+      <div aria-live="polite" data-part="more" data-part-more="">
+        <span
+          aria-hidden="true"
+          data-part="root"
+          data-part-root=""
+          data-ui="spinner"
+          data-ui-spinner=""
+        ></span>
+        Loading more events
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The two other size steps. -->
+<section data-scene="sizes">
+  <div
+    style="
+      display: grid;
+      gap: var(--slotted-space-8);
+      grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    "
+  >
+    <div
+      data-mode="list"
+      data-orientation="vertical"
+      data-part="root"
+      data-part-root=""
+      data-placement="end"
+      data-size="sm"
+      data-ui="timeline"
+      data-ui-timeline=""
+    >
+      <ol aria-label="Small" data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-variant="subtle">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Invoice created</div>
+            <time data-part="time" data-part-time="" datetime="2026-09-08T09:12:00Z"
+              >8 Sept, 09:12</time
+            >
+            <div data-part="description" data-part-description="">
+              Draft INV-4821 for Solaris Freight.
+            </div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="success" data-variant="subtle">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Paid in full</div>
+            <time data-part="time" data-part-time="" datetime="2026-09-14T10:32:00Z"
+              >14 Sept, 10:32</time
+            >
+          </div>
+        </li>
+      </ol>
+    </div>
+    <div
+      data-mode="list"
+      data-orientation="vertical"
+      data-part="root"
+      data-part-root=""
+      data-placement="end"
+      data-size="lg"
+      data-ui="timeline"
+      data-ui-timeline=""
+    >
+      <ol aria-label="Large" data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-variant="subtle">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span
+            ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Invoice created</div>
+            <time data-part="time" data-part-time="" datetime="2026-09-08T09:12:00Z"
+              >8 Sept, 09:12</time
+            >
+            <div data-part="description" data-part-description="">
+              Draft INV-4821 for Solaris Freight.
+            </div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-tone="success" data-variant="subtle">
+          <div data-part="rail" data-part-rail="">
+            <span data-part="marker" data-part-marker=""></span>
+          </div>
+          <div data-part="content" data-part-content="">
+            <div data-part="title" data-part-title="">Paid in full</div>
+            <time data-part="time" data-part-time="" datetime="2026-09-14T10:32:00Z"
+              >14 Sept, 10:32</time
+            >
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- Content the family did not choose: a title of nine words, a token with no
+     break in it, a right-to-left string, an avatar in the marker, no title. -->
+<section data-scene="content">
+  <div
+    data-mode="list"
+    data-orientation="vertical"
+    data-part="root"
+    data-part-root=""
+    data-placement="end"
+    data-size="md"
+    data-ui="timeline"
+    data-ui-timeline=""
+  >
+    <ol aria-label="Invoice activity" data-part="list" data-part-list="">
+      <li data-part="item" data-part-item="" data-variant="subtle">
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""
+            ><span
+              aria-label="Ana Ribeiro"
+              data-part="root"
+              data-part-root=""
+              data-shape="circle"
+              data-size="xs"
+              data-status="idle"
+              data-tone="accent"
+              data-ui="avatar"
+              data-ui-avatar=""
+              data-variant="soft"
+              role="img"
+              ><span data-part="fallback" data-part-fallback="">AR</span></span
+            ></span
+          >
+          <span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="">
+            Approved the revised quotation for the Solaris Freight cross-border shipment programme
+          </div>
+          <time data-part="time" data-part-time="" datetime="2026-09-10T17:45:00Z"
+            >10 Sept 2026, 17:45</time
+          >
+          <div data-part="description" data-part-description="">
+            Reference
+            TRX-2026-09-10-000000000000000000000000000000000000000000000000000000000000000000000000-A
+          </div>
+        </div>
+      </li>
+      <li data-part="item" data-part-item="" data-variant="subtle">
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""></span
+          ><span aria-hidden="true" data-part="connector" data-part-connector=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="title" data-part-title="" dir="rtl" lang="ar">
+            تم إرسال الفاتورة إلى العميل
+          </div>
+          <time data-part="time" data-part-time="" datetime="2026-09-11T08:30:00Z"
+            >11 Sept 2026, 08:30</time
+          >
+          <div data-part="description" data-part-description="" dir="rtl" lang="ar">
+            مع ملف PDF مرفق.
+          </div>
+        </div>
+      </li>
+      <li data-part="item" data-part-item="" data-variant="subtle">
+        <div data-part="rail" data-part-rail="">
+          <span data-part="marker" data-part-marker=""></span>
+        </div>
+        <div data-part="content" data-part-content="">
+          <div data-part="actor" data-part-actor="">
+            <span
+              aria-label="Ana Ribeiro"
+              data-part="root"
+              data-part-root=""
+              data-shape="circle"
+              data-size="xs"
+              data-status="idle"
+              data-tone="accent"
+              data-ui="avatar"
+              data-ui-avatar=""
+              data-variant="soft"
+              role="img"
+              ><span data-part="fallback" data-part-fallback="">AR</span></span
+            >
+            Ana Ribeiro
+          </div>
+          <time data-part="time" data-part-time="" datetime="2026-09-12T10:00:00Z"
+            >12 Sept 2026, 10:00</time
+          >
+          <div data-part="description" data-part-description="">Added a note without a title.</div>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section data-scene="empty">
+  <div
+    data-mode="list"
+    data-orientation="vertical"
+    data-part="root"
+    data-part-root=""
+    data-placement="end"
+    data-size="md"
+    data-ui="timeline"
+    data-ui-timeline=""
+  >
+    <ol aria-label="Invoice activity" data-part="list" data-part-list=""></ol>
+    <div data-part="empty" data-part-empty="">No events yet</div>
+  </div>
+</section>

@@ -1,0 +1,509 @@
+<!--
+  The glyphs are authored for this page and are not library assets, for the
+  reason `icon`'s fragment records: a framework-free page cannot import
+  Lucide. Two are masks from glyph tokens the scale already holds — the wrap
+  mark `code-block` draws and the pin `page-header` draws — because those are
+  the marks the controls they stand for would draw.
+
+  The control is this family's own `button`; the page carries one stylesheet
+  and shows one thing.
+-->
+<section data-scene="pressed">
+  <style>
+    [data-demo-column] {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--slotted-space-6);
+    }
+
+    [data-demo-row] {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--slotted-space-3);
+      justify-items: start;
+    }
+
+    [data-demo-row] > * {
+      max-inline-size: 100%;
+    }
+
+    [data-demo-label] {
+      color: var(--slotted-text-muted);
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      margin: 0;
+    }
+
+    [data-demo-inline] {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--slotted-space-4);
+    }
+
+    [data-demo-glyph] {
+      background-color: currentColor;
+      block-size: 100%;
+      display: block;
+      inline-size: 100%;
+      mask-position: center;
+      mask-repeat: no-repeat;
+      mask-size: contain;
+    }
+
+    /* A bar of ghost controls, the room a toggle most often stands in. */
+    [data-demo-bar] {
+      align-items: center;
+      background: var(--slotted-surface-raised);
+      border: var(--slotted-border-width-thin) solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-md);
+      box-shadow: var(--slotted-shadow-xs);
+      display: inline-flex;
+      gap: var(--slotted-space-2);
+      padding: var(--slotted-space-2);
+    }
+
+    [data-demo-bar] > hr {
+      align-self: stretch;
+      border: 0;
+      border-inline-start: var(--slotted-border-width-thin) solid var(--slotted-border-subtle);
+      margin-block: var(--slotted-space-2);
+      margin-inline: var(--slotted-space-1);
+    }
+
+    [data-demo-form-row] {
+      align-items: center;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: var(--slotted-space-4);
+    }
+
+    [data-demo-field] {
+      align-items: center;
+      background: var(--slotted-surface);
+      block-size: var(--slotted-control-height-md);
+      border: var(--slotted-control-border-width) solid var(--slotted-control-border-color);
+      border-radius: var(--slotted-control-radius);
+      box-sizing: border-box;
+      color: var(--slotted-text-muted);
+      display: inline-flex;
+      flex: 1 1 auto;
+      font-size: var(--slotted-control-font-size-md);
+      min-inline-size: 0;
+      padding-inline: var(--slotted-control-padding-inline-md);
+    }
+
+    [data-demo-narrow] {
+      inline-size: 9rem;
+    }
+  </style>
+
+  <div data-demo-column>
+    <div data-demo-row>
+      <p data-demo-label>off · on — the label stays "Wrap"</p>
+      <div data-demo-inline>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="false"
+          data-size="md"
+          data-variant="outline"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-text-wrap)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Wrap</span>
+        </button>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="true"
+          data-pressed
+          data-size="md"
+          data-variant="outline"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-text-wrap)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Wrap</span>
+        </button>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="false"
+          data-size="md"
+          data-variant="ghost"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-pin)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Pin header</span>
+        </button>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="true"
+          data-pressed
+          data-size="md"
+          data-variant="ghost"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-pin)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Pin header</span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <p data-demo-label>icon only · square, named by aria-label</p>
+      <div data-demo-inline>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="true"
+          data-pressed
+          aria-label="Bold"
+          data-size="md"
+          data-variant="outline"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M7 5h6a4 4 0 0 1 0 8H7z" />
+              <path d="M7 13h7a4 4 0 0 1 0 8H7z" />
+            </svg>
+          </span>
+        </button>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="false"
+          aria-label="Italic"
+          data-size="md"
+          data-variant="outline"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="19" x2="10" y1="4" y2="4" />
+              <line x1="14" x2="5" y1="20" y2="20" />
+              <line x1="15" x2="9" y1="4" y2="20" />
+            </svg>
+          </span>
+        </button>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="false"
+          aria-label="Wrap lines"
+          data-size="md"
+          data-variant="ghost"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-text-wrap)"></span
+          ></span>
+        </button>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="true"
+          data-pressed
+          aria-label="Wrap lines"
+          data-size="md"
+          data-variant="ghost"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-text-wrap)"></span
+          ></span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <p data-demo-label>sm · md · lg, beside a field</p>
+      <div data-demo-form-row>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="true"
+          data-pressed
+          data-size="sm"
+          data-variant="outline"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-text-wrap)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Wrap</span>
+        </button>
+        <div data-demo-field>Search logs</div>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="true"
+          data-pressed
+          data-size="md"
+          data-variant="outline"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-text-wrap)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Wrap</span>
+        </button>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="false"
+          data-size="lg"
+          data-variant="outline"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-text-wrap)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Wrap</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The states beside each other, off and on, both variants. `disabled` and on
+  keeps both facts: the ground says unavailable and the edge says on.
+-->
+<section data-scene="states">
+  <div data-demo-column>
+    <div data-demo-row>
+      <p data-demo-label>disabled · off, on — outline, ghost</p>
+      <div data-demo-inline>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="false"
+          disabled
+          data-disabled
+          data-size="md"
+          data-variant="outline"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-pin)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Pin header</span>
+        </button>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="true"
+          data-pressed
+          disabled
+          data-disabled
+          data-size="md"
+          data-variant="outline"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-pin)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Pin header</span>
+        </button>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="false"
+          disabled
+          data-disabled
+          data-size="md"
+          data-variant="ghost"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-pin)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Pin header</span>
+        </button>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="true"
+          data-pressed
+          disabled
+          data-disabled
+          data-size="md"
+          data-variant="ghost"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-pin)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Pin header</span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <p data-demo-label>in a bar · ghost, the room a mode most often stands in</p>
+      <div data-demo-bar role="toolbar" aria-label="Editor">
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="true"
+          data-pressed
+          aria-label="Bold"
+          data-size="sm"
+          data-variant="ghost"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M7 5h6a4 4 0 0 1 0 8H7z" />
+              <path d="M7 13h7a4 4 0 0 1 0 8H7z" />
+            </svg>
+          </span>
+        </button>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="false"
+          aria-label="Italic"
+          data-size="sm"
+          data-variant="ghost"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="19" x2="10" y1="4" y2="4" />
+              <line x1="14" x2="5" y1="20" y2="20" />
+              <line x1="15" x2="9" y1="4" y2="20" />
+            </svg>
+          </span>
+        </button>
+        <hr aria-orientation="vertical" />
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="false"
+          data-size="sm"
+          data-variant="ghost"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-text-wrap)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Wrap</span>
+        </button>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="true"
+          data-pressed
+          data-size="sm"
+          data-variant="ghost"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-pin)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Pin</span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <p data-demo-label>a long translated label in a narrow room clamps and keeps its string</p>
+      <div data-demo-narrow>
+        <button
+          data-ui="toggle"
+          data-ui-toggle=""
+          data-part="root"
+          data-part-root=""
+          type="button"
+          aria-pressed="true"
+          data-pressed
+          data-size="md"
+          data-variant="outline"
+        >
+          <span data-part="icon" data-part-icon="" aria-hidden="true"
+            ><span data-demo-glyph style="mask-image: var(--slotted-icon-text-wrap)"></span
+          ></span>
+          <span data-part="label" data-part-label="">Zeilenumbruch aktivieren</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

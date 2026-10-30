@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 5,
+  "family": "detail-panel",
+  "ui": "detail-panel",
+  "catalog": {
+    "group": "Layout",
+    "summary": "Record summary, metadata, sections and actions."
+  },
+  "pattern": null,
+  "patternAbsent": {
+    "index": "https://www.w3.org/WAI/ARIA/apg/patterns/",
+    "reason": "There is no detail, record or inspect pattern in the Authoring Practices. The governing sources are the landmark practices for the article and the complementary aside, the Tabs pattern for the strip, which tabs holds, and the Dialog pattern when the host is a drawer, which drawer holds.",
+    "landmarks": "https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/",
+    "tabs": "https://www.w3.org/WAI/ARIA/apg/patterns/tabs/"
+  },
+  "reference": "sap.uxap.ObjectPageLayout (selectedSection, useIconTabBar, footer), Carbon for IBM Products SidePanel, Primer PageLayout",
+  "composes": ["page-header", "tabs", "section", "skeleton"],
+  "rootElement": "article",
+  "rootReason": "One self-contained record, which is what the element means; the header the page-header renders is then the article's own header. Named by aria-labelledby pointing at the page-header's heading once it is in the DOM; a consumer's aria-label wins.",
+  "anatomy": {
+    "root": "an article: the query container, and the scroll container under scroll=self. Its first child is a page-header the consumer writes",
+    "banner": "the region between the header and the body, the width of both columns, for an alert about the record. Absent when not written",
+    "body": "the column under the header: the vertical inset, and a container inside it at the page's width and inset so the columns align with the header's own",
+    "columns": "the grid of main and aside, inside the container, so the root's container query can change its tracks",
+    "main": "the column of sections",
+    "section": "one named unit of content. Under layout=tabs it is the tabpanel of the strip's tab, hidden when not current; under layout=stacked it holds a section family root at the rank below the panel's, with the label as heading and the count as a badge after it",
+    "section-actions": "under layout=tabs, the section's own controls in a row above its content; under stacked they are the section family's actions part",
+    "aside": "an aside element, complementary, beside the body above 600 pixels and after it below. Named by the aside message unless the consumer names it",
+    "message": "in place of the columns under status=not-found or status=error, a centred box for a result-state",
+    "footer": "sticky at --slotted-page-sticky-bottom, the slot an action-bar sits in. Absent when not written"
+  },
+  "roles": {
+    "root": "article",
+    "section": "tabpanel under layout=tabs; none under stacked, where the section family root inside is the region",
+    "aside": "complementary"
+  },
+  "wiring": {
+    "aria-labelledby": "on the root, naming the page-header's heading; on a tabpanel section, naming its tab",
+    "aria-controls": "on each tab of the strip, naming its section — the tabs family writes it from the ids the strip's identify returns",
+    "aria-label": "on the aside from the aside message; a consumer's own wins",
+    "aria-busy": "true on the root while loading",
+    "id": "on a tabpanel section, from the strip's identify; on a stacked section, the consumer's own or none",
+    "tabindex": "0 on a tabpanel section, as the Tabs pattern asks; -1 on the page-header's heading at the moment the family focuses it"
+  },
+  "strip": {
+    "engine": "tabs",
+    "holds": "the list alone",
+    "panels": "this family's section parts, wired by the ids the strip's identify(name) returns",
+    "reason": "In Angular the sections are declared inside the panel and the strip inside the page-header's tabs slot; a [slTabPanel] among the sections resolves SlTabs through the declaration tree and finds none. One wiring for both bindings is four attributes written twice."
+  },
+  "current": {
+    "tabs": "the strip's own request, forwarded with its reason; the strip is controlled by the panel, so a cancelled request leaves it where it was",
+    "stacked": "arrives as programmatic — a link, the URL, a command; the family scrolls the section under the chrome with scroll-margin-block-start from --slotted-page-sticky-top and marks it data-current",
+    "initial": "under tabs the first section when no value and no default is given; under stacked none",
+    "scrollSpy": {
+      "deferTo": "table-of-contents",
+      "reason": "the bar that watches the scroll and moves current with the reason scroll is a family of its own"
+    }
+  },
+  "recordKey": {
+    "attribute": "data-key",
+    "effect": "when it changes while document.activeElement is inside the root, the page-header's heading takes focus and the scroll container returns to its start; when focus is elsewhere nothing moves",
+    "reason": "the previous and next controls change the picture and leave a screen reader on a control whose record changed under it"
+  },
+  "sticky": {
+    "header": "the page-header's own rule: it sticks against the nearest scroll container and republishes --slotted-page-sticky-top for the sections under it",
+    "footer": "inset-block-end: var(--slotted-page-sticky-bottom, 0px)",
+    "aside": {
+      "declined": true,
+      "reason": "a stuck aside taller than the scrollport has an unreachable bottom; Primer's answer is a nested scroll container with its own label. A consumer who wants it wraps the aside in scroll-area."
+    }
+  },
+  "responsive": {
+    "container": "detail-panel",
+    "narrow": "600px",
+    "below": "the body is one track and the aside follows main in the flow, with a rule above it instead of beside it",
+    "hidden": {
+      "declined": true,
+      "reason": "content a phone reader cannot reach; Primer's hidden per breakpoint and sap.uxap's showOnlyHighImportance both remove it"
+    }
+  },
+  "loading": {
+    "root": "data-loading and aria-busy",
+    "section": "three skeleton text lines in place of the content, which is not mounted",
+    "aside": "four short skeleton text lines in place of the content",
+    "header": "the page-header's own loading, bound by the consumer on the header",
+    "reason": "the tab labels stay because they are known before the record is; every placeholder is skeleton's, as packages/styles/src/waiting.test.mjs requires"
+  },
+  "status": {
+    "ready": "the columns: main and aside",
+    "not-found": "message in place of the columns; the header and the footer stay, so a drawer opened on a deleted record still closes",
+    "error": "message in place of the columns, with the header and the footer",
+    "reason": "a record that does not exist and a request that failed need different words and different actions"
+  },
+  "geometry": {
+    "asideSize": {
+      "sm": "14rem",
+      "md": "16rem",
+      "lg": "18rem",
+      "reason": "Primer's minimum pane is 256 pixels; the steps are one type size apart"
+    },
+    "insetBlock": {
+      "sm": "--slotted-space-7",
+      "md": "--slotted-space-8",
+      "lg": "--slotted-space-9",
+      "reason": "a step more than a section gives its own header, because the page-header's pill of controls hangs half its height into the column"
+    },
+    "insetInline": "the container family's, so the columns align with the header's container: the page's inset inside a page, one rem otherwise",
+    "gap": { "sm": "--slotted-space-7", "md": "--slotted-space-8", "lg": "--slotted-space-9" },
+    "sectionRhythm": "--slotted-space-8 between stacked sections"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves through the page-header, then the strip's selected tab, then the shown section's panel and its content, then the aside, then the footer",
+      "focus": "the next tabbable element",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowLeft / ArrowRight / Home / End",
+      "effect": "on the strip, moves between tabs and, under automatic activation, asks the panel to move section with the reason keyboard",
+      "focus": "the tab moved to",
+      "source": "tabs"
+    },
+    {
+      "key": "Escape",
+      "effect": "nothing in the family; the drawer closes on it when the host is a drawer",
+      "focus": "unchanged",
+      "source": "drawer"
+    }
+  ],
+  "messages": ["aside", "loading"],
+  "declined": {
+    "close": {
+      "deferTo": "drawer",
+      "reason": "the host owns open; a close inside the panel would be a second owner"
+    },
+    "header": {
+      "reason": "the page-header is the root's first child and sticks against the scroller; a wrapper part would be the box it sticks inside"
+    },
+    "host": {
+      "reason": "scroll is the one difference a host makes; nothing else in the family needs to know whether it is in a page, a drawer or a pane"
+    },
+    "resizableAside": {
+      "deferTo": "splitter",
+      "reason": "dragging a boundary is the Window Splitter pattern"
+    },
+    "steps": {
+      "deferTo": "wizard",
+      "reason": "Carbon's currentStep; the scope says the panel hosts no long edit flow"
+    },
+    "twoColumnSections": {
+      "reason": "sap.uxap's useTwoColumnsForLargeScreen is grid inside a section, chosen per section"
+    }
+  },
+  "axes": {
+    "layout": ["stacked", "tabs"],
+    "aside": ["end", "start", "none"],
+    "level": ["1", "2", "3"],
+    "size": ["sm", "md", "lg"],
+    "scroll": ["ancestor", "self"],
+    "mount": ["active", "lazy", "eager"],
+    "status": ["ready", "not-found", "error"]
+  },
+  "resolution": "the consumer's explicit prop, then the family's defaults provider, then the fallback",
+  "provides": {
+    "detailPanelDefaults": ["layout", "aside", "level", "size", "scroll", "mount"],
+    "pageHeaderDefaults": ["level", "size"]
+  },
+  "stateAttributes": {
+    "loading": "data-loading",
+    "current": "data-current"
+  },
+  "stateModel": {
+    "current": {
+      "controlled": "section",
+      "uncontrolled": "defaultSection",
+      "request": "onSectionChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "members": {
+    "detailPanel": {
+      "nativeElement": "article",
+      "defaults": {
+        "layout": "stacked",
+        "aside": "end",
+        "level": "2",
+        "size": "md",
+        "scroll": "ancestor",
+        "mount": "active",
+        "status": "ready",
+        "loading": false
+      },
+      "capabilities": ["current", "arrangement", "size", "status", "loading", "content", "wiring"],
+      "states": ["default", "loading", "current"],
+      "parts": [
+        "root",
+        "body",
+        "banner",
+        "columns",
+        "main",
+        "section",
+        "section-actions",
+        "aside",
+        "message",
+        "footer"
+      ]
+    }
+  },
+  "scenarios": {
+    "detailPanel": [
+      "playground",
+      "anatomy",
+      "layout",
+      "aside",
+      "hosts",
+      "navigation",
+      "sections",
+      "loading",
+      "status",
+      "banner",
+      "footer",
+      "sizes",
+      "narrow",
+      "content",
+      "composition",
+      "defaults",
+      "accessibility"
+    ]
+  }
+}

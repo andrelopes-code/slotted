@@ -1,0 +1,80 @@
+---
+title: Checkbox Group
+description: Several choices out of one set, held as one array of values in the order the set declares them.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Orientation
+
+A set flows vertically by default. `orientation="horizontal"` lays the boxes in a row for short labels, such as statuses in a filter bar, and the row wraps instead of scrolling when it runs out of width. Every box stays its own tab stop in both orientations.
+
+<Example name="orientation" wide />
+
+## Sizes
+
+`size` sets the boxes, the labels and the spacing: `sm` for dense panels and toolbars, `md` for most forms, `lg` for sparse forms. Inside a field or a field group the checkbox group takes their size, so one prop sizes the legend and the boxes together.
+
+<Example name="sizes" />
+
+## Label placement
+
+`labelPlacement="start"` puts each label first and the boxes in a column at the end of the row, as in a settings panel where the labels are read first. The placement is set once for the set, so the boxes line up with each other.
+
+<Example name="label-placement" />
+
+## Tiles
+
+`variant="tile"` frames every choice and makes its whole surface the target, for a choice that needs a price or a sentence beside its name, such as add-ons on a plan. The variant is set once for the set. The checkbox group does not arrange the tiles: put a Grid around them for equal widths and equal heights.
+
+<Example name="tiles" wide />
+
+## Descriptions
+
+A description under one box says what that choice does. In React it is the `description` prop of Checkbox; in Angular it is a `slCheckboxDescription` element inside the box. It joins that box's accessible description only, and pressing it does not toggle the box.
+
+<Example name="descriptions" />
+
+## Select all
+
+A Checkbox with `parent` checks and unchecks the whole set. It needs `allValues`, the list of every value the checkbox group holds. The parent box is checked when every value is selected, mixed when some are, and unchecked when none are; you write no state for it. Pressing it replaces the whole selection. `allValues` also keeps the selection in the order of that list rather than in the order the boxes were pressed.
+
+<Example name="parent" />
+
+## Selection count
+
+Inside a field, `showCount` draws how many values are selected out of `allValues` at the end of the label row, as `2/4`, and adds that count to the group's accessible description. The field's label names the group. The count updates as boxes are pressed.
+
+<Example name="count" />
+
+## Unavailable option
+
+`disabled` on one Checkbox takes that choice alone out of the tab order and out of form submission, while the rest of the set stays usable. Its description can say what turns it on.
+
+<Example name="disabled-option" />
+
+## States
+
+`invalid` sets `aria-invalid` on the group and on every box and draws every box in the danger tone; the field group's error says what is wrong. Set `readOnly` and `disabled` on the field group, which passes them to the checkbox group: read-only keeps every box focusable and refuses every change, and disabled takes the whole set out of the tab order and out of form submission.
+
+<Example name="states" />
+
+## Controlled
+
+Pass `value` and update it from `onValueChange` in React or `(valueChange)` in Angular when other parts of the screen depend on the selection. The request carries the new array, its reason (`pointer` or `keyboard`) and `cancel()`, which refuses the change before any box moves. Without `value`, the checkbox group keeps the selection itself and starts from `defaultValue`.
+
+<Example name="controlled" />
+
+## Validation on submit
+
+A checkbox group inside a required field group carries `aria-required`, and never the native `required`, which on a checkbox would demand that one particular box be checked. Validate when the form is submitted, then set `invalid` and write the field group's error; `live="polite"` announces the error once, and `reserve` keeps its line open so the boxes do not move. In Angular the checkbox group is also a form control: bind `formControl`, `formControlName` or `ngModel` on it, and inside a required field group its validator fails with `required` while the selection is empty. Submit with nothing checked, then check a channel and submit again.
+
+<Example name="validation" />
+
+## Defaults for a section
+
+A defaults provider sets `orientation`, `labelPlacement`, `variant` and `size` once for every checkbox group under it. A checkbox group that states a value of its own keeps it, and a field or field group around it decides `size` before the provider does.
+
+<Example name="defaults" />

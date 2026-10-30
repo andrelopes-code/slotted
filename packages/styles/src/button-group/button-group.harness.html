@@ -1,0 +1,1827 @@
+<!--
+  The buttons are the real `button` family markup, and the page carries the
+  real `button` stylesheet: the subject of this family is how it composes with
+  that one, so a page without it would show unstyled boxes and there would be
+  nothing to judge. The builder reads the families to load from the `data-ui`
+  values written below.
+-->
+<section data-scene="shape">
+  <style>
+    [data-demo-column] {
+      display: grid;
+      /* A track that may shrink below its content, so a bar does not set the
+         width of every example beside it. */
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--slotted-space-6);
+    }
+
+    [data-demo-label] {
+      color: var(--slotted-text-muted);
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      margin: 0;
+    }
+
+    [data-demo-row] {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--slotted-space-3);
+      justify-items: start;
+    }
+
+    /* A grid item is blockified, so a group left to stretch would fill the
+       track and stop showing its own content width. The frame is the one
+       thing that must stretch: it is the line a justified bar holds. */
+    [data-demo-frame] {
+      justify-self: stretch;
+      border: 1px dashed var(--slotted-border-strong);
+      border-radius: var(--slotted-radius-md);
+      padding: var(--slotted-space-3);
+    }
+  </style>
+
+  <div data-demo-column>
+    <div data-demo-row>
+      <span data-demo-label>joined · outline · one shared edge</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Text alignment"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Day</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Week</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Month</span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>joined · solid · the seam is the darkest step of the tone</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Publish"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Publish</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Schedule</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="More publish options"
+        >
+          <span data-part="icon" data-part-icon="">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>joined · ghost · an icon bar with no frame</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Formatting"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="Bold"
+          data-pressed
+          aria-pressed="true"
+        >
+          <span data-part="icon" data-part-icon="">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M6 4h8a4 4 0 0 1 0 8H6zM6 12h9a4 4 0 0 1 0 8H6z" stroke-linejoin="round" />
+            </svg>
+          </span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="Italic"
+        >
+          <span data-part="icon" data-part-icon="">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M19 4h-9M14 20H5M15 4 9 20" stroke-linecap="round" />
+            </svg>
+          </span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="Underline"
+        >
+          <span data-part="icon" data-part-icon="">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M6 4v6a6 6 0 0 0 12 0V4M4 20h16" stroke-linecap="round" />
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>joined · one action, and it is still a button</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Only one"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Alone</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="orientation">
+  <div data-demo-column>
+    <div data-demo-row>
+      <span data-demo-label>vertical · joined · the corners turn with the axis</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        data-orientation="vertical"
+        role="group"
+        aria-label="Sort order"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Newest first</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Oldest first</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Most edited</span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>vertical · joined · solid, so the seam has to carry it</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        data-orientation="vertical"
+        role="group"
+        aria-label="Export"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Export CSV</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Export PDF</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="runs">
+  <div data-demo-column>
+    <div data-demo-row>
+      <span data-demo-label>runs · two named groups in one bar, a rule between them</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Record"
+      >
+        <div
+          data-ui="button-group"
+          data-ui-button-group=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          aria-label="Edit"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Duplicate</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Archive</span>
+          </button>
+        </div>
+        <div
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="vertical"
+        ></div>
+        <div
+          data-ui="button-group"
+          data-ui-button-group=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          aria-label="Destructive"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="danger"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>separator · a rule inside a joined bar replaces the shared edge</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Editor tools"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="Undo"
+        >
+          <span data-part="icon" data-part-icon="">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M9 14 4 9l5-5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M4 9h11a5 5 0 0 1 0 10h-4" stroke-linecap="round" />
+            </svg>
+          </span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="Redo"
+        >
+          <span data-part="icon" data-part-icon="">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="m15 14 5-5-5-5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M20 9H9a5 5 0 0 0 0 10h4" stroke-linecap="round" />
+            </svg>
+          </span>
+        </button>
+        <div
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="vertical"
+        ></div>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="Delete"
+        >
+          <span data-part="icon" data-part-icon="">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 7h16M9 7V5h6v2M7 7l1 13h8l1-13"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="width">
+  <div data-demo-column>
+    <div data-demo-row>
+      <span data-demo-label>justify · the bar holds the line and sits at its end</span>
+      <div data-demo-frame>
+        <div
+          data-ui="button-group"
+          data-ui-button-group=""
+          data-part="root"
+          data-part-root=""
+          data-justify="end"
+          role="group"
+          aria-label="Dialog actions"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Cancel</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Publish now</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>full width · equal segments, whatever the labels weigh</span>
+      <div data-demo-frame>
+        <div
+          data-ui="button-group"
+          data-ui-button-group=""
+          data-part="root"
+          data-part-root=""
+          data-full-width
+          role="group"
+          aria-label="Range"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Day</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">This quarter</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="states">
+  <div data-demo-column>
+    <div data-demo-row>
+      <span data-demo-label>joined · one control disabled, one waiting</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Review"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Approve</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          data-loading
+          aria-disabled="true"
+        >
+          <span data-part="label" data-part-label="">Reassign</span>
+          <span
+            data-part="indicator"
+            data-part-indicator=""
+            role="progressbar"
+            aria-label="Loading"
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          data-disabled
+          disabled
+        >
+          <span data-part="label" data-part-label="">Reject</span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>joined · a toggle that is on, between two that are not</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="View"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          aria-pressed="false"
+        >
+          <span data-part="label" data-part-label="">List</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          data-pressed
+          aria-pressed="true"
+        >
+          <span data-part="label" data-part-label="">Board</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          aria-pressed="false"
+        >
+          <span data-part="label" data-part-label="">Calendar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="extremes">
+  <div data-demo-column>
+    <div data-demo-row>
+      <span data-demo-label>right to left · the same bar, mirrored</span>
+      <div data-demo-frame lang="ar" dir="rtl">
+        <div
+          data-ui="button-group"
+          data-ui-button-group=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          aria-label="عرض"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">يوم</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">أسبوع</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">شهر</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>a label longer than the bar wraps inside its own control</span>
+      <div data-demo-frame>
+        <div
+          data-ui="button-group"
+          data-ui-button-group=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          aria-label="Long"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Zusammenarbeitseinstellungen</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Speichern</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>two sizes joined · one bar, one height</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Mixed"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Small</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="lg"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Large</span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>a group that holds nothing takes no room: the two rules meet</span>
+      <div data-demo-frame>
+        <div
+          data-ui="button-group"
+          data-ui-button-group=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          aria-label="Empty"
+        >
+          <div
+            data-ui="button-group"
+            data-ui-button-group=""
+            data-part="root"
+            data-part-root=""
+            role="group"
+            aria-label="Nothing"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="mixed">
+  <div data-demo-column>
+    <div data-demo-row>
+      <span data-demo-label>solid + solid + icon (the split action)</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="d"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Publish</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Schedule</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          data-shape="square"
+          type="button"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg
+          ></span>
+        </button>
+      </div>
+    </div>
+    <div data-demo-row>
+      <span data-demo-label>outline then solid</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="d"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Cancel</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Save</span>
+        </button>
+      </div>
+    </div>
+    <div data-demo-row>
+      <span data-demo-label>solid then outline</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="d"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Save</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Cancel</span>
+        </button>
+      </div>
+    </div>
+    <div data-demo-row>
+      <span data-demo-label>ghost icon toolbar</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="d"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="md"
+          data-shape="square"
+          type="button"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg
+          ></span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="md"
+          data-shape="square"
+          type="button"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg
+          ></span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="md"
+          data-shape="square"
+          type="button"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg
+          ></span>
+        </button>
+      </div>
+    </div>
+    <div data-demo-row>
+      <span data-demo-label>toggle bar · middle pressed</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="d"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">List</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          data-pressed
+          aria-pressed="true"
+        >
+          <span data-part="label" data-part-label="">Board</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Calendar</span>
+        </button>
+      </div>
+    </div>
+    <div data-demo-row>
+      <span data-demo-label>toggle bar · first pressed</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="d"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          data-pressed
+          aria-pressed="true"
+        >
+          <span data-part="label" data-part-label="">List</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Board</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Calendar</span>
+        </button>
+      </div>
+    </div>
+    <div data-demo-row>
+      <span data-demo-label>toggle bar · last pressed</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="d"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">List</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Board</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          data-pressed
+          aria-pressed="true"
+        >
+          <span data-part="label" data-part-label="">Calendar</span>
+        </button>
+      </div>
+    </div>
+    <div data-demo-row>
+      <span data-demo-label>outline bar · middle disabled</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="d"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Approve</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          data-disabled
+          disabled
+        >
+          <span data-part="label" data-part-label="">Reassign</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Reject</span>
+        </button>
+      </div>
+    </div>
+    <div data-demo-row>
+      <span data-demo-label>vertical · toggle middle pressed</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="d"
+        data-orientation="vertical"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Newest</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          data-pressed
+          aria-pressed="true"
+        >
+          <span data-part="label" data-part-label="">Oldest</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Edited</span>
+        </button>
+      </div>
+    </div>
+    <div data-demo-row>
+      <span data-demo-label>vertical · outline + solid</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="d"
+        data-orientation="vertical"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Archive</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="danger"
+          data-variant="solid"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Delete</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The rule between two runs, in every bar it can stand in. The family shipped
+  with the separator photographed inside a ghost bar only, and the boundary it
+  draws in a framed bar, in a filled bar and down a column had never been
+  looked at.
+-->
+<section data-scene="separator">
+  <div data-demo-column>
+    <div data-demo-row>
+      <span data-demo-label>joined · outline · rule between two runs</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="View"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Day</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Week</span>
+        </button>
+        <div
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="vertical"
+        ></div>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Today</span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>joined · outline · icon run, then one action</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Editor"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="Undo"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M9 14 4 9l5-5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M4 9h11a5 5 0 0 1 0 10h-4" stroke-linecap="round" /></svg
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="Redo"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="m15 14 5-5-5-5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M20 9H9a5 5 0 0 0 0 10h4" stroke-linecap="round" /></svg
+          ></span>
+        </button>
+        <div
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="vertical"
+        ></div>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="Delete"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 7h16M9 7V5h6v2M7 7l1 13h8l1-13"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              /></svg
+          ></span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>joined · solid · rule between two runs</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Publish"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Publish</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Schedule</span>
+        </button>
+        <div
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="vertical"
+        ></div>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="More"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg
+          ></span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>joined · ghost · rule in a frameless bar</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Formatting"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="Undo"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M9 14 4 9l5-5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M4 9h11a5 5 0 0 1 0 10h-4" stroke-linecap="round" /></svg
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="Redo"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="m15 14 5-5-5-5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M20 9H9a5 5 0 0 0 0 10h4" stroke-linecap="round" /></svg
+          ></span>
+        </button>
+        <div
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="vertical"
+        ></div>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-shape="square"
+          data-size="md"
+          type="button"
+          aria-label="Delete"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 7h16M9 7V5h6v2M7 7l1 13h8l1-13"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              /></svg
+          ></span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>vertical · joined · outline · rule across the column</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        data-orientation="vertical"
+        role="group"
+        aria-label="Record actions"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Duplicate</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Archive</span>
+        </button>
+        <div
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="horizontal"
+        ></div>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="danger"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Delete</span>
+        </button>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <span data-demo-label>joined · sm and lg · the rule keeps the bar's height</span>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Small"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Day</span>
+        </button>
+        <div
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="vertical"
+        ></div>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Today</span>
+        </button>
+      </div>
+      <div
+        data-ui="button-group"
+        data-ui-button-group=""
+        data-part="root"
+        data-part-root=""
+        role="group"
+        aria-label="Large"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="lg"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Day</span>
+        </button>
+        <div
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="vertical"
+        ></div>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="lg"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Today</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

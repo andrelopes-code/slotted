@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 5,
+  "family": "message-scroller",
+  "ui": "message-scroller",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Scrolling log of messages that follows new ones."
+  },
+  "pattern": null,
+  "patternAbsent": {
+    "index": "https://www.w3.org/WAI/ARIA/apg/patterns/",
+    "reason": "There is no Authoring Practices pattern for a conversation. The rows are a WAI-ARIA `log`, which announces what is added; the Feed Pattern is the closest pattern and its `PageUp`/`PageDown` between articles is not taken, because in a focusable scroll region those keys scroll natively.",
+    "feed": "https://www.w3.org/WAI/ARIA/apg/patterns/feed/",
+    "log": "https://www.w3.org/TR/wai-aria-1.2/#log"
+  },
+  "sources": {
+    "shadcn": "https://ui.shadcn.com/docs/react/message-scroller.md",
+    "reui": "https://reui.io/r/c-message-scroller-6.json",
+    "aiElements": "https://registry.ai-sdk.dev/conversation.json",
+    "stickToBottom": "https://raw.githubusercontent.com/stackblitz-labs/use-stick-to-bottom/main/README.md",
+    "patternfly": "https://raw.githubusercontent.com/patternfly/chatbot/main/packages/module/src/MessageBox/MessageBox.tsx",
+    "chatscope": "https://raw.githubusercontent.com/chatscope/chat-ui-kit-react/master/src/components/MessageList/MessageList.jsx"
+  },
+  "roles": {
+    "root": "none; the positioning context of the jump control",
+    "viewport": "region",
+    "content": "log",
+    "item": "none",
+    "separator": "none; its text is read in the flow",
+    "unread": "none; its text is read in the flow",
+    "loader": "status",
+    "jump": "button"
+  },
+  "aria": {
+    "viewport": {
+      "tabindex": "0",
+      "aria-label": "the label message"
+    },
+    "content": {
+      "aria-relevant": "additions",
+      "aria-busy": "busy"
+    }
+  },
+  "engine": {
+    "module": "@slotted/core/message-scroller",
+    "factory": "createMessageScroller",
+    "state": ["scrollable", "following", "pending", "newCount", "currentAnchorId"],
+    "overflowAnchor": "none",
+    "overflowAnchorReason": "Safari has no native scroll anchoring, and in Chrome a native correction added to the engine's own moves the reader twice. The engine keeps the first visible row where it was, on every prepend and every size change above it.",
+    "release": [
+      "wheel",
+      "touchmove",
+      "scroll keys on the viewport",
+      "pointerdown on the scrollbar",
+      "selectionchange inside the content",
+      "scrollToMessage"
+    ],
+    "anchor": "a row appended with `anchor` is brought to scrollMargin + peek below the top; the room it needs below is --slotted-message-scroller-room, which shrinks as the reply grows",
+    "reducedMotion": "behavior smooth becomes auto under prefers-reduced-motion: reduce",
+    "hotPath": "the engine writes the runtime attributes and the room property itself; a binding re-renders only the jump control"
+  },
+  "runtimeAttributes": ["data-scrollable", "data-following", "data-pending"],
+  "runtimeProperty": "--slotted-message-scroller-room",
+  "events": {
+    "reachStart": {
+      "carries": "nothing",
+      "reasons": ["scroll"],
+      "reason": "The reader reached the top: the moment to ask for older messages. It fires once per arrival."
+    },
+    "anchorChange": {
+      "carries": "the id of the current anchored turn, or null",
+      "reasons": ["scroll", "programmatic"]
+    },
+    "scrollableChange": {
+      "carries": "{ start, end }: the edges the viewport can still scroll toward"
+    }
+  },
+  "imperative": ["scrollToMessage", "scrollToEnd", "scrollToStart", "focus"],
+  "commands": {
+    "scrollToMessage": "(id, { align: start | center | end | nearest, behavior, highlight }) => boolean",
+    "scrollToEnd": "({ behavior }) => boolean; resumes following when follow is on",
+    "scrollToStart": "({ behavior }) => boolean",
+    "highlight": "the landed row carries data-current for 1600 ms, then loses it; the fade out is the stylesheet's, on --slotted-duration-long"
+  },
+  "jump": {
+    "part": "jump",
+    "family": "button › iconButton, size sm, shape circle, variant outline",
+    "direction": ["end", "start"],
+    "glyph": "arrow-left, turned to point along its direction",
+    "count": "jump-count",
+    "inactive": "inert, tabindex=-1, data-active=\"false\"",
+    "reason": "The count answers the shadcn documentation's own eighth principle — show what is happening out of view — which its button does not."
+  },
+  "separator": {
+    "part": "separator",
+    "sticky": "stays at the top of the viewport while the rows after it are in view",
+    "family": "the rule is drawn like divider's labelled rule"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "reaches the viewport, then the targets inside the rows, then the jump control when it is active",
+      "focus": "the next focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "scrolls the focused viewport down",
+      "focus": "stays on the viewport",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "scrolls the focused viewport up and releases following",
+      "focus": "stays on the viewport",
+      "source": "platform"
+    },
+    {
+      "key": "PageDown",
+      "effect": "scrolls one page down",
+      "focus": "stays on the viewport",
+      "source": "platform"
+    },
+    {
+      "key": "PageUp",
+      "effect": "scrolls one page up and releases following",
+      "focus": "stays on the viewport",
+      "source": "platform"
+    },
+    {
+      "key": "Home",
+      "effect": "scrolls to the first row",
+      "focus": "stays on the viewport",
+      "source": "platform"
+    },
+    {
+      "key": "End",
+      "effect": "scrolls to the last row",
+      "focus": "stays on the viewport",
+      "source": "platform"
+    }
+  ],
+  "declined": {
+    "virtualization": {
+      "reason": "Rows stay in the DOM for selection, find in page and assistive technology, and `content-visibility: auto` skips the painting of rows far from view. A transcript of tens of thousands of rows hands the viewport to a virtualizer: the viewport part is the scroll element."
+    },
+    "feedKeys": {
+      "reason": "`PageUp` and `PageDown` scroll a focused scroll region natively; taking them to move between articles would take scrolling from a keyboard reader."
+    },
+    "composer": {
+      "reason": "The field below a conversation is `prompt-composer`, a Specialized family not built yet.",
+      "deferTo": "prompt-composer"
+    }
+  },
+  "axes": {
+    "defaultPosition": ["start", "end", "last-anchor"],
+    "jumpDirection": ["end", "start"]
+  },
+  "resolution": {
+    "follow": ["prop", "defaults", false],
+    "defaultPosition": ["prop", "defaults", "last-anchor"],
+    "peek": ["prop", "defaults", 64],
+    "scrollMargin": ["prop", "defaults", 0]
+  },
+  "provides": {
+    "messageScrollerDefaults": ["follow", "defaultPosition", "peek", "scrollMargin"]
+  },
+  "messages": [
+    "busy",
+    "idle",
+    "jumpCount",
+    "jumpToEnd",
+    "jumpToEndCount",
+    "jumpToStart",
+    "label",
+    "loader",
+    "unread"
+  ],
+  "dataAttributes": {
+    "root": ["data-scrollable", "data-following", "data-pending"],
+    "viewport": ["data-scrollable", "data-pending"],
+    "item": ["data-message-id", "data-anchor"],
+    "separator": ["data-sticky"],
+    "jump": ["data-direction", "data-active"]
+  },
+  "stateAttributes": {
+    "current": "data-current",
+    "loading": "data-loading"
+  },
+  "members": {
+    "messageScroller": {
+      "nativeElement": "div",
+      "defaults": {
+        "follow": false,
+        "defaultPosition": "last-anchor",
+        "edgeThreshold": 8,
+        "scrollMargin": 0,
+        "peek": 64,
+        "preserveOnPrepend": true,
+        "busy": false
+      },
+      "capabilities": ["live", "overflow", "content", "focusable"],
+      "states": ["default", "hover", "active", "focus-visible", "current", "loading"],
+      "parts": [
+        "root",
+        "viewport",
+        "content",
+        "item",
+        "separator",
+        "unread",
+        "loader",
+        "jump",
+        "jump-count"
+      ]
+    }
+  },
+  "scenarios": {
+    "messageScroller": [
+      "playground",
+      "opening",
+      "follow",
+      "anchor",
+      "history",
+      "jump",
+      "navigator",
+      "separators",
+      "unread",
+      "busy"
+    ]
+  }
+}

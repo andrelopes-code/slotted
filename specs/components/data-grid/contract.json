@@ -1,0 +1,1027 @@
+{
+  "schemaVersion": 5,
+  "family": "data-grid",
+  "ui": "data-grid",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Table that sorts, filters and selects records."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
+  "patternStatus": "Read on 2026-09-16 from the rendered page, section \"Data Grids For Presenting Tabular Information\", \"Keyboard Interaction - Setting Focus and Navigating Inside Cells\" and \"WAI-ARIA Roles, States, and Properties\".",
+  "practice": "https://www.w3.org/WAI/ARIA/apg/practices/grid-and-table-properties/",
+  "examples": [
+    "https://www.w3.org/WAI/ARIA/apg/patterns/grid/examples/data-grids/",
+    "https://www.w3.org/WAI/ARIA/apg/patterns/grid/examples/advanced-data-grid/"
+  ],
+  "rootRole": "grid",
+  "roleReason": "The pattern's own words: a grid is a composite widget, it always contains multiple focusable elements, only one of them is in the page tab sequence, and the author manages focus inside it. The line between the families: table is the static structure and this family is the composite widget. The roles are written by hand — grid, rowgroup, row, columnheader, rowheader, gridcell — because the DOM is div, and the DOM is div because a row that is display: grid takes a track per column, which is what lets a column be resized live, pinned with sticky and left out of the DOM when it is off screen; table-layout gives none of the three.",
+  "rootReason": "The root is the frame and the widget, and the scroller is one element in. The frame holds the border, the radius, the clip, the footer bar and every aria-* property the grid role carries; the scroller is the window the virtualiser measures and the box a sticky header and a pinned column resolve against. Unlike table, the family owns its height: a virtualised grid needs a viewport, and a grid without one grows to its content, stays correct and windows nothing.",
+  "elements": {
+    "root": "div",
+    "scroll": "div",
+    "head": "div",
+    "header-row": "div",
+    "column-group": "div",
+    "column-header": "div",
+    "sort": "span",
+    "column-description": "span",
+    "column-actions": "span",
+    "column-help": "button",
+    "column-menu": "button",
+    "column-menu-description": "div",
+    "resizer": "div",
+    "resize-guide": "div",
+    "drop-indicator": "div",
+    "filter-row": "div",
+    "filter-cell": "div",
+    "filter": "button",
+    "filter-panel": "div",
+    "filter-condition": "div",
+    "filter-operator": "div",
+    "filter-operand": "div",
+    "filter-join": "div",
+    "filter-actions": "div",
+    "body": "div",
+    "pinned-rows": "div",
+    "row": "div",
+    "row-header": "div",
+    "cell": "div",
+    "editor": "div",
+    "selection": "div",
+    "expander": "button",
+    "detail": "div",
+    "popin-header": "div",
+    "popin": "div",
+    "popin-field": "div",
+    "popin-label": "span",
+    "popin-value": "div",
+    "group-row": "div",
+    "group-toggle": "button",
+    "tree-toggle": "button",
+    "row-handle": "button",
+    "summary": "div",
+    "summary-cell": "div",
+    "empty": "div",
+    "loader": "div",
+    "footer": "div",
+    "actions": "div"
+  },
+  "roles": {
+    "root": "grid",
+    "head": "rowgroup",
+    "body": "rowgroup",
+    "pinned-rows": "rowgroup",
+    "summary": "rowgroup",
+    "loader": "rowgroup",
+    "header-row": "row",
+    "filter-row": "row",
+    "row": "row",
+    "detail": "row",
+    "group-row": "row",
+    "column-group": "columnheader",
+    "column-header": "columnheader",
+    "popin-header": "columnheader",
+    "row-header": "rowheader",
+    "cell": "gridcell",
+    "filter-cell": "gridcell",
+    "selection": "gridcell",
+    "summary-cell": "gridcell",
+    "popin": "gridcell"
+  },
+  "composes": [
+    "state",
+    "collection",
+    "filter",
+    "drag",
+    "focus",
+    "overflow",
+    "live-announcer",
+    "keys",
+    "checkbox",
+    "menu",
+    "popover",
+    "select",
+    "multi-select",
+    "segmented-control",
+    "button",
+    "text-field",
+    "number-field",
+    "date-field",
+    "time-field",
+    "datetime-field",
+    "result-state",
+    "skeleton"
+  ],
+  "data": {
+    "rows": "the consumer's array, read every render; the family never mutates it",
+    "rowKey": "a field name or a function of the row; the key survives sorting, filtering, windowing and editing, and every state model names rows by it",
+    "columns": "GridColumn[]: id, label, description, kind, accessor, format, compare, align, numeric, text, width, minWidth, maxWidth, flex, priority, sortable, filterable, searchable, editable, resizable, reorderable, hideable, rowHeader, pinned, options, aggregate, validate, parse",
+    "columnGroups": "GridColumnGroup[]: id, label and the ids it spans, drawn as a header row above the columns with aria-colspan",
+    "kind": "a FilterKind of @slotted/core/filter — text, number, date, time, datetime, boolean, set — or actions or custom. It decides the operators, the comparator, the default alignment, the default editor and whether the column is searchable.",
+    "accessor": "accessor(row) gives the domain value; format(value, row) gives the text. Sorting and filtering read the value; the cell draws the text. §2.9: a number, a currency and a date are values, not strings.",
+    "mode": "client applies the query to rows with applyQuery; server reports the query and draws the rows it is given, reading totalCount or hasMore. Resolved to client when both are omitted.",
+    "reason": "AG Grid, MUI X, Kendo, DevExtreme and Glide own the rows and apply the query; TanStack, React Aria, Fluent and Carbon leave it to the consumer. docs/process/build-order.md wave 9 decides it for this family: it applies the descriptor, and table reports.",
+    "loadMore": "shouldLoadMore over the window; onLoadMore when fewer than loadMoreThreshold rows remain below the window, unless loadMoreTrigger is button or loadMoreFailed is true; under scroll the footer draws a status while loading and offers Try again only after a failure, under button or both a Load more control",
+    "pinnedDefault": "a column of kind actions is pinned to the end, and a column's own pinned states its edge, while the column state names no pins; a state that names them wins, and the serialised view writes pins only when they differ from the model's"
+  },
+  "query": {
+    "shape": "{ sort: { column, direction }[], filter: FilterGroup | null, search: string, page: { index, size } | { cursor, size } | null, group: string[] }",
+    "one": "One object, because a server receives one request, a URL holds one state and a saved view restores one value. Separate models — MUI X's sortModel, filterModel and paginationModel — make the consumer join them before every request and decide which moves first when a filter resets the page; here both happen in one transition and the request says what changed.",
+    "change": "the request carries change: sort | filter | search | page | group beside the reason, so a consumer can refetch on sort and debounce on search without diffing two objects",
+    "resets": "a change of filter, search or group puts page.index at 0 in the same transition",
+    "sort": {
+      "keys": "several; Shift while pressing a header appends, a plain press replaces; the cycle per key is ascending, descending, removed",
+      "attribute": "aria-sort on the first key's header only. The practice says aria-sort has limited value on more than one header because ARIA cannot say which key came first; the other keys carry a visible index and no property, and the announcement says the whole order.",
+      "announce": "the whole order, politely: 'Sorted by Customer, then by Date descending'"
+    },
+    "filter": {
+      "engine": "@slotted/core/filter",
+      "evaluates": "createFilterGroupPredicate over the whole group, nested groups included, because the grid evaluates whatever filter-bar wrote",
+      "edits": "one rule per column, in the header panel and in the filter row; a nested group is filter-bar's to edit and this family's to evaluate",
+      "search": "createSearchPredicate over the formatted text of every searchable column; the field that writes it is the consumer's text-field, the grid applies it"
+    },
+    "page": "by index or by cursor. In client mode the family pages the array; in server mode it draws the page it is given. pagination draws the control in the footer; with a known total the footer says 1–50 of 3,412, without one it says 1–50 and offers load more.",
+    "group": "column ids; group rows carry aria-level and aria-expanded, the value, the count and the column aggregates of their rows; one level or several",
+    "compare": "column.compare replaces the kind's comparator: Intl.Collator(locale, { numeric: true }) for text, numeric for number, ISO text for date, time and datetime, false before true for boolean",
+    "serialization": "toGridParams and fromGridParams compose toFilterBarParams for the filter and the search and add sort, page, size, cursor and group. Parsing is total: an unknown column, an unknown direction or a malformed page degrades to the default rather than to an error on first paint.",
+    "applies": "applyQuery(rows, columns, query, { rowKey, locale, booleans }) returns { rows, total, groups }: filter, search, sort, group, page, in that order. It is pure and exported from @slotted/core/grid so a consumer's server mock and the family agree."
+  },
+  "columnState": {
+    "shape": "{ order: string[], widths: Record<string, number>, hidden: string[], pinned: { start: string[], end: string[] } }",
+    "capability": "columns, added to the shared vocabulary by this family",
+    "change": "the request carries change: order | width | hidden | pinned beside the reason",
+    "normalizes": "a state naming a column that no longer exists is normalised silently, because a saved view survives a removed column; a column the state does not name takes the model's own order and width",
+    "rowWidth": "a row is as wide as the frame, or as the template's minimum — the fixed widths and the flexible columns' floors — when that is wider, and then the frame scrolls. A flexible column never widens the row past the frame for a long value: the value truncates in its cell, which is what text: truncate promises. A column with flex takes every pixel the frame has left; the filler track after the template stretches only where no column flexes.",
+    "resize": "the resizer on every resizable column's trailing edge, by pointer; Ctrl+Shift+ArrowLeft/Right by a step of --slotted-data-grid-resize-step with the cursor on the header, announced as the column and its width; Escape during a pointer drag restores. Bounded by minWidth and maxWidth. A pointer drag moves the resize-guide by translate and nothing else, and the width is requested once on release with the reason pointer: applied on every move it reflowed every rendered cell under the hand. Escape during the drag removes the guide and requests nothing. The keyboard step and autofit apply at once in either mode. A double press on the resizer and Ctrl+Shift+Enter autofit the column to the cells in the DOM; Shift with the double press, and the menu's Fit all columns, fit every resizable column in one request with change: width. The reason is pointer for a double press and for a menu item chosen by pointer, keyboard for Ctrl+Shift+Enter and for a menu item chosen by keyboard, programmatic for autofit() on the handle.",
+    "reorder": "@slotted/core/drag: one horizontal container per pin zone, between targets, the header as the draggable and the handle; Alt+ArrowLeft/Right on the header is moveBy. A column never leaves its zone by dragging, because the zone is a fact of the state and a drop that changed two things would carry two reasons.",
+    "pin": "by the column menu, and by the state. A pinned column is position: sticky with the summed width of the pinned columns before it as its inset; a header cell that is also pinned takes both offsets and the highest stacking step.",
+    "hide": "by the column menu, and by the state. A hidden column leaves the DOM and the track; aria-colcount counts the visible columns of the model, so the numbers a reader hears are the columns they can reach. The menu's hide announces messages.columnHidden; the undo is the application's: a toast whose action restores the previous of the change: hidden request.",
+    "manager": "the application wires manageColumns (Angular) or onManageColumns (React), which the menu's Manage columns item calls, to column-manager, which edits this object; the grid does not compose it",
+    "priority": "a column yields to a frame too narrow for the template by its priority, the lower the longer it stays: a ResizeObserver on the scroller reads its inner width, and columnsOutOfSpace of @slotted/core/grid takes out first the columns without a priority, the last declared first, then the numbered ones, the highest first and the later declared on a tie, until the rest fit with the gutters. The identity column — the first with rowHeader, else the first that is not actions — and an actions column never leave; when only those remain the frame scrolls. The result is outOfSpace, { popin, hidden }: a column with popin: false is hidden, every other one moves into the row's pop-in. Both leave the header, the filter row, the column menu and the track; aria-colcount counts the rest and the pop-in's column. It is never in columnState, never persisted and never a columnStateChangeRequest; Angular exposes the outOfSpace signal and the outOfSpaceChange output, React onOutOfSpaceChange and handle.getOutOfSpace(). columnOverflow settles first: resolveColumnOverflow of @slotted/core/grid turns auto into popin when the frame is narrower than COMPACT_BELOW (600px), or narrower than EXPANDED_FROM (1024px) while matchMedia answers (pointer: coarse), and into scroll elsewhere; the bindings listen to the query's change, and a render without matchMedia reads a fine pointer. popin takes columns out at any width; scroll takes no column out. The width read is the frame's, which does not depend on either set, so the measure never loops.",
+    "popin": "while outOfSpace.popin is not empty the root carries data-popin with its count, and every record's row — held rows included — ends with a popin gridcell whose aria-colindex is the last: grid-column 1 / -1 on the row's second line, sticky at inset-inline-start 0 and max-inline-size 100cqi as the detail is, its fields starting after the gutters at --slotted-data-grid-leading. The header row ends with popin-header, a visually hidden columnheader named messages.popinHeader, with no track. Each column in the pop-in is a popin-field of a popin-label, the column's label (none for an empty one), over a popin-value drawn by the same cell template or renderer with the same context; an editable column is read only there. The summary row's pop-in holds the totals of the columns in it that aggregate. Rows are measured one by one, as rowHeight auto, and --slotted-data-grid-row-max-block-size caps the values' line and not the pop-in's.",
+    "serialization": "serializeColumnState and parseColumnState round-trip the object through a string; parsing is total"
+  },
+  "cursor": {
+    "capability": "current",
+    "shape": "{ row: string, column: string } | null, where row is a row key or one of the reserved words header, filter, summary, or group:<key>",
+    "tabStop": "one: the current cell, or the single widget inside it; every other mounted cell is tabindex -1. Tab leaves the grid to the next control of the page.",
+    "focusInside": "the two optimal combinations of the pattern, applied by rule: a cell whose content is exactly one focusable element that takes no arrow keys — a, button, input[type=checkbox], [role=switch], [role=button] — receives focus on that element; any other cell receives it on itself, Enter and F2 enter it, Escape leaves it, and Tab inside cycles the cell's widgets without leaving the cell",
+    "survives": "when the current row disappears — a filter, a removal, a page — the cursor stays at the same row index or the last, in the same column; on an empty set focus goes to the empty part. The grid never drops focus to the document.",
+    "mounts": "a key that moves the cursor to a row outside the virtual window scrolls the window so the row is mounted, then focuses it",
+    "paints": "data-current on the cell and on its row; the ring is drawn inward, because a cell has no margin for an outer ring and the next row would cover it. Without focus the cursor stays at 60% so a reader returning from a popover finds where they were; with :focus-visible it is whole.",
+    "popin": "POPIN_COLUMN_ID is the last column the cursor walks while the pop-in is drawn; on a row without a pop-in — the header, the filter row, a group row — it is that row's last visible column. Enter on the pop-in enters its widgets or activates the row, as on any cell; a column that moves into the pop-in takes the cursor with it."
+  },
+  "selection": {
+    "module": "packages/core/src/collection",
+    "function": "nextSelection",
+    "modes": ["none", "single", "multiple", "range"],
+    "rows": "single and multiple select rows; the checkbox column is drawn, the row carries aria-selected and data-selected, Shift+Space on any cell toggles the row, Shift extends from the anchor, Ctrl+A selects every row the query left",
+    "cells": "range selects cells: { anchor, focus } | null; Shift+arrows extend, Shift+press sets, a pointer drag extends; every cell in the rectangle carries aria-selected and data-in-range, and the cells on its edges carry data-range-edge naming which edges. Ctrl+Space selects the column, Shift+Space the row, Ctrl+A every cell. No checkbox is drawn in this mode.",
+    "copy": "Ctrl+C writes the range — or the current cell — as tab-separated text through @slotted/core/clipboard, and announces the count. Paste is declined: docs/component-features.md §12 makes a spreadsheet its own product.",
+    "selectAll": "the header checkbox covers every row the query left, across every page in client mode and the page in server mode, and states which in its own accessible name; it is indeterminate while some are selected",
+    "value": {
+      "single": "string | null",
+      "multiple": "readonly string[]",
+      "range": "{ anchor: { row, column }, focus: { row, column } } | null"
+    },
+    "multiselectable": "aria-multiselectable=\"true\" on the root in multiple and range",
+    "control": "checkbox",
+    "columnWidth": "--slotted-data-grid-selection-size, stated rather than shrink-wrapped so a column pinned beside it has a length to state"
+  },
+  "activation": {
+    "event": "onActivate(key, { reason, event })",
+    "when": "a double press on a cell that does not edit, or Enter on a text cell of a row while activatable is true; with activatable and an editable cell, Enter edits and the double press activates. A single press whose pointerdown was touch or pen activates with reason pointer, unless it landed on a widget in the cell or on a cell in edit; the dblclick within 500ms after that activation is ignored. The mouse keeps the double press",
+    "notState": "nothing stays, so it is an event and not a model; it is the fourth capability table deferred here by name, because a tr cannot be a widget and a grid cell can"
+  },
+  "editing": {
+    "session": "startEdit(cell) and stopEdit({ commit }) on the handle; onEditStart, onEditCommit and onEditCancel as events. The draft lives in the editor: a controlled draft would make the consumer re-render the grid on every keystroke of a field it does not own. MUI X has cellModesModel and limits it to custom triggers, which startEdit covers.",
+    "modes": {
+      "cell": "Enter, F2, a double press or an alphanumeric key open the cell's editor; Enter commits and moves one row down in the same column, Tab commits and moves to the next editable cell of the row, Shift+Tab back, F2 commits and stays, Escape cancels",
+      "row": "every editable cell of the row opens; Enter commits the row, Escape cancels the row, Tab moves between the row's editors, and Save and Cancel stand in the actions column while the row edits"
+    },
+    "editors": {
+      "text": "text-field",
+      "number": "number-field",
+      "date": "date-field",
+      "time": "time-field",
+      "datetime": "datetime-field",
+      "boolean": "checkbox",
+      "set": "select, or multi-select when the column's value is an array",
+      "custom": "renderEditor in React, *slDataGridEditor in Angular"
+    },
+    "plain": "the editor is the field family in variant plain and size sm, and the cell hands it its inset: padding 0 on the cell and --slotted-control-padding-inline-* set to the cell's own inset, the rule table's cell already applies. The edited value stands where the read value stood.",
+    "validate": "column.validate(value, row) returns a message, null or a Promise of either. While pending the cell is data-loading; with a message the cell is data-invalid, aria-invalid and aria-errormessage point at the message, and the draft stays in the editor.",
+    "commit": "onEditCommit({ key, column, value, previous, row, reason }) may return a Promise. While pending the cell shows the new value and data-loading; if it rejects, the previous value returns, the editor reopens with the draft and the cell is data-invalid with the error's message. An error never discards what the reader typed — §12 says so by name.",
+    "conflict": "a change in rows to the cell being edited marks the cell data-invalid with messages.editConflict and leaves the draft untouched; onEditCommit receives previous — the value when the editor opened — and the consumer decides",
+    "readonly": "aria-readonly=\"true\" on the root when no column edits; on a cell that does not edit when others do; on nothing when nothing edits, which is what the pattern requires",
+    "typeToEdit": "an alphanumeric key on an editable text or number cell opens the editor with that key as its first character, which is the pattern's own convention and what every spreadsheet does"
+  },
+  "expansion": {
+    "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
+    "detail": "expanded as a set of row keys; the expander is a button with aria-expanded and aria-controls; the detail row is one row with one cell spanning every column through aria-colspan; it is not rendered while closed",
+    "groups": "expandedGroups as a set of group keys or the word all, which is the default: a grouped listing opens expanded, because a reader who grouped wants to see the groups' rows. A group key is column=value per level joined by /.",
+    "keys": "ArrowRight on a group row opens it, ArrowLeft closes it, as in a tree grid; the same on the expander's cell of a row with a detail"
+  },
+  "virtualization": {
+    "module": "packages/core/src/collection",
+    "functions": ["virtualWindow", "createRowMetrics", "offsetForIndex", "shouldLoadMore"],
+    "rows": "the body takes block-size of the total and padding-block-start of the window's start offset; the mounted rows follow in flow. No transform, so position: sticky on a pinned column resolves against the scroller with nothing in between.",
+    "columns": "a window over the accumulated widths of the unpinned columns; the pinned ones are always mounted; every cell writes grid-column explicitly because auto-placement would move the cells that are there into the tracks of the cells that are not",
+    "auto": "virtualize auto windows rows above 100 and columns above 20; true always; false never",
+    "rowHeight": "a number, or auto. With a number the family trusts it and corrects it once from the first mounted row; with auto every mounted row is measured and createRowMetrics holds the sizes, bounded by --slotted-data-grid-row-max-block-size.",
+    "ids": "the row key is the row's identity and the cursor names it, so a row leaving and re-entering the window keeps its selection, its expansion and its focus",
+    "loadMore": "shouldLoadMore over the window; onLoadMore when fewer than loadMoreThreshold rows remain below the window; hasMore decides whether the footer offers it",
+    "counts": "aria-rowcount is the query's total, or -1 when unknown; aria-rowindex on every row counts the header rows first; aria-colcount and aria-colindex are always written because the DOM never holds every column"
+  },
+  "filter": {
+    "engine": "@slotted/core/filter",
+    "shape": "a trigger in the column-actions slot and a compact panel it opens; and, with filterRow, a row under the header with one operand per filterable column",
+    "form": "One condition is one line: [operator] [operand], controls in size sm, the operator at --slotted-data-grid-filter-operator-size and the operand taking the rest; between puts both operands on the same line with a dash. The join is two words in a segmented-control where the second line's operator would stand, shown once the first condition is active. The footer is Clear in ghost and Apply in solid, both sm, at the trailing edge. No title: the trigger names the column and the panel opens under it.",
+    "formReason": "table's panel stacks the operator, the operand, the join and two md buttons at full width, and the invocation refuses that form in writing. The form decided here is inherited by table and filter-bar in reopenings recorded in docs/process/build-order.md, so the three places a filter is edited share one geometry.",
+    "row": "filterRow draws a row under the header inside the head rowgroup: role row, one gridcell per column, the cursor reaches it with the arrows. Each cell holds the kind's operand in variant plain and size sm filling the cell, with the operator as a symbol button at the start of the field that opens a menu naming the operators in full. Text and number apply after filterDebounce and on Enter; the others on change. A set draws select with multiple, whose trigger summarises the chosen values; a boolean a select of any, yes, no.",
+    "rowReason": "AG Grid, MUI X, Kendo and DevExtreme ship it, and it is the densest form a wide listing has. table declined it because it cost a row of a static structure; here the row is part of the composite widget and the cursor walks it.",
+    "symbols": "⊃ ⊅ = ≠ ^ $ > ≥ < ≤ ↔ ∅ ∄ and the kind's own words for is, is not, before, after, any of, none of. They are typographic characters with meaning rather than icons — the criterion that lets kbd write ⌘ — and the button's accessible name says the operator in full.",
+    "set": "select with multiple in the panel and in the row, its trigger summarising the chosen values and its options carrying counts per value from the rows the query left before this column's own rule, because here the grid owns the data and can count",
+    "draft": "the panel edits a draft: nothing reaches the query until Apply, Escape and a press outside restore what the panel opened with, Clear empties the draft. The filter row applies as it goes, which is what a row is for.",
+    "marks": "data-filtered on the column header and on its trigger; the trigger's accessible name states the applied summary through describeFilter",
+    "announces": "the summary on Apply, the removal on Clear, the count the query leaves after the filter row applies",
+    "composition": "popover holds the panel, select the operator, segmented-control the join, text-field, number-field, date-field, time-field, datetime-field, multi-select and select the operands, menu the row's operator, button the actions",
+    "replaceable": "the operand area, per column, through renderFilter in React and *slDataGridFilter in Angular; the draft, the operator, the join, the actions and the announcements stay"
+  },
+  "loading": {
+    "first": "with no rows to keep, the loader part draws skeleton rows the visible columns wide and skeletonRows deep",
+    "refresh": "over rows already shown, aria-busy goes on the root and the body dims; nothing moves. Over an empty state already drawn the state stays and aria-busy goes on the root: zero rows is an answer (AF-02). loading accepts true, false, 'initial' and 'refresh'; true is initial until the grid has drawn an answer, refresh after, and initial while the last answer had rows and the rows are now empty",
+    "reason": "Carbon draws a skeleton and Ant dims what is there; they are two states, and a family with one answer gets the other wrong"
+  },
+  "empty": {
+    "part": "empty",
+    "composes": "result-state",
+    "states": {
+      "empty": "no rows at all",
+      "no-results": "the query left nothing; offers clear filters, which empties query.filter and query.search in one change with reason clear",
+      "error": "loading failed; offers retry, which calls onRetry"
+    },
+    "reason": "the grid applies the filter, so it knows which of the three it is; AG Grid has one overlay and MUI X two"
+  },
+  "sticky": {
+    "header": "head, including the filter row; on by default because the family owns its height, so there is always a scroller with a header to pin",
+    "summary": "the aggregate row, pinned to the end of the same box",
+    "to": {
+      "scroll": "the default: the family's own scroller",
+      "page": "the nearest scrolling ancestor outside the family; the family gives up its own vertical scroll and therefore its row virtualisation, and the header stops at --slotted-data-grid-sticky-offset"
+    },
+    "columns": "position: sticky with inset-inline-start or inset-inline-end, so a right-to-left document mirrors it",
+    "corner": "a header cell that is also pinned takes both offsets and the highest stacking step, stated once"
+  },
+  "controls": {
+    "size": "the family's own controls — the column help, the column menu, the filter trigger, the expander, the group toggle, the row handle — are --slotted-target-min square where the row has room, and the row less the cursor's ring where it has not (dense). On a coarse pointer, where the control scale has grown the row to the comfortable target, they grow with it to the row less the ring: a 24-pixel button in a 44-pixel row is a target a thumb misses. Their box reaches the comfortable target by a padding their ground does not paint, given back as a negative margin, so the ground keeps the ring's room and no row moves.",
+    "revealed": "the column menu, the filter trigger and a cell's actions are revealed by hover and by the cursor, and always shown on a coarse pointer, where there is no hover. The column help is always shown: it marks that the column has something to say, and a mark that appears on hover is one a coarse pointer never sees.",
+    "help": "the column help opens a popover by click, Enter and Space, never by hover; the popover holds the description and the help template or node, and it is a portal outside the root, so it stays at the page's density",
+    "contextMenu": "a contextmenu on a data column's header opens its column menu, beside the column-menu button and Ctrl+Enter: from a pointer, a long press included, at the event's coordinates through the menu's point anchor, reason pointer; from Shift+F10 or the Menu key, anchored to the header cell, reason keyboard, and the contextmenu Windows fires within 300ms after is its echo. The event is prevented only when the menu opens. The browser's menu stays under Shift and on an editable target — the filter row, an editor, a contenteditable; the gutters and popin-header open nothing. The button resets the anchor to itself."
+  },
+  "composition": {
+    "columnManager": "the application opens column-manager from manageColumns (Angular) or onManageColumns (React) and binds it to the same columnState the grid reads; the grid draws the menu item and nothing of the manager",
+    "columnHelp": "popover holds a column's help, anchored on the column-help button",
+    "undoHide": "toast with an Undo action that writes the previous of the change: hidden request back to columnState"
+  },
+  "aggregates": {
+    "functions": ["sum", "avg", "min", "max", "count"],
+    "custom": "a function of the column's values",
+    "where": "the summary row for the whole query, and each group row for its own rows",
+    "format": "the column's format, so a currency column sums as a currency"
+  },
+  "wiring": {
+    "aria-label": "the consumer's aria-label, or labelledBy; with neither, messages.grid: a grid with no name is a widget a reader cannot find",
+    "aria-labelledby": "the consumer's",
+    "aria-describedby": "the consumer's, passed through untouched on the root. A column header with a description is described by its column-description, a visually hidden span holding the text, written before the drag instructions id a reorderable header appends; the column menu is described by the same span, and draws the text as column-menu-description, aria-hidden",
+    "aria-sort": "on the first sort key's header, and on no other",
+    "aria-selected": "on a selected row, and on every cell of a range",
+    "aria-multiselectable": "true on the root in multiple and range",
+    "aria-readonly": "on the root when no column edits; on a cell that does not edit when others do",
+    "aria-rowcount": "the query's total, or -1 when unknown, always",
+    "aria-rowindex": "on every row, counting the header rows first, always",
+    "aria-colcount": "the visible columns of the model, and the pop-in's column while the pop-in is drawn, always",
+    "aria-colindex": "on every cell, always, because the DOM never holds every column",
+    "aria-colspan": "on a column group, a detail cell and a group row's cell",
+    "aria-level": "on a group row",
+    "aria-expanded": "on a group row, and on the expander with aria-controls naming the detail row",
+    "aria-busy": "true on the root while loading over an answer already drawn: rows, or the empty state",
+    "aria-invalid": "on a cell whose draft failed, with aria-errormessage naming the message",
+    "tabindex": "0 on the current cell or its single widget, -1 on every other mounted cell"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "enters the grid on the current cell — the last visited, or the first cell of the body — and leaves it to the next control of the page",
+      "focus": "the current cell, or the single widget inside it",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "moves one cell to the right; on the last cell of the row it does not move; mirrored in a right-to-left document",
+      "focus": "the cell",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "the mirror of ArrowRight",
+      "focus": "the cell",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "moves one cell down; from the header to the filter row, then the body; on the last row it does not move; mounts the row when it is outside the window",
+      "focus": "the cell",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "moves one cell up; from the first body row to the filter row and the header; on the first header row it does not move",
+      "focus": "the cell",
+      "source": "pattern"
+    },
+    {
+      "key": "PageDown",
+      "effect": "moves down one view of rows, scrolling; on the last row it does not move",
+      "focus": "the cell",
+      "source": "pattern"
+    },
+    {
+      "key": "PageUp",
+      "effect": "moves up one view of rows, scrolling; on the first row it does not move",
+      "focus": "the cell",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "moves to the first cell of the row",
+      "focus": "the cell",
+      "source": "pattern"
+    },
+    {
+      "key": "End",
+      "effect": "moves to the last cell of the row",
+      "focus": "the cell",
+      "source": "pattern"
+    },
+    {
+      "key": "Ctrl+Home",
+      "effect": "moves to the first cell of the first body row",
+      "focus": "the cell",
+      "source": "pattern"
+    },
+    {
+      "key": "Ctrl+End",
+      "effect": "moves to the last cell of the last row the query left, mounting it",
+      "focus": "the cell",
+      "source": "pattern"
+    },
+    {
+      "key": "Ctrl+Space",
+      "effect": "in range mode, selects the whole column; otherwise nothing",
+      "focus": "the cell",
+      "source": "pattern-selection"
+    },
+    {
+      "key": "Shift+Space",
+      "effect": "in single and multiple, toggles the row; in range, selects the whole row",
+      "focus": "the cell",
+      "source": "pattern-selection"
+    },
+    {
+      "key": "Ctrl+A",
+      "effect": "in multiple, selects every row the query left; in range, every cell; otherwise nothing",
+      "focus": "the cell",
+      "source": "pattern-selection"
+    },
+    {
+      "key": "Shift+ArrowRight",
+      "effect": "in range, extends the range one cell to the right from the anchor",
+      "focus": "the cell moved to",
+      "source": "pattern-selection"
+    },
+    {
+      "key": "Shift+ArrowLeft",
+      "effect": "in range, extends the range one cell to the left",
+      "focus": "the cell moved to",
+      "source": "pattern-selection"
+    },
+    {
+      "key": "Shift+ArrowDown",
+      "effect": "in range, extends the range one cell down; in multiple, extends the row selection from the anchor",
+      "focus": "the cell moved to",
+      "source": "pattern-selection"
+    },
+    {
+      "key": "Shift+ArrowUp",
+      "effect": "the mirror of Shift+ArrowDown",
+      "focus": "the cell moved to",
+      "source": "pattern-selection"
+    },
+    {
+      "key": "Enter",
+      "effect": "on an editable cell, opens the editor; on a cell with widgets, focuses the first; on a text cell of an activatable row, activates it; on a column header, sorts the column",
+      "focus": "the editor, the widget, or the cell",
+      "source": "pattern-inside"
+    },
+    {
+      "key": "F2",
+      "effect": "opens the editor or enters the cell; a second F2 commits the draft and returns to the cell",
+      "focus": "the editor, then the cell",
+      "source": "pattern-inside"
+    },
+    {
+      "key": "alphanumeric",
+      "effect": "on an editable text or number cell, opens the editor with the key as its first character",
+      "focus": "the editor",
+      "source": "pattern-inside"
+    },
+    {
+      "key": "Escape",
+      "effect": "in an editor, cancels the draft and returns to the cell; in a widget, returns to the cell; with a range, clears it; during a drag, drag takes it",
+      "focus": "the cell",
+      "source": "pattern-inside"
+    },
+    {
+      "key": "Enter",
+      "where": "in an editor",
+      "effect": "commits and moves one row down in the same column in cell mode; commits the row in row mode",
+      "focus": "the cell below, or the same cell",
+      "source": "departure"
+    },
+    {
+      "key": "Tab",
+      "where": "in an editor",
+      "effect": "commits and moves to the next editable cell of the row; Shift+Tab back; on the last, commits and stays",
+      "focus": "the next editable cell",
+      "source": "pattern-inside"
+    },
+    {
+      "key": "Space",
+      "where": "on a selection cell",
+      "effect": "toggles the row's checkbox; Shift+Space extends from the anchor",
+      "focus": "the cell",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Enter",
+      "where": "on a column header",
+      "effect": "appends the column to the sort order instead of replacing it",
+      "focus": "the cell",
+      "source": "departure"
+    },
+    {
+      "key": "Ctrl+Enter",
+      "where": "on a column header",
+      "effect": "opens the column menu",
+      "focus": "the first item of the menu, then back to the header",
+      "source": "departure"
+    },
+    {
+      "key": "Shift+F10",
+      "where": "on a column header",
+      "effect": "opens the column menu anchored to the header cell; the Menu key does the same",
+      "focus": "the first item of the menu, then back to the header",
+      "source": "platform"
+    },
+    {
+      "key": "F2",
+      "where": "on a column header",
+      "effect": "enters the header cell and focuses the first widget of column-actions — the column help, the filter trigger or the column menu; Tab and Shift+Tab cycle the cell's widgets, Escape or a second F2 returns to the cell. Enter on the header still sorts",
+      "focus": "the first widget of column-actions, then the cell",
+      "source": "pattern-inside"
+    },
+    {
+      "key": "Ctrl+Shift+ArrowRight",
+      "where": "on a column header",
+      "effect": "widens the column by one step, announced",
+      "focus": "the cell",
+      "source": "departure"
+    },
+    {
+      "key": "Ctrl+Shift+ArrowLeft",
+      "where": "on a column header",
+      "effect": "narrows the column by one step, announced",
+      "focus": "the cell",
+      "source": "departure"
+    },
+    {
+      "key": "Ctrl+Shift+Enter",
+      "where": "on a column header",
+      "effect": "fits the column to its mounted cells",
+      "focus": "the cell",
+      "source": "departure"
+    },
+    {
+      "key": "Alt+ArrowRight",
+      "where": "on a column header",
+      "effect": "moves the column one position later, through drag.moveBy",
+      "focus": "the cell",
+      "source": "departure"
+    },
+    {
+      "key": "Alt+ArrowLeft",
+      "where": "on a column header",
+      "effect": "moves the column one position earlier",
+      "focus": "the cell",
+      "source": "departure"
+    },
+    {
+      "key": "ArrowRight",
+      "where": "on a group row, or on the expander cell of a row with a detail",
+      "effect": "opens the group or the detail; when already open, moves right as usual",
+      "focus": "the cell",
+      "source": "departure"
+    },
+    {
+      "key": "ArrowLeft",
+      "where": "on an open group row, or on the expander cell of an open detail",
+      "effect": "closes it; when already closed, moves left as usual",
+      "focus": "the cell",
+      "source": "departure"
+    },
+    {
+      "key": "Ctrl+C",
+      "effect": "copies the range, or the current cell, as tab-separated text; not intercepted while the page holds a text selection",
+      "focus": "the cell",
+      "source": "departure"
+    }
+  ],
+  "keyboardReason": "Every key of the pattern's data grid table is answered, plus the selection keys it lists as commonly used and the three conventions of its inside-a-cell section. The departures are the column operations — resize, reorder, menu, append to sort — that the pattern does not cover and that React Aria, Fluent and the practice's resizing note each answer differently, and the two spreadsheet conventions, Enter moving down and Ctrl+C.",
+  "departures": {
+    "Enter": {
+      "reason": "Excel, AG Grid and MUI X move one row down on commit, and a reader entering a column of values expects it",
+      "cost": "a reader who wants to commit and stay uses F2 or Tab"
+    },
+    "Shift+Enter": {
+      "reason": "Shift+press is how AG Grid and MUI X append a sort key with the pointer; the same modifier on the keyboard keeps one gesture",
+      "cost": "none found: Shift+Enter has no meaning on a column header otherwise"
+    },
+    "Ctrl+Enter": {
+      "reason": "a column menu needs a key, and Ctrl+Enter is the one MUI X uses",
+      "cost": "none found"
+    },
+    "Ctrl+Shift+Arrow": {
+      "reason": "resizing needs a keyboard equivalent (§2.8 of docs/component-features.md); React Aria and Fluent use arrows on a focused resizer, and this family has no focusable resizer because a resizer in the tab sequence of a composite widget would be a second stop",
+      "cost": "only with the cursor on a column header, where there is no editor; in an editor the combination stays the browser's own word selection"
+    },
+    "Alt+Arrow": {
+      "reason": "decided in @slotted/core/drag: moveBy is the APG one-call reorder",
+      "cost": "Alt+ArrowLeft is back in some browsers; only with the cursor on a header, and preventDefault stops the navigation"
+    },
+    "Ctrl+C": {
+      "reason": "a range with no copy is a range nobody needed; AG Grid, MUI X and Glide all copy",
+      "cost": "takes the page's copy while focus is in the grid; with a non-empty text selection the family does not intercept"
+    },
+    "ArrowRight/ArrowLeft on a group row": {
+      "reason": "the tree grid pattern; a group row is a node",
+      "cost": "the first press on a closed group opens it rather than moving; the second moves"
+    }
+  },
+  "declined": {
+    "tableElement": {
+      "composition": "div with explicit roles",
+      "reason": "a grid resizes columns live, pins them with sticky and leaves them out of the DOM off screen; display: grid gives a row all three and table-layout gives none. The pattern admits both constructions."
+    },
+    "paste": {
+      "deferTo": "spreadsheet",
+      "reason": "docs/component-features.md §12 makes a spreadsheet its own product: pasting into a range is a bulk write with no per-cell validation"
+    },
+    "export": {
+      "composition": "getVisibleRows() on the handle, and two lines of the consumer's for a CSV",
+      "reason": "§12: adapters and optional packages"
+    },
+    "chartsAndPivot": {
+      "deferTo": "chart and pivot-grid",
+      "reason": "§12"
+    },
+    "filterChips": {
+      "deferTo": "filter-bar",
+      "composition": "filter-bar above the grid, reading and writing query.filter",
+      "reason": "one descriptor, two families: the chips draw what the grid evaluates"
+    },
+    "filterBuilder": {
+      "deferTo": "filter-bar",
+      "reason": "nesting and groups are section 12's Filter Builder; the grid evaluates them and does not edit them"
+    },
+    "dragBetweenPinZones": {
+      "composition": "the column menu pins and unpins",
+      "reason": "the zone is a fact of the state; a drop that changed both position and zone would carry two reasons"
+    },
+    "controlledEditSession": {
+      "composition": "startEdit and stopEdit on the handle",
+      "reason": "a controlled draft re-renders the grid on every keystroke of a field the consumer does not own"
+    },
+    "ariaSortOnEveryKey": {
+      "composition": "aria-sort on the first key, a visible index on the others, the whole order announced",
+      "reason": "the practice says aria-sort has limited value on more than one header"
+    },
+    "size": {
+      "deferTo": "the density axis",
+      "reason": "as table: the theme restates the control scale per density and the row reads it"
+    },
+    "focusableResizer": {
+      "composition": "Ctrl+Shift+Arrow on the header",
+      "reason": "a resizer in the tab sequence of a composite widget is a second tab stop, which the pattern forbids"
+    },
+    "autoHeightVirtualization": {
+      "composition": "a height on the root",
+      "reason": "a window needs a viewport; without one the grid grows to its content and stays correct"
+    },
+    "print": {
+      "composition": "getVisibleRows() into a table",
+      "reason": "rows outside the DOM do not print, and releasing the window under @media print would mount every row of a hundred thousand"
+    }
+  },
+  "literals": {},
+  "messages": [
+    "autofit",
+    "autofitAll",
+    "cancel",
+    "clearFilters",
+    "collapse",
+    "collapseGroup",
+    "columnHelp",
+    "columnHidden",
+    "columnMenu",
+    "copied",
+    "dragColumns",
+    "dragRows",
+    "edit",
+    "editConflict",
+    "editFailed",
+    "empty",
+    "error",
+    "expand",
+    "expandGroup",
+    "filter",
+    "filterAny",
+    "filterApplied",
+    "filterApply",
+    "filterClear",
+    "filterCleared",
+    "filterColumn",
+    "filterFrom",
+    "filterJoin",
+    "filterJoins.and",
+    "filterJoins.or",
+    "filterMenu",
+    "filterNo",
+    "filterOperator",
+    "filterOperatorChosen",
+    "filterOperators.after",
+    "filterOperators.anyOf",
+    "filterOperators.before",
+    "filterOperators.between",
+    "filterOperators.contains",
+    "filterOperators.empty",
+    "filterOperators.endsWith",
+    "filterOperators.equals",
+    "filterOperators.greaterThan",
+    "filterOperators.greaterThanOrEqual",
+    "filterOperators.is",
+    "filterOperators.isNot",
+    "filterOperators.lessThan",
+    "filterOperators.lessThanOrEqual",
+    "filterOperators.noneOf",
+    "filterOperators.notContains",
+    "filterOperators.notEmpty",
+    "filterOperators.notEquals",
+    "filterOperators.startsWith",
+    "filterRange",
+    "filterResults",
+    "filterSymbols.after",
+    "filterSymbols.anyOf",
+    "filterSymbols.before",
+    "filterSymbols.between",
+    "filterSymbols.contains",
+    "filterSymbols.empty",
+    "filterSymbols.endsWith",
+    "filterSymbols.equals",
+    "filterSymbols.greaterThan",
+    "filterSymbols.greaterThanOrEqual",
+    "filterSymbols.is",
+    "filterSymbols.isNot",
+    "filterSymbols.lessThan",
+    "filterSymbols.lessThanOrEqual",
+    "filterSymbols.noneOf",
+    "filterSymbols.notContains",
+    "filterSymbols.notEmpty",
+    "filterSymbols.notEquals",
+    "filterSymbols.startsWith",
+    "filterTo",
+    "filterValue",
+    "filterYes",
+    "grid",
+    "groupCount",
+    "hide",
+    "loadMore",
+    "loadingMore",
+    "manageColumns",
+    "noResults",
+    "pinEnd",
+    "pinStart",
+    "popinHeader",
+    "range",
+    "rangeUnknown",
+    "reorderRow",
+    "resize",
+    "resized",
+    "retry",
+    "rowMoved",
+    "save",
+    "selectAll",
+    "selectAllFiltered",
+    "selectAllPage",
+    "selectRow",
+    "sortAscending",
+    "sortAscendingAction",
+    "sortClearAction",
+    "sortCleared",
+    "sortDescending",
+    "sortDescendingAction",
+    "sortedBy",
+    "unpin"
+  ],
+  "pluralMessages": ["copied", "filterResults", "groupCount", "selectAllFiltered", "selectAllPage"],
+  "messagesReason": "The words the family says come from the dataGrid catalog of the language in force, laid over by one messages input. The operator names and symbols are two groups keyed by the engine's operator (filterOperators.contains, filterSymbols.contains), the map filter-bar and table read for the same operators. The five whose wording turns on a count are plural messages, so each language states its own forms. A boolean cell writes filterYes and filterNo: core formats a boolean only with the words its caller passes. Every sentence the grid speaks around a name is one message with slots — the column, the row, the group, the bound of a range — so each language orders its own words.",
+  "axes": {
+    "variant": ["plain", "ruled", "framed"],
+    "striped": [true, false],
+    "stickyHeader": [true, false],
+    "stickyTo": ["scroll", "page"],
+    "selectionMode": ["none", "single", "multiple", "range"],
+    "editMode": ["cell", "row"],
+    "mode": ["client", "server"],
+    "filterRow": [true, false],
+    "virtualize": ["auto", true, false],
+    "columnOverflow": ["auto", "popin", "scroll"],
+    "activatable": [true, false],
+    "align": ["start", "center", "end"],
+    "numeric": [true, false],
+    "text": ["wrap", "truncate", "nowrap"],
+    "density": ["comfortable", "compact", "dense"]
+  },
+  "resolution": {
+    "variant": ["prop", "defaults", "ruled"],
+    "striped": ["prop", "defaults", false],
+    "stickyHeader": ["prop", "defaults", true],
+    "stickyTo": ["prop", "defaults", "scroll"],
+    "selectionMode": ["prop", "defaults", "none"],
+    "editMode": ["prop", "defaults", "cell"],
+    "mode": ["prop", "inferred from totalCount or hasMore", "client"],
+    "filterRow": ["prop", "defaults", false],
+    "virtualize": ["prop", "defaults", "auto"],
+    "columnOverflow": ["prop", "defaults", "auto"],
+    "activatable": ["prop", "defaults", false],
+    "align": ["column", "kind", "start"],
+    "numeric": ["column", "kind", false],
+    "text": ["column", "defaults", "truncate"],
+    "density": ["prop", "page", null],
+    "loadMoreTrigger": ["prop", "defaults", "scroll"]
+  },
+  "provides": {
+    "dataGridDefaults": [
+      "variant",
+      "striped",
+      "stickyHeader",
+      "stickyTo",
+      "selectionMode",
+      "editMode",
+      "filterRow",
+      "virtualize",
+      "rowHeight",
+      "overscan",
+      "pageSizes",
+      "filterDebounce",
+      "loadMoreThreshold",
+      "loadMoreTrigger",
+      "skeletonRows"
+    ]
+  },
+  "stateAttributes": {
+    "selected": "data-selected",
+    "current": "data-current",
+    "expanded": "data-expanded",
+    "disabled": "data-disabled",
+    "loading": "data-loading",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "dragging": "data-dragging",
+    "drop-target": "data-drop-target",
+    "open": "data-open"
+  },
+  "stateModel": {
+    "sort": {
+      "controlled": "query",
+      "uncontrolled": "defaultQuery",
+      "request": "onQueryChange",
+      "scope": "the query, not a sort of its own: sort, filter, search, page and group are one object because a server receives one request and a URL holds one state. The request carries change: sort | filter | search | page | group beside the reason. sort and filter declare the same model on purpose; the schema checks each model's shape and the contract says here why the two are one.",
+      "reasons": ["pointer", "keyboard", "clear", "programmatic"]
+    },
+    "filter": {
+      "controlled": "query",
+      "uncontrolled": "defaultQuery",
+      "request": "onQueryChange",
+      "scope": "the same query object as sort, for the reason written there",
+      "reasons": ["pointer", "keyboard", "clear", "programmatic"]
+    },
+    "columns": {
+      "controlled": "columnState",
+      "uncontrolled": "defaultColumnState",
+      "request": "onColumnStateChange",
+      "scope": "order, widths, hidden and pinned in one object, because a saved view restores one value and column-manager edits one object. The request carries change: order | width | hidden | pinned.",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    },
+    "selection": {
+      "rows": {
+        "controlled": "value",
+        "uncontrolled": "defaultValue",
+        "request": "onValueChange",
+        "reasons": ["pointer", "keyboard", "select", "clear", "programmatic"]
+      },
+      "cells": {
+        "controlled": "range",
+        "uncontrolled": "defaultRange",
+        "request": "onRangeChange",
+        "reasons": ["pointer", "keyboard", "clear", "programmatic"]
+      }
+    },
+    "current": {
+      "controlled": "current",
+      "uncontrolled": "defaultCurrent",
+      "request": "onCurrentChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    },
+    "open": {
+      "detail": {
+        "controlled": "expanded",
+        "uncontrolled": "defaultExpanded",
+        "request": "onExpandedChange",
+        "reasons": ["pointer", "keyboard", "programmatic"]
+      },
+      "groups": {
+        "controlled": "expandedGroups",
+        "uncontrolled": "defaultExpandedGroups",
+        "request": "onExpandedGroupsChange",
+        "reasons": ["pointer", "keyboard", "programmatic"]
+      }
+    }
+  },
+  "members": {
+    "data-grid": {
+      "nativeElement": "div",
+      "defaults": {
+        "variant": "ruled",
+        "striped": false,
+        "stickyHeader": true,
+        "stickyTo": "scroll",
+        "selectionMode": "none",
+        "editMode": "cell",
+        "filterRow": false,
+        "virtualize": "auto",
+        "columnOverflow": "auto",
+        "activatable": false,
+        "align": "start",
+        "numeric": false,
+        "text": "truncate",
+        "loading": false,
+        "overscan": 6,
+        "skeletonRows": 8,
+        "filterDebounce": 300,
+        "loadMoreThreshold": 20,
+        "loadMoreTrigger": "scroll",
+        "pageSizes": [25, 50, 100]
+      },
+      "capabilities": [
+        "sort",
+        "filter",
+        "columns",
+        "selection",
+        "current",
+        "open",
+        "virtualization",
+        "overflow",
+        "appearance",
+        "arrangement",
+        "content",
+        "loading",
+        "live",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "selected",
+        "current",
+        "expanded",
+        "disabled",
+        "loading",
+        "invalid",
+        "readonly",
+        "dragging",
+        "drop-target",
+        "open"
+      ],
+      "parts": [
+        "root",
+        "scroll",
+        "head",
+        "header-row",
+        "column-group",
+        "column-header",
+        "sort",
+        "column-description",
+        "column-actions",
+        "column-help",
+        "column-menu",
+        "column-menu-description",
+        "resizer",
+        "resize-guide",
+        "drop-indicator",
+        "filter-row",
+        "filter-cell",
+        "filter",
+        "filter-panel",
+        "filter-condition",
+        "filter-operator",
+        "filter-operand",
+        "filter-join",
+        "filter-actions",
+        "body",
+        "pinned-rows",
+        "row",
+        "row-header",
+        "cell",
+        "editor",
+        "selection",
+        "expander",
+        "detail",
+        "popin-header",
+        "popin",
+        "popin-field",
+        "popin-label",
+        "popin-value",
+        "group-row",
+        "group-toggle",
+        "tree-toggle",
+        "row-handle",
+        "summary",
+        "summary-cell",
+        "empty",
+        "loader",
+        "footer",
+        "actions"
+      ]
+    }
+  },
+  "scenarios": {
+    "data-grid": [
+      "playground",
+      "columns",
+      "column-groups",
+      "sorting",
+      "filter-panel",
+      "filter-row",
+      "filter-bar",
+      "search",
+      "selection",
+      "range",
+      "editing",
+      "editing-row",
+      "validation",
+      "activation",
+      "pinning",
+      "resize",
+      "reorder",
+      "column-help",
+      "column-menu",
+      "column-state",
+      "undo-hide",
+      "grouping",
+      "summary",
+      "detail",
+      "virtualization",
+      "server",
+      "pagination",
+      "load-more",
+      "empty-and-loading",
+      "variant",
+      "text",
+      "density",
+      "responsive-priority",
+      "content",
+      "media",
+      "realtime",
+      "export",
+      "tree",
+      "reorder-rows",
+      "pinned-rows",
+      "data-source",
+      "keyboard",
+      "accessibility"
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+---
+title: Text Field
+description: Takes one line of text in a native input, with the adornments, buttons and count that sit inside its border.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Sizes
+
+`size` sets the height, the padding, the type and the icons to one step of the control scale: `sm` for dense tables and toolbars, `md` for most forms, `lg` for sparse forms. Inside a field, a text field that states no size takes the field's.
+
+<Example name="sizes" />
+
+## Variants
+
+`variant` sets how much frame the control draws. `outline`, the default, draws a border on the ground it sits on. `subtle` fills the control with a sunken ground. `plain` draws no border and no ground at rest; hover tints the ground and focus draws the ring inside the same box, so a table cell that holds one does not change size under the pointer. `mono` sets the value in the monospaced font with tabular figures, for identifiers, codes and keys.
+
+<Example name="variants" />
+
+## States
+
+A text field inside a field reads `invalid`, `readOnly` and `disabled` from it. `invalid` sets `aria-invalid` on the input and draws the frame in the danger tone. `readOnly` sets the native `readonly`: the value keeps full contrast, stays focusable and selectable, and is still submitted. `disabled` sets the native `disabled`, which takes the input out of the tab order and out of form submission. A state written on the text field itself wins over the field's.
+
+<Example name="states" />
+
+## Types and keyboards
+
+`type` is the input's own: `email`, `tel`, `url`, `search` and `password` change the on-screen keyboard and what the browser offers to fill in. `autoComplete` names the value for autofill, and `inputMode` asks for a keyboard without changing the type, so a ZIP code takes `inputMode="numeric"` and keeps its leading zeros. Every native attribute you write reaches the input.
+
+<Example name="types" />
+
+## Passwords
+
+`revealable` on a `type="password"` field draws a button that shows the characters and hides them again, keeping the caret where it was. The button keeps one name and carries its state in `aria-pressed`. While the password has focus and Caps Lock is on, a mark appears before the button and a screen reader hears the warning once.
+
+<Example name="password" />
+
+## Adornments
+
+`start` and `end` hold content before and after the value in the reading direction: a currency, a unit, a protocol, an icon or a key. They are named for the reading direction, not for a side, so in a right-to-left document `start` stays before the value. An icon inside them takes the control's icon size. A `Kbd` shows the shortcut; binding the key is up to the application.
+
+<Example name="adornments" />
+
+## Clear button
+
+`clearable` draws a button that empties the value and returns focus to the input. It appears once there is a value, and it is withdrawn while the field is empty, read-only or disabled. The change it requests carries the reason `clear`.
+
+<Example name="clearable" />
+
+## Copy button
+
+`copyable` draws a button that writes the value to the clipboard, shows a check for two seconds and announces the outcome to screen readers. It stays on a read-only value, which is where an invite link, an API key or a signing secret lives. `onValueCopy` in React and `(valueCopy)` in Angular report whether the clipboard accepted the value.
+
+<Example name="copy" />
+
+## Character count
+
+`showCount` publishes the length of the value to the field, which draws the count at the end of the label row. With `maxLength`, the browser stops input at the limit. With `countMax` alone, the limit is soft: the value can pass it, and the count turns to the danger tone. Type past 11 characters in the second field.
+
+<Example name="count" />
+
+## Buttons inside the field
+
+`TextFieldAction` in React and `slTextFieldAction` in Angular place a button of your own in `start` or `end`. It defaults to `type="button"`; write `type="submit"` to submit the form the field belongs to. A button named by its text is padded; one named by `aria-label` is square, like the clear and copy buttons. Edit the code and press Apply or Enter.
+
+<Example name="action" />
+
+## Menu inside the field
+
+The action takes a menu trigger, so a choice that qualifies the value, such as a country code, opens a menu from inside the frame. The trigger stays pressed while the menu is open, and Enter, Space and ArrowDown open it from the keyboard.
+
+<Example name="menu" />
+
+## Checking the value
+
+`loading` draws a spinner before the buttons and sets `aria-busy` on the input while something checks the value. The input stays editable, so the reader keeps typing while the check runs. Keep `loading` bound to a boolean, `false` included, rather than removing it: the spinner keeps its place in the frame and leaves with a transition instead of disappearing. Type `admin` to see a handle that is taken.
+
+<Example name="loading" />
+
+## Validation
+
+Validate when the form is submitted, then set `invalid` on the field and write the error. The React example owns the value through `value` and `onValueChange`; the Angular example binds the input to a reactive form control, because `slTextFieldInput` is a `ControlValueAccessor`. Submit the empty form, then a malformed address, then a valid one.
+
+<Example name="validation" />
+
+## Defaults for a section
+
+`TextFieldDefaultsProvider` in React and `provideTextFieldDefaults` in Angular set `size`, `variant` and `mono` once for every text field under them. A text field that states a value of its own keeps it, and inside a field the field's size wins over the provider's.
+
+<Example name="defaults" wide />

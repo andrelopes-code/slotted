@@ -1,0 +1,52 @@
+import type { EventCalendarMessages } from '../../messages/event-calendar';
+
+export const ptBR: EventCalendarMessages = {
+  allDay: 'Dia inteiro',
+  calendars: 'Calendários',
+  cancelled: 'cancelado',
+  continues: 'continua',
+  dayEvents: 'Eventos em {day}',
+  dropInvalid: '{title} não pode ser movido para lá',
+  empty: {
+    day: 'Nenhum evento neste dia.',
+    month: 'Nenhum evento neste mês.',
+    week: 'Nenhum evento nesta semana.',
+  },
+  eventDetail: 'Evento',
+  events: '{count, plural, =0 {nenhum evento} one {# evento} other {# eventos}}',
+  from: 'a partir de {time}',
+  loading: 'Carregando eventos',
+  more: 'mais',
+  moreEvents: '{count, plural, one {mais # evento} other {mais # eventos}}',
+  navigation: 'Navegar no calendário',
+  next: {
+    day: 'Próximo dia',
+    list: 'Próximo período',
+    month: 'Próximo mês',
+    week: 'Próxima semana',
+  },
+  offsetChange:
+    'O relógio {direction, select, forward {adianta} other {atrasa}} {hours, plural, one {# hora} other {# horas}} às {at}',
+  offsetChangeShort: '{direction, select, forward {+} other {−}}{hours} h às {at}',
+  previous: {
+    day: 'Dia anterior',
+    list: 'Período anterior',
+    month: 'Mês anterior',
+    week: 'Semana anterior',
+  },
+  recurring: 'repete',
+  selected: '{text} selecionado',
+  tentative: 'provisório',
+  timed: 'Eventos com horário',
+  titleContinues: '{title}, continua',
+  today: 'Hoje',
+  until: 'até {time}',
+  view: {
+    day: 'Dia',
+    list: 'Lista',
+    month: 'Mês',
+    week: 'Semana',
+  },
+  views: 'Visualização',
+  weekNumber: 'Semana',
+};

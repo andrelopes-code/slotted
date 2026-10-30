@@ -1,0 +1,122 @@
+---
+title: Select
+description: A button that shows the current choice and opens a list of options, for one value or several from a set the application already knows.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Placeholder and initial value
+
+The placeholder fills the control while nothing is chosen. A select that starts with a value needs `items`, the list of values and labels: the options are built only when the list first opens, so without `items` the closed control shows the raw value, such as `net-30`, instead of its label.
+
+<Example name="placeholder" />
+
+## Sizes
+
+`size` sets the control to one step of the control scale: `sm` for toolbars and dense tables, `md` for most forms, `lg` for sparse forms. A select is the same height as a text field of the same size. Inside a field, an unset size follows the field.
+
+<Example name="sizes" />
+
+## Variants
+
+`outline` is the default frame. `subtle` fills the control, for a form on a tinted surface. `plain` draws no frame at rest, for a table cell or a toolbar, and still shows hover and focus.
+
+<Example name="variants" />
+
+## Groups
+
+`SelectGroup` in React and `sl-select-group` in Angular put a run of options under a heading, which assistive technology reads with each option. `SelectSeparator` and `sl-select-separator` draw a line between runs.
+
+<Example name="groups" />
+
+## Icons and descriptions
+
+`icon` fills the first column of an option and `description` writes a second line under its label. In React `icon` takes any element; in Angular it names a glyph. Every label starts on the same edge whether or not its option has an icon.
+
+<Example name="descriptions" />
+
+## Disabled options
+
+A disabled option stays in the list, is announced as unavailable and is skipped by the arrow keys and by typeahead. Put the reason in its description, so the reader knows why it cannot be chosen.
+
+<Example name="disabled-options" />
+
+## States
+
+Set `invalid`, `readOnly` and `disabled` on the field, which passes them to the select; each can also be set on the select itself. Invalid draws the border and the focus ring in the danger tone and sets `aria-invalid`. Read-only keeps the value legible and focusable and never opens. Disabled takes the control out of the tab order.
+
+<Example name="states" />
+
+## Controlled
+
+Pass `value` and update it from `onValueChange` when other parts of the screen depend on the choice; in Angular, bind `[(value)]` to a signal. The handler receives a string for a single select, an array for a multiple one, and `null` once the value is cleared.
+
+<Example name="controlled" />
+
+## Clearing
+
+`clearable` adds a clear button once something is chosen. The button sets the value to `null`, the control shows its placeholder again, and focus returns to the control.
+
+<Example name="clearable" />
+
+## Multiple selection
+
+`multiple` keeps the list open as options are chosen, and Space toggles the highlighted option without closing it. Each chosen value appears in the control as a tag with its own remove button; values that do not fit collapse into a `+N` tag, and the top of the open list shows all of them. The value is an array.
+
+<Example name="multiple" />
+
+## Searching long lists
+
+`search` puts a filter field at the top of the list. The query matches labels with a locale-sensitive comparison that ignores case and accents, so `cote` finds Côte d’Ivoire, and the matched span is marked. The query is never a value: it is emptied when an option is chosen or the list closes. Without `search`, typing on the closed or open control jumps to the first option that starts with the typed letters.
+
+<Example name="search" />
+
+## Long labels
+
+An option label wraps to two lines and then truncates, with the whole text still in the DOM. An unbroken identifier breaks inside the option instead of widening the list. The closed control keeps to one line.
+
+<Example name="long-labels" />
+
+## Loading options
+
+Set `loading` while options are on their way. The chevron becomes a spinner, the list shows three placeholder rows, and a status row announces the `loading` message. Here the options are requested the first time the list opens, from `onOpenChange` in React and `(openChange)` in Angular.
+
+<Example name="loading" />
+
+## Empty list
+
+A select with no options opens onto the `empty` message instead of an empty box. Write a message that says why the list is empty.
+
+<Example name="empty" />
+
+## In a form
+
+In React, `name` renders a hidden native select, so `FormData` reads the value and a native reset restores `defaultValue`. In Angular, the select is a form control: `formControlName`, `formControl` and `ngModel` bind the value, and `Validators.required` applies to it. Submit without a warehouse to see the error, then reset.
+
+<Example name="form" />
+
+## Placement and width
+
+The list opens below the control, aligned to its start edge, never narrower than the control and wider when an option needs the room, up to a maximum measure. `side="top"` opens it above, for a control at the bottom of a screen; `align="end"` aligns it to the end edge; `width="anchor"` pins it to the control's width. `fullWidth={false}` lets the control keep the width of its widest value instead of filling its container.
+
+<Example name="placement" />
+
+## Narrow controls
+
+Under 120 pixels a multiple select shows a count such as `3 selected` instead of tags; the list still grows past the narrow control, so labels keep their length.
+
+<Example name="narrow" />
+
+## Defaults for a section
+
+`SelectDefaultsProvider` in React and `provideSelectDefaults` in Angular set any axis once for every select under them, such as `size`, `variant` and `clearable` for a filter panel. A value set on one select still wins.
+
+<Example name="defaults" />
+
+## Status filter in a table toolbar
+
+A compact select above a table filters its rows by status. `fullWidth={false}` keeps the control at the width of its value, `align="end"` keeps the list inside the edge of the table, and a separator sets the "all" option apart from the statuses.
+
+<Example name="status-filter" wide />

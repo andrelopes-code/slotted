@@ -1,0 +1,471 @@
+{
+  "schemaVersion": 5,
+  "family": "datetime-picker",
+  "ui": "datetime-picker",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Date and time field with a picker popover."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-datepicker/",
+  "patternStatus": "Read on 2026-09-10, together with the listbox and grid patterns it links, and transcribed The example gives its popup role=dialog and its trigger aria-haspopup=dialog, returns focus to the trigger on Escape, and states the Tab rule this family needs twice over: only one element of a calendar grid is in the Tab sequence, so a dialog holding a grid and a listbox is two Tab stops rather than forty-three.",
+  "controlPart": "control",
+  "rootRole": null,
+  "contentRole": "dialog",
+  "valueType": "PlainDateTime | null",
+  "composes": ["datetime-field", "calendar"],
+  "core": [
+    "@slotted/core/date",
+    "@slotted/core/state",
+    "@slotted/core/presence",
+    "@slotted/core/portal",
+    "@slotted/core/positioner",
+    "@slotted/core/dismissable-layer",
+    "@slotted/core/typeahead",
+    "@slotted/core/focus"
+  ],
+  "stateSource": "field",
+  "mirrorsState": true,
+  "panel": {
+    "bothPresent": true,
+    "surfaces": [
+      {
+        "part": "date-panel",
+        "role": "grid",
+        "drawnBy": "calendar",
+        "holds": "the month, and the month and year views it already ships. It carries its own heading and needs no second one."
+      },
+      {
+        "part": "time-panel",
+        "role": "listbox",
+        "drawnBy": "datetime-picker",
+        "holds": "the times available on the day the reader is on, under the head that names that day"
+      }
+    ],
+    "why": "The only family in the library holding two surfaces. One layer, one dialog, a grid and a listbox inside it — and both in the DOM at every width, so no reader is told that one of them does not exist."
+  },
+  "declined": {
+    "tabs": {
+      "capability": "one surface at a time, behind a two-item switch",
+      "shipsIt": [
+        "Kendo UI for Angular DateTimePicker (defaultTab)",
+        "MUI X DateTimePicker (the mobile picker)"
+      ],
+      "ownedInsteadBy": "the stylesheet, which stacks the two tracks instead of hiding one",
+      "reason": "A switch that hides one surface has to appear when the container is narrow and go away when it is wide, and a tablist whose membership depends on the width tells assistive technology one story on a wide screen and a different one on a narrow screen. The DOM does not change with the width in this library — the stylesheet decides the presentation, which is the rule both sibling pickers already carry — so the two surfaces become two tracks where there is room and one track where there is not.",
+      "cost": "Stacked, the panel is tall, and in the sheet presentation the reader scrolls from the calendar to the list. The list is shortened there, in the stylesheet, and nothing is removed. The alternative cost was a lie to a screen reader in one of the two arrangements."
+    },
+    "confirmButton": {
+      "capability": "a button the reader presses to finish the value",
+      "shipsIt": [
+        "Ant Design DatePicker (needConfirm, automatic under showTime)",
+        "Kendo UI for Angular DateTimePicker (Set and Cancel)",
+        "MUI X (actionBar)"
+      ],
+      "ownedInsteadBy": "the value's own completeness, and the footer slot for a consumer who wants the button anyway",
+      "reason": "Both implementations add the button for one reason: a day pressed in a calendar is not a whole datetime, so something has to say when the reader is finished. The value already says it. The panel closes on the press that completes the value and stays open when the value was already whole, so a reader who opened a filled field to change both halves is not shut out by their first press.",
+      "cost": "A reader editing a whole value closes the panel themselves, through Escape, an outside press or the trigger. The footer slot still takes a consumer's own button, and closeOnSelect=never is the configuration that asks for one."
+    }
+  },
+  "focusRule": {
+    "sentence": "The press that leaves the value incomplete carries focus to the half that is missing. The press that completes the value closes the panel.",
+    "cases": {
+      "open": "Focus lands where openTo says, defaulting to the calendar's focused day.",
+      "dayPressedTimeEmpty": "Focus moves to the list, onto the option nearest referenceDateTime, and the panel stays open.",
+      "timePressedDateEmpty": "Focus moves to the calendar, onto the day it has focused, and the panel stays open.",
+      "pressCompletedTheValue": "The panel closes and focus returns to the trigger.",
+      "valueWasAlreadyWhole": "The panel stays open and focus stays where the reader put it, because a value that was already whole is not completed by anything."
+    },
+    "why": "It answers both halves of the decision this family owes — which surface opens first, and what happens to the other when the reader finishes the first — in one rule rather than two behaviours."
+  },
+  "wiring": {
+    "aria-haspopup": "dialog",
+    "aria-expanded": "the trigger, while the popup is showing",
+    "aria-controls": "the content, while the popup is showing",
+    "aria-label": "the trigger, carrying the selected datetime; and the dialog, carrying the same",
+    "aria-selected": "true on the chosen option, false on every other selectable one, which is what the listbox pattern requires",
+    "aria-disabled": "an option a bound or the predicate refuses, while unavailableOptions is disable",
+    "aria-activedescendant": "never written. Focus is real and moves with a roving tabindex in both surfaces.",
+    "aria-description": "the panel, while the list is truncated, naming that the remaining times are typed",
+    "listName": "the listbox carries aria-label. A dialog holding two widgets gives neither of them a name by position, and the name is written rather than drawn — a visible label over a column of times repeats what the column says."
+  },
+  "triggerName": {
+    "empty": "the choose message",
+    "chosen": "the change message, with the whole datetime in words in its date slot",
+    "why": "Focus returns to the trigger when the popup closes, so the name is where the reader is told what was chosen. The APG's own example names this as an accessibility feature, and both sibling pickers already take it."
+  },
+  "tabSequence": {
+    "rule": "only one element of the calendar grid is in the Tab sequence, which the Grid Pattern requires and calendar already implements; the listbox is one stop for the same reason",
+    "stops": "two surfaces, plus the head and the footer when a consumer fills them — never one stop per cell",
+    "contained": "inside the control and the panel, while the panel is open"
+  },
+  "keyboard": [
+    {
+      "key": "Alt+ArrowDown",
+      "effect": "open",
+      "from": "a segment",
+      "focus": "stays in the field, so typing keeps working"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "the trigger opens the panel and focus enters the surface openTo names; inside the list, the next option",
+      "focus": "the selected option, or the first when none is selected"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "the previous option",
+      "scope": "the list"
+    },
+    {
+      "key": "PageDown",
+      "effect": "the first option of the next hour",
+      "scope": "the list"
+    },
+    {
+      "key": "PageUp",
+      "effect": "the first option of the previous hour",
+      "scope": "the list"
+    },
+    {
+      "key": "Home",
+      "effect": "the first option",
+      "scope": "the list"
+    },
+    {
+      "key": "End",
+      "effect": "the last option",
+      "scope": "the list"
+    },
+    {
+      "key": "a-z0-9",
+      "effect": "type-ahead",
+      "scope": "the list",
+      "optional": "recommended above seven options"
+    },
+    {
+      "key": "Enter",
+      "effect": "select",
+      "then": "the rule in focusRule"
+    },
+    {
+      "key": "Space",
+      "effect": "select",
+      "then": "the rule in focusRule"
+    },
+    {
+      "key": "Escape",
+      "effect": "close",
+      "focusTo": "trigger",
+      "staged": "the field takes it first while an expression is open, and the calendar takes it next while its view is month or year"
+    },
+    {
+      "key": "Tab",
+      "effect": "contained inside the layer, between the two surfaces and the consumer's own slots",
+      "while": "open"
+    }
+  ],
+  "calendarKeys": "the grid pattern's own, unchanged, including the three views and the roving focus between them. calendar owns them and this family does not restate them.",
+  "selectionFollowsFocus": false,
+  "selectionFollowsFocusReason": "The listbox pattern lists it as optional and warns it can severely degrade accessibility in some circumstances. Here it is one of them: a reader arrowing through ninety-six quarter-hours would emit ninety-six requests, each one a value a consumer may be writing to a server. The highlight moves, and Enter, Space or a press moves the value.",
+  "list": {
+    "against": [
+      "the date half of the value",
+      "the calendar's focused day, when the value has no date half"
+    ],
+    "why": "Ant recomputes disabledTime(date) only for a date already committed, so its panel cannot say that the day under the reader's cursor is closed. Here arrowing across a fully booked Saturday empties the list and draws the empty state, while the reader is still deciding.",
+    "recomputes": "on every move of the highlight's date half, which is a list of at most maxOptions entries and no layout read"
+  },
+  "step": {
+    "unit": "seconds",
+    "default": 900,
+    "base": "min when it is stated, midnight when it is not",
+    "source": "the platform's own rule for input[type=time], where the step base is min if specified, the value otherwise, and 0 if neither",
+    "floor": 1,
+    "offStepIsInvalid": false,
+    "notTheFieldArrows": "The panel's step is the panel's. A segment steps by one of its own unit and pages by the page step, whatever the panel offers. input[type=datetime-local] ties the two and this family does not: a minute arrow that moved fifteen at a time would put :07 out of reach of the arrows, and the field's promise is that every value is reachable there."
+  },
+  "options": {
+    "prop": "options",
+    "type": "readonly PlainTime[]",
+    "replaces": "step, minTime and maxTime as the source of the list; the bounds and the predicates still mark what is refused",
+    "why": "A step describes a regular list and a great many real ones are not: a clinic open at 09:00, 09:20 and 13:45, a broadcast schedule, a set of second-level marks. The prop is time-picker's, unchanged, because the list behind this panel is the same list on a known day.",
+    "content": "renderOption in React, an ng-template in Angular. The row is the family's; what is written in it is the consumer's.",
+    "order": "the consumer's own. The family does not sort a list it was given."
+  },
+  "maxOptions": {
+    "default": 1440,
+    "why": "A whole day at a one-minute step, which is time-picker's own cap and the finest whole-day list any surveyed implementation offers.",
+    "beyondIt": "the list is cut, the list carries data-truncated, and the panel's accessible description says the rest is typed",
+    "raisable": "a consumer who means a longer list states maxOptions and owns the consequence"
+  },
+  "range": {
+    "min": "min, a whole PlainDateTime",
+    "max": "max, a whole PlainDateTime",
+    "minTime": "minTime, a PlainTime bounding every day",
+    "maxTime": "maxTime, a PlainTime bounding every day",
+    "combine": "Both pairs apply at once. MUI's own validation page records that it cannot do this: \"you cannot use maxDateTime and maxTime together. maxDateTime will override the maxTime behavior.\" They are two questions — where the range starts, and what the day is open for — and both are answered.",
+    "partialDay": "On min's own day the earliest offered time is min's time; on max's own day the latest is max's time; on every day between, minTime and maxTime. MDN states this rule for input[type=datetime-local] — \"the time of day is only constrained on the first and last dates in the range\" — and no surveyed script implements it. A day before min's or after max's is refused whole, and the calendar greys it.",
+    "unavailableDate": "isDateUnavailable(date)",
+    "unavailableTime": "isTimeUnavailable(time, date)",
+    "twoPredicates": "A day-level answer cannot be derived from a datetime-level predicate without probing every step of that day, and the calendar needs one answer per cell. Ant's disabledTime takes the date for the same reason; it is written here as a predicate rather than as three lists of numbers.",
+    "heldValueOutside": "reported invalid and not moved"
+  },
+  "highlight": {
+    "shape": "{ date: PlainDate; time: PlainTime | null }",
+    "why": "A two-surface panel has one answer to where the reader is, and it is a datetime: the day the calendar has focused beside the time the list has highlighted. Two models would be two names for one place, and the contract schema holds one current capability for exactly that reason.",
+    "feeds": "the calendar receives highlighted.date as its focusedDate, and the list receives highlighted.time",
+    "nullTime": "while the day the reader is on offers no time at all, which is the state the empty part draws"
+  },
+  "opensOn": [
+    "the chosen datetime",
+    "the nearest step to now, on today",
+    "the first available option on the first available day"
+  ],
+  "scroll": "scrollIntoView({ block: 'nearest' })",
+  "panelBlocksTyping": false,
+  "panelBlocksTypingReason": "docs/component-features.md §6 states it: the panel complements and does not block typing. Alt+ArrowDown opens the panel and leaves focus in the field, so the segments keep every key they had.",
+  "highlightFollowsTyping": true,
+  "now": {
+    "part": "now",
+    "writes": "the current datetime, both halves",
+    "equals": "the zero case of datetime-field's relative expression",
+    "why": "A reader who never discovers that + opens an expression still has one labelled press for the current datetime, which is what Ant's showNow and MUI's action bar both ship. The shortcut is never the only way to a value."
+  },
+  "referenceDateTime": {
+    "prop": "referenceDateTime",
+    "answers": [
+      "the datetime an empty field steps from",
+      "the option the list opens on when a day is pressed with the time half empty"
+    ],
+    "why": "Ant answers the second with showTime.defaultOpenValue and MUI answers the first with referenceDate; they are the same question — which datetime the family assumes where the reader has stated nothing — and one prop answers both. Midnight is the platform's answer to the second and is wrong for every booking flow.",
+    "default": "now, read in an effect and never during render"
+  },
+  "platformNotes": {
+    "altArrowDown": "ChromeOS turns Alt+ArrowDown into PageDown before the browser sees it, which Angular Material records for its own input. The trigger button is therefore the guaranteed path and the chord is a shortcut, never the only way in."
+  },
+  "dismissal": {
+    "escape": "through dismissable-layer, in the capture phase",
+    "escapeOrder": [
+      "the field abandons an open expression",
+      "the calendar's view walks down from year or month",
+      "the panel closes and focus returns to the trigger"
+    ],
+    "outsidePress": true,
+    "closeOnSelect": "auto closes on the press that completes the value, and stays open otherwise; always closes on any press that changes the value; never closes on none"
+  },
+  "layer": {
+    "modal": false,
+    "scrollLock": false,
+    "branches": ["the trigger, so pressing it again closes rather than dismissing and reopening"],
+    "depthProperty": "--slotted-layer-depth",
+    "zIndexToken": "--slotted-z-index-popover",
+    "reason": "One layer in the single stack, at the token popover, menu and both sibling pickers already use. Modality is declined for the reason every anchored surface declines it: inerting the page would inert the field the panel exists to write into."
+  },
+  "responsive": {
+    "reflow": "a wrapping flex row, and no container query at all",
+    "tracks": "panels",
+    "why": "The surface is shrink-wrapped from its two panels and capped by the room the positioner measured, so it has no width of its own to query. container-type: inline-size would give it one by making its inline size independent of its contents, which is the opposite of what a panel sized to a calendar needs — the briefing's two-element split answers a family whose query changes its own grid, and the answer here is to need no query. The two panels are flex items that wrap when the room runs out, which is the same technique datetime-field uses on its halves and the same reflow-by-proportion calendar already states.",
+    "wide": "two tracks, the date surface beside the time surface",
+    "narrow": "one track, the two surfaces stacked in the value's own order, and the list shortened",
+    "sheet": "below 480px on a coarse pointer, the content takes the sheet presentation",
+    "decidedIn": "the stylesheet; the DOM does not change"
+  },
+  "portalledIdentity": {
+    "elements": ["root", "positioner"],
+    "reason": "The family is two subtrees: the control where the consumer wrote it, and the popup portalled to the end of the document. A stylesheet cannot reach a subtree that is no longer inside the root, so data-ui is written on both — the decision select recorded and date-picker follows."
+  },
+  "marks": {
+    "trigger": "calendar",
+    "now": "clock"
+  },
+  "marksReason": "Two marks, one per half of the value, and no third glyph is asked of the scale. The trigger draws the calendar, which is the mark input[type=datetime-local] draws for the same control. `now` draws the clock, at the control glyph size where it is legible: it is the control that writes the current time, so the mark names what it does. Neither is a label over a surface — a mark small enough to sit in a line of eleven-pixel text is a mark nobody can read, and the surfaces name themselves.",
+  "statePrecedence": {
+    "order": ["disabled", "selected", "current", "hover"],
+    "guard": "every weaker rule carries a :not() for each stronger state it can meet, because specificity rather than source order is what decides between them. Found by the reviewer at time-picker's visual gate and inherited whole.",
+    "selectedHover": "the chosen row answers the pointer one step along its own tone rather than changing colour family"
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"],
+    "placement": ["bottom-start", "bottom", "bottom-end", "top-start", "top", "top-end"],
+    "openTo": ["date", "time"],
+    "closeOnSelect": ["auto", "always", "never"],
+    "unavailableOptions": ["disable", "hide"],
+    "hourCycle": [12, 24],
+    "granularity": ["hour", "minute", "second"],
+    "calendar": ["gregory"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "placement": ["prop", "defaults", "bottom-start"],
+    "openTo": ["prop", "defaults", "date"],
+    "closeOnSelect": ["prop", "defaults", "auto"],
+    "step": ["prop", "defaults", "900"],
+    "unavailableOptions": ["prop", "defaults", "disable"],
+    "locale": ["prop", "slotted", "en-US"],
+    "timeZone": ["prop", "defaults", "runtime"],
+    "hourCycle": ["prop", "defaults", "locale"],
+    "granularity": ["prop", "defaults", "minute"],
+    "maxOptions": ["prop", "defaults", "1440"],
+    "calendar": ["prop", "defaults", "gregory"]
+  },
+  "provides": {
+    "dateTimePickerDefaults": [
+      "calendar",
+      "closeOnSelect",
+      "granularity",
+      "hourCycle",
+      "maxOptions",
+      "openTo",
+      "placement",
+      "size",
+      "step",
+      "timeZone",
+      "unavailableOptions",
+      "variant"
+    ]
+  },
+  "messages": ["change", "choose", "empty", "now", "truncated"],
+  "imperative": ["focus", "open", "close"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "required": "data-required",
+    "open": "data-open",
+    "selected": "data-selected",
+    "current": "data-current"
+  },
+  "dataAttributes": {
+    "data-placement": "the side and alignment the positioner resolved",
+    "data-presentation": "popover or sheet",
+    "data-open-to": "which surface the panel opened focus on",
+    "data-granularity": "hour, minute or second",
+    "data-truncated": "the list stops short of the times the configuration asked for, at maxOptions",
+    "data-incomplete": "date or time — the half the value is still missing, mirrored from the field"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "clear", "blur", "programmatic"],
+      "carries": ["value", "previous", "segments", "reason", "event"]
+    },
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "outsidePress", "select"],
+      "carries": ["value", "previous", "reason", "event"]
+    },
+    "current": {
+      "controlled": "highlighted",
+      "uncontrolled": "defaultHighlighted",
+      "request": "onHighlightedChange",
+      "reasons": ["pointer", "keyboard", "programmatic"],
+      "carries": ["value", "previous", "reason", "event"]
+    }
+  },
+  "literals": {
+    "--slotted-datetime-picker-sheet-inline-size": "100%, which the shared exemption list already holds.",
+    "--slotted-datetime-picker-list-block-size": "Eight rows and half of the ninth beside a calendar, counted in the row height the panel states once. The half is deliberate: a list cut on a row boundary looks like the whole list, and a reader who cannot see that ninety-six times are available never scrolls for them.",
+    "--slotted-datetime-picker-stack-width": "The container width below which the two surfaces become one track. CSS forbids a custom property in a container condition, so the number is a literal in the query and this property carries it for the rest of the sheet."
+  },
+  "members": {
+    "dateTimePicker": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "placement": "bottom-start",
+        "openTo": "date",
+        "closeOnSelect": "auto",
+        "step": 900,
+        "unavailableOptions": "disable",
+        "granularity": "minute",
+        "calendar": "gregory",
+        "clearable": false,
+        "maxOptions": 1440
+      },
+      "capabilities": [
+        "value",
+        "open",
+        "current",
+        "placement",
+        "appearance",
+        "size",
+        "content",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "readonly",
+        "required",
+        "open",
+        "selected",
+        "current"
+      ],
+      "parts": [
+        "root",
+        "control",
+        "trigger",
+        "positioner",
+        "content",
+        "grip",
+        "panels",
+        "date-panel",
+        "time-panel",
+        "head",
+        "head-value",
+        "now",
+        "presets",
+        "list",
+        "option",
+        "empty",
+        "footer"
+      ]
+    }
+  },
+  "scenarios": {
+    "dateTimePicker": [
+      "playground",
+      "panel",
+      "open-to",
+      "completeness",
+      "seconds",
+      "step",
+      "range-bounds",
+      "day-window",
+      "unavailable",
+      "now",
+      "relative",
+      "presets",
+      "sizes",
+      "variants",
+      "placement",
+      "states",
+      "forms",
+      "narrow",
+      "composition",
+      "keyboard"
+    ]
+  },
+  "openToPaints": "nothing. The reading order of the two surfaces is the value's own — date then time — in every configuration, and moving a whole calendar because focus starts elsewhere would make one setting look like a different component. What answers the narrow case is scrollIntoView on the surface focus lands in, which is the same call the list already makes on every highlight move.",
+  "head": {
+    "parts": ["head-value", "now", "presets"],
+    "headValue": "the value as it stands, in words, at the head of the panel — and the half that is not written yet drawn as its placeholder beside the half that is. A datetime is two choices and the panel is where both are made; no surveyed implementation says what the reader has so far, so a reader who chose a day and is now reading a column of times has nothing telling them which day those times belong to.",
+    "actions": "now, and the consumer's own presets, at the reading end of the same band",
+    "rule": "a border under the band, which is what makes it a band rather than a line of text floating over two columns",
+    "why": "The two surfaces were labelled `Data` and `Hora` with a mark each, and it was decoration: a month grid is a date and a column of times is times, which is why none of the four surveyed panels labels either. What the head says instead is the one thing neither surface can show."
+  }
+}

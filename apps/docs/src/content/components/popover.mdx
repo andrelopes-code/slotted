@@ -1,0 +1,96 @@
+---
+title: Popover
+description: A non-modal panel anchored to the control that opened it, for details, a short form or a set of filters that the reader opens, uses and leaves without leaving the page.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Popover or tooltip
+
+A popover opens on a press and holds content the reader can act on: controls, links, a form. A tooltip opens on hover or focus and holds one line of text that names or describes its trigger; use a tooltip when the content has no control in it.
+
+## Placement
+
+`side` names the edge of the trigger the panel opens against: `top`, `bottom` (the default), `left`, `right`, or the logical `inline-start` and `inline-end`, which swap in a right-to-left layout. When the panel does not fit on that side, it moves to the opposite side; `flip={false}` keeps it where it was asked to be.
+
+<Example name="placement" wide />
+
+## Alignment
+
+`align` places the panel along the side it took: `start` lines its start edge up with the trigger's start edge, `center` (the default) centres it, and `end` lines up the end edges. When the panel would cross the edge of the screen, it slides along the side until it fits; `shift={false}` turns the slide off.
+
+<Example name="alignment" wide />
+
+## Arrow and offset
+
+The arrow points at the middle of the trigger, and stays clear of the panel's rounded corners. `arrow={false}` in React and `[arrow]="false"` in Angular draw the panel without it. The panel always keeps a standard gap from the trigger; `sideOffset` adds pixels beyond that gap, and `alignOffset` moves the panel along the alignment axis.
+
+<Example name="arrow-and-offset" wide />
+
+## Sizes
+
+`size` caps the layer's width at one of three steps: `sm` (16rem), `md` (20rem, the default) and `lg` (24rem), with the inset and the title size to match. The layer holds the gap around the panel, so at the default 16-pixel root size the panel itself is at most 240, 304 or 368 pixels wide. A panel with less content than the cap is as wide as its content.
+
+<Example name="sizes" wide />
+
+## Matching the trigger's width
+
+`width="anchor"` makes the panel exactly as wide as its trigger, for a panel that opens under a full-width control. With `align="start"`, its edges line up with the trigger's.
+
+<Example name="width" />
+
+## Controlled
+
+Pass `open` and update it from `onOpenChange` in React, or bind `[(open)]` to a signal in Angular, when something other than the trigger opens or closes the panel. Here choosing a picker writes the value and closes the panel in one step, and focus returns to the trigger.
+
+<Example name="controlled" />
+
+## Dismissal
+
+A popover closes on a press of its trigger, on Escape, on a press outside the panel, and on the close button. Each request carries a reason, read from the second argument of `onOpenChange` in React and from `(openChangeRequest)` in Angular: `pointer` or `keyboard` for the trigger, `escape`, `outsidePress`, and `dismiss` for the close button. `closeOnEscape={false}` and `closeOnOutsidePress={false}` turn either way off; keep a close button when you do.
+
+<Example name="dismissal" />
+
+## Focus
+
+On open, focus moves to the panel itself, so a screen reader announces the panel's name before its contents. `initialFocus` takes an element or a selector read inside the panel, and moves focus there instead, for a panel that opens onto its own search field. On close, focus returns to the trigger, unless the reader has already moved it somewhere else on the page. Tab moves through the panel's controls; Tab past the last one closes the panel and returns focus to the trigger, and the next Tab continues down the page. Focus is never trapped: the popover is not modal, the page behind it stays scrollable and interactive, and a task that has to block the page belongs in a dialog.
+
+<Example name="focus" />
+
+## A form in a popover
+
+A popover can hold a short form: the fields belong to the page, and the popover holds none of their values. Here a press outside the panel is refused while the count or the reason differs from what the panel opened with: `request.cancel()` keeps it open, while Escape and Cancel still close it and discard the change. Change the count, then press outside the panel.
+
+<Example name="form" />
+
+## In a toolbar
+
+Popover triggers in a toolbar are toolbar controls: the arrow keys move between them, and a popover returns focus to its own trigger when it closes. Use `align="start"` so each panel opens under its trigger rather than centred on it.
+
+<Example name="toolbar" wide />
+
+## In a table row
+
+`PopoverAnchor` in React and `slPopoverAnchor` in Angular name the element the panel is positioned against, when that is not the trigger. Here the panel hangs off the whole row, aligned to its end edge, and the row's button opens it. A press on the anchor counts as a press inside the popover, so it does not close the panel.
+
+<Example name="table-row" wide />
+
+## Long content
+
+`PopoverBody` (`slPopoverBody`) is the only part that scrolls. Its height is bounded by the space left between the trigger and the edge of the screen, so the header and the footer stay in view and the actions remain in reach.
+
+<Example name="scrolling" />
+
+## Narrow screens
+
+The panel keeps 16 pixels from each edge of the screen, whatever its `size`: the 8 pixels of `collisionPadding` plus the gap the layer keeps around the panel. A panel that would cross the edge slides back inside it, and the arrow keeps pointing at the trigger. On a 390-pixel phone screen this `lg` panel, aligned to the start of a trigger at the end of the row, is 358 pixels wide instead of 368.
+
+<Example name="narrow" />
+
+## Defaults for a section
+
+`PopoverDefaultsProvider` in React and `providePopoverDefaults` in Angular set any option once for every popover under them, such as `size` and `arrow` for a row of payment terms. A value set on one popover still wins: the last popover here draws its arrow.
+
+<Example name="defaults" wide />

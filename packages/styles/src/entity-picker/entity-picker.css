@@ -1,0 +1,1420 @@
+@layer slotted.components {
+  /**
+   * ── A field that chooses records from a remote collection ───────────────
+   *
+   * Two subtrees, as `combobox`'s are: the control, where the consumer wrote
+   * it, and the popup, portalled to the end of the document. `data-ui` is on
+   * both roots (`portalledIdentity`).
+   *
+   *   root ▸ scope ▸ select            control ─ the frame ───────────────┐
+   *                                    │ selection │ input   clear trigger │
+   *                                    │ values ▸ chips ▸ chip… field      │
+   *                                    └───────────────────────────────────┘
+   *
+   *   positioner ▸ content ─ role="listbox" ──────────────────────────────┐
+   *   │ group-label                                                       │
+   *   │ item ▸ media │ label ▸ match           │ meta │ indicator          │
+   *   │        media │ description             │      │                    │
+   *   │ error · empty · placeholder · more · status                       │
+   *   └───────────────────────────────────────────────────────────────────┘
+   *
+   * The frame, its two buttons, the chevron, the ring on `busy`, the layer's
+   * entrance, the highlight on `data-current`, the check and the joined
+   * ground of two chosen rows are `combobox`'s decisions, and the chips row is
+   * `multi-select`'s. They are repeated rather than shared for the reason
+   * `combobox.css` gives about `select`: a stylesheet that painted
+   * `[data-ui-combobox]` from here would make one family's selector match
+   * the other's DOM.
+   *
+   * What is this family's own is the record: a row two lines tall with the
+   * avatar spanning both, the identifier under the name, a short fact at the
+   * end, the chip that carries the avatar, the chip that is still resolving
+   * and the one that never will, the offer to search again, and the scope
+   * joined to the front of the frame.
+   */
+
+  /* ── The root ─────────────────────────────────────────────────────────── */
+
+  [data-ui-entity-picker][data-part-root] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    /** The floor under the glyph scale at the dense step; `combobox`'s SL3. */
+    --_icon-floor: var(--slotted-entity-picker-icon-size-min, 14px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-md, 16px));
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+    --_action-size: var(
+      --slotted-entity-picker-action-size,
+      min(calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)), var(--_inner-size))
+    );
+    /* `multi-select`'s row: one step of air above and below, chips at the
+       inside height of the control, three rows before it scrolls. */
+    --_row-air: var(--slotted-space-1, 0.125rem);
+    --_row-size: var(--_inner-size);
+    --_row-gap: var(--slotted-space-2, 0.25rem);
+    /**
+     * The avatar inside a chip and before the input: the chip's height less a
+     * step of air a side, so the circle is concentric with the pill's end.
+     */
+    --_chip-media: calc(var(--_inner-size) - 2 * var(--slotted-space-1, 0.125rem));
+    --_radius: var(--slotted-entity-picker-radius, var(--slotted-control-radius, 4px));
+
+    display: flex;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    /* In a flex row the item's basis is its content, not the whole row. */
+    flex-basis: content;
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  [data-ui-entity-picker][data-part-root]:not([data-full-width]) {
+    display: inline-flex;
+    inline-size: auto;
+  }
+
+  [data-ui-entity-picker][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-sm, 14px));
+    --_inner-size: var(--slotted-control-inner-size-sm, 22px);
+  }
+
+  [data-ui-entity-picker][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 16px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-lg, 18px));
+    --_inner-size: var(--slotted-control-inner-size-lg, 28px);
+  }
+
+  /* ── The scope ────────────────────────────────────────────────────────── */
+
+  /**
+   * The select is its own family and keeps its own frame; this sheet only
+   * joins it to the front of the control, the way `button-group` joins two
+   * buttons: the seam loses its corners and the two edges overlap by one
+   * border width, so the seam is one line and not two.
+   *
+   * The pair is one line at every width. A field that stacks its scope above
+   * itself in a narrow column is two rows tall beside one-row fields, and the
+   * form's rhythm breaks where it stands (reviewer, visual gate). So the
+   * scope yields width instead: `select` cuts its value with an ellipsis and
+   * keeps its chevron.
+   *
+   * It has a stated measure, because `select` has no width of its own: its
+   * frame is a grid whose first track is `minmax(0, 1fr)`, so its intrinsic
+   * width is its chevron. 11rem holds "Opportunities" at `lg`; 45% leaves the
+   * field the larger share at 240 pixels.
+   */
+  [data-ui-entity-picker] > [data-part-scope] {
+    display: flex;
+    flex: 0 0 var(--slotted-entity-picker-scope-inline-size, min(11rem, 45%));
+    min-inline-size: 0;
+  }
+
+  [data-ui-entity-picker] > [data-part-scope] > [data-ui-select][data-part-root] {
+    inline-size: 100%;
+  }
+
+  [data-ui-entity-picker] > [data-part-scope] > [data-ui-select][data-part-root] {
+    border-end-end-radius: 0;
+    border-start-end-radius: 0;
+  }
+
+  [data-ui-entity-picker] > [data-part-scope] + [data-part-control] {
+    border-end-start-radius: 0;
+    border-start-start-radius: 0;
+    margin-inline-start: calc(-1 * var(--slotted-control-border-width, 1px));
+  }
+
+  /**
+   * The seam is one border drawn twice, and whichever box paints last owns
+   * it. `select` is positioned and the frame is not, so the select's resting
+   * edge covered the frame's hover edge and the frame lit on three sides
+   * only. The box being pointed at, focused, open or invalid stands over the
+   * seam, so its edge is whole on all four sides.
+   */
+  [data-ui-entity-picker]:not([data-disabled]) > [data-part-scope]:is(:hover, :focus-within),
+  [data-ui-entity-picker]:not([data-disabled]) > [data-part-control]:is(:hover, :focus-within),
+  [data-ui-entity-picker]:is([data-open], [data-invalid]) > [data-part-control] {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── The frame ────────────────────────────────────────────────────────── */
+
+  [data-ui-entity-picker] > [data-part-control] {
+    align-items: center;
+    background-color: var(
+      --slotted-entity-picker-background,
+      var(--slotted-control-surface, Field)
+    );
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-entity-picker-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--_radius);
+    box-shadow: var(--slotted-entity-picker-shadow, var(--slotted-control-shadow, none));
+    box-sizing: border-box;
+    color: var(--slotted-entity-picker-color, var(--slotted-text, CanvasText));
+    display: flex;
+    flex: 1 1 12rem;
+    font-size: var(--_font-size);
+    gap: var(--slotted-space-1, 0.125rem);
+    min-block-size: var(--_height);
+    min-inline-size: 0;
+    padding-inline-start: var(--_padding-inline);
+    /* `text-field`'s arithmetic: the glyph, not the button's box, ends where
+       the text begins on the other side. */
+    padding-inline-end: max(
+      0px,
+      calc(var(--_padding-inline) - (var(--_action-size) - var(--_icon-size)) / 2)
+    );
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * The chosen record's face, before its name. It says who before the reader
+   * reads the name, which is the one thing a single choice of a person shows
+   * that a text field cannot. Hidden from assistive technology: the input
+   * already carries the name.
+   */
+  [data-ui-entity-picker] > [data-part-control] > [data-part-selection] {
+    --slotted-avatar-size-xs: var(--_chip-media);
+
+    display: inline-flex;
+    flex: none;
+    margin-inline-end: var(--slotted-space-3, 0.375rem);
+  }
+
+  /* ── The input ────────────────────────────────────────────────────────── */
+
+  [data-ui-entity-picker] > [data-part-control] [data-part-input] {
+    background-color: transparent;
+    border: 0;
+    color: inherit;
+    flex: 1 1 auto;
+    font: inherit;
+    /* The frame draws the ring for it, so two rings never nest. */
+    outline: none;
+    padding: 0;
+    min-inline-size: 0;
+    text-overflow: ellipsis;
+  }
+
+  /* In single the input is the frame's own row, stretched to its border box
+     as `combobox`'s is, so on a coarse pointer the control is the target. */
+  [data-ui-entity-picker] > [data-part-control] > [data-part-input] {
+    align-self: stretch;
+    margin-block: calc(var(--slotted-control-border-width, 1px) * -1);
+  }
+
+  [data-ui-entity-picker] > [data-part-control] [data-part-input]::placeholder {
+    color: var(--slotted-entity-picker-placeholder-color, var(--slotted-text-muted, GrayText));
+    text-overflow: ellipsis;
+  }
+
+  /**
+   * Autofill, as `text-field` paints it: the frame takes the tint under its
+   * border and inside its corner, and the input repaints the browser's ground
+   * in the same colour and stops at the border it overlaps by one width.
+   */
+  [data-ui-entity-picker] > [data-part-control]:has([data-part-input]:autofill) {
+    background-color: var(
+      --slotted-entity-picker-autofill-background,
+      var(--slotted-tone-accent-surface)
+    );
+  }
+
+  [data-ui-entity-picker] > [data-part-control] [data-part-input]:autofill {
+    box-shadow: inset 0 0 0 100px
+      var(--slotted-entity-picker-autofill-background, var(--slotted-tone-accent-surface));
+    clip-path: inset(var(--slotted-control-border-width, 1px) 0);
+    -webkit-text-fill-color: var(--slotted-entity-picker-color, var(--slotted-text, CanvasText));
+  }
+
+  /* ── The chips (multiple) ─────────────────────────────────────────────── */
+
+  [data-ui-entity-picker] > [data-part-control] > [data-part-values] {
+    align-self: stretch;
+    display: flex;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  /* The boundary between what is chosen and what acts on it is the row's own
+     gap, not the frame's tight one (`multi-select`). */
+  [data-ui-entity-picker] > [data-part-control] > [data-part-values] + * {
+    margin-inline-start: var(--_row-gap);
+  }
+
+  [data-ui-entity-picker] > [data-part-control] [data-part-chips] {
+    --slotted-control-inner-size: var(--_inner-size);
+
+    align-content: safe center;
+    align-items: center;
+    box-sizing: border-box;
+    column-gap: var(--_row-gap);
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    margin-inline: calc(-1 * var(--_row-air));
+    max-block-size: calc(3 * var(--_row-size) + 2 * var(--_row-gap) + 2 * var(--_row-air));
+    min-inline-size: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--_row-air);
+    padding-inline: var(--_row-air);
+    row-gap: var(--_row-gap);
+    scrollbar-width: none;
+  }
+
+  [data-ui-entity-picker] > [data-part-control] [data-part-chips]::-webkit-scrollbar {
+    display: none;
+  }
+
+  /**
+   * One line, by default. A field in a form is one row tall beside the fields
+   * next to it, and a chosen set that wrapped made this one two or three rows
+   * tall the moment a third person was added (reviewer, visual gate). What
+   * does not fit is hidden by `createCollapse` and counted by the chip that
+   * says "+N", and the popup's `chosen` section holds every value it stands
+   * for. `overflow="wrap"` keeps `multi-select`'s three rows for a panel
+   * where height is free.
+   *
+   * `hidden` is what the collapse writes on a chip, so the rule that shows a
+   * chip only has to not fight it; the row clips rather than scrolls, and the
+   * chips' own focus ring is drawn inside them for that reason.
+   */
+  [data-ui-entity-picker][data-part-root]:not([data-overflow='wrap'])
+    > [data-part-control]
+    [data-part-chips] {
+    flex-wrap: nowrap;
+    max-block-size: none;
+    overflow: hidden;
+  }
+
+  /**
+   * The field and the count never give way, so the caret always has room and
+   * "+N" is always read. A chip shrinks only when it is the one chip left in
+   * view: a single name longer than the line is cut by `tag`'s own ellipsis
+   * rather than covering the count. With two or more in view none shrinks,
+   * because `createCollapse` measures them to decide which to hide, and a
+   * chip that had already shrunk measured as fitting (the reference page
+   * showed "Ana S…" beside room to spare).
+   */
+  [data-ui-entity-picker][data-part-root]:not([data-overflow='wrap'])
+    > [data-part-control]
+    [data-part-chips]
+    > [data-part-field] {
+    flex: 1 0 var(--slotted-entity-picker-field-min, 2.5rem);
+  }
+
+  [data-ui-entity-picker][data-part-root]:not([data-overflow='wrap'])
+    > [data-part-control]
+    [data-part-chips]
+    > :not([data-part-field], [hidden]):first-child:not(
+      :has(~ [data-ui-tag]:not([hidden], [data-count]))
+    ) {
+    flex-shrink: 1;
+    /* Never a sliver: its face, three letters and its remove button. Below
+       that the collapse takes it into the count. */
+    min-inline-size: calc(var(--_chip-media) + 3ch + var(--_inner-size));
+  }
+
+  /* The count is a chip that never gives way and never shrinks. */
+  [data-ui-entity-picker] > [data-part-control] [data-part-chips] > [data-count] {
+    cursor: pointer;
+    flex: none;
+  }
+
+  /**
+   * The cell that holds the caret asks for a word's worth of room and
+   * settles for a couple of characters, as in `multi-select`; in one line it
+   * is what the collapse leaves room for.
+   */
+  [data-ui-entity-picker] > [data-part-control] [data-part-field] {
+    align-items: center;
+    display: flex;
+    flex: 1 1 var(--slotted-entity-picker-field-basis, 4rem);
+    min-block-size: var(--_row-size);
+    min-inline-size: var(--slotted-entity-picker-field-min, 2.5rem);
+  }
+
+  [data-ui-entity-picker] > [data-part-control] [data-part-chips] > :not([data-part-field]) {
+    flex: 0 0 auto;
+    max-inline-size: 100%;
+    min-block-size: var(--_row-size);
+    min-inline-size: 0;
+  }
+
+  /**
+   * The avatar in the chip. `tag` sizes its `start` slot at its glyph size,
+   * which is fourteen pixels — a face too small to read initials in — so
+   * this family places the slot at the chip's height less its air, and gives
+   * the body the same air at its start, so the circle sits in the pill's end
+   * the way the pill's end is round. The rest of the chip is `tag`'s.
+   */
+  [data-ui-entity-picker]
+    > [data-part-control]
+    [data-part-chips]
+    > [data-ui]
+    > [data-part-body]
+    > [data-part-start] {
+    --slotted-avatar-size-xs: var(--_chip-media);
+
+    block-size: var(--_chip-media);
+    inline-size: var(--_chip-media);
+  }
+
+  [data-ui-entity-picker]
+    > [data-part-control]
+    [data-part-chips]
+    > [data-ui]
+    > [data-part-body]:has(> [data-part-start]) {
+    padding-inline-start: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-entity-picker]
+    > [data-part-control]
+    [data-part-chips]
+    > :not([data-part-field]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /**
+   * A chip whose id has not come back yet. Its name is a skeleton the width of
+   * a short name, in the chip's own line, so the chip that arrives occupies
+   * the box that waited for it. It wears `tag`'s outline variant: on the soft
+   * ground the skeleton is the ground's own colour and read as an empty pill,
+   * and a chip that is not yet a value is drawn as an outline, like the one
+   * that never will be.
+   */
+  [data-ui-entity-picker]
+    > [data-part-control]
+    [data-part-chips]
+    > [data-ui][data-loading]
+    > [data-part-body]
+    [data-ui-skeleton] {
+    --slotted-skeleton-inline-size: 5em;
+  }
+
+  /**
+   * A chip whose id the source did not return. It keeps its place and its
+   * remove button, and says so twice: an outline where a value has a ground,
+   * and the alert mark where a value has a face. The word is muted, never
+   * struck through — the record may exist and be out of this reader's reach.
+   */
+  [data-ui-entity-picker] > [data-part-control] [data-part-chips] > [data-ui][data-unresolved] {
+    color: var(--slotted-text-muted, GrayText);
+  }
+
+  [data-ui-entity-picker]
+    > [data-part-control]
+    [data-part-chips]
+    > [data-ui][data-unresolved]
+    > [data-part-body]
+    > [data-part-start]
+    > [data-ui-icon] {
+    /* The alert mark is a `Glyph` the binding draws in the face's place, at the
+       chip's icon step rather than stretched to the face's box. */
+    block-size: var(--_icon-size);
+    inline-size: var(--_icon-size);
+  }
+
+  /* ── The two buttons inside the frame ─────────────────────────────────── */
+
+  [data-ui-entity-picker] > [data-part-control] > :is([data-part-clear], [data-part-trigger]) {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_action-size);
+    border: 0;
+    border-radius: var(--_radius);
+    color: var(--slotted-entity-picker-action-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    inline-size: var(--_action-size);
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The hit area, recovered outside the paint (R2). */
+  [data-ui-entity-picker]
+    > [data-part-control]
+    > :is([data-part-clear], [data-part-trigger])::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: the ground and the focus ring stay square, and
+     the hit area above grows to 44 pixels around them. Side by side, neither
+     button reaches across the edge the two share. */
+  @media (pointer: coarse) {
+    [data-ui-entity-picker]
+      > [data-part-control]
+      > :is([data-part-clear], [data-part-trigger])::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+    }
+
+    [data-ui-entity-picker]
+      > [data-part-control]
+      > [data-part-clear]:has(+ [data-part-trigger]:not([hidden]))::after {
+      inset-inline-end: 0;
+    }
+
+    [data-ui-entity-picker]
+      > [data-part-control]
+      > [data-part-clear]:not([hidden])
+      + [data-part-trigger]::after {
+      inset-inline-start: 0;
+    }
+  }
+
+  /* The cross and the chevron are `Glyph` elements the binding draws, sized
+     here to the control's icon step. */
+  [data-ui-entity-picker] > [data-part-control] > :is([data-part-clear], [data-part-trigger]) {
+    --slotted-icon-size: var(--_icon-size);
+  }
+
+  [data-ui-entity-picker] > [data-part-control] > [data-part-trigger] > [data-part-arrow] {
+    align-items: center;
+    block-size: var(--_icon-size);
+    display: flex;
+    inline-size: var(--_icon-size);
+    justify-content: center;
+  }
+
+  [data-ui-entity-picker]
+    > [data-part-control]
+    > [data-part-trigger]
+    > [data-part-arrow]
+    > [data-ui-icon] {
+    transition: rotate var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-entity-picker][data-open]
+    > [data-part-control]
+    > [data-part-trigger]
+    > [data-part-arrow]
+    > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  /* The ring where the chevron stands, drawn by `spinner/spinner.css`. */
+  [data-ui-entity-picker] > [data-part-control] > [data-part-trigger] > [data-part-busy] {
+    --slotted-spinner-size: var(--_icon-size);
+
+    color: var(--slotted-entity-picker-action-color, var(--slotted-text-muted, GrayText));
+    flex: none;
+  }
+
+  [data-ui-entity-picker]
+    > [data-part-control]
+    > :is([data-part-clear], [data-part-trigger]):hover:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-entity-picker-action-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-entity-picker]
+    > [data-part-control]
+    > :is([data-part-clear], [data-part-trigger]):active:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-entity-picker-action-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  [data-ui-entity-picker]
+    > [data-part-control]
+    > :is([data-part-clear], [data-part-trigger]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* ── Variant ──────────────────────────────────────────────────────────── */
+
+  [data-ui-entity-picker][data-part-root][data-variant='subtle'] > [data-part-control] {
+    background-color: var(
+      --slotted-entity-picker-subtle-background,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    border-color: var(
+      --slotted-entity-picker-subtle-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+  }
+
+  /* The cell it sits in is the box (the plain-variant rule). */
+  [data-ui-entity-picker][data-part-root][data-variant='plain'] > [data-part-control] {
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: var(--slotted-radius-none, 0px);
+    box-shadow: none;
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-entity-picker][data-part-root][data-variant='plain'] > [data-part-control] {
+      border-color: ButtonBorder;
+    }
+  }
+
+  /* ── States on the frame ──────────────────────────────────────────────── */
+
+  [data-ui-entity-picker][data-part-root]:not([data-disabled]):not([data-readonly]):not(
+      [data-invalid]
+    )
+    > [data-part-control]:hover {
+    border-color: var(
+      --slotted-entity-picker-hover-border-color,
+      var(--slotted-tone-accent-border)
+    );
+  }
+
+  [data-ui-entity-picker][data-part-root][data-variant='subtle']:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid])
+    > [data-part-control]:hover:not(:has([data-part-input]:autofill)) {
+    background-color: var(
+      --slotted-entity-picker-subtle-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-entity-picker][data-part-root][data-variant='plain']:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid])
+    > [data-part-control]:hover:not(:has([data-part-input]:autofill)) {
+    background-color: var(
+      --slotted-entity-picker-plain-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    border-color: transparent;
+  }
+
+  [data-ui-entity-picker] > [data-part-control]:has([data-part-input]:focus-visible) {
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-control-focus-ring-offset, var(--slotted-focus-ring-offset, 2px));
+  }
+
+  [data-ui-entity-picker][data-part-root][data-variant='plain']
+    > [data-part-control]:has([data-part-input]:focus-visible) {
+    box-shadow: none;
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-entity-picker][data-part-root][data-open]:not([data-disabled]) > [data-part-control] {
+    border-color: var(--slotted-entity-picker-open-border-color, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-entity-picker][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-entity-picker-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+  }
+
+  [data-ui-entity-picker][data-part-root][data-invalid] > [data-part-control] {
+    --_invalid-edge-width: var(
+      --slotted-entity-picker-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+    --_invalid-edge-color: var(
+      --slotted-entity-picker-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    --_invalid-edge: inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color);
+
+    border-color: var(
+      --slotted-entity-picker-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger border is the resting edge's black. The line
+     * is a shadow inside the border, so neither box nor text moves, and it
+     * takes the resting lift's place.
+     */
+    box-shadow: var(--_invalid-edge);
+  }
+
+  [data-ui-entity-picker][data-invalid] > [data-part-control]:has([data-part-input]:focus-visible) {
+    box-shadow:
+      var(--_invalid-edge),
+      var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+        var(--slotted-focus-ring-color, Highlight);
+  }
+
+  [data-ui-entity-picker][data-part-root][data-variant='plain'][data-invalid]
+    > [data-part-control]:has([data-part-input]:focus-visible) {
+    /* The ring lies inside the box here, over the border and an edge as wide as
+       it; the edge reaches past the ring. */
+    box-shadow: inset 0 0 0
+      calc(
+        var(--slotted-focus-ring-offset, 2px) - var(--slotted-control-border-width, 1px) +
+          var(--_invalid-edge-width)
+      )
+      var(--_invalid-edge-color);
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The
+   * width comes back as an outline inside the border, and a focused invalid
+   * control draws its ring double, which a valid ring is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-entity-picker][data-part-root][data-invalid] > [data-part-control] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(
+        -1 * (var(--slotted-control-border-width, 1px) + var(--_invalid-edge-width))
+      );
+    }
+
+    [data-ui-entity-picker][data-invalid]
+      > [data-part-control]:has([data-part-input]:focus-visible) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(
+        --slotted-control-focus-ring-offset,
+        var(--slotted-focus-ring-offset, 2px)
+      );
+    }
+
+    [data-ui-entity-picker][data-part-root][data-variant='plain'][data-invalid]
+      > [data-part-control]:has([data-part-input]:focus-visible) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: calc(
+        -1 * (var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width))
+      );
+    }
+  }
+
+  [data-ui-entity-picker][data-part-root][data-readonly] > [data-part-control] {
+    background-color: var(
+      --slotted-entity-picker-readonly-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-entity-picker][data-part-root][data-readonly]
+    > [data-part-control]
+    > [data-part-trigger]
+    > [data-part-arrow] {
+    opacity: 0.5;
+  }
+
+  [data-ui-entity-picker][data-part-root][data-disabled] > [data-part-control],
+  [data-ui-entity-picker] > [data-part-control]:has([data-part-input]:disabled) {
+    background-color: var(
+      --slotted-entity-picker-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(
+      --slotted-entity-picker-disabled-border-color,
+      var(--slotted-disabled-border)
+    );
+    box-shadow: none;
+    color: var(--slotted-entity-picker-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+  }
+
+  /* A disabled face is a quieter face: the ink recedes, the photograph with it. */
+  [data-ui-entity-picker][data-part-root][data-disabled]
+    > [data-part-control]
+    :is(
+      [data-part-selection],
+      [data-part-chips] > [data-ui] > [data-part-body] > [data-part-start]
+    ) {
+    opacity: 0.6;
+  }
+
+  /* ── The layer ────────────────────────────────────────────────────────── */
+
+  [data-ui-entity-picker][data-part-positioner] {
+    --_surface: var(--slotted-entity-picker-surface, var(--slotted-surface-raised, #ffffff));
+    --_text: var(--slotted-entity-picker-content-text, var(--slotted-text, #0f172a));
+    --_muted: var(--slotted-entity-picker-content-text-muted, var(--slotted-text-muted, #5b6b7f));
+    --_border-color: var(
+      --slotted-entity-picker-content-border-color,
+      var(--slotted-border-subtle, #e2e8f0)
+    );
+    --_border-width: var(--slotted-border-width-thin, 1px);
+    --_content-radius: var(--slotted-entity-picker-content-radius, var(--slotted-radius-lg, 8px));
+    --_shadow: var(--slotted-entity-picker-content-shadow, var(--slotted-shadow-md));
+    /* The stronger neutral step, for `select.css`'s dark-scheme reason. */
+    --_highlight: var(
+      --slotted-entity-picker-highlight,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+    --_highlight-active: var(
+      --slotted-entity-picker-highlight-active,
+      var(--slotted-tone-accent-surface)
+    );
+    --_selected-color: var(--slotted-entity-picker-selected-color, var(--slotted-tone-accent-text));
+    --_inset-block: var(--slotted-space-2, 0.25rem);
+    --_inset-inline: var(--slotted-space-2, 0.25rem);
+    --_item-inset: var(--slotted-control-padding-inline-md, 0.8125rem);
+    --_item-height: var(--slotted-control-height-md, 34px);
+    --_item-radius: var(--slotted-entity-picker-item-radius, var(--slotted-control-radius));
+    --_content-font-size: var(--slotted-control-font-size-md, 13px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_content-icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_column-gap: var(--slotted-control-gap-md, 0.5rem);
+    /**
+     * The face in a row. Two lines of text beside it at `md` stand 38 pixels
+     * tall at comfortable, and the step of the avatar scale under that is
+     * `sm`, 28 pixels; each size step of the family takes the avatar step
+     * beside it, and density moves all three through the avatar scale.
+     */
+    --_media-size: var(--slotted-avatar-size-sm, 28px);
+    --_measure: var(--slotted-entity-picker-measure, 28rem);
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+
+    box-sizing: border-box;
+    inset-block-start: 0;
+    isolation: isolate;
+    pointer-events: none;
+    position: absolute;
+    transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+    translate: 0 calc(-1 * var(--_enter-distance));
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+  }
+
+  [data-ui-entity-picker][data-part-positioner][data-side='top'] {
+    translate: 0 var(--_enter-distance);
+  }
+
+  [data-ui-entity-picker][data-part-positioner]:is([data-side='left'], [data-side='right']) {
+    translate: 0 0;
+  }
+
+  [data-ui-entity-picker][data-part-positioner][data-open] {
+    transition: none;
+    translate: 0 0;
+  }
+
+  [data-ui-entity-picker][data-part-positioner][data-open][data-positioned] {
+    animation: slotted-entity-picker-enter-down var(--slotted-duration-medium)
+      var(--slotted-easing-enter);
+  }
+
+  [data-ui-entity-picker][data-part-positioner][data-open][data-positioned][data-side='top'] {
+    animation-name: slotted-entity-picker-enter-up;
+  }
+
+  @keyframes slotted-entity-picker-enter-down {
+    from {
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-entity-picker-enter-up {
+    from {
+      translate: 0 var(--_enter-distance);
+    }
+  }
+
+  @keyframes slotted-entity-picker-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /**
+   * The fade belongs to the part that paints the surface, and the layer only
+   * moves. In Chromium an ancestor with `opacity` below one is the Backdrop Root
+   * of what it holds, so a `backdrop-filter` on the content blurs nothing until
+   * the layer is opaque and then appears at once. The content's own opacity
+   * leaves its own filter drawn on every frame of the motion.
+   */
+  [data-ui-entity-picker][data-part-positioner] > [data-part-content] {
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-entity-picker][data-part-positioner][data-open] > [data-part-content] {
+    opacity: 1;
+    transition: none;
+  }
+
+  [data-ui-entity-picker][data-part-positioner][data-open][data-positioned] > [data-part-content] {
+    animation: slotted-entity-picker-fade var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-entity-picker][data-part-positioner],
+    [data-ui-entity-picker][data-part-positioner][data-side='top'],
+    [data-ui-entity-picker][data-part-positioner][data-side='left'],
+    [data-ui-entity-picker][data-part-positioner][data-side='right'] {
+      transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+      translate: 0 0;
+    }
+
+    [data-ui-entity-picker][data-part-positioner][data-open][data-positioned],
+    [data-ui-entity-picker][data-part-positioner][data-open][data-positioned][data-side='top'],
+    [data-ui-entity-picker][data-part-positioner][data-open][data-positioned][data-side='left'],
+    [data-ui-entity-picker][data-part-positioner][data-open][data-positioned][data-side='right'] {
+      animation-name: none;
+    }
+  }
+
+  [data-ui-entity-picker][data-part-positioner][data-detached] {
+    visibility: hidden;
+  }
+
+  [data-ui-entity-picker][data-part-positioner][data-width='anchor'] {
+    inline-size: var(--slotted-positioner-anchor-width, auto);
+  }
+
+  [data-ui-entity-picker][data-part-positioner][data-width='content'] {
+    inline-size: max-content;
+    max-inline-size: min(var(--_measure), var(--slotted-positioner-available-width, 100vw));
+    min-inline-size: var(--slotted-positioner-anchor-width, auto);
+  }
+
+  [data-ui-entity-picker][data-part-positioner][data-size='sm'] {
+    --_item-inset: var(--slotted-control-padding-inline-sm, 0.625rem);
+    --_item-height: var(--slotted-control-height-sm, 30px);
+    --_content-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_secondary-font-size: var(--slotted-font-size-xs, 0.75rem);
+    --_content-icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_column-gap: var(--slotted-control-gap-sm, 0.375rem);
+    --_media-size: var(--slotted-avatar-size-xs, 24px);
+  }
+
+  [data-ui-entity-picker][data-part-positioner][data-size='lg'] {
+    --_item-inset: var(--slotted-control-padding-inline-lg, 1rem);
+    --_item-height: var(--slotted-control-height-lg, 38px);
+    --_content-font-size: var(--slotted-control-font-size-lg, 14px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_content-icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_column-gap: var(--slotted-control-gap-lg, 0.5rem);
+    --_media-size: var(--slotted-avatar-size-md, 36px);
+  }
+
+  /* ── The surface ──────────────────────────────────────────────────────── */
+
+  /**
+   * Four columns every row shares through a subgrid: the face, the words, the
+   * short fact, the check. A column no row fills is `auto` and takes nothing,
+   * so a list with `media="none"` starts its words at the row's inset.
+   */
+  [data-ui-entity-picker] > [data-part-content] {
+    background: var(--_surface);
+    border: var(--_border-width) solid var(--_border-color);
+    border-radius: var(--_content-radius);
+    box-shadow: var(--_shadow);
+    box-sizing: border-box;
+    color: var(--_text);
+    display: grid;
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--_content-font-size);
+    grid-auto-rows: max-content;
+    /* The short fact takes at most a quarter of the row: in a narrow list it
+       is cut before the name is, where an `auto` track kept "Finance" whole
+       and wrapped "Carla Mendes" onto two lines at 240 pixels. */
+    grid-template-columns: auto minmax(0, 1fr) fit-content(25%) auto;
+    max-block-size: calc(
+      var(--slotted-positioner-available-height, 100vh) - var(--slotted-space-5, 0.75rem)
+    );
+    outline: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    pointer-events: auto;
+    /* A theme that paints this surface as a translucent material blurs what moves behind it. */
+    -webkit-backdrop-filter: var(--slotted-entity-picker-content-backdrop-filter, none);
+    backdrop-filter: var(--slotted-entity-picker-content-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-entity-picker] > [data-part-content] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /**
+   * A new query over rows already shown. The rows stay, recede and swap when
+   * the answer lands (`loading-states` §1): `data-list`'s strength for the
+   * same wait. They stay pressable — each is still a record the reader can
+   * choose.
+   */
+  [data-ui-entity-picker]
+    > [data-part-content][data-loading]
+    > :is([data-part-group], [data-part-item]) {
+    opacity: 0.55;
+    transition: opacity var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-entity-picker] > [data-part-content][data-loading] {
+    cursor: progress;
+  }
+
+  [data-ui-entity-picker][data-part-positioner] [data-part-group] {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  /* Two sections are separated by a step of air, not by a rule: the heading
+     already says where one ends. */
+  [data-ui-entity-picker][data-part-positioner] [data-part-group] + [data-part-group] {
+    margin-block-start: var(--slotted-space-2, 0.25rem);
+  }
+
+  /**
+   * A group's label stays at the top of the list while its group is in view.
+   * The group is the label's containing block, so the next label pushes it out
+   * and a group scrolled past takes its label with it. It sticks to the
+   * scrollport's edge rather than the padding's, on the surface's ground, above
+   * the items and below the parts the surface draws over them.
+   */
+  [data-ui-entity-picker][data-part-positioner] [data-part-group-label] {
+    background: var(--_surface);
+    box-sizing: border-box;
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    grid-column: 1 / -1;
+    inset-block-start: calc(-1 * var(--_inset-block));
+    line-height: var(--slotted-line-height-sm, 1.45);
+    min-block-size: var(--_group-label-height);
+    padding-block: var(--slotted-space-3, 0.375rem) var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+    position: sticky;
+    z-index: 1;
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-entity-picker][data-part-positioner] [data-part-group-label] {
+      background: Canvas;
+    }
+  }
+
+  /**
+   * The label's height, which the list keeps clear above an item the keys
+   * bring into view (`revealWithin` reads the scroll padding), so the item is
+   * never drawn under a label stuck to the top.
+   */
+  [data-ui-entity-picker] > [data-part-content]:has([data-part-group-label]) {
+    --_group-label-height: var(
+      --slotted-entity-picker-group-label-height,
+      calc(
+        var(--_secondary-font-size) * var(--slotted-line-height-sm, 1.45) +
+          var(--slotted-space-3, 0.375rem) + var(--slotted-space-2, 0.25rem)
+      )
+    );
+
+    scroll-padding-block-start: var(--_group-label-height);
+  }
+
+  /* ── The record ───────────────────────────────────────────────────────── */
+
+  [data-ui-entity-picker][data-part-positioner] [data-part-item] {
+    /* The tracks keep their content's height and the pair is centred in the
+       row's minimum, so a mark placed at the start of a track is on the
+       words' line: stretched tracks put the words 3px under their glyph. */
+    align-content: center;
+    align-items: center;
+    border-radius: var(--_item-radius);
+    box-sizing: border-box;
+    column-gap: 0;
+    cursor: pointer;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    grid-template-rows: auto;
+    line-height: var(--slotted-line-height-md, 1.5);
+    min-block-size: var(--_item-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+    row-gap: 0;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    user-select: none;
+  }
+
+  [data-ui-entity-picker][data-part-positioner] [data-part-item]:has(> [data-part-description]) {
+    grid-template-rows: auto auto;
+  }
+
+  [data-ui-entity-picker][data-part-positioner] [data-part-item][data-current] {
+    background-color: var(--_highlight);
+    /* A ring as well as a ground: nothing on this surface holds focus. */
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-entity-picker-highlight-ring, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-entity-picker][data-part-positioner] [data-part-item]:not([data-disabled]):active {
+    background-color: var(--_highlight-active);
+  }
+
+  [data-ui-entity-picker][data-part-positioner] [data-part-item][data-selected] {
+    color: var(--_selected-color);
+  }
+
+  /* Two chosen neighbours are one block (LB2, `selection-block.test.mjs`). */
+  [data-ui-entity-picker][data-part-positioner]
+    [data-part-item][data-selected]
+    + [data-part-item][data-selected] {
+    border-start-end-radius: 0;
+    border-start-start-radius: 0;
+  }
+
+  [data-ui-entity-picker][data-part-positioner]
+    [data-part-item][data-selected]:has(+ [data-part-item][data-selected]) {
+    border-end-end-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  [data-ui-entity-picker][data-part-positioner]
+    [data-part-item][data-selected]
+    > [data-part-label] {
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-entity-picker][data-part-positioner] [data-part-item][data-disabled] {
+    color: var(--slotted-disabled-foreground, #64748b);
+    cursor: not-allowed;
+  }
+
+  [data-ui-entity-picker][data-part-positioner] [data-part-item][data-disabled][data-current] {
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-disabled-border, #cbd5e1);
+    color: var(--slotted-disabled-foreground, #64748b);
+  }
+
+  /**
+   * The face spans both lines and is centred on them, so a record reads as
+   * one block — who, then which one — and a one-line record's face is centred
+   * on its one line. The column's width is the face's, plus the gap.
+   */
+  [data-ui-entity-picker][data-part-positioner] [data-part-media] {
+    --slotted-avatar-size-xs: var(--_media-size);
+
+    align-self: center;
+    display: flex;
+    grid-column: 1;
+    grid-row: 1 / -1;
+    justify-content: center;
+    margin-inline-end: var(--_column-gap);
+  }
+
+  [data-ui-entity-picker][data-part-positioner] [data-part-media]:empty {
+    block-size: var(--_content-icon-size);
+    inline-size: var(--_media-size);
+  }
+
+  [data-ui-entity-picker][data-part-positioner] [data-part-label] {
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    grid-column: 2;
+    grid-row: 1;
+    -webkit-line-clamp: 2;
+    min-inline-size: 0;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    justify-self: start;
+    max-inline-size: 100%;
+    unicode-bidi: plaintext;
+  }
+
+  /**
+   * The identifier. One line: it is what tells two people of one name apart,
+   * so its start is what is kept, and the whole string is in the option's
+   * name for a reader who does not see the cut.
+   *
+   * The name and the identifier are ordered by their own first strong
+   * character (`plaintext`), so "12 members" and an address keep their order
+   * in a right-to-left page — `isolate` printed "members 12". The box is then
+   * placed at the grid's start, which follows the page: with `plaintext` the
+   * text aligns to its own direction, and a Latin name stood at the left of
+   * a right-to-left row, a column away from its face.
+   */
+  [data-ui-entity-picker][data-part-positioner] [data-part-description] {
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    /* Under the short fact too: that column holds nothing on this line. */
+    grid-column: 2 / 4;
+    grid-row: 2;
+    line-height: var(--slotted-line-height-sm, 1.45);
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    justify-self: start;
+    max-inline-size: 100%;
+    unicode-bidi: plaintext;
+    white-space: nowrap;
+  }
+
+  [data-ui-entity-picker][data-part-positioner]
+    [data-part-item][data-disabled]
+    > [data-part-description] {
+    color: inherit;
+  }
+
+  /**
+   * A short fact at the end of the name's line: a type, a status. It is on
+   * the name's line and not centred on the record, because it is read with
+   * the name ("Ana Silva · Admin"), and it never wraps.
+   */
+  [data-ui-entity-picker][data-part-positioner] [data-part-meta] {
+    align-self: start;
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    grid-column: 3;
+    grid-row: 1;
+    /* The name's line box, so the smaller type sits on the name's line. */
+    line-height: calc(var(--_content-font-size) * var(--slotted-line-height-md, 1.5));
+    margin-inline-start: var(--_column-gap);
+    /* A fact, not a name: it gives way before the name does. */
+    max-inline-size: var(--slotted-entity-picker-meta-measure, 8em);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /**
+   * The check marks the name, so it stands on the name's first line — the
+   * briefing's rule for a mark beside a line of text — in a box one line
+   * tall with the glyph centred in it, as `combobox` draws it. Centred on a
+   * two-line record it stood nine pixels above the name (`audit.mjs`).
+   */
+  [data-ui-entity-picker][data-part-positioner] [data-part-indicator] {
+    --slotted-icon-size: var(--_content-icon-size);
+
+    align-items: center;
+    align-self: start;
+    block-size: calc(var(--_content-font-size) * var(--slotted-line-height-md, 1.5));
+    display: flex;
+    grid-column: 4;
+    grid-row: 1;
+    inline-size: var(--_content-icon-size);
+    justify-content: center;
+    margin-inline-start: var(--_column-gap);
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-entity-picker][data-part-positioner]
+    [data-part-item][data-selected]
+    > [data-part-indicator] {
+    opacity: 1;
+  }
+
+  /* A record with no short fact gives its column to the name. */
+  [data-ui-entity-picker][data-part-positioner]
+    [data-part-item]:not(:has(> [data-part-meta]))
+    > [data-part-label] {
+    grid-column: 2 / 4;
+  }
+
+  /**
+   * A record of one line is the face's height, and its name is centred in
+   * it; the check and the short fact are centred with the name there, where
+   * on a two-line record they stand on the name's line.
+   */
+  [data-ui-entity-picker][data-part-positioner]
+    [data-part-item]:not(:has(> [data-part-description]))
+    > :is([data-part-indicator], [data-part-meta]) {
+    align-self: center;
+  }
+
+  /* ── The two offers: create, and search again ─────────────────────────── */
+
+  /**
+   * An offer is an option (design §1.3), and it wears a glyph in the face's
+   * column so its words start where every name starts: the plus to create,
+   * the turning arrow to search again, each a `Glyph` the binding draws.
+   */
+  [data-ui-entity-picker][data-part-positioner] [data-part-item]:is([data-create], [data-retry]) {
+    color: var(--slotted-entity-picker-offer-color, var(--slotted-tone-accent-text));
+  }
+
+  [data-ui-entity-picker][data-part-positioner]
+    [data-part-item]:is([data-create], [data-retry])
+    > [data-part-media] {
+    --slotted-icon-size: var(--_content-icon-size);
+
+    align-items: center;
+    /* A glyph beside words, so it stands on their first line (`indicator`). */
+    align-self: start;
+    block-size: calc(var(--_content-font-size) * var(--slotted-line-height-md, 1.5));
+    grid-row: 1;
+    /* The face's width, which an empty media box takes by itself. */
+    inline-size: var(--_media-size);
+  }
+
+  /* ── Error, empty, status ─────────────────────────────────────────────── */
+
+  [data-ui-entity-picker][data-part-positioner]
+    :is([data-part-empty], [data-part-status], [data-part-error]) {
+    color: var(--_muted);
+    grid-column: 1 / -1;
+    min-inline-size: min(12rem, 100%);
+    padding-block: var(--slotted-space-5, 0.75rem);
+    padding-inline: var(--_item-inset);
+    text-align: center;
+    /* Its own bidi run (`combobox`'s "3 results" repair). */
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-entity-picker][data-part-positioner] [data-part-status]:empty {
+    display: none;
+  }
+
+  /**
+   * The error names what failed in the text colour, with the alert mark — a
+   * `Glyph` the binding draws before the words — beside it in the danger
+   * tone, centred in the face's column; the offer to search again follows as an
+   * option. It stands on the row's inset like every row, not centred like
+   * the empty sentence: it is the first of two rows that belong together.
+   */
+  [data-ui-entity-picker][data-part-positioner] [data-part-error] {
+    align-items: center;
+    color: var(--_text);
+    display: flex;
+    gap: var(--_column-gap);
+    padding-block: var(--slotted-space-4, 0.5rem) var(--slotted-space-2, 0.25rem);
+    text-align: start;
+  }
+
+  [data-ui-entity-picker][data-part-positioner] [data-part-error] > [data-ui-icon] {
+    --slotted-icon-size: var(--_content-icon-size);
+
+    color: var(--slotted-entity-picker-error-color, var(--slotted-tone-danger-text));
+    margin-inline: calc((var(--_media-size) - var(--_content-icon-size)) / 2);
+  }
+
+  /* ── The wait ─────────────────────────────────────────────────────────── */
+
+  /**
+   * Three records in the anatomy of a record: a circle where the face goes,
+   * a line where the name goes, a shorter one where the identifier goes
+   * (`loading-states` §2). The rows are the rows the list will draw, at the
+   * same inset, column gap and height, so the answer lands in the boxes that
+   * waited for it. The lengths differ the way names do.
+   */
+  [data-ui-entity-picker][data-part-positioner] :is([data-part-placeholder], [data-part-more]) {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  [data-ui-entity-picker][data-part-positioner] :is([data-part-placeholder], [data-part-more]) > * {
+    align-items: center;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    grid-template-rows: auto auto;
+    line-height: var(--slotted-line-height-md, 1.5);
+    min-block-size: var(--_item-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+  }
+
+  [data-ui-entity-picker][data-part-positioner]
+    :is([data-part-placeholder], [data-part-more])
+    > *
+    > :first-child {
+    --slotted-skeleton-size: var(--_media-size);
+
+    grid-column: 1;
+    grid-row: 1 / -1;
+    margin-inline-end: var(--_column-gap);
+  }
+
+  /* Each line stands in the line box of the text it holds the place of. */
+  [data-ui-entity-picker][data-part-positioner]
+    :is([data-part-placeholder], [data-part-more])
+    > *
+    > :nth-child(2) {
+    --slotted-skeleton-inline-size: 62%;
+
+    grid-column: 2;
+    grid-row: 1;
+    margin-block: calc((1lh - 1cap) / 2);
+  }
+
+  [data-ui-entity-picker][data-part-positioner]
+    :is([data-part-placeholder], [data-part-more])
+    > *
+    > :nth-child(3) {
+    --slotted-skeleton-inline-size: 44%;
+
+    font-size: var(--_secondary-font-size);
+    grid-column: 2;
+    grid-row: 2;
+    line-height: var(--slotted-line-height-sm, 1.45);
+    margin-block: calc((1lh - 1cap) / 2);
+  }
+
+  [data-ui-entity-picker][data-part-positioner]
+    [data-part-placeholder]
+    > :nth-child(2)
+    > :nth-child(2) {
+    --slotted-skeleton-inline-size: 48%;
+  }
+
+  [data-ui-entity-picker][data-part-positioner]
+    [data-part-placeholder]
+    > :nth-child(2)
+    > :nth-child(3) {
+    --slotted-skeleton-inline-size: 58%;
+  }
+
+  [data-ui-entity-picker][data-part-positioner]
+    [data-part-placeholder]
+    > :nth-child(3)
+    > :nth-child(2) {
+    --slotted-skeleton-inline-size: 70%;
+  }
+
+  [data-ui-entity-picker][data-part-positioner]
+    [data-part-placeholder]
+    > :nth-child(3)
+    > :nth-child(3) {
+    --slotted-skeleton-inline-size: 36%;
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────── */
+
+  @media (forced-colors: active) {
+    [data-ui-entity-picker][data-part-positioner] [data-part-item][data-current] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-entity-picker][data-part-positioner] [data-part-item][data-disabled][data-current] {
+      background-color: Highlight;
+      color: GrayText;
+    }
+  }
+}

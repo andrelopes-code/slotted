@@ -1,0 +1,642 @@
+<!--
+  The third place this family's DOM is written, after React and Angular. Every
+  `data-part` the contract declares appears here:
+
+    ul|ol[data-ui='list'][data-part='root'][role='list']
+      li[data-ui='list-item']                      the rows, a family of their own
+      li[data-part='section']
+        h3[data-part='section-label']
+        ul[data-part='section-list'][role='list']
+      li[data-part='empty']
+
+  `role="list"` is written on the root and on every nested group because the
+  family always removes the native marker — a row is a content box beside its
+  independent targets, and CSS has no `display` that is both `list-item` and a
+  grid. Safari and VoiceOver drop list semantics the moment the marker goes.
+
+  The rows carry the four attributes the set hands down. In both bindings the
+  set writes them; here they are written by hand, because the page has no
+  script.
+-->
+
+<section data-scene="variant">
+  <div style="display: grid; gap: var(--slotted-space-8)">
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="plain"
+      data-size="md"
+      role="list"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="plain"
+        data-size="md"
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">plain — nothing between rows</span></span
+          >
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="plain"
+        data-size="md"
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Rhythm alone tells them apart</span></span
+          >
+        </div>
+      </li>
+    </ul>
+
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="ruled"
+      data-size="md"
+      role="list"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">ruled — a hairline between rows</span></span
+          >
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body="">
+            <span data-part="label" data-part-label=""
+              >Drawn by the row below, which is the one that knows</span
+            >
+          </span>
+        </div>
+      </li>
+    </ul>
+
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="framed"
+      data-size="md"
+      role="list"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="framed"
+        data-size="md"
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">framed — the rules, and a box</span></span
+          >
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="framed"
+        data-size="md"
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body="">
+            <span data-part="label" data-part-label="">The frame clips its own corners</span>
+          </span>
+        </div>
+      </li>
+    </ul>
+
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="separated"
+      data-size="md"
+      role="list"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="separated"
+        data-size="md"
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">separated — a surface per row</span></span
+          >
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="separated"
+        data-size="md"
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label=""
+              >The set spends its gap here alone</span
+            ></span
+          >
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section data-scene="sections">
+  <ul
+    data-ui="list"
+    data-ui-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-size="md"
+    role="list"
+  >
+    <li data-part="section" data-part-section="">
+      <h3 data-part="section-label" data-part-section-label="" data-sticky>Folders</h3>
+      <ul data-part="section-list" data-part-section-list="" role="list">
+        <li
+          data-ui="list-item"
+          data-ui-list-item=""
+          data-part="root"
+          data-part-root=""
+          data-variant="ruled"
+          data-size="md"
+        >
+          <a href="#photos" data-part="content" data-part-content="">
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Photos</span></span
+            >
+            <span data-part="end" data-part-end="">128</span>
+          </a>
+        </li>
+        <li
+          data-ui="list-item"
+          data-ui-list-item=""
+          data-part="root"
+          data-part-root=""
+          data-variant="ruled"
+          data-size="md"
+        >
+          <a href="#recordings" data-part="content" data-part-content="">
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Recordings</span></span
+            >
+            <span data-part="end" data-part-end="">12</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+    <li data-part="section" data-part-section="">
+      <h3 data-part="section-label" data-part-section-label="" data-sticky>Notes</h3>
+      <ul data-part="section-list" data-part-section-list="" role="list">
+        <li
+          data-ui="list-item"
+          data-ui-list-item=""
+          data-part="root"
+          data-part-root=""
+          data-variant="ruled"
+          data-size="md"
+          data-current
+        >
+          <a href="#weekly" data-part="content" data-part-content="" aria-current="page">
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Weekly review</span></span
+            >
+            <span data-part="end" data-part-end="">14:02</span>
+          </a>
+        </li>
+        <li
+          data-ui="list-item"
+          data-ui-list-item=""
+          data-part="root"
+          data-part-root=""
+          data-variant="ruled"
+          data-size="md"
+        >
+          <a href="#archive" data-part="content" data-part-content="">
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Archive</span></span
+            >
+            <span data-part="end" data-part-end="">Yesterday</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</section>
+
+<section data-scene="markers">
+  <div style="display: grid; gap: var(--slotted-space-8)">
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="plain"
+      data-marker="bullet"
+      role="list"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-marker="bullet"
+        data-variant="plain"
+      >
+        <span data-part="marker" data-part-marker="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+        ></span>
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">The mark is drawn geometry</span></span
+          >
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-marker="bullet"
+        data-variant="plain"
+      >
+        <span data-part="marker" data-part-marker="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+        ></span>
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Never a character in a string</span></span
+          >
+        </div>
+      </li>
+    </ul>
+
+    <ol
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="plain"
+      data-marker="number"
+      role="list"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-marker="number"
+        data-variant="plain"
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">An ordered set is an `ol`</span></span
+          >
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-marker="number"
+        data-variant="plain"
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body="">
+            <span data-part="label" data-part-label=""
+              >The reading order and the painted mark are two questions</span
+            >
+          </span>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-marker="number"
+        data-variant="plain"
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Nine, then ten, in one column</span></span
+          >
+        </div>
+      </li>
+    </ol>
+
+    <ol
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="ruled"
+      data-marker="number"
+      role="list"
+    >
+      <li data-part="section" data-part-section="">
+        <h3 data-part="section-label" data-part-section-label="">First run</h3>
+        <ol data-part="section-list" data-part-section-list="" role="list">
+          <li
+            data-ui="list-item"
+            data-ui-list-item=""
+            data-part="root"
+            data-part-root=""
+            data-marker="number"
+            data-variant="ruled"
+          >
+            <div data-part="content" data-part-content="">
+              <span data-part="body" data-part-body=""
+                ><span data-part="label" data-part-label=""
+                  >Each group opens its own count</span
+                ></span
+              >
+            </div>
+          </li>
+          <li
+            data-ui="list-item"
+            data-ui-list-item=""
+            data-part="root"
+            data-part-root=""
+            data-marker="number"
+            data-variant="ruled"
+          >
+            <div data-part="content" data-part-content="">
+              <span data-part="body" data-part-body=""
+                ><span data-part="label" data-part-label="">Rather than running through</span></span
+              >
+            </div>
+          </li>
+        </ol>
+      </li>
+      <li data-part="section" data-part-section="">
+        <h3 data-part="section-label" data-part-section-label="">Later</h3>
+        <ol data-part="section-list" data-part-section-list="" role="list">
+          <li
+            data-ui="list-item"
+            data-ui-list-item=""
+            data-part="root"
+            data-part-root=""
+            data-marker="number"
+            data-variant="ruled"
+          >
+            <div data-part="content" data-part-content="">
+              <span data-part="body" data-part-body=""
+                ><span data-part="label" data-part-label="">Back to one</span></span
+              >
+            </div>
+          </li>
+        </ol>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section data-scene="empty-and-loading">
+  <div style="display: grid; gap: var(--slotted-space-8)">
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="framed"
+      data-size="md"
+      role="list"
+    >
+      <li data-part="empty" data-part-empty="">
+        <strong style="font-weight: var(--slotted-font-weight-semibold)">No matches</strong>
+        <span>Every folder is filtered out. Clear the filter to see them again.</span>
+      </li>
+    </ul>
+
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="framed"
+      data-size="md"
+      data-loading
+      aria-busy="true"
+      role="list"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="framed"
+        data-size="md"
+        data-loading
+      >
+        <div data-part="content" data-part-content="" aria-busy="true">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Photos</span></span
+          >
+          <span data-part="end" data-part-end="">—</span>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="framed"
+        data-size="md"
+        data-loading
+      >
+        <div data-part="content" data-part-content="" aria-busy="true">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Recordings</span></span
+          >
+          <span data-part="end" data-part-end="">—</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section data-scene="inset">
+  <div
+    style="
+      background-color: var(--slotted-surface-raised);
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-lg);
+      padding: var(--slotted-space-6);
+    "
+  >
+    <h3
+      style="
+        color: var(--slotted-text);
+        font-size: var(--slotted-font-size-lg);
+        margin-block: 0 var(--slotted-space-4);
+      "
+    >
+      Members
+    </h3>
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="ruled"
+      data-size="md"
+      data-inset
+      role="list"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-inset
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Ada Lovelace</span></span
+          >
+          <span data-part="end" data-part-end="">Owner</span>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-inset
+      >
+        <div data-part="content" data-part-content="">
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Grace Hopper</span></span
+          >
+          <span data-part="end" data-part-end="">Admin</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section data-scene="sizes">
+  <div style="display: grid; gap: var(--slotted-space-8)">
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="ruled"
+      data-size="sm"
+      role="list"
+    >
+      <li data-part="section" data-part-section="">
+        <h3 data-part="section-label" data-part-section-label="">sm</h3>
+        <ul data-part="section-list" data-part-section-list="" role="list">
+          <li
+            data-ui="list-item"
+            data-ui-list-item=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ruled"
+            data-size="sm"
+          >
+            <div data-part="content" data-part-content="">
+              <span data-part="body" data-part-body=""
+                ><span data-part="label" data-part-label="">A dense settings row</span></span
+              >
+              <span data-part="end" data-part-end="">On</span>
+            </div>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="ruled"
+      data-size="lg"
+      role="list"
+    >
+      <li data-part="section" data-part-section="">
+        <h3 data-part="section-label" data-part-section-label="">lg</h3>
+        <ul data-part="section-list" data-part-section-list="" role="list">
+          <li
+            data-ui="list-item"
+            data-ui-list-item=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ruled"
+            data-size="lg"
+          >
+            <div data-part="content" data-part-content="">
+              <span data-part="body" data-part-body=""
+                ><span data-part="label" data-part-label="">A roomy settings row</span></span
+              >
+              <span data-part="end" data-part-end="">On</span>
+            </div>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</section>

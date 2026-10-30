@@ -1,0 +1,131 @@
+@layer slotted.components {
+  /**
+   * The rule is a border, never a painted box. A box would give the element a
+   * size on the axis it divides, and the whole point of a separator is that it
+   * occupies the thickness it draws and nothing else.
+   *
+   * Its length comes from the container, and both axes have to be claimed to
+   * get it: a flex container hands the cross size over through `align-self`,
+   * and a grid hands the inline size over through `justify-self`. A container
+   * that packs its children instead of stretching them — `justify-items:
+   * start` is the common one — otherwise sizes the rule from its content,
+   * which for a rule is nothing at all.
+   */
+  [data-ui-divider] {
+    align-self: stretch;
+    border: 0;
+    flex-shrink: 0;
+    justify-self: stretch;
+    margin: 0;
+  }
+
+  /**
+   * Each orientation keeps a floor for the container that gives it no length
+   * on the axis it runs along. The floor is one line of the surrounding text:
+   * a taller one would grow the row a vertical rule stands in, and no scale
+   * holds a length that has to follow the type size at the point of use. A
+   * theme that wants a fixed floor sets the token.
+   */
+  [data-ui-divider]:not([data-labelled])[data-orientation='horizontal'] {
+    block-size: 0;
+    border-block-start: var(--slotted-divider-thickness, var(--slotted-border-width-thin, 1px))
+      solid var(--slotted-divider-color, var(--slotted-border-subtle, ButtonBorder));
+    min-inline-size: var(--slotted-divider-min-length, 1em);
+  }
+
+  [data-ui-divider]:not([data-labelled])[data-orientation='vertical'] {
+    border-inline-start: var(--slotted-divider-thickness, var(--slotted-border-width-thin, 1px))
+      solid var(--slotted-divider-color, var(--slotted-border-subtle, ButtonBorder));
+    inline-size: 0;
+    min-block-size: var(--slotted-divider-min-length, 1em);
+  }
+
+  /**
+   * A rule that stops short of both ends of its container. The default is the
+   * inline padding of a control, because the rule that needs an inset is
+   * almost always the one inside a menu or a list built from controls, and it
+   * has to line up with their text at every density.
+   */
+  [data-ui-divider][data-inset][data-orientation='horizontal'] {
+    margin-inline: var(--slotted-divider-inset, var(--slotted-control-padding-inline-md, 13px));
+  }
+
+  [data-ui-divider][data-inset][data-orientation='vertical'] {
+    margin-block: var(--slotted-divider-inset, var(--slotted-control-padding-inline-md, 13px));
+  }
+
+  /**
+   * A labelled rule is the same separator with its line interrupted. The two
+   * halves are drawn by the element itself rather than by two more elements,
+   * so the DOM a consumer reads is the root and the label, and nothing else
+   * becomes an accidental promise.
+   */
+  [data-ui-divider][data-labelled] {
+    align-items: center;
+    display: flex;
+    gap: var(--slotted-divider-gap, var(--slotted-space-4, 0.5rem));
+  }
+
+  [data-ui-divider][data-labelled][data-orientation='vertical'] {
+    flex-direction: column;
+    min-block-size: var(--slotted-divider-min-length, 1em);
+  }
+
+  /**
+   * The halves grow into whatever the label leaves and never shrink past a
+   * stub: in a narrow container the label wraps and the rule still reads as a
+   * rule. Unthemed, they disappear rather than reaching for a system colour,
+   * which is the right failure for decoration.
+   */
+  [data-ui-divider][data-labelled]::before,
+  [data-ui-divider][data-labelled]::after {
+    content: '';
+    flex: 1 0 var(--slotted-space-5, 0.75rem);
+  }
+
+  [data-ui-divider][data-labelled][data-orientation='horizontal']::before,
+  [data-ui-divider][data-labelled][data-orientation='horizontal']::after {
+    block-size: 0;
+    border-block-start: var(--slotted-divider-thickness, var(--slotted-border-width-thin, 1px))
+      solid var(--slotted-divider-color, var(--slotted-border-subtle));
+  }
+
+  [data-ui-divider][data-labelled][data-orientation='vertical']::before,
+  [data-ui-divider][data-labelled][data-orientation='vertical']::after {
+    border-inline-start: var(--slotted-divider-thickness, var(--slotted-border-width-thin, 1px))
+      solid var(--slotted-divider-color, var(--slotted-border-subtle));
+    inline-size: 0;
+  }
+
+  /* A label at one end keeps one half of the rule, not a stub of the other. */
+  [data-ui-divider][data-labelled][data-align='start']::before,
+  [data-ui-divider][data-labelled][data-align='end']::after {
+    display: none;
+  }
+
+  /**
+   * The label reads as metadata about the division, not as content of the
+   * section below it, so it takes the smallest step of the type scale and the
+   * muted text colour. It wraps before it overflows, and a single token longer
+   * than the container breaks rather than pushing the rule out of the layout.
+   */
+  [data-ui-divider] [data-part-label] {
+    color: var(--slotted-divider-label-color, var(--slotted-text-muted, GrayText));
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    line-height: var(--slotted-line-height-xs, 1.4);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+
+  /* A label that wraps keeps the edge it was placed against. */
+  [data-ui-divider][data-align='start'] [data-part-label] {
+    text-align: start;
+  }
+
+  [data-ui-divider][data-align='end'] [data-part-label] {
+    text-align: end;
+  }
+}

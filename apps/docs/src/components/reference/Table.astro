@@ -1,0 +1,21 @@
+---
+interface Props {
+  /** The region's name, which is also the table's caption for assistive technology. */
+  label: string;
+  columns: string[];
+}
+
+const { label, columns } = Astro.props;
+---
+
+{/* A region in the tab sequence, so a table wider than the column scrolls from the keyboard. */}
+<div class="docs-table" role="region" aria-label={label} tabindex="0">
+  <table>
+    <thead>
+      <tr>{columns.map((column) => <th scope="col">{column}</th>)}</tr>
+    </thead>
+    <tbody>
+      <slot />
+    </tbody>
+  </table>
+</div>

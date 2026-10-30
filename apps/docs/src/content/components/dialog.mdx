@@ -1,0 +1,140 @@
+---
+title: Dialog
+description: A window over the page that holds one task, such as an edit, a form or a confirmation, and keeps the reader in it until the task is done or dismissed.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Sizes
+
+`size` sets the panel's maximum width to one of five steps: `sm` (32rem) for one field or one question, `md` (the default: the form measure, 40rem, plus the panel's inline padding) for a form, `lg` (48rem) for a record with a table, `xl` (56rem) for two columns, and `full` for the whole layer less its padding. `--slotted-dialog-measure-sm`, `-md`, `-lg` and `-xl` retune one step; `--slotted-dialog-measure` sets every step, for a width the steps do not hold.
+
+<Example name="sizes" />
+
+## Placement
+
+`placement="top"` holds the panel near the top of the screen instead of centring it. Use it for content that grows while the reader types, such as a note or a comment: a centred panel moves up by half of every new line.
+
+<Example name="placement" />
+
+## Long content
+
+With the default `scroll="content"`, the panel never grows past the window: the body scrolls and the header and footer stay, so the actions are always in reach. `scroll="viewport"` lets the whole panel grow and scrolls the layer instead, for a document that is read rather than acted on.
+
+<Example name="scroll" />
+
+## Header, body and footer
+
+`DialogHeader` (`slDialogHeader`) lays out the title, the description and the close button; anything else written in it, such as a status badge, sits under the description. `DialogBody` (`slDialogBody`) is the row that scrolls, and `DialogFooter` (`slDialogFooter`) holds the actions, aligned to the end. Every part is optional: a dialog with no footer draws no footer row.
+
+<Example name="parts" />
+
+## Reading how it closed
+
+Close the dialog from code with a result, through the ref handle in React (`dialog.current.close('wait')`) or the template reference in Angular (`dialog.close('wait')`). React's `onOpenChange` receives the result on `request.result`; Angular's `(closed)` emits it once the dialog has closed. A close with the ✕, Escape or a press outside carries no result.
+
+<Example name="result" />
+
+## Closing only from the actions
+
+`escape="none"` and `outsidePress="none"` keep the dialog open when the reader presses Escape or clicks the backdrop. Use them when a stray key or click must not lose a choice, and leave a visible way out in the footer.
+
+<Example name="dismiss" />
+
+## Refusing a close with unsaved changes
+
+Every way of closing, from the ✕, Escape, a press outside or the browser's back gesture, goes through one request: `onOpenChange` in React and `(openChangeRequest)` in Angular. Call `request.cancel()` to keep the dialog open. Here an edited address keeps the dialog open and asks, in an alert dialog over it, whether to discard the change. Edit the address, then press Escape.
+
+<Example name="unsaved-changes" />
+
+## Opening from a row
+
+A dialog needs no trigger. Set `open` from the row's own button, and keep the row's data in its own state so the content stays filled while the dialog animates out. Focus returns to the button that opened it.
+
+<Example name="row-action" wide />
+
+## Opening from a menu item
+
+A menu item that opens a dialog sets `open` from `onSelect` in React or `(select)` in Angular. The menu closes as the dialog opens, so name where focus goes afterwards: `finalFocus` takes the menu trigger, which is where the reader started.
+
+<Example name="menu-action" />
+
+## Initial focus
+
+When the dialog opens, focus moves to its first focusable element, here the close button. `initialFocus` names another element, such as a search field; `initialFocus="container"` focuses the panel itself, for content that is read before it is used. While a modal dialog is open, Tab and Shift+Tab cycle inside it, and Escape closes it and returns focus to the trigger.
+
+<Example name="initial-focus" />
+
+## A dialog over a dialog
+
+A dialog opened from inside another stacks above it. Escape and a press outside close only the top one, and focus returns to the control in the dialog below.
+
+<Example name="nested" />
+
+## A form in a dialog
+
+Put the `form` in the body and point the footer's submit button at it with the `form` attribute, so the actions stay in the footer row. Enter in a field submits it. Validate on submit, show each error in the field, and close the dialog only when the data is valid. Submit the empty form to see the errors.
+
+<Example name="form" />
+
+## Saving
+
+While a save is in progress, show it on the button that started it with `loading`, disable the other actions, and refuse every close request so the result is not lost. Close the dialog when the save completes.
+
+<Example name="async-submit" />
+
+## Loading content
+
+`loading` marks the body as busy with `aria-busy` and keeps a minimum height, while the header, the ✕ and Escape stay available. Fill the body with skeletons in the shape of the content that is coming, so nothing moves when it arrives.
+
+<Example name="loading" />
+
+## Confirming a destructive action
+
+`AlertDialog` (`sl-alert-dialog`) is the dialog for a confirmation. It is always modal, a press outside never closes it, and focus starts on `AlertDialogCancel` (`slAlertDialogCancel`), the safe answer. It requires a description, and has no ✕: the reader answers with the cancel or the action. Label both buttons with what they do.
+
+<Example name="destructive" />
+
+## Alert tones
+
+`tone` sets the alert dialog's mark and its colour: `danger` (the default) for an action that destroys data, `warning` for one with consequences, `accent` for an ordinary confirmation, and `success` and `secondary` beside them. Give the action button the same tone.
+
+<Example name="alert-tones" />
+
+## Non-modal
+
+`modal={false}` (`[modal]="false"`) leaves the page behind interactive: no scrim is drawn, the pointer and the wheel reach the page, nothing is made inert, the page scroll is not locked, focus can leave the panel, and the panel has no `aria-modal`. Use it for reference content the reader works beside, with `outsidePress="none"` so working on the page does not close it.
+
+<Example name="non-modal" />
+
+## Full screen
+
+By default, a dialog fills the whole layer when the layer is narrower than 480 pixels, without margins or rounded corners. `fullScreen="always"` does so at every width and `fullScreen="never"` keeps the margins. `fullscreenToggle` adds a button to the header that lets the reader expand the panel and restore it.
+
+<Example name="full-screen" />
+
+## Defaults for a section
+
+`DialogDefaultsProvider` in React and `provideDialogDefaults` in Angular set `size`, `placement`, `scroll`, `surface`, `mount`, `fullScreen`, `modal`, `escape`, `outsidePress` and `back` once for every dialog under them. A value set on one dialog still wins.
+
+<Example name="defaults" />
+
+## Cancelling an order
+
+An alert dialog can hold a field. Here the reason is required, so the action stays disabled until one is chosen; the description states what the cancellation does before the reader commits.
+
+<Example name="cancel-order" />
+
+## Creating a shipment from an order
+
+A larger dialog composes a form: a select with descriptions, a validated field, a checkbox and a submit that saves for a moment. The close requests are refused while the shipment is being created.
+
+<Example name="create-shipment" />
+
+## Editing selected rows
+
+The selection in a table decides what the dialog edits. The selected ids are copied when the dialog opens, so the title, the description and the update name the same rows, and the selection is cleared after the update. Select two orders, then edit them.
+
+<Example name="bulk-edit" wide />

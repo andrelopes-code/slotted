@@ -1,0 +1,341 @@
+{
+  "schemaVersion": 5,
+  "family": "toast",
+  "ui": "toast",
+  "catalog": {
+    "group": "Feedback",
+    "summary": "Temporary notification with optional action."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/alert/",
+  "patternStatus": "There is no toast, notification or snackbar pattern in the WAI-ARIA Authoring Practices. The Alert pattern is the closest official guidance, and this family departs from it in exactly two places, both named under `departures`.",
+  "departures": {
+    "role": {
+      "says": "The widget has a role of alert.",
+      "does": "The visible message carries no live role at all. The region is a landmark and the announcement is made by packages/core/src/live-announcer at the politeness the message declares.",
+      "cost": "A reader hears the message from a node they cannot navigate to, and reaches the words again with the hotkey. In Radix's model they hear it in place and leave focus where it is; the reason to prefer this one is that Radix's reader also hears \"Close, button\" and \"Undo, button\" inside the sentence, and that a live region created in the same task as its text is silent under ARIA 1.2 §6.4."
+    },
+    "keyboard": {
+      "says": "Keyboard Interaction: Not applicable.",
+      "does": "Six keys, listed under `keyboard`. A message that carries an Undo has to be reachable, and the pattern's table is empty because an alert in its sense holds no controls.",
+      "cost": "The region is one more stop in the reading order for as long as a message is on screen, and a reader who never presses the hotkey pays nothing for it. The pattern's own rule — an arriving message never moves focus — is kept without exception."
+    }
+  },
+  "roles": {
+    "root": "region",
+    "list": "list"
+  },
+  "composes": ["presence", "portal", "live-announcer", "removal-focus", "state"],
+  "layer": {
+    "modal": false,
+    "scrollLock": false,
+    "zIndexToken": "--slotted-z-index-toast",
+    "pointerEvents": {
+      "region": "none",
+      "item": "auto",
+      "reason": "A region pinned over a page's content must not eat a press meant for the page. No surveyed implementation states it in its contract and every one of them does it, which is how a consumer discovers the rule by finding a dead corner of their own application."
+    },
+    "reason": "One layer in the single stack, above every overlay: a message about what just happened has to be readable over the dialog that caused it."
+  },
+  "wiring": {
+    "aria-label": "the region names itself, from the catalog's `label`, so the hotkey has somewhere to land and a reader can find it in the landmark list",
+    "aria-labelledby": "a message names itself by its own title, when a title part is present",
+    "aria-describedby": "a message points at its description, when a description part is present",
+    "aria-live": "never written. The announcement is the announcer's, and a second live region would read the same words twice.",
+    "aria-atomic": "never written, for the same reason",
+    "aria-hidden": "the mark, and the remaining-time bar",
+    "tabindex": "-1 on the region and on each message, so the hotkey and the removal handler have somewhere to put focus without adding either to the tab sequence"
+  },
+  "announcement": {
+    "channel": "packages/core/src/live-announcer",
+    "liveRegion": false,
+    "politeness": {
+      "polite": "the default. The message waits for the reader to finish the sentence they are on.",
+      "assertive": "interrupts. Stated per message, and never inferred from the tone: a `danger` message a background job produced must not cut into a sentence."
+    },
+    "text": "the title and the description, joined. A message that renders only content of its own announces the string the consumer passes as `announcement`, and nothing at all when they pass none.",
+    "cost": "The announcement is a string, so a message whose content is a component the consumer wrote is not read from the DOM. It is stated on both reference pages rather than left to be discovered by a reader who hears silence.",
+    "onReturn": "coming back to a hidden tab announces the newest message only. Four sentences about a screen the reader has not looked at yet is worse than one."
+  },
+  "keyboard": [
+    {
+      "key": "F6",
+      "effect": "moves focus into the region, when at least one message is on screen",
+      "focus": "the newest message's own element",
+      "source": "family"
+    },
+    {
+      "key": "Tab",
+      "effect": "moves through the controls of the messages, in the order they arrived, and then out of the region",
+      "focus": "the next focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves back through the same controls",
+      "focus": "the previous focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Escape",
+      "effect": "closes the message focus is inside, with the reason `escape`",
+      "focus": "the next message, or the element focus came from when there is none",
+      "source": "family"
+    },
+    {
+      "key": "Enter",
+      "effect": "activates the control focus is on",
+      "focus": "unchanged, unless the control removed the message it was in",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "activates the control focus is on",
+      "focus": "unchanged, unless the control removed the message it was in",
+      "source": "platform"
+    }
+  ],
+  "focus": {
+    "autoFocus": false,
+    "reason": "The APG's Alert pattern is explicit: \"it is crucial they do not affect keyboard focus\". A message arriving never moves it. The reader moves it, with the hotkey, and the hotkey is the whole of the family's claim on the keyboard.",
+    "contained": false,
+    "restore": "where focus was before the hotkey moved it",
+    "removal": {
+      "owner": "packages/core/src/focus/removal-focus",
+      "destination": "the next message, then the element focus came from",
+      "reason": "Only React Aria answers what happens to the keyboard when the message holding it is removed, and only for its own close control. A message never expires while it holds focus, so this arises when the reader's own action removes it."
+    },
+    "hotkey": {
+      "default": "F6",
+      "reason": "Five surveyed implementations ship a shortcut and no two chose the same key: F8, F6, F6, Alt+T, Alt+T. F6 is the one two of them chose for the reason that generalises — it is the landmark-navigation key and the region is a landmark. It is an axis because Radix's F8 is as defensible as Base UI's F6."
+    }
+  },
+  "timing": {
+    "criterion": "https://www.w3.org/WAI/WCAG22/Understanding/timing-adjustable.html",
+    "wayOut": "turn off",
+    "applicationOwes": "The criterion's first way out is that the reader may turn the limit off before meeting it. The family makes the switch settable once, for the whole application, as `duration: 0` on the defaults provider. Putting that switch in front of the reader is the application's work, and both reference pages say so rather than implying the family has discharged the criterion.",
+    "default": 5000,
+    "never": 0,
+    "neverReason": "`0` rather than `Infinity`, following Base UI: a queue a consumer can own is a value that gets serialised, and `Infinity` does not survive JSON.",
+    "startsWhenVisible": true,
+    "startsWhenVisibleReason": "A message waiting behind the limit has no timer. Ark queues past its maximum and times the wait as well, so a message can be created, wait behind three others, and be shown after the thing it is about has changed.",
+    "pause": ["hover", "focus", "hidden"],
+    "resume": "remaining",
+    "resumeReason": "Restarting the timer turns a hover into an extension, which is a different feature nobody asked for.",
+    "focusPauseReason": "The focus pause is not an axis. Switching it off expires the message under the keyboard that is using it, and WCAG 2.2 SC 2.2.1 is the reason it must not.",
+    "actionSuspends": true,
+    "actionSuspendsReason": "Angular Material states the rule and is alone in it: \"Avoid setting a duration for snackbars that have an action available, as screen reader users may want to navigate to the snackbar element to activate the action.\" Five surveyed implementations ship the action and the timer and leave the combination to the consumer. Here a message that carries an action and states no duration of its own does not expire.",
+    "loadingSuspends": true,
+    "expiredReason": "timeout",
+    "dismissedReason": "dismiss",
+    "playStateProperty": "--slotted-toast-play-state"
+  },
+  "attach": {
+    "portal": "fixed against the viewport, rendered at the end of the document, inheriting the theme, scheme, density and direction of the region it was written in. The default.",
+    "viewport": "fixed against the viewport, rendered where it is written, for an application shell that already owns its own stacking context.",
+    "inline": "absolute against the nearest positioned ancestor, for a region that belongs to one panel. Fluent is the one surveyed implementation that ships it, and it is what makes the family demonstrable on a documentation page."
+  },
+  "variants": {
+    "raised": "the neutral raised surface, with the tone in the mark and in the edge. The default, because a message that floats over content the family does not own should not tint it.",
+    "soft": "the tone's own surface, which is `alert`'s default and the right one for a region that sits inside a page's own chrome.",
+    "solid": "the tone's fill, with `on-solid` for every word, mark and control in the box."
+  },
+  "toneGlyphs": {
+    "accent": "status-info",
+    "secondary": null,
+    "info": "status-info",
+    "success": "status-success",
+    "warning": "status-warning",
+    "danger": "status-danger"
+  },
+  "stacking": {
+    "measures": true,
+    "measured": [
+      "--slotted-toast-height",
+      "--slotted-toast-front-height",
+      "--slotted-toast-stack-offset",
+      "--slotted-toast-stack-height"
+    ],
+    "expandsOn": ["hover", "focus"],
+    "step": "--slotted-toast-stack-step",
+    "reason": "Closed, the messages share the one anchor `placement` already names, step back by a token distance computed from `--slotted-toast-index` and are held back in opacity by the same index. Open, each one returns to its own height and its own place in the column. Both states are positioned and differ only by a translate, an opacity and a height, which is what lets one become the other rather than snap — and a pile of messages that are not all the same height cannot be opened from arithmetic alone. Three measurements are what the second half costs, and they are the same three Base UI takes. A fourth, the open pile's whole height, gives the list the size of what it holds, so the gaps between open messages belong to the region and a pointer crossing one does not close the pile under it.",
+    "cost": "One ResizeObserver per region, and four runtime custom properties a static picture cannot produce on its own. The alternative was considered and rejected: with no measurement the closed pile is the same picture, and opening it is a snap rather than a movement — which is the whole of what the axis is for."
+  },
+  "swipe": {
+    "direction": "follows `placement`: a region at the block end swipes toward the block end, one at the block start swipes toward the block start, and both also swipe toward the inline edge they sit on",
+    "threshold": "--slotted-toast-swipe-threshold",
+    "reason": "Three surveyed implementations ship it. On touch it is the gesture the platform trained the reader to expect, and the alternative is a small target at the corner of a box that is moving.",
+    "ignoresControls": "a swipe never starts on a control inside the message, because the control is what the pointer came for"
+  },
+  "runtimeProperties": [
+    "--slotted-toast-count",
+    "--slotted-toast-duration",
+    "--slotted-toast-front-height",
+    "--slotted-toast-height",
+    "--slotted-toast-index",
+    "--slotted-toast-play-state",
+    "--slotted-toast-stack-height",
+    "--slotted-toast-stack-offset",
+    "--slotted-toast-swipe-x",
+    "--slotted-toast-swipe-y"
+  ],
+  "queueing": {
+    "limit": 3,
+    "limitReason": "Three surveyed defaults out of four are 3. What exceeds it waits rather than being dropped, and takes its place as a message leaves.",
+    "dedupe": "by id: creating a message whose id is already in the queue updates that message instead of adding a second one. `docs/component-features.md` §14 requires a deduplication policy of this family by name.",
+    "order": "arrival order, newest nearest the region's own edge, so the newest message is the one the reader's eye is already on"
+  },
+  "messages": ["close", "label"],
+  "messagesReason": "Both come from the catalog of the language in force, so an application translates them once rather than on every message it shows. A region may still lay its own messages over them.",
+  "declined": {
+    "anchored": {
+      "deferTo": "popover",
+      "reason": "Base UI ships a positioner and an arrow on its toast. A message pinned to a control is a popover with a timer; `popover` shipped in this wave with the positioning, the collision handling and the arrow, and a second family drawing an arrow would be two answers to one question."
+    },
+    "modal": {
+      "deferTo": "alert-dialog",
+      "reason": "The APG names the alert dialog for the case where interrupting the reader's work is necessary. A toast that had to be answered before anything else would be that, under a name that says the opposite."
+    },
+    "persistent": {
+      "deferTo": "alert",
+      "reason": "A message the reader must be able to come back to belongs in the layout. `duration: 0` keeps a toast on screen until it is dismissed and does not make it findable, which is the difference between the two families."
+    },
+    "cancelSlot": {
+      "composition": "<Button variant=\"ghost\" onClick={close}>Cancel</Button> inside the actions part",
+      "reason": "One of nine ships a named slot for the second control. The actions part takes the consumer's own buttons, and naming one of the two would privilege one arrangement over every other."
+    },
+    "customToast": {
+      "composition": "the content part with the consumer's own node inside it",
+      "reason": "Sonner's `custom` and `headless` render a message that draws none of the family's parts. That is the content part with something else in it, and there is nothing left for a second API to add."
+    },
+    "singleMessage": {
+      "composition": "limit: 1",
+      "reason": "Angular Material shows one snack bar at a time and dismisses the previous one. It is a policy rather than a capability, and the limit already produces it."
+    },
+    "richColors": {
+      "composition": "variant: 'soft' on the defaults provider",
+      "reason": "Sonner's global switch paints every tone at once. `variant` decides how a tone is painted, per message and once for the application, which is where an application that wants a solid failure and a quiet success needs it."
+    }
+  },
+  "axes": {
+    "placement": ["top-start", "top", "top-end", "bottom-start", "bottom", "bottom-end"],
+    "attach": ["portal", "viewport", "inline"],
+    "stacking": ["list", "stack"],
+    "tone": ["accent", "secondary", "info", "success", "warning", "danger"],
+    "variant": ["raised", "soft", "solid"],
+    "priority": ["polite", "assertive"],
+    "dismissible": [true, false],
+    "swipe": [true, false],
+    "progress": [true, false],
+    "pauseOnHover": [true, false],
+    "pauseWhenHidden": [true, false]
+  },
+  "resolution": {
+    "placement": ["prop", "defaults", "bottom-end"],
+    "attach": ["prop", "defaults", "portal"],
+    "stacking": ["prop", "defaults", "list"],
+    "tone": ["prop", "defaults", "accent"],
+    "variant": ["prop", "defaults", "raised"],
+    "priority": ["prop", "defaults", "polite"],
+    "dismissible": ["prop", "defaults", true],
+    "swipe": ["prop", "defaults", true],
+    "progress": ["prop", "defaults", false],
+    "pauseOnHover": ["prop", "defaults", true],
+    "pauseWhenHidden": ["prop", "defaults", true]
+  },
+  "provides": {
+    "toastDefaults": [
+      "placement",
+      "attach",
+      "stacking",
+      "tone",
+      "variant",
+      "priority",
+      "dismissible",
+      "swipe",
+      "progress",
+      "pauseOnHover",
+      "pauseWhenHidden",
+      "limit",
+      "duration",
+      "hotkey"
+    ]
+  },
+  "stateAttributes": {
+    "open": "data-open",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "queue": {
+      "controlled": "toasts",
+      "uncontrolled": "defaultToasts",
+      "request": "onToastsChange",
+      "reasons": ["programmatic", "dismiss", "escape", "keyboard", "pointer", "timeout", "clear"]
+    }
+  },
+  "members": {
+    "toast": {
+      "nativeElement": "section",
+      "defaults": {
+        "placement": "bottom-end",
+        "attach": "portal",
+        "stacking": "list",
+        "tone": "accent",
+        "variant": "raised",
+        "priority": "polite",
+        "dismissible": true,
+        "swipe": true,
+        "progress": false,
+        "pauseOnHover": true,
+        "pauseWhenHidden": true,
+        "limit": 3,
+        "duration": 5000,
+        "hotkey": "F6"
+      },
+      "capabilities": [
+        "queue",
+        "placement",
+        "appearance",
+        "arrangement",
+        "content",
+        "live",
+        "loading",
+        "wiring",
+        "focusable"
+      ],
+      "states": ["default", "hover", "active", "focus-visible", "open", "loading"],
+      "parts": [
+        "root",
+        "list",
+        "item",
+        "icon",
+        "content",
+        "title",
+        "description",
+        "actions",
+        "close",
+        "progress"
+      ]
+    }
+  },
+  "scenarios": {
+    "toast": [
+      "playground",
+      "tones",
+      "variants",
+      "placement",
+      "timing",
+      "actions",
+      "promise",
+      "queue",
+      "stacking",
+      "dismissal",
+      "keyboard",
+      "content",
+      "composition"
+    ]
+  },
+  "measure": {
+    "value": "24rem, capped by the viewport less twice the offset",
+    "reason": "A message has to be wide enough for a sentence and narrow enough not to read as a dialog. The cap against the viewport is what keeps it on the screen at 320 pixels and at 200% zoom, where a stated width alone is off the edge."
+  }
+}

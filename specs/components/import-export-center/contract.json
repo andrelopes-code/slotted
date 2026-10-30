@@ -1,0 +1,506 @@
+{
+  "schemaVersion": 5,
+  "family": "import-export-center",
+  "ui": "import-export-center",
+  "catalog": {
+    "group": "Feedback",
+    "summary": "Import and export jobs with progress."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
+  "patternStatus": "The WAI-ARIA Authoring Practices index at https://www.w3.org/WAI/ARIA/apg/patterns/ has no pattern for a job centre. The family is a native list; the control that opens a job's details follows the Disclosure pattern, every other control follows the Button pattern, the bar is the progressbar role progress-indicator already carries, and a job changing state is a status message under WCAG 2.2 SC 4.1.3.",
+  "sources": [
+    {
+      "url": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
+      "title": "Disclosure (Show/Hide) Pattern",
+      "settles": "The toggle is a button; Enter and Space toggle the details; aria-expanded is true while the details are shown and false otherwise; aria-controls names the details."
+    },
+    {
+      "url": "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
+      "title": "Button Pattern",
+      "settles": "Cancel, retry, remove, clear and a download without an href are real buttons; Enter and Space activate them; each carries an accessible name."
+    },
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html",
+      "title": "Understanding SC 4.1.3 Status Messages",
+      "settles": "A job finishing, failing or being cancelled is announced without moving focus."
+    }
+  ],
+  "reference": "Carbon for IBM Products ImportModal and ExportModal, Stripe Report Run and File Link, Salesforce Bulk API 2.0 ingest jobs, HubSpot file imports, Flatfile jobs, PatternFly notification drawer",
+  "composes": [
+    "upload",
+    "progress-indicator",
+    "table",
+    "result-state",
+    "tabs",
+    "button",
+    "tooltip",
+    "skeleton",
+    "spinner"
+  ],
+  "engine": "@slotted/core/import-export-center — jobOutcome, jobControls, jobTone, filterJobs, isActiveJob, fileAvailability, formatJobProgress, estimateFinish and jobNotice; one answer for both bindings",
+  "rootElement": "section",
+  "rootRole": "region, named by the title message or the consumer's aria-label",
+  "roles": {
+    "list": "list, from the native ul",
+    "job": "listitem, from the native li",
+    "progress": "progressbar, from the composed progress-indicator",
+    "toggle": "button, the Disclosure pattern's control",
+    "details": "region, named by the toggle",
+    "errors": "table, from the composed table",
+    "views": "tablist, held by tabs; the list is its one panel"
+  },
+  "anatomy": {
+    "root": "a section: the region, the container query and the element a ref returns",
+    "header": "the row above the views: title, and tools",
+    "title": "the heading at level, with the count of active jobs after the words",
+    "count": "the family's own chip: how many jobs are queued or running; absent at zero",
+    "tools": "the family's clear and the consumer's actions, one group that wraps as one so the title keeps its line",
+    "clear": "a button that asks to remove every finished job; absent when none is finished or none is removable",
+    "actions": "the consumer's own controls: upload variant=button to start an import, a button that opens the export dialog",
+    "views": "tabs with the list alone over all, import and export or the consumer's views; absent when there is one view",
+    "list": "a ul named by the title; aria-busy while loading",
+    "job": "one job; carries data-direction, data-status, data-outcome, data-expired and data-expanded",
+    "visual": "the file-kind tile, painted from upload's File kind scale, holding an Icon with the kind's glyph in the scale's foreground; aria-hidden",
+    "body": "the column of a job that shrinks: heading, status, progress, summary and message",
+    "heading": "the job's name and the line of what it is about",
+    "job-title": "the job's name; a link when href is stated",
+    "meta": "direction, format, the file, its size, actor and time; each item a plain span in the line's direction, separated by a drawn dot a wrapped line never starts with",
+    "file-name": "the name and its extension as one run in the name's own direction",
+    "name": "the stem, shrinking to an ellipsis before the extension",
+    "extension": "the last dot and what follows it, which does not shrink",
+    "time": "a time element with the ISO value in datetime",
+    "status": "the mark, the word for the job's state and the consumer's stage",
+    "mark": "an Icon with the status glyph, or spinner while running, in the line's own size, in a column of its own beside status-label",
+    "stage": "the consumer's phase sentence after the word, in the muted voice, after a drawn separator",
+    "progress": "the composed progress-indicator and the text beside it; present while running",
+    "progress-text": "processed of total in the job's unit, the percentage, and the time left when known",
+    "summary": "the counts in one line, once the job has finished",
+    "message": "the sentence about the job: why it failed, why a file cannot be downloaded, when a file expired or expires",
+    "controls": "the job's controls, in the order the table in the design sets",
+    "download": "a slot holding button's control: an a[download] when the file has an href, a button that asks onDownload otherwise",
+    "cancel": "a button that asks onCancel",
+    "retry": "a button that asks onRetry; its words say Generate again on an expired export",
+    "toggle": "the Disclosure button that shows and hides the details; its words stay Details in both states, because aria-expanded says which",
+    "chevron": "an Icon with chevron-down in the button's end slot; it turns while the details are shown",
+    "job-actions": "the consumer's own controls for this job",
+    "remove": "an icon button holding an Icon with x, named by a tooltip, that asks to remove a finished job",
+    "details": "the region the toggle shows: counts, files and errors",
+    "counts": "a dl with total, processed, created, updated, skipped and failed, in that order, leaving out what is not stated",
+    "files": "the original file, the result and the error report, each with its own download or its reason",
+    "file": "one row of files: kind word, name, size, availability and its control",
+    "errors": "the composed table of the rows that failed: row, column, value, message",
+    "errors-note": "Showing n of m when the consumer sent a sample",
+    "more": "growing=button: a button that asks onLoadMore; waits while loading",
+    "empty": "the view's empty page, or the consumer's",
+    "error": "status=error: result-state with the control that asks onReload",
+    "footer": "the consumer's footer; absent when not written",
+    "status-label": "the word for the job's state and the consumer's stage, one run that wraps inside its column and never under the mark"
+  },
+  "wiring": {
+    "aria-labelledby": "on the root and the list, naming the title; on every job control, its own id and the job-title's id, so the name is Download Invoices Q3",
+    "aria-expanded": "on the toggle: true while the details are shown",
+    "aria-controls": "on the toggle, naming the details; on each tab of the views strip, naming the list",
+    "aria-busy": "true on the list while loading",
+    "aria-describedby": "on a job's controls, naming the status line",
+    "aria-live": "a polite announcement, once per transition, of a shown job reaching another state",
+    "datetime": "on time, the ISO value"
+  },
+  "statuses": ["queued", "running", "succeeded", "failed", "canceled"],
+  "statusMeanings": {
+    "queued": "created and waiting to run; a server's Open, planning, scheduled and ready all map here",
+    "running": "the server is working on it",
+    "succeeded": "the server finished; the outcome is partial when a row failed",
+    "failed": "the server gave up; message says why",
+    "canceled": "stopped at the reader's or an administrator's word"
+  },
+  "outcomes": {
+    "success": "succeeded with no failed row",
+    "partial": "succeeded with counts.failed above nought or errorCount above nought",
+    "failed": "failed",
+    "canceled": "canceled",
+    "reason": "Salesforce calls a job Failed when records were written and not rolled back, and HubSpot shows an Errors column on an import it calls complete. A job with twelve failed rows painted green is the defect a derived outcome prevents: the consumer states counts, the family decides."
+  },
+  "tones": {
+    "queued": "secondary",
+    "running": "accent",
+    "success": "success",
+    "partial": "warning",
+    "failed": "danger",
+    "canceled": "secondary"
+  },
+  "statusGlyph": {
+    "queued": "clock",
+    "running": "spinner",
+    "success": "circle-check",
+    "partial": "circle-alert",
+    "failed": "circle-x",
+    "canceled": "circle",
+    "reason": "every glyph is a circle or a clock, and a running job draws spinner, the ring every family shows for an indeterminate wait; a triangle is refused in this library, and circle-x is already the failure, so a cancelled job draws the empty circle"
+  },
+  "controls": {
+    "queued": ["cancel", "toggle"],
+    "running": ["cancel", "toggle"],
+    "success": ["download", "toggle", "remove"],
+    "partial": ["download", "toggle", "remove"],
+    "failed": ["retry", "toggle", "remove"],
+    "canceled": ["retry", "toggle", "remove"],
+    "expired": "download becomes retry, worded Generate again on an export",
+    "denied": "download is absent and the file's denied sentence is the message",
+    "flags": "cancelable: false removes cancel, retryable: false removes retry, removable: false removes remove",
+    "owner": "jobControls in @slotted/core/import-export-center; both bindings render what it returns",
+    "toggle": "present only when the job has something to show: a count, a file or a failed row (hasDetails)"
+  },
+  "files": {
+    "source": "the file an import read; downloadable when the consumer states an href",
+    "result": "the file an export produced, or the file an import wrote back",
+    "errorsFile": "the report of the rows that failed",
+    "availability": ["available", "expires", "expired", "denied", "none"],
+    "expiry": "expiresAt is written as an absolute date in every timeFormat: a deadline is a date. Past it the job carries data-expired and the download control leaves",
+    "permission": "denied is the consumer's sentence; the family draws it where the control would be"
+  },
+  "progress": {
+    "determinate": "value and max stated",
+    "indeterminate": "value absent; the bar is indeterminate and the text says only the stage",
+    "units": ["rows", "bytes", "percent"],
+    "remaining": "eta from the consumer wins; otherwise estimateFinish reads the updates the family has seen, needs three samples over five seconds, and says nothing below one percent",
+    "announced": false,
+    "reason": "a bar that speaks every update says nothing; aria-valuenow is on the progressbar for a reader who asks",
+    "present": "while running; a queued job has no bar, because nothing has started"
+  },
+  "errors": {
+    "columns": ["row", "message", "column", "value"],
+    "sample": "errorCount above errors.length writes errors-note and the error report's control beside it",
+    "block": "the table scrolls inside a box of a stated block size, so twelve thousand rows do not become the page",
+    "order": "the message second: at a narrow width the table scrolls sideways and the words that say what is wrong stay in view"
+  },
+  "requests": {
+    "onCancel": {
+      "payload": "key",
+      "reasons": ["pointer", "keyboard"],
+      "from": "cancel"
+    },
+    "onRetry": {
+      "payload": "key",
+      "reasons": ["pointer", "keyboard"],
+      "from": "retry"
+    },
+    "onRemove": {
+      "payload": "{ keys }",
+      "reasons": ["pointer", "keyboard", "clear"],
+      "from": "remove on a job, clear in the header with the reason clear"
+    },
+    "onDownload": {
+      "payload": "{ key, file }",
+      "reasons": ["pointer", "keyboard"],
+      "from": "download and the files in the details, before the navigation; cancellable"
+    },
+    "onOpen": {
+      "payload": "key",
+      "reasons": ["pointer", "keyboard"],
+      "from": "the job-title link, before its navigation; cancellable"
+    },
+    "onLoadMore": {
+      "payload": "none",
+      "reasons": ["pointer", "keyboard"],
+      "from": "more"
+    },
+    "onReload": {
+      "payload": "none",
+      "reasons": ["pointer", "keyboard"],
+      "from": "the error page's control"
+    }
+  },
+  "announcement": {
+    "channel": "packages/core/src/live-announcer",
+    "politeness": "polite",
+    "announces": ["running", "success", "partial", "failed", "canceled"],
+    "silent": ["the first render", "progress", "a job that arrives already finished"],
+    "reason": "WCAG 2.2 SC 4.1.3: a job reaching another state reaches assistive technology without taking focus, once per transition"
+  },
+  "notice": {
+    "module": "jobNotice in @slotted/core/import-export-center",
+    "react": "useJobToasts(jobs, { toaster, onView })",
+    "angular": "jobToasts(jobs, { toaster, onView }) in an injection context",
+    "id": "the toast's id is the job's key under the prefix import-export-center:, so the finishing notice replaces the starting one",
+    "transitions": ["started", "success", "partial", "failed"],
+    "action": "View, which calls onView(key); the consumer navigates to the centre and calls reveal(key)",
+    "reason": "the operation continues outside the page and the toast only points at the job: it carries no progress, no cancel and no download of its own"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves through the header's controls, the views strip's selected tab, then each job's link and controls in the order the jobs are in, then more and the footer",
+      "focus": "the next tabbable element",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves back through the same controls",
+      "focus": "the previous tabbable element",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "on the toggle: shows or hides the details; on any other control: activates it; on a download link: follows it",
+      "focus": "unchanged",
+      "source": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/"
+    },
+    {
+      "key": "Space",
+      "effect": "on the toggle: shows or hides the details; on a button: activates it",
+      "focus": "unchanged",
+      "source": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/"
+    },
+    {
+      "key": "ArrowLeft / ArrowRight",
+      "effect": "on the views strip: moves between views, as tabs holds it",
+      "focus": "the next or previous tab",
+      "source": "tabs"
+    }
+  ],
+  "focus": {
+    "autoFocus": false,
+    "contained": false,
+    "removal": {
+      "owner": "focusDestination in @slotted/core/import-export-center",
+      "destination": "the same control on the job now in the place of the one that left, then on the job before it, then the list",
+      "reason": "a reader clearing four failed jobs presses the same key four times"
+    },
+    "withdrawn": {
+      "destination": "the first control the same job still has, then its title",
+      "reason": "a job that finishes while focus is on Cancel loses Cancel; focus that fell to the body would make the reader start again from the top of the page",
+      "owner": "focusDestination in @slotted/core/import-export-center"
+    },
+    "reveal": "the handle's reveal(key) asks expanded with programmatic, scrolls the job into view and focuses its title"
+  },
+  "content": {
+    "truncation": "middle",
+    "removesFromDom": false,
+    "direction": "auto",
+    "reason": "a file name is content the family did not choose; splitName from @slotted/core/upload keeps the extension, the whole name stays in the DOM, and dir=auto reads an Arabic name in its own direction"
+  },
+  "messages": [
+    "title",
+    "active",
+    "clear",
+    "views",
+    "all",
+    "imports",
+    "exports",
+    "import",
+    "export",
+    "queued",
+    "running",
+    "success",
+    "partial",
+    "failed",
+    "canceled",
+    "download",
+    "downloadErrors",
+    "cancel",
+    "retry",
+    "regenerate",
+    "details",
+    "remove",
+    "loadMore",
+    "loading",
+    "empty",
+    "emptyImports",
+    "emptyExports",
+    "emptyDescription",
+    "loadError",
+    "loadErrorDescription",
+    "reload",
+    "rows",
+    "ofRows",
+    "ofBytes",
+    "created",
+    "updated",
+    "skipped",
+    "remaining",
+    "expires",
+    "expired",
+    "sample",
+    "countLabels.total",
+    "countLabels.processed",
+    "countLabels.created",
+    "countLabels.updated",
+    "countLabels.skipped",
+    "countLabels.failed",
+    "fileLabels.source",
+    "fileLabels.result",
+    "fileLabels.errors",
+    "errorsCaption",
+    "errorColumns.row",
+    "errorColumns.message",
+    "errorColumns.column",
+    "errorColumns.value",
+    "view",
+    "announce.started",
+    "announce.success",
+    "announce.partial",
+    "announce.failed",
+    "announce.canceled"
+  ],
+  "messagesReason": "The status line, the announcer and the toast read the same catalog messages, so they say the same thing about a job. Counts reach a message as numbers, so a plural is the language's and the digits are the locale's; sizes, durations and dates reach it already written. The announcement is one message per transition with `{direction}` chosen inside it, so a language agrees the noun with its verb.",
+  "declined": {
+    "importFromUrl": {
+      "reason": "Carbon ImportModal's URL input; a text-field and a button in the actions slot, with the handler that creates the job"
+    },
+    "exportDialog": {
+      "reason": "Carbon ExportModal's format and file name; dialog with radio-group and text-field, and the centre receives the job after the choice"
+    },
+    "columnMapping": {
+      "reason": "Flatfile's mapping and cell review is a data editor; data-grid with editing, or the consumer's importer"
+    },
+    "transport": {
+      "reason": "polling and webhooks belong to the consumer's store; the family reads jobs and opens no connection"
+    },
+    "pause": {
+      "reason": "no surveyed server job pauses; upload pauses a transfer, and the job-actions slot holds a server's own pause"
+    },
+    "bulkSelection": {
+      "deferTo": "selection-toolbar",
+      "reason": "a selection over the list is selection-toolbar's, composed over the same jobs"
+    },
+    "infiniteScroll": {
+      "reason": "a job history is consulted, not scrolled through; growing=button asks for each page"
+    },
+    "downloadGlyph": {
+      "reason": "the download control is a button with words; a new glyph changes the token contract, which another lane holds open in this worktree"
+    }
+  },
+  "axes": {
+    "size": ["sm", "md"],
+    "level": ["2", "3", "4"],
+    "growing": ["none", "button"],
+    "timeFormat": ["relative", "absolute"],
+    "status": ["ready", "error"],
+    "direction": ["import", "export"],
+    "jobStatus": ["queued", "running", "succeeded", "failed", "canceled"],
+    "outcome": ["success", "partial", "failed", "canceled"]
+  },
+  "resolution": "the consumer's explicit prop, then the family's defaults provider, then the fallback",
+  "provides": {
+    "importExportCenterDefaults": ["size", "level", "growing", "timeFormat", "timeZone"]
+  },
+  "stateAttributes": {
+    "loading": "data-loading",
+    "expanded": "data-expanded"
+  },
+  "stateModel": {
+    "current": {
+      "controlled": "view",
+      "uncontrolled": "defaultView",
+      "request": "onViewChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    },
+    "open": {
+      "controlled": "expanded",
+      "uncontrolled": "defaultExpanded",
+      "request": "onExpandedChange",
+      "scope": "the set of job keys whose details are shown; a key that leaves jobs leaves the set on the next render",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "members": {
+    "importExportCenter": {
+      "nativeElement": "section",
+      "defaults": {
+        "size": "md",
+        "level": "2",
+        "growing": "none",
+        "timeFormat": "relative",
+        "status": "ready",
+        "view": "all",
+        "loading": false,
+        "hasMore": false
+      },
+      "capabilities": [
+        "current",
+        "open",
+        "removable",
+        "status",
+        "live",
+        "size",
+        "loading",
+        "content",
+        "wiring"
+      ],
+      "states": ["default", "hover", "focus-visible", "expanded", "loading"],
+      "parts": [
+        "root",
+        "header",
+        "title",
+        "count",
+        "tools",
+        "clear",
+        "actions",
+        "views",
+        "list",
+        "job",
+        "visual",
+        "body",
+        "heading",
+        "job-title",
+        "meta",
+        "file-name",
+        "name",
+        "extension",
+        "time",
+        "status",
+        "mark",
+        "status-label",
+        "stage",
+        "progress",
+        "progress-text",
+        "summary",
+        "message",
+        "controls",
+        "download",
+        "cancel",
+        "retry",
+        "toggle",
+        "chevron",
+        "job-actions",
+        "remove",
+        "details",
+        "counts",
+        "files",
+        "file",
+        "errors",
+        "errors-note",
+        "more",
+        "empty",
+        "error",
+        "footer"
+      ]
+    }
+  },
+  "scenarios": {
+    "importExportCenter": [
+      "playground",
+      "anatomy",
+      "statuses",
+      "progress",
+      "errors",
+      "files",
+      "views",
+      "intake",
+      "toasts",
+      "hosts",
+      "loading",
+      "empty",
+      "sizes",
+      "content",
+      "defaults",
+      "accessibility"
+    ]
+  },
+  "layout": {
+    "stacked": "below 42rem: the tile, and the words with the controls under them; below 22rem the details take the tile's column as well",
+    "wide": "from 42rem the list is one grid and every job a subgrid of it: tile, name and meta, and the status column with the controls under it, so the columns line up down the list",
+    "container": "import-export-center, on the root"
+  },
+  "glyphs": "every mark is the Glyph element inside an Icon, drawn by the binding; the stylesheet sizes it through --slotted-icon-size and paints no glyph"
+}

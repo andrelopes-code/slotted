@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 5,
+  "family": "switch",
+  "ui": "switch",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Toggle that turns a setting on or off."
+  },
+  "controlPart": "control",
+  "controlType": "checkbox",
+  "controlRole": "switch",
+  "rootRole": null,
+  "checkedAttribute": "checked",
+  "stateSource": "field",
+  "mirrorsState": true,
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "disabled",
+  "readOnlyAttribute": "aria-readonly",
+  "wiring": {
+    "id": "the field's, else its own",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "disabled": "disabled",
+    "readonly": "aria-readonly"
+  },
+  "requestEvent": "click",
+  "reasonSource": {
+    "pointer": "detail > 0",
+    "keyboard": "detail === 0 && isTrusted",
+    "programmatic": "detail === 0 && !isTrusted"
+  },
+  "refusesActivation": ["disabled", "loading", "readonly", "controlled"],
+  "keyboard": ["Space"],
+  "keySource": "platform",
+  "enterBound": false,
+  "escapeBound": false,
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "indicator": ["mark", "none"],
+    "labelPlacement": ["end", "start"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "indicator": ["prop", "defaults", "mark"],
+    "labelPlacement": ["prop", "defaults", "end"]
+  },
+  "provides": {
+    "switchDefaults": ["size", "indicator", "labelPlacement"]
+  },
+  "messages": ["loading"],
+  "stateAttributes": {
+    "checked": "data-checked",
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "checked": {
+      "controlled": "checked",
+      "uncontrolled": "defaultChecked",
+      "request": "onCheckedChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "literals": {
+    "--slotted-switch-track-inline-size": "A proportion of the thumb rather than a step on a scale: two thumbs and three gutters wide, so the thumb travels exactly its own diameter plus one gutter and the same air is left at both ends in both states. Geometry derived from a token is not a second scale, which is the rule docs/token-foundation.md states for Avatar.",
+    "--slotted-switch-loading-delay": "Two seconds before the pending label is announced. A save that returns in 200 milliseconds should say nothing at all; the number is Primer's, measured against the same problem, and it lives in the binding rather than in CSS."
+  },
+  "members": {
+    "switch": {
+      "nativeElement": "input",
+      "defaults": {
+        "size": "md",
+        "indicator": "mark",
+        "labelPlacement": "end",
+        "loading": false
+      },
+      "capabilities": [
+        "checked",
+        "appearance",
+        "size",
+        "placement",
+        "disabled",
+        "loading",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "checked",
+        "disabled",
+        "readonly",
+        "invalid",
+        "loading"
+      ],
+      "parts": ["root", "control", "track", "thumb", "label", "description"]
+    }
+  },
+  "scenarios": {
+    "switch": [
+      "playground",
+      "sizes",
+      "indicator",
+      "placement",
+      "description",
+      "states",
+      "loading",
+      "field",
+      "settings",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

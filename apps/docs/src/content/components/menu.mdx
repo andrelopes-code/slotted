@@ -1,0 +1,146 @@
+---
+title: Menu
+description: A list of commands that opens from a button, for the actions on an order, a row or a page that do not each need a button of their own.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Triggers
+
+The control that opens a menu is your own. In React, `MenuTrigger` passes the wiring to the element its `render` prop returns, here a `Button` and an `IconButton`; in Angular, `slMenuTriggerFor` goes on the button you already have. Either way the control keeps its own family's styles and gains `aria-haspopup="menu"` and `aria-expanded`. An icon-only trigger needs an `aria-label`, which also names the menu. A split button pairs its primary action with a menu of alternatives. A menu opened by a secondary click or Shift+F10 on a region is the `context-menu` component.
+
+<Example name="triggers" />
+
+## Groups and separators
+
+`MenuGroup` in React and `sl-menu-group` in Angular put a run of items under a label, and the group is named by that label, so assistive technology reads it with the first item it reaches. A separator draws a line between runs and is never focused.
+
+<Example name="groups" />
+
+## Icons and shortcuts
+
+`icon` fills the first column of an item; in Angular, put the icon in an element with `slMenuItemIcon`. Labels start on the same edge whether or not their item has an icon. `shortcut` takes a binding written as `Mod+D` and prints it for the reader's platform, `⌘D` on macOS and `Ctrl+D` elsewhere, and announces it with `aria-keyshortcuts`. The menu prints the shortcut only: your application binds the key.
+
+<Example name="icons" />
+
+## Descriptions
+
+`description` writes a second line under the label, which the item references with `aria-describedby`; in Angular, use an element with `slMenuItemDescription`. A screen reader announces the label as the item's name and the line as its description, so the line can carry the amount, the consequence or the condition of the command.
+
+<Example name="descriptions" />
+
+## Counts and values
+
+`meta` puts a count, a status or a current value at the end of the item, in a column of its own, so every value in the menu ends on one edge; in Angular, use an element with `slMenuItemMeta`. The value is read as part of the item's name, and typeahead matches the label alone.
+
+<Example name="meta" />
+
+## Disabled items
+
+A disabled item stays in the menu, takes focus from the arrow keys and runs nothing when pressed. It carries `aria-disabled` instead of the native `disabled`, which would take it out of the keyboard's reach. Put the reason in its description.
+
+<Example name="disabled" />
+
+## Tones and destructive items
+
+`tone` paints the label, the icon and the highlight of an item in one of the theme's tones: `accent`, `secondary`, `success`, `warning` or `danger`. Give a command that deletes or cancels `tone="danger"`, set it after a separator at the end of the menu, and end its label with an ellipsis when it asks for confirmation.
+
+<Example name="destructive" />
+
+## Checkbox items
+
+`MenuCheckboxItem` in React and `slMenuCheckboxItem` in Angular turn one option on or off and keep the menu open, so several options can be changed in one visit. Space toggles the focused item and Enter does the same. Bind `checked` with `onCheckedChange` in React, or `[(checked)]` in Angular.
+
+<Example name="checkbox-items" />
+
+## Radio items
+
+`MenuRadioGroup` in React and `sl-menu-radio-group` in Angular hold one value for the items inside them; each radio item carries the `value` it stands for. The menu stays open after a choice, as it does for checkbox items. Name the group with `aria-label` when the trigger does not say what is being chosen.
+
+<Example name="radio-items" />
+
+## Submenus
+
+A submenu is a menu nested inside another menu's content. In React, put a `Menu` with its own `MenuTrigger` and `MenuContent` among the items; in Angular, put `slMenuTriggerFor` on an item and the nested `sl-menu` after it. The item ends in a chevron, opens its submenu after the pointer rests on it for 150 milliseconds, and the pointer can cross the items between the item and the submenu without closing it. ArrowRight opens a submenu and ArrowLeft closes it, mirrored in a right-to-left document. `meta` on the item shows the value its submenu holds.
+
+<Example name="submenus" />
+
+## Links
+
+An item that navigates is an anchor with the item's role. In React, return an `a` from the item's `render`; in Angular, put `slMenuItem` on an `a`. The link keeps `href`, `target` and `rel`, and running it closes the menu.
+
+<Example name="links" />
+
+## Typeahead
+
+Typing a letter moves focus to the next item whose label starts with it, and the same letter again moves on to the following match, so D moves between DHL Express and DPD. Letters typed within 500 milliseconds of each other form one search, so typing `us` reaches USPS. The comparison ignores case and accents. `textValue` sets the text typeahead matches when the label does not start with the word a reader would type.
+
+<Example name="typeahead" />
+
+## Long menus
+
+The menu is never taller than the room left between its trigger and the edge of the window, and it scrolls inside that height. The arrow keys, Home, End and typeahead scroll the item they reach into view inside the menu, and the page stays where it is.
+
+<Example name="long-list" />
+
+## Placement
+
+The menu opens below its trigger, aligned to the trigger's start edge. `side` sets the edge it opens from: `bottom`, `top`, `left`, `right`, or `inline-start` and `inline-end`, which follow the reading direction. `align` sets its position along that edge. Near the edge of the window the menu flips to the opposite side and slides along its edge to stay in view; `flip` and `shift` turn each behaviour off.
+
+<Example name="placement" wide />
+
+## Sizes
+
+`size` sets the width and the item height of the menu: `sm` for dense tables and toolbars, `md` for most screens, `lg` for sparse ones. The menu's size is independent of the trigger's, so set both.
+
+<Example name="sizes" />
+
+## Controlled
+
+Pass `open` and update it from `onOpenChange` to open the menu from code or to react when it closes; in Angular, bind `[(open)]`. The handler receives the request, whose `reason` says why the menu moved: `pointer`, `keyboard`, `escape`, `outsidePress`, `select`, `dismiss` or `programmatic`. In Angular, `openChangeRequest` carries the same request.
+
+<Example name="controlled" />
+
+## Keeping the menu open
+
+An item closes the menu when it runs. `closeOnSelect={false}` on an item keeps the menu open for a command that is often repeated; on the menu, it applies to every command item. `onSelect` in React and `(select)` in Angular run when the item runs, and calling `preventDefault()` on the event keeps the menu open for that press only.
+
+<Example name="keep-open" />
+
+## Loading items
+
+Set `loading` on the content while the items are on their way, and put a message in `MenuEmpty` in React or an element with `slMenuEmpty` in Angular. The menu keeps its width, sets `aria-busy` and shows the message instead of an empty box. Here the labels are requested the first time the menu opens.
+
+<Example name="loading" />
+
+## Keyboard
+
+Enter, Space or ArrowDown on the trigger opens the menu onto its first item, and ArrowUp opens it onto the last. ArrowDown and ArrowUp move between items and wrap at the ends, Home and End reach the first and last item, and a letter moves by typeahead. Enter runs the focused item. Escape closes the menu that holds focus and returns focus to its trigger, and Tab closes every open menu and moves focus to the next control on the page. `onSelect` reports whether the item ran by `pointer` or by `keyboard`.
+
+<Example name="keyboard" />
+
+## Account menu
+
+An account menu opens with who it belongs to. `MenuHeader` in React and an element with `slMenuHeader` in Angular hold an avatar, a name and an address above the commands. The header is not an item: the arrow keys never reach it, and the menu is described by it, so a screen reader announces the name once as the menu opens.
+
+<Example name="account-menu" />
+
+## Row actions with confirmation
+
+Each row of a table ends in an icon button that opens the row's commands, labelled with the row it acts on. Delete opens an alert dialog instead of deleting at once, and the row is removed only when the deletion is confirmed. The menu closes before the dialog opens, and Keep order returns focus to the row's button.
+
+<Example name="row-actions" wide />
+
+## Column visibility
+
+A menu of checkbox items above a table shows and hides its columns. The menu stays open while columns are switched, and the table follows each change.
+
+<Example name="column-visibility" wide />
+
+## Sort menu
+
+A radio group holds the table's sort order, and the trigger names the order in force. Choosing an option reorders the rows and leaves the menu open; Escape or a press outside closes it.
+
+<Example name="sort-menu" wide />

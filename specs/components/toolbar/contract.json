@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 5,
+  "family": "toolbar",
+  "ui": "toolbar",
+  "catalog": {
+    "group": "Actions",
+    "summary": "Group of controls with arrow-key navigation."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/",
+  "roles": {
+    "root": "toolbar",
+    "group": "group",
+    "separator": "separator"
+  },
+  "messages": ["more"],
+  "pluralMessages": ["more"],
+  "stateAttributes": {
+    "open": "data-open"
+  },
+  "wiring": {
+    "aria-label": "the consumer's own, and the toolbar writes none of its own",
+    "aria-orientation": "written on the root only when vertical, and on a separator always, perpendicular to the bar",
+    "aria-disabled": "an item that says it stays in the ring; a native disabled attribute is skipped",
+    "aria-label on the overflow trigger": "the count of what is hidden, from `label`; a string the consumer states is used verbatim",
+    "disabled on the overflow trigger": "the platform's own `:disabled`, from a `<fieldset disabled>` around the bar. The family writes no `data-disabled` and declares no `disabled` state, because it does not own the capability."
+  },
+  "items": {
+    "found": "focusable-descendants",
+    "selector": "a[href], button, input, select, textarea, [role='button'], [role='link'], [role='checkbox'], [role='radio'], [role='switch'], [role='menuitem'], [role='slider'], [role='spinbutton'], [role='combobox']",
+    "wrapperPerItem": false,
+    "keyOwners": {
+      "attribute": "data-toolbar-keys",
+      "values": ["inline", "block", "all", "none"],
+      "inferred": "a text entry, a select, a slider, a spin button or a contenteditable keeps the keys of the flow axis"
+    }
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves focus into the bar, which holds one tab stop however many controls it has",
+      "focus": "the control that last had focus, or the first that is not disabled",
+      "source": "roving tabindex"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "moves to the next control in a horizontal bar, wrapping at the end and from row to row when the bar wrapped",
+      "focus": "the control moved to",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "moves to the previous control in a horizontal bar, wrapping at the start",
+      "focus": "the control moved to",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "moves to the next control, duplicating ArrowRight in a horizontal bar as the pattern permits",
+      "focus": "the control moved to",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "moves to the previous control, duplicating ArrowLeft in a horizontal bar as the pattern permits",
+      "focus": "the control moved to",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Home",
+      "effect": "moves to the first control",
+      "focus": "the first control that is not natively disabled",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "End",
+      "effect": "moves to the last control",
+      "focus": "the last control that is not natively disabled",
+      "source": "@slotted/core/focus"
+    }
+  ],
+  "escapeBound": false,
+  "crossAxisNavigates": true,
+  "declined": {
+    "checkedValues": {
+      "deferTo": "toggle-group",
+      "reason": "Fluent's toolbar holds the checked state of the controls inside it. `button` already ships `pressed`, and an exclusive set of segments is toggle-group in wave 8; a family holding another family's state is the desync docs/state-and-events.md exists to prevent."
+    },
+    "arrangement": {
+      "deferTo": "button-group",
+      "reason": "gap, alignment, stacking and a joined bar belong to button-group, which is what a run of joined actions inside a toolbar is. The bar's own gap comes from its size step, and the spacer part is what pushes a run to the end."
+    },
+    "itemWrappers": {
+      "reason": "Radix and Base UI wrap each item in a component of their own. Items are found by being focusable instead, so this library's own button, link, checkbox and text-field drop in unwrapped; an element that cannot hold focus is not an item, which is stated in the anatomy."
+    },
+    "pagingControls": {
+      "deferTo": "menu",
+      "reason": "a scrolling toolbar reveals its controls with the arrow keys, which reach every item; no surveyed toolbar draws paging buttons, and the menu is the answer the field agrees on, which `overflow=\"menu\"` now is."
+    },
+    "disabled": {
+      "deferTo": "the platform",
+      "reason": "Base UI alone ships a disabled toolbar. A container cannot disable controls it does not own, and a bar that refuses interaction while its controls still look operable is the defect packages/styles/src/states.test.mjs exists to prevent. The platform already answers it in two lines: <fieldset disabled> around the bar disables every control inside it natively, which also takes them out of the ring, because a natively disabled control cannot be focused."
+    },
+    "overflowPriority": {
+      "deferTo": "the bar order",
+      "reason": "Fluent ranks items with `priority` on `OverflowItem`. A priority is a way of saying \"hide this one\", and the bar is not supposed to have an opinion about which control matters — the author already stated that by placing it. What must stay visible has nowhere to go, which is one fact in one place instead of two knobs over one question."
+    },
+    "overflowSection": {
+      "deferTo": "popover",
+      "reason": "Kendo's section mode moves the tools' own components into the popup. A `menu` surface holds `menuitem`s and the controls in a bar are the consumer's own buttons and fields, so the counterpart is authored here instead: anything `menu`'s item types express is already reachable, and a run of live controls in a layer is a `popover` with a `toolbar` inside it."
+    },
+    "collapsedState": {
+      "deferTo": "the layout",
+      "reason": "the set that does not fit is read from the browser. A controlled pair over it would let a consumer assert that a bar fits when the layout says it does not, and the DOM would then contradict the model — the reason `measurement` is not mutable either. The fact is reported instead: the count in the DOM and one callback per change."
+    },
+    "counterpartDerivation": {
+      "deferTo": "the consumer",
+      "reason": "Primer rebuilds each hidden control as an `ActionList.Item` from a `ChildProps` object, which it can do because the item types are its own four. The items here are anything focusable, so what a control becomes in the surface is written beside it — `overflow` on the `item` or the `group` — and a unit that writes nothing cannot be hidden."
+    }
+  },
+  "axes": {
+    "orientation": ["horizontal", "vertical"],
+    "size": ["sm", "md", "lg"],
+    "variant": ["plain", "outline"],
+    "overflow": ["wrap", "scroll", "menu"]
+  },
+  "resolution": {
+    "orientation": ["prop", "defaults", "horizontal"],
+    "size": ["prop", "defaults", "md"],
+    "variant": ["prop", "defaults", "plain"],
+    "overflow": ["prop", "defaults", "wrap"]
+  },
+  "provides": {
+    "toolbarDefaults": ["orientation", "size", "variant", "overflow", "loop"]
+  },
+  "roleGuidance": {
+    "minimumControls": 3,
+    "enforced": false,
+    "reason": "the APG uses the role for three or more controls. A role that disappears when a permission filter removes a button is a semantic changing behind the author, so the guidance is documented and the consumer decides."
+  },
+  "members": {
+    "toolbar": {
+      "nativeElement": "div",
+      "defaults": {
+        "orientation": "horizontal",
+        "size": "md",
+        "variant": "plain",
+        "overflow": "wrap",
+        "loop": true
+      },
+      "capabilities": ["orientation", "size", "appearance", "overflow"],
+      "states": ["default", "hover", "active", "focus-visible", "open"],
+      "parts": ["root", "group", "separator", "spacer", "item", "overflow"]
+    }
+  },
+  "scenarios": {
+    "toolbar": [
+      "playground",
+      "orientation",
+      "variant",
+      "sizes",
+      "groups",
+      "keyboard",
+      "keyOwners",
+      "disabled",
+      "overflow",
+      "overflowMenu",
+      "composition"
+    ]
+  },
+  "collapse": {
+    "unit": "direct-children",
+    "order": "the bar's own order, reversed: the last unit that can give way is the first that does",
+    "pinned": "a unit that declares no counterpart, which is every unit that is not an `item` or a `group` carrying one",
+    "trigger": "hidden until the first unit gives way, and measured in the same synchronous pass that reveals it",
+    "separator": "hidden when no visible unit follows it, and rendered as a menu separator when it sits between two collapsed units",
+    "degradation": "a bar whose pinned units alone exceed it scrolls rather than clipping, which is also what `menu` with no `overflow` part does",
+    "focus": "moved to the trigger before the unit holding it is hidden, because a hidden control drops focus on `body`",
+    "measurement": "@slotted/core/overflow — `collapseState` for the arithmetic, `createCollapse` for the DOM",
+    "container": "the room is the bar's own width, observed on the bar, so the layout around a bar with overflow=menu gives it a width that does not derive from its own content: a bar sized by its content is the trigger alone once everything has folded, it does not grow when its container does, and what folded never returns. A flex item holding it takes a zero basis and grows; a bar that stands at the end of its row fills the room and aligns its controls to the end",
+    "reports": "`data-collapsed` on the root carries the count, and the root emits it once per change"
+  }
+}

@@ -1,0 +1,570 @@
+{
+  "schemaVersion": 5,
+  "family": "tags-input",
+  "ui": "tags-input",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Text input that collects values as tags."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
+  "patternStatus": "One page answers this family, read on 2026-09-14 from the rendered pattern page: the Grid pattern's Layout Grids for Grouping Widgets half, which names this exact control — \"a list of recipients for a message may be a grid where each cell contains a link that represents a recipient. The grid may initially have a single row but then wrap into multiple rows as recipients are added.\" Without `suggestions` the combobox pattern is not cited: the input is a text box that opens nothing, and writing role=combobox on it would promise a popup that does not exist. With `suggestions` the input is the Combobox pattern's list autocomplete without automatic selection (https://www.w3.org/WAI/ARIA/apg/patterns/combobox/): role=combobox, aria-autocomplete=list, aria-expanded, aria-controls on the open listbox and aria-activedescendant on the highlighted option; Down and Up open and move with wrapping, Enter adds the highlighted option, Escape closes before it clears. The itemised comparison is, and the two departures are in `departures` below.",
+  "roles": {
+    "input": null,
+    "control": "grid",
+    "chips": "row",
+    "chip": "gridcell",
+    "field": "gridcell",
+    "inputWithSuggestions": "combobox",
+    "suggestions": "listbox",
+    "suggestion": "option"
+  },
+  "nativeElement": {
+    "considered": "input type=\"email\" multiple",
+    "refused": true,
+    "kept": "The control is a real input, so every text-editing key, the caret, IME composition, autofill, `list` with a datalist for the browser's own completion, and constraint validation remain the platform's. The family reaches for the last one on purpose: with no `validate` given, each value is judged by the input's own type, pattern, minlength and maxlength, and the chip's message is the browser's validationMessage in the reader's language.",
+    "reason": "The platform's own list of texts is one text box with commas in it: it draws no chip, removes nothing but characters, and with `multiple` its `required` is satisfied by an empty string. What it does know — the email grammar, the pattern, the localised sentence for a bad value — is what this family keeps."
+  },
+  "departures": [
+    {
+      "from": "Down Arrow and Up Arrow move a cell",
+      "instead": "Neither key moves a cell. The grid has one DOM row; the wrap onto several visual lines is CSS, so no cell is above or below any other. With `suggestions` the two keys belong to the combobox on the input and move through its listbox.",
+      "cost": "A reader who has learnt the grid pattern reaches for Down on a wrapped row and nothing happens; Right and Left reach every chip in reading order.",
+      "reason": "Binding Down to \"next\" would make the two arrows mean the same thing and contradict the pattern's own definition. One DOM row keeps the reading order linear and gives previous and next one meaning each — multi-select's decision, inherited, minus the popup that gave those keys a use there."
+    },
+    {
+      "from": "focus in a cell",
+      "instead": "A chip cell holds text and a remove button. Focus is set on the cell rather than on the button, and the button is tabindex=\"-1\" with its function duplicated on Delete and Backspace.",
+      "cost": "A reader who has not tried Delete may not learn the button is there, which is why the row's own description — the hint part — names the key.",
+      "reason": "The grid pattern gives two optimal combinations — one widget that does not need arrows, or text alone — and calls text plus a widget the case that \"adds complexity for authors or users or both\". React Aria's TagGroup, Angular Material's MatChipGrid and multi-select resolve it the same way."
+    }
+  ],
+  "composes": [
+    "tags",
+    "overflow",
+    "measure",
+    "focus",
+    "live-announcer",
+    "clipboard",
+    "collection",
+    "positioner"
+  ],
+  "adds": {
+    "tags": {
+      "module": "packages/core/src/tags",
+      "reason": "The arithmetic of a list of typed values, so the two bindings cannot disagree about it: splitValues for the paste, admitValues for the normalise–judge–deduplicate–cap sequence, and constraintVerdict for the platform's judgement through a detached input. multi-select wrote the same sequence twice, once per binding; this module is where a later rebuild of it reads the one copy.",
+      "nextConsumer": "multi-select, when it is next opened"
+    }
+  },
+  "chips": {
+    "row": "chips",
+    "cell": "gridcell",
+    "chip": {
+      "ui": "tag",
+      "size": "sm",
+      "stylesheet": "tag/tag.css"
+    },
+    "removeTabindex": -1,
+    "message": "remove",
+    "rowMessage": "countNamed",
+    "locked": "lockedValues",
+    "reason": "The values are the chips themselves rather than a sentence about them. Each chip is a tag, worn as data-ui beside this family's own data-part, so the chip a reader removes here is the chip they know from everywhere else and the pill's geometry — including the remove control floored at --slotted-target-min per density — is stated once, in tag.css. A locked value's chip carries data-disabled, draws no remove control, is skipped by Backspace, and is still reachable by arrow.",
+    "count": {
+      "attribute": "data-count",
+      "variant": "outline",
+      "reason": "The chip that counts what did not fit wears tag's outline variant where a value wears soft, because a count drawn exactly like a value is read as a value named \"+3\". Pressing it focuses the input, which expands the row."
+    }
+  },
+  "value": {
+    "shape": "readonly string[]",
+    "text": "each value is a text the reader wrote, and the text is the label; formatLabel draws a chip's text from its value for a value that is an address and a label that is a name",
+    "order": "the reader's own, and a contract: the chips are drawn in it, reorder changes it, and a consumer who wants them alphabetical sorts what they are given",
+    "pending": "inputValue, the characters the reader sees. It becomes a value on Enter, on a delimiter, on a paste, or on blur under pendingOnBlur=commit.",
+    "reason": "It is an array and not a set because reorder is meaningless against a value the family is free to re-sort — multi-select's reason. There is no collection behind the list, which is what separates this family from that one."
+  },
+  "validity": {
+    "validator": "validate",
+    "angularInput": "validateValue, because validate is the Validator interface's own method on the component",
+    "shape": "validate(text) => boolean | string — true is valid; false is invalid with the invalid message; a string is invalid with that reason",
+    "platform": "With no validate given, each value is judged by the input's own constraints — type, pattern, minlength and maxlength — through a detached input carrying the same attributes, and the message is its validationMessage, already in the reader's language. <TagsInput type=\"email\"> marks jhon.company with the browser's own sentence and no consumer code.",
+    "chip": {
+      "tone": "danger",
+      "mark": "--slotted-icon-circle-alert",
+      "message": "message",
+      "attributes": "data-invalid on the chip, aria-invalid on the cell, aria-describedby naming the message part, and the message as title"
+    },
+    "root": "data-invalid while any value is invalid or the list exceeds max, in addition to the consumer's own invalid",
+    "native": "setCustomValidity on the visible input while the list holds an invalid value or exceeds max, so a plain form refuses to submit and shows the browser's bubble on the control; required is written on the input only while the list is empty, so the platform's own required check holds for a list",
+    "derived": "Validity is a function of the value alone, judged at render: a consumer who owns the value and holds an invalid entry in it sees it marked.",
+    "reason": "Every surveyed implementation drops what fails validate — Zag fires onValueInvalid and shows nothing. A recipients field that silently drops jhon.company has told the reader John was invited. The value the reader typed stays where they can see it and fix it, which is what Gmail and Outlook both do and no library does. docs/component-features.md §2.5 refuses colour alone for invalid, so the chip carries a mark and a description as well as the tone."
+  },
+  "refusal": {
+    "request": "onValueRefuse",
+    "causes": ["duplicate", "limit", "invalid"],
+    "stateModel": false,
+    "invalid": "reported only under invalidValues=refuse; under keep the value is held and marked instead",
+    "paste": "A paste that carries more values than the limit allows takes them in order up to the limit and reports the rest in one request carrying limit, rather than taking them all or silently taking none.",
+    "reason": "Nothing is held, so there is no controlled value and nothing to cancel: the family reports what did not get in."
+  },
+  "duplicates": {
+    "axis": "allowDuplicates",
+    "comparison": "Intl.Collator at base sensitivity, through createFilter from @slotted/core/collection",
+    "focus": "the chip that already holds the value, which wears data-current for one --slotted-duration-long",
+    "reason": "docs/component-features.md §2.9 asks that comparison be locale-sensitive, which is what Mantine's isDuplicate escape hatch exists to work around. A refused duplicate moves focus to the chip that already holds the value: the reader is shown where their value is instead of being told nothing happened."
+  },
+  "limit": {
+    "prop": "max",
+    "attribute": "data-complete",
+    "overflow": false,
+    "validity": "tooMany, reported by the Angular Validator and by setCustomValidity on the input",
+    "announce": "one live message when the limit is reached",
+    "reason": "A list that has reached the top of its range is what the state vocabulary already calls complete. Zag's allowOverflow — hold past the limit and mark the control invalid — is not taken: a control that keeps accepting past the number it shows the reader is a counter that lies. What is refused past the limit is reported with the values, so the consumer can say what happened."
+  },
+  "normalise": {
+    "prop": "normalize",
+    "default": "trim",
+    "reason": "Zag's sanitizeValue and UI5's trim, under the word that says what it is for: an email field lowercases here, a keyword field strips a leading #. It runs before the value is judged, so the chip holds what the consumer will submit."
+  },
+  "paste": {
+    "axis": "addOnPaste",
+    "split": "split(text) => string[], replaceable per instance; the default splits on the delimiters axis and on every line break, trims, and drops empties",
+    "reason": "One list serves the key and the paste split, because a control that accepted \"a,b\" from the clipboard and refused it from the keyboard would be two rules for one idea. Line breaks split too because a column copied out of a spreadsheet arrives one value per line. The split is replaceable because a pasted list with display names in it — \"Lopes, André\" <andre@x.com> — breaks on the comma in every surveyed implementation, and only the consumer knows which format the clipboard holds."
+  },
+  "pending": {
+    "axis": "pendingOnBlur",
+    "commit": "the text becomes a value with reason submit",
+    "keep": "the text stays in the input",
+    "discard": "the text is emptied with reason blur",
+    "reason": "Three answers exist in the field and all three are real: a recipients field commits, a filter operand keeps, a chat tag box discards. Zag's blurBehavior has add and clear and treats unset as keep; multi-select's commitOnBlur holds two of the three. The wider axis is recorded for multi-select in docs/process/build-order.md."
+  },
+  "editing": {
+    "axis": "editable",
+    "enter": "Enter, or a double click, turns the chip's cell into a text field holding the value",
+    "commit": "Enter commits and emits value with reason submit; the edited text is judged like any other",
+    "revert": "Escape reverts and restores grid navigation",
+    "state": "not modelled: it exists between one Enter and the next, the way a caret does",
+    "reason": "The tag family deferred the editable chip to this family by name. The grid pattern prescribes the keys: Enter disables grid navigation and places focus in an input field, Escape restores it. Double click is the pointer reader's Enter."
+  },
+  "reorder": {
+    "axis": "reorderable",
+    "keys": "Alt with the next or previous arrow moves the chip one place; Alt+Home and Alt+End move it to either end",
+    "direction": "the arrows follow the writing direction, so ArrowRight moves toward the end of the row in ltr and toward the start in rtl",
+    "announce": "the value's label and its new position",
+    "motion": "none. Moving a chip changes the DOM order, and a transition across that needs a measured FLIP on every press. What the eye follows instead is the focus ring, which travels with the chip because focus stays on it, and the announcement.",
+    "pointer": {
+      "deferTo": "drag-and-drop",
+      "reason": "docs/component-features.md §3 files drag-and-drop as [Extended] shared infrastructure and packages/core holds none of it yet."
+    },
+    "reason": "multi-select's decision, inherited: §2.8 requires that drag-and-drop have a keyboard alternative, and building the alternative first is the only order in which it is not an afterthought. None of the nine implementations surveyed on 2026-09-14 ships keyboard reorder."
+  },
+  "removal": {
+    "rule": "two presses of Backspace from an empty input: the first moves focus to the last chip and removes nothing, the second removes it",
+    "reason": "docs/component-features.md §6 asks for a predictable rule and does not say which. The first press is what stops a reader losing a value while correcting a typo, and it is the only rule under which Backspace is reversible without an undo."
+  },
+  "copy": {
+    "module": "writeToClipboard from @slotted/core/clipboard",
+    "chip": "Ctrl+C copies the chip's value; Ctrl+X copies it and removes it with reason remove, unless the value is locked or the control is read-only",
+    "list": "Ctrl+C on the empty input copies every value",
+    "join": "the first delimiter followed by a space, which is the shape the paste path splits back",
+    "request": "onValueCopy(values, outcome)",
+    "announce": "the count copied",
+    "reason": "The values here are text, and text is what a clipboard holds. UI5's tokenizer copies one token; a list the reader built is a list they want to paste into an email, a spreadsheet, or another instance of this family. The outcome is description-list's: a refused write is reported, never thrown."
+  },
+  "overflow": {
+    "axis": ["wrap", "collapse"],
+    "default": "wrap",
+    "rows": 3,
+    "collapse": "createCollapse from @slotted/core/overflow",
+    "expanded": "data-expanded",
+    "expands": "while the control has focus within, and when the +N chip is pressed; it collapses again when focus leaves",
+    "narrowWidth": "120px",
+    "reason": "docs/component-features.md §6 asks that overflow summarise the values without hiding access to the whole list. wrap keeps every chip in the DOM: the row wraps to three rows and scrolls past them. collapse is for a control that must stay one line high — in a filter bar, in a table row — and there is no popup here to hold the hidden chips, so the row itself is where they are shown, and it is shown exactly when the reader is about to act on them: UI5's tokenizer expands on focus-in and collapses on focus-out, and it is the only surveyed answer to the question. The count is createCollapse's measurement, so it cannot disagree with the screen. Under 120px of control there is no room for a chip at all and the counter answers instead; the width is watched by createWidthGate rather than by a container query, for the reason select and multi-select recorded.",
+    "scrollbar": "none. A form control has one frame, and a bar inside that frame takes width from the chips, moves them when it appears, and paints a second edge inside the control's own. The wheel and every arrow key still reach the rows above and below, because a chip is focusable and the browser scrolls focus into view. What says there is more is the counter and the row's own aria-label carrying the count."
+  },
+  "counter": {
+    "part": "counter",
+    "drawn": "only while max is set, or while the frame is under the narrow width",
+    "label": "{count} of {max} while max is set, {count} values while the frame is narrow",
+    "reason": "A limit a reader cannot see is a limit that surprises them. A counter with no limit to count against would be furniture, so it is drawn only where it answers something."
+  },
+  "wiring": {
+    "role": "grid on the control, row on the chips, gridcell on each chip and on the field. Without `suggestions` the input carries no role: it is a text box and opens nothing. With them it is a combobox controlling a listbox of options, written only while the list is open",
+    "aria-label": "on the control, carrying the field's label and the count of values",
+    "aria-describedby": "the input takes the field's description and error; the chips row names the hint part, which says Delete removes a value and, when editable, Enter edits it; an invalid chip names its message part",
+    "aria-invalid": "on the input while the consumer says so or the list holds an invalid value; on an invalid chip's cell",
+    "aria-disabled": "never written; a locked chip carries data-disabled and the input carries the native attribute",
+    "title": "the message, on an invalid chip, so a pointer reader can hover for the reason",
+    "hidden inputs": "one per value, all under the same name, so a plain form receives several values under one key",
+    "list": "passes through to the input, so a datalist the consumer wrote is the browser's own completion"
+  },
+  "keyboard": [
+    {
+      "key": "Enter",
+      "effect": "on the input with a suggestion highlighted, adds that suggestion; on the input with text, commits the text as a value and never submits the form; on the input with no text, the platform's implicit submission, uncaptured; on a chip with editable set, opens or commits the chip's field",
+      "focus": "the input, or the chip's cell while it is being edited",
+      "source": "family"
+    },
+    {
+      "key": "Escape",
+      "effect": "on the input with the suggestions open, closes them and keeps the text; on the input, clears the pending text; on a chip, returns to the input; while a chip is being edited, reverts it. It never clears the list",
+      "focus": "the input, or the chip's cell after a reverted edit",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "on the input, the browser's caret movement while the text is not empty, which is the pattern's editable branch; from an empty input, and on a chip, moves to the first cell",
+      "focus": "the input with the caret at the first character, or the first chip",
+      "source": "platform"
+    },
+    {
+      "key": "End",
+      "effect": "on the input, the browser's caret movement while the text is not empty; on a chip, moves to the last cell, which is the input",
+      "focus": "the input with the caret after the last character",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "on the input, the browser's caret movement while the text is not empty; from an empty input it moves to the previous cell, which under dir=rtl is the next one. On a chip, moves one cell",
+      "focus": "the input or a chip's cell",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "on the input, the browser's caret movement while the text is not empty; from an empty input it moves to the next cell, which under dir=rtl is the previous one. On a chip, moves one cell",
+      "focus": "the input or a chip's cell",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "with `suggestions`, on the input: opens the listbox on its first option, or highlights the next one, round from the last to the first. Otherwise not answered: there is one row, so there is no cell below any cell — the first departure",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "with `suggestions`, on the input: opens the listbox on its last option, or highlights the previous one, round from the first to the last. Otherwise not answered: there is one row, so there is no cell above any cell",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "Alt+ArrowLeft",
+      "effect": "with reorderable set, moves the focused value one place toward the start of the row, and toward the end under dir=rtl",
+      "focus": "stays on the moved chip, which has changed cell",
+      "source": "family"
+    },
+    {
+      "key": "Alt+ArrowRight",
+      "effect": "with reorderable set, moves the focused value one place toward the end of the row, and toward the start under dir=rtl",
+      "focus": "stays on the moved chip",
+      "source": "family"
+    },
+    {
+      "key": "Alt+Home",
+      "effect": "with reorderable set, moves the focused value to the start of the row",
+      "focus": "stays on the moved chip",
+      "source": "family"
+    },
+    {
+      "key": "Alt+End",
+      "effect": "with reorderable set, moves the focused value to the end of the row",
+      "focus": "stays on the moved chip",
+      "source": "family"
+    },
+    {
+      "key": "Backspace",
+      "effect": "on the input with text, the browser's own deletion; on the input with an empty text and the caret at the start, the first press moves focus to the last chip and removes nothing and the second press removes it; on a chip, removes that value",
+      "focus": "the last chip, then the chip that took the removed one's index, then the previous chip, then the input",
+      "source": "family"
+    },
+    {
+      "key": "Delete",
+      "effect": "on a chip, removes that value; on the input, the browser's own deletion",
+      "focus": "the chip that took the removed one's index, then the previous chip, then the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Delimiter",
+      "effect": "any character in the delimiters axis commits the typed text as a value and is never typed into the input",
+      "focus": "the input",
+      "source": "family"
+    },
+    {
+      "key": "Ctrl+C",
+      "effect": "on a chip, copies its value; on the input with no text, copies the whole list joined by the first delimiter and a space; on the input with text, the browser's own copy of the selection",
+      "focus": "unchanged",
+      "source": "family"
+    },
+    {
+      "key": "Ctrl+X",
+      "effect": "on a chip that is not locked, copies its value and removes it; on the input, the browser's own cut",
+      "focus": "the chip that took the removed one's index, then the previous chip, then the input",
+      "source": "family"
+    },
+    {
+      "key": "Printable character",
+      "effect": "on the input, types; on a chip, returns focus to the input and types it there, which is the grid pattern's alphanumeric branch",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Tab",
+      "effect": "leaves the control. Under pendingOnBlur=commit the pending text is committed first, under discard it is emptied, under keep it stays. The chips and the remove buttons are outside the tab sequence, which the grid pattern requires of a layout grid",
+      "focus": "the element beside the control in the document's order",
+      "source": "pattern"
+    }
+  ],
+  "focus": {
+    "module": "createRemovalFocus from @slotted/core/focus",
+    "roving": true,
+    "tabStops": 1,
+    "contained": false,
+    "restore": "focus never leaves the control on its own, so there is nothing to restore",
+    "removal": "the chip that took the removed one's index, then the previous chip, then the input. The three steps are createRemovalFocus's, and the third is the one the field gets wrong: Angular Material leaves focus on a button that no longer exists and the page loses it to the document body",
+    "duplicate": "a refused duplicate moves focus to the existing chip that already holds the value",
+    "clear": "the input",
+    "expand": "under overflow=collapse, focus arriving anywhere in the control expands the row; a press on the +N chip focuses the input",
+    "disabledItems": "A locked chip keeps its place and its label, draws no remove control, is skipped by Backspace, and is still reachable by arrow, because the reader has to be able to read it",
+    "guards": false,
+    "guardsReason": "Nothing is portalled and nothing is modal."
+  },
+  "announce": {
+    "module": "createLiveAnnouncer from @slotted/core/live-announcer",
+    "politeness": "polite",
+    "messages": [
+      "a value added, with the count that is now held — and its reason when it was added invalid",
+      "a value removed, with the label that left and the count that is left",
+      "a value moved, with its label and its new position",
+      "the limit reached",
+      "a duplicate refused, naming the chip that already holds it",
+      "the count copied"
+    ],
+    "reason": "A reader who removed the wrong chip needs the count to know they did, and a reader who typed an address with a typo needs to hear that it went in wrong. None of the nine implementations surveyed says both facts."
+  },
+  "form": {
+    "react": "one hidden input per value, all carrying the same name and form; required on the visible input only while the list is empty; setCustomValidity on it while a value is invalid or the list exceeds max",
+    "angular": "ControlValueAccessor and Validator",
+    "validity": ["required", "tooMany", "invalidValues", "duplicate"],
+    "reason": "Neither ecosystem has the other's mechanism. The hidden inputs are what make a plain form receive several values under one key and a native reset() restore them; setCustomValidity is what makes the same plain form refuse an invalid list with the browser's own bubble; the Validator is what puts invalidValues in a Reactive Form without the consumer writing it."
+  },
+  "motion": {
+    "chips": "none. A chip that faded in would delay the row's reflow behind it, and the reader has just pressed a key; the announcement carries the change instead",
+    "reorder": "none. Moving a chip changes the DOM order, and a transition across that needs a measured FLIP on every press.",
+    "expand": "none. The row's height changes as focus arrives, and a transition would make the reader wait for the chip they are about to reach.",
+    "duplicate": "data-current on the existing chip for --slotted-duration-long, then removed",
+    "frame": "border-color, background-color and box-shadow over --slotted-control-transition-duration, which is text-field's rest-to-focus transition",
+    "reason": "The only state change the eye has to follow here is the frame taking focus, and it takes the transition every framed control takes."
+  },
+  "declined": {
+    "suggestions": {
+      "deferTo": "multi-select",
+      "reason": "The listbox half is that family. What this family keeps is the platform's own completion: the input is a real text box, so list and a datalist pass through and the browser draws it, with no collection, no popup and no positioner in the bundle."
+    },
+    "reorderByPointer": {
+      "deferTo": "drag-and-drop",
+      "reason": "docs/component-features.md §3 files drag-and-drop as [Extended] shared infrastructure and packages/core holds none of it. The keyboard reorder this family ships is the alternative §2.8 requires of a drag."
+    },
+    "multipleSelection": {
+      "compose": "press Ctrl+X on each chip; five values are five presses",
+      "reason": "UI5's tokenizer selection exists to delete several tokens at once and React Aria's TagGroup selection is a listbox's selection over labels. Neither is this control, and owning a second selection inside a control whose value is already what the reader chose would be two meanings for selected in one DOM."
+    },
+    "highlightedValue": {
+      "compose": "onFocus={(event) => event.target.dataset.value} on the row",
+      "reason": "Zag alone models it. Here the highlight is DOM focus on the cell, which the grid pattern prescribes; a second model of where focus is would be a value that can contradict the document's own activeElement."
+    },
+    "sorting": {
+      "compose": "onValueChange={(next) => setValue([...next].sort(collator.compare))}",
+      "reason": "emblor alone ships it. The order is the reader's and a family that re-sorted it would make reorder meaningless."
+    },
+    "minimum": {
+      "compose": "required for at least one; Validators.minLength(n) on the Angular control, or value.length < n in a React submit handler, for more",
+      "reason": "emblor alone ships minTags. required is the platform's word for at least one, and a family-level min would be a second validity the platform already spells."
+    },
+    "allowOverflow": {
+      "compose": "onValueRefuse={(values, { cause }) => cause === 'limit' && show(values)}",
+      "reason": "Zag alone ships it. A control that keeps accepting past the number it shows the reader is a counter that lies; the refused values are reported instead."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"],
+    "overflow": ["wrap", "collapse"],
+    "invalidValues": ["keep", "refuse"],
+    "pendingOnBlur": ["commit", "keep", "discard"],
+    "editable": [true, false],
+    "reorderable": [true, false],
+    "allowDuplicates": [true, false],
+    "addOnPaste": [true, false],
+    "clearable": [true, false],
+    "fullWidth": [true, false],
+    "disabled": [true, false],
+    "readOnly": [true, false],
+    "required": [true, false],
+    "invalid": [true, false]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "overflow": ["prop", "defaults", "wrap"],
+    "invalidValues": ["prop", "defaults", "keep"],
+    "pendingOnBlur": ["prop", "defaults", "commit"],
+    "editable": ["prop", "defaults", false],
+    "reorderable": ["prop", "defaults", false],
+    "allowDuplicates": ["prop", "defaults", false],
+    "addOnPaste": ["prop", "defaults", true],
+    "clearable": ["prop", "defaults", true],
+    "fullWidth": ["prop", "defaults", true],
+    "disabled": ["prop", "defaults", false],
+    "readOnly": ["prop", "defaults", false],
+    "required": ["prop", "defaults", false],
+    "invalid": ["prop", "defaults", false]
+  },
+  "provides": {
+    "tagsInputDefaults": [
+      "size",
+      "variant",
+      "overflow",
+      "invalidValues",
+      "pendingOnBlur",
+      "editable",
+      "reorderable",
+      "allowDuplicates",
+      "addOnPaste",
+      "clearable",
+      "fullWidth",
+      "disabled",
+      "readOnly",
+      "required",
+      "invalid",
+      "max",
+      "delimiters"
+    ]
+  },
+  "messages": [
+    "added",
+    "addedInvalid",
+    "clear",
+    "copied",
+    "count",
+    "countNamed",
+    "counter",
+    "duplicate",
+    "editHint",
+    "hint",
+    "invalid",
+    "remove",
+    "removed",
+    "reorder",
+    "suggestions"
+  ],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "readonly": "data-readonly",
+    "invalid": "data-invalid",
+    "required": "data-required",
+    "current": "data-current",
+    "complete": "data-complete",
+    "expanded": "data-expanded"
+  },
+  "stateModel": {
+    "value": {
+      "tags": {
+        "controlled": "value",
+        "uncontrolled": "defaultValue",
+        "request": "onValueChange",
+        "reasons": ["submit", "remove", "clear", "keyboard", "programmatic"]
+      },
+      "text": {
+        "controlled": "inputValue",
+        "uncontrolled": "defaultInputValue",
+        "request": "onInputValueChange",
+        "reasons": ["keyboard", "submit", "clear", "blur", "programmatic"]
+      }
+    }
+  },
+  "members": {
+    "tags-input": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "overflow": "wrap",
+        "invalidValues": "keep",
+        "pendingOnBlur": "commit",
+        "editable": false,
+        "reorderable": false,
+        "allowDuplicates": false,
+        "addOnPaste": true,
+        "clearable": true,
+        "fullWidth": true,
+        "disabled": false,
+        "readOnly": false,
+        "required": false,
+        "invalid": false,
+        "max": null,
+        "delimiters": [","]
+      },
+      "capabilities": [
+        "value",
+        "overflow",
+        "copyable",
+        "size",
+        "appearance",
+        "fullWidth",
+        "disabled",
+        "readOnly",
+        "required",
+        "invalid",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "readonly",
+        "invalid",
+        "required",
+        "current",
+        "complete",
+        "expanded"
+      ],
+      "parts": [
+        "root",
+        "control",
+        "chips",
+        "field",
+        "input",
+        "message",
+        "counter",
+        "clear",
+        "hint",
+        "suggestions",
+        "suggestion"
+      ]
+    }
+  },
+  "scenarios": {
+    "tags-input": [
+      "playground",
+      "recipients",
+      "validity",
+      "platform-validation",
+      "limit",
+      "duplicates",
+      "paste",
+      "blur",
+      "editing",
+      "reorder",
+      "locked",
+      "copy",
+      "overflow",
+      "sizes",
+      "variants",
+      "states",
+      "long-content",
+      "keyboard",
+      "form",
+      "composition"
+    ]
+  }
+}

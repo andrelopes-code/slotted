@@ -1,0 +1,1208 @@
+<!--
+  The viewer is drawn on its own, inside a box thirty rems tall, rather than
+  inside a full-screen dialog: the dialog's layer is dialog's harness. The root
+  writes data-slotted-scheme="dark", as the binding does in light and dark;
+  the scene high-contrast-kept writes what the binding writes when the page is
+  in the high-contrast scheme. Frame sizes in the zoomed and rotated scenes are
+  the values the binding measures and writes.
+-->
+<section data-scene="images">
+  <div style="block-size: 30rem">
+    <div
+      data-ui="media-viewer"
+      data-ui-media-viewer=""
+      data-part="root"
+      data-part-root=""
+      data-kind="image"
+      data-slotted-scheme="dark"
+    >
+      <div data-part="bar" data-part-bar="">
+        <div data-part="heading" data-part-heading="">
+          <h2
+            data-part="title"
+            data-part-title=""
+            id="id-title"
+            dir="auto"
+            title="harbour-at-dawn.png"
+          >
+            <span>harbour-at-dawn</span><span>.png</span>
+          </h2>
+          <p data-part="position" data-part-position="" dir="auto" id="id-position">2 of 5</p>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <a data-part="download" data-part-download="" href="#" download aria-label="Download"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="download"></svg></span
+          ></a>
+        </div>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="stage" data-part-stage="" tabindex="0" aria-label="Picture">
+        <div data-part="frame" data-part-frame="">
+          <img
+            data-part="media"
+            data-part-media=""
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%272000%27%20height%3D%271000%27%20viewBox%3D%270%200%202000%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%239cc7f0%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f3d9b8%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%272000%27%20height%3D%271000%27%20fill%3D%27url%28%23s%29%27%2F%3E%3Ccircle%20cx%3D%271480%27%20cy%3D%27300%27%20r%3D%27120%27%20fill%3D%27%23fff4d6%27%2F%3E%3Cpath%20d%3D%27M0%20760%20C400%20560%20700%20620%201000%20720%20S1600%20600%202000%20700%20V1000%20H0Z%27%20fill%3D%27%235f8f6a%27%2F%3E%3Cpath%20d%3D%27M0%20860%20C500%20720%20900%20800%201300%20860%20S1800%20820%202000%20840%20V1000%20H0Z%27%20fill%3D%27%233d6b4f%27%2F%3E%3C%2Fsvg%3E"
+            width="2000"
+            height="1000"
+            alt="harbour-at-dawn.png"
+            draggable="false"
+          />
+        </div>
+      </div>
+      <button data-part="previous" data-part-previous="" type="button" aria-label="Previous">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-left"></svg
+        ></span>
+      </button>
+      <button data-part="next" data-part-next="" type="button" aria-label="Next">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+      <div data-part="zoom" data-part-zoom="" role="group" aria-label="Zoom">
+        <button
+          data-part="zoom-out"
+          data-part-zoom-out=""
+          type="button"
+          aria-label="Zoom out"
+          disabled
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg
+          ></span>
+        </button>
+        <output data-part="zoom-level" data-part-zoom-level="" aria-live="off">100%</output>
+        <button data-part="zoom-in" data-part-zoom-in="" type="button" aria-label="Zoom in">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg
+          ></span>
+        </button>
+        <button data-part="fit" data-part-fit="" type="button" aria-label="Fit to screen" disabled>
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg
+          ></span>
+        </button>
+        <button data-part="rotate" data-part-rotate="" type="button" aria-label="Rotate">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="rotate-cw"></svg
+          ></span>
+        </button>
+      </div>
+      <p data-part="caption" data-part-caption="" dir="auto">
+        The harbour at dawn, from the east pier.
+      </p>
+      <div data-part="thumbnails" data-part-thumbnails="" role="group" aria-label="Files">
+        <button data-part="thumbnail" data-part-thumbnail="" type="button" aria-label="harbour.png">
+          <img
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%272000%27%20height%3D%271000%27%20viewBox%3D%270%200%202000%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%239cc7f0%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f3d9b8%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%272000%27%20height%3D%271000%27%20fill%3D%27url%28%23s%29%27%2F%3E%3Ccircle%20cx%3D%271480%27%20cy%3D%27300%27%20r%3D%27120%27%20fill%3D%27%23fff4d6%27%2F%3E%3Cpath%20d%3D%27M0%20760%20C400%20560%20700%20620%201000%20720%20S1600%20600%202000%20700%20V1000%20H0Z%27%20fill%3D%27%235f8f6a%27%2F%3E%3Cpath%20d%3D%27M0%20860%20C500%20720%20900%20800%201300%20860%20S1800%20820%202000%20840%20V1000%20H0Z%27%20fill%3D%27%233d6b4f%27%2F%3E%3C%2Fsvg%3E"
+            alt=""
+          />
+        </button>
+        <button
+          data-part="thumbnail"
+          data-part-thumbnail=""
+          type="button"
+          aria-label="invoice-4471.png"
+          aria-current="true"
+          data-current
+        >
+          <img
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27800%27%20height%3D%271200%27%20viewBox%3D%270%200%20800%201200%27%3E%3Crect%20width%3D%27800%27%20height%3D%271200%27%20fill%3D%27%23e9e4dc%27%2F%3E%3Crect%20x%3D%27120%27%20y%3D%27160%27%20width%3D%27560%27%20height%3D%27760%27%20rx%3D%2712%27%20fill%3D%27%23fff%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27240%27%20width%3D%27300%27%20height%3D%2728%27%20rx%3D%276%27%20fill%3D%27%232b3442%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27300%27%20width%3D%27440%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27330%27%20width%3D%27400%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27360%27%20width%3D%27420%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27440%27%20width%3D%27440%27%20height%3D%27300%27%20rx%3D%278%27%20fill%3D%27%23c9d6e3%27%2F%3E%3C%2Fsvg%3E"
+            alt=""
+          />
+        </button>
+        <button data-part="thumbnail" data-part-thumbnail="" type="button" aria-label="stamp.png">
+          <img
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27300%27%20height%3D%27200%27%20viewBox%3D%270%200%20300%20200%27%3E%3Crect%20width%3D%27300%27%20height%3D%27200%27%20fill%3D%27%23d97757%27%2F%3E%3Ccircle%20cx%3D%27150%27%20cy%3D%27100%27%20r%3D%2756%27%20fill%3D%27%23f6e3c8%27%2F%3E%3C%2Fsvg%3E"
+            alt=""
+          />
+        </button>
+        <button
+          data-part="thumbnail"
+          data-part-thumbnail=""
+          type="button"
+          aria-label="harbour-2.png"
+        >
+          <img
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%272000%27%20height%3D%271000%27%20viewBox%3D%270%200%202000%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%239cc7f0%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f3d9b8%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%272000%27%20height%3D%271000%27%20fill%3D%27url%28%23s%29%27%2F%3E%3Ccircle%20cx%3D%271480%27%20cy%3D%27300%27%20r%3D%27120%27%20fill%3D%27%23fff4d6%27%2F%3E%3Cpath%20d%3D%27M0%20760%20C400%20560%20700%20620%201000%20720%20S1600%20600%202000%20700%20V1000%20H0Z%27%20fill%3D%27%235f8f6a%27%2F%3E%3Cpath%20d%3D%27M0%20860%20C500%20720%20900%20800%201300%20860%20S1800%20820%202000%20840%20V1000%20H0Z%27%20fill%3D%27%233d6b4f%27%2F%3E%3C%2Fsvg%3E"
+            alt=""
+          />
+        </button>
+        <button data-part="thumbnail" data-part-thumbnail="" type="button" aria-label="receipt.png">
+          <img
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27800%27%20height%3D%271200%27%20viewBox%3D%270%200%20800%201200%27%3E%3Crect%20width%3D%27800%27%20height%3D%271200%27%20fill%3D%27%23e9e4dc%27%2F%3E%3Crect%20x%3D%27120%27%20y%3D%27160%27%20width%3D%27560%27%20height%3D%27760%27%20rx%3D%2712%27%20fill%3D%27%23fff%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27240%27%20width%3D%27300%27%20height%3D%2728%27%20rx%3D%276%27%20fill%3D%27%232b3442%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27300%27%20width%3D%27440%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27330%27%20width%3D%27400%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27360%27%20width%3D%27420%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27440%27%20width%3D%27440%27%20height%3D%27300%27%20rx%3D%278%27%20fill%3D%27%23c9d6e3%27%2F%3E%3C%2Fsvg%3E"
+            alt=""
+          />
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="zoomed">
+  <div style="block-size: 30rem">
+    <div
+      data-ui="media-viewer"
+      data-ui-media-viewer=""
+      data-part="root"
+      data-part-root=""
+      data-kind="image"
+      data-slotted-scheme="dark"
+      data-zoomed
+    >
+      <div data-part="bar" data-part-bar="">
+        <div data-part="heading" data-part-heading="">
+          <h2
+            data-part="title"
+            data-part-title=""
+            id="z-title"
+            dir="auto"
+            title="harbour-at-dawn.png"
+          >
+            <span>harbour-at-dawn</span><span>.png</span>
+          </h2>
+          <p data-part="position" data-part-position="" dir="auto" id="z-position">2 of 5</p>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <a data-part="download" data-part-download="" href="#" download aria-label="Download"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="download"></svg></span
+          ></a>
+        </div>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="stage" data-part-stage="" tabindex="0" aria-label="Picture" data-zoomed>
+        <div
+          data-part="frame"
+          data-part-frame=""
+          data-sized
+          style="
+            --slotted-media-viewer-frame-inline-size: 1400px;
+            --slotted-media-viewer-frame-block-size: 700px;
+            --slotted-media-viewer-media-inline-size: 1400px;
+            --slotted-media-viewer-media-block-size: 700px;
+          "
+        >
+          <img
+            data-part="media"
+            data-part-media=""
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%272000%27%20height%3D%271000%27%20viewBox%3D%270%200%202000%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%239cc7f0%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f3d9b8%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%272000%27%20height%3D%271000%27%20fill%3D%27url%28%23s%29%27%2F%3E%3Ccircle%20cx%3D%271480%27%20cy%3D%27300%27%20r%3D%27120%27%20fill%3D%27%23fff4d6%27%2F%3E%3Cpath%20d%3D%27M0%20760%20C400%20560%20700%20620%201000%20720%20S1600%20600%202000%20700%20V1000%20H0Z%27%20fill%3D%27%235f8f6a%27%2F%3E%3Cpath%20d%3D%27M0%20860%20C500%20720%20900%20800%201300%20860%20S1800%20820%202000%20840%20V1000%20H0Z%27%20fill%3D%27%233d6b4f%27%2F%3E%3C%2Fsvg%3E"
+            width="2000"
+            height="1000"
+            alt="harbour-at-dawn.png"
+            draggable="false"
+          />
+        </div>
+      </div>
+      <button data-part="previous" data-part-previous="" type="button" aria-label="Previous">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-left"></svg
+        ></span>
+      </button>
+      <button data-part="next" data-part-next="" type="button" aria-label="Next">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+      <div data-part="zoom" data-part-zoom="" role="group" aria-label="Zoom">
+        <button data-part="zoom-out" data-part-zoom-out="" type="button" aria-label="Zoom out">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg
+          ></span>
+        </button>
+        <output data-part="zoom-level" data-part-zoom-level="" aria-live="off">200%</output>
+        <button data-part="zoom-in" data-part-zoom-in="" type="button" aria-label="Zoom in">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg
+          ></span>
+        </button>
+        <button data-part="fit" data-part-fit="" type="button" aria-label="Fit to screen">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg
+          ></span>
+        </button>
+        <button data-part="rotate" data-part-rotate="" type="button" aria-label="Rotate">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="rotate-cw"></svg
+          ></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="rotated">
+  <div style="block-size: 30rem">
+    <div
+      data-ui="media-viewer"
+      data-ui-media-viewer=""
+      data-part="root"
+      data-part-root=""
+      data-kind="image"
+      data-slotted-scheme="dark"
+    >
+      <div data-part="bar" data-part-bar="">
+        <div data-part="heading" data-part-heading="">
+          <h2 data-part="title" data-part-title="" id="r-title" dir="auto" title="invoice-4471.png">
+            <span>invoice-4471</span><span>.png</span>
+          </h2>
+          <p data-part="position" data-part-position="" dir="auto" id="r-position">1 of 5</p>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <a data-part="download" data-part-download="" href="#" download aria-label="Download"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="download"></svg></span
+          ></a>
+        </div>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div
+        data-part="stage"
+        data-part-stage=""
+        tabindex="0"
+        aria-label="Picture"
+        data-rotation="90"
+      >
+        <div
+          data-part="frame"
+          data-part-frame=""
+          data-sized
+          style="
+            --slotted-media-viewer-frame-inline-size: 300px;
+            --slotted-media-viewer-frame-block-size: 200px;
+            --slotted-media-viewer-media-inline-size: 200px;
+            --slotted-media-viewer-media-block-size: 300px;
+            --slotted-media-viewer-rotation: 90deg;
+          "
+        >
+          <img
+            data-part="media"
+            data-part-media=""
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27800%27%20height%3D%271200%27%20viewBox%3D%270%200%20800%201200%27%3E%3Crect%20width%3D%27800%27%20height%3D%271200%27%20fill%3D%27%23e9e4dc%27%2F%3E%3Crect%20x%3D%27120%27%20y%3D%27160%27%20width%3D%27560%27%20height%3D%27760%27%20rx%3D%2712%27%20fill%3D%27%23fff%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27240%27%20width%3D%27300%27%20height%3D%2728%27%20rx%3D%276%27%20fill%3D%27%232b3442%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27300%27%20width%3D%27440%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27330%27%20width%3D%27400%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27360%27%20width%3D%27420%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27440%27%20width%3D%27440%27%20height%3D%27300%27%20rx%3D%278%27%20fill%3D%27%23c9d6e3%27%2F%3E%3C%2Fsvg%3E"
+            width="800"
+            height="1200"
+            alt="invoice-4471.png"
+            draggable="false"
+          />
+        </div>
+      </div>
+      <button
+        data-part="previous"
+        data-part-previous=""
+        type="button"
+        aria-label="Previous"
+        disabled
+      >
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-left"></svg
+        ></span>
+      </button>
+      <button data-part="next" data-part-next="" type="button" aria-label="Next">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+      <div data-part="zoom" data-part-zoom="" role="group" aria-label="Zoom">
+        <button
+          data-part="zoom-out"
+          data-part-zoom-out=""
+          type="button"
+          aria-label="Zoom out"
+          disabled
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg
+          ></span>
+        </button>
+        <output data-part="zoom-level" data-part-zoom-level="" aria-live="off">100%</output>
+        <button data-part="zoom-in" data-part-zoom-in="" type="button" aria-label="Zoom in">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg
+          ></span>
+        </button>
+        <button data-part="fit" data-part-fit="" type="button" aria-label="Fit to screen" disabled>
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg
+          ></span>
+        </button>
+        <button data-part="rotate" data-part-rotate="" type="button" aria-label="Rotate">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="rotate-cw"></svg
+          ></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="small">
+  <div style="block-size: 30rem">
+    <div
+      data-ui="media-viewer"
+      data-ui-media-viewer=""
+      data-part="root"
+      data-part-root=""
+      data-kind="image"
+      data-slotted-scheme="dark"
+    >
+      <div data-part="bar" data-part-bar="">
+        <div data-part="heading" data-part-heading="">
+          <h2 data-part="title" data-part-title="" id="s-title" dir="auto" title="stamp.png">
+            <span>stamp</span><span>.png</span>
+          </h2>
+          <p data-part="position" data-part-position="" dir="auto" id="s-position">5 of 5</p>
+        </div>
+        <div data-part="actions" data-part-actions=""></div>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="stage" data-part-stage="" tabindex="0" aria-label="Picture">
+        <div data-part="frame" data-part-frame="">
+          <img
+            data-part="media"
+            data-part-media=""
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27300%27%20height%3D%27200%27%20viewBox%3D%270%200%20300%20200%27%3E%3Crect%20width%3D%27300%27%20height%3D%27200%27%20fill%3D%27%23d97757%27%2F%3E%3Ccircle%20cx%3D%27150%27%20cy%3D%27100%27%20r%3D%2756%27%20fill%3D%27%23f6e3c8%27%2F%3E%3C%2Fsvg%3E"
+            width="300"
+            height="200"
+            alt="stamp.png"
+            draggable="false"
+          />
+        </div>
+      </div>
+      <button data-part="previous" data-part-previous="" type="button" aria-label="Previous">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-left"></svg
+        ></span>
+      </button>
+      <button data-part="next" data-part-next="" type="button" aria-label="Next" disabled>
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+      <div data-part="zoom" data-part-zoom="" role="group" aria-label="Zoom">
+        <button
+          data-part="zoom-out"
+          data-part-zoom-out=""
+          type="button"
+          aria-label="Zoom out"
+          disabled
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg
+          ></span>
+        </button>
+        <output data-part="zoom-level" data-part-zoom-level="" aria-live="off">100%</output>
+        <button data-part="zoom-in" data-part-zoom-in="" type="button" aria-label="Zoom in">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg
+          ></span>
+        </button>
+        <button data-part="fit" data-part-fit="" type="button" aria-label="Fit to screen" disabled>
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg
+          ></span>
+        </button>
+        <button data-part="rotate" data-part-rotate="" type="button" aria-label="Rotate">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="rotate-cw"></svg
+          ></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="pdf">
+  <div style="block-size: 30rem">
+    <div
+      data-ui="media-viewer"
+      data-ui-media-viewer=""
+      data-part="root"
+      data-part-root=""
+      data-kind="pdf"
+      data-slotted-scheme="dark"
+    >
+      <div data-part="bar" data-part-bar="">
+        <div data-part="heading" data-part-heading="">
+          <h2
+            data-part="title"
+            data-part-title=""
+            id="p-title"
+            dir="auto"
+            title="contract-2026.pdf"
+          >
+            <span>contract-2026</span><span>.pdf</span>
+          </h2>
+          <p data-part="position" data-part-position="" dir="auto" id="p-position">3 of 5</p>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <a data-part="download" data-part-download="" href="#" download aria-label="Download"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="download"></svg></span
+          ></a>
+        </div>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="stage" data-part-stage="" tabindex="0" aria-label="Picture">
+        <iframe
+          data-part="media"
+          data-part-media=""
+          title="contract-2026.pdf"
+          srcdoc='&lt;p style="font: 14px system-ui; padding: 24px"&gt;The browser&#39;s PDF reader draws here.&lt;/p&gt;'
+        ></iframe>
+      </div>
+      <button data-part="previous" data-part-previous="" type="button" aria-label="Previous">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-left"></svg
+        ></span>
+      </button>
+      <button data-part="next" data-part-next="" type="button" aria-label="Next">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="text">
+  <div style="block-size: 30rem">
+    <div
+      data-ui="media-viewer"
+      data-ui-media-viewer=""
+      data-part="root"
+      data-part-root=""
+      data-kind="text"
+      data-slotted-scheme="dark"
+    >
+      <div data-part="bar" data-part-bar="">
+        <div data-part="heading" data-part-heading="">
+          <h2 data-part="title" data-part-title="" id="p-title" dir="auto" title="claim-0914.json">
+            <span>claim-0914</span><span>.json</span>
+          </h2>
+          <p data-part="position" data-part-position="" dir="auto" id="p-position">3 of 5</p>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <a data-part="download" data-part-download="" href="#" download aria-label="Download"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="download"></svg></span
+          ></a>
+        </div>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="stage" data-part-stage="" data-kind="text" tabindex="0" aria-label="Picture">
+        <div data-part="text" data-part-text="">
+          <pre data-part="media" data-part-media="" dir="auto">
+{
+  "claim": "CLM-2026-0914",
+  "policy": "AUT-883104",
+  "incident": {
+    "date": "2026-09-13",
+    "location": "Rua Augusta 112, Lisboa",
+    "vehicles": 2,
+    "injuries": false
+  },
+  "estimate": { "parts": 1840.5, "labour": 960, "currency": "EUR" },
+  "photos": ["damage-front-quarter.jpg", "damage-rear.jpg"]
+}</pre>
+        </div>
+      </div>
+      <button data-part="previous" data-part-previous="" type="button" aria-label="Previous">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-left"></svg
+        ></span>
+      </button>
+      <button data-part="next" data-part-next="" type="button" aria-label="Next">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="unsupported">
+  <div style="block-size: 30rem">
+    <div
+      data-ui="media-viewer"
+      data-ui-media-viewer=""
+      data-part="root"
+      data-part-root=""
+      data-kind="other"
+      data-slotted-scheme="dark"
+    >
+      <div data-part="bar" data-part-bar="">
+        <div data-part="heading" data-part-heading="">
+          <h2 data-part="title" data-part-title="" id="u-title" dir="auto" title="budget-q3.xlsx">
+            <span>budget-q3</span><span>.xlsx</span>
+          </h2>
+          <p data-part="position" data-part-position="" dir="auto" id="u-position">4 of 5</p>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <a data-part="download" data-part-download="" href="#" download aria-label="Download"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="download"></svg></span
+          ></a>
+        </div>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="stage" data-part-stage="" tabindex="0" aria-label="Picture">
+        <div data-part="unsupported" data-part-unsupported="">
+          <span aria-hidden="true" data-part="tile" data-part-tile=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="file-spreadsheet"></svg></span
+            ><span>XLSX</span></span
+          >
+          <h3>No preview for this file</h3>
+          <p>XLSX files open in the app that made them. Download it to see it.</p>
+          <div>
+            <a data-part="download" data-part-download="" href="#" download
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="download"></svg></span
+              >Download</a
+            >
+          </div>
+        </div>
+      </div>
+      <button data-part="previous" data-part-previous="" type="button" aria-label="Previous">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-left"></svg
+        ></span>
+      </button>
+      <button data-part="next" data-part-next="" type="button" aria-label="Next">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="error">
+  <div style="block-size: 30rem">
+    <div
+      data-ui="media-viewer"
+      data-ui-media-viewer=""
+      data-part="root"
+      data-part-root=""
+      data-kind="image"
+      data-slotted-scheme="dark"
+    >
+      <div data-part="bar" data-part-bar="">
+        <div data-part="heading" data-part-heading="">
+          <h2
+            data-part="title"
+            data-part-title=""
+            id="e-title"
+            dir="auto"
+            title="harbour-at-dawn.png"
+          >
+            <span>harbour-at-dawn</span><span>.png</span>
+          </h2>
+          <p data-part="position" data-part-position="" dir="auto" id="e-position">2 of 5</p>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <a data-part="download" data-part-download="" href="#" download aria-label="Download"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="download"></svg></span
+          ></a>
+        </div>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="stage" data-part-stage="" tabindex="0" aria-label="Picture" data-error>
+        <div data-part="status" data-part-status="" role="status" data-error>
+          <span aria-hidden="true" data-part="tile" data-part-tile=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="image-off"></svg></span
+          ></span>
+          <h3>This file didn’t load</h3>
+          <p>Check the connection and try again, or download the file.</p>
+          <div>
+            <button data-part="retry" data-part-retry="" type="button">
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="rotate-ccw"></svg></span
+              >Try again</button
+            ><a data-part="download" data-part-download="" href="#" download
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="download"></svg></span
+              >Download</a
+            >
+          </div>
+        </div>
+      </div>
+      <button data-part="previous" data-part-previous="" type="button" aria-label="Previous">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-left"></svg
+        ></span>
+      </button>
+      <button data-part="next" data-part-next="" type="button" aria-label="Next">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="loading">
+  <div style="block-size: 30rem">
+    <div
+      data-ui="media-viewer"
+      data-ui-media-viewer=""
+      data-part="root"
+      data-part-root=""
+      data-kind="image"
+      data-slotted-scheme="dark"
+      data-loading
+    >
+      <div data-part="bar" data-part-bar="">
+        <div data-part="heading" data-part-heading="">
+          <h2
+            data-part="title"
+            data-part-title=""
+            id="l-title"
+            dir="auto"
+            title="harbour-at-dawn.png"
+          >
+            <span>harbour-at-dawn</span><span>.png</span>
+          </h2>
+          <p data-part="position" data-part-position="" dir="auto" id="l-position">2 of 5</p>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <a data-part="download" data-part-download="" href="#" download aria-label="Download"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="download"></svg></span
+          ></a>
+        </div>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="stage" data-part-stage="" tabindex="0" aria-label="Picture">
+        <div data-part="frame" data-part-frame="" data-loading>
+          <img
+            data-part="media"
+            data-part-media=""
+            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+            width="1600"
+            height="900"
+            alt="harbour-at-dawn.png"
+            draggable="false"
+          />
+        </div>
+        <div data-part="status" data-part-status="" role="status">Loading harbour-at-dawn.png</div>
+      </div>
+      <button data-part="previous" data-part-previous="" type="button" aria-label="Previous">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-left"></svg
+        ></span>
+      </button>
+      <button data-part="next" data-part-next="" type="button" aria-label="Next">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+      <div data-part="zoom" data-part-zoom="" role="group" aria-label="Zoom">
+        <button
+          data-part="zoom-out"
+          data-part-zoom-out=""
+          type="button"
+          aria-label="Zoom out"
+          disabled
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg
+          ></span>
+        </button>
+        <output data-part="zoom-level" data-part-zoom-level="" aria-live="off">100%</output>
+        <button data-part="zoom-in" data-part-zoom-in="" type="button" aria-label="Zoom in">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg
+          ></span>
+        </button>
+        <button data-part="fit" data-part-fit="" type="button" aria-label="Fit to screen" disabled>
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg
+          ></span>
+        </button>
+        <button data-part="rotate" data-part-rotate="" type="button" aria-label="Rotate">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="rotate-cw"></svg
+          ></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="long-name">
+  <div style="block-size: 30rem">
+    <div
+      data-ui="media-viewer"
+      data-ui-media-viewer=""
+      data-part="root"
+      data-part-root=""
+      data-kind="image"
+      data-slotted-scheme="dark"
+    >
+      <div data-part="bar" data-part-bar="">
+        <div data-part="heading" data-part-heading="">
+          <h2
+            data-part="title"
+            data-part-title=""
+            id="n-title"
+            dir="auto"
+            title="scan_2026-10-30_invoice_supplier-northwind-traders-international-ltd_final_v3.png"
+          >
+            <span
+              >scan_2026-10-30_invoice_supplier-northwind-traders-international-ltd_final_v3</span
+            ><span>.png</span>
+          </h2>
+          <p data-part="position" data-part-position="" dir="auto" id="n-position">12 of 148</p>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <a data-part="download" data-part-download="" href="#" download aria-label="Download"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="download"></svg></span
+          ></a>
+        </div>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="stage" data-part-stage="" tabindex="0" aria-label="Picture">
+        <div data-part="frame" data-part-frame="">
+          <img
+            data-part="media"
+            data-part-media=""
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27800%27%20height%3D%271200%27%20viewBox%3D%270%200%20800%201200%27%3E%3Crect%20width%3D%27800%27%20height%3D%271200%27%20fill%3D%27%23e9e4dc%27%2F%3E%3Crect%20x%3D%27120%27%20y%3D%27160%27%20width%3D%27560%27%20height%3D%27760%27%20rx%3D%2712%27%20fill%3D%27%23fff%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27240%27%20width%3D%27300%27%20height%3D%2728%27%20rx%3D%276%27%20fill%3D%27%232b3442%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27300%27%20width%3D%27440%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27330%27%20width%3D%27400%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27360%27%20width%3D%27420%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27440%27%20width%3D%27440%27%20height%3D%27300%27%20rx%3D%278%27%20fill%3D%27%23c9d6e3%27%2F%3E%3C%2Fsvg%3E"
+            width="800"
+            height="1200"
+            alt="scan"
+            draggable="false"
+          />
+        </div>
+      </div>
+      <button data-part="previous" data-part-previous="" type="button" aria-label="Previous">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-left"></svg
+        ></span>
+      </button>
+      <button data-part="next" data-part-next="" type="button" aria-label="Next">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+      <div data-part="zoom" data-part-zoom="" role="group" aria-label="Zoom">
+        <button
+          data-part="zoom-out"
+          data-part-zoom-out=""
+          type="button"
+          aria-label="Zoom out"
+          disabled
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg
+          ></span>
+        </button>
+        <output data-part="zoom-level" data-part-zoom-level="" aria-live="off">100%</output>
+        <button data-part="zoom-in" data-part-zoom-in="" type="button" aria-label="Zoom in">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg
+          ></span>
+        </button>
+        <button data-part="fit" data-part-fit="" type="button" aria-label="Fit to screen" disabled>
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg
+          ></span>
+        </button>
+        <button data-part="rotate" data-part-rotate="" type="button" aria-label="Rotate">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="rotate-cw"></svg
+          ></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="high-contrast-kept">
+  <div style="block-size: 30rem">
+    <div
+      data-ui="media-viewer"
+      data-ui-media-viewer=""
+      data-part="root"
+      data-part-root=""
+      data-kind="image"
+      data-slotted-scheme="high-contrast"
+    >
+      <div data-part="bar" data-part-bar="">
+        <div data-part="heading" data-part-heading="">
+          <h2
+            data-part="title"
+            data-part-title=""
+            id="ih-title"
+            dir="auto"
+            title="harbour-at-dawn.png"
+          >
+            <span>harbour-at-dawn</span><span>.png</span>
+          </h2>
+          <p data-part="position" data-part-position="" dir="auto" id="ih-position">2 of 5</p>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <a data-part="download" data-part-download="" href="#" download aria-label="Download"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="download"></svg></span
+          ></a>
+        </div>
+        <button data-part="close" data-part-close="" type="button" aria-label="Close">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="stage" data-part-stage="" tabindex="0" aria-label="Picture">
+        <div data-part="frame" data-part-frame="">
+          <img
+            data-part="media"
+            data-part-media=""
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%272000%27%20height%3D%271000%27%20viewBox%3D%270%200%202000%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%239cc7f0%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f3d9b8%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%272000%27%20height%3D%271000%27%20fill%3D%27url%28%23s%29%27%2F%3E%3Ccircle%20cx%3D%271480%27%20cy%3D%27300%27%20r%3D%27120%27%20fill%3D%27%23fff4d6%27%2F%3E%3Cpath%20d%3D%27M0%20760%20C400%20560%20700%20620%201000%20720%20S1600%20600%202000%20700%20V1000%20H0Z%27%20fill%3D%27%235f8f6a%27%2F%3E%3Cpath%20d%3D%27M0%20860%20C500%20720%20900%20800%201300%20860%20S1800%20820%202000%20840%20V1000%20H0Z%27%20fill%3D%27%233d6b4f%27%2F%3E%3C%2Fsvg%3E"
+            width="2000"
+            height="1000"
+            alt="harbour-at-dawn.png"
+            draggable="false"
+          />
+        </div>
+      </div>
+      <button data-part="previous" data-part-previous="" type="button" aria-label="Previous">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-left"></svg
+        ></span>
+      </button>
+      <button data-part="next" data-part-next="" type="button" aria-label="Next">
+        <span
+          data-ui="icon"
+          data-ui-icon=""
+          data-part="root"
+          data-part-root=""
+          aria-hidden="true"
+          data-directional
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+        ></span>
+      </button>
+      <div data-part="zoom" data-part-zoom="" role="group" aria-label="Zoom">
+        <button
+          data-part="zoom-out"
+          data-part-zoom-out=""
+          type="button"
+          aria-label="Zoom out"
+          disabled
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg
+          ></span>
+        </button>
+        <output data-part="zoom-level" data-part-zoom-level="" aria-live="off">100%</output>
+        <button data-part="zoom-in" data-part-zoom-in="" type="button" aria-label="Zoom in">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg
+          ></span>
+        </button>
+        <button data-part="fit" data-part-fit="" type="button" aria-label="Fit to screen" disabled>
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="minimize"></svg
+          ></span>
+        </button>
+        <button data-part="rotate" data-part-rotate="" type="button" aria-label="Rotate">
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="rotate-cw"></svg
+          ></span>
+        </button>
+      </div>
+      <p data-part="caption" data-part-caption="" dir="auto">
+        The harbour at dawn, from the east pier.
+      </p>
+      <div data-part="thumbnails" data-part-thumbnails="" role="group" aria-label="Files">
+        <button data-part="thumbnail" data-part-thumbnail="" type="button" aria-label="harbour.png">
+          <img
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%272000%27%20height%3D%271000%27%20viewBox%3D%270%200%202000%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%239cc7f0%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f3d9b8%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%272000%27%20height%3D%271000%27%20fill%3D%27url%28%23s%29%27%2F%3E%3Ccircle%20cx%3D%271480%27%20cy%3D%27300%27%20r%3D%27120%27%20fill%3D%27%23fff4d6%27%2F%3E%3Cpath%20d%3D%27M0%20760%20C400%20560%20700%20620%201000%20720%20S1600%20600%202000%20700%20V1000%20H0Z%27%20fill%3D%27%235f8f6a%27%2F%3E%3Cpath%20d%3D%27M0%20860%20C500%20720%20900%20800%201300%20860%20S1800%20820%202000%20840%20V1000%20H0Z%27%20fill%3D%27%233d6b4f%27%2F%3E%3C%2Fsvg%3E"
+            alt=""
+          />
+        </button>
+        <button
+          data-part="thumbnail"
+          data-part-thumbnail=""
+          type="button"
+          aria-label="invoice-4471.png"
+          aria-current="true"
+          data-current
+        >
+          <img
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27800%27%20height%3D%271200%27%20viewBox%3D%270%200%20800%201200%27%3E%3Crect%20width%3D%27800%27%20height%3D%271200%27%20fill%3D%27%23e9e4dc%27%2F%3E%3Crect%20x%3D%27120%27%20y%3D%27160%27%20width%3D%27560%27%20height%3D%27760%27%20rx%3D%2712%27%20fill%3D%27%23fff%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27240%27%20width%3D%27300%27%20height%3D%2728%27%20rx%3D%276%27%20fill%3D%27%232b3442%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27300%27%20width%3D%27440%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27330%27%20width%3D%27400%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27360%27%20width%3D%27420%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27440%27%20width%3D%27440%27%20height%3D%27300%27%20rx%3D%278%27%20fill%3D%27%23c9d6e3%27%2F%3E%3C%2Fsvg%3E"
+            alt=""
+          />
+        </button>
+        <button data-part="thumbnail" data-part-thumbnail="" type="button" aria-label="stamp.png">
+          <img
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27300%27%20height%3D%27200%27%20viewBox%3D%270%200%20300%20200%27%3E%3Crect%20width%3D%27300%27%20height%3D%27200%27%20fill%3D%27%23d97757%27%2F%3E%3Ccircle%20cx%3D%27150%27%20cy%3D%27100%27%20r%3D%2756%27%20fill%3D%27%23f6e3c8%27%2F%3E%3C%2Fsvg%3E"
+            alt=""
+          />
+        </button>
+        <button
+          data-part="thumbnail"
+          data-part-thumbnail=""
+          type="button"
+          aria-label="harbour-2.png"
+        >
+          <img
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%272000%27%20height%3D%271000%27%20viewBox%3D%270%200%202000%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%239cc7f0%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f3d9b8%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%272000%27%20height%3D%271000%27%20fill%3D%27url%28%23s%29%27%2F%3E%3Ccircle%20cx%3D%271480%27%20cy%3D%27300%27%20r%3D%27120%27%20fill%3D%27%23fff4d6%27%2F%3E%3Cpath%20d%3D%27M0%20760%20C400%20560%20700%20620%201000%20720%20S1600%20600%202000%20700%20V1000%20H0Z%27%20fill%3D%27%235f8f6a%27%2F%3E%3Cpath%20d%3D%27M0%20860%20C500%20720%20900%20800%201300%20860%20S1800%20820%202000%20840%20V1000%20H0Z%27%20fill%3D%27%233d6b4f%27%2F%3E%3C%2Fsvg%3E"
+            alt=""
+          />
+        </button>
+        <button data-part="thumbnail" data-part-thumbnail="" type="button" aria-label="receipt.png">
+          <img
+            src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27800%27%20height%3D%271200%27%20viewBox%3D%270%200%20800%201200%27%3E%3Crect%20width%3D%27800%27%20height%3D%271200%27%20fill%3D%27%23e9e4dc%27%2F%3E%3Crect%20x%3D%27120%27%20y%3D%27160%27%20width%3D%27560%27%20height%3D%27760%27%20rx%3D%2712%27%20fill%3D%27%23fff%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27240%27%20width%3D%27300%27%20height%3D%2728%27%20rx%3D%276%27%20fill%3D%27%232b3442%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27300%27%20width%3D%27440%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27330%27%20width%3D%27400%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27360%27%20width%3D%27420%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%239aa3ae%27%2F%3E%3Crect%20x%3D%27180%27%20y%3D%27440%27%20width%3D%27440%27%20height%3D%27300%27%20rx%3D%278%27%20fill%3D%27%23c9d6e3%27%2F%3E%3C%2Fsvg%3E"
+            alt=""
+          />
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 5,
+  "family": "checkbox",
+  "ui": "checkbox",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Box that turns one option on or off."
+  },
+  "controlPart": "control",
+  "rootRole": null,
+  "indicator": {
+    "part": "indicator",
+    "drawnOn": "sibling",
+    "checked": "--slotted-icon-check",
+    "indeterminate": "--slotted-icon-minus"
+  },
+  "labelAssociation": "for",
+  "generatesControlId": true,
+  "stateSource": "field",
+  "mirrorsState": true,
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "disabled",
+  "readOnlyAttribute": "aria-readonly",
+  "wiring": {
+    "id": "never",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "disabled": "disabled",
+    "readonly": "aria-readonly"
+  },
+  "keyboard": [
+    {
+      "key": "Space",
+      "effect": "toggles the checkbox",
+      "focus": "stays on the control",
+      "source": "platform"
+    }
+  ],
+  "escapeBound": false,
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["plain", "tile"],
+    "labelPlacement": ["end", "start"]
+  },
+  "resolution": {
+    "size": ["prop", "group", "field", "defaults", "md"],
+    "variant": ["prop", "group", "defaults", "plain"],
+    "labelPlacement": ["prop", "group", "defaults", "end"]
+  },
+  "provides": {
+    "checkboxDefaults": ["size", "variant", "labelPlacement"]
+  },
+  "stateAttributes": {
+    "checked": "data-checked",
+    "indeterminate": "data-indeterminate",
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly"
+  },
+  "stateModel": {
+    "checked": {
+      "controlled": "checked",
+      "uncontrolled": "defaultChecked",
+      "request": "onCheckedChange",
+      "reasons": ["pointer", "keyboard"]
+    }
+  },
+  "literals": {
+    "--slotted-checkbox-mark-inset": "The clearance between the edge of the square and the edge of the mark's own box, the same on all four sides: two pixels, which leaves a mark of 10, 12 and 14 pixels at the three steps and clears a border of one and a half pixels at the smallest. It is a length and not a fraction of the box, because a fraction of a whole square is a mark of fractional size at a fractional offset, and a browser snaps both to the pixel grid separately: at fifteen hundredths of a 16px box the ink landed half a pixel to the start side and changed size with the density (CK6). It is a length rather than a step on a scale because no scale in docs/token-foundation.md holds the clearance of a mark inside its own box."
+  },
+  "members": {
+    "checkbox": {
+      "nativeElement": "input",
+      "defaults": {
+        "size": "md",
+        "variant": "plain",
+        "labelPlacement": "end",
+        "indeterminate": false,
+        "parent": false
+      },
+      "capabilities": [
+        "checked",
+        "size",
+        "appearance",
+        "placement",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "readonly",
+        "invalid",
+        "checked",
+        "indeterminate"
+      ],
+      "parts": ["root", "label", "control", "indicator", "description"]
+    }
+  },
+  "scenarios": {
+    "checkbox": [
+      "playground",
+      "sizes",
+      "tile",
+      "states",
+      "indeterminate",
+      "placement",
+      "description",
+      "field",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  },
+  "labelHidden": {
+    "attribute": "data-label-hidden",
+    "when": "the label's only content is hidden text: elements with data-ui=\"visually-hidden\" and whitespace",
+    "effect": "the wash closes around the box at the halo spread on all four sides, as it does for an empty label",
+    "reason": "hidden text is as wide as none, so the label is zero wide with the column gap still beside it, and the wash reached the gap and half again past the box: 14px on the end side against 4px on the start. The bindings read the label's DOM, because a stylesheet cannot tell a text node from a hidden element."
+  }
+}

@@ -1,0 +1,2120 @@
+<!--
+  The third place this family's DOM is written, after React and Angular. Every
+  `data-part` the contract declares appears here:
+
+    div[data-ui='wizard'][data-part='root']       data-progress, data-scroll, data-loading…
+      div[data-part='layout']
+        div[data-part='progress']                   data-open while the compact list is open
+          button[data-part='progress-toggle']       laid out below 600px only
+            span[data-part='progress-position'] · span[data-part='progress-track'] > span[data-part='progress-segment']… · icon
+          stepper
+        div[data-part='main']
+          div[data-part='error'] > alert            only while an error stands
+          div[data-part='step']
+            div[data-part='step-header']
+              h2[data-part='step-title'] > span[data-part='position'] · name · tag[data-part='optional']
+              p[data-part='step-description']
+            form (the form family)  |  div[data-part='skeleton'] > field, while a draft is restored
+          div[data-part='actions']
+            div[data-part='actions-start']  cancel · save-draft · draft-status
+            div[data-part='actions-end']    skip · previous · next | submit
+          div[data-part='complete']         in place of step and actions after submission
+      button[data-part='edit']              the consumer's, on a review step
+
+  The page has no script, so what script writes is written by hand: the
+  current step, the statuses, the open list and the loading buttons.
+-->
+
+<!-- Where the reader is, beside what they are doing. -->
+<section data-scene="anatomy">
+  <div
+    data-ui="wizard"
+    data-ui-wizard=""
+    data-part="root"
+    data-part-root=""
+    data-progress="start"
+    data-scroll="ancestor"
+  >
+    <div data-part="layout" data-part-layout="">
+      <div data-part="progress" data-part-progress="" id="an-progress">
+        <button
+          data-part="progress-toggle"
+          data-part-progress-toggle=""
+          type="button"
+          aria-expanded="false"
+          aria-controls="an-list"
+        >
+          <span data-part="progress-position" data-part-progress-position="">Step 2 of 4</span>
+          <span data-part="progress-track" data-part-progress-track="" aria-hidden="true"
+            ><span
+              data-part="progress-segment"
+              data-part-progress-segment=""
+              data-complete=""
+            ></span
+            ><span data-part="progress-segment" data-part-progress-segment="" data-current=""></span
+            ><span data-part="progress-segment" data-part-progress-segment=""></span
+            ><span data-part="progress-segment" data-part-progress-segment=""></span
+          ></span>
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+        <div
+          data-label-placement="end"
+          data-navigation="button"
+          data-orientation="vertical"
+          data-part="root"
+          data-part-root=""
+          data-ui="stepper"
+          data-ui-stepper=""
+        >
+          <ol aria-label="Checkout" data-part="list" data-part-list="" id="an-list">
+            <li data-complete="" data-part="item" data-part-item="">
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                aria-controls="an-form"
+              >
+                <span aria-hidden="true" data-part="marker" data-part-marker=""
+                  >1<span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <span data-part="label" data-part-label="">Account</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 1 of 4, completed</span
+                >
+              </button>
+              <span
+                aria-hidden="true"
+                data-complete=""
+                data-part="separator"
+                data-part-separator=""
+              ></span>
+            </li>
+            <li data-current="" data-part="item" data-part-item="">
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                aria-current="step"
+                aria-controls="an-form"
+              >
+                <span aria-hidden="true" data-part="marker" data-part-marker="">2</span>
+                <span data-part="label" data-part-label="">Shipping address</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 2 of 4, current</span
+                >
+              </button>
+              <span aria-hidden="true" data-part="separator" data-part-separator=""></span>
+            </li>
+            <li data-disabled="" data-part="item" data-part-item="">
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                aria-disabled="true"
+                aria-controls="an-form"
+              >
+                <span aria-hidden="true" data-part="marker" data-part-marker="">3</span>
+                <span data-part="label" data-part-label="">Payment</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 3 of 4, unavailable</span
+                >
+              </button>
+              <span aria-hidden="true" data-part="separator" data-part-separator=""></span>
+            </li>
+            <li data-disabled="" data-part="item" data-part-item="">
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                aria-disabled="true"
+                aria-controls="an-form"
+              >
+                <span aria-hidden="true" data-part="marker" data-part-marker="">4</span>
+                <span data-part="label" data-part-label="">Review</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 4 of 4, unavailable</span
+                >
+              </button>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div data-part="main" data-part-main="">
+        <div data-part="step" data-part-step="">
+          <div data-part="step-header" data-part-step-header="">
+            <h2 data-part="step-title" data-part-step-title="" id="an-title" tabindex="-1">
+              <span data-part="position" data-part-position="">Step 2 of 4</span>Shipping address
+            </h2>
+            <p data-part="step-description" data-part-step-description="">
+              Where the order goes. It can differ from billing.
+            </p>
+          </div>
+          <form
+            data-ui="form"
+            data-ui-form=""
+            data-part="root"
+            data-part-root=""
+            id="an-form"
+            aria-labelledby="an-title"
+            novalidate
+          >
+            <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+              <div
+                data-ui="field"
+                data-ui-field=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-label-placement="top"
+              >
+                <label data-part="label" data-part-label="" for="an-name">Full name</label>
+                <div data-part="control" data-part-control="">
+                  <div
+                    data-ui="text-field"
+                    data-ui-text-field=""
+                    data-part="root"
+                    data-part-root=""
+                    data-size="md"
+                    data-variant="outline"
+                  >
+                    <input
+                      data-part="input"
+                      data-part-input=""
+                      id="an-name"
+                      name="name"
+                      value="Ana Ribeiro"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div
+                data-ui="field"
+                data-ui-field=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-label-placement="top"
+              >
+                <label data-part="label" data-part-label="" for="an-street"
+                  >Street and number</label
+                >
+                <div data-part="control" data-part-control="">
+                  <div
+                    data-ui="text-field"
+                    data-ui-text-field=""
+                    data-part="root"
+                    data-part-root=""
+                    data-size="md"
+                    data-variant="outline"
+                  >
+                    <input
+                      data-part="input"
+                      data-part-input=""
+                      id="an-street"
+                      name="street"
+                      value="Rua Augusta, 1508"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div
+                data-ui="field"
+                data-ui-field=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-label-placement="top"
+              >
+                <label data-part="label" data-part-label="" for="an-city">City</label>
+                <div data-part="control" data-part-control="">
+                  <div
+                    data-ui="text-field"
+                    data-ui-text-field=""
+                    data-part="root"
+                    data-part-root=""
+                    data-size="md"
+                    data-variant="outline"
+                  >
+                    <input
+                      data-part="input"
+                      data-part-input=""
+                      id="an-city"
+                      name="city"
+                      value="Seattle"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div data-part="actions" data-part-actions="">
+          <div data-part="actions-start" data-part-actions-start="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="cancel"
+              data-part-cancel=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Cancel</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="save-draft"
+              data-part-save-draft=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Save draft</span>
+            </button>
+            <span data-part="draft-status" data-part-draft-status="" role="status"
+              >Draft saved at 14:02</span
+            >
+          </div>
+          <div data-part="actions-end" data-part-actions-end="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="previous"
+              data-part-previous=""
+              data-tone="secondary"
+              data-variant="outline"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Back</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="next"
+              data-part-next=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="md"
+              type="submit"
+              form="an-form"
+            >
+              <span data-part="label" data-part-label="">Next</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The progress above the step, on the first step: no Back, and no draft yet. -->
+<section data-scene="top">
+  <div
+    data-ui="wizard"
+    data-ui-wizard=""
+    data-part="root"
+    data-part-root=""
+    data-progress="top"
+    data-scroll="ancestor"
+  >
+    <div data-part="layout" data-part-layout="">
+      <div data-part="progress" data-part-progress="">
+        <button
+          data-part="progress-toggle"
+          data-part-progress-toggle=""
+          type="button"
+          aria-expanded="false"
+          aria-controls="top-list"
+        >
+          <span data-part="progress-position" data-part-progress-position="">Step 1 of 3</span>
+          <span data-part="progress-track" data-part-progress-track="" aria-hidden="true"
+            ><span data-part="progress-segment" data-part-progress-segment="" data-current=""></span
+            ><span data-part="progress-segment" data-part-progress-segment=""></span
+            ><span data-part="progress-segment" data-part-progress-segment=""></span
+          ></span>
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+        <div
+          data-label-placement="end"
+          data-navigation="button"
+          data-orientation="horizontal"
+          data-part="root"
+          data-part-root=""
+          data-ui="stepper"
+          data-ui-stepper=""
+        >
+          <ol aria-label="Create a workspace" data-part="list" data-part-list="" id="top-list">
+            <li data-current="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button" aria-current="step">
+                <span aria-hidden="true" data-part="marker" data-part-marker="">1</span>
+                <span data-part="label" data-part-label="">Workspace</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 1 of 3, current</span
+                >
+              </button>
+              <span aria-hidden="true" data-part="separator" data-part-separator=""></span>
+            </li>
+            <li data-disabled="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button" aria-disabled="true">
+                <span aria-hidden="true" data-part="marker" data-part-marker="">2</span>
+                <span data-part="label" data-part-label="">Members</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 2 of 3, unavailable</span
+                >
+              </button>
+              <span aria-hidden="true" data-part="separator" data-part-separator=""></span>
+            </li>
+            <li data-disabled="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button" aria-disabled="true">
+                <span aria-hidden="true" data-part="marker" data-part-marker="">3</span>
+                <span data-part="label" data-part-label="">Plan</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 3 of 3, unavailable</span
+                >
+              </button>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div data-part="main" data-part-main="">
+        <div data-part="step" data-part-step="">
+          <div data-part="step-header" data-part-step-header="">
+            <h2 data-part="step-title" data-part-step-title="" id="top-title" tabindex="-1">
+              <span data-part="position" data-part-position="">Step 1 of 3</span>Workspace
+            </h2>
+          </div>
+          <form
+            data-ui="form"
+            data-ui-form=""
+            data-part="root"
+            data-part-root=""
+            id="top-form"
+            aria-labelledby="top-title"
+            novalidate
+          >
+            <div
+              data-ui="field"
+              data-ui-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="top"
+            >
+              <label data-part="label" data-part-label="" for="top-name">Workspace name</label>
+              <div data-part="control" data-part-control="">
+                <div
+                  data-ui="text-field"
+                  data-ui-text-field=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-variant="outline"
+                >
+                  <input
+                    data-part="input"
+                    data-part-input=""
+                    id="top-name"
+                    name="workspace"
+                    value="Acme Logistics"
+                  />
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div data-part="actions" data-part-actions="">
+          <div data-part="actions-start" data-part-actions-start="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="cancel"
+              data-part-cancel=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Cancel</span>
+            </button>
+          </div>
+          <div data-part="actions-end" data-part-actions-end="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="next"
+              data-part-next=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="md"
+              type="submit"
+              form="top-form"
+            >
+              <span data-part="label" data-part-label="">Next</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The compact list opened from its bar. At 720 pixels the bar is gone and
+     the list is the column it always is. -->
+<section data-scene="compact-open">
+  <div
+    data-ui="wizard"
+    data-ui-wizard=""
+    data-part="root"
+    data-part-root=""
+    data-progress="start"
+    data-scroll="ancestor"
+  >
+    <div data-part="layout" data-part-layout="">
+      <div data-part="progress" data-part-progress="" data-open="">
+        <button
+          data-part="progress-toggle"
+          data-part-progress-toggle=""
+          type="button"
+          aria-expanded="true"
+          aria-controls="co-list"
+        >
+          <span data-part="progress-position" data-part-progress-position="">Step 3 of 4</span>
+          <span data-part="progress-track" data-part-progress-track="" aria-hidden="true"
+            ><span
+              data-part="progress-segment"
+              data-part-progress-segment=""
+              data-complete=""
+            ></span
+            ><span
+              data-part="progress-segment"
+              data-part-progress-segment=""
+              data-complete=""
+            ></span
+            ><span data-part="progress-segment" data-part-progress-segment="" data-current=""></span
+            ><span data-part="progress-segment" data-part-progress-segment=""></span
+          ></span>
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+        <div
+          data-label-placement="end"
+          data-navigation="button"
+          data-orientation="vertical"
+          data-part="root"
+          data-part-root=""
+          data-ui="stepper"
+          data-ui-stepper=""
+        >
+          <ol aria-label="Checkout" data-part="list" data-part-list="" id="co-list">
+            <li data-complete="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button">
+                <span aria-hidden="true" data-part="marker" data-part-marker=""
+                  >1<span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <span data-part="label" data-part-label="">Account</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 1 of 4, completed</span
+                >
+              </button>
+              <span
+                aria-hidden="true"
+                data-complete=""
+                data-part="separator"
+                data-part-separator=""
+              ></span>
+            </li>
+            <li data-complete="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button">
+                <span aria-hidden="true" data-part="marker" data-part-marker=""
+                  >2<span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <span data-part="label" data-part-label="">Shipping address</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 2 of 4, completed</span
+                >
+              </button>
+              <span
+                aria-hidden="true"
+                data-complete=""
+                data-part="separator"
+                data-part-separator=""
+              ></span>
+            </li>
+            <li data-current="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button" aria-current="step">
+                <span aria-hidden="true" data-part="marker" data-part-marker="">3</span>
+                <span data-part="label" data-part-label="">Payment method and billing address</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 3 of 4, current</span
+                >
+              </button>
+              <span aria-hidden="true" data-part="separator" data-part-separator=""></span>
+            </li>
+            <li data-disabled="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button" aria-disabled="true">
+                <span aria-hidden="true" data-part="marker" data-part-marker="">4</span>
+                <span data-part="label" data-part-label="">Review</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 4 of 4, unavailable</span
+                >
+              </button>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div data-part="main" data-part-main="">
+        <div data-part="step" data-part-step="">
+          <div data-part="step-header" data-part-step-header="">
+            <h2 data-part="step-title" data-part-step-title="" id="co-title" tabindex="-1">
+              <span data-part="position" data-part-position="">Step 3 of 4</span>Payment method and
+              billing address
+            </h2>
+          </div>
+          <form
+            data-ui="form"
+            data-ui-form=""
+            data-part="root"
+            data-part-root=""
+            id="co-form"
+            aria-labelledby="co-title"
+            novalidate
+          >
+            <div
+              data-ui="field"
+              data-ui-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="top"
+            >
+              <label data-part="label" data-part-label="" for="co-card">Card number</label>
+              <div data-part="control" data-part-control="">
+                <div
+                  data-ui="text-field"
+                  data-ui-text-field=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-variant="outline"
+                >
+                  <input
+                    data-part="input"
+                    data-part-input=""
+                    id="co-card"
+                    name="card"
+                    inputmode="numeric"
+                    value="4242 4242 4242 4242"
+                  />
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <div data-part="actions-end" data-part-actions-end="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="previous"
+              data-part-previous=""
+              data-tone="secondary"
+              data-variant="outline"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Back</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="next"
+              data-part-next=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="md"
+              type="submit"
+              form="co-form"
+            >
+              <span data-part="label" data-part-label="">Next</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- A refused submission of the step: the form family's summary and field
+     error, and the step marked in error in the progress. -->
+<section data-scene="validation">
+  <div
+    data-ui="wizard"
+    data-ui-wizard=""
+    data-part="root"
+    data-part-root=""
+    data-progress="start"
+    data-scroll="ancestor"
+  >
+    <div data-part="layout" data-part-layout="">
+      <div data-part="progress" data-part-progress="">
+        <button
+          data-part="progress-toggle"
+          data-part-progress-toggle=""
+          type="button"
+          aria-expanded="false"
+          aria-controls="va-list"
+        >
+          <span data-part="progress-position" data-part-progress-position="">Step 1 of 3</span>
+          <span data-part="progress-track" data-part-progress-track="" aria-hidden="true"
+            ><span
+              data-part="progress-segment"
+              data-part-progress-segment=""
+              data-current=""
+              data-invalid=""
+            ></span
+            ><span data-part="progress-segment" data-part-progress-segment=""></span
+            ><span data-part="progress-segment" data-part-progress-segment=""></span
+          ></span>
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+        <div
+          data-label-placement="end"
+          data-navigation="button"
+          data-orientation="vertical"
+          data-part="root"
+          data-part-root=""
+          data-ui="stepper"
+          data-ui-stepper=""
+        >
+          <ol aria-label="Sign up" data-part="list" data-part-list="" id="va-list">
+            <li data-current="" data-invalid="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button" aria-current="step">
+                <span aria-hidden="true" data-part="marker" data-part-marker=""
+                  >1<span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg></span
+                ></span>
+                <span data-part="label" data-part-label="">Account</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 1 of 3, needs attention</span
+                >
+              </button>
+              <span aria-hidden="true" data-part="separator" data-part-separator=""></span>
+            </li>
+            <li data-disabled="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button" aria-disabled="true">
+                <span aria-hidden="true" data-part="marker" data-part-marker="">2</span>
+                <span data-part="label" data-part-label="">Profile</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 2 of 3, unavailable</span
+                >
+              </button>
+              <span aria-hidden="true" data-part="separator" data-part-separator=""></span>
+            </li>
+            <li data-disabled="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button" aria-disabled="true">
+                <span aria-hidden="true" data-part="marker" data-part-marker="">3</span>
+                <span data-part="label" data-part-label="">Confirm</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 3 of 3, unavailable</span
+                >
+              </button>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div data-part="main" data-part-main="">
+        <div data-part="step" data-part-step="">
+          <div data-part="step-header" data-part-step-header="">
+            <h2 data-part="step-title" data-part-step-title="" id="va-title" tabindex="-1">
+              <span data-part="position" data-part-position="">Step 1 of 3</span>Account
+            </h2>
+          </div>
+          <form
+            data-ui="form"
+            data-ui-form=""
+            data-part="root"
+            data-part-root=""
+            data-invalid
+            id="va-form"
+            aria-labelledby="va-title"
+            novalidate
+          >
+            <div
+              data-ui="form"
+              data-ui-form=""
+              data-part="summary"
+              data-part-summary=""
+              role="alert"
+              tabindex="-1"
+              aria-labelledby="va-summary"
+            >
+              <h2 data-part="summary-title" data-part-summary-title="" id="va-summary">
+                There is a problem
+              </h2>
+              <ul data-part="summary-list" data-part-summary-list="">
+                <li>
+                  <a data-part="summary-item" data-part-summary-item="" href="#va-email"
+                    >This email already has an account</a
+                  >
+                </li>
+              </ul>
+            </div>
+            <div
+              data-ui="field"
+              data-ui-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="top"
+              data-invalid
+            >
+              <label data-part="label" data-part-label="" for="va-email">Work email</label>
+              <div data-part="control" data-part-control="">
+                <div
+                  data-ui="text-field"
+                  data-ui-text-field=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-variant="outline"
+                  data-invalid
+                >
+                  <input
+                    data-part="input"
+                    data-part-input=""
+                    id="va-email"
+                    name="email"
+                    value="ana@acme.example"
+                    aria-invalid="true"
+                    aria-describedby="va-email-error"
+                  />
+                </div>
+              </div>
+              <p
+                data-ui="inline-message"
+                data-ui-inline-message=""
+                data-mark="none"
+                data-part="root"
+                data-part-root=""
+                data-tone="danger"
+                data-size="sm"
+                data-live="off"
+                id="va-email-error"
+              >
+                <span data-part="prefix" data-part-prefix="">Error:</span>
+                <span aria-hidden="true" data-part="icon" data-part-icon=""></span>
+                <span data-part="text" data-part-text="">This email already has an account</span>
+              </p>
+            </div>
+          </form>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <div data-part="actions-start" data-part-actions-start="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="cancel"
+              data-part-cancel=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Cancel</span>
+            </button>
+          </div>
+          <div data-part="actions-end" data-part-actions-end="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="next"
+              data-part-next=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="md"
+              type="submit"
+              form="va-form"
+            >
+              <span data-part="label" data-part-label="">Next</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- An optional step: the mark in the heading and the Skip beside Back. -->
+<section data-scene="optional">
+  <div
+    data-ui="wizard"
+    data-ui-wizard=""
+    data-part="root"
+    data-part-root=""
+    data-progress="none"
+    data-scroll="ancestor"
+  >
+    <div data-part="layout" data-part-layout="">
+      <div data-part="main" data-part-main="">
+        <div data-part="step" data-part-step="">
+          <div data-part="step-header" data-part-step-header="">
+            <h2 data-part="step-title" data-part-step-title="" id="op-title" tabindex="-1">
+              <span data-part="position" data-part-position="">Step 3 of 4</span> Gift message<span
+                data-part="optional"
+                data-part-optional=""
+              >
+                <span
+                  data-ui="tag"
+                  data-ui-tag=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="secondary"
+                  data-variant="soft"
+                  data-size="sm"
+                  data-shape="pill"
+                  ><span data-part="body" data-part-body=""
+                    ><span data-part="label" data-part-label="">Optional</span></span
+                  ></span
+                ></span
+              >
+            </h2>
+            <p data-part="step-description" data-part-step-description="">
+              Printed on a card inside the box, without the price.
+            </p>
+          </div>
+          <form
+            data-ui="form"
+            data-ui-form=""
+            data-part="root"
+            data-part-root=""
+            id="op-form"
+            aria-labelledby="op-title"
+            novalidate
+          >
+            <div
+              data-ui="field"
+              data-ui-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="top"
+            >
+              <label data-part="label" data-part-label="" for="op-message">Message</label>
+              <div data-part="control" data-part-control="">
+                <textarea
+                  data-ui="textarea"
+                  data-ui-textarea=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-variant="outline"
+                  id="op-message"
+                  name="message"
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <div data-part="actions-start" data-part-actions-start="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="cancel"
+              data-part-cancel=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Cancel</span>
+            </button>
+          </div>
+          <div data-part="actions-end" data-part-actions-end="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="skip"
+              data-part-skip=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Skip</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="previous"
+              data-part-previous=""
+              data-tone="secondary"
+              data-variant="outline"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Back</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="next"
+              data-part-next=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="md"
+              type="submit"
+              form="op-form"
+            >
+              <span data-part="label" data-part-label="">Next</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The review step: the consumer's description list with the edit part on
+     each row, and the submission at the end. -->
+<section data-scene="review">
+  <div
+    data-ui="wizard"
+    data-ui-wizard=""
+    data-part="root"
+    data-part-root=""
+    data-progress="none"
+    data-scroll="ancestor"
+  >
+    <div data-part="layout" data-part-layout="">
+      <div data-part="main" data-part-main="">
+        <div data-part="step" data-part-step="">
+          <div data-part="step-header" data-part-step-header="">
+            <h2 data-part="step-title" data-part-step-title="" id="rv-title" tabindex="-1">
+              <span data-part="position" data-part-position="">Step 4 of 4</span>Review
+            </h2>
+            <p data-part="step-description" data-part-step-description="">
+              Check the order before it is placed.
+            </p>
+          </div>
+          <form
+            data-ui="form"
+            data-ui-form=""
+            data-part="root"
+            data-part-root=""
+            id="rv-form"
+            aria-labelledby="rv-title"
+            novalidate
+          >
+            <div
+              data-columns="1"
+              data-layout="row"
+              data-part="root"
+              data-part-root=""
+              data-ui="description-list"
+              data-ui-description-list=""
+              data-variant="plain"
+            >
+              <dl data-part="list" data-part-list="">
+                <div data-part="item" data-part-item="">
+                  <dt data-part="term" data-part-term="" id="rv-account">Account</dt>
+                  <dd data-part="description" data-part-description="">
+                    <span data-part="value" data-part-value="">ana@acme.example</span>
+                  </dd>
+                  <dd data-part="action" data-part-action="">
+                    <button
+                      data-part="edit"
+                      data-part-edit=""
+                      type="button"
+                      aria-describedby="rv-account"
+                    >
+                      <span data-part="label" data-part-label="">Change</span>
+                    </button>
+                  </dd>
+                </div>
+                <div data-part="item" data-part-item="">
+                  <dt data-part="term" data-part-term="" id="rv-shipping">Shipping address</dt>
+                  <dd data-part="description" data-part-description="">
+                    <span data-part="value" data-part-value="">1508 Augusta St · Seattle</span>
+                  </dd>
+                  <dd data-part="action" data-part-action="">
+                    <button
+                      data-part="edit"
+                      data-part-edit=""
+                      type="button"
+                      aria-describedby="rv-shipping"
+                    >
+                      <span data-part="label" data-part-label="">Change</span>
+                    </button>
+                  </dd>
+                </div>
+                <div data-part="item" data-part-item="">
+                  <dt data-part="term" data-part-term="" id="rv-gift">Gift message</dt>
+                  <dd data-part="description" data-part-description="">
+                    <span data-part="value" data-part-value="">Not provided</span>
+                  </dd>
+                  <dd data-part="action" data-part-action="">
+                    <button
+                      data-part="edit"
+                      data-part-edit=""
+                      type="button"
+                      aria-describedby="rv-gift"
+                    >
+                      <span data-part="label" data-part-label="">Change</span>
+                    </button>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </form>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <div data-part="actions-start" data-part-actions-start="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="cancel"
+              data-part-cancel=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Cancel</span>
+            </button>
+          </div>
+          <div data-part="actions-end" data-part-actions-end="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="previous"
+              data-part-previous=""
+              data-tone="secondary"
+              data-variant="outline"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Back</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="submit"
+              data-part-submit=""
+              data-final=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="md"
+              type="submit"
+              form="rv-form"
+            >
+              <span data-part="label" data-part-label="">Place order</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The submission pending: the submit button's own loading, and every other
+     action refusing. -->
+<section data-scene="submitting">
+  <div
+    data-ui="wizard"
+    data-ui-wizard=""
+    data-part="root"
+    data-part-root=""
+    data-progress="none"
+    data-scroll="ancestor"
+    data-loading=""
+  >
+    <div data-part="layout" data-part-layout="">
+      <div data-part="main" data-part-main="">
+        <div data-part="step" data-part-step="">
+          <div data-part="step-header" data-part-step-header="">
+            <h2 data-part="step-title" data-part-step-title="" id="sb-title" tabindex="-1">
+              <span data-part="position" data-part-position="">Step 4 of 4</span>Review
+            </h2>
+          </div>
+          <form
+            data-ui="form"
+            data-ui-form=""
+            data-part="root"
+            data-part-root=""
+            data-loading
+            id="sb-form"
+            aria-labelledby="sb-title"
+            aria-busy="true"
+            novalidate
+          >
+            <p>Two items, delivered to 1508 Augusta St · Seattle.</p>
+          </form>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <div data-part="actions-start" data-part-actions-start="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="cancel"
+              data-part-cancel=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="md"
+              type="button"
+              aria-disabled="true"
+              data-disabled=""
+            >
+              <span data-part="label" data-part-label="">Cancel</span>
+            </button>
+          </div>
+          <div data-part="actions-end" data-part-actions-end="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="previous"
+              data-part-previous=""
+              data-tone="secondary"
+              data-variant="outline"
+              data-size="md"
+              type="button"
+              aria-disabled="true"
+              data-disabled=""
+            >
+              <span data-part="label" data-part-label="">Back</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="submit"
+              data-part-submit=""
+              data-final=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="md"
+              type="submit"
+              form="sb-form"
+              aria-disabled="true"
+              data-loading=""
+            >
+              <span data-part="label" data-part-label="">Place order</span>
+              <span
+                data-part="indicator"
+                data-part-indicator=""
+                data-ui="spinner"
+                data-ui-spinner=""
+                role="progressbar"
+                aria-label="Placing the order"
+              ></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- A failed submission: the error above the step, the answers intact. -->
+<section data-scene="failure">
+  <div
+    data-ui="wizard"
+    data-ui-wizard=""
+    data-part="root"
+    data-part-root=""
+    data-progress="none"
+    data-scroll="ancestor"
+    data-invalid=""
+  >
+    <div data-part="layout" data-part-layout="">
+      <div data-part="main" data-part-main="">
+        <div data-part="error" data-part-error="">
+          <section
+            data-ui="alert"
+            data-ui-alert=""
+            data-part="root"
+            data-part-root=""
+            data-tone="danger"
+            data-variant="soft"
+            data-reach="section"
+            data-live="off"
+            data-open=""
+            role="alert"
+            tabindex="-1"
+            aria-labelledby="fl-error"
+          >
+            <span data-part="icon" data-part-icon="" aria-hidden="true"></span>
+            <div data-part="content" data-part-content="">
+              <div data-part="title" data-part-title="" id="fl-error">
+                The submission did not go through
+              </div>
+              <p data-part="description" data-part-description="">
+                The payment service did not answer. Nothing was charged.
+              </p>
+            </div>
+          </section>
+        </div>
+        <div data-part="step" data-part-step="">
+          <div data-part="step-header" data-part-step-header="">
+            <h2 data-part="step-title" data-part-step-title="" id="fl-title" tabindex="-1">
+              <span data-part="position" data-part-position="">Step 4 of 4</span>Review
+            </h2>
+          </div>
+          <form
+            data-ui="form"
+            data-ui-form=""
+            data-part="root"
+            data-part-root=""
+            id="fl-form"
+            aria-labelledby="fl-title"
+            novalidate
+          >
+            <p>Two items, delivered to 1508 Augusta St · Seattle.</p>
+          </form>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <div data-part="actions-end" data-part-actions-end="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="previous"
+              data-part-previous=""
+              data-tone="secondary"
+              data-variant="outline"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Back</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="submit"
+              data-part-submit=""
+              data-final=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="md"
+              type="submit"
+              form="fl-form"
+            >
+              <span data-part="label" data-part-label="">Place order</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- After an accepted submission: the consumer's result in place of the
+     step and the actions; every step complete. -->
+<section data-scene="complete">
+  <div
+    data-ui="wizard"
+    data-ui-wizard=""
+    data-part="root"
+    data-part-root=""
+    data-progress="start"
+    data-scroll="ancestor"
+    data-complete=""
+  >
+    <div data-part="layout" data-part-layout="">
+      <div data-part="progress" data-part-progress="">
+        <button
+          data-part="progress-toggle"
+          data-part-progress-toggle=""
+          type="button"
+          aria-expanded="false"
+          aria-controls="cp-list"
+        >
+          <span data-part="progress-position" data-part-progress-position="">Step 3 of 3</span>
+          <span data-part="progress-track" data-part-progress-track="" aria-hidden="true"
+            ><span
+              data-part="progress-segment"
+              data-part-progress-segment=""
+              data-complete=""
+            ></span
+            ><span
+              data-part="progress-segment"
+              data-part-progress-segment=""
+              data-complete=""
+            ></span
+            ><span
+              data-part="progress-segment"
+              data-part-progress-segment=""
+              data-complete=""
+            ></span
+          ></span>
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+        <div
+          data-label-placement="end"
+          data-navigation="none"
+          data-orientation="vertical"
+          data-part="root"
+          data-part-root=""
+          data-ui="stepper"
+          data-ui-stepper=""
+        >
+          <ol aria-label="Sign up" data-part="list" data-part-list="" id="cp-list">
+            <li data-complete="" data-part="item" data-part-item="">
+              <span data-part="trigger" data-part-trigger="">
+                <span aria-hidden="true" data-part="marker" data-part-marker=""
+                  >1<span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <span data-part="label" data-part-label="">Account</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 1 of 3, completed</span
+                >
+              </span>
+              <span
+                aria-hidden="true"
+                data-complete=""
+                data-part="separator"
+                data-part-separator=""
+              ></span>
+            </li>
+            <li data-complete="" data-part="item" data-part-item="">
+              <span data-part="trigger" data-part-trigger="">
+                <span aria-hidden="true" data-part="marker" data-part-marker=""
+                  >2<span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <span data-part="label" data-part-label="">Profile</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 2 of 3, completed</span
+                >
+              </span>
+              <span
+                aria-hidden="true"
+                data-complete=""
+                data-part="separator"
+                data-part-separator=""
+              ></span>
+            </li>
+            <li data-complete="" data-part="item" data-part-item="">
+              <span data-part="trigger" data-part-trigger="">
+                <span aria-hidden="true" data-part="marker" data-part-marker=""
+                  >3<span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <span data-part="label" data-part-label="">Confirm</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Step 3 of 3, completed</span
+                >
+              </span>
+            </li>
+          </ol>
+        </div>
+      </div>
+      <div data-part="main" data-part-main="">
+        <div data-part="complete" data-part-complete="" tabindex="-1">
+          <div
+            data-ui="result-state"
+            data-ui-result-state=""
+            data-part="root"
+            data-part-root=""
+            data-status="success"
+            data-reach="section"
+            data-align="center"
+            data-live="polite"
+            aria-labelledby="cp-done"
+          >
+            <div data-part="media" data-part-media="" aria-hidden="true"></div>
+            <div data-part="content" data-part-content="" role="status">
+              <div data-part="title" data-part-title="" id="cp-done">Your account is ready</div>
+              <p data-part="description" data-part-description="">
+                A confirmation went to ana@acme.example.
+              </p>
+            </div>
+            <div data-part="actions" data-part-actions="">
+              <button
+                data-ui="button"
+                data-ui-button=""
+                data-part="root"
+                data-part-root=""
+                data-tone="accent"
+                data-variant="solid"
+                data-size="md"
+                type="button"
+              >
+                <span data-part="label" data-part-label="">Open the workspace</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- An asynchronous restore: the progress is chrome and keeps its labels;
+     the step is its own anatomy in one colour; the actions are absent. -->
+<section data-scene="restoring">
+  <div
+    data-ui="wizard"
+    data-ui-wizard=""
+    data-part="root"
+    data-part-root=""
+    data-progress="none"
+    data-scroll="ancestor"
+    data-loading=""
+  >
+    <div data-part="layout" data-part-layout="">
+      <div data-part="main" data-part-main="">
+        <div data-part="step" data-part-step="" aria-busy="true">
+          <div data-part="step-header" data-part-step-header="" aria-hidden="true">
+            <div data-part="step-title" data-part-step-title="">
+              <span data-part="position" data-part-position=""
+                ><span
+                  data-ui="skeleton"
+                  data-ui-skeleton=""
+                  data-part="root"
+                  data-part-root=""
+                  data-shape="text"
+                  data-animation="shimmer"
+                  data-loading=""
+                  style="inline-size: 5.5rem"
+                ></span
+              ></span>
+              <span
+                data-ui="skeleton"
+                data-ui-skeleton=""
+                data-part="root"
+                data-part-root=""
+                data-shape="text"
+                data-animation="shimmer"
+                data-loading=""
+                style="inline-size: 13rem"
+              ></span>
+            </div>
+          </div>
+          <div data-part="skeleton" data-part-skeleton="" aria-hidden="true">
+            <div
+              data-ui="field"
+              data-ui-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="top"
+            >
+              <span data-part="label" data-part-label=""
+                ><span
+                  data-ui="skeleton"
+                  data-ui-skeleton=""
+                  data-part="root"
+                  data-part-root=""
+                  data-shape="text"
+                  data-animation="shimmer"
+                  data-loading=""
+                  style="inline-size: 7rem"
+                ></span
+              ></span>
+              <div data-part="control" data-part-control="">
+                <span
+                  data-ui="skeleton"
+                  data-ui-skeleton=""
+                  data-part="root"
+                  data-part-root=""
+                  data-shape="block"
+                  data-animation="shimmer"
+                  data-loading=""
+                  style="block-size: var(--slotted-control-height-md)"
+                ></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Inside a layer of fixed height: the step scrolls and the actions stay. -->
+<section data-scene="self">
+  <div
+    style="
+      block-size: 22rem;
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-lg);
+      padding: var(--slotted-space-6);
+      padding-block-end: var(--slotted-space-6);
+      display: flex;
+      flex-direction: column;
+    "
+  >
+    <div
+      data-ui="wizard"
+      data-ui-wizard=""
+      data-part="root"
+      data-part-root=""
+      data-progress="none"
+      data-scroll="self"
+    >
+      <div data-part="layout" data-part-layout="">
+        <div data-part="main" data-part-main="">
+          <div data-part="step" data-part-step="">
+            <div data-part="step-header" data-part-step-header="">
+              <h2 data-part="step-title" data-part-step-title="" id="sf-title" tabindex="-1">
+                <span data-part="position" data-part-position="">Step 2 of 3</span>Members
+              </h2>
+              <p data-part="step-description" data-part-step-description="">
+                Invite the people who will work in this space.
+              </p>
+            </div>
+            <form
+              data-ui="form"
+              data-ui-form=""
+              data-part="root"
+              data-part-root=""
+              id="sf-form"
+              aria-labelledby="sf-title"
+              novalidate
+            >
+              <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+                <div
+                  data-ui="field"
+                  data-ui-field=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="top"
+                >
+                  <label data-part="label" data-part-label="" for="sf-a">First member</label>
+                  <div data-part="control" data-part-control="">
+                    <div
+                      data-ui="text-field"
+                      data-ui-text-field=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="outline"
+                    >
+                      <input
+                        data-part="input"
+                        data-part-input=""
+                        id="sf-a"
+                        name="a"
+                        value="joao@acme.example"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div
+                  data-ui="field"
+                  data-ui-field=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="top"
+                >
+                  <label data-part="label" data-part-label="" for="sf-b">Second member</label>
+                  <div data-part="control" data-part-control="">
+                    <div
+                      data-ui="text-field"
+                      data-ui-text-field=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="outline"
+                    >
+                      <input
+                        data-part="input"
+                        data-part-input=""
+                        id="sf-b"
+                        name="b"
+                        value="marta@acme.example"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div
+                  data-ui="field"
+                  data-ui-field=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-label-placement="top"
+                >
+                  <label data-part="label" data-part-label="" for="sf-c">Third member</label>
+                  <div data-part="control" data-part-control="">
+                    <div
+                      data-ui="text-field"
+                      data-ui-text-field=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="outline"
+                    >
+                      <input data-part="input" data-part-input="" id="sf-c" name="c" value="" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div data-part="actions" data-part-actions="">
+            <div data-part="actions-end" data-part-actions-end="">
+              <button
+                data-ui="button"
+                data-ui-button=""
+                data-part="previous"
+                data-part-previous=""
+                data-tone="secondary"
+                data-variant="outline"
+                data-size="md"
+                type="button"
+              >
+                <span data-part="label" data-part-label="">Back</span>
+              </button>
+              <button
+                data-ui="button"
+                data-ui-button=""
+                data-part="next"
+                data-part-next=""
+                data-tone="accent"
+                data-variant="solid"
+                data-size="md"
+                type="submit"
+                form="sf-form"
+              >
+                <span data-part="label" data-part-label="">Next</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Long translated labels and a long flow. -->
+<section data-scene="content">
+  <div
+    data-ui="wizard"
+    data-ui-wizard=""
+    data-part="root"
+    data-part-root=""
+    data-progress="start"
+    data-scroll="ancestor"
+    lang="de"
+  >
+    <div data-part="layout" data-part-layout="">
+      <div data-part="progress" data-part-progress="">
+        <button
+          data-part="progress-toggle"
+          data-part-progress-toggle=""
+          type="button"
+          aria-expanded="false"
+          aria-controls="ct-list"
+        >
+          <span data-part="progress-position" data-part-progress-position="">Schritt 4 von 7</span>
+          <span data-part="progress-track" data-part-progress-track="" aria-hidden="true"
+            ><span
+              data-part="progress-segment"
+              data-part-progress-segment=""
+              data-complete=""
+            ></span
+            ><span
+              data-part="progress-segment"
+              data-part-progress-segment=""
+              data-complete=""
+            ></span
+            ><span
+              data-part="progress-segment"
+              data-part-progress-segment=""
+              data-complete=""
+            ></span
+            ><span data-part="progress-segment" data-part-progress-segment="" data-current=""></span
+            ><span data-part="progress-segment" data-part-progress-segment=""></span
+            ><span data-part="progress-segment" data-part-progress-segment=""></span
+            ><span data-part="progress-segment" data-part-progress-segment=""></span
+          ></span>
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+        <div
+          data-label-placement="end"
+          data-navigation="button"
+          data-orientation="vertical"
+          data-part="root"
+          data-part-root=""
+          data-ui="stepper"
+          data-ui-stepper=""
+        >
+          <ol aria-label="Antrag" data-part="list" data-part-list="" id="ct-list">
+            <li data-complete="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button">
+                <span aria-hidden="true" data-part="marker" data-part-marker=""
+                  >1<span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <span data-part="label" data-part-label="">Kontodaten</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Schritt 1 von 7, erledigt</span
+                >
+              </button>
+              <span
+                aria-hidden="true"
+                data-complete=""
+                data-part="separator"
+                data-part-separator=""
+              ></span>
+            </li>
+            <li data-complete="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button">
+                <span aria-hidden="true" data-part="marker" data-part-marker=""
+                  >2<span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <span data-part="label" data-part-label="">Persönliche Angaben</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Schritt 2 von 7, erledigt</span
+                >
+              </button>
+              <span
+                aria-hidden="true"
+                data-complete=""
+                data-part="separator"
+                data-part-separator=""
+              ></span>
+            </li>
+            <li data-complete="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button">
+                <span aria-hidden="true" data-part="marker" data-part-marker=""
+                  >3<span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <span data-part="label" data-part-label="">Lieferanschrift</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Schritt 3 von 7, erledigt</span
+                >
+              </button>
+              <span
+                aria-hidden="true"
+                data-complete=""
+                data-part="separator"
+                data-part-separator=""
+              ></span>
+            </li>
+            <li data-current="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button" aria-current="step">
+                <span aria-hidden="true" data-part="marker" data-part-marker="">4</span>
+                <span data-part="label" data-part-label=""
+                  >Zahlungsinformationen und Rechnungsanschrift</span
+                >
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Schritt 4 von 7, aktuell</span
+                >
+              </button>
+              <span aria-hidden="true" data-part="separator" data-part-separator=""></span>
+            </li>
+            <li data-disabled="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button" aria-disabled="true">
+                <span aria-hidden="true" data-part="marker" data-part-marker="">5</span>
+                <span data-part="label" data-part-label="">Geschenkoptionen</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Schritt 5 von 7, nicht verfügbar</span
+                >
+              </button>
+              <span aria-hidden="true" data-part="separator" data-part-separator=""></span>
+            </li>
+            <li data-disabled="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button" aria-disabled="true">
+                <span aria-hidden="true" data-part="marker" data-part-marker="">6</span>
+                <span data-part="label" data-part-label="">Datenschutzeinwilligung</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Schritt 6 von 7, nicht verfügbar</span
+                >
+              </button>
+              <span aria-hidden="true" data-part="separator" data-part-separator=""></span>
+            </li>
+            <li data-disabled="" data-part="item" data-part-item="">
+              <button data-part="trigger" data-part-trigger="" type="button" aria-disabled="true">
+                <span aria-hidden="true" data-part="marker" data-part-marker="">7</span>
+                <span data-part="label" data-part-label="">Überprüfung</span>
+                <span
+                  data-part="status"
+                  data-part-status=""
+                  data-ui="visually-hidden"
+                  data-ui-visually-hidden=""
+                  >, Schritt 7 von 7, nicht verfügbar</span
+                >
+              </button>
+            </li>
+          </ol>
+        </div>
+      </div>
+      <div data-part="main" data-part-main="">
+        <div data-part="step" data-part-step="">
+          <div data-part="step-header" data-part-step-header="">
+            <h2 data-part="step-title" data-part-step-title="" id="ct-title" tabindex="-1">
+              <span data-part="position" data-part-position="">Schritt 4 von 7</span
+              >Zahlungsinformationen und Rechnungsanschrift
+            </h2>
+          </div>
+          <form
+            data-ui="form"
+            data-ui-form=""
+            data-part="root"
+            data-part-root=""
+            id="ct-form"
+            aria-labelledby="ct-title"
+            novalidate
+          >
+            <div
+              data-ui="field"
+              data-ui-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="top"
+            >
+              <label data-part="label" data-part-label="" for="ct-iban">IBAN</label>
+              <div data-part="control" data-part-control="">
+                <div
+                  data-ui="text-field"
+                  data-ui-text-field=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="md"
+                  data-variant="outline"
+                >
+                  <input
+                    data-part="input"
+                    data-part-input=""
+                    id="ct-iban"
+                    name="iban"
+                    value="DE89 3704 0044 0532 0130 00"
+                  />
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <div data-part="actions-start" data-part-actions-start="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="cancel"
+              data-part-cancel=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Abbrechen</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="save-draft"
+              data-part-save-draft=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Entwurf speichern</span>
+            </button>
+          </div>
+          <div data-part="actions-end" data-part-actions-end="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="previous"
+              data-part-previous=""
+              data-tone="secondary"
+              data-variant="outline"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Zurück</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="next"
+              data-part-next=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="md"
+              type="submit"
+              form="ct-form"
+            >
+              <span data-part="label" data-part-label="">Speichern und zurück zur Überprüfung</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

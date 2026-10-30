@@ -1,0 +1,735 @@
+{
+  "schemaVersion": 5,
+  "family": "table",
+  "ui": "table",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Semantic table with sorting, filters and selection."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/table/",
+  "patternStatus": "Read on 2026-09-09 from the rendered page and from content/patterns/table/table-pattern.html in w3c/aria-practices, so the sentence that decides the family is the source's rather than the page's summary.",
+  "practice": "https://www.w3.org/WAI/ARIA/apg/practices/grid-and-table-properties/",
+  "platform": "https://html.spec.whatwg.org/multipage/tables.html",
+  "example": "https://www.w3.org/WAI/ARIA/apg/patterns/table/examples/sortable-table/",
+  "rootRole": "none",
+  "roleReason": "The pattern's own words: a table \"is not an interactive widget. Thus, its cells are not focusable or selectable.\" Every role the structure needs — table, row, rowgroup, columnheader, rowheader, cell — is what the platform's elements already carry, and writing any of them by hand would restate what the browser states and drift from it.",
+  "rootReason": "The root is the frame and the scroller is inside it. A sticky header resolves against its nearest scrolling ancestor, which is the scroll part either way; what the root has to hold instead is everything that must not scroll sideways with the table — the border, the radius, the clip, and the footer bar where a paged listing puts its control. Read the other way round, with the root as the scroller, a framed table and its pagination were two boxes with a seam between them, and the consumer had to draw the frame themselves. prose makes the same division for the same reason.",
+  "elements": {
+    "root": "div",
+    "scroll": "div",
+    "table": "table",
+    "caption": "caption",
+    "head": "thead",
+    "body": "tbody",
+    "summary": "tfoot",
+    "footer": "div",
+    "row": "tr",
+    "column-header": "th",
+    "row-header": "th",
+    "cell": "td",
+    "sort": "button",
+    "column-actions": "span",
+    "filter": "button",
+    "filter-panel": "div",
+    "filter-condition": "div",
+    "filter-operator": "div",
+    "filter-operand": "div",
+    "filter-join": "div",
+    "filter-search": "div",
+    "filter-list": "div",
+    "filter-option": "div",
+    "filter-empty": "p",
+    "filter-actions": "div",
+    "selection": "th|td",
+    "expander": "button",
+    "detail": "tr",
+    "group-row": "tr",
+    "group-header": "th",
+    "group-content": "div",
+    "group-start": "span",
+    "group-end": "span",
+    "empty": "td",
+    "loader": "tbody"
+  },
+  "composes": ["state", "collection", "overflow", "live-announcer", "checkbox"],
+  "footer": {
+    "part": "footer",
+    "holds": "the consumer's own controls under the table and inside its frame: pagination, a page-size select, a count, a bulk-action bar",
+    "scrolls": "no. It is a sibling of the scroll part rather than a child, so a table scrolled sideways does not take its paging control with it — which is what put the root outside the scroller.",
+    "composes": ["pagination", "toolbar", "action-bar"],
+    "reason": "Every surveyed implementation that pages draws the control attached to the table: Carbon and Ant render it themselves, Material puts MatPaginator in the same card. A control floating under a framed box reads as a defect, and the alternative is the consumer drawing the frame themselves and setting the family to plain. The family supplies the place and the rule above it; pagination supplies the control and holds the page."
+  },
+  "scroll": {
+    "part": "scroll",
+    "module": "packages/core/src/overflow",
+    "function": "createScrollAffordance",
+    "wiring": "role=\"region\", tabindex=\"0\" and an accessible name, all three written together",
+    "condition": "only while the content overflows the scroll part along the inline axis, remeasured by a ResizeObserver, and never under stickyTo page — there the family owns no scroll container, so there is nothing to give a tab stop to",
+    "model": "The family scrolls sideways and never up. Vertical scrolling belongs to whatever the consumer gives a height to: the scroll part when they set one on it, and the page when they do not. That is why stickyHeader is off by default — a header fixed inside a box with no height fixes nothing — and why the two axes are separate: stickyHeader says whether the header stays, stickyTo says what it stays inside.",
+    "attributes": ["data-overflowing", "data-at-start", "data-at-end"],
+    "affordance": "the scrollbar, a column visibly cut mid-word at the trailing edge, and a named scrolling region with a tab stop the arrow keys move. A pinned column draws one ordinary rule and no more. It carried a darker line while something was hidden under it — what a spreadsheet does — and read on a real listing that was wrong twice: a table pinning a chooser and the identifier beside it has two seams and only one is a boundary, so the reader was told twice; and the boundary line at the weight the affordance needed read as a wall through a table whose other columns are separated by a hairline. The measurement stays — data-at-start and data-at-end are still written, and a consumer who wants the darker edge has the attributes to draw it.",
+    "reason": "The rule prose set, and the one §12 asks for by name: none of the six surveyed implementations leaves a wide table reachable without a pointer, and a tab stop on a table that fits makes the reader press Tab for nothing."
+  },
+  "sticky": {
+    "header": "head",
+    "footer": "summary. The totals row is the header of the other end: a listing whose sum, count or unit scrolls out of view makes the reader scroll back for the number they came for, and every surveyed implementation that draws a summary at all pins it — Ant, AG Grid and Material each hold the summary against the bottom of the same box the header is held against the top of. It is the tfoot that is pinned and not the footer bar: the bar is already outside the scroller and never leaves.",
+    "to": {
+      "scroll": "The default. The header sticks to the family's own scroller, which is what keeps it correct inside a drawer, a dialog or a split pane — the box the reader is scrolling is the box the header stays in. It needs the scroller to have a height; without one there is nothing to scroll past and nothing to stick to.",
+      "page": "The header sticks to the nearest scrolling ancestor outside the family: the page, an app shell, a scroll area. The family gives up its own scroll container to do it, because a box that scrolls one axis scrolls both — CSS computes a visible axis to auto the moment the other is auto — so a table cannot both scroll sideways inside its frame and let its header stick to the page. What a wide table does in this mode is push the page sideways, or state layout fixed and truncate.",
+      "offset": "--slotted-table-sticky-offset, which is where the header stops under stickyTo page. An application with a bar of its own sets it once and every table under it stops below the bar rather than under it. Under stickyTo scroll the header stops at the top of the family's own scroller and reads no offset, because page binds the offset to its own chrome for every table inside it. A stickyTo page table inside a scrolling box of the consumer's own sets the offset on that box: 0 for the box's top edge.",
+      "reason": "Carbon and Ant stick to the page and Material sticks to its own container; each is right for one screen and wrong for the other. The axis names the two rather than choosing, and the cost of the second is written where the choice is made.",
+      "offsetEnd": "--slotted-table-sticky-offset-end, which is where the summary stops. It answers stickyTo page the way the offset answers it at the top: a page with a bar of its own across the bottom sets it once, and every summary under it stops above the bar."
+    },
+    "columns": "a cell whose sticky axis names start or end, resolved through inset-inline-start and inset-inline-end so a right-to-left document mirrors it",
+    "ground": "a pinned cell paints its row's ground — the surface, the stripe, hover, selection, current, published by the row as --_row-ground — or its own (a column header's and a summary cell's head surface, published as --_pinned-ground), over --slotted-surface, so a row on a transparent table surface still covers the cells that scroll under it",
+    "corner": "A column header that is also a sticky column is both at once: it takes both offsets and the highest stacking step, stated once. With one step the header slides under the pinned column or the pinned column over the header.",
+    "print": "Under @media print the scroll part releases its height and every sticky offset, so the platform's own rule — a thead repeats on each printed page — applies instead of being fought."
+  },
+  "sort": {
+    "descriptor": "{ column: string, direction: 'ascending' | 'descending' } | null",
+    "directions": ["ascending", "descending"],
+    "cycle": ["ascending", "descending", null],
+    "columns": 1,
+    "attribute": "aria-sort",
+    "written": "on the sorted column header only, and removed from every other; the practice allows other and none as values and the family emits neither, because it sorts by one comparator and clears rather than saying nothing",
+    "control": "the column header's text wrapped in a button, which is what the APG's own sortable example does",
+    "reorders": "nothing. The rows are the consumer's own children, so the family holds the descriptor and the consumer applies it to its own array or its own query — the shape React Aria's sortDescriptor and Angular Material's matSortChange both take. A sorter per column is a data model, and a data model is the line between this family and data-grid.",
+    "announce": "the column and the direction, politely, through @slotted/core/live-announcer. aria-sort is a property, and a property that changes silently is a change no reader hears.",
+    "indicator": "a mask from --slotted-icon-chevron-down, turned a half turn for ascending. An unsortable column draws none; a sortable one draws it muted and reveals it on hover and focus, so no glyph is added to the foundation for one family."
+  },
+  "columnControls": {
+    "part": "column-actions",
+    "holds": "the controls a column carries beside its name: a filter trigger, a column menu, a help hint, a unit switch",
+    "layout": "the name sits at the leading edge of the header and every control at the trailing one, so the header row is one line of triggers on the column boundaries — a column that both sorts and filters has two targets that never overlap",
+    "control": "drawn by this family, not taken from button: a library button at its smallest step is thirty pixels tall against a line of nineteen and a half, and its ghost hover is lighter than the band it stands on. The slot's button takes the expander's geometry, the header's own darker hover and the family's glyph size; the consumer keeps the behaviour.",
+    "state": "none. The family owns the place and the geometry; a filter that stands in the slot owns its own descriptor, and the vocabulary that descriptor is written in belongs to @slotted/core/filter rather than to the slot.",
+    "reason": "Ant, PatternFly and Carbon all put a filter or a menu in the column header, and a listing screen is where every one of them is used. Declining the slot would have sent a consumer past the family for a button that has to sit inside a cell the family lays out: the sort control filled the header, and there was no room left for a second target. Found at the visual gate, on the question a listing screen asks first."
+  },
+  "cellControl": {
+    "inset": "a cell whose direct child is a plain control root gives its inset to the control: padding-inline: 0 on the cell, and --slotted-control-padding-inline-sm, -md and -lg set to the cell's own --_pad-inline on the same cell, which the control reads as its inline padding. The edited value stands where the read value stood, under the column's name. The block inset moves into the control's height: --slotted-control-height-sm, -md and -lg are set to the row's minimum block size on the same cell, so a row with a control in it is as tall as a row without one, whatever size step the consumer wrote. The control's width is the control's own.",
+    "families": "the fourteen plain field families plain-variant.test.mjs holds, named by data-ui in the selector; table.styles.test.mjs holds the two lists against each other. A kbd, a listbox, a timeline or a nested table with a plain variant of its own is not a control and keeps the cell's inset.",
+    "reason": "the rule the header already applies to sort: the cell gives up its inset and the control takes it, so one target fills the cell rather than standing one inset inside it. AG Grid, MUI X, DevExtreme, Kendo and PrimeReact each zero the editing cell's padding and hand it to the editor; Ant keeps both, and its own editable example shows the value shifted in by one inset. Pending since wave 7, decided in the plain-variant rule in docs/build-briefing.md."
+  },
+  "filter": {
+    "engine": "@slotted/core/filter",
+    "parts": [
+      "filter",
+      "filter-panel",
+      "filter-condition",
+      "filter-operator",
+      "filter-operand",
+      "filter-join",
+      "filter-search",
+      "filter-list",
+      "filter-option",
+      "filter-empty",
+      "filter-actions"
+    ],
+    "shape": "a trigger in the column-actions slot and a panel it opens: one condition made of an operator chooser and the operands that operator takes, a second condition and the join between them once the first is complete, and a footer holding Clear and Apply.",
+    "kinds": {
+      "text": {
+        "operators": [
+          "contains",
+          "notContains",
+          "equals",
+          "notEquals",
+          "startsWith",
+          "endsWith",
+          "empty",
+          "notEmpty"
+        ],
+        "default": "contains",
+        "operand": "text-field",
+        "react": "TableTextFilter",
+        "angular": "slTableTextFilter"
+      },
+      "number": {
+        "operators": [
+          "equals",
+          "notEquals",
+          "greaterThan",
+          "greaterThanOrEqual",
+          "lessThan",
+          "lessThanOrEqual",
+          "between",
+          "empty",
+          "notEmpty"
+        ],
+        "default": "equals",
+        "operand": "number-field, which parses in the reader's locale rather than through parseFloat",
+        "react": "TableNumberFilter",
+        "angular": "slTableNumberFilter"
+      },
+      "date": {
+        "operators": ["is", "isNot", "before", "after", "between", "empty", "notEmpty"],
+        "default": "is",
+        "operand": "date-picker — the segmented field and the calendar behind it, because a reader who has to type a date they could have pointed at is what a date filter exists to spare them. The descriptor holds the ISO day it produces. between draws one date-range-picker rather than two pickers: it says the run's length while it is drawn, takes the ends in either order, and takes the application's presets — this week, this month — which write the same two ISO days.",
+        "react": "TableDateFilter",
+        "angular": "slTableDateFilter"
+      },
+      "time": {
+        "operators": ["is", "isNot", "before", "after", "between", "empty", "notEmpty"],
+        "default": "is",
+        "operand": "time-picker — the segmented field and the list behind it, at the column's own granularity, hour cycle and step. The descriptor holds ISO time text at the precision the picker writes: HH:MM at a minute, HH:MM:SS at a second. between draws one time-range-picker rather than two pickers: it says the run's length while it is drawn, its end list refuses the times before the start, and it takes the application's presets — the morning shift, the night shift — which write the same two ISO times.",
+        "react": "TableTimeFilter",
+        "angular": "slTableTimeFilter"
+      },
+      "datetime": {
+        "operators": ["is", "isNot", "before", "after", "between", "empty", "notEmpty"],
+        "default": "is",
+        "operand": "datetime-picker — the seven-segment field and the two surfaces behind it. The descriptor holds ISO date-time text at the precision the picker writes, and a condition whose operand has one half missing is inactive until both halves exist. between draws one datetime-range-picker rather than two pickers: it says the run's length while it is drawn, orders the two dates and keeps each time on its end, and takes the application's presets — the last 24 hours, this week — which write the same two ISO date-times.",
+        "react": "TableDateTimeFilter",
+        "angular": "slTableDateTimeFilter"
+      },
+      "boolean": {
+        "operators": ["is", "empty", "notEmpty"],
+        "default": "is",
+        "operand": "radio-group of two, because a boolean filter has three answers and the third is not being filtered at all",
+        "react": "TableBooleanFilter",
+        "angular": "slTableBooleanFilter"
+      },
+      "set": {
+        "operators": ["anyOf", "noneOf"],
+        "default": "anyOf",
+        "operand": "list: the search, the covering checkbox and the values with their counts. tags: tags-input holding the chosen values as chips, for a list too long to tick — with options, a typed value outside them is refused and the options are a datalist of suggestions; without options any value is admitted. The descriptor is the same list either way, so a saved view written by one operand is read by the other.",
+        "operands": ["list", "tags"],
+        "conditions": 1,
+        "conditionsReason": "Two set conditions say nothing new: anyOf A and anyOf B is anyOf (A intersect B), and or is the union. Every pair collapses to one list, which is why AG Grid's own set filter has no conditions either.",
+        "react": "TableSetFilter",
+        "angular": "slTableSetFilter"
+      }
+    },
+    "conditions": {
+      "max": 2,
+      "joins": ["and", "or"],
+      "reveal": "The second condition and the join above it appear once the first is active, which is AG Grid's own behaviour. A button would be one more word to translate before the common case and an empty second row would be noise in every panel that never needs it; the cost is that the panel grows under the reader, which is why the growth is announced.",
+      "control": "radio-group of two. Excel's Custom AutoFilter uses radios for the same pair, and two options are what radios are for.",
+      "beyond": "Nesting, groups and presets are filter-bar's. Two conditions is where AG Grid's per-column panel stops, and past it a rule set needs an expression tree and an editor for it."
+    },
+    "operands": {
+      "none": ["empty", "notEmpty"],
+      "two": ["between"]
+    },
+    "attributes": ["data-range", "data-operand"],
+    "attributesReason": "Both sit on filter-operand beside data-kind. data-range says one control holds both operands of a between, so the two-column operand grid collapses to one; data-operand says which of a set's two operands is drawn. Neither is a state a consumer moves: each is the shape the panel took.",
+    "precision": "A time or date-time operand is compared at its own precision: the row value is reduced to the operand's unit before every operator, so is 09:14 matches every second of that minute and after 09:14 starts at 09:15. It is the rule the date kind already applies to a timestamp, extended to every unit the ISO text can name, and it binds filter-bar and data-grid because they evaluate the same descriptor. MUI X zeroes the seconds on both sides and PrimeReact compares a day for is and a millisecond for before; here the reader decides the unit by what they write.",
+    "wrap": "A time between whose start is later than its end is a window that crosses midnight: between 22:00 and 02:00 matches 23:00 and 01:00. The number, date and datetime kinds order the pair, because 100 then 10 has one sensible reading; 22:00 then 02:00 is the overnight shift. The summary writes the pair in the order given, so the trigger's name shows a reader what was applied. time-range-picker names the same pair order invalid, because a PlainTime has no day; the pair still reaches the descriptor unchanged, and the end field is marked invalid while it is typed. The contradiction is resolved on the picker's side: time-range-picker takes a wrap capability in a reopening recorded in docs/process/build-order.md, and this filter passes it — dropping the engine's rule instead would change filter-bar and data-grid, which evaluate the same descriptor.",
+    "enter": "Enter in a single picker's field applies the draft, which is what AG Grid does and what a reader who has just typed a value expects; the consumer's own handler runs first. Enter on a range picker's trigger opens the picker and applies nothing, because that frame is a button, and Enter inside the picker's surface is the picker's own key.",
+    "emptyCondition": "A condition missing an operand its operator needs is inactive, an inactive condition is dropped before the join, and a filter with no active condition matches every value. The third clause is the one that has to be written down: under or, an always-true condition would make the whole filter match everything, so an unfinished condition is not a condition at all.",
+    "value": "the descriptor the engine evaluates: { kind, join, conditions }, where a condition is { operator, value, end }. Every field is JSON, so a query string carries it and a server reads it.",
+    "break": {
+      "from": "value: readonly string[] on TableFilter",
+      "to": "value: SetFilter | null on TableSetFilter",
+      "migration": "setFilter(values) in @slotted/core/filter builds the descriptor from a saved array, and createFilterPredicate(value) replaces the includes() a consumer wrote by hand. The old name is removed rather than deprecated: two names for one control, one of them holding a shape the engine cannot evaluate, is the ambiguity the rebuild exists to remove."
+    },
+    "draft": "The panel edits a draft. Nothing reaches the consumer until Apply, Escape and a press outside restore the descriptor the panel opened with, and Clear empties the draft rather than the value. It is what Ant, AG Grid and Excel each do, and it is the difference between a filter and a form: a reader composing two conditions fires one query, not four.",
+    "search": "shown once there are searchThreshold values or more, and it narrows through the locale collator @slotted/core/collection already builds for combobox rather than through a fold that strips combining marks. The covering checkbox then covers exactly what the search left, which is what a reader who searched and then pressed it expects.",
+    "counts": "optional, and the consumer's own: how many records carry a value is a fact about the query, not about the column. None of the six surveyed implementations shows it.",
+    "applies": "nothing. The filter reports the descriptor and the consumer's own query keeps or drops the rows — the same division sort already records, and the line this family holds against data-grid. What the family does ship is the predicate: createFilterPredicate is pure, and applying it to a client-side listing is one call.",
+    "marks": "data-filtered on the trigger and on the column header that holds it, so a column filtered elsewhere on the screen still reads as filtered, and the trigger states what is applied in its own accessible name — 'Filter Status: contains ana', which is the form Excel's own tooltip on a filtered header takes.",
+    "announces": "the count the set list is left with after a search; the operator and the number of operand fields whenever that number changes; the second condition when it appears; the readable summary on Apply; and the removal on Clear. Each exists because a panel that changes shape under a reader who cannot see it says nothing otherwise.",
+    "summary": "describeFilter in the engine composes the operator names and operands the family gives it into one sentence — 'contains ana or starts with b'. Section 12 asks a filter builder for a readable text expression, and writing it in the engine means filter-bar's chips and this family's announcement say the same sentence.",
+    "serialization": "serializeFilter and parseFilter round-trip a filter through a query string, and toFilterParams and fromFilterParams do it for a whole listing. Parsing is total: an unknown kind, an unknown operator or a malformed operand gives null, so a bookmark written by an older version of an application degrades to no filter rather than to an error on first paint. None of the six surveyed implementations ships one.",
+    "empty": "a word when the search matches nothing, so the panel is never a blank box.",
+    "composition": "popover holds the surface, select holds the operator chooser, radio-group holds the join, text-field, number-field, date-picker, time-picker, datetime-picker, date-range-picker, time-range-picker, datetime-range-picker, tags-input and checkbox hold the operands, and button holds the two actions. This family holds the place, the draft, the announcements and the wiring; the engine holds the vocabulary.",
+    "replaceable": "the operand area, and only it. A column whose values need a control the library does not have — a currency, a duration, a tag picker — takes a render prop in React and a projected template in Angular, and keeps the draft, the operator chooser, the join, the actions and the announcements. It is why Ant has filterDropdown and AG Grid a custom filter component.",
+    "reason": "Four of the six surveyed implementations ship an operator per column type, two conditions and a join: AG Grid, MUI X, PrimeReact and Excel. The version of this family that shipped a checkbox list and nothing else was a set filter calling itself a filter. The vocabulary is the engine's rather than this family's because data-grid and filter-bar hold the same descriptor in wave 8."
+  },
+  "selection": {
+    "module": "packages/core/src/collection",
+    "function": "nextSelection",
+    "control": "checkbox",
+    "columnWidth": "--slotted-table-selection-size, and it is stated rather than shrink-wrapped so a column pinned beside the chooser has a length to state. Shrink-wrapped the answer was forty-two pixels: a number nothing names, so a consumer stating the nearest round one pinned the identifier past the chooser and over the column behind it.",
+    "key": "the row's own value, required whenever the selection or the expansion is on",
+    "range": "Shift while pressing a row's checkbox selects every row from the anchor to that one; the anchor is the last plain press.",
+    "selectAll": "The header checkbox covers the rows in the DOM, is indeterminate while some of them are selected, and states the count it covers in its own accessible name. A selection over a whole result set is a decision only the consumer's query can make.",
+    "forbidden": "aria-selected",
+    "forbiddenReason": "Under the table role a row is not selectable, so the property would be a promise the role breaks. data-selected paints the row and the checkbox announces it, which is the division list-item already recorded.",
+    "value": {
+      "single": "string | null",
+      "multiple": "readonly string[]",
+      "none": "string | null",
+      "reason": "The union listbox settled on: three of four surveyed collections give single selection a scalar, and the array-always shape is what makes every consumer write value[0]."
+    }
+  },
+  "expansion": {
+    "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
+    "wiring": "the expander is a button carrying aria-expanded and aria-controls, naming the detail row's id",
+    "closed": "the detail row is not rendered while it is closed, so nothing is in the DOM that a reader is told about and cannot reach",
+    "detail": "one tr holding one cell that spans every column, which is what keeps the row group valid without a second table"
+  },
+  "numerals": {
+    "rule": "a numeric cell is set in tabular figures, so a column of numbers lines up digit under digit — §12 asks for it by name",
+    "inference": "numeric aligns the cell to the end unless align says otherwise. It runs one way only, and the consumer's explicit align always wins.",
+    "reason": "Alignment and numerals are two facts: a number is set in tabular figures whichever way it is aligned, and a right-aligned label is not a number."
+  },
+  "blockAlignment": {
+    "axis": "cellAlign on the table, blockAlign on a cell",
+    "default": "center",
+    "reason": "A row is as tall as its tallest cell, so a one-line value beside a three-line one either sits with it or hangs above it. Carbon, AG Grid and Material each centre, and a table whose rows are one line cannot tell the two apart. start is the answer a table of paragraphs wants, and the cell that wants it alone is usually one — the actions pinned at the end of a tall row — so the table states it once and a cell overrides it."
+  },
+  "text": {
+    "wrap": "the default: the value wraps, and an unbroken token — a hash, a URL, an identifier — breaks with overflow-wrap: anywhere rather than setting the column's width",
+    "truncate": "one line ending in an ellipsis, with the whole value still in the DOM and reachable, which is the briefing's decision that truncation never removes content",
+    "nowrap": "one line that is never broken, for a value a break would make wrong: a date, a code, a short identifier",
+    "requires": "truncate needs layout fixed to have a width to truncate against, which the family states rather than leaving to be discovered"
+  },
+  "loading": {
+    "first": "with no rows to keep, the loader part draws skeleton rows — columns cells wide, rows deep — so the table's shape is visible before its content",
+    "refresh": "over rows already shown, aria-busy goes on the table and the body dims; every column width is held and nothing moves, because a reader looking at row forty does not want to be moved to the top",
+    "reason": "Carbon draws a skeleton and Ant dims what is there; they are two states rather than two opinions, and a family with one answer gets the other one wrong."
+  },
+  "empty": {
+    "part": "empty",
+    "composes": "result-state",
+    "span": "every column, through the columns the root states",
+    "reason": "result-state already separates an empty set from a set a filter emptied, and its status axis holds both words. A second empty shape here would be a second answer to a question a family already answers."
+  },
+  "wiring": {
+    "aria-labelledby": "nothing the family writes. A caption is the table's accessible name by the platform's own rule, visible or visually hidden, and an authored reference would restate what the browser already states. An instance with no caption names itself with aria-label, which is the consumer's.",
+    "aria-describedby": "the consumer's own, passed through untouched",
+    "aria-sort": "on the sorted column header, and on no other",
+    "aria-busy": "true on the table while it is loading over rows already shown",
+    "aria-rowcount": "on the table only when the consumer states a total larger than the rows in the DOM, which is what the practice requires: the property exists to say the DOM is not the whole set, and a complete table that wrote it would count itself twice",
+    "aria-rowindex": "on every row of a table that writes aria-rowcount, and on none otherwise — the practice warns that setting it on some rows and not others has devastating effects on assistive technology",
+    "aria-expanded": "on the expander, with aria-controls naming the detail row",
+    "scope": "col on a column header and row on a row header, which is what makes a screen reader repeat the record's name in each of its cells"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next control the table holds: the scroll region while it overflows, then each sort button, selection checkbox, expander and consumer control in DOM order",
+      "focus": "that control",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "the same, backwards",
+      "focus": "the previous control",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "activates the focused button: sorts the column, or opens and closes a row's detail",
+      "focus": "stays on the control",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "activates the focused button; on a row's checkbox it changes that row's selection",
+      "focus": "stays on the control",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Space",
+      "effect": "on a row's checkbox, selects every row from the anchor to that one",
+      "focus": "stays on the control",
+      "source": "departure"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "scrolls the region while it holds focus",
+      "focus": "stays on the region",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "the same, backwards",
+      "focus": "stays on the region",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "scrolls along the inline axis, mirrored in a right-to-left document",
+      "focus": "stays on the region",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "the mirror of ArrowRight",
+      "focus": "stays on the region",
+      "source": "platform"
+    },
+    {
+      "key": "PageDown",
+      "effect": "scrolls the region by a view",
+      "focus": "stays on the region",
+      "source": "platform"
+    },
+    {
+      "key": "PageUp",
+      "effect": "scrolls the region back by a view",
+      "focus": "stays on the region",
+      "source": "platform"
+    },
+    {
+      "key": "Home",
+      "effect": "scrolls the region to its start",
+      "focus": "stays on the region",
+      "source": "platform"
+    },
+    {
+      "key": "End",
+      "effect": "scrolls the region to its end",
+      "focus": "stays on the region",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "where": "in a filter operand",
+      "effect": "applies the draft and closes the panel, which is what a reader who has just typed a value expects and what AG Grid does",
+      "focus": "returns to the filter trigger, which popover restores it to",
+      "source": "departure"
+    }
+  ],
+  "keyboardReason": "The pattern defines no keyboard interaction, and that is the finding rather than an omission: a table is not a composite widget, so each control inside it is its own tab stop and every key above is the platform's. The one departure is the range gesture, which belongs to the checkbox the reader is already on.",
+  "departures": {
+    "Shift+Space": {
+      "reason": "A multi-row selection with no range is one press per row, which is what makes a reader select forty rows one at a time. Shift while pressing the checkbox — by pointer or with Space — is the gesture a file list, a mail client and React Aria's own table all use.",
+      "cost": "Shift+Space is the browser's own page-up in a scrolling region, so a reader whose focus is on a checkbox loses that shortcut for as long as it is. The scroll region keeps PageUp, which is the same movement under a key nothing else claims."
+    },
+    "Enter": {
+      "reason": "A reader who has typed a value into a one-field form expects Enter to submit it, and every surveyed panel that has an Apply button accepts the key as well. Without it the reader types, then reaches for the pointer or tabs past the join and the second condition to find the button.",
+      "cost": "Enter inside the panel no longer reaches whatever a consumer put in a replaced operand area, so a projected control that wants the key handles it and stops the event; the family composes rather than replaces, and applies only when nothing else defaulted it."
+    }
+  },
+  "declined": {
+    "gridRole": {
+      "deferTo": "data-grid",
+      "reason": "A grid is a composite widget with one tab stop and a cell cursor, and the four capabilities that need it — column resizing, virtualisation, multi-column sort and row activation — are all deferred to the same family. A table with twelve controls is twelve tab stops, which is what the APG says it is."
+    },
+    "rowSelectedAttribute": {
+      "composition": "data-selected on the row, and the checkbox that announces it",
+      "reason": "aria-selected on a row under the table role is a promise the role breaks: the row is not a selectable widget, and a reader would be told about a state they cannot reach from where they are."
+    },
+    "colcount": {
+      "deferTo": "nothing",
+      "reason": "aria-colcount and aria-colindex exist for a table that renders a subset of its columns, and this one never does — the consumer writes every column it wants shown. column-manager in wave 8 removes a column from the data rather than windowing over it."
+    },
+    "rowActivation": {
+      "deferTo": "link",
+      "composition": "a link in the row-header cell, which is what Carbon, Primer and the HTML standard produce",
+      "reason": "A tr cannot be an anchor, and under the table role a row is not a widget. Row-level activation is a grid behaviour and belongs to data-grid, which has the cell cursor that makes it reachable by keyboard."
+    },
+    "multiSort": {
+      "deferTo": "data-grid",
+      "reason": "The practice states that aria-sort has limited value on more than one header, because ARIA has no way to say which sort key came first. A second sorted column would be silent or a lie, and §12 puts multiple sorting in Data Grid's query model."
+    },
+    "resize": {
+      "deferTo": "data-grid",
+      "reason": "§12 puts width, min, max and resize in Data Grid's column model. It needs a per-column width state, a pointer gesture, a keyboard equivalent and a persisted preference — the four things that separate a grid from a table."
+    },
+    "virtualization": {
+      "deferTo": "data-grid",
+      "reason": "§2.10 makes virtualisation an optional capability of a collection, and a collection is what this family deliberately does not own: its rows are the consumer's own children. listbox holds the engine's windowing today and data-grid takes it for rows in wave 8."
+    },
+    "pagination": {
+      "deferTo": "pagination",
+      "composition": "the footer part holds the control, and the table writes aria-rowcount and aria-rowindex around it",
+      "reason": "The family is built and owns the page, the range and the keyboard. What this one supplies is the two halves pagination cannot: the place under the table and inside its frame, and the properties that say how large the whole set is when the DOM holds one page of it."
+    },
+    "toolbar": {
+      "deferTo": "toolbar",
+      "reason": "A search field and a filter control above a table are a toolbar, and filter-bar in wave 8 holds the typed rules. A toolbar built into the table would be a second answer to a question two families already answer."
+    },
+    "headerSlot": {
+      "deferTo": "the page's own layout",
+      "composition": "caption for the table's name, toolbar above it in the page's stack, action-bar in wave 7 for the bulk actions",
+      "reason": "The footer had to be a part for two reasons that a bar above does not share: pagination sits flush under the last row with no ground of its own, and it must not scroll sideways with the table. A toolbar above stands on its own ground and the page's stack places it. The naming cost decided it: this anatomy already holds head for the thead, and head beside header is the pair a reader mistypes. If action-bar in wave 7 finds the seam is real, the slot is added there and the name is decided once."
+    },
+    "batchActions": {
+      "deferTo": "action-bar",
+      "reason": "Wave 7 builds it. This family supplies the selection and its count; where the actions are drawn — over the header, under the page, in a bar that appears — is the page's decision rather than the table's."
+    },
+    "columnManagement": {
+      "deferTo": "column-manager",
+      "reason": "§12 gives visibility, order and pinning their own Extended family in wave 8, and it is the family that can refuse to hide a mandatory column. This one honours the result: a column the consumer does not render is not there."
+    },
+    "dragToReorder": {
+      "deferTo": "drag-and-drop",
+      "reason": "§3 makes drag-and-drop its own Extended module in wave 8, with the keyboard alternative that a gesture bolted onto this family would not have. The family exposes data-dragging for it and adds no gesture of its own."
+    },
+    "cardLayout": {
+      "deferTo": "data-list",
+      "reason": "§12 names the recipe and forbids the shape PatternFly ships: \"never converts cells into cards without labels\". A card built from cells loses the column headers, and data-list is the family that carries a label beside every value. It covers rows of records read; a row of form controls is controlRowLayout."
+    },
+    "controlRowLayout": {
+      "deferTo": "field-group",
+      "reason": "data-list draws a value under a dt, which names no control, and declines editing; a row of fields on a phone is a group of fields about one row, so each row becomes a fieldset named by its legend and every control keeps its own field label, description and error.",
+      "composition": "@for (line of lines; track line.id) { <fieldset slFieldGroup><legend slFieldGroupLegend>{{ line.name }}</legend><div slField><label slFieldLabel>Quantity</label>…</div></fieldset> }; a total below the last row is the form's own text"
+    },
+    "size": {
+      "deferTo": "the density axis",
+      "reason": "Carbon ships five sizes and Ant three. The theme restates the control scale at comfortable, compact and dense, and the row reads it; a family-owned step would be a second scale answering the same question, which is what description-list recorded."
+    },
+    "clientSort": {
+      "composition": "const rows = useMemo(() => sortRows(data, sort), [data, sort]) — the descriptor applied to the consumer's own array",
+      "reason": "Ant's sorter per column and Material's MatTableDataSource both sort data the component owns. This family owns no data: its rows are children, and a family that reordered them would be reordering the consumer's JSX."
+    },
+    "filterGroups": {
+      "deferTo": "filter-bar",
+      "reason": "Nesting beyond two conditions, AND/OR groups, presets and a rule set across several columns are section 12's Filter Builder. They need an expression tree and an editor for it, and two conditions is where AG Grid's own per-column panel stops. The descriptor they edit is the same one this family reports."
+    },
+    "quickFilter": {
+      "deferTo": "filter-bar",
+      "reason": "One field searching every column belongs to no column, so no column header can hold it. AG Grid and MUI X both ship it above the grid, and it is a text condition evaluated against every column's value — the same engine, a different place."
+    },
+    "floatingFilter": {
+      "deferTo": "nothing",
+      "composition": "a filter-bar above the table, reading and writing the same descriptor",
+      "reason": "AG Grid's floating filter row is a second permanently visible presentation of the same condition, and it costs a row of the table's own geometry. A consumer who wants filters always on screen puts them above the table, where they stand on the page's own ground."
+    }
+  },
+  "literals": {},
+  "messages": [
+    "collapse",
+    "expand",
+    "false",
+    "filterApplied",
+    "filterApply",
+    "filterClear",
+    "filterCleared",
+    "filterColumn",
+    "filterConditionAdded",
+    "filterEmpty",
+    "filterFrom",
+    "filterJoin",
+    "filterJoins.and",
+    "filterJoins.or",
+    "filterMatches",
+    "filterOperands",
+    "filterOperator",
+    "filterOperators.after",
+    "filterOperators.anyOf",
+    "filterOperators.before",
+    "filterOperators.between",
+    "filterOperators.contains",
+    "filterOperators.empty",
+    "filterOperators.endsWith",
+    "filterOperators.equals",
+    "filterOperators.greaterThan",
+    "filterOperators.greaterThanOrEqual",
+    "filterOperators.is",
+    "filterOperators.isNot",
+    "filterOperators.lessThan",
+    "filterOperators.lessThanOrEqual",
+    "filterOperators.noneOf",
+    "filterOperators.notContains",
+    "filterOperators.notEmpty",
+    "filterOperators.notEquals",
+    "filterOperators.startsWith",
+    "filterSearch",
+    "filterSelectAll",
+    "filterTo",
+    "filterValue",
+    "scroll",
+    "selectAll",
+    "selectRow",
+    "sortCleared",
+    "sortedAscending",
+    "sortedDescending",
+    "true"
+  ],
+  "messagesReason": "The words the family says come from the table catalog of the language in force, laid over by one messages input on the root. The operator names and the joins are two groups keyed by the engine (filterOperators.contains, filterJoins.and), the map filter-bar and data-grid read for the same operators. Every sentence the family speaks is one message with slots — the column, the row, the filter, the count — so each language orders its own words; selectAll and filterMatches are plural messages, and filterOperands chooses among no value, one and two.",
+  "axes": {
+    "variant": ["plain", "ruled", "framed"],
+    "edges": ["inset", "flush"],
+    "striped": [true, false],
+    "stickyHeader": [true, false],
+    "stickyFooter": [true, false],
+    "stickyTo": ["scroll", "page"],
+    "layout": ["auto", "fixed"],
+    "cellAlign": ["start", "center", "end"],
+    "selectionMode": ["none", "single", "multiple"],
+    "align": ["start", "center", "end"],
+    "numeric": [true, false],
+    "text": ["wrap", "truncate", "nowrap"],
+    "sticky": ["start", "end"],
+    "blockAlign": ["start", "center", "end"]
+  },
+  "resolution": {
+    "variant": ["prop", "defaults", "ruled"],
+    "edges": ["prop", "defaults", "inset"],
+    "striped": ["prop", "defaults", false],
+    "stickyHeader": ["prop", "defaults", false],
+    "stickyFooter": ["prop", "defaults", false],
+    "stickyTo": ["prop", "defaults", "scroll"],
+    "layout": ["prop", "defaults", "auto"],
+    "cellAlign": ["prop", "defaults", "center"],
+    "selectionMode": ["prop", "defaults", "none"],
+    "align": ["prop", "defaults", "start"],
+    "numeric": ["prop", "defaults", false],
+    "text": ["prop", "defaults", "wrap"],
+    "sticky": ["prop", "defaults", "start"],
+    "blockAlign": ["prop", "defaults", "center"]
+  },
+  "provides": {
+    "tableDefaults": [
+      "variant",
+      "striped",
+      "stickyHeader",
+      "stickyTo",
+      "layout",
+      "selectionMode",
+      "columns",
+      "skeletonRows"
+    ],
+    "toParts": ["variant", "striped", "layout", "selectionMode"]
+  },
+  "stateAttributes": {
+    "selected": "data-selected",
+    "expanded": "data-expanded",
+    "disabled": "data-disabled",
+    "loading": "data-loading",
+    "current": "data-current"
+  },
+  "stateModel": {
+    "sort": {
+      "controlled": "sort",
+      "uncontrolled": "defaultSort",
+      "request": "onSortChange",
+      "reasons": ["pointer", "keyboard", "clear", "programmatic"]
+    },
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "clear", "programmatic"]
+    },
+    "open": {
+      "controlled": "expanded",
+      "uncontrolled": "defaultExpanded",
+      "request": "onExpandedChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    },
+    "filter": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "scope": "the filter, not the table: one column is filtered at a time and each filter holds its own set, so the three names sit on the part rather than on the root beside the selection that already uses them",
+      "reasons": ["pointer", "keyboard", "clear", "programmatic"]
+    }
+  },
+  "members": {
+    "table": {
+      "nativeElement": "div",
+      "defaults": {
+        "variant": "ruled",
+        "edges": "inset",
+        "striped": false,
+        "stickyHeader": false,
+        "stickyTo": "scroll",
+        "layout": "auto",
+        "selectionMode": "none",
+        "align": "start",
+        "numeric": false,
+        "text": "wrap",
+        "sticky": "start",
+        "loading": false,
+        "columns": 1,
+        "skeletonRows": 5,
+        "cellAlign": "center",
+        "blockAlign": "center",
+        "stickyFooter": false,
+        "searchThreshold": 8
+      },
+      "capabilities": [
+        "sort",
+        "filter",
+        "selection",
+        "open",
+        "overflow",
+        "appearance",
+        "arrangement",
+        "content",
+        "loading",
+        "disabled",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "selected",
+        "current",
+        "expanded",
+        "disabled",
+        "loading"
+      ],
+      "parts": [
+        "root",
+        "scroll",
+        "table",
+        "caption",
+        "head",
+        "body",
+        "summary",
+        "row",
+        "column-header",
+        "row-header",
+        "cell",
+        "sort",
+        "column-actions",
+        "filter",
+        "filter-panel",
+        "filter-condition",
+        "filter-operator",
+        "filter-operand",
+        "filter-join",
+        "filter-search",
+        "filter-list",
+        "filter-option",
+        "filter-empty",
+        "filter-actions",
+        "selection",
+        "expander",
+        "detail",
+        "group-row",
+        "group-header",
+        "group-content",
+        "group-start",
+        "group-end",
+        "empty",
+        "loader",
+        "footer"
+      ]
+    }
+  },
+  "scenarios": {
+    "table": [
+      "playground",
+      "variant",
+      "striped",
+      "sorting",
+      "column-controls",
+      "filter",
+      "filter-types",
+      "filter-conditions",
+      "filter-time",
+      "filter-datetime",
+      "filter-range",
+      "filter-tags",
+      "editing",
+      "selection",
+      "expansion",
+      "sticky",
+      "listing",
+      "scroll",
+      "alignment",
+      "text",
+      "footer",
+      "empty-and-loading",
+      "density",
+      "content",
+      "composition",
+      "keyboard",
+      "accessibility"
+    ]
+  },
+  "rows": {
+    "group": "TableGroupRow opens a group of rows: a tr holding one th with scope rowgroup that spans the table's columns, its name at the start and an optional end, the group's total or net. A grouped listing writes one body per group, so the header names the rows of its own tbody. sticky holds the band under the header while its rows scroll past, at --slotted-table-group-sticky-offset.",
+    "current": "current marks the row the page shows elsewhere, the record open in a detail pane beside the table: aria-current true and a ground of its own, neutral and stronger than hover. It is not selection, which the checkbox owns and the accent ground paints, and it draws no edge on the start side (R1); under forced colours it is an outline in Highlight.",
+    "action": "onAction is called by a click anywhere in the row that lands on no control of its own: a link, a button, a field, a label, or an element with the role of one. A click that reaches the row through a portal never landed in it, and a click that ends a text selection inside it selects. The row takes no tab stop and no role: the keyboard reaches the record through the first link or button in it. interactive paints the row as pressable and is on by default once onAction is given."
+  }
+}

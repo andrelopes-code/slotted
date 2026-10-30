@@ -1,0 +1,2790 @@
+<!--
+  The bar above an orders listing, as the React and Angular bindings render
+  it: the search, the consumer's controls and the count on the first line, the
+  toolbar of pills and chips on the second. A chip is its condition in
+  segments — the field, the operator, the value, the remove control. The value
+  popover and the builder are photographed on their own, as their surfaces
+  would hold them.
+-->
+
+<!-- Two pinned fields, one of them holding a condition, two conditions on unpinned fields, one more folded behind “+1 more”. Add draws its glyph alone once a chip is in the bar. -->
+<section data-scene="default">
+  <div
+    data-ui="filter-bar"
+    data-ui-filter-bar=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-apply="live"
+    role="search"
+    aria-label="Filter orders"
+  >
+    <div data-part="frame" data-part-frame="">
+      <div data-part="search" data-part-search="">
+        <div
+          data-ui="text-field"
+          data-ui-text-field=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          data-variant="outline"
+        >
+          <span data-part="start" data-part-start=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+          ></span>
+          <input
+            data-part="input"
+            data-part-input=""
+            type="search"
+            placeholder="Search orders"
+            aria-label="Search orders"
+          />
+        </div>
+      </div>
+      <div data-part="end" data-part-end="">
+        <div data-part="preset" data-part-preset="">
+          <div
+            data-ui="select"
+            data-ui-select=""
+            data-part="root"
+            data-part-root=""
+            data-size="md"
+            data-variant="outline"
+          >
+            <button
+              data-part="trigger"
+              data-part-trigger=""
+              type="button"
+              role="combobox"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-label="Saved view"
+            >
+              <span data-part="value" data-part-value="">Overdue this month</span>
+            </button>
+            <span data-part="arrow" data-part-arrow=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </div>
+        </div>
+      </div>
+      <p data-part="count" data-part-count="" aria-live="polite">128 of 3,412 orders</p>
+      <div data-part="bar" data-part-bar="" role="toolbar" aria-label="Filters">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="summary"
+          data-part-summary=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          aria-haspopup="dialog"
+          tabindex="-1"
+        >
+          <span data-part="start" data-part-start=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="funnel"></svg></span
+          ></span>
+          <span data-part="label" data-part-label=""><span>Filters</span> <span>(4)</span></span>
+        </button>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Status: any of Paid, Refunded"
+          data-operands="1"
+          data-pinned
+        >
+          <span data-part="chip-field" data-part-chip-field=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="circle"></svg></span
+            ><span>Status</span></span
+          >
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="0"
+          >
+            any of
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            aria-label="any of Paid, Refunded"
+          >
+            <span data-operator>any of</span><span data-value>Paid, Refunded</span>
+          </button>
+          <button
+            data-part="chip-remove"
+            data-part-chip-remove=""
+            type="button"
+            aria-label="Remove Status"
+            tabindex="-1"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <button
+          data-part="pill"
+          data-part-pill=""
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          tabindex="-1"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+          ><span>Owner</span>
+        </button>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Amount: greater than R$ 100,00"
+          data-operands="1"
+        >
+          <span data-part="chip-field" data-part-chip-field=""><span>Amount</span></span>
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="-1"
+          >
+            greater than
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            aria-label="greater than R$ 100,00"
+          >
+            <span data-operator>greater than</span><span data-value>R$ 100,00</span>
+          </button>
+          <button
+            data-part="chip-remove"
+            data-part-chip-remove=""
+            type="button"
+            aria-label="Remove Amount"
+            tabindex="-1"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Created: between 01/09 – 14/09/2026"
+          data-operands="2"
+        >
+          <span data-part="chip-field" data-part-chip-field=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="calendar"></svg></span
+            ><span>Created</span></span
+          >
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="-1"
+          >
+            between
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            aria-label="between 01/09 – 14/09/2026"
+          >
+            <span data-operator>between</span><span data-value>01/09 – 14/09/2026</span>
+          </button>
+          <button
+            data-part="chip-remove"
+            data-part-chip-remove=""
+            type="button"
+            aria-label="Remove Created"
+            tabindex="-1"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Channel: any of Web, App"
+          data-operands="1"
+          data-folded
+        >
+          <span data-part="chip-field" data-part-chip-field=""><span>Channel</span></span>
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="-1"
+          >
+            any of
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            aria-label="any of Web, App"
+          >
+            <span data-operator>any of</span><span data-value>Web, App</span>
+          </button>
+          <button
+            data-part="chip-remove"
+            data-part-chip-remove=""
+            type="button"
+            aria-label="Remove Channel"
+            tabindex="-1"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <button
+          data-part="more"
+          data-part-more=""
+          type="button"
+          aria-expanded="false"
+          tabindex="-1"
+        >
+          +1 more
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="add"
+          data-part-add=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          data-shape="circle"
+          data-compact
+          type="button"
+          aria-haspopup="menu"
+          aria-label="Add filter"
+          title="Add filter"
+          tabindex="-1"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="clear"
+          data-part-clear=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="md"
+          type="button"
+          tabindex="-1"
+        >
+          <span data-part="label" data-part-label="">Clear all</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Nothing applied: the pinned fields wait as dashed pills and Add keeps its label. -->
+<section data-scene="empty">
+  <div
+    data-ui="filter-bar"
+    data-ui-filter-bar=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-apply="live"
+    role="search"
+    aria-label="Filter orders"
+  >
+    <div data-part="frame" data-part-frame="">
+      <div data-part="search" data-part-search="">
+        <div
+          data-ui="text-field"
+          data-ui-text-field=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          data-variant="outline"
+        >
+          <span data-part="start" data-part-start=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+          ></span>
+          <input
+            data-part="input"
+            data-part-input=""
+            type="search"
+            placeholder="Search orders"
+            aria-label="Search orders"
+          />
+        </div>
+      </div>
+      <p data-part="count" data-part-count="" aria-live="polite">3,412 orders</p>
+      <div data-part="bar" data-part-bar="" role="toolbar" aria-label="Filters">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="summary"
+          data-part-summary=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          aria-haspopup="dialog"
+          tabindex="-1"
+        >
+          <span data-part="start" data-part-start=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="funnel"></svg></span
+          ></span>
+          <span data-part="label" data-part-label=""><span>Filters</span> <span>(0)</span></span>
+        </button>
+        <button
+          data-part="pill"
+          data-part-pill=""
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          tabindex="0"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+          ><span>Status</span>
+        </button>
+        <button
+          data-part="pill"
+          data-part-pill=""
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          tabindex="-1"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+          ><span>Owner</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="add"
+          data-part-add=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="md"
+          type="button"
+          aria-haspopup="menu"
+          tabindex="-1"
+        >
+          <span data-part="start" data-part-start=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Add filter</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The bar revealed with long content: a value summarised to two items and a count, a value truncated at its maximum, an operator with no operand, a field the consumer no longer declares, and a condition still waiting for its value while its popover is open. -->
+<section data-scene="revealed">
+  <div
+    data-ui="filter-bar"
+    data-ui-filter-bar=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-apply="live"
+    role="search"
+    aria-label="Filter orders"
+  >
+    <div data-part="frame" data-part-frame="">
+      <div data-part="search" data-part-search="">
+        <div
+          data-ui="text-field"
+          data-ui-text-field=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          data-variant="outline"
+        >
+          <span data-part="start" data-part-start=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+          ></span>
+          <input
+            data-part="input"
+            data-part-input=""
+            type="search"
+            placeholder="Search orders"
+            aria-label="Search orders"
+          />
+        </div>
+      </div>
+      <p data-part="count" data-part-count="" aria-live="polite">41 of 3,412 orders</p>
+      <div data-part="bar" data-part-bar="" role="toolbar" aria-label="Filters" data-revealed>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="summary"
+          data-part-summary=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          aria-haspopup="dialog"
+          tabindex="-1"
+        >
+          <span data-part="start" data-part-start=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="funnel"></svg></span
+          ></span>
+          <span data-part="label" data-part-label=""><span>Filters</span> <span>(8)</span></span>
+        </button>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Status: any of Paid, Refunded +2"
+          data-operands="1"
+          data-pinned
+        >
+          <span data-part="chip-field" data-part-chip-field=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="circle"></svg></span
+            ><span>Status</span></span
+          >
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="0"
+          >
+            any of
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            title="Paid, Refunded, Pending, Disputed"
+            aria-label="any of Paid, Refunded, Pending, Disputed"
+          >
+            <span data-operator>any of</span><span data-value>Paid, Refunded +2</span>
+          </button>
+          <button
+            data-part="chip-remove"
+            data-part-chip-remove=""
+            type="button"
+            aria-label="Remove Status"
+            tabindex="-1"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <button
+          data-part="pill"
+          data-part-pill=""
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          tabindex="-1"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+          ><span>Owner</span>
+        </button>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Amount: greater than R$ 100,00"
+          data-operands="1"
+        >
+          <span data-part="chip-field" data-part-chip-field=""><span>Amount</span></span>
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="-1"
+          >
+            greater than
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            aria-label="greater than R$ 100,00"
+          >
+            <span data-operator>greater than</span><span data-value>R$ 100,00</span>
+          </button>
+          <button
+            data-part="chip-remove"
+            data-part-chip-remove=""
+            type="button"
+            aria-label="Remove Amount"
+            tabindex="-1"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Created: between 01/09 – 14/09/2026"
+          data-operands="2"
+        >
+          <span data-part="chip-field" data-part-chip-field=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="calendar"></svg></span
+            ><span>Created</span></span
+          >
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="-1"
+          >
+            between
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            aria-label="between 01/09 – 14/09/2026"
+          >
+            <span data-operator>between</span><span data-value>01/09 – 14/09/2026</span>
+          </button>
+          <button
+            data-part="chip-remove"
+            data-part-chip-remove=""
+            type="button"
+            aria-label="Remove Created"
+            tabindex="-1"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Channel: any of Web, App"
+          data-operands="1"
+        >
+          <span data-part="chip-field" data-part-chip-field=""><span>Channel</span></span>
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="-1"
+          >
+            any of
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            aria-label="any of Web, App"
+          >
+            <span data-operator>any of</span><span data-value>Web, App</span>
+          </button>
+          <button
+            data-part="chip-remove"
+            data-part-chip-remove=""
+            type="button"
+            aria-label="Remove Channel"
+            tabindex="-1"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Customer: contains Ana Beatriz Figueiredo de Albuquerque Monteiro"
+          data-operands="1"
+        >
+          <span data-part="chip-field" data-part-chip-field=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="person"></svg></span
+            ><span>Customer</span></span
+          >
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="-1"
+          >
+            contains
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            aria-label="contains Ana Beatriz Figueiredo de Albuquerque Monteiro"
+          >
+            <span data-operator>contains</span
+            ><span data-value>Ana Beatriz Figueiredo de Albuquerque Monteiro</span>
+          </button>
+          <button
+            data-part="chip-remove"
+            data-part-chip-remove=""
+            type="button"
+            aria-label="Remove Customer"
+            tabindex="-1"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Archived: is empty"
+          data-operands="0"
+        >
+          <span data-part="chip-field" data-part-chip-field=""><span>Archived</span></span>
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="-1"
+          >
+            is empty
+          </button>
+          <button
+            data-part="chip-remove"
+            data-part-chip-remove=""
+            type="button"
+            aria-label="Remove Archived"
+            tabindex="-1"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="region: any of south"
+          data-operands="1"
+          data-invalid
+        >
+          <span data-part="chip-field" data-part-chip-field=""><span>region</span></span>
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="-1"
+          >
+            any of
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            aria-label="any of south"
+          >
+            <span data-operator>any of</span><span data-value>south</span>
+          </button>
+          <button
+            data-part="chip-remove"
+            data-part-chip-remove=""
+            type="button"
+            aria-label="Remove region"
+            tabindex="-1"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Owner team: is, incomplete"
+          data-operands="1"
+          data-incomplete
+        >
+          <span data-part="chip-field" data-part-chip-field=""><span>Owner team</span></span>
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="-1"
+          >
+            is
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="true"
+            tabindex="-1"
+            aria-label="is Select value"
+          >
+            <span data-operator>is</span><span data-value>Select value</span>
+          </button>
+          <button
+            data-part="chip-remove"
+            data-part-chip-remove=""
+            type="button"
+            aria-label="Remove Owner team"
+            tabindex="-1"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <button data-part="more" data-part-more="" type="button" aria-expanded="true" tabindex="-1">
+          Show less
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="add"
+          data-part-add=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          data-shape="circle"
+          data-compact
+          type="button"
+          aria-haspopup="menu"
+          aria-label="Add filter"
+          title="Add filter"
+          tabindex="-1"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="clear"
+          data-part-clear=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="md"
+          type="button"
+          tabindex="-1"
+        >
+          <span data-part="label" data-part-label="">Clear all</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- apply=manual with a dirty draft: Reset and Apply close the line, and a required field whose condition is incomplete refused Apply. -->
+<section data-scene="manual">
+  <div
+    data-ui="filter-bar"
+    data-ui-filter-bar=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-apply="manual"
+    data-dirty
+    role="search"
+    aria-label="Filter invoices"
+  >
+    <div data-part="frame" data-part-frame="">
+      <div data-part="search" data-part-search="">
+        <div
+          data-ui="text-field"
+          data-ui-text-field=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          data-variant="outline"
+        >
+          <span data-part="start" data-part-start=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+          ></span>
+          <input
+            data-part="input"
+            data-part-input=""
+            type="search"
+            placeholder="Search invoices"
+            value="invoice"
+            aria-label="Search invoices"
+          />
+          <button
+            data-part="clear"
+            data-part-clear=""
+            type="button"
+            aria-label="Clear search"
+          ></button>
+        </div>
+      </div>
+      <p data-part="count" data-part-count="" aria-live="polite">3,412 invoices</p>
+      <div data-part="bar" data-part-bar="" role="toolbar" aria-label="Filters">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="summary"
+          data-part-summary=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+          aria-haspopup="dialog"
+          tabindex="-1"
+        >
+          <span data-part="start" data-part-start=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="funnel"></svg></span
+          ></span>
+          <span data-part="label" data-part-label=""><span>Filters</span> <span>(2)</span></span>
+        </button>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Period: is September 2026"
+          data-operands="1"
+          data-pinned
+        >
+          <span data-part="chip-field" data-part-chip-field=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="calendar"></svg></span
+            ><span>Period</span></span
+          >
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="0"
+          >
+            is
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            aria-label="is September 2026"
+          >
+            <span data-operator>is</span><span data-value>September 2026</span>
+          </button>
+        </div>
+        <div
+          data-part="chip"
+          data-part-chip=""
+          role="group"
+          aria-label="Company: is, incomplete"
+          data-operands="1"
+          data-pinned
+          data-incomplete
+          data-invalid
+        >
+          <span data-part="chip-field" data-part-chip-field=""><span>Company</span></span>
+          <button
+            data-part="chip-operator"
+            data-part-chip-operator=""
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            tabindex="-1"
+          >
+            is
+          </button>
+          <button
+            data-part="chip-value"
+            data-part-chip-value=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            aria-label="is Select value"
+          >
+            <span data-operator>is</span><span data-value>Select value</span>
+          </button>
+        </div>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="add"
+          data-part-add=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          data-shape="circle"
+          data-compact
+          type="button"
+          aria-haspopup="menu"
+          aria-label="Add filter"
+          title="Add filter"
+          tabindex="-1"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+          ></span>
+        </button>
+        <div data-part="actions" data-part-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="reset"
+            data-part-reset=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="md"
+            type="button"
+            tabindex="-1"
+          >
+            <span data-part="label" data-part-label="">Reset</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="apply"
+            data-part-apply=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            type="button"
+            tabindex="-1"
+          >
+            <span data-part="label" data-part-label="">Apply</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Disabled, loading and read-only. The first leaves the tab order; the third keeps every condition reachable and changes nothing. -->
+<section data-scene="states">
+  <div style="display: grid; gap: var(--slotted-space-6)">
+    <div
+      data-ui="filter-bar"
+      data-ui-filter-bar=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-apply="live"
+      data-disabled
+      role="search"
+      aria-label="Filter orders"
+    >
+      <div data-part="frame" data-part-frame="">
+        <div data-part="search" data-part-search="">
+          <div
+            data-ui="text-field"
+            data-ui-text-field=""
+            data-part="root"
+            data-part-root=""
+            data-size="md"
+            data-variant="outline"
+            data-disabled
+          >
+            <span data-part="start" data-part-start=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+            ></span>
+            <input
+              data-part="input"
+              data-part-input=""
+              type="search"
+              placeholder="Search orders"
+              aria-label="Search orders"
+              disabled
+            />
+          </div>
+        </div>
+        <p data-part="count" data-part-count="" aria-live="polite">3,412 orders</p>
+        <div data-part="bar" data-part-bar="" role="toolbar" aria-label="Filters">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="summary"
+            data-part-summary=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+            aria-haspopup="dialog"
+            tabindex="-1"
+          >
+            <span data-part="start" data-part-start=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="funnel"></svg></span
+            ></span>
+            <span data-part="label" data-part-label=""><span>Filters</span> <span>(1)</span></span>
+          </button>
+          <div
+            data-part="chip"
+            data-part-chip=""
+            role="group"
+            aria-label="Status: is Paid"
+            data-operands="1"
+            data-pinned
+          >
+            <span data-part="chip-field" data-part-chip-field=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="circle"></svg></span
+              ><span>Status</span></span
+            >
+            <button
+              data-part="chip-operator"
+              data-part-chip-operator=""
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              tabindex="0"
+              disabled
+            >
+              is
+            </button>
+            <button
+              data-part="chip-value"
+              data-part-chip-value=""
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              tabindex="-1"
+              aria-label="is Paid"
+              disabled
+            >
+              <span data-operator>is</span><span data-value>Paid</span>
+            </button>
+            <button
+              data-part="chip-remove"
+              data-part-chip-remove=""
+              type="button"
+              aria-label="Remove Status"
+              tabindex="-1"
+              disabled
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </div>
+          <button
+            data-part="pill"
+            data-part-pill=""
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            tabindex="-1"
+            disabled
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+            ><span>Owner</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="add"
+            data-part-add=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            data-shape="circle"
+            data-compact
+            type="button"
+            aria-haspopup="menu"
+            aria-label="Add filter"
+            title="Add filter"
+            tabindex="-1"
+            disabled
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      data-ui="filter-bar"
+      data-ui-filter-bar=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-apply="live"
+      data-loading
+      role="search"
+      aria-label="Filter orders"
+    >
+      <div data-part="frame" data-part-frame="">
+        <div data-part="search" data-part-search="">
+          <div
+            data-ui="text-field"
+            data-ui-text-field=""
+            data-part="root"
+            data-part-root=""
+            data-size="md"
+            data-variant="outline"
+          >
+            <span data-part="start" data-part-start=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+            ></span>
+            <input
+              data-part="input"
+              data-part-input=""
+              type="search"
+              placeholder="Search orders"
+              value="ana"
+              aria-label="Search orders"
+            />
+            <button
+              data-part="clear"
+              data-part-clear=""
+              type="button"
+              aria-label="Clear search"
+            ></button>
+          </div>
+        </div>
+        <p data-part="count" data-part-count="" aria-live="polite" aria-busy="true">
+          <span
+            data-ui="spinner"
+            data-ui-spinner=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            role="progressbar"
+            aria-label="Loading"
+          ></span
+          ><span>Counting…</span>
+        </p>
+        <div data-part="bar" data-part-bar="" role="toolbar" aria-label="Filters">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="summary"
+            data-part-summary=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+            aria-haspopup="dialog"
+            tabindex="-1"
+          >
+            <span data-part="start" data-part-start=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="funnel"></svg></span
+            ></span>
+            <span data-part="label" data-part-label=""><span>Filters</span> <span>(1)</span></span>
+          </button>
+          <div
+            data-part="chip"
+            data-part-chip=""
+            role="group"
+            aria-label="Status: is Paid"
+            data-operands="1"
+            data-pinned
+          >
+            <span data-part="chip-field" data-part-chip-field=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="circle"></svg></span
+              ><span>Status</span></span
+            >
+            <button
+              data-part="chip-operator"
+              data-part-chip-operator=""
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              tabindex="0"
+            >
+              is
+            </button>
+            <button
+              data-part="chip-value"
+              data-part-chip-value=""
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              tabindex="-1"
+              aria-label="is Paid"
+            >
+              <span data-operator>is</span><span data-value>Paid</span>
+            </button>
+            <button
+              data-part="chip-remove"
+              data-part-chip-remove=""
+              type="button"
+              aria-label="Remove Status"
+              tabindex="-1"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </div>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="add"
+            data-part-add=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            data-shape="circle"
+            data-compact
+            type="button"
+            aria-haspopup="menu"
+            aria-label="Add filter"
+            title="Add filter"
+            tabindex="-1"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      data-ui="filter-bar"
+      data-ui-filter-bar=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-apply="live"
+      data-readonly
+      role="search"
+      aria-label="Filter orders"
+    >
+      <div data-part="frame" data-part-frame="">
+        <div data-part="search" data-part-search="">
+          <div
+            data-ui="text-field"
+            data-ui-text-field=""
+            data-part="root"
+            data-part-root=""
+            data-size="md"
+            data-variant="outline"
+          >
+            <span data-part="start" data-part-start=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+            ></span>
+            <input
+              data-part="input"
+              data-part-input=""
+              type="search"
+              placeholder="Search orders"
+              aria-label="Search orders"
+            />
+          </div>
+        </div>
+        <p data-part="count" data-part-count="" aria-live="polite">128 of 3,412 orders</p>
+        <div data-part="bar" data-part-bar="" role="toolbar" aria-label="Filters">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="summary"
+            data-part-summary=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+            aria-haspopup="dialog"
+            tabindex="-1"
+          >
+            <span data-part="start" data-part-start=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="funnel"></svg></span
+            ></span>
+            <span data-part="label" data-part-label=""><span>Filters</span> <span>(2)</span></span>
+          </button>
+          <div
+            data-part="chip"
+            data-part-chip=""
+            role="group"
+            aria-label="Status: is Paid"
+            data-operands="1"
+            data-pinned
+          >
+            <span data-part="chip-field" data-part-chip-field=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="circle"></svg></span
+              ><span>Status</span></span
+            >
+            <button
+              data-part="chip-operator"
+              data-part-chip-operator=""
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              tabindex="0"
+              aria-disabled="true"
+            >
+              is
+            </button>
+            <button
+              data-part="chip-value"
+              data-part-chip-value=""
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              tabindex="-1"
+              aria-label="is Paid"
+              aria-disabled="true"
+            >
+              <span data-operator>is</span><span data-value>Paid</span>
+            </button>
+          </div>
+          <div
+            data-part="chip"
+            data-part-chip=""
+            role="group"
+            aria-label="Amount: greater than R$ 100,00"
+            data-operands="1"
+          >
+            <span data-part="chip-field" data-part-chip-field=""><span>Amount</span></span>
+            <button
+              data-part="chip-operator"
+              data-part-chip-operator=""
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              tabindex="-1"
+              aria-disabled="true"
+            >
+              greater than
+            </button>
+            <button
+              data-part="chip-value"
+              data-part-chip-value=""
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              tabindex="-1"
+              aria-label="greater than R$ 100,00"
+              aria-disabled="true"
+            >
+              <span data-operator>greater than</span><span data-value>R$ 100,00</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The rule a pill opens: one editor alone inside a popover surface. The popover
+  shrink-wraps, so the editor states its own width; the root's container rule
+  must not reach it (it measured zero and wrapped one word per line).
+-->
+<section data-scene="editor">
+  <div
+    data-ui="popover"
+    data-ui-popover=""
+    data-part="root"
+    data-part-root=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="auto"
+    data-open
+    style="
+      position: relative;
+      inline-size: max-content;
+      max-inline-size: 100%;
+      --slotted-positioner-available-width: 100%;
+    "
+  >
+    <div data-part="content" data-part-content="" role="dialog" tabindex="-1" aria-label="Status">
+      <div data-part="body" data-part-body="">
+        <div
+          data-ui="filter-bar"
+          data-ui-filter-bar=""
+          data-part="rule"
+          data-part-rule=""
+          data-kind="set"
+        >
+          <div data-part="operator" data-part-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Operator"
+              >
+                <span data-part="value" data-part-value="">any of</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="operand" data-part-operand="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Value"
+              >
+                <span data-part="value" data-part-value="">Paid, Refunded</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="actions" data-part-actions="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="root"
+              data-part-root=""
+              data-variant="ghost"
+              data-tone="secondary"
+              data-size="sm"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Clear</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="root"
+              data-part-root=""
+              data-variant="solid"
+              data-tone="accent"
+              data-size="sm"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Done</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!--
+  The builder: the header says what the group does, every row starts with the
+  word that joins it to the one above, and a nested group is a box on the
+  sunken surface with its own header and remove.
+-->
+<section data-scene="builder">
+  <div
+    data-ui="filter-bar"
+    data-ui-filter-bar=""
+    data-part="builder"
+    data-part-builder=""
+    style="max-inline-size: 36rem"
+  >
+    <fieldset data-part="group" data-part-group="" data-depth="0">
+      <legend>Match All of the following</legend>
+      <div data-part="join" data-part-join="">
+        <span>Match</span>
+        <div
+          data-ui="segmented-control"
+          data-ui-segmented-control=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-orientation="horizontal"
+          data-condense="none"
+          role="radiogroup"
+          aria-label="Match of the following"
+          aria-orientation="horizontal"
+          style="--slotted-segmented-control-count: 2; --slotted-segmented-control-index: 0"
+        >
+          <span data-part="indicator" data-part-indicator="" aria-hidden="true"></span>
+          <label data-part="item" data-part-item="" data-checked
+            ><input
+              data-part="control"
+              data-part-control=""
+              type="radio"
+              name="join-0"
+              value="and"
+              checked
+            /><span data-part="label" data-part-label="">All</span></label
+          >
+          <label data-part="item" data-part-item=""
+            ><input
+              data-part="control"
+              data-part-control=""
+              type="radio"
+              name="join-0"
+              value="or"
+            /><span data-part="label" data-part-label="">Any</span></label
+          >
+        </div>
+        <span>of the following</span>
+      </div>
+      <div data-part="rules" data-part-rules="">
+        <span data-part="conjunction" data-part-conjunction="">Where</span>
+        <div data-part="rule" data-part-rule="" data-kind="set" data-operands="1">
+          <button
+            data-part="rule-summary"
+            data-part-rule-summary=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="rule-0"
+          >
+            <span data-sentence
+              ><span data-field>Status</span> <span data-operator>any of</span>
+              <span data-value>Paid, Refunded</span></span
+            >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+            ></span>
+          </button>
+          <div data-part="field" data-part-field="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Field"
+              >
+                <span data-part="value" data-part-value="">Status</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="operator" data-part-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Operator"
+              >
+                <span data-part="value" data-part-value="">any of</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="operand" data-part-operand="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Value"
+              >
+                <span data-part="value" data-part-value="">Paid, Refunded</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <button data-part="remove" data-part-remove="" type="button" aria-label="Remove rule">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <span data-part="conjunction" data-part-conjunction="">and</span>
+        <div data-part="rule" data-part-rule="" data-expanded data-kind="number" data-operands="2">
+          <button
+            data-part="rule-summary"
+            data-part-rule-summary=""
+            type="button"
+            aria-expanded="true"
+            aria-controls="rule-1"
+          >
+            <span data-sentence
+              ><span data-field>Amount</span> <span data-operator>between</span>
+              <span data-value>100 – 1000</span></span
+            >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+            ></span>
+          </button>
+          <div data-part="field" data-part-field="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Field"
+              >
+                <span data-part="value" data-part-value="">Amount</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="operator" data-part-operator="">
+            <div
+              data-ui="select"
+              data-ui-select=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-full-width
+            >
+              <button
+                data-part="trigger"
+                data-part-trigger=""
+                type="button"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Operator"
+              >
+                <span data-part="value" data-part-value="">between</span>
+              </button>
+              <span data-part="arrow" data-part-arrow=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </div>
+          </div>
+          <div data-part="operand" data-part-operand="">
+            <div
+              data-ui="number-field"
+              data-ui-number-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-stepper="stacked"
+            >
+              <input
+                data-part="input"
+                data-part-input=""
+                type="text"
+                role="spinbutton"
+                aria-label="From"
+                value="100"
+                aria-valuenow="100"
+              />
+            </div>
+            <div
+              data-ui="number-field"
+              data-ui-number-field=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="outline"
+              data-stepper="stacked"
+            >
+              <input
+                data-part="input"
+                data-part-input=""
+                type="text"
+                role="spinbutton"
+                aria-label="To"
+                value="1000"
+                aria-valuenow="1000"
+              />
+            </div>
+          </div>
+          <button data-part="remove" data-part-remove="" type="button" aria-label="Remove rule">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </div>
+        <span data-part="conjunction" data-part-conjunction="">and</span>
+        <fieldset data-part="group" data-part-group="" data-depth="1">
+          <legend>Match Any of the following</legend>
+          <div data-part="join" data-part-join="">
+            <span>Match</span>
+            <div
+              data-ui="segmented-control"
+              data-ui-segmented-control=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-orientation="horizontal"
+              data-condense="none"
+              role="radiogroup"
+              aria-label="Match of the following"
+              aria-orientation="horizontal"
+              style="--slotted-segmented-control-count: 2; --slotted-segmented-control-index: 1"
+            >
+              <span data-part="indicator" data-part-indicator="" aria-hidden="true"></span>
+              <label data-part="item" data-part-item=""
+                ><input
+                  data-part="control"
+                  data-part-control=""
+                  type="radio"
+                  name="join-1"
+                  value="and"
+                /><span data-part="label" data-part-label="">All</span></label
+              >
+              <label data-part="item" data-part-item="" data-checked
+                ><input
+                  data-part="control"
+                  data-part-control=""
+                  type="radio"
+                  name="join-1"
+                  value="or"
+                  checked
+                /><span data-part="label" data-part-label="">Any</span></label
+              >
+            </div>
+            <span>of the following</span
+            ><button
+              data-ui="button"
+              data-ui-button=""
+              data-part="remove-group"
+              data-part-remove-group=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="sm"
+              data-shape="square"
+              type="button"
+              aria-label="Remove group"
+              title="Remove group"
+            >
+              <span data-part="icon" data-part-icon=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="trash"></svg></span
+              ></span>
+            </button>
+          </div>
+          <div data-part="rules" data-part-rules="">
+            <span data-part="conjunction" data-part-conjunction="">Where</span>
+            <div data-part="rule" data-part-rule="" data-kind="text" data-operands="1">
+              <button
+                data-part="rule-summary"
+                data-part-rule-summary=""
+                type="button"
+                aria-expanded="false"
+                aria-controls="rule-2"
+              >
+                <span data-sentence
+                  ><span data-field>Customer</span> <span data-operator>contains</span>
+                  <span data-value>ana</span></span
+                >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                ></span>
+              </button>
+              <div data-part="field" data-part-field="">
+                <div
+                  data-ui="select"
+                  data-ui-select=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-variant="outline"
+                  data-full-width
+                >
+                  <button
+                    data-part="trigger"
+                    data-part-trigger=""
+                    type="button"
+                    role="combobox"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-label="Field"
+                  >
+                    <span data-part="value" data-part-value="">Customer</span>
+                  </button>
+                  <span data-part="arrow" data-part-arrow=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="chevron-down"
+                      ></svg></span
+                  ></span>
+                </div>
+              </div>
+              <div data-part="operator" data-part-operator="">
+                <div
+                  data-ui="select"
+                  data-ui-select=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-variant="outline"
+                  data-full-width
+                >
+                  <button
+                    data-part="trigger"
+                    data-part-trigger=""
+                    type="button"
+                    role="combobox"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-label="Operator"
+                  >
+                    <span data-part="value" data-part-value="">contains</span>
+                  </button>
+                  <span data-part="arrow" data-part-arrow=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="chevron-down"
+                      ></svg></span
+                  ></span>
+                </div>
+              </div>
+              <div data-part="operand" data-part-operand="">
+                <div
+                  data-ui="text-field"
+                  data-ui-text-field=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-variant="outline"
+                >
+                  <input
+                    data-part="input"
+                    data-part-input=""
+                    type="text"
+                    aria-label="Value"
+                    value="ana"
+                  />
+                </div>
+              </div>
+              <button data-part="remove" data-part-remove="" type="button" aria-label="Remove rule">
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+                ></span>
+              </button>
+            </div>
+            <span data-part="conjunction" data-part-conjunction="">or</span>
+            <div data-part="rule" data-part-rule="" data-kind="boolean" data-operands="0">
+              <button
+                data-part="rule-summary"
+                data-part-rule-summary=""
+                type="button"
+                aria-expanded="false"
+                aria-controls="rule-3"
+              >
+                <span data-sentence
+                  ><span data-field>Priority</span> <span data-operator>is</span></span
+                >
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                ></span>
+              </button>
+              <div data-part="field" data-part-field="">
+                <div
+                  data-ui="select"
+                  data-ui-select=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-variant="outline"
+                  data-full-width
+                >
+                  <button
+                    data-part="trigger"
+                    data-part-trigger=""
+                    type="button"
+                    role="combobox"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-label="Field"
+                  >
+                    <span data-part="value" data-part-value="">Priority</span>
+                  </button>
+                  <span data-part="arrow" data-part-arrow=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="chevron-down"
+                      ></svg></span
+                  ></span>
+                </div>
+              </div>
+              <div data-part="operator" data-part-operator="">
+                <div
+                  data-ui="select"
+                  data-ui-select=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-variant="outline"
+                  data-full-width
+                >
+                  <button
+                    data-part="trigger"
+                    data-part-trigger=""
+                    type="button"
+                    role="combobox"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-label="Operator"
+                  >
+                    <span data-part="value" data-part-value="">is</span>
+                  </button>
+                  <span data-part="arrow" data-part-arrow=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="chevron-down"
+                      ></svg></span
+                  ></span>
+                </div>
+              </div>
+              <div data-part="operand" data-part-operand=""></div>
+              <button data-part="remove" data-part-remove="" type="button" aria-label="Remove rule">
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+                ></span>
+              </button>
+            </div>
+            <span data-part="conjunction" data-part-conjunction="">or</span>
+            <fieldset data-part="group" data-part-group="" data-depth="2">
+              <legend>Match All of the following</legend>
+              <div data-part="join" data-part-join="">
+                <span>Match</span>
+                <div
+                  data-ui="segmented-control"
+                  data-ui-segmented-control=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-orientation="horizontal"
+                  data-condense="none"
+                  role="radiogroup"
+                  aria-label="Match of the following"
+                  aria-orientation="horizontal"
+                  style="--slotted-segmented-control-count: 2; --slotted-segmented-control-index: 0"
+                >
+                  <span data-part="indicator" data-part-indicator="" aria-hidden="true"></span
+                  ><label data-part="item" data-part-item="" data-checked
+                    ><input
+                      data-part="control"
+                      data-part-control=""
+                      type="radio"
+                      name="join-2"
+                      value="and"
+                      checked
+                    /><span data-part="label" data-part-label="">All</span></label
+                  ><label data-part="item" data-part-item=""
+                    ><input
+                      data-part="control"
+                      data-part-control=""
+                      type="radio"
+                      name="join-2"
+                      value="or"
+                    /><span data-part="label" data-part-label="">Any</span></label
+                  >
+                </div>
+                <span>of the following</span
+                ><button
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="remove-group"
+                  data-part-remove-group=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  type="button"
+                  aria-label="Remove group"
+                  title="Remove group"
+                >
+                  <span data-part="icon" data-part-icon=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="trash"></svg></span
+                  ></span>
+                </button>
+              </div>
+              <div data-part="rules" data-part-rules="">
+                <span data-part="conjunction" data-part-conjunction="">Where</span>
+                <div data-part="rule" data-part-rule="" data-kind="date" data-operands="1">
+                  <button
+                    data-part="rule-summary"
+                    data-part-rule-summary=""
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="rule-4"
+                  >
+                    <span data-sentence
+                      ><span data-field>Created</span> <span data-operator>after</span>
+                      <span data-value>01/09/2026</span></span
+                    >
+                    <span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+                    ></span>
+                  </button>
+                  <div data-part="field" data-part-field="">
+                    <div
+                      data-ui="select"
+                      data-ui-select=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="sm"
+                      data-variant="outline"
+                      data-full-width
+                    >
+                      <button
+                        data-part="trigger"
+                        data-part-trigger=""
+                        type="button"
+                        role="combobox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Field"
+                      >
+                        <span data-part="value" data-part-value="">Created</span></button
+                      ><span data-part="arrow" data-part-arrow=""
+                        ><span
+                          data-ui="icon"
+                          data-ui-icon=""
+                          data-part="root"
+                          data-part-root=""
+                          aria-hidden="true"
+                          ><svg
+                            data-part="glyph"
+                            data-part-glyph=""
+                            data-glyph="chevron-down"
+                          ></svg></span
+                      ></span>
+                    </div>
+                  </div>
+                  <div data-part="operator" data-part-operator="">
+                    <div
+                      data-ui="select"
+                      data-ui-select=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="sm"
+                      data-variant="outline"
+                      data-full-width
+                    >
+                      <button
+                        data-part="trigger"
+                        data-part-trigger=""
+                        type="button"
+                        role="combobox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Operator"
+                      >
+                        <span data-part="value" data-part-value="">after</span></button
+                      ><span data-part="arrow" data-part-arrow=""
+                        ><span
+                          data-ui="icon"
+                          data-ui-icon=""
+                          data-part="root"
+                          data-part-root=""
+                          aria-hidden="true"
+                          ><svg
+                            data-part="glyph"
+                            data-part-glyph=""
+                            data-glyph="chevron-down"
+                          ></svg></span
+                      ></span>
+                    </div>
+                  </div>
+                  <div data-part="operand" data-part-operand="">
+                    <div
+                      data-ui="text-field"
+                      data-ui-text-field=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="sm"
+                      data-variant="outline"
+                    >
+                      <input
+                        data-part="input"
+                        data-part-input=""
+                        type="text"
+                        aria-label="Value"
+                        value="2026-09-01"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    data-part="remove"
+                    data-part-remove=""
+                    type="button"
+                    aria-label="Remove rule"
+                  >
+                    <span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+                    ></span>
+                  </button>
+                </div>
+              </div>
+              <div data-part="actions" data-part-actions="">
+                <button
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="add-rule"
+                  data-part-add-rule=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  type="button"
+                >
+                  <span data-part="start" data-part-start=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+                  ></span>
+                  <span data-part="label" data-part-label="">Add rule</span></button
+                ><button
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="add-group"
+                  data-part-add-group=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  type="button"
+                >
+                  <span data-part="start" data-part-start=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+                  ></span>
+                  <span data-part="label" data-part-label="">Add group</span>
+                </button>
+              </div>
+            </fieldset>
+          </div>
+          <div data-part="actions" data-part-actions="">
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="add-rule"
+              data-part-add-rule=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="sm"
+              type="button"
+            >
+              <span data-part="start" data-part-start=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+              ></span>
+              <span data-part="label" data-part-label="">Add rule</span></button
+            ><button
+              data-ui="button"
+              data-ui-button=""
+              data-part="add-group"
+              data-part-add-group=""
+              data-tone="secondary"
+              data-variant="ghost"
+              data-size="sm"
+              type="button"
+            >
+              <span data-part="start" data-part-start=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+              ></span>
+              <span data-part="label" data-part-label="">Add group</span>
+            </button>
+          </div>
+        </fieldset>
+      </div>
+      <div data-part="actions" data-part-actions="">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="add-rule"
+          data-part-add-rule=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="start" data-part-start=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Add rule</span></button
+        ><button
+          data-ui="button"
+          data-ui-button=""
+          data-part="add-group"
+          data-part-add-group=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="start" data-part-start=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Add group</span>
+        </button>
+
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="clear"
+          data-part-clear=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Clear all</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="save-preset"
+          data-part-save-preset=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Save as view…</span>
+        </button>
+      </div>
+    </fieldset>
+  </div>
+</section>

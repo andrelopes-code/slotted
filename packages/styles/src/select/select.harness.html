@@ -1,0 +1,1990 @@
+<!--
+  The harness runs no script, so every layer carries what
+  `packages/core/src/positioner` would have written on it — `top`, `left`,
+  `data-side`, the transform origin, the anchor's width and the room the engine
+  says is left. `--slotted-positioner-available-width` is a percentage rather
+  than the engine's pixels: it resolves against the stage, so one value holds at
+  all three capture widths. The inline placement is `inset-inline-start` where
+  the engine writes `left`, because the engine measures a mirrored document and
+  writes the physical answer, and a fragment that wrote `left` would strand
+  every layer on the same edge in a right-to-left capture.
+
+  Two states are photographed rather than faked, because the family paints them
+  only while the browser is in them:
+
+    shoot.mjs select --focus "[data-scene='control'] [data-part='trigger']"
+    shoot.mjs select --focus "[data-scene='states'] [data-part='clear']"
+    shoot.mjs select --focus "[data-scene='search'] [data-part='search-input']"
+
+  A scene that shows a popup hanging from a control carries `data-fixed` and
+  places its layer absolutely, as the engine would. A scene that is only about
+  the surface makes the layer `position: relative` instead, so the stage is as
+  tall as the surface rather than a floor of 420 pixels with a list in one
+  corner.
+-->
+<section data-scene="anatomy" data-fixed>
+  <div style="position: relative; padding: 12px">
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-open
+      style="max-inline-size: min(260px, calc(100% - 24px))"
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-haspopup="listbox"
+        aria-expanded="true"
+        aria-controls="select-anatomy-list"
+        aria-activedescendant="select-anatomy-blueberry"
+        aria-label="Fruit"
+      >
+        <span data-part="value" data-part-value="">Blueberry</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="positioner"
+      data-part-positioner=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="content"
+      data-open
+      style="
+        top: 58px;
+        inset-inline-start: 12px;
+        --slotted-positioner-anchor-width: min(260px, calc(100% - 24px));
+        --slotted-positioner-available-width: 92%;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <div
+        data-part="content"
+        data-part-content=""
+        role="listbox"
+        id="select-anatomy-list"
+        aria-label="Fruit"
+      >
+        <div
+          data-part="group"
+          data-part-group=""
+          role="group"
+          aria-labelledby="select-anatomy-berries"
+        >
+          <div data-part="group-label" data-part-group-label="" id="select-anatomy-berries">
+            Berries
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            id="select-anatomy-blueberry"
+            aria-selected="true"
+            data-selected
+            data-current
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+            ></span>
+            <span data-part="label" data-part-label="">Blueberry</span>
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+            ></span>
+          </div>
+          <div data-part="item" data-part-item="" role="option" aria-selected="false">
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+            ></span>
+            <span data-part="label" data-part-label="">Raspberry</span>
+            <span data-part="description" data-part-description="">In season until September</span>
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+            ></span>
+          </div>
+        </div>
+        <div data-part="separator" data-part-separator="" role="separator"></div>
+        <div
+          data-part="group"
+          data-part-group=""
+          role="group"
+          aria-labelledby="select-anatomy-citrus"
+        >
+          <div data-part="group-label" data-part-group-label="" id="select-anatomy-citrus">
+            Citrus
+          </div>
+          <div data-part="item" data-part-item="" role="option" aria-selected="false">
+            <span data-part="label" data-part-label="">Grapefruit</span>
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+            ></span>
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            aria-disabled="true"
+            aria-selected="false"
+            data-disabled
+          >
+            <span data-part="label" data-part-label="">Pomelo</span>
+            <span data-part="description" data-part-description="">Out of stock</span>
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+            ></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="control">
+  <div style="display: grid; gap: 12px; max-inline-size: 300px">
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="sm"
+      data-variant="outline"
+      data-full-width
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Small"
+      >
+        <span data-part="value" data-part-value="">Small step</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Medium"
+      >
+        <span data-part="value" data-part-value="">Medium step</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      data-variant="outline"
+      data-full-width
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Large"
+      >
+        <span data-part="value" data-part-value="">Large step</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="subtle"
+      data-full-width
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Subtle"
+      >
+        <span data-part="value" data-part-value="">Subtle</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="plain"
+      data-full-width
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Plain"
+      >
+        <span data-part="value" data-part-value="">Plain</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Intrinsic"
+      >
+        <span data-part="value" data-part-value="">Shrinks to its value</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+  </div>
+</section>
+
+<section data-scene="states">
+  <div style="display: grid; gap: 12px; max-inline-size: 300px">
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Placeholder"
+      >
+        <span data-part="value" data-part-value="" data-placeholder>Choose a fruit</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Clearable"
+      >
+        <span data-part="value" data-part-value="">Blueberry</span>
+      </button>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear selection">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-required
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-required="true"
+        aria-label="Required"
+      >
+        <span data-part="value" data-part-value="" data-placeholder>Required</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-invalid
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-invalid="true"
+        aria-label="Invalid"
+      >
+        <span data-part="value" data-part-value="">Durian</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-readonly
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-readonly="true"
+        aria-label="Read only"
+      >
+        <span data-part="value" data-part-value="">Blueberry</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-disabled
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        disabled
+        aria-label="Disabled"
+      >
+        <span data-part="value" data-part-value="">Blueberry</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-open
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="true"
+        aria-label="Open"
+      >
+        <span data-part="value" data-part-value="">Open, and its chevron turned over</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Unmatched"
+      >
+        <span data-part="value" data-part-value="" data-unmatched>usr_8f21c0</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+  </div>
+</section>
+
+<section data-scene="surface">
+  <div
+    data-ui="select"
+    data-ui-select=""
+    data-part="positioner"
+    data-part-positioner=""
+    data-side="bottom"
+    data-align="start"
+    data-size="md"
+    data-width="content"
+    data-open
+    style="
+      position: relative;
+      --slotted-positioner-anchor-width: 240px;
+      --slotted-positioner-available-width: 100%;
+      --slotted-positioner-transform-origin: left top;
+    "
+  >
+    <div data-part="content" data-part-content="" role="listbox" aria-label="Assignee">
+      <div data-part="item" data-part-item="" role="option" aria-selected="false">
+        <span data-part="label" data-part-label="">Unassigned</span>
+        <span data-part="indicator" data-part-indicator=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+        ></span>
+      </div>
+      <div data-part="separator" data-part-separator="" role="separator"></div>
+      <div data-part="item" data-part-item="" role="option" aria-selected="true" data-selected>
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="person"></svg></span
+        ></span>
+        <span data-part="label" data-part-label=""
+          >Selected, and not the one under the pointer</span
+        >
+        <span data-part="indicator" data-part-indicator=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+        ></span>
+      </div>
+      <div data-part="item" data-part-item="" role="option" aria-selected="false" data-current>
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="person"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Highlighted</span>
+        <span data-part="description" data-part-description=""
+          >data-current is where the reader is</span
+        >
+        <span data-part="indicator" data-part-indicator=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+        ></span>
+      </div>
+      <div
+        data-part="item"
+        data-part-item=""
+        role="option"
+        aria-selected="true"
+        aria-disabled="true"
+        data-selected
+        data-current
+        data-disabled
+      >
+        <span data-part="icon" data-part-icon=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="person"></svg></span
+        ></span>
+        <span data-part="label" data-part-label="">Selected, highlighted and disabled at once</span>
+        <span data-part="indicator" data-part-indicator=""
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+        ></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="messages">
+  <div style="display: grid; gap: 12px">
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="positioner"
+      data-part-positioner=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="content"
+      data-open
+      style="
+        position: relative;
+        --slotted-positioner-anchor-width: 240px;
+        --slotted-positioner-available-width: 100%;
+      "
+    >
+      <div
+        data-part="content"
+        data-part-content=""
+        role="listbox"
+        aria-label="Empty"
+        aria-busy="false"
+      >
+        <div data-part="empty" data-part-empty="">No options</div>
+      </div>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="positioner"
+      data-part-positioner=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="content"
+      data-open
+      style="
+        position: relative;
+        --slotted-positioner-anchor-width: 240px;
+        --slotted-positioner-available-width: 100%;
+      "
+    >
+      <div
+        data-part="content"
+        data-part-content=""
+        role="listbox"
+        aria-label="Loading"
+        aria-busy="true"
+        data-loading
+      >
+        <div data-part="placeholder" data-part-placeholder="" aria-hidden="true">
+          <div>
+            <span
+              data-ui="skeleton"
+              data-ui-skeleton=""
+              data-part="root"
+              data-part-root=""
+              data-shape="text"
+              data-loading
+            ></span>
+          </div>
+          <div>
+            <span
+              data-ui="skeleton"
+              data-ui-skeleton=""
+              data-part="root"
+              data-part-root=""
+              data-shape="text"
+              data-loading
+            ></span>
+          </div>
+          <div>
+            <span
+              data-ui="skeleton"
+              data-ui-skeleton=""
+              data-part="root"
+              data-part-root=""
+              data-shape="text"
+              data-loading
+            ></span>
+          </div>
+        </div>
+        <div data-part="status" data-part-status="" role="status" data-loading>Loading…</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="loading">
+  <div
+    data-ui="select"
+    data-ui-select=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-variant="outline"
+    data-loading
+    style="inline-size: 240px"
+  >
+    <button data-part="trigger" data-part-trigger="" type="button" aria-expanded="false">
+      <span data-part="value" data-part-value="">Carregando</span>
+    </button>
+    <span
+      data-part="busy"
+      data-part-busy=""
+      data-ui="spinner"
+      data-ui-spinner=""
+      aria-hidden="true"
+    ></span>
+  </div>
+</section>
+
+<section data-scene="long-content">
+  <div style="display: grid; gap: 12px; max-inline-size: 280px">
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Long value"
+      >
+        <span data-part="value" data-part-value="">Rekisteröintitunnus, pitkä ja käännetty</span>
+      </button>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear selection">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="positioner"
+      data-part-positioner=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="anchor"
+      data-open
+      style="
+        position: relative;
+        --slotted-positioner-anchor-width: 100%;
+        --slotted-positioner-available-width: 100%;
+      "
+    >
+      <div data-part="content" data-part-content="" role="listbox" aria-label="Long content">
+        <div data-part="item" data-part-item="" role="option" aria-selected="false">
+          <span data-part="label" data-part-label=""
+            >A label long enough to need a second line, and then a third it never gets, because the
+            clamp stops it at two</span
+          >
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          aria-selected="true"
+          data-selected
+          data-current
+        >
+          <span data-part="label" data-part-label=""
+            >urn:acme:catalogue:9f2c41ab8de07c5511903fbe</span
+          >
+          <span data-part="description" data-part-description=""
+            >An unbroken token breaks inside the option rather than escaping the surface</span
+          >
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="search">
+  <div style="display: grid; gap: 12px; max-inline-size: 280px">
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-haspopup="dialog"
+        aria-expanded="true"
+        aria-controls="select-search-panel"
+        aria-label="Country"
+      >
+        <span data-part="value" data-part-value="">Netherlands</span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="positioner"
+      data-part-positioner=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="anchor"
+      data-open
+      style="
+        position: relative;
+        --slotted-positioner-anchor-width: 100%;
+        --slotted-positioner-available-width: 100%;
+      "
+    >
+      <div
+        data-part="content"
+        data-part-content=""
+        data-search
+        role="dialog"
+        id="select-search-panel"
+        aria-label="Country"
+      >
+        <div data-part="search" data-part-search="">
+          <span data-part="search-icon" data-part-search-icon=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+          ></span>
+          <input
+            data-part="search-input"
+            data-part-search-input=""
+            type="text"
+            role="combobox"
+            autocomplete="off"
+            aria-expanded="true"
+            aria-autocomplete="list"
+            aria-controls="select-search-list"
+            aria-activedescendant="select-search-netherlands"
+            aria-label="Search options"
+            value="ne"
+          />
+        </div>
+        <div
+          data-part="list"
+          data-part-list=""
+          role="listbox"
+          id="select-search-list"
+          aria-label="Country"
+        >
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            id="select-search-netherlands"
+            aria-selected="true"
+            data-selected
+            data-current
+          >
+            <span data-part="label" data-part-label=""
+              ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+                ><mark data-part="match" data-part-match="">Ne</mark>therlands</span
+              ></span
+            >
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+            ></span>
+          </div>
+          <div data-part="item" data-part-item="" role="option" aria-selected="false">
+            <span data-part="label" data-part-label="">New Zealand</span>
+            <span data-part="description" data-part-description="">Aotearoa</span>
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+            ></span>
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            aria-selected="false"
+            aria-disabled="true"
+            data-disabled
+          >
+            <span data-part="label" data-part-label=""
+              ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+                ><mark data-part="match" data-part-match="">Ne</mark>pal</span
+              ></span
+            >
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+            ></span>
+          </div>
+          <div data-part="status" data-part-status="" role="status" aria-live="polite">
+            3 results
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; gap: 12px; max-inline-size: 280px; margin-block-start: 12px">
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="positioner"
+      data-part-positioner=""
+      data-side="bottom"
+      data-align="start"
+      data-size="sm"
+      data-width="anchor"
+      data-open
+      style="
+        position: relative;
+        --slotted-positioner-anchor-width: 100%;
+        --slotted-positioner-available-width: 100%;
+      "
+    >
+      <div
+        data-part="content"
+        data-part-content=""
+        data-search
+        role="dialog"
+        aria-label="Empty search"
+      >
+        <div data-part="search" data-part-search="">
+          <span data-part="search-icon" data-part-search-icon=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+          ></span>
+          <input
+            data-part="search-input"
+            data-part-search-input=""
+            type="text"
+            role="combobox"
+            autocomplete="off"
+            aria-expanded="true"
+            aria-autocomplete="list"
+            aria-label="Search options"
+            placeholder="Search…"
+          />
+        </div>
+        <div data-part="list" data-part-list="" role="listbox" aria-label="Empty search">
+          <div data-part="empty" data-part-empty="">No options</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="multiple">
+  <div style="display: grid; gap: 12px">
+    <!--
+      Six chosen values, in the state the collapse leaves them at the narrowest
+      stage: the chips that fit stand, the rest carry `hidden` and the count
+      stands in their place. The lane the chips take ends where the lane of the
+      final controls begins, so no chip is ever under one of them, and the frame
+      is the height of a select that chose one thing (SL9).
+    -->
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-multiple
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Fruit"
+      >
+        <span data-part="value" data-part-value=""
+          ><span data-part="summary" data-part-summary="">6 selected</span></span
+        >
+      </button>
+      <span data-part="tags" data-part-tags="">
+        <span
+          data-ui="tag"
+          data-ui-tag=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="soft"
+        >
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Fig</span></span
+          >
+          <button data-part="remove" data-part-remove="" type="button" aria-label="Remove Fig">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </span>
+        <span
+          data-ui="tag"
+          data-ui-tag=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="soft"
+        >
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Plum</span></span
+          >
+          <button data-part="remove" data-part-remove="" type="button" aria-label="Remove Plum">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </span>
+        <span
+          data-ui="tag"
+          data-ui-tag=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="soft"
+          hidden
+        >
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Pear</span></span
+          >
+          <button data-part="remove" data-part-remove="" type="button" aria-label="Remove Pear">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </span>
+        <span
+          data-ui="tag"
+          data-ui-tag=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="soft"
+          hidden
+        >
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Date</span></span
+          >
+          <button data-part="remove" data-part-remove="" type="button" aria-label="Remove Date">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </span>
+        <span
+          data-ui="tag"
+          data-ui-tag=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="soft"
+          hidden
+        >
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Lime</span></span
+          >
+          <button data-part="remove" data-part-remove="" type="button" aria-label="Remove Lime">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </span>
+        <span
+          data-ui="tag"
+          data-ui-tag=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="soft"
+          hidden
+        >
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Kiwi</span></span
+          >
+          <button data-part="remove" data-part-remove="" type="button" aria-label="Remove Kiwi">
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </span>
+        <span
+          data-ui="tag"
+          data-ui-tag=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="soft"
+          data-overflow
+        >
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">+4</span></span
+          >
+        </span>
+      </span>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear selection">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+  </div>
+  <div style="display: grid; gap: 12px; max-inline-size: 300px">
+    <!-- What the collapse leaves when they do not all fit: the ones that ran
+         over carry `hidden`, and the count stands in their place. -->
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-multiple
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Labels"
+      >
+        <span data-part="value" data-part-value=""
+          ><span data-part="summary" data-part-summary="">3 selected</span></span
+        >
+      </button>
+      <span data-part="tags" data-part-tags="">
+        <span
+          data-ui="tag"
+          data-ui-tag=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="soft"
+        >
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Blueberry</span></span
+          >
+          <button
+            data-part="remove"
+            data-part-remove=""
+            type="button"
+            aria-label="Remove Blueberry"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </span>
+        <span
+          data-ui="tag"
+          data-ui-tag=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="soft"
+          data-overflow
+        >
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">+2</span></span
+          >
+        </span>
+      </span>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear selection">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+
+    <!-- A control too narrow for a chip: the sentence answers instead. -->
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-multiple
+      data-narrow
+      style="inline-size: 116px"
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-expanded="false"
+        aria-label="Labels"
+      >
+        <span data-part="value" data-part-value=""
+          ><span data-part="summary" data-part-summary="">3 selected</span></span
+        >
+      </button>
+      <span data-part="tags" data-part-tags="">
+        <span
+          data-ui="tag"
+          data-ui-tag=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="soft"
+        >
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Blueberry</span></span
+          >
+          <button
+            data-part="remove"
+            data-part-remove=""
+            type="button"
+            aria-label="Remove Blueberry"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </span>
+      </span>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="positioner"
+      data-part-positioner=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="anchor"
+      data-open
+      style="
+        position: relative;
+        --slotted-positioner-anchor-width: 100%;
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-available-height: 232px;
+      "
+    >
+      <div
+        data-part="content"
+        data-part-content=""
+        role="listbox"
+        aria-label="Labels"
+        aria-multiselectable="true"
+      >
+        <!--
+          Everything that is chosen, at the top of the popup (SL10). Twelve
+          values: the band wraps, takes about two rows of its own and scrolls,
+          and the list under it keeps its own scroll. No remove control in it —
+          focus never enters this layer.
+        -->
+        <div data-part="chosen" data-part-chosen="" aria-hidden="true">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Blueberry</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Raspberry</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Grapefruit</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Pomelo</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Cloudberry</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Quince</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Fig</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Plum</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Pear</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Date</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Lime</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">Kiwi</span></span
+            >
+          </span>
+        </div>
+        <div data-part="item" data-part-item="" role="option" aria-selected="true" data-selected>
+          <span data-part="label" data-part-label="">Blueberry</span>
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          aria-selected="true"
+          data-selected
+          data-current
+        >
+          <span data-part="label" data-part-label="">Raspberry</span>
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+        <div data-part="item" data-part-item="" role="option" aria-selected="true" data-selected>
+          <span data-part="label" data-part-label="">Grapefruit</span>
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+        <div data-part="item" data-part-item="" role="option" aria-selected="false">
+          <span data-part="label" data-part-label="">Pomelo</span>
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+        <div data-part="item" data-part-item="" role="option" aria-selected="false">
+          <span data-part="label" data-part-label="">Cloudberry</span>
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+        <div data-part="item" data-part-item="" role="option" aria-selected="false">
+          <span data-part="label" data-part-label="">Quince</span>
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+        <div data-part="item" data-part-item="" role="option" aria-selected="false">
+          <span data-part="label" data-part-label="">Fig</span>
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+        <div data-part="item" data-part-item="" role="option" aria-selected="false">
+          <span data-part="label" data-part-label="">Plum</span>
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+        <div data-part="item" data-part-item="" role="option" aria-selected="false">
+          <span data-part="label" data-part-label="">Pear</span>
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+        <div data-part="item" data-part-item="" role="option" aria-selected="false">
+          <span data-part="label" data-part-label="">Date</span>
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+        <div data-part="item" data-part-item="" role="option" aria-selected="false">
+          <span data-part="label" data-part-label="">Lime</span>
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+        <div data-part="item" data-part-item="" role="option" aria-selected="false">
+          <span data-part="label" data-part-label="">Kiwi</span>
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--
+    Several chosen, and a query over them. The field is fixed at the top of the
+    surface; the band of chosen values is stuck to the top of the list, which is
+    what scrolls — so the two rows that never move are the query and what has
+    been taken, and the results move under both.
+  -->
+  <div style="display: grid; gap: 12px; max-inline-size: 300px; margin-block-start: 12px">
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-multiple
+      data-open
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        type="button"
+        role="combobox"
+        aria-haspopup="dialog"
+        aria-expanded="true"
+        aria-controls="select-multiple-search-panel"
+        aria-label="Fruit"
+      >
+        <span data-part="value" data-part-value=""
+          ><span data-part="summary" data-part-summary="">3 selected</span></span
+        >
+      </button>
+      <span data-part="tags" data-part-tags="">
+        <span
+          data-ui="tag"
+          data-ui-tag=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="soft"
+        >
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">Blueberry</span></span
+          >
+          <button
+            data-part="remove"
+            data-part-remove=""
+            type="button"
+            aria-label="Remove Blueberry"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+            ></span>
+          </button>
+        </span>
+        <span
+          data-ui="tag"
+          data-ui-tag=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+          data-variant="soft"
+          data-overflow
+        >
+          <span data-part="body" data-part-body=""
+            ><span data-part="label" data-part-label="">+2</span></span
+          >
+        </span>
+      </span>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear selection">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+      <span data-part="arrow" data-part-arrow=""
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+      ></span>
+    </div>
+    <div
+      data-ui="select"
+      data-ui-select=""
+      data-part="positioner"
+      data-part-positioner=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-width="anchor"
+      data-open
+      style="
+        position: relative;
+        --slotted-positioner-anchor-width: 100%;
+        --slotted-positioner-available-width: 100%;
+      "
+    >
+      <div
+        data-part="content"
+        data-part-content=""
+        data-search
+        role="dialog"
+        id="select-multiple-search-panel"
+        aria-label="Fruit"
+      >
+        <div data-part="search" data-part-search="">
+          <span data-part="search-icon" data-part-search-icon=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+          ></span>
+          <input
+            data-part="search-input"
+            data-part-search-input=""
+            type="text"
+            role="combobox"
+            autocomplete="off"
+            aria-expanded="true"
+            aria-autocomplete="list"
+            aria-controls="select-multiple-search-list"
+            aria-activedescendant="select-multiple-search-berry"
+            aria-label="Search options"
+            value="berr"
+          />
+        </div>
+        <div
+          data-part="list"
+          data-part-list=""
+          role="listbox"
+          id="select-multiple-search-list"
+          aria-multiselectable="true"
+          aria-label="Fruit"
+        >
+          <div data-part="chosen" data-part-chosen="" aria-hidden="true">
+            <span
+              data-ui="tag"
+              data-ui-tag=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="soft"
+            >
+              <span data-part="body" data-part-body=""
+                ><span data-part="label" data-part-label="">Blueberry</span></span
+              >
+            </span>
+            <span
+              data-ui="tag"
+              data-ui-tag=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="soft"
+            >
+              <span data-part="body" data-part-body=""
+                ><span data-part="label" data-part-label="">Raspberry</span></span
+              >
+            </span>
+            <span
+              data-ui="tag"
+              data-ui-tag=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              data-variant="soft"
+            >
+              <span data-part="body" data-part-body=""
+                ><span data-part="label" data-part-label="">Cloudberry</span></span
+              >
+            </span>
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            id="select-multiple-search-berry"
+            aria-selected="true"
+            data-selected
+            data-current
+          >
+            <span data-part="label" data-part-label=""
+              ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+                >Blue<mark data-part="match" data-part-match="">berr</mark>y</span
+              ></span
+            >
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+            ></span>
+          </div>
+          <div data-part="item" data-part-item="" role="option" aria-selected="true" data-selected>
+            <span data-part="label" data-part-label=""
+              ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+                >Rasp<mark data-part="match" data-part-match="">berr</mark>y</span
+              ></span
+            >
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+            ></span>
+          </div>
+          <div data-part="item" data-part-item="" role="option" aria-selected="true" data-selected>
+            <span data-part="label" data-part-label=""
+              ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+                >Cloud<mark data-part="match" data-part-match="">berr</mark>y</span
+              ></span
+            >
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+            ></span>
+          </div>
+          <div data-part="item" data-part-item="" role="option" aria-selected="false">
+            <span data-part="label" data-part-label=""
+              ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+                >Goose<mark data-part="match" data-part-match="">berr</mark>y</span
+              ></span
+            >
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+            ></span>
+          </div>
+          <div data-part="status" data-part-status="" role="status" aria-live="polite">
+            4 results
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

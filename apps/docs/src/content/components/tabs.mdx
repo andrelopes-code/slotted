@@ -1,0 +1,116 @@
+---
+title: Tabs
+description: A row of tabs over a set of panels, for switching between views of one record or one screen without leaving it.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Variants
+
+`line` is the default: labels over a hairline, with the marker under the selected tab. `contained` draws a sunken track with a surface for the selected tab, for a set of views inside a card or a toolbar. `track="none"` keeps the labels and the marker and drops the hairline, for a list placed on a line the page already draws, such as the edge of a card header.
+
+<Example name="variants" />
+
+## Sizes
+
+`size` sets the list to one step of the control scale: `sm` for dense panels and table toolbars, `md` for most screens, `lg` for a page's top-level views. The height, type, padding and icon size follow the step.
+
+<Example name="sizes" />
+
+## Equal widths
+
+`fit="equal"` divides the line into equal shares, one per tab, for two to four short labels that should line up with the content below. A label longer than its share is cut with an ellipsis and keeps its full text as the tab's name. With the default `fit="auto"`, each tab is as wide as its label and the list scrolls instead.
+
+<Example name="fit" />
+
+## Vertical
+
+`orientation="vertical"` stacks the tabs in a column beside the panels, for settings sections and long lists of views. Up and Down arrows move between tabs, and the list carries `aria-orientation="vertical"`. A vertical list never scrolls sideways: the page scrolls.
+
+<Example name="vertical" wide />
+
+## Icons and counts
+
+`start` puts an icon before the label and `end` puts a count or a status after it; in Angular, mark those elements with `slTabStart` and `slTabEnd`. Both stand beside the label inside the tab, so the tab's gap spaces them and only the words are cut under `fit="equal"`. A `Badge` with `count` hides itself at zero unless it has `showZero`.
+
+<Example name="icons" wide />
+
+## Disabled tabs
+
+`disabled` on a tab removes it from the arrow-key sequence and from pointer selection while the rest of the list works. `disabled` on `Tabs` disables every tab. A disabled tab cannot receive focus, so state the reason on the screen, here in the open panel.
+
+<Example name="disabled" />
+
+## Activation
+
+With `activation="automatic"`, the default, each arrow key press selects the tab it lands on. With `activation="manual"`, the arrow keys move focus only, and Enter or Space selects. Use manual activation when showing a panel costs a request or a heavy render, so moving across the list does not trigger one per tab.
+
+<Example name="activation" />
+
+## Controlled
+
+Pass `value` and update it from `onValueChange` when something outside the tabs changes the view, such as a link in a notice; in Angular, bind `[value]` and read the new value from `(valueChange)`. The handler receives the request before the selection moves; `request.cancel()` keeps the current tab.
+
+<Example name="controlled" />
+
+## Keyboard
+
+Tab moves focus to the selected tab, and a second Tab moves it to the panel. Left and Right move between tabs and wrap at the ends; Home and End reach the first and last enabled tab. Each change reports its reason: `pointer` for a click, `keyboard` for the arrows, Home, End, Enter and Space, `remove` when a closed tab hands the selection to its neighbour.
+
+<Example name="keyboard" />
+
+## Mounting panels
+
+`mount` decides when a panel's content exists. `active`, the default, builds the content when its tab is selected and removes it when another tab is selected, so the state inside it is lost. `lazy` builds it on first selection and keeps it. `eager` builds every panel up front. The panel element itself is always present and hidden, so every tab's `aria-controls` names an element. In Angular, write the content inside `<ng-template slTabPanelContent>` so the components in it are created only when `mount` says so; projected content is created with the page. Type a note in each example below, switch to Summary, and switch back.
+
+<Example name="mount" />
+
+## Closable tabs
+
+`dismissible` adds a close button to a tab and binds Delete to the focused tab; `dismissLabel` names the button, such as "Close SO-1187". `onTabDismiss` in React and `(tabDismiss)` in Angular ask the page to remove the tab: the component removes nothing itself, because the list of open tabs is the page's data. When the closed tab was selected, the selection moves to the next tab, or to the previous one when it was last, with the reason `remove`.
+
+<Example name="dismissible" />
+
+## Actions beside the list
+
+`TabActions` in React and `slTabActions` in Angular hold controls on the same row as the tabs, at its end. Put a `Toolbar` in it: the toolbar is one stop in the Tab sequence however many buttons it holds, so the panel stays two Tab presses from the list.
+
+<Example name="actions" wide />
+
+## Links as tabs
+
+`href` renders the tab as a link. A plain click selects the tab and the page does not navigate; a click with Ctrl, Cmd, Shift or Alt is left to the browser, which opens the address in a new browser tab or window. With a router, give each tab the route of its view and navigate from `onValueChange`.
+
+<Example name="links" />
+
+## Tabs over one region
+
+A list without panels can filter a single region, such as a table. Set `controls` on each tab to the region's `id`, so `aria-controls` names it, and change what the region shows from the selected value. The counts in this example come from the same rows the table shows.
+
+<Example name="filter" wide />
+
+## Many tabs and narrow columns
+
+A list wider than its container scrolls instead of wrapping or cutting labels. Paging buttons appear at the ends while there is more to scroll, and the selected tab is scrolled into view, here Memphis, TN. The paging buttons are outside the Tab sequence: the arrow keys reach every tab and scroll each one into view.
+
+<Example name="overflow" />
+
+## Defaults for a section
+
+`TabsDefaultsProvider` in React and `provideTabsDefaults` in Angular set `activation`, `orientation`, `size`, `variant`, `track`, `fit`, `mount` and `loop` once for every tabs component under them. A value set on one `Tabs` still wins, as `variant="line"` does on the second list.
+
+<Example name="defaults" />
+
+## Record page header
+
+A record page puts its identity and actions above the tabs and the record's sections in the panels. Icons and counts make each section recognisable at a glance; the counts come from the same data the panels show.
+
+<Example name="record-header" wide />
+
+## Settings page
+
+Vertical tabs list the sections of a settings page beside the open section. Each panel starts with its own heading, so the section stays named while the reader works in it.
+
+<Example name="settings" wide />

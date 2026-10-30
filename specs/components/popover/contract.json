@@ -1,0 +1,299 @@
+{
+  "schemaVersion": 5,
+  "family": "popover",
+  "ui": "popover",
+  "catalog": {
+    "group": "Overlays",
+    "summary": "Floating panel anchored to a trigger."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+  "patternStatus": "There is no popover pattern in the APG. The tooltip pattern names the non-modal dialog as what to build when the surface holds focusable elements, so the dialog pattern is what this family answers — everything in it about modality, and only that, is deliberately not taken.",
+  "roles": {
+    "content": "dialog"
+  },
+  "modal": false,
+  "focusable": true,
+  "composes": ["positioner", "presence", "portal", "dismissable-layer"],
+  "layer": {
+    "modal": false,
+    "scrollLock": false,
+    "branches": ["the trigger element", "the anchor element"],
+    "depthProperty": "--slotted-layer-depth",
+    "zIndexToken": "--slotted-z-index-popover",
+    "reason": "One layer in the single stack. The trigger and the anchor are branches, so pressing either is inside the layer and does not dismiss it; a popover opened from inside another popover records that one as its parent, so a press inside the child never closes the parent."
+  },
+  "wiring": {
+    "aria-expanded": "true on the trigger while the panel is open, false while it is closed",
+    "aria-haspopup": "dialog on the trigger, which says what the button discloses",
+    "aria-controls": "the trigger names the panel while the panel is in the document; an id the document does not hold references nothing",
+    "aria-labelledby": "the panel names its title, when a title part is present",
+    "aria-describedby": "the panel names its description, when a description part is present",
+    "aria-modal": "never written. It is not modal, and writing it would tell a reader the rest of the page is gone while it is still there.",
+    "aria-hidden": "the arrow, and both focus guards",
+    "unnamedPanel": "a popover with no title part gets no aria-labelledby. The family invents no name; the reference page says to write aria-label on the content instead."
+  },
+  "keyboard": [
+    {
+      "key": "Enter",
+      "effect": "toggles the popover, from the consumer's own button",
+      "focus": "the panel, or the element initialFocus names",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "toggles the popover, under the same rule",
+      "focus": "the panel, or the element initialFocus names",
+      "source": "platform"
+    },
+    {
+      "key": "Escape",
+      "effect": "closes the popover, from the topmost layer only",
+      "focus": "the trigger, or the element finalFocus names",
+      "source": "pattern"
+    },
+    {
+      "key": "Tab",
+      "effect": "moves through the panel's own focusable elements; past the last one it reaches the trailing focus guard, which closes the popover",
+      "focus": "the next element in the panel, then the trigger",
+      "source": "family"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves back through the panel; before the first element it reaches the leading focus guard, which closes the popover",
+      "focus": "the previous element in the panel, then the trigger",
+      "source": "family"
+    }
+  ],
+  "focus": {
+    "autoFocus": {
+      "default": true,
+      "target": "content",
+      "reason": "The panel itself carries tabindex=\"-1\" and takes the focus, rather than its first control. A reader hears the panel's name before its contents, and a popover whose first control is destructive does not arrive pre-armed."
+    },
+    "initialFocus": {
+      "accepts": "an element, a ref or a selector",
+      "reason": "The first control is the point for a filter popover that opens onto its search field, and is wrong for one that opens onto Delete."
+    },
+    "finalFocus": {
+      "accepts": "an element, a ref or a selector",
+      "reason": "The trigger may be gone by the time the popover closes, which is what happens to the row-actions popover that deleted its own row."
+    },
+    "restore": "trigger",
+    "contained": false,
+    "guards": {
+      "count": 2,
+      "part": "focus-guard",
+      "emits": "keyboard",
+      "destination": "trigger",
+      "reason": "What Tab does at the edge of a layer portalled to the end of the document is the question every surveyed library leaves open. Two tabindex=\"0\" sentinels sit inside the layer, one on each side of the panel. Focus reaching either arrived from the keyboard and has nowhere useful to go, so the family closes and puts focus back on the trigger, from which the next Tab continues down the page. It costs one extra Tab and it is the only answer that keeps the reading order intact without trapping focus in a layer that is not modal."
+    },
+    "containmentOwner": "dialog",
+    "containmentReason": "Focus containment and restoration land in packages/core/src/focus with dialog, later in this wave. A non-modal popover must not contain focus, so nothing is missing here; when dialog lands the shared answer, modal becomes a question for that family."
+  },
+  "overflow": {
+    "part": "body",
+    "property": "--slotted-positioner-available-height",
+    "staysPut": ["header", "footer"],
+    "reason": "Radix, Base UI and React Aria each expose the remaining height as a custom property and none of them uses it. Bounding the whole panel would scroll the title out of sight; bounding the body is why the anatomy has a header and a footer at all."
+  },
+  "arrow": {
+    "placedBy": "positioner",
+    "drawnBy": "family",
+    "element": "a square rotated 45 degrees, a child of the layer at z-index -1, carrying the panel's own background and border so its two outer edges continue the panel's outline",
+    "coordinates": "physical",
+    "reason": "As tooltip's, and for the same reason: the engine measures in physical coordinates and data-side names a physical edge."
+  },
+  "mount": {
+    "active": "the layer exists only while it is open",
+    "lazy": "built on the first open and kept afterwards, which is what a popover holding an expensive form wants",
+    "eager": "exists from the start, closed",
+    "default": "active",
+    "reason": "The same axis tooltip declares, and the same one collapsible settled."
+  },
+  "motion": {
+    "property": "scale",
+    "companion": "opacity",
+    "companionPart": "content",
+    "origin": "--slotted-positioner-transform-origin",
+    "measured": false,
+    "reason": "As tooltip's. The panel grows from the anchor, which is what says which control opened it."
+  },
+  "runtimeProperties": [
+    "--slotted-layer-depth",
+    "--slotted-positioner-anchor-width",
+    "--slotted-positioner-arrow-x",
+    "--slotted-positioner-arrow-y",
+    "--slotted-positioner-available-height",
+    "--slotted-positioner-available-width",
+    "--slotted-positioner-transform-origin"
+  ],
+  "positioning": {
+    "sideOffset": 0,
+    "alignOffset": 0,
+    "collisionPadding": 8,
+    "arrowPadding": 12,
+    "reason": "A larger arrow padding than tooltip's, because the panel's radius is larger and a start-aligned panel would otherwise put the arrow on the curve.",
+    "gap": {
+      "token": "--slotted-popover-gap",
+      "default": "var(--slotted-space-4)",
+      "reason": "As tooltip's: the gap is the layer's padding, so the pointer never crosses empty space and the arrow has a band to stand in. `sideOffset` means additional distance beyond it."
+    }
+  },
+  "messages": ["close"],
+  "messagesReason": "The close control's accessible name comes from the catalog of the language in force, so an application translates it once rather than on every popover it renders. An instance may still lay its own messages over it.",
+  "declined": {
+    "modal": {
+      "deferTo": "dialog",
+      "reason": "docs/component-features.md §8 defines this family as non-modal interactive content anchored to a trigger, and says it does not capture focus globally. Radix, Base UI, Ark and React Aria all ship a modal flag on their popover; here the modal surface is dialog, which lands later in this wave and brings focus containment to packages/core/src/focus with it."
+    },
+    "openOnHover": {
+      "deferTo": "preview-card",
+      "reason": "One of the four surveyed implementations opens a popover on hover. docs/component-features.md §8 gives a rich surface opened by hover to Preview Card / Hover Card, Extended, wave 8, with its own grace area and its own touch answer. Two families opening on hover would be two answers to one question."
+    },
+    "backdrop": {
+      "deferTo": "dialog",
+      "reason": "A backdrop exists to darken the page behind a modal and to catch the press that closes it. This family is not modal, and the press outside is already answered by the dismissable layer."
+    },
+    "hideWhenDetachedByDefault": {
+      "reason": "The tooltip closes when its anchor scrolls out of its clipping ancestor and the popover does not. A hint whose anchor has gone has nothing left to explain; a task the reader is halfway through must not vanish because the row behind it scrolled. A consumer whose popover is a hint in disguise sets the flag."
+    },
+    "disabledState": {
+      "reason": "The family holds the disabled capability and declares no disabled visual state. A disabled popover never opens, so under the default mount there is no element to carry data-disabled and nothing to paint. The capability is observable where it happens: no layer is created, and the trigger keeps aria-expanded=\"false\"."
+    },
+    "triggerPart": {
+      "reason": "`data-part` names a part of the family that owns the element, and a trigger is the consumer's own — very often another Slotted family's root. Sixteen stylesheets in this repository key on `[data-part='root']`, so writing `trigger` over it would silently unstyle a `badge`, an `avatar` or a `checkbox` used as a trigger, and nothing would report it. The family therefore writes only the wiring and the state on the trigger: the ARIA relationship, and `data-open` so a consumer can style their own element while the layer is showing. The anchor is the consumer's element for the same reason."
+    },
+    "contentCapability": {
+      "reason": "The `content` capability in `specs/contract.schema.mjs` names a family that takes adornments through `start` and `end` props. This family takes its content as children, so declaring it would oblige the reference page to document two props that do not exist."
+    },
+    "focusableCapability": {
+      "reason": "The `focusable` capability names a family that offers a `focusable` prop — `link` does. This one is focusable because a dialog is, not because a consumer switches it on, and the focus behaviour is documented under `autoFocus`, `initialFocus` and `finalFocus` instead."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "width": ["auto", "anchor"],
+    "side": ["top", "bottom", "inline-start", "inline-end", "left", "right"],
+    "align": ["start", "center", "end"],
+    "mount": ["active", "lazy", "eager"],
+    "strategy": ["absolute", "fixed"],
+    "arrow": [true, false],
+    "autoFocus": [true, false],
+    "closeOnEscape": [true, false],
+    "closeOnOutsidePress": [true, false],
+    "flip": [true, false],
+    "shift": [true, false],
+    "hideWhenDetached": [true, false],
+    "portal": [true, false],
+    "disabled": [true, false]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "width": ["prop", "defaults", "auto"],
+    "side": ["prop", "defaults", "bottom"],
+    "align": ["prop", "defaults", "center"],
+    "mount": ["prop", "defaults", "active"],
+    "strategy": ["prop", "defaults", "absolute"],
+    "arrow": ["prop", "defaults", true],
+    "autoFocus": ["prop", "defaults", true],
+    "closeOnEscape": ["prop", "defaults", true],
+    "closeOnOutsidePress": ["prop", "defaults", true],
+    "flip": ["prop", "defaults", true],
+    "shift": ["prop", "defaults", true],
+    "hideWhenDetached": ["prop", "defaults", false],
+    "portal": ["prop", "defaults", true],
+    "disabled": ["prop", "defaults", false]
+  },
+  "provides": {
+    "popoverDefaults": [
+      "size",
+      "width",
+      "side",
+      "align",
+      "mount",
+      "strategy",
+      "arrow",
+      "autoFocus",
+      "closeOnEscape",
+      "closeOnOutsidePress",
+      "flip",
+      "shift",
+      "hideWhenDetached",
+      "portal",
+      "sideOffset",
+      "alignOffset",
+      "collisionPadding",
+      "arrowPadding"
+    ]
+  },
+  "stateAttributes": {
+    "open": "data-open"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "outsidePress", "dismiss", "programmatic"]
+    }
+  },
+  "members": {
+    "popover": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "width": "auto",
+        "side": "bottom",
+        "align": "center",
+        "mount": "active",
+        "strategy": "absolute",
+        "arrow": true,
+        "autoFocus": true,
+        "closeOnEscape": true,
+        "closeOnOutsidePress": true,
+        "flip": true,
+        "shift": true,
+        "hideWhenDetached": false,
+        "portal": true,
+        "disabled": false,
+        "sideOffset": 0,
+        "alignOffset": 0,
+        "collisionPadding": 8,
+        "arrowPadding": 12
+      },
+      "capabilities": ["open", "placement", "size", "appearance", "disabled", "wiring"],
+      "states": ["default", "hover", "active", "focus-visible", "open"],
+      "parts": [
+        "root",
+        "content",
+        "header",
+        "title",
+        "description",
+        "body",
+        "footer",
+        "close",
+        "arrow",
+        "focus-guard"
+      ]
+    }
+  },
+  "scenarios": {
+    "popover": [
+      "playground",
+      "sizes",
+      "width",
+      "placement",
+      "anchor",
+      "focus",
+      "dismissal",
+      "scrolling",
+      "composition",
+      "nested",
+      "keyboard"
+    ]
+  },
+  "measure": {
+    "value": "16rem / 20rem / 24rem by size",
+    "reason": "A panel has to be wide enough for a sentence and narrow enough to point at something. The three steps are the family's own tokens; `width: 'anchor'` replaces the cap with the anchor's measured width, which is what a filter panel under a search field wants."
+  }
+}

@@ -1,0 +1,822 @@
+@layer slotted.components {
+  /**
+   * ── A frame of typed values, with a field that adds more ────────────────
+   *
+   * One subtree, where the consumer wrote it. Nothing is portalled: the
+   * input is a text box, and the values beside it are the texts the reader
+   * typed. With `suggestions` the one thing that opens is the listbox of
+   * them, placed under the frame by the positioner with a fixed position.
+   *
+   *   ┌─ root ─ the frame ─────────────────────────────────────────┐
+   *   │ ┌─ control ─ role="grid" ───────────────┐                  │
+   *   │ │ ┌─ chips ─ role="row" ─ wraps ──────┐ │ counter   clear  │
+   *   │ │ │ tag ▸ tag ▸ tag(invalid) ▸ +N     │ │                  │
+   *   │ │ │ field ▸ input                     │ │                  │
+   *   │ │ └───────────────────────────────────┘ │                  │
+   *   │ └───────────────────────────────────────┘                  │
+   *   │   hint · message ─ for assistive technology only           │
+   *   └────────────────────────────────────────────────────────────┘
+   *
+   * ── What this sheet does not decide ──────────────────────────────────
+   *
+   * **Nothing about a chip.** The chips are `tag`'s, worn as `data-ui` beside
+   * this family's own parts, so the pill, the small step, the `danger` tone an
+   * invalid value wears, and the remove control floored at
+   * `--slotted-target-min` are all stated once in `tag/tag.css`. This sheet
+   * decides where the row is, how it wraps, and the one mark it adds.
+   *
+   * **The frame.** `text-field`'s arithmetic and `multi-select`'s: the same
+   * control on the same form, so the numbers are the same numbers. The control
+   * grows by whole rows of chips and by nothing else — an empty control is
+   * exactly the height of a text field beside it, and three rows is where it
+   * stops growing and starts scrolling.
+   *
+   * ── What this sheet decides on its own ───────────────────────────────
+   *
+   * **An invalid value is a chip with a mark.** The tone is `tag`'s `danger`,
+   * written in the DOM; the alert glyph in the chip's `start` slot is the
+   * `Glyph` element the binding renders there, because `tag` has no opinion
+   * about what a slot holds. Colour, mark and — in the tree — a description,
+   * which is what §2.5 asks of an invalid state.
+   *
+   * **A collapsed row opens where the reader is.** Under `overflow='collapse'`
+   * the row is one line and a `+N` at rest, and every chip while the control
+   * has focus within — `data-expanded`, written by the binding. There is no
+   * popup to hold the hidden chips, so the row itself is where they are shown,
+   * and it is shown exactly when the reader is about to act on them.
+   *
+   * **Two parts are for assistive technology alone.** `hint` names the keys
+   * the row answers, `message` names why a value is wrong. Both are removed
+   * from sight with the rule `visually-hidden/visually-hidden.css` states,
+   * restated here because a part of this family cannot wear another family's
+   * `data-ui` and mean two things.
+   */
+
+  /* ── The frame ────────────────────────────────────────────────────────── */
+
+  [data-ui-tags-input][data-part-root] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    /** The floor under the glyph scale at the dense step; a family token so a theme can retune it. */
+    --_icon-floor: var(--slotted-tags-input-icon-size-min, 14px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-md, 16px));
+
+    /* `text-field`'s arithmetic, because this is the same button in the same
+       frame and a second answer would drift from the first. */
+    --_action-size: var(
+      --slotted-tags-input-action-size,
+      min(calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)), var(--_inner-size))
+    );
+
+    /**
+     * The air above and below a row of chips: a space step, kept at every
+     * density. It is the chip that yields, below — not the air — so a control
+     * holding one row of chips is the height of an empty one beside it and the
+     * chip never touches the frame.
+     */
+    --_row-air: var(--slotted-space-1, 0.125rem);
+    /**
+     * One row's height is the height the foundation gives the inside of a
+     * control at this size step, `--slotted-control-inner-size-*`: the chip
+     * takes it through the property the row writes below, so a `dense` frame
+     * of 26 pixels holds an 18-pixel chip with four pixels of air a side, and
+     * three rows plus their gaps divide the cap below with no sliver of a
+     * fourth. The type stays 12px; the chip's line and inset are derived from
+     * the height in `tag.css`, and the remove control keeps its 24-pixel target
+     * through `tag`'s own halo.
+     */
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+    --_row-size: var(--_inner-size);
+    --_row-gap: var(--slotted-space-2, 0.25rem);
+
+    align-items: center;
+    background-color: var(--slotted-tags-input-background, var(--slotted-control-surface, Field));
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-tags-input-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--slotted-tags-input-radius, var(--slotted-control-radius, 4px));
+    box-shadow: var(--slotted-tags-input-shadow, var(--slotted-control-shadow, none));
+    box-sizing: border-box;
+    color: var(--slotted-tags-input-color, var(--slotted-text, CanvasText));
+    display: flex;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    gap: var(--slotted-space-1, 0.125rem);
+    /* In a flex row the item's basis is its content, not the whole row. */
+    flex-basis: content;
+    inline-size: 100%;
+    min-block-size: var(--_height);
+    min-inline-size: 0;
+    padding-inline-start: var(--_padding-inline);
+    /* The end padding is the button's gutter rather than the frame's, so the
+       glyph — not the button's box — ends where the text begins on the other
+       side. `text-field` states the same arithmetic. */
+    padding-inline-end: max(
+      0px,
+      calc(var(--_padding-inline) - (var(--_action-size) - var(--_icon-size)) / 2)
+    );
+    /* The containing block of the two hidden parts. */
+    position: relative;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-tags-input][data-part-root]:not([data-full-width]) {
+    inline-size: auto;
+  }
+
+  /**
+   * The grid. It holds one row and gives up every visual decision to it: the
+   * role is what the layout-grid pattern asks for, and the geometry belongs to
+   * the row that wraps.
+   */
+  [data-ui-tags-input] > [data-part-control] {
+    display: flex;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    align-self: stretch;
+  }
+
+  /**
+   * The distance between the values and the controls that act on them: the
+   * row's own gap rather than the frame's tighter one, so the boundary between
+   * what is typed and what acts on it is never narrower than the rhythm inside
+   * it. `multi-select` measured the two-pixel version of this and rejected it.
+   */
+  [data-ui-tags-input] > [data-part-control] + * {
+    margin-inline-start: var(--_row-gap);
+  }
+
+  /**
+   * The row. One DOM row that wraps onto as many visual lines as it needs, so
+   * the reading order stays linear and "previous" and "next" have one meaning
+   * each — which is why the grid answers neither `ArrowDown` nor `ArrowUp`.
+   */
+  [data-ui-tags-input] [data-part-chips] {
+    /* `safe`, because this box scrolls: centring a scroll container's content
+       pushes the first line above the scrollport when there is more than fits,
+       and nothing can scroll back to it. `multi-select` found the first three
+       chips unreachable at 240 pixels without it. */
+    align-content: safe center;
+    align-items: center;
+    /* The cap below counts rows, gaps and the row's own air, so it has to be a
+       border box. */
+    box-sizing: border-box;
+    column-gap: var(--_row-gap);
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    min-inline-size: 0;
+    padding-block: var(--_row-air);
+    /* A box that scrolls on one axis clips on both, and a chip's remove control
+       takes the rest of its target from a halo outside the chip: the row keeps
+       two pixels of inline padding for it and takes them back with a negative
+       margin, so the chips stand where the gutter puts them. */
+    padding-inline: var(--_row-air);
+    margin-inline: calc(-1 * var(--_row-air));
+    row-gap: var(--_row-gap);
+    /* Three whole rows, then it scrolls. Every chip stays in the DOM either
+       way, which is what the feature guide asks of an overflow. */
+    max-block-size: calc(3 * var(--_row-size) + 2 * var(--_row-gap) + 2 * var(--_row-air));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /**
+     * The row scrolls and draws no scrollbar. A form control has one frame, and
+     * a bar inside it takes width from the chips, moves them when it appears,
+     * and paints a second edge inside the control's own. The wheel and every
+     * arrow key still reach the rows above and below, because a chip is
+     * focusable and the browser scrolls focus into view; what says there is
+     * more is the counter and the row's own `aria-label` carrying the count.
+     */
+    scrollbar-width: none;
+  }
+
+  [data-ui-tags-input] [data-part-chips]::-webkit-scrollbar {
+    display: none;
+  }
+
+  /**
+   * One line high at rest, under `overflow='collapse'`: what does not fit is
+   * collapsed by `createCollapse` into the counting chip. There is no popup to
+   * hold the rest, so the row itself opens — the rule after this one — while
+   * the control has focus within.
+   */
+  [data-ui-tags-input][data-overflow='collapse']:not([data-expanded]) [data-part-chips] {
+    flex-wrap: nowrap;
+    max-block-size: none;
+    overflow: hidden;
+  }
+
+  /**
+   * The expanded row is the wrapped row: the same three-line cap and the same
+   * scroll past it, so a reader who has learnt one shape has learnt both. The
+   * counting chip leaves while every chip is shown, and `createCollapse` is
+   * paused by the binding so it does not measure a row that is not clipping.
+   *
+   * No transition. The row's height changes as focus arrives, and a transition
+   * would make the reader wait for the chip they are about to reach.
+   */
+  [data-ui-tags-input][data-overflow='collapse'][data-expanded] [data-part-chips] > [data-count] {
+    display: none;
+  }
+
+  /**
+   * A chip being edited. The grid pattern's own answer to a cell holding
+   * editable content is a text field inside the cell, so that is what it is —
+   * and it gives up every mark of a field, because the chip around it is
+   * already the box. Selected by element rather than by part: the field
+   * belongs to the chip, and the query's own input is told apart by the part it
+   * does have.
+   */
+  [data-ui-tags-input] [data-part-chips] input:not([data-part-input]) {
+    background-color: transparent;
+    border: 0;
+    color: inherit;
+    font: inherit;
+    min-inline-size: 0;
+    outline: none;
+    padding: 0;
+  }
+
+  /**
+   * A chip never shrinks: it either fits on the line or goes to the next one,
+   * and the only chip that gives way is one wider than the whole row, which is
+   * capped here and truncated by `tag.css`. Its height is the row's own — the
+   * target minimum — so three of them plus their gaps divide the cap above
+   * exactly, and no fourth row shows as a sliver under the third.
+   */
+  [data-ui-tags-input] [data-part-chips] > :not([data-part-field]) {
+    flex: 0 0 auto;
+    max-inline-size: 100%;
+    min-block-size: var(--_row-size);
+    min-inline-size: 0;
+  }
+
+  /**
+   * The chip takes the height the inside of this control has, through the
+   * property `tag` reads for it. Set on the row, inherited by every chip, and
+   * no rule of this sheet names `[data-ui-tag]`: the host stands beside the
+   * tag sheet and never reaches into it.
+   */
+  [data-ui-tags-input] [data-part-chips] {
+    --slotted-control-inner-size: var(--_inner-size);
+  }
+
+  /**
+   * The cell that holds the caret. It is the last cell of the row, so it wraps
+   * with the chips rather than being pushed to a line of its own, and it asks
+   * — rather than demands — for a word's worth of width, so the reader always
+   * has somewhere to type and a 240-pixel control holding two values does not
+   * stand two rows tall with one row empty.
+   */
+  [data-ui-tags-input] [data-part-field] {
+    align-items: center;
+    display: flex;
+    flex: 1 1 var(--slotted-tags-input-field-basis, 4rem);
+    min-block-size: var(--_row-size);
+    min-inline-size: var(--slotted-tags-input-field-min, 2.5rem);
+  }
+
+  /**
+   * The control's text. It gives up its own frame entirely and keeps
+   * everything that makes it a text control: the caret, the selection, IME
+   * composition, autofill, the browser's own completion from a `datalist`, and
+   * every native attribute the consumer wrote.
+   */
+  [data-ui-tags-input] [data-part-input] {
+    background-color: transparent;
+    border: 0;
+    color: inherit;
+    flex: 1 1 auto;
+    font: inherit;
+    /* The frame draws the ring for it, so two rings never nest. */
+    outline: none;
+    padding: 0;
+    /* The intrinsic width of an `input` is about twenty characters, and a flex
+       item refuses to shrink below it without this. */
+    min-inline-size: 0;
+    text-overflow: ellipsis;
+  }
+
+  [data-ui-tags-input] [data-part-input]::placeholder {
+    color: var(--slotted-tags-input-placeholder-color, var(--slotted-text-muted, GrayText));
+    text-overflow: ellipsis;
+  }
+
+  /**
+   * Autofill. Chrome paints its own ground over the input, and a hundred-pixel
+   * inset shadow is the only way to reach it. The signal is kept rather than
+   * erased, in the accent surface the theme owns, and it is the whole
+   * control's: the frame takes the tint under its border and inside its
+   * corner, and the input repaints the browser's ground in the same colour.
+   * Painted on the input alone, the tint left the frame's padding, the slots
+   * and the buttons bare.
+   */
+  [data-ui-tags-input][data-part-root]:has([data-part-input]:autofill) {
+    background-color: var(
+      --slotted-tags-input-autofill-background,
+      var(--slotted-tone-accent-surface)
+    );
+  }
+
+  [data-ui-tags-input] [data-part-input]:autofill {
+    box-shadow: inset 0 0 0 100px
+      var(--slotted-tags-input-autofill-background, var(--slotted-tone-accent-surface));
+    -webkit-text-fill-color: var(--slotted-tags-input-color, var(--slotted-text, CanvasText));
+  }
+
+  /**
+   * A chip that holds focus. The cell takes the ring rather than the remove
+   * button inside it — the departure the contract records against the grid
+   * pattern — so the ring is drawn around the value, which is the thing
+   * `Delete` acts on. It follows the chip's own radius by being an outline on
+   * the pill itself.
+   *
+   * The ring is drawn one width inside the chip, not at the theme's offset
+   * outside it. The row around the chip scrolls, or clips under
+   * `overflow='collapse'`, and either way it cuts at its padding edge, two
+   * pixels past the chip; a ring two pixels further out lost its outer half on
+   * every side, at every density. One width inside is `listbox`'s answer for an
+   * option in a scrolling list: the ring covers the chip's own edge and reads
+   * as the chip's edge turned to the ring colour, whole, with the text clear
+   * of it even at `dense`, where the chip has no inset to spare. `tag` draws
+   * its own inner ring two widths in to keep a sliver of ground outside it;
+   * here that sliver would cost the text its leading.
+   */
+  [data-ui-tags-input] [data-part-chips] > :not([data-part-field]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /**
+   * The chip that already holds the value the reader just typed again. It
+   * takes focus, and for one long step of the motion scale its edge is the
+   * accent's, so a reader who looked away from the ring still sees which chip
+   * answered — through the edge token `tag` reads, so this sheet names
+   * `[data-ui-tag]` nowhere.
+   */
+  [data-ui-tags-input] [data-part-chips] > [data-current] {
+    --slotted-tag-border-color: var(
+      --slotted-tags-input-current-border-color,
+      var(--slotted-tone-accent-border)
+    );
+  }
+
+  /**
+   * The chip that counts what did not fit, under `overflow='collapse'`. It is a
+   * chip and not a number beside them, so the row reads as one run of chips
+   * whose last one happens to be a count, and `createCollapse` measures it the
+   * way it measures every other unit.
+   */
+  [data-ui-tags-input] [data-part-chips] > [data-count] {
+    cursor: pointer;
+    flex: none;
+  }
+
+  /**
+   * The count of what is held, against the limit that holds it. It is drawn
+   * only where it answers something — while `max` is set, or while the frame is
+   * too narrow for a chip — because a counter with nothing to count against is
+   * furniture.
+   */
+  [data-ui-tags-input] > [data-part-counter] {
+    align-self: center;
+    color: var(--slotted-tags-input-counter-color, var(--slotted-text-muted, GrayText));
+    flex: none;
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--slotted-line-height-sm, 1.45);
+    padding-inline: var(--slotted-space-1, 0.125rem);
+    /* Its own bidi run, ordered by its own content: "3 of 5" is a European
+       number, a Latin word and another number, and in a right-to-left document
+       the neutral spaces resolve to the paragraph and the runs swap. */
+    unicode-bidi: plaintext;
+    white-space: nowrap;
+  }
+
+  /**
+   * A full control says so where the count is, in the accent the family already
+   * uses for a chosen value. Not a warning tone: reaching the limit is the
+   * reader arriving somewhere, not going wrong.
+   */
+  [data-ui-tags-input][data-complete] > [data-part-counter] {
+    color: var(--slotted-tags-input-counter-complete-color, var(--slotted-tone-accent-text));
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  /* Too narrow for a chip: the count is the whole answer. */
+  [data-ui-tags-input][data-narrow] [data-part-chips] > :not([data-part-field]) {
+    display: none;
+  }
+
+  /**
+   * ── The two parts for assistive technology ───────────────────────────
+   *
+   * Removed from sight and left in the tree: the rule
+   * `visually-hidden/visually-hidden.css` states, restated because these are
+   * this family's parts and a part cannot wear another family's `data-ui`.
+   * The `message` lives inside the chip and the `hint` beside the row; both
+   * are positioned against the frame, which is the nearest containing block.
+   */
+  [data-ui-tags-input] :is([data-part-message], [data-part-hint]) {
+    block-size: 1px;
+    border: 0;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  /* ── The button inside the frame ──────────────────────────────────────── */
+
+  [data-ui-tags-input] > [data-part-clear] {
+    align-items: center;
+    align-self: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_action-size);
+    border: 0;
+    border-radius: var(--slotted-tags-input-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-tags-input-action-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    inline-size: var(--_action-size);
+    justify-content: center;
+    /* The user agent pads a button, and inside a box sized to its glyph that
+       padding squeezed the glyph to twelve pixels. */
+    padding: 0;
+    /* The containing block of the hit area below. */
+    position: relative;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /**
+   * The hit area, recovered outside the paint. At `sm` with `dense` the whole
+   * control is 24 pixels tall — the WCAG 2.2 minimum — so nothing drawn inside
+   * it can also be 24.
+   */
+  [data-ui-tags-input] > [data-part-clear]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: the ground and the focus ring stay square, and
+     the hit area above grows to 44 pixels around them. It does not reach back
+     over the chips, where the last chip's remove stands a few pixels away. */
+  @media (pointer: coarse) {
+    [data-ui-tags-input] > [data-part-clear]::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+      inset-inline-start: 0;
+    }
+  }
+
+  /* The cross is the `Glyph` element the binding renders inside the button,
+     drawn at the control's own icon step. */
+  [data-ui-tags-input] > [data-part-clear] {
+    --slotted-icon-size: var(--_icon-size);
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-tags-input][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_inner-size: var(--slotted-control-inner-size-sm, 22px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-sm, 14px));
+  }
+
+  [data-ui-tags-input][data-part-root][data-size='md'] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-md, 16px));
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+  }
+
+  [data-ui-tags-input][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_inner-size: var(--slotted-control-inner-size-lg, 28px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 16px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-lg, 18px));
+  }
+
+  /* ── Variant ──────────────────────────────────────────────────────────── */
+
+  [data-ui-tags-input][data-part-root][data-variant='subtle'] {
+    background-color: var(
+      --slotted-tags-input-subtle-background,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    border-color: var(
+      --slotted-tags-input-subtle-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+  }
+
+  /* No edge, no lift, no ground and no corner of its own: the cell it sits in
+     is the box, the row is the ground, a cell has no corner, and the resting
+     shadow would draw the cell where there is none. */
+  [data-ui-tags-input][data-part-root][data-variant='plain'] {
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: var(--slotted-radius-none, 0px);
+    box-shadow: none;
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-tags-input][data-part-root][data-variant='plain'] {
+      border-color: ButtonBorder;
+    }
+  }
+
+  /* ── States on the control ────────────────────────────────────────────── */
+
+  [data-ui-tags-input][data-part-root]:hover:not([data-disabled]):not([data-readonly]):not(
+      [data-invalid]
+    ) {
+    border-color: var(--slotted-tags-input-hover-border-color, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-tags-input][data-part-root][data-variant='subtle']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid]):not(:has([data-part-input]:autofill)) {
+    background-color: var(
+      --slotted-tags-input-subtle-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-tags-input][data-part-root][data-variant='plain']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid]):not(:has([data-part-input]:autofill)) {
+    background-color: var(
+      --slotted-tags-input-plain-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    /* The accent edge the other variants take would draw the cell's outline. */
+    border-color: transparent;
+  }
+
+  /**
+   * The frame carries the ring for whatever inside it holds focus — the input
+   * or a chip — because the frame is the control a reader is operating.
+   */
+  [data-ui-tags-input][data-part-root]:has([data-part-input]:focus-visible),
+  [data-ui-tags-input][data-part-root]:has(
+      [data-part-chips] > :not([data-part-field]):focus-visible
+    ) {
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-control-focus-ring-offset, var(--slotted-focus-ring-offset, 2px));
+  }
+
+  /**
+   * The ring of a control whose box is not its own is drawn inside that box,
+   * the way the inner controls draw theirs inside the frame: two pixels past
+   * the control is two pixels over the next row's rule. No lift either — a
+   * shadow that appears only under focus is a cell that changes size when it
+   * is used.
+   */
+  [data-ui-tags-input][data-part-root][data-variant='plain']:has([data-part-input]:focus-visible),
+  [data-ui-tags-input][data-part-root][data-variant='plain']:has(
+      [data-part-chips] > :not([data-part-field]):focus-visible
+    ) {
+    box-shadow: none;
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /**
+   * A chip already wears the ring, and the frame around it wearing a second one
+   * is two rings for one focus. The frame keeps its lift and gives up the
+   * outline while the ring is inside it.
+   */
+  [data-ui-tags-input][data-part-root]:has(
+      [data-part-chips] > :not([data-part-field]):focus-visible
+    ) {
+    outline: none;
+  }
+
+  [data-ui-tags-input][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-tags-input-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+    --_invalid-edge-width: var(
+      --slotted-tags-input-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+    --_invalid-edge-color: var(
+      --slotted-tags-input-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    --_invalid-edge: inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color);
+
+    border-color: var(--slotted-tags-input-invalid-border-color, var(--slotted-tone-danger-border));
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger border is the resting edge's black. The line
+     * is a shadow inside the border, so neither box nor text moves, and it
+     * takes the resting lift's place.
+     */
+    box-shadow: var(--_invalid-edge);
+  }
+
+  [data-ui-tags-input][data-part-root][data-invalid]:has([data-part-input]:focus-visible),
+  [data-ui-tags-input][data-part-root][data-invalid]:has(
+      [data-part-chips] > :not([data-part-field]):focus-visible
+    ) {
+    box-shadow:
+      var(--_invalid-edge),
+      var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+        var(--slotted-focus-ring-color, Highlight);
+  }
+
+  [data-ui-tags-input][data-part-root][data-variant='plain'][data-invalid]:has(
+      [data-part-input]:focus-visible
+    ),
+  [data-ui-tags-input][data-part-root][data-variant='plain'][data-invalid]:has(
+      [data-part-chips] > :not([data-part-field]):focus-visible
+    ) {
+    /* The ring lies inside the box here, over the border and an edge as wide as
+       it; the edge reaches past the ring. */
+    box-shadow: inset 0 0 0
+      calc(
+        var(--slotted-focus-ring-offset, 2px) - var(--slotted-control-border-width, 1px) +
+          var(--_invalid-edge-width)
+      )
+      var(--_invalid-edge-color);
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The
+   * width comes back as an outline inside the border, and a focused invalid
+   * control draws its ring double, which a valid ring is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-tags-input][data-part-root][data-invalid] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(
+        -1 * (var(--slotted-control-border-width, 1px) + var(--_invalid-edge-width))
+      );
+    }
+
+    [data-ui-tags-input][data-part-root][data-invalid]:has([data-part-input]:focus-visible) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(
+        --slotted-control-focus-ring-offset,
+        var(--slotted-focus-ring-offset, 2px)
+      );
+    }
+
+    [data-ui-tags-input][data-part-root][data-variant='plain'][data-invalid]:has(
+        [data-part-input]:focus-visible
+      ) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: calc(
+        -1 * (var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width))
+      );
+    }
+
+    [data-ui-tags-input][data-part-root][data-invalid]:has(
+        [data-part-chips] > :not([data-part-field]):focus-visible
+      ),
+    [data-ui-tags-input][data-part-root][data-variant='plain'][data-invalid]:has(
+        [data-part-chips] > :not([data-part-field]):focus-visible
+      ) {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(
+        -1 * (var(--slotted-control-border-width, 1px) + var(--_invalid-edge-width))
+      );
+    }
+  }
+
+  /**
+   * Read-only keeps the chips, the caret, the selection and the copy, and
+   * withholds every remove control. The native `readonly` gives the text half;
+   * the rest is the family's.
+   */
+  [data-ui-tags-input][data-part-root][data-readonly] {
+    background-color: var(
+      --slotted-tags-input-readonly-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  /**
+   * `:disabled` on the input is matched beside `data-disabled` on the frame,
+   * because a disabled `fieldset` disables every control inside it and the
+   * control has no way to say so.
+   */
+  [data-ui-tags-input][data-part-root][data-disabled],
+  [data-ui-tags-input][data-part-root]:has([data-part-input]:disabled) {
+    background-color: var(
+      --slotted-tags-input-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(--slotted-tags-input-disabled-border-color, var(--slotted-disabled-border));
+    box-shadow: none;
+    color: var(--slotted-tags-input-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+  }
+
+  [data-ui-tags-input] > [data-part-clear]:hover:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-tags-input-action-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-tags-input] > [data-part-clear]:active:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-tags-input-action-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  /**
+   * The button carries its own ring rather than borrowing the frame's: tabbing
+   * from the input to it has to move something visible, and a ring around the
+   * whole frame would sit still while focus moved inside it.
+   */
+  [data-ui-tags-input] > [data-part-clear]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* ── The suggestions ──────────────────────────────────────────────────── */
+
+  /**
+   * A raised surface as wide as the frame, written where the positioner puts
+   * it: `left` and `top` are its, and the width is the anchor's, which it
+   * publishes. Ten options are seen before the list scrolls.
+   */
+  [data-ui-tags-input] > [data-part-suggestions] {
+    background-color: var(--slotted-surface-raised, Canvas);
+    border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle, GrayText);
+    border-radius: var(--slotted-radius-lg, 8px);
+    box-shadow: var(--slotted-shadow-md);
+    box-sizing: border-box;
+    color: var(--slotted-text, CanvasText);
+    font-size: var(--_font-size);
+    /* No inset of its own: the positioner writes `left` and `top`, and an
+       inline inset would resolve to `right` in a right-to-left document. */
+    inline-size: var(--slotted-positioner-anchor-width, 100%);
+    max-block-size: calc(10 * var(--_height) + 2 * var(--slotted-space-2, 0.25rem));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--slotted-space-2, 0.25rem);
+    position: fixed;
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+  }
+
+  /* One option is one control row, so the list reads at the frame's own step. */
+  [data-ui-tags-input] > [data-part-suggestions] > [data-part-suggestion] {
+    align-items: center;
+    border-radius: var(--slotted-control-radius, 4px);
+    cursor: default;
+    display: flex;
+    min-block-size: var(--_height);
+    overflow-wrap: anywhere;
+    padding-inline: var(--_padding-inline);
+  }
+
+  /**
+   * The highlight follows the arrow keys and the pointer alike. The `-active`
+   * step of the neutral tone, the one that lifts off a raised surface in every
+   * scheme, as `combobox.css` explains.
+   */
+  [data-ui-tags-input] > [data-part-suggestions] > [data-highlighted] {
+    background-color: var(--slotted-tone-secondary-subtle-active);
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-tags-input] > [data-part-suggestions] > [data-highlighted] {
+      background-color: Highlight;
+      color: HighlightText;
+    }
+  }
+}

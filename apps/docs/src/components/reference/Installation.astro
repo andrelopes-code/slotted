@@ -1,0 +1,46 @@
+---
+import { familyReference } from '../../lib/reference';
+import type { Framework } from '../../runtime/frameworks';
+import Code from '../Code.astro';
+
+/**
+ * Installation, placed by the page's MDX right after its lead example
+ * (`<Installation />`): the package line and the family's import, reflowed to
+ * the code column's measure rather than one name per line.
+ */
+const framework = Astro.params['framework'] as Framework;
+const family = Astro.locals.family;
+if (!family) throw new Error('<Installation /> outside a family page');
+const reference = await familyReference(framework, family);
+const source = reference.members[0]?.imports?.source;
+
+const MEASURE = 72;
+function reflow(statement: string): string {
+  const match = /^import\s*\{([\s\S]*?)\}\s*from\s*('[^']+');?\s*$/.exec(statement.trim());
+  if (!match) return statement;
+  const names = match[1]!.split(',').map((name) => name.trim()).filter(Boolean);
+  const tail = `} from ${match[2]};`;
+  const lines: string[] = [];
+  let line = 'import {';
+  for (const name of names) {
+    const next = `${line} ${name},`;
+    if (next.length > MEASURE && line !== 'import {') {
+      lines.push(line);
+      line = `  ${name},`;
+    } else line = next;
+  }
+  const last = line.replace(/,$/, '');
+  return lines.length === 0 ? `${last} ${tail}` : [...lines, `${last} ${tail}`].join('\n');
+}
+
+const install =
+  framework === 'react' ? 'pnpm add @slotted/react @slotted/theme @slotted/themes' : 'pnpm add @slotted/angular @slotted/theme @slotted/themes';
+---
+
+<h2 id="installation">Installation</h2>
+<p>
+  Pre-release: the packages are not yet published to npm. Once they are, one line installs the
+  binding and the default theme.
+</p>
+<Code code={install} lang="bash" />
+{source && <Code code={reflow(source)} lang={framework === 'react' ? 'tsx' : 'ts'} />}

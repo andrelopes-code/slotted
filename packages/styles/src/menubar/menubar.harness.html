@@ -1,0 +1,485 @@
+<!--
+  The bar paints no ground of its own — an application's header owns that — so
+  every scene here places it on a `surface` panel, which is what a reviewer
+  needs in order to judge the triggers against something.
+
+  The scene that shows a menu open under a trigger carries `data-fixed` and
+  places the layer where `packages/core/src/positioner` would have placed it:
+  under the trigger, at the start edge, with `inset-inline-start` rather than
+  `left` so the scene mirrors in a right-to-left capture.
+-->
+<section data-scene="bar">
+  <div
+    style="
+      background: var(--slotted-surface);
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: 8px;
+      padding: 8px;
+    "
+  >
+    <div
+      data-ui="menubar"
+      data-ui-menubar=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-orientation="horizontal"
+      role="menubar"
+      aria-label="Main"
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="0"
+      >
+        File
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="true"
+        data-open
+        tabindex="-1"
+      >
+        Edit
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="-1"
+      >
+        View
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        aria-disabled="true"
+        data-disabled
+        tabindex="-1"
+      >
+        Window
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="-1"
+      >
+        Help
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="open" data-fixed>
+  <div style="position: relative; padding: 12px">
+    <div
+      style="
+        background: var(--slotted-surface);
+        border: 1px solid var(--slotted-border-subtle);
+        border-radius: 8px;
+        padding: 8px;
+      "
+    >
+      <div
+        data-ui="menubar"
+        data-ui-menubar=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-orientation="horizontal"
+        role="menubar"
+        aria-label="Main"
+      >
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          role="menuitem"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+          tabindex="-1"
+        >
+          File
+        </button>
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          role="menuitem"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="true"
+          data-open
+          tabindex="0"
+          id="menubar-open-edit"
+        >
+          Edit
+        </button>
+        <button
+          data-part="trigger"
+          data-part-trigger=""
+          role="menuitem"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+          tabindex="-1"
+        >
+          View
+        </button>
+      </div>
+    </div>
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-open
+      style="
+        top: 55px;
+        inset-inline-start: 75px;
+        --slotted-positioner-available-width: 70%;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <div data-part="content" data-part-content="" role="menu" aria-labelledby="menubar-open-edit">
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Undo</span>
+          <span data-part="shortcut" data-part-shortcut="">⌘Z</span>
+        </button>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitem"
+          type="button"
+          aria-disabled="true"
+          data-disabled
+        >
+          <span data-part="label" data-part-label="">Redo</span>
+          <span data-part="shortcut" data-part-shortcut="">⇧⌘Z</span>
+        </button>
+        <hr
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="horizontal"
+        />
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitem"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+        >
+          <span data-part="label" data-part-label="">Find</span>
+          <span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            data-directional
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+          ></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="vertical">
+  <div
+    style="
+      background: var(--slotted-surface);
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: 8px;
+      padding: 8px;
+      inline-size: 200px;
+    "
+  >
+    <div
+      data-ui="menubar"
+      data-ui-menubar=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-orientation="vertical"
+      role="menubar"
+      aria-orientation="vertical"
+      aria-label="Workspace"
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="0"
+      >
+        Project
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="true"
+        data-open
+        tabindex="-1"
+      >
+        Deployments
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="-1"
+      >
+        Settings
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sizes">
+  <div
+    style="
+      background: var(--slotted-surface);
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 8px;
+    "
+  >
+    <div
+      data-ui="menubar"
+      data-ui-menubar=""
+      data-part="root"
+      data-part-root=""
+      data-size="sm"
+      data-orientation="horizontal"
+      role="menubar"
+      aria-label="Small"
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="0"
+      >
+        File
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="true"
+        data-open
+        tabindex="-1"
+      >
+        Edit
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="-1"
+      >
+        View
+      </button>
+    </div>
+    <div
+      data-ui="menubar"
+      data-ui-menubar=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-orientation="horizontal"
+      role="menubar"
+      aria-label="Medium"
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="0"
+      >
+        File
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="true"
+        data-open
+        tabindex="-1"
+      >
+        Edit
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="-1"
+      >
+        View
+      </button>
+    </div>
+    <div
+      data-ui="menubar"
+      data-ui-menubar=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      data-orientation="horizontal"
+      role="menubar"
+      aria-label="Large"
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="0"
+      >
+        File
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="true"
+        data-open
+        tabindex="-1"
+      >
+        Edit
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="-1"
+      >
+        View
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="content">
+  <div
+    style="
+      background: var(--slotted-surface);
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: 8px;
+      padding: 8px;
+    "
+  >
+    <div
+      data-ui="menubar"
+      data-ui-menubar=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-orientation="horizontal"
+      role="menubar"
+      aria-label="Translated"
+    >
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="0"
+      >
+        Datei
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="-1"
+      >
+        Bearbeiten
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="-1"
+      >
+        Ansicht
+      </button>
+      <button
+        data-part="trigger"
+        data-part-trigger=""
+        role="menuitem"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        tabindex="-1"
+      >
+        Benutzerkontensteuerung
+      </button>
+    </div>
+  </div>
+</section>

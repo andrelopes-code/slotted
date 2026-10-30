@@ -1,0 +1,462 @@
+@layer slotted.components {
+  /**
+   * A short list of actions that rises from the bottom edge, and the explicit
+   * way out beneath it.
+   *
+   *   ┌─ drawer root ──────────────────────────────────────────┐
+   *   │ ┌─ backdrop ─────────────────────────────────────────┐ │
+   *   │ │        ┌─ drawer panel ─────────────────────┐      │ │
+   *   │ │        │ ┌─ root ─────────────────────────┐ │      │ │
+   *   │ │        │ │ header   title · message       │ │      │ │
+   *   │ │        │ │ list     item · item · item    │ │      │ │
+   *   │ │        │ │ footer   cancel                │ │      │ │
+   *   └─┴────────┴─┴────────────────────────────────┴─┴──────┴─┘
+   *
+   * The layer, the scrim, the slide, the width and the drag are `drawer`'s: the
+   * family renders it with `side="bottom"` and `size="content"`, and its own
+   * root sits inside the panel. This stylesheet reaches only the root and its
+   * children, and `drawer`'s reaches only the panel and its own parts, so the
+   * two never style each other's boxes
+   *.
+   *
+   * Every part is reached with a child combinator, except the rows of the
+   * list, which a group may hold one level down.
+   */
+  [data-ui-action-sheet] {
+    /** The row's inset, which the header, every item and the footer share. */
+    --_inset: var(--slotted-control-padding-inline-lg, 16px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+    /**
+     * The words of an action. The body step under a fine pointer, where the
+     * sheet sits beside `menu`'s 13-pixel items, and one step up under a coarse
+     * one, where a phone's own sheets set their actions at 16 to 20 points.
+     */
+    --_label-size: var(--slotted-font-size-md, 0.875rem);
+    /**
+     * The mark follows the label, whose size does not move with density, and
+     * not the control glyph scale, which does: at dense a 14-pixel mark sat
+     * beside a 16-pixel word and read as a bullet.
+     */
+    --_icon-size: calc(var(--_label-size) * 1.125);
+    /**
+     * A control's height, which the theme raises to the 44-pixel comfortable
+     * target under `pointer: coarse`, per density. Stating 44 pixels here at
+     * every density made the sheet a phone's sheet on a desktop too: rows of
+     * 44 pixels and words of 16 beside a menu of 34 and 13.
+     */
+    --_item-height: var(--slotted-control-height-lg, 38px);
+    --_rule-size: var(--slotted-border-width-thin, 1px);
+    --_rule: var(--slotted-action-sheet-rule-color, var(--slotted-border-subtle, ButtonBorder));
+    --_muted: var(--slotted-text-muted, GrayText);
+    --_highlight: var(
+      --slotted-action-sheet-highlight,
+      var(--slotted-tone-secondary-subtle-hover, ButtonFace)
+    );
+    --_highlight-active: var(
+      --slotted-action-sheet-highlight-active,
+      var(--slotted-tone-secondary-subtle-active, ButtonFace)
+    );
+    --_accent: var(--slotted-text, CanvasText);
+    --_list-inset: var(--slotted-space-2, 0.25rem);
+
+    /**
+     * Every row of the panel's grid. The panel of a bottom sheet is four rows —
+     * resizer, header, body, footer — with the body the one flexible row. A box
+     * auto-placed in the first row alone sits in an `auto` track, which a capped
+     * panel does not shrink below its content; spanning all four puts the
+     * flexible row under the root, and the list is what scrolls.
+     */
+    grid-row: 1 / -1;
+    /**
+     * The family's measure. The binding hands the same value to `drawer`'s
+     * panel as `--slotted-drawer-sheet-inline-size`, so the panel and the root
+     * are one width; the root is centred in the panel for the case where a
+     * theme gives the panel more.
+     */
+    justify-self: center;
+    inline-size: min(100%, var(--slotted-action-sheet-inline-size, 32rem));
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    min-block-size: 0;
+    /**
+     * A phone held sideways puts its notch on one inline edge. The inset is
+     * physical and the property is logical, so the larger of the two is taken
+     * on both sides: a few pixels on the edge without a notch, and nothing in
+     * any other posture.
+     */
+    padding-inline: max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+
+    color: var(--slotted-text, CanvasText);
+    font-family: var(--slotted-control-font-family, var(--slotted-font-family-sans));
+  }
+
+  @media (pointer: coarse) {
+    [data-ui-action-sheet] {
+      --_label-size: var(--slotted-font-size-lg, 1rem);
+    }
+  }
+
+  /* ── Header ───────────────────────────────────────────────────────────── */
+
+  /**
+   * The title is the context and the actions are the content, so the title is
+   * set small and the actions large — the hierarchy UIKit and Ionic draw, and
+   * the reverse of `drawer`, whose title names a task the body carries out.
+   */
+  [data-ui-action-sheet] > [data-part-header] {
+    border-block-end: var(--_rule-size) solid var(--_rule);
+    display: grid;
+    padding-block: var(--slotted-space-6, 1rem) var(--slotted-space-5, 0.75rem);
+    padding-inline: var(--_inset);
+    row-gap: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-action-sheet] [data-part-title] {
+    color: var(--slotted-text, CanvasText);
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--slotted-font-size-md, 0.875rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-action-sheet] [data-part-message] {
+    color: var(--_muted);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    line-height: var(--slotted-line-height-sm, 1.45);
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* ── The list ─────────────────────────────────────────────────────────── */
+
+  /**
+   * One column of rows. The list states the width of the mark column and every
+   * item reads it, so the labels of a sheet line up whether or not a given item
+   * draws a mark; the column and the gap after it are zero when none does.
+   *
+   * Rows are `max-content`. The list has a definite height once it scrolls,
+   * and with no free space an `auto` row stops at the item's minimum
+   * contribution, which is its `min-block-size`: measured at 240 pixels, every
+   * row was 44 pixels and a three-line label was painted over the two items
+   * below it.
+   */
+  [data-ui-action-sheet] > [data-part-list] {
+    --_mark: 0px;
+    --_column-gap: 0px;
+
+    align-content: start;
+    display: grid;
+    grid-auto-rows: max-content;
+    grid-row: 2;
+    grid-template-columns: minmax(0, 1fr);
+    min-block-size: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /**
+     * `menu`'s geometry: the rows stand a step in from the sheet's edges, so a
+     * lit row is a rounded ground inside the sheet rather than a band across
+     * it, and its ring never meets the sheet's edge. The item gives the same
+     * step back in its own inset, so every label still starts on the title's
+     * line.
+     */
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_list-inset);
+  }
+
+  [data-ui-action-sheet] > [data-part-list]:has([data-part-icon]) {
+    --_mark: var(--_icon-size);
+    --_column-gap: var(--_gap);
+  }
+
+  /**
+   * The home indicator sits under the last row of a sheet with no footer, so
+   * that row carries the bottom inset instead.
+   */
+  [data-ui-action-sheet]:not(:has(> [data-part-footer])) > [data-part-list] {
+    padding-block-end: calc(var(--slotted-space-2, 0.25rem) + env(safe-area-inset-bottom, 0px));
+  }
+
+  [data-ui-action-sheet] [data-part-group] {
+    display: grid;
+    grid-auto-rows: max-content;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  [data-ui-action-sheet] [data-part-group-label] {
+    color: var(--_muted);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-sm, 1.45);
+    padding-block: var(--slotted-space-4, 0.5rem) var(--slotted-space-2, 0.25rem);
+    padding-inline: calc(var(--_inset) - var(--_list-inset));
+  }
+
+  [data-ui-action-sheet] [data-part-separator] {
+    background-color: var(--_rule);
+    block-size: var(--_rule-size);
+    border: 0;
+    margin-block: var(--slotted-space-2, 0.25rem);
+    margin-inline: 0;
+  }
+
+  /* ── Items ────────────────────────────────────────────────────────────── */
+
+  /**
+   * A native `button` with `role="menuitem"`, as in `menu`: the platform gives
+   * the press, Enter and Space, and the role makes it an item of the list.
+   *
+   * `min-block-size` rather than a height, because an item with a description
+   * is two lines tall and still has to clear the target.
+   */
+  [data-ui-action-sheet] [data-part-item] {
+    align-content: center;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    box-sizing: border-box;
+    color: var(--_accent);
+    column-gap: var(--_column-gap);
+    cursor: pointer;
+    display: grid;
+    font: inherit;
+    font-size: var(--_label-size);
+    grid-template-columns: var(--_mark) minmax(0, 1fr);
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin: 0;
+    min-block-size: var(--_item-height);
+    padding-block: var(--slotted-space-4, 0.5rem);
+    padding-inline: calc(var(--_inset) - var(--_list-inset));
+    border-radius: var(--slotted-control-radius, 6px);
+    row-gap: var(--slotted-space-1, 0.125rem);
+    text-align: start;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  /**
+   * The highlight follows focus, which a mouse moves as it crosses an item, so
+   * exactly one row is lit whichever device is driving — `menu`'s model. A
+   * pointer that has not moved focus yet, before the script has run, still
+   * gets the hover.
+   */
+  [data-ui-action-sheet] [data-part-item]:focus {
+    background-color: var(--_highlight);
+    outline: none;
+  }
+
+  @media (hover: hover) {
+    [data-ui-action-sheet] [data-part-item]:hover:not([data-disabled]):not([data-loading]) {
+      background-color: var(--_highlight);
+    }
+  }
+
+  /**
+   * Inset, so the ring follows the row's own corner and never meets the
+   * neighbour's edge.
+   */
+  [data-ui-action-sheet] [data-part-item]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  [data-ui-action-sheet] [data-part-item]:active:not([data-disabled]):not([data-loading]) {
+    background-color: var(--_highlight-active);
+  }
+
+  /**
+   * Focusable and inert, as the menu pattern requires, and legible rather than
+   * faded: the words keep the theme's disabled ink at its contrast.
+   */
+  [data-ui-action-sheet] [data-part-item][data-disabled] {
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: not-allowed;
+  }
+
+  [data-ui-action-sheet] [data-part-item][data-disabled]:focus {
+    background-color: var(--slotted-disabled-background, ButtonFace);
+  }
+
+  [data-ui-action-sheet] [data-part-item][data-loading] {
+    cursor: progress;
+  }
+
+  /* ── The cells ────────────────────────────────────────────────────────── */
+
+  /**
+   * The mark sits on the label's first line rather than on the middle of a
+   * two-line item: the line box is the item's, and the box is one line tall.
+   */
+  [data-ui-action-sheet] [data-part-icon] {
+    --slotted-icon-size: var(--_icon-size);
+    --slotted-spinner-size: var(--_icon-size);
+
+    align-items: center;
+    block-size: 1lh;
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    inline-size: var(--_icon-size);
+    justify-content: center;
+  }
+
+  [data-ui-action-sheet] [data-part-icon] > * {
+    flex: none;
+    font-size: var(--_icon-size);
+  }
+
+  [data-ui-action-sheet] [data-part-label] {
+    grid-column: 2;
+    grid-row: 1;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-action-sheet] [data-part-description] {
+    color: var(--_muted);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    grid-column: 2;
+    grid-row: 2;
+    line-height: var(--slotted-line-height-sm, 1.45);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-action-sheet] [data-part-item][data-disabled] > [data-part-description] {
+    color: inherit;
+  }
+
+  /* ── Tones ────────────────────────────────────────────────────────────── */
+
+  /**
+   * `menu`'s five, so one list of actions renders the same in either family.
+   * The tone paints the words, the mark and the highlight together; `danger`
+   * is the destructive action.
+   */
+  [data-ui-action-sheet] [data-part-item][data-tone='accent'] {
+    --_accent: var(--slotted-tone-accent-text);
+    --_highlight: var(--slotted-tone-accent-surface);
+    --_highlight-active: var(--slotted-tone-accent-subtle-active);
+  }
+
+  [data-ui-action-sheet] [data-part-item][data-tone='secondary'] {
+    --_accent: var(--slotted-tone-secondary-text);
+    --_highlight: var(--slotted-tone-secondary-surface);
+    --_highlight-active: var(--slotted-tone-secondary-subtle-active);
+  }
+
+  [data-ui-action-sheet] [data-part-item][data-tone='success'] {
+    --_accent: var(--slotted-tone-success-text);
+    --_highlight: var(--slotted-tone-success-surface);
+    --_highlight-active: var(--slotted-tone-success-subtle-active);
+  }
+
+  [data-ui-action-sheet] [data-part-item][data-tone='warning'] {
+    --_accent: var(--slotted-tone-warning-text);
+    --_highlight: var(--slotted-tone-warning-surface);
+    --_highlight-active: var(--slotted-tone-warning-subtle-active);
+  }
+
+  [data-ui-action-sheet] [data-part-item][data-tone='danger'] {
+    --_accent: var(--slotted-tone-danger-text);
+    --_highlight: var(--slotted-tone-danger-surface);
+    --_highlight-active: var(--slotted-tone-danger-subtle-active);
+  }
+
+  /* ── The way out ──────────────────────────────────────────────────────── */
+
+  /**
+   * A band of its own, on the sunken ground, so the cancel is never read as one
+   * more action. It carries the bottom safe-area inset, which is where a
+   * phone's home indicator sits.
+   */
+  [data-ui-action-sheet] > [data-part-footer] {
+    background: var(--slotted-action-sheet-footer-surface, var(--slotted-surface-sunken, Canvas));
+    border-block-start: var(--_rule-size) solid var(--_rule);
+    display: grid;
+    grid-row: 3;
+    padding-block: var(--slotted-space-4, 0.5rem)
+      calc(var(--slotted-space-4, 0.5rem) + env(safe-area-inset-bottom, 0px));
+    padding-inline: var(--_inset);
+  }
+
+  /**
+   * A button with a face, on the band: the one control of the sheet that is
+   * not an item, and the one that always works — it is never disabled.
+   */
+  [data-ui-action-sheet] [data-part-cancel] {
+    appearance: none;
+    background: var(--slotted-control-surface, ButtonFace);
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-control-border-color, ButtonBorder);
+    border-radius: var(--slotted-control-radius, 6px);
+    box-shadow: var(--slotted-control-shadow);
+    box-sizing: border-box;
+    color: var(--slotted-text, CanvasText);
+    cursor: pointer;
+    font: inherit;
+    font-size: var(--_label-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    inline-size: 100%;
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin: 0;
+    min-block-size: var(--_item-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_inset);
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color
+      var(--slotted-control-transition-duration, var(--slotted-duration-short))
+      var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  @media (hover: hover) {
+    [data-ui-action-sheet] [data-part-cancel]:hover:not(:disabled) {
+      background: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+    }
+  }
+
+  /**
+   * `button`'s press: the face settles a hairline and gives up its lift. It is
+   * instant, as a press is, and the ground eases back on release.
+   */
+  [data-ui-action-sheet] [data-part-cancel]:active:not(:disabled) {
+    background: var(--slotted-tone-secondary-subtle-active, ButtonFace);
+    box-shadow: none;
+    translate: 0 var(--slotted-border-width-thin, 1px);
+  }
+
+  [data-ui-action-sheet] [data-part-cancel]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────── */
+
+  /**
+   * The one thing the theme cannot reach: every tone surface becomes `Canvas`,
+   * so the focused row would lose its highlight.
+   */
+  @media (forced-colors: active) {
+    [data-ui-action-sheet] [data-part-item]:focus {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-action-sheet] [data-part-item][data-disabled]:focus {
+      background-color: Highlight;
+      color: GrayText;
+    }
+  }
+}

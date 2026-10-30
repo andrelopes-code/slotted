@@ -1,0 +1,1133 @@
+@layer slotted.components {
+  /**
+   * ── A text input with a list of options filtered by what was typed ──────
+   *
+   * The family is two subtrees, as `select`'s is: the **control**, where the
+   * consumer wrote it, and the **popup**, portalled to the end of the document
+   * so it escapes every clipping ancestor between them. Nothing selects one
+   * from the other, so `data-ui='combobox'` is written on both roots — the
+   * contract records it under `portalledIdentity`.
+   *
+   *   ┌─ root ─ the control ───────────────────────────────────────┐
+   *   │  input ─ role="combobox"          clear   trigger ▸ arrow  │
+   *   └────────────────────────────────────────────────────────────┘
+   *
+   *   ┌─ positioner ─ the layer ───────────────────────────────────┐
+   *   │  ┌─ content ─ role="listbox" ─ scrolls ───────────────┐    │
+   *   │  │ group ▸ group-label                                │    │
+   *   │  │ item ▸ icon │ label ▸ match │ indicator            │    │
+   *   │  │              description                           │    │
+   *   │  │ separator · empty · status                         │    │
+   *   │  └────────────────────────────────────────────────────┘    │
+   *   └────────────────────────────────────────────────────────────┘
+   *
+   * ── What this sheet does not decide ──────────────────────────────────
+   *
+   * The frame, the three columns, the subgrid, the check in the last column,
+   * the highlight on `data-current`, the two-line label clamp and the bounded
+   * scrolling surface are all `select`'s decisions, taken in the same session
+   * and written out in `packages/styles/src/select/select.css`. They are
+   * repeated here rather than shared because the two families have two public
+   * identifiers, and a stylesheet that painted `[data-ui-select]` from a
+   * combobox would make one family's selector match the other's DOM. The
+   * duplication is the price of that boundary and it is paid on purpose.
+   *
+   * ── What this sheet decides on its own ───────────────────────────────
+   *
+   * **The control holds a real `input`**, so every text-editing key, the caret,
+   * the selection, IME and autofill stay the browser's — the pattern's own
+   * IMPORTANT note asks for exactly that. The frame draws the ring from the
+   * input's `:focus-visible`, which a browser matches for a pointer press as
+   * well as for a Tab, and that is right for a control whose caret is the thing
+   * that moved.
+   *
+   * **The trigger is a button and not a tab stop.** The pattern's Keyboard
+   * Interaction note excludes the popup indicator from the page tab sequence by
+   * name, so it carries `tabindex="-1"` and the input keeps the stop.
+   *
+   * **`match` marks what the query found.** It is a `mark` element filled from
+   * `matchRanges`, so the span the filter matched is the span the reader sees
+   * tinted. No surveyed implementation draws it, and it is the only visual
+   * answer to "why is this option in my results" when the filter is fuzzy or
+   * remote.
+   */
+
+  /* ── The control ──────────────────────────────────────────────────────── */
+
+  [data-ui-combobox][data-part-root] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    /** The floor under the glyph scale at the dense step (SL3); a family token so a theme can retune it. */
+    --_icon-floor: var(--slotted-combobox-icon-size-min, 14px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-md, 16px));
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+
+    /* `text-field`'s arithmetic, because these are the same buttons in the same
+       frame and a second answer would drift from the first. */
+    --_action-size: var(
+      --slotted-combobox-action-size,
+      min(calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)), var(--_inner-size))
+    );
+
+    align-items: center;
+    background-color: var(--slotted-combobox-background, var(--slotted-control-surface, Field));
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-combobox-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--slotted-combobox-radius, var(--slotted-control-radius, 4px));
+    box-shadow: var(--slotted-combobox-shadow, var(--slotted-control-shadow, none));
+    box-sizing: border-box;
+    color: var(--slotted-combobox-color, var(--slotted-text, CanvasText));
+    display: flex;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    gap: var(--slotted-space-1, 0.125rem);
+    /* In a flex row the item's basis is its content, not the whole row. */
+    flex-basis: content;
+    inline-size: 100%;
+    min-inline-size: 0;
+    min-block-size: var(--_height);
+    padding-inline-start: var(--_padding-inline);
+    /* The end padding is the buttons' gutter rather than the frame's, so the
+       glyph — not the button's box — ends where the text begins on the other
+       side. `text-field` states the same arithmetic. */
+    padding-inline-end: max(
+      0px,
+      calc(var(--_padding-inline) - (var(--_action-size) - var(--_icon-size)) / 2)
+    );
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-combobox][data-part-root]:not([data-full-width]) {
+    inline-size: auto;
+  }
+
+  /**
+   * The control. It gives up its own frame entirely and keeps everything that
+   * makes it a text control: the value, the caret, the selection and every
+   * native attribute the consumer wrote — including the completion string
+   * `autocomplete="both"` writes as a selected range rather than as text, so
+   * the next character typed replaces it.
+   */
+  [data-ui-combobox] > [data-part-input] {
+    background-color: transparent;
+    /* The frame's border box, not its content box: on a coarse pointer the frame
+       is the touch target's height and the control it holds is too. Stretched
+       rather than a percentage of the frame, which is indefinite wherever the
+       frame is not stretched itself — a search field in a bar measured 17
+       pixels. The control paints no ground, so the frame's edge still shows. */
+    align-self: stretch;
+    margin-block: calc(var(--slotted-control-border-width, 1px) * -1);
+    border: 0;
+    color: inherit;
+    flex: 1 1 auto;
+    font: inherit;
+    /* The frame draws the ring for it, so two rings never nest. */
+    outline: none;
+    padding: 0;
+    /* The intrinsic width of an `input` is about twenty characters, and a flex
+       item refuses to shrink below it without this. */
+    min-inline-size: 0;
+    text-overflow: ellipsis;
+  }
+
+  [data-ui-combobox] > [data-part-input]::placeholder {
+    color: var(--slotted-combobox-placeholder-color, var(--slotted-text-muted, GrayText));
+    text-overflow: ellipsis;
+  }
+
+  /**
+   * The completion string. `autocomplete="both"` writes it into the input and
+   * selects it, so the platform's own selection paint is what shows it — and
+   * the theme's accent tone is what that paint should be, rather than the
+   * browser's blue in a form that is not blue.
+   */
+  [data-ui-combobox] > [data-part-input]::selection {
+    background-color: var(
+      --slotted-combobox-completion-background,
+      var(--slotted-tone-accent-surface)
+    );
+    color: var(--slotted-combobox-completion-color, var(--slotted-tone-accent-text));
+  }
+
+  /**
+   * Autofill. Chrome paints its own ground over the input, and a hundred-pixel
+   * inset shadow is the only way to reach it. The signal is kept rather than
+   * erased, in the accent surface the theme owns, and it is the whole
+   * control's: the frame takes the tint under its border and inside its
+   * corner, and the input repaints the browser's ground in the same colour.
+   * Painted on the input alone, the tint left the frame's padding, the slots
+   * and the buttons bare, and covered the border the input overlaps by one width.
+   */
+  [data-ui-combobox][data-part-root]:has(> [data-part-input]:autofill) {
+    background-color: var(
+      --slotted-combobox-autofill-background,
+      var(--slotted-tone-accent-surface)
+    );
+  }
+
+  [data-ui-combobox] > [data-part-input]:autofill {
+    box-shadow: inset 0 0 0 100px
+      var(--slotted-combobox-autofill-background, var(--slotted-tone-accent-surface));
+    /* The input overlaps the frame's border by one width; the tint stops at it. */
+    clip-path: inset(var(--slotted-control-border-width, 1px) 0);
+    -webkit-text-fill-color: var(--slotted-combobox-color, var(--slotted-text, CanvasText));
+  }
+
+  /* ── The two buttons inside the frame ─────────────────────────────────── */
+
+  [data-ui-combobox] > :is([data-part-clear], [data-part-trigger]) {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_action-size);
+    border: 0;
+    border-radius: var(--slotted-combobox-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-combobox-action-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    inline-size: var(--_action-size);
+    justify-content: center;
+    /* The user agent pads a button, and inside a box sized to its glyph that
+       padding squeezed the glyph to twelve pixels. */
+    padding: 0;
+    /* The containing block of the hit area below. */
+    position: relative;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /**
+   * The hit area, recovered outside the paint. At `sm` with `dense` the whole
+   * control is 24 pixels tall — the WCAG 2.2 minimum — so nothing drawn inside
+   * it can also be 24.
+   */
+  [data-ui-combobox] > :is([data-part-clear], [data-part-trigger])::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: the ground and the focus ring stay square, and
+     the hit area above grows to 44 pixels around them. Side by side, neither
+     button reaches across the edge the two share. */
+  @media (pointer: coarse) {
+    [data-ui-combobox] > :is([data-part-clear], [data-part-trigger])::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+    }
+
+    [data-ui-combobox] > [data-part-clear]:has(+ [data-part-trigger]:not([hidden]))::after {
+      inset-inline-end: 0;
+    }
+
+    [data-ui-combobox] > [data-part-clear]:not([hidden]) + [data-part-trigger]::after {
+      inset-inline-start: 0;
+    }
+  }
+
+  /* The cross and the chevron are `Glyph` elements the binding draws, sized
+     here to the control's icon step. */
+  [data-ui-combobox] > :is([data-part-clear], [data-part-trigger]) {
+    --slotted-icon-size: var(--_icon-size);
+  }
+
+  /**
+   * The chevron, drawn by its own part rather than by the button, because the
+   * button is what a reader presses and the arrow is what turns over. The
+   * library's own `Glyph` in an `icon` box; a character is never an icon.
+   */
+  [data-ui-combobox] [data-part-arrow] {
+    align-items: center;
+    block-size: var(--_icon-size);
+    display: flex;
+    inline-size: var(--_icon-size);
+    justify-content: center;
+  }
+
+  [data-ui-combobox] [data-part-arrow] > [data-ui-icon] {
+    transition: rotate var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-combobox][data-open] [data-part-arrow] > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  /**
+   * The ring, where the chevron stands. `select`'s decision and `select`'s
+   * reasons (SL6/CB5): while an answer is travelling the control shows the
+   * ring rather than the chevron, and the arc is the one `spinner/spinner.css`
+   * draws for every family that waits, worn as `data-ui='spinner'` beside this
+   * family's own part.
+   */
+  [data-ui-combobox] [data-part-busy] {
+    --slotted-spinner-size: var(--_icon-size);
+
+    color: var(--slotted-combobox-arrow-color, var(--slotted-text-muted, GrayText));
+    flex: none;
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-combobox][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-sm, 14px));
+    --_inner-size: var(--slotted-control-inner-size-sm, 22px);
+  }
+
+  [data-ui-combobox][data-part-root][data-size='md'] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-md, 16px));
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+  }
+
+  [data-ui-combobox][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 16px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-lg, 18px));
+    --_inner-size: var(--slotted-control-inner-size-lg, 28px);
+  }
+
+  /* ── Variant ──────────────────────────────────────────────────────────── */
+
+  [data-ui-combobox][data-part-root][data-variant='subtle'] {
+    background-color: var(
+      --slotted-combobox-subtle-background,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    border-color: var(
+      --slotted-combobox-subtle-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+  }
+
+  /* No edge, no lift, no ground and no corner of its own: the cell it sits in
+     is the box, the row is the ground, a cell has no corner, and the resting
+     shadow would draw the cell where there is none. */
+  [data-ui-combobox][data-part-root][data-variant='plain'] {
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: var(--slotted-radius-none, 0px);
+    box-shadow: none;
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-combobox][data-part-root][data-variant='plain'] {
+      border-color: ButtonBorder;
+    }
+  }
+
+  /* ── States on the control ────────────────────────────────────────────── */
+
+  [data-ui-combobox][data-part-root]:hover:not([data-disabled]):not([data-readonly]):not(
+      [data-invalid]
+    ) {
+    border-color: var(--slotted-combobox-hover-border-color, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-combobox][data-part-root][data-variant='subtle']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid]):not(:has(> [data-part-input]:autofill)) {
+    background-color: var(
+      --slotted-combobox-subtle-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-combobox][data-part-root][data-variant='plain']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid]):not(:has(> [data-part-input]:autofill)) {
+    background-color: var(
+      --slotted-combobox-plain-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    /* The accent edge the other variants take would draw the cell's outline. */
+    border-color: transparent;
+  }
+
+  [data-ui-combobox][data-part-root]:has(> [data-part-input]:focus-visible) {
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-control-focus-ring-offset, var(--slotted-focus-ring-offset, 2px));
+  }
+
+  /**
+   * The ring of a control whose box is not its own is drawn inside that box,
+   * the way the inner controls draw theirs inside the frame: two pixels past
+   * the control is two pixels over the next row's rule. No lift either — a
+   * shadow that appears only under focus is a cell that changes size when it
+   * is used.
+   */
+  [data-ui-combobox][data-part-root][data-variant='plain']:has(> [data-part-input]:focus-visible) {
+    box-shadow: none;
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-combobox][data-part-root][data-open]:not([data-disabled]) {
+    border-color: var(--slotted-combobox-open-border-color, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-combobox][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-combobox-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+    --_invalid-edge-width: var(
+      --slotted-combobox-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+    --_invalid-edge-color: var(
+      --slotted-combobox-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    --_invalid-edge: inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color);
+
+    border-color: var(--slotted-combobox-invalid-border-color, var(--slotted-tone-danger-border));
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger border is the resting edge's black. The line
+     * is a shadow inside the border, so neither box nor text moves, and it
+     * takes the resting lift's place.
+     */
+    box-shadow: var(--_invalid-edge);
+  }
+
+  [data-ui-combobox][data-part-root][data-invalid]:has(> [data-part-input]:focus-visible) {
+    box-shadow:
+      var(--_invalid-edge),
+      var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+        var(--slotted-focus-ring-color, Highlight);
+  }
+
+  [data-ui-combobox][data-part-root][data-variant='plain'][data-invalid]:has(
+      > [data-part-input]:focus-visible
+    ) {
+    /* The ring lies inside the box here, over the border and an edge as wide as
+       it; the edge reaches past the ring. */
+    box-shadow: inset 0 0 0
+      calc(
+        var(--slotted-focus-ring-offset, 2px) - var(--slotted-control-border-width, 1px) +
+          var(--_invalid-edge-width)
+      )
+      var(--_invalid-edge-color);
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The
+   * width comes back as an outline inside the border, and a focused invalid
+   * control draws its ring double, which a valid ring is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-combobox][data-part-root][data-invalid] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(
+        -1 * (var(--slotted-control-border-width, 1px) + var(--_invalid-edge-width))
+      );
+    }
+
+    [data-ui-combobox][data-part-root][data-invalid]:has(> [data-part-input]:focus-visible) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(
+        --slotted-control-focus-ring-offset,
+        var(--slotted-focus-ring-offset, 2px)
+      );
+    }
+
+    [data-ui-combobox][data-part-root][data-variant='plain'][data-invalid]:has(
+        > [data-part-input]:focus-visible
+      ) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: calc(
+        -1 * (var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width))
+      );
+    }
+  }
+
+  /**
+   * Read-only keeps the caret, the selection and the copy, and withholds the
+   * popup. The native `readonly` gives the first three; the second is the
+   * family's, because the pattern has no readonly for a combobox.
+   */
+  [data-ui-combobox][data-part-root][data-readonly] {
+    background-color: var(
+      --slotted-combobox-readonly-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-combobox][data-part-root][data-readonly] [data-part-arrow] {
+    opacity: 0.5;
+  }
+
+  /**
+   * `:disabled` on the input is matched beside `data-disabled` on the frame,
+   * because a disabled `fieldset` disables every control inside it and the
+   * control has no way to say so.
+   */
+  [data-ui-combobox][data-part-root][data-disabled],
+  [data-ui-combobox][data-part-root]:has(> [data-part-input]:disabled) {
+    background-color: var(
+      --slotted-combobox-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(--slotted-combobox-disabled-border-color, var(--slotted-disabled-border));
+    box-shadow: none;
+    color: var(--slotted-combobox-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+  }
+
+  [data-ui-combobox]
+    > :is([data-part-clear], [data-part-trigger]):hover:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-combobox-action-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-combobox]
+    > :is([data-part-clear], [data-part-trigger]):active:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-combobox-action-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  /**
+   * Each button carries its own ring rather than borrowing the frame's.
+   * Tabbing from the input to the clear button has to move something visible,
+   * and a ring around the whole frame would sit still while focus moved inside
+   * it. The trigger is not in the tab sequence and takes the same rule anyway,
+   * because a script may focus it.
+   */
+  [data-ui-combobox] > :is([data-part-clear], [data-part-trigger]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* ── The layer ────────────────────────────────────────────────────────── */
+
+  [data-ui-combobox][data-part-positioner] {
+    --_surface: var(--slotted-combobox-surface, var(--slotted-surface-raised, #ffffff));
+    --_text: var(--slotted-combobox-content-text, var(--slotted-text, #0f172a));
+    --_muted: var(--slotted-combobox-content-text-muted, var(--slotted-text-muted, #5b6b7f));
+    --_border-color: var(
+      --slotted-combobox-content-border-color,
+      var(--slotted-border-subtle, #e2e8f0)
+    );
+    --_border-width: var(--slotted-border-width-thin, 1px);
+    --_radius: var(--slotted-combobox-content-radius, var(--slotted-radius-lg, 8px));
+    --_shadow: var(--slotted-combobox-content-shadow, var(--slotted-shadow-md));
+
+    /**
+     * The stronger step of the neutral tone, for the reason
+     * `packages/styles/src/select/select.css` writes out in full: in the dark
+     * scheme `--slotted-tone-secondary-subtle-hover` is `#18181b` where the
+     * raised popup is `#1c1c20`, so the usual highlight resolves *darker* than
+     * its own ground and reads as a hole. The `-active` step is the only member
+     * of the pair that lifts in all three schemes.
+     */
+    --_highlight: var(--slotted-combobox-highlight, var(--slotted-tone-secondary-subtle-active));
+    --_highlight-active: var(
+      --slotted-combobox-highlight-active,
+      var(--slotted-tone-accent-surface)
+    );
+    --_selected-color: var(--slotted-combobox-selected-color, var(--slotted-tone-accent-text));
+
+    --_inset-block: var(--slotted-combobox-content-padding-block, var(--slotted-space-2, 0.25rem));
+    --_inset-inline: var(
+      --slotted-combobox-content-padding-inline,
+      var(--slotted-space-2, 0.25rem)
+    );
+    --_item-inset: var(--slotted-control-padding-inline-md, 0.8125rem);
+    --_item-height: var(--slotted-control-height-md, 34px);
+    /* Concentric with the panel: its radius less the inset, floored at 0. */
+    --_item-radius: var(
+      --slotted-combobox-item-radius,
+      max(0px, calc(var(--_radius) - var(--_inset-inline)))
+    );
+    --_content-font-size: var(--slotted-control-font-size-md, 13px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_content-icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_column-gap: var(--slotted-control-gap-md, 0.5rem);
+
+    --_measure: var(--slotted-combobox-measure, 24rem);
+
+    /* Only the block inset: the positioner writes `left` and never `right`, and
+       `inset-inline-start` would resolve to `right` in a right-to-left document
+       and win over the measured value. */
+    position: absolute;
+    inset-block-start: 0;
+
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+    isolation: isolate;
+
+    box-sizing: border-box;
+    pointer-events: none;
+
+    /**
+     * R7: the layer arrives along the axis it opens on — from one space step
+     * above its place when it opens downward, from one step below when it
+     * opens upward — and never along the inline axis. A `scale` from the
+     * corner the positioner named as origin moved the far edge by four per
+     * cent of the width, which read as an entrance from the left.
+     */
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+    translate: 0 calc(-1 * var(--_enter-distance));
+    transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-combobox][data-part-positioner][data-side='top'] {
+    translate: 0 var(--_enter-distance);
+  }
+
+  /* A lateral side has no block direction to arrive from, so it only fades. */
+  [data-ui-combobox][data-part-positioner]:is([data-side='left'], [data-side='right']) {
+    translate: 0 0;
+  }
+
+  /**
+   * The entrance is a keyframe animation and not a transition. A transition
+   * starts from the style the browser computed last, and the positioner
+   * writes `data-side` in the same style update as the family opens the
+   * layer, so a transition set out from the closed style of the side the
+   * layer had before it had one — the bottom's — whatever side it opens on.
+   * A keyframe states where it starts. The exit stays a transition: it
+   * leaves from wherever the layer is, on the closed rule's durations.
+   */
+  [data-ui-combobox][data-part-positioner][data-open] {
+    translate: 0 0;
+    transition: none;
+  }
+
+  /**
+   * Only a layer the positioner placed arrives: it writes `data-positioned`
+   * with the side, and a layer written open in static markup — the harness,
+   * a docs snippet — is simply there, and is photographed where it stands.
+   */
+  [data-ui-combobox][data-part-positioner][data-open][data-positioned] {
+    animation: slotted-combobox-enter-down var(--slotted-duration-medium)
+      var(--slotted-easing-enter);
+  }
+
+  [data-ui-combobox][data-part-positioner][data-open][data-positioned][data-side='top'] {
+    animation-name: slotted-combobox-enter-up;
+  }
+
+  @keyframes slotted-combobox-enter-down {
+    from {
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-combobox-enter-up {
+    from {
+      translate: 0 var(--_enter-distance);
+    }
+  }
+
+  @keyframes slotted-combobox-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /**
+   * The fade belongs to the part that paints the surface, and the layer only
+   * moves. In Chromium an ancestor with `opacity` below one is the Backdrop Root
+   * of what it holds, so a `backdrop-filter` on the content blurs nothing until
+   * the layer is opaque and then appears at once. The content's own opacity
+   * leaves its own filter drawn on every frame of the motion.
+   */
+  [data-ui-combobox][data-part-positioner] > [data-part-content] {
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-combobox][data-part-positioner][data-open] > [data-part-content] {
+    opacity: 1;
+    transition: none;
+  }
+
+  [data-ui-combobox][data-part-positioner][data-open][data-positioned] > [data-part-content] {
+    animation: slotted-combobox-fade var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  /* Stillness keeps the fade and drops the movement (R7). */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-combobox][data-part-positioner],
+    [data-ui-combobox][data-part-positioner][data-side='top'],
+    [data-ui-combobox][data-part-positioner][data-side='left'],
+    [data-ui-combobox][data-part-positioner][data-side='right'] {
+      translate: 0 0;
+      transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-combobox][data-part-positioner][data-open][data-positioned],
+    [data-ui-combobox][data-part-positioner][data-open][data-positioned][data-side='top'],
+    [data-ui-combobox][data-part-positioner][data-open][data-positioned][data-side='left'],
+    [data-ui-combobox][data-part-positioner][data-open][data-positioned][data-side='right'] {
+      animation-name: none;
+    }
+  }
+
+  [data-ui-combobox][data-part-positioner][data-detached] {
+    visibility: hidden;
+  }
+
+  [data-ui-combobox][data-part-positioner][data-width='anchor'] {
+    inline-size: var(--slotted-positioner-anchor-width, auto);
+  }
+
+  [data-ui-combobox][data-part-positioner][data-width='content'] {
+    inline-size: max-content;
+    max-inline-size: min(var(--_measure), var(--slotted-positioner-available-width, 100vw));
+    min-inline-size: var(--slotted-positioner-anchor-width, auto);
+  }
+
+  [data-ui-combobox][data-part-positioner][data-size='sm'] {
+    --_item-inset: var(--slotted-control-padding-inline-sm, 0.625rem);
+    --_item-height: var(--slotted-control-height-sm, 30px);
+    --_content-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_secondary-font-size: var(--slotted-font-size-xs, 0.75rem);
+    --_content-icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_column-gap: var(--slotted-control-gap-sm, 0.375rem);
+  }
+
+  [data-ui-combobox][data-part-positioner][data-size='lg'] {
+    --_item-inset: var(--slotted-control-padding-inline-lg, 1rem);
+    --_item-height: var(--slotted-control-height-lg, 38px);
+    --_content-font-size: var(--slotted-control-font-size-lg, 14px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_content-icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_column-gap: var(--slotted-control-gap-lg, 0.5rem);
+  }
+
+  /* ── The surface ──────────────────────────────────────────────────────── */
+
+  [data-ui-combobox] > [data-part-content] {
+    background: var(--_surface);
+    border: var(--_border-width) solid var(--_border-color);
+    border-radius: var(--_radius);
+    box-shadow: var(--_shadow);
+    box-sizing: border-box;
+    color: var(--_text);
+    display: grid;
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--_content-font-size);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    max-block-size: calc(
+      var(--slotted-positioner-available-height, 100vh) - var(--slotted-space-5, 0.75rem)
+    );
+    outline: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    pointer-events: auto;
+    /* A theme that paints this surface as a translucent material blurs what moves behind it. */
+    -webkit-backdrop-filter: var(--slotted-combobox-content-backdrop-filter, none);
+    backdrop-filter: var(--slotted-combobox-content-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-combobox] > [data-part-content] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  [data-ui-combobox] > [data-part-content]:focus-visible {
+    outline: none;
+  }
+
+  /* ── Groups ───────────────────────────────────────────────────────────── */
+
+  [data-ui-combobox] [data-part-group] {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  /**
+   * A group's label stays at the top of the list while its group is in view.
+   * The group is the label's containing block, so the next label pushes it out
+   * and a group scrolled past takes its label with it. It sticks to the
+   * scrollport's edge rather than the padding's, on the surface's ground, above
+   * the items and below the parts the surface draws over them.
+   */
+  [data-ui-combobox] [data-part-group-label] {
+    background: var(--_surface);
+    box-sizing: border-box;
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    grid-column: 1 / -1;
+    inset-block-start: calc(-1 * var(--_inset-block));
+    line-height: var(--slotted-line-height-sm, 1.45);
+    min-block-size: var(--_group-label-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+    position: sticky;
+    z-index: 1;
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-combobox] [data-part-group-label] {
+      background: Canvas;
+    }
+  }
+
+  /**
+   * The label's height, which the list keeps clear above an item the keys
+   * bring into view (`revealWithin` reads the scroll padding), so the item is
+   * never drawn under a label stuck to the top.
+   */
+  [data-ui-combobox] > [data-part-content]:has([data-part-group-label]) {
+    --_group-label-height: var(
+      --slotted-combobox-group-label-height,
+      calc(
+        var(--_secondary-font-size) * var(--slotted-line-height-sm, 1.45) + 2 *
+          var(--slotted-space-2, 0.25rem)
+      )
+    );
+
+    scroll-padding-block-start: var(--_group-label-height);
+  }
+
+  /* ── Options ──────────────────────────────────────────────────────────── */
+
+  /**
+   * An option the query rejected, and a group whose options all went. Both
+   * carry `hidden` — Angular hides each rejected option rather than leaving the
+   * list, and both bindings hide an emptied group — and `display: grid` on
+   * either beats the user agent's own `[hidden] { display: none }`, because an
+   * author rule wins over the user agent sheet.
+   */
+  [data-ui-combobox] [data-part-item][hidden],
+  [data-ui-combobox] [data-part-group][hidden] {
+    display: none;
+  }
+
+  [data-ui-combobox] [data-part-item] {
+    align-content: center;
+    border-radius: var(--_item-radius);
+    box-sizing: border-box;
+    /**
+     * The hand (CB12). A row that commits a value and closes the surface is a
+     * press, and this popup is not a platform menu: `select` draws the same
+     * cursor on the same row, and the pair says one thing about one gesture.
+     */
+    cursor: pointer;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    line-height: var(--slotted-line-height-md, 1.5);
+    min-block-size: var(--_item-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+    row-gap: var(--slotted-space-1, 0.125rem);
+    user-select: none;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-combobox] [data-part-item][data-current] {
+    background-color: var(--_highlight);
+    /**
+     * A ring as well as a ground. Nothing on this surface holds focus — DOM
+     * focus is on the input for the whole interaction — so there is no focus
+     * ring anywhere to say where the reader is, and the APG's own select-only
+     * example marks its current option with an outline for that reason. An
+     * inset shadow rather than an outline, so it follows the option's own
+     * radius and never overflows the surface's rounded edge.
+     */
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-combobox-highlight-ring, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-combobox] [data-part-item]:not([data-disabled]):active {
+    background-color: var(--_highlight-active);
+  }
+
+  [data-ui-combobox] [data-part-item][data-selected] {
+    color: var(--_selected-color);
+  }
+
+  /**
+   * Two chosen neighbours are one block (LB2). Every item keeps its own
+   * radius, so two selected siblings painted with the same ground met at a
+   * waist — four rounded corners inside the block — and a multiple selection
+   * read as a column of separate chips. The second gives up its top corners
+   * and the first its bottom ones, so the block is rounded only where the
+   * selection begins and ends. `select` and `combobox` draw the same ground
+   * and answer the same way; `selection-block.test.mjs` holds the three to it.
+   */
+  [data-ui-combobox] [data-part-item][data-selected] + [data-part-item][data-selected] {
+    border-start-end-radius: 0;
+    border-start-start-radius: 0;
+  }
+
+  [data-ui-combobox] [data-part-item][data-selected]:has(+ [data-part-item][data-selected]) {
+    border-end-end-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  [data-ui-combobox] [data-part-item][data-selected] > [data-part-label] {
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-combobox] [data-part-item][data-disabled] {
+    color: var(--slotted-disabled-foreground, #64748b);
+    cursor: not-allowed;
+  }
+
+  /**
+   * The highlight can land on an option nobody can choose, because a disabled
+   * option keeps its place in the collection and the pattern requires it to be
+   * announced. It must not wear the accent cursor while it is there: an accent
+   * ring on a row that answers nothing says "act here" to the one reader who
+   * cannot. The ground and the ring both step down to the theme's disabled
+   * pair, and the row stays legible rather than being faded toward it.
+   */
+  /**
+   * The highlight can land on an option nobody can choose, because a disabled
+   * option keeps its place in the collection and the pattern requires it to be
+   * announced.
+   *
+   * **The ground stays the highlight's.** Painting the theme's disabled surface
+   * here was the first answer and it was wrong in the dark scheme, for the same
+   * reason the highlight itself was: `--slotted-disabled-background` is
+   * `#18181b` where the raised popup is `#1c1c20`, so the cursor *sank* on a
+   * disabled row and rose on every other one — a reader arrowing down the list
+   * would watch it disappear. A cursor lifts, always. What the row cannot do is
+   * said by the ink and by the ring, which both step down to the disabled pair.
+   */
+  [data-ui-combobox] [data-part-item][data-disabled][data-current] {
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-disabled-border, #cbd5e1);
+    color: var(--slotted-disabled-foreground, #64748b);
+  }
+
+  /* ── The cells ────────────────────────────────────────────────────────── */
+
+  [data-ui-combobox] :is([data-part-indicator], [data-part-icon]) {
+    block-size: 1lh;
+  }
+
+  /* Column one holds content and paints none: a `Glyph` in an `Icon` box, or
+     artwork of the consumer's own, centred and sized from the column. */
+  [data-ui-combobox] [data-part-icon] {
+    --slotted-icon-size: var(--_content-icon-size);
+
+    align-items: center;
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    inline-size: var(--_content-icon-size);
+    justify-content: center;
+    justify-self: center;
+    margin-inline-end: var(--_column-gap);
+  }
+
+  [data-ui-combobox] [data-part-label] {
+    grid-column: 2;
+    grid-row: 1;
+    min-inline-size: 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+
+  /**
+   * The span the query matched is not painted here. It is the shared mark of
+   * R6 — `highlight/highlight.css`, `data-ui='highlight'` worn beside this
+   * family's `match` part — because every list a reader types into says the
+   * same thing about the same span, and `select` with a filter, `listbox` with
+   * a filter and `menu` with a search would otherwise each have answered it
+   * again. The contract names the sheet under `mark`.
+   *
+   * What lived here also changed the metric of the word: 600 weight and 0.1em
+   * of inline padding made `Blueberry` 6.86px wider marked than plain, and the
+   * run moved on every keystroke as the filter re-marked the label (CB6).
+   */
+
+  [data-ui-combobox] [data-part-description] {
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    grid-column: 2;
+    grid-row: 2;
+    line-height: var(--slotted-line-height-sm, 1.45);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-combobox] [data-part-item][data-disabled] > [data-part-description] {
+    color: inherit;
+  }
+
+  /* The tick is a `Glyph` the binding draws, at the content's icon step. */
+  [data-ui-combobox] [data-part-indicator] {
+    --slotted-icon-size: var(--_content-icon-size);
+
+    align-items: center;
+    display: flex;
+    grid-column: 3;
+    grid-row: 1;
+    inline-size: var(--_content-icon-size);
+    justify-content: center;
+    justify-self: end;
+    margin-inline-start: var(--_column-gap);
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-combobox] [data-part-item][data-selected] > [data-part-indicator] {
+    opacity: 1;
+  }
+
+  /* ── Separator, empty, status ─────────────────────────────────────────── */
+
+  [data-ui-combobox] [data-part-separator] {
+    background-color: var(--slotted-combobox-separator-color, var(--_border-color));
+    block-size: var(--_border-width);
+    border: 0;
+    grid-column: 1 / -1;
+    margin-block: var(--slotted-space-2, 0.25rem);
+    margin-inline: 0;
+  }
+
+  /**
+   * A query with no answers, and a query whose answer is still travelling.
+   * Both keep the surface's measure rather than collapsing, so nothing jumps
+   * when the results land — which is the gap none of the surveyed
+   * implementations closes.
+   */
+  [data-ui-combobox] :is([data-part-empty], [data-part-status]) {
+    color: var(--_muted);
+    /**
+     * Its own bidi run, ordered by its own content. "3 results" is a European
+     * number, a neutral space and a Latin word, so in a right-to-left document
+     * the space resolves to the paragraph and the two runs swap: the first
+     * right-to-left capture of this family printed "results 3". `plaintext`
+     * takes the direction from the sentence's own first strong character, so an
+     * English count reads as itself and a translated one reads as itself — the
+     * same repair `text-field` makes for an adornment, and for the same reason.
+     * These two parts are centred, so taking their own direction costs no
+     * alignment; an option's label is the consumer's content and keeps the
+     * document's direction unless the consumer says otherwise.
+     */
+    unicode-bidi: plaintext;
+    grid-column: 1 / -1;
+    /**
+     * Wide enough that a one-word message does not draw a popup narrower than a
+     * word, and never wider than the popup it is in: at `width="anchor"` the
+     * surface is exactly the control's width, and a bare `12rem` on a child
+     * overflows the grid the moment the control is narrower than that.
+     */
+    min-inline-size: min(12rem, 100%);
+    padding-block: var(--slotted-space-5, 0.75rem);
+    padding-inline: var(--_item-inset);
+    text-align: center;
+  }
+
+  /**
+   * The status row is also the live region that announces the count, so it is
+   * often present with nothing to draw. A row with no text takes no space, and
+   * a row with text takes the same space as the empty message beside it.
+   */
+  [data-ui-combobox] [data-part-status]:empty {
+    display: none;
+  }
+
+  /**
+   * The wait, as the shape of the list that is coming. `select`'s decision and
+   * `select`'s reasons (SL6/CB5): three rows the height of an option rather
+   * than one sentence, so the surface a reader is looking at while the answer
+   * travels is the surface they will go on looking at. The bars are
+   * `skeleton/skeleton.css`'s — the family places them and states nothing
+   * about how a placeholder is painted — and they are hidden from assistive
+   * technology, because the `status` row beside them is the live region.
+   */
+  [data-ui-combobox] [data-part-placeholder] {
+    display: grid;
+    /* The surface is a grid of option columns; the rows span all of them, as
+       the status and empty rows do. */
+    grid-column: 1 / -1;
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+  }
+
+  [data-ui-combobox] [data-part-placeholder] > * {
+    align-items: center;
+    display: flex;
+    min-block-size: var(--_item-height);
+  }
+
+  [data-ui-combobox] [data-part-placeholder] > [data-ui-skeleton] {
+    align-self: center;
+  }
+
+  /* Three ragged widths: three identical bars read as a table, and a list of
+     labels is ragged. */
+  [data-ui-combobox] [data-part-placeholder] > :nth-child(2) [data-ui-skeleton] {
+    inline-size: 78%;
+  }
+
+  [data-ui-combobox] [data-part-placeholder] > :nth-child(3) [data-ui-skeleton] {
+    inline-size: 56%;
+  }
+
+  /**
+   * The status row while an answer is travelling. It no longer draws a pulsing
+   * dot of its own: the control carries the ring and the popup carries the
+   * three bars, and a third repeating motion beside them was one answer too
+   * many for one wait (SL6/CB5).
+   */
+
+  [data-ui-combobox] > [data-part-content][data-loading] {
+    cursor: progress;
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────── */
+
+  @media (forced-colors: active) {
+    [data-ui-combobox] [data-part-item][data-current] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-combobox] [data-part-item][data-disabled][data-current] {
+      background-color: Highlight;
+      color: GrayText;
+    }
+  }
+}

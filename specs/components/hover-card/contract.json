@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 5,
+  "family": "hover-card",
+  "ui": "hover-card",
+  "catalog": {
+    "group": "Overlays",
+    "summary": "Preview card that opens on hover or focus."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/",
+  "criterion": "https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus.html",
+  "patternStatus": "The APG has no hover-card pattern. Its tooltip page names the non-modal dialog for hover content that contains focusable elements, which is what the panel is when navigable; WCAG 2.2 SC 1.4.13 states what the card owes a reader — Dismissible, Hoverable, Persistent — and each of the three is answered in dismissal below. Both were read on 2026-09-16.",
+  "roles": {
+    "root": "the trigger's own — a link, or whatever render gives",
+    "content": "dialog when navigable, presentation when not"
+  },
+  "rolesReason": "A card the keyboard can enter is the APG's non-modal dialog. A card it cannot enter is not a dialog, and a dialog nothing points to is what Radix ships; Base UI keeps the link as the only accessible interface and the card out of the way. The panel's role follows navigable, and the trigger says aria-haspopup=\"dialog\" only when that is true.",
+  "holds": "popover",
+  "holdsReason": "The card is popover unchanged behind a hover trigger, as menubar holds menu and context-menu holds menu. popover declined opening on hover to this family (tooltip-and-popover inventory l. 116) so that two families would not answer one question; this family answers it by owning the trigger and overriding two of the popover's defaults (overrides below), and re-exports none of the panel's parts. The cost is one context, paid in popover once: the panel has to let the consumer's role win.",
+  "overrides": {
+    "autoFocus": {
+      "value": false,
+      "reason": "A card that took focus from the link under the pointer would be a dialog wearing the wrong trigger."
+    },
+    "sideOffset": {
+      "value": 4,
+      "reason": "The arrow's tip stands one pixel off the anchor's box, which is right for a button and wrong for a word: the open mark's halo reaches two pixels past the link's box, and the tip touched it. The offset is the halo (--slotted-space-1) plus the same again of air, and a consumer may still set the popover's own sideOffset."
+    }
+  },
+  "composes": ["pointer-intent"],
+  "composesReason": "Every overlay module reaches the family through popover. pointer-intent is the family's own: the grace area on the way from the trigger to the card, written for menu's submenu and promised to this family in menu's design §5.",
+  "rootReason": "Radix and Base UI both render the <a> themselves and take a substitute through asChild or render. The trigger is the one element the family paints — the link while its card is showing — and rendering it onto another family's root keeps that root's identity, because the other family's props are spread after this one's.",
+  "delays": {
+    "openDelay": {
+      "default": 600,
+      "reason": "The number tooltip holds and the one Base UI reached; Radix uses 700. Two hover-opened families with two warmups would read as two libraries."
+    },
+    "closeDelay": {
+      "default": 300,
+      "reason": "Radix and Base UI both use 300. Twice the tooltip's, because a card is farther from its trigger and larger than a hint, and the grace area below covers the travel while this covers the pause."
+    },
+    "focus": {
+      "default": 0,
+      "reason": "Focus opens the card in the same task, as tooltip decided: a delay a reader cannot shorten by moving faster is a delay for nothing. Only :focus-visible opens it — a press that focuses a link is a navigation."
+    }
+  },
+  "grace": {
+    "module": "pointer-intent",
+    "effect": "the card stays open while the pointer's own path from the trigger still points into the card's rectangle; the grace ends when the path turns away or after closeDelay with no movement",
+    "reason": "Radix and Ark rely on closeDelay alone, so a pointer that crosses a paragraph on the diagonal loses the card. The rectangle is the layer's as positioner resolved it, so a card that flipped gets a grace area on the side it landed on."
+  },
+  "dismissal": {
+    "pointerLeave": {
+      "emits": "pointer",
+      "effect": "closes after closeDelay once the pointer is off both the trigger and the card, and the grace area no longer holds"
+    },
+    "blur": {
+      "emits": "blur",
+      "effect": "focus leaves the trigger and does not enter the card"
+    },
+    "escape": {
+      "emits": "escape",
+      "effect": "the topmost layer only; focus stays or returns to the trigger, which does not reopen — Dismissible"
+    },
+    "outsidePress": {
+      "emits": "outsidePress",
+      "effect": "a press outside the layer and its branches"
+    },
+    "guard": {
+      "emits": "keyboard",
+      "effect": "focus reached a focus guard past either end of the card; focus returns to the trigger, which does not reopen"
+    },
+    "close": {
+      "emits": "dismiss",
+      "effect": "the popover's Close part, the target a touch reader has when there is no Escape key"
+    },
+    "hoverable": "the pointer may move onto the card and the card stays — Hoverable",
+    "persistent": "the card stays until hover and focus have left both trigger and card, until Escape, or until the consumer closes it — Persistent",
+    "reopen": {
+      "rule": "focus the family itself puts back on the trigger holds the reopening back until focus leaves the trigger once",
+      "reason": "Without it a guard closes the card, focuses the trigger, and the trigger opens the card again: a loop the reader cannot leave."
+    }
+  },
+  "touch": {
+    "opensOn": "tap",
+    "openTrigger": "a tap on the trigger while the card is open follows the link",
+    "reason": "There is no hover on a coarse pointer. Radix ships nothing for touch and Base UI declares the card not touch navigable; docs/process/build-order.md decides that touch opens by click. The cost is one extra tap to navigate, stated on the reference page beside the alternative, which is a preview no touch reader can ever see."
+  },
+  "navigable": {
+    "default": false,
+    "off": "the field's behaviour: the card is not keyboard-reachable, its role is presentation, and the trigger carries no aria-haspopup",
+    "on": "Tab on the open trigger moves focus into the card's first tabbable; the popover's focus guards return focus to the trigger past either end; the panel is role=\"dialog\", named by its title, and the trigger carries aria-haspopup=\"dialog\", aria-expanded and aria-controls",
+    "reason": "Radix says the content is inaccessible to keyboard users and Base UI says it is not keyboard navigable. docs/process/build-order.md asks for optional navigable content, and popover already answers what Tab does at the end of a portalled non-modal layer."
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "on the open trigger with navigable, moves into the card's first tabbable; otherwise moves on, and the card closes with blur",
+      "focus": "the card's first tabbable, or the next element in the page",
+      "source": "family"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves back; a card opened by focus closes with blur",
+      "focus": "the previous element in the page",
+      "source": "family"
+    },
+    {
+      "key": "Escape",
+      "effect": "closes the card",
+      "focus": "unchanged when on the trigger; back to the trigger when inside the card",
+      "source": "criterion"
+    },
+    {
+      "key": "Enter",
+      "effect": "follows the link, which is the trigger's own",
+      "focus": "the destination",
+      "source": "platform"
+    }
+  ],
+  "focus": {
+    "onOpen": "not taken: autoFocus is forced off, so the reader's focus stays on the link under the pointer",
+    "guards": true,
+    "guardsReason": "The popover's two sentinels, inherited. Focus reaching one closes the card and returns to the trigger, from which the reader's next Tab continues down the page.",
+    "restore": "the trigger, when focus was inside the card; nothing moves otherwise"
+  },
+  "wiring": {
+    "data-open": "on the root while the card shows",
+    "aria-haspopup": "dialog, on the root, only when navigable",
+    "aria-expanded": "on the root, only when navigable",
+    "aria-controls": "the panel, on the root, only when navigable",
+    "role": "dialog on the panel when navigable, presentation when not"
+  },
+  "sharedCard": {
+    "rule": "many triggers inside one card: the trigger that starts an opening registers itself as the anchor",
+    "payload": "onOpenChange receives the request; request.event.currentTarget is the trigger, and the consumer reads its data attributes",
+    "reason": "Base UI 1.8 ships handle and payload for one popup shared by many triggers. Here the composition needs no API: a list of two hundred mentions mounts one card, and the request already carries the event."
+  },
+  "declined": {
+    "popoverApi": {
+      "deferTo": "popover",
+      "reason": "Side, align, offsets, arrow, size, width, mount, strategy, portal, collision and the panel's parts are popover's and are imported from it. Re-exporting them here would be Radix's shape, where HoverCard.Content restates Popover.Content."
+    },
+    "viewport": {
+      "reason": "Base UI's PreviewCard.Viewport cross-fades content between triggers of a shared card. It animates content the consumer owns; a consumer wanting it wraps that content in presence, and a card whose content changes while open calls reposition() on the handle."
+    },
+    "hoverDelayOnFocus": {
+      "reason": "Radix and Base UI delay the focus opening as they delay the hover one. tooltip decided focus never waits, and a second answer here would be two families disagreeing about one gesture."
+    },
+    "inlineAnchor": {
+      "reason": "A link that wraps onto a second line measures as the box around both lines, so the card may point at the gap between them. Floating UI's inline() answers it and positioner does not expose it; recorded in docs/process/build-order.md as a reopening of positioner rather than solved here with a second engine option."
+    }
+  },
+  "axes": {
+    "navigable": [true, false],
+    "disabled": [true, false]
+  },
+  "resolution": {
+    "navigable": ["prop", "defaults", false],
+    "disabled": ["prop", "defaults", false]
+  },
+  "provides": {
+    "hoverCardDefaults": ["navigable", "disabled", "openDelay", "closeDelay"]
+  },
+  "stateAttributes": {
+    "open": "data-open"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "escape",
+        "outsidePress",
+        "blur",
+        "dismiss",
+        "programmatic"
+      ]
+    }
+  },
+  "stateModelReason": "The family owns the state and renders the popover controlled, so a request the popover raises — escape, outsidePress, dismiss, the guards' keyboard — reaches the consumer through one handler with one reason vocabulary. blur is the family's own, as tooltip declares it; popover does not emit it.",
+  "members": {
+    "hoverCard": {
+      "nativeElement": "a",
+      "defaults": {
+        "navigable": false,
+        "disabled": false,
+        "openDelay": 600,
+        "closeDelay": 300,
+        "sideOffset": 4
+      },
+      "capabilities": ["open", "disabled", "wiring"],
+      "states": ["default", "hover", "focus-visible", "open"],
+      "parts": ["root"]
+    }
+  },
+  "statesReason": "The root is a link, and the family paints it only when it is the family's own <a>: accent text with a subtle underline that fills on hover and while open, and while open a tint of the accent surface drawn with a spread shadow so the inline box grows without moving a line. focus-visible is the foundation ring. There is no disabled state on the root: disabled means the card never opens, and the link still navigates.",
+  "scenarios": {
+    "hoverCard": [
+      "playground",
+      "mention",
+      "link-preview",
+      "navigable",
+      "delay",
+      "shared",
+      "touch",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

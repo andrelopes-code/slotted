@@ -1,0 +1,1096 @@
+<!--
+  Every date below is written in the Brazilian order the locale gives —
+  day, month, year — because the field takes its pattern from
+  `Intl.DateTimeFormat` rather than from a constant. The two scenes at the end
+  show what the same markup looks like when the locale writes the fields in a
+  different order, which is the part of this family a capture can be wrong
+  about without saying so.
+
+  The `aria-valuetext` on each segment is what a screen reader says instead of
+  the number; the group's own label is the whole date in words. The clear
+  button carries no visible text and its mark is the empty `Glyph` element the
+  build draws, so nothing here draws a character as an icon.
+-->
+
+<section data-scene="default">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="Data de vencimento, 9 de setembro de 2026"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuenow="9"
+          aria-valuemin="1"
+          aria-valuemax="30"
+          aria-valuetext="9"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuenow="9"
+          aria-valuemin="1"
+          aria-valuemax="12"
+          aria-valuetext="setembro"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuenow="2026"
+          aria-valuemin="1"
+          aria-valuemax="9999"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <input
+        data-part="hidden-input"
+        data-part-hidden-input=""
+        type="hidden"
+        name="vencimento"
+        value="2026-09-09"
+      />
+    </div>
+
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="Data de vencimento, vazia"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          data-placeholder
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuetext="empty"
+        >
+          dd
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          data-placeholder
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuetext="empty"
+        >
+          mm
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          data-placeholder
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuetext="empty"
+        >
+          aaaa
+        </div>
+      </div>
+      <input
+        data-part="hidden-input"
+        data-part-hidden-input=""
+        type="hidden"
+        name="vazia"
+        value=""
+      />
+    </div>
+  </div>
+</section>
+
+<!--
+  A date half typed. Two segments hold a value, the third still shows its
+  placeholder, and the hidden input is empty because a day and a month with no
+  year is not a date. No surveyed implementation can draw this state.
+-->
+<section data-scene="partial">
+  <div
+    data-ui="date-field"
+    data-ui-date-field=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-variant="outline"
+  >
+    <div
+      data-part="segments"
+      data-part-segments=""
+      role="group"
+      aria-label="Data de nascimento, incompleta"
+    >
+      <div
+        data-part="segment"
+        data-part-segment=""
+        data-field="day"
+        role="spinbutton"
+        tabindex="-1"
+        aria-label="dia"
+        aria-valuenow="24"
+        aria-valuemin="1"
+        aria-valuemax="31"
+        aria-valuetext="24"
+      >
+        24
+      </div>
+      <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+      <div
+        data-part="segment"
+        data-part-segment=""
+        data-field="month"
+        role="spinbutton"
+        tabindex="-1"
+        aria-label="month"
+        aria-valuenow="12"
+        aria-valuemin="1"
+        aria-valuemax="12"
+        aria-valuetext="dezembro"
+      >
+        12
+      </div>
+      <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+      <div
+        data-part="segment"
+        data-part-segment=""
+        data-field="year"
+        data-placeholder
+        role="spinbutton"
+        tabindex="0"
+        aria-label="ano"
+        aria-valuetext="empty"
+      >
+        aaaa
+      </div>
+    </div>
+    <input
+      data-part="hidden-input"
+      data-part-hidden-input=""
+      type="hidden"
+      name="nascimento"
+      value=""
+    />
+  </div>
+</section>
+
+<section data-scene="sizes">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="sm"
+      data-variant="outline"
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="Compacto, 9 de setembro de 2026"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuenow="9"
+          aria-valuetext="9"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuenow="9"
+          aria-valuetext="September"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="2026-09-09" />
+    </div>
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="Default, September 9, 2026"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuenow="9"
+          aria-valuetext="9"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuenow="9"
+          aria-valuetext="September"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="2026-09-09" />
+    </div>
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      data-variant="outline"
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="Comfortable, September 9, 2026"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuenow="9"
+          aria-valuetext="9"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuenow="9"
+          aria-valuetext="September"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="2026-09-09" />
+    </div>
+  </div>
+</section>
+
+<section data-scene="variants">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="outline, 9 de setembro de 2026"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuenow="9"
+          aria-valuetext="9"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuenow="9"
+          aria-valuetext="September"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="2026-09-09" />
+    </div>
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="subtle"
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="subtle, 9 de setembro de 2026"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuenow="9"
+          aria-valuetext="9"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuenow="9"
+          aria-valuetext="September"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="2026-09-09" />
+    </div>
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="plain"
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="plain, 9 de setembro de 2026"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuenow="9"
+          aria-valuetext="9"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuenow="9"
+          aria-valuetext="September"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="2026-09-09" />
+    </div>
+  </div>
+</section>
+
+<!--
+  The two slots and the clear button in one frame. The glyph in `start` is
+  authored for this page and is not a library asset: a framework-free page
+  cannot import Lucide, and two shapes on the same 24-unit grid are enough to
+  judge the box.
+-->
+<section data-scene="adornments">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+    >
+      <span data-part="start" data-part-start="" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+          <path d="M3.5 9.5h17M8 3.5v3M16 3.5v3" stroke-linecap="round" />
+        </svg>
+      </span>
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="Data de vencimento, 9 de setembro de 2026"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuenow="9"
+          aria-valuetext="9"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuenow="9"
+          aria-valuetext="September"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Limpar a data">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="2026-09-09" />
+    </div>
+
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="Vencimento, 9 de setembro de 2026"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuenow="9"
+          aria-valuetext="9"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuenow="9"
+          aria-valuetext="September"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <span data-part="end" data-part-end="">UTC−3</span>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="2026-09-09" />
+    </div>
+  </div>
+</section>
+
+<section data-scene="states">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-invalid
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="Invalid date, February 30, 2026"
+        aria-invalid="true"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuenow="30"
+          aria-valuetext="30"
+        >
+          30
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuenow="2"
+          aria-valuetext="February"
+        >
+          02
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="" />
+    </div>
+
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-readonly
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="Emitida em 1 de agosto de 2026"
+        aria-readonly="true"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuenow="1"
+          aria-valuetext="1"
+        >
+          01
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuenow="8"
+          aria-valuetext="August"
+        >
+          08
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="2026-08-01" />
+    </div>
+
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-disabled
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="Locked date"
+        aria-disabled="true"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          data-placeholder
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="dia"
+          aria-disabled="true"
+        >
+          dd
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          data-placeholder
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-disabled="true"
+        >
+          mm
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          data-placeholder
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-disabled="true"
+        >
+          aaaa
+        </div>
+      </div>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="" disabled />
+    </div>
+
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-required
+    >
+      <div
+        data-part="segments"
+        data-part-segments=""
+        role="group"
+        aria-label="Required date, September 9, 2026"
+        aria-required="true"
+      >
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="dia"
+          aria-valuenow="9"
+          aria-valuetext="9"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="month"
+          aria-valuenow="9"
+          aria-valuetext="September"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="ano"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <input
+        data-part="hidden-input"
+        data-part-hidden-input=""
+        type="hidden"
+        value="2026-09-09"
+        required
+      />
+    </div>
+  </div>
+</section>
+
+<!--
+  The same family under three locales. The field order, the separators and the
+  placeholder all come from `Intl`, so an American reads month first, a German
+  reads a full stop between the fields, and a Japanese reader reads the year
+  first — from the same markup and the same stylesheet.
+-->
+<section data-scene="locale">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+    >
+      <div data-part="segments" data-part-segments="" role="group" aria-label="September 9, 2026">
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="month"
+          aria-valuenow="9"
+          aria-valuetext="September"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="day"
+          aria-valuenow="9"
+          aria-valuetext="9"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="year"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+      </div>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="2026-09-09" />
+    </div>
+
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+    >
+      <div data-part="segments" data-part-segments="" role="group" aria-label="9. September 2026">
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          data-placeholder
+          role="spinbutton"
+          tabindex="0"
+          aria-label="Tag"
+        >
+          tt
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">.</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          data-placeholder
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="Monat"
+        >
+          mm
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">.</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          data-placeholder
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="Jahr"
+        >
+          jjjj
+        </div>
+      </div>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="" />
+    </div>
+
+    <div
+      data-ui="date-field"
+      data-ui-date-field=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+    >
+      <div data-part="segments" data-part-segments="" role="group" aria-label="2026年9月9日">
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="year"
+          role="spinbutton"
+          tabindex="0"
+          aria-label="年"
+          aria-valuenow="2026"
+          aria-valuetext="2026"
+        >
+          2026
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="month"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="月"
+          aria-valuenow="9"
+          aria-valuetext="9月"
+        >
+          09
+        </div>
+        <span data-part="literal" data-part-literal="" aria-hidden="true">/</span>
+        <div
+          data-part="segment"
+          data-part-segment=""
+          data-field="day"
+          role="spinbutton"
+          tabindex="-1"
+          aria-label="日"
+          aria-valuenow="9"
+          aria-valuetext="9日"
+        >
+          09
+        </div>
+      </div>
+      <input data-part="hidden-input" data-part-hidden-input="" type="hidden" value="2026-09-09" />
+    </div>
+  </div>
+</section>

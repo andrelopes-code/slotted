@@ -1,0 +1,590 @@
+{
+  "schemaVersion": 5,
+  "family": "combobox",
+  "ui": "combobox",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Text input that filters a list of options."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/combobox/",
+  "listboxPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/",
+  "patternStatus": "Two pages answer this family. The combobox pattern owns the input, its role, its aria-autocomplete axis and both key tables; the listbox pattern owns the popup, its options and its groups. Both were read on 2026-09-04 and transcribed The pattern's two key sections are merged into one table, which is what its own note asks for: DOM focus is maintained on the combobox and the popup is navigated with aria-activedescendant.",
+  "roles": {
+    "input": "combobox",
+    "content": "listbox",
+    "item": "option",
+    "group": "group",
+    "separator": "separator",
+    "status": "status"
+  },
+  "nativeElement": {
+    "considered": "input + datalist",
+    "refused": true,
+    "reason": "A datalist is drawn by the operating system, exposes no styling, no grouping, no descriptions and no disabled option, its filtering is the browser's and cannot be replaced, and Safari and Firefox each render it differently from Chrome. What it does give — the input itself — is kept: the element is a real input, and every text-editing key, the caret, the selection, IME and autofill remain the browser's."
+  },
+  "modal": false,
+  "composes": [
+    "positioner",
+    "presence",
+    "portal",
+    "dismissable-layer",
+    "collection",
+    "live-announcer"
+  ],
+  "adds": {
+    "collection": {
+      "module": "packages/core/src/collection",
+      "reason": "createFilter and matchRanges, because docs/component-features.md §2.9 asks that search compare the way the reader's locale compares and §6 refuses a family that assumes contains and English normalisation. moveIndex, because the highlight is aria-activedescendant and packages/core/src/focus/arrow-navigation moves real focus.",
+      "nextConsumer": "listbox"
+    }
+  },
+  "portalledIdentity": {
+    "elements": ["root", "positioner"],
+    "reason": "As select records it: the family is two subtrees, and a stylesheet cannot reach a popup portalled out of its root. A consumer's [data-ui='combobox'] selector matches the control and the popup, and both rows are in the anatomy table."
+  },
+  "layer": {
+    "modal": false,
+    "scrollLock": false,
+    "branches": [
+      "the control root, so pressing the trigger again closes rather than dismissing twice"
+    ],
+    "depthProperty": "--slotted-layer-depth",
+    "zIndexToken": "--slotted-z-index-popover",
+    "reason": "One layer in the single stack, at the token popover, menu and select already use."
+  },
+  "highlight": {
+    "mechanism": "aria-activedescendant",
+    "attribute": "data-current",
+    "focus": "stays on the input for the whole interaction",
+    "scroll": "scrollIntoView({ block: 'nearest' }) on every change",
+    "reason": "The pattern requires it: DOM focus is placed on the combobox element and a focused descendant of the popup is named by aria-activedescendant. An editable combobox has no alternative — the input must keep focus for the reader to type."
+  },
+  "waiting": {
+    "busy": {
+      "part": "busy",
+      "ui": "spinner",
+      "stylesheet": "spinner/spinner.css",
+      "reason": "While an answer is travelling the control shows the ring instead of the chevron: the chevron says the popup opens, and it does not open onto anything yet. The ring is the one B4 drew once for every family (spinner/spinner.css) rather than a second arc drawn here, and this family only says where it stands and how big it is."
+    },
+    "placeholder": {
+      "part": "placeholder",
+      "ui": "skeleton",
+      "stylesheet": "skeleton/skeleton.css",
+      "reason": "The popup waits as three rows the height of an option rather than as one sentence, so the surface a reader is looking at is the shape of the list that is coming. It is hidden from assistive technology: the status row beside it is the live region and already says what is happening (SL6/CB5)."
+    }
+  },
+  "customValue": {
+    "prop": "allowsCustomValue",
+    "default": false,
+    "settlesOn": "blur",
+    "match": "an option whose label is the typed text, compared with the family's own collator at base sensitivity — the same comparison the filter made",
+    "accepted": "the text becomes the value, through onValueChange with reason 'blur'",
+    "rejected": "the field goes back to the label of the last committed value, or to nothing, and onInputReset is called with the text that was refused",
+    "event": "onInputReset",
+    "reason": "An editable combobox lets a reader type anything, and the pattern says nothing about what happens to text that matched no option. `Enter` already answered it — the family reverts, or commits the text where `allowsCustomValue` is on — and blur did not, so a control whose value was `apple` sat there reading `appl` after the reader clicked away (CB7). It is the same decision at a second moment, so it is the same prop: a second one spelled without the `s` would have been two names for one answer, and a field could then refuse on Enter and accept on blur."
+  },
+  "creation": {
+    "prop": "onCreate",
+    "message": "create",
+    "element": "an option of its own, marked data-create",
+    "appears": "while onCreate is given, the query is not empty, and nothing in the collection matched it",
+    "effect": "calls onCreate with the query and closes; the family selects nothing, because the collection does not hold the value yet",
+    "keyboard": "it is an option — `data-part='item'` like every other, told apart by `data-create` the way a chosen one is told apart by `data-selected` — so ArrowDown reaches it, aria-activedescendant names it and Enter takes it, through machinery that already exists. A part of its own would have been a row outside the collection, which the keyboard could not reach.",
+    "reason": "A reader who typed something the list does not hold has either mistyped or means to add it, and only the consumer knows which of its collections can grow. So the family draws the offer and reports it, and adding the value is the consumer's — which is also why nothing is selected here: selecting a value the collection does not hold would leave the control naming an option that does not exist (CB8). The row replaces the empty message rather than standing beside it: 'nothing matched' and 'create it' are the same sentence.",
+    "declined": {
+      "tags": "The item asks for a tag input with creation. This family declines `multiple` (see declined.multiple), so there is no set to add to and no tags to add into; a creatable tag input is `multi-select`, wave 6 item 5."
+    }
+  },
+  "wiring": {
+    "role": "combobox on the input, listbox on the content, option on each item",
+    "aria-haspopup": "never written. Elements with role combobox have an implicit aria-haspopup of listbox, and the popup is one.",
+    "aria-expanded": "true while the popup is open, false while it is closed, always written",
+    "aria-controls": "the input names the content while the popup is open",
+    "aria-activedescendant": "the input names the highlighted option, and nothing while there is none",
+    "aria-autocomplete": "none, list or both, from the autocomplete axis, which is the pattern's own three values",
+    "aria-selected": "true on the committed option, false on every other selectable one",
+    "aria-labelledby": "unused. The input is a real input and the field's label reaches it through for and id, which is what the pattern asks for first.",
+    "aria-describedby": "the input takes the field's description and error, and the status element while one is showing",
+    "aria-readonly": "on the input, beside the native readonly the element already honours, because the popup's own behaviour is the family's to withhold",
+    "aria-required": "the native required attribute, from the prop or from the field",
+    "aria-invalid": "on the input, from the prop or from the field",
+    "aria-busy": "on the content while loading",
+    "aria-setsize": "on each option when total is given",
+    "aria-posinset": "beside aria-setsize",
+    "tabindex": "-1 on the trigger button, which the pattern's Keyboard Interaction note excludes from the page tab sequence by name",
+    "aria-modal": "never written."
+  },
+  "keyboard": [
+    {
+      "key": "ArrowDown",
+      "effect": "closed, opens and highlights the first option; open, moves the highlight to the next option, wrapping only when loop is true",
+      "focus": "stays on the input, and the caret does not move",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "closed, opens and highlights the last option, which is the pattern's optional Up Arrow; open, moves the highlight to the previous option",
+      "focus": "the input, caret unmoved",
+      "source": "pattern"
+    },
+    {
+      "key": "Alt+ArrowDown",
+      "effect": "opens the popup without moving the highlight",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Alt+ArrowUp",
+      "effect": "closes the popup",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Enter",
+      "effect": "commits the highlighted option, closes, and puts the caret at the end of the accepted value; with no highlight and allowsCustomValue, commits the typed text; with no highlight and no custom value, closes and reverts the text",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Escape",
+      "effect": "open, closes and keeps the typed text; closed, reverts the text to the committed option's label, and clears the selection when the text was already that label. Both steps are optional in the pattern and both are named in it.",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "the browser's caret movement, never intercepted, which is the pattern's editable branch",
+      "focus": "the input, caret at the first character",
+      "source": "platform"
+    },
+    {
+      "key": "End",
+      "effect": "the browser's caret movement, never intercepted",
+      "focus": "the input, caret after the last character",
+      "source": "platform"
+    },
+    {
+      "key": "PageDown",
+      "effect": "moves the highlight ten options on, or to the last, and never wraps. Optional in the pattern for a grid popup and absent for a listbox one; adopted because a filtered list of two hundred is the case this family exists for.",
+      "focus": "the input",
+      "source": "family"
+    },
+    {
+      "key": "PageUp",
+      "effect": "moves the highlight ten options back, or to the first, and never wraps",
+      "focus": "the input",
+      "source": "family"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "the browser's caret movement, never intercepted",
+      "focus": "the input",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "the browser's caret movement, never intercepted. With autocomplete=\"both\" and a completion string showing, it accepts the completion by collapsing the selection to its end, which is what the caret key already does.",
+      "focus": "the input",
+      "source": "platform"
+    },
+    {
+      "key": "Backspace",
+      "effect": "the browser's text editing, never intercepted. It also withdraws the completion string, because a reader deleting a character is not asking for one back.",
+      "focus": "the input",
+      "source": "platform"
+    },
+    {
+      "key": "Delete",
+      "effect": "the browser's text editing, never intercepted, and it withdraws the completion string for the same reason",
+      "focus": "the input",
+      "source": "platform"
+    },
+    {
+      "key": "Printable character",
+      "effect": "typed into the input, which filters the collection. Never intercepted — the pattern's IMPORTANT note asks that script not capture the keys the browser uses for text editing.",
+      "focus": "the input",
+      "source": "platform"
+    },
+    {
+      "key": "Tab",
+      "effect": "closes without committing a highlight, and accepts a showing completion string. A highlight the reader arrowed past is not a choice they made, which is where this family differs from select.",
+      "focus": "the next element in the page",
+      "source": "family"
+    }
+  ],
+  "focus": {
+    "onOpen": "nothing moves; the input keeps focus and the highlight goes to the selected option, to the first when autoHighlight is set, and to nothing otherwise",
+    "roving": false,
+    "contained": false,
+    "restore": "never leaves the input, so there is nothing to restore",
+    "disabledItems": "A disabled option is announced with aria-disabled, carries data-disabled, keeps its place in the collection and is skipped by every movement key.",
+    "guards": false,
+    "guardsReason": "Focus never enters the layer, so there is nothing inside it for Tab to reach.",
+    "removal": "A filter that removes the highlighted option moves the highlight to the option that took its index, then to the first, then to nothing."
+  },
+  "opening": {
+    "input": "typing into the input opens the popup, and so does a press on the input; a Tab into the input does not, because a reader tabbing through a form is passing the control on the way to the next field",
+    "focus": "every focus on the input opens the popup, a Tab into it and a press on it alike. For a control that is the reason the page exists, such as a search field alone in a header",
+    "manual": "only the trigger, ArrowDown, ArrowUp and Alt+ArrowDown open the popup; typing filters without opening it",
+    "press": "a pointer press on the input opens a closed popup with reason pointer, under input and focus, and never closes an open one, because a press there also places the caret. Under manual it only places the caret. A consumer handler that calls preventDefault on the click keeps the popup closed",
+    "reason": "React Aria names the same three values in menuTrigger and defaults to input; Base UI (openOnInputClick) and Ark (openOnClick) open on a press on the input. combobox, multi-select and entity-picker answer both gestures alike, so one form holding the three opens on the same gestures"
+  },
+  "mark": {
+    "family": "highlight",
+    "ui": "highlight",
+    "part": "match",
+    "inside": "label",
+    "reason": "The span a query found is the `highlight` family, rendered inside this family's label part: one root per option, one `mark` per contiguous span, from the same collator the filter used. Until wave 10 the mark was a shared sheet this contract declared (R6); it is now a family with a contract of its own, `specs/components/highlight/contract.json`, and this family only points at it. It changes no metric of the word it marks: at 600 weight and 0.1em of inline padding the label was 6.86px wider marked than plain, and the marked run moved on every keystroke (CB6)."
+  },
+  "filtering": {
+    "default": "createFilter().contains, locale-sensitive at base sensitivity",
+    "adapter": "filter: (item, query) => boolean",
+    "off": "filter={null}, for a list the consumer has already filtered on a server",
+    "highlight": "the highlight family inside the label part, handed the query and the locale the filter used",
+    "reason": "docs/component-features.md §6 requires that filtering, ranking and remote search be adapters and that the component assume neither contains nor English normalisation. The same collator finds the match and the mark, so an option cannot pass one comparison and show a mark from another."
+  },
+  "autocomplete": {
+    "none": "the popup shows the same options whatever is typed",
+    "list": "the popup shows the options that match what is typed",
+    "both": "as list, and the completion of the first match is written into the input as a selected range",
+    "default": "list",
+    "reason": "The pattern's own three values for aria-autocomplete. both is the only one with a visible artefact, and it is written as a selection rather than as text so the next character typed replaces it."
+  },
+  "async": {
+    "loading": "paints the status row, sets aria-busy on the content, and keeps the popup's measure",
+    "loadMore": "onLoadMore fires when the status row is scrolled into view",
+    "count": "the status row is the live region, and the count message is the sentence it announces",
+    "debounce": "declined; the consumer debounces the fetch, which the reference page shows in three lines",
+    "reason": "docs/component-features.md §6 asks for async loading, load more and a count announced to a screen reader. Base UI asks the consumer to assemble the status element and the strings; React Aria exposes loadingState and draws nothing."
+  },
+  "value": {
+    "text": "inputValue, the characters the reader sees",
+    "key": "value, the option that was committed",
+    "reason": "docs/component-features.md §6: \"text value and selected key are distinct contracts\". Each transition emits exactly one request. Committing an option emits both, each with reason select; typing emits only the text request, with reason keyboard."
+  },
+  "form": {
+    "react": "a visually hidden native input carrying name, required and form",
+    "angular": "ControlValueAccessor and Validator",
+    "reason": "Neither ecosystem has the other's mechanism. The Validator reports required and, with allowsCustomValue off, a typed string that matches no option — a state a native input cannot describe."
+  },
+  "mount": {
+    "active": "the layer exists only while it is open",
+    "lazy": "built on the first open and kept afterwards",
+    "eager": "exists from the start, closed",
+    "default": "active",
+    "reason": "The same axis tooltip, popover, collapsible, menu and select declare."
+  },
+  "motion": {
+    "property": "scale",
+    "companion": "opacity",
+    "companionPart": "content",
+    "origin": "--slotted-positioner-transform-origin",
+    "measured": false,
+    "reason": "The same grammar every anchored layer in this library uses."
+  },
+  "runtimeProperties": [
+    "--slotted-layer-depth",
+    "--slotted-positioner-anchor-width",
+    "--slotted-positioner-available-height",
+    "--slotted-positioner-available-width",
+    "--slotted-positioner-transform-origin"
+  ],
+  "positioning": {
+    "side": "bottom",
+    "align": "start",
+    "sideOffset": 4,
+    "alignOffset": 0,
+    "collisionPadding": 8,
+    "reason": "The same placement select takes, and for the same reason: the popup is never narrower than the control and hangs under it, so the typed text and the labels share one edge."
+  },
+  "overflow": {
+    "part": "content",
+    "property": "--slotted-positioner-available-height",
+    "reason": "The same bound menu and select take."
+  },
+  "measure": {
+    "value": "the content's own width by default, never narrower than the anchor's width and capped by the measure and the available width; exactly the anchor's width when width is anchor",
+    "property": "--slotted-positioner-anchor-width",
+    "reason": "As select records it."
+  },
+  "declined": {
+    "multiple": {
+      "deferTo": "multi-select",
+      "reason": "Base UI, React Aria and Ark all ship a multi-select combobox with chips. docs/component-features.md §6 files a collection of chosen values — with search, creation, a limit, duplicates, reorder and paste — under MultiSelect / Tags Input, which is wave 6 item 5. A combobox that also held a set would be that family with a different name, and the two would then answer Backspace differently."
+    },
+    "modal": {
+      "deferTo": "dialog",
+      "reason": "As select declines it, and for the same mechanism: inerting the page would inert the input the reader is typing into."
+    },
+    "backdrop": {
+      "deferTo": "dialog",
+      "reason": "A backdrop belongs to a modal surface, and modality is declined above."
+    },
+    "arrow": {
+      "deferTo": "popover",
+      "reason": "The popup is never narrower than its control and hangs under it. Declining the positioner arrow frees the part name arrow for the chevron inside the trigger button."
+    },
+    "debounce": {
+      "reason": "docs/component-features.md §6 lists it in the contract and it is refused as a prop, in writing. A debounce belongs to the consumer's fetch: a family that delayed its own onInputValueChange would delay a controlled consumer's re-render and drop characters between them. The three lines that debounce a fetch are on both reference pages."
+    },
+    "grid": {
+      "deferTo": "table",
+      "reason": "The combobox pattern allows a grid, a tree or a dialog popup and this family ships the listbox one. A popup of rows and columns is table's subject, and the pattern's grid section describes selection following focus across cells, which is a different family's model."
+    },
+    "virtualization": {
+      "deferTo": "collection",
+      "reason": "As menu and select defer it. onLoadMore is the incremental answer until the collection engine's virtualization lands."
+    },
+    "ranking": {
+      "reason": "docs/component-features.md §6 names ranking as an adapter, and the adapter is filter itself plus the order of the items the consumer passes. A family that ranked would decide relevance for a domain it knows nothing about; a family that sorted would fight a consumer who had already sorted."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"],
+    "side": ["bottom", "top", "inline-start", "inline-end", "left", "right"],
+    "align": ["start", "center", "end"],
+    "width": ["anchor", "content"],
+    "mount": ["active", "lazy", "eager"],
+    "strategy": ["absolute", "fixed"],
+    "autocomplete": ["none", "list", "both"],
+    "openOn": ["input", "focus", "manual"],
+    "allowsCustomValue": [true, false],
+    "autoHighlight": [true, false],
+    "highlightMatch": [true, false],
+    "clearable": [true, false],
+    "loop": [true, false],
+    "closeOnSelect": [true, false],
+    "closeOnEscape": [true, false],
+    "closeOnOutsidePress": [true, false],
+    "flip": [true, false],
+    "shift": [true, false],
+    "hideWhenDetached": [true, false],
+    "portal": [true, false],
+    "fullWidth": [true, false],
+    "disabled": [true, false],
+    "readOnly": [true, false],
+    "required": [true, false],
+    "invalid": [true, false],
+    "loading": [true, false]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "side": ["prop", "defaults", "bottom"],
+    "align": ["prop", "defaults", "start"],
+    "width": ["prop", "defaults", "content"],
+    "mount": ["prop", "defaults", "active"],
+    "strategy": ["prop", "defaults", "absolute"],
+    "autocomplete": ["prop", "defaults", "list"],
+    "openOn": ["prop", "defaults", "input"],
+    "allowsCustomValue": ["prop", "defaults", false],
+    "autoHighlight": ["prop", "defaults", false],
+    "highlightMatch": ["prop", "defaults", true],
+    "clearable": ["prop", "defaults", true],
+    "loop": ["prop", "defaults", false],
+    "closeOnSelect": ["prop", "defaults", true],
+    "closeOnEscape": ["prop", "defaults", true],
+    "closeOnOutsidePress": ["prop", "defaults", true],
+    "flip": ["prop", "defaults", true],
+    "shift": ["prop", "defaults", true],
+    "hideWhenDetached": ["prop", "defaults", true],
+    "portal": ["prop", "defaults", true],
+    "fullWidth": ["prop", "defaults", true],
+    "disabled": ["prop", "defaults", false],
+    "readOnly": ["prop", "defaults", false],
+    "required": ["prop", "defaults", false],
+    "invalid": ["prop", "defaults", false],
+    "loading": ["prop", "defaults", false]
+  },
+  "provides": {
+    "comboboxDefaults": [
+      "size",
+      "variant",
+      "side",
+      "align",
+      "width",
+      "mount",
+      "strategy",
+      "autocomplete",
+      "openOn",
+      "allowsCustomValue",
+      "autoHighlight",
+      "highlightMatch",
+      "clearable",
+      "loop",
+      "closeOnSelect",
+      "closeOnEscape",
+      "closeOnOutsidePress",
+      "flip",
+      "shift",
+      "hideWhenDetached",
+      "portal",
+      "fullWidth",
+      "disabled",
+      "readOnly",
+      "required",
+      "invalid",
+      "loading",
+      "sideOffset",
+      "alignOffset",
+      "collisionPadding"
+    ]
+  },
+  "messages": ["clear", "count", "create", "empty", "loading", "trigger"],
+  "stateAttributes": {
+    "open": "data-open",
+    "disabled": "data-disabled",
+    "readonly": "data-readonly",
+    "invalid": "data-invalid",
+    "required": "data-required",
+    "loading": "data-loading",
+    "selected": "data-selected",
+    "current": "data-current"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "inputValue",
+      "uncontrolled": "defaultInputValue",
+      "request": "onInputValueChange",
+      "reasons": ["keyboard", "select", "clear", "blur", "programmatic"]
+    },
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "clear", "select", "blur", "programmatic"]
+    },
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "escape",
+        "outsidePress",
+        "select",
+        "dismiss",
+        "blur",
+        "programmatic"
+      ]
+    },
+    "current": {
+      "controlled": "highlightedValue",
+      "uncontrolled": "defaultHighlightedValue",
+      "request": "onHighlightedValueChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "members": {
+    "combobox": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "side": "bottom",
+        "align": "start",
+        "width": "content",
+        "mount": "active",
+        "strategy": "absolute",
+        "autocomplete": "list",
+        "openOn": "input",
+        "allowsCustomValue": false,
+        "autoHighlight": false,
+        "highlightMatch": true,
+        "clearable": true,
+        "loop": false,
+        "closeOnSelect": true,
+        "closeOnEscape": true,
+        "closeOnOutsidePress": true,
+        "flip": true,
+        "shift": true,
+        "hideWhenDetached": true,
+        "portal": true,
+        "fullWidth": true,
+        "disabled": false,
+        "readOnly": false,
+        "required": false,
+        "invalid": false,
+        "loading": false,
+        "sideOffset": 4,
+        "alignOffset": 0,
+        "collisionPadding": 8
+      },
+      "capabilities": [
+        "value",
+        "selection",
+        "open",
+        "current",
+        "size",
+        "appearance",
+        "placement",
+        "content",
+        "fullWidth",
+        "disabled",
+        "loading",
+        "readOnly",
+        "required",
+        "invalid",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "open",
+        "disabled",
+        "readonly",
+        "invalid",
+        "required",
+        "loading",
+        "selected",
+        "current"
+      ],
+      "parts": [
+        "root",
+        "input",
+        "trigger",
+        "arrow",
+        "busy",
+        "clear",
+        "positioner",
+        "content",
+        "group",
+        "group-label",
+        "item",
+        "indicator",
+        "icon",
+        "label",
+        "match",
+        "description",
+        "separator",
+        "empty",
+        "status",
+        "placeholder"
+      ]
+    }
+  },
+  "scenarios": {
+    "combobox": [
+      "playground",
+      "filtering",
+      "autocomplete",
+      "custom-value",
+      "creation",
+      "async",
+      "groups",
+      "clearable",
+      "sizes",
+      "variants",
+      "states",
+      "empty",
+      "long-content",
+      "keyboard",
+      "form",
+      "composition"
+    ]
+  }
+}

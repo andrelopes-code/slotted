@@ -1,0 +1,62 @@
+---
+title: Tooltip
+description: A short hint about a control, shown while the pointer rests on it or the keyboard focuses it.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Variants
+
+`inverse`, the default, paints the tooltip in the colour opposite to the page, so it separates from a light page without an edge. `surface` paints the raised panel colour with a hairline border, for a page that is already dark. Hover each button to compare them.
+
+<Example name="variants" />
+
+## Placement
+
+`side` names the edge of the trigger the tooltip prefers: `top` by default, `bottom`, and `inline-start` and `inline-end`, which follow the writing direction; `left` and `right` do not. `align` sets where the tooltip sits along that edge: `start`, `center` or `end`. When the preferred edge has no room, the tooltip flips to the opposite edge and slides along it to stay 8 pixels inside the viewport. The four buttons open above, below, before and after their trigger, and the last one aligns to the top of its trigger.
+
+<Example name="placement" wide />
+
+## Delays
+
+A hover opens the tooltip after `openDelay`, 600 milliseconds by default, so a pointer crossing a row of buttons opens nothing. After the pointer leaves, the tooltip stays for `closeDelay`, 150 milliseconds, which is the time the pointer has to move onto it. Keyboard focus never waits. Release hold keeps the defaults, Cancel order waits 1.2 seconds and stays 400 milliseconds, and Track parcel opens after 200 milliseconds. Once one tooltip closes, the next one opens without the wait for `groupDelay`, 400 milliseconds, so move between the buttons slowly to feel each delay. `groupDelay` is set on `TooltipDefaultsProvider` in React and through `provideTooltipDefaults` in Angular.
+
+<Example name="delays" />
+
+## Icon-only buttons
+
+An icon-only button has no text to name it. `describes="label"` makes the tooltip its accessible name: the trigger refers to the content with `aria-labelledby` instead of `aria-describedby`, and the layer is in the document from the start, closed, so the name exists before the first hover. Write the tooltip as the action the button performs. `IconButton` and `slIconButton` take the `aria-labelledby` the trigger writes in place of an `aria-label`.
+
+<Example name="icon-button" />
+
+## Disabled triggers
+
+A button with the native `disabled` attribute receives no pointer events and no focus, so a tooltip on it never opens. Set `disabled` with `focusableWhenDisabled` on the button instead: it keeps its place in the tab order, carries `aria-disabled="true"` and refuses its press, and the tooltip can say why it is unavailable.
+
+<Example name="disabled-trigger" />
+
+## Keyboard focus
+
+Focus from the keyboard opens the tooltip at once. A focus that comes from a pointer press does not, because the press is the control's own action. Escape closes the tooltip and leaves focus on the trigger; Enter and Space activate the button and close it; Tab moves focus on and closes it. The line under the buttons prints the reason of each change: `keyboard`, `escape`, `blur` or `pointer`, from `onOpenChange` in React and `(openChangeRequest)` in Angular.
+
+<Example name="keyboard" />
+
+## Controlled
+
+Pass `open` and update it from `onOpenChange` in React, or bind `[(open)]` to a signal in Angular, when something outside the tooltip opens it or reads its state. Hover, focus, Escape and an outside press still open and close it, and every change goes through the handler. Show the cutoff opens the tooltip from another button.
+
+<Example name="controlled" />
+
+## Long content
+
+The tooltip wraps at 18rem, 14rem at `size="sm"`, and an unbroken string such as a return label breaks inside it instead of widening it. On a narrow screen the tooltip also narrows to the width left beside the viewport edge, so it never pushes the page sideways. Keep it to one or two sentences: a tooltip opens only on hover, focus or a long press, so it may never be the only place a fact is written. A paragraph, a link or a control belongs in a popover.
+
+<Example name="long-content" />
+
+## In a toolbar
+
+A toolbar of icon buttons is where tooltips usually live. `TooltipDefaultsProvider` in React and `provideTooltipDefaults` in Angular set `describes="label"` and `size="sm"` once for every tooltip under them, and they hold the group window, so moving along the row pays the open delay once. The arrow keys move focus between the buttons, and each focused button shows its tooltip.
+
+<Example name="toolbar" wide />

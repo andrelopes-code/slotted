@@ -1,0 +1,960 @@
+@layer slotted.components {
+  /**
+   * ── The region, and the messages in it ──────────────────────────────────
+   *
+   * Transient feedback about something that already happened: a tone, a mark,
+   * a sentence, sometimes a control that acts on it, and a timer.
+   *
+   *   ┌─ root ─ section, role="region", named ──────────────┐
+   *   │  ┌─ list ─ ol ────────────────────────────────────┐ │
+   *   │  │ ┌─ item ─ li ────────────────────────────────┐ │ │
+   *   │  │ │ ◆ icon │ content ▸ title            │ ✕    │ │ │
+   *   │  │ │        │           description      │close │ │ │
+   *   │  │ │        │ actions                    │      │ │ │
+   *   │  │ │ ▁▁▁▁▁▁▁▁ progress ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁ │ │ │
+   *   │  │ └────────────────────────────────────────────┘ │ │
+   *   │  └────────────────────────────────────────────────┘ │
+   *   └─────────────────────────────────────────────────────┘
+   *
+   * ── The root is the region and not a message ────────────────────────────
+   *
+   * A message cannot own the corner of the screen. The region does, and it is
+   * the part that carries the family's identity, the placement, the container
+   * query and the accessible name a reader finds it by. `list` is a second
+   * element because `container-type: inline-size` makes an element a query
+   * container for its descendants and not for itself — the decision
+   * `docs/build-briefing.md` records, and the split `stepper` already had.
+   *
+   * ── The region takes no pointer ─────────────────────────────────────────
+   *
+   * A box pinned over a page's content must not eat a press meant for the
+   * page. Every surveyed implementation does this and none of them states it,
+   * which is how a consumer discovers the rule by finding a dead corner of
+   * their own application.
+   *
+   * ── Nothing here is a live region ───────────────────────────────────────
+   *
+   * The announcement is made by `packages/core/src/live-announcer`, and the
+   * reason is in `specs/components/toast/contract.json` under `departures`.
+   * The stylesheet's part in it is that no rule assumes a role: the same
+   * picture is drawn whether a reader hears the words or reads them.
+   */
+  [data-ui-toast][data-part-root] {
+    /**
+     * The distance from the edge of the screen, and the greatest width a
+     * message is allowed. The width is the smaller of the two, so at 320
+     * pixels and at 200% zoom the region is the screen less two offsets rather
+     * than a stated width running off the side.
+     */
+    --_offset: var(--slotted-toast-offset, var(--slotted-space-6, 1rem));
+    --_measure: var(--slotted-toast-measure, 24rem);
+    /**
+     * Twelve pixels rather than eight, and the elevation a step below the one
+     * a single message wanted. Read as a run of five, `--slotted-shadow-lg` at
+     * an eight-pixel gap laid each message's shadow across the top of the next
+     * one, and the column read as five boxes with dirt between them. The pair
+     * is one decision: the gap is what a shadow needs to fall into, and the
+     * shadow is what says the message is not part of the page under it.
+     */
+    --_gap: var(--slotted-toast-gap, var(--slotted-space-5, 0.75rem));
+
+    /**
+     * How far a collapsed message behind the front one peeks out, and how much
+     * of its ink each step back gives up. The fade is a bare number rather than
+     * a length because it multiplies an index, and both are tokens so a theme
+     * that wants a flatter stack has one name to set for each.
+     */
+    --_stack-step: var(--slotted-toast-stack-step, var(--slotted-space-3, 0.375rem));
+    --_stack-fade: var(--slotted-toast-stack-fade, 0.15);
+
+    /**
+     * Where a message comes from. It is the block axis in both directions: a
+     * message at the block end rises into place and one at the block start
+     * drops in, which is the one motion that says *this arrived* rather than
+     * *this moved*.
+     */
+    --_enter-shift: var(--slotted-space-7, 1.25rem);
+
+    box-sizing: border-box;
+    container-name: slotted-toast;
+    container-type: inline-size;
+    inline-size: min(var(--_measure), calc(100% - 2 * var(--_offset)));
+    /* The single stack, above every overlay: a message about what just
+       happened has to be readable over the dialog that caused it. */
+    position: fixed;
+    z-index: var(--slotted-z-index-toast, 1200);
+
+    pointer-events: none;
+  }
+
+  /**
+   * The region rendered inside a panel rather than against the screen. It is
+   * the axis Fluent calls `inline`, and it is what makes the family
+   * demonstrable on a documentation page: everything else about it is the
+   * same, including the placement, which now names the edges of the panel.
+   */
+  [data-ui-toast][data-part-root][data-attach='inline'] {
+    position: absolute;
+  }
+
+  /* ── Placement ─────────────────────────────────────────────────────────
+   *
+   * Six values, and every one of them written in logical properties, so
+   * `bottom-end` is the bottom right of an English page and the bottom left of
+   * an Arabic one. Sonner's `bottom-right` is `bottom-right` in both.
+   */
+
+  [data-ui-toast][data-part-root][data-placement^='top'] {
+    inset-block-start: var(--_offset);
+  }
+
+  [data-ui-toast][data-part-root][data-placement^='bottom'] {
+    inset-block-end: var(--_offset);
+  }
+
+  [data-ui-toast][data-part-root][data-placement$='-start'] {
+    inset-inline-start: var(--_offset);
+  }
+
+  [data-ui-toast][data-part-root][data-placement$='-end'] {
+    inset-inline-end: var(--_offset);
+  }
+
+  /**
+   * Centred by giving the box both insets and letting the automatic margins
+   * divide what is left. It is the one centring that needs no transform, so
+   * the transform stays free for the enter, the exit and the swipe.
+   */
+  [data-ui-toast][data-part-root][data-placement='top'],
+  [data-ui-toast][data-part-root][data-placement='bottom'] {
+    inset-inline: var(--_offset);
+    margin-inline: auto;
+  }
+
+  /* ── The list ──────────────────────────────────────────────────────────
+   *
+   * Newest first in the document, so `F6` and the reading order both reach the
+   * message that just arrived before the ones the reader has already seen. A
+   * region at the block end reverses the visual order instead of the document
+   * order, which puts the newest nearest the edge of the screen — where the
+   * reader's eye already is — without moving it in the accessibility tree.
+   */
+  [data-ui-toast] > [data-part-list] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--_gap);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+  }
+
+  [data-ui-toast][data-placement^='bottom'] > [data-part-list] {
+    flex-direction: column-reverse;
+  }
+
+  /**
+   * While the reader is in the region, the gaps between messages belong to
+   * it. The list takes no pointer, so a pointer crossing the twelve pixels
+   * between two messages left the region: the pause cleared, the timers ran
+   * again, and a pile opened by the pointer closed under it. The list takes
+   * the pointer only while the region is expanded, which only a pointer or
+   * focus already inside a message can cause, so no press meant for the page
+   * lands on an empty region.
+   */
+  [data-ui-toast][data-expanded] > [data-part-list] {
+    pointer-events: auto;
+  }
+
+  /* ── One message ───────────────────────────────────────────────────────
+   *
+   * The grid `alert` settled: the mark, the words, and the control that puts
+   * the message away, with the actions under the words rather than beside
+   * them so a second row exists only when there are actions to put in it.
+   */
+  [data-ui-toast] > [data-part-list] > [data-part-item] {
+    /* The tone's five roles, defaulted to `accent`, restated by each tone
+       below. Every one of them is a role the theme's contrast test measures. */
+    --_solid: var(--slotted-tone-accent-solid);
+    --_on-solid: var(--slotted-tone-accent-on-solid);
+    --_tone-surface: var(--slotted-tone-accent-surface);
+    --_tone-border: var(--slotted-tone-accent-border);
+    --_tone-text: var(--slotted-tone-accent-text);
+
+    /* What the variant resolves the five into: a ground, an edge, the ink the
+       words are written in, the quieter ink under them, and the mark. */
+    --_ground: var(--slotted-toast-surface, var(--slotted-surface-raised, #ffffff));
+    --_edge: var(--slotted-toast-border-color, var(--slotted-border-subtle, #e2e8f0));
+    --_ink: var(--slotted-toast-text, var(--slotted-text, #0f172a));
+    --_ink-muted: var(--slotted-toast-text-muted, var(--slotted-text-muted, #5b6b7f));
+    --_mark: var(--_tone-text);
+
+    /**
+     * A state layer rather than the tone's own hover ramp, for the reason
+     * `alert` measured: on a tinted ground `subtle-hover` is lighter than the
+     * ground it sits on, and on a solid one the ramp is calibrated against the
+     * page instead. `currentcolor` is legible on whatever ground the control
+     * already has, because it is the colour its own words are read in.
+     *
+     * Ten and sixteen per cent, the pair `alert` settled: white at eight per
+     * cent over the `danger` fill moved OKLab lightness by 0.019 in the light
+     * and dark schemes, under the 0.02 a surface step has to reach
+     *.
+     */
+    --_state-hover: color-mix(
+      in oklab,
+      currentcolor var(--slotted-toast-state-layer-hover, 10%),
+      transparent
+    );
+    --_state-active: color-mix(
+      in oklab,
+      currentcolor var(--slotted-toast-state-layer-active, 16%),
+      transparent
+    );
+
+    /* Type and the close glyph from the control scales, the only ones the
+       theme restates per density, so a message inside a dense application
+       shrinks with it. The box's own inset is on the space scale, which does
+       not — the cost `card` and `alert` both accepted and recorded. */
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_glyph-size: var(--slotted-control-icon-size-md, 16px);
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+    /**
+     * The status mark is `alert`'s: a filled disc a step above the title's
+     * `1em`, rounded to an even number of pixels so its centre falls on a
+     * whole pixel — 16 at 13-pixel type, 14 at 12. A message about a failure
+     * draws the same silhouette as the alert about it. A filled mark carries
+     * more weight per pixel than an outline, so it stays within a few pixels
+     * of the capitals and still reads as the loudest thing on the line.
+     */
+    --_mark-size: round(nearest, 1.2em, 2px);
+    --_line-height: var(--slotted-line-height-md, 1.5);
+
+    --_inset-block: var(--slotted-toast-padding-block, var(--slotted-space-5, 0.75rem));
+    --_inset-inline: var(--slotted-toast-padding-inline, var(--slotted-space-6, 1rem));
+    --_column-gap: var(--slotted-toast-column-gap, var(--slotted-space-4, 0.5rem));
+    --_row-gap: var(--slotted-toast-row-gap, var(--slotted-space-5, 0.75rem));
+    --_text-gap: var(--slotted-toast-text-gap, var(--slotted-space-2, 0.25rem));
+    --_radius: var(--slotted-toast-radius, var(--slotted-radius-lg, 8px));
+    --_border-width: var(--slotted-toast-border-width, var(--slotted-border-width-thin, 1px));
+    /* An inner control, not a button (R2): the glyph plus a step of air on
+       each side, floored at WCAG 2.2 SC 2.5.8's minimum so the target holds at
+       every density. It took the smallest control height before, a thirty-pixel
+       square beside a sixteen-pixel mark. */
+    --_close-size: var(
+      --slotted-toast-close-size,
+      max(
+        var(--slotted-target-min, 24px),
+        min(calc(var(--_glyph-size) + 2 * var(--slotted-space-2, 0.25rem)), var(--_inner-size))
+      )
+    );
+    --_progress-size: var(--slotted-toast-progress-size, var(--slotted-space-1, 0.125rem));
+
+    background-color: var(--_ground);
+    border: var(--_border-width) solid var(--_edge);
+    border-radius: var(--_radius);
+    box-shadow: var(--slotted-toast-shadow, var(--slotted-shadow-md));
+    box-sizing: border-box;
+    color: var(--_ink);
+    /* The distance from the mark to the words belongs to the mark, not to the
+       grid: a column gap is drawn between two tracks whether or not either
+       holds anything, so a message with no mark would start one gap further
+       in than its own inset. */
+    column-gap: 0;
+    display: grid;
+    font-family: var(--slotted-toast-font-family, var(--slotted-control-font-family, sans-serif));
+    font-size: var(--_font-size);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    /**
+     * The line box is rounded to an even number of pixels, the rule `alert`
+     * draws its lines with. At 13-pixel type the scale's 1.5 gave 19.5, so a
+     * message of one line was 45.5 pixels tall and one with a description
+     * 88.5 in the `content` scene; an even line also centres the 24-pixel
+     * close control on a whole pixel: 20 at 13, 18 at 12.
+     */
+    line-height: round(nearest, calc(var(--_line-height) * 1em), 2px);
+    /* The message takes the pointer the region refuses. */
+    pointer-events: auto;
+    /* The remaining-time bar is positioned against this box, so its width
+       changing never moves a word. */
+    position: relative;
+    /* Nothing inside a message may be drawn past its own rounded corner, which
+       is what the bar at its block end would do. */
+    overflow: hidden;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    row-gap: var(--_row-gap);
+
+    /**
+     * Closed is the state the element is born in, so a message that mounts
+     * already open has a style to transition from. The exit is the same
+     * declaration, which is why it is written here and not under `[data-open]`.
+     */
+    opacity: 0;
+    translate: 0 var(--_enter-shift);
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-exit),
+      translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  /**
+   * A message at the block start of the screen arrives from above it. The
+   * shift is the same distance in the other direction rather than a second
+   * number, so the two placements are one motion seen twice.
+   */
+  [data-ui-toast][data-placement^='top'] > [data-part-list] > [data-part-item] {
+    translate: 0 calc(-1 * var(--_enter-shift));
+  }
+
+  [data-ui-toast] > [data-part-list] > [data-part-item][data-open] {
+    opacity: 1;
+    translate: 0;
+    transition:
+      opacity var(--slotted-duration-medium) var(--slotted-easing-enter),
+      translate var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  /* ── Tone: the colour, and the mark that says the same thing ───────────
+   *
+   * The map is `specs/components/toast/contract.json`, and it is the map
+   * `alert` and `status-indicator` already share — so a message about a
+   * failure draws the same silhouette as the alert about it. The binding
+   * draws the mark as a `Glyph` from that map; this sheet gives it only the
+   * tone's colour. Under forced
+   * colours every ground becomes one system colour and the shape is all that
+   * is left, which is WCAG 2.2 SC 1.4.1 as well as a preference.
+   */
+
+  [data-ui-toast] > [data-part-list] > [data-part-item][data-tone='accent'] {
+    --_solid: var(--slotted-tone-accent-solid);
+    --_on-solid: var(--slotted-tone-accent-on-solid);
+    --_tone-surface: var(--slotted-tone-accent-surface);
+    --_tone-border: var(--slotted-tone-accent-border);
+    --_tone-text: var(--slotted-tone-accent-text);
+  }
+
+  [data-ui-toast] > [data-part-list] > [data-part-item][data-tone='secondary'] {
+    --_solid: var(--slotted-tone-secondary-solid);
+    --_on-solid: var(--slotted-tone-secondary-on-solid);
+    --_tone-surface: var(--slotted-tone-secondary-surface);
+    --_tone-border: var(--slotted-tone-secondary-border);
+    --_tone-text: var(--slotted-tone-secondary-text);
+  }
+
+  [data-ui-toast] > [data-part-list] > [data-part-item][data-tone='success'] {
+    --_solid: var(--slotted-tone-success-solid);
+    --_on-solid: var(--slotted-tone-success-on-solid);
+    --_tone-surface: var(--slotted-tone-success-surface);
+    --_tone-border: var(--slotted-tone-success-border);
+    --_tone-text: var(--slotted-tone-success-text);
+  }
+
+  [data-ui-toast] > [data-part-list] > [data-part-item][data-tone='info'] {
+    --_solid: var(--slotted-tone-info-solid);
+    --_on-solid: var(--slotted-tone-info-on-solid);
+    --_tone-surface: var(--slotted-tone-info-surface);
+    --_tone-border: var(--slotted-tone-info-border);
+    --_tone-text: var(--slotted-tone-info-text);
+  }
+
+  [data-ui-toast] > [data-part-list] > [data-part-item][data-tone='warning'] {
+    --_solid: var(--slotted-tone-warning-solid);
+    --_on-solid: var(--slotted-tone-warning-on-solid);
+    --_tone-surface: var(--slotted-tone-warning-surface);
+    --_tone-border: var(--slotted-tone-warning-border);
+    --_tone-text: var(--slotted-tone-warning-text);
+  }
+
+  [data-ui-toast] > [data-part-list] > [data-part-item][data-tone='danger'] {
+    --_solid: var(--slotted-tone-danger-solid);
+    --_on-solid: var(--slotted-tone-danger-on-solid);
+    --_tone-surface: var(--slotted-tone-danger-surface);
+    --_tone-border: var(--slotted-tone-danger-border);
+    --_tone-text: var(--slotted-tone-danger-text);
+  }
+
+  /* ── Variant: the three ways one tone is painted ───────────────────────
+   *
+   * `raised` is the default and the one the other families do not have: a
+   * message floats over content this family does not own, and tinting that
+   * content's corner is a decision the message has no standing to take. The
+   * tone is in the mark and in nothing else, which is enough — it is the
+   * silhouette that survives forced colours anyway.
+   */
+  /**
+   * A theme that paints the raised message with a surface that has alpha blurs
+   * what passes under it: `--slotted-toast-backdrop-filter`, `none` unless set.
+   * Only `raised` floats over content it does not own; `soft` and `solid` are
+   * tone grounds. A reader who asked for less transparency gets no filter, and
+   * under forced colours the ground is the system's.
+   */
+  [data-ui-toast] > [data-part-list] > [data-part-item][data-variant='raised'] {
+    -webkit-backdrop-filter: var(--slotted-toast-backdrop-filter, none);
+    backdrop-filter: var(--slotted-toast-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-toast] > [data-part-list] > [data-part-item][data-variant='raised'] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  [data-ui-toast] > [data-part-list] > [data-part-item][data-variant='soft'] {
+    --_ground: var(--_tone-surface);
+    --_edge: var(--_tone-border);
+    /* The tone's own text on the tone's own surface is the pair the theme
+       measures. Painting a tinted ground with the neutral ink would be a ratio
+       nobody holds, which is the shortfall `alert` records. */
+    --_ink: var(--_tone-text);
+    --_ink-muted: var(--_tone-text);
+  }
+
+  [data-ui-toast] > [data-part-list] > [data-part-item][data-variant='solid'] {
+    --_ground: var(--_solid);
+    --_edge: var(--_solid);
+    --_ink: var(--_on-solid);
+    --_ink-muted: var(--_on-solid);
+    --_mark: var(--_on-solid);
+  }
+
+  /* ── The mark ─────────────────────────────────────────────────────────
+   *
+   * `alert`'s mark, rule for rule: a filled disc on the title's first line,
+   * the binding's `Glyph` drawing a hand-drawn status mark, the silhouette
+   * filled and the tone's symbol cut out of it, so the ground shows through
+   * the symbol on every variant. Every silhouette — the circle, the warning's
+   * diamond — is symmetric on both axes, so every mark has the same centre,
+   * and the symbol inside is what tells the five apart when colour is gone.
+   *
+   * The silhouette fills its box edge to edge, so the box is the mark.
+   *
+   * The mark hangs from the first line's baseline. Grid baseline alignment
+   * puts the mark's bottom edge on the words' baseline, and a relative offset
+   * lowers it by half of what the mark exceeds the capitals by, so its centre
+   * is the centre of the capitals in whatever face the title is set in. The
+   * offset is rounded to a whole pixel and the mark is a whole number of
+   * pixels, so the glyphs and the drawing snap by the same amount. The
+   * negative block-start margin takes the mark's own height out of the
+   * baseline group, so the words sit where they sit with no mark at all, and
+   * layout containment keeps the glyph's own baseline out of the box's.
+   *
+   * The slot carries the colour, and the disc is painted in `currentcolor`,
+   * so on a `solid` message the mark takes the on-solid ink with the words,
+   * and under forced colours one declaration repaints it.
+   *
+   * A mark the page supplied instead of the tone's own — a spinner from
+   * `progress-indicator` while a promise is in flight, a product's own
+   * artwork — takes the same place: an icon a consumer wrote is an icon, and
+   * the line it belongs to has not moved. The artwork is centred in the box,
+   * so an icon drawn at the mark's size fills it and a larger one overhangs it
+   * equally on both sides of the same axis rather than pushing the words along. A
+   * message waiting on a promise with no mark of its own draws none, and the
+   * box stays, so the layout does not jump when the spinner becomes a tick.
+   */
+  [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-icon] {
+    --slotted-icon-size: var(--_mark-size);
+    /**
+     * The loading mark is `progress-indicator`'s contained loader, and these
+     * three are the whole of what this family says to it: the disc is the
+     * mark's size, so the loader and the tick that replaces it are one
+     * silhouette, and it is drawn in the mark's ink with the track the
+     * loader's own 24 per cent of that ink over this message's ground — on a
+     * `solid` message that is the on-solid ink over the fill, which the
+     * loader's tone could not know.
+     */
+    --slotted-progress-indicator-size: var(--_mark-size);
+    --slotted-progress-indicator-indicator-color: var(--_mark);
+    --slotted-progress-indicator-track-color: color-mix(in oklab, var(--_mark) 24%, var(--_ground));
+
+    align-items: center;
+    align-self: baseline;
+    block-size: var(--_mark-size);
+    color: var(--_mark);
+    contain: layout;
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    inline-size: var(--_mark-size);
+    inset-block-start: round(nearest, (var(--_mark-size) - 1cap) / 2, 1px);
+    justify-content: center;
+    margin-block-start: calc(-1 * var(--_mark-size));
+    margin-inline-end: var(--_column-gap);
+    position: relative;
+  }
+
+  /* ── The words ────────────────────────────────────────────────────────
+   *
+   * `min-inline-size: 0` is what lets the column shrink below its content
+   * inside the message's grid, and it is the half of the pair that
+   * `minmax(0, 1fr)` on the track cannot supply on its own. The same pair is
+   * restated inside: the words are a grid of their own, and its one track has
+   * to be clamped too, or an unbreakable word in the title sizes the track to
+   * itself and the words run past the box that holds them.
+   */
+  [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-content] {
+    /* The other half of the mark's baseline group: see the mark above. */
+    align-self: baseline;
+    display: grid;
+    grid-column: 2;
+    grid-row: 1;
+    grid-template-columns: minmax(0, 1fr);
+    min-inline-size: 0;
+    row-gap: var(--_text-gap);
+  }
+
+  /**
+   * `anywhere` breaks the one string a message is likeliest to carry that no
+   * language can break — a deployment id, a container digest, a compound noun,
+   * a host name without a hyphen — and, unlike `break-word`, lowers the
+   * min-content size the grid reads, so the track never grows past the box to
+   * fit the word. Nothing is removed: the whole string stays in the DOM, in the
+   * accessibility tree, and findable by a page search.
+   *
+   * The 240-pixel capture is what asked for it: with `break-word` the title
+   * `Zwischenspeicherung` set the track to 183 pixels inside a box of 155, and
+   * the words stood outside the message in every scheme.
+   */
+  [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-content] > [data-part-title] {
+    font-family: var(
+      --slotted-toast-title-font-family,
+      var(
+        --slotted-font-family-heading,
+        var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+      )
+    );
+    font-weight: var(--slotted-toast-title-font-weight, var(--slotted-font-weight-semibold, 600));
+    margin: 0;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-toast]
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-content]
+    > [data-part-description] {
+    color: var(--_ink-muted);
+    margin: 0;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* ── The actions ──────────────────────────────────────────────────────
+   *
+   * Under the words rather than beside them, which is the only place they can
+   * wrap without taking the message's own column with them. What goes in is
+   * the consumer's own buttons: `button` already owns what a button is, and
+   * naming one of two controls `cancel` would privilege one arrangement.
+   */
+  [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-actions] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-toast-actions-gap, var(--slotted-space-3, 0.375rem));
+    grid-column: 2;
+    grid-row: 2;
+    min-inline-size: 0;
+  }
+
+  /* ── The control that puts the message away ───────────────────────────
+   *
+   * The negative margins are optical rather than decorative, and they are the
+   * pair `alert` arrived at: the button's box is taller than the line it sits
+   * beside, so half the overhang comes off each end. With both, the control's
+   * margin box is exactly one line and the inset above the message equals the
+   * inset below.
+   */
+  [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-close] {
+    /* The cross is the binding's `Glyph` in an `icon` box at the glyph size
+       the formula for this box reads. */
+    --slotted-icon-size: var(--_glyph-size);
+
+    align-items: center;
+    align-self: start;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_close-size);
+    border: 0;
+    border-radius: var(--slotted-toast-close-radius, var(--slotted-control-radius, 4px));
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    /* The user agent gives every button a font of its own, and the `1lh` below
+       is measured against whatever that font resolves to. */
+    font: inherit;
+    grid-column: 3;
+    grid-row: 1;
+    inline-size: var(--_close-size);
+    justify-content: center;
+    margin-block-end: calc((1lh - var(--_close-size)) / 2);
+    margin-block-start: calc((1lh - var(--_close-size)) / 2);
+    margin-inline-end: calc((1lh - var(--_close-size)) / 2);
+    margin-inline-start: var(--_column-gap);
+    padding: 0;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  /* `:enabled` is the guard the shared state test requires, and the reason it
+     exists: a control the browser has already refused answers no pointer. */
+  [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-close]:enabled:hover {
+    background-color: var(--_state-hover);
+  }
+
+  [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-close]:enabled:active {
+    background-color: var(--_state-active);
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: a transparent box centred on the control reaches
+     44 pixels, and the ground and the ring stay square. The message clips its
+     overflow, so the target ends at the message's padding edge. */
+  @media (pointer: coarse) {
+    [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-close] {
+      position: relative;
+    }
+
+    [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-close]::after {
+      content: '';
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+      position: absolute;
+    }
+  }
+
+  /* ── Focus ────────────────────────────────────────────────────────────
+   *
+   * Two rings, because two things can hold focus. The control's is inset: it
+   * sits at the corner of a box that clips its own overflow, so a ring outside
+   * it would be cut in half. The message's is inset for the same reason, and
+   * it exists because `F6` sends the keyboard here — a message the reader
+   * cannot see they have arrived at is a message they cannot act on.
+   */
+  [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-close]:focus-visible,
+  [data-ui-toast] > [data-part-list] > [data-part-item]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+  }
+
+  /**
+   * The control's ring is inset because the message clips its own overflow —
+   * the remaining-time bar has to stop at the rounded corner — and a ring
+   * outside a control at that corner would be cut in half by it.
+   */
+  [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-close]:focus-visible {
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /**
+   * The message's own ring sits outside it. Nothing clips a layer at the edge
+   * of the screen, and read on the box itself the ring was a thick blue border
+   * rather than a ring around a card.
+   */
+  [data-ui-toast] > [data-part-list] > [data-part-item]:focus-visible {
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * Measured rather than assumed, and `alert` measured it first: the ring the
+   * theme calibrated against the page's surface reads about 1.3 : 1 against a
+   * tone's own fill. The ring keeps the theme's colour in every scheme (R3).
+   * The message's own ring sits outside it, against the page the theme
+   * calibrated for, and needs nothing more. The control's ring is inset in the
+   * fill, so a solid message adds a halo one ring-width wide just inside it,
+   * in the ink its own words are in, for the ring to be read against.
+   */
+  [data-ui-toast]
+    > [data-part-list]
+    > [data-part-item][data-variant='solid']
+    > [data-part-close]:focus-visible {
+    box-shadow: inset 0 0 0 calc(2 * var(--slotted-focus-ring-width, 2px)) var(--_on-solid);
+  }
+
+  /* ── How much time is left ────────────────────────────────────────────
+   *
+   * The bar runs for exactly as long as the message it belongs to, because it
+   * reads the same number the timer does — `--slotted-toast-duration`, written
+   * per message by `packages/core/src/toast`. `--slotted-toast-play-state`
+   * carries the other half: the timer pauses on hover, on focus inside the
+   * region, and on a hidden document, and only the first two of those are
+   * things CSS can see. Resolving all three in script and publishing one value
+   * is what makes it impossible for the picture and the timer to disagree.
+   *
+   * It animates its own inline size rather than a transform, so it shortens
+   * from the inline start in every writing direction with no origin to mirror.
+   * The box is positioned, so nothing it does moves a word.
+   */
+  [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-progress] {
+    animation-duration: var(--slotted-toast-duration, var(--slotted-duration-long));
+    animation-fill-mode: forwards;
+    animation-name: slotted-toast-countdown;
+    animation-play-state: var(--slotted-toast-play-state, running);
+    animation-timing-function: linear;
+    /**
+     * The tone's saturated step rather than the ink its words are in. Read at
+     * half opacity in the ink colour the bar was a grey smear under a message;
+     * two pixels of the tone's own fill is the one mark on the box that is
+     * allowed to be loud, because what it says is *this is about to go*.
+     */
+    background-color: var(--_solid);
+    block-size: var(--_progress-size);
+    inset-block-end: 0;
+    inset-inline-start: 0;
+    position: absolute;
+  }
+
+  /**
+   * On a solid message the fill is already the tone, so the bar is drawn in
+   * the one ink the contrast test holds against it, held back so it reads as a
+   * measure rather than as a second border.
+   */
+  [data-ui-toast]
+    > [data-part-list]
+    > [data-part-item][data-variant='solid']
+    > [data-part-progress] {
+    background-color: var(--_on-solid);
+    opacity: 0.7;
+  }
+
+  @keyframes slotted-toast-countdown {
+    from {
+      inline-size: 100%;
+    }
+
+    to {
+      inline-size: 0%;
+    }
+  }
+
+  /* ── The collapsed stack ──────────────────────────────────────────────
+   *
+   * Four messages at full height fill a phone. `stacking="stack"` puts them
+   * one behind another at the edge `placement` names, each stepped back and
+   * drawn slightly smaller, and expands the pile when the pointer is over the
+   * region or focus is inside it — the same two conditions that pause the
+   * timer, because both mean the reader is reading.
+   *
+   * Every message is positioned in both states and moves only by `translate`,
+   * which is what lets one become the other rather than snap. The numbers it
+   * moves by are measured — `--slotted-toast-height` per message,
+   * `--slotted-toast-stack-offset` for the messages in front of it,
+   * `--slotted-toast-front-height` for the one at the edge — because the pile
+   * has to be readable when it opens, and a pile of messages that are not all
+   * the same height cannot be opened from arithmetic alone.
+   *
+   * Depth is said by the step back and by the ink, and it was said by a scale
+   * per index until R7: a message is a box of words, and drawing it at
+   * ninety-six per cent resamples every letter in it while the pile opens and
+   * closes. What replaced it is the one property that says *further away*
+   * without touching the type — each message behind the front one is held
+   * back in opacity, and the front one, which is the one being read, is at
+   * full strength.
+   */
+  [data-ui-toast][data-stacking='stack'] > [data-part-list] {
+    display: block;
+    position: relative;
+  }
+
+  [data-ui-toast][data-stacking='stack'] > [data-part-list] > [data-part-item] {
+    block-size: var(--slotted-toast-front-height, auto);
+    inset-inline: 0;
+    position: absolute;
+    /* Newest in front. The count is what lets the rule read the same at any
+       depth without a rule per index. */
+    z-index: calc(var(--slotted-toast-count, 1) - var(--slotted-toast-index, 0));
+    transition:
+      block-size var(--slotted-duration-medium) var(--slotted-easing-standard),
+      opacity var(--slotted-duration-medium) var(--slotted-easing-standard),
+      translate var(--slotted-duration-medium) var(--slotted-easing-standard);
+  }
+
+  /**
+   * How far back a message is, said in ink. It is written on the open message
+   * rather than on every message, because the closed style is `opacity: 0` —
+   * the state a message arrives from and leaves into — and a rule that dimmed
+   * it there would be a message that never faded in. The third message and
+   * everything behind it share one strength: below that the pile is a stack of
+   * ghosts, and only the front two edges are showing anyway.
+   */
+  [data-ui-toast][data-stacking='stack'] > [data-part-list] > [data-part-item][data-open] {
+    opacity: calc(1 - min(var(--slotted-toast-index, 0), 2) * var(--_stack-fade));
+  }
+
+  [data-ui-toast][data-stacking='stack'][data-placement^='bottom']
+    > [data-part-list]
+    > [data-part-item] {
+    inset-block-end: 0;
+    translate: 0 calc(-1 * var(--slotted-toast-index, 0) * var(--_stack-step));
+  }
+
+  [data-ui-toast][data-stacking='stack'][data-placement^='top']
+    > [data-part-list]
+    > [data-part-item] {
+    inset-block-start: 0;
+    translate: 0 calc(var(--slotted-toast-index, 0) * var(--_stack-step));
+  }
+
+  /**
+   * Opened. Every message returns to its own height and its own place in the
+   * column, and the gap between two of them is the region's own gap — the
+   * offset script writes already carries it.
+   */
+  [data-ui-toast][data-stacking='stack'][data-expanded] > [data-part-list] > [data-part-item] {
+    block-size: var(--slotted-toast-height, auto);
+  }
+
+  /**
+   * The messages of a pile are positioned, so the list is as tall as none of
+   * them, and the rule that gives an expanded list the pointer covered no gap
+   * at all. Opened, it is as tall as the open pile — the measured sum of every
+   * message and the gaps between them — and the gaps are the region's. The
+   * messages hang from the list's edge at `placement`, so the list grows away
+   * from that edge and nothing it holds moves.
+   */
+  [data-ui-toast][data-stacking='stack'][data-expanded] > [data-part-list] {
+    block-size: var(--slotted-toast-stack-height, auto);
+  }
+
+  [data-ui-toast][data-stacking='stack'][data-expanded]
+    > [data-part-list]
+    > [data-part-item][data-open] {
+    opacity: 1;
+  }
+
+  [data-ui-toast][data-stacking='stack'][data-expanded][data-placement^='bottom']
+    > [data-part-list]
+    > [data-part-item] {
+    translate: 0 calc(-1 * var(--slotted-toast-stack-offset, 0px));
+  }
+
+  [data-ui-toast][data-stacking='stack'][data-expanded][data-placement^='top']
+    > [data-part-list]
+    > [data-part-item] {
+    translate: 0 var(--slotted-toast-stack-offset, 0px);
+  }
+
+  /**
+   * While the pile is closed, everything behind the front message shows only
+   * its own edge: its words are held back rather than clipped mid-sentence.
+   * `min()` is what turns an index into that rule without a rule per depth —
+   * the front message resolves to one and every other to zero.
+   */
+  [data-ui-toast][data-stacking='stack'] > [data-part-list] > [data-part-item] > * {
+    transition: opacity var(--slotted-duration-medium) var(--slotted-easing-standard);
+  }
+
+  [data-ui-toast][data-stacking='stack']:not([data-expanded]) [data-part-item] > * {
+    opacity: calc(1 - min(1, var(--slotted-toast-index, 0)));
+  }
+
+  /* ── Swiping it away ──────────────────────────────────────────────────
+   *
+   * The gesture the platform trained the reader to expect, and the answer to a
+   * dismiss control that is a small target on a box that is moving. The
+   * pointer's distance is published by `packages/core/src/toast` and the
+   * message follows it exactly, with no transition in the way: a drag that
+   * lags the finger reads as a stuck interface.
+   */
+  [data-ui-toast] > [data-part-list] > [data-part-item][data-dragging] {
+    cursor: grabbing;
+    transition: none;
+    translate: var(--slotted-toast-swipe-x, 0px) var(--slotted-toast-swipe-y, 0px);
+    /* The browser's own scroll gesture and this one are the same finger. */
+    touch-action: none;
+    user-select: none;
+  }
+
+  [data-ui-toast][data-swipe='true'] > [data-part-list] > [data-part-item] {
+    touch-action: none;
+  }
+
+  /* ── A narrow region ──────────────────────────────────────────────────
+   *
+   * The query is on the region's own inline size, which is what a message
+   * actually has to fit inside — the region is already the screen less two
+   * offsets, so a phone and a narrow panel reach this the same way. The
+   * breakpoint is a literal because CSS forbids a custom property in a
+   * container condition.
+   */
+  @container slotted-toast (max-width: 20rem) {
+    [data-ui-toast] > [data-part-list] > [data-part-item] {
+      --_inset-block: var(--slotted-toast-padding-block, var(--slotted-space-4, 0.5rem));
+      --_inset-inline: var(--slotted-toast-padding-inline, var(--slotted-space-5, 0.75rem));
+    }
+
+    /**
+     * Two buttons wrapping into two ragged lines is worse than two buttons
+     * stacked. Each one keeps its own width: how wide a control is belongs to
+     * the control, and `button` already ships `fullWidth` for a consumer who
+     * wants otherwise.
+     */
+    [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-actions] {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────
+   *
+   * The operating system replaces every author colour, so five tones become
+   * one box and three variants become one painting. What is left to decide is
+   * whether the box still has an edge and whether the mark is still there —
+   * and the theme can answer neither, because `solid` draws its border in its
+   * own fill and a transparent border is not a colour the system remaps.
+   */
+  @media (forced-colors: active) {
+    [data-ui-toast] > [data-part-list] > [data-part-item] {
+      border-color: CanvasText;
+    }
+
+    [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-icon] {
+      color: CanvasText;
+    }
+
+    /**
+     * The control's glyph is stroked in `currentcolor`, so giving the control
+     * a system colour repaints it, and the mark's slot the same.
+     */
+    [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-close] {
+      color: CanvasText;
+    }
+
+    [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-close]:enabled:hover,
+    [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-close]:enabled:active {
+      background-color: Highlight;
+      color: HighlightText;
+    }
+
+    /**
+     * A bar of system ink under every message, shortening, is a moving line
+     * with no colour to say what it belongs to. The message still expires.
+     */
+    [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-progress] {
+      background-color: CanvasText;
+      opacity: 1;
+    }
+  }
+
+  /* ── Reduced motion ───────────────────────────────────────────────────
+   *
+   * Every duration in this sheet comes from the motion scale, which the theme
+   * collapses under this query, so the arrival, the exit and the opening of
+   * the pile all become instant without a rule here.
+   *
+   * The countdown does not, because its length is the message's own and no
+   * theme can reach it. It is removed instead: a reader who asked the system
+   * for stillness is not given a bar to watch for five seconds, and the bar
+   * becomes a rule under the message. Nothing is lost — the bar was never the
+   * only warning, and the message expires either way. Pausing it was not
+   * enough: an animation that fills forwards holds whatever width it had
+   * reached over the declared one, and the `timing` scene froze at 80 per cent.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-toast] > [data-part-list] > [data-part-item] > [data-part-progress] {
+      animation-name: none;
+      inline-size: 100%;
+    }
+  }
+}

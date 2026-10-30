@@ -1,0 +1,707 @@
+<!--
+  The module running against the theme, with no framework and no family. The
+  page is the consumer here: it holds the model — one array per container —
+  renders the three states the contract vocabulary names (`data-dragging`,
+  `data-drop-target`, `data-drop-invalid`) plus the insertion line a list
+  draws from `state.target`, and moves DOM nodes when a drop arrives. Built by
+  `tools/harness/core.mjs`, which bundles `@slotted/core/drag` into the page.
+
+  Every scene is wired the same way: `[data-drag]` is one controller,
+  `[data-container]` is one registered container, `[data-key]` is one item.
+  A scene with `data-auto` opens a session on load, so a state that only
+  exists while something is being dragged can be photographed.
+-->
+<style>
+  [data-drag] {
+    display: grid;
+    gap: var(--slotted-space-3);
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--slotted-font-size-md);
+    line-height: var(--slotted-line-height-md);
+    color: var(--slotted-text);
+  }
+  [data-drag] h4,
+  [data-drag] p {
+    margin: 0;
+  }
+  [data-drag] h4 {
+    font-size: var(--slotted-font-size-sm);
+    font-weight: 600;
+    color: var(--slotted-text-muted);
+  }
+  [data-boards] {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--slotted-space-3);
+  }
+  [data-container] {
+    list-style: none;
+    margin: 0;
+    padding: var(--slotted-space-2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-1);
+    min-block-size: calc(var(--slotted-control-height-md) + 2 * var(--slotted-space-2));
+    background: var(--slotted-surface-sunken);
+    border: var(--slotted-border-width-thin) solid var(--slotted-border-subtle);
+    border-radius: var(--slotted-radius-md);
+    transition:
+      border-color var(--slotted-duration-short) var(--slotted-easing-standard),
+      background-color var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+  [data-container][data-orientation='horizontal'] {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  [data-container][data-orientation='grid'] {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  [data-container][data-scroll] {
+    max-block-size: 160px;
+    overflow: auto;
+  }
+  [data-container][data-nested] {
+    margin-inline-start: var(--slotted-space-5);
+    min-block-size: 0;
+    padding: var(--slotted-space-1);
+  }
+  [data-key] {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--slotted-space-2);
+    min-block-size: var(--slotted-control-height-md);
+    padding-inline: var(--slotted-space-2) var(--slotted-control-padding-inline-md);
+    background: var(--slotted-surface);
+    border: var(--slotted-border-width-thin) solid var(--slotted-border-subtle);
+    border-radius: var(--slotted-control-radius);
+    box-shadow: var(--slotted-shadow-xs);
+    cursor: grab;
+    user-select: none;
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-standard),
+      background-color var(--slotted-duration-short) var(--slotted-easing-standard),
+      box-shadow var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+  [data-container][data-orientation='grid'] > [data-key] {
+    min-block-size: calc(2 * var(--slotted-control-height-md));
+    min-inline-size: 0;
+    align-items: flex-start;
+    padding-block: var(--slotted-space-2);
+    overflow-wrap: anywhere;
+  }
+  [data-key]:hover {
+    background: var(--slotted-tone-secondary-surface);
+  }
+  /* Raised, or the sibling below paints over the ring's lower edge. */
+  [data-key]:focus-visible {
+    z-index: 1;
+    outline: var(--slotted-focus-ring-width) solid var(--slotted-focus-ring-color);
+    outline-offset: var(--slotted-focus-ring-offset);
+  }
+  /* The source stays readable: it is where the item returns on Escape. */
+  [data-key][data-dragging] {
+    opacity: 0.5;
+    box-shadow: none;
+    border-style: dashed;
+  }
+  [data-handle] {
+    flex: none;
+    inline-size: var(--slotted-control-icon-size-md);
+    block-size: var(--slotted-control-icon-size-md);
+    color: var(--slotted-text-muted);
+    background: currentColor;
+    mask: var(--slotted-icon-ellipsis) center / contain no-repeat;
+    rotate: 90deg;
+  }
+  [data-folder]::before {
+    content: '';
+    flex: none;
+    inline-size: var(--slotted-control-icon-size-md);
+    block-size: var(--slotted-control-icon-size-md);
+    background: var(--slotted-text-muted);
+    mask: var(--slotted-icon-chevron-right) center / contain no-repeat;
+    transition: rotate var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+  [data-folder][data-expanded]::before {
+    rotate: 90deg;
+  }
+  [dir='rtl'] [data-folder]::before {
+    scale: -1 1;
+  }
+  [data-folder] [data-count] {
+    margin-inline-start: auto;
+    font-size: var(--slotted-font-size-xs);
+    color: var(--slotted-text-muted);
+  }
+  /* The insertion line: two pixels of accent in the gap the target names. */
+  [data-key][data-drop-before]::after,
+  [data-key][data-drop-after]::after {
+    content: '';
+    position: absolute;
+    inset-inline: calc(-1 * var(--slotted-space-1));
+    block-size: var(--slotted-border-width-medium);
+    background: var(--slotted-tone-accent-solid);
+    border-radius: var(--slotted-radius-full);
+    pointer-events: none;
+  }
+  [data-key][data-drop-before]::after {
+    inset-block-start: calc(
+      -1 * (var(--slotted-space-1) / 2 + var(--slotted-border-width-medium) / 2)
+    );
+  }
+  [data-key][data-drop-after]::after {
+    inset-block-end: calc(
+      -1 * (var(--slotted-space-1) / 2 + var(--slotted-border-width-medium) / 2)
+    );
+  }
+  [data-orientation='horizontal'] > [data-key][data-drop-before]::after,
+  [data-orientation='horizontal'] > [data-key][data-drop-after]::after,
+  [data-orientation='grid'] > [data-key][data-drop-before]::after,
+  [data-orientation='grid'] > [data-key][data-drop-after]::after {
+    inset-inline: auto;
+    inset-block: calc(-1 * var(--slotted-space-1) / 2);
+    inline-size: var(--slotted-border-width-medium);
+    block-size: auto;
+  }
+  [data-orientation='horizontal'] > [data-key][data-drop-before]::after,
+  [data-orientation='grid'] > [data-key][data-drop-before]::after {
+    inset-inline-start: calc(
+      -1 * (var(--slotted-space-1) / 2 + var(--slotted-border-width-medium) / 2)
+    );
+  }
+  [data-orientation='horizontal'] > [data-key][data-drop-after]::after,
+  [data-orientation='grid'] > [data-key][data-drop-after]::after {
+    inset-inline-end: calc(
+      -1 * (var(--slotted-space-1) / 2 + var(--slotted-border-width-medium) / 2)
+    );
+  }
+  [data-key][data-drop-on] {
+    background: var(--slotted-tone-accent-surface);
+    border-color: var(--slotted-tone-accent-solid);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin) var(--slotted-tone-accent-solid);
+  }
+  [data-container][data-drop-target][data-drop-root] {
+    border-color: var(--slotted-tone-accent-border);
+    background: var(--slotted-tone-accent-surface);
+  }
+  [data-container][data-drop-invalid] {
+    border-color: var(--slotted-tone-danger-border);
+    background: var(--slotted-tone-danger-surface);
+    cursor: not-allowed;
+  }
+  [data-slotted-drag-preview] {
+    box-shadow: var(--slotted-shadow-lg);
+    opacity: 0.95;
+    rotate: 1.5deg;
+    cursor: grabbing;
+  }
+  [data-slotted-drag-preview][data-drop-invalid] {
+    border-color: var(--slotted-tone-danger-border);
+  }
+  [data-slotted-drag-preview][data-operation='copy']::after {
+    content: '';
+    position: absolute;
+    inset-block-start: calc(-1 * var(--slotted-space-1));
+    inset-inline-end: calc(-1 * var(--slotted-space-1));
+    inline-size: var(--slotted-control-icon-size-sm);
+    block-size: var(--slotted-control-icon-size-sm);
+    background: var(--slotted-tone-accent-solid);
+    mask: var(--slotted-icon-plus) center / 70% no-repeat;
+    border-radius: var(--slotted-radius-full);
+  }
+  [data-status] {
+    min-block-size: 1lh;
+    font-family: var(--slotted-font-family-mono);
+    font-size: var(--slotted-font-size-xs);
+    color: var(--slotted-text-muted);
+  }
+  [data-instructions] {
+    font-size: var(--slotted-font-size-xs);
+    color: var(--slotted-text-muted);
+  }
+</style>
+
+<section data-scene="list">
+  <div data-drag>
+    <h4>Sprint backlog</h4>
+    <ul data-container="backlog" data-label="Sprint backlog" data-grip aria-label="Sprint backlog">
+      <li data-key="auth" tabindex="0">
+        <span data-handle></span><span data-label>Rotate the signing key</span>
+      </li>
+      <li data-key="export" tabindex="-1">
+        <span data-handle></span><span data-label>CSV export of filtered rows</span>
+      </li>
+      <li data-key="audit" tabindex="-1">
+        <span data-handle></span><span data-label>Audit log retention to 90 days</span>
+      </li>
+      <li data-key="sso" tabindex="-1">
+        <span data-handle></span><span data-label>SSO for the finance workspace</span>
+      </li>
+      <li data-key="i18n" tabindex="-1">
+        <span data-handle></span><span data-label>Portuguese and Spanish strings</span>
+      </li>
+    </ul>
+    <p data-instructions></p>
+    <p data-status aria-hidden="true"></p>
+  </div>
+</section>
+
+<section data-scene="list-dragging">
+  <div data-drag data-auto="backlog:export:next">
+    <h4>Sprint backlog — a keyboard session, one step down</h4>
+    <ul data-container="backlog" data-label="Sprint backlog" data-grip aria-label="Sprint backlog">
+      <li data-key="auth" tabindex="-1">
+        <span data-handle></span><span data-label>Rotate the signing key</span>
+      </li>
+      <li data-key="export" tabindex="0">
+        <span data-handle></span><span data-label>CSV export of filtered rows</span>
+      </li>
+      <li data-key="audit" tabindex="-1">
+        <span data-handle></span><span data-label>Audit log retention to 90 days</span>
+      </li>
+      <li data-key="sso" tabindex="-1">
+        <span data-handle></span><span data-label>SSO for the finance workspace</span>
+      </li>
+    </ul>
+    <p data-status aria-hidden="true"></p>
+  </div>
+</section>
+
+<section data-scene="boards">
+  <div data-drag>
+    <div data-boards>
+      <div>
+        <h4>To do</h4>
+        <ul data-container="todo" data-label="To do" data-grip aria-label="To do">
+          <li data-key="t1" tabindex="0">
+            <span data-handle></span><span data-label>Write the release notes</span>
+          </li>
+          <li data-key="t2" tabindex="-1">
+            <span data-handle></span><span data-label>Tag the build</span>
+          </li>
+          <li data-key="t3" tabindex="-1">
+            <span data-handle></span><span data-label>Notify support</span>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h4>Done</h4>
+        <ul data-container="done" data-label="Done" data-grip aria-label="Done">
+          <li data-key="d1" tabindex="-1">
+            <span data-handle></span><span data-label>Freeze the branch</span>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h4>Archive (read only)</h4>
+        <ul
+          data-container="archive"
+          data-label="Archive"
+          data-grip
+          data-refuses
+          aria-label="Archive"
+        >
+          <li data-key="a1" tabindex="-1">
+            <span data-handle></span><span data-label>1.8 release notes</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <p data-status aria-hidden="true"></p>
+  </div>
+</section>
+
+<section data-scene="boards-dragging">
+  <div data-drag data-auto="todo:t2:nextContainer">
+    <div data-boards>
+      <div>
+        <h4>To do</h4>
+        <ul data-container="todo" data-label="To do" data-grip aria-label="To do">
+          <li data-key="t1" tabindex="-1">
+            <span data-handle></span><span data-label>Write the release notes</span>
+          </li>
+          <li data-key="t2" tabindex="0">
+            <span data-handle></span><span data-label>Tag the build</span>
+          </li>
+          <li data-key="t3" tabindex="-1">
+            <span data-handle></span><span data-label>Notify support</span>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h4>Done</h4>
+        <ul data-container="done" data-label="Done" data-grip aria-label="Done">
+          <li data-key="d1" tabindex="-1">
+            <span data-handle></span><span data-label>Freeze the branch</span>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h4>Empty</h4>
+        <ul data-container="empty" data-label="Empty" data-grip aria-label="Empty"></ul>
+      </div>
+    </div>
+    <p data-status aria-hidden="true"></p>
+  </div>
+</section>
+
+<section data-scene="chips">
+  <div data-drag>
+    <h4>Recipients — the whole chip drags; Alt and an arrow moves one without a session</h4>
+    <ul data-container="to" data-label="To" data-orientation="horizontal" aria-label="To">
+      <li data-key="ana" tabindex="0"><span data-label>Ana</span></li>
+      <li data-key="bruno" tabindex="-1"><span data-label>Bruno</span></li>
+      <li data-key="carla" tabindex="-1"><span data-label>Carla</span></li>
+      <li data-key="diego" tabindex="-1"><span data-label>Diego</span></li>
+    </ul>
+    <p data-status aria-hidden="true"></p>
+  </div>
+</section>
+
+<section data-scene="tree">
+  <div data-drag>
+    <h4>Files — a folder takes a drop on itself, and opens after a moment over it</h4>
+    <ul
+      data-container="files"
+      data-label="Files"
+      data-grip
+      data-targets="between on"
+      aria-label="Files"
+    >
+      <li data-key="design" data-folder tabindex="0">
+        <span data-handle></span><span data-label>Design</span><span data-count>2</span>
+      </li>
+      <li data-key="brief" tabindex="-1">
+        <span data-handle></span><span data-label>brief.md</span>
+      </li>
+      <li data-key="specs" data-folder tabindex="-1">
+        <span data-handle></span><span data-label>Specs</span><span data-count>0</span>
+      </li>
+      <li data-key="budget" tabindex="-1">
+        <span data-handle></span><span data-label>budget.xlsx</span>
+      </li>
+      <li data-key="logo" tabindex="-1">
+        <span data-handle></span><span data-label>logo.svg</span>
+      </li>
+    </ul>
+    <p data-status aria-hidden="true"></p>
+  </div>
+</section>
+
+<section data-scene="tree-dragging">
+  <div data-drag data-auto="files:logo:previous:previous">
+    <h4>Files — the keyboard over a folder</h4>
+    <ul
+      data-container="files"
+      data-label="Files"
+      data-grip
+      data-targets="between on"
+      aria-label="Files"
+    >
+      <li data-key="design" data-folder tabindex="-1">
+        <span data-handle></span><span data-label>Design</span><span data-count>2</span>
+      </li>
+      <li data-key="brief" tabindex="-1">
+        <span data-handle></span><span data-label>brief.md</span>
+      </li>
+      <li data-key="logo" tabindex="0">
+        <span data-handle></span><span data-label>logo.svg</span>
+      </li>
+    </ul>
+    <p data-status aria-hidden="true"></p>
+  </div>
+</section>
+
+<section data-scene="grid">
+  <div data-drag>
+    <h4>Dashboard — the whole card drags; arrows move a cell or a row</h4>
+    <ul
+      data-container="cards"
+      data-label="Dashboard"
+      data-orientation="grid"
+      data-columns="3"
+      aria-label="Dashboard"
+    >
+      <li data-key="mrr" tabindex="0"><span data-label>MRR</span></li>
+      <li data-key="churn" tabindex="-1"><span data-label>Churn</span></li>
+      <li data-key="signups" tabindex="-1">
+        <span data-label>Sign-ups</span>
+      </li>
+      <li data-key="tickets" tabindex="-1">
+        <span data-label>Open tickets</span>
+      </li>
+      <li data-key="uptime" tabindex="-1">
+        <span data-label>Uptime</span>
+      </li>
+      <li data-key="nps" tabindex="-1"><span data-label>NPS</span></li>
+    </ul>
+    <p data-status aria-hidden="true"></p>
+  </div>
+</section>
+
+<section data-scene="scroll">
+  <div data-drag>
+    <h4>Twelve rows in 160 pixels — the pointer at the edge scrolls the list</h4>
+    <ul data-container="long" data-label="Regions" data-grip data-scroll aria-label="Regions">
+      <li data-key="r01" tabindex="0"><span data-handle></span><span data-label>Alabama</span></li>
+      <li data-key="r02" tabindex="-1"><span data-handle></span><span data-label>Alaska</span></li>
+      <li data-key="r03" tabindex="-1"><span data-handle></span><span data-label>Arizona</span></li>
+      <li data-key="r04" tabindex="-1">
+        <span data-handle></span><span data-label>Arkansas</span>
+      </li>
+      <li data-key="r05" tabindex="-1">
+        <span data-handle></span><span data-label>California</span>
+      </li>
+      <li data-key="r06" tabindex="-1">
+        <span data-handle></span><span data-label>Colorado</span>
+      </li>
+      <li data-key="r07" tabindex="-1">
+        <span data-handle></span><span data-label>Delaware</span>
+      </li>
+      <li data-key="r08" tabindex="-1"><span data-handle></span><span data-label>Florida</span></li>
+      <li data-key="r09" tabindex="-1"><span data-handle></span><span data-label>Georgia</span></li>
+      <li data-key="r10" tabindex="-1"><span data-handle></span><span data-label>Hawaii</span></li>
+      <li data-key="r11" tabindex="-1">
+        <span data-handle></span><span data-label>Mato Grosso</span>
+      </li>
+      <li data-key="r12" tabindex="-1">
+        <span data-handle></span><span data-label>Minas Gerais</span>
+      </li>
+    </ul>
+    <p data-status aria-hidden="true"></p>
+  </div>
+</section>
+
+<script type="module">
+  import { createDragController } from '@slotted/core/drag';
+  import { createTranslator, dragMessages } from '@slotted/core/i18n';
+
+  const t = createTranslator({ locale: 'en-US' }).family(dragMessages);
+
+  for (const root of document.querySelectorAll('[data-drag]')) wire(root);
+
+  function wire(root) {
+    const status = root.querySelector('[data-status]');
+    const instructions = root.querySelector('[data-instructions]');
+    const containers = [...root.querySelectorAll('[data-container]')];
+    const model = new Map(
+      containers.map((list) => [
+        list.dataset.container,
+        [...list.querySelectorAll(':scope > [data-key]')].map((item) => item.dataset.key),
+      ]),
+    );
+    const byKey = (list, key) => list.querySelector(`:scope > [data-key="${key}"]`);
+    const labelOf = (list, key) =>
+      byKey(list, key)?.querySelector('[data-label]')?.textContent.trim() ?? key;
+
+    const drag = createDragController({
+      t,
+      announce: (message) => {
+        if (status) status.textContent = message;
+      },
+      preview: { container: () => root },
+      onDrop: apply,
+      onDwell: ({ state }) => {
+        if (state.target?.kind !== 'on') return;
+        const list = containers.find((c) => c.dataset.container === state.target.container);
+        byKey(list, state.target.key)?.setAttribute('data-expanded', '');
+      },
+    });
+    if (instructions) instructions.textContent = t('instructions');
+
+    for (const list of containers) {
+      const key = list.dataset.container;
+      drag.registerContainer({
+        key,
+        items: () => model.get(key),
+        orientation: list.dataset.orientation ?? 'vertical',
+        targets: (list.dataset.targets ?? 'between').split(' '),
+        columns: () => Number(list.dataset.columns ?? 1),
+        accepts: (state, target) => {
+          if ('refuses' in list.dataset) return false;
+          if (target.kind === 'on')
+            return byKey(list, target.key)?.hasAttribute('data-folder') ?? false;
+          return true;
+        },
+        element: () => list,
+        itemElement: (item) => byKey(list, item),
+        label: () => list.dataset.label ?? key,
+        itemLabel: (item) => labelOf(list, item),
+      });
+      for (const item of list.querySelectorAll(':scope > [data-key]')) attach(list, item);
+    }
+
+    function attach(list, item) {
+      /* A list with a grip drags from it alone; a chip or a card drags from anywhere. */
+      drag.attachDraggable(item, {
+        container: list.dataset.container,
+        key: item.dataset.key,
+        ...(list.hasAttribute('data-grip')
+          ? { handle: () => item.querySelector('[data-handle]') }
+          : {}),
+        allowedOperations: ['move', 'copy'],
+      });
+    }
+
+    root.addEventListener('keydown', (event) => {
+      if (drag.state.status === 'dragging') {
+        drag.handleKeydown(event);
+        return;
+      }
+      const item = event.target.closest('[data-key]');
+      const list = item?.closest('[data-container]');
+      if (!item || !list) return;
+      const key = list.dataset.container;
+      const items = model.get(key);
+      const index = items.indexOf(item.dataset.key);
+      const source = { container: key, index };
+
+      if (event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault();
+        drag.pickUp({
+          items: [item.dataset.key],
+          source,
+          reason: 'keyboard',
+          event,
+          allowedOperations: ['move', 'copy'],
+        });
+        return;
+      }
+
+      const horizontal = list.dataset.orientation === 'horizontal';
+      const rtl = getComputedStyle(list).direction === 'rtl';
+      const forward = horizontal ? (rtl ? 'ArrowLeft' : 'ArrowRight') : 'ArrowDown';
+      const back = horizontal ? (rtl ? 'ArrowRight' : 'ArrowLeft') : 'ArrowUp';
+      const intent =
+        event.key === forward
+          ? 'next'
+          : event.key === back
+            ? 'previous'
+            : event.key === 'Home'
+              ? 'first'
+              : event.key === 'End'
+                ? 'last'
+                : null;
+      if (intent === null) return;
+      event.preventDefault();
+
+      /* Alt and an arrow: the APG one-call move, no session. */
+      if (event.altKey) {
+        drag.moveBy({ items: [item.dataset.key], source, intent, reason: 'keyboard', event });
+        return;
+      }
+      /* Otherwise the arrows rove focus, as the family would. */
+      const next =
+        intent === 'first'
+          ? 0
+          : intent === 'last'
+            ? items.length - 1
+            : Math.min(items.length - 1, Math.max(0, index + (intent === 'next' ? 1 : -1)));
+      focus(list, items[next]);
+    });
+
+    function focus(list, key) {
+      for (const item of list.querySelectorAll(':scope > [data-key]')) item.tabIndex = -1;
+      const item = byKey(list, key);
+      if (item) {
+        item.tabIndex = 0;
+        item.focus({ preventScroll: false });
+      }
+    }
+
+    drag.subscribe(render);
+
+    function render(state) {
+      for (const list of containers) {
+        list.removeAttribute('data-drop-target');
+        list.removeAttribute('data-drop-invalid');
+        list.removeAttribute('data-drop-root');
+        for (const item of list.querySelectorAll(':scope > [data-key]')) {
+          item.toggleAttribute(
+            'data-dragging',
+            state.status === 'dragging' &&
+              state.source?.container === list.dataset.container &&
+              state.items.includes(item.dataset.key),
+          );
+          item.removeAttribute('data-drop-before');
+          item.removeAttribute('data-drop-after');
+          item.removeAttribute('data-drop-on');
+        }
+      }
+      const target = state.target;
+      if (state.status !== 'dragging' || target === null) return;
+      const list = containers.find((c) => c.dataset.container === target.container);
+      if (!list) return;
+      if (!state.valid) {
+        list.setAttribute('data-drop-invalid', '');
+        return;
+      }
+      list.setAttribute('data-drop-target', '');
+      const items = model.get(target.container);
+      if (target.kind === 'root') list.setAttribute('data-drop-root', '');
+      else if (target.kind === 'on') byKey(list, target.key)?.setAttribute('data-drop-on', '');
+      else if (target.index < items.length)
+        byKey(list, items[target.index])?.setAttribute('data-drop-before', '');
+      else byKey(list, items[items.length - 1])?.setAttribute('data-drop-after', '');
+    }
+
+    function apply({ items, source, target, operation }) {
+      const from = model.get(source.container);
+      const to = model.get(target.container);
+      const fromList = containers.find((c) => c.dataset.container === source.container);
+      const toList = containers.find((c) => c.dataset.container === target.container);
+      /* The target index counts the list as it was; the items about to leave
+         it from above the gap are subtracted once they have left. */
+      const leaving =
+        operation === 'move' && source.container === target.container && target.kind === 'between'
+          ? items.filter((key) => from.indexOf(key) < target.index).length
+          : 0;
+
+      /* Copy: new keys, cloned nodes. Move: the same keys leave the source. */
+      let moving = items;
+      if (operation === 'copy') {
+        moving = items.map((key) => {
+          const copy = `${key}-copy-${Date.now().toString(36)}`;
+          const node = byKey(fromList, key).cloneNode(true);
+          node.dataset.key = copy;
+          node.tabIndex = -1;
+          toList.append(node);
+          attach(toList, node);
+          return copy;
+        });
+      } else {
+        for (const key of items) from.splice(from.indexOf(key), 1);
+      }
+
+      if (target.kind === 'on') {
+        /* A folder takes the items: it counts them, and they leave the list. */
+        const count = byKey(toList, target.key)?.querySelector('[data-count]');
+        if (count) count.textContent = String(Number(count.textContent) + moving.length);
+        for (const key of moving) root.querySelector(`[data-key="${key}"]`)?.remove();
+      } else {
+        to.splice(target.kind === 'root' ? 0 : target.index - leaving, 0, ...moving);
+      }
+
+      for (const list of containers) {
+        for (const key of model.get(list.dataset.container)) {
+          const node = root.querySelector(`[data-key="${key}"]`);
+          if (node) list.append(node);
+        }
+      }
+      if (target.kind !== 'on') focus(toList, moving[0]);
+    }
+
+    if (root.dataset.auto) {
+      const [container, key, ...intents] = root.dataset.auto.split(':');
+      const items = model.get(container);
+      drag.pickUp({
+        items: [key],
+        source: { container, index: items.indexOf(key) },
+        reason: 'programmatic',
+      });
+      for (const intent of intents) drag.move(intent);
+    }
+  }
+</script>

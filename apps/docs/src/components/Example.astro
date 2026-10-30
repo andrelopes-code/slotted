@@ -1,0 +1,53 @@
+---
+import { highlight } from '../lib/highlight';
+import { EXAMPLE_EXTENSIONS, EXAMPLE_LANGUAGES, type Framework } from '../runtime/frameworks';
+import { exampleSource, hasExample } from '../runtime/sources';
+import ExampleFrame from '../islands/ExampleFrame';
+
+interface Props {
+  /** The example file under `examples/<framework>/<family>/`, without extension. */
+  name: string;
+  /** Another family's example; the page's own family by default. */
+  family?: string;
+  /** A preview that needs the full column width rather than a centered column. */
+  wide?: boolean;
+}
+
+const framework = Astro.params['framework'] as Framework;
+const family = Astro.props.family ?? Astro.locals.family;
+if (!family) throw new Error(`<Example name="${Astro.props.name}"> outside a family page`);
+const { name, wide = false } = Astro.props;
+const id = `${family}/${name}`;
+
+/* An example the framework does not have yet draws nothing: another framework's
+   preview under this framework's name would document code that does not exist. */
+const present = hasExample(framework, id);
+/* The page renders from its own family's registry (`FamilyPage.astro`). */
+const renderExample = Astro.locals.renderExample;
+if (present && !renderExample) throw new Error(`<Example name="${name}"> outside a family page`);
+const html = present && renderExample ? await renderExample(id) : '';
+const language = EXAMPLE_LANGUAGES[framework];
+const code = present ? exampleSource(framework, id) : '';
+const tokens = present ? await highlight(code, language) : [];
+const previewId = `preview-${family}-${name}`;
+---
+
+{
+  present && (
+    <figure class="docs-example" data-wide={wide ? '' : undefined}>
+      <ExampleFrame
+        client:idle={{ timeout: 1500 }}
+        stageId={previewId}
+        code={code}
+        tokens={tokens}
+        language={language}
+        fileName={`${name}.${EXAMPLE_EXTENSIONS[framework]}`}
+      >
+        <div class="docs-example-preview" data-example={id} data-example-framework={framework}>
+          <Fragment set:html={html} />
+        </div>
+      </ExampleFrame>
+    </figure>
+  )
+}
+

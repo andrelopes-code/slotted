@@ -1,0 +1,340 @@
+{
+  "schemaVersion": 5,
+  "family": "rating",
+  "ui": "rating",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Star rating input, display and summary."
+  },
+  "rootRole": {
+    "rating": "radiogroup",
+    "ratingDisplay": "img",
+    "ratingSummary": "region"
+  },
+  "controlPart": "input",
+  "controlElement": "input[type=radio]",
+  "itemPart": "item",
+  "grouping": "name",
+  "generatesName": true,
+  "steps": [1, 0.5],
+  "halfAttribute": "data-half",
+  "hitArea": "input",
+  "emptyValue": null,
+  "wraps": false,
+  "fillProperty": "--slotted-rating-fill",
+  "fillSource": {
+    "rating": "checked radio, or the hovered one",
+    "ratingDisplay": "fillProperty",
+    "ratingSummary": "fillProperty on the aggregate display, shareProperty on each level"
+  },
+  "itemLabel": {
+    "message": "itemLabel",
+    "on": "input",
+    "attribute": "aria-label"
+  },
+  "displayLabel": {
+    "message": "displayLabel",
+    "withCount": "displayLabelWithCount",
+    "on": "root",
+    "attribute": "aria-label"
+  },
+  "stateSource": "field",
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "disabled",
+  "readOnlyAttribute": "aria-readonly",
+  "wiring": {
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "disabled": "disabled",
+    "readonly": "aria-readonly"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves focus into the group",
+      "focus": "the checked radio, or the first radio when the value is empty",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "checks the focused radio when it is not already checked",
+      "focus": "stays on the radio",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "raises the value by one step, no wrap at the maximum; lowers it in a right-to-left document",
+      "focus": "the radio of the new value",
+      "source": "family"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "raises the value by one step, no wrap at the maximum",
+      "focus": "the radio of the new value",
+      "source": "family"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "lowers the value by one step, no wrap at the first step; raises it in a right-to-left document",
+      "focus": "the radio of the new value",
+      "source": "family"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "lowers the value by one step, no wrap at the first step",
+      "focus": "the radio of the new value",
+      "source": "family"
+    },
+    {
+      "key": "Home",
+      "effect": "sets the value to the first step",
+      "focus": "the first radio",
+      "source": "family"
+    },
+    {
+      "key": "End",
+      "effect": "sets the value to the maximum",
+      "focus": "the last radio",
+      "source": "family"
+    },
+    {
+      "key": "Backspace",
+      "effect": "empties the value when clearable, with the reason clear",
+      "focus": "stays on the radio it was on, which the group keeps as its tab stop",
+      "source": "family"
+    },
+    {
+      "key": "Delete",
+      "effect": "empties the value when clearable, with the reason clear",
+      "focus": "stays on the radio it was on, which the group keeps as its tab stop",
+      "source": "family"
+    }
+  ],
+  "pointer": {
+    "press": "checks the radio under the pointer",
+    "pressChecked": "empties the value when clearable, with the reason clear",
+    "hover": "previews the value under the pointer on the symbols, without requesting it",
+    "drag": "a touch or pen dragged along the row checks the radio under it, read by ratingAtPoint; the row keeps vertical panning",
+    "halfHit": "the half radio is stacked above the whole one, so the inline-start half of a symbol asks for the half value"
+  },
+  "events": {
+    "onPreviewChange": {
+      "carries": "the value under the pointer, or null",
+      "reason": "a hover changes nothing the consumer owns, so it is an event and not a state model"
+    }
+  },
+  "declined": {
+    "PageUp": {
+      "reason": "A rating holds at most ten symbols, and Home and End reach both ends in one key; the slider's page step exists for ranges a reader cannot cross key by key."
+    },
+    "fractions": {
+      "reason": "A third or a quarter of a symbol is a target of five pixels at the default size, below the WCAG minimum; the display member draws any fraction, the input member offers whole and half steps."
+    },
+    "secondaryTone": {
+      "reason": "The secondary tone's solid step is a ground, 1.1:1 on the page in light, and a lit star in it reads as an unlit one; a neutral rating is the display of a number, which `typography` sets."
+    },
+    "customSymbol": {
+      "reason": "Each item's symbol is the part a consumer replaces through the binding's composition surface; a prop per icon is the shape MUI and Mantine needed because they have no parts."
+    },
+    "nps": {
+      "reason": "A numbered scale of eleven points is a choice among labelled numbers, which segmented-control draws; a rating is symbols lit in order.",
+      "deferTo": "segmented-control"
+    },
+    "highlightSelectedOnly": {
+      "reason": "A scale of faces or words where only the chosen one lights is a nominal choice: radio-group with the tile variant.",
+      "deferTo": "radio-group"
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "tone": ["accent", "info", "success", "warning", "danger"],
+    "variant": ["full", "compact", "histogram"],
+    "summaryVariant": ["bars", "spectrum"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "tone": ["prop", "defaults", "warning"],
+    "max": ["prop", "defaults", 5],
+    "clearable": ["prop", "defaults", true],
+    "variant": ["prop", "full"],
+    "summaryVariant": ["prop", "defaults", "bars"]
+  },
+  "provides": {
+    "ratingDefaults": ["size", "tone", "max", "clearable", "insightThresholds"]
+  },
+  "imperative": ["focus"],
+  "stateAttributes": {
+    "checked": "data-checked",
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "pressed": "data-pressed"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "clear"]
+    },
+    "selection": {
+      "controlled": "selectedLevels",
+      "uncontrolled": "defaultSelectedLevels",
+      "request": "onSelectedLevelsChange",
+      "reasons": ["pointer", "keyboard", "clear"]
+    }
+  },
+  "members": {
+    "rating": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "tone": "warning",
+        "max": 5,
+        "step": 1,
+        "clearable": true
+      },
+      "capabilities": [
+        "value",
+        "appearance",
+        "size",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "readonly",
+        "invalid",
+        "checked"
+      ],
+      "parts": ["root", "symbols", "item", "input", "symbol", "fill", "value"]
+    },
+    "ratingDisplay": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "tone": "warning",
+        "max": 5,
+        "variant": "full"
+      },
+      "capabilities": ["measurement", "appearance", "size", "content"],
+      "states": ["default"],
+      "parts": ["root", "symbols", "item", "symbol", "fill", "value", "histogram", "bar", "count"]
+    },
+    "ratingSummary": {
+      "nativeElement": "section",
+      "defaults": {
+        "size": "md",
+        "tone": "warning",
+        "max": 5,
+        "filterable": false,
+        "variant": "bars"
+      },
+      "capabilities": ["measurement", "appearance", "size", "content", "selection"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled", "pressed"],
+      "parts": [
+        "root",
+        "aggregate",
+        "value",
+        "scale",
+        "insight",
+        "count",
+        "distribution",
+        "level",
+        "level-label",
+        "track",
+        "indicator",
+        "level-count",
+        "plot",
+        "field",
+        "columns",
+        "column",
+        "bar",
+        "interval",
+        "mean",
+        "mean-label",
+        "axis",
+        "tick",
+        "tick-label",
+        "tick-share",
+        "sentiment",
+        "bucket",
+        "swatch"
+      ]
+    }
+  },
+  "scenarios": {
+    "overview": ["members", "sizes", "tones", "composition", "accessibility"],
+    "rating": ["playground", "half", "states", "field", "labels", "keyboard", "touch"],
+    "ratingDisplay": ["playground", "fractions", "compact", "histogram", "count", "content"],
+    "ratingSummary": ["playground", "filter", "spectrum", "insight", "empty", "narrow"]
+  },
+  "shareProperty": "--slotted-rating-share",
+  "core": "@slotted/core/rating",
+  "edgeToken": "--slotted-rating-edge",
+  "summaryLabel": {
+    "default": "summaryCount",
+    "empty": "summaryEmpty",
+    "level": "levelLabel",
+    "margin": "spectrumCount",
+    "uncertain": "spectrumUncertain",
+    "buckets": {
+      "positive": "positive",
+      "neutral": "neutral",
+      "negative": "negative"
+    }
+  },
+  "meanProperties": ["--slotted-rating-mean", "--slotted-rating-low", "--slotted-rating-high"],
+  "insight": {
+    "values": ["divided", "few", "consensus", "mixed"],
+    "order": "the first that holds",
+    "thresholds": {
+      "divided": 0.25,
+      "few": 30,
+      "margin": 0.5,
+      "consensus": 0.8
+    },
+    "messages": {
+      "divided": "divided",
+      "few": "few",
+      "consensus": "consensus",
+      "mixed": "mixed"
+    },
+    "tone": {
+      "divided": "warning",
+      "few": "secondary",
+      "consensus": "success",
+      "mixed": "secondary"
+    },
+    "interval": "95%, normal approximation, clamped to the scale",
+    "shownIn": "spectrum"
+  },
+  "messages": [
+    "consensus",
+    "displayLabel",
+    "displayLabelWithCount",
+    "distributionLabel",
+    "divided",
+    "few",
+    "itemLabel",
+    "levelLabel",
+    "mixed",
+    "negative",
+    "neutral",
+    "positive",
+    "scale",
+    "spectrumCount",
+    "spectrumUncertain",
+    "summaryCount",
+    "summaryEmpty"
+  ],
+  "messageFormat": "@slotted/core/i18n message grammar; {value} written by formatRatingValue, shares by formatShare"
+}

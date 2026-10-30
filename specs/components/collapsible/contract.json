@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 5,
+  "family": "collapsible",
+  "ui": "collapsible",
+  "catalog": {
+    "group": "Layout",
+    "summary": "One region whose content shows or hides."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
+  "groupPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/accordion/",
+  "groupFamily": "accordion",
+  "roles": {
+    "header": "heading",
+    "trigger": "button",
+    "panel": "region"
+  },
+  "labelPart": {
+    "part": "label",
+    "reason": "The words get a box of their own, as they do in `tabs` and `tag`: it is what `text-overflow` needs to clip a title the row cannot grow for, what `unicode-bidi: isolate` needs to keep a title in another script from reordering the row around it, and what the indicator's column is aligned against. `isolate` rather than the `plaintext` those two use, because a heading takes its alignment from the page: the first right-to-left capture showed a Latin title stranded against the far edge of an Arabic page."
+  },
+  "controlElement": {
+    "default": "button"
+  },
+  "wiring": {
+    "aria-expanded": "true on the trigger while the panel is open, false while it is closed",
+    "aria-controls": "the trigger names its panel",
+    "aria-labelledby": "the panel names its trigger",
+    "aria-level": "the heading element itself in React, which renders h1 to h6 from `level`; in Angular the consumer writes the element and the directive supplies role=\"heading\" and aria-level only when what they wrote is not a heading, which the pattern names as the alternative to a native one",
+    "aria-disabled": "true on a trigger the group refuses to let close",
+    "aria-busy": "true on the panel while the family is loading",
+    "panelRole": "region only when the consumer asks for it, because a region is a landmark"
+  },
+  "heading": {
+    "part": "header",
+    "levels": ["none", "1", "2", "3", "4", "5", "6"],
+    "default": "none",
+    "onlyChild": "trigger",
+    "reason": "The APG requires the header button to be wrapped in an element with role heading and an appropriate aria-level, and requires that button to be the only element inside it. `actions` is therefore a sibling of the header rather than a child, and a standalone disclosure that is not part of an outline uses `none`, which writes no heading semantics at all. React renders the element from `level`; Angular takes the element the consumer wrote — the directive on their own element is what that ecosystem composes with — and supplies the role and the level when it is not already a heading. Both reach the same accessibility tree, and the pattern names both as acceptable."
+  },
+  "keyboard": [
+    {
+      "key": "Enter",
+      "effect": "toggles the panel",
+      "focus": "stays on the trigger",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "toggles the panel",
+      "focus": "stays on the trigger",
+      "source": "platform"
+    },
+    {
+      "key": "Tab",
+      "effect": "moves to the next focusable element; the trigger, everything in the actions slot and everything inside an open panel are all in the page tab sequence",
+      "focus": "the next focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous focusable element, under the same rule",
+      "focus": "the previous focusable element",
+      "source": "platform"
+    }
+  ],
+  "escapeBound": false,
+  "rovingTabindex": false,
+  "declined": {
+    "detailsElement": {
+      "reason": "`details` and `summary` supply the disclosure role, Enter, Space, find-in-page and — through `name` — exclusive opening, and the family still refuses them. The accordion pattern requires the trigger to be the only element inside a heading, and `summary` may neither be wrapped in one nor hold one without putting the heading inside the button; `details` opens itself, so a controlled family is a frame behind and has to write the value back; `name` expresses exclusive opening and neither `multiple` nor `requireOpen` nor a cancellable request carrying a reason; and animating `::details-content` to an intrinsic height still needs `interpolate-size`, which MDN records as limited availability. The cost is written on the reference page: a page with JavaScript disabled cannot open a panel, and find-in-page reaches closed content only through mount=\"until-found\"."
+    },
+    "horizontalCollapse": {
+      "deferTo": "sidebar",
+      "reason": "Radix and Base UI both expose a content width for a panel that opens sideways, and neither ships a use for it. A drawer that opens along the inline axis is `sidebar`'s, and a consumer needing it today overrides `grid-template-rows` with `grid-template-columns` on the panel in three lines."
+    },
+    "focusOnOpen": {
+      "reason": "No surveyed implementation moves focus into a panel it opened, and the APG does not ask for it. The trigger keeps focus, so a reader who opened three panels in a row is still where they were; a consumer whose panel holds a form focuses its own first field."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["plain", "ruled", "framed"],
+    "indicator": ["chevron", "plus-minus", "none"],
+    "togglePlacement": ["end", "start"],
+    "level": ["none", "1", "2", "3", "4", "5", "6"],
+    "mount": ["active", "lazy", "eager", "until-found"]
+  },
+  "resolution": {
+    "size": ["prop", "accordion", "defaults", "md"],
+    "variant": ["prop", "accordion", "defaults", "plain"],
+    "indicator": ["prop", "accordion", "defaults", "chevron"],
+    "togglePlacement": ["prop", "accordion", "defaults", "end"],
+    "level": ["prop", "accordion", "defaults", "none"],
+    "mount": ["prop", "accordion", "defaults", "eager"],
+    "truncate": ["prop", "accordion", "defaults", false]
+  },
+  "provides": {
+    "collapsibleDefaults": [
+      "size",
+      "variant",
+      "indicator",
+      "togglePlacement",
+      "level",
+      "mount",
+      "truncate"
+    ]
+  },
+  "mount": {
+    "active": "the panel's content exists only while it is open; the box stays, so the trigger's aria-controls never names an element that is gone",
+    "lazy": "the content is built on the first open and kept afterwards",
+    "eager": "the content exists from the start, which is what lets the panel transition closed",
+    "until-found": "the panel exists from the start and carries hidden=\"until-found\" while closed, so the browser's own find-in-page opens it",
+    "default": "eager",
+    "reason": "One axis with four values rather than the three booleans the field ships — forceMount, keepMounted, lazyMount, unmountOnExit, hiddenUntilFound — which admit combinations that mean nothing. The default is eager because content that is not in the DOM has nothing to transition; `active` is the answer for a panel holding a table, and its cost is that closing is instant. What is dropped is the content and never the box: Radix and Base UI remove the whole panel, and the trigger's aria-controls then names an element that is not there."
+  },
+  "motion": {
+    "property": "grid-template-rows",
+    "from": "0fr",
+    "to": "1fr",
+    "measured": false,
+    "reason": "Radix writes --radix-collapsible-content-height, Base UI --collapsible-panel-height, and Ark and Angular Material each measure in their own words. A measured height is wrong for one frame in a server response and stale until a resize observer fires. A grid track transitioning between 0fr and 1fr is the content's own height at every frame, and nothing reads the layout."
+  },
+  "findInPage": {
+    "attribute": "hidden",
+    "value": "until-found",
+    "event": "beforematch",
+    "requestReason": "programmatic",
+    "reason": "The vocabulary in docs/state-and-events.md holds no reason for a browser's page search. The move is the browser's rather than an interaction with this family's own control, so it carries `programmatic`; adding a twelfth reason is a change to a contract outside this family."
+  },
+  "stateAttributes": {
+    "open": "data-open",
+    "disabled": "data-disabled",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "select", "programmatic"]
+    }
+  },
+  "members": {
+    "collapsible": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "plain",
+        "indicator": "chevron",
+        "togglePlacement": "end",
+        "level": "none",
+        "mount": "eager",
+        "truncate": false,
+        "region": false,
+        "disabled": false,
+        "loading": false
+      },
+      "capabilities": ["open", "size", "appearance", "disabled", "loading", "wiring"],
+      "states": ["default", "hover", "active", "focus-visible", "open", "disabled", "loading"],
+      "parts": [
+        "root",
+        "header",
+        "trigger",
+        "indicator",
+        "label",
+        "description",
+        "actions",
+        "panel",
+        "content"
+      ]
+    }
+  },
+  "scenarios": {
+    "collapsible": [
+      "playground",
+      "variant",
+      "sizes",
+      "indicator",
+      "heading",
+      "description",
+      "actions",
+      "mount",
+      "states",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

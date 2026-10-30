@@ -1,0 +1,666 @@
+{
+  "schemaVersion": 5,
+  "family": "entity-picker",
+  "ui": "entity-picker",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Searches and picks remote records like people."
+  },
+  "reference": "Salesforce lightning-record-picker and the SLDS Lookup, Fluent UI v8 BasePicker and NormalPeoplePicker, Fluent UI v9 TagPicker, Microsoft Graph Toolkit mgt-people-picker, MUI Autocomplete, React Aria Autocomplete, Ant Design Select with remote search",
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/combobox/",
+  "listboxPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/",
+  "chipsPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
+  "patternStatus": "The combobox pattern owns the input and both key tables, the listbox pattern the popup, and the grid pattern the row of chips in multiple, as in multi-select. The three pages were transcribed for combobox and multi-select (specs/components/multi-select/contract.json); design §2 lists the rows this family answers differently or adds.",
+  "roles": {
+    "input": "combobox",
+    "values": "grid",
+    "chips": "row",
+    "chips > tag": "gridcell",
+    "field": "gridcell",
+    "content": "listbox",
+    "group": "group",
+    "item": "option",
+    "status": "status"
+  },
+  "composes": [
+    "avatar",
+    "tag",
+    "select",
+    "spinner",
+    "skeleton",
+    "highlight",
+    "positioner",
+    "presence",
+    "portal",
+    "dismissable-layer",
+    "collection",
+    "focus",
+    "live-announcer"
+  ],
+  "adds": {
+    "entity-picker": {
+      "module": "packages/core/src/entity-picker",
+      "exports": [
+        "createEntitySearch",
+        "createEntityCache",
+        "localEntitySource",
+        "entitySections",
+        "entityOptions",
+        "entityName",
+        "entityPickerKey"
+      ],
+      "reason": "The search session, the cache of seen entities, the resolution of ids, the sections and the decision a key makes are the same in both bindings, and a third copy of the combobox keyboard only stays aligned with the other two when it is written and tested once (design §1.5)."
+    }
+  },
+  "anatomy": {
+    "root": "a div carrying data-ui=entity-picker, data-size, data-variant, data-selection-mode and data-overflow; role=group named by the field's label when scopes are shown. The scope and the control share one line at every width",
+    "scope": "a div around the select family, drawn before the control and joined to it, min(11rem, 45%) wide; only when scopes are given",
+    "control": "the frame: edge, ground, shadow, focus ring and invalid edge, as text-field and combobox draw it; it holds the values, the input and the two buttons",
+    "selection": "single: the chosen entity's avatar before the input, aria-hidden because the input already says the name",
+    "values": "multiple: role=grid, carrying the field's label and the count of chips; the frame's buttons stay outside it, because a grid owns rows and nothing else",
+    "chips": "multiple: the row of chosen entities, role=row. Each chip is a tag root (data-ui=tag, data-part=root, role=gridcell) — the chip is tag's, as in multi-select — with an avatar in tag's start part, the label, and tag's remove button at tabindex=-1; data-loading while its id resolves, data-unresolved when the source did not return it",
+    "field": "multiple: the gridcell that holds the input",
+    "input": "the text field, role=combobox; spellcheck=false and autocorrect=off unless the consumer asks for the check (React spellCheck, Angular spellcheck), since it searches names",
+    "clear": "the button that empties the choice and the text",
+    "trigger": "the button that opens and closes the popup, tabindex=-1",
+    "arrow": "the chevron inside trigger",
+    "busy": "the spinner family's ring inside trigger while a search or a resolution is travelling",
+    "positioner": "the portalled layer, carrying data-ui=entity-picker so the stylesheet reaches it",
+    "content": "the listbox; aria-multiselectable in multiple; aria-busy while loading; the container the row reflows in",
+    "group": "a section (favorites, recent, results) or a group of results, role=group named by its group-label",
+    "group-label": "the heading of a group; drawn only when more than one group is showing",
+    "item": "one entity, role=option; data-create for the offer to create, data-retry for the offer to search again",
+    "media": "the avatar family, spanning the label and the description",
+    "label": "the entity's name, ordered by its own first strong character and aligned with the page, clamped to two lines",
+    "match": "the highlight family inside label, from the collator the local source used or the query the remote one answered",
+    "description": "the identifier that disambiguates, one line, ordered by its own first strong character",
+    "meta": "a short trailing text: a type, a status",
+    "indicator": "the check on a chosen option",
+    "error": "the sentence that says the search failed, above the retry option",
+    "empty": "the sentence that says nothing matched",
+    "placeholder": "three rows in the shape of an entity row, drawn by the skeleton family while the first page loads; aria-hidden",
+    "more": "one skeleton row at the end while the next page loads; aria-hidden",
+    "status": "the live region: the count, the wait, the minimum length, the error"
+  },
+  "portalledIdentity": {
+    "elements": ["root", "positioner"],
+    "reason": "As combobox records it: the family is two subtrees and a stylesheet cannot reach a popup portalled out of its root."
+  },
+  "layer": {
+    "modal": false,
+    "scrollLock": false,
+    "branches": [
+      "the control root, so pressing the trigger again closes rather than dismissing twice"
+    ],
+    "depthProperty": "--slotted-layer-depth",
+    "zIndexToken": "--slotted-z-index-popover",
+    "reason": "One layer in the single stack, at the token combobox and select use."
+  },
+  "highlight": {
+    "mechanism": "aria-activedescendant",
+    "attribute": "data-current",
+    "focus": "stays on the input for the whole interaction with the popup",
+    "scroll": "scrollIntoView({ block: 'nearest' }) on every change",
+    "reason": "The combobox pattern requires it, and the input must keep focus for the reader to type."
+  },
+  "wiring": {
+    "aria-expanded": "true while the popup is open, false while it is closed, always written on the input",
+    "aria-controls": "the input names the content while the popup is open",
+    "aria-activedescendant": "the input names the highlighted option, and nothing while there is none",
+    "aria-autocomplete": "list, always; inline completion is declined",
+    "aria-multiselectable": "true on the content in multiple, absent in single",
+    "aria-selected": "true on every chosen option, false on every other selectable one",
+    "aria-disabled": "on an entity marked disabled, and on every unchosen option while max is reached",
+    "aria-busy": "on the content while the first page loads, and on the input while an id of the value resolves",
+    "aria-setsize": "on each option when the result carries total",
+    "aria-posinset": "beside aria-setsize",
+    "aria-label": "on values in multiple, carrying the field's label and the count of chips; on each chip, the entity's name, its description and the remove key",
+    "aria-describedby": "the input takes the field's description and error",
+    "tabindex": "-1 on the trigger and on every remove button",
+    "hidden inputs": "React: one per id, all under the same name"
+  },
+  "optionParts": "renderOption (React) and the slEntityPickerOption template (Angular) write an option's content with EntityPickerOptionLabel / Description / Meta / Media and slEntityPickerOptionLabel / Description / Meta / Media, which carry data-part and its selector key, so the content takes the row's columns; with media=none the option's own face goes in the media part",
+  "virtualize": "above 100 options in a list with no section headings only the options in view and 6 either side are drawn, between two spacers sized from measured rows (estimatedRowHeight, 48, until measured); options carry aria-posinset and aria-setsize; a highlight outside the window scrolls the list to it first. virtualize=false draws every option, true windows a shorter list too",
+  "entity": {
+    "required": ["id", "label"],
+    "optional": ["description", "meta", "avatar", "group", "scope", "disabled"],
+    "avatar": "{ src?, name?, shape?, surface? } — surface as avatar names it, plate for a logo made for a white ground; omitted, the avatar shows the initials of label; null takes the media column away from that entity",
+    "reason": "Salesforce's display-info names a primary field and one additional field; Fluent's Persona a text and a secondary text. description is the additional field and the disambiguator, meta a short trailing fact that is not an identifier."
+  },
+  "value": {
+    "single": "an id, a string or null",
+    "multiple": "an array of ids, in the order the reader chose them",
+    "request": "the change request carries entities, the known entities of the requested value, so the normalised object reaches the consumer without a second API",
+    "query": "the text typed since the last choice. Opening with the chosen name in the field searches the empty string, so the popup shows favorites and recent rather than one row",
+    "close": "single closes on a choice; multiple stays open, empties the query and keeps the highlight"
+  },
+  "source": {
+    "search": "search(request, { signal }) returns a promise of a result, as DataGridDataSource.getRows does",
+    "request": ["query", "scope", "page", "cursor", "selected"],
+    "result": ["items", "total", "hasMore", "cursor"],
+    "resolve": "resolve(ids, { signal }) returns the entities for ids the cache does not hold; optional, and without it an unknown id is unresolved at once",
+    "local": "items instead of source filters locally through localEntitySource, with the collator of @slotted/core/collection over label and description",
+    "stale": "each request is aborted when a newer one starts, and an answer that arrives after it is ignored by its sequence number",
+    "delay": "searchDelay milliseconds after the last keystroke, 250 by default; an empty query and a change of scope search at once",
+    "minimum": "below minQueryLength characters the family does not search and status says how many are needed",
+    "more": "when the result says hasMore, the next page is asked for as the last option comes into view, with page + 1 and the cursor the result returned",
+    "reason": "The family calls the adapter, so the delay and the abort are the family's: combobox declines debounce because there the fetch is the consumer's."
+  },
+  "sections": {
+    "empty": "an empty query shows, in multiple, the chosen entities first, then favorites, then recent, then the results of the empty query when minQueryLength is 0",
+    "typed": "a typed query shows only the results, grouped by entity.group in the order each group first appears",
+    "dedupe": "an id shown in an earlier section is never repeated in a later one",
+    "scope": "with a scope chosen, favorites and recent show only entities of that scope or of none",
+    "headings": "a group-label is drawn only when more than one group is showing",
+    "cache": "every entity the family has seen is kept by id, so a new search never erases the name of a chip"
+  },
+  "creation": {
+    "prop": "onCreate",
+    "message": "create",
+    "element": "an option of its own, marked data-create, after the results",
+    "appears": "while onCreate is given, the query is not empty, the search has answered, and no result's label equals the query under the collator",
+    "effect": "calls onCreate with the query; when it resolves to an entity, the family caches it and adds its id to the value with reason submit",
+    "reason": "The value is an id and the entity created arrives with it, so the family can finish the choice, which combobox cannot because its collection is the consumer's."
+  },
+  "overflow": {
+    "axis": ["collapse", "wrap"],
+    "default": "collapse",
+    "collapse": "createCollapse from @slotted/core/overflow hides the chips that do not fit on the control's one line, writing hidden on each; the count chip, a tag root with data-count in tag's outline variant, says +N and opens the popup, whose chosen section holds every chosen entity",
+    "wrap": "multi-select's rows: the chips wrap onto three lines, then the row scrolls",
+    "reason": "A field in a form is one row tall beside its neighbours; a chosen set that wraps makes it two or three rows tall as values are added, which the reviewer refused at the visual gate. wrap stays for a panel where height is free."
+  },
+  "error": {
+    "part": "error",
+    "retry": "an option marked data-retry below the error sentence: ArrowDown reaches it, aria-activedescendant names it, Enter or a press repeats the request",
+    "previous": "the results of the failed search's predecessor are not shown as if they answered this one",
+    "reason": "A button inside a listbox popup is not reachable while focus stays on the input; an option is, through the machinery creation already uses."
+  },
+  "resolve": {
+    "pending": "a chip whose id is resolving is a skeleton the width of a short name, data-loading, and keeps its remove button, so it can be taken out before it resolves and does not grow when it does; in single the trigger shows the busy ring and the input is empty with aria-busy",
+    "missing": "an id the source did not return is a chip reading the unresolved message with data-unresolved, removable, whose name carries the id",
+    "validity": "the Angular Validator reports unresolved while any id of the value is missing",
+    "batch": "ids unknown at the same moment are resolved in one call"
+  },
+  "waiting": {
+    "busy": {
+      "part": "busy",
+      "ui": "spinner",
+      "stylesheet": "spinner/spinner.css",
+      "reason": "The chevron says the popup opens onto something; while an answer is travelling the ring replaces it, as in combobox."
+    },
+    "placeholder": {
+      "part": "placeholder",
+      "ui": "skeleton",
+      "stylesheet": "skeleton/skeleton.css",
+      "reason": "The first page waits as three rows in the anatomy of an entity row: a circle where the avatar goes, a line for the name, a shorter one for the identifier. The loaded list occupies the same boxes."
+    },
+    "more": {
+      "part": "more",
+      "ui": "skeleton",
+      "reason": "The next page waits as one row after the last, so the rows above it do not move."
+    },
+    "refresh": {
+      "attribute": "data-loading on content",
+      "reason": "A new query with rows already on screen keeps those rows, dimmed, with aria-busy on the content, and swaps them when the answer arrives. Replacing them with the skeleton on every keystroke is the flicker the loading-states skill names; the skeleton answers only a popup with nothing painted."
+    },
+    "timing": {
+      "delay": 200,
+      "minDuration": 400,
+      "reason": "An answer inside 200 ms draws no indicator; an indicator once drawn stays 400 ms. searchDelay runs before the request, this delay after it starts."
+    }
+  },
+  "keyboard": [
+    {
+      "key": "ArrowDown",
+      "effect": "closed, opens and highlights the first option; open, moves the highlight to the next option, wrapping only when loop is true",
+      "focus": "the input, caret unmoved",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "closed, opens and highlights the last option; open, moves to the previous option",
+      "focus": "the input, caret unmoved",
+      "source": "pattern"
+    },
+    {
+      "key": "Alt+ArrowDown",
+      "effect": "opens without moving the highlight",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Alt+ArrowUp",
+      "effect": "closes",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Enter",
+      "effect": "on an entity: single chooses it and closes, multiple toggles it and empties the query; on the create option calls onCreate; on the retry option repeats the search; with no highlight, nothing",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Escape",
+      "effect": "open, closes and keeps the text; closed, single puts the chosen name back and clears the choice when the text already was that name, multiple empties the text",
+      "focus": "the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "on the input, the browser's caret movement; on a chip, the first chip",
+      "focus": "the input, or the first chip",
+      "source": "platform"
+    },
+    {
+      "key": "End",
+      "effect": "on the input, the browser's caret movement; on a chip, the input",
+      "focus": "the input",
+      "source": "platform"
+    },
+    {
+      "key": "PageDown",
+      "effect": "moves the highlight ten options on, or to the last, without wrapping",
+      "focus": "the input",
+      "source": "family"
+    },
+    {
+      "key": "PageUp",
+      "effect": "moves the highlight ten options back, or to the first, without wrapping",
+      "focus": "the input",
+      "source": "family"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "on the input, the caret; from the start of the query in multiple, the last chip, mirrored under dir=rtl; on a chip, the previous chip",
+      "focus": "the input or a chip",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "on the input, the caret; on a chip, the next chip, and the input after the last, mirrored under dir=rtl",
+      "focus": "a chip or the input",
+      "source": "pattern"
+    },
+    {
+      "key": "Backspace",
+      "effect": "on the input with text, the browser's deletion; in multiple with an empty query, the first press moves focus to the last chip and removes nothing, the second removes it; on a chip, removes it",
+      "focus": "the chip that took the removed one's index, then the previous chip, then the input",
+      "source": "family"
+    },
+    {
+      "key": "Delete",
+      "effect": "on a chip, removes it; on the input, the browser's deletion",
+      "focus": "the chip that took the removed one's index, then the previous chip, then the input",
+      "source": "family"
+    },
+    {
+      "key": "Printable character",
+      "effect": "typed into the input, which starts the delayed search; on a chip, focus returns to the input and the character is typed there",
+      "focus": "the input",
+      "source": "platform"
+    },
+    {
+      "key": "Tab",
+      "effect": "closes without choosing and leaves the control; the popup, the chips and the remove buttons are outside the tab sequence",
+      "focus": "the next element in the page",
+      "source": "family"
+    }
+  ],
+  "focus": {
+    "onOpen": "nothing moves; the highlight goes to the first chosen option in single, and to nothing otherwise",
+    "roving": "the chips in multiple, one tab stop for the control",
+    "contained": false,
+    "removal": "createRemovalFocus from @slotted/core/focus: the chip that took the index, then the previous, then the input",
+    "disabledItems": "an entity marked disabled keeps its place, carries aria-disabled and data-disabled, and is skipped by every movement key",
+    "guards": false
+  },
+  "opening": {
+    "input": "typing into the input opens the popup, and so does a press on the input; a Tab into the input does not, because a reader tabbing through a form is passing the control on the way to the next field",
+    "focus": "every focus on the input opens the popup, a Tab into it and a press on it alike. For a control that is the reason the page exists, such as a search field alone in a header",
+    "manual": "only the trigger, ArrowDown, ArrowUp and Alt+ArrowDown open the popup; typing filters without opening it",
+    "press": "a pointer press on the input opens a closed popup with reason pointer, under input and focus, and never closes an open one, because a press there also places the caret. Under manual it only places the caret. A consumer handler that calls preventDefault on the click keeps the popup closed",
+    "reason": "React Aria names the same three values in menuTrigger and defaults to input; Base UI (openOnInputClick) and Ark (openOnClick) open on a press on the input. combobox, multi-select and entity-picker answer both gestures alike, so one form holding the three opens on the same gestures"
+  },
+  "announce": {
+    "module": "createLiveAnnouncer from @slotted/core/live-announcer",
+    "politeness": "polite",
+    "messages": [
+      "the number of results, once the search has answered",
+      "the minimum length, while the query is shorter",
+      "the error",
+      "an entity added in multiple, with the count now chosen",
+      "an entity removed in multiple, with its name and the count left",
+      "the limit reached"
+    ]
+  },
+  "form": {
+    "react": "one visually hidden input per id, all under the same name, with required and form on the first",
+    "angular": "ControlValueAccessor and Validator",
+    "validity": ["required", "unresolved"],
+    "reason": "Neither ecosystem has the other's mechanism."
+  },
+  "positioning": {
+    "side": "bottom",
+    "align": "start",
+    "sideOffset": 4,
+    "collisionPadding": 8,
+    "anchor": "the control, not the root, so the popup lines up with the text and not with the scope"
+  },
+  "runtimeProperties": [
+    "--slotted-layer-depth",
+    "--slotted-positioner-anchor-width",
+    "--slotted-positioner-available-height",
+    "--slotted-positioner-transform-origin"
+  ],
+  "motion": {
+    "property": "scale",
+    "companion": "opacity",
+    "companionPart": "content",
+    "origin": "--slotted-positioner-transform-origin",
+    "reason": "The grammar every anchored layer in this library uses."
+  },
+  "declined": {
+    "inlineCompletion": {
+      "reason": "Two entities can carry the same name; completing the text in the field would claim an identity that only the list, with its identifiers, shows."
+    },
+    "customValue": {
+      "deferTo": "combobox",
+      "reason": "Free text as the value is combobox with allowsCustomValue. This family's value is an id; creation is the path for a value the source does not hold."
+    },
+    "virtualization": {
+      "deferTo": "collection",
+      "reason": "As combobox defers it. hasMore is the incremental answer."
+    },
+    "reorder": {
+      "deferTo": "multi-select",
+      "reason": "No surveyed entity picker reorders its chips; an ordered set of strings is multi-select's."
+    },
+    "personCard": {
+      "deferTo": "hover-card",
+      "reason": "MGT opens a person card from a chip. renderChip composes hover-card around the chip; what a card shows is the product's."
+    },
+    "favoriteMark": {
+      "reason": "A star on a favorite row needs a star glyph the foundation does not have. The Favorites heading says it; a new glyph changes the foundation and is not justified by this family alone."
+    },
+    "paste": {
+      "reason": "Pasting a list of addresses is a search per token, which is the consumer's through onCreate. multi-select and tags-input own pasting strings."
+    },
+    "modal": {
+      "deferTo": "dialog",
+      "reason": "As combobox: inerting the page would inert the input the reader types into."
+    }
+  },
+  "axes": {
+    "selectionMode": ["single", "multiple"],
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"],
+    "media": ["avatar", "none"],
+    "overflow": ["collapse", "wrap"],
+    "openOn": ["input", "focus", "manual"],
+    "side": ["bottom", "top"],
+    "width": ["anchor", "content"],
+    "strategy": ["absolute", "fixed"],
+    "clearable": [true, false],
+    "loop": [true, false],
+    "highlightMatch": [true, false],
+    "portal": [true, false],
+    "fullWidth": [true, false],
+    "disabled": [true, false],
+    "readOnly": [true, false],
+    "required": [true, false],
+    "invalid": [true, false]
+  },
+  "resolution": {
+    "selectionMode": ["prop", "single"],
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "media": ["prop", "defaults", "avatar"],
+    "overflow": ["prop", "defaults", "collapse"],
+    "openOn": ["prop", "defaults", "input"],
+    "side": ["prop", "defaults", "bottom"],
+    "width": ["prop", "defaults", "content"],
+    "strategy": ["prop", "defaults", "absolute"],
+    "clearable": ["prop", "defaults", true],
+    "loop": ["prop", "defaults", false],
+    "highlightMatch": ["prop", "defaults", true],
+    "portal": ["prop", "defaults", true],
+    "fullWidth": ["prop", "defaults", true],
+    "disabled": ["prop", "field", "defaults", false],
+    "readOnly": ["prop", "field", "defaults", false],
+    "required": ["prop", "field", "defaults", false],
+    "invalid": ["prop", "field", "defaults", false],
+    "searchDelay": ["prop", "defaults", 250],
+    "minQueryLength": ["prop", "defaults", 0]
+  },
+  "provides": {
+    "entityPickerDefaults": [
+      "size",
+      "variant",
+      "media",
+      "overflow",
+      "openOn",
+      "side",
+      "width",
+      "strategy",
+      "clearable",
+      "loop",
+      "highlightMatch",
+      "portal",
+      "fullWidth",
+      "disabled",
+      "readOnly",
+      "required",
+      "invalid",
+      "searchDelay",
+      "minQueryLength"
+    ]
+  },
+  "messages": [
+    "added",
+    "chips",
+    "chosen",
+    "clear",
+    "complete",
+    "count",
+    "create",
+    "empty",
+    "error",
+    "favorites",
+    "loading",
+    "loadingChip",
+    "minQuery",
+    "more",
+    "moreLabel",
+    "recent",
+    "remove",
+    "removed",
+    "results",
+    "retry",
+    "scope",
+    "trigger",
+    "unresolved",
+    "unresolvedChip"
+  ],
+  "stateAttributes": {
+    "open": "data-open",
+    "disabled": "data-disabled",
+    "readonly": "data-readonly",
+    "invalid": "data-invalid",
+    "required": "data-required",
+    "loading": "data-loading",
+    "selected": "data-selected",
+    "current": "data-current",
+    "complete": "data-complete"
+  },
+  "stateModel": {
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "remove", "clear", "submit", "programmatic"]
+    },
+    "value": {
+      "controlled": "inputValue",
+      "uncontrolled": "defaultInputValue",
+      "request": "onInputValueChange",
+      "reasons": ["keyboard", "select", "clear", "blur", "programmatic"]
+    },
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "outsidePress", "select", "blur", "programmatic"]
+    },
+    "current": {
+      "controlled": "highlightedValue",
+      "uncontrolled": "defaultHighlightedValue",
+      "request": "onHighlightedValueChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    },
+    "filter": {
+      "controlled": "scope",
+      "uncontrolled": "defaultScope",
+      "request": "onScopeChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "members": {
+    "entity-picker": {
+      "nativeElement": "div",
+      "defaults": {
+        "selectionMode": "single",
+        "size": "md",
+        "variant": "outline",
+        "media": "avatar",
+        "overflow": "collapse",
+        "openOn": "input",
+        "side": "bottom",
+        "width": "content",
+        "strategy": "absolute",
+        "clearable": true,
+        "loop": false,
+        "highlightMatch": true,
+        "portal": true,
+        "fullWidth": true,
+        "disabled": false,
+        "readOnly": false,
+        "required": false,
+        "invalid": false,
+        "searchDelay": 250,
+        "minQueryLength": 0,
+        "max": null
+      },
+      "capabilities": [
+        "selection",
+        "value",
+        "open",
+        "current",
+        "filter",
+        "size",
+        "appearance",
+        "placement",
+        "content",
+        "fullWidth",
+        "disabled",
+        "readOnly",
+        "required",
+        "invalid",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "open",
+        "disabled",
+        "readonly",
+        "invalid",
+        "required",
+        "loading",
+        "selected",
+        "current",
+        "complete"
+      ],
+      "parts": [
+        "root",
+        "scope",
+        "control",
+        "selection",
+        "values",
+        "chips",
+        "field",
+        "input",
+        "clear",
+        "trigger",
+        "arrow",
+        "busy",
+        "positioner",
+        "content",
+        "group",
+        "group-label",
+        "item",
+        "media",
+        "label",
+        "match",
+        "description",
+        "meta",
+        "indicator",
+        "error",
+        "empty",
+        "placeholder",
+        "more",
+        "status"
+      ]
+    }
+  },
+  "scenarios": {
+    "entity-picker": [
+      "playground",
+      "single",
+      "multiple",
+      "rich-results",
+      "sections",
+      "scopes",
+      "async",
+      "creation",
+      "error",
+      "unresolved",
+      "limit",
+      "sizes",
+      "variants",
+      "states",
+      "long-content",
+      "keyboard",
+      "form",
+      "composition"
+    ]
+  },
+  "literals": {
+    "--slotted-entity-picker-scope-inline-size": {
+      "value": "min(11rem, 45%)",
+      "reason": "select has no intrinsic width (its first track is minmax(0, 1fr)); 11rem holds \"Opportunities\" at lg, and 45% leaves the field the larger share at 240 pixels."
+    },
+    "--slotted-entity-picker-meta-measure": {
+      "value": "8em",
+      "reason": "A short fact read with the name; past eight of its own letters it is cut before the name is."
+    },
+    "--slotted-entity-picker-field-min": {
+      "value": "2.5rem",
+      "reason": "multi-select's floor: a couple of characters of caret room, which the collapse reserves before it keeps a chip."
+    },
+    "--slotted-entity-picker-field-basis": {
+      "value": "4rem",
+      "reason": "multi-select's basis: a word's worth of room under overflow=\"wrap\"."
+    },
+    "--slotted-entity-picker-measure": {
+      "value": "28rem",
+      "reason": "The widest a width=\"content\" popup grows: a name, an address and a fact on one row."
+    },
+    "--slotted-entity-picker-icon-size-min": {
+      "value": "14px",
+      "reason": "combobox's floor under the glyph scale at dense (SL3)."
+    }
+  }
+}

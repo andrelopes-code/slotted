@@ -1,0 +1,344 @@
+{
+  "schemaVersion": 5,
+  "family": "page-header",
+  "ui": "page-header",
+  "catalog": {
+    "group": "Layout",
+    "summary": "Page title, description and actions."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/",
+  "togglePattern": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
+  "pinPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
+  "reference": "SAP Fiori Dynamic Page: sap.f.DynamicPage, sap.f.DynamicPageTitle, sap.f.DynamicPageHeader, read in the OpenUI5 sources",
+  "composes": ["container", "breadcrumb", "toolbar", "tabs", "typography", "progress-indicator"],
+  "anatomy": {
+    "root": "a header element with a box of its own — background, border, shadow, container query and the element a ref returns. Sticky with a negative offset the size of the header area, see sticky below; in the flow below 600 pixels, see compact",
+    "title-area": "the strip that never leaves: the nav row, the title row and the controls. Sticky at 0 inside the root, above the header area in the stack, opaque",
+    "nav": "the row above the title: back, then breadcrumbs. Absent when neither is written",
+    "back": "a link or a button the consumer renders, with the arrow glyph the family draws before it. Below 600 pixels it is what remains of the nav row. On a coarse pointer it reaches the comfortable target by padding given back as a negative margin, so the row keeps its height",
+    "breadcrumbs": "the slot the breadcrumb family sits in. Hidden below 600 pixels, where back says where the reader came from",
+    "title-row": "visual, title, navigation, actions — one row that wraps the last two under the title when the width runs out",
+    "visual": "the mark before the heading: an avatar, an icon or an image the consumer supplies. No tone axis, because identity is not status",
+    "title": "the column of heading, marks and subheading; at least a medium control tall and centring its content, so a one-line heading stands on the axis of the control beside it while a wrapped heading grows from the top of the row",
+    "heading": "the h1, or the element the consumer substitutes through render or the directive. Its level is the level axis. Expanded it wraps to two lines and then clamps with the full text in the title attribute; snapped it is one line with an ellipsis",
+    "marks": "the status beside the heading — a tag, a badge, a status-indicator — aligned to the heading's text rather than to its line box. Below 600 pixels the marks take a line of their own under the heading, so the header's height does not depend on what they say",
+    "subheading": "one line under the heading, in the muted text, part of what stays visible",
+    "actions": "the slot a toolbar sits in, pushed to the end of the title row. Below 600 pixels it grows to take a wrapped row and keeps its content at the end of whichever row it lands on. Holding a toolbar with overflow=menu, it stays on the title row at every width: its width is what the title leaves, never its own content, so it follows the row in both directions; it gives way before the title does, never below its menu's trigger and the toolbar's inset, and the toolbar fills it, stands its controls at the end and folds what does not fit. Overflow is the toolbar's. A toolbar without a frame gives its block inset back to the row, so it stands a control tall, the height the title reserves",
+    "navigation": "the previous and next record, after the actions at the far end of the title row, which is where sap.f puts navigationActions. Below 600 pixels the row wraps under the title",
+    "controls": "a zero-height row between the header area and the tabs, on the bottom edge of the chrome, carrying the rule and the pill that straddles it: the toggle, then the pin. Placed after the header area rather than inside the title area so that it sits on the chrome's edge in every state without moving in the DOM — at rest it is under the header area, stuck it is under the title area, because the header area is then under the title. Fiori's idiom, and the reviewer's",
+    "toggle": "a button with aria-expanded and aria-controls, drawing the chevron rotated by the state",
+    "pin": "a toggle button with aria-pressed, drawing pin or pin-off. It exists when it is rendered; there is no prop to hide it",
+    "header-area": "the region that collapses: figure and content. In the flow at rest, under the title area when scrolled past, sticky under the title area while pinned or re-opened in place, and a 0fr grid row when collapsed by the control",
+    "figure": "the picture of the record, a column before the content. Absent when not written",
+    "content": "a column of whatever only makes sense at rest — a description, a description-list, filters, indicators",
+    "description": "a paragraph with a measure, inside content",
+    "tabs": "the slot a tabs family sits in, last in the root. It stays visible under the title area once the header area has scrolled past, because it is the bottom of the root and the root is what sticks",
+    "progress": "a transparent frame one hairline tall and the whole width of the root, which positions it, at its static place in the flow; it holds one progress bar at edge-end, so the bar covers the line where the chrome ends. The stylesheet places it, whatever the order of the parts: with controls over tabs that line is the hairline the pill straddles (the tabs take order 2, the frame order 1), since on the root's own edge the bar would run under the tabs and read as the selected tab's indicator; otherwise it is the root's own hairline, the last row. It draws nothing of its own, takes no pointer and has no role, and it keeps its place beside the controls when the header snaps. The controls pill stands above it"
+  },
+  "sticky": {
+    "root": "calc(-1 * var(--slotted-page-header-collapse, 0px))",
+    "title-area": "0",
+    "pinnedRoot": "0",
+    "revealedRoot": "0",
+    "transition": "the root's offset transitions with --slotted-duration-medium, so a reveal slides the area in under the title and the scroll that ends it slides the area back out. The offset is constant during an ordinary scroll, so the transition never fights the scroll",
+    "reason": "Sirius makes the host display: contents so the title area can stick against the page column. This family keeps the root's box: the root itself sticks with an offset the size of the header area, so the first H pixels leave the scrollport and the title area, stuck at 0 inside the root, stays at the top with the header area passing under it. Pinned or re-opened in place, the offset is 0 and the whole root stays. Four situations, one variable"
+  },
+  "snapDetection": {
+    "observed": "header-area",
+    "root": "the nearest scroll container, or the viewport",
+    "threshold": 0,
+    "rootMargin": "the observer's top edge moves down by what stands above the header area inside the root, plus one pixel",
+    "rootMarginReason": "stuck at -H the area's bottom edge lands exactly under the title, inside the scrollport and covered; an observer over the whole scrollport never reported it out, and the header never snapped in a browser while every fake said it did. Rebuilt whenever the title changes height; a rebuilt observer's first report repeats the fact it knew and never asks the area to collapse again",
+    "fact": "data-scrolled",
+    "contained": "inside a page with data-fill, the binding passes the page's body as contained to @slotted/core/sticky-header: the body's principal scroller scrolling down past 16 pixels asks expanded to move to false with the reason scroll, and the same scroller back at its top asks it back to true. A collapse by the toggle or the application is not undone. A header with no header area is never collapsed by a contained scroll: collapsed, it would hide nothing, and the title stepping down would resize every pane under it. A scroller is principal when it is not a form control — input, select, textarea or contenteditable — and its client block size is at least half the body's (PRINCIPAL_SCROLL_FRACTION, 0.5): the rows of a list that fills the body pass, a textarea and a short scroll area beside the list do not, because what the reader types into or glances at is not the content the header heads. Resolved on every scroll, so a page that turns fill on or off, or a pane a splitter resizes, is followed",
+    "reason": "Stuck at -H, the header area is entirely above the scrollport and isIntersecting is false, which the binding writes as data-scrolled on the root — a measured fact like toolbar's data-overflowing, not a state the vocabulary holds. No pixel bias, because the observed element is not the one that animates — Sirius observed the hero it also animated and needed SNAP_BIAS_PX to settle the edge. While revealed the fact is frozen, because a root moved to 0 brings the area back into the scrollport and the observer would otherwise undo the reveal it just caused"
+  },
+  "tall": {
+    "fact": "data-tall",
+    "meaning": "the header is too much of the screen to hold: expanded it would take more than six tenths of the scrollport, or the root is narrower than 600 pixels. The stylesheet hides the pin, and a header held when the fact turns true is let go with the reason programmatic",
+    "reason": "on a phone a pinned header took nearly the whole height and left nothing to read. sap.f does not offer the pin on phones; the fraction covers a short landscape screen and a tall header alike. Measured by the engine from the chrome, the area and the scrollport, and written by the binding as a fact like data-scrolled"
+  },
+  "stuck": {
+    "fact": "data-stuck",
+    "meaning": "the title area or the root holds at its sticky offset — 0, or the floating inset — with the scroll position past its rest, so content passes under the chrome. The root counts because a floating title area stands a border below it. Measured by @slotted/core/sticky-header on the header's own scroller once a frame, and never true while compact or in a page whose body scrolls on its own, where the header's scroller does not move",
+    "reason": "plain paints a ground only while something passes under it, and floating lifts by a shadow only then; the root's own offset is not the fact, because while the header area slides under the title the root is still travelling and the title already covers content"
+  },
+  "compact": {
+    "fact": "data-compact",
+    "width": "600px",
+    "meaning": "the root is narrower than COMPACT_BELOW from @slotted/core/measure. The header is not sticky: the root and the title area are position relative at an offset of 0, in the flow, and scroll away with the page. The engine observes no scroll — no collapse, no reveal, no contained snap, no fold compensation — writes --slotted-page-sticky-top as 0px, and asks an area a scroll had shut to open with the reason scroll, because in the flow nothing would scroll it back. An area the toggle or the application shut stays shut. The toggle still opens and folds the area in place",
+    "reason": "on a phone a record's header and tabs held 266 of 667 pixels, 40 per cent of the screen, for the whole scroll with nothing to condense. sap.f drops the snap on phones for the same reason. The binding writes the fact from the root's own width, measured by the engine that already reads it for data-tall, because a container query cannot select the container it measures and the root is the element that sticks"
+  },
+  "revealed": {
+    "state": "revealed",
+    "attribute": "data-revealed",
+    "meaning": "the header area is shown whole, in place, under the title area, although the scroll position has passed it: the toggle expanded it while scrolled, or the pin let go of it while scrolled. The root's sticky offset is 0 while revealed, and the offset transitions, so the area slides in under the title and slides back out",
+    "ends": "on the next scroll of more than two pixels, which asks expanded to move to false with the reason scroll; or when the pin takes hold, which makes the reveal moot",
+    "reason": "sap.f keeps a header expanded in the title area until the scroll position reaches the top; Sirius re-snaps on the next scroll. The second is taken: a header the reader opened while reading a row is a header they want out of the way once they read on, and the top of a long page is a long way up. The vocabulary already had the word — a value the component was holding back and is now showing whole, in the place it already occupied — and it is a state here and not a capability, because nothing about it is the consumer's to own"
+  },
+  "collapsedByControl": "0fr while expanded is false and data-scrolled is absent: the area is at rest and the control closed it. Scrolled out, expanded is false as well and the sticky offset is what hides the area; a 0fr row there would shorten the root under the reader and jump the scroll position by the area's height",
+  "toggleWhilePinned": "collapsing by the toggle while pinned lets the pin go first, with the reason programmatic, and then collapses. UI5 does the same; Sirius hides the toggle while pinned, which leaves the reader one control short",
+  "unpinWhileStuck": "letting the pin go while the root is stuck at 0 with the scroll position past the area reveals the area rather than dropping the root to -H under the reader; the next scroll then puts it away",
+  "runtime": {
+    "--slotted-page-header-collapse": {
+      "writer": "page-header",
+      "target": "its own root",
+      "value": "the measured height of the header area, which is the root's negative sticky offset. 0 while collapsed by the control, which puts the root at 0"
+    },
+    "--slotted-page-sticky-top": {
+      "writer": "page-header",
+      "target": "the nearest scroll container, or the document element",
+      "value": "the height of the chrome that stays: title area plus tabs, plus the header area while pinned or re-opened in place; 0px below the compact size class, where nothing stays"
+    }
+  },
+  "measurement": "two ResizeObservers, one on the header area and one on the chrome, coalesced into a single requestAnimationFrame and written only when the value changed. Writing a custom property on the scroll container invalidates its whole subtree, and doing it per frame during the collapse transition is what Sirius measured as a frame-rate drop",
+  "when": {
+    "attribute": "data-when",
+    "values": ["expanded", "snapped"],
+    "scope": "title-area",
+    "reason": "sap.f.DynamicPageTitle has heading, snappedHeading, expandedHeading, snappedTitleOnMobile, content, snappedContent and expandedContent. One attribute on any child of the title area shows it in one state only; a snapped heading is the heading part written twice, once with each value, and display: none keeps one heading in the accessibility tree at a time"
+  },
+  "roles": {
+    "toggle": "button",
+    "pin": "button",
+    "header-area": "region"
+  },
+  "wiring": {
+    "aria-expanded": "on the toggle: true while expanded is true",
+    "aria-controls": "on the toggle, naming the header-area",
+    "aria-pressed": "on the pin: true while pinned is true",
+    "aria-label": "on the toggle and the pin from messages, by state; a consumer's own aria-label on either wins. On the header-area from messages.headerArea",
+    "aria-busy": "true on the root while loading",
+    "id": "on the header-area, from useId or the consumer's own"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves through the title area in document order — back, breadcrumbs, the heading when it is a link, marks, navigation, actions, toggle, pin — and then into the header area when it is visible",
+      "focus": "the next tabbable element",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "the same order, reversed",
+      "focus": "the previous tabbable element",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "on the toggle, asks to move expanded with the reason keyboard; on the pin, asks to move pinned with the reason keyboard",
+      "focus": "stays on the control that was pressed",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "the same as Enter, because both controls are native buttons",
+      "focus": "stays on the control that was pressed",
+      "source": "platform"
+    }
+  ],
+  "pin": {
+    "expands": "pinning while expanded is false asks expanded to move to true with the reason programmatic, because a pinned header is by definition an open one; unpinning leaves expanded where it is"
+  },
+  "inert": {
+    "manual": true,
+    "scroll": false,
+    "reason": "Collapsed by the control the area is a 0fr row with its controls out of sight, so it is inert and aria-hidden. Scrolled past it is not: a control inside it that receives focus is scrolled into view by the browser, and the observer then reports expanded=true with the reason scroll, which is the right thing for the reader who pressed Tab"
+  },
+  "motion": {
+    "property": "grid-template-rows",
+    "from": "1fr",
+    "to": "0fr",
+    "measured": false,
+    "onScroll": "none",
+    "anchor": "overflow-anchor: none on the title area and the header area, so the browser does not re-anchor the scroll position when the header area changes height; Sirius absorbed that jump with a 200ms timer",
+    "reason": "Collapsing by the control animates a grid track with --slotted-duration-medium and --slotted-easing-standard, as collapsible does. Collapsing by scroll animates nothing, because the scroll is the movement. The shadow under the stuck chrome enters with --slotted-duration-short and leaves without a transition, for the reason Sirius records: a shadow fading over the area re-opening is an artefact"
+  },
+  "tallHeader": {
+    "fraction": 0.6,
+    "reason": "A header area taller than six tenths of the scrollport does not re-open in place: expanding it scrolls to the top instead, which is sap.f's _headerBiggerThanAllowedToBeExpandedInTitleArea"
+  },
+  "loading": {
+    "parts": "heading, subheading and description",
+    "reason": "While loading, the binding renders skeleton's text shape inside each of the three in place of the text, and this family's stylesheet says only how wide each placeholder is, through --slotted-skeleton-inline-size. The placeholder is skeleton's — packages/styles/src/waiting.test.mjs holds that a family that waits paints none of its own — and each line measures 1lh of the text it replaces, which is what keeps the height stable when the title arrives"
+  },
+  "progress": {
+    "wait": "refreshing or saving what is already on screen. The content stays, and the region that waits carries aria-busy — the page body, written by the consumer, as page states. The header writes no aria-busy outside its own root",
+    "oneWait": "one wait at a time. Inside an ancestor that is [aria-busy='true'] — a shell between pages, any region the consumer marks — the bar is not drawn, because the whole region's wait answers it; the rule reads an ARIA state, not another family. While loading is true the bar is not drawn either: the title's skeleton is the first load, and a refresh of nothing is not a refresh",
+    "timing": "delay 200 and minDuration 400 milliseconds. A delay costs no blank space here, because the bar reserves none. The prop wins, then the progress-indicator provider, then these values"
+  },
+  "glyphs": {
+    "toggle": "chevron-down",
+    "pin": "pin",
+    "unpin": "pin-off",
+    "back": "arrow-left"
+  },
+  "mirrored": "back is mirrored in a right-to-left document; the chevron rotates by state and needs no mirror",
+  "heading": {
+    "provider": "typography",
+    "reason": "The level axis names the element. The page-header does not step the outline for anything inside it: the header area holds no sections"
+  },
+  "responsive": {
+    "container": "page-header",
+    "narrow": "600px",
+    "below": "the header is not sticky and scrolls away with the page, see compact; breadcrumbs hide and back remains; navigation leaves the title row and joins the actions row; the actions row wraps under the title, unless the actions hold a toolbar with overflow=menu: beside a plain title it stays on the title row and folds what does not fit; under a rich title (a visual, marks or a subheading) it takes a full row of its own under the title and folds only what does not fit there; the subheading is one line with an ellipsis; the heading size drops one step"
+  },
+  "messages": ["collapse", "expand", "headerArea", "pin", "progress", "unpin"],
+  "declined": {
+    "titleClick": {
+      "reason": "sap.f toggles the header when the title area is clicked, and UI5 gives the title a tabindex for it. The title area holds links, breadcrumbs and buttons, and a button may not contain a control: a clickable title would be a nested interactive. The toggle is a dedicated button. Cost: one more target; gain: the strip stays walkable by Tab, control by control"
+    },
+    "displayContents": {
+      "reason": "Sirius makes the sticky host display: contents and loses the root's box — no background, no shadow, no container query, and the element a ref returns has no geometry. See sticky"
+    },
+    "hidePin": {
+      "reason": "sap.f.hidePinButton. The pin exists when it is rendered, so a prop that hides a rendered pin and a pin a prop switched off are both states the family cannot be in — the reading drawer took for its resizer"
+    },
+    "actionOverflow": {
+      "deferTo": "toolbar",
+      "reason": "Polaris, Carbon and sap.f each collapse actions into a menu. toolbar with overflow=menu already does, and it knows how many fit; the header does not"
+    },
+    "breadcrumbOverflow": {
+      "deferTo": "breadcrumb",
+      "reason": "Carbon folds long trails behind a menu; breadcrumb already folds its trail behind an ellipsis"
+    },
+    "actionBar": {
+      "reason": "Carbon's second bar of icon-only actions. A toolbar with two groups and a separator is the same row"
+    },
+    "tagsModal": {
+      "reason": "Carbon's show-all-tags modal. marks wraps; a product with dozens of tags composes tag and popover on one line"
+    },
+    "responsiveHidden": {
+      "reason": "Primer's hidden by viewport. The family reorders by container query below 600 pixels; a part the consumer wants hidden in a range is one container-query rule in their own stylesheet"
+    },
+    "anchorBar": {
+      "deferTo": "anchor-nav",
+      "reason": "sap.uxap's anchor bar registers sections and tracks the selected one. tabs is the slot such a bar sits in; the bar itself is the Extended family docs/component-features.md §7 lists"
+    }
+  },
+  "axes": {
+    "variant": ["band", "plain", "floating"],
+    "material": [false, true],
+    "size": ["sm", "md", "lg"],
+    "level": ["1", "2", "3"],
+    "collapse": ["scroll", "manual"]
+  },
+  "variant": {
+    "band": "the chrome as a strip of the surface (--slotted-page-header-background) with one hairline under it, the whole width of the header. The page's own header, across the top of the screen",
+    "plain": "no ground of its own at rest: the header takes the ground it stands on, and the hairline under it stays. Once content passes under the chrome (data-stuck) the surface comes back, because a header with no ground would show the page through its title. A header inside a region that has a ground of its own — a pane, a card",
+    "floating": "a box of its own: the surface, the hairline all round, corners at --slotted-page-header-radius (the card step, --slotted-radius-lg). At rest it stands where the flow puts it; stuck, it slides to --slotted-page-header-inset (--slotted-space-4) below the scroller's edge, the title area with it, and carries --slotted-page-header-shadow (--slotted-shadow-sm), the one shadow the family draws. The inset is the stuck state's alone, because a header flush with its scroller's edge sat an inset down over the content under it at rest. Compact, it keeps the box and is in the flow at nought. A header that stands inside padding, above content set as cards",
+    "default": "band",
+    "reason": "a header nested in a padded pane painted the surface as a strip with one hairline on a sunken page, and read as a slab the padding cut. sap.f.DynamicPage has backgroundDesign Transparent and Ant's PageHeader has ghost for the first answer; the second is a box for a body made of cards, where the header is the first card. Changing the page's ground instead changes every other region on the screen"
+  },
+  "material": {
+    "true": "once stuck (data-stuck), the root's ground is --slotted-surface-material and its backdrop filter --slotted-material-backdrop, in every variant; at rest each variant keeps its ground. --slotted-page-header-background and --slotted-page-header-backdrop-filter still win. The pill keeps the opaque surface, because half of it hangs below the root over content the root's filter does not reach",
+    "default": false,
+    "reason": "the theme defines a material for a bar that floats over scrolling content, opaque under prefers-reduced-transparency and forced colours; a header is the bar that does. The choice is per application or per screen, not per theme, so it is a prop and a default rather than a token the theme writes"
+  },
+  "collapse": {
+    "scroll": "the header area collapses when it scrolls out of the scrollport and expands when it scrolls back in, each with the reason scroll; the toggle and the pin work as well",
+    "manual": "scrolling never moves expanded; only the toggle, the pin and the application do. sap.f.preserveHeaderStateOnScroll",
+    "default": "scroll"
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "level": ["prop", "defaults", "1"],
+    "collapse": ["prop", "defaults", "scroll"],
+    "variant": ["prop", "defaults", "band"],
+    "material": ["prop", "defaults", false]
+  },
+  "provides": {
+    "pageHeaderDefaults": ["size", "level", "collapse", "variant", "material"]
+  },
+  "stateAttributes": {
+    "expanded": "data-expanded",
+    "revealed": "data-revealed",
+    "pressed": "data-pressed",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "expanded",
+      "uncontrolled": "defaultExpanded",
+      "request": "onExpandedChange",
+      "reasons": ["pointer", "keyboard", "scroll", "programmatic"]
+    },
+    "pressed": {
+      "controlled": "pinned",
+      "uncontrolled": "defaultPinned",
+      "request": "onPinnedChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "cancelledScroll": "A cancelled request with the reason scroll leaves the area where the scroll left it: the family writes no scroll position. What the cancellation prevents is the attribute and aria-expanded moving. A consumer who forces expanded back to true on the next frame re-opens the area in place, because expanded=true with the area out of the scrollport is the re-opened state",
+  "members": {
+    "pageHeader": {
+      "nativeElement": "header",
+      "defaults": {
+        "size": "md",
+        "level": "1",
+        "collapse": "scroll",
+        "variant": "band",
+        "material": false,
+        "expanded": true,
+        "pinned": false,
+        "loading": false
+      },
+      "capabilities": ["open", "pressed", "appearance", "size", "loading", "wiring"],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "expanded",
+        "revealed",
+        "pressed",
+        "loading"
+      ],
+      "parts": [
+        "root",
+        "title-area",
+        "nav",
+        "back",
+        "breadcrumbs",
+        "title-row",
+        "visual",
+        "title",
+        "heading",
+        "marks",
+        "subheading",
+        "actions",
+        "navigation",
+        "header-area",
+        "figure",
+        "content",
+        "description",
+        "controls",
+        "toggle",
+        "pin",
+        "tabs",
+        "progress"
+      ]
+    }
+  },
+  "scenarios": {
+    "pageHeader": [
+      "playground",
+      "anatomy",
+      "collapse",
+      "pin",
+      "when",
+      "size",
+      "navigation",
+      "actions",
+      "tabs",
+      "loading",
+      "progress",
+      "content",
+      "narrow",
+      "composition",
+      "defaults",
+      "accessibility"
+    ]
+  }
+}

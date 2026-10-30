@@ -1,0 +1,417 @@
+<!--
+  Nothing on this page is positioned by `packages/core/src/positioner`, because
+  the harness runs no script. Every layer therefore carries the exact four
+  things the module would have written on it — `top`, `left`, `data-side` and
+  `--slotted-positioner-arrow-x` or `-arrow-y` — as inline values, so the
+  picture is the one a measured layer produces rather than an approximation of
+  it. `transform-origin` is written the same way, and `translate` is used for
+  the centring, which is the property the family deliberately left free by
+  animating `scale` instead of `transform`.
+
+  The arrow offsets are percentages rather than the pixels the engine writes.
+  An inset percentage resolves against the layer's own box, so one value centres
+  the arrow at every width the page is captured at; the engine's pixel is the
+  same number once it has measured.
+
+  `--slotted-positioner-available-width` is written the same way, as `100%` of
+  the stage rather than as the pixels the engine measures. Without it the
+  family's own `min(measure, available)` falls back to `100vw` — the capture
+  window, not the cell — and the 240-pixel capture showed a 288-pixel tooltip
+  clipped by the stage instead of the narrowing the family actually does.
+-->
+<section data-scene="anatomy" data-fixed>
+  <div style="position: relative; display: flex; justify-content: center; padding-block: 72px">
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-variant="outline"
+      data-size="md"
+      type="button"
+    >
+      <span data-part="label" data-part-label="">Save draft</span>
+    </button>
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="top"
+      data-align="center"
+      data-variant="inverse"
+      data-size="md"
+      data-hoverable
+      data-open
+      style="
+        top: 0;
+        left: 50%;
+        translate: -50% 0;
+        --slotted-positioner-arrow-x: calc(50% - 0.25rem);
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: center bottom;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">Saves without publishing</div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The four physical sides the engine can resolve to, around one anchor. `left`
+  and `right` are the two that prove the arrow is placed in the engine's own
+  coordinates: in a right-to-left capture the layers stay where they are and
+  only the words inside them mirror.
+-->
+<section data-scene="sides" data-fixed>
+  <div style="position: relative; display: flex; justify-content: center; padding-block: 120px">
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="root"
+      data-part-root=""
+      data-tone="secondary"
+      data-variant="outline"
+      data-size="md"
+      type="button"
+    >
+      <span data-part="label" data-part-label="">Anchor</span>
+    </button>
+
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="top"
+      data-align="center"
+      data-variant="inverse"
+      data-size="md"
+      data-hoverable
+      data-open
+      style="
+        top: 48px;
+        left: 50%;
+        translate: -50% 0;
+        --slotted-positioner-arrow-x: calc(50% - 0.25rem);
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: center bottom;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">Above</div>
+    </div>
+
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="center"
+      data-variant="inverse"
+      data-size="md"
+      data-hoverable
+      data-open
+      style="
+        top: 152px;
+        left: 50%;
+        translate: -50% 0;
+        --slotted-positioner-arrow-x: calc(50% - 0.25rem);
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: center top;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">Below</div>
+    </div>
+
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="left"
+      data-align="center"
+      data-variant="inverse"
+      data-size="md"
+      data-hoverable
+      data-open
+      style="
+        top: 108px;
+        left: 0;
+        --slotted-positioner-arrow-y: calc(50% - 0.25rem);
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: right center;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">Start</div>
+    </div>
+
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="right"
+      data-align="center"
+      data-variant="inverse"
+      data-size="md"
+      data-hoverable
+      data-open
+      style="
+        top: 108px;
+        left: auto;
+        right: 0;
+        --slotted-positioner-arrow-y: calc(50% - 0.25rem);
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: left center;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">End</div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The two variants beside each other on the same ground. `inverse` is the
+  default because an inverted surface separates itself from every scheme's page
+  without an edge; `surface` is for a tooltip on a page that is already dark, or
+  one holding two lines that should read as a small panel.
+-->
+<section data-scene="variant" data-fixed>
+  <div style="position: relative; padding-block: 96px">
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="top"
+      data-align="center"
+      data-variant="inverse"
+      data-size="md"
+      data-hoverable
+      data-open
+      style="
+        top: 24px;
+        left: 8px;
+        --slotted-positioner-arrow-x: calc(50% - 0.25rem);
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: center bottom;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">Inverse</div>
+    </div>
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="top"
+      data-align="center"
+      data-variant="surface"
+      data-size="md"
+      data-hoverable
+      data-open
+      style="
+        top: 24px;
+        left: auto;
+        right: 8px;
+        --slotted-positioner-arrow-x: calc(50% - 0.25rem);
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: center bottom;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">Surface</div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The two type steps, one above the other, so the difference is read as a
+  difference in weight on the page rather than as two separate pictures. Both
+  move with density, because both read the control scales.
+-->
+<section data-scene="sizes" data-fixed>
+  <div style="position: relative; padding-block: 96px">
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="top"
+      data-align="start"
+      data-variant="inverse"
+      data-size="sm"
+      data-hoverable
+      data-open
+      style="
+        top: 24px;
+        left: 8px;
+        --slotted-positioner-arrow-x: 1rem;
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: left bottom;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">Small · 12px</div>
+    </div>
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="top"
+      data-align="start"
+      data-variant="inverse"
+      data-size="md"
+      data-hoverable
+      data-open
+      style="
+        top: 88px;
+        left: 8px;
+        --slotted-positioner-arrow-x: 1rem;
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: left bottom;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">Medium · 13px</div>
+    </div>
+  </div>
+</section>
+
+<!--
+  Content the family did not choose: a sentence long enough to meet the measure,
+  a single unbroken token, and a string in another script. The first proves the
+  cap, the second proves `overflow-wrap: anywhere`, the third proves
+  `unicode-bidi: isolate` — a right-to-left sentence stays a block of its own
+  instead of reordering the layer around it.
+-->
+<section data-scene="content" data-fixed>
+  <div style="position: relative; padding-block: 24px">
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-variant="inverse"
+      data-size="md"
+      data-hoverable
+      data-open
+      style="
+        top: 8px;
+        left: 8px;
+        --slotted-positioner-arrow-x: 1rem;
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">
+        Publishing sends the draft to every subscriber on the list and cannot be undone from here.
+      </div>
+    </div>
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-variant="inverse"
+      data-size="md"
+      data-hoverable
+      data-open
+      style="
+        top: 128px;
+        left: 8px;
+        --slotted-positioner-arrow-x: 1rem;
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">
+        webhook_delivery_failure_retry_backoff_seconds
+      </div>
+    </div>
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-variant="surface"
+      data-size="md"
+      data-hoverable
+      data-open
+      style="
+        top: 232px;
+        left: 8px;
+        --slotted-positioner-arrow-x: 1rem;
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">
+        يحفظ المسودة دون نشرها على أي قائمة بريدية
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The closed state, which is most of a tooltip's life. The layer is in the
+  document — this is `mount="eager"`, which `describes="label"` forces — and it
+  paints nothing, takes no space and passes the pointer through. A capture that
+  showed anything here would be the defect.
+-->
+<section data-scene="closed" data-fixed>
+  <div style="position: relative; display: flex; justify-content: center; padding-block: 48px">
+    <button
+      data-ui="button"
+      data-ui-button=""
+      data-part="root"
+      data-part-root=""
+      data-tone="accent"
+      data-variant="solid"
+      data-size="md"
+      type="button"
+    >
+      <span data-part="label" data-part-label="">Nothing above me</span>
+    </button>
+    <div
+      data-ui="tooltip"
+      data-ui-tooltip=""
+      data-part="root"
+      data-part-root=""
+      data-side="top"
+      data-align="center"
+      data-variant="inverse"
+      data-size="md"
+      data-hoverable
+      style="
+        top: 0;
+        left: 50%;
+        translate: -50% 0;
+        --slotted-positioner-arrow-x: calc(50% - 0.25rem);
+        --slotted-positioner-available-width: 100%;
+        --slotted-positioner-transform-origin: center bottom;
+      "
+    >
+      <div data-part="arrow" data-part-arrow=""></div>
+      <div data-part="content" data-part-content="" role="tooltip">This must not appear</div>
+    </div>
+  </div>
+</section>

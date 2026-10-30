@@ -1,0 +1,441 @@
+<!--
+  The family paints two things: the summary a reader is sent to after a failed
+  submit, and the row of actions. Everything between them belongs to `field`,
+  to `field-group` and to `stack`, which already own arrangement.
+
+  The summary's markup is the GOV.UK error summary's, item for item: a
+  focusable region with `role="alert"`, a heading, a list, and a link per error
+  pointing at the control's own identifier. An error the form has no control
+  for keeps its place in the list and loses its link.
+-->
+
+<section data-scene="summary">
+  <form data-ui="form" data-ui-form="" data-part="root" data-part-root="" data-invalid novalidate>
+    <div
+      data-ui="form"
+      data-ui-form=""
+      data-part="summary"
+      data-part-summary=""
+      role="alert"
+      tabindex="-1"
+      aria-labelledby="form-harness-summary-title"
+    >
+      <h2 data-part="summary-title" data-part-summary-title="" id="form-harness-summary-title">
+        There is a problem
+      </h2>
+      <ul data-part="summary-list" data-part-summary-list="">
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#form-harness-name"
+            >Enter your full name</a
+          >
+        </li>
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#form-harness-email"
+            >The email address must contain an at sign</a
+          >
+        </li>
+        <li>
+          <span data-part="summary-item" data-part-summary-item="">O cupom informado expirou</span>
+        </li>
+      </ul>
+    </div>
+  </form>
+</section>
+
+<section data-scene="actions">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="9">
+    <form data-ui="form" data-ui-form="" data-part="root" data-part-root="" novalidate>
+      <div data-ui="form" data-ui-form="" data-part="aside" data-part-aside="">
+        A summary of the record, beside the fields from 75rem.
+      </div>
+      <div data-ui="form" data-ui-form="" data-part="actions" data-part-actions="" data-align="end">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Cancelar</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="submit"
+        >
+          <span data-part="label" data-part-label="">Save changes</span>
+        </button>
+      </div>
+    </form>
+
+    <form data-ui="form" data-ui-form="" data-part="root" data-part-root="" novalidate>
+      <div
+        data-ui="form"
+        data-ui-form=""
+        data-part="actions"
+        data-part-actions=""
+        data-align="between"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="danger"
+          data-variant="ghost"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Delete</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="submit"
+        >
+          <span data-part="label" data-part-label="">Save</span>
+        </button>
+      </div>
+    </form>
+
+    <form data-ui="form" data-ui-form="" data-part="root" data-part-root="" novalidate>
+      <div
+        data-ui="form"
+        data-ui-form=""
+        data-part="actions"
+        data-part-actions=""
+        data-align="stretch"
+      >
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Back</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          type="submit"
+        >
+          <span data-part="label" data-part-label="">Continuar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section data-scene="states">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="9">
+    <form
+      data-ui="form"
+      data-ui-form=""
+      data-part="root"
+      data-part-root=""
+      data-loading
+      aria-busy="true"
+      novalidate
+    >
+      <div data-ui="form" data-ui-form="" data-part="actions" data-part-actions="" data-align="end">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="md"
+          type="button"
+          disabled
+        >
+          <span data-part="label" data-part-label="">Cancelar</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          data-loading
+          type="submit"
+        >
+          <span data-part="label" data-part-label="">Enviando…</span>
+        </button>
+      </div>
+    </form>
+
+    <form
+      data-ui="form"
+      data-ui-form=""
+      data-part="root"
+      data-part-root=""
+      data-disabled
+      novalidate
+    >
+      <fieldset disabled style="border: 0; margin: 0; padding: 0">
+        <div
+          data-ui="form"
+          data-ui-form=""
+          data-part="actions"
+          data-part-actions=""
+          data-align="end"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            type="submit"
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</section>
+
+<section data-scene="composition">
+  <form data-ui="form" data-ui-form="" data-part="root" data-part-root="" data-invalid novalidate>
+    <div
+      data-ui="form"
+      data-ui-form=""
+      data-part="summary"
+      data-part-summary=""
+      role="alert"
+      tabindex="-1"
+      aria-labelledby="form-harness-checkout-title"
+    >
+      <h2 data-part="summary-title" data-part-summary-title="" id="form-harness-checkout-title">
+        There is a problem
+      </h2>
+      <ul data-part="summary-list" data-part-summary-list="">
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#form-harness-checkout-email"
+            >The email address must contain an at sign</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+      <div
+        data-ui="field"
+        data-ui-field=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-label-placement="top"
+      >
+        <label data-part="label" data-part-label="" for="form-harness-checkout-name"
+          >Nome completo</label
+        >
+        <div data-part="control" data-part-control="">
+          <div
+            data-ui="text-field"
+            data-ui-text-field=""
+            data-part="root"
+            data-part-root=""
+            data-size="md"
+            data-variant="outline"
+          >
+            <input
+              data-part="input"
+              data-part-input=""
+              id="form-harness-checkout-name"
+              name="nome"
+              value="Ana Ribeiro"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div
+        data-ui="field"
+        data-ui-field=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-label-placement="top"
+        data-invalid
+      >
+        <label data-part="label" data-part-label="" for="form-harness-checkout-email">E-mail</label>
+        <div data-part="control" data-part-control="">
+          <div
+            data-ui="text-field"
+            data-ui-text-field=""
+            data-part="root"
+            data-part-root=""
+            data-size="md"
+            data-variant="outline"
+            data-invalid
+          >
+            <input
+              data-part="input"
+              data-part-input=""
+              id="form-harness-checkout-email"
+              name="email"
+              value="ana.ribeiro"
+              aria-invalid="true"
+              aria-describedby="form-harness-checkout-email-error"
+            />
+          </div>
+        </div>
+        <p
+          data-ui="inline-message"
+          data-ui-inline-message=""
+          data-part="root"
+          data-part-root=""
+          data-tone="danger"
+          id="form-harness-checkout-email-error"
+        >
+          <span data-part="content" data-part-content=""
+            >The email address must contain an at sign.</span
+          >
+        </p>
+      </div>
+    </div>
+
+    <div data-ui="form" data-ui-form="" data-part="actions" data-part-actions="" data-align="end">
+      <button
+        data-ui="button"
+        data-ui-button=""
+        data-part="root"
+        data-part-root=""
+        data-tone="secondary"
+        data-variant="ghost"
+        data-size="md"
+        type="button"
+      >
+        <span data-part="label" data-part-label="">Cancelar</span>
+      </button>
+      <button
+        data-ui="button"
+        data-ui-button=""
+        data-part="root"
+        data-part-root=""
+        data-tone="accent"
+        data-variant="solid"
+        data-size="md"
+        type="submit"
+      >
+        <span data-part="label" data-part-label="">Place order</span>
+      </button>
+    </div>
+  </form>
+</section>
+
+<section data-scene="content">
+  <form data-ui="form" data-ui-form="" data-part="root" data-part-root="" data-invalid novalidate>
+    <div
+      data-ui="form"
+      data-ui-form=""
+      data-part="summary"
+      data-part-summary=""
+      role="alert"
+      tabindex="-1"
+      aria-labelledby="form-harness-many-title"
+    >
+      <h2 data-part="summary-title" data-part-summary-title="" id="form-harness-many-title">
+        There is a problem
+      </h2>
+      <ul data-part="summary-list" data-part-summary-list="">
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#a"
+            >The card number must have sixteen digits, with no spaces and no dashes, exactly as it
+            appears printed on the card</a
+          >
+        </li>
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#b">Enter the expiry month</a>
+        </li>
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#c"
+            >Informe o ano de validade</a
+          >
+        </li>
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#d"
+            >Enter the security code</a
+          >
+        </li>
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#e"
+            >Enter the name printed on the card</a
+          >
+        </li>
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#f"
+            >Enter the billing ZIP code</a
+          >
+        </li>
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#g"
+            >Enter the billing street address</a
+          >
+        </li>
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#h"
+            >Enter the street number</a
+          >
+        </li>
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#i">Enter the billing city</a>
+        </li>
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#j"
+            >Enter the billing state</a
+          >
+        </li>
+        <li>
+          <a data-part="summary-item" data-part-summary-item="" href="#k"
+            >Aceite os termos de uso para continuar</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <div data-ui="form" data-ui-form="" data-part="actions" data-part-actions="" data-align="end">
+      <button
+        data-ui="button"
+        data-ui-button=""
+        data-part="root"
+        data-part-root=""
+        data-tone="accent"
+        data-variant="solid"
+        data-size="md"
+        type="submit"
+      >
+        <span data-part="label" data-part-label="">Tentar novamente</span>
+      </button>
+    </div>
+  </form>
+</section>

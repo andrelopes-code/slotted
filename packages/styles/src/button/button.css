@@ -1,0 +1,835 @@
+@layer slotted.components {
+  /**
+   * One surface for four members. Button, ButtonLink, IconButton and
+   * ToggleButton are one control with different jobs — an action, a
+   * navigation, an action with no room for a label, and an action that stays
+   * on — so they share an identifier, a geometry scale and a state machine,
+   * and differ only in what they contain.
+   *
+   * Every geometric decision is read from `--slotted-control-*` rather than
+   * aliased into `--slotted-button-*`. The alias looked harmless and was not:
+   * the theme raises the control tokens under `@media (pointer: coarse)`, and
+   * a family reading its own copy never grew to the touch target.
+   *
+   * The tone roles travel through private properties because three variants
+   * paint the same roles differently; naming them once per tone is what keeps
+   * the variant rules from repeating five colour maps each.
+   *
+   * Nothing in this sheet changes a size when a state changes. Every state is
+   * a colour; the only one drawn outside the border box is focus, which is an
+   * outline. The rebuild that preceded this one thickened the border on a
+   * pressed toggle, which moved every control beside it by two pixels.
+   */
+  [data-ui-button] {
+    --_solid: var(--slotted-tone-accent-solid);
+    --_solid-hover: var(--slotted-tone-accent-solid-hover);
+    --_solid-active: var(--slotted-tone-accent-solid-active);
+    --_on-solid: var(--slotted-tone-accent-on-solid);
+    --_text: var(--slotted-tone-accent-text);
+    /**
+     * The edge of a filled control is the fill itself. A border a shade away
+     * from what it encloses reads as a halo around the shape rather than as
+     * its edge, and one borrowed from another role reads as a line laid over
+     * the control. One tone overrides it, and only just.
+     */
+    --_edge: var(--_solid);
+
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    /**
+     * A glyph reaches closer to the edge than a letter does, so the side that
+     * holds one is inset less. Without the correction an icon looks pushed
+     * into the middle of the control while the label looks pinned to its
+     * edge — the same padding measured against two different shapes.
+     */
+    --_padding-inline-visual: max(
+      var(--slotted-space-2, 0.25rem),
+      calc(var(--_padding-inline) - var(--slotted-space-2, 0.25rem))
+    );
+    /**
+     * The band the control waits behind, measured against the control rather
+     * than in pixels: a fixed length reads as a wash across a small button and
+     * as a glint across a wide one. Two heights is the tile, so a button that
+     * holds a phrase carries two or three bands rather than one long smear —
+     * a train crossing the control is what reads as waiting, and one band wide
+     * enough to cover it reads as a gradient someone left on.
+     */
+    --_sweep-width: calc(var(--_height) * 2);
+    /**
+     * A band of the control's own ink over the control's own fill, and the two
+     * grounds do not take it the same way. A saturated fill is already far from
+     * the page, so the band has only the distance left between the fill and the
+     * label to work in and needs most of it; a bare variant lays the same ink
+     * straight on the page, where nothing dilutes it and half as much reads
+     * louder. Both numbers were read in `light`, `dark` and `high-contrast`
+     * rather than preferred: above these the filled band stops being a band and
+     * becomes a gloss over the fill, and the one tone whose label is dark turns
+     * it into a shadow.
+     */
+    --_sweep-strength: 0.34;
+
+    align-items: center;
+    appearance: none;
+    background: transparent;
+    border: var(--slotted-control-border-width, 1px) solid transparent;
+    border-radius: var(--slotted-control-radius, 4px);
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: var(--slotted-control-font-family, ui-sans-serif, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-control-font-weight, 600);
+    gap: var(--_gap);
+    justify-content: center;
+    letter-spacing: var(--slotted-control-letter-spacing, 0);
+    line-height: var(--slotted-control-line-height, 1);
+    /**
+     * A control never pushes past the container it was placed in, whatever it
+     * holds. With the label allowed to wrap and to break inside a word, this
+     * is what turns an unbreakable file name into a wrapped one instead of a
+     * horizontal scrollbar on the page.
+     */
+    max-inline-size: 100%;
+    /**
+     * A minimum rather than a height, because the label wraps: a control that
+     * refuses to wrap pushes a long action past the edge of a narrow
+     * container.
+     *
+     * There is no block padding under it, and that is measured rather than
+     * preferred. A padding is added to the label's own line box, so at the
+     * `dense` density — where the small step is 24px and the medium 26px, and
+     * the line box is already 17.4px — four pixels of padding took both steps
+     * to the same 27.4 pixels. The density stopped meaning the height the
+     * theme states, and two steps of the scale collapsed into one. A wrapped
+     * label is kept off the border by the half-leading its own line height
+     * already carries, which is the same three pixels the padding was adding.
+     */
+    min-block-size: var(--_height);
+    padding-block: 0;
+    padding-inline: var(--_padding-inline);
+    /* The loading indicator is placed against this box. */
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    /** A single-word difference between two lines is worse than a shorter first one. */
+    text-wrap: balance;
+    /* No tap delay waiting for a second tap the control cannot use. */
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing),
+      /* The press below moves the control, and the release eases it back. */ transform
+        var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    user-select: none;
+    /* A control written inside a sentence sits on the text's centre, not on its baseline. */
+    vertical-align: middle;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── Tone: which of the five semantic colours the control speaks in ───── */
+
+  [data-ui-button][data-tone='secondary'] {
+    --_solid: var(--slotted-tone-secondary-solid);
+    --_solid-hover: var(--slotted-tone-secondary-solid-hover);
+    --_solid-active: var(--slotted-tone-secondary-solid-active);
+    --_on-solid: var(--slotted-tone-secondary-on-solid);
+    --_text: var(--slotted-tone-secondary-text);
+    /**
+     * The one fill that cannot be its own edge: measured against the surface it
+     * sits on, `--slotted-tone-secondary-solid` is 1.23:1 in `light`, 1.25:1 in
+     * `dark` and 1.00:1 in `high-contrast`, where it is the page's own white. A
+     * neutral control with no edge at all is a control that cannot be found.
+     *
+     * The edge is the next darker step of the tone's own ramp — the active
+     * fill — and nothing stronger. It was the hover fill while a hover
+     * darkened; a hover now lightens (the rule is in the theme), and an edge
+     * lighter than what it encloses is no edge. The tone's `border` role was
+     * tried and is far too loud: a filled neutral button is a quiet control,
+     * and an edge that announces itself turns it into an outline button
+     * wearing a fill.
+     */
+    --_edge: var(--_solid-active);
+  }
+
+  /**
+   * Ink: the theme's `neutral` tone fills with the inverse surface and labels
+   * with the inverse text. A product that keeps the accent for data draws its
+   * primary action in it.
+   */
+  [data-ui-button][data-tone='neutral'] {
+    --_solid: var(--slotted-tone-neutral-solid);
+    --_solid-hover: var(--slotted-tone-neutral-solid-hover);
+    --_solid-active: var(--slotted-tone-neutral-solid-active);
+    --_on-solid: var(--slotted-tone-neutral-on-solid);
+    --_text: var(--slotted-tone-neutral-text);
+  }
+
+  [data-ui-button][data-tone='success'] {
+    --_solid: var(--slotted-tone-success-solid);
+    --_solid-hover: var(--slotted-tone-success-solid-hover);
+    --_solid-active: var(--slotted-tone-success-solid-active);
+    --_on-solid: var(--slotted-tone-success-on-solid);
+    --_text: var(--slotted-tone-success-text);
+  }
+
+  [data-ui-button][data-tone='info'] {
+    --_solid: var(--slotted-tone-info-solid);
+    --_solid-hover: var(--slotted-tone-info-solid-hover);
+    --_solid-active: var(--slotted-tone-info-solid-active);
+    --_on-solid: var(--slotted-tone-info-on-solid);
+    --_text: var(--slotted-tone-info-text);
+  }
+
+  [data-ui-button][data-tone='warning'] {
+    --_solid: var(--slotted-tone-warning-solid);
+    --_solid-hover: var(--slotted-tone-warning-solid-hover);
+    --_solid-active: var(--slotted-tone-warning-solid-active);
+    --_on-solid: var(--slotted-tone-warning-on-solid);
+    --_text: var(--slotted-tone-warning-text);
+  }
+
+  [data-ui-button][data-tone='danger'] {
+    --_solid: var(--slotted-tone-danger-solid);
+    --_solid-hover: var(--slotted-tone-danger-solid-hover);
+    --_solid-active: var(--slotted-tone-danger-solid-active);
+    --_on-solid: var(--slotted-tone-danger-on-solid);
+    --_text: var(--slotted-tone-danger-text);
+  }
+
+  /* ── Size: the control scale, one step of it per member instance ──────── */
+
+  [data-ui-button][data-size='sm'] {
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+  }
+
+  [data-ui-button][data-size='lg'] {
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 16px);
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+  }
+
+  /**
+   * ── Variant: how the tone is painted ──────────────────────────────────
+   *
+   * Three, not four. `soft` painted the tone's own surface and was removed at
+   * the visual review: a pale tinted fill read as a control on its way to
+   * being unavailable rather than as a quieter action, and three ways to
+   * paint one tone is one more than a page can tell apart at a glance. The
+   * `surface` role each tone carries belongs to the families a tinted
+   * rectangle is — `badge`, `tag`, `alert` — and this family no longer reads
+   * it.
+   *
+   * Every variant that is not `ghost` draws an edge, and the edge is the
+   * tone's `border` role rather than the fill repeated. On a filled control
+   * that reads as a rim a shade away from the fill; on the neutral tone,
+   * whose solid and surface are the same pale grey, it is the whole
+   * difference between a secondary action and a disabled one.
+   */
+
+  /**
+   * ── Elevation, and the one variant that has none ──────────────────────
+   *
+   * `--slotted-control-shadow` is, in the token foundation's own words, "the
+   * shadow a framed control carries at rest": it separates a control from the
+   * ground it sits on so the border can soften. That makes it a property of
+   * the frame, not of the family, and it is written on the two variants that
+   * draw one.
+   *
+   * `ghost` draws neither a fill nor an edge. It is a label the pointer can
+   * press, and a label that casts a shadow is a rectangle nobody drew — the
+   * control announces a box on a ground it is supposed to sit flat against,
+   * and a toolbar of ghost actions turns into a row of invisible cards. The
+   * sheet carried the shadow on the base rule for one release and every
+   * member inherited it, which is the defect this split exists to close.
+   */
+  [data-ui-button][data-variant='solid'] {
+    background: var(--_solid, ButtonFace);
+    border-color: var(--_edge, ButtonBorder);
+    box-shadow: var(--slotted-control-shadow, none);
+    color: var(--_on-solid, ButtonText);
+  }
+
+  /**
+   * The edge of an outline button is neutral and its label carries the tone.
+   * A saturated border on all five tones turned a row of actions into a row
+   * of status chips: the eye read five different colours of rectangle before
+   * it read a single word. The edge is the control step, the one a field
+   * carries at rest: reading `--slotted-border-strong` here made the outline
+   * button the darkest line on the form, and the foundation now keeps that
+   * step for the line between two surfaces.
+   */
+  [data-ui-button][data-variant='outline'] {
+    background: transparent;
+    border-color: var(--slotted-control-border-color, ButtonBorder);
+    box-shadow: var(--slotted-control-shadow, none);
+    color: var(--_text, ButtonText);
+  }
+
+  [data-ui-button][data-variant='ghost'] {
+    background: transparent;
+    border-color: transparent;
+    color: var(--_text, ButtonText);
+  }
+
+  /**
+   * The half of the pair for a variant with no fill of its own. `secondary` is
+   * the third case for the same reason it is the exception to every other fill
+   * rule: its solid step is the page's own colour, so it takes the band the way
+   * a bare control does.
+   */
+  [data-ui-button][data-variant='outline'],
+  [data-ui-button][data-variant='ghost'],
+  [data-ui-button][data-variant='solid'][data-tone='secondary'] {
+    --_sweep-strength: 0.18;
+  }
+
+  /**
+   * ── Pressed ───────────────────────────────────────────────────────────
+   *
+   * A toggle that is on is a selected thing, and it is painted the way every
+   * selected thing in the foundation is (R1): the accent selection ground
+   * under the accent text, inside the accent edge — whatever tone and variant
+   * the toggle was written as, because "on" is one colour across the system
+   * and not a shade of each control's own. It took the tone's solid fill
+   * before this, which made a neutral toggle that was on the same rectangle
+   * as one being pressed (`#e2e8f0` for both in `light`) and made a toggle
+   * that was on look like a primary action.
+   *
+   * The ground is the tone's `subtle-active` step: the same value as its
+   * `surface` in `light` and `dark`, and in `high-contrast` the one tinted
+   * step the scheme keeps (`#d3e0fa`) where the surface is the page's white.
+   * It sits above hover and below loading and disabled, which is the order
+   * `STATE_PRECEDENCE` sets.
+   */
+  [data-ui-button][data-pressed]:not(:disabled):not([data-disabled]) {
+    background: var(--slotted-tone-accent-subtle-active, Highlight);
+    border-color: var(--slotted-tone-accent-border, Highlight);
+    /* A ghost toggle that is on has taken a fill and an edge, so it is a framed
+       control and carries what one carries. Without this the same toggle would
+       be lifted or flat depending on the variant it was written as. */
+    box-shadow: var(--slotted-control-shadow, none);
+    color: var(--slotted-tone-accent-text, HighlightText);
+  }
+
+  /**
+   * ── Hover and active, held back for every stronger state ──────────────
+   *
+   * A hovered control changes one thing, its fill, in one step of the
+   * control's transition. A filled control lightens: `--slotted-tone-*-solid-
+   * hover` is the fill moved a share of the way toward white, and the theme
+   * derives it from the fill by one rule rather than choosing it beside it. A
+   * bare control takes the neutral hover ground whatever its tone, because a
+   * tinted ground under an outline or ghost action read as five different
+   * status chips before it read as five hovered buttons; the tone stays in
+   * the label, where it was.
+   *
+   * A press answers at once and releases at the control's own pace. The
+   * active rules set the transition into the state to the instant step,
+   * so the fill, the shadow and the shift land on the same frame the button
+   * went down on; the base rule's duration is what the release eases out
+   * with, because a transition's timing is read from the state being
+   * entered. A filled control drops one hairline and loses its shadow —
+   * Primer's press, chosen over Radix's brightness filter: the control that
+   * was lifted off the page is put down on it. A bare control has no shadow
+   * to lose and nothing to put down, so it takes the darker neutral ground
+   * and nothing moves.
+   */
+
+  [data-ui-button][data-variant='solid']:hover:not(:disabled):not([data-disabled]):not(
+      [data-loading]
+    ):not([data-pressed]) {
+    background: var(--_solid-hover, Highlight);
+  }
+
+  [data-ui-button][data-variant='solid']:active:not(:disabled):not([data-disabled]):not(
+      [data-loading]
+    ):not([data-pressed]) {
+    background: var(--_solid-active, Highlight);
+    box-shadow: none;
+    transform: translateY(var(--slotted-border-width-thin, 1px));
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  [data-ui-button][data-variant='outline']:hover:not(:disabled):not([data-disabled]):not(
+      [data-loading]
+    ):not([data-pressed]),
+  [data-ui-button][data-variant='ghost']:hover:not(:disabled):not([data-disabled]):not(
+      [data-loading]
+    ):not([data-pressed]) {
+    background: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+  }
+
+  [data-ui-button][data-variant='outline']:active:not(:disabled):not([data-disabled]):not(
+      [data-loading]
+    ):not([data-pressed]),
+  [data-ui-button][data-variant='ghost']:active:not(:disabled):not([data-disabled]):not(
+      [data-loading]
+    ):not([data-pressed]) {
+    background: var(--slotted-tone-secondary-subtle-active, ButtonFace);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /**
+   * A toggle that is already on still answers the pointer, on the accent
+   * ground's own hover step and never on the neutral one a toggle that is off
+   * hovers with — the two states share no surface in any of theirs.
+   */
+  [data-ui-button][data-pressed]:hover:not(:disabled):not([data-disabled]):not([data-loading]) {
+    background: var(--slotted-tone-accent-subtle-hover, Highlight);
+  }
+
+  [data-ui-button][data-pressed]:active:not(:disabled):not([data-disabled]):not([data-loading]) {
+    background: var(--slotted-tone-accent-subtle-active, Highlight);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /* ── Focus ────────────────────────────────────────────────────────────── */
+
+  [data-ui-button]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * ── Disabled ──────────────────────────────────────────────────────────
+   *
+   * Per variant, because a flat control that fills with grey on the way to
+   * being unavailable reads as a different control rather than as the same
+   * one unavailable. A ghost button stays flat and loses only its colour.
+   *
+   * `[data-disabled]` rather than `:disabled` alone, because a control that
+   * keeps its place in the tab sequence carries `aria-disabled` and no
+   * `disabled` attribute; the attribute the contract declares is the one that
+   * is always there.
+   */
+
+  [data-ui-button]:disabled,
+  [data-ui-button][data-disabled] {
+    /* Nothing a person cannot reach is lifted off the page — the rule
+       `text-field` states for the same shadow. */
+    box-shadow: none;
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: not-allowed;
+  }
+
+  [data-ui-button][data-variant='solid']:disabled,
+  [data-ui-button][data-variant='solid'][data-disabled] {
+    background: var(--slotted-disabled-background, ButtonFace);
+    /**
+     * The disabled border rather than the disabled surface, because in the
+     * `high-contrast` scheme that surface is the page's white and the control
+     * would lose its edge exactly where an edge matters most.
+     */
+    border-color: var(--slotted-disabled-border, ButtonBorder);
+  }
+
+  [data-ui-button][data-variant='outline']:disabled,
+  [data-ui-button][data-variant='outline'][data-disabled] {
+    background: transparent;
+    border-color: var(--slotted-disabled-border, GrayText);
+  }
+
+  /**
+   * A toggle that is on and unavailable takes the disabled fill and the
+   * disabled edge, like any other unavailable control. What still says it is on
+   * is `aria-pressed`, which the platform announces whether or not the control
+   * can be operated.
+   */
+  [data-ui-button][data-pressed]:disabled,
+  [data-ui-button][data-pressed][data-disabled] {
+    background: var(--slotted-disabled-background, ButtonFace);
+    border-color: var(--slotted-disabled-border, GrayText);
+    color: var(--slotted-disabled-foreground, GrayText);
+  }
+
+  /**
+   * ── Unavailable, and still reachable ──────────────────────────────────
+   *
+   * Being unavailable and being unreachable are two decisions, and the sheet
+   * painted them as one: a control that stays in the tab sequence carrying
+   * `aria-disabled` — because it holds a tooltip, an explanation, a place in a
+   * toolbar — wore the same grey as one the platform took out, and a disabled
+   * accent action was the same rectangle as a resting neutral one (the fill,
+   * the edge and the ground of `solid secondary` are the disabled tokens'
+   * values in `light`).
+   *
+   * A control a person can reach has to be read, so its label is muted text
+   * rather than disabled text: `--slotted-text-muted` on the neutral subtle
+   * ground is 4.97:1 in `light`, 6.91:1 in `dark` and 11.76:1 in
+   * `high-contrast`, where the disabled pair is held to 3:1 and sits at 3.86.
+   * The ground is the quiet neutral step and not the neutral fill, because the
+   * neutral fill is what a secondary action rests on; the edge is the subtle
+   * border, one step quieter than any control at rest; nothing is lifted and
+   * nothing answers the pointer. `:not(:disabled)` is the whole difference:
+   * a natively disabled control keeps the disabled tokens above, and a ghost
+   * stays flat and takes only the text.
+   */
+  [data-ui-button][data-disabled]:not(:disabled) {
+    color: var(--slotted-text-muted, GrayText);
+  }
+
+  [data-ui-button][data-variant='solid'][data-disabled]:not(:disabled),
+  [data-ui-button][data-pressed][data-disabled]:not(:disabled) {
+    background: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+    border-color: var(--slotted-border-subtle, GrayText);
+    color: var(--slotted-text-muted, GrayText);
+  }
+
+  [data-ui-button][data-variant='outline'][data-disabled]:not(:disabled) {
+    border-color: var(--slotted-border-subtle, GrayText);
+  }
+
+  /**
+   * ── Loading ───────────────────────────────────────────────────────────
+   *
+   * The ring is what the control falls back to, and the sweep below is what it
+   * shows when the page can carry one. Both are written, in that order, so an
+   * engine that drops the sweep is left with a state rather than with nothing.
+   *
+   * The ring takes two shapes, decided by what the control already holds.
+   *
+   * A control with a start or end visual keeps its label and gives the ring
+   * that one box: the wait is legible, the action stays readable, and the box
+   * was already the size of the ring. Primer takes the same decision, and it
+   * is the one that stops a loading button from being a coloured rectangle
+   * with nothing in it.
+   *
+   * A control with no visual has nowhere to put the ring but over its own
+   * label, so the label goes to `opacity: 0` — in the flow, so the control
+   * cannot change size, and in the accessibility tree, so the name it
+   * supplies survives the wait and combines with the indicator's own.
+   */
+
+  [data-ui-button][data-loading] {
+    cursor: progress;
+  }
+
+  [data-ui-button][data-loading]:has(> [data-part-indicator]) > :not([data-part-indicator]) {
+    opacity: 0;
+  }
+
+  /**
+   * The ring is the `spinner` sheet's: one arc, drawn once, for every family
+   * that waits. This family only says how big it is — the glyph box of its
+   * own step — and where it sits.
+   */
+  [data-ui-button] [data-part-indicator] {
+    --slotted-spinner-size: var(--_icon-size);
+
+    flex: none;
+  }
+
+  /**
+   * The ring that stands in for a glyph takes the glyph's box. The glyph stays
+   * in the DOM, so the slot keeps its width, and is not drawn: the slot hides
+   * what it holds and the ring alone shows again. `IconButton` drew both side
+   * by side in a square of one glyph.
+   */
+  [data-ui-button] [data-part-start]:has(> [data-part-indicator]),
+  [data-ui-button] [data-part-end]:has(> [data-part-indicator]),
+  [data-ui-button] [data-part-icon]:has(> [data-part-indicator]) {
+    visibility: hidden;
+  }
+
+  [data-ui-button] [data-part-start] > [data-part-indicator],
+  [data-ui-button] [data-part-end] > [data-part-indicator],
+  [data-ui-button] [data-part-icon] > [data-part-indicator] {
+    inset: 0;
+    margin: auto;
+    position: absolute;
+    visibility: visible;
+  }
+
+  /* Only the ring that has no visual slot to sit in is placed against the box. */
+  [data-ui-button] > [data-part-indicator] {
+    inset: 0;
+    /* `inset: 0` with a definite size and automatic margins centres on both
+       axes without naming a physical side. */
+    margin: auto;
+    position: absolute;
+  }
+
+  /**
+   * ── The sweep ─────────────────────────────────────────────────────────
+   *
+   * A band of the control's own ink crosses it for as long as it waits. It
+   * replaces the ring on every control that has words in it, and what it buys
+   * is the words: the ring had to be drawn over the label of a control with no
+   * visual slot, so the reader lost the name of the action they had just
+   * pressed. The band is painted behind everything instead, so the label and
+   * the glyph both stay where they were and nothing in the control moves.
+   *
+   * The ring stays in the document. It is the element that carries
+   * `progressbar` and the name of the wait, so it steps out of the flow rather
+   * than out of the tree, and the glyph it was standing in for takes its own
+   * width back.
+   *
+   * An icon-only control keeps the ring drawn. There is no label for a band to
+   * spare, and a sweep across a box the size of one glyph is a flicker rather
+   * than a direction.
+   *
+   * The band waits for the ring to be in the document, not for
+   * `data-loading`: the refusal starts at once, and `loadingDelay` holds back
+   * every picture of the wait, so a wait that ends inside the delay shows none.
+   *
+   * `currentColor` is what makes the band answer every tone and every variant
+   * without a token of its own: it is the ink the control is already painting
+   * its own label with, so it contrasts with that control's ground by
+   * construction — the on-tone colour over a filled one, the tone itself over
+   * a bare one, and whatever the scheme remapped either to.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    @media not (forced-colors: active) {
+      [data-ui-button]:not([data-shape])[data-loading]:has([data-part-indicator])::after {
+        /**
+         * The tile is crossed once per cycle, so the pair sets the speed the
+         * band travels rather than the time it takes: two heights per loop
+         * step is a rate the eye reads as work in progress at every size.
+         */
+        animation: slotted-button-sweep var(--slotted-duration-loop) linear infinite;
+        background-image: linear-gradient(to right, transparent, currentColor 40%, transparent 80%);
+        /* One tile, travelled exactly once per cycle, is a loop with no seam. */
+        background-repeat: repeat-x;
+        background-size: var(--_sweep-width) 100%;
+        border-radius: inherit;
+        content: '';
+        inset: 0;
+        opacity: var(--_sweep-strength);
+        /* The band is over the label and must not take the press away from it. */
+        pointer-events: none;
+        position: absolute;
+      }
+
+      /**
+       * A band that travels against the reading direction reads as undoing
+       * rather than as progressing, so it is mirrored rather than reused.
+       */
+      [data-ui-button]:not([data-shape])[data-loading]:has([data-part-indicator]):dir(rtl)::after {
+        animation-direction: reverse;
+        background-image: linear-gradient(to left, transparent, currentColor 40%, transparent 80%);
+      }
+
+      [data-ui-button]:not([data-shape])[data-loading]:has(> [data-part-indicator])
+        > :not([data-part-indicator]) {
+        opacity: 1;
+      }
+
+      [data-ui-button]:not([data-shape])[data-loading] [data-part-indicator] {
+        opacity: 0;
+        position: absolute;
+      }
+    }
+  }
+
+  /* ── Parts ────────────────────────────────────────────────────────────── */
+
+  [data-ui-button] [data-part-start],
+  [data-ui-button] [data-part-end],
+  [data-ui-button] [data-part-icon] {
+    align-items: center;
+    block-size: var(--_icon-size);
+    box-sizing: border-box;
+    display: inline-flex;
+    flex: none;
+    font-size: var(--_icon-size);
+    inline-size: var(--_icon-size);
+    justify-content: center;
+    line-height: 1;
+    /* The ring that stands in for this glyph is placed against this box. */
+    position: relative;
+  }
+
+  [data-ui-button] [data-part-start] > *:not([data-part-indicator], [data-ui-kbd]),
+  [data-ui-button] [data-part-end] > *:not([data-part-indicator], [data-ui-kbd]),
+  [data-ui-button] [data-part-icon] > *:not([data-part-indicator]) {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+  }
+
+  /**
+   * A key in a slot is sized by its own family. The slot above is a glyph's
+   * box: it stated `display: block` on the key, which put the legend on a line
+   * box's baseline instead of the key's centre, sixteen pixels square, and the
+   * icon's font size, which `size="inherit"` read as the text's. Measured, a
+   * `Kbd` legend stood 1.5px above the label's centre and a `Shortcut` 1.5px
+   * below it. Here the slot takes the key's measure and the label's type, and
+   * the flex container centres the key on the label.
+   */
+  [data-ui-button] :is([data-part-start], [data-part-end]):has(> [data-ui-kbd]) {
+    block-size: auto;
+    font-size: inherit;
+    inline-size: auto;
+  }
+
+  /**
+   * The label is one line at its own width. It broke anywhere once, which made
+   * a button in a row as narrow as one letter: squeezed, "Corrigir" became
+   * three lines and broke inside the word. A row of buttons now overflows, or
+   * a toolbar folds what does not fit; a control held narrower than its label
+   * by its container — `max-inline-size: 100%` — cuts the label with an
+   * ellipsis rather than spilling it past the border. The line height is the
+   * text step's, which the trim below reads.
+   */
+  [data-ui-button] [data-part-label] {
+    line-height: var(--slotted-line-height-sm, 1.45);
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /**
+   * A flex container centres the line box, and a line box is not symmetric
+   * around the letters inside it. Measured on this family, the word sat 1.2
+   * pixels above the centre of the glyph beside it at every step of every
+   * density except the two where the rounding of the font size made it 0.92
+   * and 0.16 — the label and the icon were centred against different things.
+   * `text-box` trims the line to the cap and the baseline, so what the flex
+   * container centres is the ink, and the offset is 0 everywhere.
+   *
+   * The trim is paid for rather than taken. Trimming a label that wraps also
+   * takes the half-leading off the top and bottom of the whole block, which is
+   * the only thing keeping a wrapped word off the border — measured, a
+   * two-line control lost 8.39 pixels of height and its descenders fell two
+   * pixels below the edge. The padding gives that leading back symmetrically,
+   * so the ink stays centred and the control is the height it was: 36.77
+   * pixels against 36.78 for the same two lines.
+   *
+   * Both terms are proportions of the type rather than steps of a scale.
+   * `0.75em` is the cap height the trim leaves standing, measured on the UI
+   * font at every step; the line height is the token the label already reads.
+   * A theme that changes the line height moves the padding with it, and one
+   * that changes the font moves the clearance of a wrapped word by a fraction
+   * of a pixel, which is the only thing the term governs.
+   */
+  @supports (text-box: trim-both cap alphabetic) {
+    [data-ui-button] [data-part-label] {
+      padding-block: calc((var(--slotted-line-height-sm, 1.45) * 1em - 0.75em) / 2);
+      text-box: trim-both cap alphabetic;
+    }
+  }
+
+  /**
+   * The side that holds a glyph is inset less than the side that holds a
+   * letter. An icon-only control is exempt, because both of its sides hold
+   * the same glyph and its inset is zero.
+   */
+  [data-ui-button]:not([data-shape]):has(> [data-part-start]) {
+    padding-inline-start: var(--_padding-inline-visual);
+  }
+
+  [data-ui-button]:not([data-shape]):has(> [data-part-end]) {
+    padding-inline-end: var(--_padding-inline-visual);
+  }
+
+  /* ── Inline size ──────────────────────────────────────────────────────── */
+
+  [data-ui-button][data-full-width] {
+    inline-size: 100%;
+  }
+
+  /**
+   * A field trigger: the label at the start and `end` at the inline end. The
+   * label takes the free space, so `start` stays beside it and the end slot is
+   * pushed to the edge; flex follows the writing direction, so it mirrors.
+   */
+  [data-ui-button][data-justify='between'] {
+    justify-content: space-between;
+  }
+
+  [data-ui-button][data-justify='between'] > [data-part-label] {
+    flex: 1 1 auto;
+    text-align: start;
+  }
+
+  /* What a trigger holds at its end — a shortcut, a count — is as wide as it is. */
+  [data-ui-button][data-justify='between'] > [data-part-end] {
+    inline-size: auto;
+    min-inline-size: var(--_icon-size);
+  }
+
+  /**
+   * An icon-only control is square from the control height, so its visual box
+   * and its target are the same box. The two minimums are the WCAG 2.2 floor
+   * stated by the family rather than inferred from the theme: a target this
+   * small in one axis is the family's to correct, and theme validation only
+   * guarantees the block axis.
+   */
+  [data-ui-button][data-shape] {
+    aspect-ratio: 1;
+    inline-size: var(--_height);
+    min-block-size: max(var(--_height), var(--slotted-target-min, 24px));
+    min-inline-size: var(--slotted-target-min, 24px);
+    padding-block: 0;
+    padding-inline: 0;
+  }
+
+  [data-ui-button][data-shape='circle'] {
+    border-radius: var(--slotted-radius-full, 9999px);
+  }
+
+  /**
+   * ── Forced colours ────────────────────────────────────────────────────
+   *
+   * The theme remaps every token it owns, so this block exists only for what
+   * the family paints itself: the transparent border of `ghost` and of a
+   * control at rest, which leaves it with no edge at all when the system
+   * replaces the palette. `Highlight` on a pressed toggle is the same repair
+   * for a fill the system has flattened.
+   */
+  @media (forced-colors: active) {
+    [data-ui-button] {
+      border-color: ButtonBorder;
+    }
+
+    [data-ui-button][data-pressed] {
+      border-color: Highlight;
+    }
+
+    [data-ui-button]:disabled,
+    [data-ui-button][data-disabled] {
+      border-color: GrayText;
+      color: GrayText;
+    }
+  }
+  /**
+   * A frozen ring still communicates waiting. The spinner sheet stops itself
+   * under reduced motion; it is restated here because this is the family that
+   * shows the wait, and the sweep above is the loop this sheet owns.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-button] [data-part-indicator] {
+      animation: none;
+    }
+  }
+}
+
+/**
+ * The band moves by exactly one tile of a repeating background, so the frame
+ * the loop ends on is the frame it started from and there is no seam. Moving
+ * the background rather than the box is what keeps it inside the control
+ * without a second element to clip it.
+ */
+@keyframes slotted-button-sweep {
+  from {
+    background-position-x: calc(-1 * var(--_sweep-width));
+  }
+
+  to {
+    background-position-x: 0;
+  }
+}

@@ -1,0 +1,236 @@
+@layer slotted.components {
+  /**
+   * ── The group ──────────────────────────────────────────────────────────
+   *
+   * A set of fields under one name. The element is a native `fieldset` and the
+   * name is a native `legend`, which is the technique the APG's naming practice
+   * calls for under its Rule 3: the `group` role and the accessible name both
+   * arrive without a single ARIA attribute, and `disabled` on the fieldset
+   * disables every control inside it with nothing passed down.
+   *
+   * The user agent's own fieldset carries a border, a padding and a
+   * `min-inline-size: min-content` that no form wants; all three are removed
+   * here, and the last of them is the one that matters — without it a group
+   * refuses to shrink below the width of its widest control, and a form in a
+   * drawer overflows.
+   *
+   * The fieldset stays a block. A `legend` inside a grid or flex container is
+   * laid out by rules of its own in every engine, so the grid that holds the
+   * fields is a `content` element the family draws, and the legend never
+   * competes with it.
+   */
+  [data-ui-field-group][data-part-root] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    /** Legend to its own description, and description to error. */
+    --_message-gap: var(--slotted-field-group-message-gap, var(--slotted-space-2, 0.25rem));
+    /**
+     * The last thing said about a question, to its choices: the distance a
+     * field's label stands from its control, because a question and its
+     * choices are one answer, as a label and its control are. A section
+     * stands further from its first field, below.
+     */
+    --_content-gap: var(
+      --slotted-field-group-content-gap,
+      var(--slotted-field-row-gap, var(--slotted-space-3, 0.375rem))
+    );
+    /** One field to the next. */
+    --_field-gap: var(--slotted-field-group-field-gap, var(--slotted-space-6, 1rem));
+
+    border: 0;
+    display: block;
+    font-family: var(
+      --slotted-field-group-font-family,
+      var(--slotted-control-font-family, sans-serif)
+    );
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+  }
+
+  /* Legend, then what is said about the set, then the set. */
+  [data-ui-field-group][data-part-root] > * + * {
+    margin-block-start: var(--_message-gap);
+  }
+
+  /* `inline-message` zeroes its root's margin at the weight of the rule above,
+     so the order the two stylesheets load in decided the gap; a third
+     attribute decides it here. */
+  [data-ui-field-group][data-part-root] > * + [data-ui-inline-message] {
+    margin-block-start: var(--_message-gap);
+  }
+
+  [data-ui-field-group][data-part-root] > [data-part-content] {
+    margin-block-start: var(--_content-gap);
+  }
+
+  /**
+   * The last thing said about a section, to the first field in it. One step
+   * wider than the distance between two fields, which is the correction the
+   * first capture asked for: held at the same value, the description read as
+   * belonging to the field under it rather than to the set.
+   */
+  [data-ui-field-group][data-part-root][data-kind='section'] {
+    --_content-gap: var(--slotted-field-group-section-content-gap, var(--slotted-space-7, 1.25rem));
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────
+   *
+   * The same three steps a field has, and for the same reason: a group in a
+   * dense table shrinks with the controls it holds. The legend reads the control
+   * type scale one step above the field label it sits over — the difference
+   * between a legend and a label at the same step is weight rather than size,
+   * because a third type scale would be a fourth thing for a theme to retune.
+   */
+
+  [data-ui-field-group][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+  }
+
+  [data-ui-field-group][data-part-root][data-size='md'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+  }
+
+  [data-ui-field-group][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+  }
+
+  /* ── The legend ───────────────────────────────────────────────────────
+   *
+   * The name of the set. The user agent gives a legend an inline padding of its
+   * own so it can sit inside the border that is no longer there.
+   *
+   * It holds whatever the page puts in it, which is what lets GOV.UK's
+   * recommendation work: on a page asking one question, the legend contains the
+   * page's `h1`, so a reader hears the question once rather than twice.
+   */
+  [data-ui-field-group] > [data-part-legend] {
+    color: var(--slotted-field-group-legend-color, var(--slotted-text));
+    display: block;
+    font-size: var(--_font-size);
+    font-weight: var(
+      --slotted-field-group-legend-font-weight,
+      var(--slotted-font-weight-semibold, 600)
+    );
+    line-height: var(--slotted-field-group-line-height, var(--slotted-line-height-sm, 1.45));
+    padding: 0;
+    transition: color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * The necessity marker, drawn on the legend for the same reason a field draws
+   * it on the label: a set where one answer is required says so where its name
+   * is. The glyph takes the danger ink and the words do not, which is the field
+   * family's decision applied to the element one level up.
+   */
+  [data-ui-field-group] > [data-part-legend] > [data-part-mark] {
+    color: var(--slotted-field-group-mark-color, var(--slotted-tone-danger-text));
+    /* The space written before the mark is the distance; the token adds to it. */
+    margin-inline-start: var(--slotted-field-group-mark-gap, 0);
+    overflow-wrap: normal;
+    /* Its own bidi run, for the reason the field's marker records: a Latin
+       legend in a right-to-left document is one left-to-right run, and a marker
+       that joined it lost the distance written as `margin-inline-start`. */
+    unicode-bidi: isolate;
+  }
+
+  /**
+   * A heading inside the legend. GOV.UK recommends it on a page that asks one
+   * question — the legend holds the page's `h1`, so a reader hears the question
+   * once rather than twice — and a user agent's own heading margins would put
+   * the necessity marker on a line of its own below it.
+   *
+   * The heading keeps its own type. The legend steps with the controls it
+   * names, and a page heading is a page's decision rather than a control's; a
+   * `font: inherit` here would shrink every question page's title to the size
+   * of a form label.
+   */
+  [data-ui-field-group] > [data-part-legend] > :is(h1, h2, h3, h4, h5, h6) {
+    display: inline;
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    margin: 0;
+  }
+
+  [data-ui-field-group]:is([data-necessity='optional'], [data-necessity='words'])
+    > [data-part-legend]
+    > [data-part-mark] {
+    color: var(--slotted-field-group-mark-text-color, var(--slotted-text-muted));
+    font-size: var(--slotted-control-font-size-sm, 12px);
+    font-weight: var(--slotted-font-weight-regular, 400);
+  }
+
+  /**
+   * A message with nothing to say is withdrawn rather than left as an empty
+   * line, and `[data-reserve]` is the exception a form uses to keep the fields
+   * below from moving when the error arrives. The same two rules the field
+   * writes, because the group holds the same two messages.
+   */
+  [data-ui-field-group] > [data-ui-inline-message]:not([data-reserve]):has([data-part-text]:empty) {
+    display: none;
+  }
+
+  /**
+   * The type of what a group says, and it is the field's (F1): one step under
+   * the smallest control type, from the type scale, and one weight up for an
+   * outcome — an error or a success — over the help. A set and the fields
+   * inside it are read as one form, so the two families state one rule. The
+   * selector carries the root's part so it outweighs the message family's own
+   * root rule, which has the same two attributes.
+   */
+  [data-ui-field-group][data-part-root] > [data-ui-inline-message] {
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+  }
+
+  [data-ui-field-group][data-part-root] > [data-ui-inline-message][data-tone='danger'],
+  [data-ui-field-group][data-part-root] > [data-ui-inline-message][data-tone='success'] {
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  /* ── The set ──────────────────────────────────────────────────────────
+   *
+   * The fields, in a column or in a row. `orientation` here means what it means
+   * in every other family in this library — the direction the children flow —
+   * which is why the field's own label axis is called `labelPlacement` rather
+   * than borrowing the word.
+   *
+   * A row wraps. `--slotted-field-group-track-min` is the width a field is
+   * given before the row breaks, and it is a line length rather than a step on
+   * a scale: `14rem` holds a date, a document number or a short name at the `md`
+   * step without the control clipping what is being typed into it.
+   */
+  [data-ui-field-group] > [data-part-content] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--_field-gap);
+    min-inline-size: 0;
+  }
+
+  [data-ui-field-group][data-orientation='horizontal'] > [data-part-content] {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  [data-ui-field-group][data-orientation='horizontal'] > [data-part-content] > * {
+    flex: 1 1 var(--slotted-field-group-track-min, 14rem);
+    min-inline-size: 0;
+  }
+
+  /* ── Disabled ─────────────────────────────────────────────────────────
+   *
+   * The platform disables the controls; the family mutes the words. A legend is
+   * not a control, so nothing in the fieldset's own `disabled` reaches it, and a
+   * section that turned off while keeping its name at full strength reads as a
+   * section that is still available.
+   *
+   * The fields inside are muted by the group providing `disabled` to them, not
+   * by a descendant selector: a field used outside a group would then have no
+   * disabled appearance at all.
+   */
+  [data-ui-field-group][data-part-root][data-disabled] > [data-part-legend],
+  [data-ui-field-group][data-part-root][data-disabled] > [data-part-legend] > [data-part-mark] {
+    color: var(--slotted-disabled-foreground);
+  }
+}

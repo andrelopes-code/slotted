@@ -1,0 +1,1120 @@
+<style>
+  /* Room under the row for the panel, which is laid over the page and takes
+     no room of its own; scaffolding of this page, not of the family. */
+  .nm-room {
+    min-block-size: 600px;
+  }
+  .nm-room[data-room='short'] {
+    min-block-size: 80px;
+  }
+  .nm-room[data-room='tall'] {
+    min-block-size: 440px;
+  }
+  .nm-room[data-room='side'] {
+    min-block-size: 220px;
+    max-inline-size: 13rem;
+  }
+  .nm-cta {
+    align-items: center;
+    background: var(--slotted-tone-accent-solid);
+    border-radius: var(--slotted-control-radius);
+    color: var(--slotted-tone-accent-on-solid);
+    display: inline-flex;
+    font-weight: var(--slotted-font-weight-medium);
+    min-block-size: var(--slotted-control-height-sm);
+    padding-inline: var(--slotted-control-padding-inline-sm);
+    text-decoration: none;
+  }
+  .nm-note {
+    color: var(--slotted-text-muted);
+    font-size: var(--slotted-font-size-xs);
+    line-height: var(--slotted-line-height-xs);
+  }
+</style>
+<!--
+  The DOM the two bindings write, by hand. Every part the contract declares
+  appears at least once, and every state is staged: a section open, a section
+  holding the current page, a current link, a disabled section and a disabled
+  link, a vertical column, a second level inside a panel, the three sizes,
+  long content, and a root with no script.
+
+  The script at the end wires what the bindings wire, from
+  `@slotted/core/navigation-menu`: the open value, the delayed hover and the
+  switch without delay, the click, Escape, focus leaving, a press outside,
+  the arrow keys, the crossing between two sections and the measured surface.
+  The stage stands in for the window: the surface is measured and moved to
+  fit inside it, so a 420-pixel cell shows what a 420-pixel window shows.
+  A root marked `data-static` is left alone, and shows the picture without
+  script.
+-->
+
+<section data-scene="default" data-widths="420 720 1024">
+  <div class="nm-room">
+    <nav
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-orientation="horizontal"
+      aria-label="Principal"
+      data-arrow
+      data-default-value="products"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-value="products">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="nm-products"
+          >
+            Produtos<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="nm-products" data-columns="2" hidden>
+            <ul data-part="links" data-part-links="">
+              <li>
+                <a data-part="link" data-part-link="" href="#warehouse"
+                  ><span data-part="icon" data-part-icon=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="inbox"
+                      ></svg></span></span
+                  ><span data-part="label" data-part-label="">Warehouse</span
+                  ><span data-part="description" data-part-description=""
+                    >Inbound, outbound and inventory by location.</span
+                  ></a
+                >
+              </li>
+              <li>
+                <a data-part="link" data-part-link="" href="#fleet" aria-current="page" data-current
+                  ><span data-part="icon" data-part-icon=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="trending-up"
+                      ></svg></span></span
+                  ><span data-part="label" data-part-label="">Fleet</span
+                  ><span data-part="description" data-part-description=""
+                    >Routes, consumption and maintenance of the vehicles.</span
+                  ></a
+                >
+              </li>
+              <li>
+                <a data-part="link" data-part-link="" href="#billing"
+                  ><span data-part="icon" data-part-icon=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="file-text"
+                      ></svg></span></span
+                  ><span data-part="label" data-part-label="">Billing</span
+                  ><span data-part="description" data-part-description=""
+                    >Invoices, credit notes and reconciliation.</span
+                  ></a
+                >
+              </li>
+              <li>
+                <a data-part="link" data-part-link="" href="#agenda"
+                  ><span data-part="icon" data-part-icon=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="calendar"
+                      ></svg></span></span
+                  ><span data-part="label" data-part-label="">Schedule</span
+                  ><span data-part="description" data-part-description=""
+                    >Loading windows and scheduled deliveries.</span
+                  ></a
+                >
+              </li>
+              <li>
+                <a data-part="link" data-part-link="" href="#customers"
+                  ><span data-part="icon" data-part-icon=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="person"
+                      ></svg></span></span
+                  ><span data-part="label" data-part-label="">Customers</span
+                  ><span data-part="description" data-part-description=""
+                    >Accounts, contacts and commercial terms.</span
+                  ></a
+                >
+              </li>
+              <li>
+                <a
+                  data-part="link"
+                  data-part-link=""
+                  href="#reports"
+                  data-disabled
+                  aria-disabled="true"
+                  ><span data-part="icon" data-part-icon=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="presentation"
+                      ></svg></span></span
+                  ><span data-part="label" data-part-label="">Reports</span
+                  ><span data-part="description" data-part-description=""
+                    >Available on the Business plan.</span
+                  ></a
+                >
+              </li>
+            </ul>
+            <div data-part="footer" data-part-footer="">
+              <span class="nm-note">New: demand forecast by warehouse.</span>
+              <a class="nm-cta" href="#todos">View all</a>
+            </div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-value="solucoes">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="nm-solucoes"
+          >
+            Solutions<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="nm-solucoes" data-columns="3" hidden>
+            <div data-part="group" data-part-group="" role="group" aria-labelledby="nm-g1">
+              <div data-part="group-label" data-part-group-label="" id="nm-g1">Por setor</div>
+              <ul data-part="links" data-part-links="">
+                <li><a data-part="link" data-part-link="" href="#retalho">Retail</a></li>
+                <li><a data-part="link" data-part-link="" href="#industria">Industry</a></li>
+                <li><a data-part="link" data-part-link="" href="#saude">Healthcare</a></li>
+              </ul>
+            </div>
+            <div data-part="group" data-part-group="" role="group" aria-labelledby="nm-g2">
+              <div data-part="group-label" data-part-group-label="" id="nm-g2">By size</div>
+              <ul data-part="links" data-part-links="">
+                <li><a data-part="link" data-part-link="" href="#pme">Small businesses</a></li>
+                <li><a data-part="link" data-part-link="" href="#media">Mid-market</a></li>
+                <li><a data-part="link" data-part-link="" href="#grandes">Large accounts</a></li>
+              </ul>
+            </div>
+            <div data-part="group" data-part-group="" role="group" aria-labelledby="nm-g3">
+              <div data-part="group-label" data-part-group-label="" id="nm-g3">By team</div>
+              <ul data-part="links" data-part-links="">
+                <li><a data-part="link" data-part-link="" href="#operacoes">Operations</a></li>
+                <li><a data-part="link" data-part-link="" href="#financas">Finance</a></li>
+                <li><a data-part="link" data-part-link="" href="#comercial">Sales</a></li>
+              </ul>
+            </div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-value="documentacao">
+          <a data-part="link" data-part-link="" href="#documentation">Documentation</a>
+        </li>
+        <li data-part="item" data-part-item="" data-value="company">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="nm-company"
+          >
+            Company<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="nm-company" hidden>
+            <ul data-part="links" data-part-links="">
+              <li><a data-part="link" data-part-link="" href="#about">About us</a></li>
+              <li><a data-part="link" data-part-link="" href="#carreiras">Careers</a></li>
+              <li><a data-part="link" data-part-link="" href="#imprensa">Press</a></li>
+              <li><a data-part="link" data-part-link="" href="#contactos">Contactos</a></li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport="">
+        <span data-part="arrow" data-part-arrow="" aria-hidden="true"></span>
+      </div>
+    </nav>
+  </div>
+</section>
+
+<section data-scene="groups" data-widths="420 720 1024">
+  <div class="nm-room" data-room="short" style="min-block-size: 440px">
+    <nav
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-orientation="horizontal"
+      aria-label="Sections"
+      data-default-value="solucoes"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-value="products">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="nm2-products"
+          >
+            Produtos<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="nm2-products" hidden>
+            <ul data-part="links" data-part-links="">
+              <li><a data-part="link" data-part-link="" href="#warehouse">Warehouse</a></li>
+              <li><a data-part="link" data-part-link="" href="#fleet">Fleet</a></li>
+            </ul>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-value="solucoes">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="nm2-solucoes"
+          >
+            Solutions<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="nm2-solucoes" data-columns="3" hidden>
+            <div data-part="group" data-part-group="" role="group" aria-labelledby="nm2-g1">
+              <div data-part="group-label" data-part-group-label="" id="nm2-g1">Por setor</div>
+              <ul data-part="links" data-part-links="">
+                <li><a data-part="link" data-part-link="" href="#retalho">Retail</a></li>
+                <li><a data-part="link" data-part-link="" href="#industria">Industry</a></li>
+                <li><a data-part="link" data-part-link="" href="#saude">Healthcare</a></li>
+              </ul>
+            </div>
+            <div data-part="group" data-part-group="" role="group" aria-labelledby="nm2-g2">
+              <div data-part="group-label" data-part-group-label="" id="nm2-g2">By size</div>
+              <ul data-part="links" data-part-links="">
+                <li><a data-part="link" data-part-link="" href="#pme">Small businesses</a></li>
+                <li><a data-part="link" data-part-link="" href="#media">Mid-market</a></li>
+                <li><a data-part="link" data-part-link="" href="#grandes">Large accounts</a></li>
+              </ul>
+            </div>
+            <div data-part="group" data-part-group="" role="group" aria-labelledby="nm2-g3">
+              <div data-part="group-label" data-part-group-label="" id="nm2-g3">By team</div>
+              <ul data-part="links" data-part-links="">
+                <li><a data-part="link" data-part-link="" href="#operacoes">Operations</a></li>
+                <li><a data-part="link" data-part-link="" href="#financas">Finance</a></li>
+                <li><a data-part="link" data-part-link="" href="#comercial">Sales</a></li>
+              </ul>
+            </div>
+          </div>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport=""></div>
+    </nav>
+  </div>
+</section>
+
+<section data-scene="states" data-widths="420 720">
+  <div class="nm-room" data-room="short">
+    <nav
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-orientation="horizontal"
+      aria-label="Estados"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-value="products">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="nm3-products"
+            data-current
+          >
+            Produtos<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="nm3-products" hidden>
+            <ul data-part="links" data-part-links="">
+              <li>
+                <a data-part="link" data-part-link="" href="#fleet" aria-current="page" data-current
+                  >Frota</a
+                >
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-value="precos">
+          <a data-part="link" data-part-link="" href="#precos" aria-current="page" data-current
+            >Pricing</a
+          >
+        </li>
+        <li data-part="item" data-part-item="" data-value="parceiros" data-disabled>
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="nm3-parceiros"
+            disabled
+          >
+            Parceiros<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="nm3-parceiros" hidden></div>
+        </li>
+        <li data-part="item" data-part-item="" data-value="blogue" data-disabled>
+          <a data-part="link" data-part-link="" href="#blogue" aria-disabled="true" data-disabled
+            >Blogue</a
+          >
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport=""></div>
+    </nav>
+  </div>
+</section>
+
+<section data-scene="vertical">
+  <div class="nm-room" data-room="side">
+    <nav
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-orientation="vertical"
+      aria-label="Lateral"
+      data-arrow
+      data-default-value="ajuda"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-value="home">
+          <a data-part="link" data-part-link="" href="#home">Home</a>
+        </li>
+        <li data-part="item" data-part-item="" data-value="help">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="nm4-ajuda"
+          >
+            Ajuda<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-directional
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="nm4-ajuda" hidden>
+            <ul data-part="links" data-part-links="">
+              <li><a data-part="link" data-part-link="" href="#guias">Guides</a></li>
+              <li><a data-part="link" data-part-link="" href="#api">API reference</a></li>
+              <li><a data-part="link" data-part-link="" href="#estado">Service status</a></li>
+            </ul>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-value="conta">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="nm4-conta"
+          >
+            Conta<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                data-directional
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="nm4-conta" hidden>
+            <ul data-part="links" data-part-links="">
+              <li><a data-part="link" data-part-link="" href="#profile">Profile</a></li>
+              <li><a data-part="link" data-part-link="" href="#invoices">Invoices</a></li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport="">
+        <span data-part="arrow" data-part-arrow="" aria-hidden="true"></span>
+      </div>
+    </nav>
+  </div>
+</section>
+
+<section data-scene="nested" data-widths="720 1024">
+  <div class="nm-room" data-room="tall" style="min-block-size: 300px">
+    <nav
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-orientation="horizontal"
+      aria-label="Catalog"
+      data-default-value="catalogo"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-value="catalogo">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="nm5-catalogo"
+          >
+            Catalog<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="nm5-catalogo" data-columns="3" hidden>
+            <div
+              data-ui="navigation-menu"
+              data-ui-navigation-menu=""
+              data-part="root"
+              data-part-root=""
+              data-nested
+              data-orientation="vertical"
+              data-size="md"
+              data-default-value="ferramentas"
+            >
+              <ul data-part="list" data-part-list="">
+                <li data-part="item" data-part-item="" data-value="ferramentas">
+                  <button
+                    data-part="trigger"
+                    data-part-trigger=""
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="nm5-ferramentas"
+                  >
+                    Ferramentas<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+                      ><span
+                        data-ui="icon"
+                        data-ui-icon=""
+                        data-part="root"
+                        data-part-root=""
+                        data-directional
+                        aria-hidden="true"
+                        ><svg
+                          data-part="glyph"
+                          data-part-glyph=""
+                          data-glyph="chevron-right"
+                        ></svg></span
+                    ></span>
+                  </button>
+                  <div
+                    data-part="content"
+                    data-part-content=""
+                    id="nm5-ferramentas"
+                    data-columns="2"
+                    hidden
+                  >
+                    <ul data-part="links" data-part-links="">
+                      <li><a data-part="link" data-part-link="" href="#manuais">Manuals</a></li>
+                      <li>
+                        <a data-part="link" data-part-link="" href="#eletricas">Electrical</a>
+                      </li>
+                      <li><a data-part="link" data-part-link="" href="#medicao">Measurement</a></li>
+                      <li><a data-part="link" data-part-link="" href="#corte">Cutting</a></li>
+                    </ul>
+                  </div>
+                </li>
+                <li data-part="item" data-part-item="" data-value="embalagem">
+                  <button
+                    data-part="trigger"
+                    data-part-trigger=""
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="nm5-embalagem"
+                  >
+                    Embalagem<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+                      ><span
+                        data-ui="icon"
+                        data-ui-icon=""
+                        data-part="root"
+                        data-part-root=""
+                        data-directional
+                        aria-hidden="true"
+                        ><svg
+                          data-part="glyph"
+                          data-part-glyph=""
+                          data-glyph="chevron-right"
+                        ></svg></span
+                    ></span>
+                  </button>
+                  <div
+                    data-part="content"
+                    data-part-content=""
+                    id="nm5-embalagem"
+                    data-columns="2"
+                    hidden
+                  >
+                    <ul data-part="links" data-part-links="">
+                      <li><a data-part="link" data-part-link="" href="#caixas">Caixas</a></li>
+                      <li><a data-part="link" data-part-link="" href="#paletes">Paletes</a></li>
+                      <li><a data-part="link" data-part-link="" href="#filme">Filme e fita</a></li>
+                    </ul>
+                  </div>
+                </li>
+                <li data-part="item" data-part-item="" data-value="seguranca">
+                  <button
+                    data-part="trigger"
+                    data-part-trigger=""
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="nm5-seguranca"
+                  >
+                    Safety<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+                      ><span
+                        data-ui="icon"
+                        data-ui-icon=""
+                        data-part="root"
+                        data-part-root=""
+                        data-directional
+                        aria-hidden="true"
+                        ><svg
+                          data-part="glyph"
+                          data-part-glyph=""
+                          data-glyph="chevron-right"
+                        ></svg></span
+                    ></span>
+                  </button>
+                  <div
+                    data-part="content"
+                    data-part-content=""
+                    id="nm5-seguranca"
+                    data-columns="2"
+                    hidden
+                  >
+                    <ul data-part="links" data-part-links="">
+                      <li>
+                        <a data-part="link" data-part-link="" href="#epi">Personal protection</a>
+                      </li>
+                      <li><a data-part="link" data-part-link="" href="#sinal">Signage</a></li>
+                    </ul>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-value="marcas">
+          <a data-part="link" data-part-link="" href="#marcas">Marcas</a>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport=""></div>
+    </nav>
+  </div>
+</section>
+
+<section data-scene="size" data-widths="720">
+  <div style="display: grid; gap: 12px">
+    <nav
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-part="root"
+      data-part-root=""
+      data-size="sm"
+      aria-label="Pequeno"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-value="a">
+          <button data-part="trigger" data-part-trigger="" type="button" aria-expanded="false">
+            Produtos<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" hidden></div>
+        </li>
+        <li data-part="item" data-part-item="" data-value="b">
+          <a data-part="link" data-part-link="" href="#b">Documentation</a>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport=""></div>
+    </nav>
+    <nav
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      aria-label="Medium"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-value="a">
+          <button data-part="trigger" data-part-trigger="" type="button" aria-expanded="false">
+            Produtos<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" hidden></div>
+        </li>
+        <li data-part="item" data-part-item="" data-value="b">
+          <a data-part="link" data-part-link="" href="#b">Documentation</a>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport=""></div>
+    </nav>
+    <nav
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      aria-label="Grande"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-value="a">
+          <button data-part="trigger" data-part-trigger="" type="button" aria-expanded="false">
+            Produtos<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" hidden></div>
+        </li>
+        <li data-part="item" data-part-item="" data-value="b">
+          <a data-part="link" data-part-link="" href="#b">Documentation</a>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport=""></div>
+    </nav>
+  </div>
+</section>
+
+<section data-scene="content" data-widths="420 720">
+  <div class="nm-room" data-room="short" style="min-block-size: 330px">
+    <nav
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      aria-label="Extreme content"
+      data-default-value="longo"
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-value="longo">
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="nm7-longo"
+          >
+            Warehouse and distribution management<span
+              data-part="indicator"
+              data-part-indicator=""
+              aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="nm7-longo" data-columns="2" hidden>
+            <ul data-part="links" data-part-links="">
+              <li>
+                <a data-part="link" data-part-link="" href="#x1"
+                  ><span data-part="icon" data-part-icon=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="inbox"
+                      ></svg></span></span
+                  ><span data-part="label" data-part-label=""
+                    >Replenishment planning across regional warehouses</span
+                  ><span data-part="description" data-part-description=""
+                    >Calculates transfers between warehouses from forecast demand, supplier lead
+                    times and the safety stock defined per item and per location.</span
+                  ></a
+                >
+              </li>
+              <li>
+                <a data-part="link" data-part-link="" href="#x2"
+                  ><span data-part="label" data-part-label="">No mark</span
+                  ><span data-part="description" data-part-description=""
+                    >A rich link without an icon starts the title at the margin.</span
+                  ></a
+                >
+              </li>
+              <li>
+                <a data-part="link" data-part-link="" href="#x3"
+                  ><span data-part="icon" data-part-icon=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="file"
+                      ></svg></span></span
+                  ><span data-part="label" data-part-label=""
+                    >Item_reference_without_spaces_ABCDEFGHIJ</span
+                  ><span data-part="description" data-part-description=""
+                    >A string with no break.</span
+                  ></a
+                >
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport=""></div>
+    </nav>
+  </div>
+</section>
+
+<section data-scene="static" data-widths="720">
+  <div class="nm-room" data-room="short" style="min-block-size: 200px">
+    <nav
+      data-ui="navigation-menu"
+      data-ui-navigation-menu=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      aria-label="Sem script"
+      data-static
+    >
+      <ul data-part="list" data-part-list="">
+        <li data-part="item" data-part-item="" data-value="company" data-open>
+          <button
+            data-part="trigger"
+            data-part-trigger=""
+            type="button"
+            aria-expanded="true"
+            aria-controls="nm8-company"
+            data-open
+          >
+            Company<span data-part="indicator" data-part-indicator="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+          <div data-part="content" data-part-content="" id="nm8-company" data-open>
+            <ul data-part="links" data-part-links="">
+              <li><a data-part="link" data-part-link="" href="#about">About us</a></li>
+              <li><a data-part="link" data-part-link="" href="#carreiras">Careers</a></li>
+              <li><a data-part="link" data-part-link="" href="#imprensa">Press</a></li>
+            </ul>
+          </div>
+        </li>
+        <li data-part="item" data-part-item="" data-value="precos">
+          <a data-part="link" data-part-link="" href="#precos">Pricing</a>
+        </li>
+      </ul>
+      <div data-part="viewport" data-part-viewport=""></div>
+    </nav>
+  </div>
+</section>
+
+<script type="module">
+  import {
+    createHoverIntent,
+    focusTarget,
+    measureViewport,
+    motionBetween,
+    writeGeometry,
+  } from '@slotted/core/navigation-menu';
+
+  const GUTTER = 8;
+  const EXIT = 260;
+
+  function mount(root) {
+    const vertical = root.dataset.orientation === 'vertical';
+    const nested = root.hasAttribute('data-nested');
+    const stage = root.closest('.stage') ?? document.documentElement;
+    const viewport = root.querySelector(':scope > [data-part="viewport"]');
+    const items = () => [
+      ...root.querySelectorAll(':scope > [data-part="list"] > [data-part="item"]'),
+    ];
+    const sections = () =>
+      items().filter((item) => item.querySelector(':scope > [data-part="trigger"]'));
+    const order = () => sections().map((item) => item.dataset.value);
+    const parts = (value) => {
+      const item = items().find((candidate) => candidate.dataset.value === value);
+      return {
+        item,
+        trigger: item?.querySelector(':scope > [data-part="trigger"]'),
+        content: item?.querySelector(':scope > [data-part="content"]'),
+      };
+    };
+    let value = null;
+    const timers = new Map();
+
+    function place() {
+      if (value === null) return;
+      const { trigger, content } = parts(value);
+      const geometry = measureViewport(
+        root,
+        trigger,
+        content,
+        vertical ? 'vertical' : 'horizontal',
+        GUTTER,
+      );
+      if (nested)
+        geometry.blockSize = Math.max(
+          geometry.blockSize,
+          root.querySelector(':scope > [data-part="list"]').offsetHeight,
+        );
+      writeGeometry(root, geometry);
+      if (viewport) viewport.setAttribute('data-positioned', '');
+    }
+
+    function show(content) {
+      clearTimeout(timers.get(content));
+      content.hidden = false;
+    }
+
+    function hide(content, motion) {
+      content.removeAttribute('data-open');
+      if (motion) content.dataset.motion = motion;
+      timers.set(
+        content,
+        setTimeout(() => {
+          content.hidden = true;
+          content.removeAttribute('data-motion');
+        }, EXIT),
+      );
+    }
+
+    function setValue(next) {
+      if (next === value) return;
+      const previous = value;
+      const { enter, exit } = motionBetween(order(), previous, next);
+      if (previous !== null) {
+        const old = parts(previous);
+        old.item.removeAttribute('data-open');
+        old.trigger.removeAttribute('data-open');
+        old.trigger.setAttribute('aria-expanded', 'false');
+        hide(old.content, exit);
+      }
+      value = next;
+      if (next === null) {
+        viewport?.removeAttribute('data-open');
+        return;
+      }
+      const current = parts(next);
+      current.item.setAttribute('data-open', '');
+      current.trigger.setAttribute('data-open', '');
+      current.trigger.setAttribute('aria-expanded', 'true');
+      show(current.content);
+      current.content.setAttribute('data-open', '');
+      if (enter) current.content.dataset.motion = enter;
+      else current.content.removeAttribute('data-motion');
+      place();
+      /* A first open writes its numbers while nothing transitions, and only
+         then opens: the style is read here so the two land in two updates. */
+      if (previous === null) void root.offsetWidth;
+      viewport?.setAttribute('data-open', '');
+      const outer = root.parentElement?.closest('[data-ui="navigation-menu"]');
+      if (outer) outer.dispatchEvent(new CustomEvent('nm-measure'));
+    }
+
+    root.addEventListener('nm-measure', () => requestAnimationFrame(place));
+
+    const intent = createHoverIntent({
+      openDelay: 200,
+      closeDelay: 300,
+      isOpen: () => value !== null,
+      open: setValue,
+      close: () => setValue(null),
+    });
+
+    for (const item of sections()) {
+      const trigger = item.querySelector(':scope > [data-part="trigger"]');
+      trigger.addEventListener('pointerenter', (event) => {
+        if (!trigger.disabled) intent.enter(item.dataset.value, event.pointerType);
+      });
+      trigger.addEventListener('click', () =>
+        setValue(value === item.dataset.value ? null : item.dataset.value),
+      );
+    }
+
+    if (!nested) {
+      root.addEventListener('pointerleave', () => intent.leave());
+      root.addEventListener('pointerenter', () => intent.stay());
+      root.addEventListener('focusout', (event) => {
+        if (!root.contains(event.relatedTarget)) setValue(null);
+      });
+      document.addEventListener('pointerdown', (event) => {
+        if (!root.contains(event.target)) setValue(null);
+      });
+    }
+
+    root.addEventListener('keydown', (event) => {
+      if (event.target.closest('[data-ui="navigation-menu"]') !== root) return;
+      if (event.key === 'Escape' && value !== null) {
+        const { trigger } = parts(value);
+        setValue(null);
+        trigger.focus();
+        event.stopPropagation();
+        return;
+      }
+      const target = focusTarget(root, event.target, event.key, {
+        orientation: vertical ? 'vertical' : 'horizontal',
+        dir: getComputedStyle(root).direction,
+      });
+      if (target) {
+        event.preventDefault();
+        target.focus();
+      }
+    });
+
+    root.addEventListener('click', (event) => {
+      const link = event.target.closest('[data-part="content"] [data-part="link"]');
+      if (link) event.preventDefault();
+    });
+
+    new ResizeObserver(() => place()).observe(stage);
+
+    if (root.dataset.defaultValue) setValue(root.dataset.defaultValue);
+  }
+
+  /* Inner roots first, so an outer panel measures a second level already open. */
+  const roots = [...document.querySelectorAll('[data-ui="navigation-menu"]:not([data-static])')];
+  for (const root of roots.reverse()) mount(root);
+
+  /* Photographed once the surface has arrived and the chevrons have turned. */
+  window.slottedHarnessReady = new Promise((resolve) => setTimeout(resolve, 500));
+</script>

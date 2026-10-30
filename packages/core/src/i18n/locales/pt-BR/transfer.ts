@@ -1,0 +1,27 @@
+import type { TransferMessages } from '../../messages/transfer';
+
+export const ptBR: TransferMessages = {
+  actions: 'Mover itens',
+  count: '{total, plural, one {# item} other {# itens}}',
+  countFiltered: '{shown} de {total} visíveis',
+  countSelected: '{selected} de {total} selecionados',
+  empty: 'Nenhum item',
+  loading: 'Carregando…',
+  moveAllToSource: 'Remover todos',
+  moveAllToTarget: 'Adicionar todos',
+  moved: '{count, plural, one {# movido} other {# movidos}} para {pane}',
+  movedOne: '{item} movido para {pane}',
+  moveDown: 'Descer',
+  moveToSource: 'Remover',
+  moveToTarget: 'Adicionar',
+  moveUp: 'Subir',
+  noResults: 'Nenhuma correspondência',
+  paneCount: '{pane} ({total})',
+  panes: 'Listas',
+  reorder: 'Ordem',
+  reordered: '{item} movido para a posição {position}',
+  search: 'Pesquisar em {pane}',
+  selectAll: 'Selecionar tudo em {pane}',
+  source: 'Disponíveis',
+  target: 'Escolhidos',
+};

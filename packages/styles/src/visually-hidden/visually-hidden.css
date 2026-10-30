@@ -1,0 +1,52 @@
+@layer slotted.components {
+  /**
+   * Removed from sight while left in the accessibility tree. `display: none`
+   * and `visibility: hidden` would remove it from both, which is the opposite
+   * of what this primitive exists to do. The rule set is the one WCAG 2.2
+   * technique C7 publishes — a one-pixel box, clipped, out of flow, on a single
+   * line — without its `clip: rect()` companion, which every engine the library
+   * supports superseded with `clip-path`.
+   *
+   * One selector, not two: the element is hidden unless it is the focusable
+   * variant and focus is inside it. A second rule undoing each declaration
+   * would leave the family holding an opinion about how a revealed skip link
+   * looks, and it has none — the revealed element is the consumer's anchor,
+   * rendered as the consumer wrote it.
+   *
+   * `border` and `padding` are zeroed because the element is whichever one the
+   * consumer brought: an anchor or a button arrives with a frame of its own,
+   * and the box has to stay one pixel regardless.
+   *
+   * The box is pinned to the start of its containing block, and this is the
+   * declaration that keeps the primitive safe anywhere. Left at its static
+   * position, an out-of-flow box whose nearest positioned ancestor is none at
+   * all takes the initial containing block: it is laid out at a document
+   * coordinate, escapes the clipping of every scroller it sits inside, and
+   * adds its own distance down the page to the document's scrollable
+   * overflow. One hidden hint at the foot of a record page was 186 pixels of
+   * page scroll under an application whose shell scrolls its own main — the
+   * banner left the screen and an empty band stood under the content.
+   * Pinned, the box can never sit in any scroller's overflow region, whatever
+   * the containing block turns out to be.
+   *
+   * The negative margin is measured, not inherited. Inside a scrolling
+   * container that is also the element's containing block — `position:
+   * relative` plus `overflow: auto`, the ordinary shape of a scroll panel —
+   * the one-pixel box would add one pixel of block-direction scrollable
+   * overflow. The margin pulls it past the start edge, where overflow is not
+   * scrollable, and the overflow measures zero.
+   */
+  [data-ui-visually-hidden]:not([data-focusable]:focus-within) {
+    block-size: 1px;
+    border: 0;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 5,
+  "family": "otp-input",
+  "ui": "otp-input",
+  "catalog": {
+    "group": "Forms",
+    "summary": "One-time code split across several boxes."
+  },
+  "controlPart": "input",
+  "rootRole": null,
+  "focusStops": 1,
+  "hiddenParts": ["group", "separator", "slot"],
+  "stateSource": "field",
+  "mirrorsState": true,
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "disabled",
+  "wiring": {
+    "id": "always",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "disabled": "disabled",
+    "readonly": "readOnly"
+  },
+  "keyboard": [],
+  "escapeBound": false,
+  "selection": "one-character",
+  "inputMode": {
+    "numeric": "numeric",
+    "alphanumeric": "text"
+  },
+  "pattern": "per-character",
+  "autocomplete": "one-time-code",
+  "maskType": "password",
+  "groups": "partition-of-length",
+  "events": {
+    "onComplete": "value",
+    "onRejected": "text"
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle"],
+    "type": ["numeric", "alphanumeric"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "length": ["prop", "defaults", "6"],
+    "type": ["prop", "defaults", "numeric"]
+  },
+  "provides": {
+    "otpInputDefaults": ["size", "variant", "attached", "length", "type", "placeholder"]
+  },
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "complete": "data-complete",
+    "current": "data-current"
+  },
+  "partStates": {
+    "slot": ["current"]
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["keyboard", "programmatic"]
+    }
+  },
+  "literals": {
+    "--slotted-otp-input-caret-width": "The fake caret is drawn as a rule the width of the thin border step, which is a token; the literal here is the fallback the family keeps when no theme is loaded."
+  },
+  "members": {
+    "otpInput": {
+      "nativeElement": "input",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "attached": false,
+        "length": 6,
+        "type": "numeric",
+        "placeholder": "",
+        "mask": false,
+        "autoSubmit": false,
+        "webOtp": false
+      },
+      "capabilities": [
+        "value",
+        "appearance",
+        "size",
+        "content",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "readonly",
+        "complete",
+        "current"
+      ],
+      "parts": ["root", "input", "group", "separator", "slot"]
+    }
+  },
+  "scenarios": {
+    "otpInput": [
+      "playground",
+      "sizes",
+      "variants",
+      "groups",
+      "types",
+      "mask",
+      "states",
+      "complete",
+      "content",
+      "form",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

@@ -1,0 +1,460 @@
+@layer slotted.components {
+  /**
+   * A set of related actions joined into one shape. The family arranges what
+   * the consumer wrote and changes the semantics of nothing inside it: every
+   * button keeps its own role, its own state and its own place in the tab
+   * sequence. The arrow-key model of the APG Toolbar pattern belongs to
+   * `toolbar`, which is a different family for a different thing — a
+   * composite control with one tab stop.
+   *
+   * One shape and no other. The group used to join its controls when asked
+   * and to space them by a step on the space scale otherwise, which was two
+   * families under one name: a bar, and a `stack` of buttons. The second is
+   * what `inline` and `stack` already are, so the group keeps the one thing
+   * only it does — shared edges, one border in each shared column, corners on
+   * the ends of the bar and nowhere else — and states no distance between its
+   * controls. A joined bar does not wrap and does not stack: its shape is the
+   * whole point of it, and no surveyed implementation flips that shape at a
+   * width the consumer cannot see coming. A label that outgrows the bar ends
+   * in an ellipsis inside its own control, which is `button`'s rule and not
+   * this family's.
+   *
+   * The children are the consumer's own elements, selected as direct children.
+   * Primer wraps each child in a div of its own and pays for it twice: its
+   * stylesheet has to reach two levels down to find the control, and an empty
+   * wrapper needs a `:has(div:last-child:empty)` clause to undo the corners it
+   * caused. Nothing here wraps anything.
+   *
+   * The group paints one thing and only one: the seam between two joined solid
+   * controls. That rule is documented where it is written.
+   */
+  [data-ui-button-group] {
+    --_radius: var(--slotted-control-radius, 4px);
+    --_overlap: calc(-1 * var(--slotted-control-border-width, 1px));
+    /**
+     * Which corner of a child survives, resolved once per axis so the four
+     * corner rules below are written once instead of twice.
+     *
+     * A child keeps the corners on the outside of the bar and loses the ones
+     * facing its neighbour. `--_join-main` is the corner on the axis the group
+     * runs along, `--_join-cross` the one across it, and swapping the two is
+     * the whole difference between a row and a column.
+     */
+    --_join-main: var(--_radius);
+    --_join-cross: 0;
+    --_overlap-inline: var(--_overlap);
+    --_overlap-block: 0;
+
+    /**
+     * One block size for the bar, so a consumer who mixes sizes gets a ragged
+     * width rather than a ragged edge. The same answer on both axes: a column
+     * of controls at their own natural widths is a ragged edge too.
+     */
+    align-items: stretch;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0;
+    /* A child raised on interaction is raised inside the group, never over the page. */
+    isolation: isolate;
+    /**
+     * A flex or grid item is at least as wide as its content unless it is told
+     * otherwise, so a group nested in one would refuse to narrow below its
+     * widest child and push the layout past the edge instead of reflowing.
+     */
+    min-inline-size: 0;
+  }
+
+  /**
+   * A group that ends up holding nothing takes no room. An actions area built
+   * from a permission filter renders an empty group often, and no surveyed
+   * implementation answers it: the empty box still consumes a gap in the row
+   * that holds it, so the toolbar beside it drifts by half a centimetre for a
+   * reason nobody can see in the markup.
+   */
+  [data-ui-button-group]:empty {
+    display: none;
+  }
+
+  /* ── Orientation ──────────────────────────────────────────────────────── */
+
+  [data-ui-button-group][data-orientation='vertical'] {
+    --_join-main: 0;
+    --_join-cross: var(--_radius);
+    --_overlap-inline: 0;
+    --_overlap-block: var(--_overlap);
+
+    flex-direction: column;
+  }
+
+  /* ── Across the flow ──────────────────────────────────────────────────── */
+
+  [data-ui-button-group][data-align='start'] {
+    align-items: start;
+  }
+
+  [data-ui-button-group][data-align='center'] {
+    align-items: center;
+  }
+
+  [data-ui-button-group][data-align='end'] {
+    align-items: end;
+  }
+
+  [data-ui-button-group][data-align='stretch'] {
+    align-items: stretch;
+  }
+
+  /**
+   * ── Along the flow ────────────────────────────────────────────────────
+   *
+   * Placing the buttons along the line only means something once the group
+   * holds the line, so asking for it is asking for that. A group left alone
+   * shrinks to its content, which is what a pair of actions beside a sentence
+   * needs and what every surveyed implementation defaults to.
+   */
+  [data-ui-button-group][data-justify] {
+    display: flex;
+    inline-size: 100%;
+  }
+
+  [data-ui-button-group][data-justify='start'] {
+    justify-content: start;
+  }
+
+  [data-ui-button-group][data-justify='center'] {
+    justify-content: center;
+  }
+
+  [data-ui-button-group][data-justify='end'] {
+    justify-content: end;
+  }
+
+  [data-ui-button-group][data-justify='between'] {
+    justify-content: space-between;
+  }
+
+  /* ── Full width ───────────────────────────────────────────────────────── */
+
+  [data-ui-button-group][data-full-width] {
+    display: flex;
+    inline-size: 100%;
+  }
+
+  /**
+   * Equal segments rather than proportional ones. A row where "Delete" is a
+   * third of the width of "Save and publish" is a row whose emphasis is set by
+   * the length of a translated string.
+   *
+   * A column is already stretched across its own axis, so growing its children
+   * along the flow would distribute height instead, which is not what anyone
+   * asking for a full-width group meant.
+   */
+  [data-ui-button-group][data-full-width]:not([data-orientation='vertical'])
+    > :not([data-part-separator]) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  /**
+   * ── The shape ─────────────────────────────────────────────────────────
+   *
+   * One shape out of several controls: the corners facing a neighbour go, the
+   * two adjacent borders become one, and the bar takes a single block size.
+   *
+   * A label that outgrows the bar wraps inside its own control rather than
+   * pushing the bar past the container. An icon-only control is exempt: it is
+   * square from the control height, and shrinking it would take it below the
+   * target size its own family guarantees.
+   */
+  [data-ui-button-group] > :not([data-part-separator]):not([data-shape]) {
+    min-inline-size: 0;
+  }
+
+  [data-ui-button-group] > [data-shape] {
+    flex: none;
+  }
+
+  [data-ui-button-group] > :not([data-ui-button-group]) {
+    border-radius: 0;
+  }
+
+  /**
+   * The overlap skips the separator, and only the separator: a rule inside the
+   * bar takes no column of its own, so the control after it shares an edge
+   * with the control before it exactly like every other neighbour pair.
+   */
+  [data-ui-button-group] > :not(:first-child):not([data-part-separator]) {
+    margin-block-start: var(--_overlap-block);
+    margin-inline-start: var(--_overlap-inline);
+  }
+
+  [data-ui-button-group] > :first-child {
+    border-end-start-radius: var(--_join-main);
+    border-start-end-radius: var(--_join-cross);
+    border-start-start-radius: var(--_radius);
+  }
+
+  [data-ui-button-group] > :last-child {
+    border-end-end-radius: var(--_radius);
+    border-end-start-radius: var(--_join-cross);
+    border-start-end-radius: var(--_join-main);
+  }
+
+  /**
+   * A bar of one control is both ends of the bar, and the two rules above
+   * disagree about its inner corners: the second one wins, and the control
+   * came out with one square corner. Measured on the harness before this rule
+   * existed: 4/4/4/0. A lone control keeps all four.
+   */
+  [data-ui-button-group] > :only-child {
+    border-radius: var(--_radius);
+  }
+
+  /**
+   * ── Runs ──────────────────────────────────────────────────────────────
+   *
+   * A nested group is a run of the bar with a name of its own, which is what
+   * an announced boundary cannot say: a separator says a boundary exists, a
+   * named group says what is on either side of it. Visually it is the same
+   * bar. The run's own corner rules would round its ends in the middle of the
+   * bar, so inside another group every corner of a run is squared and only
+   * the two on the ends of the outer bar are put back.
+   */
+  [data-ui-button-group] [data-ui-button-group] > :not([data-part-separator]) {
+    border-radius: 0;
+  }
+
+  [data-ui-button-group] > [data-ui-button-group]:first-child > :first-child {
+    border-end-start-radius: var(--_join-main);
+    border-start-end-radius: var(--_join-cross);
+    border-start-start-radius: var(--_radius);
+  }
+
+  [data-ui-button-group] > [data-ui-button-group]:last-child > :last-child {
+    border-end-end-radius: var(--_radius);
+    border-end-start-radius: var(--_join-cross);
+    border-start-end-radius: var(--_join-main);
+  }
+
+  /**
+   * ── The frame belongs to the group ────────────────────────────────────
+   *
+   * A joined bar has one edge, and one edge cannot be the sum of several
+   * controls' opinions about their own. `button` repaints its whole border
+   * when it is pressed or unavailable — correctly, for a control standing on
+   * its own — and inside a bar that punches a hole in the frame exactly where
+   * that control sits. It was visible before it was reasoned about: a vertical
+   * segmented control with the middle segment on had a gap in its left edge.
+   *
+   * So the group states the edge for the two variants that have one to state,
+   * and it states it for the states that would otherwise overwrite it. The
+   * control keeps its fill, its label and its cursor; what it gives up is the
+   * right to redraw the bar around itself.
+   *
+   * The root is selected by its part as well as its family. The rule has to
+   * outrank every border rule `button` writes for the same control whatever
+   * order the two sheets load in, and `button`'s pressed rule already carries
+   * four attribute-class selectors; the part the root always carries is the
+   * fifth, and it is a name the contract declares rather than a selector
+   * repeated for weight.
+   */
+  [data-ui-button-group][data-part-root] > [data-ui-button][data-variant='outline'][data-pressed],
+  [data-ui-button-group][data-part-root] > [data-ui-button][data-variant='outline'][data-disabled],
+  [data-ui-button-group][data-part-root] > [data-ui-button][data-variant='outline']:disabled {
+    border-color: var(--slotted-control-border-color, ButtonBorder);
+  }
+
+  [data-ui-button-group][data-part-root] > [data-ui-button][data-variant='ghost'][data-pressed],
+  [data-ui-button-group][data-part-root] > [data-ui-button][data-variant='ghost'][data-disabled],
+  [data-ui-button-group][data-part-root] > [data-ui-button][data-variant='ghost']:disabled {
+    border-color: transparent;
+  }
+
+  /**
+   * ── One border in each shared column ──────────────────────────────────
+   *
+   * The overlap puts two borders in the same one-pixel column. They are the
+   * same colour and the same width, so on paper they are one line — and they
+   * are, until the page is zoomed. The browser snaps each border box to device
+   * pixels on its own, so at 110%, 150% and 175% one boundary lands on a single
+   * column and the next lands across two, and a bar of equal dividers renders
+   * with one of them twice as thick as its neighbour. Measured, not guessed:
+   * five boundaries out of the fifteen photographed came out uneven before this
+   * rule existed.
+   *
+   * So exactly one border is painted there, and it is the leading edge of the
+   * control that follows. The trailing edge of the control before it is taken
+   * out of the paint entirely — not narrowed, because a narrower border box
+   * would move the glyph inside an icon-only control by half a pixel.
+   *
+   * A rule between two runs is that same column, so the control before it
+   * gives up its trailing edge in the same way, and the control after it
+   * paints the rule on its own leading one. The last control of a run that is
+   * not the last run gives it up too: the next run's first control follows it
+   * in the same column.
+   */
+  [data-ui-button-group][data-part-root]:not([data-orientation='vertical'])
+    > [data-ui-button]:not(:last-child),
+  [data-ui-button-group][data-part-root]:not([data-orientation='vertical'])
+    > [data-ui-button-group]:not(:last-child)
+    > [data-ui-button]:last-child {
+    border-inline-end-color: transparent;
+  }
+
+  [data-ui-button-group][data-part-root][data-orientation='vertical']
+    > [data-ui-button]:not(:last-child),
+  [data-ui-button-group][data-part-root][data-orientation='vertical']
+    > [data-ui-button-group]:not(:last-child)
+    > [data-ui-button]:last-child {
+    border-block-end-color: transparent;
+  }
+
+  /**
+   * ── The seam between two filled controls ──────────────────────────────
+   *
+   * `button` paints a filled control's edge with its own fill — deliberately,
+   * because a border a shade away from what it encloses reads as a halo — so
+   * two joined solid controls are one uninterrupted rectangle with no way to
+   * tell where the first ends.
+   *
+   * The seam is the darkest step of the control's own tone, which is what
+   * Primer, Material UI, Ant Design and Bootstrap all reach for. The first
+   * attempt used `--slotted-surface`, and the capture said no: a white line
+   * through a filled bar cuts it into separate buttons instead of dividing one
+   * bar, and on the boundary between an outline control and a filled one it
+   * appeared where no boundary belonged at all.
+   *
+   * It is painted on the leading edge only, because that is the one edge in
+   * the column the rule above leaves painted. The tone is read from
+   * `data-tone`, which `button` declares in public, so this is composition
+   * against a contract rather than against internal DOM.
+   */
+  [data-ui-button-group] > [data-tone='accent'] {
+    --_seam: var(--slotted-tone-accent-solid-active);
+  }
+
+  [data-ui-button-group] > [data-tone='secondary'] {
+    --_seam: var(--slotted-tone-secondary-solid-active);
+  }
+
+  [data-ui-button-group] > [data-tone='neutral'] {
+    --_seam: var(--slotted-tone-neutral-solid-active);
+  }
+
+  [data-ui-button-group] > [data-tone='success'] {
+    --_seam: var(--slotted-tone-success-solid-active);
+  }
+
+  [data-ui-button-group] > [data-tone='info'] {
+    --_seam: var(--slotted-tone-info-solid-active);
+  }
+
+  [data-ui-button-group] > [data-tone='warning'] {
+    --_seam: var(--slotted-tone-warning-solid-active);
+  }
+
+  [data-ui-button-group] > [data-tone='danger'] {
+    --_seam: var(--slotted-tone-danger-solid-active);
+  }
+
+  [data-ui-button-group][data-part-root]:not([data-orientation='vertical'])
+    > [data-ui-button][data-variant='solid']:not(:first-child) {
+    border-inline-start-color: var(--_seam, ButtonBorder);
+  }
+
+  [data-ui-button-group][data-part-root][data-orientation='vertical']
+    > [data-ui-button][data-variant='solid']:not(:first-child) {
+    border-block-start-color: var(--_seam, ButtonBorder);
+  }
+
+  /**
+   * Only focus is raised. The ring is an outline drawn two pixels outside the
+   * border box, so without this it is cut by whichever neighbour follows it in
+   * the DOM. Hover and press are raised by Primer, Polaris and shadcn because
+   * in those libraries a touched control repaints its own edge; here the edge
+   * is the group's, so nothing about it changes and there is nothing to lift.
+   */
+  [data-ui-button-group] > *:focus-visible,
+  [data-ui-button-group] > *:has(:focus-visible) {
+    z-index: 1;
+  }
+
+  /**
+   * Under forced colours the theme flattens every fill, so a segment that is
+   * on has only its edge left to say so. `button` makes that edge `Highlight`;
+   * the rule above would have taken it away, and this puts it back.
+   */
+  @media (forced-colors: active) {
+    [data-ui-button-group][data-part-root] > [data-ui-button][data-pressed] {
+      border-color: Highlight;
+    }
+  }
+
+  /* ── Separator ────────────────────────────────────────────────────────── */
+
+  /**
+   * A rule between two runs of actions. It is a part of this family and not
+   * the `divider` family because its geometry belongs to the group: inside a
+   * joined bar it is the shared edge rather than a box standing next to one.
+   * Styling `divider`'s rendered box from this stylesheet would make one
+   * family's DOM a private API of another, which is the coupling
+   * `identity.test.mjs` exists to refuse.
+   *
+   * A joined bar is one shape, and a rule is not licence to cut it. So the
+   * rule is not a box at all: it takes no width, no height and no margin, and
+   * what it marks is painted on the leading edge of the control that follows
+   * it — the one edge the overlap already leaves in the shared column.
+   *
+   * The rule had a column of its own before this, and the bar paid for it
+   * twice. A control with its edge taken out still occupies the column it gave
+   * up, so the boundary came out three pixels wide beside seams of one: at
+   * every zoom step the capture showed one divider thicker than its
+   * neighbours, and in a framed bar that reads as a rendering defect rather
+   * than as a boundary. Nothing about the bar's shape changes now — the
+   * corners, the height and the overlap are what they are without the rule.
+   */
+  [data-ui-button-group] > [data-part-separator] {
+    background: none;
+    block-size: 0;
+    border: 0;
+    flex: none;
+    inline-size: 0;
+    margin: 0;
+  }
+
+  /**
+   * One step stronger than the seams around it, because a boundary painted in
+   * the seam's own colour is a seam. `--slotted-text-muted` is the quietest
+   * tone in the foundation that still reads darker than `--slotted-border-
+   * strong`, and it carries the difference the eye needs without the weight a
+   * thicker line would add. In a frameless bar it is the only line there is,
+   * which is the divider a quiet icon toolbar needs.
+   *
+   * A filled bar keeps its seam. Its edges are the tone's own darkest step,
+   * and a neutral grey laid between two saturated fills reads as a smudge
+   * rather than as a boundary — the capture showed it olive against accent
+   * blue. There is nothing darker than that step in the tone to reach for, so
+   * a rule inside a filled run is the seam, drawn where the consumer asked
+   * for it.
+   */
+  [data-ui-button-group][data-part-root]:not([data-orientation='vertical'])
+    > [data-part-separator]
+    + [data-ui-button]:not([data-variant='solid']),
+  [data-ui-button-group][data-part-root]:not([data-orientation='vertical'])
+    > [data-part-separator]
+    + [data-ui-button-group]
+    > [data-ui-button]:first-child:not([data-variant='solid']) {
+    border-inline-start-color: var(--slotted-text-muted, ButtonBorder);
+  }
+
+  [data-ui-button-group][data-part-root][data-orientation='vertical']
+    > [data-part-separator]
+    + [data-ui-button]:not([data-variant='solid']),
+  [data-ui-button-group][data-part-root][data-orientation='vertical']
+    > [data-part-separator]
+    + [data-ui-button-group]
+    > [data-ui-button]:first-child:not([data-variant='solid']) {
+    border-block-start-color: var(--slotted-text-muted, ButtonBorder);
+  }
+}

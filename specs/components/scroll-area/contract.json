@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 5,
+  "family": "scroll-area",
+  "ui": "scroll-area",
+  "catalog": {
+    "group": "Layout",
+    "summary": "Scrolling region with styled scrollbars."
+  },
+  "pattern": null,
+  "patternAbsent": {
+    "reason": "The WAI-ARIA Authoring Practices index holds no Scroll Area pattern, and no ARIA role describes a scroll container. Recording the absence is the requirement; claiming a pattern that does not exist is the failure",
+    "governedBy": [
+      {
+        "requirement": "WCAG 2.2 SC 2.1.1 Keyboard, Level A",
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html",
+        "effect": "Content that scrolls has to be scrollable by keyboard"
+      },
+      {
+        "requirement": "scrollable-region-focusable",
+        "url": "https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/",
+        "effect": "The rule the criterion is tested by, and the one Base UI cites in its own source"
+      },
+      {
+        "requirement": "WCAG 2.2 SC 4.1.2 Name, Role, Value, Level A",
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/name-role-value.html",
+        "effect": "What the tab stop then owes. An element in the tab sequence with no accessible name is announced as nothing, which is what Base UI and Zag both ship"
+      },
+      {
+        "requirement": "Keyboard-focusable scrollers",
+        "url": "https://chromestatus.com/feature/5231964663578624",
+        "effect": "Chrome supplies the tab stop and never the name, only where the scroller has no focusable child, and only in Chrome. Shipped in 127, withdrawn for web compatibility, re-enabled from 130 by staged rollout. The family cannot rely on it"
+      }
+    ]
+  },
+  "identity": {
+    "reason": "The family is the scrollport and the box that frames it. Three parts: root holds the frame, the radius and the maximum; viewport scrolls, carries the veil and takes the region wiring; content carries the inset that scrolls with the content, and carries one by default. Base UI, Zag and Chakra each ship six; the three this family does not have — scrollbar, thumb and corner — are the parts a drawn scrollbar needs, and the scrollbar here is the platform's",
+    "cost": "One element more in the DOM than a scrollport alone, and a consumer who writes the markup by hand has to nest three divs rather than one",
+    "whyTwoElements": "They were one element, and the first harness capture refused it. The affordance is a mask, a mask covers everything the element paints including its border, and nothing can be excluded from it — mask-clip moves where a mask is painted, never what it covers. A bounded region with a border round it is the commonest shape this family has, and the veil took the ends of that border with the content: crisp down both sides, absent across both ends, which reads as a rendering fault rather than as an affordance. So the frame is on an element the mask is not on"
+  },
+  "scrollbar": {
+    "source": "the platform",
+    "properties": ["scrollbar-color", "scrollbar-width", "scrollbar-gutter"],
+    "reason": "docs/component-features.md section 4 asks this family, in its own sentence, to preserve native scroll, keyboard, touch, momentum, focus and printing, and to enhance the scrollbar progressively. Radix, Base UI, Zag, Chakra and Mantine all hide the native bar and redraw it, which costs the trough click, the scrollbar context menu, the system's own overlay behaviour and the bar's appearance before hydration. scrollbar-color reached Baseline in December 2025 and scrollbar-gutter in December 2024, so the themed bar no longer needs a thumb of the library's own",
+    "cost": "No pixel thickness — scrollbar-width has auto, thin and none. No radius, no inset and no margin on the thumb. Two colours rather than nine states, so the thumb's own hover is the platform's. The corner between two bars is painted by the system. A product that needs any of the four sets scrollbar-width: none on the part and draws its own against the edge attributes",
+    "declinedTimer": "scrollHideDelay, which Radix and Mantine both ship, tunes a JavaScript timer that hides a drawn scrollbar. There is no timer here to tune"
+  },
+  "affordance": {
+    "mechanism": "two mask-image layers on the scrollport, one per physical axis, composed with mask-composite: intersect, with the inline pair swapped under :dir(rtl)",
+    "reason": "table's own refusal is the argument: a gradient at an edge has to be the colour of the ground beneath it, so it is wrong on every surface but one and in every scheme but one. A mask fades the content to transparent and needs no ink. Four edges also need more than the two pseudo-elements one box has, and a pseudo-element positioned inside a scrollport scrolls away with the content while a mask applies to the border box and stays",
+    "forcedColors": "removed. The system owns the palette there, and a veil over system text loses legibility and buys nothing",
+    "enhancement": "A scroll-driven timeline — animation-timeline: scroll() — was considered and not built: the transition already moves the veil rather than snapping it, the property is not Baseline, and a second paint path for one veil is a second thing to keep right. It stays open in the family's scope in docs/process/build-order.md",
+    "element": "the viewport, never the root: the root is where a consumer's border, radius and ground go, and a mask over them fades the frame as well as the content"
+  },
+  "wiring": {
+    "role": "region, written only while the content overflows",
+    "tabindex": "0, on the same condition, because a tab stop on content that fits is a tab stop that does nothing",
+    "name": "aria-labelledby, then aria-label, then the catalog of the language in force. A tab stop owes a name, and Base UI and Zag both write role=presentation beside theirs",
+    "movement": "none. Arrow keys, Page keys, Home, End and Space are the platform's on a focused scrollport, and the family writes not one of them",
+    "consumerFirst": "A role, a name or a tabindex the consumer wrote is kept. The family adds the wiring a scrolling region needs and never argues with the one already there",
+    "element": "the viewport, which is the element that scrolls. Base UI and Zag both put their tab stop there for the same reason"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "reaches the scrollport, which is what makes the content keyboard-scrollable at all",
+      "precondition": "the content overflows, and tabbable has not been turned off",
+      "focus": "the scrollport",
+      "source": "family"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "scrolls one line toward the block start",
+      "precondition": "the scrollport has focus",
+      "focus": "stays on the scrollport",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "scrolls one line toward the block end",
+      "precondition": "the scrollport has focus",
+      "focus": "stays on the scrollport",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "scrolls one line along the inline axis, toward the left of the screen",
+      "precondition": "the scrollport has focus",
+      "focus": "stays on the scrollport",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "scrolls one line along the inline axis, toward the right of the screen",
+      "precondition": "the scrollport has focus",
+      "focus": "stays on the scrollport",
+      "source": "platform"
+    },
+    {
+      "key": "PageUp",
+      "effect": "scrolls one page toward the block start",
+      "precondition": "the scrollport has focus",
+      "focus": "stays on the scrollport",
+      "source": "platform"
+    },
+    {
+      "key": "PageDown",
+      "effect": "scrolls one page toward the block end",
+      "precondition": "the scrollport has focus",
+      "focus": "stays on the scrollport",
+      "source": "platform"
+    },
+    {
+      "key": "Home",
+      "effect": "scrolls to the start of the content",
+      "precondition": "the scrollport has focus",
+      "focus": "stays on the scrollport",
+      "source": "platform"
+    },
+    {
+      "key": "End",
+      "effect": "scrolls to the end of the content",
+      "precondition": "the scrollport has focus",
+      "focus": "stays on the scrollport",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "scrolls one page toward the block end, and with Shift toward the block start",
+      "precondition": "the scrollport has focus and no child took the key",
+      "focus": "stays on the scrollport",
+      "source": "platform"
+    }
+  ],
+  "edges": {
+    "source": "@slotted/core/overflow",
+    "attributes": [
+      "data-overflowing",
+      "data-at-block-start",
+      "data-at-block-end",
+      "data-at-inline-start",
+      "data-at-inline-end"
+    ],
+    "values": "data-overflowing carries the axis: block, inline or both. An edge attribute says that end of the content is showing, so an affordance is painted in its absence rather than in its presence",
+    "reason": "Zag names four physical edges — top, bottom, left, right — which mirror wrongly in a right-to-left document, and Base UI names axes x and y, which a vertical writing mode swaps. Logical names let the stylesheet write each rule once"
+  },
+  "state": {
+    "mutable": [],
+    "reason": "The scroll position is not a value a consumer can own. specs/contract.schema.mjs makes the argument for the overflow capability this family declares: the set that does not fit is read from the layout, so a consumer who owned it could assert what the browser denies and the DOM would contradict the model. The browser moves the position on a wheel, a fling, a Tab into a child, an anchor navigation, a focus restoration and a printed page. So the position is reported and never requested, the overflow and its edges are reported and appear in the DOM, and moving the scroller is an imperative action — which is what docs/component-features.md section 2.2 reserves for focus(), open() and scrollToKey()"
+  },
+  "print": {
+    "rule": "@media print releases the maximum size and the clipping",
+    "reason": "docs/component-features.md section 4 names printing in this family's own sentence, and none of the five surveyed implementations answers it: a printed page otherwise carries the visible slice and silently drops the rest"
+  },
+  "messages": ["label"],
+  "members": {
+    "scrollArea": {
+      "nativeElement": "div",
+      "defaults": {
+        "axis": "block",
+        "scrollbars": "auto",
+        "gutter": "stable",
+        "fade": "both",
+        "overscroll": "contain",
+        "tabbable": true
+      },
+      "capabilities": ["overflow", "appearance", "wiring"],
+      "states": ["default", "hover", "focus-visible"],
+      "parts": ["root", "viewport", "content"]
+    }
+  },
+  "stateAttributes": {},
+  "scenarios": {
+    "scrollArea": [
+      "playground",
+      "axis",
+      "scrollbars",
+      "fade",
+      "gutter",
+      "overscroll",
+      "maximum",
+      "keyboard",
+      "content",
+      "composition",
+      "print",
+      "accessibility"
+    ]
+  }
+}

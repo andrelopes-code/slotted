@@ -1,0 +1,2407 @@
+<!--
+  The harness runs no script, so every state the family sets from script is
+  written as the attribute it would have set: `data-narrow` from the width
+  gate, `data-complete` when the list has reached `max`, `data-expanded` while
+  a collapsed control has focus within, `data-count` on the chip
+  `createCollapse` reveals, and `data-invalid` with the `danger` tone on a chip
+  whose value failed.
+
+  Three states are photographed rather than faked:
+
+    shoot.mjs tags-input --focus "[data-scene='anatomy'] [data-part='input']"
+    shoot.mjs tags-input --focus "[data-scene='rows'] [data-ui='tag']"
+    shoot.mjs tags-input --focus "[data-scene='states'] [data-part='clear']"
+
+  One domain throughout: the recipients of a message.
+-->
+<section data-scene="anatomy">
+  <div style="padding: 12px">
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-invalid
+      style="max-inline-size: min(360px, 100%)"
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="To, 3 values">
+        <div
+          data-part="chips"
+          data-part-chips=""
+          role="row"
+          aria-describedby="tags-input-anatomy-hint"
+        >
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            data-value="ana.souza@example.com"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            data-tone="danger"
+            data-invalid
+            data-value="jhon.company"
+            role="gridcell"
+            tabindex="-1"
+            aria-invalid="true"
+            aria-describedby="tags-input-anatomy-message"
+            title="Please include an '@' in the email address. 'jhon.company' is missing an '@'."
+          >
+            <span data-part="body" data-part-body="">
+              <span data-part="start" data-part-start=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-alert"></svg></span
+              ></span>
+              <span data-part="label" data-part-label="">jhon.company</span>
+            </span>
+            <span data-part="message" data-part-message="" id="tags-input-anatomy-message"
+              >Please include an '@' in the email address.</span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove jhon.company"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            data-value="lee@example.org"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">lee@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove lee@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="To"
+              aria-invalid="true"
+              value="mar"
+            />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+      <span data-part="hint" data-part-hint="" id="tags-input-anatomy-hint"
+        >Press Delete to remove a value.</span
+      >
+    </div>
+  </div>
+</section>
+
+<section data-scene="rows">
+  <div style="display: grid; gap: 12px">
+    <!-- Empty: exactly the height of a text field beside it on the same form. -->
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="To, 0 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="To"
+              placeholder="Add a recipient"
+            />
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- One row. -->
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="To, 2 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">lee@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove lee@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="To"
+              placeholder="Add a recipient"
+            />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+
+    <!-- More than three rows: the row scrolls, and every chip stays in the DOM. -->
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Cc, 12 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">bruno@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove bruno@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">carla.m@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove carla.m@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">diego@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove diego@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">elena.r@example.net</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove elena.r@example.net"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">felipe@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove felipe@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">gabi@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove gabi@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">hugo.l@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove hugo.l@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">iris@example.net</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove iris@example.net"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">joao.p@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove joao.p@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">karen@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove karen@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">luis.f@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove luis.f@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input data-part="input" data-part-input="" type="email" aria-label="Cc" />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="validity">
+  <div style="display: grid; gap: 12px">
+    <!-- Two of four values failed the browser's own email grammar: held, marked, described. -->
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-invalid
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="To, 4 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            data-tone="danger"
+            data-invalid
+            role="gridcell"
+            tabindex="-1"
+            aria-invalid="true"
+            title="Please include an '@' in the email address."
+          >
+            <span data-part="body" data-part-body="">
+              <span data-part="start" data-part-start=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-alert"></svg></span
+              ></span>
+              <span data-part="label" data-part-label="">bruno.example.com</span>
+            </span>
+            <span data-part="message" data-part-message=""
+              >Please include an '@' in the email address.</span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove bruno.example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">carla.m@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove carla.m@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            data-tone="danger"
+            data-invalid
+            role="gridcell"
+            tabindex="-1"
+            aria-invalid="true"
+            title="Not a valid value"
+          >
+            <span data-part="body" data-part-body="">
+              <span data-part="start" data-part-start=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-alert"></svg></span
+              ></span>
+              <span data-part="label" data-part-label="">diego@</span>
+            </span>
+            <span data-part="message" data-part-message="">Not a valid value</span>
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove diego@"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="To"
+              aria-invalid="true"
+            />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+
+    <!-- Required and empty: the consumer's own invalid, with no chip to blame. -->
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-invalid
+      data-required
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="To, 0 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="To"
+              placeholder="Add a recipient"
+              required
+              aria-invalid="true"
+            />
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="overflow">
+  <div style="display: grid; gap: 12px">
+    <!-- Collapsed at rest: one line, and the count of what did not fit. -->
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-overflow="collapse"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Cc, 6 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+            hidden
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">bruno@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove bruno@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+            hidden
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">carla.m@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove carla.m@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+            hidden
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">diego@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove diego@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+            hidden
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">elena.r@example.net</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove elena.r@example.net"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+            hidden
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">felipe@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove felipe@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-count
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="outline"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">+5</span></span
+            >
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input data-part="input" data-part-input="" type="email" aria-label="Cc" />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+
+    <!-- The same control while it has focus within: every chip, and no count. -->
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-overflow="collapse"
+      data-expanded
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Cc, 6 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">bruno@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove bruno@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">carla.m@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove carla.m@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">diego@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove diego@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">elena.r@example.net</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove elena.r@example.net"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">felipe@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove felipe@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-count
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="outline"
+            role="gridcell"
+            tabindex="-1"
+            hidden
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">+0</span></span
+            >
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input data-part="input" data-part-input="" type="email" aria-label="Cc" />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+
+    <!-- Under 120 pixels there is no chip; the counter is the whole answer. -->
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-narrow
+      style="inline-size: 104px"
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Cc, 3 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">bruno@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove bruno@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">carla.m@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove carla.m@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input data-part="input" data-part-input="" type="email" aria-label="Cc" />
+          </span>
+        </div>
+      </div>
+      <span data-part="counter" data-part-counter="">3 values</span>
+    </div>
+  </div>
+</section>
+
+<section data-scene="limit">
+  <div style="display: grid; gap: 12px">
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Reviewers, 2 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">bruno@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove bruno@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input data-part="input" data-part-input="" type="email" aria-label="Reviewers" />
+          </span>
+        </div>
+      </div>
+      <span data-part="counter" data-part-counter="">2 of 3</span>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+
+    <!-- Full: the counter says so in the accent, and the input takes nothing more. -->
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+      data-complete
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Reviewers, 3 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">bruno@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove bruno@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">carla.m@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove carla.m@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input data-part="input" data-part-input="" type="email" aria-label="Reviewers" />
+          </span>
+        </div>
+      </div>
+      <span data-part="counter" data-part-counter="">3 of 3</span>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sizes">
+  <div style="display: grid; gap: 12px">
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="sm"
+      data-variant="outline"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Small, 2 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">lee@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove lee@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="Small"
+              placeholder="Small"
+            />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Medium, 2 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">lee@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove lee@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="Medium"
+              placeholder="Medium"
+            />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      data-variant="outline"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Large, 2 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">lee@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove lee@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="Large"
+              placeholder="Large"
+            />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="variants">
+  <div style="display: grid; gap: 12px">
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Outline, 1 value">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="Outline"
+              placeholder="Outline"
+            />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="subtle"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Subtle, 1 value">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="Subtle"
+              placeholder="Subtle"
+            />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="plain"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Plain, 1 value">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="Plain"
+              placeholder="Plain"
+            />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="states">
+  <div style="display: grid; gap: 12px">
+    <!-- Disabled: the chip keeps its label and loses its remove control. -->
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-disabled
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Disabled, 1 value">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            data-disabled
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="Disabled"
+              placeholder="Disabled"
+              disabled
+            />
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Read-only: the values stay readable and copyable; nothing can be removed. -->
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-readonly
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Read-only, 2 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">lee@example.org</span></span
+            >
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input
+              data-part="input"
+              data-part-input=""
+              type="email"
+              aria-label="Read-only"
+              readonly
+            />
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- A locked value beside a removable one, and the chip that answered a duplicate. -->
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="To, 3 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            data-disabled
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">support@example.com</span></span
+            >
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            data-current
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">ana.souza@example.com</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove ana.souza@example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label="">lee@example.org</span></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove lee@example.org"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input data-part="input" data-part-input="" type="email" aria-label="To" />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="long-content">
+  <div style="display: grid; gap: 12px">
+    <div
+      data-ui="tags-input"
+      data-ui-tags-input=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-variant="outline"
+      data-full-width
+    >
+      <div data-part="control" data-part-control="" role="grid" aria-label="Long values, 2 values">
+        <div data-part="chips" data-part-chips="" role="row">
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            role="gridcell"
+            tabindex="-1"
+          >
+            <span data-part="body" data-part-body=""
+              ><span data-part="label" data-part-label=""
+                >quality-assurance-and-release-management@subsidiary.example.com</span
+              ></span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove quality-assurance-and-release-management@subsidiary.example.com"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span
+            data-ui="tag"
+            data-ui-tag=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="soft"
+            data-tone="danger"
+            data-invalid
+            role="gridcell"
+            tabindex="-1"
+            aria-invalid="true"
+            title="Please include an '@' in the email address."
+          >
+            <span data-part="body" data-part-body="">
+              <span data-part="start" data-part-start=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="circle-alert"></svg></span
+              ></span>
+              <span data-part="label" data-part-label=""
+                >Aufmerksamkeitsdefizithyperaktivitätsstörung</span
+              >
+            </span>
+            <span data-part="message" data-part-message=""
+              >Please include an '@' in the email address.</span
+            >
+            <button
+              data-part="remove"
+              data-part-remove=""
+              type="button"
+              tabindex="-1"
+              aria-label="Remove Aufmerksamkeitsdefizithyperaktivitätsstörung"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </span>
+          <span data-part="field" data-part-field="" role="gridcell">
+            <input data-part="input" data-part-input="" type="email" aria-label="Long values" />
+          </span>
+        </div>
+      </div>
+      <button data-part="clear" data-part-clear="" type="button" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>

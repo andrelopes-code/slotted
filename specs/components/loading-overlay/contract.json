@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 5,
+  "family": "loading-overlay",
+  "ui": "loading-overlay",
+  "catalog": {
+    "group": "Feedback",
+    "summary": "Veil and indicator over a loading region."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/",
+  "patternNote": "The APG pattern index publishes no pattern for a loading overlay, a busy region or a blocking layer, read on 2026-09-10. Recorded rather than approximated: claiming the Dialog pattern would import focus containment, aria-modal and a close affordance into a component that is not a dialog and holds no reader-owned open state. The normative guidance the family follows instead is WAI-ARIA 1.2 progressbar, status and aria-modal, plus the HTML inert attribute",
+  "guidance": {
+    "busyRegion": "https://www.w3.org/TR/wai-aria-1.2/#progressbar",
+    "status": "https://www.w3.org/TR/wai-aria-1.2/#status",
+    "inertContents": "https://www.w3.org/TR/wai-aria-1.2/#aria-modal",
+    "inert": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/inert"
+  },
+  "composes": ["portal", "dismissable-layer", "presence", "focus", "loading"],
+  "axes": {
+    "scope": ["region", "page"],
+    "veil": ["wash", "blur", "none"],
+    "size": ["sm", "md", "lg"],
+    "live": ["polite", "off"]
+  },
+  "anatomy": {
+    "root": "the region: position relative, and the element that carries aria-busy while the layer blocks. In page scope it is the fixed layer itself, portalled. It is deliberately not the query container — see container",
+    "announcement": {
+      "parent": "root",
+      "role": "status",
+      "reason": "A child of the root and never of the layer. presence takes the layer out of the document when the wait ends, and a live region deleted at the moment it has something to say announces nothing. It is emptied rather than replaced, because emptying a live region announces nothing and a load should say one thing"
+    },
+    "content": {
+      "display": "contents",
+      "inert": "inert while the layer blocks, which is what actually takes a covered control out of the tab order and out of the accessibility tree",
+      "reason": "inert is inherited by every flat-tree descendant and only a modal dialog escapes it, so it cannot go on the root: it would silence the announcement and make the cancel control unpressable. It needs an element that wraps the content and excludes the layer. display: contents generates no box, so the consumer's children stay the root's own layout children — a covered grid keeps its tracks — while the element still carries the attribute",
+      "cost": "The part can never be painted, and a root that is a table or a tbody cannot legally hold this div, so a family covering table internals covers the table instead",
+      "scope": "region"
+    },
+    "scrim": "the wash, and the one-cell grid that centres the panel. pointer-events are dropped while it is leaving, so a click during the exit reaches the content underneath",
+    "panel": "the box the reader reads: the mark, the two lines, and the control",
+    "indicator": {
+      "defers": "progress-indicator",
+      "reason": "The mark is not this family's to draw. The default is progress-indicator's loader and the slot takes any node, so a determinate wait is <ProgressBar value={62} /> in the same place. A numeric progress prop would be a second family owning a measured quantity"
+    },
+    "label": "the short line — Saving…",
+    "description": "the second line, for what the first cannot hold",
+    "cancel": "asks to stop. Absent unless the consumer asks for it, and the only thing in the layer that takes focus"
+  },
+  "wiring": {
+    "aria-busy": {
+      "scope": "region",
+      "element": "root",
+      "reason": "ARIA 1.2 asks an author to set it on the region until it is finished loading. Page scope writes it nowhere: the busy region would be the document root and this family owns no part of it"
+    },
+    "role": "status on the announcement part, and nothing on the layer. The layer is not a dialog and not an alert",
+    "aria-describedby": "the panel names the announcement, so a mark inside the panel that carries a progressbar role points at the status ARIA 1.2 asks it to point at",
+    "aria-hidden": "true on the label and the description, because the announcement already carries the same words and a screen reader should hear them once"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "precondition": "region scope, focus in the panel",
+      "effect": "leaves the layer for the next tabbable element after the region, because only this region is blocked",
+      "focus": "the next tabbable element outside the root",
+      "source": "the platform"
+    },
+    {
+      "key": "Tab",
+      "precondition": "page scope",
+      "effect": "wraps inside the layer, because everything outside it is inert",
+      "focus": "the next tabbable element inside the layer",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Shift+Tab",
+      "precondition": "page scope",
+      "effect": "wraps inside the layer",
+      "focus": "the previous tabbable element inside the layer",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Escape",
+      "precondition": "a cancel part exists and focus is inside the layer",
+      "effect": "asks to cancel; the family commits nothing and the consumer's own abort ends the wait",
+      "reason": "escape",
+      "focus": "unchanged",
+      "source": "@slotted/core/dismissable-layer in page scope, the layer's own keydown in region scope"
+    },
+    {
+      "key": "Enter or Space",
+      "precondition": "focus on the cancel part",
+      "effect": "the platform's own button activation, asking to cancel",
+      "reason": "dismiss",
+      "focus": "unchanged",
+      "source": "the platform"
+    }
+  ],
+  "escapeBound": "cancellable",
+  "reasons": {
+    "cancel": ["dismiss", "escape"],
+    "commits": false,
+    "note": "The reader presses Cancel, the family asks, and the consumer aborts its own work and lowers loading. A family that hid itself on the press would be claiming the operation had stopped before it had"
+  },
+  "focus": {
+    "initial": "cancel",
+    "fallback": "panel",
+    "untouched": "focus outside the covered content is never moved",
+    "restore": "the element that held focus when the layer was painted, or its nearest connected ancestor when that element has since left the document",
+    "contain": {
+      "region": false,
+      "page": true
+    },
+    "reason": "Making an element inert while it holds focus drops focus to the body. None of the surveyed implementations has the defect because none of them makes anything inert, and both of the two that document accessibility tell the consumer to solve it themselves"
+  },
+  "container": {
+    "name": "slotted-loading-overlay",
+    "element": "scrim",
+    "compact": 220,
+    "reason": "The container is the layer and not the root, which is the opposite of what the split in docs/build-briefing.md usually asks for and is right here for a reason that split does not cover: container-type applies containment, and applying it to the root would apply it to the consumer's own covered content. The scrim is absolutely positioned to the root's padding box, so it measures the same inline size and contains nothing but the panel. Under 220 pixels the panel keeps the mark and drops the two lines and its own ground. The text has not left the page: the announcement is where it was carrying meaning to a screen reader all along. The breakpoint is a literal because @container (max-width: var(--x)) is invalid"
+  },
+  "timing": {
+    "delay": "how long the wait has to last before anything is painted",
+    "minDuration": "how long a painted layer is held once it has appeared",
+    "source": "@slotted/core/loading",
+    "reason": "Shared with skeleton and progress-indicator so the layer reveals at the same moment in both bindings. Both default to zero, so a family that turns neither on schedules no timer"
+  },
+  "stateAttributes": {
+    "loading": "data-loading",
+    "disabled": "data-disabled"
+  },
+  "messages": ["label", "cancel"],
+  "members": {
+    "loadingOverlay": {
+      "nativeElement": "div",
+      "defaults": {
+        "scope": "region",
+        "veil": "wash",
+        "size": "md",
+        "live": "polite",
+        "loading": true,
+        "cancellable": false,
+        "delay": 0,
+        "minDuration": 0
+      },
+      "capabilities": ["appearance", "size", "placement", "loading", "live", "content"],
+      "states": ["default", "hover", "active", "focus-visible", "loading", "disabled"],
+      "parts": [
+        "root",
+        "announcement",
+        "content",
+        "scrim",
+        "panel",
+        "indicator",
+        "label",
+        "description",
+        "cancel"
+      ]
+    }
+  },
+  "scenarios": {
+    "loadingOverlay": [
+      "playground",
+      "region",
+      "page",
+      "veil",
+      "sizes",
+      "shapes",
+      "timing",
+      "cancel",
+      "focus",
+      "indicator",
+      "content",
+      "composition",
+      "accessibility"
+    ]
+  }
+}

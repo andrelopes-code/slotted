@@ -1,0 +1,429 @@
+@layer slotted.components {
+  /**
+   * A set of controls that share one tab stop.
+   *
+   * The family paints the bar and nothing inside it: every control keeps its
+   * own fill, its own states and its own type step, which is what lets one bar
+   * hold a small icon button beside a medium select. Three families arrange
+   * controls in a row and each owns one question — `button-group` owns the
+   * shape of a run of actions, `tabs` owns the selection of a view, and this
+   * one owns the keyboard.
+   *
+   * So there is no gap axis, no alignment axis and no joined bar here. A run of
+   * joined actions inside a toolbar is a `button-group` inside a toolbar, and
+   * the arrows reach the buttons through it because the items are found by
+   * being focusable rather than by being children.
+   */
+  [data-ui-toolbar] {
+    /**
+     * The bar's own rhythm, from the control scales, so the three densities
+     * move it without a rule of their own.
+     */
+    --_gap: var(--slotted-control-gap-md, 0.375rem);
+    --_inset: var(--slotted-space-2, 0.25rem);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_separator-inset: var(--slotted-space-2, 0.25rem);
+    --_font-size: var(--slotted-control-font-size-md, 0.875rem);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+    /**
+     * What the bar actually pads with. It is the size step for a bar with no
+     * frame, and at least the reach of a focus ring for one with a frame: the
+     * ring belongs to the control, it is drawn outward, and at the small step a
+     * two-pixel inset put it on top of the bar's own edge. Stated here rather
+     * than in the size rules because a custom property cannot take the
+     * maximum of itself.
+     */
+    --_pad: var(--_inset);
+
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-toolbar-gap, var(--_gap));
+    min-inline-size: 0;
+    padding: var(--slotted-toolbar-inset, var(--_pad));
+  }
+
+  [data-ui-toolbar][data-size='sm'] {
+    --_gap: var(--slotted-control-gap-sm, 0.25rem);
+    --_inset: var(--slotted-space-1, 0.125rem);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_separator-inset: var(--slotted-space-1, 0.125rem);
+    --_font-size: var(--slotted-control-font-size-sm, 0.8125rem);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_inner-size: var(--slotted-control-inner-size-sm, 22px);
+  }
+
+  [data-ui-toolbar][data-size='lg'] {
+    --_gap: var(--slotted-control-gap-lg, 0.5rem);
+    --_inset: var(--slotted-space-3, 0.375rem);
+    --_height: var(--slotted-control-height-lg, 40px);
+    --_separator-inset: var(--slotted-space-3, 0.375rem);
+    --_font-size: var(--slotted-control-font-size-lg, 0.9375rem);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_inner-size: var(--slotted-control-inner-size-lg, 28px);
+  }
+
+  /**
+   * A bar that ends up holding nothing takes no room, which is the rule
+   * `button-group` records: an actions area built from a permission filter
+   * renders an empty container often, and an empty box still consumes the gap
+   * of the row that holds it.
+   */
+  [data-ui-toolbar]:empty {
+    display: none;
+  }
+
+  /* ── Orientation ──────────────────────────────────────────────────────── */
+
+  /**
+   * A column stretches its controls, because a column of controls at their own
+   * natural widths is a ragged edge rather than a bar. A row centres them,
+   * because two controls of different heights in one line share a middle.
+   */
+  [data-ui-toolbar][data-orientation='vertical'] {
+    align-items: stretch;
+    flex-direction: column;
+    inline-size: fit-content;
+  }
+
+  /* ── Appearance ───────────────────────────────────────────────────────── */
+
+  /**
+   * `plain` is the default and paints no ground: a bar inside a card header or
+   * above a table is already standing on a surface, and a second one there
+   * reads as a box nobody asked for.
+   */
+  [data-ui-toolbar][data-variant='outline'] {
+    --_pad: max(
+      var(--_inset),
+      calc(var(--slotted-focus-ring-offset, 2px) + var(--slotted-focus-ring-width, 2px))
+    );
+
+    background-color: var(--slotted-toolbar-background, var(--slotted-surface-raised));
+    border: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-toolbar-border-color, var(--slotted-border-subtle, ButtonBorder));
+    border-radius: var(--slotted-radius-md, 6px);
+  }
+
+  /* ── Overflow ─────────────────────────────────────────────────────────── */
+
+  /**
+   * `wrap` is the default, and it is the half of the answer that needs no
+   * menu: every control stays visible on a second row, and the arrows wrap
+   * from row to row because the item list is linear — which is the APG's own
+   * multi-row bullet, for free.
+   *
+   * `scroll` and `menu` are both one line. They share this rule because they
+   * share the same last resort: a bar that cannot give anything up scrolls
+   * past what is left rather than cutting a control in half, which is what
+   * `menu` does when every unit in it is pinned and what Primer does by
+   * design — its spacer exists so the first item "can wrap to the next line
+   * and get clipped".
+   */
+  [data-ui-toolbar]:is([data-overflow='scroll'], [data-overflow='menu']) {
+    /**
+     * A scroll container clips at its padding edge whether or not a scrollbar
+     * is drawn, and a control's focus ring is drawn outward. The bar therefore
+     * takes the frame's own floor here too: without it the ring of the first
+     * control was cut against the edge of a bar that was not even overflowing.
+     */
+    --_pad: max(
+      var(--_inset),
+      calc(var(--slotted-focus-ring-offset, 2px) + var(--slotted-focus-ring-width, 2px))
+    );
+
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+  }
+
+  [data-ui-toolbar]:is(
+      [data-overflow='scroll'],
+      [data-overflow='menu']
+    )[data-orientation='vertical'] {
+    inline-size: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  /**
+   * A one-line bar must not shrink its controls to fit; it scrolls past them,
+   * or hides them. Without this a flex item narrower than its content is the
+   * browser's preferred answer, and a row of squeezed buttons is what a reader
+   * gets instead — and the collapse would then measure a control at a width it
+   * only has while it is being squeezed.
+   */
+  [data-ui-toolbar]:is([data-overflow='scroll'], [data-overflow='menu']) > * {
+    flex: none;
+  }
+
+  /* ── What the collapse hides, and the control that holds it ───────────── */
+
+  /**
+   * A unit the bar may give up. It is a box rather than nothing, because the
+   * family is the thing that hides it and a family cannot hide what it does not
+   * own — which is the one place this family's own anatomy bends: the items are
+   * found by being focusable at any depth, and a *unit* is a direct child of
+   * the root. A `button-group` in a bar is one unit and four items.
+   *
+   * It paints nothing. Everything a reader sees inside it belongs to the
+   * control the consumer placed.
+   */
+  [data-ui-toolbar] [data-part-item] {
+    align-items: center;
+    display: inline-flex;
+    min-inline-size: 0;
+  }
+
+  [data-ui-toolbar][data-orientation='vertical'] [data-part-item] {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  /**
+   * `display: none` written by this family rather than left to the user agent,
+   * for the reason `breadcrumb` records: an author's `display: flex` on the
+   * same element beats the user agent's own `[hidden] { display: none }`, so
+   * without this rule every collapsed unit stayed on the bar and the collapse
+   * did nothing at all.
+   */
+  [data-ui-toolbar]
+    :is([data-part-item], [data-part-group], [data-part-separator], [data-part-overflow])[hidden] {
+    display: none;
+  }
+
+  /**
+   * The control that opens what did not fit. It is `menu`'s own trigger wearing
+   * this family's geometry: the bar's height, the minimum target in the other
+   * axis, and the muted ink `tabs` gives the one control it draws itself.
+   *
+   * The mark is the `ellipsis` Glyph element in an `icon` box, sized here to
+   * the control glyph size, the same as `breadcrumb` draws it (BC2). It was
+   * U+2026 as text, on the exception `breadcrumb` took to rule 3 of
+   * `docs/token-foundation.md` — and the two quantities that exception needed
+   * here are what closed it: a type step of one and a half to stop three dots
+   * reading as specks, and a lift of half an x-height to get them off their own
+   * baseline and onto the middle of the control. A glyph is centred in its box
+   * by construction and sized by the same scale as every other mark on the bar.
+   *
+   * Its accessible name carries the count, so what a reader hears is a number
+   * rather than three dots.
+   */
+  [data-ui-toolbar] [data-part-overflow] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--slotted-control-radius, 4px);
+    color: var(--slotted-toolbar-overflow-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    font-family: var(--slotted-control-font-family, inherit);
+    justify-content: center;
+    line-height: 1;
+    min-block-size: var(--_height);
+    /**
+     * An inner control, not a button (R2): as tall as the bar's items, as
+     * wide as the control glyph plus a step of air on each side, floored at
+     * the WCAG 2.2 minimum. It was a square the height of the bar before.
+     */
+    min-inline-size: max(
+      var(--slotted-target-min, 24px),
+      min(calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)), var(--_inner-size))
+    );
+    padding: 0;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  /* The ground moves under the pointer and nothing else does (R2). */
+  [data-ui-toolbar] [data-part-overflow]:not(:disabled):hover {
+    background-color: var(
+      --slotted-toolbar-overflow-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-toolbar] [data-part-overflow]:not(:disabled):active {
+    background-color: var(
+      --slotted-toolbar-overflow-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  /**
+   * The surface is open, and the control that opened it says so: without it a
+   * reader who moved the pointer off the trigger loses every sign of which
+   * control the layer belongs to.
+   */
+  [data-ui-toolbar] [data-part-overflow][data-open] {
+    background-color: var(
+      --slotted-toolbar-overflow-open-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+    color: var(--slotted-toolbar-overflow-hover-color, var(--slotted-text, CanvasText));
+  }
+
+  /**
+   * A bar out of action is a `fieldset` around it, and the platform disables
+   * every control inside — this one included. It says so rather than looking
+   * operable, and it answers neither hover nor press, which is the precedence
+   * `docs/state-and-events.md` fixes.
+   */
+  /* On a finger the trigger is a target in both directions, as the items beside
+     it are, and square: one value for both axes, so a bar taller than the
+     comfortable target does not stand it on end. */
+  @media (pointer: coarse) {
+    [data-ui-toolbar] [data-part-overflow] {
+      min-block-size: max(var(--slotted-target-comfortable, 44px), var(--_height));
+      min-inline-size: max(var(--slotted-target-comfortable, 44px), var(--_height));
+    }
+  }
+
+  [data-ui-toolbar] [data-part-overflow]:disabled {
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: default;
+  }
+
+  /**
+   * The inward ring the scroll container needs. The bar clips at its padding
+   * edge, and the trigger is the control closest to it, so an outward ring here
+   * is the one this family cannot afford.
+   */
+  [data-ui-toolbar] [data-part-overflow]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /* ── A group inside the bar ───────────────────────────────────────────── */
+
+  /**
+   * A run of related controls, announced as a group and read as one. The
+   * distance inside it is half the bar's gap and the distance around it is a
+   * gap and a half, so the boundary between two groups reads wider than the
+   * boundary between two controls — which is what keeps a destructive action
+   * from sitting flush against a frequent one.
+   *
+   * Both distances derive from the bar's own gap rather than from a step of
+   * their own, for the reason `button-group` records: a fixed nested distance
+   * puts the clusters of a loosely spaced bar closer together than the
+   * controls inside them.
+   */
+  [data-ui-toolbar] [data-part-group] {
+    align-items: center;
+    display: flex;
+    flex-wrap: inherit;
+    gap: calc(var(--_gap) / 2);
+    min-inline-size: 0;
+  }
+
+  [data-ui-toolbar][data-orientation='vertical'] [data-part-group] {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  [data-ui-toolbar] [data-part-group]:not(:first-child) {
+    margin-inline-start: calc(var(--_gap) / 2);
+  }
+
+  [data-ui-toolbar] [data-part-group]:not(:last-child) {
+    margin-inline-end: calc(var(--_gap) / 2);
+  }
+
+  [data-ui-toolbar][data-orientation='vertical'] [data-part-group]:not(:first-child) {
+    margin-block-start: calc(var(--_gap) / 2);
+    margin-inline-start: 0;
+  }
+
+  [data-ui-toolbar][data-orientation='vertical'] [data-part-group]:not(:last-child) {
+    margin-block-end: calc(var(--_gap) / 2);
+    margin-inline-end: 0;
+  }
+
+  /* ── The separator ────────────────────────────────────────────────────── */
+
+  /**
+   * A hairline between two runs. It is a part of this family rather than the
+   * `divider` family because its geometry belongs to the bar: it is measured
+   * against the controls beside it, and the toolbar that shipped before this
+   * one reached into the `divider` family's own class from this stylesheet —
+   * one family styling another's DOM, which is what `identity.test.mjs`
+   * refuses.
+   *
+   * It is one border width. A thick rule in a bar of hairlines is not a
+   * stronger boundary, it is a slab.
+   */
+  [data-ui-toolbar] [data-part-separator] {
+    align-self: stretch;
+    /**
+     * The control edge rather than the subtle rule `divider` reaches for: this
+     * rule divides controls, and it stands at the weight of the edges beside
+     * it — a darker line between two outline buttons read as a third control.
+     */
+    background-color: var(
+      --slotted-toolbar-separator-color,
+      var(--slotted-control-border-color, ButtonBorder)
+    );
+    border: 0;
+    flex: none;
+    inline-size: var(--slotted-border-width-thin, 1px);
+    /**
+     * Along the flow: half a gap on each side, so the boundary a rule draws is
+     * exactly the boundary a group draws, and the two ways of saying "these
+     * belong apart" say it at the same distance. Across it: a step short of the
+     * controls at each end, because a rule running their full height reads as
+     * the edge of a box that is not there.
+     */
+    margin-block: var(--_separator-inset);
+    margin-inline: calc(var(--_gap) / 2);
+    min-block-size: calc(var(--_height) - 2 * var(--_separator-inset));
+  }
+
+  [data-ui-toolbar][data-orientation='vertical'] [data-part-separator] {
+    block-size: var(--slotted-border-width-thin, 1px);
+    inline-size: auto;
+    margin-block: calc(var(--_gap) / 2);
+    margin-inline: var(--_separator-inset);
+    min-block-size: 0;
+  }
+
+  /**
+   * Forced colours flatten a background to `Canvas`, and a rule painted with
+   * one disappears with it. The separator is a background rather than a border,
+   * so keeping the paint is the only way the boundary is still there to read.
+   */
+  @media (forced-colors: active) {
+    [data-ui-toolbar] [data-part-separator] {
+      background-color: CanvasText;
+      forced-color-adjust: none;
+    }
+  }
+
+  /* ── The spacer ───────────────────────────────────────────────────────── */
+
+  /**
+   * It consumes what is left of the line, so what follows sits at the end of
+   * the bar. It replaces a `justify` axis: an axis decides the placement of
+   * every control at once, and what a bar needs is one boundary — the editing
+   * controls at the start, the destructive one at the end.
+   *
+   * One declaration serves both orientations, because `flex` grows along
+   * whichever axis the bar runs. The basis is zero rather than `auto` so the
+   * spacer never takes part in where a wrapping bar breaks its lines: a flex
+   * container assigns items to lines at their base size and grows them
+   * afterwards, so a zero-width spacer moves what follows to the end of its own
+   * line and pushes nothing onto the next one.
+   */
+  [data-ui-toolbar] [data-part-spacer] {
+    flex: 1 1 0;
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+}

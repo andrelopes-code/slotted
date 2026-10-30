@@ -1,0 +1,1008 @@
+/**
+ * The measured geometry is registered as lengths so that it can be
+ * transitioned. The root moves these five numbers, and the surface, every
+ * panel, the clip that keeps a panel inside the surface and the arrow read
+ * them: one interpolation, so nothing a panel draws can be seen outside the
+ * surface while the surface moves from one section to the next.
+ * `--slotted-navigation-menu-available-inline-size` is not registered: it is
+ * a cap, never animated, and its unset fallback is what a static render reads.
+ */
+@property --slotted-navigation-menu-viewport-inline-size {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --slotted-navigation-menu-viewport-block-size {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --slotted-navigation-menu-viewport-inline-start {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --slotted-navigation-menu-viewport-block-start {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --slotted-navigation-menu-arrow-offset {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@layer slotted.components {
+  /**
+   * The sections of a site or an application in a row, each a button that
+   * shows a panel of destinations under the row, with direct links beside
+   * them. The panel is a disclosure and never a menu: its destinations are
+   * links.
+   *
+   *   root ▸ list ▸ item ▸ trigger ▸ indicator
+   *                      · content ▸ links ▸ link ▸ icon · label · description
+   *                                · group ▸ group-label · links
+   *                                · footer
+   *               ▸ item ▸ link
+   *        · viewport ▸ arrow
+   *
+   * ── The panel stays in its item; only the surface is shared ─────────────
+   *
+   * Every content follows its trigger in the DOM, which is where the
+   * disclosure example puts it and what lets Tab reach it. The viewport is an
+   * empty element after the list that paints the one surface — ground, edge,
+   * shadow, radius — and moves between the sizes of the sections, while the
+   * contents are laid over its box with no ground of their own and cross over
+   * it. Nothing is ported, so there is no tab order to rebuild.
+   *
+   * The script writes the measured geometry on the root as runtime
+   * properties (`--slotted-navigation-menu-viewport-*`, `-arrow-offset`,
+   * `-available-inline-size`) and `data-positioned` on the viewport once it
+   * has placed it. Without script there is no viewport: the open content
+   * paints the surface itself, so a static render shows the whole panel.
+   *
+   * ── Geometry is the control's ───────────────────────────────────────────
+   *
+   * A trigger and a top-level link are controls: the control scale's height,
+   * inset and type, the height `top-navigation` and every field beside the
+   * row stand at. A link inside a panel starts its text in the column the
+   * trigger's label starts in: the viewport opens at the trigger's inline
+   * start, and the panel's border, its inset and the link's own inset add up
+   * to the control's inline padding.
+   */
+  [data-ui-navigation-menu] {
+    --_control-height: var(--slotted-control-height-md, 34px);
+    --_control-padding: var(--slotted-control-padding-inline-md, 13px);
+    --_control-font-size: var(--slotted-control-font-size-md, 13px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    /** Two pixels between two triggers, so two grounds never read as one control. */
+    --_list-gap: var(--slotted-space-1, 0.125rem);
+    --_radius: var(--slotted-navigation-menu-radius, var(--slotted-control-radius, 4px));
+
+    --_surface: var(--slotted-navigation-menu-surface, var(--slotted-surface-raised, Canvas));
+    --_border-color: var(
+      --slotted-navigation-menu-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+    --_border-width: var(--slotted-border-width-thin, 1px);
+    --_shadow: var(--slotted-navigation-menu-shadow, var(--slotted-shadow-md));
+    --_viewport-radius: var(
+      --slotted-navigation-menu-viewport-radius,
+      var(--slotted-radius-lg, 8px)
+    );
+    /** The distance between the row and the surface, bridged for the pointer. */
+    --_offset: var(--slotted-navigation-menu-offset, var(--slotted-space-2, 0.25rem));
+    /** The surface's own inset, `menu`'s, so a panel and a menu hold their rows alike. */
+    --_inset: var(--slotted-space-2, 0.25rem);
+    /**
+     * One column of rich links: a title and two lines of description beside a
+     * mark. 240 pixels hold "Keep your finances organized." on one line at 12
+     * pixels; ReUI's 248 is the same column less its own inset.
+     */
+    --_column-size: var(--slotted-navigation-menu-column-size, 15rem);
+    --_column-gap: var(--slotted-space-2, 0.25rem);
+    /** The narrowest a group column stands before the panel stacks its groups. */
+    --_group-min: 10rem;
+    /** The gutter the panel keeps from the window's edge when it is moved to fit. */
+    --_gutter: var(--slotted-space-4, 0.5rem);
+
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    /**
+     * Line boxes on whole pixels, `menu`'s rule: 13 × 1.5 is 19.5 and
+     * 12 × 1.45 is 17.4, and a rich link summed them to a fractional height.
+     */
+    --_leading: round(up, calc(var(--_font-size) * var(--slotted-line-height-md, 1.5)), 1px);
+    --_secondary-leading: round(
+      up,
+      calc(var(--_secondary-font-size) * var(--slotted-line-height-sm, 1.45)),
+      1px
+    );
+    /**
+     * The link's inline inset is the control's less the surface's border and
+     * inset, so the panel's first text starts in the column the trigger's
+     * label starts in: 13 − 1 − 4 = 8 at `md`.
+     */
+    --_link-inset-inline: calc(var(--_control-padding) - var(--_border-width) - var(--_inset));
+    --_link-inset-block: var(--slotted-space-4, 0.5rem);
+
+    --_color: var(--slotted-navigation-menu-color, var(--slotted-text, CanvasText));
+    --_muted-color: var(--slotted-navigation-menu-muted-color, var(--slotted-text-muted, GrayText));
+    --_hover-background: var(
+      --slotted-navigation-menu-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    --_active-background: var(
+      --slotted-navigation-menu-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+    --_current-color: var(--slotted-navigation-menu-current-color, var(--slotted-tone-accent-text));
+    --_current-background: var(
+      --slotted-navigation-menu-current-background,
+      var(--slotted-tone-accent-surface)
+    );
+    --_current-edge: var(
+      --slotted-navigation-menu-current-edge,
+      var(--slotted-current-edge, transparent)
+    );
+    --_disabled-color: var(--slotted-disabled-foreground, GrayText);
+
+    --_duration: var(--slotted-control-transition-duration, var(--slotted-duration-short));
+    --_easing: var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+    /** One step of the space scale, R7's distance for a layer that arrives. */
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+    /** How far a section slides when another one takes its place. */
+    --_slide-distance: var(--slotted-space-6, 1rem);
+    /** `translate` is physical; a right-to-left root turns the inline sign. */
+    --_inline-sign: 1;
+    /** The arrow is a square turned a quarter: its diagonal is twice its reach. */
+    --_arrow-size: var(--slotted-space-4, 0.5rem);
+
+    box-sizing: border-box;
+    color: var(--_color);
+    display: flex;
+    font-family: var(--slotted-control-font-family, inherit);
+    font-size: var(--_control-font-size);
+    position: relative;
+  }
+
+  [data-ui-navigation-menu]:dir(rtl) {
+    --_inline-sign: -1;
+  }
+
+  /**
+   * An open root rises to the popover layer and no further: a constant
+   * z-index on a nav would put the row above a dialog's scrim.
+   */
+  [data-ui-navigation-menu]:has(
+    > [data-part-list] > [data-part-item] > [data-part-content][data-open]
+  ) {
+    z-index: var(--slotted-z-index-popover, 1100);
+  }
+
+  /**
+   * While the surface is open, a change of section moves the measured
+   * geometry on the standard curve, and everything placed by it moves with
+   * it. While it is closed nothing transitions: the script writes the next
+   * section's numbers before it opens, and they are simply there.
+   */
+  [data-ui-navigation-menu]:has(> [data-part-viewport][data-open]) {
+    transition:
+      --slotted-navigation-menu-viewport-inline-size var(--slotted-duration-medium)
+        var(--slotted-easing-standard),
+      --slotted-navigation-menu-viewport-block-size var(--slotted-duration-medium)
+        var(--slotted-easing-standard),
+      --slotted-navigation-menu-viewport-inline-start var(--slotted-duration-medium)
+        var(--slotted-easing-standard),
+      --slotted-navigation-menu-viewport-block-start var(--slotted-duration-medium)
+        var(--slotted-easing-standard),
+      --slotted-navigation-menu-arrow-offset var(--slotted-duration-medium)
+        var(--slotted-easing-standard);
+  }
+
+  [data-ui-navigation-menu][data-size='sm'] {
+    --_control-height: var(--slotted-control-height-sm, 30px);
+    --_control-padding: var(--slotted-control-padding-inline-sm, 10px);
+    --_control-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+  }
+
+  [data-ui-navigation-menu][data-size='lg'] {
+    --_control-height: var(--slotted-control-height-lg, 38px);
+    --_control-padding: var(--slotted-control-padding-inline-lg, 16px);
+    --_control-font-size: var(--slotted-control-font-size-lg, 14px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+  }
+
+  [data-ui-navigation-menu] > [data-part-list] {
+    align-items: center;
+    display: flex;
+    gap: var(--_list-gap);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  [data-ui-navigation-menu] > [data-part-list] > [data-part-item] {
+    display: flex;
+  }
+
+  /* ── Trigger and top-level link ──────────────────────────────────────── */
+
+  /**
+   * A section and a destination share one shape: the control's height and
+   * inset, the page's ink at rest and a ground under the pointer, as in
+   * `top-navigation`.
+   */
+  /* Held at the specificity of one attribute, so the current, open and
+     disabled rules below win over it without restating the path. */
+  :where([data-ui-navigation-menu] > [data-part-list] > [data-part-item])
+    > :is([data-part-trigger], [data-part-link]) {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    color: var(--_color);
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    gap: var(--_gap);
+    line-height: var(--slotted-control-line-height, 1);
+    margin: 0;
+    min-block-size: var(--_control-height);
+    padding-block: 0;
+    padding-inline: var(--_control-padding);
+    text-decoration: none;
+    transition:
+      background-color var(--_duration) var(--_easing),
+      color var(--_duration) var(--_easing);
+    white-space: nowrap;
+  }
+
+  [data-ui-navigation-menu]
+    > [data-part-list]
+    > [data-part-item]:not([data-disabled])
+    > [data-part-trigger]:enabled:hover,
+  [data-ui-navigation-menu]
+    > [data-part-list]
+    > [data-part-item]:not([data-disabled])
+    > [data-part-link]:not([data-disabled], [data-current], [aria-current='page']):hover {
+    background-color: var(--_hover-background);
+  }
+
+  [data-ui-navigation-menu]
+    > [data-part-list]
+    > [data-part-item]:not([data-disabled])
+    > [data-part-trigger]:enabled:active,
+  [data-ui-navigation-menu]
+    > [data-part-list]
+    > [data-part-item]:not([data-disabled])
+    > [data-part-link]:not([data-disabled], [data-current], [aria-current='page']):active {
+    background-color: var(--_active-background);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /** An open section holds the ground the pointer gave it. */
+  [data-ui-navigation-menu]
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-trigger][data-open]:enabled {
+    background-color: var(--_hover-background);
+  }
+
+  /**
+   * The section that holds the current page says so with every section
+   * closed: the accent ink on the resting ground. The ground stays the
+   * pointer's, so an open current section reads open first.
+   */
+  [data-ui-navigation-menu]
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-trigger][data-current]:enabled {
+    color: var(--_current-color);
+  }
+
+  [data-ui-navigation-menu] [data-part-link]:is([data-current], [aria-current='page']) {
+    background-color: var(--_current-background);
+    box-shadow: inset 0 0 0 var(--_border-width) var(--_current-edge);
+    color: var(--_current-color);
+  }
+
+  [data-ui-navigation-menu]
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-link]:is([data-current], [aria-current='page']) {
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  [data-ui-navigation-menu] [data-part-trigger]:disabled,
+  [data-ui-navigation-menu] [data-part-link][data-disabled],
+  [data-ui-navigation-menu] [data-part-content] [data-part-link][data-disabled] {
+    color: var(--_disabled-color);
+    cursor: not-allowed;
+  }
+
+  [data-ui-navigation-menu] :is([data-part-trigger], [data-part-link]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * The chevron says the section opens below the row and turns half a turn
+   * while it is open. Down is down in both directions, so its box is not
+   * `directional`; a vertical root draws `chevron-right` in a directional box
+   * and does not turn it, because the section opens where it already points.
+   */
+  [data-ui-navigation-menu] [data-part-indicator] {
+    --slotted-icon-size: var(--_icon-size);
+
+    display: flex;
+    flex: 0 0 auto;
+    margin-inline-end: calc(-1 * var(--slotted-space-2, 0.25rem));
+  }
+
+  [data-ui-navigation-menu] [data-part-indicator] > [data-ui-icon] {
+    transition: rotate var(--slotted-duration-medium) var(--slotted-easing-standard);
+  }
+
+  [data-ui-navigation-menu]:not([data-orientation='vertical'])
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-trigger][data-open]
+    > [data-part-indicator]
+    > [data-ui-icon] {
+    rotate: 0.5turn;
+  }
+
+  /* ── The surface ─────────────────────────────────────────────────────── */
+
+  /**
+   * Sized and placed from the measured content. While it is closed a change
+   * of size snaps, because nothing is seen; while it is open a change of
+   * section moves its size and its place on the standard curve, so the
+   * surface the reader is looking at grows into the next section rather than
+   * being replaced by it.
+   *
+   * R7: the surface arrives one space step above its place and leaves on the
+   * exit curve, never longer than it arrived. The arrival is a keyframe, the
+   * reason `menu` gives: only a surface the script has placed arrives.
+   */
+  [data-ui-navigation-menu] > [data-part-viewport] {
+    background-color: var(--_surface);
+    border: var(--_border-width) solid var(--_border-color);
+    border-radius: var(--_viewport-radius);
+    box-shadow: var(--_shadow);
+    box-sizing: border-box;
+    display: none;
+    block-size: var(--slotted-navigation-menu-viewport-block-size, 0px);
+    inline-size: var(--slotted-navigation-menu-viewport-inline-size, 0px);
+    inset-block-start: calc(100% + var(--_offset));
+    inset-inline-start: var(--slotted-navigation-menu-viewport-inline-start, 0px);
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    translate: 0 calc(-1 * var(--_enter-distance));
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-exit),
+      translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-navigation-menu] > [data-part-viewport][data-positioned] {
+    display: block;
+  }
+
+  [data-ui-navigation-menu] > [data-part-viewport][data-open] {
+    opacity: 1;
+    pointer-events: auto;
+    translate: 0 0;
+    transition: none;
+  }
+
+  [data-ui-navigation-menu] > [data-part-viewport][data-open][data-positioned] {
+    animation: slotted-navigation-menu-enter-down var(--slotted-duration-medium)
+      var(--slotted-easing-enter);
+  }
+
+  /**
+   * The gap between the row and the surface is the surface's, not the
+   * page's: a transparent bridge covers it, so a pointer moving down from a
+   * trigger never leaves the region that keeps the panel open. It paints
+   * nothing.
+   */
+  [data-ui-navigation-menu] > [data-part-viewport]::before {
+    content: '';
+    inset-block-end: 100%;
+    inset-inline: 0;
+    block-size: calc(var(--_offset) + var(--_border-width));
+    position: absolute;
+  }
+
+  @keyframes slotted-navigation-menu-enter-down {
+    from {
+      opacity: 0;
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-navigation-menu-enter-from-start {
+    from {
+      opacity: 0;
+      translate: calc(-1 * var(--_inline-sign) * var(--_enter-distance)) 0;
+    }
+  }
+
+  @keyframes slotted-navigation-menu-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /**
+   * The mark on the surface's edge that points at the open trigger: a square
+   * turned a quarter, painted with the surface and edged on the two sides that
+   * face the row, so it reads as the surface reaching for its trigger. It
+   * slides from trigger to trigger with the surface.
+   */
+  [data-ui-navigation-menu] > [data-part-viewport] > [data-part-arrow] {
+    background-color: var(--_surface);
+    border-block-start: var(--_border-width) solid var(--_border-color);
+    border-inline-start: var(--_border-width) solid var(--_border-color);
+    border-start-start-radius: var(--slotted-radius-xs, 2px);
+    box-sizing: border-box;
+    block-size: var(--_arrow-size);
+    inline-size: var(--_arrow-size);
+    inset-block-start: calc(var(--_arrow-size) / -2 - var(--_border-width) / 2);
+    inset-inline-start: calc(
+      var(--slotted-navigation-menu-arrow-offset, 50%) - var(--_arrow-size) / 2
+    );
+    position: absolute;
+    rotate: calc(var(--_inline-sign) * 45deg);
+  }
+
+  /* ── The panel ───────────────────────────────────────────────────────── */
+
+  /**
+   * Laid over the surface's box with no ground of its own. Its inline size is
+   * stated — so many columns of so much, plus the gaps and the surface's
+   * frame — which is what lets it be a query container: a `max-content`
+   * width under inline-size containment measures nothing. The space the
+   * script measured caps it.
+   */
+  [data-ui-navigation-menu] > [data-part-list] > [data-part-item] > [data-part-content] {
+    --_columns: 1;
+    --_content-size: calc(
+      var(--_columns) * var(--_column-size) + (var(--_columns) - 1) * var(--_column-gap) + 2 *
+        (var(--_inset) + var(--_border-width))
+    );
+
+    border: var(--_border-width) solid transparent;
+    border-radius: var(--_viewport-radius);
+    box-sizing: border-box;
+    color: var(--_color);
+    column-gap: var(--_column-gap);
+    container-name: slotted-navigation-menu-content;
+    container-type: inline-size;
+    display: grid;
+    font-size: var(--_font-size);
+    /**
+     * The panel's own tracks hold its groups, and a query container cannot
+     * query itself: the groups fit as many columns of at least ten rem as the
+     * panel holds, up to its column count, and a narrow panel stacks them.
+     */
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(
+        max(
+          var(--_group-min),
+          calc((100% - (var(--_columns) - 1) * var(--_column-gap)) / var(--_columns))
+        ),
+        1fr
+      )
+    );
+    inline-size: min(
+      var(--_content-size),
+      var(--slotted-navigation-menu-available-inline-size, calc(100vw - 2 * var(--_gutter)))
+    );
+    inset-block-start: calc(100% + var(--_offset));
+    inset-inline-start: var(--slotted-navigation-menu-viewport-inline-start, 0px);
+    line-height: var(--_leading);
+    opacity: 0;
+    padding: var(--_inset);
+    position: absolute;
+    row-gap: var(--_inset);
+    /**
+     * A panel is drawn only inside the surface: while the surface grows or
+     * shrinks into the next section, the part of a panel past the surface's
+     * end and bottom is clipped, the way a panel inside a viewport would be.
+     * At rest the two boxes are the same and nothing is clipped.
+     */
+    clip-path: inset(
+      0 max(0px, calc(100% - var(--slotted-navigation-menu-viewport-inline-size)))
+        max(0px, calc(100% - var(--slotted-navigation-menu-viewport-block-size))) 0 round
+        var(--_viewport-radius)
+    );
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+    z-index: 1;
+  }
+
+  [data-ui-navigation-menu]:dir(rtl) > [data-part-list] > [data-part-item] > [data-part-content] {
+    clip-path: inset(
+      0 0 max(0px, calc(100% - var(--slotted-navigation-menu-viewport-block-size)))
+        max(0px, calc(100% - var(--slotted-navigation-menu-viewport-inline-size))) round
+        var(--_viewport-radius)
+    );
+  }
+
+  [data-ui-navigation-menu]
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-content][data-columns='2'] {
+    --_columns: 2;
+  }
+
+  [data-ui-navigation-menu]
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-content][data-columns='3'] {
+    --_columns: 3;
+  }
+
+  [data-ui-navigation-menu] > [data-part-list] > [data-part-item] > [data-part-content][hidden] {
+    display: none;
+  }
+
+  [data-ui-navigation-menu] > [data-part-list] > [data-part-item] > [data-part-content][data-open] {
+    opacity: 1;
+    transition: none;
+  }
+
+  /**
+   * Without script there is no surface to lay the panel over, so the open
+   * panel paints one itself: a static render, a snippet and a server render
+   * show the whole panel where it stands.
+   */
+  [data-ui-navigation-menu]:not([data-nested]):not(:has(> [data-part-viewport][data-positioned]))
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-content] {
+    background-color: var(--_surface);
+    border-color: var(--_border-color);
+    box-shadow: var(--_shadow);
+    clip-path: none;
+  }
+
+  /**
+   * One section crossing another. The one that leaves slides one step
+   * toward the side the reader moved away from and fades on the exit curve;
+   * the one that arrives comes from the other side on the enter curve, a
+   * duration step longer. The directions are logical: `from-end` is the
+   * section after this one in reading order.
+   */
+  [data-ui-navigation-menu] [data-part-content][data-motion='from-end'] {
+    animation: slotted-navigation-menu-from-end var(--slotted-duration-medium)
+      var(--slotted-easing-enter) both;
+  }
+
+  [data-ui-navigation-menu] [data-part-content][data-motion='from-start'] {
+    animation: slotted-navigation-menu-from-start var(--slotted-duration-medium)
+      var(--slotted-easing-enter) both;
+  }
+
+  [data-ui-navigation-menu] [data-part-content][data-motion='to-end'] {
+    animation: slotted-navigation-menu-to-end var(--slotted-duration-short)
+      var(--slotted-easing-exit) both;
+  }
+
+  [data-ui-navigation-menu] [data-part-content][data-motion='to-start'] {
+    animation: slotted-navigation-menu-to-start var(--slotted-duration-short)
+      var(--slotted-easing-exit) both;
+  }
+
+  @keyframes slotted-navigation-menu-from-end {
+    from {
+      opacity: 0;
+      translate: calc(var(--_inline-sign) * var(--_slide-distance)) 0;
+    }
+  }
+
+  @keyframes slotted-navigation-menu-from-start {
+    from {
+      opacity: 0;
+      translate: calc(-1 * var(--_inline-sign) * var(--_slide-distance)) 0;
+    }
+  }
+
+  @keyframes slotted-navigation-menu-to-end {
+    to {
+      opacity: 0;
+      translate: calc(var(--_inline-sign) * var(--_slide-distance)) 0;
+    }
+  }
+
+  @keyframes slotted-navigation-menu-to-start {
+    to {
+      opacity: 0;
+      translate: calc(-1 * var(--_inline-sign) * var(--_slide-distance)) 0;
+    }
+  }
+
+  /** A list or a footer straight in the panel spans every column. */
+  [data-ui-navigation-menu] [data-part-content] > :is([data-part-links], [data-part-footer]) {
+    grid-column: 1 / -1;
+  }
+
+  [data-ui-navigation-menu] [data-part-links] {
+    display: grid;
+    gap: var(--_column-gap);
+    grid-template-columns: repeat(var(--_columns, 1), minmax(0, 1fr));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /** A group is one column; its list is one column inside it. */
+  [data-ui-navigation-menu] [data-part-group] > [data-part-links] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /**
+   * Below 480 pixels of panel — a phone, or a window the panel was moved to
+   * fit — two columns of 200 are two columns of clipped descriptions, and
+   * the panel falls to one.
+   */
+  @container slotted-navigation-menu-content (inline-size < 480px) {
+    [data-ui-navigation-menu] [data-part-links] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  [data-ui-navigation-menu] [data-part-group] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-1, 0.125rem);
+    min-inline-size: 0;
+  }
+
+  [data-ui-navigation-menu] [data-part-group-label] {
+    color: var(--_muted-color);
+    font-size: var(--_secondary-font-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--_secondary-leading);
+    padding-block: var(--slotted-space-3, 0.375rem) var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_link-inset-inline);
+  }
+
+  /* ── A link inside the panel ─────────────────────────────────────────── */
+
+  /**
+   * A row of the panel: the mark in its own column, the title and the
+   * description stacked beside it. The mark column carries no gap of its
+   * own — a column gap is drawn even when the mark is absent — so the mark
+   * holds its margin and a link with no mark starts its title at the inset.
+   */
+  [data-ui-navigation-menu] [data-part-content] [data-part-link] {
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    color: var(--_color);
+    display: grid;
+    font-weight: var(--slotted-font-weight-regular, 400);
+    grid-template-areas:
+      'icon label'
+      'icon description';
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    line-height: var(--_leading);
+    min-block-size: var(--_control-height);
+    outline-offset: 0;
+    padding-block: var(--_link-inset-block);
+    padding-inline: var(--_link-inset-inline);
+    row-gap: var(--slotted-space-1, 0.125rem);
+    text-decoration: none;
+    transition:
+      background-color var(--_duration) var(--_easing),
+      color var(--_duration) var(--_easing);
+  }
+
+  /** A link of plain words is a row at the control's height, its text centred in it. */
+  [data-ui-navigation-menu] [data-part-content] [data-part-link]:not(:has([data-part-label])) {
+    align-content: center;
+    display: grid;
+    grid-template-areas: none;
+    grid-template-columns: minmax(0, 1fr);
+    padding-block: 0;
+  }
+
+  [data-ui-navigation-menu]
+    [data-part-content]
+    [data-part-link]:not([data-disabled], [data-current], [aria-current='page']):hover {
+    background-color: var(--_hover-background);
+  }
+
+  [data-ui-navigation-menu]
+    [data-part-content]
+    [data-part-link]:not([data-disabled], [data-current], [aria-current='page']):active {
+    background-color: var(--_active-background);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /* The panel's row rule above is as specific as the shared current rule and later; restated here. */
+  [data-ui-navigation-menu]
+    [data-part-content]
+    [data-part-link]:is([data-current], [aria-current='page']) {
+    color: var(--_current-color);
+  }
+
+  [data-ui-navigation-menu]
+    [data-part-content]
+    [data-part-link]:is([data-current], [aria-current='page'])
+    > [data-part-description] {
+    color: inherit;
+  }
+
+  [data-ui-navigation-menu] [data-part-content] [data-part-link]:focus-visible {
+    outline-offset: 0;
+  }
+
+  /**
+   * The mark is one line of the title tall, and its artwork stands on the
+   * title's baseline at the midpoint of the capitals' and the lowercase
+   * letters' centres — the briefing's rule for a mark beside a line of text.
+   */
+  [data-ui-navigation-menu] [data-part-link] > [data-part-icon] {
+    --slotted-icon-size: var(--_icon-size);
+
+    color: var(--_muted-color);
+    grid-area: icon;
+    line-height: var(--_leading);
+    margin-inline-end: var(--slotted-control-gap-md, 8px);
+    transition: color var(--_duration) var(--_easing);
+  }
+
+  [data-ui-navigation-menu] [data-part-link] > [data-part-icon] > [data-ui-icon] {
+    display: inline-block;
+    vertical-align: calc((1cap + 1ex) / 4 - var(--_icon-size) / 2);
+  }
+
+  [data-ui-navigation-menu]
+    [data-part-link]:not([data-disabled], [data-current], [aria-current='page']):hover
+    > [data-part-icon] {
+    color: var(--_color);
+  }
+
+  [data-ui-navigation-menu]
+    [data-part-link]:is([data-current], [aria-current='page'], [data-disabled])
+    > [data-part-icon] {
+    color: inherit;
+  }
+
+  [data-ui-navigation-menu] [data-part-link] > [data-part-label] {
+    font-weight: var(--slotted-font-weight-medium, 500);
+    grid-area: label;
+    min-inline-size: 0;
+  }
+
+  [data-ui-navigation-menu] [data-part-link] > [data-part-description] {
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    color: var(--_muted-color);
+    display: -webkit-box;
+    font-size: var(--_secondary-font-size);
+    grid-area: description;
+    line-clamp: 2;
+    line-height: var(--_secondary-leading);
+    min-inline-size: 0;
+    overflow: hidden;
+  }
+
+  [data-ui-navigation-menu] [data-part-link][data-disabled] > [data-part-description] {
+    color: inherit;
+  }
+
+  /** The panel's last row, under a rule that runs the panel's inner width. */
+  [data-ui-navigation-menu] [data-part-footer] {
+    align-items: center;
+    border-block-start: var(--_border-width) solid var(--_border-color);
+    display: flex;
+    gap: var(--slotted-control-gap-md, 8px);
+    justify-content: space-between;
+    margin-inline: calc(-1 * var(--_inset));
+    padding-block: var(--_inset) 0;
+    /* The words start in the links' column and the action ends on their edge. */
+    padding-inline: calc(var(--_inset) + var(--_link-inset-inline)) var(--_inset);
+  }
+
+  /* ── Vertical ────────────────────────────────────────────────────────── */
+
+  /**
+   * A column of sections whose panels open at its inline end, aligned with
+   * the open trigger's top. The surface arrives along the inline axis it
+   * opens on, the lateral case R7 names for a submenu.
+   */
+  [data-ui-navigation-menu][data-orientation='vertical'] > [data-part-list] {
+    align-items: stretch;
+    flex-direction: column;
+    inline-size: 100%;
+  }
+
+  [data-ui-navigation-menu][data-orientation='vertical']
+    > [data-part-list]
+    > [data-part-item]
+    > :is([data-part-trigger], [data-part-link]) {
+    flex: 1 1 auto;
+    justify-content: space-between;
+  }
+
+  [data-ui-navigation-menu][data-orientation='vertical'] > [data-part-viewport],
+  [data-ui-navigation-menu][data-orientation='vertical']
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-content] {
+    inset-block-start: var(--slotted-navigation-menu-viewport-block-start, 0px);
+    inset-inline-start: calc(
+      var(--slotted-navigation-menu-viewport-inline-start, 100%) + var(--_offset)
+    );
+  }
+
+  /* Without script a vertical panel stands beside the column. */
+  [data-ui-navigation-menu][data-orientation='vertical']:not([data-nested]):not(
+      :has(> [data-part-viewport][data-positioned])
+    )
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-content] {
+    inset-inline-start: calc(100% + var(--_offset));
+  }
+
+  /**
+   * A column with no room at its end — a phone, a narrow sidebar — drops the
+   * panel under the open trigger instead of clipping it at the window's
+   * edge; the script decides it and writes `data-placement`. Under the
+   * trigger the surface arrives, points and bridges as it does under a row.
+   */
+  [data-ui-navigation-menu][data-orientation='vertical'][data-placement='below']:not([data-nested])
+    > [data-part-viewport],
+  [data-ui-navigation-menu][data-orientation='vertical'][data-placement='below']:not([data-nested])
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-content] {
+    inset-block-start: calc(
+      var(--slotted-navigation-menu-viewport-block-start, 100%) + var(--_offset)
+    );
+    inset-inline-start: var(--slotted-navigation-menu-viewport-inline-start, 0px);
+  }
+
+  [data-ui-navigation-menu][data-orientation='vertical']:not([data-placement='below'])
+    > [data-part-viewport] {
+    translate: calc(-1 * var(--_inline-sign) * var(--_enter-distance)) 0;
+  }
+
+  [data-ui-navigation-menu][data-orientation='vertical']:not([data-placement='below'])
+    > [data-part-viewport][data-open] {
+    translate: 0 0;
+  }
+
+  [data-ui-navigation-menu][data-orientation='vertical']:not([data-placement='below'])
+    > [data-part-viewport][data-open][data-positioned] {
+    animation-name: slotted-navigation-menu-enter-from-start;
+  }
+
+  [data-ui-navigation-menu][data-orientation='vertical']:not([data-placement='below'])
+    > [data-part-viewport]::before {
+    block-size: auto;
+    inline-size: calc(var(--_offset) + var(--_border-width));
+    inset-block: 0;
+    inset-inline: auto 100%;
+  }
+
+  [data-ui-navigation-menu][data-orientation='vertical']:not([data-placement='below'])
+    > [data-part-viewport]
+    > [data-part-arrow] {
+    inset-block-start: calc(
+      var(--slotted-navigation-menu-arrow-offset, 50%) - var(--_arrow-size) / 2
+    );
+    inset-inline-start: calc(var(--_arrow-size) / -2 - var(--_border-width) / 2);
+    rotate: calc(var(--_inline-sign) * -45deg);
+  }
+
+  /* Under the trigger, the chevron turns to point where the panel went. */
+  [data-ui-navigation-menu][data-orientation='vertical'][data-placement='below']:not([data-nested])
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-trigger][data-open]
+    > [data-part-indicator]
+    > [data-ui-icon] {
+    rotate: calc(var(--_inline-sign) * 0.25turn);
+  }
+
+  /* ── Nested ──────────────────────────────────────────────────────────── */
+
+  /**
+   * A root inside another root's panel is a second level that switches in
+   * the same panel: its list is a column at the start, and its open section
+   * stands beside it with no surface of its own, because it is already on
+   * one. It draws no viewport; its height is the taller of its list and its
+   * open section, which the script measures into the same property.
+   */
+  [data-ui-navigation-menu][data-nested] {
+    --_nested-list-size: var(--slotted-navigation-menu-nested-list-size, 11rem);
+
+    grid-column: 1 / -1;
+    min-block-size: var(--slotted-navigation-menu-viewport-block-size, auto);
+  }
+
+  /**
+   * The rule between the second level's list and its open section runs the
+   * root's whole height — the taller of the two — rather than the section's,
+   * which left a gap under a section shorter than the list.
+   */
+  [data-ui-navigation-menu][data-nested]::before {
+    background-color: var(--_border-color);
+    content: '';
+    inline-size: var(--_border-width);
+    inset-block: 0;
+    inset-inline-start: calc(var(--_nested-list-size) + var(--_inset) / 2);
+    position: absolute;
+  }
+
+  [data-ui-navigation-menu][data-nested] > [data-part-list] {
+    align-self: flex-start;
+    inline-size: var(--_nested-list-size);
+  }
+
+  [data-ui-navigation-menu][data-nested] > [data-part-viewport] {
+    display: none;
+  }
+
+  [data-ui-navigation-menu][data-nested]
+    > [data-part-list]
+    > [data-part-item]
+    > [data-part-content] {
+    border: 0;
+    border-radius: 0;
+    clip-path: none;
+    inline-size: calc(100% - var(--_nested-list-size) - var(--_inset));
+    inset-block-start: 0;
+    inset-inline-start: calc(var(--_nested-list-size) + var(--_inset));
+    padding-block: 0;
+    padding-inline: var(--_inset) 0;
+  }
+
+  /* ── Reduced motion ──────────────────────────────────────────────────── */
+
+  /* Stillness keeps the fades and drops every movement (R7). */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-navigation-menu] > [data-part-viewport],
+    [data-ui-navigation-menu][data-orientation='vertical'] > [data-part-viewport] {
+      translate: 0 0;
+      transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-navigation-menu] > [data-part-viewport][data-open][data-positioned],
+    [data-ui-navigation-menu][data-orientation='vertical']
+      > [data-part-viewport][data-open][data-positioned] {
+      animation-name: slotted-navigation-menu-fade;
+    }
+
+    [data-ui-navigation-menu]
+      [data-part-content]:is([data-motion='from-end'], [data-motion='from-start']) {
+      animation-name: slotted-navigation-menu-fade;
+    }
+
+    [data-ui-navigation-menu]
+      [data-part-content]:is([data-motion='to-end'], [data-motion='to-start']) {
+      animation: none;
+      opacity: 0;
+    }
+  }
+}

@@ -1,0 +1,375 @@
+@layer slotted.components {
+  /**
+   * ── A region, and the control that gives it the whole screen ───────────
+   *
+   * At rest the region paints nothing: it is the container the consumer
+   * already had, and the family owes it no ground, no edge and no inset. The
+   * picture this sheet owns is the region while it is full screen, in either
+   * of the two ways `@slotted/core/fullscreen` answers with, and the control.
+   *
+   * `native` is the Fullscreen API. The agent's own sheet already makes the
+   * element fill the screen (`position: fixed`, `inset: 0`, `inline-size` and
+   * `block-size` at `100%`, `transform: none`, every one `!important`) and
+   * draws a black `::backdrop` behind it. What it does not draw is a ground:
+   * an element with none shows the black through it, so a region of text
+   * went full screen as text on black. The ground is the theme's page ground,
+   * and the backdrop takes the same colour so the edge of the region never
+   * shows.
+   *
+   * `layout` is the same picture drawn by this sheet, fixed over the viewport
+   * inside the page, for the page that may not ask the agent: a phone's
+   * browser, an iframe without `allow="fullscreen"`, a refused request. The
+   * two ways are one component; only `data-mode` tells them apart.
+   */
+  [data-ui-fullscreen][data-part-root][data-fullscreen] {
+    /* The region is the viewport in full screen, so the viewport is what the
+       inset answers: the page step on a desktop, down to the small step on a
+       phone, where twenty-four pixels a side is an eighth of the width. */
+    --_inset: var(
+      --slotted-fullscreen-inset,
+      clamp(var(--slotted-space-5, 0.75rem), 5vw, var(--slotted-space-8, 1.5rem))
+    );
+
+    background-color: var(--slotted-fullscreen-surface, var(--slotted-surface, Canvas));
+    /* A full screen has no edge to round and no frame to draw. */
+    border: 0;
+    border-radius: 0;
+    box-sizing: border-box;
+    color: var(--slotted-text, CanvasText);
+    /**
+     * The region scrolls by itself when its content is taller than the
+     * screen, and the scroll does not chain to the page underneath, which in
+     * `layout` is still there and locked.
+     */
+    overflow: auto;
+    overscroll-behavior: contain;
+    /**
+     * The inset, and never less than the safe area: a phone held sideways
+     * puts its notch over the inline edges, and a home indicator over the
+     * block end. The safe area is physical and this sheet is logical, so the
+     * inline inset takes the larger of the two sides for both — a pixel of
+     * symmetry spent against a notch on the wrong side in right-to-left.
+     */
+    padding-block-end: max(var(--_inset), env(safe-area-inset-bottom, 0px));
+    padding-block-start: max(var(--_inset), env(safe-area-inset-top, 0px));
+    padding-inline: max(
+      var(--_inset),
+      env(safe-area-inset-left, 0px),
+      env(safe-area-inset-right, 0px)
+    );
+  }
+
+  /**
+   * ── The height ────────────────────────────────────────────────────────
+   *
+   * The agent stretches the fullscreen element and none of its children, and
+   * so does `inset: 0` in the layout: the region filled the screen and its
+   * content kept its own height, a chart the size of a card at the top of an
+   * empty screen. The width never had the problem, because a block child
+   * stretches across its container; the height is the axis this sheet owes.
+   *
+   * The region becomes a column. It is written in the library's layer and
+   * not `!important`, unlike the geometry of the layout: a consumer who gave
+   * the region a grid or a flex of their own keeps it, and a grid of definite
+   * height already stretches its rows. A child keeps at least its own height
+   * (the automatic minimum of a flex item), so content taller than the screen
+   * still scrolls in the region.
+   */
+  [data-ui-fullscreen][data-part-root][data-fullscreen] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /**
+   * The content part takes the height the other children leave — a header
+   * above it, a footer under it — and is never shorter than what it holds.
+   * Its first child takes that height; any child after it keeps its own, so
+   * a caption under a chart stays a line rather than half the screen. Two
+   * things that share the height are a layout of the consumer's inside the
+   * first child. The grid exists only in full screen: at rest the part is
+   * whatever the consumer made it.
+   *
+   * A direct child carrying the family's own identifier, as the control
+   * does. `content` is also the name of the layer of `select`, `popover` and
+   * `dialog`, and the portal puts those layers inside the region while it is
+   * full screen; a descendant selector on the part alone turned an open list
+   * into a grid. A flex share only reaches a direct child in any case.
+   */
+  [data-ui-fullscreen][data-part-root][data-fullscreen] > [data-ui-fullscreen][data-part-content] {
+    display: grid;
+    flex: 1 0 auto;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(min-content, 1fr);
+  }
+
+  /**
+   * A region with one child and no content part gives that child the
+   * height: the panel or the card a region most often is. The control is
+   * never that child's stand-in — a region holding only its control has
+   * nothing to fill.
+   *
+   * One child, not counting the portal's root. In native full screen
+   * `@slotted/core/portal` appends its root to the region so a menu opened
+   * inside is painted; `:only-child` would stop matching the moment the
+   * menu opened, and the panel would drop to its own height under it. The
+   * root is always appended last.
+   */
+  [data-ui-fullscreen][data-part-root][data-fullscreen]
+    > :first-child:is(:last-child, :has(+ [data-slotted-portal]:last-child)):not(
+      [data-part-trigger],
+      img,
+      video,
+      canvas
+    ) {
+    flex: 1 0 auto;
+  }
+
+  /**
+   * A lone picture, film or canvas fills the height as well, and keeps its
+   * ratio inside it: `object-fit: contain`, the answer the agent's own sheet
+   * gives a video in full screen. It may shrink below its natural height,
+   * which a photograph taller than the screen has to.
+   */
+  [data-ui-fullscreen][data-part-root][data-fullscreen]
+    > :is(img, video, canvas):first-child:is(
+      :last-child,
+      :has(+ [data-slotted-portal]:last-child)
+    ) {
+    flex: 1 1 0;
+    inline-size: 100%;
+    min-block-size: 0;
+    object-fit: contain;
+  }
+
+  [data-ui-fullscreen][data-part-root]::backdrop {
+    background-color: var(--slotted-fullscreen-surface, var(--slotted-surface, Canvas));
+  }
+
+  /**
+   * ── In the layout ─────────────────────────────────────────────────────
+   *
+   * Fixed over the viewport at the overlay step plus the layer's depth in
+   * the one stack `dismissable-layer` keeps, the formula `dialog` reads: a
+   * menu or a select opened from inside the region registers after it and
+   * stands above it.
+   *
+   * The geometry is `!important`, as the agent's own sheet makes it for
+   * `native`. The root is the consumer's container, so the consumer's
+   * unlayered stylesheet styles it and beats this layer: a card written
+   * `position: relative` with a margin and a width stayed a card inside the
+   * page and never covered it. Nothing else here is `!important` — the ground,
+   * the edge and the inset stay the consumer's to change in full screen.
+   */
+  [data-ui-fullscreen][data-part-root][data-mode='layout'] {
+    animation: slotted-fullscreen-enter var(--slotted-duration-short) var(--slotted-easing-enter);
+    block-size: auto !important;
+    inline-size: auto !important;
+    inset: 0 !important;
+    margin: 0 !important;
+    max-block-size: none !important;
+    max-inline-size: none !important;
+    min-block-size: 0 !important;
+    min-inline-size: 0 !important;
+    position: fixed !important;
+    transform: none !important;
+    z-index: calc(var(--slotted-z-index-overlay, 1000) + var(--slotted-layer-depth, 0)) !important;
+  }
+
+  /**
+   * The ground arrives rather than the region jumping: a fade from the page
+   * to the region's own ground, over the short step. The agent does its own
+   * transition for `native`, so only `layout` animates. Nothing moves, so
+   * reduced motion keeps the step at the foundation's collapsed duration.
+   */
+  @keyframes slotted-fullscreen-enter {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /**
+   * ── The control ───────────────────────────────────────────────────────
+   *
+   * A button whose words and mark say what the press does next: "Full
+   * screen" beside the four corners opening, "Exit full screen" beside the
+   * four corners closing. It is not a toggle: the Button pattern says a
+   * control whose label changes with its state is not announced as pressed,
+   * so it carries no `aria-pressed` and no "on" colour. The geometry is the
+   * control scale's, the same box `toggle` and `button` stand in, so the
+   * control sits in a toolbar beside them without a pixel of difference.
+   */
+  [data-ui-fullscreen][data-part-trigger] {
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+
+    align-items: center;
+    appearance: none;
+    background: transparent;
+    block-size: var(--_height);
+    /* Always a border, so the outline variant's edge never moves the label. */
+    border: var(--slotted-control-border-width, 1px) solid transparent;
+    border-radius: var(--slotted-fullscreen-trigger-radius, var(--slotted-control-radius, 4px));
+    box-sizing: border-box;
+    color: var(--slotted-fullscreen-trigger-color, var(--slotted-text, ButtonText));
+    cursor: pointer;
+    display: inline-flex;
+    /* It gives way beside a title in a narrow bar: the words clip, the mark and
+       the square the height sets stay. */
+    flex: 0 1 auto;
+    font-family: var(--slotted-control-font-family, ui-sans-serif, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-control-font-weight, 600);
+    gap: var(--_gap);
+    justify-content: center;
+    letter-spacing: var(--slotted-control-letter-spacing, 0);
+    line-height: var(--slotted-control-line-height, 1);
+    margin: 0;
+    max-inline-size: 100%;
+    min-inline-size: var(--_height);
+    padding-block: 0;
+    padding-inline: var(--_padding-inline);
+    position: relative;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    user-select: none;
+    vertical-align: middle;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-fullscreen][data-part-trigger][data-size='sm'] {
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+  }
+
+  [data-ui-fullscreen][data-part-trigger][data-size='lg'] {
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 16px);
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+  }
+
+  /* ── Content ──────────────────────────────────────────────────────────── */
+
+  /**
+   * The slot sizes what it holds: the family's own mark, an `Icon` the binding
+   * draws from the state (four corners opening, four corners closing), or a
+   * consumer's icon placed in its stead, each at the control's icon step and
+   * in the host's ink.
+   */
+  [data-ui-fullscreen] [data-part-icon] {
+    --slotted-icon-size: var(--_icon-size);
+
+    block-size: var(--_icon-size);
+    display: inline-flex;
+    flex: none;
+    font-size: var(--_icon-size);
+    inline-size: var(--_icon-size);
+  }
+
+  [data-ui-fullscreen] [data-part-icon] > * {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+  }
+
+  /**
+   * The words stay on one line and clip with an ellipsis when a narrow
+   * container is shorter than a translated label; the string stays whole in
+   * the DOM and in the accessible name.
+   */
+  [data-ui-fullscreen] [data-part-label] {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /**
+   * Icon only: a square holding the mark, and the words kept for a screen
+   * reader. The label is visually hidden rather than removed, which keeps
+   * the accessible name the label the state gives it.
+   */
+  [data-ui-fullscreen][data-part-trigger][data-icon-only] {
+    inline-size: var(--_height);
+    padding-inline: 0;
+  }
+
+  [data-ui-fullscreen][data-part-trigger][data-icon-only] [data-part-label] {
+    block-size: 1px;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  /* ── The edge ─────────────────────────────────────────────────────────── */
+
+  /**
+   * An outline control over a region of photographs or a chart in full
+   * screen needs its own ground, or the edge is all that separates the words
+   * from what is behind them.
+   */
+  [data-ui-fullscreen][data-part-trigger][data-variant='outline'] {
+    background-color: var(--slotted-control-surface, ButtonFace);
+    border-color: var(
+      --slotted-fullscreen-trigger-border-color,
+      var(--slotted-control-border-color, ButtonBorder)
+    );
+    box-shadow: var(--slotted-control-shadow, none);
+  }
+
+  /* ── Hover and press, held back for disabled ─────────────────────────── */
+
+  [data-ui-fullscreen][data-part-trigger]:hover:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-fullscreen-trigger-hover-background,
+      var(--slotted-tone-secondary-subtle-hover, ButtonFace)
+    );
+  }
+
+  [data-ui-fullscreen][data-part-trigger]:active:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-fullscreen-trigger-active-background,
+      var(--slotted-tone-secondary-subtle-active, ButtonFace)
+    );
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /* ── Focus ────────────────────────────────────────────────────────────── */
+
+  [data-ui-fullscreen][data-part-trigger]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── Disabled ─────────────────────────────────────────────────────────── */
+
+  [data-ui-fullscreen][data-part-trigger]:disabled,
+  [data-ui-fullscreen][data-part-trigger][data-disabled] {
+    background-color: transparent;
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: not-allowed;
+  }
+
+  [data-ui-fullscreen][data-part-trigger][data-variant='outline']:disabled,
+  [data-ui-fullscreen][data-part-trigger][data-variant='outline'][data-disabled] {
+    border-color: var(--slotted-disabled-border, GrayText);
+    box-shadow: none;
+  }
+}

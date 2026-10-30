@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 5,
+  "family": "progress-indicator",
+  "ui": "progress-indicator",
+  "catalog": {
+    "group": "Feedback",
+    "summary": "Progress bar or ring, known or indeterminate."
+  },
+  "absorbs": ["spinner", "progress-bar", "loading-bar"],
+  "components": {
+    "progressBar": "linear",
+    "progressCircle": "circular",
+    "loader": "morph"
+  },
+  "measured": ["progressBar", "progressCircle"],
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "tone": ["accent", "secondary", "info", "success", "warning", "danger"],
+    "placement": ["inline", "page", "edge-start", "edge-end"]
+  },
+  "edge": {
+    "box": "edge-start stands on the block-start edge of the nearest positioned box and edge-end on its block-end edge, the whole inline size of that box. The box is the placer's: app-shell and page-header each render one as their progress part",
+    "line": "the bar covers the line the edge already draws when the box is a frame with no border of its own, as both hosts' progress parts are; inside a bordered box it stands just inside the border. No track, no stop indicator, no radius: the box's corners clip the bar. hideLabel is implied, as under page",
+    "motion": "it grows out of the edge it stands on and collapses back into it: a clip-path inset from the edge, never a scale, because the root holds the label, entering on --slotted-duration-medium and --slotted-easing-enter through @starting-style, leaving on --slotted-duration-short and --slotted-easing-exit with display transitioned as a discrete property. page shares it, as the edge bar of the viewport",
+    "forcedColors": "the track keeps no outline of its own: the host already draws the edge in a system colour, and a second outline would be a second line"
+  },
+  "stateAttributes": {
+    "indeterminate": "data-indeterminate",
+    "complete": "data-complete"
+  },
+  "members": {
+    "progressIndicator": {
+      "nativeElement": "div",
+      "defaults": {
+        "min": 0,
+        "max": 100,
+        "size": "md",
+        "tone": "accent",
+        "placement": "inline",
+        "hideLabel": false,
+        "showValue": false,
+        "wave": false,
+        "contained": false,
+        "decorative": false,
+        "loading": true,
+        "delay": 0,
+        "minDuration": 0
+      },
+      "capabilities": ["measurement", "appearance", "size", "placement", "loading", "decorative"],
+      "states": ["default", "indeterminate", "complete"],
+      "parts": ["root", "label", "value", "track", "indicator"]
+    }
+  },
+  "scenarios": {
+    "progressIndicator": [
+      "playground",
+      "recipes",
+      "determinate",
+      "indeterminate",
+      "loader",
+      "wave",
+      "waveRamp",
+      "wavePace",
+      "waveIndeterminate",
+      "waveSizes",
+      "buffer",
+      "sizes",
+      "tones",
+      "timing",
+      "page",
+      "content",
+      "composition",
+      "accessibility"
+    ]
+  }
+}

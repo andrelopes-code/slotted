@@ -1,0 +1,2586 @@
+@layer slotted.components {
+  /**
+   * ── The frame and the widget ───────────────────────────────────────────
+   *
+   * The root is the frame, the `grid` role and the box that owns the height;
+   * the scroller is one element in. `table` divides the same way and for the
+   * same reason: `position: sticky` resolves against the nearest scrolling
+   * ancestor, and what the frame holds is everything that must not move when
+   * the grid scrolls — the border, the radius, the clip, the footer bar and
+   * every `aria-*` property the widget carries.
+   *
+   * Every token is declared here so both boxes and every cell read one set.
+   * The geometry is `table`'s under this family's prefix, so a listing screen
+   * that puts a table beside a grid sees one row height, one band and one
+   * rule; what the grid adds — the cursor, the range, the resizer, the drop
+   * indicator, the group and the filter row — is declared after the shared
+   * set.
+   */
+  [data-ui-data-grid][data-part-root] {
+    /* Geometry. Every value is the control scale's, so one theme decision
+       retunes the rows, the buttons and the fields together, and
+       `@media (pointer: coarse)` grows all three at once. */
+    /* The head, the filter row, the summary and the footer are the control's
+       height at every density; a body row is that too unless the consumer
+       states one — a row of avatars is taller than a row of text, and the
+       head over it is not. */
+    --_head-block: var(--slotted-data-grid-head-block-size, var(--slotted-control-height-md, 34px));
+    --_row-block: var(--slotted-data-grid-row-block-size, var(--_head-block));
+    --_row-max-block: var(--slotted-data-grid-row-max-block-size, calc(var(--_row-block) * 4));
+    --_font-size: var(--slotted-data-grid-font-size, var(--slotted-control-font-size-md, 13px));
+    --_icon-size: var(--slotted-data-grid-icon-size, var(--slotted-control-icon-size-md, 16px));
+    --_gap: var(--slotted-data-grid-gap, var(--slotted-control-gap-md, 8px));
+    --_pad-inline: var(
+      --slotted-data-grid-cell-padding-inline,
+      var(--slotted-control-padding-inline-md, 13px)
+    );
+    /* What is left of the control's height around one line of text, so a
+       one-line row is exactly the control height at every density. A floor of
+       one space step keeps a wrapped row from losing its inset. Derived from
+       the head's height, not the row's: a stated row height centres its cells
+       and pads nothing. */
+    --_pad-block: var(
+      --slotted-data-grid-cell-padding-block,
+      max(
+        var(--slotted-space-2, 0.25rem),
+        calc((var(--_head-block) - var(--_font-size) * var(--slotted-line-height-md, 1.5)) / 2)
+      )
+    );
+    --_line: calc(var(--_font-size) * var(--slotted-line-height-md, 1.5));
+    --_radius: var(--slotted-data-grid-radius, var(--slotted-radius-md, 6px));
+    --_rule: var(--slotted-data-grid-border-color, var(--slotted-border-subtle, ButtonBorder));
+    --_rule-strong: var(
+      --slotted-data-grid-border-color-strong,
+      var(--slotted-border-strong, ButtonBorder)
+    );
+    --_rule-width: var(--slotted-data-grid-border-width, var(--slotted-border-width-thin, 1px));
+    /* The shadow's ink is the scrim's — dark in every scheme, as a shadow is —
+       and not the text's, which is white on a dark ground: mixed from the
+       text, the shadow under a pinned column was a white haze at night. */
+    --_edge-shadow: var(
+      --slotted-data-grid-pin-shadow-color,
+      color-mix(in oklab, var(--slotted-scrim, rgb(0 0 0 / 0.5)) 22%, transparent)
+    );
+    --_edge-shadow-size: var(--slotted-data-grid-pin-shadow-size, var(--slotted-space-5, 0.75rem));
+    --_indent: var(--slotted-data-grid-indent, var(--slotted-space-6, 1rem));
+
+    /* Ink and ground. The row's ground is stated rather than transparent,
+       because a pinned cell inherits it to cover the cells sliding under it. */
+    --_text: var(--slotted-data-grid-color, var(--slotted-text, CanvasText));
+    --_muted: var(--slotted-data-grid-color-muted, var(--slotted-text-muted, GrayText));
+    /* The ground a raised container publishes (a card, a section on a surface),
+       else the page's surface. */
+    --_surface: var(
+      --slotted-data-grid-surface,
+      var(--slotted-ground, var(--slotted-surface, Canvas))
+    );
+    /* The header band, mixed from the ink at 8% as `table` mixes it: neutral,
+       darker than the page in light and lighter in dark, and one step above
+       the stripe at 5%. A group row and the filter row take the same mix at
+       4%, so the three grounds of the family are one idea at three strengths. */
+    --_head-surface: var(
+      --slotted-data-grid-header-surface,
+      color-mix(in oklab, var(--slotted-text, CanvasText) 8%, var(--_surface))
+    );
+    --_head-surface-hover: var(
+      --slotted-data-grid-header-surface-hover,
+      color-mix(in oklab, var(--slotted-text, CanvasText) 7%, var(--_head-surface))
+    );
+    --_band-surface: var(
+      --slotted-data-grid-band-surface,
+      color-mix(in oklab, var(--slotted-text, CanvasText) 4%, var(--_surface))
+    );
+    --_stripe: var(
+      --slotted-data-grid-row-surface-stripe,
+      color-mix(in oklab, var(--slotted-text, CanvasText) 5%, var(--_surface))
+    );
+    --_hover: var(
+      --slotted-data-grid-row-surface-hover,
+      var(--slotted-tone-secondary-subtle-hover, ButtonFace)
+    );
+    /**
+     * A run of selected rows reads as one block: the accent border mixed
+     * into the row's ground, the same border closing the run above and
+     * below, and every rule inside it — between rows and at a pinned zone's
+     * edge — tinted toward that border; no rail (R1). The ink stays the
+     * row's own. The ground mixes the border, which is the light accent in
+     * the dark scheme and the dark one in the light: at 20% it stands 1.3:1
+     * from the page in both on the default theme, above the stripe and the
+     * hover. The accent's surfaces read as nothing on a dark row, and its
+     * solid ink at any one share was twice as strong in light as in dark.
+     */
+    --_selected-edge: var(
+      --slotted-data-grid-row-border-color-selected,
+      var(--slotted-tone-accent-border, Highlight)
+    );
+    --_selected: var(
+      --slotted-data-grid-row-surface-selected,
+      color-mix(in oklab, var(--_selected-edge) 20%, var(--_surface))
+    );
+    --_selected-hover: var(
+      --slotted-data-grid-row-surface-selected-hover,
+      color-mix(in oklab, var(--_selected-edge) 28%, var(--_surface))
+    );
+    --_selected-text: var(--slotted-data-grid-row-color-selected, var(--_text));
+    --_selected-rule: color-mix(in oklab, var(--_selected-edge) 30%, var(--_selected));
+    /**
+     * The cursor and the range are one colour: the accent border, which holds
+     * the non-text ratio against the page and against the accent ground it
+     * encloses (`docs/token-foundation.md`, Semantic colour). The cursor is
+     * drawn at 60% while the grid has no focus — a reader back from a popover
+     * finds where they were — and whole under `:focus-visible`.
+     */
+    --_cursor: var(--slotted-data-grid-cursor-color, var(--slotted-tone-accent-border, Highlight));
+    /* The cursor at rest is the theme's own ring at 60%: the same trace the
+       cell draws whole under `:focus-visible`, so a reader sees one mark in
+       two strengths and not two marks. */
+    --_cursor-rest: color-mix(
+      in oklab,
+      var(--slotted-focus-ring-color, Highlight) 60%,
+      transparent
+    );
+    --_range: var(--slotted-data-grid-range-surface, var(--slotted-tone-accent-surface, Canvas));
+    /* The accent's solid ink at a quarter, over whatever the row is: the
+       accent's own surfaces are a step from the page in the dark scheme and
+       read as nothing on a row. */
+    --_changed: var(
+      --slotted-data-grid-changed-surface,
+      color-mix(in oklab, var(--slotted-tone-accent-solid, Highlight) 24%, transparent)
+    );
+    --_ring-width: var(--slotted-focus-ring-width, 2px);
+    /* A control drawn by the family — the column menu, the filter trigger, the
+       expander, the group toggle — is the target minimum where the row has
+       room and the row less the cursor's ring where it has not: at dense the
+       track is 26 pixels and a 24-pixel button stood over the two-pixel ring
+       drawn inward on both sides of it. */
+    --_control: min(
+      var(--slotted-target-min, 24px),
+      calc(
+        min(var(--_row-block), var(--_head-block)) - var(--_ring-width) * 2 -
+          var(--slotted-space-1, 0.125rem) * 2
+      )
+    );
+    /* The control scale as the theme states it, read here once: a body row
+       restates the scale for what its cells hold (below), and a property
+       cannot read its own inherited value. */
+    --_control-height-sm: var(--slotted-control-height-sm, 30px);
+    --_control-height-md: var(--slotted-control-height-md, 34px);
+    --_control-height-lg: var(--slotted-control-height-lg, 38px);
+    --_target-min: var(--slotted-target-min, 24px);
+    /* Its glyph keeps two pixels of air inside the control's ground, so at
+       dense — a 17-pixel control in a 25-pixel track — the ground reads as a
+       button and not as a filled cell. */
+    --_control-icon: min(
+      var(--_icon-size),
+      calc(var(--_control) - var(--slotted-space-2, 0.25rem))
+    );
+    /* The track a body row lays its cells on: the row's height less the rule
+       under it, so the cells end where the rule begins. Stated as the whole
+       row, the cells overflowed the row's content box by the rule's width and
+       a pinned cell, painted above its row, covered the rule — read on the
+       pinning scene, where the pinned column had no lines between its rows. */
+    --_track: var(--_row-block);
+    --_transition: var(--slotted-control-transition-duration, var(--slotted-duration-short))
+      var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+
+    background-color: var(--_surface);
+    /* The grid owns its height. `block-size` is the consumer's — a prop on
+       the root or the token — and without it the frame grows to its content:
+       correct, and windowing nothing, because the window is the whole set. */
+    block-size: var(--slotted-data-grid-block-size, auto);
+    box-sizing: border-box;
+    color: var(--_text);
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-data-grid-font-family, var(--slotted-control-font-family));
+    font-size: var(--_font-size);
+    /* Every step the sticky parts take is taken inside this box, so a pinned
+       column scrolling past an application's own bar does not paint over it. */
+    isolation: isolate;
+    line-height: var(--slotted-line-height-md, 1.5);
+    max-inline-size: 100%;
+    min-block-size: 0;
+    position: relative;
+  }
+
+  [data-ui-data-grid][data-variant='framed'] {
+    border: var(--_rule-width) solid var(--_rule);
+    border-radius: var(--_radius);
+    /* A box standing on the page takes the surface step, as table's frame does. */
+    box-shadow: var(--slotted-data-grid-shadow, var(--slotted-shadow-xs, none));
+    /* `clip` and not `hidden`: `hidden` makes the box a scroll container, and
+       under `stickyTo="page"` the header would stick to the frame instead. */
+    overflow: clip;
+  }
+
+  /**
+   * ── The scroller ───────────────────────────────────────────────────────
+   *
+   * Both axes. It is the window the virtualiser measures, so it takes the room
+   * the frame leaves after the footer and scrolls what does not fit.
+   */
+  [data-ui-data-grid] > [data-part-scroll] {
+    /* No `container-type`. A detail row, a group row and the empty state are
+       held to the frame by `--slotted-data-grid-viewport`, the scroller's
+       width the binding measures. As a size container the scroller made the
+       browser recalculate and lay out everything inside it whenever a row
+       entered or left: 45 ms of layout per scroll step on a grid of 29 mounted
+       rows, against 3 ms without it. */
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow: auto;
+    /* Contained across, chained down. The scroller is a scroll container on
+       both axes whether or not it overflows on both, and a block axis held
+       back swallowed every vertical drag started over the grid: on a phone,
+       where the grid is as tall as its rows and the page is what scrolls,
+       a finger on the grid moved nothing. The inline axis stays contained,
+       so a sideways drag over the columns never reaches the browser's
+       back gesture. */
+    overscroll-behavior-block: auto;
+    overscroll-behavior-inline: contain;
+    /* The rows are as wide as the template and the template may be wider than
+       the frame; the scroller is what gives the header, the body and the
+       summary one width to share. */
+    position: relative;
+  }
+
+  [data-ui-data-grid][data-sticky-to='page'] > [data-part-scroll] {
+    overflow: visible;
+  }
+
+  /**
+   * ── Rows are grids ─────────────────────────────────────────────────────
+   *
+   * Every row — header, filter, body, group, detail, summary — is one CSS grid
+   * with the same template, written by the binding as
+   * `--slotted-data-grid-template` on the root: one track per visible column
+   * in the state's order, a pixel width or `minmax(min, flex fr)`. A cell
+   * writes `grid-column` explicitly through `--slotted-data-grid-column`,
+   * because with column virtualisation cells are missing from the DOM and
+   * auto-placement would move the cells that are there into the tracks of the
+   * cells that are not.
+   *
+   * `min-inline-size: 100%` is what lets a grid narrower than its frame fill
+   * it when a column takes `flex`, and `inline-size: fit-content` what lets a
+   * wider one scroll: a row stops at the frame unless the template's own
+   * minimum — the fixed widths and the flexible columns' floors — is wider.
+   * Sized to `max-content`, a flexible column grew with its longest value
+   * past the frame on a phone and the value never truncated; the cell's
+   * overflow rule only works on a track that has stopped growing.
+   */
+  /* The grid's own rows are the children of its four row groups and no
+     other: a widget inside a cell may hold rows of its own — a multi-select's
+     chips are a `row` of a grid pattern — and a descendant selector laid its
+     chips out on this grid's column template. */
+  [data-ui-data-grid]
+    > [data-part-scroll]
+    > :is(
+      [data-part-head],
+      [data-part-body],
+      [data-part-pinned-rows],
+      [data-part-summary],
+      [data-part-loader]
+    )
+    > [role='row'] {
+    box-sizing: border-box;
+    display: grid;
+    /* The template, then a filler track that takes whatever the frame has
+       left. A row is as wide as the frame or as the template, whichever is
+       wider, and with no filler a template narrower than the frame left a
+       white strip beside the header band — read on the grouping scene. The
+       filler holds no cell; the row's own ground and rule cover it, which is
+       why both are painted on the row and not on its cells. It is `auto`, not
+       `1fr`: a flexible track takes the free space before an auto track is
+       stretched, so a column with `flex` fills the frame and the filler is
+       nought; as `1fr` the filler took half the frame beside it. */
+    grid-template-columns: var(--slotted-data-grid-template, none) auto;
+    inline-size: fit-content;
+    min-inline-size: 100%;
+  }
+
+  /* The rules between rows are the rows' own: a row is a block box, unlike a
+     table row, so its border runs the whole width, filler included. */
+  [data-ui-data-grid] [data-part-header-row] {
+    background-color: var(--_head-surface);
+    border-block-end: var(--_rule-width) solid var(--_rule-strong);
+  }
+
+  /* A row of column groups stands above the row of names, and the rule
+     between the two is the lighter one; the strong rule is the last header
+     row's, over the values. */
+  [data-ui-data-grid] [data-part-header-row]:not(:last-of-type) {
+    border-block-end-color: var(--_rule);
+  }
+
+  [data-ui-data-grid][data-variant='plain'] [data-part-header-row] {
+    background-color: transparent;
+  }
+
+  [data-ui-data-grid] [data-part-filter-row] {
+    background-color: var(--_band-surface);
+    border-block-end: var(--_rule-width) solid var(--_rule);
+  }
+
+  [data-ui-data-grid]
+    > [data-part-scroll]
+    > :is(
+      [data-part-head],
+      [data-part-body],
+      [data-part-pinned-rows],
+      [data-part-summary],
+      [data-part-loader]
+    )
+    > [role='row']
+    > * {
+    grid-column: var(--slotted-data-grid-column, auto);
+  }
+
+  /* A row group is as wide as its rows, never narrower: a block box the
+     scroller's width with wider rows inside it is a box its own rows overflow,
+     which the page audit reads as a defect and a reader never sees. Sized to
+     the rows, the only thing that scrolls is the scroller. */
+  [data-ui-data-grid]
+    > [data-part-scroll]
+    > :is(
+      [data-part-head],
+      [data-part-body],
+      [data-part-pinned-rows],
+      [data-part-summary],
+      [data-part-loader]
+    ) {
+    inline-size: fit-content;
+    min-inline-size: 100%;
+  }
+
+  /**
+   * ── The header ─────────────────────────────────────────────────────────
+   *
+   * A column header is what a screen reader repeats for every cell under it,
+   * so it is set in the page's own ink. It is a cell of the cursor, a sort
+   * control, a place for the column's own controls and a resizer, and every
+   * one of those is a box inside a flex row rather than a `button` wrapping
+   * the name: the pattern puts the cursor on the header cell itself, and a
+   * `button` inside a `columnheader` would be a widget the cursor has to
+   * enter.
+   */
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-head] {
+    inset-block-start: var(--slotted-data-grid-sticky-offset, 0);
+    position: sticky;
+    z-index: calc(var(--slotted-z-index-sticky, 100) + 1);
+  }
+
+  [data-ui-data-grid]:not([data-sticky-header]) > [data-part-scroll] > [data-part-head] {
+    position: static;
+  }
+
+  [data-ui-data-grid] [data-part-column-header],
+  [data-ui-data-grid] [data-part-column-group],
+  [data-ui-data-grid]
+    > [data-part-scroll]
+    > [data-part-head]
+    > [role='row']
+    > [data-part-selection] {
+    align-items: center;
+    background-color: var(--_head-surface);
+    box-sizing: border-box;
+    color: var(--_text);
+    display: flex;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    gap: var(--slotted-space-2, 0.25rem);
+    min-block-size: var(--_head-block);
+    min-inline-size: 0;
+    padding-block: var(--_pad-block);
+    padding-inline: var(--_pad-inline);
+    /* The actions slot and the resizer are positioned against the cell. Stated
+       here, before the pinned rules, so a `position` written beside the slot
+       cannot land after `sticky` and unpin the corner. */
+    position: relative;
+    text-align: start;
+    transition: background-color var(--_transition);
+  }
+
+  [data-ui-data-grid][data-variant='plain']
+    :is([data-part-column-header], [data-part-column-group]) {
+    background-color: transparent;
+  }
+
+  /* A group header is centred over the columns it spans and separated from
+     the row of column names by the same rule that separates the names from
+     the values, one step lighter. */
+  [data-ui-data-grid] [data-part-column-group] {
+    justify-content: center;
+  }
+
+  /* The name takes what is left and truncates: a column name is two or three
+     words and its full text is the header's own accessible name. */
+  [data-ui-data-grid] [data-part-column-header] > span:first-child {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* An aligned column keeps its name over its values. */
+  [data-ui-data-grid] [data-part-column-header][data-align='center'] {
+    justify-content: center;
+  }
+
+  [data-ui-data-grid] [data-part-column-header][data-align='center'] > span:first-child {
+    flex: 0 1 auto;
+    margin-inline-start: auto;
+  }
+
+  [data-ui-data-grid]
+    [data-part-column-header]:is([data-align='end'], [data-numeric]:not([data-align]))
+    > span:first-child {
+    text-align: end;
+  }
+
+  /* A sortable header is a control and takes the hand. */
+  [data-ui-data-grid] [data-part-column-header][data-sortable] {
+    cursor: pointer;
+  }
+
+  /* A header, a filter cell and a summary cell are controls, not prose: a
+     Shift-press that appends a sort key must not also select its name. */
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-head] > [role='row'] > *,
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-summary] > [role='row'] > * {
+    user-select: none;
+  }
+
+  /* While rows are chosen with Shift or cells with a drag, the press is a
+     selection of the grid's own and not of text: the browser's selection is
+     put out of the body for the two modes that press across cells. Ctrl+C
+     copies the range; a grid with no selection keeps its text selectable. */
+  [data-ui-data-grid]:is([data-selection='multiple'], [data-selection='range'])
+    :is([data-part-body], [data-part-pinned-rows]) {
+    user-select: none;
+  }
+
+  [data-ui-data-grid] [data-part-column-header][data-sortable]:not([data-disabled]):hover {
+    background-color: var(--_head-surface-hover);
+  }
+
+  /**
+   * The sort mark: the `chevron-down` `Glyph` the binding draws, turned a half
+   * turn for ascending, and the index beside it when the order holds more than
+   * one key. It is drawn only
+   * on a sorted column and takes no room otherwise: a mark reserved on every
+   * sortable header cost a 132-pixel column half its name, and a mark that
+   * appears under the pointer moves the name it stands beside. What says a
+   * header can be sorted is the hand, the darker band and the menu it
+   * reveals — the answer AG Grid gives.
+   */
+  [data-ui-data-grid] [data-part-column-header] > [data-part-sort] {
+    --slotted-icon-size: var(--_icon-size);
+    align-items: center;
+    color: var(--_text);
+    display: none;
+    flex: none;
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-variant-numeric: tabular-nums;
+    gap: var(--slotted-space-1, 0.125rem);
+    line-height: 1;
+  }
+
+  [data-ui-data-grid] [data-part-column-header] > [data-part-sort] > [data-ui-icon] {
+    transition: rotate var(--_transition);
+  }
+
+  [data-ui-data-grid] [data-part-column-header][data-sorted] > [data-part-sort] {
+    display: inline-flex;
+  }
+
+  [data-ui-data-grid]
+    [data-part-column-header][data-sorted='ascending']
+    > [data-part-sort]
+    > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  /* The index of a key past the first, drawn only then: `aria-sort` cannot say
+     which key came first, and the number is what says it. */
+  [data-ui-data-grid] [data-part-column-header] > [data-part-sort]::before {
+    content: attr(data-index);
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-data-grid] [data-part-column-header] > [data-part-sort]:not([data-index])::before {
+    content: none;
+  }
+
+  /**
+   * ── The controls a column carries ──────────────────────────────────────
+   *
+   * Two, in flow after the name and the sort mark, drawn by this family
+   * rather than taken from `button`: a library button at its smallest step is
+   * thirty pixels tall against a line of nineteen and a half.
+   *
+   * The column menu keeps its room always and is revealed by the pointer and
+   * by the cursor, so the header row is twelve names and not twenty-four
+   * marks and nothing moves when the pointer arrives. The filter trigger is
+   * there only while the column is filtered — it is the mark that says so,
+   * in the accent ink, and the shortest way back to the panel — and a
+   * column that is not filtered reaches the panel through the menu or the
+   * filter row. Read on the first capture with both controls reserving room,
+   * a 120-pixel column had 34 pixels left for its name.
+   */
+  [data-ui-data-grid] [data-part-column-actions] {
+    align-items: center;
+    display: inline-flex;
+    flex: none;
+    gap: var(--slotted-space-1, 0.125rem);
+    /* Pulled back onto the line so the target does not grow the header. */
+    margin-block: calc((var(--_line) - var(--_control)) / 2);
+    /* The slot stands at the trailing edge whatever the column's alignment. */
+    margin-inline-start: auto;
+  }
+
+  [data-ui-data-grid] [data-part-column-actions] *:has([data-part-filter]) {
+    display: contents;
+  }
+
+  [data-ui-data-grid] [data-part-column-help],
+  [data-ui-data-grid] [data-part-column-menu],
+  [data-ui-data-grid] [data-part-column-header] [data-part-filter],
+  [data-ui-data-grid] [data-part-expander],
+  [data-ui-data-grid] [data-part-group-toggle],
+  [data-ui-data-grid] [data-part-tree-toggle] {
+    /* The mark inside is the `Glyph` the binding draws, at the controls' own
+       icon step rather than the box's. */
+    --slotted-icon-size: var(--_control-icon);
+    align-items: center;
+    background-color: transparent;
+    block-size: var(--_control);
+    border: 0;
+    border-radius: var(--slotted-data-grid-control-radius, var(--slotted-radius-sm, 4px));
+    color: var(--_muted);
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--_control);
+    justify-content: center;
+    padding: 0;
+    transition:
+      background-color var(--_transition),
+      color var(--_transition),
+      opacity var(--_transition);
+  }
+
+  [data-ui-data-grid] [data-part-column-menu] {
+    opacity: 0;
+  }
+
+  [data-ui-data-grid]
+    [data-part-column-header]
+    [data-part-filter]:not([data-filtered], [data-open]) {
+    display: none;
+  }
+
+  [data-ui-data-grid] [data-part-column-header]:not([data-disabled]):hover [data-part-column-menu],
+  [data-ui-data-grid] [data-part-column-header]:focus-within [data-part-column-menu],
+  [data-ui-data-grid] [data-part-column-header][data-current] [data-part-column-menu],
+  [data-ui-data-grid] [data-part-column-menu][data-open] {
+    opacity: 1;
+  }
+
+  [data-ui-data-grid] [data-part-column-help]:not(:disabled):hover,
+  [data-ui-data-grid] [data-part-column-help][data-open],
+  [data-ui-data-grid] [data-part-column-menu]:not(:disabled):hover,
+  [data-ui-data-grid] [data-part-column-header] [data-part-filter]:not(:disabled):hover,
+  [data-ui-data-grid] [data-part-group-toggle]:not(:disabled):hover {
+    background-color: var(--_head-surface-hover);
+    color: var(--_text);
+  }
+
+  [data-ui-data-grid] [data-part-expander]:not(:disabled):hover {
+    background-color: var(--_hover);
+    color: var(--_text);
+  }
+
+  [data-ui-data-grid] [data-part-column-help]:focus-visible,
+  [data-ui-data-grid] [data-part-column-menu]:focus-visible,
+  [data-ui-data-grid] [data-part-column-header] [data-part-filter]:focus-visible,
+  [data-ui-data-grid] [data-part-expander]:focus-visible,
+  [data-ui-data-grid] [data-part-group-toggle]:focus-visible {
+    outline: var(--_ring-width) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* The column menu is the ellipsis. The column help is the circled question
+     mark, and it is never hidden: it says the column has something to
+     explain, and a mark revealed by hover is one a coarse pointer never sees.
+     Both are the `Glyph` the binding draws. */
+
+  /* The description is the header's `aria-describedby`: read, never drawn,
+     and out of the header's flow so it asks for no room beside the name. */
+  [data-ui-data-grid] [data-part-column-description] {
+    block-size: 1px;
+    border: 0;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  /* The pop-in's column header names the pop-in for a reader: read, never
+     drawn, and out of the row's flow so it takes no track of the template. */
+  [data-ui-data-grid] [data-part-popin-header] {
+    block-size: 1px;
+    border: 0;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  /* The description again at the top of the column menu, for the eye: the
+     menu's layer is a portal, so the rule is scoped to the menu, and the text
+     is set as a caption over the items, in the muted ink, on the items' inset.
+     The screen reader hears it once, through the menu's `aria-describedby`.
+     The menu lays its items on a grid of tracks; the caption spans them all. */
+  [data-ui-menu] [data-part-column-menu-description] {
+    grid-column: 1 / -1;
+    border-block-end: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-border-subtle, GrayText);
+    color: var(--slotted-text-muted, GrayText);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin-block-end: var(--slotted-space-2, 0.25rem);
+    max-inline-size: 18rem;
+    padding-block: var(--slotted-space-2, 0.25rem) var(--slotted-space-3, 0.375rem);
+    padding-inline: var(--slotted-control-padding-inline-sm, 0.625rem);
+  }
+
+  /* The filter trigger is the funnel `Glyph` the binding draws, drawn only
+     while the column is filtered, in the accent ink. `funnel` joined the
+     glyph scale for this family: `table` takes the artwork from the consumer,
+     and a control this family draws itself owes its glyph to the scale. */
+
+  [data-ui-data-grid] [data-part-column-header] [data-part-filter][data-filtered],
+  [data-ui-data-grid] [data-part-column-header] [data-part-filter][data-open] {
+    color: var(--slotted-tone-accent-text, CanvasText);
+  }
+
+  [data-ui-data-grid]
+    [data-part-column-header]
+    [data-part-filter][data-filtered]:not(:disabled):hover {
+    background-color: var(--slotted-tone-accent-surface, Canvas);
+  }
+
+  /* The expander and the group toggle are the `chevron-right` `Glyph` the
+     binding draws, turned a quarter turn when open and mirrored in a
+     right-to-left document. */
+  [data-ui-data-grid] [data-part-expander] > [data-ui-icon],
+  [data-ui-data-grid] [data-part-group-toggle] > [data-ui-icon],
+  [data-ui-data-grid] button[data-part-tree-toggle] > [data-ui-icon] {
+    transition: rotate var(--_transition);
+  }
+
+  [data-ui-data-grid] [data-part-expander][aria-expanded='true'] > [data-ui-icon],
+  [data-ui-data-grid] button[data-part-tree-toggle][aria-expanded='true'] > [data-ui-icon],
+  [data-ui-data-grid]
+    [data-part-group-row][aria-expanded='true']
+    [data-part-group-toggle]
+    > [data-ui-icon] {
+    rotate: 90deg;
+  }
+
+  [data-ui-data-grid]:dir(rtl) [data-part-expander] > [data-ui-icon],
+  [data-ui-data-grid]:dir(rtl) [data-part-group-toggle] > [data-ui-icon],
+  [data-ui-data-grid]:dir(rtl) button[data-part-tree-toggle] > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  [data-ui-data-grid]:dir(rtl) [data-part-expander][aria-expanded='true'] > [data-ui-icon],
+  [data-ui-data-grid]:dir(rtl) button[data-part-tree-toggle][aria-expanded='true'] > [data-ui-icon],
+  [data-ui-data-grid]:dir(rtl)
+    [data-part-group-row][aria-expanded='true']
+    [data-part-group-toggle]
+    > [data-ui-icon] {
+    rotate: 90deg;
+  }
+
+  /**
+   * ── The tree ───────────────────────────────────────────────────────────
+   *
+   * The tree column's cell steps in by its level and leads with the toggle;
+   * a leaf keeps the toggle's room, empty, so the names of one level align.
+   * The toggle is not a tab stop: the cursor stands on the cell, and the
+   * horizontal arrows there open and close. A row waiting for its children
+   * turns the chevron into the loader's ring.
+   */
+  [data-ui-data-grid] [data-part-cell][data-tree],
+  [data-ui-data-grid] [data-part-row-header][data-tree] {
+    gap: var(--slotted-space-1, 0.125rem);
+    padding-inline-start: calc(
+      var(--_pad-inline) + var(--_indent) * (var(--slotted-data-grid-level, 1) - 1)
+    );
+  }
+
+  [data-ui-data-grid] [data-part-tree-toggle][data-empty] {
+    /* The room, and nothing in it. */
+    cursor: default;
+  }
+
+  [data-ui-data-grid] button[data-part-tree-toggle]:not(:disabled):hover {
+    background-color: var(--_hover);
+    color: var(--_text);
+  }
+
+  /* The binding draws the loader's ring in place of the chevron. */
+  [data-ui-data-grid] button[data-part-tree-toggle][data-loading] > [data-ui-icon] {
+    animation: slotted-data-grid-turn var(--slotted-duration-loop) linear infinite;
+    rotate: 0deg;
+  }
+
+  @keyframes slotted-data-grid-turn {
+    to {
+      rotate: 1turn;
+    }
+  }
+
+  /**
+   * ── Reordering rows ────────────────────────────────────────────────────
+   *
+   * The handle is the grip glyph in the muted ink, the row's whole gutter
+   * as its target, a grab cursor over it; disabled while the query is not at
+   * rest, it stays where it is at half its ink, so the column keeps its
+   * width and the reader hears why nothing moves. A row on its way is
+   * dimmed, as a column is.
+   */
+  [data-ui-data-grid] [data-part-cell][data-kind='drag'] {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  [data-ui-data-grid] [data-part-row-handle] {
+    /* The grip is the `Glyph` the binding draws, at the controls' icon step. */
+    --slotted-icon-size: var(--_control-icon);
+    align-items: center;
+    background-color: transparent;
+    block-size: var(--_control);
+    border: 0;
+    border-radius: var(--slotted-data-grid-control-radius, var(--slotted-radius-sm, 4px));
+    color: var(--_muted);
+    cursor: grab;
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--_control);
+    justify-content: center;
+    padding: 0;
+    touch-action: none;
+    transition:
+      background-color var(--_transition),
+      color var(--_transition),
+      opacity var(--_transition);
+  }
+
+  [data-ui-data-grid] [data-part-row-handle]:not([data-disabled]):hover {
+    background-color: var(--_hover);
+    color: var(--_text);
+  }
+
+  [data-ui-data-grid] [data-part-row-handle][data-disabled] {
+    cursor: default;
+    opacity: 0.5;
+  }
+
+  [data-ui-data-grid] [data-part-row][data-dragging] {
+    opacity: 0.5;
+  }
+
+  [data-ui-data-grid] [data-part-row][data-dragging] [data-part-row-handle] {
+    cursor: grabbing;
+  }
+
+  /**
+   * ── The resizer ────────────────────────────────────────────────────────
+   *
+   * Invisible at rest, a strong line under the pointer, the accent line while
+   * it is dragged. The target is `--slotted-target-min` wide and centred on
+   * the column's trailing edge, so half of it stands over the next column;
+   * it is pointer-only — `aria-hidden`, no tab stop — because the keyboard
+   * resizes from the header cell itself, and a focusable handle inside a
+   * composite widget would be a second tab stop.
+   */
+  [data-ui-data-grid] [data-part-resizer] {
+    cursor: col-resize;
+    inline-size: var(--slotted-target-min, 24px);
+    inset-block: 0;
+    inset-inline-end: calc(var(--slotted-target-min, 24px) / -2);
+    position: absolute;
+    /* Above the neighbour it overlaps, so the half that stands over the next
+       header still takes the press. */
+    touch-action: none;
+    z-index: 1;
+  }
+
+  /* The last column's handle stays inside the row: half a target hanging
+     past the last cell was twelve pixels of overflow on a row nothing could
+     scroll to. The last column header, not the row's last child: the pop-in
+     header follows it when columns yield to the frame. */
+  [data-ui-data-grid]
+    [data-part-header-row]
+    > [data-part-column-header]:not(:has(~ [data-part-column-header]))
+    > [data-part-resizer] {
+    inline-size: calc(var(--slotted-target-min, 24px) / 2);
+    inset-inline-end: 0;
+  }
+
+  [data-ui-data-grid] [data-part-resizer]::after {
+    background-color: transparent;
+    block-size: 100%;
+    content: '';
+    inline-size: var(--slotted-border-width-thick, 2px);
+    inset-inline-start: calc(50% - var(--slotted-border-width-thick, 2px) / 2);
+    position: absolute;
+    transition: background-color var(--_transition);
+  }
+
+  [data-ui-data-grid] [data-part-resizer]:not([data-disabled]):hover::after {
+    background-color: var(--_rule-strong);
+  }
+
+  [data-ui-data-grid] [data-part-resizer][data-resizing]::after,
+  [data-ui-data-grid] [data-part-column-header][data-resizing] > [data-part-resizer]::after {
+    background-color: var(--_cursor);
+  }
+
+  /**
+   * A drag of the resizer moves this line and nothing else:
+   * it stands on the column's edge, spans the scroller's visible height and
+   * slides by `translate`, which lays nothing out; the width is applied once,
+   * on release.
+   */
+  [data-ui-data-grid] [data-part-resizer] > [data-part-resize-guide] {
+    background-color: var(
+      --slotted-data-grid-resize-guide-color,
+      var(--slotted-focus-ring-color, Highlight)
+    );
+    inline-size: var(
+      --slotted-data-grid-resize-guide-width,
+      var(--slotted-border-width-thick, 2px)
+    );
+    inset-block-start: 0;
+    inset-inline-start: calc(
+      50% - var(--slotted-data-grid-resize-guide-width, var(--slotted-border-width-thick, 2px)) / 2
+    );
+    pointer-events: none;
+    position: absolute;
+    z-index: 2;
+  }
+
+  /**
+   * ── Reordering ─────────────────────────────────────────────────────────
+   *
+   * The dragged header dims; the drop indicator is a line of the accent
+   * colour between two columns, positioned by the binding through
+   * `--slotted-data-grid-drop-offset` from the scroller's start edge.
+   */
+  [data-ui-data-grid] [data-part-column-header][data-dragging] {
+    opacity: 0.5;
+  }
+
+  [data-ui-data-grid] [data-part-column-header][data-drop-target] {
+    background-color: var(--_head-surface-hover);
+  }
+
+  [data-ui-data-grid] [data-part-drop-indicator] {
+    background-color: var(--_cursor);
+    /* Absolute in the scroller: its box is the content's, so the line is
+       moved down by the scrolled distance to span the viewport. */
+    block-size: 100%;
+    inline-size: var(--slotted-border-width-thick, 2px);
+    inset-block-start: var(--slotted-data-grid-drop-scroll, 0px);
+    inset-inline-start: calc(
+      var(--slotted-data-grid-drop-offset, 0px) - var(--slotted-border-width-thick, 2px) / 2
+    );
+    pointer-events: none;
+    position: absolute;
+    z-index: calc(var(--slotted-z-index-sticky, 100) + 3);
+  }
+
+  /* The same line for a row on its way: horizontal, in the gap the drop
+     lands in, as wide as the viewport and moved by the sideways scroll. */
+  [data-ui-data-grid] [data-part-drop-indicator][data-axis='row'] {
+    block-size: var(--slotted-border-width-thick, 2px);
+    inline-size: var(--slotted-data-grid-viewport, 100%);
+    inset-block-start: calc(
+      var(--slotted-data-grid-drop-offset, 0px) - var(--slotted-border-width-thick, 2px) / 2
+    );
+    inset-inline-start: var(--slotted-data-grid-drop-scroll, 0px);
+  }
+
+  /**
+   * ── The filter row ─────────────────────────────────────────────────────
+   *
+   * One operand per filterable column, `plain` and `sm`, filling the cell,
+   * with the operator as a symbol button at the field's start. The row sits
+   * on the band at 4%, one step under the header, and is part of the sticky
+   * head. It is a row of the grid — `role="row"`, one `gridcell` per column —
+   * so the cursor walks it.
+   */
+  [data-ui-data-grid] [data-part-filter-row] > [data-part-filter-cell] {
+    /* The control inside draws no ring of its own: the cell draws the trace
+       around the whole of it while anything inside has the focus, so a field
+       in the row and the cell it fills are not two rings. The accent edge a
+       select takes while it is open is the same second frame, and is put out
+       for the same reason. */
+    --slotted-focus-ring-width: 0px;
+    --slotted-select-open-border-color: transparent;
+    --slotted-multi-select-open-border-color: transparent;
+
+    align-items: center;
+    background-color: var(--_band-surface);
+    box-sizing: border-box;
+    display: flex;
+    min-block-size: var(--_head-block);
+    min-inline-size: 0;
+    padding: 0;
+    position: relative;
+  }
+
+  [data-ui-data-grid] [data-part-filter-row] > [data-part-filter-cell]:focus-within {
+    box-shadow: none;
+    outline: var(--_ring-width) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--_ring-width) * -1);
+  }
+
+  /* The operand fills what the operator leaves and never past the cell: a
+     field wider than its column is clipped at the column's edge, not drawn
+     into the next one. What a picker opens is in a layer, not in the cell.
+     The operand is the cell's child, or its grandchild through an element
+     with no part of its own: the Angular binding draws it inside a host
+     element (`display: contents`), and a plain child combinator held only
+     for React — read live, the Angular operand had no clip and no inset.
+     Two selectors, not `:is()`: a combinator inside `:is()` binds the parent
+     named there, and `A > :is(host > B)` asks B to be A's child and the
+     host's at once. `data-grid.styles.test.mjs` holds the rule for every
+     hosted part. */
+  [data-ui-data-grid] [data-part-filter-cell] > [data-part-filter-operand],
+  [data-ui-data-grid] [data-part-filter-cell] > :not([data-part]) > [data-part-filter-operand] {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    /* Inside the cell's trace, not under it: the trace is drawn inward by
+       the ring's width and a control the cell's full height stood over it,
+       and its hover ground covered it. The operand keeps the ring's width
+       back from every edge, at every density. */
+    margin: var(--_ring-width);
+    min-inline-size: 0;
+    overflow: clip;
+    white-space: nowrap;
+  }
+
+  /* The plain control inside takes what the trace leaves of the row's
+     height and a short inset after the operator, the rule every cell
+     holding a plain control applies. */
+  [data-ui-data-grid]
+    [data-part-filter-cell]
+    [data-part-filter-operand]
+    > [data-part-root][data-variant='plain'],
+  [data-ui-data-grid]
+    [data-part-filter-cell]
+    [data-part-filter-operand]
+    > :not([data-part])
+    > [data-part-root][data-variant='plain'] {
+    --slotted-control-padding-inline-sm: var(--slotted-space-3, 0.375rem);
+    --slotted-control-height-sm: calc(var(--_head-block) - var(--_ring-width) * 2);
+
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  /* Both fields of a numeric `between` share the line, a dash between them;
+     a date, a time or a date-time `between` is one range picker and carries
+     no `data-range`. */
+  [data-ui-data-grid]
+    [data-part-filter-cell]
+    [data-part-filter-operand][data-range]
+    > [data-part-root],
+  [data-ui-data-grid]
+    [data-part-filter-cell]
+    [data-part-filter-operand][data-range]
+    > :not([data-part])
+    > [data-part-root] {
+    flex: 1 1 0;
+    inline-size: 0;
+  }
+
+  [data-ui-data-grid] [data-part-filter-cell] [data-part-filter-operand][data-range]::before {
+    color: var(--_muted);
+    content: '–';
+    order: 2;
+  }
+
+  [data-ui-data-grid]
+    [data-part-filter-cell]
+    [data-part-filter-operand][data-range]
+    > [data-part-root]:last-child,
+  [data-ui-data-grid]
+    [data-part-filter-cell]
+    [data-part-filter-operand][data-range]
+    > :not([data-part]):last-child
+    > [data-part-root] {
+    order: 3;
+  }
+
+  /**
+   * The symbol button. One character of the type, in the muted ink, on a
+   * square target the height of the inner control; it opens a `menu` naming
+   * every operator in full, and its accessible name is the operator in full.
+   */
+  [data-ui-data-grid] [data-part-filter-cell] [data-part-filter-operator] {
+    display: inline-flex;
+    flex: none;
+    /* One space step off the cell's edge: glued to it, the symbol read as
+       part of the column beside. */
+    padding-inline-start: var(--slotted-space-3, 0.375rem);
+  }
+
+  [data-ui-data-grid] [data-part-filter-cell] [data-part-filter-operator] > button {
+    align-items: center;
+    background-color: transparent;
+    block-size: var(--slotted-control-inner-size-sm, 22px);
+    border: 0;
+    border-radius: var(--slotted-data-grid-control-radius, var(--slotted-radius-sm, 4px));
+    color: var(--_muted);
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-size: var(--slotted-control-font-size-sm, 12px);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    inline-size: var(--slotted-control-inner-size-sm, 22px);
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    transition:
+      background-color var(--_transition),
+      color var(--_transition);
+  }
+
+  [data-ui-data-grid]
+    [data-part-filter-cell]
+    [data-part-filter-operator]
+    > button:not(:disabled):hover {
+    background-color: var(--_head-surface-hover);
+    color: var(--_text);
+  }
+
+  [data-ui-data-grid] [data-part-filter-cell] [data-part-filter-operator] > button:focus-visible {
+    outline: var(--_ring-width) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-data-grid] [data-part-filter-cell][data-filtered] [data-part-filter-operator] > button {
+    color: var(--slotted-tone-accent-text, CanvasText);
+  }
+
+  /**
+   * ── The filter panel ───────────────────────────────────────────────────
+   *
+   * Rendered in a popover outside the root, so the panel carries `data-ui`
+   * itself. One condition is one line — `[operator] [operand]` in `sm` — the
+   * join is two words in the first column of the second line, and the footer
+   * is two words at the trailing edge. `table`'s panel stacked each control
+   * at full width in `md`; this is the form the invocation asked for, and the
+   * one `table` and `filter-bar` inherit.
+   */
+  /* The popover is `sm` for its type and its measure at that step is
+     sixteen rem: the panel's twenty-four stood out of it on both sides. The
+     layer that holds the panel is given the panel's measure plus the gap the
+     layer keeps around its surface and the surface's own border. The panel
+     is found anywhere under the content, not as its child: the Angular
+     binding draws it inside a host element of its own (`display: contents`),
+     and a child combinator here left that popover at sixteen rem with the
+     panel standing out of it. */
+  [data-ui-popover]:has(> [data-part-content] [data-ui-data-grid][data-part-filter-panel]) {
+    --slotted-popover-measure-sm: calc(
+      var(--slotted-data-grid-filter-panel-size, 24rem) + 2 *
+        (var(--slotted-popover-gap, 0.5rem) + var(--slotted-border-width-thin, 1px))
+    );
+  }
+
+  /* A date's `between` is two dates in one frame and a date-time's two
+     date-times: the panel widens for the kinds whose operand is long, so the
+     range is read whole rather than clipped. */
+  [data-ui-popover]:has(
+    > [data-part-content] [data-ui-data-grid][data-part-filter-panel][data-kind='date']
+  ) {
+    --slotted-data-grid-filter-panel-size: var(--slotted-data-grid-filter-panel-size-date, 28rem);
+  }
+
+  [data-ui-popover]:has(
+    > [data-part-content] [data-ui-data-grid][data-part-filter-panel][data-kind='datetime']
+  ) {
+    --slotted-data-grid-filter-panel-size: var(
+      --slotted-data-grid-filter-panel-size-datetime,
+      34rem
+    );
+  }
+
+  [data-ui-data-grid][data-part-filter-panel] {
+    --_operator-size: var(--slotted-data-grid-filter-operator-size, 7rem);
+    --_panel-gap: var(--slotted-space-3, 0.375rem);
+
+    box-sizing: border-box;
+    color: var(--slotted-text, CanvasText);
+    display: grid;
+    font-family: var(--slotted-control-font-family);
+    font-size: var(--slotted-control-font-size-sm, 12px);
+    gap: var(--_panel-gap);
+    /* The join column, the operator and the operand. The first line leaves the
+       join column empty, so the two operators stand one under the other and
+       the eye reads the join as the connector between two lines. */
+    grid-template-columns: max-content var(--_operator-size) minmax(0, 1fr);
+    /* The panel states its width: a popover sized to its content takes the
+       operands' natural width, and two number fields side by side took a
+       between past the popover's own edge. */
+    inline-size: var(--slotted-data-grid-filter-panel-size, 24rem);
+    max-inline-size: 100%;
+    /* The popover pads its header and its body, not its surface: the panel
+       stands in the surface directly and takes the `sm` inset itself. */
+    padding: var(--slotted-popover-padding-block-sm, var(--slotted-space-4, 0.5rem))
+      var(--slotted-popover-padding-inline-sm, var(--slotted-space-5, 0.75rem));
+  }
+
+  [data-ui-data-grid][data-part-filter-panel] > [data-part-filter-condition] {
+    align-items: center;
+    display: grid;
+    gap: var(--_panel-gap);
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  /* The first condition has no join: its operator starts in the second
+     column. A set filter has one condition and no join at all. */
+  [data-ui-data-grid][data-part-filter-panel]
+    > [data-part-filter-condition]:first-child
+    > [data-part-filter-operator] {
+    grid-column: 2;
+  }
+
+  [data-ui-data-grid][data-part-filter-panel] [data-part-filter-join] {
+    grid-column: 1;
+  }
+
+  [data-ui-data-grid][data-part-filter-panel] [data-part-filter-operator] {
+    grid-column: 2;
+    min-inline-size: 0;
+  }
+
+  [data-ui-data-grid][data-part-filter-panel] [data-part-filter-operand] {
+    align-items: center;
+    display: flex;
+    gap: var(--_panel-gap);
+    grid-column: 3;
+    min-inline-size: 0;
+  }
+
+  /* An operator taking no operand leaves the operand column empty rather than
+     drawing a disabled field. */
+  [data-ui-data-grid][data-part-filter-panel]
+    [data-part-filter-condition][data-operands='0']
+    > [data-part-filter-operand] {
+    display: none;
+  }
+
+  /* Both operands of a `between` stand on the line with a dash between them:
+     the pair is one thought and one line says so. */
+  [data-ui-data-grid][data-part-filter-panel] [data-part-filter-operand][data-range] > * {
+    flex: 1 1 0;
+    inline-size: 0;
+    min-inline-size: 0;
+  }
+
+  [data-ui-data-grid][data-part-filter-panel] [data-part-filter-operand][data-range]::before {
+    color: var(--slotted-text-muted);
+    content: '–';
+    order: 1;
+  }
+
+  [data-ui-data-grid][data-part-filter-panel] [data-part-filter-operand][data-range] > :last-child {
+    order: 2;
+  }
+
+  [data-ui-data-grid][data-part-filter-panel] [data-part-filter-operand] > [data-part-root],
+  [data-ui-data-grid][data-part-filter-panel]
+    [data-part-filter-operand]
+    > :not([data-part])
+    > [data-part-root] {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  [data-ui-data-grid][data-part-filter-panel] [data-part-filter-operand] [data-part-input] {
+    min-inline-size: 0;
+  }
+
+  [data-ui-data-grid][data-part-filter-panel] [data-part-filter-actions] {
+    display: flex;
+    gap: var(--_panel-gap);
+    grid-column: 1 / -1;
+    justify-content: end;
+    margin-block-start: var(--slotted-space-2, 0.25rem);
+  }
+
+  /**
+   * ── Rows and cells ─────────────────────────────────────────────────────
+   */
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-body] {
+    box-sizing: border-box;
+    /* The containing block of the veil a busy grid lays over its rows. */
+    position: relative;
+    /* The virtual window: the body is as tall as every row and its padding is
+       the offset of the first mounted one, so the mounted rows stand where the
+       unmounted ones would. No transform, so a pinned column's `sticky`
+       resolves against the scroller with nothing in between. */
+    block-size: var(--slotted-data-grid-window-total, auto);
+    padding-block-start: var(--slotted-data-grid-window-start, 0);
+  }
+
+  [data-ui-data-grid] [data-part-row] {
+    background-color: var(--_surface);
+    /* The block's edges settle with its ground, not a frame before it. */
+    transition:
+      background-color var(--_transition),
+      border-color var(--_transition),
+      box-shadow var(--_transition);
+  }
+
+  /**
+   * The row's height is its grid track, not its box. Stated as `block-size`
+   * on the row, the implicit track still sized itself to the tallest cell —
+   * a 30-pixel button in a 34-pixel row made every track 41 — and each row
+   * overflowed the seven pixels into the next, so a pinned cell painted over
+   * the top of the row below it and every ring drawn inward landed on the
+   * wrong row. Measured on the anatomy scene: cells 41 tall, rows 34 apart.
+   *
+   * `grid-auto-rows` fixes the track, and a cell taller than it overflows its
+   * own box evenly without moving anything. An auto row is at least the row
+   * height and grows to its tallest cell. The cap is the cell's and not the
+   * track's: a row's height is its content, and a grid whose height is its
+   * content grows a `minmax(row, cap)` track to the cap — read on the content
+   * scene, every auto row was four rows tall, one line of text in each.
+   */
+  [data-ui-data-grid][data-rows='fixed']
+    > [data-part-scroll]
+    > :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row] {
+    block-size: var(--_row-block);
+    grid-auto-rows: var(--_track);
+  }
+
+  [data-ui-data-grid][data-rows='auto']
+    > [data-part-scroll]
+    > :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row] {
+    grid-auto-rows: minmax(var(--_track), auto);
+  }
+
+  /* A value taller than the cap is clipped at it, on the block axis only: a
+     pinned cell's edge shadow is drawn past its inline end. The pop-in is not
+     a value of the row and has no cap. */
+  [data-ui-data-grid][data-rows='auto']
+    :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row]
+    > :is([role='gridcell'], [role='rowheader']):not([data-part-popin]) {
+    max-block-size: var(--_row-max-block);
+    overflow-y: clip;
+  }
+
+  /* A row that grows to its text aligns its cells to the top: a one-line
+     value centred beside a four-line one floats in the middle of nothing,
+     and the eye reads a row from its first line. Fixed rows stay centred. */
+  [data-ui-data-grid][data-rows='auto']
+    :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row]
+    > [role='gridcell'],
+  [data-ui-data-grid][data-rows='auto']
+    :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row]
+    > [role='rowheader'] {
+    align-items: start;
+  }
+
+  [data-ui-data-grid]:is([data-variant='ruled'], [data-variant='framed'])
+    > [data-part-scroll]
+    > :is([data-part-body], [data-part-pinned-rows]) {
+    --_track: calc(var(--_row-block) - var(--_rule-width));
+  }
+
+  /**
+   * A control a cell renderer draws — a `Button`, an `IconButton`, a `Select` —
+   * stands inside the cursor's trace: the row restates the control scale as
+   * the track less the ring and one space step on each side, so a hovered
+   * ground never covers the trace, at every density. The restatement is on
+   * the row and not on each cell, so a row of eight cells computes it once.
+   * A cell in edit states its own, the track less the ring.
+   */
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-body] > [data-part-row],
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-pinned-rows] > [data-part-row] {
+    --_cell-control: calc(
+      var(--_track) - var(--_ring-width) * 2 - var(--slotted-space-1, 0.125rem) * 2
+    );
+    --slotted-control-height-sm: min(var(--_control-height-sm), var(--_cell-control));
+    --slotted-control-height-md: min(var(--_control-height-md), var(--_cell-control));
+    --slotted-control-height-lg: min(var(--_control-height-lg), var(--_cell-control));
+    --slotted-target-min: min(var(--_target-min), var(--_cell-control));
+  }
+
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-head] > [role='row'],
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-summary] > [role='row'],
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-loader] > [role='row'] {
+    grid-auto-rows: minmax(var(--_head-block), auto);
+  }
+
+  [data-ui-data-grid] [data-part-cell],
+  [data-ui-data-grid] [data-part-row-header],
+  [data-ui-data-grid] [data-part-summary-cell],
+  [data-ui-data-grid]
+    > [data-part-scroll]
+    > :is([data-part-body], [data-part-pinned-rows])
+    > [role='row']
+    > [data-part-selection] {
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    min-inline-size: 0;
+    padding-block: var(--_pad-block);
+    padding-inline: var(--_pad-inline);
+    text-align: start;
+  }
+
+  /* Every cell but a pinned one is a containing block, for the range edges
+     and the invalid mark; a pinned cell is already positioned by `sticky`. */
+  [data-ui-data-grid] [data-part-cell]:not([data-pinned]) {
+    position: relative;
+  }
+
+  /* The value inside a cell is one box the text treatment applies to. It
+     keeps its own direction: an identifier, an email or a price in a
+     right-to-left document is left-to-right text, and read in `dir="rtl"`
+     "Bloom & Co." had its full stop moved to the front. */
+  [data-ui-data-grid] [data-part-cell] > span:not([data-ui], [data-part]),
+  [data-ui-data-grid] [data-part-row-header] > span:not([data-ui], [data-part]),
+  [data-ui-data-grid] [data-part-summary-cell] > span:not([data-ui], [data-part]) {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    unicode-bidi: plaintext;
+  }
+
+  /* A family drawn in a cell by a renderer — a badge, a tag — keeps its own
+     size: read on the status column, a badge filled the cell's whole width
+     because it was a span standing where the value stands. */
+  [data-ui-data-grid] [data-part-cell] > [data-ui]:not([data-part]) {
+    flex: 0 0 auto;
+    max-inline-size: 100%;
+  }
+
+  /* A row header names the record and carries one step of weight. */
+  [data-ui-data-grid] [data-part-row-header] {
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  /* The rule between two rows, on the row; the last gives its rule up so a
+     ruled grid does not end in a line with nothing under it. */
+  [data-ui-data-grid]:is([data-variant='ruled'], [data-variant='framed'])
+    :is([data-part-body], [data-part-pinned-rows])
+    > [role='row'] {
+    border-block-end: var(--_rule-width) solid var(--_rule);
+  }
+
+  [data-ui-data-grid]:is([data-variant='ruled'], [data-variant='framed'])
+    :is([data-part-body], [data-part-pinned-rows])
+    > [role='row']:last-child {
+    border-block-end-color: transparent;
+  }
+
+  /* The stripe, declared before every state. */
+  [data-ui-data-grid][data-striped]
+    > [data-part-scroll]
+    > :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row]:nth-child(even) {
+    background-color: var(--_stripe);
+  }
+
+  /**
+   * ── The states of a row ────────────────────────────────────────────────
+   *
+   * In the order `STATE_PRECEDENCE` declares them, weakest last.
+   */
+  [data-ui-data-grid]
+    > [data-part-scroll]
+    > :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row]:not([data-disabled]):hover {
+    background-color: var(--_hover);
+  }
+
+  [data-ui-data-grid]
+    > [data-part-scroll]
+    > :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row][data-selected] {
+    background-color: var(--_selected);
+    color: var(--_selected-text);
+  }
+
+  [data-ui-data-grid]
+    :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row][data-selected]:not([data-disabled]):hover {
+    background-color: var(--_selected-hover);
+  }
+
+  /* The block's edges. The bottom is the row's own rule; the top is drawn
+     over the rule of the row above, by a shadow one rule tall, because a row
+     cannot reach its previous sibling. Inside a run the shadow takes the
+     inner tint. A head above, being sticky, paints over the shadow and its
+     own rule closes the block; a frame below closes it the same way. */
+  [data-ui-data-grid]:is([data-variant='ruled'], [data-variant='framed'])
+    :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row][data-selected] {
+    border-block-end-color: var(--_selected-edge);
+    box-shadow: 0 calc(var(--_rule-width) * -1) 0 var(--_selected-edge);
+  }
+
+  [data-ui-data-grid]:is([data-variant='ruled'], [data-variant='framed'])
+    :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row][data-selected]
+    + [data-part-row][data-selected] {
+    box-shadow: 0 calc(var(--_rule-width) * -1) 0 var(--_selected-rule);
+  }
+
+  [data-ui-data-grid][data-variant='framed']
+    :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row][data-selected]:last-child {
+    border-block-end-color: transparent;
+  }
+
+  [data-ui-data-grid] [data-part-row][data-disabled] {
+    color: var(--slotted-disabled-foreground, GrayText);
+  }
+
+  /**
+   * ── The cursor ─────────────────────────────────────────────────────────
+   *
+   * One trace for two states. `data-current` is where the reader is, drawn at
+   * 60% so a grid that lost focus to a popover still shows the place;
+   * `:focus-visible` is the same trace whole. It is drawn inward, because a
+   * cell has no margin for an outer ring and the row below would cover it.
+   * A cell in edit draws nothing: its control draws the inner ring.
+   */
+  [data-ui-data-grid] [role='gridcell'][data-current]:not([data-editing]),
+  [data-ui-data-grid] [role='rowheader'][data-current]:not([data-editing]),
+  [data-ui-data-grid] [role='columnheader'][data-current] {
+    /* An inset shadow rather than an outline: an outline is a focus ring by
+       the library's rule and is drawn in the ring colour whole; this is the
+       place the reader left, at rest. */
+    box-shadow: inset 0 0 0 var(--_ring-width) var(--_cursor-rest);
+  }
+
+  /* The grid's own cells, the children of its rows: a chip in a multi-select
+     is a `gridcell` too, of the grid pattern the chips row is, and must keep
+     its own ring rather than take this one. */
+  [data-ui-data-grid] [role='row'] > [role='gridcell']:focus-visible:not([data-editing]),
+  [data-ui-data-grid] [role='row'] > [role='rowheader']:focus-visible:not([data-editing]),
+  [data-ui-data-grid] [role='row'] > [role='columnheader']:focus-visible {
+    box-shadow: none;
+    outline: var(--_ring-width) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--_ring-width) * -1);
+  }
+
+  /* A widget the cursor landed on draws its own ring; the cell around it
+     draws none, so there are not two. A cell in edit and a filter cell are
+     the other way round — the control inside is silenced and the cell draws
+     the trace — so they are left out. */
+  [data-ui-data-grid]
+    [role='gridcell'][data-current]:not([data-editing], [data-part-filter-cell]):focus-within:not(
+      :focus
+    ) {
+    outline: none;
+  }
+
+  /**
+   * ── The range ──────────────────────────────────────────────────────────
+   *
+   * Every cell in the rectangle takes the accent ground; the cells on its
+   * edges draw the edge, one per side named in `data-range-edge`, so the
+   * rectangle has one border and not a grid of them. The edge is a
+   * pseudo-element rather than a border, because the cell's own bottom border
+   * is the rule between rows.
+   */
+  [data-ui-data-grid] [data-part-cell][data-in-range] {
+    background-color: var(--_range);
+  }
+
+  [data-ui-data-grid] [data-part-cell][data-range-edge]::before {
+    border: 0 solid var(--_cursor);
+    content: '';
+    /* Past the cell's own bottom border, so a vertical edge runs unbroken
+       down the rectangle instead of stopping at every row rule. */
+    inset: 0 0 calc(var(--_rule-width) * -1);
+    pointer-events: none;
+    position: absolute;
+  }
+
+  [data-ui-data-grid] [data-part-cell][data-range-edge~='top']::before {
+    border-block-start-width: var(--_ring-width);
+  }
+
+  /* The bottom edge ends at the cell: run past it, over the row's rule, it
+     read one pixel thicker than the other three. */
+  [data-ui-data-grid] [data-part-cell][data-range-edge~='bottom']::before {
+    border-block-end-width: var(--_ring-width);
+    inset-block-end: 0;
+  }
+
+  [data-ui-data-grid] [data-part-cell][data-range-edge~='start']::before {
+    border-inline-start-width: var(--_ring-width);
+  }
+
+  [data-ui-data-grid] [data-part-cell][data-range-edge~='end']::before {
+    border-inline-end-width: var(--_ring-width);
+  }
+
+  /**
+   * ── Editing ────────────────────────────────────────────────────────────
+   *
+   * The cell gives its inset to the plain control, the rule `table`'s cell
+   * already applies: the edited value stands where the read value stood.
+   * The control is the row's height, so a row in edit is as tall as one that
+   * is not.
+   */
+  [data-ui-data-grid] [data-part-cell][data-editing] {
+    --slotted-control-padding-inline-sm: var(--_pad-inline);
+    --slotted-control-padding-inline-md: var(--_pad-inline);
+    --slotted-control-padding-inline-lg: var(--_pad-inline);
+    /* The control stands inside the cell's trace: the track less the ring
+       on both sides, and the editor keeps the ring's width back from every
+       edge, so nothing the control draws — a hover ground, a stepper — lands
+       on the trace. */
+    --slotted-control-height-sm: calc(var(--_track) - var(--_ring-width) * 2);
+    --slotted-control-height-md: calc(var(--_track) - var(--_ring-width) * 2);
+    --slotted-control-height-lg: calc(var(--_track) - var(--_ring-width) * 2);
+    /* The editor is set in the grid's own type: at `sm` a control is a pixel
+       smaller than the value it replaces, and the cell in edit read as a
+       different row. */
+    --slotted-control-font-size-sm: var(--_font-size);
+    /* The cell draws the cursor whole while it edits, and the control inside
+       draws no ring of its own: two rings two pixels apart read as a defect.
+       The token is zeroed for the descendants only; the cell's own trace
+       reads `--_ring-width`, resolved on the root. */
+    --slotted-focus-ring-width: 0px;
+    --slotted-select-open-border-color: transparent;
+    --slotted-multi-select-open-border-color: transparent;
+
+    /* Every cell in edit carries the cursor's resting trace — in row mode
+       the whole row says it is being edited in one voice — and the cursor's
+       own cell carries it whole. A one-pixel field edge on the others read as
+       a different control, and the control's hover ground covered it. */
+    box-shadow: inset 0 0 0 var(--_ring-width) var(--_cursor-rest);
+    padding: 0;
+  }
+
+  [data-ui-data-grid] [data-part-cell][data-editing][data-current] {
+    box-shadow: none;
+    outline: var(--_ring-width) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--_ring-width) * -1);
+  }
+
+  /* An invalid draft keeps the cursor and recolours it the way every field
+     does — by pointing the ring at the invalid step: `invalid` does not erase
+     focus. The descendants' ring width is already zero, so the token moves
+     only this cell's own trace. */
+  [data-ui-data-grid] [data-part-cell][data-editing][data-invalid] {
+    --slotted-focus-ring-color: var(--slotted-focus-ring-color-invalid);
+    /* Width as well as colour (WCAG 1.4.1): in `high-contrast` the invalid ring
+       is the valid ring's black, and the corner mark is withdrawn while the
+       cell edits. The trace widens inward by the edge every invalid control
+       adds, so the cell's box and its draft stay where they are. */
+    --_invalid-ring: calc(var(--_ring-width) + var(--slotted-control-invalid-edge-width, 1px));
+
+    box-shadow: none;
+    outline: var(--_invalid-ring) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--_invalid-ring) * -1);
+  }
+
+  /* The editor of a numeric column keeps the digits at the end, where the
+     read value stood. */
+  [data-ui-data-grid] [data-numeric][data-editing] [data-part-input] {
+    text-align: end;
+  }
+
+  [data-ui-data-grid] [data-part-cell] > [data-part-editor] {
+    display: flex;
+    flex: 1 1 auto;
+    /* Inside the cell's trace, at every density. */
+    margin: var(--_ring-width);
+    min-inline-size: 0;
+  }
+
+  [data-ui-data-grid] [data-part-cell] > [data-part-editor] > [data-part-root],
+  [data-ui-data-grid] [data-part-cell] > [data-part-editor] > :not([data-part]) > [data-part-root] {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  /**
+   * A cell whose value just changed between two `rows`: the accent's subtle
+   * ground, fading to nothing over the time the grid was given
+   * (`--slotted-data-grid-changed-duration`, written by the binding from
+   * `highlightChanges`). Two identical animations, one per mark, so a cell
+   * changed again mid-fade restarts from full. The length is the grid's own,
+   * outside the motion scale; under reduced motion the ground stays flat and
+   * leaves when the mark does.
+   */
+  [data-ui-data-grid] [data-part-cell][data-changed='a'] {
+    animation: slotted-data-grid-changed-a
+      var(--slotted-data-grid-changed-duration, var(--slotted-duration-long))
+      var(--slotted-easing-standard, ease-out) forwards;
+  }
+
+  [data-ui-data-grid] [data-part-cell][data-changed='b'] {
+    animation: slotted-data-grid-changed-b
+      var(--slotted-data-grid-changed-duration, var(--slotted-duration-long))
+      var(--slotted-easing-standard, ease-out) forwards;
+  }
+
+  @keyframes slotted-data-grid-changed-a {
+    /* Held for a third of the time, so the eye can land on it, then gone. */
+    0%,
+    35% {
+      background-color: var(--_changed);
+    }
+
+    100% {
+      background-color: transparent;
+    }
+  }
+
+  @keyframes slotted-data-grid-changed-b {
+    /* Held for a third of the time, so the eye can land on it, then gone. */
+    0%,
+    35% {
+      background-color: var(--_changed);
+    }
+
+    100% {
+      background-color: transparent;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-data-grid] [data-part-cell][data-changed] {
+      animation: none;
+      background-color: var(--_changed);
+    }
+
+    [data-ui-data-grid] button[data-part-tree-toggle][data-loading] > [data-ui-icon] {
+      animation: none;
+    }
+  }
+
+  /* A cell whose draft failed, or whose value changed under the reader. The
+     mark is a corner in the danger ink, and the message is the control's own
+     `aria-errormessage`; the cell keeps the draft. */
+  [data-ui-data-grid] [data-part-cell][data-invalid]:not([data-editing])::after {
+    border-block-start: var(--slotted-space-3, 0.375rem) solid var(--slotted-tone-danger-border);
+    border-inline-start: var(--slotted-space-3, 0.375rem) solid transparent;
+    content: '';
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    pointer-events: none;
+    position: absolute;
+    /* Above the editor, which is a positioned box of its own family. */
+    z-index: 1;
+  }
+
+  /* A cell whose commit is pending dims its value; nothing moves. */
+  [data-ui-data-grid] [data-part-cell][data-loading] {
+    color: var(--_muted);
+  }
+
+  /* A cell that does not edit in a grid that does: no mark, no hand. It is a
+     fact the reader hears, not one the eye needs. */
+  [data-ui-data-grid] [data-part-cell][data-readonly] {
+    cursor: default;
+  }
+
+  /**
+   * ── Alignment, numerals and the text treatment ─────────────────────────
+   */
+  [data-ui-data-grid] [data-align='start'] {
+    justify-content: start;
+    text-align: start;
+  }
+
+  [data-ui-data-grid] [data-align='center'] {
+    justify-content: center;
+    text-align: center;
+  }
+
+  [data-ui-data-grid] [data-align='end'] {
+    justify-content: end;
+    text-align: end;
+  }
+
+  [data-ui-data-grid] [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  [data-ui-data-grid] [data-numeric]:not([data-align]) {
+    justify-content: end;
+    text-align: end;
+  }
+
+  /* `truncate` is the default in a grid: a column has a width by definition,
+     and the value stays whole in the DOM and in the cell's title. The value
+     is the span with no part of its own — in a tree column the toggle comes
+     first, and a rule on `:first-child` left "Barcelona" drawn over the next
+     column once the column was narrower than the name. */
+  [data-ui-data-grid] [data-text='truncate'] > span:not([data-ui], [data-part]) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* A value that is never broken is clipped at its cell rather than drawn over
+     the next one: a grid's columns are its layout, and a value crossing one is
+     a value in the wrong column. */
+  [data-ui-data-grid] [data-text='nowrap'] > span:not([data-ui], [data-part]) {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  [data-ui-data-grid] [data-text='wrap'] > span:not([data-ui], [data-part]) {
+    overflow-wrap: anywhere;
+  }
+
+  /**
+   * ── Pinned columns ─────────────────────────────────────────────────────
+   *
+   * A pinned cell is `sticky` at the summed width of the pinned cells before
+   * it, written by the binding as `--slotted-data-grid-pin-offset`; it
+   * inherits the row's ground, whatever state the row is in, to cover the
+   * cells sliding under it. The edge is drawn as a pseudo-element crossing
+   * the rules rather than as a border, for the reason `table` records: two
+   * borders of one box are mitred at the corner.
+   */
+  [data-ui-data-grid] [data-pinned='start'] {
+    background-color: inherit;
+    inset-inline-start: var(--slotted-data-grid-pin-offset, 0);
+    position: sticky;
+    z-index: var(--slotted-z-index-sticky, 100);
+  }
+
+  [data-ui-data-grid] [data-pinned='end'] {
+    background-color: inherit;
+    inset-inline-end: var(--slotted-data-grid-pin-offset, 0);
+    position: sticky;
+    z-index: var(--slotted-z-index-sticky, 100);
+  }
+
+  /* The corner: a header cell that is also pinned takes the step above both. */
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-head] [data-pinned] {
+    background-color: var(--_head-surface);
+    z-index: calc(var(--slotted-z-index-sticky, 100) + 2);
+  }
+
+  /* A plain header has no band: a pinned header cell takes the page's ground,
+     opaque over the names sliding under it, and not the band it would be the
+     only piece of — read on the pop-in scene, a grey block behind one name. */
+  [data-ui-data-grid][data-variant='plain'] > [data-part-scroll] > [data-part-head] [data-pinned],
+  [data-ui-data-grid][data-variant='plain']
+    > [data-part-scroll]
+    > [data-part-head]
+    > [role='row']
+    > [data-part-selection] {
+    background-color: var(--_surface);
+  }
+
+  [data-ui-data-grid] [data-part-filter-row] > [data-pinned] {
+    background-color: var(--_band-surface);
+  }
+
+  [data-ui-data-grid]
+    > [data-part-scroll]
+    > :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row][data-selected]
+    > [data-pinned] {
+    /* The zone's edge inside the block is one of the block's inner rules. The
+     ground is the row's, inherited, so it follows the row's hover. */
+    --_rule: var(--_selected-rule);
+  }
+
+  /* The last pinned cell of each zone draws the edge: the same hairline as
+     the rules between rows, and no more. */
+  [data-ui-data-grid] [data-pinned][data-pin-edge]::after {
+    background-color: var(--_rule);
+    content: '';
+    inline-size: var(--_rule-width);
+    /* Past the row's own rule below, so the edge is one line down the body. */
+    inset-block: 0 calc(var(--_rule-width) * -1);
+    pointer-events: none;
+    position: absolute;
+    z-index: 1;
+  }
+
+  [data-ui-data-grid]
+    > [data-part-scroll]
+    > :is([data-part-body], [data-part-pinned-rows])
+    > [role='row']:last-child
+    > [data-pin-edge]::after {
+    inset-block-end: 0;
+  }
+
+  [data-ui-data-grid] [data-pinned='start'][data-pin-edge]::after {
+    inset-inline-end: 0;
+  }
+
+  [data-ui-data-grid] [data-pinned='end'][data-pin-edge]::after {
+    inset-inline-start: 0;
+  }
+
+  /* A pop-in spans the row under the pinned cells, so the edge could never
+     run down the body: it stood as a stub beside each values' line. At rest
+     a grid with a pop-in draws no edge; the shadow below still marks what
+     slides under a zone. */
+  [data-ui-data-grid][data-popin] [data-pinned][data-pin-edge]::after {
+    background-color: transparent;
+  }
+
+  /* While something is hidden under the zone the hairline casts a short
+     shadow over what slides beneath it — the affordance a grid needs where a
+     table did not, because a grid virtualises columns and a column cut
+     mid-word is not always there to be seen. A shadow and not a stronger
+     line: read on the pinning scene, a dark rule down the body read as a
+     frame inside the frame. */
+  [data-ui-data-grid]
+    [data-part-scroll][data-overflowing]:not([data-at-start])
+    [data-pinned='start'][data-pin-edge]::after,
+  [data-ui-data-grid]
+    [data-part-scroll][data-overflowing]:not([data-at-end])
+    [data-pinned='end'][data-pin-edge]::after {
+    /* The colour is the gradient's alone: with the hairline's colour still
+       under the widened box, the shadow read as a solid grey band. */
+    background-color: transparent;
+    inline-size: calc(var(--_rule-width) + var(--_edge-shadow-size));
+  }
+
+  [data-ui-data-grid]
+    [data-part-scroll][data-overflowing]:not([data-at-start])
+    [data-pinned='start'][data-pin-edge]::after {
+    background-image: linear-gradient(
+      to right,
+      var(--_rule) var(--_rule-width),
+      var(--_edge-shadow) var(--_rule-width),
+      transparent
+    );
+    inset-inline-end: calc(var(--_edge-shadow-size) * -1);
+  }
+
+  [data-ui-data-grid]
+    [data-part-scroll][data-overflowing]:not([data-at-end])
+    [data-pinned='end'][data-pin-edge]::after {
+    background-image: linear-gradient(
+      to left,
+      var(--_rule) var(--_rule-width),
+      var(--_edge-shadow) var(--_rule-width),
+      transparent
+    );
+    inset-inline-start: calc(var(--_edge-shadow-size) * -1);
+  }
+
+  [data-ui-data-grid]:dir(rtl)
+    [data-part-scroll][data-overflowing]:not([data-at-start])
+    [data-pinned='start'][data-pin-edge]::after {
+    background-image: linear-gradient(
+      to left,
+      var(--_rule) var(--_rule-width),
+      var(--_edge-shadow) var(--_rule-width),
+      transparent
+    );
+  }
+
+  [data-ui-data-grid]:dir(rtl)
+    [data-part-scroll][data-overflowing]:not([data-at-end])
+    [data-pinned='end'][data-pin-edge]::after {
+    background-image: linear-gradient(
+      to right,
+      var(--_rule) var(--_rule-width),
+      var(--_edge-shadow) var(--_rule-width),
+      transparent
+    );
+  }
+
+  /**
+   * ── The selection column ───────────────────────────────────────────────
+   *
+   * The cell is the family's and the control is `checkbox`'s. The width is
+   * stated so a column pinned beside it has a length to state.
+   */
+  [data-ui-data-grid] [role='row'] > [data-part-selection] {
+    --slotted-selection-halo-opacity: 0;
+
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  /**
+   * The chooser is always pinned to the start. It is the first column and its
+   * offset is zero, so pinning it costs nothing when no other column is
+   * pinned; and when one is, a chooser that scrolled away left a hole at the
+   * start of every row where the identifier beside it stayed. AG Grid and MUI
+   * X both pin it with the first pinned column; here it is pinned always, so a
+   * consumer never has to say it.
+   */
+  [data-ui-data-grid] [role='row'] > [data-part-selection] {
+    background-color: inherit;
+    inset-inline-start: 0;
+    position: sticky;
+    z-index: var(--slotted-z-index-sticky, 100);
+  }
+
+  /* Restated for the head's chooser, whose header rule above made it
+     `relative` at a higher specificity: read scrolled, the select-all left
+     with the columns while every row's chooser stayed. */
+  [data-ui-data-grid]
+    > [data-part-scroll]
+    > [data-part-head]
+    > [role='row']
+    > [data-part-selection] {
+    background-color: var(--_head-surface);
+    inset-inline-start: 0;
+    position: sticky;
+    z-index: calc(var(--slotted-z-index-sticky, 100) + 2);
+  }
+
+  [data-ui-data-grid] [role='row'] > [data-part-selection] > [data-ui-checkbox] {
+    block-size: var(--_line);
+  }
+
+  /* A cell holding nothing but the expander is a gutter. The binding names
+     it rather than the stylesheet asking every cell what it holds: `:has()`
+     on every cell of a windowed body is a question asked a thousand times per
+     style pass. */
+  [data-ui-data-grid] [data-part-cell][data-kind='expander'] {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  /**
+   * ── The detail row ─────────────────────────────────────────────────────
+   *
+   * One cell spanning every column, on the sunken ground, with the record's
+   * own inset so what is inside reads as belonging to the row above.
+   */
+  [data-ui-data-grid] [data-part-detail] {
+    background-color: var(--slotted-surface-sunken, Canvas);
+  }
+
+  [data-ui-data-grid] [data-part-detail] > * {
+    background-color: var(--slotted-surface-sunken, Canvas);
+    box-sizing: border-box;
+    grid-column: 1 / -1;
+    padding-block: var(--slotted-space-5, 0.75rem);
+    padding-inline: var(--_pad-inline);
+    /* Wide as the frame, whatever the template is: what is inside a detail is
+       the consumer's own layout and not a column. */
+    position: sticky;
+    inset-inline-start: 0;
+    max-inline-size: var(--slotted-data-grid-viewport, 100%);
+  }
+
+  /**
+   * ── The pop-in ─────────────────────────────────────────────────────────
+   *
+   * The columns a frame too narrow for the template took out, drawn at the
+   * foot of their row as labelled values: one cell on the row's second line,
+   * across every track, and a field per column in as many columns of at
+   * least 9rem as the frame has room for — two on a phone without gutters.
+   * It is as wide as the frame and stays put while the row scrolls sideways,
+   * as the detail does. Outside a compact frame its fields start where the
+   * first data column's text does — after the gutters, whose width the
+   * binding writes as `--slotted-data-grid-leading`, and the cell's inline
+   * padding — and end at
+   * the cell's inline padding. The row paints the ground and the rule, so
+   * hover, selection and the rule between rows cover both lines.
+   */
+  /* The values' line is the density's row, grown to its content; the
+     pop-in's line is as tall as its fields. */
+  [data-ui-data-grid][data-popin]
+    > [data-part-scroll]
+    > :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row] {
+    grid-template-rows: minmax(var(--_track), auto) auto;
+  }
+
+  [data-ui-data-grid][data-popin] > [data-part-scroll] > [data-part-summary] > [role='row'] {
+    grid-template-rows: minmax(var(--_head-block), auto) auto;
+  }
+
+  /* The chooser, the expander, the values and the actions stand on the
+     values' line centred, as in a fixed row: the line is the row's own
+     height, and a wrapped value is the only thing that grows it. */
+  [data-ui-data-grid][data-popin]
+    :is([data-part-body], [data-part-pinned-rows])
+    > [data-part-row]
+    > :is([role='gridcell'], [role='rowheader']):not([data-part-popin]) {
+    align-items: center;
+  }
+
+  [data-ui-data-grid] [data-part-popin] {
+    align-content: start;
+    box-sizing: border-box;
+    column-gap: var(--slotted-space-4, 0.5rem);
+    display: grid;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: repeat(auto-fill, minmax(min(9rem, 100%), 1fr));
+    inset-inline-start: 0;
+    max-inline-size: var(--slotted-data-grid-viewport, 100%);
+    min-inline-size: 0;
+    padding-block: 0 var(--_pad-block);
+    padding-inline: calc(var(--slotted-data-grid-leading, 0px) + var(--_pad-inline))
+      var(--_pad-inline);
+    position: sticky;
+    row-gap: var(--slotted-space-2, 0.25rem);
+    container: slotted-data-grid-popin / inline-size;
+  }
+
+  /* A compact frame (`COMPACT_BELOW`) cannot spend the gutters' width on an
+     indent: with the chooser and the expander, 88 of 360 pixels left one
+     column of fields where the row's whole width holds two. The fields start
+     at the row's own padding, under the chooser. */
+  [data-ui-data-grid][data-narrow] [data-part-popin] {
+    padding-inline-start: var(--_pad-inline);
+  }
+
+  /* The label above the value, as a form reads, so a narrow field keeps the
+     value's whole width. */
+  [data-ui-data-grid] [data-part-popin-field] {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  /* Room for one column of fields only (two need 2 × 9rem and the gap): the
+     label goes beside its value, so each field takes one line instead of two. */
+  @container slotted-data-grid-popin (width < 19rem) {
+    [data-ui-data-grid] [data-part-popin-field] {
+      align-items: baseline;
+      column-gap: var(--slotted-space-3, 0.375rem);
+      display: grid;
+      grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr);
+    }
+  }
+
+  [data-ui-data-grid] [data-part-popin-label] {
+    color: var(--_muted);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-weight: var(--slotted-font-weight-regular, 400);
+    overflow-wrap: anywhere;
+  }
+
+  /* At the start whatever the column's alignment: a number at the end of a
+     field under a label at its start reads as the next field's. One line tall
+     when empty, so an empty value keeps its place under its label, as the
+     empty cell keeps its row. */
+  [data-ui-data-grid] [data-part-popin-value] {
+    align-items: center;
+    display: flex;
+    gap: var(--_gap);
+    justify-content: start;
+    min-block-size: var(--_line);
+    min-inline-size: 0;
+    text-align: start;
+  }
+
+  /* Whole, whatever the column's text treatment: a truncated value in a cell
+     keeps its title and its column; in a field it would be lost, and the
+     field has the room to wrap. A wrapped value keeps its own direction and
+     aligns its lines to the grid's start, under its label: read in `rtl`, a
+     company name set by its own direction ran from the far edge of the field,
+     and `match-parent` did not move it. */
+  [data-ui-data-grid] [data-part-popin-value][data-text] > span:not([data-ui], [data-part]),
+  [data-ui-data-grid] [data-part-popin-value] > span:not([data-ui], [data-part]) {
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-align: left;
+    text-overflow: clip;
+    unicode-bidi: plaintext;
+    white-space: normal;
+  }
+
+  /* Physical, because `start` under `plaintext` is the value's own start. */
+  [data-ui-data-grid]:dir(rtl) [data-part-popin-value] > span:not([data-ui], [data-part]) {
+    text-align: right;
+  }
+
+  [data-ui-data-grid] [data-part-popin-value] > [data-ui]:not([data-part]) {
+    flex: 0 0 auto;
+    max-inline-size: 100%;
+  }
+
+  /**
+   * ── The group row ──────────────────────────────────────────────────────
+   *
+   * A node of a tree: the toggle, the value, the count and the aggregates,
+   * indented by its level. The ground is the band at 4%, and the text is
+   * semibold, so a reader scanning for a group finds it without reading.
+   */
+  [data-ui-data-grid] [data-part-group-row] {
+    background-color: var(--_band-surface);
+    color: var(--_text);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  [data-ui-data-grid] [data-part-group-row] > [role='gridcell'] {
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    gap: var(--_gap);
+    min-block-size: var(--_row-block);
+    min-inline-size: 0;
+    padding-block: var(--_pad-block);
+    padding-inline: var(--_pad-inline);
+  }
+
+  /* The first cell of a group row spans to the first aggregate, indented by
+     its level; the aggregates stand in their own columns. */
+  [data-ui-data-grid] [data-part-group-row] > [role='gridcell']:first-child {
+    padding-inline-start: calc(
+      var(--_pad-inline) + var(--_indent) * (var(--slotted-data-grid-level, 1) - 1)
+    );
+    position: sticky;
+    inset-inline-start: 0;
+  }
+
+  [data-ui-data-grid] [data-part-group-row] > [role='gridcell']:first-child > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* The count, one step lighter than the value. */
+  [data-ui-data-grid] [data-part-group-row] [data-count] {
+    color: var(--_muted);
+    font-weight: var(--slotted-font-weight-regular, 400);
+  }
+
+  [data-ui-data-grid] [data-part-group-row] [data-aggregate] {
+    color: var(--_muted);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-data-grid] [data-part-group-toggle] {
+    margin-block: calc((var(--_line) - var(--slotted-target-min, 24px)) / 2);
+    margin-inline-start: calc(var(--slotted-space-2, 0.25rem) * -1);
+  }
+
+  /**
+   * ── The summary ────────────────────────────────────────────────────────
+   *
+   * The aggregates of the whole query, pinned to the end of the scroller, on
+   * the band with a strong rule above — the header of the other end.
+   */
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-summary] {
+    inset-block-end: var(--slotted-data-grid-sticky-offset-end, 0);
+    position: sticky;
+    z-index: calc(var(--slotted-z-index-sticky, 100) + 1);
+  }
+
+  [data-ui-data-grid]:not([data-sticky-header]) > [data-part-scroll] > [data-part-summary] {
+    position: static;
+  }
+
+  /**
+   * ── Pinned rows ────────────────────────────────────────────────────────
+   *
+   * Rows held at an edge: a rowgroup stuck under the head or over the
+   * summary, at the height the binding measured for each, on the page's
+   * surface so the body scrolls under it, with a rule on the side it faces
+   * the body. Their rows are the body's rows.
+   */
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-pinned-rows] {
+    background-color: var(--_surface);
+    position: sticky;
+    z-index: calc(var(--slotted-z-index-sticky, 100) + 1);
+  }
+
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-pinned-rows][data-edge='top'] {
+    border-block-end: var(--_rule-width) solid var(--_rule-strong);
+    inset-block-start: calc(
+      var(--slotted-data-grid-sticky-offset, 0px) + var(--slotted-data-grid-pinned-top-offset, 0px)
+    );
+  }
+
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-pinned-rows][data-edge='bottom'] {
+    border-block-start: var(--_rule-width) solid var(--_rule-strong);
+    inset-block-end: calc(
+      var(--slotted-data-grid-sticky-offset-end, 0px) +
+        var(--slotted-data-grid-pinned-bottom-offset, 0px)
+    );
+  }
+
+  [data-ui-data-grid]:not([data-sticky-header]) > [data-part-scroll] > [data-part-pinned-rows] {
+    position: static;
+  }
+
+  /* A pinned cell inside a held row stands over the row's own ground. */
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-pinned-rows] [data-pinned] {
+    background-color: var(--_surface);
+  }
+
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-summary] > [role='row'] {
+    background-color: var(--_head-surface);
+    border-block-start: var(--_rule-width) solid var(--_rule-strong);
+  }
+
+  [data-ui-data-grid] [data-part-summary-cell] {
+    background-color: var(--_head-surface);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    min-block-size: var(--_head-block);
+  }
+
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-summary] [data-pinned] {
+    background-color: var(--_head-surface);
+    z-index: calc(var(--slotted-z-index-sticky, 100) + 2);
+  }
+
+  /* The label of an aggregate — "Total", "Average" — one step lighter than
+     the number beside it. */
+  [data-ui-data-grid] [data-part-summary-cell] [data-label] {
+    color: var(--_muted);
+    font-weight: var(--slotted-font-weight-regular, 400);
+    margin-inline-end: var(--slotted-space-2, 0.25rem);
+  }
+
+  /**
+   * ── Row actions ────────────────────────────────────────────────────────
+   *
+   * Visible under the pointer, under focus and while the cursor is on the
+   * row; always visible on a coarse pointer, where there is no hover to
+   * reveal them.
+   */
+  /* Scoped to the cell's own child: `result-state` in the empty part has an
+     `actions` part of the same name, and a rule naming the part alone hid
+     its buttons. */
+  [data-ui-data-grid] [data-part-cell] > [data-part-actions] {
+    align-items: center;
+    /* One line tall, whatever stands inside: the buttons are taller than the
+       line and overflow it evenly, so the row is still measured by its text
+       and the buttons sit on the value's own centre. */
+    block-size: var(--_line);
+    display: inline-flex;
+    gap: var(--slotted-space-1, 0.125rem);
+    opacity: 0;
+    transition: opacity var(--_transition);
+  }
+
+  /**
+   * The buttons are the family's, drawn to the header controls' geometry —
+   * one WCAG target, the row's hover ground, the family's glyph size for the
+   * artwork the consumer puts in. A library `button` at its smallest step is
+   * thirty pixels against a line of nineteen and a half: read on the anatomy
+   * scene, two of them stood five pixels proud of the row on both sides and
+   * grew its track. The consumer keeps the behaviour and the artwork.
+   */
+  [data-ui-data-grid] [data-part-cell] > [data-part-actions] > button {
+    align-items: center;
+    background-color: transparent;
+    block-size: var(--_control);
+    border: 0;
+    border-radius: var(--slotted-data-grid-control-radius, var(--slotted-radius-sm, 4px));
+    color: var(--_muted);
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--_control);
+    justify-content: center;
+    padding: 0;
+    transition:
+      background-color var(--_transition),
+      color var(--_transition);
+  }
+
+  [data-ui-data-grid] [data-part-cell] > [data-part-actions] > button :is(svg, img) {
+    block-size: var(--_control-icon);
+    inline-size: var(--_control-icon);
+  }
+
+  [data-ui-data-grid] [data-part-cell] > [data-part-actions] > button:not(:disabled):hover {
+    background-color: color-mix(in oklab, var(--slotted-text, CanvasText) 7%, transparent);
+    color: var(--_text);
+  }
+
+  [data-ui-data-grid] [data-part-cell] > [data-part-actions] > button:focus-visible {
+    outline: var(--_ring-width) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-data-grid]
+    [data-part-row]:not([data-disabled]):hover
+    [data-part-cell]
+    > [data-part-actions],
+  [data-ui-data-grid] [data-part-row]:focus-within [data-part-cell] > [data-part-actions],
+  [data-ui-data-grid] [data-part-row][data-current] [data-part-cell] > [data-part-actions],
+  [data-ui-data-grid] [data-part-row][data-editing] [data-part-cell] > [data-part-actions] {
+    opacity: 1;
+  }
+
+  @media (pointer: coarse) {
+    [data-ui-data-grid] [data-part-cell] > [data-part-actions],
+    [data-ui-data-grid] [data-part-column-menu],
+    [data-ui-data-grid] [data-part-column-header] [data-part-filter] {
+      opacity: 1;
+    }
+
+    /* The row grew to the comfortable target through the control scale; the
+       family's own controls grow with it, to the row less the cursor's ring.
+       A 24-pixel button in a 44-pixel row is a target a thumb misses. */
+    [data-ui-data-grid][data-part-root] {
+      --_control: min(
+        var(--slotted-target-comfortable, 44px),
+        calc(min(var(--_row-block), var(--_head-block)) - var(--_ring-width) * 2)
+      );
+      --_target: var(--slotted-target-comfortable, 44px);
+      --_reach: max(0px, calc((var(--_target) - var(--_control)) / 2));
+    }
+
+    /* The ground stays the row less the cursor's ring, so the ring still
+       shows round it; the box reaches the full target by a padding the ground
+       does not paint, and gives it back as a negative margin, so no row, no
+       header and no column name moves. Neighbours overlap by the gap. */
+    [data-ui-data-grid] [data-part-column-help],
+    [data-ui-data-grid] [data-part-column-menu],
+    [data-ui-data-grid] [data-part-column-header] [data-part-filter],
+    [data-ui-data-grid] [data-part-expander],
+    [data-ui-data-grid] [data-part-group-toggle],
+    [data-ui-data-grid] [data-part-tree-toggle],
+    [data-ui-data-grid] [data-part-row-handle] {
+      background-clip: content-box;
+      box-sizing: content-box;
+      margin: calc(var(--_reach) * -1);
+      padding: var(--_reach);
+    }
+  }
+
+  /**
+   * ── Empty, and loading ─────────────────────────────────────────────────
+   */
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-empty] {
+    align-items: center;
+    /* The padding stands inside the viewport's width. Without it the box was
+       its own padding wider than the frame, and a grid whose columns all fit
+       gained a sideways scroll the moment the filter emptied it. */
+    box-sizing: border-box;
+    display: flex;
+    /* Wide as the frame's viewport and pinned to its start, so the message
+       stands in the middle of what the reader sees whatever the columns'
+       width and however far the grid is scrolled sideways: laid out over the
+       columns, the middle of a wide template was off screen. */
+    inline-size: var(--slotted-data-grid-viewport, 100%);
+    inset-inline-start: 0;
+    justify-content: center;
+    min-block-size: calc(var(--_row-block) * 6);
+    padding: var(--slotted-space-8, 1.5rem);
+    position: sticky;
+  }
+
+  [data-ui-data-grid] > [data-part-scroll] > [data-part-loader] > [data-part-row] > * {
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    /* The row the loader stands in for is a body row, not the header: a
+       consumer who set a row height of its own had every box move when the
+       rows arrived. It is as tall as the rows the grid has measured, because
+       the binding counts skeleton rows by that height: drawn at the base
+       height, a count made for taller rows left the frame half empty. */
+    min-block-size: max(var(--_row-block), var(--slotted-data-grid-loader-row-size, 0px));
+    min-inline-size: 0;
+    padding-block: var(--_pad-block);
+    padding-inline: var(--_pad-inline);
+  }
+
+  [data-ui-data-grid][aria-busy='true'] > [data-part-scroll] > [data-part-body] {
+    opacity: 0.55;
+    transition: opacity var(--_transition);
+  }
+
+  /**
+   * The rows refuse a press while they are read again through a veil over
+   * them, not through `pointer-events: none` on the body: the property is
+   * inherited, and toggling it restyled every cell — 8 ms of a 70-row grid's
+   * 9 ms. The veil is one box; the body's opacity makes it a stacking context,
+   * so the veil's layer is above the pinned cells and below nothing outside.
+   */
+  [data-ui-data-grid][aria-busy='true'] > [data-part-scroll] > [data-part-body]::after {
+    content: '';
+    inset: 0;
+    position: absolute;
+    z-index: calc(var(--slotted-z-index-sticky, 100) + 4);
+  }
+
+  /**
+   * ── The footer ─────────────────────────────────────────────────────────
+   *
+   * The bar under the grid and inside the frame: pagination, the range, load
+   * more. A sibling of the scroller, so a grid scrolled sideways does not take
+   * its paging with it. The range reads at the start and the pager sits at
+   * the end — the controls of a table close its inline end, the same edge the
+   * numbers align to. The last item takes the room that is left and aligns
+   * its own content to the end: `pagination` is an inline-size container and
+   * contributes no intrinsic width, so it cannot be sized by its content.
+   */
+  [data-ui-data-grid] > [data-part-footer] {
+    align-items: center;
+    border-block-start: var(--_rule-width) solid var(--_rule);
+    box-sizing: border-box;
+    display: flex;
+    flex: none;
+    /* The range wraps onto its own line before the pager is squeezed into a
+       column: read at 240 pixels, `pagination` stacked its three parts. */
+    flex-wrap: wrap;
+    gap: var(--_gap);
+    min-block-size: calc(var(--_head-block) + var(--_pad-block) * 2);
+    padding-block: var(--_pad-block);
+    padding-inline: var(--_pad-inline);
+  }
+
+  [data-ui-data-grid] > [data-part-footer] > :last-child {
+    display: flex;
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    min-inline-size: 0;
+  }
+
+  [data-ui-data-grid] > [data-part-footer] [data-range] {
+    color: var(--_muted);
+    flex: none;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /**
+   * ── Scheme and platform ────────────────────────────────────────────────
+   */
+  @media (forced-colors: active) {
+    [data-ui-data-grid] [data-part-resizer] > [data-part-resize-guide] {
+      background-color: Highlight;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-data-grid] [role='gridcell'][data-current],
+    [data-ui-data-grid] [role='columnheader'][data-current] {
+      box-shadow: inset 0 0 0 var(--_ring-width) Highlight;
+    }
+
+    [data-ui-data-grid] [data-part-cell][data-in-range] {
+      background-color: Highlight;
+      color: HighlightText;
+    }
+
+    [data-ui-data-grid] [data-part-drop-indicator] {
+      background-color: Highlight;
+    }
+
+    [data-ui-data-grid] [data-part-cell][data-changed] {
+      animation: none;
+      background-color: Highlight;
+      color: HighlightText;
+    }
+
+    /* The resizer's line is a painted background, which the adjustment
+       would otherwise replace, leaving the target with no line to show. */
+    [data-ui-data-grid] [data-part-resizer]::after {
+      forced-color-adjust: none;
+    }
+  }
+
+  /**
+   * ── Print ──────────────────────────────────────────────────────────────
+   *
+   * The frame grows to its rows, nothing scrolls, nothing sticks, and what
+   * exists only for the pointer — the column's actions, the resize handle,
+   * the drop guide, the cursor's ring, the row's hover ground — is not on
+   * paper. A grid that windows its rows prints the rows it has mounted; a
+   * consumer who prints ten thousand turns the window off first.
+   */
+  @media print {
+    [data-ui-data-grid][data-part-root] {
+      block-size: auto;
+      break-inside: auto;
+    }
+
+    [data-ui-data-grid] > [data-part-scroll] {
+      overflow: visible;
+    }
+
+    [data-ui-data-grid] > [data-part-scroll] > [data-part-head],
+    [data-ui-data-grid] > [data-part-scroll] > [data-part-summary],
+    [data-ui-data-grid] > [data-part-scroll] > [data-part-empty],
+    [data-ui-data-grid] > [data-part-scroll] > [data-part-pinned-rows],
+    [data-ui-data-grid] [data-pinned] {
+      position: static;
+    }
+
+    [data-ui-data-grid] [data-pinned] {
+      box-shadow: none;
+    }
+
+    [data-ui-data-grid] [data-part-column-actions],
+    [data-ui-data-grid] [data-part-row-handle],
+    [data-ui-data-grid] [data-part-resizer],
+    [data-ui-data-grid] [data-part-drop-indicator],
+    [data-ui-data-grid] [data-part-loader] {
+      display: none;
+    }
+
+    [data-ui-data-grid] [role='gridcell'][data-current],
+    [data-ui-data-grid] [role='rowheader'][data-current],
+    [data-ui-data-grid] [role='columnheader'][data-current] {
+      box-shadow: none;
+    }
+
+    [data-ui-data-grid] :is([data-part-body], [data-part-pinned-rows]) > [data-part-row] {
+      break-inside: avoid;
+    }
+
+    [data-ui-data-grid]
+      > [data-part-scroll]
+      > :is([data-part-body], [data-part-pinned-rows])
+      > [data-part-row] {
+      --_hover: transparent;
+    }
+  }
+}
+
+/**
+ * The row window's offset and the body's whole height, written on the body
+ * by script on every scroll step and read only by the body. Unregistered,
+ * each one inherited into every row and cell, and a scroll step restyled the
+ * whole window: 41 ms of style recalculation per step on 29 mounted rows.
+ * Registered without inheritance and without a type, a body the grid does not
+ * window still takes the fallback of `var()`. Outside the layer, because
+ * `@property` is a registration, not a rule a cascade layer holds.
+ */
+@property --slotted-data-grid-window-start {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --slotted-data-grid-window-total {
+  syntax: '*';
+  inherits: false;
+}

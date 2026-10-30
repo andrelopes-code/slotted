@@ -1,0 +1,3431 @@
+<!--
+  The third place this family's DOM is written, after React and Angular. Every
+  `data-part` the contract declares appears here:
+
+    div[data-ui='dashboard-grid'][data-part='root']      data-editing; --_dg-columns-*
+      div[data-part='edit-bar'][role='group']            only while editing, editBar true
+        p[data-part='edit-status']                       the handles' description
+        div[data-part='edit-actions']
+          button[data-part='add']                        only while a widget is hidden; a menu trigger
+          button[data-part='reset'] · button[data-part='cancel'] · button[data-part='done']
+      ul[data-part='grid'][role='list']                  data-gesture; the lattice is its ::before
+        li[data-part='widget']                           --_dg-x, --_dg-y, --_dg-w, --_dg-h, --_dg-span-medium;
+                                                         data-key, data-status, data-loading, data-movable,
+                                                         data-resizable, data-dragging, data-resizing
+          article[data-ui='card']
+            div[data-part='header']
+              h3[data-part='title'] · p[data-part='description']
+              div[data-part='actions']                   the consumer's actions, a[data-part='detail']
+            div[data-part='body']
+              span[data-part='busy-indicator']           only while busy
+              div[data-part='skeleton'] > skeleton       only while loading
+              div[data-part='message'] > result-state    status empty or error; button[data-part='retry']
+          button[data-part='handle']                     only while editing: the pill on the top edge
+          span[data-part='resize-handle'][data-edge]     only while editing and resizable: start, end,
+                                                         bottom, bottom-start, bottom-end; data-active
+          span[data-part='size-readout']                 only while a pointer pulls
+        li[data-part='placeholder']                      only during a gesture: the cells it lands in
+      div[data-part='empty'] > result-state              only when no widget is visible
+
+  The page has no script, so what script writes is written by hand: each cell,
+  the lifted widget's origin and travel, the placeholder, the active edge.
+  Handles that answer hover are photographed with --hover.
+-->
+
+<style>
+  /* The ground a dashboard stands on, and the content of a widget — neither is
+     the family's. They stand in for a page's sunken surface and for what an
+     application puts in a body: a figure with its trend, a bar chart, a list. */
+  [data-demo-ground] {
+    background: var(--slotted-surface-sunken);
+    border-radius: var(--slotted-radius-lg);
+    padding: var(--slotted-space-8);
+  }
+  [data-demo-kpi] {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-block-size: 0;
+  }
+  [data-demo-figure] {
+    font-size: var(--slotted-font-size-2xl);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold);
+    line-height: var(--slotted-line-height-2xl);
+    margin: 0;
+  }
+  [data-demo-delta] {
+    color: var(--slotted-tone-success-text);
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-sm);
+    margin: 0;
+  }
+  [data-demo-delta][data-tone='down'] {
+    color: var(--slotted-tone-danger-text);
+  }
+  [data-demo-spark] {
+    block-size: 0;
+    display: block;
+    flex: 1 1 var(--slotted-space-9);
+    inline-size: 100%;
+    margin-block-start: var(--slotted-space-4);
+    min-block-size: var(--slotted-space-9);
+    stroke: var(--slotted-tone-success-text);
+  }
+  [data-demo-spark][data-tone='down'] {
+    stroke: var(--slotted-tone-danger-text);
+  }
+  [data-demo-bars] {
+    align-items: end;
+    display: flex;
+    flex: 1 1 auto;
+    gap: var(--slotted-space-3);
+    min-block-size: var(--slotted-space-12);
+  }
+  [data-demo-bars] > span {
+    background: var(--slotted-tone-accent-solid);
+    border-start-end-radius: var(--slotted-radius-xs);
+    border-start-start-radius: var(--slotted-radius-xs);
+    flex: 1 1 0;
+  }
+  [data-demo-rows] {
+    align-content: start;
+    display: grid;
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-sm);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  [data-demo-rows] > li {
+    border-block-end: 1px solid var(--slotted-border-subtle);
+    display: flex;
+    gap: var(--slotted-space-4);
+    justify-content: space-between;
+    padding-block: var(--slotted-space-3);
+  }
+</style>
+
+<section data-scene="overview" data-widths="1100 720 420 240">
+  <div data-demo-ground>
+    <div
+      data-ui="dashboard-grid"
+      data-ui-dashboard-grid=""
+      data-part="root"
+      data-part-root=""
+      style="--_dg-columns-expanded: 12; --_dg-columns-medium: 6; --_dg-columns-compact: 1"
+    >
+      <ul data-part="grid" data-part-grid="" role="list" aria-label="Sales overview">
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="revenue"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 1; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="revenue-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="revenue-title">Revenue</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#revenue"
+                  aria-label="Open Revenue"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>€482,190</p>
+                <p data-demo-delta data-tone="up">+12.4% on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="up"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,38 9.090909090909092,28.391304347826086 18.181818181818183,33.565217391304344 27.27272727272727,23.956521739130437 36.36363636363637,26.17391304347826 45.45454545454545,17.304347826086953 54.54545454545454,20.26086956521739 63.63636363636363,14.347826086956523 72.72727272727273,18.043478260869563 81.81818181818183,9.173913043478262 90.9090909090909,12.130434782608695 100,4"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="orders"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 4; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="orders-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="orders-title">Orders</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#orders"
+                  aria-label="Open Orders"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>3,914</p>
+                <p data-demo-delta data-tone="up">+3.1% on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="up"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,34.6 9.090909090909092,31.2 18.181818181818183,38 27.27272727272727,24.4 36.36363636363637,17.6 45.45454545454545,21 54.54545454545454,14.200000000000003 63.63636363636363,14.200000000000003 72.72727272727273,10.799999999999997 81.81818181818183,7.399999999999999 90.9090909090909,4 100,7.399999999999999"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="refunds"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 7; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="refunds-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="refunds-title">Refunds</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#refunds"
+                  aria-label="Open Refunds"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>128</p>
+                <p data-demo-delta data-tone="down">+16.3% on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="down"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,34.6 9.090909090909092,27.8 18.181818181818183,38 27.27272727272727,17.6 36.36363636363637,31.2 45.45454545454545,24.4 54.54545454545454,34.6 63.63636363636363,21 72.72727272727273,14.200000000000003 81.81818181818183,27.8 90.9090909090909,10.799999999999997 100,4"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="conversion"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 10; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="conversion-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="conversion-title">Conversion</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#conversion"
+                  aria-label="Open Conversion"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>2.8%</p>
+                <p data-demo-delta data-tone="down">−0.2 pt on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="down"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,10.799999999999997 9.090909090909092,17.6 18.181818181818183,4 27.27272727272727,24.4 36.36363636363637,17.6 45.45454545454545,31.2 54.54545454545454,24.4 63.63636363636363,17.6 72.72727272727273,38 81.81818181818183,31.2 90.9090909090909,24.4 100,31.2"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="trend"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 1; --_dg-y: 3; --_dg-w: 8; --_dg-h: 4; --_dg-span-medium: 6"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="trend-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="trend-title">Revenue by week</h3>
+              <p data-part="description" data-part-description="">
+                Last twelve weeks, all channels
+              </p>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#trend"
+                  aria-label="Open Revenue by week"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-bars aria-hidden="true">
+                <span style="block-size: 42%"></span><span style="block-size: 55%"></span
+                ><span style="block-size: 48%"></span><span style="block-size: 61%"></span
+                ><span style="block-size: 58%"></span><span style="block-size: 70%"></span
+                ><span style="block-size: 66%"></span><span style="block-size: 74%"></span
+                ><span style="block-size: 69%"></span><span style="block-size: 81%"></span
+                ><span style="block-size: 77%"></span><span style="block-size: 88%"></span>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="products"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 9; --_dg-y: 3; --_dg-w: 4; --_dg-h: 4; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="products-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="products-title">Top products</h3>
+              <div data-part="actions" data-part-actions="">
+                <button
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  type="button"
+                >
+                  <span data-part="label" data-part-label="">Export</span></button
+                ><a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#products"
+                  aria-label="Open Top products"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <ul data-demo-rows>
+                <li><span>Trail runner 2</span><span>€61,204</span></li>
+                <li><span>Merino crew</span><span>€44,810</span></li>
+                <li><span>Rain shell</span><span>€39,377</span></li>
+                <li><span>Day pack 24 l</span><span>€28,960</span></li>
+                <li><span>Wool beanie</span><span>€12,118</span></li>
+                <li><span>Trail socks</span><span>€9,874</span></li>
+                <li><span>Head torch</span><span>€7,215</span></li>
+              </ul>
+            </div>
+          </article>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section data-scene="editing" data-widths="1100 720 420">
+  <div data-demo-ground>
+    <div
+      data-ui="dashboard-grid"
+      data-ui-dashboard-grid=""
+      data-part="root"
+      data-part-root=""
+      data-editing
+      style="--_dg-columns-expanded: 12; --_dg-columns-medium: 6; --_dg-columns-compact: 1"
+    >
+      <div data-part="edit-bar" data-part-edit-bar="" role="group" aria-label="Layout">
+        <p data-part="edit-status" data-part-edit-status="" id="edit-status">
+          Drag a widget to move it and pull its edges to resize it. From the keyboard, focus its
+          handle: Alt with an arrow moves it, Shift with an arrow resizes it.
+        </p>
+        <div data-part="edit-actions" data-part-edit-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="add"
+            data-part-add=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="start" data-part-start=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span></span
+            ><span data-part="label" data-part-label="">Add widget</span></button
+          ><button
+            data-ui="button"
+            data-ui-button=""
+            data-part="reset"
+            data-part-reset=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Reset layout</span></button
+          ><button
+            data-ui="button"
+            data-ui-button=""
+            data-part="cancel"
+            data-part-cancel=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Cancel</span></button
+          ><button
+            data-ui="button"
+            data-ui-button=""
+            data-part="done"
+            data-part-done=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Done</span>
+          </button>
+        </div>
+      </div>
+      <ul data-part="grid" data-part-grid="" role="list" aria-label="Sales overview">
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="revenue"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 1; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="revenue-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="revenue-title">Revenue</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#revenue"
+                  aria-label="Open Revenue"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>€482,190</p>
+                <p data-demo-delta data-tone="up">+12.4% on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="up"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,38 9.090909090909092,28.391304347826086 18.181818181818183,33.565217391304344 27.27272727272727,23.956521739130437 36.36363636363637,26.17391304347826 45.45454545454545,17.304347826086953 54.54545454545454,20.26086956521739 63.63636363636363,14.347826086956523 72.72727272727273,18.043478260869563 81.81818181818183,9.173913043478262 90.9090909090909,12.130434782608695 100,4"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Revenue"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="orders"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 4; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="orders-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="orders-title">Orders</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#orders"
+                  aria-label="Open Orders"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>3,914</p>
+                <p data-demo-delta data-tone="up">+3.1% on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="up"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,34.6 9.090909090909092,31.2 18.181818181818183,38 27.27272727272727,24.4 36.36363636363637,17.6 45.45454545454545,21 54.54545454545454,14.200000000000003 63.63636363636363,14.200000000000003 72.72727272727273,10.799999999999997 81.81818181818183,7.399999999999999 90.9090909090909,4 100,7.399999999999999"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Orders"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="conversion"
+          data-status="ready"
+          data-resizable
+          style="--_dg-x: 7; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="conversion-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="conversion-title">Conversion</h3>
+              <p data-part="description" data-part-description="">Pinned by finance</p>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#conversion"
+                  aria-label="Open Conversion"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>2.8%</p>
+                <p data-demo-delta data-tone="down">−0.2 pt on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="down"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,10.799999999999997 9.090909090909092,17.6 18.181818181818183,4 27.27272727272727,24.4 36.36363636363637,17.6 45.45454545454545,31.2 54.54545454545454,24.4 63.63636363636363,17.6 72.72727272727273,38 81.81818181818183,31.2 90.9090909090909,24.4 100,31.2"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Conversion"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="trend"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 1; --_dg-y: 3; --_dg-w: 8; --_dg-h: 4; --_dg-span-medium: 6"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="trend-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="trend-title">Revenue by week</h3>
+              <p data-part="description" data-part-description="">
+                Last twelve weeks, all channels
+              </p>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#trend"
+                  aria-label="Open Revenue by week"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-bars aria-hidden="true">
+                <span style="block-size: 42%"></span><span style="block-size: 55%"></span
+                ><span style="block-size: 48%"></span><span style="block-size: 61%"></span
+                ><span style="block-size: 58%"></span><span style="block-size: 70%"></span
+                ><span style="block-size: 66%"></span><span style="block-size: 74%"></span
+                ><span style="block-size: 69%"></span><span style="block-size: 81%"></span
+                ><span style="block-size: 77%"></span><span style="block-size: 88%"></span>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Revenue by week"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="products"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 9; --_dg-y: 3; --_dg-w: 4; --_dg-h: 4; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="products-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="products-title">Top products</h3>
+              <div data-part="actions" data-part-actions="">
+                <button
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  type="button"
+                >
+                  <span data-part="label" data-part-label="">Export</span></button
+                ><a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#products"
+                  aria-label="Open Top products"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <ul data-demo-rows>
+                <li><span>Trail runner 2</span><span>€61,204</span></li>
+                <li><span>Merino crew</span><span>€44,810</span></li>
+                <li><span>Rain shell</span><span>€39,377</span></li>
+                <li><span>Day pack 24 l</span><span>€28,960</span></li>
+                <li><span>Wool beanie</span><span>€12,118</span></li>
+                <li><span>Trail socks</span><span>€9,874</span></li>
+                <li><span>Head torch</span><span>€7,215</span></li>
+              </ul>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Top products"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section data-scene="drag" data-widths="1100 720">
+  <div data-demo-ground>
+    <div
+      data-ui="dashboard-grid"
+      data-ui-dashboard-grid=""
+      data-part="root"
+      data-part-root=""
+      data-editing
+      style="--_dg-columns-expanded: 12; --_dg-columns-medium: 6; --_dg-columns-compact: 1"
+    >
+      <div data-part="edit-bar" data-part-edit-bar="" role="group" aria-label="Layout">
+        <p data-part="edit-status" data-part-edit-status="" id="edit-status">
+          Drag a widget to move it and pull its edges to resize it. From the keyboard, focus its
+          handle: Alt with an arrow moves it, Shift with an arrow resizes it.
+        </p>
+        <div data-part="edit-actions" data-part-edit-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="reset"
+            data-part-reset=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Reset layout</span></button
+          ><button
+            data-ui="button"
+            data-ui-button=""
+            data-part="cancel"
+            data-part-cancel=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Cancel</span></button
+          ><button
+            data-ui="button"
+            data-ui-button=""
+            data-part="done"
+            data-part-done=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Done</span>
+          </button>
+        </div>
+      </div>
+      <ul data-part="grid" data-part-grid="" role="list" aria-label="Sales overview" data-gesture>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="revenue"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 1; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="revenue-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="revenue-title">Revenue</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#revenue"
+                  aria-label="Open Revenue"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>€482,190</p>
+                <p data-demo-delta data-tone="up">+12.4% on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="up"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,38 9.090909090909092,28.391304347826086 18.181818181818183,33.565217391304344 27.27272727272727,23.956521739130437 36.36363636363637,26.17391304347826 45.45454545454545,17.304347826086953 54.54545454545454,20.26086956521739 63.63636363636363,14.347826086956523 72.72727272727273,18.043478260869563 81.81818181818183,9.173913043478262 90.9090909090909,12.130434782608695 100,4"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Revenue"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="orders"
+          data-status="ready"
+          data-movable
+          data-resizable
+          data-dragging
+          style="
+            --_dg-x: 4;
+            --_dg-y: 1;
+            --_dg-w: 3;
+            --_dg-h: 2;
+            --_dg-span-medium: 3;
+            --_dg-origin-inline-start: 25.7%;
+            --_dg-origin-block-start: 0px;
+            --_dg-origin-inline-size: 23.6%;
+            --_dg-origin-block-size: 160px;
+            --_dg-lift-x: -190px;
+            --_dg-lift-y: 186px;
+          "
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="orders-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="orders-title">Orders</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#orders"
+                  aria-label="Open Orders"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>3,914</p>
+                <p data-demo-delta data-tone="up">+3.1% on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="up"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,34.6 9.090909090909092,31.2 18.181818181818183,38 27.27272727272727,24.4 36.36363636363637,17.6 45.45454545454545,21 54.54545454545454,14.200000000000003 63.63636363636363,14.200000000000003 72.72727272727273,10.799999999999997 81.81818181818183,7.399999999999999 90.9090909090909,4 100,7.399999999999999"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Orders"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="refunds"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 7; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="refunds-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="refunds-title">Refunds</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#refunds"
+                  aria-label="Open Refunds"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>128</p>
+                <p data-demo-delta data-tone="down">+16.3% on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="down"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,34.6 9.090909090909092,27.8 18.181818181818183,38 27.27272727272727,17.6 36.36363636363637,31.2 45.45454545454545,24.4 54.54545454545454,34.6 63.63636363636363,21 72.72727272727273,14.200000000000003 81.81818181818183,27.8 90.9090909090909,10.799999999999997 100,4"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Refunds"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="conversion"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 10; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="conversion-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="conversion-title">Conversion</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#conversion"
+                  aria-label="Open Conversion"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>2.8%</p>
+                <p data-demo-delta data-tone="down">−0.2 pt on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="down"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,10.799999999999997 9.090909090909092,17.6 18.181818181818183,4 27.27272727272727,24.4 36.36363636363637,17.6 45.45454545454545,31.2 54.54545454545454,24.4 63.63636363636363,17.6 72.72727272727273,38 81.81818181818183,31.2 90.9090909090909,24.4 100,31.2"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Conversion"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="trend"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 1; --_dg-y: 5; --_dg-w: 8; --_dg-h: 4; --_dg-span-medium: 6"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="trend-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="trend-title">Revenue by week</h3>
+              <p data-part="description" data-part-description="">
+                Last twelve weeks, all channels
+              </p>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#trend"
+                  aria-label="Open Revenue by week"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-bars aria-hidden="true">
+                <span style="block-size: 42%"></span><span style="block-size: 55%"></span
+                ><span style="block-size: 48%"></span><span style="block-size: 61%"></span
+                ><span style="block-size: 58%"></span><span style="block-size: 70%"></span
+                ><span style="block-size: 66%"></span><span style="block-size: 74%"></span
+                ><span style="block-size: 69%"></span><span style="block-size: 81%"></span
+                ><span style="block-size: 77%"></span><span style="block-size: 88%"></span>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Revenue by week"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="products"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 9; --_dg-y: 5; --_dg-w: 4; --_dg-h: 4; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="products-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="products-title">Top products</h3>
+              <div data-part="actions" data-part-actions="">
+                <button
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  type="button"
+                >
+                  <span data-part="label" data-part-label="">Export</span></button
+                ><a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#products"
+                  aria-label="Open Top products"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <ul data-demo-rows>
+                <li><span>Trail runner 2</span><span>€61,204</span></li>
+                <li><span>Merino crew</span><span>€44,810</span></li>
+                <li><span>Rain shell</span><span>€39,377</span></li>
+                <li><span>Day pack 24 l</span><span>€28,960</span></li>
+                <li><span>Wool beanie</span><span>€12,118</span></li>
+                <li><span>Trail socks</span><span>€9,874</span></li>
+                <li><span>Head torch</span><span>€7,215</span></li>
+              </ul>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Top products"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="placeholder"
+          data-part-placeholder=""
+          aria-hidden="true"
+          style="--_dg-x: 1; --_dg-y: 3; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        ></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section data-scene="resize" data-widths="1100 720">
+  <div data-demo-ground>
+    <div
+      data-ui="dashboard-grid"
+      data-ui-dashboard-grid=""
+      data-part="root"
+      data-part-root=""
+      data-editing
+      style="--_dg-columns-expanded: 12; --_dg-columns-medium: 6; --_dg-columns-compact: 1"
+    >
+      <div data-part="edit-bar" data-part-edit-bar="" role="group" aria-label="Layout">
+        <p data-part="edit-status" data-part-edit-status="" id="edit-status">
+          Drag a widget to move it and pull its edges to resize it. From the keyboard, focus its
+          handle: Alt with an arrow moves it, Shift with an arrow resizes it.
+        </p>
+        <div data-part="edit-actions" data-part-edit-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="reset"
+            data-part-reset=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Reset layout</span></button
+          ><button
+            data-ui="button"
+            data-ui-button=""
+            data-part="cancel"
+            data-part-cancel=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Cancel</span></button
+          ><button
+            data-ui="button"
+            data-ui-button=""
+            data-part="done"
+            data-part-done=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Done</span>
+          </button>
+        </div>
+      </div>
+      <ul data-part="grid" data-part-grid="" role="list" aria-label="Sales overview" data-gesture>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="revenue"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 1; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="revenue-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="revenue-title">Revenue</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#revenue"
+                  aria-label="Open Revenue"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>€482,190</p>
+                <p data-demo-delta data-tone="up">+12.4% on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="up"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,38 9.090909090909092,28.391304347826086 18.181818181818183,33.565217391304344 27.27272727272727,23.956521739130437 36.36363636363637,26.17391304347826 45.45454545454545,17.304347826086953 54.54545454545454,20.26086956521739 63.63636363636363,14.347826086956523 72.72727272727273,18.043478260869563 81.81818181818183,9.173913043478262 90.9090909090909,12.130434782608695 100,4"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Revenue"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="orders"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 4; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="orders-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="orders-title">Orders</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#orders"
+                  aria-label="Open Orders"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>3,914</p>
+                <p data-demo-delta data-tone="up">+3.1% on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="up"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,34.6 9.090909090909092,31.2 18.181818181818183,38 27.27272727272727,24.4 36.36363636363637,17.6 45.45454545454545,21 54.54545454545454,14.200000000000003 63.63636363636363,14.200000000000003 72.72727272727273,10.799999999999997 81.81818181818183,7.399999999999999 90.9090909090909,4 100,7.399999999999999"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Orders"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="refunds"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 7; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="refunds-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="refunds-title">Refunds</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#refunds"
+                  aria-label="Open Refunds"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>128</p>
+                <p data-demo-delta data-tone="down">+16.3% on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="down"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,34.6 9.090909090909092,27.8 18.181818181818183,38 27.27272727272727,17.6 36.36363636363637,31.2 45.45454545454545,24.4 54.54545454545454,34.6 63.63636363636363,21 72.72727272727273,14.200000000000003 81.81818181818183,27.8 90.9090909090909,10.799999999999997 100,4"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Refunds"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="conversion"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 10; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="conversion-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="conversion-title">Conversion</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#conversion"
+                  aria-label="Open Conversion"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>2.8%</p>
+                <p data-demo-delta data-tone="down">−0.2 pt on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="down"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,10.799999999999997 9.090909090909092,17.6 18.181818181818183,4 27.27272727272727,24.4 36.36363636363637,17.6 45.45454545454545,31.2 54.54545454545454,24.4 63.63636363636363,17.6 72.72727272727273,38 81.81818181818183,31.2 90.9090909090909,24.4 100,31.2"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Conversion"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="trend"
+          data-status="ready"
+          data-movable
+          data-resizable
+          data-resizing
+          style="
+            --_dg-x: 1;
+            --_dg-y: 3;
+            --_dg-w: 8;
+            --_dg-h: 4;
+            --_dg-span-medium: 6;
+            --_dg-origin-inline-start: 0%;
+            --_dg-origin-block-start: 176px;
+            --_dg-origin-inline-size: 79.5%;
+            --_dg-origin-block-size: 336px;
+          "
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="trend-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="trend-title">Revenue by week</h3>
+              <p data-part="description" data-part-description="">
+                Last twelve weeks, all channels
+              </p>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#trend"
+                  aria-label="Open Revenue by week"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-bars aria-hidden="true">
+                <span style="block-size: 42%"></span><span style="block-size: 55%"></span
+                ><span style="block-size: 48%"></span><span style="block-size: 61%"></span
+                ><span style="block-size: 58%"></span><span style="block-size: 70%"></span
+                ><span style="block-size: 66%"></span><span style="block-size: 74%"></span
+                ><span style="block-size: 69%"></span><span style="block-size: 81%"></span
+                ><span style="block-size: 77%"></span><span style="block-size: 88%"></span>
+              </div>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Revenue by week"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            data-active
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="size-readout"
+            data-part-size-readout=""
+            data-edge="end"
+            aria-hidden="true"
+            >10 × 4</span
+          >
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="products"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 9; --_dg-y: 7; --_dg-w: 4; --_dg-h: 4; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="products-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="products-title">Top products</h3>
+              <div data-part="actions" data-part-actions="">
+                <button
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  type="button"
+                >
+                  <span data-part="label" data-part-label="">Export</span></button
+                ><a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#products"
+                  aria-label="Open Top products"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <ul data-demo-rows>
+                <li><span>Trail runner 2</span><span>€61,204</span></li>
+                <li><span>Merino crew</span><span>€44,810</span></li>
+                <li><span>Rain shell</span><span>€39,377</span></li>
+                <li><span>Day pack 24 l</span><span>€28,960</span></li>
+                <li><span>Wool beanie</span><span>€12,118</span></li>
+                <li><span>Trail socks</span><span>€9,874</span></li>
+                <li><span>Head torch</span><span>€7,215</span></li>
+              </ul>
+            </div>
+          </article>
+          <button
+            data-part="handle"
+            data-part-handle=""
+            type="button"
+            aria-label="Rearrange Top products"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-describedby="edit-status"
+          >
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="grip-horizontal"></svg
+            ></span>
+          </button>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="end"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-start"
+            aria-hidden="true"
+          ></span>
+          <span
+            data-part="resize-handle"
+            data-part-resize-handle=""
+            data-edge="bottom-end"
+            aria-hidden="true"
+          ></span>
+        </li>
+        <li
+          data-part="placeholder"
+          data-part-placeholder=""
+          aria-hidden="true"
+          style="--_dg-x: 1; --_dg-y: 3; --_dg-w: 10; --_dg-h: 4; --_dg-span-medium: 6"
+        ></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section data-scene="states" data-widths="1100 420">
+  <div data-demo-ground>
+    <div
+      data-ui="dashboard-grid"
+      data-ui-dashboard-grid=""
+      data-part="root"
+      data-part-root=""
+      style="--_dg-columns-expanded: 12; --_dg-columns-medium: 6; --_dg-columns-compact: 1"
+    >
+      <ul data-part="grid" data-part-grid="" role="list" aria-label="Sales overview">
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="s-loading"
+          data-status="ready"
+          data-loading
+          data-movable
+          data-resizable
+          style="--_dg-x: 1; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="s-loading-title"
+            aria-busy="true"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="s-loading-title">Revenue</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#s-loading"
+                  aria-label="Open Revenue"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-part="skeleton" data-part-skeleton="">
+                <div
+                  data-ui="skeleton"
+                  data-ui-skeleton=""
+                  data-part="root"
+                  data-part-root=""
+                  data-shape="block"
+                  data-size="md"
+                  data-animation="shimmer"
+                  data-loading
+                  aria-hidden="true"
+                ></div>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="s-busy"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 4; --_dg-y: 1; --_dg-w: 3; --_dg-h: 2; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="s-busy-title"
+            aria-busy="true"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="s-busy-title">Orders</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#s-busy"
+                  aria-label="Open Orders"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <span
+                data-part="busy-indicator"
+                data-part-busy-indicator=""
+                aria-hidden="true"
+              ></span>
+              <div data-demo-kpi>
+                <p data-demo-figure>3,914</p>
+                <p data-demo-delta data-tone="up">+3.1% on last month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="up"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,34.6 9.090909090909092,31.2 18.181818181818183,38 27.27272727272727,24.4 36.36363636363637,17.6 45.45454545454545,21 54.54545454545454,14.200000000000003 63.63636363636363,14.200000000000003 72.72727272727273,10.799999999999997 81.81818181818183,7.399999999999999 90.9090909090909,4 100,7.399999999999999"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="s-empty"
+          data-status="empty"
+          data-movable
+          data-resizable
+          style="--_dg-x: 7; --_dg-y: 1; --_dg-w: 6; --_dg-h: 3; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="s-empty-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="s-empty-title">Refunds</h3>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-part="message" data-part-message="">
+                <section
+                  data-ui="result-state"
+                  data-ui-result-state=""
+                  data-part="root"
+                  data-part-root=""
+                  data-status="empty"
+                  data-reach="section"
+                  data-align="center"
+                  data-live="off"
+                >
+                  <div data-part="media" data-part-media="" aria-hidden="true"></div>
+                  <div data-part="content" data-part-content="">
+                    <div data-part="title" data-part-title="">No data</div>
+                    <p data-part="description" data-part-description="">
+                      No refund was issued this month.
+                    </p>
+                  </div>
+                  <div data-part="actions" data-part-actions="">
+                    <button
+                      data-ui="button"
+                      data-ui-button=""
+                      data-part="root"
+                      data-part-root=""
+                      data-tone="secondary"
+                      data-variant="outline"
+                      data-size="sm"
+                      type="button"
+                    >
+                      <span data-part="label" data-part-label="">Record a refund</span>
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="s-error"
+          data-status="error"
+          data-movable
+          data-resizable
+          style="--_dg-x: 1; --_dg-y: 3; --_dg-w: 6; --_dg-h: 3; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="s-error-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="s-error-title">Conversion</h3>
+              <p data-part="description" data-part-description="">Trial to paid</p>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#s-error"
+                  aria-label="Open Conversion"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-part="message" data-part-message="">
+                <section
+                  data-ui="result-state"
+                  data-ui-result-state=""
+                  data-part="root"
+                  data-part-root=""
+                  data-status="error"
+                  data-reach="section"
+                  data-align="center"
+                  data-live="off"
+                >
+                  <div data-part="media" data-part-media="" aria-hidden="true"></div>
+                  <div data-part="content" data-part-content="">
+                    <div data-part="title" data-part-title="">This widget could not load</div>
+                    <p data-part="description" data-part-description="">
+                      The analytics service did not answer in time.
+                    </p>
+                  </div>
+                  <div data-part="actions" data-part-actions="">
+                    <button
+                      data-ui="button"
+                      data-ui-button=""
+                      data-part="retry"
+                      data-part-retry=""
+                      data-tone="secondary"
+                      data-variant="outline"
+                      data-size="sm"
+                      type="button"
+                    >
+                      <span data-part="start" data-part-start=""
+                        ><span
+                          data-ui="icon"
+                          data-ui-icon=""
+                          data-part="root"
+                          data-part-root=""
+                          aria-hidden="true"
+                          ><svg
+                            data-part="glyph"
+                            data-part-glyph=""
+                            data-glyph="rotate-ccw"
+                          ></svg></span></span
+                      ><span data-part="label" data-part-label="">Try again</span>
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="s-table-loading"
+          data-status="ready"
+          data-loading
+          data-movable
+          data-resizable
+          style="--_dg-x: 7; --_dg-y: 4; --_dg-w: 6; --_dg-h: 3; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="s-table-loading-title"
+            aria-busy="true"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="s-table-loading-title">Top products</h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#s-table-loading"
+                  aria-label="Open Top products"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-part="skeleton" data-part-skeleton="">
+                <div
+                  data-ui="skeleton"
+                  data-ui-skeleton=""
+                  data-part="root"
+                  data-part-root=""
+                  data-shape="block"
+                  data-size="md"
+                  data-animation="shimmer"
+                  data-loading
+                  aria-hidden="true"
+                ></div>
+              </div>
+            </div>
+          </article>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section data-scene="content" data-widths="420 240">
+  <div data-demo-ground>
+    <div
+      data-ui="dashboard-grid"
+      data-ui-dashboard-grid=""
+      data-part="root"
+      data-part-root=""
+      style="--_dg-columns-expanded: 12; --_dg-columns-medium: 6; --_dg-columns-compact: 1"
+    >
+      <ul data-part="grid" data-part-grid="" role="list" aria-label="Sales overview">
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="c-long"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 1; --_dg-y: 1; --_dg-w: 6; --_dg-h: 3; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="c-long-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="c-long-title">
+                Net recurring revenue by sales region and acquisition channel
+              </h3>
+              <p data-part="description" data-part-description="">
+                Includes partial refunds, credit notes and quarterly exchange adjustments
+              </p>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#c-long"
+                  aria-label="Open Net recurring revenue by sales region and acquisition channel"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <div data-demo-kpi>
+                <p data-demo-figure>$12,482,190.44</p>
+                <p data-demo-delta data-tone="up">+12.4% over the previous month</p>
+                <svg
+                  data-demo-spark
+                  data-tone="up"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline
+                    points="0,38 9.090909090909092,28.391304347826086 18.181818181818183,33.565217391304344 27.27272727272727,23.956521739130437 36.36363636363637,26.17391304347826 45.45454545454545,17.304347826086953 54.54545454545454,20.26086956521739 63.63636363636363,14.347826086956523 72.72727272727273,18.043478260869563 81.81818181818183,9.173913043478262 90.9090909090909,12.130434782608695 100,4"
+                    fill="none"
+                    stroke-width="2"
+                    vector-effect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li
+          data-part="widget"
+          data-part-widget=""
+          data-key="c-token"
+          data-status="ready"
+          data-movable
+          data-resizable
+          style="--_dg-x: 7; --_dg-y: 1; --_dg-w: 6; --_dg-h: 3; --_dg-span-medium: 3"
+        >
+          <article
+            data-ui="card"
+            data-ui-card=""
+            data-part="root"
+            data-part-root=""
+            data-orientation="vertical"
+            data-fill="outline"
+            data-size="md"
+            aria-labelledby="c-token-title"
+          >
+            <div data-part="header" data-part-header="">
+              <h3 data-part="title" data-part-title="" id="c-token-title">
+                Pipeline_conversion_rate_by_account_executive_and_segment
+              </h3>
+              <div data-part="actions" data-part-actions="">
+                <a
+                  data-ui="button"
+                  data-ui-button=""
+                  data-part="detail"
+                  data-part-detail=""
+                  data-tone="secondary"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-shape="square"
+                  href="#c-token"
+                  aria-label="Open Pipeline_conversion_rate_by_account_executive_and_segment"
+                  ><span data-part="icon" data-part-icon="" aria-hidden="true"
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      data-directional
+                      aria-hidden="true"
+                      ><svg
+                        data-part="glyph"
+                        data-part-glyph=""
+                        data-glyph="external"
+                      ></svg></span></span
+                ></a>
+              </div>
+            </div>
+            <div data-part="body" data-part-body="">
+              <ul data-demo-rows>
+                <li><span>A</span><span>1</span></li>
+                <li><span>B</span><span>2</span></li>
+                <li><span>C</span><span>3</span></li>
+                <li><span>D</span><span>4</span></li>
+                <li><span>E</span><span>5</span></li>
+                <li><span>F</span><span>6</span></li>
+                <li><span>G</span><span>7</span></li>
+              </ul>
+            </div>
+          </article>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section data-scene="empty" data-widths="720 420">
+  <div data-demo-ground>
+    <div
+      data-ui="dashboard-grid"
+      data-ui-dashboard-grid=""
+      data-part="root"
+      data-part-root=""
+      data-editing
+      style="--_dg-columns-expanded: 12; --_dg-columns-medium: 6; --_dg-columns-compact: 1"
+    >
+      <div data-part="edit-bar" data-part-edit-bar="" role="group" aria-label="Layout">
+        <p data-part="edit-status" data-part-edit-status="" id="edit-status">
+          Drag a widget to move it and pull its edges to resize it. From the keyboard, focus its
+          handle: Alt with an arrow moves it, Shift with an arrow resizes it.
+        </p>
+        <div data-part="edit-actions" data-part-edit-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="add"
+            data-part-add=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="start" data-part-start=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg></span></span
+            ><span data-part="label" data-part-label="">Add widget</span></button
+          ><button
+            data-ui="button"
+            data-ui-button=""
+            data-part="reset"
+            data-part-reset=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Reset layout</span></button
+          ><button
+            data-ui="button"
+            data-ui-button=""
+            data-part="cancel"
+            data-part-cancel=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Cancel</span></button
+          ><button
+            data-ui="button"
+            data-ui-button=""
+            data-part="done"
+            data-part-done=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Done</span>
+          </button>
+        </div>
+      </div>
+      <ul data-part="grid" data-part-grid="" role="list" aria-label="Sales overview" hidden></ul>
+      <div data-part="empty" data-part-empty="">
+        <section
+          data-ui="result-state"
+          data-ui-result-state=""
+          data-part="root"
+          data-part-root=""
+          data-status="empty"
+          data-reach="section"
+          data-align="center"
+          data-live="polite"
+        >
+          <div data-part="media" data-part-media="" aria-hidden="true"></div>
+          <div data-part="content" data-part-content="" role="status">
+            <div data-part="title" data-part-title="">No widgets</div>
+            <p data-part="description" data-part-description="">
+              Every widget is hidden. Add one back to start.
+            </p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>

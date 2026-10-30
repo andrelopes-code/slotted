@@ -1,0 +1,449 @@
+@layer slotted.components {
+  /**
+   * ── The image ──────────────────────────────────────────────────────────
+   *
+   * A picture, and what stands in for it before it arrives and after it
+   * fails. The `<img>` is the platform's and keeps every attribute the
+   * platform gives it; the family adds the two layers under it, a fit, a
+   * focal point, a corner and an edge, and the frame it composes from
+   * `aspect-ratio` when a ratio was decided.
+   *
+   * Two attributes on every selector that reaches the root, always. The
+   * layers are descendants rather than children, because a frame from
+   * `aspect-ratio` may stand between the root and them; a rule for a layer
+   * therefore names the family and the part, never the depth.
+   *
+   * Nothing is reserved without a decision. A root with no ratio and an
+   * `<img>` with no `width`/`height` has no height until the picture reports,
+   * which is the platform's own behaviour and the honest one: a family that
+   * guessed a ratio would guess it wrong for half its consumers. `width` and
+   * `height` on the element, or `ratio` on the root, are the two ways to
+   * decide, and both reserve the box before the first byte arrives.
+   */
+  [data-ui-image][data-part-root] {
+    --_fit: cover;
+    --_position: var(--slotted-image-position, center);
+    --_radius: var(--slotted-image-radius, var(--slotted-radius-none, 0px));
+    /**
+     * The edge is drawn inside the box as an inset ring, so switching
+     * `bordered` on moves nothing; it is transparent until asked for, and the
+     * interactive root paints it on hover whether or not it was asked for.
+     */
+    --_edge: transparent;
+    --_edge-width: var(--slotted-image-border-width, var(--slotted-border-width-thin, 1px));
+    /**
+     * The ground under a picture that is not there yet, and under one that
+     * never came. `surface-sunken` is the one surface a step below the page
+     * in every scheme, so the reserved box reads as a hole the picture will
+     * fill rather than as a blank.
+     */
+    --_ground: var(--slotted-image-placeholder-background, var(--slotted-surface-sunken));
+    /**
+     * The ground has an edge of its own, because in the `high-contrast`
+     * scheme `surface-sunken` is the page's own white and a reserved box with
+     * no edge is no box at all: the loading tile vanished and the fallback
+     * glyph floated on nothing (measured in the high-contrast capture). It is
+     * the same subtle edge `avatar` gives a loaded photograph, and it leaves
+     * with the ground, so a picture that arrived carries no edge it did not
+     * ask for.
+     */
+    --_ground-edge: inset 0 0 0 var(--_edge-width) var(--slotted-border-subtle, ButtonBorder);
+
+    /**
+     * Nothing behind a picture that arrived, so a `contain` fit shows the
+     * page through the letterbox rather than a ground the consumer did not
+     * ask for. A product that wants one — logotypes on a neutral tile — sets
+     * the token, and the fallback and placeholder keep their own.
+     */
+    background-color: var(--slotted-image-background, transparent);
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    /**
+     * A grid of one cell: the picture, the placeholder and the fallback all
+     * take it, and the last painted is on top, which is the order they are
+     * written in and the reason no layer carries a `z-index`. A frame from
+     * `aspect-ratio` between the root and the layers is a grid of one cell
+     * of its own, so the layering holds at either depth.
+     */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 1fr;
+    /**
+     * `intrinsic` shrinks the box to the picture and never past the
+     * container: the picture is its own size, and the layers are the same
+     * size as the picture rather than the size of the column it is in.
+     */
+    inline-size: fit-content;
+    isolation: isolate;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    /**
+     * The corner is cut on the root and inherited by nothing: a rounded box
+     * whose children reach its edge clips them here, which is what rounds
+     * the photograph, the ground and the blurred preview together. `clip`
+     * rather than `hidden` because the box is not a scroll container and
+     * must not become one for a focus ring or a caption.
+     */
+    overflow: clip;
+    position: relative;
+    /**
+     * `render` can make the root an `<a>`, and the browser writes a line
+     * under an anchor's content; a `<button>` draws two pixels of `outset`.
+     * The family states its own edge, so both are replaced rather than reset.
+     */
+    appearance: none;
+    border: 0;
+    padding: 0;
+    text-decoration: none;
+  }
+
+  /**
+   * Every direct child takes the one cell, the frame from `aspect-ratio`
+   * included. The layers name their cell themselves, but the frame is
+   * another family's root and this sheet does not reach into it; without
+   * this rule the frame was auto-placed into a second row under the edge
+   * pseudo-element, which had taken the first cell explicitly, and the edge
+   * stood 0.016 pixels tall above the picture instead of over it (measured
+   * with hover forced on the `interactive` scene).
+   */
+  [data-ui-image][data-part-root] > * {
+    grid-area: 1 / 1;
+    min-inline-size: 0;
+  }
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+
+  /**
+   * `fill` is Next's and NgOptimizedImage's: the box is the parent's in both
+   * axes and `fit` decides what the picture does about it. It is also the
+   * layout a decided ratio implies, since the frame is then the box. A parent
+   * with no height of its own resolves the block size to `auto`, and the
+   * picture keeps its intrinsic height; the family does not measure the
+   * parent to do otherwise.
+   */
+  [data-ui-image][data-part-root][data-layout='fill'] {
+    block-size: 100%;
+    inline-size: 100%;
+  }
+
+  /**
+   * `framed` is the layout a decided ratio implies: the width is the
+   * column's and the height is the frame's, and nothing else. It is not
+   * `fill`, because a list item stretched to its row is a parent with a
+   * definite height, and `block-size: 100%` there took the whole row and
+   * pushed the caption under the picture out of the item (measured in the
+   * first capture of the `in-context` scene).
+   */
+  [data-ui-image][data-part-root][data-layout='framed'] {
+    inline-size: 100%;
+  }
+
+  /* ── Fit: what the picture does about a box that is not its shape ─────── */
+
+  /**
+   * The five values `object-fit` has, on a private property the picture and
+   * the blurred preview both read, so the preview is cropped exactly where
+   * the picture will be. `cover` is stated in the base rule.
+   */
+  [data-ui-image][data-part-root][data-fit='contain'] {
+    --_fit: contain;
+  }
+
+  [data-ui-image][data-part-root][data-fit='fill'] {
+    --_fit: fill;
+  }
+
+  [data-ui-image][data-part-root][data-fit='none'] {
+    --_fit: none;
+  }
+
+  [data-ui-image][data-part-root][data-fit='scale-down'] {
+    --_fit: scale-down;
+  }
+
+  /* ── Position: the focal point the crop keeps ─────────────────────────── */
+
+  /**
+   * `object-position` has no logical keywords, so `start` and `end` are the
+   * family's: they resolve to the physical side the writing direction puts
+   * them on, which is what a portrait cropped to its subject needs when the
+   * page is mirrored. `center` is stated in the base rule; `custom` is the
+   * token written on the instance, read there.
+   */
+  [data-ui-image][data-part-root][data-position='top'] {
+    --_position: top;
+  }
+
+  [data-ui-image][data-part-root][data-position='bottom'] {
+    --_position: bottom;
+  }
+
+  [data-ui-image][data-part-root][data-position='start'] {
+    --_position: left;
+  }
+
+  [data-ui-image][data-part-root][data-position='end'] {
+    --_position: right;
+  }
+
+  [data-ui-image][data-part-root][data-position='start']:dir(rtl) {
+    --_position: right;
+  }
+
+  [data-ui-image][data-part-root][data-position='end']:dir(rtl) {
+    --_position: left;
+  }
+
+  /* ── Radius ───────────────────────────────────────────────────────────── */
+
+  [data-ui-image][data-part-root][data-radius='sm'] {
+    --_radius: var(--slotted-image-radius, var(--slotted-radius-sm, 4px));
+  }
+
+  [data-ui-image][data-part-root][data-radius='md'] {
+    --_radius: var(--slotted-image-radius, var(--slotted-radius-md, 6px));
+  }
+
+  [data-ui-image][data-part-root][data-radius='lg'] {
+    --_radius: var(--slotted-image-radius, var(--slotted-radius-lg, 8px));
+  }
+
+  /* ── The edge ─────────────────────────────────────────────────────────── */
+
+  /**
+   * A photograph of a white wall on a white page has no boundary, and
+   * `border-subtle` is the token that separates one surface from another
+   * everywhere else. Drawn as the inset ring the base rule already holds, so
+   * the picture is the same size with the edge as without it.
+   */
+  [data-ui-image][data-part-root][data-bordered] {
+    --_edge: var(--slotted-border-subtle, ButtonBorder);
+  }
+
+  /**
+   * The edge is a pseudo-element over the layers rather than an inset shadow
+   * on the root, because an inset shadow is painted under the children and
+   * the picture covered it whole (measured in the first capture of the
+   * `in-context` scene). It takes the one cell like every layer, is generated
+   * last and so painted last, and takes no pointer, so a press on the edge
+   * is a press on the link the root may be.
+   */
+  [data-ui-image][data-part-root]::after {
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 var(--_edge-width) var(--_edge);
+    content: '';
+    grid-area: 1 / 1;
+    pointer-events: none;
+  }
+
+  /* ── The picture ──────────────────────────────────────────────────────── */
+
+  /**
+   * `<picture>` is the platform's element for art direction and it is inline
+   * by default, with no box a percentage could resolve against. `contents`
+   * takes its box away, so the `<img>` inside it is the grid item and every
+   * rule below reaches it the same way with sources and without.
+   */
+  [data-ui-image] [data-part-picture] {
+    display: contents;
+  }
+
+  /**
+   * Always rendered, never taken out of the DOM: the `alt` is the accessible
+   * name in every status, which is what keeps a broken picture announced as
+   * what it was meant to show. It lies over the ground at opacity nought and
+   * rises to one when the load reports, so a photograph that arrives four
+   * hundred milliseconds after the page fades in rather than snapping. The
+   * theme collapses the duration under `prefers-reduced-motion`.
+   *
+   * In `intrinsic` the picture is its own size and shrinks to the box; in
+   * `fill` and inside a frame it is the box, and `--_fit` decides the crop.
+   * The rule names the root part, which is what puts it above the frame's
+   * own `contain` — `aspect-ratio` reserves without cropping, and this
+   * family is the one that decides to.
+   */
+  [data-ui-image][data-part-root] [data-part-image] {
+    block-size: auto;
+    display: block;
+    grid-area: 1 / 1;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    object-fit: var(--_fit);
+    object-position: var(--_position);
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-image][data-part-root][data-layout='fill'] [data-part-image],
+  [data-ui-image][data-part-root][data-layout='framed'] [data-part-image] {
+    block-size: 100%;
+    inline-size: 100%;
+  }
+
+  [data-ui-image][data-part-root][data-status='loaded'] [data-part-image] {
+    opacity: 1;
+  }
+
+  /**
+   * A picture that failed has no size of its own, and Chrome lays the broken
+   * element out as its `alt` text, so a root that reserved nothing took the
+   * width of the sentence (measured in the `error` scene). The element stays
+   * in the tree with its name and takes no box; the fallback is the box.
+   */
+  [data-ui-image][data-part-root][data-status='error'] [data-part-image] {
+    block-size: 0;
+    inline-size: 0;
+    min-block-size: 0;
+  }
+
+  /* ── The placeholder: before the picture ──────────────────────────────── */
+
+  /**
+   * The layer under the picture while it is on its way, and while nothing was
+   * asked for. It fills the box the picture will fill — which is nothing at
+   * all when nothing was reserved, and that is the point — and it leaves as
+   * the picture arrives, on the same clock, so the two cross rather than
+   * flicker. It never takes a pointer: a press on a loading thumbnail is a
+   * press on the link the root may be.
+   */
+  [data-ui-image][data-part-root] [data-part-placeholder] {
+    background-color: var(--_ground);
+    block-size: 100%;
+    box-shadow: var(--_ground-edge);
+    /**
+     * The blurred preview below is drawn a little larger than the box, and
+     * the layer clips it here rather than leaving it to the root: a frame
+     * between the root and this layer would otherwise report the preview as
+     * content that left the box (`tools/harness/audit.mjs` read 295 pixels in
+     * 284 on the reference page). `clip` rather than `hidden`, so the layer
+     * is not a scroll container.
+     */
+    overflow: clip;
+    display: grid;
+    grid-area: 1 / 1;
+    inline-size: 100%;
+    min-inline-size: 0;
+    pointer-events: none;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-image][data-part-root][data-placeholder='none'] [data-part-placeholder] {
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  /**
+   * The low-quality preview, scaled and blurred where the picture will be. It
+   * is an `<img>` of its own rather than a background, so it reads the same
+   * `fit` and `position` as the picture and lands on the same pixels. The
+   * blur feathers its own edge to transparent, which would show the ground
+   * as a soft frame around the preview; it is drawn a little larger than the
+   * box and the root's clip takes the feathered margin off. The radius is the
+   * blur's, in a length rather than a scale step, because a scale step is a
+   * distance between things and this is how far a pixel bleeds.
+   */
+  [data-ui-image][data-part-root][data-placeholder='blur'] [data-part-placeholder] > img {
+    block-size: 100%;
+    display: block;
+    filter: blur(var(--slotted-image-placeholder-blur, 1.25rem));
+    inline-size: 100%;
+    object-fit: var(--_fit);
+    object-position: var(--_position);
+    transform: scale(1.08);
+  }
+
+  [data-ui-image][data-part-root][data-status='loaded'] [data-part-placeholder] {
+    opacity: 0;
+  }
+
+  [data-ui-image][data-part-root][data-status='error'] [data-part-placeholder] {
+    visibility: hidden;
+  }
+
+  /* ── The fallback: after the picture failed ───────────────────────────── */
+
+  /**
+   * Painted only in `error`, and only then in the flow, so a consumer's own
+   * content in it — a retry, a logotype — is neither focusable nor announced
+   * while the picture is fine. Given a minimum of its own because a picture
+   * that reserved nothing and then failed has no box, and a glyph needs one.
+   */
+  [data-ui-image][data-part-root] [data-part-fallback] {
+    /**
+     * The mark a picture leaves behind: the binding draws `image-off` in an
+     * `Icon` unless the consumer projected content of their own, which
+     * replaces it rather than sitting beside it. The size is set on the slot,
+     * so an icon the consumer projects without a size is drawn at the same
+     * step. It is a token with a length behind it rather than a step of the
+     * control icon scale, whose largest step is eighteen pixels and reads as a
+     * speck in a box of any size a picture takes.
+     */
+    --slotted-icon-size: var(--slotted-image-glyph-size, var(--slotted-space-9, 2rem));
+
+    display: none;
+  }
+
+  [data-ui-image][data-part-root][data-status='error'] [data-part-fallback] {
+    background-color: var(--_ground);
+    block-size: 100%;
+    box-shadow: var(--_ground-edge);
+    color: var(--slotted-text-muted, GrayText);
+    display: grid;
+    grid-area: 1 / 1;
+    inline-size: 100%;
+    min-block-size: var(--slotted-image-fallback-min-size, var(--slotted-space-12, 4rem));
+    min-inline-size: var(--slotted-image-fallback-min-size, var(--slotted-space-12, 4rem));
+    place-items: center;
+  }
+
+  /* ── Interaction ──────────────────────────────────────────────────────── */
+
+  /**
+   * A picture is not a command, and paints nothing at rest. These three
+   * selectors are the ones the browser itself treats as interactive — a
+   * thumbnail `render` made a link or a button — and they are written apart
+   * rather than gathered into `:is()` because `packages/styles/src/states.test.mjs`
+   * reads one comma-separated selector at a time.
+   *
+   * Hover draws the edge in the strong step, which holds 3:1 against every
+   * surface in every scheme and does not touch the photograph: a hover that
+   * dims or lifts a picture says the wrong thing in the dark scheme, where
+   * lighter is nearer. The family declares no disabled state of its own —
+   * that belongs to the control that holds the picture — but a `<button
+   * disabled>` is the platform's, and a weak state holds itself back for it.
+   */
+  [data-ui-image][data-part-root]:any-link,
+  button[data-ui-image][data-part-root],
+  [data-ui-image][data-part-root][tabindex] {
+    cursor: pointer;
+  }
+
+  [data-ui-image][data-part-root]:any-link:not([data-disabled]):hover,
+  button[data-ui-image][data-part-root]:not(:disabled):hover,
+  [data-ui-image][data-part-root][tabindex]:not([data-disabled]):hover {
+    --_edge: var(--slotted-border-strong, CanvasText);
+    /* Two pixels rather than one: a hairline over a photograph's own bright
+       edge is not a hover anyone sees, and the ring is inset, so the width
+       moves nothing. */
+    --_edge-width: var(--slotted-border-width-thick, 2px);
+  }
+
+  /**
+   * Painted whatever the element turned out to be, so the ring does not go
+   * missing the first time a consumer makes a picture a link. Drawn outside
+   * the box at the theme's offset, over whatever the picture is on.
+   */
+  [data-ui-image][data-part-root]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * ── Forced colours ─────────────────────────────────────────────────────
+   *
+   * The theme maps the ground to `Canvas` and the edge to `ButtonBorder`, so
+   * nothing here needs restating for them. The picture is exempt by the user
+   * agent's own rule: `forced-color-adjust` does not apply to images, and a
+   * photograph reduced to two system colours is not a photograph.
+   */
+}

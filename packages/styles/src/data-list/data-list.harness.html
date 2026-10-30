@@ -1,0 +1,2054 @@
+<!--
+  The third place this family's DOM is written, after React and Angular. Every
+  `data-part` the contract declares appears here, in the arrangement both
+  bindings render:
+
+    div[data-ui='data-list']
+      [data-part='header']
+        [data-part='select-all'] > checkbox
+        output[data-part='count']
+        [data-part='sort'][data-direction] > button (menu's trigger)
+      ul[data-ui='list']
+        li[data-ui='list-item'][data-align='start']
+          [data-part='content']                      always a div
+            [data-part='start'] > [data-part='selection'] + [data-part='media']
+            [data-part='body']
+              [data-part='label'] > a | button | span [data-part='title']
+              [data-part='description']
+              dl[data-part='fields'] > div[data-part='field'] > dt + dd
+              button[data-part='more']
+            [data-part='end'] > [data-part='trailing']
+          [data-part='actions']
+      [data-part='empty'] > result-state
+      [data-part='loader'] > skeleton region
+      [data-part='footer'] > [data-part='load-more'] > button
+
+  The columns are an account list: Account is the title, Email the subtitle,
+  Balance the trailing value; Status, Owner, Region and Last order are the four
+  fields `fields` shows; Plan and Created appear with the record expanded.
+
+  The builder loads `list`, `list-item`, `checkbox`, `button`, `badge`,
+  `avatar`, `result-state`, `skeleton` and `visually-hidden` from the `data-ui`
+  written here.
+-->
+
+<section data-scene="anatomy">
+  <div
+    data-ui="data-list"
+    data-ui-data-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-size="md"
+  >
+    <div data-part="header" data-part-header="">
+      <span data-part="select-all" data-part-select-all="">
+        <span
+          data-ui="checkbox"
+          data-ui-checkbox=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          data-indeterminate
+        >
+          <input
+            data-part="control"
+            data-part-control=""
+            type="checkbox"
+            aria-label="Select all 12 accounts"
+          />
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg></span
+          ></span>
+          <label data-part="label" data-part-label=""></label>
+        </span>
+      </span>
+      <output data-part="count" data-part-count="" aria-live="polite">1 of 12 selected</output>
+      <span data-part="sort" data-part-sort="" data-direction="ascending">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="sm"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+          aria-label="Sort, Account ascending"
+        >
+          <span data-part="label" data-part-label="">Sort: Account</span>
+          <span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </span>
+    </div>
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="ruled"
+      data-size="md"
+      role="list"
+      aria-label="Accounts"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-align="start"
+        data-selected
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="start" data-part-start="">
+            <span data-part="selection" data-part-selection="">
+              <span
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-checked
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  checked
+                  aria-label="Select Acme Logistics"
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <label data-part="label" data-part-label=""></label>
+              </span>
+            </span>
+            <span data-part="media" data-part-media="">
+              <span
+                data-ui="avatar"
+                data-ui-avatar=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-shape="circle"
+                data-tone="accent"
+                data-variant="soft"
+                ><span data-part="fallback" data-part-fallback="">AL</span></span
+              >
+            </span>
+          </div>
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <a data-part="title" data-part-title="" href="#acme">Acme Logistics</a>
+            </div>
+            <div data-part="description" data-part-description="">ops@acme.example</div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">$12,480.00</span>
+          </div>
+          <dl data-part="fields" data-part-fields="" id="anatomy-acme-fields">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Status</dt>
+              <dd data-part="field-value" data-part-field-value="">
+                <span
+                  data-ui="badge"
+                  data-ui-badge=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="success"
+                  data-variant="soft"
+                  data-size="sm"
+                  data-shape="pill"
+                  ><span data-part="label" data-part-label="">Active</span></span
+                >
+              </dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Owner</dt>
+              <dd data-part="field-value" data-part-field-value="">Marta Silva</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Region</dt>
+              <dd data-part="field-value" data-part-field-value="">Lisbon</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Last order</dt>
+              <dd data-part="field-value" data-part-field-value="" data-numeric>Sep 12, 2026</dd>
+            </div>
+          </dl>
+          <button
+            data-part="more"
+            data-part-more=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="anatomy-acme-fields"
+          >
+            Show 2 more
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            data-shape="square"
+            type="button"
+            aria-label="Actions for Acme Logistics"
+          >
+            <span data-part="icon" data-part-icon="">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="1" />
+                <circle cx="19" cy="12" r="1" />
+                <circle cx="5" cy="12" r="1" />
+              </svg>
+            </span>
+          </button>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-align="start"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="start" data-part-start="">
+            <span data-part="selection" data-part-selection="">
+              <span
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  aria-label="Select Borealis Foods"
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <label data-part="label" data-part-label=""></label>
+              </span>
+            </span>
+            <span data-part="media" data-part-media="">
+              <span
+                data-ui="avatar"
+                data-ui-avatar=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-shape="circle"
+                data-tone="warning"
+                data-variant="soft"
+                ><span data-part="fallback" data-part-fallback="">BF</span></span
+              >
+            </span>
+          </div>
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <a data-part="title" data-part-title="" href="#borealis">Borealis Foods</a>
+            </div>
+            <div data-part="description" data-part-description="">buying@borealis.example</div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">$3,902.15</span>
+          </div>
+          <dl data-part="fields" data-part-fields="" id="anatomy-borealis-fields">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Status</dt>
+              <dd data-part="field-value" data-part-field-value="">
+                <span
+                  data-ui="badge"
+                  data-ui-badge=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="warning"
+                  data-variant="soft"
+                  data-size="sm"
+                  data-shape="pill"
+                  ><span data-part="label" data-part-label="">On hold</span></span
+                >
+              </dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Owner</dt>
+              <dd data-part="field-value" data-part-field-value="">
+                <span data-part="field-empty" data-part-field-empty=""
+                  ><span aria-hidden="true">—</span
+                  ><span data-ui="visually-hidden" data-ui-visually-hidden="">Empty</span></span
+                >
+              </dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Region</dt>
+              <dd data-part="field-value" data-part-field-value="">Porto</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Last order</dt>
+              <dd data-part="field-value" data-part-field-value="" data-numeric>Aug 30, 2026</dd>
+            </div>
+          </dl>
+          <button
+            data-part="more"
+            data-part-more=""
+            type="button"
+            aria-expanded="false"
+            aria-controls="anatomy-borealis-fields"
+          >
+            Show 2 more
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            data-shape="square"
+            type="button"
+            aria-label="Actions for Borealis Foods"
+          >
+            <span data-part="icon" data-part-icon="">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="1" />
+                <circle cx="19" cy="12" r="1" />
+                <circle cx="5" cy="12" r="1" />
+              </svg>
+            </span>
+          </button>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-align="start"
+        data-expanded
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="start" data-part-start="">
+            <span data-part="selection" data-part-selection="">
+              <span
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  aria-label="Select Cobalt Studio"
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <label data-part="label" data-part-label=""></label>
+              </span>
+            </span>
+            <span data-part="media" data-part-media="">
+              <span
+                data-ui="avatar"
+                data-ui-avatar=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-shape="circle"
+                data-tone="secondary"
+                data-variant="soft"
+                ><span data-part="fallback" data-part-fallback="">CS</span></span
+              >
+            </span>
+          </div>
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <a data-part="title" data-part-title="" href="#cobalt">Cobalt Studio</a>
+            </div>
+            <div data-part="description" data-part-description="">hello@cobalt.example</div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">$48,120.40</span>
+          </div>
+          <dl data-part="fields" data-part-fields="" id="anatomy-cobalt-fields">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Status</dt>
+              <dd data-part="field-value" data-part-field-value="">
+                <span
+                  data-ui="badge"
+                  data-ui-badge=""
+                  data-part="root"
+                  data-part-root=""
+                  data-tone="success"
+                  data-variant="soft"
+                  data-size="sm"
+                  data-shape="pill"
+                  ><span data-part="label" data-part-label="">Active</span></span
+                >
+              </dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Owner</dt>
+              <dd data-part="field-value" data-part-field-value="">John Reed</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Region</dt>
+              <dd data-part="field-value" data-part-field-value="">Madrid</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Last order</dt>
+              <dd data-part="field-value" data-part-field-value="" data-numeric>Sep 20, 2026</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Plan</dt>
+              <dd data-part="field-value" data-part-field-value="">Enterprise</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Created</dt>
+              <dd data-part="field-value" data-part-field-value="" data-numeric>Jan 4, 2024</dd>
+            </div>
+          </dl>
+          <button
+            data-part="more"
+            data-part-more=""
+            type="button"
+            aria-expanded="true"
+            aria-controls="anatomy-cobalt-fields"
+          >
+            Show less
+            <span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+            ></span>
+          </button>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            data-shape="square"
+            type="button"
+            aria-label="Actions for Cobalt Studio"
+          >
+            <span data-part="icon" data-part-icon="">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="1" />
+                <circle cx="19" cy="12" r="1" />
+                <circle cx="5" cy="12" r="1" />
+              </svg>
+            </span>
+          </button>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!--
+  A list that is only read: no selection, no activation, no disclosure. The
+  title is text, the header holds the count and the sort control with no key.
+-->
+<section data-scene="read-only">
+  <div
+    data-ui="data-list"
+    data-ui-data-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="plain"
+    data-size="md"
+  >
+    <div data-part="header" data-part-header="">
+      <output data-part="count" data-part-count="" aria-live="polite">3 invoices</output>
+      <span data-part="sort" data-part-sort="">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="sm"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+        >
+          <span data-part="label" data-part-label="">Sort</span>
+          <span data-part="end" data-part-end="" aria-hidden="true"></span>
+        </button>
+      </span>
+    </div>
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="plain"
+      data-size="md"
+      role="list"
+      aria-label="Invoices"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="plain"
+        data-size="md"
+        data-align="start"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <span data-part="title" data-part-title="">INV-2026-0412</span>
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">€1,240.00</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Issued</dt>
+              <dd data-part="field-value" data-part-field-value="" data-numeric>Sep 1, 2026</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Due</dt>
+              <dd data-part="field-value" data-part-field-value="" data-numeric>Oct 1, 2026</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="plain"
+        data-size="md"
+        data-align="start"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <span data-part="title" data-part-title="">INV-2026-0398</span>
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">€86.50</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Issued</dt>
+              <dd data-part="field-value" data-part-field-value="" data-numeric>Aug 18, 2026</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Due</dt>
+              <dd data-part="field-value" data-part-field-value="" data-numeric>Sep 17, 2026</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="plain"
+        data-size="md"
+        data-align="start"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <span data-part="title" data-part-title="">INV-2026-0377</span>
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">€9,005.00</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Issued</dt>
+              <dd data-part="field-value" data-part-field-value="" data-numeric>Jul 30, 2026</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Due</dt>
+              <dd data-part="field-value" data-part-field-value="" data-numeric>Aug 29, 2026</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!--
+  The record's own states, each on the record that holds it: current (the
+  record open beside the list), disabled, loading, and a title that is a
+  command rather than a destination.
+-->
+<section data-scene="states">
+  <div
+    data-ui="data-list"
+    data-ui-data-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-size="md"
+  >
+    <div data-part="header" data-part-header="">
+      <output data-part="count" data-part-count="" aria-live="polite">4 accounts</output>
+      <span data-part="sort" data-part-sort="" data-direction="descending">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="sm"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+          aria-label="Sort, Balance descending"
+        >
+          <span data-part="label" data-part-label="">Sort: Balance</span>
+          <span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </span>
+    </div>
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="ruled"
+      data-size="md"
+      role="list"
+      aria-label="Accounts"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-align="start"
+        data-current
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <button data-part="title" data-part-title="" type="button" aria-current="true">
+                Cobalt Studio
+              </button>
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">$48,120.40</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Owner</dt>
+              <dd data-part="field-value" data-part-field-value="">John Reed</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Region</dt>
+              <dd data-part="field-value" data-part-field-value="">Madrid</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-align="start"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <button data-part="title" data-part-title="" type="button">Acme Logistics</button>
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">$12,480.00</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Owner</dt>
+              <dd data-part="field-value" data-part-field-value="">Marta Silva</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Region</dt>
+              <dd data-part="field-value" data-part-field-value="">Lisbon</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-align="start"
+        data-loading
+        aria-busy="true"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <button data-part="title" data-part-title="" type="button" disabled>
+                Borealis Foods
+              </button>
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">$3,902.15</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Owner</dt>
+              <dd data-part="field-value" data-part-field-value="">Ana Costa</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Region</dt>
+              <dd data-part="field-value" data-part-field-value="">Porto</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-align="start"
+        data-disabled
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <button data-part="title" data-part-title="" type="button" disabled>
+                Dunmore Freight
+              </button>
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">$0.00</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Owner</dt>
+              <dd data-part="field-value" data-part-field-value="">Rui Neves</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Region</dt>
+              <dd data-part="field-value" data-part-field-value="">Seville</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!--
+  Content the columns did not plan for: an address with no break in it, a
+  title in two lines, labels a translation made long, a value in another
+  script, and a record with one field.
+-->
+<section data-scene="content">
+  <div
+    data-ui="data-list"
+    data-ui-data-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-size="md"
+  >
+    <div data-part="header" data-part-header="">
+      <output data-part="count" data-part-count="" aria-live="polite">2 contacts</output>
+    </div>
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="ruled"
+      data-size="md"
+      role="list"
+      aria-label="Contacts"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-align="start"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <a data-part="title" data-part-title="" href="#long"
+                >General Northern Distribution and Warehousing Company</a
+              >
+            </div>
+            <div data-part="description" data-part-description="">
+              procurement.department.northern-region@companhia-geral-distribuicao.example
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">€1,204,880.00</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Account manager</dt>
+              <dd data-part="field-value" data-part-field-value="">
+                Mary Madeline Whitaker-Vanderbilt
+              </dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Reference</dt>
+              <dd data-part="field-value" data-part-field-value="">
+                7f3a9c21e4b84d0fa1c2d3e4f5a6b7c8
+              </dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">مدينة</dt>
+              <dd data-part="field-value" data-part-field-value="">الدار البيضاء</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-align="start"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <a data-part="title" data-part-title="" href="#short">Ivo</a>
+            </div>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Role</dt>
+              <dd data-part="field-value" data-part-field-value="">Buyer</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- `query.group` by Status: each group is a section of `list`. -->
+<section data-scene="grouping">
+  <div
+    data-ui="data-list"
+    data-ui-data-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-size="md"
+  >
+    <div data-part="header" data-part-header="">
+      <output data-part="count" data-part-count="" aria-live="polite">3 accounts</output>
+    </div>
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="ruled"
+      data-size="md"
+      role="list"
+      aria-label="Accounts"
+    >
+      <li data-part="section" data-part-section="">
+        <h3 data-part="section-label" data-part-section-label="" id="grouping-active">
+          Status: Active · 2
+        </h3>
+        <ul
+          data-part="section-list"
+          data-part-section-list=""
+          role="list"
+          aria-labelledby="grouping-active"
+        >
+          <li
+            data-ui="list-item"
+            data-ui-list-item=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ruled"
+            data-size="md"
+            data-align="start"
+          >
+            <div data-part="content" data-part-content="">
+              <div data-part="body" data-part-body="">
+                <div data-part="label" data-part-label="">
+                  <a data-part="title" data-part-title="" href="#acme">Acme Logistics</a>
+                </div>
+              </div>
+              <div data-part="end" data-part-end="">
+                <span data-part="trailing" data-part-trailing="">$12,480.00</span>
+              </div>
+              <dl data-part="fields" data-part-fields="">
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Owner</dt>
+                  <dd data-part="field-value" data-part-field-value="">Marta Silva</dd>
+                </div>
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Region</dt>
+                  <dd data-part="field-value" data-part-field-value="">Lisbon</dd>
+                </div>
+              </dl>
+            </div>
+          </li>
+          <li
+            data-ui="list-item"
+            data-ui-list-item=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ruled"
+            data-size="md"
+            data-align="start"
+          >
+            <div data-part="content" data-part-content="">
+              <div data-part="body" data-part-body="">
+                <div data-part="label" data-part-label="">
+                  <a data-part="title" data-part-title="" href="#cobalt">Cobalt Studio</a>
+                </div>
+              </div>
+              <div data-part="end" data-part-end="">
+                <span data-part="trailing" data-part-trailing="">$48,120.40</span>
+              </div>
+              <dl data-part="fields" data-part-fields="">
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Owner</dt>
+                  <dd data-part="field-value" data-part-field-value="">John Reed</dd>
+                </div>
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Region</dt>
+                  <dd data-part="field-value" data-part-field-value="">Madrid</dd>
+                </div>
+              </dl>
+            </div>
+          </li>
+        </ul>
+      </li>
+      <li data-part="section" data-part-section="">
+        <h3 data-part="section-label" data-part-section-label="" id="grouping-hold">
+          Status: On hold · 1
+        </h3>
+        <ul
+          data-part="section-list"
+          data-part-section-list=""
+          role="list"
+          aria-labelledby="grouping-hold"
+        >
+          <li
+            data-ui="list-item"
+            data-ui-list-item=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ruled"
+            data-size="md"
+            data-align="start"
+          >
+            <div data-part="content" data-part-content="">
+              <div data-part="body" data-part-body="">
+                <div data-part="label" data-part-label="">
+                  <a data-part="title" data-part-title="" href="#borealis">Borealis Foods</a>
+                </div>
+              </div>
+              <div data-part="end" data-part-end="">
+                <span data-part="trailing" data-part-trailing="">$3,902.15</span>
+              </div>
+              <dl data-part="fields" data-part-fields="">
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Owner</dt>
+                  <dd data-part="field-value" data-part-field-value="">Ana Costa</dd>
+                </div>
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Region</dt>
+                  <dd data-part="field-value" data-part-field-value="">Porto</dd>
+                </div>
+              </dl>
+            </div>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- `framed` at `sm`: the set's frame, the header outside it. -->
+<section data-scene="framed">
+  <div
+    data-ui="data-list"
+    data-ui-data-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="framed"
+    data-size="sm"
+  >
+    <div data-part="header" data-part-header="">
+      <span data-part="select-all" data-part-select-all="">
+        <span
+          data-ui="checkbox"
+          data-ui-checkbox=""
+          data-part="root"
+          data-part-root=""
+          data-size="sm"
+        >
+          <input
+            data-part="control"
+            data-part-control=""
+            type="checkbox"
+            aria-label="Select all 2 orders"
+          />
+          <span data-part="indicator" data-part-indicator=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+          ></span>
+          <label data-part="label" data-part-label=""></label>
+        </span>
+      </span>
+      <output data-part="count" data-part-count="" aria-live="polite">2 orders</output>
+    </div>
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="framed"
+      data-size="sm"
+      role="list"
+      aria-label="Orders"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="framed"
+        data-size="sm"
+        data-align="start"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="start" data-part-start="">
+            <span data-part="selection" data-part-selection="">
+              <span
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  aria-label="Select SO-1042"
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <label data-part="label" data-part-label=""></label>
+              </span>
+            </span>
+          </div>
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <a data-part="title" data-part-title="" href="#so-1042">SO-1042</a>
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">$2,310.00</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Customer</dt>
+              <dd data-part="field-value" data-part-field-value="">Acme Logistics</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Placed</dt>
+              <dd data-part="field-value" data-part-field-value="" data-numeric>Sep 22, 2026</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="framed"
+        data-size="sm"
+        data-align="start"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="start" data-part-start="">
+            <span data-part="selection" data-part-selection="">
+              <span
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  aria-label="Select SO-1041"
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span>
+                <label data-part="label" data-part-label=""></label>
+              </span>
+            </span>
+          </div>
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <a data-part="title" data-part-title="" href="#so-1041">SO-1041</a>
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">$640.00</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Customer</dt>
+              <dd data-part="field-value" data-part-field-value="">Cobalt Studio</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Placed</dt>
+              <dd data-part="field-value" data-part-field-value="" data-numeric>Sep 21, 2026</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!--
+  The first load. The header is chrome and is painted; the records are the
+  item's anatomy in skeleton: the title's line, the subtitle's line, the
+  trailing value, and four fields whose labels are real because a label is
+  not data. The count is the one thing the header cannot say yet.
+-->
+<section data-scene="loading">
+  <div
+    data-ui="data-list"
+    data-ui-data-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-size="md"
+  >
+    <div data-part="header" data-part-header="">
+      <output data-part="count" data-part-count="" aria-live="polite"></output>
+      <span data-part="sort" data-part-sort="">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="sm"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+          disabled
+        >
+          <span data-part="label" data-part-label="">Sort</span>
+          <span data-part="end" data-part-end="" aria-hidden="true"></span>
+        </button>
+      </span>
+    </div>
+    <div data-part="loader" data-part-loader="">
+      <div
+        data-ui="skeleton"
+        data-ui-skeleton=""
+        data-part="region"
+        data-part-region=""
+        data-animation="shimmer"
+        data-loading=""
+        aria-busy="true"
+      >
+        <span
+          data-ui="visually-hidden"
+          data-ui-visually-hidden=""
+          data-part="announcement"
+          data-part-announcement=""
+          role="status"
+          >Loading accounts</span
+        >
+        <ul
+          data-ui="list"
+          data-ui-list=""
+          data-part="root"
+          data-part-root=""
+          data-variant="ruled"
+          data-size="md"
+          role="list"
+          aria-hidden="true"
+          inert
+        >
+          <li
+            data-ui="list-item"
+            data-ui-list-item=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ruled"
+            data-size="md"
+            data-align="start"
+          >
+            <div data-part="content" data-part-content="">
+              <div data-part="body" data-part-body="">
+                <div data-part="label" data-part-label="">
+                  <span
+                    style="--slotted-skeleton-inline-size: 9rem"
+                    data-ui="skeleton"
+                    data-ui-skeleton=""
+                    data-part="root"
+                    data-part-root=""
+                    data-shape="text"
+                    data-size="md"
+                    data-animation="shimmer"
+                    data-loading=""
+                  ></span>
+                </div>
+                <div data-part="description" data-part-description="">
+                  <span
+                    style="--slotted-skeleton-inline-size: 11rem"
+                    data-ui="skeleton"
+                    data-ui-skeleton=""
+                    data-part="root"
+                    data-part-root=""
+                    data-shape="text"
+                    data-size="md"
+                    data-animation="shimmer"
+                    data-loading=""
+                  ></span>
+                </div>
+              </div>
+              <div data-part="end" data-part-end="">
+                <span
+                  style="--slotted-skeleton-inline-size: 4.5rem"
+                  data-ui="skeleton"
+                  data-ui-skeleton=""
+                  data-part="root"
+                  data-part-root=""
+                  data-shape="text"
+                  data-size="md"
+                  data-animation="shimmer"
+                  data-loading=""
+                ></span>
+              </div>
+              <dl data-part="fields" data-part-fields="">
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Status</dt>
+                  <dd data-part="field-value" data-part-field-value="">
+                    <span
+                      style="--slotted-skeleton-inline-size: 3.5rem"
+                      data-ui="skeleton"
+                      data-ui-skeleton=""
+                      data-part="root"
+                      data-part-root=""
+                      data-shape="text"
+                      data-size="md"
+                      data-animation="shimmer"
+                      data-loading=""
+                    ></span>
+                  </dd>
+                </div>
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Owner</dt>
+                  <dd data-part="field-value" data-part-field-value="">
+                    <span
+                      style="--slotted-skeleton-inline-size: 5.5rem"
+                      data-ui="skeleton"
+                      data-ui-skeleton=""
+                      data-part="root"
+                      data-part-root=""
+                      data-shape="text"
+                      data-size="md"
+                      data-animation="shimmer"
+                      data-loading=""
+                    ></span>
+                  </dd>
+                </div>
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Region</dt>
+                  <dd data-part="field-value" data-part-field-value="">
+                    <span
+                      style="--slotted-skeleton-inline-size: 4rem"
+                      data-ui="skeleton"
+                      data-ui-skeleton=""
+                      data-part="root"
+                      data-part-root=""
+                      data-shape="text"
+                      data-size="md"
+                      data-animation="shimmer"
+                      data-loading=""
+                    ></span>
+                  </dd>
+                </div>
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Last order</dt>
+                  <dd data-part="field-value" data-part-field-value="">
+                    <span
+                      style="--slotted-skeleton-inline-size: 5rem"
+                      data-ui="skeleton"
+                      data-ui-skeleton=""
+                      data-part="root"
+                      data-part-root=""
+                      data-shape="text"
+                      data-size="md"
+                      data-animation="shimmer"
+                      data-loading=""
+                    ></span>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </li>
+          <li
+            data-ui="list-item"
+            data-ui-list-item=""
+            data-part="root"
+            data-part-root=""
+            data-variant="ruled"
+            data-size="md"
+            data-align="start"
+          >
+            <div data-part="content" data-part-content="">
+              <div data-part="body" data-part-body="">
+                <div data-part="label" data-part-label="">
+                  <span
+                    style="--slotted-skeleton-inline-size: 7rem"
+                    data-ui="skeleton"
+                    data-ui-skeleton=""
+                    data-part="root"
+                    data-part-root=""
+                    data-shape="text"
+                    data-size="md"
+                    data-animation="shimmer"
+                    data-loading=""
+                  ></span>
+                </div>
+                <div data-part="description" data-part-description="">
+                  <span
+                    style="--slotted-skeleton-inline-size: 9.5rem"
+                    data-ui="skeleton"
+                    data-ui-skeleton=""
+                    data-part="root"
+                    data-part-root=""
+                    data-shape="text"
+                    data-size="md"
+                    data-animation="shimmer"
+                    data-loading=""
+                  ></span>
+                </div>
+              </div>
+              <div data-part="end" data-part-end="">
+                <span
+                  style="--slotted-skeleton-inline-size: 4rem"
+                  data-ui="skeleton"
+                  data-ui-skeleton=""
+                  data-part="root"
+                  data-part-root=""
+                  data-shape="text"
+                  data-size="md"
+                  data-animation="shimmer"
+                  data-loading=""
+                ></span>
+              </div>
+              <dl data-part="fields" data-part-fields="">
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Status</dt>
+                  <dd data-part="field-value" data-part-field-value="">
+                    <span
+                      style="--slotted-skeleton-inline-size: 4rem"
+                      data-ui="skeleton"
+                      data-ui-skeleton=""
+                      data-part="root"
+                      data-part-root=""
+                      data-shape="text"
+                      data-size="md"
+                      data-animation="shimmer"
+                      data-loading=""
+                    ></span>
+                  </dd>
+                </div>
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Owner</dt>
+                  <dd data-part="field-value" data-part-field-value="">
+                    <span
+                      style="--slotted-skeleton-inline-size: 6rem"
+                      data-ui="skeleton"
+                      data-ui-skeleton=""
+                      data-part="root"
+                      data-part-root=""
+                      data-shape="text"
+                      data-size="md"
+                      data-animation="shimmer"
+                      data-loading=""
+                    ></span>
+                  </dd>
+                </div>
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Region</dt>
+                  <dd data-part="field-value" data-part-field-value="">
+                    <span
+                      style="--slotted-skeleton-inline-size: 3.5rem"
+                      data-ui="skeleton"
+                      data-ui-skeleton=""
+                      data-part="root"
+                      data-part-root=""
+                      data-shape="text"
+                      data-size="md"
+                      data-animation="shimmer"
+                      data-loading=""
+                    ></span>
+                  </dd>
+                </div>
+                <div data-part="field" data-part-field="">
+                  <dt data-part="field-label" data-part-field-label="">Last order</dt>
+                  <dd data-part="field-value" data-part-field-value="">
+                    <span
+                      style="--slotted-skeleton-inline-size: 5rem"
+                      data-ui="skeleton"
+                      data-ui-skeleton=""
+                      data-part="root"
+                      data-part-root=""
+                      data-shape="text"
+                      data-size="md"
+                      data-animation="shimmer"
+                      data-loading=""
+                    ></span>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- A refresh over records already shown: they stay and recede. -->
+<section data-scene="refresh">
+  <div
+    data-ui="data-list"
+    data-ui-data-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-size="md"
+    data-loading
+    aria-busy="true"
+  >
+    <div data-part="header" data-part-header="">
+      <output data-part="count" data-part-count="" aria-live="polite">2 accounts</output>
+    </div>
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="ruled"
+      data-size="md"
+      role="list"
+      aria-label="Accounts"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-align="start"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <a data-part="title" data-part-title="" href="#acme">Acme Logistics</a>
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">$12,480.00</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Owner</dt>
+              <dd data-part="field-value" data-part-field-value="">Marta Silva</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Region</dt>
+              <dd data-part="field-value" data-part-field-value="">Lisbon</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-align="start"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <a data-part="title" data-part-title="" href="#cobalt">Cobalt Studio</a>
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">$48,120.40</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Owner</dt>
+              <dd data-part="field-value" data-part-field-value="">John Reed</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Region</dt>
+              <dd data-part="field-value" data-part-field-value="">Madrid</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- The query left nothing: result-state with the one action that answers it. -->
+<section data-scene="no-results">
+  <div
+    data-ui="data-list"
+    data-ui-data-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-size="md"
+  >
+    <div data-part="header" data-part-header="">
+      <output data-part="count" data-part-count="" aria-live="polite">0 accounts</output>
+    </div>
+    <div data-part="empty" data-part-empty="">
+      <div
+        data-ui="result-state"
+        data-ui-result-state=""
+        data-part="root"
+        data-part-root=""
+        data-status="no-results"
+        data-reach="section"
+        data-align="center"
+        data-live="polite"
+        tabindex="-1"
+        aria-labelledby="no-results-title"
+      >
+        <div data-part="media" data-part-media="" aria-hidden="true"></div>
+        <div data-part="content" data-part-content="" role="status">
+          <div data-part="title" data-part-title="" id="no-results-title">No accounts match</div>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Clear filters</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The page could not be read: result-state with retry. -->
+<section data-scene="error">
+  <div
+    data-ui="data-list"
+    data-ui-data-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-size="md"
+  >
+    <div data-part="header" data-part-header="">
+      <output data-part="count" data-part-count="" aria-live="polite"></output>
+    </div>
+    <div data-part="empty" data-part-empty="">
+      <div
+        data-ui="result-state"
+        data-ui-result-state=""
+        data-part="root"
+        data-part-root=""
+        data-status="error"
+        data-reach="section"
+        data-align="center"
+        data-live="polite"
+        tabindex="-1"
+        aria-labelledby="error-title"
+      >
+        <div data-part="media" data-part-media="" aria-hidden="true"></div>
+        <div data-part="content" data-part-content="" role="status">
+          <div data-part="title" data-part-title="" id="error-title">
+            Accounts could not be loaded
+          </div>
+        </div>
+        <div data-part="actions" data-part-actions="">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="root"
+            data-part-root=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Try again</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- More records exist: the footer asks for them, and says when it is asking. -->
+<section data-scene="load-more">
+  <div
+    data-ui="data-list"
+    data-ui-data-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-size="md"
+  >
+    <div data-part="header" data-part-header="">
+      <output data-part="count" data-part-count="" aria-live="polite">1 of 38 accounts</output>
+    </div>
+    <ul
+      data-ui="list"
+      data-ui-list=""
+      data-part="root"
+      data-part-root=""
+      data-variant="ruled"
+      data-size="md"
+      role="list"
+      aria-label="Accounts"
+    >
+      <li
+        data-ui="list-item"
+        data-ui-list-item=""
+        data-part="root"
+        data-part-root=""
+        data-variant="ruled"
+        data-size="md"
+        data-align="start"
+      >
+        <div data-part="content" data-part-content="">
+          <div data-part="body" data-part-body="">
+            <div data-part="label" data-part-label="">
+              <a data-part="title" data-part-title="" href="#acme">Acme Logistics</a>
+            </div>
+          </div>
+          <div data-part="end" data-part-end="">
+            <span data-part="trailing" data-part-trailing="">$12,480.00</span>
+          </div>
+          <dl data-part="fields" data-part-fields="">
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Owner</dt>
+              <dd data-part="field-value" data-part-field-value="">Marta Silva</dd>
+            </div>
+            <div data-part="field" data-part-field="">
+              <dt data-part="field-label" data-part-field-label="">Region</dt>
+              <dd data-part="field-value" data-part-field-value="">Lisbon</dd>
+            </div>
+          </dl>
+        </div>
+      </li>
+    </ul>
+    <div data-part="footer" data-part-footer="">
+      <span data-part="load-more" data-part-load-more="">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Load more</span>
+        </button>
+      </span>
+    </div>
+  </div>
+</section>
+
+<!--
+  The sort control open: menu's two radio groups, the column and the
+  direction. The surface is laid in flow under the bar, where the positioner
+  puts it, so the picture shows what the reader chooses between.
+-->
+<section data-scene="sort-open">
+  <div
+    data-ui="data-list"
+    data-ui-data-list=""
+    data-part="root"
+    data-part-root=""
+    data-variant="ruled"
+    data-size="md"
+  >
+    <div data-part="header" data-part-header="">
+      <output data-part="count" data-part-count="" aria-live="polite">12 accounts</output>
+      <span data-part="sort" data-part-sort="" data-direction="descending">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="root"
+          data-part-root=""
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="sm"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="true"
+          aria-controls="sort-open-menu"
+          aria-label="Sort, Balance descending"
+        >
+          <span data-part="label" data-part-label="">Sort: Balance</span>
+          <span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-size="sm"
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+          ></span>
+        </button>
+      </span>
+    </div>
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="end"
+      data-size="md"
+      data-open
+      style="
+        position: relative;
+        margin-inline-start: auto;
+        --slotted-positioner-available-width: 100%;
+      "
+    >
+      <div
+        data-part="content"
+        data-part-content=""
+        role="menu"
+        aria-label="Sort"
+        id="sort-open-menu"
+      >
+        <div data-part="group" data-part-group="" role="group" aria-labelledby="sort-open-column">
+          <div data-part="group-label" data-part-group-label="" id="sort-open-column">Sort by</div>
+          <button
+            data-part="item"
+            data-part-item=""
+            role="menuitemradio"
+            type="button"
+            aria-checked="false"
+          >
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+            ></span>
+            <span data-part="label" data-part-label="">No sorting</span>
+          </button>
+          <button
+            data-part="item"
+            data-part-item=""
+            role="menuitemradio"
+            type="button"
+            aria-checked="false"
+          >
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+            ></span>
+            <span data-part="label" data-part-label="">Account</span>
+          </button>
+          <button
+            data-part="item"
+            data-part-item=""
+            role="menuitemradio"
+            type="button"
+            aria-checked="true"
+            data-checked
+          >
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+            ></span>
+            <span data-part="label" data-part-label="">Balance</span>
+          </button>
+          <button
+            data-part="item"
+            data-part-item=""
+            role="menuitemradio"
+            type="button"
+            aria-checked="false"
+          >
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+            ></span>
+            <span data-part="label" data-part-label="">Last order</span>
+          </button>
+        </div>
+        <hr
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="horizontal"
+        />
+        <div
+          data-part="group"
+          data-part-group=""
+          role="group"
+          aria-labelledby="sort-open-direction"
+        >
+          <div data-part="group-label" data-part-group-label="" id="sort-open-direction">
+            Direction
+          </div>
+          <button
+            data-part="item"
+            data-part-item=""
+            role="menuitemradio"
+            type="button"
+            aria-checked="false"
+          >
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+            ></span>
+            <span data-part="label" data-part-label="">Ascending</span>
+          </button>
+          <button
+            data-part="item"
+            data-part-item=""
+            role="menuitemradio"
+            type="button"
+            aria-checked="true"
+            data-checked
+          >
+            <span data-part="indicator" data-part-indicator=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+            ></span>
+            <span data-part="label" data-part-label="">Descending</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

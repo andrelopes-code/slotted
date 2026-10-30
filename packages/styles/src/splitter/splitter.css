@@ -1,0 +1,335 @@
+@layer slotted.components {
+  /**
+   * A bar between two regions the consumer owns, and nothing else. The family
+   * holds no panels, so this stylesheet paints one element and its two children and
+   * writes no layout at all. A separator that sized the boxes beside it would
+   * be deciding a layout it was only handed a position in.
+   *
+   * The picture is SAP's, read in `SAP/fundamental-styles`
+   * `packages/styles/src/splitter.scss` rather than in the rendered page: two
+   * hairlines that fade out away from a grip in the middle, and that run the
+   * whole track once a hand is on them. Six of the seven surveyed
+   * implementations draw a plain gutter; this is the one that reads as
+   * something to hold.
+   *
+   * `touch-action: none` so a drag is not read as a scroll on the way past.
+   */
+  [data-ui-splitter] {
+    /**
+     * The track is what the pointer sees and `--slotted-target-min` is what it
+     * gets: `::before` below is a transparent box centred on the track, which
+     * is the construction `drawer`'s resizer already uses to hold the WCAG 2.2
+     * floor without widening the picture. One rem rather than the four pixels
+     * `drawer` uses, because this bar carries a grip and four pixels cannot.
+     */
+    --_track: var(--slotted-space-6, 1rem);
+    --_reach: var(--slotted-target-min, 24px);
+
+    /**
+     * A hairline, not a rule. SAP draws `0.0625rem` and the thin border step is
+     * the same quantity under a name the theme can retune.
+     *
+     * Its resting length is a segment and not the track: a line that already
+     * runs end to end has nowhere to go when a hand arrives, and the growth is
+     * the whole of the feedback. SAP's `4rem` is `--slotted-space-12`.
+     */
+    --_line: var(--slotted-border-width-thin, 1px);
+    --_line-length: var(--slotted-space-12, 4rem);
+
+    /**
+     * SAP's own `2rem` between the grip and each line — but capped against the
+     * track, and that cap is a correction from the first capture.
+     *
+     * A flex gap does not shrink. Two of them at `2rem`, two lines at `4rem`
+     * and the grip ask for two hundred and four pixels of track, so in a region
+     * eighty pixels tall the gaps took everything and both lines were crushed
+     * to nothing: the bar showed a grip floating in a gap and no line at all.
+     * SAP never meets this because its splitter divides application panes,
+     * which are tall by construction; a bar in this library divides whatever
+     * the consumer put beside it.
+     *
+     * A percentage gap resolves against the container's own extent on the axis
+     * it runs along, so `min()` takes the rem step where there is room for it
+     * and a proportion of the track where there is not.
+     */
+    --_gap: min(var(--slotted-space-9, 2rem), 12%);
+
+    /**
+     * The grip is a two-by-three dot matrix on one pitch, which is what SAP's
+     * `vertical-grip` glyph draws. It is built from a gradient rather than from
+     * an icon token because it is not an icon: it carries no meaning a reader
+     * could look up, and a family that put it in the icon scale would let a
+     * theme swap it for something that does.
+     */
+    --_dot: var(--slotted-space-2, 0.25rem);
+
+    /**
+     * Two steps, and the whole of the colour decision.
+     *
+     * `--_rest` is the **strong** border step and not the subtle one, which is
+     * a correction from the first capture: drawn in `--slotted-border-subtle`
+     * the bar was invisible at rest in `light`, and a resizable edge nobody can
+     * see is a capability nobody finds — the argument the grip exists for. The
+     * subtle step is for a rule inside one surface; this is the boundary
+     * between two, which is the step the foundation holds to 3:1.
+     *
+     * `--_active` is a step darker again. The colour is the smaller half of the
+     * feedback: the larger half is the lines running the whole track, which is
+     * what SAP changes and what a hand actually reads.
+     *
+     * The accent is deliberately absent from both. It is the one colour in the
+     * library that means "the keyboard is here", and the rule below spends it
+     * on `:focus-visible` alone. `drawer`'s resizer spends it on hover as well,
+     * which is the defect this family was built to correct; SAP is the only one
+     * of the seven surveyed implementations that keeps the two apart.
+     */
+    --_rest: var(--slotted-splitter-line-color, var(--slotted-border-strong, ButtonBorder));
+    --_active: var(--slotted-splitter-line-active-color, var(--slotted-text-muted, ButtonText));
+
+    /* The repository has no global reset, and this box states its own measure. */
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--_gap);
+    flex-shrink: 0;
+    background: transparent;
+    touch-action: none;
+    transition: gap var(--slotted-control-transition-duration, var(--slotted-duration-short))
+      var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  /**
+   * Under the hand the gap closes to one step, and the three marks read as one.
+   *
+   * It is not decoration: it is where half the growth comes from. On an
+   * eighty-pixel track the two resting gaps and the grip take thirty-one pixels
+   * of the eighty, so lines that could only grow from sixteen to twenty-four
+   * pixels were a state change nobody could see — the third capture showed
+   * `data-dragging` and rest as the same picture. Closing the gap hands those
+   * pixels to the lines, and the pair roughly doubles instead.
+   */
+  [data-ui-splitter]:not([data-disabled]):hover,
+  [data-ui-splitter]:not([data-disabled]):focus-visible,
+  [data-ui-splitter][data-dragging] {
+    --_gap: var(--slotted-space-4, 0.5rem);
+  }
+
+  /**
+   * `align-self` and `justify-self` for the same reason `divider` claims both:
+   * the bar's length comes from the container, and a flex parent hands the
+   * cross size over through one while a grid parent hands it over through the
+   * other. A container that packs its children instead of stretching them
+   * would otherwise size the bar from its content.
+   */
+  [data-ui-splitter][data-orientation='vertical'] {
+    flex-direction: column;
+    inline-size: var(--_track);
+    align-self: stretch;
+    cursor: col-resize;
+  }
+
+  [data-ui-splitter][data-orientation='horizontal'] {
+    flex-direction: row;
+    block-size: var(--_track);
+    justify-self: stretch;
+    cursor: row-resize;
+  }
+
+  /**
+   * The reach. Transparent, centred on the track, and the reason a sixteen-pixel
+   * picture is a twenty-four-pixel target.
+   */
+  [data-ui-splitter]::before {
+    content: '';
+    position: absolute;
+    --_overhang: calc((var(--_reach) - var(--_track)) / -2);
+  }
+
+  [data-ui-splitter][data-orientation='vertical']::before {
+    inset-block: 0;
+    inset-inline: var(--_overhang);
+  }
+
+  [data-ui-splitter][data-orientation='horizontal']::before {
+    inset-inline: 0;
+    inset-block: var(--_overhang);
+  }
+
+  /**
+   * The lines.
+   *
+   * Each fades to transparent *away* from the grip, so the pair reads as one
+   * mark with a middle rather than as two dashes. The gradient is the reason
+   * these are elements and not pseudo-elements: `packages/styles/src/fallbacks.test.mjs`
+   * forbids a system colour inside `::before` or `::after`, and the focus
+   * colour's own last resort is `Highlight`.
+   *
+   * `flex-basis` carries both the resting length and the growth, because a
+   * grow factor does not animate and the extension *is* the feedback.
+   *
+   * At rest the basis is `min(4rem, 20%)`, and both halves of that are
+   * corrections from the first two captures. The rem step alone — SAP's `4rem`
+   * — asked for more track than an eighty-pixel region has, and the gaps, which
+   * do not shrink, crushed both lines to nothing. Filling the track instead
+   * fixed that and broke the other end: a line already occupying everything the
+   * gaps leave has nowhere to grow to, and hover and drag became
+   * indistinguishable from rest.
+   *
+   * A proportion leaves slack at every track length. That slack is what the
+   * hand claims.
+   */
+  [data-ui-splitter] > [data-part-line] {
+    flex: 0 1 min(var(--_line-length), 20%);
+    min-block-size: 0;
+    min-inline-size: 0;
+    border-radius: var(--slotted-radius-sm, 2px);
+    transition:
+      flex-basis var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-splitter][data-orientation='vertical'] > [data-part-line] {
+    inline-size: var(--_line);
+  }
+
+  [data-ui-splitter][data-orientation='horizontal'] > [data-part-line] {
+    block-size: var(--_line);
+  }
+
+  /* Solid at the grip, gone at the far end. Four rules, one per direction. */
+  [data-ui-splitter][data-orientation='vertical'] > [data-part-line]:first-child {
+    background: linear-gradient(to bottom, transparent, var(--_rest));
+  }
+
+  [data-ui-splitter][data-orientation='vertical'] > [data-part-line]:last-child {
+    background: linear-gradient(to top, transparent, var(--_rest));
+  }
+
+  [data-ui-splitter][data-orientation='horizontal'] > [data-part-line]:first-child {
+    background: linear-gradient(to right, transparent, var(--_rest));
+  }
+
+  [data-ui-splitter][data-orientation='horizontal'] > [data-part-line]:last-child {
+    background: linear-gradient(to left, transparent, var(--_rest));
+  }
+
+  /**
+   * Under the hand, and under the drag: the pair runs the whole track and drops
+   * the gradient for the strong step. `flex-basis: 100%` against
+   * `flex-shrink: 1` is what lets the two of them and the gap share the track
+   * rather than overflow it.
+   *
+   * Hover is held back for `data-disabled`, which is the shared rule from
+   * `packages/styles/src/states.test.mjs`.
+   */
+  [data-ui-splitter]:not([data-disabled]):hover > [data-part-line],
+  [data-ui-splitter]:not([data-disabled]):focus-visible > [data-part-line],
+  [data-ui-splitter][data-dragging] > [data-part-line] {
+    flex-basis: 100%;
+    background: var(--_active);
+  }
+
+  /**
+   * The keyboard's own signal is the ring, and it is the only place the accent
+   * appears. The lines take the same step they take under the hand.
+   *
+   * They were drawn in the focus colour too, until the capture showed what that
+   * is: a two-pixel accent ring around a sixteen-pixel bar whose interior is
+   * also accent, which reads as a solid blue block rather than as a ring around
+   * a separator. The accent said the same thing twice in the same twelve
+   * pixels, and the second saying cost the first its shape.
+   */
+
+  [data-ui-splitter]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-offset, 2px));
+  }
+
+  /**
+   * The grip. Two columns by three rows on one pitch, drawn with one gradient
+   * and sized from the same step, so a density that retunes the space scale
+   * retunes the mark with it.
+   *
+   * `color` rather than a background colour on each dot: the dots and the lines
+   * are one mark and have to move together, and `currentColor` is the one place
+   * that says so.
+   */
+  [data-ui-splitter] > [data-part-grip] {
+    flex: none;
+    color: var(--_rest);
+    background-image: radial-gradient(circle at center, currentColor 40%, transparent 42%);
+    background-size: var(--_dot) var(--_dot);
+    background-repeat: repeat;
+    transition: color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+      var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-splitter][data-orientation='vertical'] > [data-part-grip] {
+    inline-size: calc(2 * var(--_dot));
+    block-size: calc(3 * var(--_dot));
+  }
+
+  [data-ui-splitter][data-orientation='horizontal'] > [data-part-grip] {
+    inline-size: calc(3 * var(--_dot));
+    block-size: calc(2 * var(--_dot));
+  }
+
+  [data-ui-splitter]:not([data-disabled]):hover > [data-part-grip],
+  [data-ui-splitter]:not([data-disabled]):focus-visible > [data-part-grip],
+  [data-ui-splitter][data-dragging] > [data-part-grip] {
+    color: var(--_active);
+  }
+
+  /**
+   * Disabled. The bar keeps its tab stop — a reader who cannot move the
+   * separator can still read its value — so this changes the picture and the
+   * cursor and nothing about the focus.
+   */
+  [data-ui-splitter][data-disabled] {
+    cursor: default;
+    --_rest: var(--slotted-splitter-disabled-line-color, var(--slotted-disabled-border, GrayText));
+  }
+
+  /**
+   * Forced colours. A gradient resolves to nothing there, so both lines take a
+   * flat system colour and the growth is what is left of the feedback. The
+   * grip's gradient is replaced for the same reason.
+   */
+  @media (forced-colors: active) {
+    [data-ui-splitter] > [data-part-line] {
+      background: ButtonBorder;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-splitter]:not([data-disabled]):hover > [data-part-line],
+    [data-ui-splitter][data-dragging] > [data-part-line] {
+      background: ButtonText;
+    }
+
+    [data-ui-splitter] > [data-part-grip] {
+      background-image: none;
+      background-color: ButtonBorder;
+    }
+
+    [data-ui-splitter][data-disabled] > [data-part-line],
+    [data-ui-splitter][data-disabled] > [data-part-grip] {
+      background: GrayText;
+    }
+  }
+
+  /**
+   * The preference is about movement, not about feedback. The lines still reach
+   * the ends of the track and still change step; they simply arrive there
+   * without travelling.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-splitter] > [data-part-line],
+    [data-ui-splitter] > [data-part-grip] {
+      transition-duration: var(--slotted-duration-instant);
+    }
+  }
+}

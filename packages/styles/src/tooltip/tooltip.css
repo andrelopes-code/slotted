@@ -1,0 +1,394 @@
+@layer slotted.components {
+  /**
+   * A short, non-interactive sentence about the element under the pointer or
+   * under focus.
+   *
+   * Two boxes, and the split is what makes the family animate at all. The
+   * **layer** is what `packages/core/src/positioner` writes `position`, `left`
+   * and `top` onto; the module deliberately leaves `transform` alone, so the
+   * layer is also what slides and fades. The **content** inside it is the
+   * painted surface, and the arrow is the layer's other child, painted behind
+   * the content so only its two outer edges show.
+   *
+   *   ┌─ root ─ the layer, positioned, animated ──────────┐
+   *   │  padding = the gap                                │
+   *   │   ┌─ content ─ role="tooltip", painted ────────┐  │
+   *   │   │  Saves the draft without publishing it     │  │
+   *   │   └────────────────────────────────────────────┘  │
+   *   │                     ◆ arrow                       │
+   *   └───────────────────────────────────────────────────┘
+   *
+   * ── Why the gap is padding and not an offset ─────────────────────────
+   *
+   * WCAG 2.2 SC 1.4.13 Hoverable requires that the pointer be able to move onto
+   * the tooltip without it disappearing. A gap made of the positioner's
+   * `sideOffset` is empty page between the trigger and the layer, and a pointer
+   * crossing it has left both. A gap made of the layer's own padding belongs to
+   * the layer, so the pointer never leaves. `sideOffset` is therefore `0` by
+   * default and means additional distance beyond this one.
+   *
+   * It also removes four rules. A bridge drawn per side would have to answer
+   * `data-side`, which names a **physical** edge, and a physical edge cannot be
+   * answered in logical properties without mirroring in the wrong direction.
+   * Symmetric padding answers every side at once.
+   */
+  [data-ui-tooltip] {
+    /**
+     * The distance between the trigger and the painted surface, and the band
+     * the arrow stands in. A consumer who raises `sideOffset` past it leaves
+     * page the pointer can fall through, and retunes this token to match.
+     */
+    --_gap: var(--slotted-tooltip-gap, var(--slotted-space-4, 0.5rem));
+
+    --_surface: var(--slotted-tooltip-surface, var(--slotted-surface-inverse, #172033));
+    --_text: var(--slotted-tooltip-text, var(--slotted-text-inverse, #f8fafc));
+    /**
+     * The inverse variant carries no edge, because an inverted surface is
+     * already separated from every scheme's page. `surface` fills both in.
+     */
+    --_border-color: transparent;
+    --_border-width: 0;
+    --_radius: var(--slotted-tooltip-radius, var(--slotted-radius-sm, 4px));
+    /**
+     * The smallest step on the scale, which makes the three overlay families an
+     * elevation ladder rather than three boxes at one height: a hint at `xs`, a
+     * panel at `md`, a modal dialog at `lg`. The `inverse` variant hides its own
+     * shadow; the first `surface` capture showed `sm` reading heavier than the
+     * inverse box beside it, which is the difference this step removes.
+     */
+    --_shadow: var(--slotted-tooltip-shadow, var(--slotted-shadow-xs));
+    --_arrow-size: var(--slotted-tooltip-arrow-size, 0.5rem);
+    /* The point, softened to the same degree the surface's own corners are.
+       A 90-degree tip beside a rounded panel reads as a different object. */
+    --_arrow-tip-radius: var(--slotted-tooltip-arrow-tip-radius, var(--slotted-radius-xs, 2px));
+
+    /**
+     * The control scales, so `size` is one decision and the three densities
+     * come for free: a dense tooltip is a tighter tooltip rather than a smaller
+     * one, which is what "density changes size without changing meaning" asks.
+     */
+    --_padding-inline: var(--slotted-control-padding-inline-md, 0.8125rem);
+    --_padding-block: var(--slotted-control-gap-md, 0.5rem);
+    --_font-size: var(--slotted-control-font-size-md, 0.8125rem);
+    --_line-height: var(--slotted-line-height-sm, 1.45);
+    /**
+     * ── Why the family caps its own width ────────────────────────────────
+     *
+     * `docs/build-briefing.md` gives measure to `container` and to it alone, so
+     * no `measure` axis is offered here. A cap is still needed: a layer in a
+     * portal is `max-content` wide, and one long sentence would otherwise set a
+     * single line the width of the viewport. It is a token rather than an axis,
+     * and a consumer who needs a paragraph is holding a popover.
+     */
+    --_measure: var(--slotted-tooltip-measure, 18rem);
+
+    /**
+     * ── Only the block inset is stated ───────────────────────────────────
+     *
+     * The positioner writes `left` and `top` inline on its first measurement
+     * and never writes `right`. `inset-inline-start: 0` resolves to `right: 0`
+     * in a right-to-left document, and a box with a definite width that is
+     * given both `left` and `right` is over-constrained: in that direction
+     * `right` wins, and every layer in the page pins itself to the far edge.
+     * The first right-to-left capture showed exactly that. `inset-block-start`
+     * does not mirror with `dir`, so it is safe and it is what keeps an
+     * unmeasured layer from sitting at the end of the document and lengthening
+     * the page for a frame.
+     */
+    position: absolute;
+    inset-block-start: 0;
+
+    /**
+     * One stack, no new step in the scale. A tooltip draws above the popover it
+     * was opened inside because `dismissable-layer` gave it a greater depth,
+     * not because it was given a larger number of its own.
+     */
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+    /* So the arrow's negative z-index stays inside this layer in every case. */
+    isolation: isolate;
+
+    box-sizing: border-box;
+    padding: var(--_gap);
+    inline-size: max-content;
+    /**
+     * The measure, and then the room the positioner says is actually left. A
+     * tooltip near the edge of a 240-pixel viewport narrows instead of pushing
+     * the page sideways.
+     */
+    max-inline-size: min(var(--_measure), var(--slotted-positioner-available-width, 100vw));
+
+    /**
+     * The layer never blocks the target — `docs/component-features.md` §8 — so
+     * the pointer passes through it. Only a hoverable tooltip takes the pointer
+     * back, and only while it is open.
+     */
+    pointer-events: none;
+
+    /**
+     * R7: the layer arrives along the axis it opens on — from one space step
+     * above its place when it opens downward, from one step below when it
+     * opens upward — and never along the inline axis. A `scale` from the
+     * corner the positioner named as origin moved the far edge by four per
+     * cent of the width, which read as an entrance from the left.
+     */
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+    translate: 0 calc(-1 * var(--_enter-distance));
+    transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-tooltip][data-side='top'] {
+    translate: 0 var(--_enter-distance);
+  }
+
+  /* A lateral side has no block direction to arrive from, so it only fades. */
+  [data-ui-tooltip]:is([data-side='left'], [data-side='right']) {
+    translate: 0 0;
+  }
+
+  /**
+   * Entering is a shade slower than leaving, which is what makes a layer read
+   * as placed rather than thrown. Both durations are motion tokens, so the
+   * theme's one reduced-motion query collapses them together.
+   */
+  /**
+   * The entrance is a keyframe animation and not a transition. A transition
+   * starts from the style the browser computed last, and the positioner
+   * writes `data-side` in the same style update as the family opens the
+   * layer, so a transition set out from the closed style of the side the
+   * layer had before it had one — the bottom's — whatever side it opens on.
+   * A keyframe states where it starts. The exit stays a transition: it
+   * leaves from wherever the layer is, on the closed rule's durations.
+   */
+  [data-ui-tooltip][data-open] {
+    translate: 0 0;
+    transition: none;
+  }
+
+  /**
+   * Only a layer the positioner placed arrives: it writes `data-positioned`
+   * with the side, and a layer written open in static markup — the harness,
+   * a docs snippet — is simply there, and is photographed where it stands.
+   */
+  [data-ui-tooltip][data-open][data-positioned] {
+    animation: slotted-tooltip-enter-down var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  [data-ui-tooltip][data-open][data-positioned][data-side='top'] {
+    animation-name: slotted-tooltip-enter-up;
+  }
+
+  @keyframes slotted-tooltip-enter-down {
+    from {
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-tooltip-enter-up {
+    from {
+      translate: 0 var(--_enter-distance);
+    }
+  }
+
+  @keyframes slotted-tooltip-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /**
+   * The fade belongs to the part that paints the surface, and the layer only
+   * moves. In Chromium an ancestor with `opacity` below one is the Backdrop Root
+   * of what it holds, so a `backdrop-filter` on the content blurs nothing until
+   * the layer is opaque and then appears at once. The content's own opacity
+   * leaves its own filter drawn on every frame of the motion. The arrow is
+   * the other part that paints, and it fades on the same rules, so the two
+   * read as one surface.
+   */
+  [data-ui-tooltip] > [data-part-content],
+  [data-ui-tooltip] > [data-part-arrow] {
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-tooltip][data-open] > [data-part-content],
+  [data-ui-tooltip][data-open] > [data-part-arrow] {
+    opacity: 1;
+    transition: none;
+  }
+
+  [data-ui-tooltip][data-open][data-positioned] > [data-part-content],
+  [data-ui-tooltip][data-open][data-positioned] > [data-part-arrow] {
+    animation: slotted-tooltip-fade var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  /* Stillness keeps the fade and drops the movement (R7). */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-tooltip],
+    [data-ui-tooltip][data-side='top'],
+    [data-ui-tooltip][data-side='left'],
+    [data-ui-tooltip][data-side='right'] {
+      translate: 0 0;
+      transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-tooltip][data-open][data-positioned],
+    [data-ui-tooltip][data-open][data-positioned][data-side='top'],
+    [data-ui-tooltip][data-open][data-positioned][data-side='left'],
+    [data-ui-tooltip][data-open][data-positioned][data-side='right'] {
+      animation-name: none;
+    }
+  }
+
+  [data-ui-tooltip][data-open][data-hoverable] {
+    pointer-events: auto;
+  }
+
+  /**
+   * The anchor left the screen or its clipping ancestor. Hiding is the whole of
+   * `hideWhenDetached`: the layer comes back when the anchor does, and nothing
+   * has moved the consumer's own `open` because a rectangle changed size.
+   */
+  [data-ui-tooltip][data-detached] {
+    visibility: hidden;
+  }
+
+  [data-ui-tooltip][data-size='sm'] {
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 0.625rem);
+    --_padding-block: var(--slotted-control-gap-sm, 0.375rem);
+    --_font-size: var(--slotted-control-font-size-sm, 0.75rem);
+    --_measure: var(--slotted-tooltip-measure-sm, 14rem);
+  }
+
+  /**
+   * A tooltip on a page that is already dark, or one holding two lines that
+   * want to read as a small panel rather than as a label. It takes the raised
+   * surface and the edge that surface needs to separate from the page.
+   */
+  [data-ui-tooltip][data-variant='surface'] {
+    --_surface: var(--slotted-tooltip-surface-raised, var(--slotted-surface-raised, #ffffff));
+    --_text: var(--slotted-tooltip-text-raised, var(--slotted-text, #0f172a));
+    --_border-color: var(--slotted-tooltip-border-color, var(--slotted-border-subtle, #e2e8f0));
+    --_border-width: var(--slotted-border-width-thin, 1px);
+  }
+
+  [data-ui-tooltip] > [data-part-content] {
+    box-sizing: border-box;
+    display: block;
+    max-inline-size: 100%;
+
+    border: var(--_border-width) solid var(--_border-color);
+    border-radius: var(--_radius);
+    background: var(--_surface);
+    color: var(--_text);
+    box-shadow: var(--_shadow);
+
+    padding-block: var(--_padding-block);
+    padding-inline: var(--_padding-inline);
+
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-font-weight-regular, 400);
+    line-height: var(--_line-height);
+    text-align: start;
+
+    /**
+     * A hostile string is a single unbroken token, and a translated one is
+     * three times the length of the English. `anywhere` breaks the first rather
+     * than letting it run past the measure.
+     *
+     * `plaintext` rather than the `isolate` a heading takes: the layer shrinks
+     * to its own content, so there is no far edge for a short string to be
+     * stranded against — the objection that made `collapsible` choose `isolate`
+     * for a title in a full-width row. What is left is the ordering, and it is
+     * wrong under `isolate`: the first right-to-left capture set an English
+     * sentence with its full stop at the head of the last line. `plaintext`
+     * takes each paragraph's direction from its own first strong character, so
+     * a sentence reads the way it was written whichever page it is on.
+     */
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+    /* A theme that paints this surface as a translucent material blurs what moves behind it. */
+    -webkit-backdrop-filter: var(--slotted-tooltip-backdrop-filter, none);
+    backdrop-filter: var(--slotted-tooltip-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-tooltip] > [data-part-content] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /**
+   * ── Why this rule is written in physical properties ──────────────────
+   *
+   * `packages/core/src/positioner` measures the arrow with the engine and
+   * writes `--slotted-positioner-arrow-x` and `-arrow-y` as offsets from the
+   * layer's own left and top — the same physical coordinates
+   * `transform-origin` is written in. `data-side` is physical for the same
+   * reason: it names the edge of the anchor the layer landed on, not an edge of
+   * the reader's writing direction. Mirroring either would move an already
+   * correct arrow to the wrong edge in a right-to-left document, so
+   * `packages/styles/src/logical.test.mjs` exempts exactly the rules that
+   * select `[data-part-arrow]`, and nothing else.
+   *
+   * ── Why it is painted over the surface and not behind it ─────────────
+   *
+   * The square is rotated about its own centre, and the centre sits on the
+   * content's edge. Painted behind, its inner half disappears and the content's
+   * own border still runs straight across the base — a bordered tooltip then
+   * reads as a box with a separate triangle hanging off it, which is what the
+   * first capture showed. Painted over, the arrow's background covers that
+   * border where they meet and its two outward-facing edges carry the border
+   * instead, so the outline is continuous. The two inward-facing edges carry
+   * none, and which two are which is what the four rules below say.
+   *
+   * `arrowPadding` keeps it clear of the corners, where the content's radius
+   * would leave the base uncovered.
+   */
+  [data-ui-tooltip] > [data-part-arrow] {
+    position: absolute;
+    z-index: 1;
+    inline-size: var(--_arrow-size);
+    block-size: var(--_arrow-size);
+    rotate: 45deg;
+    background: var(--_surface);
+    border: 0 solid var(--_border-color);
+  }
+
+  [data-ui-tooltip][data-side='top'] > [data-part-arrow] {
+    left: var(--slotted-positioner-arrow-x, 0);
+    top: auto;
+    bottom: calc(var(--_gap) - var(--_arrow-size) / 2);
+    border-right-width: var(--_border-width);
+    border-bottom-width: var(--_border-width);
+    border-bottom-right-radius: var(--_arrow-tip-radius);
+  }
+
+  [data-ui-tooltip][data-side='bottom'] > [data-part-arrow] {
+    left: var(--slotted-positioner-arrow-x, 0);
+    top: calc(var(--_gap) - var(--_arrow-size) / 2);
+    bottom: auto;
+    border-top-width: var(--_border-width);
+    border-left-width: var(--_border-width);
+    border-top-left-radius: var(--_arrow-tip-radius);
+  }
+
+  [data-ui-tooltip][data-side='left'] > [data-part-arrow] {
+    top: var(--slotted-positioner-arrow-y, 0);
+    left: auto;
+    right: calc(var(--_gap) - var(--_arrow-size) / 2);
+    border-top-width: var(--_border-width);
+    border-right-width: var(--_border-width);
+    border-top-right-radius: var(--_arrow-tip-radius);
+  }
+
+  [data-ui-tooltip][data-side='right'] > [data-part-arrow] {
+    top: var(--slotted-positioner-arrow-y, 0);
+    left: calc(var(--_gap) - var(--_arrow-size) / 2);
+    right: auto;
+    border-bottom-width: var(--_border-width);
+    border-left-width: var(--_border-width);
+    border-bottom-left-radius: var(--_arrow-tip-radius);
+  }
+}

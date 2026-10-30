@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 5,
+  "family": "date-range-picker",
+  "ui": "date-range-picker",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Start and end dates with a calendar popover."
+  },
+  "controlPart": "control",
+  "rootRole": null,
+  "contentRole": "dialog",
+  "valueType": "DateRange | null",
+  "valueRules": {
+    "empty": "a request whose both ends are null carries null; the family speaks one word for nothing",
+    "openEnd": "{ start, end: null } and { start: null, end } are values: an open end is written in the field, where the reader sees it",
+    "reversed": "an end typed before its start is invalid and stays as typed"
+  },
+  "composes": ["date-field", "calendar"],
+  "fields": 2,
+  "core": [
+    "@slotted/core/date",
+    "@slotted/core/state",
+    "@slotted/core/presence",
+    "@slotted/core/portal",
+    "@slotted/core/positioner",
+    "@slotted/core/dismissable-layer",
+    "@slotted/core/focus"
+  ],
+  "stateSource": "field",
+  "mirrorsState": true,
+  "pattern": {
+    "url": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/datepicker-dialog/",
+    "title": "Date Picker Dialog Example",
+    "readOn": "2026-09-14",
+    "rangePattern": "none exists; the dialog example for the popup and the grid pattern for the grid, as date-picker",
+    "departure": "the example closes on the first press and this family closes on the second press, because a range is two presses; closeOnSelect names the rest"
+  },
+  "wiring": {
+    "aria-haspopup": "dialog",
+    "aria-expanded": "the trigger, while the popup is showing",
+    "aria-controls": "the content, while the popup is showing",
+    "aria-label": "the trigger, carrying both ends and the length"
+  },
+  "triggerName": {
+    "empty": "the choose message",
+    "chosen": "the change message, with both ends in words and the length in its start, end and length slots",
+    "why": "Focus returns to the trigger when the popup closes, so the name is where the reader is told what was chosen."
+  },
+  "draft": {
+    "rule": "a press that leaves the run with one end is a draft, not the value; the second press emits the whole run with reason select",
+    "abandonedBy": "Escape, an outside press and the trigger abandon the draft and keep the previous value",
+    "openEndValue": "a panel opened over { start, end: null } treats the start as an open run, and the first press closes it"
+  },
+  "preview": {
+    "drawnBy": "calendar",
+    "reportedBy": "onPreviewChange",
+    "attribute": "data-preview on the calendar's cells"
+  },
+  "length": {
+    "liveRegion": "polite",
+    "pending": "the length of the run that would exist if the pending end were chosen; with the run whole, the length of the value",
+    "label": "the days.length or nights.length message, a plural over the count, laid over per instance through messages",
+    "sameDay": "the same day at both ends is 1 day or 0 nights, and the band says so"
+  },
+  "position": {
+    "meaning": "the end the next press in the grid writes, and the field that carries data-current",
+    "calendarReceives": {
+      "end": "{ start, end: null }, so the next press writes the end instead of restarting the run",
+      "start": "the whole value, so the next press restarts the run"
+    },
+    "afterGridStart": "end",
+    "afterGridEnd": "start",
+    "afterPreset": "start",
+    "afterClear": "start"
+  },
+  "limits": {
+    "bounds": ["min", "max"],
+    "crossed": "the start field takes max = min(max, end); the end field takes min = max(min, start)",
+    "length": ["minLength", "maxLength"],
+    "unit": "counted in the unit count names",
+    "contiguous": {
+      "default": true,
+      "grid": "with an open run, the days beyond the first unavailable day after the start, and before the first one before it, are unavailable",
+      "search": "once per chosen start, each direction, up to maxLength days or 366",
+      "typed": "the predicate runs over every day of a typed run once per value change, never per cell"
+    },
+    "explained": "the limit part names minLength and maxLength while either is set"
+  },
+  "validity": {
+    "owned": "bounds, unavailable days, the order of the two ends, and the length",
+    "reversed": "an end before its start is invalid on the end field and on the frame; the ends are not swapped",
+    "angularErrors": [
+      "slottedDateRangeMin",
+      "slottedDateRangeMax",
+      "slottedDateRangeUnavailable",
+      "slottedDateRangeOrder",
+      "slottedDateRangeLength"
+    ]
+  },
+  "clear": {
+    "fields": "the two fields do not draw their own clear; one button on the frame empties both ends with reason clear"
+  },
+  "preset": {
+    "reason": "select",
+    "selectedAttribute": "data-selected",
+    "value": "a DateRange, or a function returning one, resolved on press",
+    "invalid": "a preset whose range fails a rule still writes it and the value is invalid; the preset is not hidden"
+  },
+  "keyboard": [
+    {
+      "key": "Alt+ArrowDown",
+      "effect": "open",
+      "from": "either field",
+      "focus": "stays in the field"
+    },
+    {
+      "key": "Enter, Space",
+      "effect": "open",
+      "from": "the trigger",
+      "focusTo": "the cell of the current end, or today when it is empty"
+    },
+    {
+      "key": "Escape",
+      "effect": "close",
+      "focusTo": "trigger",
+      "staged": "the calendar's view walks down first; then the panel closes and the draft is abandoned"
+    },
+    {
+      "key": "Tab",
+      "effect": "contained",
+      "while": "open"
+    }
+  ],
+  "platformNotes": {
+    "altArrowDown": "ChromeOS turns Alt+ArrowDown into PageDown before the browser sees it, which Angular Material records for its own input. The trigger button is therefore the guaranteed path and the chord is a shortcut, never the only way in."
+  },
+  "dismissal": {
+    "escape": "through dismissable-layer, in the capture phase",
+    "outsidePress": true,
+    "closeOnSelect": "auto closes when the run becomes whole, by a second press or a preset; always closes on any press that changes the value; never closes on none"
+  },
+  "responsive": {
+    "sheet": "below 480px on a coarse pointer, the content takes the sheet presentation",
+    "decidedIn": "the stylesheet; the DOM does not change",
+    "months": "two by default; the calendar wraps the second under the first when the container is narrow"
+  },
+  "forms": {
+    "react": ["startName", "endName"],
+    "angular": "ControlValueAccessor writes the whole DateRange; Validator reports the family's own errors"
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"],
+    "placement": ["bottom-start", "bottom", "bottom-end", "top-start", "top", "top-end"],
+    "closeOnSelect": ["auto", "always", "never"],
+    "count": ["days", "nights"],
+    "position": ["start", "end"],
+    "calendar": ["gregory"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "placement": ["prop", "defaults", "bottom-start"],
+    "closeOnSelect": ["prop", "defaults", "auto"],
+    "count": ["prop", "defaults", "days"],
+    "months": ["prop", "defaults", "2"],
+    "locale": ["prop", "slotted", "en-US"],
+    "timeZone": ["prop", "defaults", "runtime"],
+    "calendar": ["prop", "defaults", "gregory"]
+  },
+  "provides": {
+    "dateRangePickerDefaults": [
+      "calendar",
+      "closeOnSelect",
+      "count",
+      "months",
+      "placement",
+      "size",
+      "timeZone",
+      "variant"
+    ]
+  },
+  "messages": [
+    "change",
+    "choose",
+    "clear",
+    "end",
+    "start",
+    "days.length",
+    "days.between",
+    "days.atLeast",
+    "days.atMost",
+    "nights.length",
+    "nights.between",
+    "nights.atLeast",
+    "nights.atMost"
+  ],
+  "imperative": ["focus", "open", "close"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "required": "data-required",
+    "open": "data-open",
+    "current": "data-current",
+    "selected": "data-selected"
+  },
+  "dataAttributes": {
+    "data-count": "days or nights, on the root",
+    "data-placeholder": "on head-start or head-end: the end does not exist yet",
+    "data-pending": "on head-start, head-end or length: what is shown is the pending end, not the value",
+    "data-placement": "the side and alignment the positioner resolved",
+    "data-presentation": "popover or sheet"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "clear", "blur", "programmatic"],
+      "carries": ["value", "previous", "reason", "event"]
+    },
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "outsidePress", "select"],
+      "carries": ["value", "previous", "reason", "event"]
+    },
+    "current": {
+      "controlled": "position",
+      "uncontrolled": "defaultPosition",
+      "request": "onPositionChange",
+      "reasons": ["pointer", "keyboard", "select", "clear", "programmatic"],
+      "carries": ["value", "previous", "reason", "event"]
+    }
+  },
+  "literals": {
+    "--slotted-date-range-picker-sheet-inline-size": "100%, which the shared exemption list already holds."
+  },
+  "members": {
+    "dateRangePicker": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "placement": "bottom-start",
+        "closeOnSelect": "auto",
+        "count": "days",
+        "months": 2,
+        "contiguous": true,
+        "calendar": "gregory",
+        "clearable": false
+      },
+      "capabilities": [
+        "value",
+        "open",
+        "current",
+        "placement",
+        "appearance",
+        "size",
+        "content",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "readonly",
+        "required",
+        "open",
+        "current",
+        "selected"
+      ],
+      "parts": [
+        "root",
+        "control",
+        "start",
+        "separator",
+        "end",
+        "clear",
+        "trigger",
+        "positioner",
+        "content",
+        "grip",
+        "head",
+        "head-start",
+        "head-end",
+        "length",
+        "limit",
+        "panels",
+        "presets",
+        "preset",
+        "footer"
+      ]
+    }
+  },
+  "scenarios": {
+    "dateRangePicker": [
+      "playground",
+      "sizes",
+      "variants",
+      "length",
+      "limits",
+      "unavailable",
+      "presets",
+      "open-end",
+      "states",
+      "forms",
+      "narrow",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

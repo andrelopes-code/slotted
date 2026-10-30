@@ -1,0 +1,1321 @@
+@layer slotted.components {
+  /**
+   * ── A control that picks one place in a hierarchy ───────────────────────
+   *
+   * Two subtrees, as `select` is built: the **control** where the consumer
+   * wrote it, and the **popup** portalled to the end of the document. Both
+   * carry `data-ui='cascader'` and every rule states which one it is about
+   * through its own `data-part`.
+   *
+   *   ┌─ root ─ the control ───────────────────────────────────────────┐
+   *   │  ┌─ trigger ─ role="combobox" ────────────────────────────────┐ │
+   *   │  │ value ▸ segment / segment / segment                        │ │
+   *   │  └────────────────────────────────────────────────────────────┘ │
+   *   │                                               clear ✕  arrow ⌄ │
+   *   └────────────────────────────────────────────────────────────────┘
+   *
+   *   ┌─ positioner ─ data-layout ──────────────────────────────────────┐
+   *   │  ┌─ content ─────────────────────────────────────────────────┐ │
+   *   │  │ search ▸ search-input                    (search only)    │ │
+   *   │  │ breadcrumb ▸ crumb › crumb › crumb       (drill only)     │ │
+   *   │  │ ┌─ panel ─ role="tree" ─────────────────────────────────┐ │ │
+   *   │  │ │ column │ column │ column          (one in drill/tree) │ │ │
+   *   │  │ │  node ▸ indicator icon label meta end                 │ │ │
+   *   │  │ └──────────────────────────────────────────────────────┘ │ │
+   *   │  └───────────────────────────────────────────────────────────┘ │
+   *   └────────────────────────────────────────────────────────────────┘
+   *
+   * The control is `select`'s control, rule for rule and on the same control
+   * tokens: a form holding a select and a cascader is one row of controls.
+   *
+   * The panel also stands alone, without a control or a layer, as a settings
+   * screen or a sidebar holds it. It then carries `data-ui='cascader'` itself,
+   * paints its own surface, and reads the same scale the layer states.
+   *
+   * ── Why each column is a grid and a node a subgrid ────────────────────
+   *
+   * The same architecture `select` and `menu` use. A column owns five tracks —
+   * the box, the icon, the label, the meta, the end — and every node passes
+   * through them, so labels line up down a column however many nodes carry
+   * artwork, and every count ends on one edge. No track carries a gap; each
+   * cell carries its own margin, so a column of plain labels has no gutter.
+   *
+   * The end track holds the check of a single selection or the chevron of a
+   * branch, never both: a branch is opened rather than chosen by default, and
+   * a branch that may be chosen says so with its ink.
+   */
+
+  /* ── The control ──────────────────────────────────────────────────────── */
+
+  [data-ui-cascader][data-part-root] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_icon-floor: var(--slotted-cascader-icon-size-min, 14px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-md, 16px));
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+    --_action-size: min(
+      calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)),
+      var(--_inner-size)
+    );
+
+    align-items: center;
+    background-color: var(--slotted-cascader-background, var(--slotted-control-surface, Field));
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-cascader-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--slotted-cascader-radius, var(--slotted-control-radius, 4px));
+    box-shadow: var(--slotted-control-shadow, none);
+    box-sizing: border-box;
+    color: var(--slotted-text, CanvasText);
+    column-gap: var(--_gap);
+    display: grid;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    grid-template-columns: minmax(0, 1fr) auto;
+    /* In a flex row the item's basis is its content, not the whole row. */
+    flex-basis: content;
+    inline-size: 100%;
+    min-block-size: var(--_height);
+    min-inline-size: 0;
+    position: relative;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-cascader][data-part-root]:has(> [data-part-clear]) {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  [data-ui-cascader][data-part-root]:not([data-full-width]) {
+    inline-size: auto;
+  }
+
+  /* The trigger fills the frame and the two marks sit over it, for the reason
+     `select` writes above its own trigger: the chevron ends the control, and
+     the clear button is a sibling of the button rather than a widget in it. */
+  [data-ui-cascader] > [data-part-trigger] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    box-sizing: border-box;
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    gap: var(--_gap);
+    grid-area: 1 / 1 / 2 / -1;
+    margin-block: calc(var(--slotted-control-border-width, 1px) * -1);
+    min-block-size: var(--_height);
+    min-inline-size: 0;
+    outline: none;
+    padding-block: 0;
+    padding-inline-start: var(--_padding-inline);
+    padding-inline-end: calc(var(--_padding-inline) + var(--_icon-size) + var(--_gap));
+    text-align: start;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-cascader][data-part-root]:has(> [data-part-clear]) > [data-part-trigger] {
+    padding-inline-end: calc(
+      var(--_padding-inline) + var(--_icon-size) + var(--_gap) + var(--_action-size) + var(--_gap)
+    );
+  }
+
+  /**
+   * The path, on one line. A path that wrapped would change the control's
+   * height as the reader chose. The segments give way before the last one: a
+   * long path reads "Portugal / Lis… / Alfama", keeping the place itself whole
+   * and eliding the middle of the road to it. The whole path stays in the DOM,
+   * so the trigger's name is never the ellipsis.
+   */
+  [data-ui-cascader] [data-part-value] {
+    align-items: baseline;
+    display: flex;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  [data-ui-cascader] [data-part-value-segment] {
+    flex: 0 1 auto;
+    /* Two characters and the ellipsis, the least a segment can say. */
+    min-inline-size: 2.5ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /**
+   * The segments give way in order: the middle ones first, then the first,
+   * and the place itself last — it shrinks only once every other segment is at
+   * its floor. Flex freezes a segment at its minimum and hands the rest of the
+   * shortfall to the ones still free, so the weights order the giving way. The
+   * smallest weight is 1 and not a fraction: once the others are frozen, a
+   * free set whose weights sum below one receives only that share of the
+   * shortfall, and the last segment overflowed the value unclipped by its own
+   * ellipsis at a weight of 0.001.
+   */
+  [data-ui-cascader] [data-part-value-segment] {
+    flex-shrink: 100;
+  }
+
+  [data-ui-cascader] [data-part-value-segment]:first-child {
+    flex-shrink: 50;
+  }
+
+  [data-ui-cascader] [data-part-value-segment]:last-child {
+    flex-shrink: 1;
+  }
+
+  [data-ui-cascader] [data-part-value-separator] {
+    color: var(--slotted-cascader-separator-color, var(--slotted-text-muted, GrayText));
+    flex: none;
+    padding-inline: var(--slotted-space-2, 0.25rem);
+  }
+
+  /* Nothing chosen yet: the same weight, one step quieter. */
+  [data-ui-cascader] [data-part-placeholder] {
+    color: var(--slotted-cascader-placeholder-color, var(--slotted-text-muted, GrayText));
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* A multiple selection shows its chips in the content lane, as `select`'s. */
+  [data-ui-cascader][data-part-root] > [data-part-tags] {
+    align-items: center;
+    display: flex;
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-area: 1 / 1 / 2 / 2;
+    margin-inline-start: var(--_padding-inline);
+    min-block-size: var(--slotted-target-min, 24px);
+    min-inline-size: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  [data-ui-cascader] > [data-part-tags] > * {
+    pointer-events: auto;
+    position: relative;
+  }
+
+  [data-ui-cascader] [data-part-summary] {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    unicode-bidi: plaintext;
+    white-space: nowrap;
+  }
+
+  [data-ui-cascader][data-part-root]:not([data-narrow]) [data-part-summary] {
+    block-size: 1px;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  [data-ui-cascader][data-part-root][data-narrow] > [data-part-tags] {
+    display: none;
+  }
+
+  [data-ui-cascader] > [data-part-arrow] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    block-size: var(--_icon-size);
+    color: var(--slotted-cascader-arrow-color, var(--slotted-text-muted, GrayText));
+    display: flex;
+    grid-area: 1 / -2 / 2 / -1;
+    inline-size: var(--_icon-size);
+    justify-content: center;
+    margin-inline-end: var(--_padding-inline);
+    pointer-events: none;
+  }
+
+  [data-ui-cascader] > [data-part-arrow] > [data-ui-icon] {
+    transition: rotate var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-cascader][data-open] > [data-part-arrow] > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  /* The ring where the chevron stands, while the value's path is resolving. */
+  [data-ui-cascader] > [data-part-busy] {
+    --slotted-spinner-size: var(--_icon-size);
+
+    color: var(--slotted-cascader-arrow-color, var(--slotted-text-muted, GrayText));
+    grid-area: 1 / -2 / 2 / -1;
+    margin-inline-end: var(--_padding-inline);
+    pointer-events: none;
+  }
+
+  [data-ui-cascader] > [data-part-clear] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_action-size);
+    border: 0;
+    border-radius: var(--slotted-cascader-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-text-muted, GrayText);
+    cursor: pointer;
+    display: inline-flex;
+    grid-area: 1 / 2 / 2 / 3;
+    inline-size: var(--_action-size);
+    justify-content: center;
+    margin-inline: calc((var(--_icon-size) - var(--_action-size)) / 2);
+    padding: 0;
+    position: relative;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The hit area recovered outside the paint, as `select`'s. */
+  [data-ui-cascader] > [data-part-clear]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  @media (pointer: coarse) {
+    [data-ui-cascader] > [data-part-clear]::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+      inset-inline-end: 0;
+    }
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-cascader][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-sm, 14px));
+    --_inner-size: var(--slotted-control-inner-size-sm, 22px);
+  }
+
+  [data-ui-cascader][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 16px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-lg, 18px));
+    --_inner-size: var(--slotted-control-inner-size-lg, 28px);
+  }
+
+  /* ── Variant ──────────────────────────────────────────────────────────── */
+
+  [data-ui-cascader][data-part-root][data-variant='subtle'] {
+    background-color: var(--slotted-surface-sunken, Canvas);
+    border-color: var(--slotted-border-subtle, ButtonBorder);
+  }
+
+  [data-ui-cascader][data-part-root][data-variant='plain'] {
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: var(--slotted-radius-none, 0px);
+    box-shadow: none;
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-cascader][data-part-root][data-variant='plain'] {
+      border-color: ButtonBorder;
+    }
+  }
+
+  /* ── States on the control ────────────────────────────────────────────── */
+
+  [data-ui-cascader][data-part-root]:hover:not([data-disabled]):not([data-readonly]):not(
+      [data-invalid]
+    ) {
+    border-color: var(--slotted-cascader-hover-border-color, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-cascader][data-part-root][data-variant='subtle']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid]) {
+    background-color: var(--slotted-tone-secondary-subtle-hover);
+  }
+
+  [data-ui-cascader][data-part-root][data-variant='plain']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid]) {
+    background-color: var(--slotted-tone-secondary-subtle-hover);
+    border-color: transparent;
+  }
+
+  [data-ui-cascader][data-part-root]:has(> [data-part-trigger]:focus-visible) {
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-control-focus-ring-offset, var(--slotted-focus-ring-offset, 2px));
+  }
+
+  [data-ui-cascader][data-part-root][data-variant='plain']:has(
+      > [data-part-trigger]:focus-visible
+    ) {
+    box-shadow: none;
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-cascader][data-part-root][data-open]:not([data-disabled]) {
+    border-color: var(--slotted-cascader-open-border-color, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-cascader][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(--slotted-focus-ring-color-invalid, Highlight);
+    --_invalid-edge-width: var(
+      --slotted-cascader-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+    --_invalid-edge-color: var(
+      --slotted-cascader-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    --_invalid-edge: inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color);
+
+    border-color: var(--slotted-cascader-invalid-border-color, var(--slotted-tone-danger-border));
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger border is the resting edge's black. The line
+     * is a shadow inside the border, so neither box nor text moves, and it
+     * takes the resting lift's place.
+     */
+    box-shadow: var(--_invalid-edge);
+  }
+
+  [data-ui-cascader][data-part-root][data-invalid]:has(> [data-part-trigger]:focus-visible) {
+    box-shadow:
+      var(--_invalid-edge),
+      var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+        var(--slotted-focus-ring-color, Highlight);
+  }
+
+  [data-ui-cascader][data-part-root][data-variant='plain'][data-invalid]:has(
+      > [data-part-trigger]:focus-visible
+    ) {
+    /* The ring lies inside the box here, over the border and an edge as wide as
+       it; the edge reaches past the ring. */
+    box-shadow: inset 0 0 0
+      calc(
+        var(--slotted-focus-ring-offset, 2px) - var(--slotted-control-border-width, 1px) +
+          var(--_invalid-edge-width)
+      )
+      var(--_invalid-edge-color);
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The
+   * width comes back as an outline inside the border, and a focused invalid
+   * control draws its ring double, which a valid ring is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-cascader][data-part-root][data-invalid] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(
+        -1 * (var(--slotted-control-border-width, 1px) + var(--_invalid-edge-width))
+      );
+    }
+
+    [data-ui-cascader][data-part-root][data-invalid]:has(> [data-part-trigger]:focus-visible) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(
+        --slotted-control-focus-ring-offset,
+        var(--slotted-focus-ring-offset, 2px)
+      );
+    }
+
+    [data-ui-cascader][data-part-root][data-variant='plain'][data-invalid]:has(
+        > [data-part-trigger]:focus-visible
+      ) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: calc(
+        -1 * (var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width))
+      );
+    }
+  }
+
+  [data-ui-cascader][data-part-root][data-readonly] {
+    background-color: var(--slotted-tone-secondary-subtle-hover);
+  }
+
+  /* The chevron of a control nobody may open steps down to the muted ink it
+     already has plus the disabled one, rather than fading by opacity. */
+  [data-ui-cascader][data-part-root][data-readonly] > [data-part-arrow] {
+    color: var(--slotted-disabled-foreground);
+  }
+
+  [data-ui-cascader][data-part-root][data-disabled],
+  [data-ui-cascader][data-part-root]:has(> [data-part-trigger]:disabled) {
+    background-color: var(--slotted-disabled-background);
+    border-color: var(--slotted-disabled-border);
+    box-shadow: none;
+    color: var(--slotted-disabled-foreground);
+  }
+
+  [data-ui-cascader][data-part-root][data-disabled] > [data-part-trigger],
+  [data-ui-cascader][data-part-root] > [data-part-trigger]:disabled {
+    cursor: not-allowed;
+  }
+
+  [data-ui-cascader] > [data-part-clear]:hover:not(:disabled):not([data-disabled]) {
+    background-color: var(--slotted-tone-secondary-subtle-hover);
+    color: var(--slotted-text, CanvasText);
+  }
+
+  [data-ui-cascader] > [data-part-clear]:active:not(:disabled):not([data-disabled]) {
+    background-color: var(--slotted-tone-secondary-subtle-active);
+  }
+
+  [data-ui-cascader] > [data-part-clear]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* ── The layer ────────────────────────────────────────────────────────── */
+
+  [data-ui-cascader]:is([data-part-positioner], [data-part-content]) {
+    --_surface: var(--slotted-cascader-surface, var(--slotted-surface-raised, #ffffff));
+    --_text: var(--slotted-text, #0f172a);
+    --_muted: var(--slotted-text-muted, #5b6b7f);
+    --_border-color: var(--slotted-cascader-border-subtle, var(--slotted-border-subtle, #e2e8f0));
+    --_border-width: var(--slotted-border-width-thin, 1px);
+    --_radius: var(--slotted-cascader-content-radius, var(--slotted-radius-lg, 8px));
+    --_shadow: var(--slotted-cascader-content-shadow, var(--slotted-shadow-md));
+
+    /**
+     * The cursor, the path and the press. The cursor is `select`'s stronger
+     * neutral step, which lifts in all three schemes where the weaker one sank
+     * in the dark (the measurement `select` records). The path — the nodes whose
+     * columns are open — takes the weaker step of the same pair only in the
+     * light schemes; in the dark it would sink, so the path is carried by the
+     * ink and the chevron as well, never by the ground alone.
+     */
+    --_highlight: var(--slotted-cascader-highlight, var(--slotted-tone-secondary-subtle-active));
+    --_highlight-active: var(
+      --slotted-cascader-highlight-active,
+      var(--slotted-tone-accent-surface)
+    );
+    --_path: var(--slotted-cascader-path, var(--slotted-tone-secondary-surface));
+    --_selected-color: var(--slotted-cascader-selected-color, var(--slotted-tone-accent-text));
+
+    --_inset-block: var(--slotted-space-2, 0.25rem);
+    --_inset-inline: var(--slotted-space-2, 0.25rem);
+    --_item-inset: calc(var(--slotted-control-padding-inline-md, 0.8125rem) - var(--_inset-inline));
+    --_item-height: var(--slotted-control-height-md, 34px);
+    --_item-radius: var(--slotted-control-radius);
+    --_content-font-size: var(--slotted-control-font-size-md, 13px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_content-icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_check-size: var(--slotted-selection-size-md, 16px);
+    --_column-gap: var(--slotted-control-gap-md, 0.5rem);
+    --_column-measure: var(--slotted-cascader-column-measure, 12rem);
+    --_indent: var(--slotted-cascader-indent, var(--slotted-space-6, 1rem));
+
+    /**
+     * Line boxes on whole pixels, so a column of nodes with descriptions sums
+     * to a whole number and the surface's bottom border sits on a pixel row.
+     * The same rounding `menu` and `attachment` apply to the same ratios.
+     */
+    --_leading: round(
+      up,
+      calc(var(--_content-font-size) * var(--slotted-line-height-md, 1.5)),
+      1px
+    );
+    --_secondary-leading: round(
+      up,
+      calc(var(--_secondary-font-size) * var(--slotted-line-height-sm, 1.45)),
+      1px
+    );
+  }
+
+  [data-ui-cascader][data-part-positioner] {
+    position: absolute;
+    inset-block-start: 0;
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+    isolation: isolate;
+    box-sizing: border-box;
+    pointer-events: none;
+
+    opacity: 0;
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+    translate: 0 calc(-1 * var(--_enter-distance));
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-exit),
+      translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-cascader][data-part-positioner][data-side='top'] {
+    translate: 0 var(--_enter-distance);
+  }
+
+  [data-ui-cascader][data-part-positioner]:is([data-side='left'], [data-side='right']) {
+    translate: 0 0;
+  }
+
+  /* The entrance is a keyframe, the exit a transition: `select`'s reasoning. */
+  [data-ui-cascader][data-part-positioner][data-open] {
+    opacity: 1;
+    translate: 0 0;
+    transition: none;
+  }
+
+  [data-ui-cascader][data-part-positioner][data-open][data-positioned] {
+    animation: slotted-cascader-enter-down var(--slotted-duration-medium)
+      var(--slotted-easing-enter);
+  }
+
+  [data-ui-cascader][data-part-positioner][data-open][data-positioned][data-side='top'] {
+    animation-name: slotted-cascader-enter-up;
+  }
+
+  @keyframes slotted-cascader-enter-down {
+    from {
+      opacity: 0;
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-cascader-enter-up {
+    from {
+      opacity: 0;
+      translate: 0 var(--_enter-distance);
+    }
+  }
+
+  @keyframes slotted-cascader-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-cascader][data-part-positioner],
+    [data-ui-cascader][data-part-positioner][data-side='top'] {
+      translate: 0 0;
+      transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-cascader][data-part-positioner][data-open][data-positioned],
+    [data-ui-cascader][data-part-positioner][data-open][data-positioned][data-side='top'] {
+      animation-name: slotted-cascader-fade;
+    }
+  }
+
+  [data-ui-cascader][data-part-positioner][data-detached] {
+    visibility: hidden;
+  }
+
+  /**
+   * The width follows the layout. Columns take their own sum, as wide as the
+   * path is deep, up to the room the positioner reports; one level at a time
+   * takes the control's width, and never less than one column.
+   */
+  [data-ui-cascader][data-part-positioner][data-layout='columns'] {
+    inline-size: max-content;
+    max-inline-size: var(--slotted-positioner-available-width, 100vw);
+    min-inline-size: var(--slotted-positioner-anchor-width, auto);
+  }
+
+  /**
+   * The layer reserves the widest width the window can reach and the surface
+   * inside it is only as wide as the columns on show, never narrower than the
+   * control it hangs from. The reserved strip beside it is the layer's, which
+   * takes no pointer.
+   */
+  [data-ui-cascader][data-part-positioner][data-layout='columns'] > [data-part-content] {
+    inline-size: max-content;
+    max-inline-size: 100%;
+    min-inline-size: min(var(--slotted-positioner-anchor-width, 0px), 100%);
+  }
+
+  [data-ui-cascader][data-part-positioner]:is([data-layout='drill'], [data-layout='tree']) {
+    inline-size: max(var(--slotted-positioner-anchor-width, 0px), var(--_column-measure));
+    max-inline-size: var(--slotted-positioner-available-width, 100vw);
+  }
+
+  [data-ui-cascader]:is([data-part-positioner], [data-part-content])[data-size='sm'] {
+    --_item-inset: calc(var(--slotted-control-padding-inline-sm, 0.625rem) - var(--_inset-inline));
+    --_item-height: var(--slotted-control-height-sm, 30px);
+    --_content-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_secondary-font-size: var(--slotted-font-size-xs, 0.75rem);
+    --_content-icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_check-size: var(--slotted-selection-size-sm, 14px);
+    --_column-gap: var(--slotted-control-gap-sm, 0.375rem);
+  }
+
+  [data-ui-cascader]:is([data-part-positioner], [data-part-content])[data-size='lg'] {
+    --_item-inset: calc(var(--slotted-control-padding-inline-lg, 1rem) - var(--_inset-inline));
+    --_item-height: var(--slotted-control-height-lg, 38px);
+    --_content-font-size: var(--slotted-control-font-size-lg, 14px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_content-icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_check-size: var(--slotted-selection-size-lg, 18px);
+    --_column-gap: var(--slotted-control-gap-lg, 0.5rem);
+  }
+
+  /* ── The surface ──────────────────────────────────────────────────────── */
+
+  /**
+   * A column of up to three rows — the search field, the breadcrumb, the
+   * panel — bounded by the height the positioner reports. The panel is the one
+   * that gives, and inside it each column scrolls on its own.
+   */
+  [data-ui-cascader] > [data-part-content] {
+    background: var(--_surface);
+    border: var(--_border-width) solid var(--_border-color);
+    border-radius: var(--_radius);
+    box-shadow: var(--_shadow);
+    box-sizing: border-box;
+    color: var(--_text);
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--_content-font-size);
+    line-height: var(--_leading);
+    max-block-size: calc(
+      var(--slotted-positioner-available-height, 100vh) - var(--slotted-space-5, 0.75rem)
+    );
+    /* The columns' own rules meet the rounded edge rather than crossing it. */
+    overflow: hidden;
+    outline: none;
+    pointer-events: auto;
+  }
+
+  [data-ui-cascader] > [data-part-content]:focus-visible {
+    outline: none;
+  }
+
+  /**
+   * The surface on its own, without a control or a layer — a settings screen,
+   * a sidebar. It carries `data-ui` itself, paints what the layer's surface
+   * paints minus the shadow, because it lies on the page rather than over it,
+   * and is as wide as its columns up to its container. The tree inside it
+   * takes focus here, and the surface draws the ring for it.
+   */
+  [data-ui-cascader][data-part-content] {
+    background: var(--_surface);
+    border: var(--_border-width) solid var(--_border-color);
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    color: var(--_text);
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--_content-font-size);
+    inline-size: fit-content;
+    line-height: var(--_leading);
+    max-inline-size: 100%;
+    overflow: hidden;
+  }
+
+  [data-ui-cascader][data-part-content]:has(> [data-part-panel]:focus-visible) {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── The search field ─────────────────────────────────────────────────── */
+
+  [data-ui-cascader] [data-part-search] {
+    align-items: center;
+    border-block-end: var(--_border-width) solid var(--_border-color);
+    box-sizing: border-box;
+    display: flex;
+    flex: 0 0 auto;
+    gap: var(--_column-gap);
+    min-block-size: var(--_item-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: calc(var(--_inset-inline) + var(--_item-inset));
+  }
+
+  [data-ui-cascader] [data-part-search] > [data-ui-icon] {
+    --slotted-icon-size: var(--_content-icon-size);
+
+    color: var(--_muted);
+    flex: none;
+  }
+
+  /* No ring: the field holds focus for as long as the popup is open, so a
+     ring would be a border, not a state. The caret says where focus is. */
+  [data-ui-cascader] [data-part-search-input] {
+    background-color: transparent;
+    border: 0;
+    color: inherit;
+    flex: 1 1 auto;
+    font: inherit;
+    min-inline-size: 0;
+    outline: none;
+    padding: 0;
+    text-overflow: ellipsis;
+  }
+
+  [data-ui-cascader] [data-part-search-input]::placeholder {
+    color: var(--_muted);
+    text-overflow: ellipsis;
+  }
+
+  /* ── The breadcrumb ───────────────────────────────────────────────────── */
+
+  /**
+   * Where the levels on show sit: the ones before them, each a press away. It
+   * is the way back by pointer in `drill`, which shows one level, and in
+   * `columns` once the window has slid past a level. Each crumb is a real
+   * control with the target minimum, and the row shares the column's inset so
+   * the first crumb starts where the labels under it start.
+   *
+   * One line, never wrapped: a deep trail folds its middle into one crumb
+   * (`cascaderCrumbs`), so the row is as tall at the tenth level as at the
+   * second and the list under it does not move down as the reader drills.
+   */
+  [data-ui-cascader] [data-part-breadcrumb] {
+    align-items: center;
+    border-block-end: var(--_border-width) solid var(--_border-color);
+    color: var(--_muted);
+    display: flex;
+    flex: 0 0 auto;
+    font-size: var(--_secondary-font-size);
+    gap: var(--slotted-space-1, 0.125rem);
+    line-height: var(--_secondary-leading);
+    min-inline-size: 0;
+    overflow: hidden;
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: calc(
+      var(--_inset-inline) + var(--_item-inset) - var(--slotted-space-2, 0.25rem)
+    );
+    white-space: nowrap;
+  }
+
+  [data-ui-cascader] [data-part-breadcrumb] > [data-ui-icon] {
+    --slotted-icon-size: var(--_secondary-font-size);
+
+    flex: none;
+  }
+
+  [data-ui-cascader] [data-part-crumb] {
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--slotted-radius-sm, 4px);
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    /* The crumbs before the current one give way first; weights rather than a
+       zero, for the reason the value's segments state. */
+    flex: 0 100 auto;
+    max-inline-size: 12ch;
+    min-block-size: var(--slotted-target-min, 24px);
+    min-inline-size: 3ch;
+    overflow: hidden;
+    padding-block: 0;
+    padding-inline: var(--slotted-space-2, 0.25rem);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-cascader] [data-part-crumb]:hover:not([aria-current]):not(:disabled) {
+    background-color: var(--_highlight);
+    color: var(--_text);
+  }
+
+  [data-ui-cascader] [data-part-crumb]:active:not([aria-current]):not(:disabled) {
+    background-color: var(--_highlight-active);
+  }
+
+  /* Outside the crumb: an inset ring sat on the first letter of a label the
+     crumb's own padding barely clears. The row's block padding holds it. */
+  [data-ui-cascader] [data-part-crumb]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: 0;
+  }
+
+  /* The level on show: where the reader is, and not a place to go. */
+  [data-ui-cascader] [data-part-crumb][aria-current] {
+    color: var(--_text);
+    cursor: default;
+    flex-shrink: 1;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    max-inline-size: none;
+  }
+
+  /* The fold: the middle of a deep trail as one crumb, its ellipsis whole. */
+  [data-ui-cascader] [data-part-crumb][data-collapsed] {
+    flex: none;
+    min-inline-size: var(--slotted-target-min, 24px);
+  }
+
+  /* ── The panel and its columns ────────────────────────────────────────── */
+
+  /**
+   * The panel never scrolls sideways. A path deeper than the room holds
+   * slides the window of columns the binding renders (`cascaderWindow`), and
+   * the levels left behind go to the breadcrumb above. The first capture
+   * scrolled them instead, and at 420 pixels the third column sat under the
+   * rounded edge with nothing on a touch screen saying there was more.
+   */
+  [data-ui-cascader] [data-part-panel] {
+    display: flex;
+    flex: 1 1 auto;
+    min-block-size: 0;
+    min-inline-size: 0;
+    outline: none;
+  }
+
+  /**
+   * One level. A grid of five tracks every node passes through, one measure
+   * wide, scrolling on its own. Columns after the first are ruled off from the
+   * one before by a hairline from the border scale — the edge a reader follows
+   * from a branch to its children.
+   */
+  [data-ui-cascader] [data-part-column] {
+    align-content: start;
+    box-sizing: border-box;
+    display: grid;
+    /**
+     * One measure each, and they give way together rather than spilling past
+     * the surface: the binding sizes the window to what fits, and this is the
+     * floor under it for the frames between a resize and the next measurement,
+     * when the room has shrunk and the window has not yet slid.
+     */
+    flex: 0 1 auto;
+    grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+    /* A size and not a basis: the layer is `max-content`, and a flex basis
+       does not enter an item's max-content contribution, so with a basis alone
+       every column measured its longest label and broke words inside it. */
+    inline-size: var(--_column-measure);
+    min-inline-size: 0;
+    max-block-size: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+  }
+
+  [data-ui-cascader] [data-part-column] + [data-part-column] {
+    border-inline-start: var(--_border-width) solid var(--_border-color);
+  }
+
+  /* One level at a time, or every level in one run: the column is the panel. */
+  [data-ui-cascader]:is([data-layout='drill'], [data-layout='tree']) [data-part-column] {
+    flex: 1 1 auto;
+    inline-size: auto;
+  }
+
+  /* A level still loading says so to a reader while its rows wait. */
+  [data-ui-cascader] [data-part-column][aria-busy='true'] {
+    cursor: progress;
+  }
+
+  /* ── Nodes ────────────────────────────────────────────────────────────── */
+
+  /**
+   * `role="treeitem"` on a `div`: DOM focus stays on the control and the
+   * cursor is `aria-activedescendant`, so a node is neither focusable nor a
+   * button, as `select`'s option is not.
+   */
+  [data-ui-cascader] [data-part-node] {
+    align-content: center;
+    border-radius: var(--_item-radius);
+    box-sizing: border-box;
+    cursor: pointer;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    line-height: var(--_leading);
+    min-block-size: var(--_item-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+    row-gap: var(--slotted-space-1, 0.125rem);
+    user-select: none;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      box-shadow var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  /**
+   * The tree layout indents each node by its depth, which the binding writes
+   * as a runtime property: the visible nodes are one flat run of treeitems
+   * carrying `aria-level`, because a node that held its children would paint
+   * its highlight over them.
+   */
+  [data-ui-cascader][data-layout='tree'] [data-part-node] {
+    /* Its own tracks rather than the column's: a subgrid gives every row the
+       widest padding among them, so the first capture drew every level at the
+       deepest indent. The end tracks still line up, because every node ends in
+       a cell of the same width. */
+    grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+    padding-inline-start: calc(
+      var(--_item-inset) + var(--slotted-cascader-depth, 0) * var(--_indent)
+    );
+  }
+
+  /**
+   * On the path: a branch whose level is open to its inline end. The ground is
+   * the quieter neutral step, and the chevron takes the label's ink, so the
+   * road from the first column to the cursor reads as one line — and in the
+   * dark scheme, where no neutral ground below the cursor lifts, the ink
+   * carries it alone.
+   */
+  [data-ui-cascader] [data-part-node][data-expanded] {
+    background-color: var(--_path);
+  }
+
+  /* And a weight, which is what carries the road where no ground does: the
+     high-contrast scheme draws the path ground as its own surface. */
+  [data-ui-cascader] [data-part-node][data-expanded] > [data-part-label] {
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  [data-ui-cascader][data-layout='tree'] [data-part-node][data-expanded] {
+    background-color: transparent;
+  }
+
+  /* The cursor, a ground and a one-pixel ring, for the reason `select` gives. */
+  [data-ui-cascader] [data-part-node][data-current] {
+    background-color: var(--_highlight);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-cascader-highlight-ring, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-cascader] [data-part-node]:not([data-disabled]):active {
+    background-color: var(--_highlight-active);
+  }
+
+  [data-ui-cascader] [data-part-node][data-selected] {
+    color: var(--_selected-color);
+  }
+
+  [data-ui-cascader] [data-part-node][data-selected] > [data-part-label] {
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-cascader] [data-part-node][data-disabled] {
+    color: var(--slotted-disabled-foreground, #64748b);
+    cursor: not-allowed;
+  }
+
+  /* The cursor lifts on a disabled node too; the ink and the ring step down. */
+  [data-ui-cascader] [data-part-node][data-disabled][data-current] {
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-disabled-border, #cbd5e1);
+  }
+
+  /* ── The cells ────────────────────────────────────────────────────────── */
+
+  [data-ui-cascader]
+    [data-part-node]
+    > :is([data-part-indicator], [data-part-icon], [data-part-expander]) {
+    block-size: 1lh;
+  }
+
+  /**
+   * Track two: the node's own picture, content the consumer supplies and the
+   * column sizes. No stylesheet fills it.
+   */
+  [data-ui-cascader] [data-part-node] > [data-part-icon] {
+    --slotted-icon-size: var(--_content-icon-size);
+
+    align-items: center;
+    display: flex;
+    grid-column: 2;
+    grid-row: 1;
+    inline-size: var(--_content-icon-size);
+    justify-content: center;
+    margin-inline-end: var(--_column-gap);
+  }
+
+  [data-ui-cascader] [data-part-node] > [data-part-icon] > * {
+    font-size: var(--_content-icon-size);
+  }
+
+  /* Track three, the only one that gives way: two lines, then an ellipsis. */
+  [data-ui-cascader] [data-part-node] > [data-part-label] {
+    display: -webkit-box;
+    grid-column: 3;
+    grid-row: 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  /**
+   * The path of a search hit, or the line under a label. Quieter by the
+   * secondary step and never in the way of the label above it.
+   */
+  [data-ui-cascader] [data-part-node] > [data-part-description] {
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    grid-column: 3;
+    grid-row: 2;
+    line-height: var(--_secondary-leading);
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-cascader] [data-part-node][data-disabled] > [data-part-description] {
+    color: inherit;
+  }
+
+  /* Track four: the count of a branch, or how many inside it are chosen. */
+  [data-ui-cascader] [data-part-node] > [data-part-meta] {
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    font-variant-numeric: tabular-nums;
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: end;
+    margin-inline-start: var(--_column-gap);
+    white-space: nowrap;
+  }
+
+  [data-ui-cascader] [data-part-node][data-selected] > [data-part-meta],
+  [data-ui-cascader] [data-part-node][data-indeterminate] > [data-part-meta] {
+    color: var(--_selected-color);
+  }
+
+  /**
+   * Track five: the chevron of a branch. It points along the reading
+   * direction, from the `directional` icon box the binding draws, and takes
+   * the label's ink on the path.
+   */
+  [data-ui-cascader] [data-part-node] > [data-part-expander] {
+    --slotted-icon-size: var(--_content-icon-size);
+
+    align-items: center;
+    color: var(--_muted);
+    display: flex;
+    grid-column: 5;
+    grid-row: 1;
+    inline-size: var(--_content-icon-size);
+    justify-content: center;
+    justify-self: end;
+    margin-inline-start: var(--_column-gap);
+    transition: color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-cascader] [data-part-node]:is([data-expanded], [data-current]) > [data-part-expander] {
+    color: inherit;
+  }
+
+  [data-ui-cascader] [data-part-node] > [data-part-expander] > [data-ui-icon] {
+    transition: rotate var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  /* In the tree the level opens under the node, so the chevron turns down. */
+  [data-ui-cascader][data-layout='tree']
+    [data-part-node][data-expanded]
+    > [data-part-expander]
+    > [data-ui-icon] {
+    rotate: 90deg;
+  }
+
+  /* A branch whose level is on its way: the ring stands where the chevron stood. */
+  [data-ui-cascader] [data-part-expander] > [data-ui-spinner] {
+    --slotted-spinner-size: var(--_content-icon-size);
+  }
+
+  /**
+   * The mark of a single selection: the check at the end, in the chevron's
+   * track, because only a node that is not a branch — or a branch the consumer
+   * made selectable — carries it.
+   */
+  [data-ui-cascader] [data-part-node] > [data-part-indicator] {
+    --slotted-icon-size: var(--_content-icon-size);
+
+    align-items: center;
+    display: flex;
+    grid-column: 5;
+    grid-row: 1;
+    inline-size: var(--_content-icon-size);
+    justify-content: center;
+    justify-self: end;
+    margin-inline-start: var(--_column-gap);
+    opacity: 0;
+    scale: 0.8;
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-exit),
+      scale var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-cascader] [data-part-node][data-selected] > [data-part-indicator] {
+    opacity: 1;
+    scale: 1;
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-enter),
+      scale var(--slotted-duration-short) var(--slotted-easing-enter);
+  }
+
+  /**
+   * A multiple selection draws `checkbox`'s box in track one, as `tree` draws
+   * it: the same square from the selection scale, the same medium edge, the
+   * same solid ground when chosen, and the mark — a check, or the dash while
+   * part of the branch is chosen — revealed along its stroke.
+   */
+  [data-ui-cascader][data-selection='multiple'] [data-part-node] > [data-part-indicator] {
+    --_mark-inset: var(--slotted-cascader-mark-inset, 2px);
+    --_check-border: var(--slotted-border-width-medium, 1.5px);
+    --slotted-icon-size: calc(var(--_check-size) - 2 * var(--_mark-inset));
+
+    align-self: center;
+    background-color: var(--_surface);
+    block-size: var(--_check-size);
+    border: var(--_check-border) solid var(--slotted-border-strong);
+    border-radius: var(--slotted-radius-xs, 2px);
+    box-sizing: border-box;
+    grid-column: 1;
+    inline-size: var(--_check-size);
+    justify-self: start;
+    margin-inline-end: var(--_column-gap);
+    margin-inline-start: 0;
+    opacity: 1;
+    position: relative;
+    scale: 1;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-cascader][data-selection='multiple']
+    [data-part-node]
+    > [data-part-indicator]
+    > [data-ui-icon] {
+    clip-path: inset(0% 100% 0% 0%);
+    color: var(--slotted-tone-accent-on-solid);
+    inset-block-start: calc(var(--_mark-inset) - var(--_check-border));
+    inset-inline-start: calc(var(--_mark-inset) - var(--_check-border));
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition:
+      clip-path var(--slotted-duration-medium) var(--slotted-control-transition-easing),
+      opacity var(--slotted-duration-medium) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-cascader][data-selection='multiple']
+    [data-part-node]:is([data-selected], [data-indeterminate])
+    > [data-part-indicator] {
+    background-color: var(--slotted-tone-accent-solid);
+    border-color: var(--slotted-tone-accent-solid);
+  }
+
+  [data-ui-cascader][data-selection='multiple']
+    [data-part-node]:is([data-selected], [data-indeterminate])
+    > [data-part-indicator]
+    > [data-ui-icon] {
+    clip-path: inset(0% 0% 0% 0%);
+    opacity: 1;
+  }
+
+  [data-ui-cascader][data-selection='multiple']
+    [data-part-node][data-disabled]
+    > [data-part-indicator] {
+    background-color: var(--slotted-disabled-background, Canvas);
+    border-color: var(--slotted-disabled-border, GrayText);
+  }
+
+  /* ── Waiting, empty, status ───────────────────────────────────────────── */
+
+  /**
+   * A level on its way, as the shape of the rows that are coming: three bars
+   * the height of a node, descending in width, from `skeleton`'s sheet. The
+   * column's `aria-busy` is what a reader hears.
+   */
+  [data-ui-cascader] [data-part-loader] {
+    align-items: center;
+    display: flex;
+    grid-column: 1 / -1;
+    min-block-size: var(--_item-height);
+    padding-inline: var(--_item-inset);
+  }
+
+  [data-ui-cascader] [data-part-loader] > [data-ui-skeleton] {
+    flex: 1 1 auto;
+  }
+
+  [data-ui-cascader] [data-part-loader]:nth-child(3n + 2) > [data-ui-skeleton] {
+    flex: 0 1 78%;
+  }
+
+  [data-ui-cascader] [data-part-loader]:nth-child(3n) > [data-ui-skeleton] {
+    flex: 0 1 56%;
+  }
+
+  /**
+   * A level with nothing in it, a query with no answer, and a level that failed
+   * with its retry. Centred sentences in their own bidi run, as `select`'s are,
+   * and never narrower than a word.
+   */
+  [data-ui-cascader] :is([data-part-empty], [data-part-status]) {
+    align-items: center;
+    color: var(--_muted);
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-column: 1 / -1;
+    min-inline-size: min(10rem, 100%);
+    padding-block: var(--slotted-space-5, 0.75rem);
+    padding-inline: var(--_item-inset);
+    text-align: center;
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-cascader] [data-part-status]:empty {
+    display: none;
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────── */
+
+  @media (forced-colors: active) {
+    [data-ui-cascader] [data-part-node][data-current] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-cascader] [data-part-node][data-disabled][data-current] {
+      background-color: Highlight;
+      color: GrayText;
+    }
+
+    /* The path would lose its ground to Canvas: an outline keeps the road. */
+    [data-ui-cascader] [data-part-node][data-expanded]:not([data-current]) {
+      outline: 1px solid CanvasText;
+      outline-offset: -1px;
+    }
+  }
+}

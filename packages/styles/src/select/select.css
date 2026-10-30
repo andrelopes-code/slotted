@@ -1,0 +1,1656 @@
+@layer slotted.components {
+  /**
+   * ── A control that shows one choice and opens a list of the rest ────────
+   *
+   * The family is two subtrees, and that is the first thing to know about this
+   * sheet. The **control** sits where the consumer wrote it, inside a field,
+   * inside a form. The **popup** is portalled to the end of the document so it
+   * escapes every clipping ancestor between the two. Nothing selects one from
+   * the other, so `data-ui='select'` is written on both roots — the contract
+   * records it under `portalledIdentity` — and every rule below states which of
+   * the two it is about through its own `data-part`.
+   *
+   *   ┌─ root ─ the control ───────────────────────────────────────┐
+   *   │  ┌─ trigger ─ role="combobox" ─ fills the frame ─────────┐  │
+   *   │  │ value ▸ "Blueberry"                                   │  │
+   *   │  └───────────────────────────────────────────────────────┘  │
+   *   │                                            clear ✕   arrow ⌄ │
+   *   └────────────────────────────────────────────────────────────┘
+   *
+   *   ┌─ positioner ─ the layer ───────────────────────────────────┐
+   *   │  ┌─ content ─ role="listbox" ─ scrolls ───────────────┐    │
+   *   │  │ group ▸ group-label                                │    │
+   *   │  │ item ▸ icon │ label       │ indicator              │    │
+   *   │  │              description                           │    │
+   *   │  │ separator · empty · status                         │    │
+   *   │  └────────────────────────────────────────────────────┘    │
+   *   └────────────────────────────────────────────────────────────┘
+   *
+   * Under `search` the popup gains one row and the list moves one element in,
+   * because a text field is not an option and a listbox holds nothing else:
+   *
+   *   ┌─ content ─ role="dialog" ─ data-search ────────────┐
+   *   │  search ▸ search-icon │ search-input               │
+   *   │  ┌─ list ─ role="listbox" ─ scrolls ───────────┐   │
+   *   │  │ item ▸ icon │ label ▸ match │ indicator      │   │
+   *   │  └──────────────────────────────────────────────┘   │
+   *   └────────────────────────────────────────────────────┘
+   *
+   * Every part above `list` exists only under `search`, so a consumer who does
+   * not ask for it renders the DOM they rendered before it existed.
+   *
+   * ── Why the frame is `text-field`'s frame ────────────────────────────
+   *
+   * The border, the radius, the resting shadow, the focus ring, the invalid
+   * retargeting and the disabled treatment are the same declarations reading
+   * the same tokens. A form holding a text field, a number field and a select
+   * is one row of controls or it is three libraries, and none of the eight
+   * implementations surveyed for this family has an opinion here because none
+   * of them ships the other two.
+   *
+   * The trigger is a borderless button filling that frame, so the frame draws
+   * the ring for it through `:has()` — the rule `text-field` already writes for
+   * its input — and `clear` is a sibling of the trigger rather than a child of
+   * it, because a focusable descendant of a `combobox` is a widget inside a
+   * widget. The chevron and the clear button then sit on top of the trigger
+   * rather than beside it, for the reason written above the trigger's own rule.
+   *
+   * ── Why the popup is a grid and the item is a subgrid ────────────────
+   *
+   * The same architecture `menu` uses, and for the same reason: the surface
+   * owns three columns — the icon, the label, the check — and every item,
+   * group and group label passes through them with `grid-template-columns:
+   * subgrid`, so labels line up across the whole list however many of the
+   * options carry artwork.
+   *
+   * The check sits in the **last** column rather than sharing the first with
+   * the icon, which is where this family parts company with `menu`. A menu's
+   * check *is* its item's icon — an option's is not: a country's flag and the
+   * mark saying it is chosen are two different facts about one row, and a
+   * reader who can see only one of them at a time cannot scan the list. The
+   * columns carry no `column-gap`, so a list with neither artwork nor a check
+   * collapses both gutters to nothing.
+   */
+
+  /* ── The control ──────────────────────────────────────────────────────── */
+
+  [data-ui-select][data-part-root] {
+    /**
+     * Type, height, inline padding, gap and glyph size come from the control
+     * scales — the only ones the theme restates per density — so a select in a
+     * dense table shrinks whole rather than in parts.
+     */
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    /** The floor under the glyph scale at the dense step (SL3); a family token so a theme can retune it. */
+    --_icon-floor: var(--slotted-select-icon-size-min, 14px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-md, 16px));
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+
+    /**
+     * The drawn clear button, sized by its glyph and capped at the inner size
+     * of a control at this step (`--slotted-control-inner-size-*`). The
+     * arithmetic is `text-field`'s, because the two buttons are the same button
+     * in the same frame and a second answer would drift from the first.
+     */
+    --_action-size: var(
+      --slotted-select-action-size,
+      min(calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)), var(--_inner-size))
+    );
+
+    align-items: center;
+    background-color: var(--slotted-select-background, var(--slotted-control-surface, Field));
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-select-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--slotted-select-radius, var(--slotted-control-radius, 4px));
+    box-shadow: var(--slotted-select-shadow, var(--slotted-control-shadow, none));
+    box-sizing: border-box;
+    color: var(--slotted-select-color, var(--slotted-text, CanvasText));
+    column-gap: var(--_gap);
+    /**
+     * Two lanes on one row: what the control holds, and what ends it (SL9).
+     *
+     * The chips used to be a row hanging over the trigger's content box, with
+     * its inline end written as the same arithmetic the chevron and the clear
+     * button are placed by. A row that hangs reserves no space, so the lane it
+     * may use was a number kept in step by hand, and six chosen values ran
+     * under the two controls that end the control. Here the lane *is* a track:
+     * it ends where the next track begins, and no arithmetic can be out of
+     * date. The trigger spans both, so it is still the ground every press that
+     * is not a chip or the clear button lands on.
+     */
+    display: grid;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    grid-template-columns: minmax(0, 1fr) auto;
+    /* In a flex row the item's basis is its content, not the whole row. */
+    flex-basis: content;
+    inline-size: 100%;
+    /* A control in a grid track narrower than its intrinsic width would
+       otherwise refuse to shrink and take the row's edge with it. */
+    min-inline-size: 0;
+    /* A minimum rather than a height: the frame is the taller of the control
+       scale and whatever a consumer put in the value. */
+    min-block-size: var(--_height);
+    /* The containing block of the chevron and the clear button, both of which
+       are placed against the frame's inline end rather than laid out in it. */
+    position: relative;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  /* And the clear button's own lane, before the chevron's, when there is one. */
+  [data-ui-select][data-part-root]:has(> [data-part-clear]) {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  /**
+   * A select that does not fill its field. The frame shrinks to its widest
+   * value, which is what a filter beside a table needs and what a field never
+   * does — hence the default the contract states, `fullWidth: true`.
+   */
+  [data-ui-select][data-part-root]:not([data-full-width]) {
+    inline-size: auto;
+  }
+
+  /**
+   * The control. It gives up its own frame entirely — border, ground, ring and
+   * radius all belong to the box around it — and keeps what makes it a button:
+   * the press, the `Enter` and `Space` the platform already handles, and every
+   * native attribute the consumer wrote.
+   *
+   * **It fills the frame, and the two marks sit on top of it.** The chevron
+   * belongs at the very end of the control — it is the affordance for the whole
+   * thing, which is where a native `select` draws it and where every surveyed
+   * implementation puts it — and the clear button belongs before it. In document
+   * order the clear button is a sibling of the trigger, so a chevron inside the
+   * trigger can only ever be drawn *before* the clear button, and the first
+   * capture of this family showed exactly that: `Blueberry ⌄ ✕`.
+   *
+   * So the chevron and the clear button stand in their own lane at the frame's
+   * inline end, and the trigger spans every lane and reserves their width as
+   * its own end padding. Padding is part of the trigger's box, so a press on
+   * the chevron still lands on the button that opens the popup — which is why
+   * the chevron can be inert and the arrangement costs nothing.
+   */
+  [data-ui-select] > [data-part-trigger] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    box-sizing: border-box;
+    color: inherit;
+    /**
+     * The hand, as `button/button.css` draws it on every button in the
+     * library. This drew an arrow until SL11, and the arrow came from the
+     * native `select` — the element this family refused, on the grounds that
+     * the operating system draws its popup and a web surface is not what it
+     * gets. Keeping the native cursor after refusing the native element left
+     * the one control in a form that says nothing happens when it is pressed.
+     */
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    gap: var(--_gap);
+    /* The ground: every lane on the one row, so nothing the reader presses
+       between the chips and the border falls past the button. */
+    grid-area: 1 / 1 / 2 / -1;
+    /* The frame's border box, not its content box: on a coarse pointer the
+       frame is the touch target's height and the trigger is too. */
+    margin-block: calc(var(--slotted-control-border-width, 1px) * -1);
+    min-block-size: var(--_height);
+    /* An `auto` minimum refuses to shrink below the longest label, which is how
+       a select in a narrow column pushes its own field off the row. */
+    min-inline-size: 0;
+    /* The frame draws the ring for it, so two rings never nest. */
+    outline: none;
+    padding-block: 0;
+    padding-inline-start: var(--_padding-inline);
+    /* The inset, the chevron and the gap before it. */
+    padding-inline-end: calc(var(--_padding-inline) + var(--_icon-size) + var(--_gap));
+    text-align: start;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* And the clear button's own box, plus a second gap, when there is one. */
+  [data-ui-select][data-part-root]:has(> [data-part-clear]) > [data-part-trigger] {
+    padding-inline-end: calc(
+      var(--_padding-inline) + var(--_icon-size) + var(--_gap) + var(--_action-size) + var(--_gap)
+    );
+  }
+
+  /**
+   * One line, ending in an ellipsis. A value that wrapped would change the
+   * control's height as the reader chose, and a form that reflows on selection
+   * is a form that moves under the pointer.
+   */
+  [data-ui-select] [data-part-value] {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /**
+   * Nothing chosen yet. The same weight the reader will see once they choose,
+   * one step quieter, so the control does not change shape when it fills.
+   */
+  [data-ui-select] [data-part-value][data-placeholder] {
+    color: var(--slotted-select-placeholder-color, var(--slotted-text-muted, GrayText));
+  }
+
+  /**
+   * A value the collection could not resolve to a label, which is what an
+   * asynchronous list holds for one render. It is not the placeholder — the
+   * control has a value — and it is not a normal label either, so it is set in
+   * the same face and marked as unresolved for a stylesheet that wants to say
+   * more.
+   */
+  [data-ui-select] [data-part-value][data-unmatched] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Several chosen values, as the chips they are ────────────────────── */
+
+  /**
+   * The preview of a multiple selection (SL4). It was a sentence about the
+   * choice — "Apple +1" — and it is now the choice: one `tag` per value, each
+   * with the remove control a tag already has, and one more chip counting what
+   * did not fit.
+   *
+   * The chips are `tag`'s, worn as `data-ui` beside this row, so the chip a
+   * reader removes here is the chip they know from everywhere else and its
+   * geometry is stated once. Nothing about a chip is decided here: the row
+   * asks for the small step and the chip answers with its own arithmetic,
+   * floored at the target minimum because its remove control is a control.
+   *
+   * **The row is a sibling of the trigger, and a lane of the control** (SL9).
+   * The trigger is a `button`, and a button cannot contain a remove control:
+   * that is a control inside a control, which no browser and no reader resolves
+   * the same way. So the row is written beside the button rather than in it —
+   * and it takes the first track of the frame's row, so the space it needs is
+   * space the control gives it and the chips end where the lane of the final
+   * controls begins. It lets every press it does not want through to the
+   * trigger spanning underneath, so the frame still opens the popup everywhere
+   * a chip is not.
+   */
+  [data-ui-select][data-part-root] > [data-part-tags] {
+    align-items: center;
+    display: flex;
+    gap: var(--slotted-space-2, 0.25rem);
+    /* The content lane: the chips share it with the trigger's own text. */
+    grid-area: 1 / 1 / 2 / 2;
+    /* The gutter the value begins from, so a chip starts where a label would. */
+    margin-inline-start: var(--_padding-inline);
+    /**
+     * The row is at least a target tall, because a chip's remove control takes
+     * the rest of its own target from a transparent halo that stands outside
+     * the chip (TG2), and the clip below would otherwise cut that halo off at
+     * the chip's edge — the press area measured 24 × 22.8 inside the trigger
+     * and 24 × 24 everywhere else. The chips stay centred in it. It is never
+     * taller than the control's own inner box, so the height of the frame is
+     * the height of a select that chose one thing.
+     */
+    min-block-size: var(--slotted-target-min, 24px);
+    /* A lane a chip cannot widen: the track is `minmax(0, 1fr)` and this is
+       what makes a chip shrink against it rather than push it. */
+    min-inline-size: 0;
+    /* A chip that does not fit is hidden by the collapse, not clipped; this is
+       the guard for the frame between one measurement and the next. */
+    overflow: hidden;
+    /* The gaps between chips belong to the trigger underneath. */
+    pointer-events: none;
+  }
+
+  [data-ui-select] > [data-part-tags] > * {
+    /* Each chip takes its own presses back, and stands above the trigger that
+       spans the lane underneath it. */
+    pointer-events: auto;
+    position: relative;
+  }
+
+  /**
+   * The chip that counts what did not fit. It is a chip and not a number
+   * beside them, so the row reads as one run of chips whose last one happens
+   * to be a count, and `createCollapse` can measure it the way it measures
+   * every other unit.
+   */
+  [data-ui-select] > [data-part-tags] > [data-overflow] {
+    flex: none;
+  }
+
+  /**
+   * The sentence, for a control too narrow for a chip. It lives inside the
+   * value, so the trigger is named by it whichever of the two is drawn, and it
+   * is taken out of sight rather than out of the tree while the chips are
+   * shown: a button whose accessible name disappeared when the frame grew is a
+   * button that changes what it is called when the window is resized.
+   */
+  [data-ui-select] [data-part-summary] {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Its own bidi run, ordered by its own content, so a Latin count in a
+       right-to-left row is clipped at its own end rather than at the page's —
+       the repair `status` and `empty` already make, and for the same reason. */
+    unicode-bidi: plaintext;
+    white-space: nowrap;
+  }
+
+  [data-ui-select][data-part-root]:not([data-narrow]) [data-part-summary] {
+    block-size: 1px;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  [data-ui-select][data-part-root][data-narrow] > [data-part-tags] {
+    display: none;
+  }
+
+  /**
+   * The chevron. The library's own `Glyph` — an `<svg>` the binding draws
+   * inside an `icon` box — rather than a character, and the box turns over when
+   * the popup opens: the one movement in the control, and the only thing on the
+   * closed control that says it opens at all.
+   */
+  [data-ui-select] > [data-part-arrow] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    block-size: var(--_icon-size);
+    color: var(--slotted-select-arrow-color, var(--slotted-text-muted, GrayText));
+    display: flex;
+    /* The last lane, whichever of the two arrangements is in force. */
+    grid-area: 1 / -2 / 2 / -1;
+    inline-size: var(--_icon-size);
+    justify-content: center;
+    margin-inline-end: var(--_padding-inline);
+    /* Inert on purpose: the trigger spans this lane underneath it, so a press
+       here opens the popup rather than landing on a decorative span. */
+    pointer-events: none;
+  }
+
+  [data-ui-select] > [data-part-arrow] > [data-ui-icon] {
+    transition: rotate var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-select][data-open] > [data-part-arrow] > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  /**
+   * The ring, where the chevron stands. While an answer is travelling the
+   * control shows the ring instead of the chevron: the chevron says the popup
+   * opens, and it does not open onto anything yet (SL6).
+   *
+   * The arc is not drawn here. It is the one `spinner/spinner.css` draws for
+   * every family that waits — B4 extracted it for exactly this second host —
+   * and the element wears `data-ui='spinner'` beside this family's own part.
+   * All this rule does is stand it where the chevron stood and give it the
+   * chevron's size and ink, through the size token the shared sheet reads.
+   */
+  [data-ui-select] > [data-part-busy] {
+    --slotted-spinner-size: var(--_icon-size);
+
+    color: var(--slotted-select-arrow-color, var(--slotted-text-muted, GrayText));
+    /* The chevron's lane, because it stands where the chevron stood. */
+    grid-area: 1 / -2 / 2 / -1;
+    margin-inline-end: var(--_padding-inline);
+    /* Inert on purpose, as the chevron is: the trigger spans this lane
+       underneath it, so a press here opens the popup. */
+    pointer-events: none;
+  }
+
+  /**
+   * The clear button, in the lane before the chevron's. Its box is wider than
+   * its glyph by the target it recovers, and that overhang is taken back on
+   * both sides — so every gap in the lane is measured between glyphs and the
+   * *glyph* keeps the rhythm the value begins with. `text-field`'s arithmetic,
+   * stated in the terms a track states it.
+   */
+  [data-ui-select] > [data-part-clear] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_action-size);
+    border: 0;
+    border-radius: var(--slotted-select-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-select-action-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    grid-area: 1 / 2 / 2 / 3;
+    inline-size: var(--_action-size);
+    justify-content: center;
+    margin-inline: calc((var(--_icon-size) - var(--_action-size)) / 2);
+    /* The user agent pads a button, and inside a box sized to its glyph that
+       padding squeezed the glyph to twelve pixels. */
+    padding: 0;
+    /* Over the trigger that spans this lane, so it takes its own presses back
+       from the button running underneath it. */
+    position: relative;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /**
+   * The hit area, recovered outside the paint. At `sm` with `dense` the whole
+   * control is 24 pixels tall — the WCAG 2.2 minimum — so nothing drawn inside
+   * it can also be 24. This grows the target back in both axes and leaves a
+   * larger one alone.
+   */
+  [data-ui-select] > [data-part-clear]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: the ground and the focus ring stay square, and
+     the hit area above grows to 44 pixels around them. It does not reach into
+     the chevron's lane after it, which is the trigger's to answer. */
+  @media (pointer: coarse) {
+    [data-ui-select] > [data-part-clear]::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+      inset-inline-end: 0;
+    }
+  }
+
+  /* The cross is a `Glyph` the binding draws, at the chevron's size. */
+  [data-ui-select] > [data-part-clear] {
+    --slotted-icon-size: var(--_icon-size);
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────
+   *
+   * Three steps, matching the field the control sits in and the popup it
+   * opens. The control reads the field's step rather than its own default when
+   * there is a field, because a `sm` field holding an `md` control is a field
+   * and a control disagreeing about one row.
+   */
+
+  [data-ui-select][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-sm, 14px));
+    --_inner-size: var(--slotted-control-inner-size-sm, 22px);
+  }
+
+  [data-ui-select][data-part-root][data-size='md'] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-md, 16px));
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+  }
+
+  [data-ui-select][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 16px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-lg, 18px));
+    --_inner-size: var(--slotted-control-inner-size-lg, 28px);
+  }
+
+  /* ── Variant ──────────────────────────────────────────────────────────
+   *
+   * The three `text-field` ships, with the same values, because a form with a
+   * `subtle` text field and an `outline` select beside it is a form that looks
+   * unfinished. `plain` is what a dense table needs: a cell that is only a
+   * control while it is being used, keeping exactly the same box so the row
+   * does not reflow when the pointer crosses it.
+   */
+
+  [data-ui-select][data-part-root][data-variant='subtle'] {
+    background-color: var(
+      --slotted-select-subtle-background,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    border-color: var(
+      --slotted-select-subtle-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+  }
+
+  /* No edge, no lift, no ground and no corner of its own: the cell it sits in
+     is the box, the row is the ground, a cell has no corner, and the resting
+     shadow would draw the cell where there is none. */
+  [data-ui-select][data-part-root][data-variant='plain'] {
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: var(--slotted-radius-none, 0px);
+    box-shadow: none;
+  }
+
+  /**
+   * The one rule the theme cannot write for the family. A transparent border
+   * has no system colour to be remapped to, so the `plain` control would lose
+   * its only edge exactly where an edge matters most.
+   */
+  @media (forced-colors: active) {
+    [data-ui-select][data-part-root][data-variant='plain'] {
+      border-color: ButtonBorder;
+    }
+  }
+
+  /* ── States on the control ────────────────────────────────────────────
+   *
+   * Written strongest last, each weaker one guarded against every stronger one
+   * it can meet, which is the order `STATE_PRECEDENCE` sets.
+   */
+
+  [data-ui-select][data-part-root]:hover:not([data-disabled]):not([data-readonly]):not(
+      [data-invalid]
+    ) {
+    border-color: var(--slotted-select-hover-border-color, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-select][data-part-root][data-variant='subtle']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid]) {
+    background-color: var(
+      --slotted-select-subtle-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-select][data-part-root][data-variant='plain']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid]) {
+    background-color: var(
+      --slotted-select-plain-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    /* The accent edge the other variants take would draw the cell's outline. */
+    border-color: transparent;
+  }
+
+  /**
+   * The ring belongs to the frame and answers the trigger's focus. A button
+   * matches `:focus-visible` for a keyboard arrival and not for a pointer
+   * press, which is exactly right here: a reader who pressed the control can
+   * see where they pressed, and the popup is already open under it.
+   */
+  [data-ui-select][data-part-root]:has(> [data-part-trigger]:focus-visible) {
+    /* The resting shadow, recoloured: the geometry is the foundation's and the
+       ink is the ring's, so the lift and the outline are one colour. */
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-control-focus-ring-offset, var(--slotted-focus-ring-offset, 2px));
+  }
+
+  /**
+   * The ring of a control whose box is not its own is drawn inside that box,
+   * the way the inner controls draw theirs inside the frame: two pixels past
+   * the control is two pixels over the next row's rule. No lift either — a
+   * shadow that appears only under focus is a cell that changes size when it
+   * is used.
+   */
+  [data-ui-select][data-part-root][data-variant='plain']:has(> [data-part-trigger]:focus-visible) {
+    box-shadow: none;
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /**
+   * The open control keeps the accent edge whether or not the keyboard opened
+   * it. A popup hanging off a control with a resting border reads as two
+   * elements that happen to be adjacent.
+   */
+  [data-ui-select][data-part-root][data-open]:not([data-disabled]) {
+    border-color: var(--slotted-select-open-border-color, var(--slotted-tone-accent-border));
+  }
+
+  /**
+   * Invalid outranks hover and open, and is written after both: a control
+   * reporting an error should not stop looking wrong because it was opened.
+   * The ring is retargeted rather than repainted — every rule that draws focus
+   * reads `--slotted-focus-ring-color`, so pointing that one name at the
+   * invalid colour moves the outline and the shadow together.
+   */
+  [data-ui-select][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-select-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+    --_invalid-edge-width: var(
+      --slotted-select-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+    --_invalid-edge-color: var(
+      --slotted-select-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    --_invalid-edge: inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color);
+
+    border-color: var(--slotted-select-invalid-border-color, var(--slotted-tone-danger-border));
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger border is the resting edge's black. The line
+     * is a shadow inside the border, so neither box nor text moves, and it
+     * takes the resting lift's place.
+     */
+    box-shadow: var(--_invalid-edge);
+  }
+
+  [data-ui-select][data-part-root][data-invalid]:has(> [data-part-trigger]:focus-visible) {
+    box-shadow:
+      var(--_invalid-edge),
+      var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+        var(--slotted-focus-ring-color, Highlight);
+  }
+
+  [data-ui-select][data-part-root][data-variant='plain'][data-invalid]:has(
+      > [data-part-trigger]:focus-visible
+    ) {
+    /* The ring lies inside the box here, over the border and an edge as wide as
+       it; the edge reaches past the ring. */
+    box-shadow: inset 0 0 0
+      calc(
+        var(--slotted-focus-ring-offset, 2px) - var(--slotted-control-border-width, 1px) +
+          var(--_invalid-edge-width)
+      )
+      var(--_invalid-edge-color);
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The
+   * width comes back as an outline inside the border, and a focused invalid
+   * control draws its ring double, which a valid ring is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-select][data-part-root][data-invalid] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(
+        -1 * (var(--slotted-control-border-width, 1px) + var(--_invalid-edge-width))
+      );
+    }
+
+    [data-ui-select][data-part-root][data-invalid]:has(> [data-part-trigger]:focus-visible) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(
+        --slotted-control-focus-ring-offset,
+        var(--slotted-focus-ring-offset, 2px)
+      );
+    }
+
+    [data-ui-select][data-part-root][data-variant='plain'][data-invalid]:has(
+        > [data-part-trigger]:focus-visible
+      ) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: calc(
+        -1 * (var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width))
+      );
+    }
+  }
+
+  /**
+   * Read-only stays focusable and legible and must not be mistakable for
+   * disabled: the value is still real and still submitted. The ground says
+   * "not yours to change" and the ink says nothing at all. Neither a button nor
+   * `role="combobox"` has a readonly the platform enforces, so the family
+   * refuses the change itself and this is what the refusal looks like.
+   */
+  [data-ui-select][data-part-root][data-readonly] {
+    background-color: var(
+      --slotted-select-readonly-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-select][data-part-root][data-readonly] [data-part-arrow] {
+    opacity: 0.5;
+  }
+
+  /**
+   * `:disabled` on the trigger is matched beside `data-disabled` on the frame,
+   * because a control can be disabled by something that never told it so: a
+   * disabled `fieldset` disables every button inside it, and the button has no
+   * way to say. The attribute alone left such a control looking operable and
+   * answering nothing.
+   */
+  [data-ui-select][data-part-root][data-disabled],
+  [data-ui-select][data-part-root]:has(> [data-part-trigger]:disabled) {
+    background-color: var(--slotted-select-disabled-background, var(--slotted-disabled-background));
+    border-color: var(--slotted-select-disabled-border-color, var(--slotted-disabled-border));
+    /* Nothing a person cannot reach is lifted off the page. */
+    box-shadow: none;
+    /* Muted to the colour the theme measures rather than faded by opacity: a
+       value nobody can read is a field nobody can check. */
+    color: var(--slotted-select-disabled-color, var(--slotted-disabled-foreground));
+  }
+
+  [data-ui-select][data-part-root][data-disabled] > [data-part-trigger],
+  [data-ui-select][data-part-root] > [data-part-trigger]:disabled {
+    cursor: not-allowed;
+  }
+
+  [data-ui-select] > [data-part-clear]:hover:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-select-action-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-select] > [data-part-clear]:active:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-select-action-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  /**
+   * The clear button carries its own ring rather than borrowing the frame's.
+   * Tabbing from the trigger to it has to move something visible, and a ring
+   * around the whole frame would sit still while focus moved inside it.
+   */
+  [data-ui-select] > [data-part-clear]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* ── The layer ────────────────────────────────────────────────────────── */
+
+  /**
+   * What `packages/core/src/positioner` writes `position`, `left` and `top`
+   * onto, and what slides and fades — the module leaves `transform` alone on
+   * purpose. The painted surface is one element in, as `tooltip`, `popover` and
+   * `menu` are built.
+   */
+  [data-ui-select][data-part-positioner] {
+    --_surface: var(--slotted-select-surface, var(--slotted-surface-raised, #ffffff));
+    --_text: var(--slotted-select-content-text, var(--slotted-text, #0f172a));
+    --_muted: var(--slotted-select-content-text-muted, var(--slotted-text-muted, #5b6b7f));
+    --_border-color: var(
+      --slotted-select-content-border-color,
+      var(--slotted-border-subtle, #e2e8f0)
+    );
+    --_border-width: var(--slotted-border-width-thin, 1px);
+    --_radius: var(--slotted-select-content-radius, var(--slotted-radius-lg, 8px));
+    --_shadow: var(--slotted-select-content-shadow, var(--slotted-shadow-md));
+
+    /**
+     * The highlight is the *stronger* step of the neutral tone, not the one
+     * every other subtle surface in this library takes, and the reason is in
+     * the dark scheme's numbers: `--slotted-tone-secondary-subtle-hover` is
+     * `#18181b` where the raised popup is `#1c1c20`, so the highlight resolved
+     * four units **darker** than the ground it sits on and read as a hole
+     * rather than as a lift. The first dark capture of this family showed a
+     * highlighted option that could not be found. The `-active` step is
+     * `#27272a`, eleven units the other way, and it is the only member of the
+     * pair that lifts in all three schemes.
+     */
+    --_highlight: var(--slotted-select-highlight, var(--slotted-tone-secondary-subtle-active));
+    --_highlight-active: var(--slotted-select-highlight-active, var(--slotted-tone-accent-surface));
+    --_selected-color: var(--slotted-select-selected-color, var(--slotted-tone-accent-text));
+
+    --_inset-block: var(--slotted-select-content-padding-block, var(--slotted-space-2, 0.25rem));
+    --_inset-inline: var(--slotted-select-content-padding-inline, var(--slotted-space-2, 0.25rem));
+    --_item-inset: var(--slotted-control-padding-inline-md, 0.8125rem);
+    --_item-height: var(--slotted-control-height-md, 34px);
+    /* Concentric with the panel: its radius less the inset, floored at 0. */
+    --_item-radius: var(
+      --slotted-select-item-radius,
+      max(0px, calc(var(--_radius) - var(--_inset-inline)))
+    );
+    --_content-font-size: var(--slotted-control-font-size-md, 13px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_content-icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_column-gap: var(--slotted-control-gap-md, 0.5rem);
+
+    /**
+     * The cap for `width="content"`. Measure belongs to `container`, so the
+     * family offers no axis for it and still has to stop a `max-content`
+     * surface from setting one option the width of the page.
+     */
+    --_measure: var(--slotted-select-measure, 24rem);
+
+    /* Only the block inset: the positioner writes `left` and never `right`, and
+       `inset-inline-start` would resolve to `right` in a right-to-left document
+       and win over the measured value. */
+    position: absolute;
+    inset-block-start: 0;
+
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+    isolation: isolate;
+
+    box-sizing: border-box;
+
+    /* The layer is only a frame around the surface; the surface takes the
+       pointer, and the frame must not swallow a press meant for the page. */
+    pointer-events: none;
+
+    /**
+     * R7: the layer arrives along the axis it opens on — from one space step
+     * above its place when it opens downward, from one step below when it
+     * opens upward — and never along the inline axis. A `scale` from the
+     * corner the positioner named as origin moved the far edge by four per
+     * cent of the width, which read as an entrance from the left.
+     */
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+    translate: 0 calc(-1 * var(--_enter-distance));
+    transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-select][data-part-positioner][data-side='top'] {
+    translate: 0 var(--_enter-distance);
+  }
+
+  /* A lateral side has no block direction to arrive from, so it only fades. */
+  [data-ui-select][data-part-positioner]:is([data-side='left'], [data-side='right']) {
+    translate: 0 0;
+  }
+
+  /**
+   * The entrance is a keyframe animation and not a transition. A transition
+   * starts from the style the browser computed last, and the positioner
+   * writes `data-side` in the same style update as the family opens the
+   * layer, so a transition set out from the closed style of the side the
+   * layer had before it had one — the bottom's — whatever side it opens on.
+   * A keyframe states where it starts. The exit stays a transition: it
+   * leaves from wherever the layer is, on the closed rule's durations.
+   */
+  [data-ui-select][data-part-positioner][data-open] {
+    translate: 0 0;
+    transition: none;
+  }
+
+  /**
+   * Only a layer the positioner placed arrives: it writes `data-positioned`
+   * with the side, and a layer written open in static markup — the harness,
+   * a docs snippet — is simply there, and is photographed where it stands.
+   */
+  [data-ui-select][data-part-positioner][data-open][data-positioned] {
+    animation: slotted-select-enter-down var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  [data-ui-select][data-part-positioner][data-open][data-positioned][data-side='top'] {
+    animation-name: slotted-select-enter-up;
+  }
+
+  @keyframes slotted-select-enter-down {
+    from {
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-select-enter-up {
+    from {
+      translate: 0 var(--_enter-distance);
+    }
+  }
+
+  @keyframes slotted-select-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /**
+   * The fade belongs to the part that paints the surface, and the layer only
+   * moves. In Chromium an ancestor with `opacity` below one is the Backdrop Root
+   * of what it holds, so a `backdrop-filter` on the content blurs nothing until
+   * the layer is opaque and then appears at once. The content's own opacity
+   * leaves its own filter drawn on every frame of the motion.
+   */
+  [data-ui-select][data-part-positioner] > [data-part-content] {
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-select][data-part-positioner][data-open] > [data-part-content] {
+    opacity: 1;
+    transition: none;
+  }
+
+  [data-ui-select][data-part-positioner][data-open][data-positioned] > [data-part-content] {
+    animation: slotted-select-fade var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  /* Stillness keeps the fade and drops the movement (R7). */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-select][data-part-positioner],
+    [data-ui-select][data-part-positioner][data-side='top'],
+    [data-ui-select][data-part-positioner][data-side='left'],
+    [data-ui-select][data-part-positioner][data-side='right'] {
+      translate: 0 0;
+      transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-select][data-part-positioner][data-open][data-positioned],
+    [data-ui-select][data-part-positioner][data-open][data-positioned][data-side='top'],
+    [data-ui-select][data-part-positioner][data-open][data-positioned][data-side='left'],
+    [data-ui-select][data-part-positioner][data-open][data-positioned][data-side='right'] {
+      animation-name: none;
+    }
+  }
+
+  /* The anchor scrolled out of its own clipper. The popup is still open and
+     its options still belong to a control the reader can no longer see. */
+  [data-ui-select][data-part-positioner][data-detached] {
+    visibility: hidden;
+  }
+
+  /**
+   * `content` is the default: never narrower than the control, and wider
+   * when an option needs it, up to the measure and the available width, so a
+   * narrow control does not wrap its option labels. `anchor` pins the popup to
+   * the control's width exactly.
+   */
+  [data-ui-select][data-part-positioner][data-width='anchor'] {
+    inline-size: var(--slotted-positioner-anchor-width, auto);
+  }
+
+  [data-ui-select][data-part-positioner][data-width='content'] {
+    inline-size: max-content;
+    max-inline-size: min(var(--_measure), var(--slotted-positioner-available-width, 100vw));
+    /* Never narrower than the control it belongs to: a popup that shrank under
+       its own anchor reads as a second, smaller control. */
+    min-inline-size: var(--slotted-positioner-anchor-width, auto);
+  }
+
+  [data-ui-select][data-part-positioner][data-size='sm'] {
+    --_item-inset: var(--slotted-control-padding-inline-sm, 0.625rem);
+    --_item-height: var(--slotted-control-height-sm, 30px);
+    --_content-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_secondary-font-size: var(--slotted-font-size-xs, 0.75rem);
+    --_content-icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_column-gap: var(--slotted-control-gap-sm, 0.375rem);
+  }
+
+  [data-ui-select][data-part-positioner][data-size='lg'] {
+    --_item-inset: var(--slotted-control-padding-inline-lg, 1rem);
+    --_item-height: var(--slotted-control-height-lg, 38px);
+    --_content-font-size: var(--slotted-control-font-size-lg, 14px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_content-icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_column-gap: var(--slotted-control-gap-lg, 0.5rem);
+  }
+
+  /* ── The surface ──────────────────────────────────────────────────────── */
+
+  /**
+   * Three columns, and the height the positioner says is left. Radix, Base UI
+   * and React Aria each publish the remaining height and none of them bounds
+   * itself by default, so a list of a hundred options runs off the bottom of
+   * the screen. `overscroll-behavior` keeps the page still once the surface has
+   * scrolled to its end.
+   */
+  [data-ui-select] > [data-part-content] {
+    background: var(--_surface);
+    border: var(--_border-width) solid var(--_border-color);
+    border-radius: var(--_radius);
+    box-shadow: var(--_shadow);
+    box-sizing: border-box;
+    color: var(--_text);
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--_content-font-size);
+    max-block-size: calc(
+      var(--slotted-positioner-available-height, 100vh) - var(--slotted-space-5, 0.75rem)
+    );
+    outline: none;
+    pointer-events: auto;
+    /* A theme that paints this surface as a translucent material blurs what moves behind it. */
+    -webkit-backdrop-filter: var(--slotted-select-content-backdrop-filter, none);
+    backdrop-filter: var(--slotted-select-content-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-select] > [data-part-content] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /**
+   * The three columns and the scroll, on whichever element holds the options.
+   *
+   * Without a search field that element is the surface itself, which is where
+   * it has always been. With one the surface becomes a column of two — the
+   * field, then the list — and the list is what scrolls: a field that scrolled
+   * away with its own results is a field a reader loses on the fourth row, and
+   * every implementation surveyed on 2026-09-08 that puts the field in the
+   * popup keeps it still.
+   *
+   * `overscroll-behavior` keeps the page still once the scroller has reached
+   * its end.
+   */
+  [data-ui-select] > [data-part-content]:not([data-search]),
+  [data-ui-select] [data-part-list] {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+  }
+
+  [data-ui-select] > [data-part-content][data-search] {
+    display: flex;
+    flex-direction: column;
+    /* The field draws to the surface's own edges and the list keeps the inset,
+       so each of the two states its own padding rather than sharing one. */
+    padding: 0;
+  }
+
+  /* `auto` as the flex basis measures the whole list and refuses to shrink;
+     the surface is what holds the height, and the list is what gives. */
+  [data-ui-select] [data-part-list] {
+    flex: 1 1 auto;
+    min-block-size: 0;
+  }
+
+  /* ── The search field ─────────────────────────────────────────────────── */
+
+  /**
+   * The row the query is typed into, at the top of the popup and only under
+   * `search`.
+   *
+   * It is in the popup rather than in the control, and that is the whole of
+   * what keeps this family apart from `combobox`: a combobox's typed text is a
+   * value it commits, and this query is transient — it filters, it is emptied
+   * when an option is taken, and the control goes on showing the chosen label
+   * the entire time. `docs/component-features.md` §6 says the control takes no
+   * typed text, and it still does not.
+   *
+   * A row the height of an option, so the field and the first result keep one
+   * rhythm, with the rule under it drawn from the border scale rather than
+   * from a shadow — the same rule the `chosen` band draws above the list.
+   */
+  [data-ui-select] [data-part-search] {
+    align-items: center;
+    border-block-end: var(--_border-width) solid var(--_border-color);
+    box-sizing: border-box;
+    display: flex;
+    flex: 0 0 auto;
+    gap: var(--_column-gap);
+    min-block-size: var(--_item-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    /* The list is inset from the surface and each option is inset again inside
+       it, so a row that took only the option's inset put its glyph four pixels
+       to the start of every label under it. The two insets are added here, and
+       the magnifier opens the same column the labels do. */
+    padding-inline: calc(var(--_inset-inline) + var(--_item-inset));
+  }
+
+  /**
+   * The magnifier. It is what makes the row a field rather than a heading: a
+   * bare line of placeholder text at the top of a panel reads as a title, and
+   * a reader does not type into a title.
+   */
+  [data-ui-select] [data-part-search-icon] {
+    --slotted-icon-size: var(--_content-icon-size);
+
+    align-items: center;
+    block-size: var(--_content-icon-size);
+    color: var(--slotted-select-search-icon-color, var(--_muted));
+    display: flex;
+    flex: 0 0 auto;
+    inline-size: var(--_content-icon-size);
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  /**
+   * The field itself, which gives up every frame of its own: the surface is
+   * already a bordered panel, and a second border a step inside it would draw
+   * a box inside a box for one line of text.
+   *
+   * **No focus ring.** The field takes focus as the popup opens and holds it
+   * until the popup closes — there is no state in which this layer is open and
+   * this element is not focused — so a ring here would be a permanent border
+   * rather than a state, and the one thing on the surface that never changes
+   * would be the loudest. What says where focus is, is the caret.
+   */
+  [data-ui-select] [data-part-search-input] {
+    background-color: transparent;
+    border: 0;
+    color: inherit;
+    flex: 1 1 auto;
+    font: inherit;
+    /* The intrinsic width of an `input` is about twenty characters, and a flex
+       item refuses to shrink below it without this. */
+    min-inline-size: 0;
+    outline: none;
+    padding: 0;
+    text-overflow: ellipsis;
+  }
+
+  [data-ui-select] [data-part-search-input]::placeholder {
+    color: var(--slotted-select-placeholder-color, var(--_muted));
+    text-overflow: ellipsis;
+  }
+
+  /**
+   * Everything that is chosen, at the top of the popup (SL10).
+   *
+   * The control holds one line, so twelve chosen values are three chips and a
+   * count; here they are all of them. The band wraps and takes about two rows
+   * of its own before it scrolls, and it scrolls **itself** — the list under it
+   * keeps its own scroll, and `overscroll-behavior` stops one from carrying the
+   * other once it reaches its end.
+   *
+   * It is stuck to the top of the scrollport rather than laid above it: the
+   * surface is the scroller as well as the box, so a band that merely came
+   * first would scroll away with the options. The negative insets take it out
+   * to the surface's own edges, which is where the rule between it and the list
+   * has to end — a rule from the border scale, not a shadow.
+   */
+  [data-ui-select] [data-part-chosen] {
+    background: var(--_surface);
+    border-block-end: var(--_border-width) solid var(--_border-color);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-column: 1 / -1;
+    /* Its own padding stands where the surface's would, so nothing shows above
+       it as the list scrolls under. */
+    inset-block-start: calc(-1 * var(--_inset-block));
+    margin-block: calc(-1 * var(--_inset-block)) var(--_inset-block);
+    margin-inline: calc(-1 * var(--_inset-inline));
+    /**
+     * Two rows of chips, the gap between them, and the air above the first.
+     * Two *whole* rows: a chip drawn to half its height is not an affordance,
+     * it is a chip that looks broken. What says there is more is the scrollbar
+     * and the rule under it. The row is the target minimum, which is the floor
+     * a chip's own remove control puts under it everywhere else (TG2/SL8), so
+     * a chip at the small step never overruns the cap.
+     */
+    max-block-size: calc(
+      2 * var(--slotted-target-min, 24px) + var(--slotted-space-2, 0.25rem) + var(--_inset-block)
+    );
+    min-inline-size: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    position: sticky;
+    /* Above a group label stuck to the same edge. */
+    z-index: 2;
+  }
+
+  /**
+   * The surface never takes a ring. Focus stays on the control for the whole
+   * interaction — the highlight is `aria-activedescendant`, not focus — so a
+   * ring here would draw a box around something nobody is operating.
+   */
+  [data-ui-select] > [data-part-content]:focus-visible {
+    outline: none;
+  }
+
+  /* ── Groups ───────────────────────────────────────────────────────────── */
+
+  /**
+   * A group spans every column and inherits them, so its options keep the
+   * surface's columns instead of starting a second set. Without the subgrid a
+   * group would align its own labels and disagree with the options outside it.
+   */
+  [data-ui-select] [data-part-group] {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  /**
+   * An option the query rejected, and a group whose options all went. Both
+   * carry `hidden` — Angular hides each rejected option rather than leaving the
+   * list, and both bindings hide an emptied group — and `display: grid` on
+   * either beats the user agent's own `[hidden] { display: none }`, because an
+   * author rule wins over the user agent sheet. Without this the search
+   * filtered nothing the reader could see.
+   */
+  [data-ui-select] [data-part-item][hidden],
+  [data-ui-select] [data-part-group][hidden] {
+    display: none;
+  }
+
+  /**
+   * A group's label stays at the top of the list while its group is in view.
+   * The group is the label's containing block, so the next label pushes it out
+   * and a group scrolled past takes its label with it. It sticks to the
+   * scrollport's edge rather than the padding's, on the surface's ground, above
+   * the items and below the parts the surface draws over them.
+   */
+  [data-ui-select] [data-part-group-label] {
+    background: var(--_surface);
+    box-sizing: border-box;
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    grid-column: 1 / -1;
+    inset-block-start: calc(-1 * var(--_inset-block));
+    line-height: var(--slotted-line-height-sm, 1.45);
+    min-block-size: var(--_group-label-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+    position: sticky;
+    z-index: 1;
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-select] [data-part-group-label] {
+      background: Canvas;
+    }
+  }
+
+  /**
+   * The label's height, which the list keeps clear above an item the keys
+   * bring into view (`revealWithin` reads the scroll padding), so the item is
+   * never drawn under a label stuck to the top.
+   */
+  [data-ui-select] > [data-part-content]:not([data-search]):has([data-part-group-label]),
+  [data-ui-select] [data-part-list]:has([data-part-group-label]) {
+    --_group-label-height: var(
+      --slotted-select-group-label-height,
+      calc(
+        var(--_secondary-font-size) * var(--slotted-line-height-sm, 1.45) + 2 *
+          var(--slotted-space-2, 0.25rem)
+      )
+    );
+
+    scroll-padding-block-start: var(--_group-label-height);
+  }
+
+  /* ── Options ──────────────────────────────────────────────────────────── */
+
+  /**
+   * `role="option"` on a `div`. Unlike `menu`'s item there is no native
+   * element to keep: the listbox pattern's option is not a button, it is not
+   * separately focusable — DOM focus stays on the control — and a `button`
+   * here would put a widget inside a widget and add a tab stop the pattern
+   * excludes by name.
+   *
+   * `min-block-size` rather than a height, because an option with a
+   * description is two lines tall and still has to clear the target minimum.
+   */
+  [data-ui-select] [data-part-item] {
+    align-content: center;
+    border-radius: var(--_item-radius);
+    box-sizing: border-box;
+    /**
+     * The hand (SL11). Nine of the twelve implementations surveyed draw it;
+     * the three that draw an arrow are the three that follow the native
+     * `select`, whose popup the operating system paints. A row that commits a
+     * value and closes the surface is a press. `menu` kept the arrow for a
+     * while on the argument that a menu item follows the platform's own
+     * menus, and dropped it: its surface is a `div` on the page as much as
+     * this one is.
+     */
+    cursor: pointer;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    /**
+     * The line box belongs to the option and every cell inherits it. `1lh` on a
+     * mark resolves against the mark's *own* line-height, so a mark inside a
+     * row that left the line box at `normal` measures fifteen pixels while the
+     * label beside it measures nineteen and a half — and start-aligned in the
+     * same row, the mark sits two pixels above the text it annotates.
+     */
+    line-height: var(--slotted-line-height-md, 1.5);
+    min-block-size: var(--_item-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+    row-gap: var(--slotted-space-1, 0.125rem);
+    /* A press that lands on an option must not also select the label's text,
+       which is what a double-click on a list otherwise does. */
+    user-select: none;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  /**
+   * The highlight. It is `data-current` rather than a hover or focus selector,
+   * because the highlight is where the reader is and the pointer and the
+   * keyboard both move it: entering an option with the pointer sets
+   * `aria-activedescendant` to it, so exactly one option is highlighted
+   * whichever device is driving, and the state a screen reader announces and
+   * the state the eye sees are the same state.
+   */
+  [data-ui-select] [data-part-item][data-current] {
+    background-color: var(--_highlight);
+    /**
+     * A ring as well as a ground, because the ground alone carries the whole
+     * signal and eleven units of lift is not enough to carry it. The APG's own
+     * select-only example marks its current option with an outline for the
+     * same reason: nothing on this surface holds focus — DOM focus is on the
+     * control — so there is no focus ring anywhere to say where the reader is.
+     *
+     * An inset shadow rather than an outline, so it follows the option's own
+     * radius and never overflows the surface's rounded edge, and one border
+     * width rather than two, because it is a cursor and not a focus indicator.
+     */
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-select-highlight-ring, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-select] [data-part-item]:not([data-disabled]):active {
+    background-color: var(--_highlight-active);
+  }
+
+  /**
+   * Chosen, which is not the same as highlighted. The check in the last column
+   * is the primary signal — it survives forced colours, where every tone ground
+   * becomes `Canvas` — and the accent ink is the secondary one, so the row a
+   * reader is looking for is findable at a glance in a list of forty.
+   */
+  [data-ui-select] [data-part-item][data-selected] {
+    color: var(--_selected-color);
+  }
+
+  /**
+   * Two chosen neighbours are one block (LB2). Every item keeps its own
+   * radius, so two selected siblings painted with the same ground met at a
+   * waist — four rounded corners inside the block — and a multiple selection
+   * read as a column of separate chips. The second gives up its top corners
+   * and the first its bottom ones, so the block is rounded only where the
+   * selection begins and ends. `select` and `combobox` draw the same ground
+   * and answer the same way; `selection-block.test.mjs` holds the three to it.
+   */
+  [data-ui-select] [data-part-item][data-selected] + [data-part-item][data-selected] {
+    border-start-end-radius: 0;
+    border-start-start-radius: 0;
+  }
+
+  [data-ui-select] [data-part-item][data-selected]:has(+ [data-part-item][data-selected]) {
+    border-end-end-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  [data-ui-select] [data-part-item][data-selected] > [data-part-label] {
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  /**
+   * A disabled option is announced, keeps its place and cannot be chosen. It
+   * therefore has to answer the highlight with something, and answer it more
+   * quietly than an option that would do anything: the ground is the theme's
+   * disabled surface rather than the highlight, and the text stays legible
+   * instead of being faded toward it.
+   */
+  [data-ui-select] [data-part-item][data-disabled] {
+    color: var(--slotted-disabled-foreground, #64748b);
+    cursor: not-allowed;
+  }
+
+  /**
+   * The highlight can land on an option nobody can choose, because a disabled
+   * option keeps its place in the collection and the pattern requires it to be
+   * announced. It must not wear the accent cursor while it is there: an accent
+   * ring on a row that answers nothing says "act here" to the one reader who
+   * cannot. The ground and the ring both step down to the theme's disabled
+   * pair, and the row stays legible rather than being faded toward it.
+   */
+  /**
+   * The highlight can land on an option nobody can choose, because a disabled
+   * option keeps its place in the collection and the pattern requires it to be
+   * announced.
+   *
+   * **The ground stays the highlight's.** Painting the theme's disabled surface
+   * here was the first answer and it was wrong in the dark scheme, for the same
+   * reason the highlight itself was: `--slotted-disabled-background` is
+   * `#18181b` where the raised popup is `#1c1c20`, so the cursor *sank* on a
+   * disabled row and rose on every other one — a reader arrowing down the list
+   * would watch it disappear. A cursor lifts, always. What the row cannot do is
+   * said by the ink and by the ring, which both step down to the disabled pair.
+   */
+  [data-ui-select] [data-part-item][data-disabled][data-current] {
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-disabled-border, #cbd5e1);
+    color: var(--slotted-disabled-foreground, #64748b);
+  }
+
+  /* ── The cells ────────────────────────────────────────────────────────── */
+
+  /**
+   * One line box tall, so a mark beside a label that wrapped sits on the first
+   * line rather than in the middle of the option — and, because the option
+   * states the line box every cell inherits, exactly as tall as the line it
+   * sits beside.
+   */
+  [data-ui-select] :is([data-part-indicator], [data-part-icon]) {
+    block-size: 1lh;
+  }
+
+  /**
+   * Column one, and the reason an option with artwork and one without line
+   * their labels up: the column is as wide as the content icon step whether or
+   * not a given option fills it.
+   *
+   * The box holds content and paints none: a `Glyph` in an `Icon` box, or
+   * artwork of the consumer's own, centred and sized from the column through
+   * `--slotted-icon-size`. No stylesheet fills it.
+   */
+  [data-ui-select] [data-part-icon] {
+    --slotted-icon-size: var(--_content-icon-size);
+
+    align-items: center;
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    inline-size: var(--_content-icon-size);
+    justify-content: center;
+    justify-self: center;
+    margin-inline-end: var(--_column-gap);
+  }
+
+  /* Column two, and the only column that gives way. It is scoped to the option
+     rather than to the family: a chip in the control carries a `label` of its
+     own, and this rule would have put it in the popup's second column (SL4). */
+  [data-ui-select] [data-part-item] > [data-part-label] {
+    grid-column: 2;
+    grid-row: 1;
+    min-inline-size: 0;
+    /**
+     * A label longer than the popup wraps to two lines and then truncates,
+     * with the whole string still in the DOM. Radix, Base UI and Ark all let it
+     * wrap to as many lines as it takes, so one translated option can be five
+     * lines tall and the list stops being scannable; Material truncates at one
+     * line and loses the text. Two lines is the compromise, and the second one
+     * is where a name and its qualifier fit.
+     */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    /* A sixty-character identifier with no spaces breaks rather than escaping
+       the surface, which is what it does in two of the surveyed libraries. */
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-select] [data-part-description] {
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    grid-column: 2;
+    grid-row: 2;
+    line-height: var(--slotted-line-height-sm, 1.45);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-select] [data-part-item][data-disabled] > [data-part-description] {
+    color: inherit;
+  }
+
+  /**
+   * Column three, and the mark that says an option was chosen. The box is
+   * reserved whether or not the check is drawn, so a list does not shift by
+   * sixteen pixels as the reader moves through it.
+   */
+  [data-ui-select] [data-part-indicator] {
+    --slotted-icon-size: var(--_content-icon-size);
+
+    align-items: center;
+    display: flex;
+    grid-column: 3;
+    grid-row: 1;
+    inline-size: var(--_content-icon-size);
+    justify-content: center;
+    justify-self: end;
+    margin-inline-start: var(--_column-gap);
+    opacity: 0;
+    /* The check appears rather than blinking: the one movement inside the
+       popup, and it is what confirms the press the reader just made. */
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-select] [data-part-item][data-selected] > [data-part-indicator] {
+    opacity: 1;
+  }
+
+  /* ── Separator, empty, status ─────────────────────────────────────────── */
+
+  [data-ui-select] [data-part-separator] {
+    background-color: var(--slotted-select-separator-color, var(--_border-color));
+    block-size: var(--_border-width);
+    border: 0;
+    grid-column: 1 / -1;
+    margin-block: var(--slotted-space-2, 0.25rem);
+    margin-inline: 0;
+  }
+
+  /**
+   * A list with nothing in it, and a list still waiting. Both keep the
+   * surface's measure rather than collapsing to a two-pixel box, which is what
+   * a consumer sees flash when the state is not painted at all. React Aria
+   * refuses to open on an empty collection and Radix paints nothing; the popup
+   * here opens onto a sentence.
+   */
+  [data-ui-select] :is([data-part-empty], [data-part-status]) {
+    color: var(--_muted);
+    /**
+     * Its own bidi run, ordered by its own content. "3 results" is a European
+     * number, a neutral space and a Latin word, so in a right-to-left document
+     * the space resolves to the paragraph and the two runs swap: the first
+     * right-to-left capture of this family printed "results 3". `plaintext`
+     * takes the direction from the sentence's own first strong character, so an
+     * English count reads as itself and a translated one reads as itself — the
+     * same repair `text-field` makes for an adornment, and for the same reason.
+     * These two parts are centred, so taking their own direction costs no
+     * alignment; an option's label is the consumer's content and keeps the
+     * document's direction unless the consumer says otherwise.
+     */
+    unicode-bidi: plaintext;
+    grid-column: 1 / -1;
+    /**
+     * Wide enough that a one-word message does not draw a popup narrower than a
+     * word, and never wider than the popup it is in: at `width="anchor"` the
+     * surface is exactly the control's width, and a bare `12rem` on a child
+     * overflows the grid the moment the control is narrower than that.
+     */
+    min-inline-size: min(12rem, 100%);
+    padding-block: var(--slotted-space-5, 0.75rem);
+    padding-inline: var(--_item-inset);
+    text-align: center;
+  }
+
+  /**
+   * Under `search` the status row is also the live region that announces how
+   * many options survived the query, so it is present on every open popup and
+   * empty on most of them. A row with no text takes no space; a row with text
+   * takes the same space as the empty message beside it. `combobox` draws the
+   * count the same way, in the same place, for the same reason.
+   */
+  [data-ui-select] [data-part-status]:empty {
+    display: none;
+  }
+
+  /**
+   * The wait, as the shape of the list that is coming. Three rows the height of
+   * an option rather than one sentence, so the surface a reader is looking at
+   * while the answer travels is the surface they will go on looking at
+   * (SL6/CB5). The bars are `skeleton/skeleton.css`'s — the family places them
+   * and states nothing about how a placeholder is painted.
+   *
+   * The three widths descend, because three identical bars read as a table and
+   * a list of labels is ragged. They are the consumer's nothing, so they are
+   * hidden from assistive technology: the `status` row beside them is the live
+   * region and it already says what is happening.
+   */
+  [data-ui-select] [data-part-placeholder] {
+    display: grid;
+    /* The surface is a grid of option columns; the rows span all of them, as
+       the status and empty rows do. */
+    grid-column: 1 / -1;
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+  }
+
+  [data-ui-select] [data-part-placeholder] > [data-ui-skeleton] {
+    align-self: center;
+  }
+
+  /**
+   * Each row is an option: the same minimum height, so three of them measure
+   * what three options measure and the popup does not resize when they land.
+   */
+  [data-ui-select] [data-part-placeholder] > * {
+    align-items: center;
+    display: flex;
+    min-block-size: var(--_item-height);
+  }
+
+  [data-ui-select] [data-part-placeholder] > :nth-child(2) [data-ui-skeleton] {
+    inline-size: 78%;
+  }
+
+  [data-ui-select] [data-part-placeholder] > :nth-child(3) [data-ui-skeleton] {
+    inline-size: 56%;
+  }
+
+  /**
+   * The status row while an answer is travelling. It no longer draws a pulsing
+   * dot of its own: the control carries the ring and the popup carries the
+   * three bars, and a third repeating motion beside them was one answer too
+   * many for one wait (SL6).
+   */
+
+  [data-ui-select] > [data-part-content][data-loading] {
+    cursor: progress;
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────── */
+
+  /**
+   * The one thing the theme cannot reach. Every tone surface becomes `Canvas`
+   * under forced colours, so the highlight — which is this family's answer to
+   * "which option am I on", not decoration — would disappear and leave a reader
+   * with no way to tell.
+   */
+  @media (forced-colors: active) {
+    [data-ui-select] [data-part-item][data-current] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-select] [data-part-item][data-disabled][data-current] {
+      background-color: Highlight;
+      color: GrayText;
+    }
+  }
+}

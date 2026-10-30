@@ -1,0 +1,171 @@
+---
+import { getCollection } from 'astro:content';
+
+import FieldBasic from '../../examples/react/field/basic';
+import Code from '../components/Code.astro';
+import AxisSpecimen from '../home/AxisSpecimen';
+import HeroActions from '../home/HeroActions';
+import HomeBackdrop from '../components/HomeBackdrop.astro';
+import Stage from '../islands/Stage';
+import Base from '../layouts/Base.astro';
+import { ORDERS } from '../console/data';
+import { familyTitle, specifiedFamilies } from '../lib/catalog';
+import { SITE_NAME } from '../lib/site';
+import '../styles/home.css';
+
+const families = specifiedFamilies();
+const documented = new Set((await getCollection('components')).map((entry) => entry.id));
+
+const reactSource = `<Field required>
+  <FieldLabel>Email</FieldLabel>
+  <TextField type="email" />
+  <FieldDescription>Invoices are sent to this address.</FieldDescription>
+</Field>`;
+
+const angularSource = `<div slField required>
+  <label slFieldLabel>Email</label>
+  <div slTextField>
+    <input slTextFieldInput type="email" />
+  </div>
+  <span slFieldDescription>Invoices are sent to this address.</span>
+</div>`;
+
+const domSource = `<div data-ui="field" data-part="root" data-required>
+  <label data-part="label" for="…">Email</label>
+  <div data-ui="text-field" data-part="root">
+    <input data-part="input" id="…" aria-required="true"
+           aria-describedby="…" />
+  </div>
+  <p data-ui="inline-message" id="…">Invoices are sent…</p>
+</div>`;
+
+const axes = [
+  { scheme: 'light', density: 'comfortable', name: 'Light', step: 'Comfortable' },
+  { scheme: 'dark', density: 'compact', name: 'Dark', step: 'Compact' },
+  { scheme: 'high-contrast', density: 'dense', name: 'High contrast', step: 'Dense' },
+];
+---
+
+<Base
+  title={SITE_NAME}
+  description="UI components for dense product applications, with one specification per component and idiomatic bindings for React and Angular."
+>
+  <main id="content" class="home">
+    <HomeBackdrop />
+    <div class="home-col">
+      <section class="home-intro" aria-labelledby="home-title">
+        <h1 id="home-title">UI components for dense product applications</h1>
+        <p>
+          Data grids, filters, forms, calendars and application shells for React and Angular. One
+          specification per component, one stylesheet, and two idiomatic bindings that render the
+          same DOM.
+        </p>
+        <HeroActions />
+      </section>
+
+      <section class="home-stage home-rule" aria-label="Operations console, running">
+        <Stage
+          client:load
+          note={`An operations console built only from the library: nine screens over ${ORDERS.length.toLocaleString('en-US')} sample orders. Navigate it.`}
+        />
+      </section>
+
+      <section class="home-section home-rule" aria-labelledby="axes-title">
+        <div class="home-section-head">
+          <h2 id="axes-title">Schemes and densities</h2>
+          <p>
+            The default theme answers three schemes and three densities, each one an attribute.
+            Below, one shipments table in three scopes: nothing in the component changes, only the
+            attributes on its container.
+          </p>
+        </div>
+        <div class="axes-grid">
+          {
+            axes.map((axis) => (
+              <figure
+                class="axes-frame"
+                data-slotted-theme="default"
+                data-slotted-scheme={axis.scheme}
+                data-slotted-density={axis.density}
+              >
+                <div class="axes-frame-head">
+                  <span class="axes-frame-name">{axis.name}</span>
+                  <span class="axes-frame-step">{axis.step}</span>
+                </div>
+                <AxisSpecimen />
+                <figcaption class="axes-frame-attr">
+                  <code>
+                    data-slotted-scheme="<b>{axis.scheme}</b>"
+                  </code>
+                  <code>
+                    data-slotted-density="<b>{axis.density}</b>"
+                  </code>
+                </figcaption>
+              </figure>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="home-section home-rule" aria-labelledby="contract-title">
+        <div class="home-section-head">
+          <h2 id="contract-title">Two bindings, one DOM</h2>
+          <p>
+            Each binding is written the way its framework expects. Both render the same parts,
+            attributes and ARIA wiring, so one stylesheet and one accessibility contract serve both.
+          </p>
+        </div>
+        <div class="contract-grid">
+          <div class="contract-source">
+            <Code code={reactSource} lang="tsx" title="React" fileName="billing-email.tsx" />
+          </div>
+          <div class="contract-source">
+            <Code
+              code={angularSource}
+              lang="angular-html"
+              title="Angular"
+              fileName="billing-email.html"
+            />
+          </div>
+          <p class="contract-join"><span>Both render</span></p>
+          <div class="contract-result">
+            <div class="contract-preview">
+              <FieldBasic />
+            </div>
+            <div class="contract-dom">
+              <Code code={domSource} lang="html" title="Rendered DOM, either binding" fileName="index.html" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="home-section home-rule" aria-labelledby="catalog-title">
+        <div class="home-section-head">
+          <h2 id="catalog-title">{families.length} component families</h2>
+          <p>
+            Every family has a written specification its tests verify: parts, states, keyboard and
+            ARIA. Underlined names have their documentation page; the rest are being written.
+          </p>
+        </div>
+        <ul class="catalog-list">
+          {
+            families.map((family) =>
+              documented.has(family) ? (
+                <li>
+                  <a href={`/react/components/${family}/`}>{familyTitle(family)}</a>
+                </li>
+              ) : (
+                <li>{familyTitle(family)}</li>
+              ),
+            )
+          }
+        </ul>
+      </section>
+
+      <footer class="home-footer home-rule">
+        <span>{SITE_NAME}</span>
+        <p>Pre-release. The packages are not yet published to npm.</p>
+      </footer>
+    </div>
+  </main>
+</Base>

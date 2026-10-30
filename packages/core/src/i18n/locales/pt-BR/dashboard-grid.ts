@@ -1,0 +1,36 @@
+import type { DashboardGridMessages } from '../../messages/dashboard-grid';
+
+export const ptBR: DashboardGridMessages = {
+  add: 'Adicionar widget',
+  cancel: 'Cancelar',
+  cancelled: 'Alterações de layout descartadas',
+  detail: 'Abrir {title}',
+  done: 'Concluído',
+  editBar: 'Layout',
+  editStatus:
+    'Arraste um widget para movê-lo e puxe as bordas para redimensioná-lo. Pelo teclado, foque a alça: Alt com uma seta move o widget, Shift com uma seta o redimensiona.',
+  empty: 'Nenhum widget',
+  emptyEditing: 'Todos os widgets estão ocultos. Adicione um de volta para começar.',
+  emptyTitle: 'Sem dados',
+  errorTitle: 'Não foi possível carregar este widget',
+  handle: 'Reorganizar {title}',
+  hidden: '{title} oculto',
+  hide: 'Ocultar',
+  moved: '{title} movido para a linha {row}, coluna {column}',
+  movedInOrder: '{title} movido para a posição {position} de {total}',
+  moveDown: 'Mover para baixo',
+  moveEnd: 'Mover para a direita',
+  moveStart: 'Mover para a esquerda',
+  moveUp: 'Mover para cima',
+  narrower: 'Mais estreito',
+  reset: 'Redefinir layout',
+  resetDone: 'Layout redefinido',
+  resized:
+    '{title} tem {columns, plural, one {# coluna} other {# colunas}} por {rows, plural, one {# linha} other {# linhas}}',
+  retry: 'Tentar de novo',
+  shorter: 'Mais baixo',
+  shown: '{title} adicionado',
+  size: '{columns} × {rows}',
+  taller: 'Mais alto',
+  wider: 'Mais largo',
+};

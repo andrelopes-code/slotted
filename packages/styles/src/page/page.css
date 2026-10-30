@@ -1,0 +1,193 @@
+@layer slotted.components {
+  /**
+   * The column of a screen: who scrolls, how wide the content is, where the
+   * footer stays, how much air the body has.
+   *
+   *   main[data-ui-page]
+   *   ├─ scroll ▸ page-header · body ▸ container ▸ …
+   *   └─ footer ▸ container ▸ actions
+   *
+   * Two answers to "who scrolls", as one axis. Under `ancestor` the page is
+   * inside whatever scrolls — the document, a shell's content column — and
+   * is at least as tall as it, so the footer has a bottom to stick to. Under
+   * `self` the scroll part is the scroller, the page is exactly as tall as its
+   * parent lets it be, and the footer sits below the scroller in the flow.
+   */
+  [data-ui-page] {
+    --_ground: var(--slotted-page-background-sunken, var(--slotted-surface-sunken, Canvas));
+    --_padding-block: var(--slotted-page-padding-block, var(--slotted-space-8, 1.5rem));
+    --_footer-ground: var(--slotted-page-footer-background, var(--slotted-surface, Canvas));
+    --_footer-rule: var(--slotted-page-footer-border, var(--slotted-border-subtle, ButtonBorder));
+    --_footer-padding-block: var(
+      --slotted-page-footer-padding-block,
+      var(--slotted-space-4, 0.5rem)
+    );
+    --_duration: var(--slotted-duration-medium);
+    --_easing: var(--slotted-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+    /**
+     * The ground, stated where a descendant can read it: a section's sticky
+     * header paints it, so the rows passing under the header are covered.
+     */
+    --slotted-page-ground: var(--_ground);
+    /**
+     * The bridge to table. A table with `stickyTo="page"` stops its header
+     * under the page's fixed chrome and its summary above the footer, and the
+     * page is the only element that knows where either ends. The cost is
+     * recorded in the contract: a theme that sets the table's offset for the
+     * whole application loses it inside a page.
+     */
+    --slotted-table-sticky-offset: var(--slotted-page-sticky-top, 0px);
+    --slotted-table-sticky-offset-end: var(--slotted-page-sticky-bottom, 0px);
+
+    background-color: var(--_ground);
+    color: var(--slotted-text, CanvasText);
+    /**
+     * The page answers its own width, not the viewport's. The inline axis
+     * alone: the block axis is what `min-block-size`, `self` and `fill`
+     * decide, and containing it would size the page by nothing.
+     */
+    container: slotted-page / inline-size;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    min-block-size: 100%;
+    min-inline-size: 0;
+  }
+
+  [data-ui-page][data-ground='surface'] {
+    --_ground: var(--slotted-page-background-surface, var(--slotted-surface, Canvas));
+  }
+
+  [data-ui-page] > [data-part-scroll] {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    min-inline-size: 0;
+    /**
+     * Nothing in here anchors the scroll. The header's chrome changes height
+     * by a few pixels as it snaps and reveals, and scroll anchoring would move
+     * the scroll position by as much to keep the content still: a scroll event
+     * the reader did not make, which ended a reveal the instant it began.
+     */
+    overflow-anchor: none;
+  }
+
+  [data-ui-page][data-scroll='self'] {
+    block-size: 100%;
+    min-block-size: 0;
+  }
+  [data-ui-page][data-scroll='self'] > [data-part-scroll] {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* ── The body ────────────────────────────────────────────────────────── */
+
+  [data-ui-page] > [data-part-scroll] > [data-part-body] {
+    flex: 1 0 auto;
+    min-inline-size: 0;
+    padding-block: var(--_padding-block);
+  }
+
+  /**
+   * Filled: the body stops growing with its content and the container inside
+   * stretches to what is left, for a master–detail, a splitter or a canvas
+   * that scroll their own panes. No scroll outside it, so no collapse on
+   * scroll — the contract records the cost.
+   *
+   * From the compact size class up only. Below 600 pixels the page scrolls
+   * as any page does and the body grows with its content: on a phone the
+   * chrome above a filled list left its rows 155 of 667 pixels.
+   */
+  @container slotted-page (width >= 600px) {
+    [data-ui-page][data-fill] > [data-part-scroll] > [data-part-body] {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-block-size: 0;
+    }
+    [data-ui-page][data-fill] > [data-part-scroll] > [data-part-body] > * {
+      flex: 1 1 auto;
+      min-block-size: 0;
+    }
+  }
+
+  [data-ui-page][data-loading] > [data-part-scroll] > [data-part-body] {
+    cursor: progress;
+  }
+
+  /* ── The footer ──────────────────────────────────────────────────────── */
+
+  /**
+   * In the flow and stuck to the bottom of the root, never fixed: it takes
+   * its own height, so the last line of content scrolls up to it rather than
+   * under it. It enters from below and leaves the same way; presence holds
+   * it through the exit.
+   */
+  [data-ui-page] > [data-part-footer] {
+    background-color: var(--_footer-ground);
+    border-block-start: var(--slotted-border-width-thin, 1px) solid var(--_footer-rule);
+    inset-block-end: 0;
+    min-inline-size: 0;
+    padding-block: var(--_footer-padding-block);
+    position: sticky;
+    transition: translate var(--_duration) var(--_easing);
+    z-index: var(--slotted-z-index-sticky, 100);
+  }
+  [data-ui-page][data-scroll='self'] > [data-part-footer] {
+    position: static;
+  }
+  [data-ui-page] > [data-part-footer][data-status='entering'],
+  [data-ui-page] > [data-part-footer][data-status='exiting'] {
+    translate: 0 100%;
+  }
+
+  /**
+   * A theme draws the footer as a material with a ground that has alpha and
+   * `--slotted-page-footer-backdrop-filter`, `none` unless set. The footer
+   * moves by its translate alone: Chromium draws no backdrop filter on an
+   * element whose opacity is below one.
+   */
+  [data-ui-page] > [data-part-footer] {
+    -webkit-backdrop-filter: var(--slotted-page-footer-backdrop-filter, none);
+    backdrop-filter: var(--slotted-page-footer-backdrop-filter, none);
+  }
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-page] > [data-part-footer] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  [data-ui-page] > [data-part-footer] > * > [data-part-actions] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-control-gap-md, 8px);
+    justify-content: flex-end;
+    min-inline-size: 0;
+  }
+
+  /* ── Compact ─────────────────────────────────────────────────────────── */
+
+  /**
+   * Below 600 pixels, the compact size class: the gutters of every container
+   * in the page stop at step 4 of the space scale. At the default inset,
+   * step 6, the two gutters took 32 of a 390-pixel phone's pixels; at step 4
+   * they take 16. The steps under 4 keep their own value.
+   */
+  @container slotted-page (width < 600px) {
+    [data-ui-page] [data-ui-container][data-inset='5'],
+    [data-ui-page] [data-ui-container][data-inset='6'],
+    [data-ui-page] [data-ui-container][data-inset='7'],
+    [data-ui-page] [data-ui-container][data-inset='8'],
+    [data-ui-page] [data-ui-container][data-inset='9'],
+    [data-ui-page] [data-ui-container][data-inset='10'],
+    [data-ui-page] [data-ui-container][data-inset='11'],
+    [data-ui-page] [data-ui-container][data-inset='12'] {
+      --_inset: var(--slotted-space-4, 0.5rem);
+    }
+  }
+}

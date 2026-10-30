@@ -1,0 +1,90 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+import type { ComponentType } from 'react';
+
+import Example from './Example.astro';
+import FrameworkCode from './FrameworkCode.astro';
+import Installation from './reference/Installation.astro';
+import Sections from './reference/Sections.astro';
+import Docs from '../layouts/Docs.astro';
+import { familyCatalog } from '../lib/catalog';
+import { familyReference } from '../lib/reference';
+import { componentOf, type AngularExampleModule } from '../runtime/angular-component';
+import { renderAngular } from '../runtime/angular.server';
+import { byExampleId, FRAMEWORK_LABELS, type Framework } from '../runtime/frameworks';
+import { renderReact } from '../runtime/react.server';
+
+type Loaders<Module> = Record<string, () => Promise<Module>>;
+
+interface Props {
+  entry: CollectionEntry<'components'>;
+  framework: Framework;
+  /**
+   * This family's examples, globbed by the route file the generator wrote. The
+   * build gives a page the stylesheets of every module its route reaches, so a
+   * registry of every example handed every page every family's CSS.
+   */
+  examples: {
+    react: Loaders<{ default: ComponentType }>;
+    angular: Loaders<AngularExampleModule>;
+  };
+}
+
+const { entry, framework, examples } = Astro.props;
+const react = byExampleId(examples.react);
+const angular = byExampleId(examples.angular);
+
+Astro.locals.family = entry.id;
+Astro.locals.renderExample = async (id: string) => {
+  if (framework === 'react') {
+    const load = react.get(id);
+    if (!load) throw new Error(`No React example "${id}" in ${entry.id}`);
+    return renderReact((await load()).default, id);
+  }
+  const load = angular.get(id);
+  if (!load) throw new Error(`No Angular example "${id}" in ${entry.id}`);
+  return renderAngular(componentOf(await load(), id), id);
+};
+
+const { Content, headings } = await render(entry);
+const reference = await familyReference(framework, entry.id);
+/* The untitled region above the first section is a section too: the title names it.
+   The MDX places Installation after its lead example; the reference follows the body. */
+const toc = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'installation', label: 'Installation' },
+  ...headings
+    .filter((heading) => heading.depth === 2)
+    .map((heading) => ({ id: heading.slug, label: heading.text })),
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'api', label: 'API' },
+  { id: 'theming', label: 'Theming' },
+];
+
+const frameworkHrefs = {
+  react: `/react/components/${entry.id}/`,
+  angular: `/angular/components/${entry.id}/`,
+};
+---
+
+<Docs
+  title={`${entry.data.title} — ${FRAMEWORK_LABELS[framework]}`}
+  description={entry.data.description}
+  framework={framework}
+  frameworkHrefs={frameworkHrefs}
+  toc={toc}
+  markdownHref={`/${framework}/components/${entry.id}.md`}
+>
+  <nav class="docs-crumbs" aria-label="Breadcrumb">
+    <a href={`/${framework}/components/${entry.id}/`}>Components</a>
+    <span aria-hidden="true">/</span>
+    <span>{familyCatalog(entry.id).group}</span>
+  </nav>
+  <h1 id="overview">{entry.data.title}</h1>
+  <p class="docs-lead">{entry.data.description}</p>
+  <div class="docs-prose">
+    <Content components={{ Example, FrameworkCode, Installation }} />
+    <Sections framework={framework} title={entry.data.title} reference={reference} />
+  </div>
+</Docs>

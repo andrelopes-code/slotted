@@ -1,0 +1,854 @@
+{
+  "schemaVersion": 5,
+  "family": "upload",
+  "ui": "upload",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Picks or drops files and shows their progress."
+  },
+  "pattern": null,
+  "patternStatus": "There is no upload, no dropzone and no drag-and-drop pattern in the WAI-ARIA Authoring Practices. The index at https://www.w3.org/WAI/ARIA/apg/patterns/ was read on 10 September 2026 and lists none of the three. The platform supplies the control and the four sources below settle the rest; a family that wrote \"checked against APG\" here would be citing a page that does not exist.",
+  "sources": [
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/file",
+      "title": "<input type=\"file\">",
+      "settles": "The control, its keyboard, its accessible name through an enclosing label, form association and submission, accept, multiple, capture and webkitdirectory."
+    },
+    {
+      "url": "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
+      "title": "Button Pattern",
+      "settles": "Every per-item control: a real button element, Enter and Space activate it, and each carries an accessible name."
+    },
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements.html",
+      "title": "Understanding SC 2.5.7 Dragging Movements",
+      "settles": "Every action reachable by dragging is reachable by a single pointer action that is not a drag. The trigger inside the region is that action."
+    },
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html",
+      "title": "Understanding SC 4.1.3 Status Messages",
+      "settles": "A file arriving, failing or finishing is a status change that does not take focus, so it is announced without moving focus."
+    }
+  ],
+  "roles": {
+    "root": null,
+    "list": "list, from the native ul",
+    "item": "listitem, from the native li",
+    "progress": "progressbar, from the composed progress-indicator"
+  },
+  "composes": ["files", "upload", "state", "live-announcer", "removal-focus"],
+  "composesFamilies": ["dialog", "field", "progress-indicator"],
+  "anatomy": {
+    "labelledBy": "trigger",
+    "trigger": "label",
+    "control": "input",
+    "describedBy": "description",
+    "hidden": "clip",
+    "hiddenReason": "The input is removed from sight with the clip technique and from nothing else: display:none and visibility:hidden take it out of the tab order and out of the accessibility tree, which discards the reason the label pairing exists. Stretching a transparent input across the region takes the drop away from the region and makes the drag state unobservable.",
+    "reason": "The label is around the trigger rather than around the whole region. The input's accessible name is then the trigger's own text — three words — instead of every word inside the box, so the guidance can be as long as the product needs and reaches the input as aria-describedby. It also removes a button nested inside a label, which opens the picker twice. The wave-2 family put the label around the region and had to write a warning telling the next author to keep the region's text short; a warning a reader has to obey is a defect with documentation on it.",
+    "ringDrawnBy": "trigger, through :has(:focus-visible), because what is focused is one clipped pixel"
+  },
+  "dragging": {
+    "alternative": "trigger",
+    "alternativeReason": "Drag and drop is pointer-only and cannot be made otherwise. WCAG 2.2 SC 2.5.7 asks for a single-pointer alternative to every dragging action, and the trigger is it: it sits inside the region, it is a real control, and it is the accessible path the keyboard already has.",
+    "depthCounted": true,
+    "depthReason": "dragenter and dragleave fire for every element the pointer crosses, so a drag moving from the region onto a child fires dragleave on the region. Clearing the state there makes the highlight flicker across the whole zone, which is the single most common defect in a hand-written dropzone. dragenter increments, dragleave decrements, the state clears at nought, and drop resets it outright because no dragleave follows a drop.",
+    "cancelsDragOver": true,
+    "cancelReason": "The default action of dragover is to refuse the drop, so a handler that does not cancel it gets no drop at all and the browser navigates to the dropped file instead.",
+    "judgedBeforeDrop": ["kind", "type", "count"],
+    "judgedAfterDrop": ["extension", "size"],
+    "unknownVerdict": "drop-target",
+    "unknownVerdictReason": "DataTransfer.items exposes each item's kind and type during a drag and neither its name nor its size. An accept list of extensions alone can say nothing before the drop, and maxSize can say nothing at all. Painting drop-invalid on a maybe would teach the reader that the red edge means nothing, so what cannot be known is not judged and the refusal happens after the drop, with a message."
+  },
+  "adapter": {
+    "context": {
+      "signal": "an AbortSignal, aborted when the reader cancels or removes the item",
+      "progress": "progress(loaded, total?) — the bytes moved, and the total when it is known",
+      "whenResumed": "resolves at once unless the reader has paused; an adapter that can suspend awaits it between chunks"
+    },
+    "cancellation": "AbortSignal",
+    "holds": [],
+    "reason": "The family calls an adapter and reports what the adapter says. It holds no URL, no method, no header and no credential, which is the boundary the removed wave-2 family drew and this one keeps while gaining the transfer. What send resolves with is kept as `response` and what it rejects with is kept as `error`, and neither is inspected.",
+    "shorthand": "a bare send function is accepted and normalised to { send, pausable: false }, because the common adapter is one function",
+    "builtIn": "createXhrUpload",
+    "builtInReason": "XMLHttpRequest rather than fetch: fetch reports no upload progress, because a streamed request body needs HTTP/2 and duplex: 'half' and is not available across the browsers this library supports. Ant Design, Vaadin and Uppy all ship an XMLHttpRequest sender for the same reason. It lives in @slotted/core/upload, not on the family: six props for one transport is configuration where composition already works.",
+    "pausableFlag": "pausable",
+    "pausableDefault": false,
+    "pausableReason": "One of the nine surveyed implementations pauses — Uppy, because tus resumes. A pause control drawn over a sender that cannot suspend is a control that lies, so the handshake is the adapter's to accept and the part exists only when it declares it. A consumer who writes a resumable adapter and forgets the flag gets no pause control and no error, which both reference pages state beside the adapter contract."
+  },
+  "queue": {
+    "module": "packages/core/src/upload",
+    "entryPoint": "@slotted/core/upload",
+    "entryPointReason": "Outside packages/core/src/index.ts for the two reasons @slotted/core/filter is outside it: both bindings must give byte-identical answers about what a selection is worth, and a family that imports a button should not pull a transfer engine.",
+    "concurrency": 3,
+    "concurrencyReason": "Uppy alone limits parallel transfers. Ant Design and Vaadin start every file at once, which is how twelve files on a slow uplink all stall together.",
+    "stallAfter": 10000,
+    "stallReason": "Vaadin has a `stalled` string in its i18n object and nothing that produces it. The runner marks a run stalled when no progress call arrives inside the window and clears it on the next one, rather than leaving a bar at 43% with nothing to read."
+  },
+  "retry": {
+    "manual": "always available on an errored row, and on the summary for every errored row at once",
+    "automatic": "retries, with retryDelay backing off",
+    "reason": "retries defaults to 0. An upload is a POST, and a POST that succeeded on the server and failed on the response is duplicated by a retry — a second invoice, a second attachment. A library may not choose that for an application. The capability ships for an adapter the consumer knows is idempotent, and the manual control is always present."
+  },
+  "statuses": [
+    "rejected",
+    "ready",
+    "queued",
+    "uploading",
+    "paused",
+    "stalled",
+    "success",
+    "error",
+    "canceled"
+  ],
+  "statusMeanings": {
+    "rejected": "refused by validation; it never entered the queue and has no adapter run",
+    "ready": "accepted, and waiting for the reader because autoUpload is off",
+    "queued": "accepted, waiting for a slot in the concurrency limit",
+    "uploading": "the adapter's send is running",
+    "paused": "running, and suspended at the reader's word",
+    "stalled": "running, and no progress for stallAfter; still uploading underneath",
+    "success": "send resolved",
+    "error": "send rejected, and the retries are spent",
+    "canceled": "the reader stopped it, and the signal was aborted"
+  },
+  "statusActions": {
+    "rejected": ["remove"],
+    "ready": ["start", "remove"],
+    "queued": ["cancel", "remove"],
+    "uploading": ["pause", "cancel"],
+    "paused": ["start", "cancel"],
+    "stalled": ["cancel"],
+    "success": ["remove"],
+    "error": ["retry", "remove"],
+    "canceled": ["start", "remove"]
+  },
+  "statusReason": "Three ways to fail, kept apart. Every surveyed implementation paints one red row for a file refused by validation, a file whose transfer failed and a file the reader stopped, and the reader cannot then tell whether to try again, choose a different file, or do nothing. Each carries its own status, its own reason and its own controls.",
+  "rejectionReasons": [
+    "type",
+    "size",
+    "minSize",
+    "multiple",
+    "maxFiles",
+    "totalSize",
+    "duplicate",
+    "directory",
+    "custom"
+  ],
+  "rejectionReason": "A refused file is reported, never silently dropped and never thrown: silence leaves the reader looking for a file that never appeared, and an exception makes a routine outcome into an error. The reason is the family's and the message is the consumer's, because only they know whether a limit is a policy, a plan or a bug. The catalog holds one sentence per reason (`rejection.<reason>`), and an upload's `messages` replaces any of them.",
+  "duplicates": {
+    "identity": "fileKey — name, size and lastModified, joined, and replaceable per instance",
+    "policies": {
+      "reject": "the second file is refused with the duplicate reason. The default.",
+      "allow": "both are kept",
+      "replace": "the second replaces the first, keeping its place in the list"
+    },
+    "reason": "The wave-2 family refused to detect duplicates because the answer differs by application. That was true, and the answer to it is a policy the application picks rather than no policy at all: Ark reports FILE_EXISTS and Uppy refuses the second, and leaving it out meant every consumer wrote the comparison."
+  },
+  "validity": {
+    "pendingStatuses": ["ready", "queued", "uploading", "paused", "stalled"],
+    "react": "setCustomValidity",
+    "angular": "Validator",
+    "reason": "None of the nine surveyed implementations answers what happens when the form is submitted while the bytes are still moving. The result is a record saved with an attachment that never arrived, and it is invisible until someone opens the record. While any file is pending the control is invalid: React writes setCustomValidity on the clipped input so the native submit is refused on the control the reader can see, and Angular does the same and reports { uploadPending: true } from Validator so a Reactive Form agrees with the DOM.",
+    "cost": "A product that deliberately submits the form and finishes the transfer afterwards has to set pendingBlocksSubmit to false. Opt-out rather than opt-in is the answer that fails loudly, which is what the briefing asks for when two answers are defensible.",
+    "required": "valueMissing from the platform when required and the list is empty; a custom validity for minFiles and maxFiles otherwise"
+  },
+  "announcement": {
+    "channel": "packages/core/src/live-announcer",
+    "liveRegion": false,
+    "politeness": "polite",
+    "announces": ["accepted", "rejected", "error", "canceled", "queue finished"],
+    "silent": ["progress", "the list's initial content"],
+    "reason": "WCAG 2.2 SC 4.1.3: the change reaches assistive technology without taking focus. Progress is not announced — a bar that speaks every event says nothing — and the number is on the row, inside a progress-indicator that carries role=progressbar and its own aria-valuenow, so a reader inspecting the row hears the value on demand. The list is not a live region: the announcer already says what changed, and a second one would read every row again."
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the trigger, then through each row's controls in the order the rows are in",
+      "focus": "the next focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves back through the same controls",
+      "focus": "the previous focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "opens the picker when focus is on the control, and activates the button focus is on otherwise",
+      "focus": "unchanged; the picker returns focus to the control that opened it",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "the same as Enter, which is what the platform gives a file input and a button",
+      "focus": "unchanged",
+      "source": "platform"
+    },
+    {
+      "key": "Ctrl+V / ⌘V",
+      "effect": "adds the files on the clipboard, when allowPaste is on and focus is inside the family",
+      "focus": "unchanged",
+      "source": "family"
+    }
+  ],
+  "focus": {
+    "autoFocus": false,
+    "contained": false,
+    "removal": {
+      "owner": "packages/core/src/focus/removal-focus",
+      "destination": "the same control on the next row, then the same control on the previous row, then the trigger when the list empties",
+      "reason": "A reader clearing four failed rows presses the same key four times, and a focus that fell to the body after the first would make them start again."
+    }
+  },
+  "content": {
+    "truncation": "middle",
+    "removesFromDom": false,
+    "direction": "auto",
+    "reason": "A file name is content the family did not choose. Truncating at the end takes the extension, which is the part that says what the file is, so the stem shrinks with an ellipsis and the extension does not — CSS cannot truncate in the middle, so the split is made at the last dot in the binding and the extension is a part of its own. The whole name stays in the DOM and selectable, which is this repository's standing rule that truncation never removes content. dir=\"auto\" so an Arabic name in a left-to-right page reads in its own direction.",
+    "bidi": "the name and its extension are one bidi-isolated run in the name's own direction, so a Latin name inside a right-to-left page still reads name-then-extension"
+  },
+  "overflow": {
+    "mechanism": "scroll",
+    "unit": "rows",
+    "unlimited": 0,
+    "reason": "A directory selection produces four hundred files, and Ark's own documentation answers that by telling the reader to raise maxFiles. Four hundred rows is not a list a person reads. maxRows sets the list's block size in rows and the platform scrolls it; the summary carries the count. No disclosure and no second state model."
+  },
+  "preview": {
+    "source": "URL.createObjectURL",
+    "appliesTo": ["image/*"],
+    "revokedOn": "item removal and unmount",
+    "fallback": "a mark chosen by media type, from the glyph scale",
+    "reason": "docs/component-features.md §14 requires the revocation by name. Ant Design leaves it to the consumer and Uppy owns a plugin for it; here the family created the URL, so the family revokes it."
+  },
+  "documentDrop": {
+    "published": true,
+    "drawsOverlay": false,
+    "reason": "A file dropped beside the region navigates the browser to that file and loses the form, so one reference-counted document listener cancels dragover and drop outside any upload region — the default in Ark and Chakra. The same listener knows whether a drag carrying files is over the document at all, which a consumer wants and cannot easily get, so it is published. The family draws no full-screen zone: a layer over the whole viewport is the application shell's decision, not a control's."
+  },
+  "consolidates": {
+    "dropzone": "the standalone dropzone family",
+    "button": "the upload button, and the bare trigger a consumer would otherwise hand-roll",
+    "field": "the file-input family — a control-height row with the trigger at the inline start"
+  },
+  "parts": {
+    "root": {
+      "element": "div",
+      "purpose": "carries data-ui, the axes and every state the family paints",
+      "presentWhen": "always"
+    },
+    "label": {
+      "element": "span",
+      "purpose": "the family's own label, for an upload that is not inside a field",
+      "presentWhen": "a label is given and the family is not inside a field"
+    },
+    "description": {
+      "element": "p",
+      "purpose": "the guidance beside the region, and the input's aria-describedby",
+      "presentWhen": "a description is given"
+    },
+    "dropzone": {
+      "element": "div",
+      "purpose": "the drop region: it carries the drag handlers, the verdict and the click forward",
+      "presentWhen": "variant is dropzone"
+    },
+    "trigger": {
+      "element": "label",
+      "purpose": "the control the reader presses, and the accessible name of the input inside it",
+      "presentWhen": "always"
+    },
+    "input": {
+      "element": "input",
+      "purpose": "the native file control: the value, the picker, the name under which it submits",
+      "presentWhen": "always. It is the one part that cannot be substituted, because substituting it removes the family."
+    },
+    "summary": {
+      "element": "div",
+      "purpose": "the counts, the total progress, the remaining time, and the controls that act on every row at once",
+      "presentWhen": "more than one file is in the list"
+    },
+    "clear": {
+      "element": "button",
+      "purpose": "removes every file, cancelling what is in flight",
+      "presentWhen": "the list holds a file and the family is not read-only"
+    },
+    "list": {
+      "element": "ul",
+      "purpose": "the selection",
+      "presentWhen": "the list holds a file"
+    },
+    "item": {
+      "element": "li",
+      "purpose": "one file, and everything said about it",
+      "presentWhen": "per file"
+    },
+    "body": {
+      "element": "div",
+      "purpose": "the column of a row that shrinks: the name line, the bar, and the word for what happened",
+      "presentWhen": "per file. It is the one part of the row with min-inline-size: 0, which is what makes a long name truncate instead of pushing the controls off the end."
+    },
+    "detail": {
+      "element": "div",
+      "purpose": "the second line of a row: the size, then the word for what is happening to the file",
+      "presentWhen": "per file. Everything secondary about a file is on one line under its name, rather than at the far end of it — which is what let the column of sizes move with however many controls each row offered."
+    },
+    "preview": {
+      "element": "span",
+      "purpose": "the thumbnail, or a solid tile in the kind's colour with the kind's mark knocked out of it",
+      "presentWhen": "per file. In the grid layout the tile also carries the extension in words, because a reader hunting the one PDF among nine photographs finds it by the three letters before the silhouette."
+    },
+    "filename": {
+      "element": "span",
+      "purpose": "the name and its extension as one run, laid out in the name's own direction",
+      "presentWhen": "per file. It carries dir=\"auto\": without it the two are separate flex items and a right-to-left page shows a Latin file name as `pdf.claim-form`."
+    },
+    "name": {
+      "element": "span",
+      "purpose": "the file's name, shrinking to an ellipsis before the extension",
+      "presentWhen": "always"
+    },
+    "extension": {
+      "element": "span",
+      "purpose": "the last dot and what follows it, which does not shrink",
+      "presentWhen": "the name has a dot"
+    },
+    "meta": {
+      "element": "span",
+      "purpose": "the size, localised",
+      "presentWhen": "the size is known"
+    },
+    "status": {
+      "element": "span",
+      "purpose": "the word for the row's state, and the reason when it failed",
+      "presentWhen": "the row has passed beyond ready"
+    },
+    "progress": {
+      "element": "div",
+      "purpose": "holds the composed progress-indicator for this row",
+      "presentWhen": "the row is uploading, paused, stalled or complete"
+    },
+    "actions": {
+      "element": "span",
+      "purpose": "the row's controls, and the slot a consumer puts their own in",
+      "presentWhen": "always"
+    },
+    "start": {
+      "element": "button",
+      "purpose": "sends this file, for a row that is ready, paused or canceled",
+      "presentWhen": "the row's status offers it"
+    },
+    "pause": {
+      "element": "button",
+      "purpose": "suspends the run",
+      "presentWhen": "the running adapter declares pausable"
+    },
+    "retry": {
+      "element": "button",
+      "purpose": "sends the file again after a failure",
+      "presentWhen": "the row is in error"
+    },
+    "cancel": {
+      "element": "button",
+      "purpose": "aborts the run and leaves the file in the list",
+      "presentWhen": "the row is queued, uploading, paused or stalled"
+    },
+    "remove": {
+      "element": "button",
+      "purpose": "takes the file out of the list, cancelling its run first",
+      "presentWhen": "the family is not read-only"
+    },
+    "message": {
+      "element": "p",
+      "purpose": "the sentence about this row: why it was refused, or why it failed",
+      "presentWhen": "the row was rejected or is in error"
+    },
+    "viewer": {
+      "element": "div",
+      "purpose": "the full-screen surface the file is previewed on",
+      "presentWhen": "the reader opened a file, and the family composes `dialog` for the layer, the focus containment, the scroll lock and Escape"
+    },
+    "viewerHeader": {
+      "element": "div",
+      "purpose": "the file's name, where it sits in the set, and the controls that act on the viewer",
+      "presentWhen": "with the viewer"
+    },
+    "viewerTitle": {
+      "element": "h2",
+      "purpose": "the file's name, and the viewer's accessible name",
+      "presentWhen": "with the viewer"
+    },
+    "viewerMeta": {
+      "element": "span",
+      "purpose": "the size, the kind, and which of how many",
+      "presentWhen": "with the viewer"
+    },
+    "viewerActions": {
+      "element": "span",
+      "purpose": "the slot a consumer puts their own viewer controls in",
+      "presentWhen": "with the viewer"
+    },
+    "viewerExternal": {
+      "element": "button",
+      "purpose": "opens the file in a new tab, for a reader who wants the browser's own full window",
+      "presentWhen": "with the viewer"
+    },
+    "viewerClose": {
+      "element": "button",
+      "purpose": "closes the viewer",
+      "presentWhen": "with the viewer"
+    },
+    "viewerPrevious": {
+      "element": "button",
+      "purpose": "the previous file the viewer can render",
+      "presentWhen": "more than one file in the set can be rendered"
+    },
+    "viewerNext": {
+      "element": "button",
+      "purpose": "the next file the viewer can render",
+      "presentWhen": "more than one file in the set can be rendered"
+    },
+    "viewerStage": {
+      "element": "div",
+      "purpose": "where the file is rendered, or where the unsupported answer is drawn",
+      "presentWhen": "with the viewer"
+    }
+  },
+  "messages": [
+    "added",
+    "archive",
+    "audio",
+    "cancel",
+    "canceled",
+    "clear",
+    "document",
+    "dropzone",
+    "error",
+    "fileNotice",
+    "finished",
+    "image",
+    "noExtension",
+    "other",
+    "pause",
+    "paused",
+    "pdf",
+    "pending",
+    "presentation",
+    "queued",
+    "ready",
+    "rejected",
+    "rejection.custom",
+    "rejection.directory",
+    "rejection.duplicate",
+    "rejection.maxFiles",
+    "rejection.minSize",
+    "rejection.multiple",
+    "rejection.size",
+    "rejection.totalSize",
+    "rejection.type",
+    "remove",
+    "resume",
+    "retry",
+    "selection",
+    "spreadsheet",
+    "stalled",
+    "start",
+    "success",
+    "summary",
+    "summaryRemaining",
+    "trigger",
+    "uploading",
+    "video",
+    "viewerClose",
+    "viewerExternal",
+    "viewerNext",
+    "viewerMeta",
+    "viewerMetaPosition",
+    "viewerPrevious",
+    "viewerUnsupported"
+  ],
+  "messagesReason": "Every word the family writes or says comes from the catalog of the language in force: the controls, the word for each status and each kind, the sentences about the queue and the sentence for each refusal. An upload lays its own `messages` over them key by key, so an application translates once through its provider and still words one refusal its own way. A row control names the file inside its message (`Remove: {name}`), so a language writes its own order.",
+  "declined": {
+    "fullScreenDrop": {
+      "composition": "the document drop guard publishes the drag; the application shell draws the layer it wants",
+      "reason": "Mantine ships Dropzone.FullScreen. A layer over the whole viewport is a decision about the application, not about a control, and the fact it needs is already published."
+    },
+    "downloadAndPreviewActions": {
+      "composition": "<Button variant=\"ghost\" onClick={…} /> inside the actions part",
+      "reason": "Ant Design alone ships onDownload and onPreview. The actions part takes the consumer's own buttons, and naming two of them privileges one arrangement over every other."
+    },
+    "reordering": {
+      "composition": "onFilesChange with a reordered array",
+      "reason": "The consumer owns files. Ant Design's own demonstration of it imports dnd-kit, which is the shape of the answer: a reorder is a list operation, not an upload capability."
+    },
+    "imageEditing": {
+      "deferTo": "a future editor family",
+      "reason": "Uppy owns an image editor and Ant Design points at antd-img-crop. transform is the attachment point, and it runs before a file is accepted."
+    },
+    "resumable": {
+      "deferTo": "the adapter",
+      "reason": "docs/component-features.md §14 assigns chunking, resumable transfer and virus scanning to the adapter by name. signal, progress and whenResumed are everything a resumable sender needs from the control."
+    },
+    "remoteSources": {
+      "deferTo": "the application's own server",
+      "reason": "Uppy's Companion is a server product. Nothing about a Drive picker or a URL fetch is expressible in a component contract."
+    },
+    "beforeUnload": {
+      "composition": "the pending count is published; the application installs its own handler",
+      "reason": "A beforeunload handler is a global side effect and an application policy. Nothing in the surveyed set ships one."
+    }
+  },
+  "axes": {
+    "variant": ["dropzone", "button", "field"],
+    "layout": ["list", "grid"],
+    "size": ["sm", "md", "lg"],
+    "preview": ["auto", "none"],
+    "duplicates": ["reject", "allow", "replace"],
+    "clickToBrowse": [true, false],
+    "allowDrop": [true, false],
+    "allowPaste": [true, false],
+    "preventDocumentDrop": [true, false],
+    "autoUpload": [true, false],
+    "pendingBlocksSubmit": [true, false],
+    "view": ["auto", "none"]
+  },
+  "resolution": {
+    "variant": ["prop", "defaults", "dropzone"],
+    "layout": ["prop", "defaults", "list"],
+    "size": ["prop", "defaults", "md"],
+    "preview": ["prop", "defaults", "auto"],
+    "duplicates": ["prop", "defaults", "reject"],
+    "clickToBrowse": ["prop", "defaults", true],
+    "allowDrop": ["prop", "defaults", true],
+    "allowPaste": ["prop", "defaults", true],
+    "preventDocumentDrop": ["prop", "defaults", true],
+    "autoUpload": ["prop", "defaults", true],
+    "pendingBlocksSubmit": ["prop", "defaults", true],
+    "view": ["prop", "defaults", "auto"]
+  },
+  "provides": {
+    "uploadDefaults": [
+      "variant",
+      "layout",
+      "size",
+      "preview",
+      "view",
+      "duplicates",
+      "clickToBrowse",
+      "allowDrop",
+      "allowPaste",
+      "preventDocumentDrop",
+      "autoUpload",
+      "pendingBlocksSubmit",
+      "adapter",
+      "concurrency",
+      "retries",
+      "retryDelay",
+      "stallAfter",
+      "maxRows",
+      "fileKey"
+    ]
+  },
+  "queueMessage": {
+    "owner": "messages",
+    "kinds": ["summary", "summaryRemaining", "selection", "added", "finished"],
+    "reason": "Every sentence about the queue as a whole — the summary line, the count the field shape shows, the announcement that files arrived and the announcement that the queue finished — is a catalog message with its numbers as slots, so a translated application says \"1 de 2 enviados\" and a plural is written by the language rather than by the binding."
+  },
+  "dataAttributes": {
+    "data-browsable": "on the dropzone while clickToBrowse is on and the family accepts files, which is when a click anywhere in the region opens the picker",
+    "data-status": "on an item, its status",
+    "data-kind": "on a preview, the file kind",
+    "data-extension": "on a preview, the extension in capitals, which the grid layout prints on a tile without a picture"
+  },
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "readonly": "data-readonly",
+    "invalid": "data-invalid",
+    "required": "data-required",
+    "loading": "data-loading",
+    "complete": "data-complete",
+    "dragging": "data-dragging",
+    "drop-target": "data-drop-target",
+    "drop-invalid": "data-drop-invalid"
+  },
+  "stateModel": {
+    "files": {
+      "controlled": "files",
+      "uncontrolled": "defaultFiles",
+      "request": "onFilesChange",
+      "reasons": ["select", "pointer", "keyboard", "remove", "clear", "programmatic"]
+    },
+    "open": {
+      "controlled": "viewing",
+      "uncontrolled": "defaultViewing",
+      "request": "onViewingChange",
+      "reasons": ["pointer", "keyboard", "escape", "outsidePress", "dismiss", "programmatic"]
+    }
+  },
+  "members": {
+    "upload": {
+      "nativeElement": "div",
+      "defaults": {
+        "variant": "dropzone",
+        "layout": "list",
+        "size": "md",
+        "preview": "auto",
+        "duplicates": "reject",
+        "clickToBrowse": true,
+        "allowDrop": true,
+        "allowPaste": true,
+        "preventDocumentDrop": true,
+        "autoUpload": true,
+        "pendingBlocksSubmit": true,
+        "multiple": false,
+        "directory": false,
+        "concurrency": 3,
+        "retries": 0,
+        "retryDelay": 1000,
+        "stallAfter": 10000,
+        "maxRows": 6,
+        "view": "auto"
+      },
+      "capabilities": [
+        "files",
+        "open",
+        "overflow",
+        "removable",
+        "appearance",
+        "arrangement",
+        "size",
+        "content",
+        "disabled",
+        "readOnly",
+        "invalid",
+        "required",
+        "live",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "readonly",
+        "invalid",
+        "required",
+        "loading",
+        "complete",
+        "dragging",
+        "drop-target",
+        "drop-invalid"
+      ],
+      "parts": [
+        "root",
+        "label",
+        "description",
+        "dropzone",
+        "trigger",
+        "input",
+        "summary",
+        "clear",
+        "list",
+        "item",
+        "body",
+        "detail",
+        "preview",
+        "filename",
+        "name",
+        "extension",
+        "meta",
+        "status",
+        "progress",
+        "actions",
+        "start",
+        "pause",
+        "retry",
+        "cancel",
+        "remove",
+        "message",
+        "viewer",
+        "viewerHeader",
+        "viewerTitle",
+        "viewerMeta",
+        "viewerActions",
+        "viewerExternal",
+        "viewerClose",
+        "viewerPrevious",
+        "viewerNext",
+        "viewerStage"
+      ]
+    }
+  },
+  "scenarios": {
+    "upload": [
+      "playground",
+      "variants",
+      "layout",
+      "sizes",
+      "restrictions",
+      "duplicates",
+      "directory",
+      "capture",
+      "paste",
+      "drag-verdict",
+      "transfer",
+      "manual-start",
+      "queue",
+      "retry",
+      "pause",
+      "cancel",
+      "stalled",
+      "previews",
+      "viewer",
+      "kinds",
+      "content",
+      "in-a-form",
+      "states",
+      "keyboard",
+      "composition",
+      "defaults",
+      "adapter"
+    ]
+  },
+  "viewing": {
+    "trigger": "the file's own name, and in the grid layout its tile as well",
+    "triggerReason": "A reader who has just attached a scan clicks the scan. Every product they already use opens the file from its name, so a separate control with an eye on it was a third affordance for an action the name already implies — and one more thing in a row that has enough in it.",
+    "surface": "dialog, modal, full screen",
+    "types": {
+      "image/*": "an img, at its own size up to the stage",
+      "application/pdf": "a sandboxed iframe, which is the browser's own viewer",
+      "text/*": "a sandboxed iframe",
+      "video/*": "a video element with the platform's controls",
+      "audio/*": "an audio element with the platform's controls"
+    },
+    "sandbox": "every iframe carries `sandbox` with neither `allow-scripts` nor `allow-same-origin`",
+    "sandboxReason": "An object URL inherits the origin of the document that created it. A file the reader dropped is content this application did not write, and a `text/html` file rendered in an unsandboxed iframe would run its script against the application's own origin, with its cookies and its storage. The sandbox is what makes previewing an arbitrary file safe, and it is not an option: the family writes it always.",
+    "unsupported": "the kind's own tile at the size of the stage, and one sentence saying the file cannot be shown here. The name and the control that opens it in a new tab are in the header, where they are for every other file, so the stage says the one thing that is different about this one.",
+    "navigation": "previous and next move through the files the viewer can render, skipping the ones it cannot, and the header says which of how many",
+    "keyboard": [
+      {
+        "key": "Escape",
+        "effect": "closes the viewer",
+        "focus": "the name that opened it",
+        "source": "dialog"
+      },
+      {
+        "key": "ArrowLeft",
+        "effect": "the previous viewable file",
+        "focus": "unchanged",
+        "source": "family"
+      },
+      {
+        "key": "ArrowRight",
+        "effect": "the next viewable file",
+        "focus": "unchanged",
+        "source": "family"
+      },
+      {
+        "key": "Home",
+        "effect": "the first viewable file",
+        "focus": "unchanged",
+        "source": "family"
+      },
+      {
+        "key": "End",
+        "effect": "the last viewable file",
+        "focus": "unchanged",
+        "source": "family"
+      }
+    ],
+    "revocation": "the object URL is the row's own, created when the row enters the list and revoked when it leaves. The viewer creates nothing and revokes nothing.",
+    "declined": {
+      "newTab": "It was the first answer and it was the wrong one: a preview that leaves the page loses the form the reader was filling in. The tab is kept as the escape hatch inside the viewer, where a PDF is better read in the browser's own full window.",
+      "editing": "Cropping, rotating and annotating are an editor. `transform` is where an editor attaches, before a file is accepted.",
+      "office": "A `.docx` or `.xlsx` cannot be rendered by a browser, and rendering one needs a server or a megabyte of engine. Those kinds show the unsupported stage, which is the honest answer."
+    }
+  },
+  "kinds": {
+    "pdf": {
+      "glyph": "file-text",
+      "tile": "--slotted-upload-kind-pdf",
+      "matches": ["application/pdf"]
+    },
+    "document": {
+      "glyph": "file-type",
+      "tile": "--slotted-upload-kind-document",
+      "matches": ["text/*", ".doc", ".docx", ".odt", ".rtf", ".pages"]
+    },
+    "spreadsheet": {
+      "glyph": "file-spreadsheet",
+      "tile": "--slotted-upload-kind-spreadsheet",
+      "matches": [".xls", ".xlsx", ".ods", ".csv", ".tsv", ".numbers"]
+    },
+    "presentation": {
+      "glyph": "presentation",
+      "tile": "--slotted-upload-kind-presentation",
+      "matches": [".ppt", ".pptx", ".odp", ".key"]
+    },
+    "image": {
+      "glyph": "file-image",
+      "tile": "--slotted-upload-kind-image",
+      "matches": ["image/*"]
+    },
+    "video": {
+      "glyph": "file-video",
+      "tile": "--slotted-upload-kind-video",
+      "matches": ["video/*"]
+    },
+    "audio": {
+      "glyph": "file-audio",
+      "tile": "--slotted-upload-kind-audio",
+      "matches": ["audio/*"]
+    },
+    "archive": {
+      "glyph": "file-archive",
+      "tile": "--slotted-upload-kind-archive",
+      "matches": [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"]
+    },
+    "other": {
+      "glyph": "file",
+      "tile": "--slotted-upload-kind-other",
+      "matches": []
+    }
+  },
+  "kindsReason": "A solid tile in the file's own colour with the mark knocked out of it, which is the treatment a file gets in every product a reader already uses. The colours are the ones they have already learnt — a PDF red, a word-processed document blue, a spreadsheet green, a deck orange, a film indigo — and they are a scale of the theme's, `--slotted-upload-kind-*`, rather than five tones stretched over nine kinds: the theme holds no second blue and no indigo, and reaching for `danger` to paint a PDF would make one tone mean the file's kind and the row's failure in a family that draws both at once. The scale, its values and its measurements are under **File kind** in `docs/token-foundation.md`. PDF and document are two kinds because they are the pair a reader most often has to tell apart, and the world has already given them different colours. A tinted row keeps its tiles. The rule was the other way round for one capture — the status taking the tile's colour — and it cost the reader the answer to the question the row was asking: a refused archive turned red on the row whose message says archives are not accepted. The status has four signals already, and every kind clears 4.03 : 1 against a failed row's ground in light, 6.46 : 1 in dark and 8.31 : 1 in high-contrast.",
+  "inField": {
+    "suppresses": ["label", "description", "message"],
+    "inherits": ["size", "disabled", "readOnly", "invalid", "required"],
+    "reason": "A field owns the label row, the description, the necessity mark and the error slot for every control in this library. An upload inside one that drew its own would put two labels on one control and two messages under it, and the second of each would be the one no other control in the form has. The parts are not removed from the contract — an upload that stands on its own still draws them — they are not rendered while a field is above.",
+    "shape": "`variant=\"field\"` is the control-height row a form expects, and it is the shape `file-input` was. `variant=\"dropzone\"` inside a field is allowed and is what a form with one large attachment area wants; the field's label sits above it as it does above a textarea.",
+    "count": "The family publishes nothing to the field's counter. A field draws a count of characters against a limit, and a count of files against `maxFiles` belongs in the summary, next to the bytes and the time — which is where a reader looking at a queue is already looking.",
+    "list": "In `variant=\"field\"` the frame's `meta` is the whole of a single-file selection — the name and the size, where a text field would show its value — and the list is drawn only when the family holds more than one file, or when a row has something the frame cannot say: a bar, a failure, or a control. A frame naming the file with the same file repeated on a row underneath is the same fact twice, which is what the first capture of the form scene showed."
+  },
+  "statusActionsReason": "The primary action of the status comes first and the control that takes the row away comes last. Previewing is not among them: the file's own name opens it, which is where a reader already reaches.",
+  "direction": {
+    "mirrored": [
+      "the row's own order: the preview at the inline start, the controls at the inline end",
+      "the size, which sits at the inline end of the name's line",
+      "the bar, which fills from the inline start",
+      "the region's contents, which are laid out logically throughout"
+    ],
+    "notMirrored": [
+      "the upload glyph, an arrow that points up",
+      "the play glyph on the start control",
+      "the rotate-ccw glyph on the retry control"
+    ],
+    "reason": "The play triangle here does not mean *advance a timeline*, which is the reading platforms mirror; it means *send this file*, and mirrored it would point back at the name it belongs to. The counter-clockwise arrow of a retry is a gesture rather than a direction, and the upload arrow points up in every writing direction there is. Nothing else in the family carries a direction, because every measure in it is logical."
+  },
+  "row": {
+    "layout": "a grid of three columns and two rows: the chip, the body and the controls on the first, the message spanning the second",
+    "reason": "The marks are centred on the block they are about. A sentence a failure carries spans a track of its own, so a row that has something to explain grows downwards and moves nothing — where a flex line centred the chip and the controls on a box whose height a two-line message had decided, which reads as wrong however correctly it is centred.",
+    "lines": [
+      "the name and its extension",
+      "the size and the status, on one line",
+      "the message, only on a refusal or a failure"
+    ],
+    "progress": "the row's own bottom edge, positioned against the row and clipped by its corner radius, so a row is the same height waiting, sending or done and progress is readable straight down a list of nine",
+    "surface": "every row carries a surface and a hairline. A file is a thing the reader acts on; before this it was a naked line of text with icons beside it, and only a failed one had a box.",
+    "narrow": "below 26rem the controls drop under the text and the chip spans both rows, because three controls beside a name at 240 pixels leave the name seven characters"
+  },
+  "kindsForeground": "--slotted-upload-kind-foreground",
+  "stateModelReason": "`files` is the selection and `open` is which of them the reader is looking at — the file's key, or nothing. A consumer can own it: a page that deep-links to an attachment opens the viewer on it.",
+  "capabilitiesReason": "`measurement` and `loading` are deliberately not here, and both were until the reference page asked for the props they imply. `measurement` is a quantity the consumer states and the family draws; upload's is measured from the bytes the adapter reports, and the bar that draws it is `progress-indicator`, which holds the word. `loading` is the same shape: there is no `loading` input, because whether anything is moving is the queue's answer rather than the consumer's — the state is in the DOM as `data-loading` and the capability list would have promised a prop that does not exist."
+}

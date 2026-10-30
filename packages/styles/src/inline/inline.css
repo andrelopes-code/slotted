@@ -1,0 +1,149 @@
+@layer slotted.components {
+  /**
+   * Inline arranges its children along the inline axis and lets them wrap. It
+   * paints nothing: a layout that carried a colour would be a surface, and a
+   * surface is another family's decision.
+   *
+   * Wrapping is the default because a row that cannot wrap has only one answer
+   * to a container narrower than its content, and that answer is to overflow
+   * it. The separation defaults to a step below the line height of the default
+   * type step, so a run of items reads as one line rather than as a list laid
+   * sideways.
+   */
+  [data-ui-inline] {
+    --_gap: var(--slotted-space-4, 0.5rem);
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--_gap);
+    /**
+     * A flex or grid item is at least as wide as its content unless it is told
+     * otherwise, so a run nested in one would refuse to narrow below its widest
+     * child and push the layout past the edge instead of reflowing.
+     */
+    min-inline-size: 0;
+  }
+
+  /* Separation is a step on the scale, never a length the consumer states. */
+  [data-ui-inline][data-gap='0'] {
+    --_gap: 0;
+  }
+
+  [data-ui-inline][data-gap='1'] {
+    --_gap: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-inline][data-gap='2'] {
+    --_gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-inline][data-gap='3'] {
+    --_gap: var(--slotted-space-3, 0.375rem);
+  }
+
+  [data-ui-inline][data-gap='4'] {
+    --_gap: var(--slotted-space-4, 0.5rem);
+  }
+
+  [data-ui-inline][data-gap='5'] {
+    --_gap: var(--slotted-space-5, 0.75rem);
+  }
+
+  [data-ui-inline][data-gap='6'] {
+    --_gap: var(--slotted-space-6, 1rem);
+  }
+
+  [data-ui-inline][data-gap='7'] {
+    --_gap: var(--slotted-space-7, 1.25rem);
+  }
+
+  [data-ui-inline][data-gap='8'] {
+    --_gap: var(--slotted-space-8, 1.5rem);
+  }
+
+  [data-ui-inline][data-gap='9'] {
+    --_gap: var(--slotted-space-9, 2rem);
+  }
+
+  [data-ui-inline][data-gap='10'] {
+    --_gap: var(--slotted-space-10, 2.5rem);
+  }
+
+  [data-ui-inline][data-gap='11'] {
+    --_gap: var(--slotted-space-11, 3rem);
+  }
+
+  [data-ui-inline][data-gap='12'] {
+    --_gap: var(--slotted-space-12, 4rem);
+  }
+
+  /**
+   * `align` positions children across the flow, which for a run is the block
+   * axis. `baseline` is offered here and nowhere else: items sitting on one
+   * line can share a baseline, and a label beside a badge reads wrong without
+   * it.
+   */
+  [data-ui-inline][data-align='start'] {
+    align-items: start;
+  }
+
+  [data-ui-inline][data-align='center'] {
+    align-items: center;
+  }
+
+  [data-ui-inline][data-align='end'] {
+    align-items: end;
+  }
+
+  [data-ui-inline][data-align='stretch'] {
+    align-items: stretch;
+  }
+
+  [data-ui-inline][data-align='baseline'] {
+    align-items: baseline;
+  }
+
+  /**
+   * `justify` positions children along the flow, which for a run is the inline
+   * axis. The keywords are the logical ones, so a right-to-left document is the
+   * same component mirrored rather than a second stylesheet.
+   */
+  [data-ui-inline][data-justify='start'] {
+    justify-content: start;
+  }
+
+  [data-ui-inline][data-justify='center'] {
+    justify-content: center;
+  }
+
+  [data-ui-inline][data-justify='end'] {
+    justify-content: end;
+  }
+
+  [data-ui-inline][data-justify='between'] {
+    justify-content: space-between;
+  }
+
+  [data-ui-inline][data-justify='around'] {
+    justify-content: space-around;
+  }
+
+  [data-ui-inline][data-justify='evenly'] {
+    justify-content: space-evenly;
+  }
+
+  [data-ui-inline][data-wrap='wrap'] {
+    flex-wrap: wrap;
+  }
+
+  /**
+   * A run that is told not to wrap overflows a container narrower than its
+   * content. That is what the consumer asked for, and it is why the family does
+   * not ask for it on the consumer's behalf.
+   */
+  [data-ui-inline][data-wrap='nowrap'] {
+    flex-wrap: nowrap;
+  }
+}

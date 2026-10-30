@@ -1,0 +1,194 @@
+@switch (session.status()) {
+  @case ('error') {
+    <div class="shell-error" slResultState status="error" reach="page">
+      <div slResultStateContent>
+        <h1 slResultStateTitle>Nexora is unavailable</h1>
+        <p slResultStateDescription>{{ session.error() }}</p>
+      </div>
+      <div slResultStateActions><button slButton (click)="retry()">Retry</button></div>
+    </div>
+  }
+  @default {
+    <div
+      slAppShell
+      [primary]="preset().primary"
+      [canvas]="preset().canvas"
+      [separation]="preset().separation"
+      [class.frame-wash]="preset().wash"
+      navMode="auto"
+      collapsedTo="rail"
+      scroll="content"
+      [(navOpen)]="navOpen"
+    >
+      <!-- A dark region is the scheme on the region, and its ground restated there. -->
+      <header
+        slAppShellBanner
+        [attr.data-slotted-scheme]="preset().darkBanner ? 'dark' : null"
+        [class.painted]="preset().darkBanner"
+      >
+        <app-banner />
+      </header>
+
+      <nav
+        slAppShellNav
+        [attr.data-slotted-scheme]="preset().darkNav ? 'dark' : null"
+        [class.painted]="preset().darkNav"
+      >
+        @if (preset().twoLevel) {
+          <!-- Two levels: the modules in a strip of the rail's own, one module in the column. -->
+          <div slAppShellNavRail aria-label="Modules">
+            @if (organization(); as org) {
+              <span
+                slAvatar
+                shape="square"
+                size="sm"
+                tone="accent"
+                variant="solid"
+                [name]="org.displayName"
+              ></span>
+            }
+            @for (m of modules(); track m.id) {
+              <button
+                slIconButton
+                type="button"
+                size="md"
+                tone="secondary"
+                [variant]="m.id === railModule()?.id ? 'solid' : 'ghost'"
+                [attr.aria-current]="m.id === railModule()?.id ? 'true' : null"
+                [attr.aria-label]="m.label"
+                (click)="pickModule(m)"
+              >
+                <ng-icon [name]="m.icon" />
+              </button>
+            }
+          </div>
+          <div slAppShellNavHeader class="nav-row">
+            <span class="workspace">
+              <span class="workspace-name">{{ railModule()?.label }}</span>
+              <span class="workspace-scope">{{ organization()?.displayName }}</span>
+            </span>
+          </div>
+          <div slAppShellNavBody>
+            @if (session.session() && railModule(); as module) {
+              <div
+                slSideNavigation
+                [attr.aria-busy]="session.status() === 'loading' || null"
+                [value]="current()"
+                (valueChangeRequest)="navigate($event)"
+              >
+                <ul slSideNavigationList>
+                  @for (x of module.destinations; track x.id) {
+                    <li slSideNavigationItem [value]="x.id">
+                      <a slSideNavigationLink [routerLink]="x.path">
+                        <span slSideNavigationLabel>{{ x.label }}</span>
+                        @if (countFor(x); as count) {
+                          <span slSideNavigationCount>{{ count }}</span>
+                        }
+                      </a>
+                    </li>
+                  } @empty {
+                    <li slSideNavigationItem [value]="module.id">
+                      <a slSideNavigationLink [routerLink]="module.path">
+                        <span slSideNavigationIcon><ng-icon [name]="module.icon" /></span>
+                        <span slSideNavigationLabel>{{ module.label }}</span>
+                      </a>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        } @else {
+        <div slAppShellNavHeader class="nav-row">
+          <span class="nav-mark">
+            @if (organization(); as org) {
+              <span
+                slAvatar
+                shape="square"
+                size="sm"
+                tone="accent"
+                variant="solid"
+                [name]="org.displayName"
+              ></span>
+            } @else {
+              <span slSkeleton shape="square" size="sm"></span>
+            }
+          </span>
+          @if (organization(); as org) {
+            <span class="workspace">
+              <span class="workspace-name">{{ org.displayName }}</span>
+              <span class="workspace-scope">{{ scope() }}</span>
+            </span>
+          }
+        </div>
+        <div slAppShellNavBody>
+          <!-- A persona switch reloads the session: the column keeps the destinations it shows and says it is busy. -->
+          @if (session.session()) {
+            <div
+              slSideNavigation
+              [attr.aria-busy]="session.status() === 'loading' || null"
+              [value]="current()"
+              [expanded]="expanded()"
+              (valueChangeRequest)="navigate($event)"
+              autoExpand
+            >
+              @for (section of sections(); track section.id) {
+                <div slSideNavigationSection>
+                  @if (section.label) {
+                    <div slSideNavigationSectionLabel>{{ section.label }}</div>
+                  }
+                  <ul slSideNavigationList>
+                    @for (m of section.modules; track m.id) {
+                      <li slSideNavigationItem [value]="m.id">
+                        @if (m.destinations.length === 0) {
+                          <a slSideNavigationLink [routerLink]="m.path">
+                            <span slSideNavigationIcon><ng-icon [name]="m.icon" /></span>
+                            <span slSideNavigationLabel>{{ m.label }}</span>
+                          </a>
+                        } @else {
+                          <button slSideNavigationTrigger>
+                            <span slSideNavigationIcon><ng-icon [name]="m.icon" /></span>
+                            <span slSideNavigationLabel>{{ m.label }}</span>
+                          </button>
+                          <ul slSideNavigationGroup>
+                            @for (x of m.destinations; track x.id) {
+                              <li slSideNavigationItem [value]="x.id">
+                                <a slSideNavigationLink [routerLink]="x.path">
+                                  <span slSideNavigationLabel>{{ x.label }}</span>
+                                  @if (countFor(x); as count) {
+                                    <span slSideNavigationCount>{{ count }}</span>
+                                  }
+                                </a>
+                              </li>
+                            }
+                          </ul>
+                        }
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+            </div>
+          }
+        </div>
+        }
+        @if (health.degraded()) {
+          <div slAppShellNavFooter class="nav-row">
+            <app-connection-status />
+          </div>
+        }
+      </nav>
+
+      <main slAppShellMain [attr.aria-busy]="session.status() === 'loading' || null">
+        <!--
+          The page stays on screen while a persona switch reloads the session, and is built again
+          once the new session has arrived: its data is read under the persona now signed in.
+        -->
+        @for (generation of [session.loadedAt()]; track generation) {
+          <router-outlet />
+        }
+      </main>
+    </div>
+    <app-shortcuts-dialog />
+  }
+}

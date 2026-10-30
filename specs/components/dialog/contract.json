@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 5,
+  "family": "dialog",
+  "ui": "dialog",
+  "catalog": {
+    "group": "Overlays",
+    "summary": "Modal dialog and alert dialog."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+  "alertPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/",
+  "composes": ["portal", "dismissable-layer", "presence", "focus"],
+  "wiring": {
+    "aria-modal": "true on the content part only while modal is true, because that is the only state in which the family makes the background inert. The APG warns that a dialog marked modal without the background actually being inert has severe consequences for the readers who rely on the mark",
+    "aria-labelledby": "the content names its title part; a consumer who writes their own aria-label instead keeps it, and no title part is rendered",
+    "aria-describedby": "the content names its description part when a description part is present. The modal dialog pattern makes it optional and advises omitting it for structured content, which is what scroll=viewport holds",
+    "alertDescription": "required",
+    "aria-haspopup": "dialog on the trigger of both members",
+    "aria-expanded": "true on the trigger while the layer is open",
+    "aria-controls": "the trigger names the content part",
+    "aria-busy": "true on the body while the family is loading",
+    "role": "dialog on the content part, alertdialog for the alert member"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next tabbable element inside the layer, and wraps from the last to the first while modal",
+      "focus": "the next tabbable element inside the layer",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous tabbable element inside the layer, and wraps from the first to the last while modal",
+      "focus": "the previous tabbable element inside the layer",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Escape",
+      "effect": "asks the topmost layer to close, carrying the reason escape; a layer that refuses stops the request reaching the layer beneath it, so one Escape never closes two",
+      "focus": "returns to the element that held it when the layer opened",
+      "source": "@slotted/core/dismissable-layer"
+    }
+  ],
+  "escapeBound": true,
+  "back": {
+    "mechanism": "one entry of the session history per modal layer, held by @slotted/core/dismissable-layer: pushed on the same URL over the state that was there when the layer opens, and taken back when the layer closes by any other path. A popstate that leaves the entry is the platform's way back — a phone's gesture, a browser's button — and it asks the topmost layer holding an entry to close with the reason back; a layer that refuses puts its entry back, so the page under it stays where it was",
+    "modalOnly": "a non-modal layer holds no entry: the page stays reachable under it, and the way back is the page's",
+    "reason": "On a phone the way back is the one gesture every reader knows, and a modal layer that leaves the page open behind it while the history moves under it is the defect the Nexora demo met first with the command palette. Android's own dialogs, Material's bottom sheets and every native sheet answer the gesture; the browser's history is the only way a web page hears it"
+  },
+  "focus": {
+    "contain": "while modal, from @slotted/core/focus. A non-modal layer contains nothing, because a non-modal dialog is reachable from the page by definition",
+    "initial": "the first tabbable element, the content itself, or an element the consumer names",
+    "restore": "the element that held focus when the layer opened, or its nearest connected ancestor when that element has since left the document",
+    "reason": "The two capabilities docs/component-features.md section 3 asks of packages/core/src/focus and it did not have. They arrive with the first consumer, not with dismissable-layer, which answers whether a layer should still be open"
+  },
+  "reasons": {
+    "trigger": ["pointer", "keyboard"],
+    "close": "dismiss",
+    "cancel": "dismiss",
+    "action": "submit",
+    "escape": "escape",
+    "outsidePress": "outsidePress",
+    "back": "back",
+    "handle": "programmatic"
+  },
+  "result": {
+    "parts": ["close", "cancel", "action"],
+    "reason": "What the platform calls returnValue and Angular Material returns from afterClosed(). It rides on the close request rather than declaring a second state model: nothing about a result is controlled, there is no initial one, and a consumer owning it would own a value only the family can produce"
+  },
+  "anatomy": {
+    "root": "the layer: fixed to the viewport, the query container, and a one-cell grid the backdrop and the viewport are both placed in",
+    "backdrop": "the scrim, in that one cell",
+    "viewport": "the other element in that cell: the box that centres the panel and, under scroll=viewport, the box that scrolls. It is separate from the root because a scrim inside a scrolling box scrolls away with it, and a scrim outside one cannot be a cell of the same grid",
+    "content": "the panel: a three-row grid, auto minmax(0, 1fr) auto; the body takes row 2 and the footer row 3, so a panel without a body or without a header keeps its footer on the last row"
+  },
+  "container": {
+    "name": "slotted-dialog",
+    "element": "root",
+    "fullScreen": 480,
+    "reason": "The layer is the query container and the panel is the descendant it sizes, which is the split docs/build-briefing.md records. The breakpoint is a literal because @container (min-width: var(--x)) is invalid: a container condition cannot hold a custom property"
+  },
+  "scroll": {
+    "content": "the body scrolls; the header and the footer stay",
+    "viewport": "the whole panel scrolls inside the layer, for content that is a document rather than a task",
+    "default": "content",
+    "reason": "The content part is a three-row grid, auto minmax(0, 1fr) auto, inside a bounded block size. Radix and React Aria ship no layout at all, so a long body pushes the footer past the fold and the reader cannot reach Save — which is what the default exists to prevent"
+  },
+  "mount": {
+    "active": "the layer exists only while it is open, and @slotted/core/presence holds it through its own exit; a layer mounted open enters from its closed style, and onOpenChangeComplete (React) / openChangeComplete (Angular) reports true when the entrance has ended and false when the exit has, so a layer rendered conditionally is removed after its exit",
+    "lazy": "the layer is built on the first open and kept afterwards",
+    "eager": "the layer exists from the start and is hidden while closed",
+    "default": "active",
+    "reason": "The default is the opposite of collapsible's, and for the same reason: a disclosure's panel transitions its own height and needs to be in the DOM, while a layer transitions opacity and a transform that presence already keeps mounted. A layer left in the DOM holds its controls in the page tab sequence, which is the defect eager exists to be chosen deliberately"
+  },
+  "fullScreen": {
+    "never": "the panel keeps its margins and its measure at every width",
+    "narrow": "below the container breakpoint the panel fills the layer and loses its radius and its margins",
+    "always": "the panel fills the layer at every width",
+    "default": "narrow",
+    "reason": "docs/component-features.md section 8 asks that a dialog be able to take the screen on mobile, and section 2.7 asks that the responsive mode be testable deterministically. A container query is; a pointer: coarse query is not"
+  },
+  "stateAttributes": {
+    "open": "data-open",
+    "loading": "data-loading",
+    "fullscreen": "data-fullscreen"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "dismiss",
+        "escape",
+        "outsidePress",
+        "back",
+        "submit",
+        "programmatic"
+      ],
+      "result": "the value of the close, cancel or action part that was pressed"
+    },
+    "fullscreen": {
+      "controlled": "fullscreen",
+      "uncontrolled": "defaultFullscreen",
+      "request": "onFullscreenChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg", "xl", "full"],
+    "placement": ["center", "top"],
+    "scroll": ["content", "viewport"],
+    "surface": ["panel", "plain"],
+    "mount": ["active", "lazy", "eager"],
+    "fullScreen": ["never", "narrow", "always"],
+    "modal": [true, false],
+    "escape": ["close", "none"],
+    "outsidePress": ["close", "none"],
+    "back": ["close", "none"],
+    "tone": ["accent", "secondary", "info", "success", "warning", "danger"],
+    "initialFocus": ["first", "container", "cancel"]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "member"],
+    "placement": ["prop", "defaults", "member"],
+    "scroll": ["prop", "defaults", "member"],
+    "surface": ["prop", "defaults", "member"],
+    "mount": ["prop", "defaults", "member"],
+    "fullScreen": ["prop", "defaults", "member"],
+    "modal": ["prop", "defaults", "member"],
+    "escape": ["prop", "defaults", "member"],
+    "outsidePress": ["prop", "defaults", "member"],
+    "back": ["prop", "defaults", "member"],
+    "tone": ["prop", "member"],
+    "initialFocus": ["prop", "member"]
+  },
+  "provides": {
+    "dialogDefaults": [
+      "size",
+      "placement",
+      "scroll",
+      "surface",
+      "mount",
+      "fullScreen",
+      "modal",
+      "escape",
+      "outsidePress",
+      "back"
+    ]
+  },
+  "messages": ["close", "fullScreen"],
+  "declined": {
+    "dialogElement": {
+      "reason": "The platform ships the top layer, ::backdrop, browser-enforced tab containment, browser-enforced inertness, Escape as a cancellable cancel event and returnValue, and none of the six surveyed libraries uses any of it. What decides it here is the top layer itself: an element promoted to it paints above every element in the document regardless of z-index, and every other overlay in this library is portalled to the end of the body and stacked with --slotted-z-index-overlay plus --slotted-layer-depth. A select opened inside a dialog would portal to the body and paint behind the dialog it belongs to, with no z-index able to correct it",
+      "alsoCosts": "closedby, the only declarative light dismiss, is not yet Baseline; ::backdrop is a pseudo-element, so the scrim could not be a data-part a consumer replaces; and animating in and out needs @starting-style, overlay and transition-behavior: allow-discrete, where @slotted/core/presence already completes an exit whose animation event never arrives",
+      "cost": "The family depends on JavaScript for containment, inertness and Escape, where the platform supplies all three; a page with scripting disabled has no dialog at all; and this library maintains a focus trap that browsers already implement",
+      "revisitWhen": "the library's overlay set moves to the top layer as a whole, which is one decision for packages/core and not one for this family"
+    },
+    "dialogService": {
+      "reason": "Angular Material's MatDialog.open(Component) returning a MatDialogRef with afterClosed() exists because Angular had no block control flow and no lazily rendered standalone component when it was designed. With @if and signals the same thing is three lines in the consumer's own template, afterClosed() is the closed output carrying the same result, closeAll() is the consumer's own signal, and data injection is the component's own inputs, checked by the compiler rather than cast from a token",
+      "cost": "Opening a dialog from a service with no template in scope is not possible, and the imperative handle does not recover it. It is written on the Angular reference page"
+    },
+    "scrollStrategy": {
+      "reason": "Angular Material offers block, reposition, close and noop. A dialog is anchored to the viewport rather than to an element, so reposition describes nothing; closing on scroll is a tooltip and popover policy; noop is modal=false, which is already an axis. block is the only one that applies, and it is what the scroll lock does"
+    },
+    "scrollCue": {
+      "reason": "A rule under the header drawn only while the body is actually scrolled needs scroll-state() container queries, which are limited availability — the same ground on which collapsible declined interpolate-size. The header and footer rules are drawn unconditionally instead, and the cost is a rule under a header that has nothing above it to separate"
+    },
+    "dragAndResize": {
+      "deferTo": "floating-window",
+      "reason": "docs/component-features.md section 8 gives a modeless movable window its own Specialized family in wave 8. A modal dialog that can be dragged is a floating window with a scrim"
+    },
+    "edgePlacement": {
+      "deferTo": "drawer",
+      "reason": "docs/process/build-order.md wave 5 item 4. Base UI's own usage guideline says the same: a panel needing gestures or snap points is Drawer, not Dialog"
+    },
+    "positioner": {
+      "reason": "A dialog is anchored to the viewport, not to an element, so there is nothing to position against and no collision to resolve. @slotted/core/positioner is not composed"
+    },
+    "liveAnnouncer": {
+      "reason": "The dialog role announces the layer itself, and a second announcement would be the same message twice"
+    }
+  },
+  "members": {
+    "dialog": {
+      "nativeElement": "div",
+      "role": "dialog",
+      "defaults": {
+        "size": "md",
+        "placement": "center",
+        "scroll": "content",
+        "surface": "panel",
+        "mount": "active",
+        "fullScreen": "narrow",
+        "modal": true,
+        "escape": "close",
+        "outsidePress": "close",
+        "back": "close",
+        "initialFocus": "first",
+        "loading": false,
+        "fullscreenToggle": false
+      },
+      "fixed": {},
+      "capabilities": [
+        "open",
+        "size",
+        "appearance",
+        "placement",
+        "loading",
+        "wiring",
+        "fullscreen"
+      ],
+      "states": ["default", "hover", "active", "focus-visible", "open", "loading", "fullscreen"],
+      "parts": [
+        "root",
+        "trigger",
+        "backdrop",
+        "viewport",
+        "content",
+        "header",
+        "title",
+        "description",
+        "body",
+        "footer",
+        "close",
+        "fullscreen"
+      ]
+    },
+    "alertDialog": {
+      "nativeElement": "div",
+      "role": "alertdialog",
+      "defaults": {
+        "size": "sm",
+        "placement": "center",
+        "scroll": "content",
+        "surface": "panel",
+        "mount": "active",
+        "fullScreen": "never",
+        "modal": true,
+        "escape": "close",
+        "outsidePress": "none",
+        "back": "close",
+        "initialFocus": "cancel",
+        "tone": "danger",
+        "loading": false
+      },
+      "fixed": {
+        "outsidePress": true,
+        "modal": true
+      },
+      "capabilities": ["open", "size", "appearance", "loading", "wiring"],
+      "states": ["default", "hover", "active", "focus-visible", "open", "loading"],
+      "parts": [
+        "root",
+        "trigger",
+        "backdrop",
+        "viewport",
+        "content",
+        "header",
+        "icon",
+        "title",
+        "description",
+        "body",
+        "footer",
+        "cancel",
+        "action"
+      ]
+    }
+  },
+  "scenarios": {
+    "dialog": [
+      "playground",
+      "sizes",
+      "placement",
+      "scroll",
+      "surface",
+      "fullScreen",
+      "modal",
+      "policy",
+      "focus",
+      "loading",
+      "nested",
+      "content",
+      "composition",
+      "layout",
+      "form",
+      "defaults",
+      "accessibility"
+    ],
+    "alertDialog": [
+      "playground",
+      "tones",
+      "actions",
+      "policy",
+      "focus",
+      "content",
+      "composition",
+      "accessibility"
+    ]
+  },
+  "header": {
+    "parts": ["icon", "title", "description", "close", "fullscreen"],
+    "free": "the words column, under the description",
+    "reason": "The header is a three-column grid and the family places four parts in it. Anything else a consumer writes there — a badge beside the title, a breadcrumb, a second line — used to auto-place into whichever cell was free, which is column one when no icon is rendered. Every unplaced child now lands in the words column instead, under the description, so where it goes is a rule rather than an accident of the grid."
+  },
+  "surface": {
+    "panel": "the family paints the panel: surface, border, radius, shadow, and the three rows that keep the footer on screen",
+    "plain": "the family paints nothing at all — no background, no border, no radius, no shadow, no rows and no padding — and the consumer supplies the box. The panel stays at full opacity and its children fade in its place, because in Chromium an ancestor below full opacity draws no backdrop filter inside it: a material the consumer draws blurs from the first frame of the entrance to the last of the exit",
+    "keeps": "plain keeps the whole mechanism: the portal, the scrim, presence, focus containment and restoration, the dismissal policy and the single z-index stack",
+    "default": "panel",
+    "reason": "render substitutes the element the panel is drawn on and not the drawing, so a consumer who wanted the layer without the picture — a media viewer, an image at its own aspect ratio, a card of their own — had no way to say so. It is an axis rather than a second family because everything but the paint is identical, and it is the one place this library differs from a headless one: Radix and Base UI ship no panel at all, so plain is what their Content already is."
+  }
+}

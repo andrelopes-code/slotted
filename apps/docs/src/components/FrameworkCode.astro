@@ -1,0 +1,12 @@
+---
+import { EXAMPLE_LANGUAGES, type Framework } from '../runtime/frameworks';
+import Code from './Code.astro';
+
+/** A snippet written once per framework; the page shows the reader's. */
+type Props = Record<Framework, string>;
+
+const framework = Astro.params['framework'] as Framework;
+const code = Astro.props[framework];
+---
+
+<Code code={code} lang={EXAMPLE_LANGUAGES[framework]} />

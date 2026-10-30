@@ -1,0 +1,951 @@
+@layer slotted.components {
+  /**
+   * ── The row ────────────────────────────────────────────────────────────
+   *
+   * One entry of a `list`. The set decides four things — variant, size, marker
+   * and inset — and hands each one down through the binding as a `data-`
+   * attribute this sheet reads. **No selector here reaches `[data-ui-list]`,
+   * and none there reaches this family**, which is the rule `accordion` and
+   * `collapsible` set for the same relationship.
+   *
+   * **The root is never the interactive element.** `content` is: a `div` for a
+   * row that is read, a `button` for a row that is one command, an `a` for a
+   * row that is one destination. `actions` is `content`'s sibling and never its
+   * child, because interactive content may not nest inside `a` or `button` —
+   * the decision `tag` took for `remove`, taken once here for every row.
+   *
+   * The row draws its own marker. CSS has no `display` that is both
+   * `list-item` and a grid, so a row carrying a trailing control has already
+   * lost the native `::marker`; `list` writes `role="list"` for that reason and
+   * the mark becomes geometry from the glyph scale.
+   *
+   * **Every part is reached with child combinators**, along the anatomy's own
+   * chain: `root > content > start | body | end`, `body > label | description`,
+   * and `root > actions`. A row holds other families, and they reuse these
+   * names — a `tag` in `end` has a `body` and a `label` of its own. Reached by a
+   * descendant selector, the tag's body became a column with its text on the
+   * top edge and its label took the row's line height and weight. Angular puts
+   * each part on the element the page wrote and React renders it as that
+   * element, so the chain in the selectors is the chain in the document.
+   */
+  [data-ui-list-item][data-part-root] {
+    /* Geometry. Every value is the control scale's, because a row is a
+       control-sized thing: one theme decision retunes the rows, the buttons and
+       the fields together, and `@media (pointer: coarse)` grows all three at
+       once without this family writing a rule. */
+    --_min-block: var(--slotted-list-item-min-block-size, var(--slotted-control-height-md, 34px));
+    --_font-size: var(--slotted-list-item-font-size, var(--slotted-control-font-size-md, 13px));
+    --_icon-size: var(--slotted-list-item-icon-size, var(--slotted-control-icon-size-md, 16px));
+    /* The chooser's square, when the leading column holds one: the selection
+       scale `checkbox` draws in, which density does not move. */
+    --_control-size: var(--slotted-list-item-control-size, var(--slotted-selection-size-md, 16px));
+    --_gap: var(--slotted-list-item-gap, var(--slotted-control-gap-md, 8px));
+    --_pad-inline: var(
+      --slotted-list-item-padding-inline,
+      var(--slotted-control-padding-inline-md, 13px)
+    );
+    /**
+     * The block inset is what is left of the control height around one line
+     * of the title, so a one-line row is exactly the control height at every
+     * density — 34, 28 and 26 pixels at `md` — and a row of two lines grows by
+     * its second line and nothing else (LI3). Stated as a step of the space
+     * scale it was eight pixels at every density, and the row stood at 34px in
+     * `dense` as in `comfortable`: the one control on the page that density
+     * did not move. A floor of one space step keeps a row whose text is taller
+     * than its control from losing its inset.
+     */
+    --_pad-block: var(
+      --slotted-list-item-padding-block,
+      max(
+        var(--slotted-space-2, 0.25rem),
+        calc((var(--_min-block) - var(--_font-size) * var(--slotted-line-height-md, 1.5)) / 2)
+      )
+    );
+    --_radius: var(--slotted-list-item-radius, var(--slotted-radius-md, 6px));
+
+    /* Ink. `secondary` is the library's neutral, and a neutral row takes the
+       page's own text colour rather than the tone's: `--slotted-tone-secondary-text`
+       is calibrated on a chip, and a list of forty rows set in it reads as forty
+       pieces of metadata. The other four tones do take their own. */
+    --_text: var(--slotted-list-item-color, var(--slotted-text, CanvasText));
+    --_muted: var(--slotted-list-item-color-muted, var(--slotted-text-muted, GrayText));
+    /* The tone's four steps, named once so a state rule moves between them
+       instead of restating five tones. */
+    --_subtle-hover: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+    --_subtle-active: var(--slotted-tone-secondary-subtle-active, ButtonFace);
+    --_solid-hover: var(--slotted-tone-secondary-solid-hover, ButtonFace);
+    --_solid-active: var(--slotted-tone-secondary-solid-active, ButtonFace);
+    --_surface: var(--slotted-tone-secondary-surface, Canvas);
+    --_hover: var(--slotted-list-item-background-hover, var(--_subtle-hover));
+    --_active: var(--slotted-list-item-background-active, var(--_subtle-active));
+    /* A selected row is the accent ground with the accent ink, and the edge it
+       carries is a one-pixel ring in the accent border. Every tone surface is
+       white in the `high-contrast` scheme, so a selection said with a fill
+       alone is a selection that scheme cannot show — the defect the first
+       high-contrast capture found. `tag` reached for the same answer for the
+       same reason. The pointer states of a selected row are the accent pair's
+       own steps, so hovering a selected row never lands on the surface an
+       unselected hovered row has (R1). */
+    --_selected-edge: var(--slotted-tone-accent-border, ButtonBorder);
+    --_selected-surface: var(
+      --slotted-list-item-background-selected,
+      var(--slotted-tone-accent-surface, Canvas)
+    );
+    --_selected-text: var(--slotted-tone-accent-text, CanvasText);
+    --_selected-hover: var(--slotted-tone-accent-subtle-hover, ButtonFace);
+    --_selected-active: var(--slotted-tone-accent-subtle-active, ButtonFace);
+    /* A current row is the neutral ground with a one-pixel ring in the neutral
+       border, whatever the row's tone: it is where the reader is, not what
+       they chose, and it stays out of the tone's way so a row can be both at
+       once with the selection winning (R1). */
+    --_current-surface: var(
+      --slotted-list-item-background-current,
+      var(--slotted-tone-secondary-surface, Canvas)
+    );
+    --_current-edge: var(--slotted-tone-secondary-border, ButtonBorder);
+    --_rule: var(--slotted-list-item-border-color, var(--slotted-border-subtle, ButtonBorder));
+    --_rule-width: var(--slotted-list-item-border-width, var(--slotted-border-width-thin, 1px));
+    --_marker-size: calc(var(--_icon-size) * 0.75);
+
+    /* The row counts itself, whatever the marker is. Incrementing only under
+       `number` would restart the count the moment an application retuned the
+       axis, and the counter costs nothing when nothing reads it. */
+    box-sizing: border-box;
+    /**
+     * What the row is painted with, and it is the row that is painted rather
+     * than the box inside it. Read on `content`, a selected row with a trailing
+     * control showed a filled box that stopped in the middle of the row and a
+     * seam where `actions` began — half a row highlighted. The row is what is
+     * selected, hovered and pressed; `content` is only where the pointer lands.
+     */
+    --_fill: transparent;
+    /* Two shadows on one element: the rule above the row, and the edge a
+       selected row carries. Named separately so a selected ruled row keeps
+       both, which one `box-shadow` declaration overwriting another would not. */
+    --_rule-shadow: 0 0 0 0 transparent;
+    --_edge-shadow: 0 0 0 0 transparent;
+
+    background-color: var(--_fill);
+    border-radius: var(--_radius);
+    box-shadow: var(--_rule-shadow), var(--_edge-shadow);
+    counter-increment: slotted-list-item;
+    /* The fill and both shadows are one state change and move together. */
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      box-shadow var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+    /* The row answers its own inline size. The set does not: it has no layout
+       that depends on its width, and a container on both would make the row
+       query the set instead of the page. */
+    container-name: slotted-list-item;
+    container-type: inline-size;
+    display: flex;
+    align-items: stretch;
+    /* The row wraps, and only the container query ever makes it: `actions` is
+       given its own line below the breakpoint. Left on one line, a target
+       carrying a word rather than a glyph starved the box beside it — the
+       content shrank to eighty pixels and a one-word timestamp spilled out of
+       the column it was in. */
+    flex-wrap: wrap;
+    list-style: none;
+    min-inline-size: 0;
+  }
+
+  /**
+   * Size is the set's step, handed down. Density is the application's, and it
+   * arrives inside every control token above; the two never multiply, because
+   * this family reads the density-varying token and states no second scale.
+   */
+  [data-ui-list-item][data-size='sm'] {
+    --_min-block: var(
+      --slotted-list-item-min-block-size-sm,
+      var(--slotted-control-height-sm, 30px)
+    );
+    --_font-size: var(--slotted-list-item-font-size-sm, var(--slotted-control-font-size-sm, 12px));
+    --_icon-size: var(--slotted-list-item-icon-size-sm, var(--slotted-control-icon-size-sm, 14px));
+    --_control-size: var(
+      --slotted-list-item-control-size-sm,
+      var(--slotted-selection-size-sm, 14px)
+    );
+    --_gap: var(--slotted-list-item-gap-sm, var(--slotted-control-gap-sm, 6px));
+    --_pad-inline: var(
+      --slotted-list-item-padding-inline-sm,
+      var(--slotted-control-padding-inline-sm, 10px)
+    );
+    --_pad-block: var(
+      --slotted-list-item-padding-block-sm,
+      max(
+        var(--slotted-space-2, 0.25rem),
+        calc((var(--_min-block) - var(--_font-size) * var(--slotted-line-height-md, 1.5)) / 2)
+      )
+    );
+  }
+
+  [data-ui-list-item][data-size='lg'] {
+    --_min-block: var(
+      --slotted-list-item-min-block-size-lg,
+      var(--slotted-control-height-lg, 38px)
+    );
+    --_font-size: var(--slotted-list-item-font-size-lg, var(--slotted-control-font-size-lg, 14px));
+    --_icon-size: var(--slotted-list-item-icon-size-lg, var(--slotted-control-icon-size-lg, 18px));
+    --_control-size: var(
+      --slotted-list-item-control-size-lg,
+      var(--slotted-selection-size-lg, 18px)
+    );
+    --_gap: var(--slotted-list-item-gap-lg, var(--slotted-control-gap-lg, 8px));
+    --_pad-inline: var(
+      --slotted-list-item-padding-inline-lg,
+      var(--slotted-control-padding-inline-lg, 16px)
+    );
+    --_pad-block: var(
+      --slotted-list-item-padding-block-lg,
+      max(
+        var(--slotted-space-2, 0.25rem),
+        calc((var(--_min-block) - var(--_font-size) * var(--slotted-line-height-md, 1.5)) / 2)
+      )
+    );
+  }
+
+  /**
+   * ── Tone ───────────────────────────────────────────────────────────────
+   *
+   * Primer ships one of these — `danger`, for a destructive row — and hides the
+   * rest behind a boolean. The theme here carries all five with the same nine
+   * roles, so shipping one of a scale and calling the other four out of scope
+   * would be the invention rather than the restraint.
+   *
+   * A tone moves three things and no more: the ink of the title and the mark,
+   * the wash under the pointer, and the ground and ink of a selected row. It
+   * never fills a resting row, because a list of rows each filled with a tone
+   * is a list nobody can read. The current row is not the tone's to move.
+   */
+  [data-ui-list-item][data-tone='accent'] {
+    --_text: var(--slotted-tone-accent-text, CanvasText);
+    --_subtle-hover: var(--slotted-tone-accent-subtle-hover, ButtonFace);
+    --_subtle-active: var(--slotted-tone-accent-subtle-active, ButtonFace);
+    --_solid-hover: var(--slotted-tone-accent-solid-hover, ButtonFace);
+    --_solid-active: var(--slotted-tone-accent-solid-active, ButtonFace);
+    --_surface: var(--slotted-tone-accent-surface, Canvas);
+    --_selected-edge: var(--slotted-tone-accent-border, ButtonBorder);
+    --_selected-surface: var(--slotted-list-item-background-selected, var(--_surface));
+    --_selected-text: var(--slotted-tone-accent-text, CanvasText);
+    --_selected-hover: var(--_subtle-hover);
+    --_selected-active: var(--_subtle-active);
+  }
+
+  [data-ui-list-item][data-tone='success'] {
+    --_text: var(--slotted-tone-success-text, CanvasText);
+    --_subtle-hover: var(--slotted-tone-success-subtle-hover, ButtonFace);
+    --_subtle-active: var(--slotted-tone-success-subtle-active, ButtonFace);
+    --_solid-hover: var(--slotted-tone-success-solid-hover, ButtonFace);
+    --_solid-active: var(--slotted-tone-success-solid-active, ButtonFace);
+    --_surface: var(--slotted-tone-success-surface, Canvas);
+    --_selected-edge: var(--slotted-tone-success-border, ButtonBorder);
+    --_selected-surface: var(--slotted-list-item-background-selected, var(--_surface));
+    --_selected-text: var(--slotted-tone-success-text, CanvasText);
+    --_selected-hover: var(--_subtle-hover);
+    --_selected-active: var(--_subtle-active);
+  }
+
+  [data-ui-list-item][data-tone='info'] {
+    --_text: var(--slotted-tone-info-text, CanvasText);
+    --_subtle-hover: var(--slotted-tone-info-subtle-hover, ButtonFace);
+    --_subtle-active: var(--slotted-tone-info-subtle-active, ButtonFace);
+    --_solid-hover: var(--slotted-tone-info-solid-hover, ButtonFace);
+    --_solid-active: var(--slotted-tone-info-solid-active, ButtonFace);
+    --_surface: var(--slotted-tone-info-surface, Canvas);
+    --_selected-edge: var(--slotted-tone-info-border, ButtonBorder);
+    --_selected-surface: var(--slotted-list-item-background-selected, var(--_surface));
+    --_selected-text: var(--slotted-tone-info-text, CanvasText);
+    --_selected-hover: var(--_subtle-hover);
+    --_selected-active: var(--_subtle-active);
+  }
+
+  [data-ui-list-item][data-tone='warning'] {
+    --_text: var(--slotted-tone-warning-text, CanvasText);
+    --_subtle-hover: var(--slotted-tone-warning-subtle-hover, ButtonFace);
+    --_subtle-active: var(--slotted-tone-warning-subtle-active, ButtonFace);
+    --_solid-hover: var(--slotted-tone-warning-solid-hover, ButtonFace);
+    --_solid-active: var(--slotted-tone-warning-solid-active, ButtonFace);
+    --_surface: var(--slotted-tone-warning-surface, Canvas);
+    --_selected-edge: var(--slotted-tone-warning-border, ButtonBorder);
+    --_selected-surface: var(--slotted-list-item-background-selected, var(--_surface));
+    --_selected-text: var(--slotted-tone-warning-text, CanvasText);
+    --_selected-hover: var(--_subtle-hover);
+    --_selected-active: var(--_subtle-active);
+  }
+
+  [data-ui-list-item][data-tone='danger'] {
+    --_text: var(--slotted-tone-danger-text, CanvasText);
+    --_subtle-hover: var(--slotted-tone-danger-subtle-hover, ButtonFace);
+    --_subtle-active: var(--slotted-tone-danger-subtle-active, ButtonFace);
+    --_solid-hover: var(--slotted-tone-danger-solid-hover, ButtonFace);
+    --_solid-active: var(--slotted-tone-danger-solid-active, ButtonFace);
+    --_surface: var(--slotted-tone-danger-surface, Canvas);
+    --_selected-edge: var(--slotted-tone-danger-border, ButtonBorder);
+    --_selected-surface: var(--slotted-list-item-background-selected, var(--_surface));
+    --_selected-text: var(--slotted-tone-danger-text, CanvasText);
+    --_selected-hover: var(--_subtle-hover);
+    --_selected-active: var(--_subtle-active);
+  }
+
+  /**
+   * ── The marker ─────────────────────────────────────────────────────────
+   *
+   * A character is never an icon — `docs/token-foundation.md` rule 3 — so the
+   * bullet is the library's own dot `Glyph`, an `<svg>` the binding draws in a
+   * `marker` part before the row's content and in the row's ink, not a `•` in a
+   * `content` string that changes shape with the reader's font.
+   *
+   * The number is a counter and stays text, because it is text: a reader hears
+   * "one" before the row, which is what the native marker said. It is the
+   * root's own `::before`, which stands in the same column the bullet's part
+   * does.
+   *
+   * The column is one line tall rather than the row's own height, so the mark
+   * sits on the title's line in a row of three lines instead of floating in the
+   * middle of the block.
+   */
+  [data-ui-list-item][data-marker='bullet'] > [data-part-marker],
+  [data-ui-list-item][data-marker='number']::before {
+    /* The mark sits on the title's first line and never in the middle of the
+       block, whatever `align` says. `align` is about the leading visual — an
+       avatar beside three lines of text belongs with the title or with the
+       block, and both readings are defensible — while a list marker has only
+       one reading, and it is the platform's own. The first capture centred a
+       bullet between two lines and read as a bullet nobody had placed. */
+    align-items: start;
+    /* One line tall, stated rather than stretched. The mark's own box holds no
+       text, so a row that wraps gave it the height of its padding alone and the
+       dot disappeared — the numbered marker survived only because its digits
+       gave it a height of their own. */
+    block-size: calc(
+      var(--_pad-block) * 2 + var(--_font-size) * var(--slotted-line-height-md, 1.5)
+    );
+    box-sizing: border-box;
+    /* The row's ink, not its muted step: a marker is part of what the row says,
+       which is why the browser's own `::marker` inherits `color`. */
+    color: var(--_text);
+    display: flex;
+    flex: none;
+    font-size: var(--_font-size);
+    /* A ten beside a nine is only a column if the digits are the same width. */
+    font-variant-numeric: tabular-nums;
+    /* The column is the glyph's own width and the gap beside it is the control
+       scale's, so the mark and the leading visual of the row below stand in one
+       column and the text starts on one line. Read as one box with the gap
+       inside it, the number and the title had nothing between them. */
+    inline-size: var(--_icon-size);
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin-inline-end: var(--_gap);
+    margin-inline-start: var(--_pad-inline);
+    padding-block-start: var(--_pad-block);
+  }
+
+  [data-ui-list-item][data-marker='bullet'] > [data-part-marker] {
+    --slotted-icon-size: var(--_marker-size);
+    justify-content: center;
+  }
+
+  /* The dot is placed on the middle of the first line rather than on the
+     middle of the part, because the part is one line and its padding tall and
+     the dot has no baseline to sit on. Half the line less half the dot, so the
+     dot stands between the baseline and the cap line rather than on either. */
+  [data-ui-list-item][data-marker='bullet'] > [data-part-marker] > [data-ui-icon] {
+    margin-block-start: calc(
+      var(--_font-size) * var(--slotted-line-height-md, 1.5) * 0.5 - var(--_marker-size) * 0.5
+    );
+  }
+
+  [data-ui-list-item][data-marker='number']::before {
+    content: counter(slotted-list-item) '.';
+    justify-content: end;
+  }
+
+  /* The mark already stands in its own gutter, so the box beside it gives up
+     the padding it would otherwise repeat. */
+  [data-ui-list-item]:is([data-marker='bullet'], [data-marker='number']) > [data-part-content] {
+    padding-inline-start: 0;
+  }
+
+  /* `inset` is the set's answer for a list inside a box that already pads its
+     own content. The mark gives up its gutter with everything else. */
+  [data-ui-list-item][data-inset][data-marker='bullet'] > [data-part-marker],
+  [data-ui-list-item][data-inset][data-marker='number']::before {
+    margin-inline-start: 0;
+  }
+
+  /**
+   * ── The box that is read, and sometimes activated ──────────────────────
+   *
+   * Three columns: the leading visual, the text, and the metadata that belongs
+   * to what the row says. Each gap is a margin on the optional part rather than
+   * a `column-gap` on the grid, because a gap between two empty tracks is still
+   * a gap — a row with no leading visual would start one gap in from every row
+   * that has one.
+   *
+   * The reset is what makes a `button` and an `a` the same box as a `div`: a
+   * consumer choosing between the three chooses an accessibility tree, never a
+   * different picture.
+   */
+  [data-ui-list-item] > [data-part-content] {
+    appearance: none;
+    background-color: transparent;
+    border: none;
+    /* The row's corners, so the focus ring follows the shape the reader sees
+       rather than a rectangle inside it. */
+    border-radius: inherit;
+    /* The floor is a border-box height, not a content-box one. Read as content
+       the row stood fifty pixels tall for one line of thirteen-pixel text: the
+       padding was counted twice, once by the box and once by the floor. */
+    box-sizing: border-box;
+    color: var(--_text);
+    display: grid;
+    /* A basis of nought rather than of its content. Flex wraps before it
+       shrinks, so a box whose basis is its own text pushed itself onto a second
+       line the moment the row was narrow — the marker stood alone above its
+       own title at 240 pixels. With nothing to wrap, only the item that asks
+       for a whole line gets one, which is what `actions` does below the
+       breakpoint. */
+    flex: 1 1 0%;
+    font: inherit;
+    font-size: var(--_font-size);
+    grid-template-areas: 'start body end';
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    min-block-size: var(--_min-block);
+    min-inline-size: 0;
+    padding-block: var(--_pad-block);
+    padding-inline: var(--_pad-inline);
+    text-align: start;
+    text-decoration: none;
+    transition: color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+      var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  /**
+   * A variant that draws a line between rows wants a square fill, because a
+   * rounded wash inside a full-bleed rule fights the line it sits on. The two
+   * variants that draw no line — a plain run of rows, and a row that is its own
+   * surface — round it, which is what a selected row in a sidebar looks like
+   * everywhere it is done well.
+   *
+   * `framed` clips its own corners at the set, so the first and last rows are
+   * rounded by the box rather than by themselves.
+   */
+  [data-ui-list-item]:is([data-variant='ruled'], [data-variant='framed']) {
+    border-radius: 0;
+  }
+
+  /* A row whose whole box resolves somewhere, or runs a command, is a target
+     and the pointer says so. A row that is only read keeps the arrow. */
+  [data-ui-list-item]:not([data-disabled]) > :is(a, button)[data-part-content]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* `inset` takes the row's inline padding away so a list inside a padded box
+     lines its titles up with the box. The fill and the rule still run edge to
+     edge, which is the half MUI's `disableGutters` leaves out. */
+  [data-ui-list-item][data-inset] > [data-part-content] {
+    padding-inline: 0;
+  }
+
+  /**
+   * `start` for a row of one line, and for a row of three the leading visual
+   * belongs beside the title rather than in the middle of the block. MUI calls
+   * the same decision `alignItems`; Angular Material derives it from counting
+   * the lines, which is a count a translated string can change.
+   */
+  [data-ui-list-item][data-align='start'] > [data-part-content] {
+    align-items: start;
+  }
+
+  [data-ui-list-item] > [data-part-content] > [data-part-start] {
+    align-items: center;
+    color: var(--_text);
+    display: flex;
+    flex: none;
+    grid-area: start;
+    margin-inline-end: var(--_gap);
+    /* The column is the control glyph's, so an icon, an avatar and a checkbox
+       each land on the same line however tall they are. */
+    min-inline-size: var(--_icon-size);
+  }
+
+  /**
+   * A chooser in the leading column (LI2). `checkbox` lifts its own box onto
+   * the first line of the text beside it — the same line box this row sets
+   * its title in, at the same step — so the column only has to stand at the
+   * top of that line and be as tall as it: the box then sits on the title's
+   * centre by the chooser's own arithmetic rather than by a second one here.
+   * Centred on the block, as an icon is, a one-line row put the box a pixel
+   * low and a two-line row put it between the lines.
+   *
+   * The column is the chooser's own square, fixed across densities as the
+   * chooser is (CK1); the gap beside it is the row's control gap, the same
+   * distance the chooser puts between its box and its own label.
+   */
+  [data-ui-list-item] > [data-part-content] > [data-part-start]:has(> [data-ui-checkbox]) {
+    align-items: start;
+    inline-size: var(--_control-size);
+    min-block-size: calc(var(--_font-size) * var(--slotted-line-height-md, 1.5));
+  }
+
+  /* A leading visual beside a three-line row sits on the title's line, and the
+     line is the box's own, not the block's. */
+  [data-ui-list-item][data-align='start'] > [data-part-content] > [data-part-start] {
+    min-block-size: calc(var(--_font-size) * var(--slotted-line-height-md, 1.5));
+  }
+
+  /**
+   * The text column, and the one box in the row that may shrink. Without
+   * `min-inline-size: 0` a flex or grid item refuses to go below its longest
+   * word, so a title that is one unbroken token — a URL, a commit hash — pushes
+   * the metadata out of the row instead of breaking inside it.
+   */
+  [data-ui-list-item] > [data-part-content] > [data-part-body] {
+    display: flex;
+    flex-direction: column;
+    grid-area: body;
+    min-inline-size: 0;
+    row-gap: var(--slotted-list-item-body-gap, var(--slotted-space-1, 0.125rem));
+  }
+
+  [data-ui-list-item] > [data-part-content] > [data-part-body] > [data-part-label] {
+    color: inherit;
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-list-item-font-weight, var(--slotted-font-weight-regular, 400));
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin-block: 0;
+    min-inline-size: 0;
+    /* A single unbroken token breaks inside the row rather than widening it.
+       No surveyed implementation does this; MUI's `ListItemText` overflows. */
+    overflow-wrap: anywhere;
+    /* `plaintext` rather than `isolate`: a row is a run of content, so a title
+       in another script takes its own paragraph direction and leaves the row
+       around it alone. */
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-list-item] > [data-part-content] > [data-part-body] > [data-part-description] {
+    color: var(--_muted);
+    font-size: var(--slotted-list-item-description-font-size, var(--slotted-font-size-xs, 0.75rem));
+    line-height: var(--slotted-line-height-sm, 1.45);
+    margin-block: 0;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+
+  /**
+   * `truncate` clips the title and the lines under it to one line each. Both,
+   * rather than the title alone: a clipped title over a description wrapping to
+   * four lines is a row that gave up on one measure and not the other.
+   *
+   * The content stays in the DOM, which is the briefing's standing decision — a
+   * truncated string is still readable to assistive technology and still
+   * reachable in full when the row is opened.
+   */
+  [data-ui-list-item][data-truncate]
+    > [data-part-content]
+    > [data-part-body]
+    > :is([data-part-label], [data-part-description]) {
+    overflow: hidden;
+    overflow-wrap: normal;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /**
+   * The metadata that belongs to what the row says — a timestamp, a count, a
+   * badge. It is inside `content`, so it is part of the row's own name for a
+   * reader and part of its target for a pointer. Anything that acts is
+   * `actions` instead.
+   */
+  [data-ui-list-item] > [data-part-content] > [data-part-end] {
+    align-items: center;
+    color: var(--_muted);
+    display: flex;
+    flex: none;
+    gap: var(--_gap);
+    grid-area: end;
+    margin-inline-start: var(--_gap);
+  }
+
+  /**
+   * ── Independent targets ────────────────────────────────────────────────
+   *
+   * A sibling of `content` and never its child: a `button` cannot contain a
+   * `button` and an `a` can contain neither, so a row that navigates and also
+   * deletes has to put its two controls side by side. Every surveyed
+   * implementation lets a consumer nest them instead, and produces HTML no
+   * browser can make focusable.
+   *
+   * The box is above the row's own fill, so a control here is operable on a row
+   * whose whole surface resolves somewhere else.
+   */
+  [data-ui-list-item] > [data-part-actions] {
+    align-items: center;
+    /* The box counts its own inset (LI4). Below the breakpoint it takes the
+       whole line and the row's inline inset on both sides, and read as
+       content it stood the row's width plus twenty-six pixels: a 266px line in
+       a 240px list, in every scheme. */
+    box-sizing: border-box;
+    display: flex;
+    flex: none;
+    gap: var(--_gap);
+    padding-inline-end: var(--_pad-inline);
+    position: relative;
+  }
+
+  [data-ui-list-item][data-inset] > [data-part-actions] {
+    padding-inline-end: 0;
+  }
+
+  /**
+   * The independent targets follow `align` for the same reason the leading
+   * visual and the metadata do. Left centred on the block while `end` sat on
+   * the title's line, a row of two lines put its badge and its delete control
+   * on two different lines — the one thing a trailing pair must not do.
+   */
+  [data-ui-list-item][data-align='start'] > [data-part-actions] {
+    align-items: start;
+    padding-block-start: var(--_pad-block);
+  }
+
+  /**
+   * ── Ruled, framed, separated ───────────────────────────────────────────
+   *
+   * Before the states, and the order is the point: a separated row states its
+   * own resting fill and a selected row replaces it, and the two selectors
+   * carry the same weight. Read the other way round the resting surface won
+   * and a selected card kept its edge and lost its tint.
+   *
+   * The line between two rows is drawn by the row below, because the row is the
+   * only element that knows whether it is the first of its list. A rule drawn
+   * by the set would need a selector reaching into this family, which is what
+   * the two sheets do not do.
+   *
+   * `framed` rules its rows exactly as `ruled` does; what it adds is the box
+   * around them, and that box belongs to the set.
+   */
+  [data-ui-list-item]:is([data-variant='ruled'], [data-variant='framed']):not(:first-child) {
+    /* A shadow rather than a border, and the reason is the pointer. A border is
+       part of the row's box and outside the box that paints hover, so the top
+       pixel of every ruled row answered nothing: the reader saw a one-pixel
+       strip where the fill stopped short of the rule. Drawn outward the rule
+       takes no layout at all — it lands on the last pixel of the row above,
+       which is painted before it — so `content` fills the row and every pixel
+       of it is hoverable.
+
+       The offset is physical because `box-shadow` has no logical form. It costs
+       nothing here: the rule runs along the block axis, which is vertical in
+       both directions this library supports. */
+    --_rule-shadow: 0 calc(var(--_rule-width) * -1) 0 0 var(--_rule);
+  }
+
+  /**
+   * A separated row is its own surface. It keeps the frame the set would have
+   * drawn once, at row scale, so a list of cards and a list of rows are the
+   * same family in two arrangements rather than two families.
+   */
+  [data-ui-list-item][data-variant='separated'] {
+    --_fill: var(--slotted-list-item-background, var(--slotted-surface-raised, Canvas));
+
+    border: var(--_rule-width) solid var(--_rule);
+  }
+
+  /* The row's own corners clip the fill its content paints, so a hover wash
+     inside a rounded row does not square off its edges. `clip` rather than
+     `hidden`: a row is not a scroll container, and `hidden` would make it one. */
+  [data-ui-list-item][data-variant='separated'] {
+    overflow: clip;
+  }
+
+  /**
+   * ── The states ─────────────────────────────────────────────────────────
+   *
+   * Hover lays a wash under the box and press goes one step further. Both hold
+   * themselves back for `disabled` and for `loading`, which are the two states
+   * above them in `STATE_PRECEDENCE`; the library learned that from a defect,
+   * and `states.test.mjs` is what keeps it from being relearned the same way.
+   *
+   * Only a row that acts answers the pointer. A row that is only read has
+   * nothing to say about being pointed at, and washing it would promise an
+   * interaction that never arrives.
+   */
+  [data-ui-list-item]:not([data-disabled]):not([data-loading]):has(
+      > :is(a, button)[data-part-content]:not(:disabled):hover
+    ) {
+    --_fill: var(--_hover);
+  }
+
+  [data-ui-list-item]:not([data-disabled]):not([data-loading]):has(
+      > :is(a, button)[data-part-content]:not(:disabled):active
+    ) {
+    --_fill: var(--_active);
+  }
+
+  /**
+   * The ring sits inside the row rather than around it. A row is full width, so
+   * an outward ring on the first row of a framed list is drawn under the frame
+   * and on the last row it is drawn outside the page; a negative offset keeps
+   * the whole ring on the row it is about.
+   */
+  [data-ui-list-item] > [data-part-content]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /**
+   * Current is a ground, and the two states are told apart by which ground: a
+   * row can be the one the reader is on **and** one of the rows they have
+   * chosen, and when it is both the selection is the one that shows, because
+   * it is declared after this and the reader already knows where they are.
+   *
+   * `aria-current` is the one selection-shaped state ARIA 1.2 lets a `listitem`
+   * announce for itself, so this is also the only one of the two the row says
+   * out loud.
+   */
+  [data-ui-list-item][data-current] {
+    --_fill: var(--_current-surface);
+    /* The edge is an inset shadow rather than a border, so the state changes
+       no measurement and moves no text. It is what carries the state in
+       `high-contrast`, where every tone surface is the page's own white. */
+    --_edge-shadow: inset 0 0 0 var(--_rule-width) var(--_current-edge);
+  }
+
+  /**
+   * Selected is a fill, and it is a paint rather than a model: `aria-selected`
+   * is not valid on `listitem`, so the row mirrors a selection the page owns
+   * and the control the page puts in `start` — a `checkbox` — is what announces
+   * it. `card` reached the same conclusion for the same reason.
+   */
+  [data-ui-list-item][data-selected] {
+    /* A selected row that is hovered has to darken, not lighten. The resting
+       fill is already the tone's subtle step, so the two pointer states move
+       one step along the same subtle pair rather than staying where an
+       unselected row leaves them — otherwise hovering a selected row washed it
+       out. */
+    --_hover: var(--_selected-hover);
+    --_active: var(--_selected-active);
+  }
+
+  [data-ui-list-item][data-selected] {
+    --_fill: var(--_selected-surface);
+    --_edge-shadow: inset 0 0 0 var(--_rule-width) var(--_selected-edge);
+  }
+
+  /**
+   * The rule of a divided list is drawn by the row below, outward, on the
+   * last pixel of the row above — the pixel a selected or current row's inset
+   * edge ends on. Painted later, it covered that pixel, and a selected row in
+   * a ruled list was a box open at the bottom. So neither the row after one of
+   * those nor the row itself draws a rule: the edge is the line on both sides,
+   * and a rule drawn above the edge made its top two pixels in `high-contrast`,
+   * where both are black.
+   */
+  [data-ui-list-item]:is([data-selected], [data-current]):not(:first-child),
+  [data-ui-list-item]:is([data-selected], [data-current]) + [data-ui-list-item] {
+    --_rule-shadow: 0 0 0 0 transparent;
+  }
+
+  /* A run of selected rows is one box. The second of two draws its sides and
+     its bottom, and the bottom edge of the row above is the one line between
+     them; both edges drawn made that line two pixels. The offsets are
+     physical because `box-shadow` has no logical form, and the two sides are
+     the same width, so the mirrored row is the same picture. */
+  [data-ui-list-item][data-selected] + [data-ui-list-item][data-selected] {
+    --_edge-shadow:
+      inset 0 calc(var(--_rule-width) * -1) 0 0 var(--_selected-edge),
+      inset var(--_rule-width) 0 0 0 var(--_selected-edge),
+      inset calc(var(--_rule-width) * -1) 0 0 0 var(--_selected-edge);
+  }
+
+  [data-ui-list-item][data-selected] > [data-part-content] {
+    color: var(--_selected-text);
+    font-weight: var(
+      --slotted-list-item-font-weight-selected,
+      var(--slotted-font-weight-medium, 500)
+    );
+  }
+
+  [data-ui-list-item][data-current] > [data-part-content] {
+    font-weight: var(
+      --slotted-list-item-font-weight-current,
+      var(--slotted-font-weight-medium, 500)
+    );
+  }
+
+  /**
+   * ── Loading ────────────────────────────────────────────────────────────
+   *
+   * The binding writes `aria-busy` and takes the activation away — the native
+   * `disabled` from a button, the `href` from an anchor — so the row cannot run
+   * the same command twice. What is left for the sheet is to say so without
+   * changing the row's size, which `docs/component-features.md` section 2.5
+   * requires: the ink recedes and the pointer changes, and nothing moves.
+   *
+   * No placeholder is drawn. `skeleton` owns placeholder geometry, and a second
+   * answer to that question is what `collapsible` already refused.
+   */
+  [data-ui-list-item][data-loading] {
+    /* One retarget rather than a rule per part: the title, the description, the
+       metadata and the mark all read the same two custom properties, so the
+       whole row recedes together and nothing changes size. */
+    --_text: var(--_muted);
+  }
+
+  [data-ui-list-item][data-loading] > [data-part-content] {
+    cursor: progress;
+  }
+
+  /**
+   * ── Disabled ───────────────────────────────────────────────────────────
+   *
+   * The row dims and stops answering the pointer. The attribute that means it
+   * is on `content` — `disabled` on a button, `aria-disabled` on an anchor that
+   * has also lost its `href` — and never on the `li`: ARIA 1.2 deprecates
+   * `aria-disabled` on `listitem`, and no surveyed implementation says so.
+   *
+   * A control the page put in `actions` is the page's to disable. Only the
+   * control can refuse an interaction, which is the rule `card` states for the
+   * same shape.
+   */
+  [data-ui-list-item][data-disabled] {
+    /* Both, stated from one alias rather than one pointing at the other: a row
+       that is loading retargets `--_text` at `--_muted`, and a disabled loading
+       row would otherwise be a cycle CSS resolves by dropping both. Disabled is
+       the stronger state and its rule comes last, so it wins the pair. */
+    --_disabled-ink: var(
+      --slotted-list-item-color-disabled,
+      var(--slotted-disabled-foreground, GrayText)
+    );
+    --_text: var(--_disabled-ink);
+    --_muted: var(--_disabled-ink);
+  }
+
+  [data-ui-list-item][data-disabled] > [data-part-content] {
+    cursor: default;
+  }
+
+  /**
+   * A separated row recedes onto the sunken surface rather than onto the
+   * control's disabled ground, which is `card`'s rule for the same shape. The
+   * ground is worth naming: in the light scheme it is the same hex as the tone
+   * surface a selected row is filled with, so a disabled card and a selected
+   * one were one rectangle told apart only by their edge.
+   */
+  [data-ui-list-item][data-disabled][data-variant='separated'] {
+    --_fill: var(--slotted-surface-sunken, Canvas);
+
+    border-color: var(--slotted-disabled-border, GrayText);
+  }
+
+  /**
+   * ── The narrow row ─────────────────────────────────────────────────────
+   *
+   * Below 22rem the trailing metadata leaves the row's inline axis and sits
+   * under the title, in the title's own column, rather than squeezing it. The
+   * leading visual and the independent targets stay where they are: one is the
+   * row's identity and the other is its controls, and neither becomes easier to
+   * use by moving.
+   *
+   * The breakpoint is a literal because `@container (max-inline-size: var(--x))`
+   * is invalid CSS — `docs/token-foundation.md` rule 4.
+   */
+  @container slotted-list-item (max-inline-size: 22rem) {
+    [data-ui-list-item] > [data-part-content] {
+      grid-template-areas:
+        'start body'
+        'start end';
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    [data-ui-list-item] > [data-part-content] > [data-part-end] {
+      justify-content: start;
+      margin-block-start: var(--slotted-list-item-body-gap, var(--slotted-space-1, 0.125rem));
+      margin-inline-start: 0;
+    }
+
+    /* The leading visual now spans two rows, so it stops being centred on the
+       block and returns to the title's line. */
+    [data-ui-list-item] > [data-part-content] > [data-part-start] {
+      align-self: start;
+      min-block-size: calc(var(--_font-size) * var(--slotted-line-height-md, 1.5));
+    }
+
+    /**
+     * The independent targets take their own line. On one line with the box
+     * they never shrink — a target is a target — so the box shrank instead,
+     * and a row whose target carried a word rather than a glyph left its
+     * metadata spilling out of a column eighty pixels wide.
+     *
+     * They stay at the end of the row, where they were, and take the row's own
+     * inline inset so they line up with the content above them.
+     */
+    [data-ui-list-item] > [data-part-actions] {
+      flex-basis: 100%;
+      justify-content: flex-end;
+      padding-block-end: var(--_pad-block);
+      padding-inline: var(--_pad-inline);
+    }
+
+    [data-ui-list-item][data-inset] > [data-part-actions] {
+      padding-inline: 0;
+    }
+
+    /**
+     * Unless every target is a glyph. Two icon-only controls are a column
+     * narrower than the visual at the start of the row, and a line of their
+     * own under the words put a row's two smallest things at the end of a
+     * line that belonged to nothing — a notification list on a phone read as
+     * a list of rows with a stray pair of marks under each. A glyph pair
+     * keeps the line it had; a target that carries a word still takes its
+     * own, because a word is what does not fit.
+     */
+    [data-ui-list-item] > [data-part-actions]:not(:has(> :not([data-shape]))) {
+      flex-basis: auto;
+      padding-block-end: 0;
+      padding-inline: 0 var(--_pad-inline);
+    }
+
+    [data-ui-list-item][data-inset] > [data-part-actions]:not(:has(> :not([data-shape]))) {
+      padding-inline-end: 0;
+    }
+  }
+
+  /**
+   * ── Forced colours ─────────────────────────────────────────────────────
+   *
+   * The theme remaps every semantic token once, so the row needs a rule only
+   * for what it paints itself. The two grounds and the two rings are all
+   * dropped here, so both states have to be said again in the system's own
+   * colours.
+   */
+  @media (forced-colors: active) {
+    /**
+     * Every tone surface is remapped to `Canvas`, so a selected row and a
+     * resting one would be the same rectangle. Selection is the accent state,
+     * and the system's own selected pair is what says so.
+     */
+    [data-ui-list-item][data-selected] {
+      background-color: Highlight;
+    }
+
+    [data-ui-list-item][data-selected] > [data-part-content] {
+      color: HighlightText;
+    }
+
+    /**
+     * The current row keeps its ring as a one-pixel outline in the selection
+     * colour, drawn inward so it changes no measurement: the inset shadow that
+     * says it elsewhere is decoration the theme cannot reach (R1).
+     */
+    [data-ui-list-item][data-current]:not([data-selected]) {
+      outline: var(--slotted-border-width-thin, 1px) solid Highlight;
+      outline-offset: calc(-1 * var(--slotted-border-width-thin, 1px));
+    }
+  }
+}

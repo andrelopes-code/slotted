@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 5,
+  "family": "date-picker",
+  "ui": "date-picker",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Date field with a calendar popover."
+  },
+  "controlPart": "control",
+  "rootRole": null,
+  "contentRole": "dialog",
+  "valueType": "PlainDate | null",
+  "composes": ["date-field", "calendar"],
+  "core": [
+    "@slotted/core/date",
+    "@slotted/core/state",
+    "@slotted/core/presence",
+    "@slotted/core/portal",
+    "@slotted/core/positioner",
+    "@slotted/core/dismissable-layer",
+    "@slotted/core/focus"
+  ],
+  "stateSource": "field",
+  "mirrorsState": true,
+  "wiring": {
+    "aria-haspopup": "dialog",
+    "aria-expanded": "the trigger, while the popup is showing",
+    "aria-controls": "the content, while the popup is showing",
+    "aria-label": "the trigger, carrying the selected date"
+  },
+  "triggerName": {
+    "empty": "the choose message",
+    "chosen": "the change message, with the whole date in words in its date slot",
+    "why": "Focus returns to the trigger when the popup closes, so the name is where the reader is told what was chosen. The APG's own example names this as an accessibility feature."
+  },
+  "keyboard": [
+    { "key": "Alt+ArrowDown", "effect": "open", "from": "the field" },
+    {
+      "key": "Escape",
+      "effect": "close",
+      "focusTo": "trigger",
+      "staged": "the calendar takes it first while its view is month or year"
+    },
+    { "key": "Tab", "effect": "contained", "while": "open" }
+  ],
+  "platformNotes": {
+    "altArrowDown": "ChromeOS turns Alt+ArrowDown into PageDown before the browser sees it, which Angular Material records for its own input. The trigger button is therefore the guaranteed path and the chord is a shortcut, never the only way in."
+  },
+  "dismissal": {
+    "escape": "through dismissable-layer, in the capture phase",
+    "outsidePress": true,
+    "closeOnSelect": "single only, by default"
+  },
+  "responsive": {
+    "sheet": "below 480px on a coarse pointer, the content takes the sheet presentation",
+    "decidedIn": "the stylesheet; the DOM does not change"
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"],
+    "placement": ["bottom-start", "bottom", "bottom-end", "top-start", "top", "top-end"],
+    "closeOnSelect": ["auto", "always", "never"],
+    "calendar": ["gregory"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "placement": ["prop", "defaults", "bottom-start"],
+    "closeOnSelect": ["prop", "defaults", "auto"],
+    "locale": ["prop", "slotted", "en-US"],
+    "timeZone": ["prop", "defaults", "runtime"],
+    "calendar": ["prop", "defaults", "gregory"]
+  },
+  "provides": {
+    "datePickerDefaults": ["calendar", "closeOnSelect", "placement", "size", "timeZone", "variant"]
+  },
+  "messages": ["change", "choose"],
+  "imperative": ["focus", "open", "close"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "required": "data-required",
+    "open": "data-open"
+  },
+  "dataAttributes": {
+    "data-placement": "the side and alignment the positioner resolved",
+    "data-presentation": "popover or sheet"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "clear", "programmatic"],
+      "carries": ["value", "previous", "reason", "event"]
+    },
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "outsidePress", "select"],
+      "carries": ["value", "previous", "reason", "event"]
+    }
+  },
+  "literals": {
+    "--slotted-date-picker-sheet-inline-size": "100%, which the shared exemption list already holds."
+  },
+  "members": {
+    "datePicker": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "placement": "bottom-start",
+        "closeOnSelect": "auto",
+        "calendar": "gregory",
+        "clearable": false
+      },
+      "capabilities": [
+        "value",
+        "open",
+        "placement",
+        "appearance",
+        "size",
+        "content",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "readonly",
+        "required",
+        "open"
+      ],
+      "parts": ["root", "control", "trigger", "positioner", "content", "grip", "presets", "footer"]
+    }
+  },
+  "scenarios": {
+    "datePicker": [
+      "playground",
+      "sizes",
+      "variants",
+      "placement",
+      "range-bounds",
+      "unavailable",
+      "presets",
+      "states",
+      "forms",
+      "narrow",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

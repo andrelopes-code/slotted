@@ -1,0 +1,326 @@
+{
+  "schemaVersion": 5,
+  "family": "timeline",
+  "ui": "timeline",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Events in time order with markers."
+  },
+  "rootRole": "none",
+  "listElement": {
+    "list": "ol",
+    "feed": "div[role=feed]",
+    "decidedBy": "mode",
+    "reason": "A li admits no article role in the ARIA in HTML table, and article is the element the APG Feed pattern requires for each unit of content. The ordered list is the semantics of a timeline that does not grow; the feed is the semantics of one that does."
+  },
+  "itemElement": {
+    "list": "li",
+    "feed": "article",
+    "decidedBy": "mode"
+  },
+  "groupElement": {
+    "list": "li with ol",
+    "feed": "div with div",
+    "decidedBy": "mode",
+    "reason": "In a feed the articles stay descendants of the feed with no intermediate role. The group label stays a heading in both modes, which is the departure recorded in the design."
+  },
+  "pattern": {
+    "feed": "https://www.w3.org/WAI/ARIA/apg/patterns/feed/",
+    "group": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
+    "list": "none: an ordered list is the platform's own answer"
+  },
+  "logic": "@slotted/core/timeline",
+  "currentSource": "aria-current",
+  "currentValue": "true",
+  "statuses": ["pending", "current", "complete", "loading"],
+  "autoComplete": {
+    "oldest-first": "items before the current one in DOM order are complete",
+    "newest-first": "items after the current one in DOM order are complete",
+    "connector": "the connector on the future side of the current item is dashed"
+  },
+  "timestamp": {
+    "element": "time",
+    "value": "PlainDateTime | ISO 8601 string",
+    "instant": "a string with a zone designator is formatted in timeZone; a plain value is formatted without conversion",
+    "absolute": "Intl.DateTimeFormat dateStyle medium, timeStyle short",
+    "relative": "Intl.RelativeTimeFormat numeric auto on the largest whole unit; the absolute text goes to title",
+    "reference": "now on the time, the root or the defaults; Date.now() at render without one"
+  },
+  "growing": {
+    "button": "the more part is a button; pressing it requests onLoadMore with pointer or keyboard",
+    "scroll": "an IntersectionObserver on the more part requests onLoadMore with scroll when it enters the scrollport",
+    "none": "the more part is not rendered"
+  },
+  "fresh": {
+    "part": "fresh",
+    "when": "freshCount > 0",
+    "request": "onReveal",
+    "reasons": ["pointer", "keyboard"],
+    "announce": "polite, once per change of freshCount",
+    "mount": "from the first render with freshCount > 0 the part stays mounted: hidden while freshCount is 0, with the last count as its words, so it leaves with a transition rather than vanishing",
+    "focus": "when freshCount falls to 0 with focus inside the part, focus moves to the first revealed event: the first event for newest-first, the event at the loaded count less the revealed count for oldest-first; an article takes focus itself, a list item passes it to its first tabbable, and an event with neither leaves focus where the platform puts it",
+    "focusLogic": "revealFocusIndex"
+  },
+  "focus": {
+    "item": "tabindex=\"0\" in feed mode, none in list mode",
+    "label": "aria-labelledby: title, then actor, then time",
+    "description": "aria-describedby: description, when it exists"
+  },
+  "setSize": {
+    "count": "aria-setsize when the consumer states it",
+    "otherwise": "the number of loaded items when growing is none, -1 when more may come"
+  },
+  "reflow": {
+    "container": "slotted-timeline",
+    "breakpoint": "30rem",
+    "below": "vertical, and alternate falls to end",
+    "appliesTo": "a timeline the consumer left horizontal, or alternate",
+    "reason": "Five events in a row at 320 pixels are five columns two characters wide. Section 2.7 of docs/component-features.md asks responsiveness to change composition rather than size."
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "list: moves through the controls inside the content. feed: also stops on each article",
+      "focus": "the next control, or the next article",
+      "source": "platform"
+    },
+    {
+      "key": "PageDown",
+      "effect": "feed only: moves focus to the next article, including one inside an open group",
+      "focus": "that article",
+      "source": "family"
+    },
+    {
+      "key": "PageUp",
+      "effect": "feed only: moves focus to the previous article",
+      "focus": "that article",
+      "source": "family"
+    },
+    {
+      "key": "Control+End",
+      "effect": "feed only: moves focus to the first focusable element after the feed",
+      "focus": "outside the feed",
+      "source": "family"
+    },
+    {
+      "key": "Control+Home",
+      "effect": "feed only: moves focus to the first focusable element before the feed",
+      "focus": "outside the feed",
+      "source": "family"
+    },
+    {
+      "key": "Enter",
+      "effect": "on a group trigger, the fresh control or the more button: presses it",
+      "focus": "stays on the control",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "on a group trigger, the fresh control or the more button: presses it",
+      "focus": "stays on the control",
+      "source": "platform"
+    }
+  ],
+  "declined": {
+    "expandableItem": {
+      "deferTo": "collapsible",
+      "reason": "collapsible already holds open, keyboard and mount. It is composed inside content; a second disclosure per item would be two answers to one question."
+    },
+    "reverse": {
+      "deferTo": "order, and the consumer's array",
+      "reason": "Ant, Nuxt and MUI reverse the visual order and the reading order disagrees with the DOM. order declares what the list is and decides where autoComplete cuts."
+    },
+    "arbitraryColour": {
+      "deferTo": "tone",
+      "reason": "Section 2.4 of docs/component-features.md refuses arbitrary colour in the contract."
+    },
+    "pixelGeometry": {
+      "deferTo": "size and the family tokens",
+      "reason": "Mantine takes lineWidth and bulletSize in pixels. A number per instance is a parallel scale."
+    },
+    "break": {
+      "deferTo": "group with group-label",
+      "reason": "Primer documents Timeline.Break as invisible to assistive technology. A labelled group is the separation with meaning."
+    },
+    "skeleton": {
+      "deferTo": "skeleton",
+      "reason": "A consumer writes loading items with skeleton inside; the family gives loading on the root, aria-busy and the pending item."
+    },
+    "filters": {
+      "deferTo": "filter-bar",
+      "reason": "A filtered feed is a feed with another array."
+    },
+    "virtualization": {
+      "deferTo": "growing",
+      "reason": "No surveyed implementation virtualizes a timeline. growing keeps a hundred from becoming a thousand."
+    },
+    "groupingByPeriod": {
+      "deferTo": "the consumer",
+      "reason": "The period is the domain's: a day, a sprint, a fiscal month. The family gives the group parts."
+    }
+  },
+  "provides": {
+    "timelineDefaults": [
+      "mode",
+      "orientation",
+      "placement",
+      "order",
+      "variant",
+      "tone",
+      "size",
+      "growing",
+      "timeFormat",
+      "timeZone",
+      "now",
+      "level"
+    ],
+    "toItems": [
+      "mode",
+      "orientation",
+      "placement",
+      "order",
+      "variant",
+      "tone",
+      "size",
+      "timeFormat",
+      "locale",
+      "timeZone",
+      "now",
+      "autoComplete",
+      "currentIndex",
+      "count"
+    ]
+  },
+  "messages": ["collapse", "current", "empty", "expand", "freshItems", "loading", "loadMore"],
+  "stateAttributes": {
+    "open": "data-open",
+    "loading": "data-loading",
+    "current": "data-current",
+    "complete": "data-complete"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "literals": {
+    "--slotted-timeline-reflow-breakpoint": "The inline size below which a horizontal or alternate timeline becomes a single column. A container query cannot read a custom property, which docs/token-foundation.md rule 4 states.",
+    "--slotted-timeline-core-ratio": "The solid centre of a dot is four tenths of the dot, rounded to keep the line's parity, which is a proportion of a box rather than a step on a scale. The dot, the badge and the rail are the glyph and steps of air, rounded the same way, and need no literal.",
+    "--slotted-timeline-opposite-size": "Eight rem, the width of a medium date and a short time on one line at the medium type step. The scale has no step for a column of text."
+  },
+  "axes": {
+    "mode": ["list", "feed"],
+    "orientation": ["vertical", "horizontal"],
+    "placement": ["end", "start", "alternate"],
+    "order": ["oldest-first", "newest-first"],
+    "variant": ["solid", "outline", "subtle", "plain"],
+    "tone": ["secondary", "accent", "info", "success", "warning", "danger"],
+    "size": ["sm", "md", "lg"],
+    "connector": ["solid", "dashed", "none"],
+    "growing": ["none", "button", "scroll"],
+    "timeFormat": ["absolute", "relative"],
+    "level": ["2", "3", "4", "5", "6"]
+  },
+  "resolution": {
+    "mode": ["prop", "defaults", "list"],
+    "orientation": ["prop", "defaults", "vertical"],
+    "placement": ["prop", "defaults", "end"],
+    "order": ["prop", "defaults", "oldest-first"],
+    "variant": ["item", "root", "defaults", "subtle"],
+    "tone": ["item", "root", "defaults", "secondary"],
+    "size": ["prop", "defaults", "md"],
+    "connector": ["item", "autoComplete", "solid"],
+    "growing": ["prop", "defaults", "none"],
+    "timeFormat": ["time", "root", "defaults", "absolute"],
+    "level": ["group", "root", "defaults", "3"],
+    "reflow": ["prop", true]
+  },
+  "members": {
+    "timeline": {
+      "nativeElement": "div",
+      "defaults": {
+        "mode": "list",
+        "orientation": "vertical",
+        "placement": "end",
+        "order": "oldest-first",
+        "variant": "subtle",
+        "tone": "secondary",
+        "size": "md",
+        "growing": "none",
+        "timeFormat": "absolute",
+        "level": 3,
+        "reflow": true,
+        "autoComplete": false,
+        "loading": false,
+        "freshCount": 0,
+        "defaultOpen": true,
+        "collapsible": false
+      },
+      "capabilities": [
+        "open",
+        "orientation",
+        "placement",
+        "appearance",
+        "size",
+        "loading",
+        "live",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "open",
+        "loading",
+        "current",
+        "complete"
+      ],
+      "parts": [
+        "root",
+        "fresh",
+        "list",
+        "group",
+        "group-label",
+        "group-trigger",
+        "group-indicator",
+        "group-list",
+        "item",
+        "opposite",
+        "rail",
+        "marker",
+        "connector",
+        "content",
+        "title",
+        "actor",
+        "time",
+        "description",
+        "actions",
+        "more",
+        "empty"
+      ]
+    }
+  },
+  "scenarios": {
+    "timeline": [
+      "playground",
+      "feed",
+      "placement",
+      "orientation",
+      "order",
+      "statuses",
+      "appearance",
+      "groups",
+      "growing",
+      "fresh",
+      "timestamps",
+      "content",
+      "composition",
+      "empty",
+      "keyboard"
+    ]
+  }
+}

@@ -1,0 +1,790 @@
+@layer slotted.components {
+  /**
+   * ── A scale, a rail and one thumb per value ────────────────────────────
+   *
+   * Every thumb is a real `input[type="range"]`, so the `slider` role, the
+   * value set, form submission, form reset and `disabled` come from the
+   * platform. The input is invisible and unhittable — `opacity: 0` and
+   * `pointer-events: none`, filling the thumb it lives in — because the thumb
+   * a reader sees is this family's own element and the drag is the family's
+   * own gesture.
+   *
+   * `track` is the containing block for everything that has a position on the
+   * scale: the fill, every mark and every thumb. It is inset by half a thumb
+   * at each end of the control, so a thumb at either bound is contained rather
+   * than half outside, and the focus ring around it is never clipped.
+   *
+   * Every position is a private custom property written by the binding —
+   * `--_position` on a thumb or a mark, `--_start` and `--_end` on the fill.
+   * A percentage of a track is geometry and geometry is not a token.
+   */
+  [data-ui-slider][data-part-root] {
+    /**
+     * Type, glyph and gap come from the control scales — the only ones the
+     * theme restates per density — so a slider in a dense row shrinks whole
+     * rather than in parts.
+     */
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+
+    /**
+     * The thumb is the control glyph plus one space step. It is arithmetic
+     * over two scales rather than a literal, and it is not a component token:
+     * the component layer's bar is that a family may not restate a scale that
+     * already exists.
+     */
+    --_thumb-size: var(
+      --slotted-slider-thumb-size,
+      calc(var(--_icon-size) + var(--slotted-space-2, 0.25rem))
+    );
+
+    /**
+     * The rail's weight does not change with the size. A rail is a channel
+     * rather than a control, so only the thumb, the type and the target grow.
+     * Six pixels is a one-pixel edge on each side and four of interior, which
+     * is the smallest channel a fill can be seen inside.
+     */
+    --_track-size: var(--slotted-slider-track-size, var(--slotted-space-3, 0.375rem));
+
+    /**
+     * The band the pointer aims at, floored at the WCAG 2.2 minimum. A thumb
+     * at the tightest step is twenty pixels across, and the correction of a
+     * target short in one axis is the family's rather than the theme's.
+     */
+    --_control-size: max(var(--slotted-target-min, 24px), var(--_thumb-size));
+
+    /**
+     * Where a mark's tick begins: past the thumb, so a tick is never drawn
+     * under one. Marks are ruler ticks outside the rail rather than dots on
+     * it, because a dot on the rail has to be legible against the fill and
+     * against the empty channel at once, and in the `high-contrast` scheme —
+     * where the palette is two colours — it cannot be both.
+     */
+    --_mark-gap: calc(
+      (var(--_thumb-size) - var(--_track-size)) / 2 + var(--slotted-space-1, 0.125rem)
+    );
+    --_mark-length: var(--slotted-space-2, 0.25rem);
+    --_mark-label-line: calc(
+      var(--slotted-font-size-xs, 0.75rem) * var(--slotted-line-height-xs, 1.4)
+    );
+    /**
+     * How wide a mark's label may be before it wraps: three thumbs, which is
+     * about two words at the medium step.
+     *
+     * The family declares no container and asks no query. One was written — a
+     * narrower cap for the labels below 320 pixels — and taken out again,
+     * because a label of one long word cannot wrap at any cap, so the query
+     * only ever moved the multi-word ones and a scale of five single words was
+     * unchanged by it. A slider is fluid rather than reflowing: the rail
+     * shrinks, the thumb and the type do not, and a label longer than the space
+     * between two ticks overflows its own box rather than being clipped or
+     * removed.
+     */
+    --_mark-label-size: calc(var(--_thumb-size) * 3);
+
+    /**
+     * The room the bubble stands in, reserved whether or not it is showing.
+     * Reserved, the control does not move when a drag starts, and the bubble
+     * does not land on the read-out above it — which is what the first capture
+     * of the `content` scene showed, with a value printed over its own number.
+     */
+    --_bubble-size: calc(
+      var(--slotted-font-size-xs, 0.75rem) * var(--slotted-line-height-xs, 1.4) +
+        var(--slotted-space-1, 0.125rem) * 2 + var(--slotted-space-2, 0.25rem)
+    );
+
+    color: var(--slotted-slider-color, var(--slotted-text, CanvasText));
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    gap: var(--_gap);
+    /* A slider in a grid track narrower than its intrinsic width has to shrink. */
+    min-inline-size: 0;
+  }
+
+  /**
+   * A horizontal slider takes the width it is offered, the way every other
+   * control in this library does. It has no intrinsic width of its own — the
+   * rail is a percentage of a box that is a percentage of the root — so in a
+   * shrink-to-fit column it collapsed to the width of its own read-out, and the
+   * React reference page showed three numbers with three bare thumbs under
+   * them and no rail at all. A vertical slider is left alone: its cross
+   * measurement is the band, and its length is its own.
+   */
+  [data-ui-slider][data-part-root][data-orientation='horizontal'] {
+    inline-size: 100%;
+  }
+
+  [data-ui-slider][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+  }
+
+  [data-ui-slider][data-part-root][data-size='md'] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+  }
+
+  [data-ui-slider][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+  }
+
+  /* ── The read-out ─────────────────────────────────────────────────────
+   *
+   * The label is the field's; this is the value. It is set at full strength
+   * rather than muted, because it is the datum a reader came for, and in
+   * tabular figures because a number that changes under a drag must not change
+   * width while it does.
+   */
+  [data-ui-slider] > [data-part-output] {
+    align-self: flex-end;
+    color: var(--slotted-slider-output-color, var(--slotted-text, CanvasText));
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    line-height: var(--slotted-line-height-sm, 1.45);
+    /* Its own bidi run: a number has no strong character to order it. */
+    unicode-bidi: plaintext;
+  }
+
+  /* ── The band ─────────────────────────────────────────────────────────
+   *
+   * The whole of the pointer target, and the containing block the track is
+   * inset inside. It is `touch-action: none` because a drag along the scale
+   * and a scroll of the page are the same gesture, and the one the pointer
+   * started on the control is the drag.
+   */
+  [data-ui-slider] [data-part-control] {
+    align-items: center;
+    /**
+     * The reserve for the two half thumbs comes out of the band rather than
+     * being added to it. Written as padding on a content box, a band told to
+     * fill its root measured a whole thumb wider than the root — 260px inside
+     * 240px — and the overflow travelled up through `stack` and `field` to the
+     * stage, which then scrolled. The band is what the root gives it; the
+     * scale inside is what is left after the reserve.
+     */
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-slider][data-orientation='horizontal'] [data-part-control] {
+    block-size: var(--_control-size);
+    inline-size: 100%;
+    padding-inline: calc(var(--_thumb-size) / 2);
+  }
+
+  /**
+   * The room the bubble stands in, less the gap the root already put there.
+   * Added whole, the two stacked: the `marks` capture showed the read-out a
+   * finger's width above its own rail, reading as a separate line rather than
+   * as this control's value.
+   */
+  [data-ui-slider][data-orientation='horizontal']:not([data-value-label='none'])
+    [data-part-control] {
+    margin-block-start: max(0px, calc(var(--_bubble-size) - var(--_gap)));
+  }
+
+  /**
+   * The vertical bubble reserves nothing. It stands beside its own thumb, and
+   * the read-out it could collide with is above the control rather than beside
+   * it; reserving four thumb widths of empty column on every vertical slider
+   * cost more than the overlap it prevented.
+   */
+
+  [data-ui-slider][data-orientation='vertical'] [data-part-control] {
+    /**
+     * A vertical slider has no intrinsic length, so it takes one: ten thumbs
+     * is a scale a reader can point at, and a consumer who wants another one
+     * writes it on the root. The value is arithmetic over the thumb, not a
+     * scale of its own.
+     *
+     * The token stays the scale. On a border box the reserve is inside the
+     * band, so the band is the scale plus the two half thumbs — which leaves
+     * the track measuring exactly what the consumer asked for, as it did
+     * before the box changed.
+     */
+    block-size: calc(
+      var(--slotted-slider-length, calc(var(--_thumb-size) * 10)) + var(--_thumb-size)
+    );
+    inline-size: var(--_control-size);
+    padding-block: calc(var(--_thumb-size) / 2);
+  }
+
+  /**
+   * The room a scale of marks takes outside the rail. It is reserved rather
+   * than discovered, so a family below the slider does not move when a label
+   * appears.
+   */
+  [data-ui-slider][data-orientation='horizontal'][data-marks='ticks'] [data-part-control] {
+    margin-block-end: var(--_mark-length);
+  }
+
+  [data-ui-slider][data-orientation='horizontal'][data-marks='labelled'] [data-part-control] {
+    margin-block-end: calc(
+      var(--_mark-length) + var(--slotted-space-1, 0.125rem) + var(--_mark-label-line)
+    );
+  }
+
+  [data-ui-slider][data-orientation='vertical'][data-marks='ticks'] [data-part-control] {
+    margin-inline-end: var(--_mark-length);
+  }
+
+  [data-ui-slider][data-orientation='vertical'][data-marks='labelled'] [data-part-control] {
+    margin-inline-end: calc(
+      var(--_mark-length) + var(--slotted-space-1, 0.125rem) + var(--_mark-label-size)
+    );
+  }
+
+  /* ── The rail ─────────────────────────────────────────────────────────
+   *
+   * A channel rather than a line: an edge that holds the 3:1 a non-text
+   * element needs against every surface, and an interior the fill is seen
+   * inside. A rail painted as one flat neutral cannot do both — in the
+   * `high-contrast` scheme every neutral is the same black, and the first
+   * capture showed a black rail with a nearly black fill on it.
+   *
+   * It is inset by half a thumb at each end of the control, so the scale's two
+   * bounds are the two places a thumb's centre can reach and the thumb itself
+   * stays inside the band.
+   */
+  [data-ui-slider] [data-part-track] {
+    background-color: var(--slotted-slider-track-color, var(--slotted-surface-sunken, Canvas));
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-slider-track-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  [data-ui-slider][data-orientation='horizontal'] [data-part-track] {
+    block-size: var(--_track-size);
+    inline-size: 100%;
+  }
+
+  [data-ui-slider][data-orientation='vertical'] [data-part-track] {
+    block-size: 100%;
+    inline-size: var(--_track-size);
+  }
+
+  /**
+   * The filled portion, between the origin and the value. `--_start` and
+   * `--_end` are two percentages rather than a length and an offset, so a
+   * range fills between its thumbs and a slider with a centred origin fills
+   * outward from the middle with the same two declarations.
+   *
+   * On the cross axis it is laid against the track's *border* box and not its
+   * padding box, which is one negative inset and the whole of SR1. An
+   * absolutely positioned box is placed inside the padding of its containing
+   * block, so a fill left at nought stopped a pixel short of each edge and the
+   * channel's own neutral line ran across the accent: on a track of six pixels
+   * the fill was four, with the edge painted over the top and the bottom of it.
+   * A filled scale is one solid band, and the rim belongs to the part of the
+   * scale that is still empty.
+   *
+   * The main axis keeps the padding box, so the two ends of the channel keep
+   * their rim: the fill runs from a percentage of the scale, and a fill that
+   * overhung there would leave a pixel of accent past the value at one end and
+   * cover the cap at the other.
+   */
+  [data-ui-slider] [data-part-indicator] {
+    --_edge-overlap: calc(var(--slotted-control-border-width, 1px) * -1);
+
+    background-color: var(--slotted-slider-indicator-color, var(--slotted-tone-accent-solid));
+    border-radius: inherit;
+    position: absolute;
+  }
+
+  [data-ui-slider][data-orientation='horizontal'] [data-part-indicator] {
+    inset-block: var(--_edge-overlap);
+    inset-inline-start: calc(var(--_start, 0) * 1%);
+    inline-size: calc((var(--_end, 0) - var(--_start, 0)) * 1%);
+  }
+
+  [data-ui-slider][data-orientation='vertical'] [data-part-indicator] {
+    inset-inline: var(--_edge-overlap);
+    inset-block-end: calc(var(--_start, 0) * 1%);
+    block-size: calc((var(--_end, 0) - var(--_start, 0)) * 1%);
+  }
+
+  /* ── Marks ────────────────────────────────────────────────────────────
+   *
+   * Ruler ticks alongside the rail, with the label under each one. A tick on
+   * the rail would have to read against the fill and against the empty channel
+   * at once; beside it, it reads against the page in every scheme.
+   */
+  [data-ui-slider] [data-part-mark] {
+    background-color: var(--slotted-slider-mark-color, var(--slotted-border-strong, CanvasText));
+    position: absolute;
+  }
+
+  [data-ui-slider][data-orientation='horizontal'] [data-part-mark] {
+    block-size: var(--_mark-length);
+    inline-size: var(--slotted-border-width-thin, 1px);
+    inset-block-start: calc(100% + var(--_mark-gap));
+    inset-inline-start: calc(var(--_position, 0) * 1%);
+    margin-inline-start: calc(var(--slotted-border-width-thin, 1px) / -2);
+  }
+
+  [data-ui-slider][data-orientation='vertical'] [data-part-mark] {
+    block-size: var(--slotted-border-width-thin, 1px);
+    inline-size: var(--_mark-length);
+    inset-inline-start: calc(100% + var(--_mark-gap));
+    inset-block-end: calc(var(--_position, 0) * 1%);
+    margin-block-end: calc(var(--slotted-border-width-thin, 1px) / -2);
+  }
+
+  [data-ui-slider] [data-part-mark-label] {
+    color: var(--slotted-slider-mark-label-color, var(--slotted-text-muted, GrayText));
+    display: block;
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    inline-size: max-content;
+    line-height: var(--slotted-line-height-xs, 1.4);
+    max-inline-size: var(--_mark-label-size);
+    /**
+     * The cap is three thumbs, and one word can be wider than three thumbs
+     * without a space to break at: `Reduzido` measured 55px inside 51px at
+     * `dense`, and those four pixels were read at the mark, which is one pixel
+     * wide and forgives only what the label's placement explains. A label
+     * breaks inside a word rather than standing outside its own box.
+     */
+    overflow-wrap: anywhere;
+    position: absolute;
+    text-align: center;
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-slider][data-orientation='horizontal'] [data-part-mark-label] {
+    inset-block-start: calc(100% + var(--slotted-space-1, 0.125rem));
+    inset-inline-start: 50%;
+    translate: -50% 0;
+  }
+
+  /**
+   * The label at either end of the scale is aligned inside rather than centred
+   * on its tick. Centred, half of it hangs off the control: the first capture
+   * of the `marks` scene showed "Maximum" clipped by the edge of the cell, and
+   * a scale whose last label cannot be read is a scale with four labels.
+   */
+  [data-ui-slider][data-orientation='horizontal']
+    [data-part-mark][data-edge='start']
+    [data-part-mark-label] {
+    inset-inline-start: 0;
+    text-align: start;
+    translate: 0 0;
+  }
+
+  /**
+   * An edge label takes its own measure and grows inward. The shared cap makes
+   * a word longer than the cap overflow toward the inline end, which for the
+   * label at the end of the scale is off the control: the 240-pixel capture
+   * printed "Maximum" over the edge of its own cell.
+   */
+  [data-ui-slider][data-orientation='horizontal']
+    [data-part-mark][data-edge]
+    [data-part-mark-label] {
+    max-inline-size: none;
+  }
+
+  [data-ui-slider][data-orientation='horizontal']
+    [data-part-mark][data-edge='end']
+    [data-part-mark-label] {
+    inset-inline-end: 0;
+    inset-inline-start: auto;
+    text-align: end;
+    translate: 0 0;
+  }
+
+  /**
+   * The one place this family names a side, and only in the mirrored document.
+   * `translate` is a physical transform: a percentage along the inline axis
+   * moves the box left in both directions, so a right-to-left page would hang
+   * every centred label half a box off its own tick.
+   */
+  [data-ui-slider][data-orientation='horizontal']:dir(rtl)
+    [data-part-mark]:not([data-edge])
+    [data-part-mark-label] {
+    translate: 50% 0;
+  }
+
+  [data-ui-slider][data-orientation='vertical'] [data-part-mark-label] {
+    inset-block-start: 50%;
+    inset-inline-start: calc(100% + var(--slotted-space-1, 0.125rem));
+    text-align: start;
+    translate: 0 -50%;
+  }
+
+  /* ── The thumb ────────────────────────────────────────────────────────
+   *
+   * Centred on its position by a logical margin rather than by `translate`, so
+   * the mirrored document needs no rule of its own: `margin-inline-start`
+   * measures from whichever edge `inset-inline-start` measured from.
+   */
+  [data-ui-slider] [data-part-thumb] {
+    background-color: var(--slotted-slider-thumb-color, var(--slotted-surface, Canvas));
+    block-size: var(--_thumb-size);
+    border: var(--slotted-border-width-thick, 2px) solid
+      var(--slotted-slider-thumb-border-color, var(--slotted-tone-accent-solid));
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-shadow: var(--slotted-slider-thumb-shadow, var(--slotted-control-shadow, none));
+    box-sizing: border-box;
+    cursor: grab;
+    display: block;
+    inline-size: var(--_thumb-size);
+    position: absolute;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing),
+      scale var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-slider][data-orientation='horizontal'] [data-part-thumb] {
+    inset-block-start: 50%;
+    inset-inline-start: calc(var(--_position, 0) * 1%);
+    margin-block-start: calc(var(--_thumb-size) / -2);
+    margin-inline-start: calc(var(--_thumb-size) / -2);
+  }
+
+  [data-ui-slider][data-orientation='vertical'] [data-part-thumb] {
+    inset-block-end: calc(var(--_position, 0) * 1%);
+    inset-inline-start: 50%;
+    margin-block-end: calc(var(--_thumb-size) / -2);
+    margin-inline-start: calc(var(--_thumb-size) / -2);
+  }
+
+  /**
+   * The control itself, invisible and unhittable. It keeps focus, the role,
+   * the value set and its place in the form; the box around it is what a
+   * reader sees, and the family's own pointer handling is what moves it.
+   */
+  [data-ui-slider] [data-part-input] {
+    appearance: none;
+    block-size: 100%;
+    inline-size: 100%;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    /* The ring is drawn by the thumb, so two rings never nest. */
+    outline: none;
+    padding: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  /**
+   * The family draws its own thumb, so the browser's is not a second one on the
+   * screen — it goes with the input's `opacity` — but it keeps the intrinsic
+   * size the browser gives it, and that size is sixteen pixels while a thumb at
+   * `dense` is thirteen. `tools/harness/audit.mjs` read the difference as
+   * content that ran out of its box on every dense stage. The native parts are
+   * withdrawn to nothing, as `text-field` withdraws the search decorations.
+   */
+  [data-ui-slider] [data-part-input]::-webkit-slider-thumb {
+    appearance: none;
+    block-size: 0;
+    inline-size: 0;
+  }
+
+  [data-ui-slider] [data-part-input]::-webkit-slider-runnable-track {
+    block-size: 0;
+  }
+
+  /* ── The bubble ───────────────────────────────────────────────────────
+   *
+   * The same number as the read-out, on the thumb, where a reader's eye
+   * already is during a drag. It is out of the accessibility tree: the input
+   * beneath it already announces the value, and a second copy would announce
+   * it twice.
+   */
+  [data-ui-slider] [data-part-bubble] {
+    background-color: var(--slotted-slider-bubble-background, var(--slotted-surface-inverse));
+    border-radius: var(--slotted-radius-sm, 4px);
+    color: var(--slotted-slider-bubble-color, var(--slotted-text-inverse));
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-variant-numeric: tabular-nums;
+    inline-size: max-content;
+    line-height: var(--slotted-line-height-xs, 1.4);
+    /**
+     * A long value wraps rather than running off the end of the scale. It can
+     * still extend past the control at either bound, which is what a bubble
+     * over a thumb does; a value that is a sentence rather than a number
+     * belongs in the read-out, which is what `valueLabel="none"` is for.
+     */
+    max-inline-size: calc(var(--_thumb-size) * 4);
+    opacity: 0;
+    padding-block: var(--slotted-space-1, 0.125rem);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    pointer-events: none;
+    position: absolute;
+    text-align: center;
+    transition: opacity var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-slider][data-orientation='horizontal'] [data-part-bubble] {
+    inset-block-end: calc(100% + var(--slotted-space-2, 0.25rem));
+    inset-inline-start: 50%;
+    translate: -50% 0;
+  }
+
+  [data-ui-slider][data-orientation='horizontal']:dir(rtl) [data-part-bubble] {
+    translate: 50% 0;
+  }
+
+  /**
+   * A vertical bubble stands on the inline-start side, because the marks stand
+   * on the other one. Two overlays on one edge is a scale whose labels sit
+   * under its own values.
+   */
+  [data-ui-slider][data-orientation='vertical'] [data-part-bubble] {
+    inset-block-start: 50%;
+    inset-inline-end: calc(100% + var(--slotted-space-2, 0.25rem));
+    translate: 0 -50%;
+  }
+
+  /**
+   * `auto` shows the number while the value is moving or while the thumb has
+   * the caret; `always` shows it at rest as well. The transition is on opacity
+   * alone, so nothing moves under a reader who asked for stillness — the
+   * duration token collapses and the bubble simply appears.
+   */
+  [data-ui-slider][data-value-label='always'] [data-part-bubble],
+  [data-ui-slider][data-dragging] [data-part-thumb][data-active] [data-part-bubble],
+  [data-ui-slider] [data-part-thumb]:has(> [data-part-input]:focus-visible) [data-part-bubble] {
+    opacity: 1;
+  }
+
+  [data-ui-slider][data-value-label='none'] [data-part-bubble] {
+    display: none;
+  }
+
+  /* ── States ───────────────────────────────────────────────────────────
+   *
+   * Written strongest last, and each weaker one guarded against the stronger
+   * ones it can meet, which is the order `STATE_PRECEDENCE` sets.
+   */
+
+  [data-ui-slider]:not([data-disabled]):not([data-readonly])
+    [data-part-thumb]:hover:not(:disabled) {
+    background-color: var(
+      --slotted-slider-thumb-hover-background,
+      var(--slotted-tone-accent-surface)
+    );
+  }
+
+  /**
+   * The thumb grows under the press rather than only changing colour. It is
+   * the one movement in the family that carries information — the control has
+   * taken the gesture — and it collapses with the duration token under reduced
+   * motion.
+   */
+  [data-ui-slider]:not([data-disabled]):not([data-readonly])
+    [data-part-thumb]:active:not(:disabled),
+  [data-ui-slider][data-dragging]:not([data-disabled]):not([data-readonly])
+    [data-part-thumb][data-active] {
+    cursor: grabbing;
+    scale: 1.15;
+  }
+
+  /**
+   * The ring belongs to the thumb and answers the input's focus. The input is
+   * `opacity: 0`, so nothing else in the family could draw it.
+   */
+  [data-ui-slider] [data-part-thumb]:has(> [data-part-input]:focus-visible) {
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * Invalid outranks hover and is written after it for that reason. The ring is
+   * retargeted rather than repainted: every rule that draws focus reads
+   * `--slotted-focus-ring-color`, so pointing that one name at the invalid
+   * colour moves the outline and the shadow together.
+   */
+  [data-ui-slider][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-slider-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+  }
+
+  [data-ui-slider][data-invalid] [data-part-indicator] {
+    background-color: var(
+      --slotted-slider-invalid-indicator-color,
+      var(--slotted-tone-danger-solid)
+    );
+  }
+
+  [data-ui-slider][data-invalid] [data-part-thumb] {
+    --_invalid-edge-width: var(
+      --slotted-slider-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+    --_invalid-edge-color: var(
+      --slotted-slider-invalid-thumb-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    --_invalid-edge: inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color);
+
+    border-color: var(
+      --slotted-slider-invalid-thumb-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger fill and border are the accent's black. The
+     * thumb carries it, as a shadow inside its border, so the thumb keeps its
+     * size and its place on the track; it takes the resting lift's place.
+     */
+    box-shadow: var(--_invalid-edge);
+  }
+
+  [data-ui-slider][data-invalid] [data-part-thumb]:has(> [data-part-input]:focus-visible) {
+    box-shadow:
+      var(--_invalid-edge),
+      var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+        var(--slotted-focus-ring-color, Highlight);
+  }
+
+  /**
+   * Read-only stays focusable, stays announced and stays submitted, and must
+   * not be mistakable for disabled: the ink keeps its full strength, because
+   * the value is real. What changes is the tone — the scale steps off the
+   * accent and onto a neutral ink, which says "not yours to change" without
+   * saying "not readable". A read-only slider that painted nothing at all was
+   * the first capture's defect, and it is the one `number-field` found in the
+   * same state.
+   */
+  [data-ui-slider][data-part-root][data-readonly] [data-part-control],
+  [data-ui-slider][data-part-root][data-readonly] [data-part-thumb] {
+    cursor: default;
+  }
+
+  [data-ui-slider][data-part-root][data-readonly] [data-part-indicator] {
+    background-color: var(--slotted-slider-readonly-indicator-color, var(--slotted-text-muted));
+  }
+
+  /**
+   * The thumb takes the control edge rather than the muted ink. Both read-only
+   * and disabled paint a neutral scale, and in the dark scheme the two neutrals
+   * sat within a step of each other; the control edge and the disabled edge are
+   * two tokens the theme keeps apart in every scheme, which is what makes the
+   * two states tell themselves apart.
+   */
+  [data-ui-slider][data-part-root][data-readonly] [data-part-thumb] {
+    border-color: var(
+      --slotted-slider-readonly-thumb-border-color,
+      var(--slotted-control-border-color, ButtonBorder)
+    );
+  }
+
+  /**
+   * `:disabled` on an input is matched beside `data-disabled` on the root,
+   * because a control can be disabled by something that never told it so: a
+   * disabled `fieldset` disables every control inside it.
+   */
+  [data-ui-slider][data-part-root][data-disabled] [data-part-track],
+  [data-ui-slider][data-part-root]:has([data-part-input]:disabled) [data-part-track] {
+    background-color: var(
+      --slotted-slider-disabled-track-color,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(--slotted-slider-disabled-border-color, var(--slotted-disabled-border));
+  }
+
+  [data-ui-slider][data-part-root][data-disabled] [data-part-indicator],
+  [data-ui-slider][data-part-root]:has([data-part-input]:disabled) [data-part-indicator] {
+    background-color: var(
+      --slotted-slider-disabled-indicator-color,
+      var(--slotted-disabled-foreground)
+    );
+  }
+
+  [data-ui-slider][data-part-root][data-disabled] [data-part-thumb],
+  [data-ui-slider][data-part-root]:has([data-part-input]:disabled) [data-part-thumb] {
+    background-color: var(
+      --slotted-slider-disabled-thumb-color,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(--slotted-slider-disabled-border-color, var(--slotted-disabled-border));
+    /* Nothing a person cannot reach is lifted off the page. */
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  [data-ui-slider][data-part-root][data-disabled] [data-part-control],
+  [data-ui-slider][data-part-root][data-disabled] > [data-part-output],
+  [data-ui-slider][data-part-root][data-disabled] [data-part-mark-label] {
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  [data-ui-slider][data-part-root][data-disabled] [data-part-mark] {
+    background-color: var(--slotted-disabled-foreground);
+  }
+
+  /**
+   * The one block the theme cannot write for the family. Under forced colours
+   * a background is repainted by the operating system, and the channel, the
+   * fill and the thumb are three backgrounds that have to stay three different
+   * things — a fill flattened to the channel's colour would leave a slider
+   * with no value on it at all.
+   */
+  @media (forced-colors: active) {
+    [data-ui-slider] [data-part-track] {
+      background-color: ButtonFace;
+      border-color: ButtonBorder;
+    }
+
+    [data-ui-slider] [data-part-indicator] {
+      background-color: Highlight;
+    }
+
+    [data-ui-slider] [data-part-thumb] {
+      background-color: ButtonFace;
+      border-color: ButtonBorder;
+    }
+
+    [data-ui-slider] [data-part-mark] {
+      background-color: CanvasText;
+    }
+
+    [data-ui-slider][data-part-root][data-disabled] [data-part-indicator],
+    [data-ui-slider][data-part-root][data-disabled] [data-part-thumb] {
+      background-color: Canvas;
+      border-color: GrayText;
+    }
+
+    /* The invalid edge is a shadow, which forced colours remove: it comes back
+       as an outline inside the thumb's border, and a focused invalid thumb
+       draws its ring double. */
+    [data-ui-slider][data-invalid] [data-part-thumb] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(
+        -1 * (var(--slotted-border-width-thick, 2px) + var(--_invalid-edge-width))
+      );
+    }
+
+    [data-ui-slider][data-invalid] [data-part-thumb]:has(> [data-part-input]:focus-visible) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(--slotted-focus-ring-offset, 2px);
+    }
+  }
+}

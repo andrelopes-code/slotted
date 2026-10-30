@@ -1,0 +1,188 @@
+---
+title: Combobox
+description: A text input that filters a list of options as the reader types, and commits one of them as the value.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Descriptions
+
+A description is the line under the label, for the detail that tells two similar options apart. The filter compares the label only, so typing a word from the description finds nothing.
+
+<Example name="descriptions" />
+
+## Icons
+
+The first column holds an icon in front of the label. In React `icon` takes any element; in Angular `icon` names a glyph, and an element of your own goes in through `slComboboxItemIcon`.
+
+<Example name="icons" />
+
+## Disabled options
+
+A disabled option stays in the list, is announced as unavailable, and is skipped by every movement key. Put the reason in its description so the reader knows why it cannot be chosen.
+
+<Example name="disabled-options" />
+
+## Groups
+
+Groups give each run of options a name that assistive technology reads with them. A group whose options were all filtered away disappears with its heading.
+
+<Example name="groups" />
+
+## Filtering
+
+The default filter is a locale-sensitive "contains" that ignores accents and case, so `sao` finds São Paulo. The mark covers the span the same comparison matched. `locale` sets the language of the comparison when it differs from the page.
+
+<Example name="filtering" />
+
+## Custom filter
+
+`filter` replaces the comparison with a function of the label and the query. Here SKUs match from their first character only. `filter={null}` turns filtering off for a list a server has already filtered.
+
+<Example name="custom-filter" />
+
+## Inline completion
+
+`autocomplete="both"` writes the rest of the first match into the input as a selected range. The next character replaces it, Backspace removes it, and Tab or ArrowRight accepts it.
+
+<Example name="inline-completion" />
+
+## Opening
+
+`openOn` decides when the popup opens without the trigger button. `input`, the default, opens on typing or a press on the input; `focus` also opens when Tab reaches the input; `manual` opens only from the trigger and the arrow keys.
+
+<Example name="open-on" />
+
+## Highlighting the first match
+
+With `autoHighlight` the first match is highlighted when the popup opens and after every character typed, so Enter takes it without an arrow key. `loop` makes ArrowDown wrap from the last option to the first. Both suit data entry where the reader types a few characters and moves on.
+
+<Example name="auto-highlight" />
+
+## Sizes
+
+Three steps, `sm`, `md` and `lg`, that match the height of the text field and select of the same size. An unset size follows the field around the combobox.
+
+<Example name="sizes" />
+
+## Variants
+
+`outline` is the default frame. `subtle` fills the control for a form set on a tinted surface. `plain` draws no frame at rest, for a table cell or a toolbar, and still shows hover and focus.
+
+<Example name="variants" />
+
+## Width
+
+`fullWidth={false}` lets the control keep its own width instead of filling the field. The popup is never narrower than the control and grows to its longest option, up to a maximum measure; `width="anchor"` pins it to the control's width.
+
+<Example name="width" />
+
+## Disabled and read-only
+
+A disabled combobox takes no input and is skipped by Tab. A read-only combobox keeps the text selectable and copyable and never opens. Both follow the field around them.
+
+<Example name="states" />
+
+## Clearing
+
+The clear button appears once the input holds text and resets both the text and the value in one press. Focus returns to the input. Set `clearable={false}` for a value that must always be present.
+
+<Example name="clearable" />
+
+## In a field
+
+Inside a field the label names the input, and the description and the error are read with it. `required` and `invalid` on the field reach the input as the native `required` attribute and `aria-invalid`.
+
+<Example name="field" />
+
+## In a form
+
+The form receives the value, never the typed text. In React `name` renders a hidden input that `FormData` reads. In Angular the combobox is a form control: `formControlName`, `formControl` and `ngModel` bind the value, and `Validators.required` applies to it.
+
+<Example name="form" />
+
+## Controlled text and value
+
+The text in the input and the chosen value are two separate states. Typing changes only the text; choosing an option changes both. A controlled combobox owns both, so code that sets the value sets the text as well, as the button here does.
+
+<Example name="controlled" />
+
+## Custom values
+
+With `allowsCustomValue` the typed text becomes the value when the reader presses Enter or leaves the input. Without it, text that matches no option goes back to the label of the last chosen option.
+
+<Example name="custom-value" />
+
+## Creating options
+
+When nothing matches, the last option offers to create what was typed. It is an option like the others: ArrowDown reaches it and Enter takes it. Taking it reports the query and selects nothing, so your handler adds the option and selects it. The prop is `onCreate` in React; in Angular it is `creatable` with the `(create)` output.
+
+<Example name="creatable" />
+
+## Searching a server
+
+For results that come from a server, turn the filter off, control the text, and set `loading` while a request is in flight. The trigger shows a spinner, the popup shows three placeholder rows, and the status row announces the wait. Debounce the request in your own code; the combobox reports every keystroke.
+
+<Example name="async-search" />
+
+## Search errors
+
+A failed request is your state to show. Here the field turns invalid, the error says what happened, the typed text stays, and a retry button repeats the last search. The popup's empty message changes to match. The simulated service fails its first request only.
+
+<Example name="search-error" />
+
+## Loading more results
+
+`onLoadMore` (`loadMore` in Angular) fires when the end of the list scrolls into view, and you append the next page. `total` and `position` give each option its place in the full result set through `aria-setsize` and `aria-posinset`.
+
+<Example name="load-more" />
+
+## Long lists
+
+The combobox renders every option it is given and does not virtualize. PageDown and PageUp move the highlight ten options at a time. For collections larger than a few hundred options, load pages as shown above.
+
+<Example name="long-list" />
+
+## Long labels
+
+A label wraps to two lines and then truncates, with the whole text still in the DOM for the filter and for assistive technology. An unbroken identifier breaks inside the column instead of widening the popup.
+
+<Example name="long-labels" />
+
+## Messages
+
+`messages` replaces any of the six phrases the combobox writes: `clear`, `trigger`, `create`, `empty`, `loading` and `count`. `count` and `create` take ICU placeholders. Phrases you leave out come from the active locale.
+
+<Example name="messages" />
+
+## Application defaults
+
+Set an axis once for a whole subtree: `ComboboxDefaultsProvider` in React, `provideComboboxDefaults()` in Angular. A prop on a single combobox still wins.
+
+<Example name="defaults" />
+
+## Assignee picker
+
+A person picker with an avatar in the icon column, the role in the description, and an unavailable person kept in the list but disabled. `autoHighlight` lets the reader type a few letters of a name and press Enter.
+
+<Example name="assignee-picker" />
+
+## Country or region picker
+
+Countries grouped by region, with the currency and dialing code as the description. The locale-sensitive filter finds Côte d'Ivoire from `cote` and Türkiye from `turkiye`, and `name` submits the country code.
+
+<Example name="country-picker" />
+
+## Filter facets
+
+A row of compact comboboxes above a list, one per facet. Each control keeps its own width, the popups size to their options, and one button clears every facet by resetting both the value and the text.
+
+<Example name="filter-facets" wide />
+
+## Global search
+
+A search input alone in a header opens on focus, so the reader sees results before typing. Groups separate customers from orders, and the icon tells the two apart at a glance.
+
+<Example name="global-search" />

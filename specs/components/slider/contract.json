@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 5,
+  "family": "slider",
+  "ui": "slider",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Picks a value or range along a track."
+  },
+  "controlPart": "input",
+  "controlElement": "input[type=range]",
+  "controlRole": "slider",
+  "rootRole": null,
+  "roleFrom": "platform",
+  "thumbPerValue": true,
+  "valueType": "number | number[]",
+  "core": "@slotted/core/slider",
+  "stateSource": "field",
+  "mirrorsState": true,
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "disabled",
+  "readOnlyAttribute": "aria-readonly",
+  "wiring": {
+    "id": "always",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "disabled": "disabled",
+    "aria-readonly": "readOnly"
+  },
+  "ariaValue": ["aria-valuenow", "aria-valuemin", "aria-valuemax", "aria-valuetext"],
+  "ariaValueFrom": "element",
+  "keyboard": [
+    {
+      "key": "ArrowRight",
+      "effect": "increase",
+      "by": "step",
+      "mirrors": true
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "decrease",
+      "by": "step",
+      "mirrors": true
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "increase",
+      "by": "step",
+      "mirrors": false
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "decrease",
+      "by": "step",
+      "mirrors": false
+    },
+    {
+      "key": "Shift+ArrowRight",
+      "effect": "increase",
+      "by": "largeStep",
+      "mirrors": true
+    },
+    {
+      "key": "Shift+ArrowLeft",
+      "effect": "decrease",
+      "by": "largeStep",
+      "mirrors": true
+    },
+    {
+      "key": "Shift+ArrowUp",
+      "effect": "increase",
+      "by": "largeStep",
+      "mirrors": false
+    },
+    {
+      "key": "Shift+ArrowDown",
+      "effect": "decrease",
+      "by": "largeStep",
+      "mirrors": false
+    },
+    {
+      "key": "PageUp",
+      "effect": "increase",
+      "by": "largeStep",
+      "mirrors": false
+    },
+    {
+      "key": "PageDown",
+      "effect": "decrease",
+      "by": "largeStep",
+      "mirrors": false
+    },
+    {
+      "key": "Home",
+      "effect": "min",
+      "mirrors": false
+    },
+    {
+      "key": "End",
+      "effect": "max",
+      "mirrors": false
+    }
+  ],
+  "keyboardOwner": "family",
+  "homeEndReach": "thumb",
+  "tabOrder": "declaration",
+  "boundsFollowNeighbour": true,
+  "pointer": {
+    "trackPress": "nearest",
+    "drag": "family",
+    "capture": "setPointerCapture",
+    "inputPointerEvents": "none"
+  },
+  "range": {
+    "min": "min",
+    "max": "max",
+    "step": "step",
+    "largeStep": "largeStep",
+    "origin": "origin",
+    "minStepsBetween": "minStepsBetween"
+  },
+  "stepDefaults": {
+    "largeStep": "step * 10"
+  },
+  "format": {
+    "options": "Intl.NumberFormatOptions",
+    "locale": "BCP 47",
+    "core": "@slotted/core/number"
+  },
+  "valueTextFromMark": true,
+  "commitRequest": "onValueCommit",
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "orientation": ["horizontal", "vertical"],
+    "valueLabel": ["auto", "always", "none"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "orientation": ["prop", "defaults", "horizontal"],
+    "valueLabel": ["prop", "defaults", "auto"],
+    "locale": ["prop", "slotted", "en-US"]
+  },
+  "provides": {
+    "sliderDefaults": ["size", "orientation", "valueLabel"]
+  },
+  "imperative": ["focusThumb"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "dragging": "data-dragging"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "literals": {
+    "--slotted-slider-track-size": "The rail's weight is one step of the space scale at every size, because a rail is a line rather than a control: only the thumb, the type and the target grow with the step. The value is a token, not a literal; this records why it does not vary by size.",
+    "--slotted-slider-thumb-size": "The thumb is the control glyph plus one space step, which is arithmetic over two scales rather than a literal, and the band around it is floored at --slotted-target-min so the cross axis is never short."
+  },
+  "members": {
+    "slider": {
+      "nativeElement": "input",
+      "defaults": {
+        "size": "md",
+        "orientation": "horizontal",
+        "valueLabel": "auto",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "origin": "min",
+        "minStepsBetween": 0
+      },
+      "capabilities": [
+        "value",
+        "appearance",
+        "size",
+        "orientation",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "readonly",
+        "dragging"
+      ],
+      "parts": [
+        "root",
+        "output",
+        "control",
+        "track",
+        "indicator",
+        "mark",
+        "mark-label",
+        "thumb",
+        "input",
+        "bubble"
+      ]
+    }
+  },
+  "scenarios": {
+    "slider": [
+      "playground",
+      "sizes",
+      "orientation",
+      "range",
+      "marks",
+      "origin",
+      "format",
+      "valueLabel",
+      "states",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

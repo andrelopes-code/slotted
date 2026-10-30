@@ -1,0 +1,533 @@
+{
+  "schemaVersion": 5,
+  "family": "tree",
+  "ui": "tree",
+  "catalog": {
+    "group": "Navigation",
+    "summary": "Hierarchy of items that expand and select."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/treeview/",
+  "patternStatus": "Read on 2026-09-09 from the rendered pattern page and from the File Directory Treeview (computed properties) and Navigation Treeview examples. The optional keys and both multi-select interaction models are transcribed from the page source rather than from its summary, so the recommended model — no modifier held while moving — is the one implemented. The keyboard table, the roles and the properties are below, and the itemised comparison is and §7.",
+  "roles": {
+    "root": "presentation",
+    "canvas": "tree",
+    "node": "treeitem",
+    "row": "presentation",
+    "group": "group",
+    "expander": "presentation"
+  },
+  "element": {
+    "root": "div",
+    "canvas": "ul",
+    "node": "li",
+    "group": "ul",
+    "reason": "The list elements are kept even though the three roles replace what they imply, because the nesting is what the browser computes aria-level, aria-setsize and aria-posinset from — which is the whole reason the family may omit those three attributes while the set is complete, and the thing the pattern's own \"Using Computed Properties\" example is named for. The root is a second element because container-type: inline-size makes an element a query container for its descendants and not for itself, and the indent answers the family's own width.",
+    "cost": "A ul cannot hold the absolutely positioned canvas a window needs, so the windowed shape drops the nesting instead: see structure below."
+  },
+  "composes": ["collection", "state", "typeahead", "focus", "live-announcer"],
+  "structure": {
+    "auto": "flat while virtual, nested otherwise",
+    "nested": "each branch holds a ul[role=group]; the browser computes aria-level, aria-setsize and aria-posinset, and the family writes none of them",
+    "flat": "every node is a direct child of the canvas and carries aria-level, aria-setsize and aria-posinset itself; no group element exists",
+    "reason": "A window renders a slice of the visible rows and a slice cannot preserve nesting. The pattern states the condition exactly — \"if the complete set of available nodes is not present in the DOM due to dynamic loading as the user moves focus in or scrolls the tree, each node has aria-level, aria-setsize, and aria-posinset specified\" — so the windowed tree writes the three properties the nested one leaves to the platform. The axis is public rather than derived so the flat shape can be read and tested without a window.",
+    "cost": "In the flat shape no element carries role=group, so a reader hears the level of each node and not the size of each branch. React Aria's virtualized tree has the same shape and states nothing about it."
+  },
+  "navigation": {
+    "module": "packages/core/src/collection",
+    "functions": ["moveIndex", "createTreeCollection", "cascadeSelection", "indeterminateKeys"],
+    "mask": "The enabled mask is built over visible(expandedKeys), not over the whole collection: a node inside a collapsed branch is not reachable and must not be counted, and an arrow that counted it would skip a row.",
+    "reason": "Up, down, home, end and the two page keys are arithmetic over a mask, which moveIndex already holds for listbox, select and combobox. Right and left are the tree's own two keys and are the only movement written here."
+  },
+  "typeahead": {
+    "module": "typeahead",
+    "timeout": 500,
+    "label": "textValue, or the label part text",
+    "scope": "the visible nodes, in their visible order",
+    "reason": "The pattern recommends type-ahead for all trees and especially above seven root nodes. It matches what a reader can see: typing a letter that only matches a node inside a collapsed branch does nothing, because moving focus into a branch the reader has closed is a move they cannot see the result of."
+  },
+  "selection": {
+    "attribute": "aria-selected under selectionIndicator=highlight, aria-checked under checkbox",
+    "forbidden": "both at once",
+    "reason": "The pattern allows one of the two and calls a tree carrying both extremely rare, requiring three conditions to hold at once. Zag ships selectedValue and checkedValue as separate sets and produces that tree by default. One value here, and the indicator decides how it is written: aria-selected for a highlight, aria-checked for a box, which is the convention the pattern's own note recommends.",
+    "dom": "data-selected in both indicator modes, so a stylesheet and a test have one selector for one fact.",
+    "cascade": {
+      "descendants": "pressing a branch takes every enabled descendant with it, and a branch is selected exactly when all of its enabled children are",
+      "indeterminate": "a branch holding part of a selection and not the whole of it, and never a branch that is itself selected",
+      "disabled": "left exactly as it was, in both directions: the reader cannot reach it, so nothing decides it on the reader's behalf",
+      "unfetched": "a branch whose children have not arrived has none to roll up from and stays selected on its own"
+    },
+    "models": {
+      "toggle": "The recommended model. A plain press changes one node and holds no modifier, which is what the pattern names first.",
+      "replace": "The alternative model. Moving without a modifier collapses the selection onto the node moved to."
+    },
+    "forcedColors": "Under forced-colors: active every tone surface becomes Canvas, so a selection said with a tinted ground alone says nothing in the mode that needs it most. The mark and the edge are what survive.",
+    "collapsedBranch": "A collapsed branch holding a selected descendant carries data-selected-within. Carbon states the rule and ships no API for it; a selection that disappears when its branch closes is a selection the reader has lost. It is a fact rather than a state: the reader did not select this node, so it takes no place in the state vocabulary.",
+    "highlight": "no mark at all: the row's ground and its ink say it, as Primer, Carbon and the pattern's own examples do. A mark needs a cell, and a cell that is empty on every unchosen row is a gutter down the start edge of the whole tree — which is what the visual gate found. A tree already spends one cell on the chevron and one per level on the indent, and that is where this family parts from listbox, which keeps its check because a flat list has one cell to spare and no indent.",
+    "highlightCost": "a chosen row is told from an unchosen one by ground and ink. Under forced colours it takes Highlight and HighlightText, which is the system's own selection rather than a colour of ours; a product that wants a mark asks for selectionIndicator=checkbox, and then the mark is a box the reader can press.",
+    "box": "the box checkbox draws, value for value: the same square from the selection scale, the same medium edge in the strong border colour, the same smallest radius, the same solid ground when chosen, and a mark with a whole two pixels of clearance on every side revealed by a clip that opens along the stroke. Two selection controls on one page that differ by a pixel are two controls. packages/styles/src/tree/tree.styles.test.mjs reads checkbox.css and compares them, so a change to either family that parts them fails."
+  },
+  "expansion": {
+    "value": "readonly string[]",
+    "trigger": "the expander always, and the whole row under expandOn=row",
+    "asterisk": "opens every sibling at the level of the active node; the pattern lists it as optional and two surveyed implementations ship it",
+    "activeNodeInside": "collapsing a branch that holds the active node moves the active node to the branch, and that request is emitted before the expansion request, so a consumer that accepts one and refuses the other is left with a coherent pair",
+    "reason": "A branch is a disclosure, so the capability is open. accordion reached for selection for the same value, and tree needs that word for something else."
+  },
+  "lazy": {
+    "owner": "the consumer",
+    "inputs": ["hasChildren", "getChildrenCount", "loading", "invalid"],
+    "part": "loader",
+    "announce": "one polite announcement per branch, naming it and the number of children, through @slotted/core/live-announcer",
+    "reason": "Zag takes a loadChildren promise and mutates its own collection. This family holds no collection of its own, so it emits the expansion request, paints the loader, writes aria-busy on the group and announces the arrival. The data then has one owner, which is what docs/state-and-events.md asks of every family.",
+    "cost": "Four lines of consumer code Zag does not ask for, and a branch nobody marks is a branch that never shows a loader."
+  },
+  "filtering": {
+    "input": "query",
+    "module": "packages/core/src/collection/filter.ts",
+    "functions": ["createFilter", "matchRanges", "splitByMatch"],
+    "ancestors": "a node whose descendant matches stays visible and is opened, so a hit is never hidden behind a closed branch",
+    "expansion": "the path to every hit is held open for as long as the query lasts, and the reader's own expanded set is never moved. A filter that asked for the expansion instead would have to put the set back when the query emptied, and a reader who cleared a search would find branches open that they never opened. aria-expanded reports what is on screen either way.",
+    "mark": "the matched span is wrapped inside the label part and tinted with --slotted-highlight-tint-opacity, which is the band select and combobox already draw",
+    "facts": "data-match=\"hit\" on a node whose own label matched, data-match=\"ancestor\" on one kept for a descendant",
+    "owner": "the consumer owns the query string and the control it is typed into; the family renders no search field",
+    "reason": "No surveyed tree ships filtering, and a file tree nobody can search is a file tree nobody can use. The engine, the token and the mark all exist already, so the capability costs the family a derivation rather than a mechanism.",
+    "empty": "a query matching nothing renders the empty part, not an empty canvas"
+  },
+  "facts": {
+    "data-key": "the node's key, on the node",
+    "data-depth": "its level, zero at the roots",
+    "data-branch": "present on a node that has or may have children",
+    "data-selected-within": "on a collapsed branch holding a selected descendant",
+    "data-match": "hit or ancestor, while a query is set",
+    "reason": "None of these is a state: they are facts about the node rather than a condition the reader put it in, so they take no place in the state vocabulary and none in STATE_PRECEDENCE. They are contract all the same, and the reference page documents them.",
+    "data-selection": "the resolved selection mode, on the root. It is what the cursor rule reads, and a consumer styling a tree by what it can do reads the same word."
+  },
+  "value": {
+    "single": "string | null",
+    "multiple": "readonly string[]",
+    "none": "string | null",
+    "reason": "The shape listbox settled, for the same reason: three of the four surveyed implementations give single selection a scalar, and the array-always shape is what makes a consumer write value[0]."
+  },
+  "focus": {
+    "tabStops": 1,
+    "auto": {
+      "virtual": "activedescendant",
+      "otherwise": "roving",
+      "reason": "A roving tabindex is the better model when it works, and it stops working the moment a window recycles the row holding tabindex=\"0\". The fact that decides it is one the family already holds, which is the rule listbox set."
+    },
+    "onFocus": "The selected node when there is one, otherwise the first node, which is what the pattern requires of a single-select and a multi-select tree alike.",
+    "afterRemoval": "createRemovalFocus: the next sibling, then the previous, then the parent. Zag returns focus to the tree and React Aria keeps a key that no longer exists, so a reader deleting three files in a row is sent to the top three times.",
+    "insideAnInput": "arrow navigation stands down while focus is inside a text field in a row, which is the rule toolbar established and what makes an inline rename composable."
+  },
+  "expander": {
+    "element": "span",
+    "focusable": false,
+    "reason": "A button there is a second tab stop inside a widget whose pattern has exactly one, and tabindex=\"-1\" only moves the failure to the pointer: clicking it takes DOM focus off the treeitem that the roving tab stop and aria-activedescendant both point at. The APG examples and Primer both draw a span.",
+    "cost": "A pointer-only reader has one target rather than a labelled control. Under expandOn=row the whole band is that target; under expandOn=expander the chevron's hit area is grown to --slotted-target-min without the artwork growing."
+  },
+  "indent": {
+    "carrier": "row",
+    "property": "padding-inline-start",
+    "guide": "one element per row, sized depth x step, its lines a repeating-linear-gradient at the step",
+    "cap": "a container query on the canvas keeps the same shape with a smaller second term, so the distance falls to six at 320 pixels and to four at 240 and never to nought",
+    "reason": "The band a hovered or selected row paints spans the full width of the tree; a band that started at the indent reads as a broken rectangle, which is what indenting the group produces. One guide element per row rather than one per level is what keeps depth twenty from costing twenty elements.",
+    "cost": "No elbow at the last child, which none of the surveyed implementations draws either, so the line says which parent a row belongs to and not which sibling is last.",
+    "guideAlignment": "under the centre of the chevron of the level above, which is half a glyph from the start of that level's cell and not half a step. The two agree only at md; at sm, at lg and under both container queries they do not, so every line was off its chevron at five of the nine combinations.",
+    "guideEnd": "straight through every row, with nothing shortened at a last child. Half a line is where an elbow would turn, and with no elbow to turn into a chain of only children drew a staircase of short segments that read as broken rather than as ended.",
+    "step": "half a glyph plus a fixed step of the space scale, not a step of the space scale on its own. What a reader sees on a row is the distance from its deepest guide line to its own chevron, and that distance is step minus half a glyph, because the line sits on the centre of the chevron one level up. Read from the space scale the two moved apart — measured on the built page: five pixels at sm, eight at md, eleven at lg, and nought at 240 pixels, where the line met the chevron. Stated from the glyph it is eight at every size, and md keeps the sixteen it already had.",
+    "guideColour": "six parts of the strong border step to four of the subtle, mixed in oklab. Measured on the built page: #a1aebd at 2.26:1 in light and #525258 at 2.39:1 in dark, against the subtle step's 1.23 and 1.25 — a line a reader has to look for — and the strong step's 3.59 and 3.84, which is a separator's weight repeated once per level. The guide owes no ratio, because the indent and aria-level carry the hierarchy on their own; it owes being seen at a glance and staying under the text. Mixing two tokens rather than fading one into transparency is what keeps high-contrast at 21:1, where both ends are black, with no rule that reads the scheme."
+  },
+  "virtual": {
+    "module": "packages/core/src/collection",
+    "functions": ["virtualWindow", "createRowMetrics", "offsetForIndex"],
+    "rows": "visible(expandedKeys), which changes on every expansion, so the window is rebuilt from the flattened list rather than from the collection",
+    "structure": "flat",
+    "pinned": ["the active node", "the range anchor"],
+    "itemSize": "required whenever virtual is set. A window over rows whose height depends on how their own text wrapped is the measured variant the engine deferred."
+  },
+  "forms": {
+    "name": "name",
+    "angular": "ControlValueAccessor and Validator over the selection value",
+    "react": "One hidden input per selected key, under the name the consumer gave.",
+    "asymmetry": "The Angular root is a form control and the React root is not. Recorded rather than levelled: Reactive Forms is a real integration point React has no equivalent of, and hidden inputs are the platform's answer where React lives."
+  },
+  "wiring": {
+    "aria-multiselectable": "true on the canvas only in multiple; the pattern lets the implied false stand otherwise",
+    "aria-expanded": "on a branch only, never on a leaf, because a leaf carrying it is announced as a parent",
+    "aria-selected": "true or false on every node while selectionMode is not none and the indicator is highlight; absent entirely under none, which is what says a node is not selectable",
+    "aria-checked": "the same, under the checkbox indicator, and never beside aria-selected",
+    "aria-labelledby": "on every node, naming its own label part. A treeitem contains the group holding its children, so a name computed from its contents is the whole subtree read aloud.",
+    "aria-level": "written only in the flat structure; the nesting is what the browser computes it from otherwise",
+    "aria-setsize": "written with aria-level, and also on the children of a branch whose getChildrenCount exceeds what has arrived",
+    "aria-posinset": "written wherever aria-setsize is",
+    "aria-busy": "true on the group of a branch whose children are still on their way",
+    "aria-activedescendant": "on the canvas, under that focus model, naming the active node's id",
+    "aria-disabled": "on a disabled node, so it keeps its place in the reading order",
+    "name": "the canvas takes aria-label or aria-labelledby; the pattern requires one and the reference page says so"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves into and out of the tree; the whole tree is one tab stop",
+      "focus": "the active node under roving, the canvas under activedescendant",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "opens a closed branch; on an open branch moves into it; on a leaf does nothing",
+      "focus": "unchanged, then the first child",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "closes an open branch; on a leaf or a closed branch moves to the parent; at the root level does nothing",
+      "focus": "unchanged, then the parent",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "moves to the next visible node without opening or closing anything",
+      "focus": "that node",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "moves to the previous visible node without opening or closing anything",
+      "focus": "that node",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "moves to the first visible node",
+      "focus": "that node",
+      "source": "pattern"
+    },
+    {
+      "key": "End",
+      "effect": "moves to the last visible node",
+      "focus": "that node",
+      "source": "pattern"
+    },
+    {
+      "key": "PageDown",
+      "effect": "moves ten visible nodes on, clamping at the end rather than wrapping",
+      "focus": "that node",
+      "source": "departure"
+    },
+    {
+      "key": "PageUp",
+      "effect": "moves ten visible nodes back, clamping at the start",
+      "focus": "that node",
+      "source": "departure"
+    },
+    {
+      "key": "Enter",
+      "effect": "activates the node; under expandOn=row a branch also toggles",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "Space",
+      "effect": "toggles the selection of the active node",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "Shift+ArrowDown",
+      "effect": "moves and toggles the selection of the node moved to, in multiple",
+      "focus": "the next visible node",
+      "source": "pattern"
+    },
+    {
+      "key": "Shift+ArrowUp",
+      "effect": "the same, backwards",
+      "focus": "the previous visible node",
+      "source": "pattern"
+    },
+    {
+      "key": "Shift+Space",
+      "effect": "selects from the anchor to the active node, in multiple",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "Control+Shift+Home",
+      "effect": "selects from the active node to the first visible one, in multiple",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "Control+Shift+End",
+      "effect": "selects from the active node to the last visible one, in multiple",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "Control+A",
+      "effect": "selects every visible enabled node, or clears when they are already all selected, unless disallowSelectAll",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "*",
+      "effect": "opens every sibling at the level of the active node",
+      "focus": "unchanged",
+      "source": "pattern"
+    },
+    {
+      "key": "a printable character",
+      "effect": "moves to the next visible node whose label starts with what has been typed",
+      "focus": "that node",
+      "source": "pattern"
+    }
+  ],
+  "departures": {
+    "PageUp and PageDown": {
+      "reason": "The pattern's tree table lists neither. A file tree of four hundred visible rows without them is a tree nobody can cross, and the arithmetic is already in the engine listbox uses.",
+      "cost": "Two keys a reader coming from a strict reading of the pattern does not expect to work."
+    },
+    "flat structure": {
+      "reason": "A window renders a slice of the visible rows, and a slice cannot preserve nesting.",
+      "cost": "No element carries role=group, so a reader hears each node's level and not each branch's size. The three properties the pattern requires under exactly this condition are written instead."
+    },
+    "one selection set": {
+      "reason": "The pattern forbids a tree carrying aria-selected and aria-checked at once except under three conditions it calls extremely rare.",
+      "cost": "A product wanting a highlight and a set of checks at the same time uses activeKey for the highlight — it is in the DOM as data-current — rather than a second selection value."
+    }
+  },
+  "declined": {
+    "dragAndDrop": {
+      "deferTo": "wave 8",
+      "reason": "One surveyed implementation ships it. The library has no drag foundation in packages/core, and inventing one inside tree would decide it for data-grid, toolbar and tabs as well."
+    },
+    "inlineRename": {
+      "reason": "One surveyed implementation ships it. A rename is a text-field the consumer renders in place of the label, and arrow navigation already stands down while focus is inside an input."
+    },
+    "sections": {
+      "reason": "A section is a level, and a tree already has levels. Two grouping mechanisms in one family is two answers to one question."
+    },
+    "horizontalOrientation": {
+      "reason": "The pattern's note exists so a horizontal tree maps its arrows correctly; no surveyed implementation ships one. A vertical tree already mirrors its one axis under dir=rtl."
+    },
+    "perItemExpansion": {
+      "reason": "Primer holds the flag on the item. A set on the tree is the same information and the only shape expand-all, filtering and reveal-this-node can write in one request; a consumer holding it per item derives the set in one filter."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["plain", "framed"],
+    "structure": ["auto", "nested", "flat"],
+    "selectionMode": ["none", "single", "multiple"],
+    "selectionBehavior": ["toggle", "replace"],
+    "selectionIndicator": ["auto", "highlight", "checkbox", "none"],
+    "selectionCascade": ["none", "descendants"],
+    "expandOn": ["row", "expander"],
+    "focusMode": ["auto", "roving", "activedescendant"],
+    "guides": [true, false],
+    "loop": [true, false],
+    "typeahead": [true, false],
+    "selectOnFocus": [true, false],
+    "navigateDisabled": [true, false],
+    "disallowEmptySelection": [true, false],
+    "disallowSelectAll": [true, false],
+    "virtual": [true, false],
+    "disabled": [true, false]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "variant": ["prop", "defaults", "plain"],
+    "structure": ["prop", "defaults", "auto"],
+    "selectionMode": ["prop", "defaults", "single"],
+    "selectionBehavior": ["prop", "defaults", "toggle"],
+    "selectionIndicator": ["prop", "defaults", "auto"],
+    "selectionCascade": ["prop", "defaults", "none"],
+    "expandOn": ["prop", "defaults", "row"],
+    "focusMode": ["prop", "defaults", "auto"],
+    "guides": ["prop", "defaults", true],
+    "loop": ["prop", "defaults", false],
+    "typeahead": ["prop", "defaults", true],
+    "selectOnFocus": ["prop", "defaults", false],
+    "navigateDisabled": ["prop", "defaults", false],
+    "disallowEmptySelection": ["prop", "defaults", false],
+    "disallowSelectAll": ["prop", "defaults", false],
+    "virtual": ["prop", "defaults", false],
+    "disabled": ["prop", "field", "defaults", false]
+  },
+  "provides": {
+    "treeDefaults": [
+      "size",
+      "variant",
+      "structure",
+      "selectionMode",
+      "selectionBehavior",
+      "selectionIndicator",
+      "selectionCascade",
+      "expandOn",
+      "focusMode",
+      "guides",
+      "loop",
+      "typeahead",
+      "selectOnFocus",
+      "navigateDisabled",
+      "disallowEmptySelection",
+      "disallowSelectAll",
+      "virtual",
+      "disabled",
+      "itemSize",
+      "overscan",
+      "typeaheadTimeout",
+      "pageSize"
+    ]
+  },
+  "stateAttributes": {
+    "selected": "data-selected",
+    "current": "data-current",
+    "expanded": "data-expanded",
+    "indeterminate": "data-indeterminate",
+    "disabled": "data-disabled",
+    "loading": "data-loading",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "required": "data-required"
+  },
+  "stateModel": {
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "clear", "programmatic"]
+    },
+    "open": {
+      "controlled": "expandedKeys",
+      "uncontrolled": "defaultExpandedKeys",
+      "request": "onExpandedKeysChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    },
+    "current": {
+      "controlled": "activeKey",
+      "uncontrolled": "defaultActiveKey",
+      "request": "onActiveKeyChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "members": {
+    "tree": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "plain",
+        "structure": "auto",
+        "selectionMode": "single",
+        "selectionBehavior": "toggle",
+        "selectionIndicator": "auto",
+        "selectionCascade": "none",
+        "expandOn": "row",
+        "focusMode": "auto",
+        "guides": true,
+        "loop": false,
+        "typeahead": true,
+        "selectOnFocus": false,
+        "navigateDisabled": false,
+        "disallowEmptySelection": false,
+        "disallowSelectAll": false,
+        "virtual": false,
+        "disabled": false,
+        "loading": false,
+        "itemSize": 32,
+        "overscan": 4,
+        "typeaheadTimeout": 500,
+        "pageSize": 10
+      },
+      "capabilities": [
+        "selection",
+        "current",
+        "open",
+        "virtualization",
+        "appearance",
+        "size",
+        "arrangement",
+        "disabled",
+        "loading",
+        "readOnly",
+        "required",
+        "invalid",
+        "content",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "selected",
+        "current",
+        "expanded",
+        "indeterminate",
+        "disabled",
+        "loading",
+        "invalid",
+        "readonly",
+        "required"
+      ],
+      "parts": [
+        "root",
+        "canvas",
+        "node",
+        "row",
+        "guide",
+        "expander",
+        "indicator",
+        "icon",
+        "label",
+        "description",
+        "meta",
+        "loader",
+        "actions",
+        "group",
+        "empty"
+      ]
+    }
+  },
+  "scenarios": {
+    "tree": [
+      "playground",
+      "expansion",
+      "selection",
+      "cascade",
+      "indicator",
+      "guides",
+      "size",
+      "variant",
+      "states",
+      "empty-and-loading",
+      "lazy-loading",
+      "filtering",
+      "virtualization",
+      "content",
+      "forms",
+      "composition",
+      "keyboard",
+      "accessibility"
+    ]
+  },
+  "row": {
+    "gap": "none",
+    "cells": "each optional cell carries its own margin",
+    "reason": "A gap is drawn between two cells even when one of them is empty, so a tree whose nodes carry no icon opened with a gutter down its start edge and one with no mark opened with two. It is menu's rule and listbox's, and the defect the visual gate found here.",
+    "iconColumn": "a tree holding at least one icon opens the same cell on every row, so a set where only some nodes carry a picture keeps every name in one column. Primer asks the consumer to pass a visual on every item or to accept two columns of names; the fact is one the tree reads for itself.",
+    "placeholder": "a row whose label holds a skeleton takes the space a name would have taken, at one of three widths, because a column of identical bars reads as a table rather than as names.",
+    "cursor": "the hand on every row that does something, the arrow on a row that does not. menu, menubar and listbox keep the arrow because an option is one of a set and the set is the control; button, select and combobox draw the hand. A tree row is on both sides of that line — it is an option in a set, and under the default expandOn=row it is also the disclosure that opens its own branch — and drawing the arrow on the element that opens the branch is the defect SL11 fixed. Two cursors inside one tree, the hand on a branch and the arrow on a leaf that selects, is worse than either answer alone, and is what this family drew until the visual gate asked. The arrow is left for a leaf in a tree that selects nothing, for every row when the chevron is the only target and nothing is selectable, and for a readonly tree."
+  },
+  "icon": {
+    "owner": "the consumer",
+    "glyph": "none. The family owns no folder mark: a folder is content, and the glyph scale holds none. The part is a box of the control glyph size and the consumer puts what it likes in it — an svg, a mask, a sprite, another family's icon.",
+    "byState": "yes, and with no prop for it. Every state the contract declares is on the node in the DOM, so a consumer swaps its own artwork from CSS alone: [data-part='node'][data-expanded] > [data-part='row'] [data-part='icon'] is a public selector, and a shut folder on a closed branch with an open one on an open branch costs two rules. In both bindings the state is also in hand where the node is rendered, so the swap can be made in the markup instead.",
+    "column": "a tree holding at least one icon opens the same cell on every row, so a set where only some nodes carry a picture keeps every name in one column"
+  },
+  "variant": {
+    "default": "plain",
+    "reason": "A tree is nearly always inside something that has already drawn an edge: a pane, a drawer, a sidebar, a dialog. Framed by default gives that arrangement two edges a pixel apart, which is the defect the plain variant exists to prevent. None of the surveyed implementations frames its tree — not the pattern's own examples, not Zag, not Primer, not Carbon — and neither do the file browsers a reader already knows.",
+    "framed": "kept, and not the default. A standalone picker on an otherwise empty page — a folder chooser in a dialog, an import screen — needs an edge, and a consumer drawing one by hand would draw a different one each time.",
+    "parting": "listbox defaults to framed because <select multiple> looks like that and a listbox is a form control that stands on its own. A tree is a region, and this is where the two families part."
+  }
+}

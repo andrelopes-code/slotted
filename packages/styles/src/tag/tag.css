@@ -1,0 +1,789 @@
+@layer slotted.components {
+  /**
+   * ── The chip box ───────────────────────────────────────────────────────
+   *
+   * An entity, a filter or a compact value. It is not metadata — that is
+   * `badge`, and the two share this tone and this type scale on purpose — and
+   * it is not a command until a member says so.
+   *
+   * Two attributes on every selector, always. `group` is the one part in this
+   * family that contains its family's root instead of sitting inside it, so it
+   * carries `data-ui` itself, as `badge`'s `anchor` does.
+   *
+   * **The root is never the interactive element.** A `button` cannot contain a
+   * `button` and an `a` cannot contain either, so a chip that both acts and
+   * removes has to put its two controls side by side. The root paints the box;
+   * `body` holds the content and is the primary target; `remove` is its
+   * sibling. That decision is taken once, for every member, which is what
+   * removes the branch Primer needs (`hasMultipleActionTargets`) and the grid
+   * React Aria and Angular Material reach for.
+   *
+   * There is no height token. The block size is the chip's own line box plus a
+   * symmetric inset, floored at the WCAG target minimum, so a tag never
+   * disagrees with the type it contains and no density can leave one of its
+   * controls unhittable.
+   */
+  [data-ui-tag][data-part-root] {
+    /**
+     * Tone. The neutral fill is the tone's `solid-hover` step rather than its
+     * `solid` one, for the reason `badge` recorded: `solid` is the colour of
+     * the surface itself in all three schemes, so a filled neutral chip and a
+     * tinted one were the same rectangle and neither read as filled.
+     */
+    --_solid: var(--slotted-tone-secondary-solid-hover);
+    --_solid-hover: var(--slotted-tone-secondary-solid-active);
+    --_solid-active: var(--slotted-tone-secondary-solid-active);
+    --_on-solid: var(--slotted-tone-secondary-on-solid);
+    --_surface: var(--slotted-tone-secondary-surface);
+    --_subtle-hover: var(--slotted-tone-secondary-subtle-hover);
+    --_subtle-active: var(--slotted-tone-secondary-subtle-active);
+    --_border: var(--slotted-tag-border-color, var(--slotted-tone-secondary-border));
+    --_text: var(--slotted-tone-secondary-text);
+    /**
+     * What a filled chip draws around itself, and for four of the five tones
+     * the answer is its own fill: the edge is the ground, so the chip is one
+     * shape. `secondary` overrides it below, because its fill is the page's
+     * own colour in `high-contrast` and a chip with neither edge nor contrast
+     * is a run of text.
+     */
+    --_edge: var(--_solid);
+
+    /**
+     * Size. Type, glyph and gap come from the control scale, which is the only
+     * scale that moves with density, so a tag shrinks beside the controls it
+     * sits with. The insets come from the space scale: a density step inside
+     * an inset this small would be sub-pixel, and density already moves the
+     * type, which moves the box.
+     */
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_inner-size: var(--slotted-control-inner-size-sm, 22px);
+    /**
+     * The two tokens a host sets on a row of chips and never on a chip: the
+     * block inset, so a frame that is shorter than the chip at `dense` can
+     * ask it to give up its air rather than its type (`multi-select` and
+     * `tags-input` set it from the room their frame has left); and the edge,
+     * so a host can mark one chip — the one that answered a duplicate —
+     * without reaching into this sheet. Both are read here, once, and a host
+     * writes `[data-ui-tag]` nowhere. The inline inset is a theme's: the room
+     * between the edge and the text at every size, which a host leaves alone.
+     */
+    --_inset-block: var(--slotted-tag-inset-block, var(--slotted-space-2, 0.25rem));
+    --_inset-inline: var(--slotted-tag-inset-inline, var(--slotted-space-4, 0.5rem));
+    --_gap: var(--slotted-space-2, 0.25rem);
+
+    --_line-height: var(--slotted-line-height-xs, 1.4);
+    --_edge-width: var(--slotted-tag-border-width, var(--slotted-border-width-thin, 1px));
+    --_radius: var(--slotted-radius-full, 9999px);
+    /**
+     * The corner the fills inside the border box are cut to. A fill drawn to
+     * the outer radius bleeds past the border's inner curve on a square chip;
+     * the difference is invisible on a pill, where both are round.
+     */
+    --_inner-radius: max(0px, calc(var(--_radius) - var(--_edge-width)));
+    /**
+     * The chip's own line box plus its inset, and nothing else. It carried a
+     * floor at the WCAG 2.2 2.5.8 minimum for a while, so that the remove
+     * control — which stretches to the chip — would be hittable; the floor
+     * bound on `sm` alone and it still did not deliver the target, because a
+     * control stretched inside a 24px border box is 22px of content between
+     * two edges (TG2). The target is the control's own now, taken from a
+     * transparent halo below, which is the answer
+     * `docs/token-foundation.md` names for a target short in one axis and the
+     * answer R2 gives for every inner control. A chip is the height of what it
+     * says.
+     */
+    --_own-size: calc(
+      var(--_font-size) * var(--_line-height) + 2 * var(--_inset-block) + 2 * var(--_edge-width)
+    );
+    /**
+     * Inside a control the chip is the height the foundation gives the inside
+     * of a control — `--slotted-control-inner-size`, which the host writes on
+     * the row of chips from its own size step — and its line and its inset
+     * are derived from that height rather than the other way round. On its own
+     * the two derivations return exactly the type-and-inset height above, so a
+     * chip in running text is unchanged. The scale exists because a chip whose
+     * height followed its type shrank one pixel between comfortable and dense
+     * while the control around it shrank eight (`docs/token-foundation.md`,
+     * Control geometry).
+     */
+    --_block-size: var(--slotted-control-inner-size, var(--_own-size));
+    --_line: min(
+      calc(var(--_font-size) * var(--_line-height)),
+      calc(var(--_block-size) - 2 * var(--_edge-width))
+    );
+    --_inset: max(0px, calc((var(--_block-size) - var(--_line) - 2 * var(--_edge-width)) / 2));
+
+    align-items: stretch;
+    border: var(--_edge-width) solid transparent;
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    display: inline-flex;
+    font-family: var(--slotted-tag-font-family, var(--slotted-control-font-family, sans-serif));
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-tag-font-weight, var(--slotted-font-weight-medium, 500));
+    line-height: var(--_line);
+    /**
+     * One line, always, and no wider than what it is given. A tag holds a
+     * name; a tag that reflows into a paragraph has stopped being one. The
+     * clipping is visual only — `text-overflow` shortens nothing — so the whole
+     * value stays in the DOM, stays in the accessibility tree, and a page
+     * search still finds it.
+     */
+    max-inline-size: 100%;
+    min-block-size: var(--_block-size);
+    /* Written inside a sentence, a tag sits on the text's centre. */
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  /**
+   * A tag a collapse is hiding. The rule exists because `display: inline-flex`
+   * above beats the user agent's own `[hidden] { display: none }` — author
+   * styles win over the user agent sheet — so without it every hidden chip
+   * rendered and the collapse did nothing at all: six chosen values drew six
+   * chips, which ran out of the lane the control gives them and under the
+   * controls that end it (SL9). `breadcrumb`, `toolbar`, `tabs`, `alert` and
+   * `progress-indicator` each write this rule for the same reason; `tag` is
+   * the sheet that was missing it, and the two hosts that collapse a row of
+   * chips both write the attribute and neither could have known.
+   */
+  [data-ui-tag][data-part-root][hidden] {
+    display: none;
+  }
+
+  /* ── Tone: which of the five semantic colours the tag speaks in ────────── */
+
+  /**
+   * The one tone whose fill is the colour of the page. It keeps the tone's own
+   * border, where the other four let their fill be their edge.
+   */
+  [data-ui-tag][data-part-root][data-tone='secondary'] {
+    --_edge: var(--_border);
+  }
+
+  [data-ui-tag][data-part-root][data-tone='accent'] {
+    --_solid: var(--slotted-tone-accent-solid);
+    --_solid-hover: var(--slotted-tone-accent-solid-hover);
+    --_solid-active: var(--slotted-tone-accent-solid-active);
+    --_on-solid: var(--slotted-tone-accent-on-solid);
+    --_surface: var(--slotted-tone-accent-surface);
+    --_subtle-hover: var(--slotted-tone-accent-subtle-hover);
+    --_subtle-active: var(--slotted-tone-accent-subtle-active);
+    --_border: var(--slotted-tag-border-color, var(--slotted-tone-accent-border));
+    --_text: var(--slotted-tone-accent-text);
+  }
+
+  [data-ui-tag][data-part-root][data-tone='success'] {
+    --_solid: var(--slotted-tone-success-solid);
+    --_solid-hover: var(--slotted-tone-success-solid-hover);
+    --_solid-active: var(--slotted-tone-success-solid-active);
+    --_on-solid: var(--slotted-tone-success-on-solid);
+    --_surface: var(--slotted-tone-success-surface);
+    --_subtle-hover: var(--slotted-tone-success-subtle-hover);
+    --_subtle-active: var(--slotted-tone-success-subtle-active);
+    --_border: var(--slotted-tag-border-color, var(--slotted-tone-success-border));
+    --_text: var(--slotted-tone-success-text);
+  }
+
+  [data-ui-tag][data-part-root][data-tone='info'] {
+    --_solid: var(--slotted-tone-info-solid);
+    --_solid-hover: var(--slotted-tone-info-solid-hover);
+    --_solid-active: var(--slotted-tone-info-solid-active);
+    --_on-solid: var(--slotted-tone-info-on-solid);
+    --_surface: var(--slotted-tone-info-surface);
+    --_subtle-hover: var(--slotted-tone-info-subtle-hover);
+    --_subtle-active: var(--slotted-tone-info-subtle-active);
+    --_border: var(--slotted-tag-border-color, var(--slotted-tone-info-border));
+    --_text: var(--slotted-tone-info-text);
+  }
+
+  [data-ui-tag][data-part-root][data-tone='warning'] {
+    --_solid: var(--slotted-tone-warning-solid);
+    --_solid-hover: var(--slotted-tone-warning-solid-hover);
+    --_solid-active: var(--slotted-tone-warning-solid-active);
+    --_on-solid: var(--slotted-tone-warning-on-solid);
+    --_surface: var(--slotted-tone-warning-surface);
+    --_subtle-hover: var(--slotted-tone-warning-subtle-hover);
+    --_subtle-active: var(--slotted-tone-warning-subtle-active);
+    --_border: var(--slotted-tag-border-color, var(--slotted-tone-warning-border));
+    --_text: var(--slotted-tone-warning-text);
+  }
+
+  [data-ui-tag][data-part-root][data-tone='danger'] {
+    --_solid: var(--slotted-tone-danger-solid);
+    --_solid-hover: var(--slotted-tone-danger-solid-hover);
+    --_solid-active: var(--slotted-tone-danger-solid-active);
+    --_on-solid: var(--slotted-tone-danger-on-solid);
+    --_surface: var(--slotted-tone-danger-surface);
+    --_subtle-hover: var(--slotted-tone-danger-subtle-hover);
+    --_subtle-active: var(--slotted-tone-danger-subtle-active);
+    --_border: var(--slotted-tag-border-color, var(--slotted-tone-danger-border));
+    --_text: var(--slotted-tone-danger-text);
+  }
+
+  /**
+   * ── Variant: three paintings, and only two of them have an edge ────────
+   *
+   * The same three words, and the same reasoning, `badge` uses: `solid` fills
+   * and its edge is its own fill; `soft` fills with the tone's tinted
+   * `surface` and draws the tone's `border` around it; `outline` is that edge
+   * with nothing behind it. `soft` keeps its edge because in `high-contrast`
+   * every tone surface collapses to the page's own white, and there it
+   * converges with `outline` — which is what a high-contrast scheme is for.
+   * `dashed` is `outline` with the edge drawn in dashes; a selected tag fills,
+   * and its edge is solid again.
+   */
+
+  [data-ui-tag][data-part-root][data-variant='solid'] {
+    background-color: var(--_solid, ButtonFace);
+    border-color: var(--_edge, ButtonFace);
+    color: var(--_on-solid, ButtonText);
+  }
+
+  [data-ui-tag][data-part-root][data-variant='soft'] {
+    background-color: var(--_surface, ButtonFace);
+    border-color: var(--_border, ButtonBorder);
+    color: var(--_text, ButtonText);
+  }
+
+  [data-ui-tag][data-part-root][data-variant='outline'],
+  [data-ui-tag][data-part-root][data-variant='dashed'] {
+    background-color: transparent;
+    border-color: var(--_border, ButtonBorder);
+    color: var(--_text, ButtonText);
+  }
+
+  [data-ui-tag][data-part-root][data-variant='dashed']:not([data-selected]) {
+    border-style: dashed;
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-tag][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_inset-block: var(--slotted-tag-inset-block, var(--slotted-space-1, 0.125rem));
+    --_inset-inline: var(--slotted-tag-inset-inline, var(--slotted-space-3, 0.375rem));
+  }
+
+  /**
+   * The glyph scale has three steps and this family's three sizes span less of
+   * it, so `sm` and `md` land on the same one — the answer `badge` reached for
+   * the same reason: a 12px chip and a 13px chip should not carry visibly
+   * different glyphs.
+   */
+  [data-ui-tag][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+    --_inset-block: var(--slotted-tag-inset-block, var(--slotted-space-3, 0.375rem));
+    --_inset-inline: var(--slotted-tag-inset-inline, var(--slotted-space-5, 0.75rem));
+    --_gap: var(--slotted-space-3, 0.375rem);
+  }
+
+  /* ── Shape ────────────────────────────────────────────────────────────── */
+
+  [data-ui-tag][data-part-root][data-shape='square'] {
+    --_radius: var(--slotted-radius-sm, 4px);
+  }
+
+  /**
+   * ── The content box, and the primary target ────────────────────────────
+   *
+   * It carries the chip's inset rather than the root, so a hovered or pressed
+   * body fills the chip to its edge instead of leaving a ring of untouched
+   * ground around itself. It is a `span` when the tag does nothing and the
+   * element its member names when it does.
+   */
+  [data-ui-tag] [data-part-body] {
+    align-items: center;
+    /* The root paints the ground; the body paints only its own states. */
+    background-color: transparent;
+    border: 0;
+    border-end-start-radius: var(--_inner-radius);
+    border-start-start-radius: var(--_inner-radius);
+    box-sizing: border-box;
+    color: inherit;
+    display: inline-flex;
+    font: inherit;
+    gap: var(--_gap);
+    letter-spacing: inherit;
+    /* What lets a long chip shrink below its content, which is the condition
+       `text-overflow` needs to have anything to do. */
+    min-inline-size: 0;
+    padding-block: var(--_inset);
+    padding-inline: var(--_inset-inline);
+    text-align: start;
+    /* A body that renders as an anchor keeps the chip's shape as its
+       affordance; the underline belongs to `link`, on a link. */
+    text-decoration: none;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  /* The only child rounds both ends, which is every tag that cannot be removed. */
+  [data-ui-tag] [data-part-body]:last-child {
+    border-end-end-radius: var(--_inner-radius);
+    border-start-end-radius: var(--_inner-radius);
+  }
+
+  /**
+   * A body followed by a remove control gives back most of its trailing inset.
+   * The control is a square as tall as the chip, so its own centring already
+   * puts seven pixels between the words and the glyph at the medium step; the
+   * full inset on top of that made the label sit closer to the start edge than
+   * to the X, which the capture of a one-character chip showed as a pill made
+   * mostly of air. What is left is the gap the chip uses between any two things
+   * inside it.
+   */
+  [data-ui-tag] [data-part-body]:has(+ [data-part-remove]) {
+    padding-inline-end: var(--_gap);
+  }
+
+  [data-ui-tag] [data-part-body]:is(a, button) {
+    cursor: pointer;
+  }
+
+  /* ── The words, and the glyphs on either side of them ─────────────────── */
+
+  /**
+   * Where the line is clipped. `min-inline-size: 0` is what lets the box
+   * shrink below its content inside the flex body.
+   */
+  [data-ui-tag] [data-part-label] {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /**
+     * A tag holds a value somebody typed, and its direction is the value's own
+     * rather than the page's. `plaintext` is the CSS form of `dir="auto"`: the
+     * first strong character decides, so an Arabic name inside an English page
+     * reads right to left, a Latin name inside an Arabic page reads left to
+     * right, and each one is clipped at its own end rather than at the page's.
+     * The right-to-left capture is what asked the question — a Latin value with
+     * leading punctuation was reordered by the paragraph around it.
+     */
+    unicode-bidi: plaintext;
+  }
+
+  @supports (text-box: trim-both cap alphabetic) {
+    [data-ui-tag] [data-part-label] {
+      /**
+       * The line box a flex container centres is not symmetric around the
+       * letters inside it: the ascender reaches further above the cap than the
+       * descender reaches below the baseline, so a word with no descender sits
+       * high in its chip and a word with one looks right. `text-box` centres
+       * the ink instead of the font's metrics.
+       *
+       * The padding gives `overflow: hidden` room for the descenders and the
+       * tall diacritics that live outside a trimmed box, and the negative
+       * margin gives the space straight back — the same correction `badge`
+       * needed after a capture showed it beheading a `g`. A proportion of the
+       * type rather than a step of any scale, because what has to be cleared
+       * is the font's own overshoot.
+       */
+      margin-block: -0.3em;
+      padding-block: 0.3em;
+      text-box: trim-both cap alphabetic;
+    }
+  }
+
+  /**
+   * The slot sizes what it holds: an icon box reads `--slotted-icon-size`
+   * from its container, and a bare glyph host such as `ng-icon` reads the
+   * slot's font-size, so both are the glyph scale.
+   */
+  [data-ui-tag] [data-part-start],
+  [data-ui-tag] [data-part-end] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    block-size: var(--_icon-size);
+    box-sizing: border-box;
+    display: inline-flex;
+    flex: none;
+    font-size: var(--_icon-size);
+    inline-size: var(--_icon-size);
+    justify-content: center;
+    line-height: 1;
+  }
+
+  [data-ui-tag] [data-part-start] > *,
+  [data-ui-tag] [data-part-end] > * {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+  }
+
+  /**
+   * ── The selection mark ─────────────────────────────────────────────────
+   *
+   * A selected chip changes its ground, and a ground is a colour. WCAG 2.2
+   * 1.4.1 asks for a second signal, so the check is drawn as well — the
+   * `check` glyph the binding renders in an icon box, never a character.
+   *
+   * It arrives by growing from nothing rather than appearing, because the
+   * words beside it move to make room and an eye that cannot follow that reads
+   * the row as having jumped. Angular Material takes the jump and offers
+   * `hideSingleSelectionIndicator` to avoid it; the transition is the third
+   * answer, and the theme collapses its duration under reduced motion.
+   */
+  [data-ui-tag] [data-part-indicator] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    block-size: var(--_icon-size);
+    display: inline-flex;
+    flex: none;
+    inline-size: 0;
+    /* The icon keeps its size while the box grows round it, centred and
+       clipped, so the check is uncovered from its middle outwards. */
+    justify-content: center;
+    /* A flex gap is drawn beside a zero-width item as readily as beside a wide
+       one, so the mark that is not there would still cost the chip a gap of
+       leading space. The negative margin is that gap, given back. */
+    margin-inline-end: calc(-1 * var(--_gap));
+    opacity: 0;
+    overflow: hidden;
+    transition:
+      inline-size var(--slotted-duration-short) var(--slotted-easing-standard),
+      margin-inline-end var(--slotted-duration-short) var(--slotted-easing-standard),
+      opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-tag][data-part-root][data-selected] [data-part-indicator] {
+    inline-size: var(--_icon-size);
+    margin-inline-end: 0;
+    opacity: 1;
+  }
+
+  /**
+   * ── The remove control ─────────────────────────────────────────────────
+   *
+   * A segment as tall as the chip, at its end. That is Carbon's and Fluent's
+   * picture, and it is the one geometry that makes the target reach the WCAG
+   * 2.2 2.5.8 minimum in the block axis without a hidden hit area — an
+   * invisible box taller than the chip would reach past it and take the
+   * pointer from the neighbour in a wrapped run. Its width is the inner
+   * control's (R2): the glyph plus a step of air on each side, floored at the
+   * same minimum, so the segment is a square on the `sm` and `md` chips and
+   * a step narrower than tall on `lg`.
+   *
+   * The cost, on a pill: a hovered remove is a rounded-ended segment rather
+   * than a disc. That is the shape of the target, which is the truth.
+   *
+   * The mark is the `x` glyph the binding renders; the control hands its icon
+   * box the chip's glyph size.
+   */
+  [data-ui-tag] [data-part-remove] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-end-end-radius: var(--_inner-radius);
+    border-start-end-radius: var(--_inner-radius);
+    box-sizing: border-box;
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    inline-size: max(
+      var(--slotted-target-min, 24px),
+      min(calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)), var(--_inner-size))
+    );
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    transition: background-color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * The halo that completes the target where the box is shorter than it. The
+   * control stretches to the chip's content box, which is the chip less its
+   * two edges, so on the shortest chip the box was 24 wide and 22 tall and the
+   * press area failed SC 2.5.8 on the axis nobody was measuring. The halo is
+   * transparent and it is `min(0px, …)`, so it grows the box only where the box
+   * falls short and is inert on the two larger sizes, where the chip is already
+   * taller than the minimum.
+   */
+  [data-ui-tag] [data-part-remove]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /**
+   * On a finger the target is the comfortable size in both axes, and the
+   * control's ground is never taller than it is wide: the box is at least as
+   * wide as the chip is tall inside its edges, where a large chip drew a
+   * segment 24 wide and 32 tall. The halo above grows to 44 pixels around it.
+   */
+  @media (pointer: coarse) {
+    [data-ui-tag] [data-part-remove] {
+      inline-size: max(
+        var(--slotted-target-min, 24px),
+        min(calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)), var(--_inner-size)),
+        calc(var(--_block-size) - 2 * var(--_edge-width))
+      );
+    }
+
+    [data-ui-tag] [data-part-remove]::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+    }
+  }
+
+  /* A tag that is only a remove control is not a tag, but the rounding is one
+     rule either way rather than a case the sheet has to know about. */
+  [data-ui-tag] [data-part-remove]:first-child {
+    border-end-start-radius: var(--_inner-radius);
+    border-start-start-radius: var(--_inner-radius);
+  }
+
+  /* ── Selected, held back for the one state stronger than it ───────────── */
+
+  /**
+   * A chip that is on takes the tone's solid fill whatever its variant, which
+   * is the rule `button` set for `pressed`: "on" is never one shade away from
+   * "hovered".
+   */
+  [data-ui-tag][data-part-root][data-selected]:not([data-disabled]) {
+    background-color: var(--_solid, ButtonFace);
+    border-color: var(--_edge, ButtonBorder);
+    color: var(--_on-solid, ButtonText);
+  }
+
+  /**
+   * ── Hover and press, held back for every stronger state ────────────────
+   *
+   * Each control answers on its own, because the chip holds two of them and a
+   * wash over the whole box could not say which one the pointer is on.
+   *
+   * Three variants, two mechanisms. `solid` and `outline` step along the
+   * tone's own ramp, which is what `button` does with the same two words.
+   * `soft` cannot: the tinted ramp ends at `surface` — measured in the light
+   * scheme, `subtle-hover` is #f1f5f9 against a #e2e8f0 ground and
+   * `subtle-active` is that ground exactly — so a tinted chip hovering to a
+   * tinted role either lightened or did nothing, and the first hover capture
+   * showed the remove segment reading paler than the chip it sits in.
+   *
+   * Its step is a state layer instead: the chip's own text colour, at a low
+   * strength, over whatever ground it already has. It darkens a tinted chip
+   * and never depends on a role the foundation does not carry. The cost is
+   * that a theme retunes it by strength rather than by colour, which is what
+   * the two component tokens are for.
+   */
+
+  [data-ui-tag][data-part-root] {
+    --_state-hover: color-mix(
+      in oklab,
+      currentColor var(--slotted-tag-state-layer-hover, 8%),
+      transparent
+    );
+    --_state-active: color-mix(
+      in oklab,
+      currentColor var(--slotted-tag-state-layer-active, 14%),
+      transparent
+    );
+  }
+
+  [data-ui-tag][data-part-root][data-variant='soft']:not([data-disabled]):not([data-selected])
+    :is([data-part-body]:is(a, button), [data-part-remove]):hover:not(:disabled) {
+    background-color: var(--_state-hover);
+  }
+
+  [data-ui-tag][data-part-root][data-variant='soft']:not([data-disabled]):not([data-selected])
+    :is([data-part-body]:is(a, button), [data-part-remove]):active:not(:disabled) {
+    background-color: var(--_state-active);
+  }
+
+  [data-ui-tag][data-part-root][data-variant='outline']:not([data-disabled]):not([data-selected])
+    :is([data-part-body]:is(a, button), [data-part-remove]):hover:not(:disabled),
+  [data-ui-tag][data-part-root][data-variant='dashed']:not([data-disabled]):not([data-selected])
+    :is([data-part-body]:is(a, button), [data-part-remove]):hover:not(:disabled) {
+    background-color: var(--_subtle-hover, ButtonFace);
+  }
+
+  [data-ui-tag][data-part-root][data-variant='outline']:not([data-disabled]):not([data-selected])
+    :is([data-part-body]:is(a, button), [data-part-remove]):active:not(:disabled),
+  [data-ui-tag][data-part-root][data-variant='dashed']:not([data-disabled]):not([data-selected])
+    :is([data-part-body]:is(a, button), [data-part-remove]):active:not(:disabled) {
+    background-color: var(--_subtle-active, ButtonFace);
+  }
+
+  /**
+   * A filled chip washes along its own ramp, as `button` does — and a selected
+   * chip is a filled chip whatever its variant, so the two share these rules.
+   */
+  [data-ui-tag][data-part-root][data-variant='solid']:not([data-disabled])
+    :is([data-part-body]:is(a, button), [data-part-remove]):hover:not(:disabled),
+  [data-ui-tag][data-part-root][data-selected]:not([data-disabled])
+    :is([data-part-body]:is(a, button), [data-part-remove]):hover:not(:disabled) {
+    background-color: var(--_solid-hover, Highlight);
+  }
+
+  [data-ui-tag][data-part-root][data-variant='solid']:not([data-disabled])
+    :is([data-part-body]:is(a, button), [data-part-remove]):active:not(:disabled),
+  [data-ui-tag][data-part-root][data-selected]:not([data-disabled])
+    :is([data-part-body]:is(a, button), [data-part-remove]):active:not(:disabled) {
+    background-color: var(--_solid-active, Highlight);
+  }
+
+  /* ── Focus ────────────────────────────────────────────────────────────── */
+
+  /**
+   * Drawn on the control rather than on the chip, because the chip can hold
+   * two of them and a ring around the whole box could not say which one has
+   * focus. It is never held back for `disabled`: a control that keeps its
+   * place in the tab sequence while unavailable still has to show where focus
+   * is.
+   *
+   * The offset is negative, so the ring is drawn inside the control's own box.
+   * A positive offset on the body would put the ring over the remove control
+   * beside it, and on the remove it would spill outside the chip and touch the
+   * next tag in a wrapped run.
+   *
+   * It is two ring widths rather than one. At one the ring's outer edge landed
+   * exactly on the chip's own border, and the first zoomed capture showed it
+   * reading as a thickened rim rather than as a ring; a second width leaves a
+   * sliver of the chip's ground outside it, which is what separates the two.
+   *
+   * The ring takes the control's own corners, so on a pill the remove's is
+   * flat on the inside and round on the outside. That is the shape of the
+   * target: a rounded rectangle floating inside the segment would be prettier
+   * and would say the hit area is somewhere it is not.
+   */
+  [data-ui-tag] [data-part-body]:focus-visible,
+  [data-ui-tag] [data-part-remove]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(-2 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /**
+   * The group's own ring sits outside it, because nothing is adjacent to it.
+   * It is drawn for one moment: the group takes focus when the last tag it
+   * held is removed, so the keyboard is not returned to the top of the page.
+   */
+  [data-ui-tag][data-part-group]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── Disabled ─────────────────────────────────────────────────────────── */
+
+  /**
+   * Per variant, for the reason `button` records: a flat control that fills
+   * with grey on the way to being unavailable reads as a different control
+   * rather than as the same one unavailable.
+   *
+   * `[data-disabled]` rather than `:disabled` alone, because the root is never
+   * a control and a control that keeps its place in the tab sequence carries
+   * `aria-disabled` and no `:disabled`.
+   */
+  [data-ui-tag][data-part-root][data-disabled] {
+    color: var(--slotted-disabled-foreground, GrayText);
+  }
+
+  /**
+   * Three variants become two. What survives the loss of the tone is whether
+   * the chip is filled, and the rim has to stay on the filled one: in
+   * `high-contrast` the disabled ground is the page's own white, so a filled
+   * chip drawing its own ground as its edge had no edge at all — the third
+   * capture showed "Disabled selected" as a check and two words floating on
+   * the page with no box around them.
+   */
+  [data-ui-tag][data-part-root][data-variant='solid'][data-disabled],
+  [data-ui-tag][data-part-root][data-variant='soft'][data-disabled],
+  [data-ui-tag][data-part-root][data-selected][data-disabled] {
+    background-color: var(--slotted-disabled-background, Canvas);
+    border-color: var(--slotted-disabled-border, GrayText);
+  }
+
+  [data-ui-tag][data-part-root][data-variant='outline'][data-disabled],
+  [data-ui-tag][data-part-root][data-variant='dashed'][data-disabled] {
+    background-color: transparent;
+    border-color: var(--slotted-disabled-border, GrayText);
+  }
+
+  [data-ui-tag][data-part-root][data-disabled] :is([data-part-body], [data-part-remove]),
+  [data-ui-tag] [data-part-body]:disabled,
+  [data-ui-tag] [data-part-remove]:disabled {
+    background-color: transparent;
+    cursor: not-allowed;
+  }
+
+  /**
+   * A remove control the consumer disabled on its own, inside a chip that is
+   * otherwise operable. It loses its colour rather than the whole chip's.
+   */
+  [data-ui-tag] [data-part-remove]:disabled {
+    color: var(--slotted-disabled-foreground, GrayText);
+  }
+
+  /**
+   * ── The run of tags ────────────────────────────────────────────────────
+   *
+   * It wraps, because a filter bar with eleven filters is the normal case and
+   * a row that scrolls sideways hides the eleventh. It is one tab stop, and
+   * the arrow keys move between the controls inside it — the APG Toolbar
+   * pattern, which is a container for grouping a set of controls.
+   */
+  [data-ui-tag][data-part-group] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-tag-group-gap, var(--slotted-space-2, 0.25rem));
+  }
+
+  [data-ui-tag][data-part-group][data-orientation='vertical'] {
+    align-items: start;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    inline-size: fit-content;
+  }
+
+  /**
+   * An empty group takes no room. An actions area built from a permission
+   * filter renders one often, and the empty box still eats a gap in the row
+   * that holds it — the defect `button-group` recorded when it found the same
+   * thing.
+   */
+  [data-ui-tag][data-part-group]:empty {
+    display: none;
+  }
+
+  /**
+   * ── Forced colours ─────────────────────────────────────────────────────
+   *
+   * The one place a family may write its own rule. The theme maps every tone
+   * ground to `ButtonFace` or `Canvas` and every tone border to
+   * `ButtonBorder`, so a `solid`, a `soft` and an `outline` chip become the
+   * same rectangle and a chip whose edge was its fill has no edge at all.
+   * `currentColor` is the only paint left that still separates the chip from
+   * the page.
+   *
+   * The selected chip is the second case: its whole signal is a ground the
+   * system has replaced, so there it is drawn with the system's own selected
+   * pair instead.
+   */
+  @media (forced-colors: active) {
+    [data-ui-tag][data-part-root] {
+      border-color: currentColor;
+    }
+
+    [data-ui-tag][data-part-root][data-selected]:not([data-disabled]) {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-tag][data-part-root][data-disabled] {
+      border-color: GrayText;
+      color: GrayText;
+    }
+  }
+}

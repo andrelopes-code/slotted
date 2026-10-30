@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 5,
+  "family": "action-bar",
+  "ui": "action-bar",
+  "catalog": {
+    "group": "Actions",
+    "summary": "Row of actions that overflow into a menu."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/",
+  "patternDeparture": {
+    "from": "roving focus, and the toolbar role with it",
+    "reason": "The controls of an action bar are the page's own form actions. A reader walking a form with Tab expects to reach Cancel and then Save; roving focus would make the whole bar one tab stop and put Save behind an arrow key that announces nothing. Primer, Fluent and the APG's own example bind the arrows because their bars are strips of icon buttons in an editor, where ten controls are exactly what nobody wants to walk through one at a time.",
+    "cost": "A bar of ten icon-only actions is ten tab stops. That bar is not an action bar and this family does not serve it.",
+    "insteadUse": "toolbar"
+  },
+  "roles": {
+    "root": "group",
+    "separator": "separator"
+  },
+  "rovingFocus": false,
+  "escapeBound": false,
+  "messages": ["more"],
+  "pluralMessages": ["more"],
+  "stateAttributes": {
+    "open": "data-open"
+  },
+  "composes": ["menu", "presence", "overflow", "button"],
+  "wiring": {
+    "aria-label": "the consumer's own, and the bar writes none of its own: only the page knows which task the bar finishes. A bar with a visible heading uses aria-labelledby instead.",
+    "role": "group on the root. A consumer who has ten icon-only actions and wants the composite may write role=\"toolbar\" themselves, and the family leaves the attribute they wrote alone — but the arrows are still not bound, so that consumer wants `toolbar`.",
+    "aria-label on the overflow trigger": "the count of what is hidden, from `label`; a string the consumer states is used verbatim",
+    "disabled": "the platform's own `:disabled`, from a `<fieldset disabled>` around the bar. The family writes no `data-disabled` and declares no `disabled` state, because it does not own the capability."
+  },
+  "anatomy": {
+    "root": "div with role=group. The query container (container-type: inline-size), the element that sticks, and the flex row that wraps. It is as wide as the line it stands on (inline-size: 100%, border-box), because a size container has no intrinsic width and a flex parent — the page footer's actions row — shrank it to nothing. It paints ground and rule only under variant=raised.",
+    "status": "the sentence at the start: a dirty-state marker, a timestamp, a selection count and its select-all. A slot the consumer fills with inline-message, status-indicator, badge or plain text — the bar supplies the place and the layout guarantee, not a fourth way of saying a sentence.",
+    "actions": "the run that gives way. It carries margin-inline-start: auto, which is what anchors it to the bar's end edge, and it is the element the container query restyles into a column.",
+    "action": "one unit: its rank, and what it becomes in the surface. A control placed in the bar unwrapped is a unit too — a pinned one, because it declares no counterpart.",
+    "separator": "a rule between two runs. It is what keeps a destructive action off a frequent one, which docs/component-features.md §5 asks for and names no mechanism for. Its geometry belongs to the bar, so it is a part here rather than a `divider`.",
+    "overflow": "menu's trigger wearing this family's geometry. The surface, its keyboard, its dismissal and its focus return are menu's and are not written twice."
+  },
+  "priority": {
+    "attribute": "data-priority",
+    "values": ["pinned", "high", "low", "hide", "always"],
+    "rank": {
+      "hide": 0,
+      "low": 1,
+      "high": 2
+    },
+    "order": "the lowest rank gives way first, and the bar's own order reversed decides within one rank",
+    "engine": "@slotted/core/overflow",
+    "reason": "In a bar of tools, reading order and importance run the same way, so giving way from the end gives up the least used control — which is why `toolbar` refuses a priority in its own contract. In a bar of actions they run in opposite directions: Polaris, Salesforce and the footer of SAP's DynamicPage all put the action that confirms at the end of the line, so giving way from the end gives up Save first.",
+    "defaults": {
+      "withCounterpart": "low",
+      "withoutCounterpart": "pinned"
+    },
+    "malformed": "a rank of high, low or always with no counterpart is a consumer error and behaves as pinned: a unit with nowhere to go cannot give way, and failing where it can be seen is the choice docs/build-briefing.md asks for.",
+    "meaning": {
+      "pinned": "never gives way; the action that confirms, and the one that cancels where the product wants it kept",
+      "high": "gives way after low and hide, into the surface",
+      "low": "the first of the ranks that reach the surface, and the default for a secondary action",
+      "hide": "gives way before every other rank and is not offered in the surface: a draft marker, a timestamp, a preview link — a control that is not worth a row in a menu",
+      "always": "never drawn in the bar; its counterpart is in the surface from the start"
+    }
+  },
+  "collapse": {
+    "unit": "the action parts, in the bar's own order",
+    "order": "by rank, then the bar's own order reversed inside one rank",
+    "pinned": "a unit that declares no counterpart, which is every control placed in the bar unwrapped",
+    "trigger": "hidden until the first unit gives way, and measured in the same synchronous pass that reveals it",
+    "separator": "hidden when no visible unit follows it, and rendered as a menu separator when it sits between two collapsed units",
+    "degradation": "a bar whose pinned units alone exceed it wraps to a second row. It never scrolls sideways: a tool is an icon and reveals itself by scrolling, while an action is a sentence, and a Save reached by scrolling sideways is a Save nobody finds.",
+    "focus": "moved to the trigger before the unit holding it is hidden, because a hidden control drops focus on `body`",
+    "measurement": "@slotted/core/overflow — `collapseState` for the arithmetic with its rank, `createCollapse` for the DOM",
+    "reports": "`data-collapsed` on the root carries the count, and the root emits it once per change"
+  },
+  "stability": {
+    "anchor": "margin-inline-start: auto on the actions part",
+    "unmovedBy": ["status", "loading", "permissions"],
+    "reason": "The third line of the scope paragraph asks that a dirty state, a loading action and a permission filter do not displace the main actions. The run is anchored to the bar's end edge and the status region takes what is left, so all three move what is before the last action and never the last action itself. In a right-to-left document the logical property mirrors the anchor with the bar.",
+    "proof": "the stability scene photographs one stage in four states — no message, a short message, a long message, and one action removed — so the guarantee is read as a comparison rather than asserted"
+  },
+  "sticky": {
+    "position": "sticky",
+    "reads": "--slotted-page-sticky-bottom",
+    "fallback": "0px",
+    "reason": "Sticky and not fixed, for the reason page already wrote into its own contract: a fixed bar covers the last line of content and every implementation that uses one then pads the body by a magic number. The offset is what page publishes on the element that scrolls, so a sticky action bar inside a page with a footer stops above that footer instead of covering it; with no page around it the fallback sticks the bar to the end of whatever scrolls."
+  },
+  "stack": {
+    "breakpoint": "24rem",
+    "container": "root",
+    "queried": "actions",
+    "property": "--_stacked",
+    "reason": "Below the breakpoint the run becomes a full-width column with the action that confirms on top, which is the composition change docs/component-features.md §2.7 asks for rather than a size change. The breakpoint is literal because @container (width < var(--x)) is invalid, and it is written once: the stylesheet raises the property inside the query and the binding reads the computed value back instead of comparing widths of its own.",
+    "collapse": "does not run while the bar is stacked. A column has room for every action, and a surface holding what did not fit would be a menu for nothing.",
+    "overflow": "a bar that holds an overflow control does not stack: below the breakpoint it keeps one row, the actions without a counterpart stay and the others fold into the menu. Measured on a 358 pixel phone, a stacked bar of three actions with counterparts was 164 pixels tall and hid its control",
+    "degradation": "past the stack, flex wrap puts what does not fit on a second row"
+  },
+  "presence": {
+    "input": "present",
+    "module": "@slotted/core/presence",
+    "movesFocus": false,
+    "reason": "A bulk bar exists while there is a selection and a contextual save bar while there are unsaved changes. Carbon keeps its bar in the DOM and writes aria-hidden on the root, which leaves the buttons inside it reachable by Tab and puts focus in a region the screen reader announces as absent. A bar that is not present leaves the DOM once it has left the view, and focus returns to the document in its own order. Appearing never moves focus: the bar is not a dialog, and taking focus from a reader who is ticking boxes is the jump docs/component-features.md §11 forbids by name.",
+    "leaves": "React unmounts the bar. An Angular directive cannot remove the host the consumer wrote, so it is painted out with display:none once the exit finishes — which takes it out of the accessibility tree and out of the tab order alike, and is the half of Carbon's defect that matters. A consumer who wants the node itself gone writes @if around it and gives up the exit. The asymmetry is idiom, and it is recorded rather than levelled down."
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next action, in the document's own order: the bar is not a composite and holds one tab stop per control",
+      "focus": "the next control that is not natively disabled",
+      "source": "the platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "opens the surface when focus is on the overflow trigger",
+      "focus": "the first item of the surface",
+      "source": "menu"
+    },
+    {
+      "key": "Space",
+      "effect": "opens the surface when focus is on the overflow trigger",
+      "focus": "the first item of the surface",
+      "source": "menu"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "opens the surface when focus is on the overflow trigger, and moves between its items once open",
+      "focus": "the item moved to",
+      "source": "menu"
+    },
+    {
+      "key": "Escape",
+      "effect": "closes the surface",
+      "focus": "the overflow trigger",
+      "source": "menu"
+    }
+  ],
+  "declined": {
+    "rovingFocus": {
+      "deferTo": "toolbar",
+      "reason": "See patternDeparture. A strip of icon buttons that nobody wants to walk through one control at a time is a toolbar, and that family already binds the arrows, Home and End against the APG."
+    },
+    "runShape": {
+      "deferTo": "button-group",
+      "reason": "Gap, join, orientation and the shape of a run of related actions belong to button-group, which is what a joined run inside this bar is. What this family arranges is its own two regions — where the run sits against the status — and nothing inside them."
+    },
+    "loading": {
+      "deferTo": "button",
+      "reason": "button already keeps its label, its accessible name and its width under loading, which docs/component-features.md §5 requires of it. A bar that painted a busy state over a control it does not own would be painting over another family."
+    },
+    "disabled": {
+      "deferTo": "the platform",
+      "reason": "A container cannot disable controls it does not own, and a bar that refuses interaction while its controls still look operable is the defect packages/styles/src/states.test.mjs exists to prevent. `<fieldset disabled>` around the bar disables every control inside it natively and takes them out of the tab order with it."
+    },
+    "collapsedState": {
+      "deferTo": "the layout",
+      "reason": "The set that does not fit is read from the browser. A controlled pair over it would let a consumer assert that a bar fits when the layout says it does not, and the DOM would then contradict the model — the reason `overflow` is not a mutable capability in specs/contract.schema.mjs. The fact is reported instead: the count in the DOM and one callback per change."
+    },
+    "reduceCallbacks": {
+      "deferTo": "the rank",
+      "reason": "Fluent's onReduceData and onGrowData are the escape hatch of an algorithm that has no ranks. With ranks, what the consumer wants to say is said in the rank, at the control it is about. The measurement is still reported, through onOverflowChange."
+    },
+    "selectionCount": {
+      "deferTo": "table",
+      "reason": "table owns the selection and its count and says in its own contract that it supplies them. Carbon's totalSelected, totalCount and onSelectAll would be a second count here, and two families disagreeing about one number is what put the filter vocabulary in @slotted/core."
+    },
+    "destructiveConfirmation": {
+      "deferTo": "dialog",
+      "reason": "Polaris's discardConfirmationModal puts a modal inside the bar. dialog already ships the alertdialog role, and the composition is three lines of the consumer's own: open it from the action's onClick and act when it resolves. A bar that opens modals owns a flow it only ends."
+    },
+    "ground": {
+      "deferTo": "page",
+      "reason": "page's footer already paints the ground, the rule and the sticky behaviour of a page's own footer. Under variant=plain this family paints nothing and sits inside it; raised is for the bar that has no page around it — inside a drawer, a dialog or a card."
+    },
+    "iconOnlyWithTooltip": {
+      "reason": "Fluent pairs iconOnly with tooltipHostProps. icon-button and tooltip already exist and compose in one line — <ActionBar.Action><Tooltip content=\"Duplicate\"><IconButton …/></Tooltip></ActionBar.Action> — and a bar that wraps controls it does not own in tooltips decides for them where the label is already clear."
+    },
+    "groupLabels": {
+      "reason": "Fluent names its two sides with primaryGroupAriaLabel and farItemsGroupAriaLabel. Both sides here already have a name: status is a region of content and actions is the run. A role=group per side would announce a group inside the group the root already is."
+    }
+  },
+  "axes": {
+    "variant": ["plain", "raised"],
+    "size": ["sm", "md", "lg"],
+    "align": ["end", "start", "center"],
+    "sticky": [true, false]
+  },
+  "resolution": {
+    "variant": ["prop", "defaults", "plain"],
+    "size": ["prop", "defaults", "md"],
+    "align": ["prop", "defaults", "end"],
+    "sticky": ["prop", "defaults", false]
+  },
+  "provides": {
+    "actionBarDefaults": ["variant", "size", "align", "sticky"],
+    "buttonDefaults": ["size"]
+  },
+  "members": {
+    "actionBar": {
+      "nativeElement": "div",
+      "defaults": {
+        "variant": "plain",
+        "size": "md",
+        "align": "end",
+        "sticky": false,
+        "present": true
+      },
+      "capabilities": ["arrangement", "appearance", "size", "overflow"],
+      "states": ["default", "hover", "active", "focus-visible", "open"],
+      "parts": ["root", "status", "actions", "action", "separator", "overflow"]
+    }
+  },
+  "scenarios": {
+    "actionBar": [
+      "playground",
+      "priority",
+      "overflowMenu",
+      "stability",
+      "danger",
+      "status",
+      "bulk",
+      "sticky",
+      "align",
+      "sizes",
+      "variant",
+      "stacked",
+      "content",
+      "composition",
+      "accessibility"
+    ]
+  }
+}

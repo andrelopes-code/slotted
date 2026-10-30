@@ -1,0 +1,32 @@
+/*
+ * The application's cascade, declared once and before any stylesheet that
+ * mentions `slotted`: the library's layer first, the application's after it.
+ */
+@layer slotted, app;
+
+@import '@fontsource-variable/geist/index.css';
+@import '@fontsource-variable/geist-mono/index.css';
+@import '@slotted/themes/default.css';
+
+@layer app {
+  /* Panels that hold a list need room for a row and its actions on one line. */
+  [data-ui='popover'] {
+    --slotted-popover-measure-lg: 28rem;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+  }
+}
+/*
+ * LP-12. From the compact size class (600px, COMPACT_BELOW) up, a list page fills its body and the
+ * grid takes the height the tools leave, from a zero basis. Below it the page does not fill: the
+ * column has no height to share, a zero basis would leave the grid nothing, and it takes its rows'.
+ */
+@media (width < 600px) {
+  [data-ui='page'][data-fill] sl-data-grid {
+    flex-basis: auto;
+  }
+}

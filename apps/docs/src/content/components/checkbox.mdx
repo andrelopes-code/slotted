@@ -1,0 +1,86 @@
+---
+title: Checkbox
+description: Turns one option on or off, around a native checkbox that keeps the value, the name and the platform's keyboard.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Sizes
+
+`size` sets the box, the label and the gap to one step of the control scale: `sm` for dense tables and toolbars, `md` for most forms, `lg` for sparse forms. Every step keeps a 24-pixel target around the box. Inside a checkbox group, a field or a field group, the box takes their size when it states none of its own.
+
+<Example name="sizes" />
+
+## Tiles
+
+`variant="tile"` frames the choice and makes the whole surface the target, so a press anywhere on the tile toggles it. A chosen tile draws an accent edge as well as a tint, and the edge stays visible in the high-contrast scheme. Lay a row of tiles out with `Grid`.
+
+<Example name="tile" wide />
+
+## Label placement
+
+`labelPlacement="start"` puts the box after its label, at the end of the row. A settings list uses it so the boxes line up on one edge whatever the length of each label.
+
+<Example name="placement" />
+
+## States
+
+`readOnly` keeps the value, the focus ring and the tab stop, and refuses every change; a read-only value is still submitted. `disabled` sets the native `disabled`, which takes the box out of the tab order and out of form submission. `invalid` sets `aria-invalid` and draws a thicker border in the danger tone. All three default to the checkbox group or field around the box.
+
+<Example name="states" />
+
+## Description
+
+`description` writes help text under the label and joins the control's accessible description, so a screen reader hears it after the name. It sits outside the label: pressing the description does not toggle the box.
+
+<Example name="description" />
+
+## Long labels
+
+A label that wraps keeps the box on its first line, and an unbroken string such as a URL breaks inside the column instead of widening the page.
+
+<Example name="long-label" />
+
+## Mixed state
+
+`indeterminate` draws a dash and exposes the mixed state to assistive technology. It is a state, not a third value: the submitted value is still on or off, and the next press checks the box. Use it when one box stands for several records that disagree, as in a bulk edit.
+
+<Example name="indeterminate" />
+
+## Parent checkbox
+
+A `parent` box inside a checkbox group with `allValues` checks and unchecks the whole set. It is checked when every value is selected, mixed when some are, and unchecked when none are; you write no state for it.
+
+<Example name="parent" />
+
+## Controlled
+
+Pass `checked` to own the state and update it from `onCheckedChange` in React or `(checkedChange)` in Angular. The request carries the new value and its reason, `pointer` or `keyboard`, and `cancel()` refuses the change before the box moves.
+
+<Example name="controlled" />
+
+## Forms
+
+A box with `name` submits its `value` when checked and nothing when unchecked, like a native checkbox. `defaultChecked` is the state a native form reset returns to. Change the boxes, save, then reset.
+
+<Example name="form" />
+
+## Required
+
+Inside a field, the box takes the field's `required` as `aria-required`, its `invalid` as `aria-invalid`, and its error as part of the accessible description. Validate on submit, then set `invalid` on the field and write the error. The Angular example binds the box to a reactive form control with `Validators.requiredTrue`. Submit without accepting, then accept and submit again.
+
+<Example name="validation" />
+
+## Without a visible label
+
+In a row whose other cells already say what the box selects, name the box with visually hidden text in its label. The hover wash then closes around the box alone, and the box keeps its 24-pixel target.
+
+<Example name="hidden-label" />
+
+## Defaults for a section
+
+`CheckboxDefaultsProvider` in React and `provideCheckboxDefaults` in Angular set `size`, `variant` and `labelPlacement` once for every box under them. A box that states a value of its own keeps it.
+
+<Example name="defaults" />

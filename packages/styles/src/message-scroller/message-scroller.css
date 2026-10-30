@@ -1,0 +1,374 @@
+@layer slotted.components {
+  /**
+   * ── The region a conversation scrolls in ───────────────────────────────
+   *
+   * The frame fills a parent whose height is bounded, the viewport scrolls
+   * inside it, and the jump control stands over the viewport as a sibling so
+   * it does not scroll away with the rows. The behaviour is
+   * `@slotted/core/message-scroller`; this sheet reads what it writes —
+   * `data-scrollable`, `data-following`, `data-pending` and
+   * `--slotted-message-scroller-room` — and draws nothing the engine decides.
+   *
+   * Every rule is scoped to the family and stops at the parts of any other
+   * family nested in a row: an alert in a message keeps its own `content`.
+   */
+  @scope ([data-ui-message-scroller]) to (:scope [data-ui]:not([data-ui-message-scroller]) > *) {
+    :scope[data-part-root] {
+      --_inset: var(--slotted-message-scroller-padding, var(--slotted-space-6, 1rem));
+      /**
+       * The gap between two runs of a conversation. Twenty at comfortable, the
+       * ReUI thread gap (`c-message-scroller-4`), fifteen and ten at the two
+       * tighter densities: the control gap the theme restates, two and a half
+       * times. The rows of one run are two pixels apart (`message` › group),
+       * and the difference between the two gaps is the whole grouping signal.
+       */
+      --_gap: var(--slotted-message-scroller-gap, calc(var(--slotted-control-gap-md, 8px) * 2.5));
+      --_fade: var(--slotted-message-scroller-fade, var(--slotted-space-6, 1rem));
+
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-sizing: border-box;
+      block-size: 100%;
+      min-block-size: 0;
+      min-inline-size: 0;
+      overflow: hidden;
+      color: var(--slotted-text);
+      font-family: var(--slotted-font-family-sans, sans-serif);
+    }
+
+    :scope [data-part-viewport] {
+      /* The rows' offset parent, so the engine reads their layout offset rather than a rectangle an entrance has moved. */
+      position: relative;
+      flex: 1 1 auto;
+      box-sizing: border-box;
+      min-block-size: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      /**
+       * The engine keeps the reader's row in place itself; a native correction
+       * added to its own would move the reader twice, and Safari has none to
+       * rely on (`contract.json` › `engine.overflowAnchorReason`).
+       */
+      overflow-anchor: none;
+      overscroll-behavior: contain;
+      scrollbar-color: var(--slotted-border-strong) transparent;
+      scrollbar-gutter: stable;
+      scrollbar-width: thin;
+    }
+
+    /**
+     * An edge the reader can still scroll toward fades the rows into it, so a
+     * row cut by the frame reads as continuing rather than as ending there.
+     */
+    :scope [data-part-viewport][data-scrollable~='start'] {
+      mask-image: linear-gradient(to bottom, transparent, #000 var(--_fade));
+    }
+
+    :scope [data-part-viewport][data-scrollable~='end'] {
+      mask-image: linear-gradient(to top, transparent, #000 var(--_fade));
+    }
+
+    :scope [data-part-viewport][data-scrollable~='start'][data-scrollable~='end'] {
+      mask-image: linear-gradient(
+        to bottom,
+        transparent,
+        #000 var(--_fade),
+        #000 calc(100% - var(--_fade)),
+        transparent
+      );
+    }
+
+    /**
+     * A conversation opened at its end is at its top until script runs, and
+     * shows its oldest rows first. The frame stays and the rows wait, laid out,
+     * so the engine measures them before the reader sees them.
+     */
+    :scope [data-part-viewport][data-pending] {
+      visibility: hidden;
+    }
+
+    :scope [data-part-viewport]:focus-visible {
+      outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color);
+      outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+    }
+
+    /**
+     * The rows stand at the foot of the frame while they are fewer than it
+     * holds, where a conversation is read from; the room an anchored turn needs
+     * is added under the last one.
+     */
+    :scope [data-part-content] {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: var(--_gap);
+      box-sizing: border-box;
+      min-block-size: 100%;
+      padding: var(--_inset);
+      padding-block-end: calc(var(--_inset) + var(--slotted-message-scroller-room, 0px));
+    }
+
+    /**
+     * ── A row ──────────────────────────────────────────────────────────────
+     *
+     * A row far from view is not painted (`content-visibility: auto`) and stays
+     * in the DOM for selection, finding in the page and assistive technology.
+     * A row that arrives rises by a step and fades in; a row the engine lands a
+     * jump on glows in the accent's pointer tint and loses it slowly, so the
+     * reader sees where the jump ended.
+     */
+    :scope [data-part-item] {
+      min-inline-size: 0;
+      border-radius: var(--slotted-radius-md, 6px);
+      content-visibility: auto;
+      contain-intrinsic-size: auto 6rem;
+      transition:
+        opacity var(--slotted-duration-medium) var(--slotted-easing-enter, ease-out),
+        translate var(--slotted-duration-medium) var(--slotted-easing-enter, ease-out),
+        background-color var(--slotted-duration-long) var(--slotted-easing-standard, ease),
+        box-shadow var(--slotted-duration-long) var(--slotted-easing-standard, ease);
+
+      @starting-style {
+        opacity: 0;
+        translate: 0 var(--slotted-space-4, 0.5rem);
+      }
+    }
+
+    :scope [data-part-item][data-current] {
+      background-color: var(--slotted-tone-accent-subtle-hover);
+      box-shadow: 0 0 0 var(--slotted-space-3, 0.375rem) var(--slotted-tone-accent-subtle-hover);
+    }
+
+    /* ── Separator and unread line ─────────────────────────────────────────
+     *
+     * A day, or a line the system writes, between two rules. `sticky` keeps it
+     * at the top of the frame while the rows after it are in view, so the day
+     * does not leave with its first message; its label carries a ground of its
+     * own for the rows passing under it.
+     */
+    :scope :is([data-part-separator], [data-part-unread]) {
+      display: flex;
+      align-items: center;
+      gap: var(--slotted-space-4, 0.5rem);
+      color: var(--slotted-text-muted);
+      font-size: var(--slotted-font-size-xs, 0.75rem);
+      font-weight: var(--slotted-font-weight-medium, 500);
+      line-height: round(
+        up,
+        calc(var(--slotted-font-size-xs, 0.75rem) * var(--slotted-line-height-xs, 1.4)),
+        1px
+      );
+    }
+
+    :scope :is([data-part-separator], [data-part-unread])::before,
+    :scope :is([data-part-separator], [data-part-unread])::after {
+      content: '';
+      flex: 1 1 0;
+      min-inline-size: var(--slotted-space-6, 1rem);
+      border-block-start: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
+    }
+
+    /**
+     * A sticky box sticks inside its containing block, so it is the row that
+     * holds the separator that sticks, not the separator inside it. Each later
+     * day stacks over the one before it as it arrives at the top.
+     */
+    :scope [data-part-item]:has(> [data-part-separator][data-sticky]),
+    :scope [data-part-separator][data-sticky]:not([data-part-item] > *) {
+      position: sticky;
+      inset-block-start: var(--_fade);
+      z-index: 1;
+      content-visibility: visible;
+    }
+
+    /**
+     * A day that travels over the rows is its label alone: rules stretched
+     * across the frame would strike through the message under them, and the
+     * label stands below the faded edge so it is read whole. WhatsApp and
+     * Telegram float the same pill.
+     */
+    :scope [data-part-separator][data-sticky]::before,
+    :scope [data-part-separator][data-sticky]::after {
+      content: none;
+    }
+
+    :scope [data-part-separator][data-sticky] {
+      justify-content: center;
+    }
+
+    :scope [data-part-separator][data-sticky] > * {
+      box-shadow: var(--slotted-shadow-xs);
+    }
+
+    :scope [data-part-separator] > * {
+      padding-block: var(--slotted-space-1, 0.125rem);
+      padding-inline: var(--slotted-space-4, 0.5rem);
+      border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-full, 9999px);
+      background-color: var(--slotted-surface);
+    }
+
+    :scope [data-part-unread] {
+      color: var(--slotted-tone-accent-text);
+    }
+
+    :scope [data-part-unread]::before,
+    :scope [data-part-unread]::after {
+      border-block-start-color: var(--slotted-tone-accent-border);
+    }
+
+    /* ── Loader ─────────────────────────────────────────────────────────────
+     *
+     * Older rows on their way: the shared ring and a line of muted text, at the
+     * head of the rows. The ring is `spinner`'s.
+     */
+    :scope [data-part-loader] {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--slotted-space-3, 0.375rem);
+      padding-block: var(--slotted-space-2, 0.25rem);
+      color: var(--slotted-text-muted);
+      font-size: var(--slotted-control-font-size-md, 13px);
+    }
+
+    :scope [data-part-loader] > [data-ui-spinner] {
+      --slotted-spinner-size: var(--slotted-control-icon-size-sm, 14px);
+    }
+
+    /**
+     * ── Jump ───────────────────────────────────────────────────────────────
+     *
+     * A raised round control over the foot of the frame, the arrow pointing to
+     * where it goes. When rows arrived out of view it widens into a pill that
+     * says how many, the answer shadcn's own documentation asks for (its eighth
+     * principle) and its control does not give.
+     *
+     * With nowhere to go it leaves: `inert`, out of the tab order, and drawn
+     * out by opacity and a step toward its edge. It arrives on the enter curve
+     * in the medium step and leaves on the exit curve in the short one, where
+     * ReUI's leaves in twice the time it arrives (dossier §5). It does not
+     * scale: it holds text.
+     */
+    :scope [data-part-jump] {
+      --_size: var(--slotted-message-scroller-jump-size, var(--slotted-control-height-md, 34px));
+      --_ground: var(--slotted-surface-raised);
+      --_ink: var(--slotted-text);
+      --_shift: var(--slotted-space-4, 0.5rem);
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--slotted-space-2, 0.25rem);
+      position: absolute;
+      inset-block-end: var(--_inset);
+      inset-inline-start: 50%;
+      z-index: 2;
+      box-sizing: border-box;
+      min-inline-size: var(--_size);
+      block-size: var(--_size);
+      margin: 0;
+      padding: 0;
+      /* A raised surface over the rows, not a field: the rule inside a surface and the lift say so. */
+      border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-full, 9999px);
+      background-color: var(--_ground);
+      box-shadow: var(--slotted-shadow-md);
+      color: var(--_ink);
+      font: inherit;
+      font-size: var(--slotted-control-font-size-md, 13px);
+      font-weight: var(--slotted-font-weight-medium, 500);
+      line-height: 1;
+      white-space: nowrap;
+      cursor: pointer;
+      translate: -50% 0;
+      transition:
+        opacity var(--slotted-duration-medium) var(--slotted-easing-enter, ease-out),
+        translate var(--slotted-duration-medium) var(--slotted-easing-enter, ease-out),
+        background-color var(--slotted-duration-short) var(--slotted-easing-standard, ease);
+    }
+
+    :scope [data-part-jump]:dir(rtl) {
+      translate: 50% 0;
+    }
+
+    :scope [data-part-jump][data-direction='start'] {
+      inset-block: var(--_inset) auto;
+      --_shift: calc(var(--slotted-space-4, 0.5rem) * -1);
+    }
+
+    :scope [data-part-jump] > [data-ui-icon] {
+      --slotted-icon-size: var(--slotted-control-icon-size-md, 16px);
+
+      rotate: -90deg;
+    }
+
+    :scope [data-part-jump][data-direction='start'] > [data-ui-icon] {
+      rotate: 90deg;
+    }
+
+    :scope [data-part-jump]:has(> [data-part-jump-count]) {
+      padding-inline: var(--slotted-space-4, 0.5rem) var(--slotted-space-5, 0.75rem);
+    }
+
+    :scope [data-part-jump-count] {
+      font-variant-numeric: tabular-nums;
+    }
+
+    :scope [data-part-jump][data-active='false'] {
+      opacity: 0;
+      pointer-events: none;
+      translate: -50% var(--_shift);
+      transition:
+        opacity var(--slotted-duration-short) var(--slotted-easing-exit, ease-in),
+        translate var(--slotted-duration-short) var(--slotted-easing-exit, ease-in);
+    }
+
+    :scope [data-part-jump][data-active='false']:dir(rtl) {
+      translate: 50% var(--_shift);
+    }
+
+    :scope [data-part-jump]:hover:not(:disabled):not([data-disabled]) {
+      background-color: color-mix(
+        in oklab,
+        var(--_ink) var(--slotted-message-scroller-state-layer-hover, 6%),
+        var(--_ground)
+      );
+    }
+
+    /**
+     * The press answers by the ground and by a pixel toward the edge the
+     * control points to, the way a key goes down; a scale would resample the
+     * count it carries (R7, `text-scale.test.mjs`).
+     */
+    :scope [data-part-jump]:active:not(:disabled):not([data-disabled]) {
+      background-color: color-mix(
+        in oklab,
+        var(--_ink) var(--slotted-message-scroller-state-layer-active, 12%),
+        var(--_ground)
+      );
+      translate: -50% var(--slotted-space-1, 0.125rem);
+    }
+
+    :scope [data-part-jump]:active:not(:disabled):not([data-disabled]):dir(rtl) {
+      translate: 50% var(--slotted-space-1, 0.125rem);
+    }
+
+    :scope [data-part-jump]:focus-visible {
+      outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color);
+      outline-offset: var(--slotted-focus-ring-offset, 2px);
+    }
+
+    @media (forced-colors: active) {
+      :scope [data-part-item][data-current] {
+        outline: var(--slotted-border-width-thick, 2px) solid Highlight;
+        outline-offset: var(--slotted-space-2, 0.25rem);
+      }
+
+      :scope [data-part-viewport][data-scrollable] {
+        mask-image: none;
+      }
+    }
+  }
+}

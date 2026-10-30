@@ -1,0 +1,356 @@
+{
+  "schemaVersion": 5,
+  "family": "transfer",
+  "ui": "transfer",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Moves items between two lists."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/examples/listbox-rearrangeable/",
+  "patternStatus": "No APG pattern names a dual list. Read on 2026-09-24: the Listboxes with Rearrangeable Options example, whose second example is a multi-select dual list with Add and Remove, supplies the move keys, aria-keyshortcuts, the focus destination after a move and the live confirmation. Each list is the listbox family, whose own transcription of the Listbox pattern stands.",
+  "reference": "Ant Design Transfer, PrimeNG PickList, Kendo UI for Angular ListBox (connectedWith), Salesforce lightning-dual-listbox, PatternFly DualListSelector, MUI Transfer List, APG Listboxes with Rearrangeable Options",
+  "composes": ["listbox", "checkbox", "text-field", "button", "segmented-control"],
+  "engine": "@slotted/core/collection createFilter for the search; @slotted/core/drag for the drag between and within panes; @slotted/core/live-announcer for the move; @slotted/core/state for the four models",
+  "rootElement": "div",
+  "rootRole": "group, named by the consumer's aria-label or aria-labelledby, or by the field around it",
+  "roles": {
+    "root": "group",
+    "pane": "group, aria-labelledby its title",
+    "list": "the listbox family: role=listbox, aria-multiselectable=true, aria-labelledby the pane's title",
+    "actions": "group, aria-label messages.actions",
+    "reorder": "group, aria-label messages.reorder",
+    "switch": "the segmented-control family: radiogroup, aria-label messages.panes"
+  },
+  "anatomy": {
+    "root": "a div carrying data-ui=transfer, data-layout, data-size and data-pane, the side the switch names; role=group; the container named transfer that the narrow layout is decided in",
+    "switch": "a div around the segmented-control family with one item per pane, each reading messages.paneCount; rendered always, laid out only in steps",
+    "body": "the grid of the two panes and the actions column; one element in from the root, so the container query on the root can change its tracks",
+    "pane": "one per side: data-side=source or target, data-current on the pane the switch names; role=group named by its title; the drag container of its side",
+    "pane-header": "the row above the search: select-all, title and count",
+    "select-all": "a span around the checkbox family, whose own root part the checkbox stylesheet keys on; tri-state over the pane's visible enabled items: checked when all are selected, indeterminate when some are; aria-label messages.selectAll",
+    "title": "the pane's name, messages.source or messages.target; names the pane and its list",
+    "count": "messages.count, messages.countSelected or messages.countFiltered, whichever the pane's state asks for",
+    "search": "a div around the text-field family at the family's size step less one, type=search, named by messages.search; absent when searchable is false",
+    "search-icon": "the search glyph the family draws in the text field's start slot",
+    "list": "a div around the pane's listbox: plain variant, selectionMode multiple, rows options tall; the box the drop indicator is positioned in",
+    "empty": "the content of the listbox's own empty part: the inbox glyph and messages.empty, or the search-x glyph and messages.noResults while a query is typed",
+    "drop-indicator": "a line of no height inside the list, at --_drop-offset from its top, while a pointer drag hovers a valid position; aria-hidden",
+    "pane-footer": "the consumer's content under the list, per side; absent when the consumer gives none",
+    "actions": "the column between the panes: a group of the four move buttons, then reorder; in steps it stands under the current pane and shows only that pane's two moves",
+    "move-to-target": "a button: the chevron toward the target and messages.moveToTarget; asks to move the source's selected enabled items; aria-keyshortcuts Enter; disabled while none is selected",
+    "move-all-to-target": "a button: the double chevron and messages.moveAllToTarget; asks to move every visible enabled source item",
+    "move-to-source": "a button: the chevron toward the source and messages.moveToSource; aria-keyshortcuts Delete",
+    "move-all-to-source": "a button: the double chevron toward the source and messages.moveAllToSource",
+    "reorder": "a group of move-up and move-down under the move buttons; rendered only when reorderable",
+    "move-up": "a button: the chevron up and messages.moveUp; asks to move the target's selected items one place toward the start; aria-keyshortcuts Alt+ArrowUp",
+    "move-down": "a button: the chevron down and messages.moveDown; aria-keyshortcuts Alt+ArrowDown"
+  },
+  "wiring": {
+    "aria-labelledby": "on each pane and on its listbox, naming the pane's title",
+    "aria-label": "on the actions group, on the reorder group, on the select-all checkbox and on the search field, from messages",
+    "aria-keyshortcuts": "on move-to-target (Enter), move-to-source (Delete), move-up (Alt+ArrowUp) and move-down (Alt+ArrowDown), which is how the APG example says the shortcuts exist",
+    "aria-disabled": "on a move button with nothing to move: the button family's focusableWhenDisabled, so the button that just emptied its own selection keeps focus",
+    "aria-invalid / aria-required": "on both listboxes, from invalid and required",
+    "live": "every move is announced politely through the shared live announcer: messages.moved"
+  },
+  "request": {
+    "targetKeys": "ChangeRequest<readonly string[]> & { direction, keys }: direction is target, source or reorder; keys are the keys that moved, in the order they moved",
+    "selectedKeys": "ChangeRequest<readonly string[]>: one set across both panes; each pane's selection is the set less the other pane's keys",
+    "moveClearsSelection": "the keys a move carried leave the selection in the same gesture, with the move's reason, so the selection request follows the targetKeys request",
+    "equal": "a request for a value equal to the current one is not emitted"
+  },
+  "rules": {
+    "collection": "items is the whole collection, both sides; the scope paragraph's sourceItems. A key of targetKeys with no item is drawn with the key as its label and data-unresolved, never dropped, because dropping it would change a form's value without a request",
+    "order": "without reorderable the target is drawn in the order of items and a move asks for keys in that order; with it the target is drawn in the order of targetKeys, moved keys join the end in the order of items, or the position a drag drops them at",
+    "disabled": "a disabled item cannot be selected or moved and stays in the pane it is in; move-all skips it",
+    "moveAll": "moves the pane's visible enabled items, so under a query only what the reader sees",
+    "selectAll": "the checkbox selects or clears the pane's visible enabled items and leaves the rest of the selection alone, with the reason select",
+    "search": "createFilter contains, at base sensitivity in the locale, over the label and the description; filter replaces it and receives the side",
+    "focus": "after a move the pane's listbox keeps focus and its own removal rule picks the active option; a pane left with no option while it held focus hands focus to the other pane's listbox",
+    "drag": "one @slotted/core/drag container per pane. A dragged item carries its pane's selection when it is selected, and itself otherwise. Across panes it moves; within the target it reorders, only under reorderable; within the source every position is refused",
+    "steps": "under layout steps, or under auto below 36rem of the root's inline size, the switch chooses the pane that is shown; the other pane leaves the layout and actions shows the current pane's two moves under it",
+    "reorder": "move-up, move-down, Alt+ArrowUp and Alt+ArrowDown and a drag within the target are off while a target query is typed, because a place in a subset is not a place in the list",
+    "readOnly": "both lists stay reachable and selectable; no move, drag or reorder is asked for, and the move buttons are aria-disabled"
+  },
+  "itemAttributes": {
+    "unresolved": "data-unresolved",
+    "dragging": "data-dragging",
+    "where": "on the option's indicator, which the family draws in every option: the listbox draws the option itself from items, and the stylesheet reads the mark with :has()"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "native order: switch, then per pane select-all, search and list, with the actions between the panes",
+      "focus": "the next tabbable element",
+      "source": "platform"
+    },
+    {
+      "key": "Arrows, Home, End, PageUp, PageDown, Space, Shift+Space, Control+A, printable characters",
+      "effect": "the listbox family's own keyboard, unchanged, inside each pane",
+      "focus": "as the listbox family declares",
+      "source": "pattern"
+    },
+    {
+      "key": "Enter",
+      "effect": "in either list: moves the pane's selected enabled items to the other pane, or the active option when none is selected",
+      "focus": "stays in the list; the active option becomes the next one still present",
+      "source": "pattern"
+    },
+    {
+      "key": "Delete / Backspace",
+      "effect": "in the target list: moves to the source under the same rule",
+      "focus": "stays in the list",
+      "source": "pattern"
+    },
+    {
+      "key": "Control+ArrowRight / Meta+ArrowRight",
+      "effect": "in either list: moves toward the pane at the inline end, the target in a left-to-right document; mirrored in right-to-left",
+      "focus": "stays in the list",
+      "source": "platform"
+    },
+    {
+      "key": "Control+ArrowLeft / Meta+ArrowLeft",
+      "effect": "in either list: moves toward the pane at the inline start",
+      "focus": "stays in the list",
+      "source": "platform"
+    },
+    {
+      "key": "Alt+ArrowUp / Alt+ArrowDown",
+      "effect": "in the target list under reorderable: moves the selected items, or the active option, one place",
+      "focus": "stays on the moved option",
+      "source": "pattern"
+    },
+    {
+      "key": "Escape",
+      "effect": "during a pointer drag: cancels it, taken by the drag module in the capture phase",
+      "focus": "stays",
+      "source": "platform"
+    }
+  ],
+  "departures": {
+    "Enter": {
+      "reason": "The APG dual-list example gives Enter to Add, and it is the one key that moves without a modifier.",
+      "cost": "Inside transfer, Enter no longer toggles an option as the listbox family's own departure makes it; Space does."
+    },
+    "toolbar": {
+      "reason": "The APG's first example groups four action buttons as one toolbar tab stop. Here every move has a shortcut in the list, so the buttons are the pointer's and the discoverable path, and a toolbar would hide five of the six behind arrow keys.",
+      "cost": "Up to six tab stops between the panes."
+    }
+  },
+  "declined": {
+    "tree": {
+      "deferTo": "hierarchical-picker",
+      "reason": "Ant's Tree Transfer and PatternFly's isTree put a tree in the source pane. A tree's selection is by node with cascade rules; hierarchical-picker in wave 11 owns selection in a tree."
+    },
+    "table": {
+      "composition": "renderItem with the listbox family's meta part for a short second column",
+      "reason": "Only Ant ships a table inside a pane."
+    },
+    "oneWay": {
+      "composition": "move-to-source removes an item from the target",
+      "reason": "Only Ant ships a single-direction style."
+    },
+    "minMax": {
+      "composition": "invalid={targetKeys.length > max}, with the message in the field around it",
+      "reason": "Only Salesforce ships min and max; the family owns required, and the Angular Validator reports it."
+    },
+    "pagination": {
+      "composition": "virtual and itemSize, handed to each listbox",
+      "reason": "A windowed pane has no pages to turn, and Ant's pagination cannot be combined with its own render props."
+    },
+    "moveAllShortcut": {
+      "composition": "Control+A then Enter",
+      "reason": "Only Kendo binds move-all to Control+Shift+Arrow."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "layout": ["auto", "columns", "steps"],
+    "searchable": [true, false],
+    "selectAll": [true, false],
+    "reorderable": [true, false],
+    "virtual": [true, false],
+    "disabled": [true, false]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "layout": ["prop", "defaults", "auto"],
+    "searchable": ["prop", "defaults", true],
+    "selectAll": ["prop", "defaults", true],
+    "reorderable": ["prop", "defaults", false],
+    "virtual": ["prop", "defaults", false],
+    "disabled": ["prop", "field", "defaults", false]
+  },
+  "provides": {
+    "transferDefaults": ["size", "layout", "searchable", "selectAll", "reorderable", "rows"]
+  },
+  "messages": [
+    "actions",
+    "count",
+    "countFiltered",
+    "countSelected",
+    "empty",
+    "loading",
+    "moveAllToSource",
+    "moveAllToTarget",
+    "moved",
+    "movedOne",
+    "moveDown",
+    "moveToSource",
+    "moveToTarget",
+    "moveUp",
+    "noResults",
+    "paneCount",
+    "panes",
+    "reorder",
+    "reordered",
+    "search",
+    "selectAll",
+    "source",
+    "target"
+  ],
+  "literals": {
+    "--slotted-transfer-pane-min-inline-size": {
+      "value": "13rem",
+      "reason": "The narrowest pane an option of two words, its check and a count still fit in at md; no scale holds a width of a column, and the 36rem container step is two of it plus the actions column and two gaps."
+    }
+  },
+  "stateAttributes": {
+    "current": "data-current",
+    "disabled": "data-disabled",
+    "readonly": "data-readonly",
+    "invalid": "data-invalid",
+    "required": "data-required",
+    "loading": "data-loading",
+    "dragging": "data-dragging",
+    "drop-target": "data-drop-target"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "targetKeys",
+      "uncontrolled": "defaultTargetKeys",
+      "request": "onTargetKeysChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    },
+    "selection": {
+      "controlled": "selectedKeys",
+      "uncontrolled": "defaultSelectedKeys",
+      "request": "onSelectedKeysChange",
+      "reasons": ["pointer", "keyboard", "select", "programmatic"]
+    },
+    "filter": {
+      "source": {
+        "controlled": "sourceQuery",
+        "uncontrolled": "defaultSourceQuery",
+        "request": "onSourceQueryChange",
+        "reasons": ["keyboard", "clear", "programmatic"]
+      },
+      "target": {
+        "controlled": "targetQuery",
+        "uncontrolled": "defaultTargetQuery",
+        "request": "onTargetQueryChange",
+        "reasons": ["keyboard", "clear", "programmatic"]
+      }
+    },
+    "current": {
+      "controlled": "pane",
+      "uncontrolled": "defaultPane",
+      "request": "onPaneChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "members": {
+    "transfer": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "layout": "auto",
+        "searchable": true,
+        "selectAll": true,
+        "reorderable": false,
+        "virtual": false,
+        "disabled": false,
+        "readOnly": false,
+        "required": false,
+        "invalid": false,
+        "loading": false,
+        "hasMore": false,
+        "rows": 8,
+        "pane": "source"
+      },
+      "capabilities": [
+        "value",
+        "selection",
+        "filter",
+        "current",
+        "size",
+        "arrangement",
+        "virtualization",
+        "disabled",
+        "readOnly",
+        "required",
+        "invalid",
+        "loading",
+        "live",
+        "content",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "current",
+        "disabled",
+        "readonly",
+        "invalid",
+        "required",
+        "loading",
+        "dragging",
+        "drop-target"
+      ],
+      "parts": [
+        "root",
+        "switch",
+        "body",
+        "pane",
+        "pane-header",
+        "select-all",
+        "title",
+        "count",
+        "search",
+        "search-icon",
+        "list",
+        "empty",
+        "drop-indicator",
+        "pane-footer",
+        "actions",
+        "move-to-target",
+        "move-all-to-target",
+        "move-to-source",
+        "move-all-to-source",
+        "reorder",
+        "move-up",
+        "move-down"
+      ]
+    }
+  },
+  "scenarios": {
+    "transfer": [
+      "playground",
+      "selection",
+      "search",
+      "order",
+      "drag",
+      "steps",
+      "states",
+      "virtualization",
+      "loading",
+      "content",
+      "forms",
+      "labels",
+      "keyboard",
+      "accessibility"
+    ]
+  }
+}

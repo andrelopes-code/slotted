@@ -1,0 +1,466 @@
+@layer slotted.components {
+  /**
+   * ── The list of records ────────────────────────────────────────────────
+   *
+   * A small tabular set drawn as records. The set is `list`, each record is a
+   * `list-item`, and this sheet owns four things only: the bar above the set,
+   * the pairs of a record's fields, the target that covers a record, and the
+   * bar under the set. Everything a row already answers — its height at each
+   * density, its rule, its selected, current, disabled and loading grounds,
+   * its trailing column moving under the title below 22rem — is `list-item`'s,
+   * and this sheet does not restate it.
+   *
+   * The two composed families keep their own `data-part`. A part of this
+   * family is written on an element of its own, never on the `li`, so the row
+   * stays the row `list-item.css` recognises.
+   */
+  [data-ui-data-list][data-part-root] {
+    /* The pop-in's two measures (`data-grid.css`, the pop-in): a field is at
+       least nine rems, so two sit side by side from eighteen, and a field that
+       has the row to itself puts its label in a track of seven and a half. */
+    --_field-min: 9rem;
+    --_field-label-inline: 7.5rem;
+    --_pad-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_muted: var(--slotted-text-muted, GrayText);
+    --_rule: var(--slotted-border-subtle, ButtonBorder);
+    --_rule-width: var(--slotted-border-width-thin, 1px);
+    --_transition: var(--slotted-duration-short) var(--slotted-easing-standard);
+
+    color: var(--slotted-text, CanvasText);
+    container: slotted-data-list / inline-size;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-font-family-sans, sans-serif);
+    min-inline-size: 0;
+  }
+
+  [data-ui-data-list][data-size='sm'] {
+    --_pad-inline: var(--slotted-control-padding-inline-sm, 10px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+  }
+
+  [data-ui-data-list][data-size='lg'] {
+    --_pad-inline: var(--slotted-control-padding-inline-lg, 16px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+  }
+
+  /**
+   * ── The bar above the set ──────────────────────────────────────────────
+   *
+   * Select-all, the count and the sort control, on the row's own inset so the
+   * header's checkbox stands in the column every record's checkbox stands in.
+   * The rule under it is the set's first rule: a ruled list draws a line above
+   * every row but the first, and the header is what the first row sits under.
+   */
+  [data-ui-data-list] > [data-part-header] {
+    align-items: center;
+    box-shadow: 0 var(--_rule-width) 0 0 var(--_rule);
+    box-sizing: border-box;
+    column-gap: var(--_gap);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--slotted-control-font-size-sm, 12px);
+    line-height: var(--slotted-line-height-sm, 1.45);
+    min-block-size: var(--slotted-control-height-md, 34px);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_pad-inline);
+    row-gap: var(--slotted-space-1, 0.125rem);
+  }
+
+  /* A plain list draws no rule between its rows, so the bar draws none under
+     itself either. */
+  [data-ui-data-list][data-variant='plain'] > [data-part-header] {
+    box-shadow: none;
+  }
+
+  /* A framed set carries its own edge; the bar sits outside it and the rule
+     would double the frame's top. */
+  [data-ui-data-list][data-variant='framed'] > [data-part-header] {
+    box-shadow: none;
+    padding-inline: calc(var(--_pad-inline) + var(--_rule-width));
+  }
+
+  [data-ui-data-list] [data-part-select-all] {
+    display: inline-flex;
+    flex: none;
+  }
+
+  [data-ui-data-list] [data-part-count] {
+    color: var(--_muted);
+    flex: 1 1 auto;
+    font-variant-numeric: tabular-nums;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    text-align: match-parent;
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-data-list] [data-part-sort] {
+    display: inline-flex;
+    flex: none;
+    margin-inline-start: auto;
+    /* The trigger is a `plain`-sized ghost button whose inset would push its
+       label off the row's end; pulling it back by the button's own inset
+       lines the chevron up with the trailing value of every record. */
+    margin-inline-end: calc(var(--slotted-control-padding-inline-sm, 10px) * -1);
+  }
+
+  /**
+   * The direction, drawn after the label: `table`'s own indicator, the
+   * chevron `Glyph` the binding draws in the button's `end` slot, turned a
+   * half turn for ascending. Without a key there is nothing to point at and
+   * the binding draws no mark.
+   */
+  [data-ui-data-list] [data-part-sort] [data-part-end] > [data-ui-icon] {
+    transition: transform var(--_transition);
+  }
+
+  [data-ui-data-list]
+    [data-part-sort][data-direction='ascending']
+    [data-part-end]
+    > [data-ui-icon] {
+    transform: rotate(180deg);
+  }
+
+  /**
+   * ── The record ─────────────────────────────────────────────────────────
+   *
+   * The row is the positioning context for the target that covers it. The
+   * controls a record holds stand above that target, so pressing a checkbox,
+   * a disclosure or an action presses that control and not the record.
+   */
+  [data-ui-data-list] [data-ui-list-item] {
+    position: relative;
+  }
+
+  [data-ui-data-list]
+    [data-ui-list-item]
+    :is(
+      [data-part-selection],
+      [data-part-more],
+      [data-part-field-value] :is(a, button, input, select, textarea, [tabindex])
+    ),
+  [data-ui-data-list] [data-ui-list-item] > [data-part-actions] {
+    position: relative;
+    z-index: 1;
+  }
+
+  [data-ui-data-list] [data-part-selection],
+  [data-ui-data-list] [data-part-media] {
+    align-items: center;
+    display: inline-flex;
+    flex: none;
+  }
+
+  /* Both in one leading column: the chooser first, the picture after it. */
+  [data-ui-data-list] [data-part-selection] + [data-part-media] {
+    margin-inline-start: var(--_gap);
+  }
+
+  /**
+   * The title is the record's one destination or command. It is the row's
+   * `label` and nothing more to a reader — a link named by every field is a
+   * sentence nobody listens to twice — and its `::after` is the whole row to a
+   * pointer, which is where a phone reader's thumb lands.
+   */
+  [data-ui-data-list] :is(a, button)[data-part-title] {
+    appearance: none;
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    margin: 0;
+    padding: 0;
+    text-align: inherit;
+    text-decoration: none;
+  }
+
+  [data-ui-data-list] :is(a, button)[data-part-title]::after {
+    border-radius: inherit;
+    content: '';
+    inset: 0;
+    position: absolute;
+  }
+
+  [data-ui-data-list] :is(a, button)[data-part-title]:focus-visible {
+    outline: none;
+  }
+
+  /* The ring is drawn by the target, inside the row, as `list-item` draws it
+     on its own content: a row is full width, and an outward ring on the first
+     record of a framed set is drawn under the frame. */
+  [data-ui-data-list] :is(a, button)[data-part-title]:focus-visible::after {
+    outline: var(--slotted-focus-ring-width, 2px) solid
+      var(--slotted-focus-ring-color, currentColor);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-data-list]
+    [data-ui-list-item]:not([data-disabled]):not([data-loading])
+    :is(a[href], button:not(:disabled))[data-part-title]:hover {
+    text-decoration: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.2em;
+  }
+
+  /**
+   * The row's pointer states, taken from the row. `list-item` washes a row
+   * whose content is the link or the button; here the target is the title and
+   * the content is a `div`, so the same two grounds are asked for from here —
+   * through the row's own `--_fill`, which already knows the tone and the
+   * selection it is painted over. Both hold back for `disabled` and `loading`.
+   */
+  [data-ui-data-list]
+    [data-ui-list-item]:not([data-disabled]):not([data-loading]):has(
+      [data-part-title]:is(a[href], button:not(:disabled)):hover
+    ) {
+    --_fill: var(--_hover, ButtonFace);
+  }
+
+  [data-ui-data-list]
+    [data-ui-list-item]:not([data-disabled]):not([data-loading]):has(
+      [data-part-title]:is(a[href], button:not(:disabled)):active
+    ) {
+    --_fill: var(--_active, ButtonFace);
+  }
+
+  [data-ui-data-list] [data-ui-list-item]:is([data-disabled], [data-loading]) [data-part-title] {
+    cursor: default;
+  }
+
+  /**
+   * The value read at a glance — a balance, a total — is the record's own ink
+   * and weight rather than `end`'s metadata grey: it is the figure a reader
+   * scans the column for. `--_text` is the row's ink at rest, which the row
+   * recedes itself while it loads or is disabled, and which a selection leaves
+   * alone, so a selected record keeps its figures in the page's ink.
+   */
+  [data-ui-data-list] [data-part-trailing] {
+    color: var(--_text, CanvasText);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    overflow-wrap: anywhere;
+    text-align: end;
+  }
+
+  /**
+   * ── The fields ─────────────────────────────────────────────────────────
+   *
+   * The pop-in's geometry, so a record reads the same in `data-grid` on a
+   * phone and here: as many columns of nine rems as the body holds, the label
+   * over the value. `description-list` answers the same pair at panel
+   * thresholds and gives a phone one stacked column; the contract says why the
+   * pair is drawn here instead.
+   */
+  /**
+   * The fields and their disclosure are children of the row's content box and
+   * take its grid from the text column to the end, under the trailing value
+   * as well as under the title: inside the text column the trailing figure
+   * took a hundred pixels from every line of fields, and a phone's record
+   * fell to one squeezed column with its dates broken in two. Below
+   * `list-item`'s 22rem the grid has two columns and `-1` still names its end.
+   */
+  [data-ui-data-list]
+    [data-ui-list-item]
+    > [data-part-content]
+    > :is([data-part-fields], [data-part-more]) {
+    grid-column: 2 / -1;
+  }
+
+  /* Below `list-item`'s own 22rem the leading column holds only the chooser
+     and the picture, and the fields take the row from its start edge: indented
+     under them the fields of a 240-pixel record were eleven rems wide. The
+     pop-in makes the same move below 600 pixels. */
+  @container slotted-list-item (max-inline-size: 22rem) {
+    [data-ui-data-list]
+      [data-ui-list-item]
+      > [data-part-content]
+      > :is([data-part-fields], [data-part-more]) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* The box is a query container for its pairs. Its own tracks need no query:
+     `auto-fill` already gives one column below eighteen rems. */
+  [data-ui-data-list] [data-part-fields] {
+    column-gap: var(--slotted-space-4, 0.5rem);
+    container: slotted-data-list-fields / inline-size;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--_field-min), 100%), 1fr));
+    margin-block: var(--slotted-space-2, 0.25rem) 0;
+    margin-inline: 0;
+    padding: 0;
+    row-gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-data-list] [data-part-field] {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  [data-ui-data-list] [data-part-field-label] {
+    color: var(--_muted, GrayText);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-weight: var(--slotted-font-weight-regular, 400);
+    line-height: var(--slotted-line-height-xs, 1.4);
+    margin: 0;
+    /* A label breaks between its words and inside one only when the word
+       alone is wider than the track: `anywhere` broke `Created` into two. */
+    overflow-wrap: break-word;
+  }
+
+  /* The value is the row's own ink and size, and it wraps: a field has no
+     other way to show what it holds, so it never truncates. */
+  [data-ui-data-list] [data-part-field-value] {
+    color: var(--_text, CanvasText);
+    font-weight: var(--slotted-font-weight-regular, 400);
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin: 0;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    /* A value in another script takes its own direction and leaves the pairs
+       around it alone, as `list-item`'s title does. `plaintext` also moves
+       `start` to the value's own direction, and an English value in a
+       right-to-left record was set against the far edge, away from its label;
+       `match-parent` keeps the column on the record's start. */
+    text-align: match-parent;
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-data-list] [data-part-field-value][data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* `—` is written by both bindings; the sheet only lowers its ink, the rule
+     `description-list` settled for the same mark. */
+  [data-ui-data-list] [data-part-field-empty] {
+    color: var(--_muted, GrayText);
+  }
+
+  /**
+   * One field to a line: the label beside the value, on the value's line. The
+   * label's track is the pop-in's seven and a half rems, capped at a third and a little more (35%)
+   * of the box, so a long label wraps and the value keeps its line. Below
+   * twelve rems that share is under four and a half, a label broke inside its own word
+   * and a date took two lines, so the pair returns to the label over the value.
+   */
+  @container slotted-data-list-fields (min-inline-size: 12rem) and (max-inline-size: 19rem) {
+    [data-ui-data-list] [data-part-field] {
+      align-items: baseline;
+      column-gap: var(--slotted-space-3, 0.375rem);
+      display: grid;
+      grid-template-columns: minmax(0, min(var(--_field-label-inline), 35%)) minmax(0, 1fr);
+    }
+  }
+
+  /**
+   * The disclosure for the fields past the first few. It is text rather than
+   * a control-sized button, because it belongs to the record's text; its box
+   * still reaches the 24-pixel target.
+   */
+  [data-ui-data-list] [data-part-more] {
+    align-items: center;
+    appearance: none;
+    background: none;
+    border: 0;
+    border-radius: var(--slotted-radius-sm, 4px);
+    color: var(--slotted-tone-accent-text, LinkText);
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-size: var(--slotted-control-font-size-sm, 12px);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    gap: var(--slotted-space-2, 0.25rem);
+    justify-self: start;
+    margin-block-start: var(--slotted-space-1, 0.125rem);
+    min-block-size: var(--slotted-target-min, 24px);
+    padding: 0;
+  }
+
+  /* The chevron is the `Glyph` the binding draws after the words; it turns a
+     half turn once the fields are shown. */
+  [data-ui-data-list] [data-part-more] > [data-ui-icon] {
+    transition: transform var(--_transition);
+  }
+
+  [data-ui-data-list] [data-part-more][aria-expanded='true'] > [data-ui-icon] {
+    transform: rotate(180deg);
+  }
+
+  [data-ui-data-list] [data-part-more]:not(:disabled):hover {
+    text-decoration: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.2em;
+  }
+
+  [data-ui-data-list] [data-part-more]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  [data-ui-data-list] [data-ui-list-item][data-disabled] [data-part-more] {
+    color: var(--slotted-disabled-foreground, GrayText);
+  }
+
+  /**
+   * ── Refreshing, empty, loading, footer ─────────────────────────────────
+   *
+   * Over rows already shown the rows stay and recede, and nothing moves:
+   * `data-grid`'s rule for the same wait, at the same strength.
+   */
+  [data-ui-data-list] > [data-ui-list] {
+    /* The containing block of the veil a busy list lays over its rows. */
+    position: relative;
+  }
+
+  [data-ui-data-list][aria-busy='true'] > [data-ui-list] {
+    opacity: 0.55;
+    transition: opacity var(--_transition);
+  }
+
+  /* A veil refuses the press, as `data-grid`'s does: `pointer-events: none`
+     on the list is inherited, and toggling it restyled every row. */
+  [data-ui-data-list][aria-busy='true'] > [data-ui-list]::after {
+    content: '';
+    inset: 0;
+    position: absolute;
+    z-index: calc(var(--slotted-z-index-sticky, 100) + 4);
+  }
+
+  [data-ui-data-list] > [data-part-empty] {
+    padding-block: var(--slotted-space-8, 1.5rem);
+    padding-inline: var(--_pad-inline);
+  }
+
+  [data-ui-data-list] > [data-part-loader] {
+    display: block;
+  }
+
+  /* A skeleton record's lines stand where the text will: the title's at the
+     title's size, the description's under it. */
+  [data-ui-data-list] > [data-part-loader] [data-part-field-value] [data-ui-skeleton] {
+    vertical-align: middle;
+  }
+
+  [data-ui-data-list] > [data-part-footer] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--_gap);
+    justify-content: center;
+    padding-block: var(--slotted-space-4, 0.5rem);
+    padding-inline: var(--_pad-inline);
+  }
+
+  [data-ui-data-list] > [data-part-footer]:empty {
+    display: none;
+  }
+
+  [data-ui-data-list] [data-part-load-more] {
+    display: inline-flex;
+  }
+}

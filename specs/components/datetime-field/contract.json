@@ -1,0 +1,401 @@
+{
+  "schemaVersion": 5,
+  "family": "datetime-field",
+  "ui": "datetime-field",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Typed date and time input in segments."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/",
+  "patternStatus": "Read on 2026-09-10 and transcribed key by key The table is time-field's, widened by the three date fields; the example the pattern links is deprecated for its visible increment and decrement buttons, and its roles, its wrapping rule and its aria-valuetext guidance are taken whole.",
+  "controlPart": "segments",
+  "controlRole": "group",
+  "segmentRole": "spinbutton",
+  "rootRole": null,
+  "hiddenValueInput": true,
+  "hiddenValueFormat": "ISO 8601 YYYY-MM-DDTHH:mm:ss",
+  "valueType": "PlainDateTime | null",
+  "valueShape": "{ date: PlainDate; time: PlainTime }",
+  "valueShapeReason": "Nested rather than six flat fields, so every function the two halves already have — addDays, clampDate, compareDate, secondsOfDay, addSeconds, isTimeInRange — applies to one half unchanged, and the picker hands each half to the surface that owns it without projecting anything. A flat shape would need a projection at every call site and would invite a second copy of arithmetic that already exists twice over. The cost is one line for a consumer converting to Temporal.PlainDateTime, which is flat.",
+  "zoned": false,
+  "zonedReason": "A zoned instant is the type every surveyed implementation gets wrong at a daylight boundary. What this library holds is the wall-clock value the reader wrote, and converting it is the application's, against the zone the application knows. Decided in wave 7 and recorded in docs/build-briefing.md.",
+  "core": ["@slotted/core/date", "@slotted/core/state"],
+  "formatModule": "packages/core/src/date/datetime-format.ts",
+  "engine": {
+    "module": "packages/core/src/date/segments.ts",
+    "shared": true,
+    "widened": "Not by this family. The previous session widened SegmentState to seven fields for exactly this one, and every signature it changed changed additively, so nothing here edits the engine. duration.ts gains the unit letters d and w in the same additive way: every expression time-field parsed parses unchanged.",
+    "why": "One SegmentState holds a half-typed date, a half-typed time, or both. Two states side by side would make \"the reader is typing\" two questions with two answers."
+  },
+  "oneRow": {
+    "why": "Three reasons, and each is a thing a nested date-field and time-field cannot do. **One `role=\"group\"` and one value:** two nested family roots are two groups, two values and two SegmentStates. **One pattern:** the order of the two halves and the literal between them come from one combined Intl.DateTimeFormat, and two independent fields learn neither. **One run of typing:** a digit that fills the last date segment advances into the first time segment.",
+    "pattern": "The combined formatter names the order of the halves, the literal between them — `, ` in pt-BR, en-US and de-DE, a bare space in fr-FR, ja-JP and zh-CN, the date form's own full stop in ko-KR — and where the day period lands. A locale that writes the time first is drawn that way without a table of orders being shipped.",
+    "typing": "A digit that fills the last date segment advances across the boundary into the first time segment, and ArrowRight walks from the day into the hour. Across two roots both stop at the boundary.",
+    "cost": "The row's markup and its key handling are written a third time, once per binding. What is not written a third time is everything below the markup: the pattern, the digits, the placeholders, the stepping, the held day, the year pivot, the hour cycle, the day-period names and the relative parser are all called from @slotted/core/date."
+  },
+  "stateSource": "field",
+  "mirrorsState": true,
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "aria-disabled",
+  "wiring": {
+    "id": "always",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "aria-disabled": "disabled",
+    "aria-readonly": "readOnly"
+  },
+  "ariaValue": ["aria-valuenow", "aria-valuemin", "aria-valuemax", "aria-valuetext"],
+  "fields": ["year", "month", "day", "hour", "minute", "second", "dayPeriod"],
+  "fieldOrder": "the locale's, from one Intl.DateTimeFormat.formatToParts",
+  "granularity": {
+    "governs": "the time half only: hour, minute or second",
+    "dateHalf": "always whole. A datetime without a day is a date, and date-field is that family.",
+    "default": "minute"
+  },
+  "overflow": {
+    "at": "the frame's edge: the row is one line at every width and is clipped there, the way a text input clips a value longer than itself",
+    "never": "inside a segment — a segment never shrinks under its digits — and never onto a second line",
+    "removesContent": false,
+    "scrolls": "the half the reader steps into is scrolled into view: a clipped row is still a scroll container to the focus, so the segment with focus is always the one on screen",
+    "part": "half",
+    "partWhy": "Each half is one flex item holding its own segments and literals, isolated so a date and a clock time read left to right in every document; the row is clipped between the halves or inside the time half, never inside a segment.",
+    "boundaryLiteral": "the literal between the halves carries data-boundary and is drawn inside the date half rather than between the two, so it stays with the date when the time is clipped. A boundary the locale writes as whitespace alone is not drawn at all, and the row's own column gap separates the halves instead — which is what fr-FR, ja-JP and zh-CN get, where pt-BR, en-US and de-DE get a comma.",
+    "decidedBy": "the row itself. overflow is hidden and flex-wrap is off at every width, so no locale, granularity or size can grow the frame to two lines, and no container query has to guess where the content stops fitting.",
+    "why": "Seven segments do not fit a 240-pixel container in every locale. The row used to wrap between the halves; a control two lines tall broke every row it stood in — a filter row, a table cell, a toolbar — and read as a different control from the field beside it. Clipping keeps the frame one line and removes nothing: the value is whole in the field and in aria-valuetext, and the half with focus is on screen."
+  },
+  "incomplete": {
+    "paints": "the frame takes the warning border while the value is incomplete and no segment inside it has focus. It says unfinished rather than wrong, it is quiet while the reader is still typing, and it sits under invalid in the precedence order — a value refused by a bound is wrong whether or not it is whole.",
+    "saysWhich": [
+      "data-incomplete on the root",
+      "segments on the request",
+      "dateTimeIncomplete from the Angular validator"
+    ],
+    "emptyField": "not incomplete. data-incomplete is absent while no segment is written, because an empty field is not a half-written one and a stylesheet painting both the same would mark every untouched form.",
+    "why": "value is null until both halves are whole, which every surveyed implementation reports. Which half is missing is what none of them can say."
+  },
+  "validators": [
+    "dateTimeParse",
+    "dateTimeIncomplete",
+    "dateTimeMin",
+    "dateTimeMax",
+    "dateTimeUnavailable"
+  ],
+  "keyboard": [
+    {
+      "key": "ArrowUp",
+      "effect": "step",
+      "by": 1,
+      "wraps": "within the segment"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "step",
+      "by": -1,
+      "wraps": "within the segment"
+    },
+    {
+      "key": "PageUp",
+      "effect": "step",
+      "by": "page"
+    },
+    {
+      "key": "PageDown",
+      "effect": "step",
+      "by": "-page"
+    },
+    {
+      "key": "Home",
+      "effect": "bound",
+      "edge": "min"
+    },
+    {
+      "key": "End",
+      "effect": "bound",
+      "edge": "max"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "move",
+      "to": "next segment in writing order, across the boundary between the halves"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "move",
+      "to": "previous segment in writing order, across the boundary between the halves"
+    },
+    {
+      "key": "0-9",
+      "effect": "type",
+      "advances": "when no further digit fits"
+    },
+    {
+      "key": "a-z",
+      "effect": "type",
+      "scope": "dayPeriod",
+      "matches": "the first letter of a locale name"
+    },
+    {
+      "key": "Backspace",
+      "effect": "clear",
+      "scope": "segment"
+    },
+    {
+      "key": "Delete",
+      "effect": "clear",
+      "scope": "segment"
+    },
+    {
+      "key": "+",
+      "effect": "relative",
+      "opens": "the duration expression"
+    },
+    {
+      "key": "-",
+      "effect": "relative",
+      "opens": "the duration expression"
+    },
+    {
+      "key": "=",
+      "effect": "relative",
+      "opens": "the duration expression, holding now"
+    },
+    {
+      "key": "Enter",
+      "effect": "commit",
+      "scope": "the duration expression"
+    },
+    {
+      "key": "Escape",
+      "effect": "abandon",
+      "scope": "the duration expression"
+    }
+  ],
+  "pageStep": {
+    "year": 10,
+    "month": 5,
+    "day": 5,
+    "hour": 3,
+    "minute": 15,
+    "second": 15,
+    "dayPeriod": 1
+  },
+  "departures": {
+    "pageStep": "The page steps are the two siblings' own, taken unchanged: year 10, month 5 and day 5 from date-field, hour 3, minute 15, second 15 and day period 1 from time-field. Two fields drawing the same segment and paging it differently would be one behaviour with two answers. What remains is a disagreement with calendar, which pages by the month it draws rather than by a unit: PageDown on a day segment moves five days and PageDown in the grid moves a month. Neither is the only way to either value, and the cost is a reader who learns one page step in the field and meets another in the panel.",
+    "noArrowButtons": "The example the pattern links is deprecated for its visible increment and decrement buttons, which duplicate keys the reader already has. Its roles, its wrapping rules and its aria-valuetext guidance are the spin-button pattern's and are taken whole.",
+    "arrowsAcross": "The pattern has no key for moving between spin buttons, because its example holds one. ArrowRight and ArrowLeft move between the seven fields and are logical rather than physical: in a right-to-left document the arrow that walks forward is the one pointing along the writing direction. They cross the boundary between the halves, which two nested fields could not do.",
+    "relativeKeys": "+, - and = are not printable characters the value can hold, and the pattern says any other character does not change the value. They open a second entry mode instead. The cost is a reader who types + expecting nothing and gets an expression; the mode is abandoned whole by Escape, and relative={false} removes it."
+  },
+  "entryModel": {
+    "digitsAre": "one segment at a time",
+    "runEndsWhen": "the segment is full, or one more digit could not fit under its maximum",
+    "requestEmittedOn": "the end of a run, never inside one",
+    "runsAcrossHalves": "a run that fills the last date segment advances into the first time segment, and the arrows walk the same boundary",
+    "keysAreConsumed": "a key the field acts on is stopped, not only defaulted",
+    "whyKeysAreConsumed": "Every application that binds a bare key guards it with \"is the target an editable element\", and that guard tests for input, textarea and contenteditable. A div with role=spinbutton is none of the three, so a reader typing a datetime fires every single-key shortcut on the page. Recorded first by date-field and inherited unchanged.",
+    "whyRequestWaits": "Typing 23 into an hour passes through 2, and 2 is a time the arithmetic accepts and nobody meant. The segments move on every keystroke and the value moves when the run ends.",
+    "wraps": "inside the segment, never carrying into the next",
+    "heldDay": "the day the reader asked for survives a month that cannot hold it, so 31 → 28 → 31. Inherited from date-field, and the engine runs it only when the changed field is a date field.",
+    "emptySegmentStepsTo": "the reference datetime's own value",
+    "clearedSegment": "the placeholder, and the value becomes null",
+    "pasteParsed": true,
+    "pasteOrder": ["the locale pattern", "ISO 8601 YYYY-MM-DDTHH:mm[:ss]", "a relative expression"],
+    "secondsDrawnWhen": "granularity is second"
+  },
+  "relative": {
+    "opensOn": ["+", "-", "="],
+    "anchor": "now, or referenceTime when the consumer states one",
+    "anchorProp": "referenceDateTime",
+    "whyNow": "One rule, stated once. Resolving against the value the field already holds would make + mean two different things depending on whether the field is empty, and the brief this answers says \"a duration from now\".",
+    "commitsOn": "Enter, or blur when the expression resolves",
+    "abandonsOn": "Escape, or blur when it does not",
+    "grammar": {
+      "sign": "+ by default, - for a datetime already past",
+      "units": ["w", "d", "h", "m", "s"],
+      "widenedBy": "d and w. Additive: every expression time-field parsed parses the same way here, and a d typed into a time-field is refused there as it was before, because time-field states its own unit set.",
+      "bareNumber": "minutes, which is the unit a booking flow asks in and the unit step is written in",
+      "compound": "1h30 and 1:30 are both an hour and a half; 1d6h is a day and six hours",
+      "now": "0 and = alone",
+      "localeWords": "not parsed. The grammar is symbols and unit letters because those are what a numeric keyboard offers in every locale, and daqui a 2 dias would work in one language and none of the others. The placeholder states the grammar."
+    },
+    "preview": {
+      "part": "preview",
+      "live": "polite",
+      "shows": "the whole resolved datetime, naming the date only when it differs from today — so +40m reads 15:20 and +2d reads 12 Sep, 14:40",
+      "datePart": "preview-date, holding the date half of the preview so the eye lands on the part that moved. time-field paints its own crossing in the warning tone because a PlainTime has no day and the reader has to be warned; here +2d is supposed to move the day, and a warning every time the reader asks for one would be crying wolf.",
+      "whyLive": "The reader is being asked to accept a value they did not write, so the value has to be perceivable before Enter — including to a reader who cannot see it."
+    },
+    "rollsDay": "+90m at 23:00 on the 30th resolves to 00:30 on the 31st, and the day is part of the value rather than a flag beside it. time-field raises crossesMidnight because a PlainTime has no day to put the crossing in; this family is the consumer that flag names, and it spends it.",
+    "reachableWithout": [
+      "typing the segments",
+      "the arrow keys on every segment",
+      "the now control at the head of datetime-picker's panel"
+    ]
+  },
+  "placeholder": {
+    "from": "Intl.DisplayNames dateTimeField",
+    "example": {
+      "pt-BR": "dd/mm/aaaa hh:mm",
+      "en-US": "mm/dd/yyyy hh:mm AM",
+      "ja-JP": "aaaa/mm/dd hh:mm"
+    }
+  },
+  "range": {
+    "min": "min, a whole PlainDateTime",
+    "max": "max, a whole PlainDateTime",
+    "minTime": "minTime, a PlainTime bounding every day",
+    "maxTime": "maxTime, a PlainTime bounding every day",
+    "combine": "Both pairs apply at once. MUI's own validation page records that it cannot do this: \"you cannot use maxDateTime and maxTime together. maxDateTime will override the maxTime behavior.\" They are two questions — where the range starts, and what the day is open for — and both are answered.",
+    "partialDay": "On min's own day the earliest value is min's time; on max's own day the latest is max's time; on every day between, minTime and maxTime. MDN states this rule for input[type=datetime-local] — \"the time of day is only constrained on the first and last dates in the range\" — and no surveyed script implements it.",
+    "unavailableDate": "isDateUnavailable(date)",
+    "unavailableTime": "isTimeUnavailable(time, date)",
+    "twoPredicates": "A day-level answer cannot be derived from a datetime-level predicate without probing every step of that day, and the calendar needs one per cell. Ant's disabledTime takes the date for the same reason; it is written here as a predicate rather than as three lists of numbers.",
+    "heldValueOutside": "reported invalid and not moved. Safari clamps a value to the range on selection, which MDN records; a value the reader wrote is not the family's to rewrite."
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"],
+    "hourCycle": [12, 24],
+    "granularity": ["hour", "minute", "second"],
+    "calendar": ["gregory"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "locale": ["prop", "slotted", "en-US"],
+    "timeZone": ["prop", "defaults", "runtime"],
+    "hourCycle": ["prop", "defaults", "locale"],
+    "granularity": ["prop", "defaults", "minute"],
+    "firstDayOfWeek": ["prop", "defaults", "locale"],
+    "yearPivot": ["prop", "defaults", "20"],
+    "calendar": ["prop", "defaults", "gregory"]
+  },
+  "provides": {
+    "dateTimeFieldDefaults": [
+      "calendar",
+      "firstDayOfWeek",
+      "granularity",
+      "hourCycle",
+      "relative",
+      "size",
+      "timeZone",
+      "variant",
+      "yearPivot"
+    ]
+  },
+  "messages": [
+    "clear",
+    "duration",
+    "day",
+    "month",
+    "year",
+    "hour",
+    "minute",
+    "second",
+    "dayPeriod"
+  ],
+  "imperative": ["focus", "clear"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "required": "data-required"
+  },
+  "dataAttributes": {
+    "data-field": "which of the seven fields a segment holds",
+    "data-half": "date or time, and where the row is clipped between the two",
+    "data-boundary": "the literal between the two halves, drawn at the end of the date half",
+    "data-placeholder": "the segment has no value and is drawing its placeholder",
+    "data-incomplete": "date or time — the half that is missing",
+    "data-cycle": "12 or 24, so a stylesheet can size the row that holds a day period",
+    "data-granularity": "hour, minute or second",
+    "data-relative": "an expression is open in place of the segments",
+    "data-resolved": "the preview holds a datetime the expression resolves to",
+    "data-rolls-day": "the expression resolved onto a different day"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["keyboard", "clear", "blur", "programmatic"],
+      "carries": ["value", "previous", "segments", "reason", "event"]
+    }
+  },
+  "literals": {
+    "--slotted-datetime-field-segment-min-inline-size": "A segment is sized from the widest digit its field can hold, which is arithmetic over the control type scale rather than a literal; the floor under the whole control is --slotted-control-height-*, which the theme owns.",
+    "--slotted-datetime-field-period-min-inline-size": "The day-period part is sized from the widest of the two names the locale actually writes, measured in ch against the control's own type, because es-MX writes a.m. and a locale may write a word."
+  },
+  "members": {
+    "dateTimeField": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "granularity": "minute",
+        "calendar": "gregory",
+        "clearable": false,
+        "relative": true
+      },
+      "capabilities": [
+        "value",
+        "appearance",
+        "size",
+        "content",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "readonly",
+        "required"
+      ],
+      "parts": [
+        "root",
+        "segments",
+        "half",
+        "segment",
+        "literal",
+        "duration",
+        "preview",
+        "preview-date",
+        "value-text",
+        "start",
+        "end",
+        "clear",
+        "hidden-input"
+      ]
+    }
+  },
+  "scenarios": {
+    "dateTimeField": [
+      "playground",
+      "locale",
+      "hour-cycle",
+      "granularity",
+      "incomplete",
+      "relative",
+      "rolls-day",
+      "sizes",
+      "variants",
+      "range",
+      "unavailable",
+      "narrow",
+      "states",
+      "clear",
+      "adornments",
+      "forms",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

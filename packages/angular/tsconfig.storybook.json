@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  /**
+   * The library program, plus the files that demonstrate it.
+   *
+   * `@storybook/angular-vite` hands this config to `@analogjs/vite-plugin-angular`,
+   * which builds its `rootNames` from it. A file outside those root names never
+   * reaches the Angular transform: it is transpiled as plain TypeScript, and a
+   * `@Component` on an exported class comes out as `export @Component(…) class`,
+   * which no engine parses. That is what a decorator in a `*.stories.ts` costs,
+   * and `tsconfig.lib.json` excludes exactly those files because a published
+   * package may not carry them.
+   */
+  "extends": "./tsconfig.lib.json",
+  /**
+   * A story imports the workbench, so the workbench joins this program. Resolved
+   * through the `node_modules` link a workspace creates, TypeScript reads those
+   * files as an external library and emits nothing for them — the plugin then
+   * serves an empty module and the import of `highlight` fails at run time.
+   * Mapped to their source, the same files are the program's own and are
+   * emitted. A path in an extended config resolves against the file that
+   * declared it, so the entry the preset states is restated here.
+   */
+  "compilerOptions": {
+    "paths": {
+      "@slotted/angular/*": ["../../packages/angular/*/src/public-api.ts"],
+      "@slotted/storybook-workbench": ["../../tools/storybook-workbench/src/index.tsx"],
+      "@slotted/storybook-workbench/*": ["../../tools/storybook-workbench/src/*.ts"]
+    }
+  },
+  "exclude": ["dist/**", "node_modules/**", "**/*.spec.ts"]
+}

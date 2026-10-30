@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 5,
+  "family": "splitter",
+  "ui": "splitter",
+  "catalog": {
+    "group": "Layout",
+    "summary": "Resizable panes divided by a handle."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/",
+  "crossAxisNavigates": false,
+  "identity": {
+    "reason": "The family is the separator and nothing else. Seven of seven surveyed implementations hold panels; this one holds the value, the limits, the snap points, the keyboard and the whole ARIA contract, and leaves the layout to the consumer who already owns it. The APG's Window Splitter pattern lands entirely on the separator, so nothing in the keyboard table is unimplementable without panels",
+    "cost": "A consumer wiring two bars in one layout holds two pieces of state and decides which one absorbs a shrinking container. Every one of the seven would have decided that for them"
+  },
+  "sizes": {
+    "input": "for",
+    "fallback": "the previous element sibling",
+    "property": "--slotted-splitter-value",
+    "reason": "The bar writes the fraction as a bare number on the element for names, so the common case is CSS and needs no state: inline-size: calc(var(--slotted-splitter-value, 0.24) * 100%). Writing a property on an element the family does not own would normally be the family deciding someone else's layout, which is the argument drawer.css makes against a push mode. It is not that here: for is the consumer handing the element over by name, and the property is inert until a rule reads it"
+  },
+  "extent": {
+    "unit": "fraction",
+    "source": "@slotted/core/extent",
+    "limitUnits": ["fraction", "length"],
+    "limitReason": "min and max take a fraction or a CSS length string, resolved against the container measured at the moment of the clamp. Not one of the seven surveyed implementations can express a pixel floor — Zag states outright that it only supports percentage values — and this navigation panel never goes below two hundred pixels is the commonest real constraint the family has",
+    "clamped": "The reported value is always the clamped one, so the announcement and the layout cannot disagree. A limit resolving outside [0, 1] is itself clamped to it, so a container narrower than min reports a reachable number rather than one nothing can produce. The bar holds it there: when the limits move under the value — a length limit as the container is resized, a fraction the consumer changes — or a restored value lies outside them, the bar requests the clamped value with the reason programmatic. A collapsed region stands below its floor on purpose and is left there",
+    "step": "EXTENT_STEP_PX per arrow press and EXTENT_LARGE_STEP_PX with Shift, converted against the container measured at the moment of the press. A distance and not a proportion: five per cent of a wide container is a jump rather than an adjustment",
+    "snapPoints": "an array of fractions, empty by default. With them an arrow moves to the adjacent stop, Home and End go to the first and last, and a drag releases onto the nearest",
+    "collapsedValue": "where Enter collapses to, nought by default. The fraction held before the collapse is stored by the family and returned by the restore"
+  },
+  "paint": {
+    "rest": "border-subtle",
+    "hover": "border-strong",
+    "dragging": "border-strong",
+    "focus-visible": "focus-ring",
+    "reason": "Derived from SAP/fundamental-styles packages/styles/src/splitter.scss, read in the source. Two hairlines that fade to transparent at rest and run the whole track under the hand, with the grip between them. SAP is the only one of the seven that keeps hover and focus apart, and the accent is the one colour that means the keyboard is here: spending it on hover is the defect this family was invoked to correct"
+  },
+  "wiring": {
+    "role": "separator on the root, with tabindex=0, which is the focusable widget form the role takes",
+    "aria-orientation": "vertical when the bar is a vertical line, and written only then: horizontal is the attribute's own default on role=separator, and a family writes the departure from an element's semantics rather than the agreement with it",
+    "aria-valuenow": "the fraction times a hundred, rounded",
+    "aria-valuemin": "the resolved min times a hundred, rounded",
+    "aria-valuemax": "the resolved max times a hundred, rounded",
+    "aria-controls": "--slotted-splitter-value",
+    "aria-labelledby": "the heading of the element it sizes, where that element has one. A separator is named for the region it sizes, which is the pattern's own rule",
+    "aria-disabled": "true while resize is off. The tab stop stays, so a reader can still read the value",
+    "grip": "aria-hidden on the grip and on both lines. They are the bar's own picture, and the bar around them is already named and already valued"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "reaches the bar, which is the widget form of the separator role",
+      "focus": "the separator",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "on a vertical bar, moves it EXTENT_STEP_PX toward the left of the screen, or EXTENT_LARGE_STEP_PX with Shift, which grows the region before it in a left-to-right document and shrinks it in a mirrored one; with snap points it moves to the adjacent stop. On a horizontal bar it is left to the page",
+      "focus": "stays on the separator",
+      "source": "@slotted/core/extent"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "the mirror of ArrowLeft on a vertical bar, and left to the page on a horizontal one",
+      "focus": "stays on the separator",
+      "source": "@slotted/core/extent"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "on a horizontal bar, moves it EXTENT_STEP_PX toward the top of the screen, or EXTENT_LARGE_STEP_PX with Shift; with snap points it moves to the adjacent stop. On a vertical bar it is left to the page",
+      "focus": "stays on the separator",
+      "source": "@slotted/core/extent"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "the mirror of ArrowUp on a horizontal bar, and left to the page on a vertical one",
+      "focus": "stays on the separator",
+      "source": "@slotted/core/extent"
+    },
+    {
+      "key": "Home",
+      "effect": "moves the bar to min, which is the smallest size the region before it is allowed; with snap points, to the first stop",
+      "focus": "stays on the separator",
+      "source": "@slotted/core/extent"
+    },
+    {
+      "key": "End",
+      "effect": "moves the bar to max; with snap points, to the last stop",
+      "focus": "stays on the separator",
+      "source": "@slotted/core/extent"
+    },
+    {
+      "key": "Enter",
+      "effect": "collapses the region before the bar to collapsedValue when collapsible, or restores the fraction it held before the collapse. A bar that is not collapsible does nothing",
+      "focus": "stays on the separator",
+      "source": "splitter"
+    }
+  ],
+  "pointer": {
+    "drag": "carries pointer, and the cursor is held across the whole drag by holdResizeGesture, so a drag that reached the region beside the bar does not show a text caret over it. The bar keeps the point it was taken at under the pointer for the whole drag, so a bar taken a few pixels from the edge it marks, or one whose region is followed by a gap, does not leap on the first move; onResizeEnd reports the value the drag left it at",
+    "doubleClick": "returns the bar to defaultValue, brought inside min and max. The pattern assigns double click nothing, and every surveyed implementation that ships a reset puts it there. defaultValue is never the value the bar was opened at: a layout restored from storage is where the reader left the bar, not where a reset goes",
+    "reach": "--slotted-target-min, drawn by a transparent pseudo-element centred on the track, which is what makes a thin picture a WCAG 2.2 target"
+  },
+  "reasons": ["pointer", "keyboard", "programmatic"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "dragging": "data-dragging",
+    "expanded": "data-expanded"
+  },
+  "stateModel": {
+    "extent": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "programmatic"],
+      "valueType": "number in [0, 1], the fraction of the container taken by the region before the bar"
+    },
+    "open": {
+      "controlled": "collapsed",
+      "uncontrolled": "defaultCollapsed",
+      "request": "onCollapsedChange",
+      "reasons": ["keyboard", "pointer", "programmatic"],
+      "valueType": "boolean, where true is collapsed. It is its own state and not a value of the extent: react-resizable-panels persists the geometry alone, and a restored panel comes back indistinguishable from a very small one"
+    }
+  },
+  "resizeEnd": {
+    "output": "onResizeEnd",
+    "reason": "fires once when a drag settles, distinct from onValueChange, which fires throughout. A consumer saving a layout saves once rather than sixty times",
+    "persistence": "emitted and never written. A library reaching for localStorage has decided a policy for the application: which storage, which key namespace, what happens in a private window, and whether a layout crosses a login"
+  },
+  "declined": {
+    "panels": {
+      "deferTo": "app-shell",
+      "wave": 8,
+      "reason": "A page's regions belong to the shell. The two things a panel was needed for are covered: aria-controls names the element for hands the bar, and Enter collapses a value the bar owns",
+      "cost": "A consumer building a two-bar workspace holds two pieces of state and decides which bar absorbs a shrinking container"
+    },
+    "F6": {
+      "reason": "Optional in the pattern, and a window-management convention belonging to the application composing the regions rather than to the separator",
+      "cost": "An application wanting pane cycling writes it, and nothing in this family is in its way"
+    },
+    "gripAsButton": {
+      "reason": "SAP renders the grip as a button with tabindex=-1, performing nothing the separator does not",
+      "cost": "None. One tab stop, and no nested control for a screen reader to announce"
+    }
+  },
+  "members": {
+    "splitter": {
+      "nativeElement": "div",
+      "defaults": {
+        "orientation": "vertical",
+        "defaultValue": 0.5,
+        "min": 0,
+        "max": 1,
+        "collapsible": false,
+        "collapsedValue": 0,
+        "disabled": false,
+        "snapPoints": []
+      },
+      "capabilities": ["extent", "open", "orientation", "disabled", "focusable"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled", "dragging", "expanded"],
+      "parts": ["root", "line", "grip"]
+    }
+  },
+  "axes": {
+    "orientation": ["vertical", "horizontal"]
+  },
+  "provides": {
+    "--slotted-splitter-value": "the fraction as a bare number, written on the element for names"
+  },
+  "composes": ["@slotted/core/extent"],
+  "scenarios": {
+    "splitter": [
+      "playground",
+      "orientation",
+      "value",
+      "limits",
+      "collapse",
+      "snapPoints",
+      "reset",
+      "disabled",
+      "keyboard",
+      "twoBars",
+      "persistence",
+      "composition",
+      "defaults",
+      "accessibility"
+    ]
+  }
+}

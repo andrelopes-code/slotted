@@ -1,0 +1,61 @@
+---
+import PageToc from '../islands/PageToc';
+import { docsNav } from '../lib/nav';
+import type { Framework } from '../runtime/frameworks';
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  framework?: Framework | undefined;
+  frameworkHrefs?: { react: string | null; angular: string | null } | undefined;
+  /** The page's sections, for "On this page". */
+  toc: { id: string; label: string }[];
+  markdownHref?: string | undefined;
+}
+
+const { title, description, framework, frameworkHrefs, toc, markdownHref } = Astro.props;
+const nav = await docsNav(framework ?? 'react');
+const path = Astro.url.pathname;
+---
+
+<Base
+  title={title}
+  description={description}
+  framework={framework}
+  frameworkHrefs={frameworkHrefs}
+  markdownHref={markdownHref}
+>
+  <div class="docs-shell">
+    <nav class="docs-nav" aria-label="Documentation">
+      {
+        nav.map((group) => (
+          <section class="docs-nav-group">
+            <h2 class="docs-nav-heading">{group.heading}</h2>
+            <ul class="docs-nav-list">
+              {group.links.map((link) => (
+                <li>
+                  <a href={link.href} aria-current={path === link.href ? 'page' : undefined}>
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </nav>
+    <div class="docs-rail" aria-hidden="true"></div>
+    <main class="docs-main" id="content">
+      <div class="docs-page">
+        <article class="docs-article">
+          <slot />
+        </article>
+        <aside class="docs-toc">
+          {toc.length > 0 && <PageToc client:load items={toc} />}
+        </aside>
+      </div>
+    </main>
+    <div class="docs-rail" aria-hidden="true"></div>
+  </div>
+</Base>

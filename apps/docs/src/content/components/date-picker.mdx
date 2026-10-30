@@ -1,0 +1,162 @@
+---
+title: Date Picker
+description: A segmented date field with a calendar behind a trigger, for one calendar date that the reader can type or choose.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Typing or choosing
+
+The field and the calendar write the same value. Type the month, day and year into the segments, or press the calendar button and choose a day; each change reports its reason: `keyboard` for typing and for the arrow keys in the calendar, `pointer` for a press on a day, `clear` for the clear button and `blur` for a date completed when the field loses focus. A two-digit year resolves through `yearPivot`: with the default of 20, `30` reads as 2030 and `80` as 1980.
+
+<Example name="typing" />
+
+## Sizes
+
+`size` sets the field and the trigger to one step of the control scale: `sm` for toolbars and dense tables, `md` for most forms, `lg` for sparse forms. Inside a field, an unset size follows the field.
+
+<Example name="sizes" />
+
+## Variants
+
+`outline` is the default frame. `subtle` fills the control, for a form on a tinted surface. `plain` draws no frame at rest, for a table cell or a toolbar, and still shows hover and focus. The calendar button keeps its icon in all three.
+
+<Example name="variants" />
+
+## States
+
+Set `invalid`, `readOnly` and `disabled` on the field, which passes them to the date picker; each can also be set on the date picker itself. Invalid draws the frame and the focus ring in the danger tone and sets `aria-invalid`. Read-only keeps the date legible and focusable. Read-only and disabled both disable the calendar button, so the calendar cannot open.
+
+<Example name="states" />
+
+## Earliest and latest dates
+
+`min` and `max` bound the field and the calendar together. The calendar disables the days outside the bounds. A date typed outside the bounds stays in the field and marks the date picker invalid, so the reader sees the problem instead of losing what they typed.
+
+<Example name="bounds" />
+
+## Unavailable dates
+
+`isDateUnavailable` receives each date and returns `true` for a date the reader cannot choose, such as a weekend or a holiday. The calendar disables those days, and a typed unavailable date marks the date picker invalid. Keep the rule in one function and describe it in the field's description, so the reader knows why a day is refused.
+
+<Example name="unavailable" />
+
+## Locale and format
+
+`locale` takes a BCP 47 tag and sets the order of the segments, their separators and placeholders, the month and weekday names in the calendar, and the date in words that the calendar button announces. There is no format string: each locale writes its own shape. Unset, the locale comes from `SlottedProvider` in React or `provideSlotted` in Angular, and falls back to `en-US`. The value stays the same `PlainDate` in every locale.
+
+<Example name="locale" />
+
+## First day of the week
+
+The calendar starts the week on the day the locale uses. `firstDayOfWeek` overrides it with a number from `0`, Sunday, to `6`, Saturday, for a business whose weeks run differently from its locale.
+
+<Example name="first-day" />
+
+## Week numbers
+
+`weekNumbers` adds a column of ISO 8601 week numbers to the calendar. ISO weeks start on Monday, so set `firstDayOfWeek` to `1` to keep each row inside one numbered week. `isoWeekNumber` from `@slotted/core/date` returns the same number for a chosen date.
+
+<Example name="week-numbers" />
+
+## Several months
+
+`months` draws that many months side by side in the calendar, for dates the reader picks weeks ahead. The calendar keeps six rows per month by default (`fixedWeeks`), so the surface does not change height between months.
+
+<Example name="months" />
+
+## Starting view
+
+`defaultView` opens the calendar on the `day`, `month` or `year` grid. Start on `year` for a date that is usually years in the past, such as a date of incorporation or a birth date, so the reader does not page back month by month.
+
+<Example name="default-view" />
+
+## Placement
+
+The calendar opens below the field, aligned to its start edge. `placement` takes `bottom`, `top`, and either with `-start` or `-end`. It is a preference: when the calendar does not fit on that side, it opens on the other.
+
+<Example name="placement" />
+
+## Controlled
+
+Pass `value` and update it from `onValueChange` in React, or bind `[value]` and update it from `(valueChange)` in Angular, when other parts of the screen depend on the date. The handler receives a `PlainDate`, or `null` once the date is cleared. Buttons outside the date picker can set the value; the field and the calendar follow.
+
+<Example name="controlled" />
+
+An API that carries dates as ISO 8601 text, such as `"2026-10-19"`, converts at the boundary with `@slotted/core/date`, which also exports the `PlainDate` type. `parseISODate(text)` returns a `PlainDate` or `null`, `toISODate(date)` returns `'YYYY-MM-DD'`, and `isPlainDate(value)` narrows the `CalendarValue` the change handler reports.
+
+<Example name="iso-date" />
+
+## Clearing
+
+`clearable` adds a clear button to the field while it holds a date. The button sets the value to `null` with the reason `clear` and returns focus to the field.
+
+<Example name="clearable" />
+
+## Shortcuts
+
+`presets` in React and an element with `slDatePickerPresets` in Angular add a column of shortcuts beside the calendar. The date picker ships no list of shortcuts: the labels and dates come from your product. Here each shortcut sets the value and closes the calendar through the date picker's `close()` in React and `closeSurface()` in Angular.
+
+<Example name="presets" />
+
+## Footer actions
+
+`footer` in React and an element with `slDatePickerFooter` in Angular add a row of actions under the calendar. `closeOnSelect` decides whether choosing a day closes the calendar: `auto`, the default, closes it for one date; `always` closes it; `never` keeps it open. Here `never` keeps the calendar open while the reader compares days, and the Done button closes it.
+
+<Example name="footer" />
+
+## Plain dates and time zones
+
+The value is a `PlainDate`, an object with `year`, `month` and `day` and no time or time zone, so the date the reader chose is the date your server receives. `toISODate` writes it as `2026-09-30`, and `parseISODate` reads it back. `timeZone` changes one thing: which day the calendar marks as today. Unset, today comes from the browser's time zone.
+
+<Example name="time-zones" />
+
+## In a form
+
+`name` adds a hidden input that submits the date as an ISO string, such as `2026-10-14`, whether it was typed or chosen. In Angular, the date picker is a form control: `formControlName`, `formControl` and `ngModel` bind the value, `Validators.required` applies to it, and the date picker reports `slottedDateRange` for a date outside `min` and `max` and `slottedDateUnavailable` for a refused date. In React, the date stays in your state and you validate it on submit. Submit without a date to see the required error, type a date in September to see the bound error, then reset.
+
+<Example name="form" />
+
+## Keyboard and the trigger's name
+
+Alt+ArrowDown opens the calendar from the field; Enter or Space on the calendar button opens it too. Opening moves focus to the chosen day, or to today when no date is set, and Tab and Shift+Tab cycle through the shortcuts, the calendar and the footer until the calendar closes. The arrow keys move between days, PageUp and PageDown move by a month, Shift with either moves by a year, and Enter or Space chooses the focused day. Escape closes the calendar and returns focus to the calendar button; while the calendar shows the month or year grid, Escape first returns to the day grid. The calendar button's accessible name carries the chosen date, so a screen reader announces it when focus returns. `messages` replaces that name: `choose` while no date is set and `change`, with the date in its `{date}` slot, once one is. `onOpenChange` in React and `(openChange)` in Angular report why the calendar opened or closed.
+
+<Example name="keyboard" />
+
+## Narrow screens
+
+Under 480 pixels on a touch screen, the calendar opens as a sheet attached to the bottom of the viewport instead of a popover under the field, and the shortcuts move into a row above the calendar. The markup stays the same; the positioner carries `data-presentation="sheet"`.
+
+<Example name="narrow" />
+
+## Focus and open from code
+
+The date picker's handle has `focus()`, which puts focus on the first segment of the field, and `open()` and `close()` in React, named `openSurface()` and `closeSurface()` in Angular. Opening from code moves focus into the calendar, as the calendar button does. Reach it with `ref` in React and `#picker="slDatePicker"` in Angular, for a button elsewhere on the screen that starts an edit.
+
+<Example name="focus-and-open" />
+
+## Defaults for a section
+
+`DatePickerDefaultsProvider` in React and `provideDatePickerDefaults` in Angular set `size`, `variant`, `placement`, `closeOnSelect`, `timeZone` and `calendar` once for every date picker under them, such as a filter panel. A value set on one date picker still wins.
+
+<Example name="defaults" />
+
+## Ship date in business days
+
+The earliest ship date is two business days after the order, weekends and holidays are unavailable, and the latest date is forty business days out. One `isBusinessDay` function feeds `isDateUnavailable` and the count in the description, so the calendar and the text agree.
+
+<Example name="shipping-date" />
+
+## Invoice due date from payment terms
+
+The due date follows the invoice date and the payment terms: Net 30 adds 30 days to the invoice date with `addDays`. The due date is a read-only date picker with a controlled value, so the reader sees the date in the same format as the invoice date and cannot edit it.
+
+<Example name="invoice-due" />
+
+## Report date with closing shortcuts
+
+A balance sheet runs as of one closing date. Shortcuts offer the closing dates finance uses most, and `max` stops the reader at today. For a report period with a start and an end, use the date range picker instead.
+
+<Example name="report-date" />

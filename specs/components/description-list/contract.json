@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 5,
+  "family": "description-list",
+  "ui": "description-list",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Term and value pairs for record details."
+  },
+  "rootElement": "div",
+  "itemElement": "div",
+  "termElement": "dt",
+  "descriptionElement": "dd",
+  "actionElement": "dd",
+  "rootRole": "none",
+  "roleReason": "HTML-AAM 1.0 maps dl to list, dt to term and dd to definition. MDN records that writing the ARIA term and definition roles by hand changes how VoiceOver announces the construct, so the family writes no role at all.",
+  "groupWrapper": {
+    "element": "div",
+    "source": "HTML Standard 4.4.9: a dl may hold one or more div elements, each with one or more dt followed by one or more dd",
+    "reason": "The pair has to be one grid area, one rule and one tinted cell. PatternFly and GOV.UK both render it."
+  },
+  "pattern": {
+    "apg": "none",
+    "checked": "https://www.w3.org/WAI/ARIA/apg/patterns/ — read 2026-09-03, twenty-nine patterns, none for a description list",
+    "platform": "https://html.spec.whatwg.org/multipage/grouping-content.html#the-dl-element and https://www.w3.org/TR/html-aam-1.0/",
+    "borrowed": {
+      "toggle": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/ — role button, aria-expanded true while the content is visible, aria-controls optional; Enter and Space toggle"
+    }
+  },
+  "tracks": {
+    "term": "1",
+    "description": "2 / -1, and 2 / -2 in a list that holds an action",
+    "action": "-2 / -1",
+    "engine": "subgrid",
+    "reason": "The terms share one track sized to the widest of them, which is what a dl of independent groups cannot do without subgrid. The same three placements serve an item that spans two columns, because its value simply stretches across the middle tracks.",
+    "separation": "padding on the cells, not column-gap: a gap applies between tracks whether or not the action track has any width.",
+    "owner": "list"
+  },
+  "reflow": {
+    "container": "slotted-description-list",
+    "breakpoints": {
+      "48rem": "three columns become two, under minColumnWidth md",
+      "37.5rem": "three columns become two, under minColumnWidth sm",
+      "34rem": "two columns become one, under minColumnWidth md",
+      "25rem": "two columns become one, under minColumnWidth sm"
+    },
+    "rowFold": {
+      "width": "termWidth + --slotted-description-list-value-min (12rem); 26rem at the default termWidth of 14rem",
+      "hint": "8rem wider for a list whose terms carry hints",
+      "effect": "row becomes stack",
+      "mechanism": "the root's font size holds the width and the condition reads it as 1em, because a container condition cannot read a custom property"
+    },
+    "reason": "The column count collapses before the arrangement does, so the single-column row form gets the full width before it gives up on the row. PatternFly and Ant key the same decisions on the viewport, which is wrong for a list inside a drawer."
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to each control the list holds: the reveal toggle, the copy button and the consumer's own row action",
+      "focus": "the next control",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "activates the focused control; on the toggle it reveals a clamped value or clamps it again",
+      "focus": "stays on the control",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "activates the focused control; on the toggle it reveals a clamped value or clamps it again",
+      "focus": "stays on the control",
+      "source": "platform"
+    }
+  ],
+  "keyboardReason": "Every interactive part is a native button or the consumer's own control, so the family owns no key of its own. A read-only list of pairs is not a composite widget and inventing arrow navigation would take Tab away from controls that need it.",
+  "wiring": {
+    "term": "carries a generated id",
+    "action": "aria-describedby points at the term's id, composed with any value the consumer wrote",
+    "reason": "GOV.UK repeats the term inside every action as visually hidden text, which a template system has to do. A reference says it once and cannot drift from the term it names."
+  },
+  "copy": {
+    "api": "navigator.clipboard.writeText",
+    "announce": "@slotted/core/live-announcer, politely",
+    "declined": "document.execCommand('copy')",
+    "reason": "The fallback exists for insecure contexts, and a panel showing an account identifier over plain HTTP has a larger problem than a copy button. A refused write returns the control to rest, carries the failure in the request, and leaves the value selectable.",
+    "feedback": "data-complete on the control for two seconds, the check glyph in place of the clipboard, and the message announced politely. `complete` is the vocabulary's word for something that has finished, and a copy that finished is exactly that; the alternative was a second word for one family.",
+    "blocked": "A browser refuses writeText where the document is not focused, and inside an iframe carrying no clipboard-write permission — which is where a Storybook page lives. The control then selects the value, so the reader can see it and copy it with the keyboard, and announces that it did; the request carries copied false and selected true. Leaving the control at rest made a working button indistinguishable from a broken one."
+  },
+  "empty": {
+    "part": "placeholder",
+    "mark": "a rule drawn in CSS at the value's optical centre",
+    "text": "data-ui=\"visually-hidden\", carrying the placeholder label",
+    "reason": "An empty cell is a row a reader cannot tell from a defect. Ant renders one; GOV.UK renders a link to the question that would fill it. Colour and shape alone never carry the meaning, so the reason is text.",
+    "forms": "Words a consumer states are shown; with none stated the mark is drawn and the sentence is read instead, because a panel of twelve empty rows saying Not provided twelve times is noise. The stylesheet tells the two apart with :empty, so no attribute has to."
+  },
+  "declined": {
+    "size": {
+      "deferTo": "the density axis",
+      "reason": "PatternFly ships isCompact and displaySize, Ant a size. The theme restates the control scale at comfortable, compact and dense, and a family-owned step would be a second scale answering the same question."
+    },
+    "title": {
+      "deferTo": "card",
+      "reason": "Ant ships title and extra, GOV.UK a summary card. card already has header, actions and body, and PatternFly says the same on its own page."
+    },
+    "columnFirstFlow": {
+      "deferTo": "the consumer's own order",
+      "reason": "PatternFly's isFillColumns fills top to bottom. Reading order would stop matching DOM order, and a screen reader reads the DOM."
+    },
+    "helpPopover": {
+      "deferTo": "popover",
+      "wave": 5,
+      "reason": "PatternFly's DescriptionListTermHelpText needs a layer, a positioner and a dismissal policy. The half that needs none of them is the hint part, which ships now."
+    },
+    "colon": {
+      "deferTo": "the term's own content",
+      "reason": "Ant draws one by default. The grid already separates the term from the value, and a colon is wrong in the stacked arrangement — which is the arrangement every narrow container gets."
+    },
+    "autoFit": {
+      "deferTo": "the container query",
+      "reason": "PatternFly's isAutoFit varies the count with a minimum track size. A count a consumer can predict is worth more in a details panel."
+    },
+    "inlineGrid": {
+      "deferTo": "the layout around it",
+      "reason": "PatternFly's isInlineGrid shrink-wraps the list, and a list that shrink-wraps stops answering its own width — which is what every responsive decision here reads."
+    },
+    "loading": {
+      "deferTo": "skeleton",
+      "reason": "The value slot takes a Skeleton. A second loading shape inside this family would be a second answer to a question skeleton already answers."
+    }
+  },
+  "provides": {
+    "descriptionListDefaults": ["layout", "columns", "variant", "termWidth", "minColumnWidth"],
+    "toParts": ["layout", "columns", "variant"]
+  },
+  "stateAttributes": {
+    "revealed": "data-revealed",
+    "complete": "data-complete"
+  },
+  "stateModel": {
+    "revealed": {
+      "controlled": "revealed",
+      "uncontrolled": "defaultRevealed",
+      "request": "onRevealedChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "literals": {
+    "--slotted-description-list-reflow-columns": "The inline size below which a column count drops one step. A container query cannot read a custom property, which docs/token-foundation.md rule 4 states.",
+    "--slotted-description-list-reflow-stack": "The inline size below which a row arrangement becomes a stacked one, for the same reason.",
+    "--slotted-description-list-placeholder-width": "The drawn rule standing in for a missing value is a proportion of the type it replaces, which is geometry rather than a step on a scale."
+  },
+  "axes": {
+    "layout": ["row", "stack"],
+    "columns": ["1", "2", "3"],
+    "variant": ["plain", "ruled", "framed"]
+  },
+  "resolution": {
+    "layout": ["prop", "defaults", "row"],
+    "columns": ["prop", "defaults", "1"],
+    "variant": ["prop", "defaults", "plain"],
+    "termWidth": ["prop", "defaults", "14rem"],
+    "minColumnWidth": ["prop", "defaults", "md"]
+  },
+  "members": {
+    "descriptionList": {
+      "nativeElement": "div",
+      "defaults": {
+        "layout": "row",
+        "columns": "1",
+        "variant": "plain",
+        "termWidth": "14rem",
+        "minColumnWidth": "md",
+        "span": 1,
+        "clamp": 0,
+        "copy": false,
+        "empty": false,
+        "defaultRevealed": false
+      },
+      "capabilities": ["arrangement", "appearance", "revealed", "copyable", "wiring"],
+      "states": ["default", "hover", "active", "focus-visible", "revealed", "complete"],
+      "parts": [
+        "root",
+        "list",
+        "item",
+        "term",
+        "hint",
+        "description",
+        "value",
+        "placeholder",
+        "copy",
+        "toggle",
+        "action"
+      ]
+    }
+  },
+  "scenarios": {
+    "descriptionList": [
+      "playground",
+      "layout",
+      "columns",
+      "variant",
+      "span",
+      "actions",
+      "empty",
+      "hint",
+      "copy",
+      "reveal",
+      "composition",
+      "content",
+      "keyboard"
+    ]
+  },
+  "listElement": "dl",
+  "rootReason": "A container cannot answer its own container query: `container-type: inline-size` makes an element a query container for its descendants and not for itself. The tracks and the arrangement are what the query changes, so the query container is the root and the grid is the list — the same division `stepper` makes between its root and its `ol`, and `breadcrumb` between its `nav` and its own.",
+  "messages": ["collapse", "copied", "copy", "copyBlocked", "placeholder", "reveal"],
+  "messagesReason": "The six words the family says come from the catalog of the language in force, laid over by one `messages` input rather than six: an application translates them once through its provider, and a family that spread them across the root would make five of the six a prop nobody sets. None of them is a declared default — a default is a value a consumer overrides one at a time.",
+  "reveal": {
+    "control": "toggle",
+    "appears": "only where the value wants more room than the clamp gives it",
+    "measured": "scrollHeight against lineHeight times the clamp, remeasured by a ResizeObserver on the value",
+    "reason": "A clamp is a maximum rather than a promise: most values in a panel are shorter than it, and a control that reveals nothing is one a reader presses once and learns to distrust. The same measurement answers in both states, so revealing does not make the control disappear under the hand that pressed it."
+  }
+}

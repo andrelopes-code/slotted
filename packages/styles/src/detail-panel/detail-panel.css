@@ -1,0 +1,344 @@
+@layer slotted.components {
+  /**
+   * One record on screen. The top is `page-header`'s, the strip is `tabs`'s,
+   * a stacked unit is `section`'s, the waiting shape is `skeleton`'s and the
+   * column the content stands in is `container`'s; what this stylesheet
+   * draws is the two columns of the body, the rhythm between sections, the
+   * tabpanel a section becomes under `layout=tabs`, the message a missing
+   * record leaves, and the footer that stays.
+   *
+   *   article ─────────────────────────────────────────────┐
+   *   │ page-header (its own sticky rule; the strip in its   │
+   *   │              tabs slot)                              │
+   *   ├─ body ▸ container ───────────────────────────────────┤
+   *   │   banner                                             │
+   *   │   columns ▸ main ▸ section …     │ aside             │
+   *   │   message (in place of columns under status ≠ ready) │
+   *   ├─ footer (sticky at the bottom) ─────────────────────  ┤
+   *   └──────────────────────────────────────────────────────┘
+   *
+   * The root is the query container and the columns are three elements in, so
+   * the query can change their tracks (`docs/build-briefing.md`, _Decisions
+   * already taken_). The container between them is what aligns the body
+   * with the header's own container in every host: inside a page both read
+   * the page's width and inset, and in a drawer both fill it at one rem.
+   *
+   * Every part is reached from the part that owns it with a child
+   * combinator, because the content is other families — a section has a
+   * `body`, a description-list has a `description`, a result-state has a
+   * `message` — and a descendant rule would restyle theirs.
+   */
+  [data-ui-detail-panel] {
+    --_text: var(--slotted-text, CanvasText);
+    --_muted: var(--slotted-text-muted, GrayText);
+    --_rule: var(--slotted-detail-panel-border, var(--slotted-border-subtle, ButtonBorder));
+    /**
+     * The ground the sticky footer paints, so what scrolls under it is
+     * covered. Inside a page it is the page's own; outside, the surface.
+     */
+    --_ground: var(--slotted-page-ground, var(--slotted-surface, Canvas));
+    /**
+     * The aside's track. Sixteen rem is Primer's minimum pane — 256 pixels,
+     * enough for a label and a name on one line — and the steps either side
+     * are two rem apart, which is what one type step moves a two-word label
+     * by. There is no token for a column's width; `drawer` states its extents
+     * the same way.
+     */
+    --_aside-size: var(--slotted-detail-panel-aside-size-md, 16rem);
+    /** Between the two columns, and between the aside's rule and its text. */
+    --_gap: var(--slotted-detail-panel-gap-md, var(--slotted-space-8, 1.5rem));
+    /** Between two stacked sections, and between the banner and the body. */
+    --_rhythm: var(--slotted-detail-panel-rhythm, var(--slotted-space-8, 1.5rem));
+    /**
+     * Above the first thing in the column and below the last. A step more
+     * than the gap a section gives its own header, because the page-header's
+     * pill of controls straddles the chrome's edge and hangs half its height
+     * into the column: at a step less the first eyebrow met the pill.
+     */
+    --_inset-block: var(--slotted-detail-panel-inset-block-md, var(--slotted-space-8, 1.5rem));
+    --_rule-size: var(--slotted-border-width-thin, 1px);
+
+    color: var(--_text);
+    container-name: detail-panel;
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    min-inline-size: 0;
+    position: relative;
+  }
+
+  [data-ui-detail-panel][data-size='sm'] {
+    --_aside-size: var(--slotted-detail-panel-aside-size-sm, 14rem);
+    --_gap: var(--slotted-detail-panel-gap-sm, var(--slotted-space-7, 1.25rem));
+    --_inset-block: var(--slotted-detail-panel-inset-block-sm, var(--slotted-space-7, 1.25rem));
+  }
+
+  [data-ui-detail-panel][data-size='lg'] {
+    --_aside-size: var(--slotted-detail-panel-aside-size-lg, 18rem);
+    --_gap: var(--slotted-detail-panel-gap-lg, var(--slotted-space-9, 2rem));
+    --_inset-block: var(--slotted-detail-panel-inset-block-lg, var(--slotted-space-9, 2rem));
+  }
+
+  /**
+   * The root is the scroll container: a pane of a split, a card with a
+   * height. The page-header then sticks inside it, and a flex parent may
+   * shrink it, which `min-block-size: 0` is what allows. `overscroll-behavior`
+   * keeps a wheel at the end of the record from scrolling the page behind.
+   */
+  [data-ui-detail-panel][data-scroll='self'] {
+    block-size: 100%;
+    min-block-size: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* ── The column ──────────────────────────────────────────────────────── */
+
+  /**
+   * The body takes the vertical inset and grows to push the footer to the
+   * bottom when the record is shorter than its host. Inside it the container
+   * is `container`'s own grid — its children land in the content track — so
+   * the banner, the columns and the message share one column and one rhythm.
+   */
+  [data-ui-detail-panel] > [data-part-body] {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    min-inline-size: 0;
+    padding-block: var(--_inset-block);
+  }
+
+  [data-ui-detail-panel] > [data-part-body] > [data-ui-container] {
+    row-gap: var(--_rhythm);
+  }
+
+  [data-ui-detail-panel] > [data-part-body] > [data-ui-container] > [data-part-banner] {
+    min-inline-size: 0;
+  }
+
+  /* ── The columns ─────────────────────────────────────────────────────── */
+
+  [data-ui-detail-panel] > [data-part-body] > [data-ui-container] > [data-part-columns] {
+    display: grid;
+    gap: var(--_gap);
+    grid-template-columns: minmax(0, 1fr);
+    min-inline-size: 0;
+  }
+
+  [data-ui-detail-panel]
+    > [data-part-body]
+    > [data-ui-container]
+    > [data-part-columns]
+    > [data-part-main] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--_rhythm);
+    min-inline-size: 0;
+  }
+
+  /**
+   * Narrow, the aside follows the main column in the flow with a rule above
+   * it — the reading order it already has. `overflow-wrap` is for the value
+   * with no spaces, an identifier or a URL, which would otherwise widen the
+   * column past the record.
+   */
+  [data-ui-detail-panel]
+    > [data-part-body]
+    > [data-ui-container]
+    > [data-part-columns]
+    > [data-part-aside] {
+    border-block-start: var(--_rule-size) solid var(--_rule);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    padding-block-start: var(--_gap);
+  }
+
+  /**
+   * Above 600 pixels of the root's own width the aside stands beside the
+   * body in the column its axis names, separated by a rule at the gap's
+   * distance from both. The text-to-rule and the main-to-rule distances are
+   * the same number, so the rule reads as the middle of the gap rather than
+   * as an edge of the aside.
+   */
+  @container detail-panel (min-width: 600px) {
+    [data-ui-detail-panel] > [data-part-body] > [data-ui-container] > [data-part-columns] {
+      grid-template-columns: minmax(0, 1fr) var(--_aside-size);
+    }
+
+    [data-ui-detail-panel][data-aside='start']
+      > [data-part-body]
+      > [data-ui-container]
+      > [data-part-columns] {
+      grid-template-columns: var(--_aside-size) minmax(0, 1fr);
+    }
+
+    [data-ui-detail-panel][data-aside='none']
+      > [data-part-body]
+      > [data-ui-container]
+      > [data-part-columns] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    [data-ui-detail-panel]
+      > [data-part-body]
+      > [data-ui-container]
+      > [data-part-columns]
+      > [data-part-aside] {
+      border-block-start: 0;
+      border-inline-start: var(--_rule-size) solid var(--_rule);
+      padding-block-start: 0;
+      padding-inline-start: var(--_gap);
+    }
+
+    [data-ui-detail-panel][data-aside='start']
+      > [data-part-body]
+      > [data-ui-container]
+      > [data-part-columns]
+      > [data-part-aside] {
+      border-inline-end: var(--_rule-size) solid var(--_rule);
+      border-inline-start: 0;
+      order: -1;
+      padding-inline-end: var(--_gap);
+      padding-inline-start: 0;
+    }
+  }
+
+  /* ── A section ───────────────────────────────────────────────────────── */
+
+  /**
+   * A hash link or a programmatic `section` lands the unit under the page
+   * chrome rather than behind it: the page-header republishes where its
+   * chrome ends, and the section reads it.
+   */
+  [data-ui-detail-panel]
+    > [data-part-body]
+    > [data-ui-container]
+    > [data-part-columns]
+    > [data-part-main]
+    > [data-part-section] {
+    min-inline-size: 0;
+    scroll-margin-block-start: var(--slotted-page-sticky-top, 0px);
+  }
+
+  /**
+   * Under `layout=tabs` the section is the tabpanel of the strip's tab.
+   * `[hidden]` carries `display: none` from the user-agent sheet at a
+   * specificity any rule here would beat, so the attribute is restated.
+   */
+  [data-ui-detail-panel]
+    > [data-part-body]
+    > [data-ui-container]
+    > [data-part-columns]
+    > [data-part-main]
+    > [data-part-section][hidden] {
+    display: none;
+  }
+
+  /**
+   * The panel is in the page's tab sequence, which is where `Tab` from the
+   * strip goes. Its ring is the library's outward one, as `tabs` draws on its
+   * own panel: the section holds the consumer's content and has no inset of
+   * its own, so an inset ring would be drawn through its first line.
+   */
+  [data-ui-detail-panel]
+    > [data-part-body]
+    > [data-ui-container]
+    > [data-part-columns]
+    > [data-part-main]
+    > [data-part-section][role='tabpanel']:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * A section arriving under `tabs` fades in — the one transition drawn on
+   * content rather than on a control, and the same one `tabs` draws on its
+   * panel, because the section is the thing that changed. Under `stacked`
+   * nothing arrives, so nothing moves.
+   */
+  [data-ui-detail-panel][data-layout='tabs']
+    > [data-part-body]
+    > [data-ui-container]
+    > [data-part-columns]
+    > [data-part-main]
+    > [data-part-section]:not([hidden]) {
+    animation: slotted-detail-panel-section-in var(--slotted-duration-short)
+      var(--slotted-easing-enter);
+  }
+
+  @keyframes slotted-detail-panel-section-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /**
+   * Under `tabs` the section has no heading — the tab is its name — and its
+   * own controls sit in a row at the inline end, above the content, where a
+   * stacked section's actions column would have put them.
+   */
+  [data-ui-detail-panel]
+    > [data-part-body]
+    > [data-ui-container]
+    > [data-part-columns]
+    > [data-part-main]
+    > [data-part-section]
+    > [data-part-section-actions] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-control-gap-md, 8px);
+    justify-content: flex-end;
+    margin-block-end: var(--slotted-space-5, 0.75rem);
+  }
+
+  /* ── The message ─────────────────────────────────────────────────────── */
+
+  /**
+   * In place of the columns when the record is not there. Tall enough that a
+   * result-state reads as the record's absence rather than as a note under
+   * the header: four of the largest space step, which is the height of a
+   * short record.
+   */
+  [data-ui-detail-panel] > [data-part-body] > [data-ui-container] > [data-part-message] {
+    display: grid;
+    min-block-size: calc(4 * var(--slotted-space-12, 4rem));
+    min-inline-size: 0;
+    place-items: center;
+  }
+
+  /* ── The footer ──────────────────────────────────────────────────────── */
+
+  /**
+   * Stays at the bottom of whatever scrolls, under the chrome a page
+   * publishes there, painted so the content passing under it is covered.
+   * `margin-block-start: auto` puts it at the bottom of a record shorter
+   * than its host, and the container inside aligns its actions with the
+   * column above.
+   */
+  [data-ui-detail-panel] > [data-part-footer] {
+    -webkit-backdrop-filter: var(--slotted-detail-panel-footer-backdrop-filter, none);
+    backdrop-filter: var(--slotted-detail-panel-footer-backdrop-filter, none);
+    background-color: var(--slotted-detail-panel-footer-background, var(--_ground));
+    border-block-start: var(--_rule-size) solid var(--_rule);
+    inset-block-end: var(--slotted-page-sticky-bottom, 0px);
+    margin-block-start: auto;
+    padding-block: var(--slotted-space-4, 0.5rem);
+    position: sticky;
+    z-index: var(--slotted-z-index-sticky, 100);
+  }
+
+  /**
+   * A theme draws the footer as a material with its own ground and filter,
+   * apart from the ground a sticky section header reads. A reader who asked
+   * for less transparency gets no filter, and under forced colours the ground
+   * is the system's.
+   */
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-detail-panel] > [data-part-footer] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+}

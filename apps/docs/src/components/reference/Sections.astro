@@ -1,0 +1,180 @@
+---
+import type { FamilyReference, TokenRow } from '../../lib/reference';
+import type { Framework } from '../../runtime/frameworks';
+import Code from '../Code.astro';
+import ApiTable from './ApiTable.astro';
+import Table from './Table.astro';
+
+interface Props {
+  framework: Framework;
+  title: string;
+  reference: FamilyReference;
+}
+
+const { framework, title, reference } = Astro.props;
+const { members, keyboard, familyTokens, themeTokens } = reference;
+const several = members.length > 1;
+/* Installation already shows the first member's import statement. */
+const installed = members[0]?.imports?.source;
+const notes = members.filter((member) => (member.accessibility?.length ?? 0) > 0);
+const kebab = (key: string) => key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+const tokenTables: { heading: string; label: string; rows: TokenRow[] }[] = [
+  { heading: `${title} tokens`, label: `${title} tokens`, rows: familyTokens },
+  { heading: 'Theme tokens it reads', label: `Theme tokens ${title} reads`, rows: themeTokens },
+].filter((table) => table.rows.length > 0);
+---
+
+<h2 id="accessibility">Accessibility</h2>
+{
+  keyboard.length > 0 && (
+    <Table label={`${title} keyboard`} columns={['Key', 'Effect', 'Focus']}>
+      {keyboard.map((row) => (
+        <tr>
+          <td>
+            <kbd>{row.key}</kbd>
+          </td>
+          <td>{row.effect}</td>
+          <td>{row.focus ?? '—'}</td>
+        </tr>
+      ))}
+    </Table>
+  )
+}
+{
+  notes.map((member) => (
+    <>
+      {several && <h3>{member.name}</h3>}
+      <ul>
+        {member.accessibility?.map((note) => (
+          <li>{note}</li>
+        ))}
+      </ul>
+    </>
+  ))
+}
+
+<h2 id="api">API</h2>
+{
+  members.map((member) => (
+    <>
+      <h3 id={`api-${kebab(member.key)}`}>{member.name}</h3>
+      {member.description && <p>{member.description}</p>}
+      {member.imports && member.imports.source !== installed && (
+        <Code code={member.imports.source} lang={framework === 'react' ? 'tsx' : 'ts'} />
+      )}
+      {(member.imports?.selector || member.imports?.exportAs) && (
+        <p>
+          {member.imports.selector && (
+            <>
+              Selector <code>{member.imports.selector}</code>
+            </>
+          )}
+          {member.imports.selector && member.imports.exportAs && ' · '}
+          {member.imports.exportAs && (
+            <>
+              exportAs <code>{member.imports.exportAs}</code>
+            </>
+          )}
+        </p>
+      )}
+      {member.api && member.api.length > 0 && (
+        <>
+          <h4>Props</h4>
+          <ApiTable label={`${member.name} props`} rows={member.api} member={member} />
+        </>
+      )}
+      {member.events && member.events.length > 0 && (
+        <>
+          <h4>Events</h4>
+          <Table label={`${member.name} events`} columns={['Name', 'Payload', 'When']}>
+            {member.events.map((row) => (
+              <tr>
+                <td>
+                  <code>{row.name}</code>
+                </td>
+                <td class="docs-ref-type">
+                  <code>{row.payload}</code>
+                </td>
+                <td>{row.when}</td>
+              </tr>
+            ))}
+          </Table>
+        </>
+      )}
+      {member.composition && member.composition.length > 0 && (
+        <>
+          <h4>Composition</h4>
+          <ApiTable
+            label={`${member.name} composition`}
+            rows={member.composition}
+            member={member}
+          />
+        </>
+      )}
+      {member.anatomy && member.anatomy.length > 0 && (
+        <>
+          <h4>Parts</h4>
+          <Table
+            label={`${member.name} parts`}
+            columns={
+              member.anatomy.some((row) => row.parent !== undefined)
+                ? ['Part', 'Parent', 'Element', 'Required', 'Purpose']
+                : ['Part', 'Element', 'Required', 'Purpose']
+            }
+          >
+            {member.anatomy.map((row) => (
+              <tr>
+                <td>
+                  <code>{row.part}</code>
+                </td>
+                {member.anatomy!.some((other) => other.parent !== undefined) && (
+                  <td>{row.parent === undefined ? '—' : <code>{row.parent}</code>}</td>
+                )}
+                <td>{row.element}</td>
+                <td>{row.required ? 'Yes' : 'No'}</td>
+                <td>{row.purpose}</td>
+              </tr>
+            ))}
+          </Table>
+        </>
+      )}
+    </>
+  ))
+}
+
+<h2 id="theming">Theming</h2>
+<p>
+  Each token is a CSS custom property: set it in a theme, or on any element to retune every {
+    title.toLowerCase()
+  } inside it.
+</p>
+{
+  tokenTables.map((table) => (
+    <>
+      <h3>{table.heading}</h3>
+      <Table label={table.label} columns={['Token', 'Default']}>
+        {table.rows.map((row) => (
+          <tr>
+            <td>
+              <code>{row.name}</code>
+            </td>
+            <td class="docs-ref-type">
+              {row.defaultValue.kind === 'value' && <code>{row.defaultValue.value}</code>}
+              {row.defaultValue.kind === 'density' &&
+                row.defaultValue.values.map(({ density, value }, index) => (
+                  <>
+                    {index > 0 && ' · '}
+                    <span>
+                      {density} <code>{value}</code>
+                    </span>
+                  </>
+                ))}
+              {row.defaultValue.kind === 'scheme' && 'Set per scheme by the theme'}
+              {row.defaultValue.kind === 'none' && '—'}
+            </td>
+          </tr>
+        ))}
+      </Table>
+    </>
+  ))
+}

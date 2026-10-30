@@ -1,0 +1,267 @@
+@layer slotted.components {
+  /**
+   * ── The set ────────────────────────────────────────────────────────────
+   *
+   * A vertical run of related rows. The rows are `list-item`, a family of its
+   * own, and **no selector here reaches `[data-ui-list-item]`** — the rule
+   * `accordion` and `collapsible` set for the same relationship. What the set
+   * decides it hands to each row through the binding, as a `data-` attribute
+   * the row's own stylesheet reads.
+   *
+   * The one thing the two sheets share is a counter name. `slotted-list-item`
+   * is reset here, on the root and on every nested group, and incremented by
+   * the row; a counter is not a selector, so neither family's DOM becomes part
+   * of the other's contract.
+   *
+   * The native marker is gone in every configuration, because a row is a
+   * content box beside its independent targets and CSS has no `display` that is
+   * both `list-item` and a grid. The bindings therefore write `role="list"`
+   * here and on `section-list`, which is what Safari and VoiceOver need once
+   * the marker is removed.
+   */
+  [data-ui-list][data-part-root],
+  [data-ui-list] [data-part-section-list] {
+    /* The row's own number. The set opens the count; each group opens its own,
+       so a numbered list of groups restarts rather than running through. */
+    counter-reset: slotted-list-item;
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin-block: 0;
+    margin-inline: 0;
+    /* A row's text column can only shrink below its content if every box above
+       it can, and a flex item's default `min-inline-size: auto` stops at the
+       longest word. Without this a title that is one unbroken token widens the
+       whole list instead of breaking inside the row. */
+    min-inline-size: 0;
+    padding-inline: 0;
+  }
+
+  [data-ui-list][data-part-root] {
+    /* The distance between rows, and it is spent only by `separated`. The other
+       three variants separate rows with a line or with nothing, so a gap there
+       would be space the reader cannot account for. */
+    --_gap: var(--slotted-list-gap, var(--slotted-space-3, 0.375rem));
+    /* The frame `framed` draws, and the ground the sticky group heading needs.
+       Both are declared at the root so a theme retunes them once. */
+    --_frame-color: var(--slotted-list-border-color, var(--slotted-border-subtle, ButtonBorder));
+    --_frame-width: var(--slotted-list-border-width, var(--slotted-border-width-thin, 1px));
+    --_frame-radius: var(--slotted-list-radius, var(--slotted-radius-md, 6px));
+    --_surface: var(--slotted-list-background, var(--slotted-surface, Canvas));
+    /* The group heading's type and colour. It is a heading in the document,
+       so it takes the muted ink rather than a tone: a coloured heading over a
+       neutral list reads as a status the group does not have. */
+    --_section-color: var(--slotted-list-section-color, var(--slotted-text-muted, GrayText));
+    --_section-font-size: var(
+      --slotted-list-section-font-size,
+      var(--slotted-font-size-xs, 0.75rem)
+    );
+    --_section-weight: var(
+      --slotted-list-section-font-weight,
+      var(--slotted-font-weight-semibold, 600)
+    );
+    --_section-inset-block: var(
+      --slotted-list-section-padding-block,
+      var(--slotted-space-4, 0.5rem)
+    );
+    --_row-inset-inline: var(
+      --slotted-list-padding-inline,
+      var(--slotted-control-padding-inline-md, 13px)
+    );
+    --_empty-color: var(--slotted-list-empty-color, var(--slotted-text-muted, GrayText));
+    --_empty-inset: var(--slotted-list-empty-padding, var(--slotted-space-8, 1.5rem));
+  }
+
+  /**
+   * Size is this list's own step and density is the application's. The two
+   * scale different things — density retunes every control on the page, size
+   * says how much room this one list gives a row — so a dense inbox and a
+   * roomy settings list stand on the same page without either of them lying
+   * about the density.
+   */
+  [data-ui-list][data-part-root][data-size='sm'] {
+    --_gap: var(--slotted-list-gap-sm, var(--slotted-space-2, 0.25rem));
+    --_section-inset-block: var(
+      --slotted-list-section-padding-block-sm,
+      var(--slotted-space-3, 0.375rem)
+    );
+    --_row-inset-inline: var(
+      --slotted-list-padding-inline-sm,
+      var(--slotted-control-padding-inline-sm, 10px)
+    );
+    --_empty-inset: var(--slotted-list-empty-padding-sm, var(--slotted-space-6, 1rem));
+  }
+
+  [data-ui-list][data-part-root][data-size='lg'] {
+    --_gap: var(--slotted-list-gap-lg, var(--slotted-space-4, 0.5rem));
+    --_section-inset-block: var(
+      --slotted-list-section-padding-block-lg,
+      var(--slotted-space-5, 0.75rem)
+    );
+    --_row-inset-inline: var(
+      --slotted-list-padding-inline-lg,
+      var(--slotted-control-padding-inline-lg, 16px)
+    );
+    --_empty-inset: var(--slotted-list-empty-padding-lg, var(--slotted-space-9, 2rem));
+  }
+
+  /**
+   * ── How rows are told apart ────────────────────────────────────────────
+   *
+   * Four words, and they are `accordion`'s four so that two families cannot
+   * mean different things by one of them. Only two of them draw anything here:
+   * the line between rows and the surface of a separated row belong to the row,
+   * which is the only element that knows whether it is first, last or alone.
+   *
+   * `plain` and `ruled` draw nothing on the set.
+   */
+  [data-ui-list][data-part-root][data-variant='framed'] {
+    background-color: var(--_surface);
+    border: var(--_frame-width) solid var(--_frame-color);
+    border-radius: var(--_frame-radius);
+    /* The frame clips its own corners, so the first and last rows do not paint
+       a square hover fill over a rounded edge. `clip` rather than `hidden`: the
+       set is not a scroll container, and `hidden` would silently make it one. */
+    overflow: clip;
+  }
+
+  [data-ui-list][data-part-root][data-variant='separated'] {
+    row-gap: var(--_gap);
+  }
+
+  /**
+   * A group inside the set. It is an `li` holding a heading and a nested list,
+   * which is the grouping HTML already has; MUI, Angular Material, Primer and
+   * React Aria each leave the heading loose among the rows instead, so a reader
+   * hears a heading inside a set rather than a set with a name.
+   */
+  [data-ui-list] [data-part-section] {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  /* A separated set gaps its groups too, and a group gaps its own rows. Both
+     read the one distance the root declared. */
+  [data-ui-list][data-variant='separated'] [data-part-section],
+  [data-ui-list][data-variant='separated'] [data-part-section-list] {
+    row-gap: var(--_gap);
+  }
+
+  /**
+   * The group's name. It shares the row's inline inset so the heading and the
+   * titles under it stand in one column, which is the alignment that makes a
+   * grouped list read as one list rather than as several.
+   */
+  [data-ui-list] [data-part-section-label] {
+    color: var(--_section-color);
+    font-size: var(--_section-font-size);
+    font-weight: var(--_section-weight);
+    letter-spacing: var(--slotted-list-section-letter-spacing, 0);
+    line-height: var(--slotted-line-height-sm, 1.45);
+    margin-block: 0;
+    min-inline-size: 0;
+    padding-block: var(--_section-inset-block);
+    /* The heading takes the row's own inline inset — the control padding scale,
+       not a space step — so the group's name and the titles under it stand in
+       one column. Reading a different scale left the two a pixel apart. */
+    padding-inline: var(--_row-inset-inline);
+  }
+
+  /**
+   * `inset` is for a list dropped into a box that already pads its own content
+   * — a `card` body, a `dialog`. It takes the row's inline padding away so the
+   * content lines up with the box around it, and the heading gives up the same
+   * padding so the column holds.
+   *
+   * The fill and the rule still run edge to edge, which is the half MUI's
+   * `disableGutters` leaves out: it removes the padding and leaves the line
+   * inset, so a flush list draws a rule stopping short of the box it is in.
+   */
+  [data-ui-list][data-inset] [data-part-section-label],
+  [data-ui-list][data-inset] [data-part-empty] {
+    padding-inline: 0;
+  }
+
+  /**
+   * A heading that stays while its own rows scroll past. MUI ships it and is
+   * the only surveyed source that does; composing it needs the family's ground
+   * and its stack level, and a consumer writing `position: sticky` alone gets a
+   * heading with rows showing through it.
+   *
+   * The ground is the set's surface rather than `transparent`, and the stack
+   * level is the library's own sticky step, so a heading never rises above an
+   * overlay that is above the page.
+   */
+  /* A heading with an end sets the name at the start and the end content on
+     the same line, at the end. */
+  [data-ui-list] [data-part-section-label]:has(> [data-part-section-end]) {
+    align-items: baseline;
+    display: flex;
+    gap: var(--slotted-space-4, 0.5rem);
+    justify-content: space-between;
+  }
+
+  [data-ui-list] [data-part-section-end] {
+    flex: none;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /**
+   * `ruled`: the name in the text colour over a rule, with no ground behind it
+   * — a day of a phone list with its balance at the end. The sticky ground is
+   * still the set's surface, so the rows passing under it are covered.
+   */
+  [data-ui-list] [data-part-section-label][data-variant='ruled'] {
+    border-block-end: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-list-section-rule-color, var(--slotted-border-subtle, GrayText));
+    color: var(--slotted-list-section-ruled-color, var(--slotted-text, CanvasText));
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-list] [data-part-section-label][data-sticky] {
+    background-color: var(--_surface);
+    inset-block-start: 0;
+    position: sticky;
+    z-index: var(--slotted-z-index-sticky, 100);
+  }
+
+  /**
+   * What the set says when it holds nothing. It is an `li`, so the reader hears
+   * "list, one item" and then the message; a message outside the `ul` leaves
+   * them with "list, zero items" and silence, and leaves the words outside the
+   * box a framed set paints.
+   *
+   * The family supplies the box, the height and the muted ink. The words are
+   * the page's, and `result-state` is what goes in here.
+   */
+  [data-ui-list] [data-part-empty] {
+    align-items: center;
+    color: var(--_empty-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-inline-size: 0;
+    padding-block: var(--_empty-inset);
+    padding-inline: var(--_row-inset-inline);
+    text-align: center;
+  }
+
+  /**
+   * ── Loading ────────────────────────────────────────────────────────────
+   *
+   * The binding writes `aria-busy="true"`, which ARIA 1.2 section 5.2.6 asks of
+   * a container whose required owned elements have not arrived yet. That is the
+   * capability; the picture is the page's.
+   *
+   * The family draws no spinner and no placeholder row. `skeleton` owns
+   * placeholder geometry and `progress-indicator` owns a spinner, and a second
+   * answer to either question is what `collapsible` already refused for a
+   * loading panel. What is left for the set is the pointer, which is the one
+   * signal that belongs to the box rather than to its content.
+   */
+  [data-ui-list][data-part-root][data-loading] {
+    cursor: progress;
+  }
+}

@@ -1,0 +1,910 @@
+@layer slotted.components {
+  /**
+   * ── A file that already belongs to something ──────────────────────────
+   *
+   * An attachment is a file shown inside a message, a record, a timeline event
+   * or a composer's tray. It says what the file is — the kind's tile, the
+   * name, a line of detail — gives the reader the file through its trigger, and
+   * carries the actions the application offers on it. `upload` acquires and
+   * transfers files; this family does neither. The two share the file
+   * vocabulary of `@slotted/core/upload` and the kind scale
+   * `--slotted-upload-kind-*`, and nothing else
+   *.
+   *
+   * **The whole attachment is the target, and the actions stay beside it.**
+   * The trigger is a real `a` or `button` holding the file name, and a
+   * transparent `::after` on it covers the root. `actions` is a sibling of the
+   * body and stands above that layer, because interactive content may not nest
+   * inside `a` or `button` — the arrangement `list-item` states for `content`
+   * and `actions`.
+   */
+  /**
+   * The private properties, on both boxes that stand on their own. The set
+   * resolves the same size step its attachments do, because a grid of cards
+   * sizes its tracks from the card.
+   */
+  [data-ui-attachment][data-part-root],
+  [data-ui-attachment][data-part-group] {
+    /**
+     * Type and glyph come from the control scales, the ones the theme restates
+     * per density, so an attachment inside a dense form shrinks with the
+     * fields around it. The insets come from the space scale, which does not
+     * vary by density — the cost `upload` and `card` both accepted.
+     */
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_glyph-size: var(--slotted-control-icon-size-md, 16px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_inset: var(--slotted-attachment-padding-md, var(--slotted-space-4, 0.5rem));
+
+    /**
+     * The two lines, each rounded up to a whole pixel. Thirteen at 1.5 is 19.5,
+     * and an attachment built from it stood at 59.5 with every edge below the
+     * first line between two device pixels. The rule is `upload`'s and
+     * `timeline`'s `--_leading`, stated here from a length rather than from
+     * `1em` so the tile below can be sized from it outside the text.
+     */
+    --_line-height: var(--slotted-line-height-md, 1.5);
+    --_title-leading: round(up, calc(var(--_font-size) * var(--_line-height)), 1px);
+    --_detail-size: var(--slotted-font-size-xs, 0.75rem);
+    --_detail-leading: round(up, calc(var(--_detail-size) * var(--_line-height)), 1px);
+    --_line-gap: var(--slotted-attachment-line-gap, var(--slotted-space-1, 0.125rem));
+
+    /**
+     * The tile is the height of the two lines beside it — 20 + 2 + 18 = 40 at
+     * `md`, the 40 ReUI measures (`c-attachment-5`) — so its edges line up with
+     * the cap of the name and the foot of the detail instead of floating
+     * between them. It steps with the type, which steps with the density.
+     */
+    --_preview-size: var(
+      --slotted-attachment-preview-size,
+      calc(var(--_title-leading) + var(--_line-gap) + var(--_detail-leading))
+    );
+    --_preview-radius: var(--slotted-attachment-preview-radius, var(--slotted-radius-sm, 4px));
+
+    /**
+     * A card is three tiles wide: 120 at `md`, ReUI's vertical card, with the
+     * picture 102 square inside it. Derived rather than stated, so a card at
+     * `sm` or at `dense` is still three of its own tiles and still a whole
+     * pixel.
+     */
+    --_card-size: var(--slotted-attachment-card-size, calc(3 * var(--_preview-size)));
+    --_border-width: var(--slotted-attachment-border-width, var(--slotted-border-width-thin, 1px));
+
+    /**
+     * The actions are inner controls (R2): the glyph plus a step of air on each
+     * side, floored at WCAG 2.2 SC 2.5.8's twenty-four pixels so the target
+     * holds at every density, and the glyph floored at fourteen for the reason
+     * `upload` floors its own — the control glyph scale falls to twelve at
+     * `dense`, and a cross that small beside a name is a speck.
+     */
+    --_action-glyph-size: max(var(--slotted-attachment-icon-size-min, 14px), var(--_glyph-size));
+    --_action-size: var(
+      --slotted-attachment-action-size,
+      max(
+        var(--slotted-target-min, 24px),
+        calc(var(--_action-glyph-size) + 2 * var(--slotted-space-2, 0.25rem))
+      )
+    );
+  }
+
+  [data-ui-attachment][data-size='sm']:is([data-part-root], [data-part-group]) {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_glyph-size: var(--slotted-control-icon-size-sm, 14px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    --_inset: var(--slotted-attachment-padding-sm, var(--slotted-space-3, 0.375rem));
+  }
+
+  [data-ui-attachment][data-size='lg']:is([data-part-root], [data-part-group]) {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_glyph-size: var(--slotted-control-icon-size-lg, 18px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+    --_inset: var(--slotted-attachment-padding-lg, var(--slotted-space-5, 0.75rem));
+  }
+
+  /* ── One attachment ────────────────────────────────────────────────────
+   *
+   * Laid out as a grid rather than a flex line, for the reason `upload` gives
+   * its row: the tile and the actions are centred on the name and its detail,
+   * and a sentence under them — the message — grows the attachment downwards
+   * without moving either. The message starts under the name, not under the
+   * tile, so its first letter lines up with the name's.
+   */
+  [data-ui-attachment][data-part-root] {
+    /**
+     * What the attachment is painted with at rest. A state of the file —
+     * invalid — moves these two; a pointer on the trigger moves `--_fill`,
+     * which mixes the ink into whichever ground the state chose.
+     */
+    --_surface: var(--slotted-attachment-background, var(--slotted-surface));
+    --_edge: var(--slotted-attachment-border-color, var(--slotted-border-subtle));
+    --_ink: var(--slotted-text);
+    --_message-color: var(--slotted-text-muted);
+    /**
+     * The pointer's answer is a state layer of the ink over the ground rather
+     * than a step on the tone ramp: `--slotted-tone-danger-subtle-hover` is
+     * lighter than `--slotted-tone-danger-surface`, so a failed attachment
+     * would have brightened under the pointer. Four per cent of the ink is
+     * 0.034 of OKLab lightness on `light`'s white and 0.031 on `dark`'s
+     * surface, over the 0.02 step `theme-conformance` asks of a hover; eight
+     * is twice that for the press, so the two never read as one.
+     */
+    --_fill-hover: color-mix(
+      in oklab,
+      var(--_ink) var(--slotted-attachment-state-layer-hover, 4%),
+      var(--_surface)
+    );
+    --_fill-active: color-mix(
+      in oklab,
+      var(--_ink) var(--slotted-attachment-state-layer-active, 8%),
+      var(--_surface)
+    );
+    --_fill: var(--_surface);
+    /*
+     * One step larger than the tile's four, so the two corners read as a
+     * surface holding a tile rather than as one curve cut twice. ReUI's 14
+     * has no step on the radius scale.
+     */
+    --_radius: var(--slotted-attachment-radius, var(--slotted-radius-lg, 8px));
+
+    align-items: center;
+    background-color: var(--_fill);
+    border: var(--_border-width) solid var(--_edge);
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    color: var(--_ink);
+    column-gap: var(--_gap);
+    display: grid;
+    font-family: var(--slotted-attachment-font-family, var(--slotted-control-font-family));
+    font-size: var(--_font-size);
+    grid-template-areas:
+      'preview body actions'
+      '. message message';
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    line-height: var(--_title-leading);
+    list-style: none;
+    margin: 0;
+    min-inline-size: 0;
+    /*
+     * The bar is a child placed against this box, and the clip is what bends
+     * it to the corner. `clip` rather than `hidden`, because this box never
+     * scrolls and `hidden` would make it a scroll container.
+     */
+    overflow: clip;
+    padding: var(--_inset);
+    position: relative;
+    text-align: start;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      opacity var(--slotted-duration-medium) var(--slotted-easing-enter),
+      translate var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  /*
+   * An absent part leaves no column behind. A column of nought still carries
+   * the gap beside it, and an attachment without actions ended its name eight
+   * pixels short of the edge it could have used.
+   */
+  [data-ui-attachment][data-part-root]:not(:has(> [data-part-actions])) {
+    grid-template-areas:
+      'preview body'
+      '. message';
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  [data-ui-attachment][data-part-root]:not(:has(> [data-part-preview])) {
+    grid-template-areas:
+      'body actions'
+      'message message';
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  [data-ui-attachment][data-part-root]:not(:has(> [data-part-preview])):not(
+      :has(> [data-part-actions])
+    ) {
+    grid-template-areas:
+      'body'
+      'message';
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /**
+   * A file arrives: it fades in from a step above its place, so an attachment
+   * that lands in a tray is seen landing rather than found there. The start
+   * style applies only on the frame the attachment is first rendered.
+   *
+   * An attachment that leaves does not animate: the binding removes it when
+   * the consumer's list changes, and holding it for an exit would need a second
+   * list beside the consumer's — the debt `upload` records for its rows.
+   */
+  @starting-style {
+    [data-ui-attachment][data-part-root] {
+      opacity: 0;
+      translate: 0 calc(-1 * var(--slotted-space-2, 0.25rem));
+    }
+  }
+
+  /* ── The tile ──────────────────────────────────────────────────────────
+   *
+   * A solid tile in the file's own colour with the mark knocked out of it, or
+   * the picture when the page has one. The colour argument and its
+   * measurements are under **File kind** in `docs/token-foundation.md`; the
+   * scale is `upload`'s and is read here under its own name.
+   */
+  [data-ui-attachment] [data-part-preview] {
+    --_kind-tile: var(--slotted-upload-kind-other);
+
+    align-items: center;
+    background-color: var(--_kind-tile);
+    block-size: var(--_preview-size);
+    border-radius: var(--_preview-radius);
+    box-sizing: border-box;
+    color: var(--slotted-upload-kind-foreground);
+    display: inline-flex;
+    flex-direction: column;
+    grid-area: preview;
+    inline-size: var(--_preview-size);
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  [data-ui-attachment] [data-part-preview] > img {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+    object-fit: cover;
+  }
+
+  /*
+   * Half the tile, rounded to a whole pixel: 20 in a 40 tile. The row glyph
+   * (16) in a tile two lines tall read as a mark lost in its box.
+   */
+  [data-ui-attachment] [data-part-preview] > [data-ui-icon] {
+    --slotted-icon-size: round(calc(var(--_preview-size) / 2), 1px);
+  }
+
+  [data-ui-attachment] [data-part-preview][data-kind='pdf'] {
+    --_kind-tile: var(--slotted-upload-kind-pdf);
+  }
+
+  [data-ui-attachment] [data-part-preview][data-kind='document'] {
+    --_kind-tile: var(--slotted-upload-kind-document);
+  }
+
+  [data-ui-attachment] [data-part-preview][data-kind='spreadsheet'] {
+    --_kind-tile: var(--slotted-upload-kind-spreadsheet);
+  }
+
+  [data-ui-attachment] [data-part-preview][data-kind='presentation'] {
+    --_kind-tile: var(--slotted-upload-kind-presentation);
+  }
+
+  [data-ui-attachment] [data-part-preview][data-kind='image'] {
+    --_kind-tile: var(--slotted-upload-kind-image);
+  }
+
+  [data-ui-attachment] [data-part-preview][data-kind='video'] {
+    --_kind-tile: var(--slotted-upload-kind-video);
+  }
+
+  [data-ui-attachment] [data-part-preview][data-kind='audio'] {
+    --_kind-tile: var(--slotted-upload-kind-audio);
+  }
+
+  [data-ui-attachment] [data-part-preview][data-kind='archive'] {
+    --_kind-tile: var(--slotted-upload-kind-archive);
+  }
+
+  /* ── What the attachment says ──────────────────────────────────────────
+   *
+   * The name, and one line of detail under it. The body is the one box with
+   * `min-inline-size: 0`, which is what makes a long name truncate instead of
+   * pushing the actions off the end.
+   */
+  [data-ui-attachment] [data-part-body] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--_line-gap);
+    grid-area: body;
+    min-inline-size: 0;
+  }
+
+  /**
+   * The file's target. A real `a` when the file has an address — so `href`,
+   * `download` and the modified click a browser gives a link stay the
+   * platform's — and a real `button` when the page opens it itself. Nothing
+   * about it looks like a control at rest; the attachment is the control, and
+   * it answers as one.
+   */
+  [data-ui-attachment] [data-part-trigger] {
+    appearance: none;
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    line-height: inherit;
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+    text-align: start;
+    text-decoration: none;
+  }
+
+  /**
+   * The stretched target. Transparent, over the whole attachment, and below
+   * `actions`, which is positioned after it in the same stacking context.
+   */
+  [data-ui-attachment] [data-part-trigger]::after {
+    content: '';
+    inset: 0;
+    position: absolute;
+  }
+
+  /*
+   * The name answers as well as the ground, because the ground's step is
+   * 0.03 of lightness and a reader looking at the words should not have to
+   * find it at the edge. The underline says link; the press settles the name
+   * by a hairline — the answer `upload` gives its file name — so press and
+   * hover differ on the trigger itself and not only on the attachment.
+   */
+  [data-ui-attachment] [data-part-trigger]:not(:disabled):not([aria-disabled='true']):hover {
+    text-decoration-line: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  [data-ui-attachment] [data-part-trigger]:not(:disabled):not([aria-disabled='true']):active {
+    text-decoration-line: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /*
+   * The settle moves what the trigger holds, never the trigger: a `translate`
+   * on the trigger makes it the containing block of its `::after`, and for
+   * the press the target shrank to the name, so a release on the preview
+   * clicked the root instead.
+   */
+  [data-ui-attachment] [data-part-trigger] > * {
+    transition: translate var(--slotted-duration-instant) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-attachment] [data-part-trigger]:not(:disabled):not([aria-disabled='true']):active > * {
+    translate: 0 var(--slotted-border-width-thin, 1px);
+  }
+
+  [data-ui-attachment] [data-part-trigger]:is(:disabled, [aria-disabled='true']) {
+    cursor: default;
+  }
+
+  /**
+   * The ring is drawn around the attachment, because the attachment is the
+   * target the pointer sees; a ring around the name alone would say that only
+   * the words can be pressed. The browser's own ring on the trigger is
+   * suppressed so the two are never drawn at once.
+   */
+  [data-ui-attachment] [data-part-trigger]:focus-visible {
+    outline: none;
+  }
+
+  [data-ui-attachment][data-part-root]:has(> [data-part-body] > [data-part-trigger]:focus-visible) {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /*
+   * The pointer's answer, on the whole attachment. Held back while the file
+   * cannot be opened: a disabled or loading attachment refuses its trigger,
+   * and a fill would promise the press it refuses.
+   */
+  [data-ui-attachment][data-part-root]:not([data-disabled]):not([data-loading]):has(
+      > [data-part-body] > [data-part-trigger]:hover
+    ) {
+    --_fill: var(--_fill-hover);
+  }
+
+  [data-ui-attachment][data-part-root]:not([data-disabled]):not([data-loading]):has(
+      > [data-part-body] > [data-part-trigger]:active
+    ) {
+    --_fill: var(--_fill-active);
+  }
+
+  /**
+   * The name and its extension are one run, laid out in the name's own
+   * direction. The binding writes `dir="auto"`, so `claim-form.pdf` reads in
+   * that order inside a right-to-left page instead of `pdf.claim-form` — the
+   * defect `upload` found in its capture at `dir="rtl"`.
+   */
+  [data-ui-attachment] [data-part-filename] {
+    display: flex;
+    font-weight: var(--slotted-attachment-name-font-weight, var(--slotted-font-weight-medium, 500));
+    line-height: var(--_title-leading);
+    min-inline-size: 0;
+    unicode-bidi: isolate;
+  }
+
+  /*
+   * A name that is not a trigger is its own item in the body's column, and
+   * stretched to the column it laid `policy.pdf` out from the left edge of a
+   * right-to-left page while the detail under it stood at the right: `dir="auto"`
+   * gives the run its own direction, so it must also be only as wide as the run.
+   * Found in the capture at `dir="rtl"`.
+   */
+  [data-ui-attachment] [data-part-body] > [data-part-filename],
+  [data-ui-attachment] [data-part-body] > [data-part-trigger] {
+    align-self: start;
+    max-inline-size: 100%;
+  }
+
+  /**
+   * The stem shrinks to an ellipsis and the extension does not, so a long
+   * name keeps the part that says what the file is. CSS cannot truncate in the
+   * middle; `splitName` makes the split in the binding, and the whole name
+   * stays in the document and in the trigger's `title`.
+   */
+  [data-ui-attachment] [data-part-name] {
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-attachment] [data-part-extension] {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  /** The second line: a size, a date, a sender — whatever the page says. */
+  [data-ui-attachment] [data-part-detail] {
+    color: var(--slotted-text-muted);
+    font-size: var(--_detail-size);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--_detail-leading);
+    margin: 0;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /**
+   * Why the file failed, or anything else the page must say about it at more
+   * length than a line of detail. It wraps, because a reason cut off by an
+   * ellipsis is a reason nobody reads.
+   */
+  [data-ui-attachment] [data-part-message] {
+    color: var(--_message-color);
+    font-size: var(--_detail-size);
+    grid-area: message;
+    line-height: var(--_detail-leading);
+    margin: 0;
+    margin-block-start: var(--_line-gap);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /**
+   * The transfer. It is `progress-indicator`'s bar, drawn where this family
+   * places it: a second bar would be a second answer to one question. Out of
+   * the flow, so the attachment is the same height whether it is sending or
+   * sent.
+   *
+   * It stands in the text's column and inside the bottom inset, not on the
+   * attachment's edge. Laid along the edge from corner to corner — `upload`'s
+   * placement — it ran under the tile, and on a failed attachment the danger
+   * bar sat against the danger edge and its inset second line: three red
+   * lines at the bottom, read as the edge doubled wherever the bar reached.
+   * Centred in the inset, the bar clears the edge by the same distance it
+   * clears the detail line above it.
+   */
+  [data-ui-attachment] [data-part-progress] {
+    display: block;
+    inset-block-end: round(
+      down,
+      /* the `sm` bar is one step of the space scale thick (`progress-indicator`) */
+        calc((var(--_inset) - var(--slotted-space-1, 0.125rem)) / 2),
+      1px
+    );
+    inset-inline-end: var(--_inset);
+    inset-inline-start: calc(var(--_inset) + var(--_preview-size) + var(--_gap));
+    position: absolute;
+    transition: opacity var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  /* Without a tile, or on a card, the text's column starts at the inset. */
+  [data-ui-attachment][data-part-root]:not(:has(> [data-part-preview])) > [data-part-progress],
+  [data-ui-attachment][data-orientation='vertical'] > [data-part-progress] {
+    inset-inline-start: var(--_inset);
+  }
+
+  @starting-style {
+    [data-ui-attachment] [data-part-progress] {
+      opacity: 0;
+    }
+  }
+
+  /* ── The actions ───────────────────────────────────────────────────────
+   *
+   * Above the stretched target, so a press on a control is the control's.
+   */
+  [data-ui-attachment] [data-part-actions] {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--slotted-space-1, 0.125rem);
+    grid-area: actions;
+    justify-content: flex-end;
+    position: relative;
+    z-index: 1;
+  }
+
+  /**
+   * Inner controls (R2): no frame and no ground at rest, one ground step on
+   * hover and one more on press, the theme's ring on focus. The ground is a
+   * state layer of `currentcolor`, for the reason `upload` gives its row
+   * controls: it is legible on whatever ground the attachment has, including
+   * a failed one's tint.
+   */
+  [data-ui-attachment] [data-part-action],
+  [data-ui-attachment] [data-part-remove] {
+    --_state-hover: color-mix(
+      in oklab,
+      currentcolor var(--slotted-attachment-action-state-layer-hover, 8%),
+      transparent
+    );
+    --_state-active: color-mix(
+      in oklab,
+      currentcolor var(--slotted-attachment-action-state-layer-active, 14%),
+      transparent
+    );
+
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_action-size);
+    border: 0;
+    border-radius: var(--slotted-attachment-action-radius, var(--slotted-control-radius, 4px));
+    box-sizing: border-box;
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    font: inherit;
+    inline-size: var(--_action-size);
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-attachment] [data-part-action] > [data-ui-icon],
+  [data-ui-attachment] [data-part-remove] > [data-ui-icon] {
+    --slotted-icon-size: var(--_action-glyph-size);
+  }
+
+  /**
+   * `:not(:disabled)` guards a `button`; `aria-disabled` guards an `a`, which
+   * has no native disabled state. A control that cannot act does not answer a
+   * pointer.
+   */
+  [data-ui-attachment] [data-part-action]:not(:disabled):not([aria-disabled='true']):hover,
+  [data-ui-attachment] [data-part-remove]:not(:disabled):not([aria-disabled='true']):hover {
+    background-color: var(--_state-hover);
+  }
+
+  [data-ui-attachment] [data-part-action]:not(:disabled):not([aria-disabled='true']):active,
+  [data-ui-attachment] [data-part-remove]:not(:disabled):not([aria-disabled='true']):active {
+    background-color: var(--_state-active);
+  }
+
+  [data-ui-attachment] [data-part-action]:is(:disabled, [aria-disabled='true']),
+  [data-ui-attachment] [data-part-remove]:is(:disabled, [aria-disabled='true']) {
+    color: var(--slotted-disabled-foreground);
+    cursor: default;
+  }
+
+  /*
+   * Inside the control, one ring width in: the controls of one attachment
+   * stand two pixels apart, and an outward ring would be drawn over the
+   * neighbour's box.
+   */
+  [data-ui-attachment] [data-part-action]:focus-visible,
+  [data-ui-attachment] [data-part-remove]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /**
+   * On a finger the target is the comfortable size and the box is the one a
+   * mouse sees: a transparent `::after` centred on each control reaches 44
+   * pixels in both axes, and the ground and the ring stay square. The rule is
+   * `upload`'s.
+   */
+  @media (pointer: coarse) {
+    [data-ui-attachment] :is([data-part-action], [data-part-remove]) {
+      position: relative;
+    }
+
+    [data-ui-attachment] :is([data-part-action], [data-part-remove])::after {
+      content: '';
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+      position: absolute;
+    }
+  }
+
+  /* ── States of the file ────────────────────────────────────────────────
+   *
+   * A file that failed: its ground, its edge and its sentence turn, and the
+   * tile keeps the kind's colour. `upload` measured why — a refused archive
+   * that turned red stopped saying it was an archive, on the one row whose
+   * message was about archives — and every kind clears 4.03 : 1 against the
+   * failed ground in `light` (`default-theme.test.mjs`).
+   */
+  [data-ui-attachment][data-part-root][data-invalid] {
+    --_surface: var(--slotted-tone-danger-surface);
+    --_edge: var(--slotted-tone-danger-border);
+    --_message-color: var(--slotted-tone-danger-text);
+
+    /*
+     * The edge doubles inward. Every tone surface is the page's own white in
+     * `high-contrast`, so the failed attachment's tint vanished there and the
+     * sentence's colour was the one signal left — colour alone, which WCAG 2.2
+     * SC 1.4.1 refuses. A second pixel of edge says it in line, in every
+     * scheme, and moves nothing: an inset shadow takes no room.
+     */
+    --_invalid-edge-width: var(--slotted-control-invalid-edge-width, var(--_border-width));
+
+    box-shadow: inset 0 0 0 var(--_invalid-edge-width) var(--_edge);
+  }
+
+  /**
+   * An unavailable file. The words take the disabled ink the foundation holds
+   * at its contrast, and the tile gives up the kind's colour, because a file
+   * that cannot be opened should not still be the brightest thing in the row.
+   */
+  [data-ui-attachment][data-part-root][data-disabled] {
+    --_ink: var(--slotted-disabled-foreground);
+  }
+
+  [data-ui-attachment][data-part-root][data-disabled] [data-part-detail] {
+    color: var(--slotted-disabled-foreground);
+  }
+
+  [data-ui-attachment][data-part-root][data-disabled] [data-part-preview] {
+    --_kind-tile: var(--slotted-disabled-background);
+
+    color: var(--slotted-disabled-foreground);
+  }
+
+  /*
+   * A picture has no ground to give up, so it gives up its colour: the
+   * whole-strength grey is the one value that says unavailable without
+   * dimming the thumbnail below legibility.
+   */
+  [data-ui-attachment][data-part-root][data-disabled] [data-part-preview] > img {
+    filter: grayscale(1);
+  }
+
+  /* ── The card ──────────────────────────────────────────────────────────
+   *
+   * The same attachment stood on end: the picture takes the card and the name
+   * sits under it. The actions move onto the picture's corner, over the thing
+   * the reader is pointing at, on a plate of their own — the consumer's
+   * photograph is any colour, and a dark mark on a mid-blue sky was what
+   * `upload`'s first grid capture showed.
+   */
+  [data-ui-attachment][data-part-root][data-orientation='vertical'] {
+    align-items: stretch;
+    grid-template-areas:
+      'preview'
+      'body'
+      'message';
+    grid-template-columns: minmax(0, 1fr);
+    inline-size: var(--_card-size);
+  }
+
+  /*
+   * The picture fills the card's content box. Its block size is stated from
+   * the card rather than from `aspect-ratio`, which carried a fractional
+   * width into a fractional height in `upload`'s grid.
+   */
+  [data-ui-attachment][data-orientation='vertical'] > [data-part-preview] {
+    --_preview-radius: var(--slotted-attachment-card-preview-radius, var(--slotted-radius-md, 6px));
+
+    block-size: calc(var(--_card-size) - 2 * var(--_inset) - 2 * var(--_border-width));
+    inline-size: 100%;
+  }
+
+  [data-ui-attachment][data-orientation='vertical'] > [data-part-preview] > [data-ui-icon] {
+    --slotted-icon-size: calc(2 * var(--_glyph-size));
+  }
+
+  /**
+   * A card has room for the extension in words, and a reader scanning a wall
+   * of thumbnails for the one PDF finds it faster by the three letters than by
+   * the silhouette. It is text, drawn from the attribute the binding writes.
+   */
+  [data-ui-attachment][data-orientation='vertical'] > [data-part-preview]:not(:has(img))::after {
+    content: attr(data-extension);
+    font-size: var(--_detail-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    /* Three capitals set tight read as one blot at twelve pixels; the
+       tracking is the one `upload`'s card label carries. */
+    letter-spacing: 0.06em;
+    line-height: var(--_detail-leading);
+    margin-block-start: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-attachment][data-orientation='vertical'] > [data-part-body] {
+    margin-block-start: var(--_gap);
+  }
+
+  [data-ui-attachment][data-orientation='vertical'] > [data-part-actions] {
+    background-color: color-mix(
+      in oklab,
+      var(--slotted-surface) var(--slotted-attachment-card-actions-opacity, 96%),
+      transparent
+    );
+    border-radius: var(--slotted-attachment-action-radius, var(--slotted-control-radius, 4px));
+    box-shadow: var(--slotted-shadow-xs);
+    color: var(--slotted-text);
+    grid-area: auto;
+    inset-block-start: calc(var(--_inset) + var(--slotted-space-2, 0.25rem));
+    inset-inline-end: calc(var(--_inset) + var(--slotted-space-2, 0.25rem));
+    padding: var(--slotted-space-1, 0.125rem);
+    position: absolute;
+  }
+
+  /*
+   * On a card three glyphs wide the plate stands over the kind's mark: at 120
+   * pixels the mark is centred at 51 and the plate reaches 36 from the top
+   * across the inline end, so a PDF card showed half its page under the
+   * controls. Where there is a pointer that can hover, the plate appears with
+   * the pointer or with focus anywhere in the card — the keyboard reaches the
+   * controls by tabbing into them, which is what shows them. On a finger it
+   * stays, because there is no hover to summon it with, and on a disabled
+   * card it stays too: a card that answers no pointer cannot summon it either.
+   */
+  @media (hover: hover) and (pointer: fine) {
+    [data-ui-attachment][data-orientation='vertical']:not([data-disabled]) > [data-part-actions] {
+      opacity: 0;
+      transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-attachment][data-orientation='vertical']:not([data-disabled]):is(:hover, :focus-within)
+      > [data-part-actions] {
+      opacity: 1;
+      transition: opacity var(--slotted-duration-short) var(--slotted-easing-enter);
+    }
+  }
+
+  /* ── The set ───────────────────────────────────────────────────────────
+   *
+   * A native list. It takes focus only when its last attachment is removed
+   * with the keyboard, which is what `tabindex="-1"` is for.
+   */
+  [data-ui-attachment][data-part-group] {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-attachment-group-gap, var(--slotted-space-4, 0.5rem));
+    list-style: none;
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+  }
+
+  [data-ui-attachment][data-part-group]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /*
+   * An empty set takes no room: a message whose last file was removed does
+   * not keep a gap where the files were.
+   */
+  [data-ui-attachment][data-part-group]:empty {
+    display: none;
+  }
+
+  /** Rows that share the width: two or three to a line, never narrower than a name. */
+  [data-ui-attachment][data-part-group][data-layout='grid'] {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(min(100%, var(--slotted-attachment-grid-min, 16rem)), 1fr)
+    );
+  }
+
+  /* Cards keep their own width, so every card is a whole pixel wide. */
+  [data-ui-attachment][data-part-group][data-layout='grid'][data-orientation='vertical'] {
+    grid-template-columns: repeat(auto-fill, var(--_card-size));
+  }
+
+  /**
+   * One line that scrolls — a composer's tray. The strip is padded by the
+   * ring's reach and pulled back by the same amount, so a focused attachment
+   * at either end keeps its whole ring inside the scroll box instead of
+   * losing two pixels of it to the clip.
+   */
+  [data-ui-attachment][data-part-group][data-layout='strip'] {
+    --_ring-reach: calc(
+      var(--slotted-focus-ring-width, 2px) + var(--slotted-focus-ring-offset, 2px)
+    );
+
+    flex-direction: row;
+    margin: calc(-1 * var(--_ring-reach));
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding: var(--_ring-reach);
+    scroll-padding-inline: var(--_ring-reach);
+    scroll-snap-type: inline proximity;
+    scrollbar-color: var(--slotted-border-strong) transparent;
+    scrollbar-width: thin;
+  }
+
+  [data-ui-attachment][data-part-group][data-layout='strip'] > [data-part-root] {
+    flex: none;
+    scroll-snap-align: start;
+  }
+
+  [data-ui-attachment][data-part-group][data-layout='strip']
+    > [data-part-root][data-orientation='horizontal'] {
+    inline-size: var(--slotted-attachment-strip-item-size, 15rem);
+  }
+
+  /* ── Forced colours ────────────────────────────────────────────────────
+   *
+   * The theme remaps every token this sheet reads. What it cannot reach is a
+   * state said by a mix into a ground the system flattens to `Canvas`: the
+   * pointer on the attachment and on its controls changed nothing a reader
+   * could see. The system's own pair answers instead, as it does for
+   * `upload`'s controls, and the failed attachment keeps its edge.
+   */
+  @media (forced-colors: active) {
+    [data-ui-attachment][data-part-root][data-invalid] {
+      --_edge: CanvasText;
+    }
+
+    /* The doubled edge is a shadow, which forced colours remove: it comes back
+       as an outline inside the border, and a focused failed attachment draws
+       its ring double. */
+    [data-ui-attachment][data-part-root][data-invalid] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(-1 * (var(--_border-width) + var(--_invalid-edge-width)));
+    }
+
+    [data-ui-attachment][data-part-root][data-invalid]:has(
+        > [data-part-body] > [data-part-trigger]:focus-visible
+      ) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(--slotted-focus-ring-offset, 2px);
+    }
+
+    [data-ui-attachment][data-part-root]:not([data-disabled]):not([data-loading]):has(
+        > [data-part-body] > [data-part-trigger]:is(:hover, :active)
+      ) {
+      border-color: Highlight;
+    }
+
+    [data-ui-attachment] [data-part-preview] {
+      border: var(--_border-width) solid ButtonBorder;
+    }
+
+    [data-ui-attachment]
+      :is([data-part-action], [data-part-remove]):not(:disabled):not([aria-disabled='true']):is(
+        :hover,
+        :active
+      ) {
+      background-color: Highlight;
+      color: HighlightText;
+    }
+  }
+}

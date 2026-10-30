@@ -1,0 +1,848 @@
+@layer slotted.components {
+  /**
+   * The persistent list of what happened while the reader was not looking.
+   *
+   *   ┌──────────────────────────────────────────────────────┐
+   *   │ header ▸ title (count) · mark-all · actions          │
+   *   ├──────────────────────────────────────────────────────┤
+   *   │ views ▸ tabs (list only)                             │
+   *   ├──────────────────────────────────────────────────────┤
+   *   │ fresh ▸ "3 new notifications"                        │
+   *   │ feed ▸ (group ▸ group-label ·) item …                │
+   *   │   item ▸ unread · visual · content ▸ title           │
+   *   │                                     description      │
+   *   │                                     time · actions   │
+   *   │                          controls ▸ read-toggle ·    │
+   *   │                                     dismiss          │
+   *   │ more                                                 │
+   *   │ empty                                                │
+   *   ├──────────────────────────────────────────────────────┤
+   *   │ footer                                               │
+   *   └──────────────────────────────────────────────────────┘
+   *
+   * A notification is a row with a dot, not an event on a rail: the Feed
+   * keyboard and the timestamp are `@slotted/core/timeline`'s, the paint is
+   * this family's. The tabs strip, the badge, the buttons, the skeleton and
+   * the result-state inside are theirs, reached with child combinators so a
+   * `title`, an `actions` or a `description` of theirs is never restyled.
+   */
+  [data-ui-notification-center] {
+    --_text: var(--slotted-text, CanvasText);
+    --_muted: var(--slotted-text-muted, GrayText);
+    --_rule: var(--slotted-notification-center-border, var(--slotted-border-subtle, ButtonBorder));
+    --_ground: var(--slotted-notification-center-background, var(--slotted-surface, Canvas));
+    --_hover: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+    --_active: var(--slotted-tone-secondary-subtle-active, ButtonFace);
+    /**
+     * The item's tone: the colour of the family's own visual, and the tint
+     * an unread item stands on. Accent unless the item says otherwise. The
+     * glyph the visual draws is the binding's, from the contract's `toneGlyph`.
+     */
+    --_tone-solid: var(--slotted-tone-accent-solid, Highlight);
+    --_tone-text: var(--slotted-tone-accent-text, Highlight);
+    --_tone-surface: var(--slotted-tone-accent-surface, Canvas);
+    /**
+     * An unread item stands on a wash mixed from the tone's text at the
+     * highlight share, for the reason the highlight band does: a tone's
+     * surface role is a ground and does not separate from the surface it
+     * sits on, and this wash has to be seen beside a read item on the same
+     * surface.
+     */
+    --_unread-ground: color-mix(
+      in oklab,
+      var(--_tone-text) calc(var(--slotted-highlight-tint-opacity, 0.075) * 100%),
+      transparent
+    );
+    --_inset-inline: var(
+      --slotted-notification-center-inset-inline-md,
+      var(--slotted-space-6, 1rem)
+    );
+    --_inset-block: var(
+      --slotted-notification-center-inset-block-md,
+      var(--slotted-space-5, 0.75rem)
+    );
+    --_gap: var(--slotted-notification-center-gap-md, var(--slotted-space-5, 0.75rem));
+    --_title-size: var(
+      --slotted-notification-center-title-size-md,
+      var(--slotted-font-size-lg, 1rem)
+    );
+    --_title-line-height: var(--slotted-line-height-lg, 1.5);
+    --_item-title-size: var(--slotted-font-size-md, 0.875rem);
+    --_item-title-line-height: var(--slotted-line-height-md, 1.5);
+    --_meta-size: var(--slotted-font-size-sm, 0.8125rem);
+    --_meta-line-height: var(--slotted-line-height-sm, 1.45);
+    /**
+     * The visual: the consumer's avatar at its small step, or the family's
+     * own — the tone's glyph in a tinted circle of the same size — for an
+     * item with a tone and no visual. A row with neither has no visual and
+     * the words take the column.
+     *
+     * Unread is said by the wash and the semibold title; no dot, and no
+     * fill on the visual. A dot in a column of its own read as a bullet, a
+     * disc on the title's line sat off the avatar's axis, a dot on a visual
+     * that already carries the tone said the tone twice, and a solid circle
+     * shouted beside the avatars around it.
+     */
+    --_visual: var(--slotted-avatar-size-sm, 28px);
+    --_visual-glyph: calc(var(--_visual) * 6 / 7);
+    /** A count beside words: a chip a step below the meta size, on the sunken surface. */
+    --_count-size: var(--slotted-font-size-xs, 0.75rem);
+    --_count-box: calc(
+      var(--_count-size) + 2 * var(--slotted-space-1, 0.125rem) + 2 *
+        var(--slotted-border-width-thin, 1px)
+    );
+    /** The family's own icon controls: the glyph at the small control step, the box capped by the inner-control scale. */
+    --_glyph: var(--slotted-control-icon-size-sm, 14px);
+    --_control: min(
+      calc(var(--_glyph) + 2 * var(--slotted-space-2, 0.25rem)),
+      var(--slotted-control-inner-size-md, 24px)
+    );
+    --_rule-size: var(--slotted-border-width-thin, 1px);
+    --_duration: var(--slotted-control-transition-duration);
+    --_easing: var(--slotted-control-transition-easing);
+    /**
+     * The feed's bar, where a host bounds the feed: the thumb at the strong
+     * border step, as `scroll-area` and `app-shell` draw it; the track the
+     * centre's own ground, so a groove does not stand beside the rows.
+     */
+    --_scrollbar-thumb: var(
+      --slotted-notification-center-scrollbar-thumb-color,
+      var(--slotted-border-strong, ButtonBorder)
+    );
+    --_scrollbar-track: var(--slotted-notification-center-scrollbar-track-color, transparent);
+
+    background-color: var(--_ground);
+    color: var(--_text);
+    container-name: notification-center;
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    min-inline-size: 0;
+  }
+
+  /** In the popover: the small control step, tighter insets, a smaller title. */
+  /**
+   * The popover's step. A root with inline-size containment contributes no
+   * intrinsic width, so inside a panel sized to its content — a popover — it
+   * would collapse to nothing; `sm` states a floor, capped by the viewport
+   * for a phone, and `100%` keeps it filling a host that has a width.
+   */
+  [data-ui-notification-center][data-size='sm'] {
+    min-inline-size: var(
+      --slotted-notification-center-min-inline-size-sm,
+      min(22rem, calc(100vw - var(--slotted-space-8, 2rem)))
+    );
+    --_inset-inline: var(
+      --slotted-notification-center-inset-inline-sm,
+      var(--slotted-space-5, 0.75rem)
+    );
+    --_inset-block: var(
+      --slotted-notification-center-inset-block-sm,
+      var(--slotted-space-4, 0.5rem)
+    );
+    --_gap: var(--slotted-notification-center-gap-sm, var(--slotted-space-4, 0.5rem));
+    --_title-size: var(
+      --slotted-notification-center-title-size-sm,
+      var(--slotted-font-size-md, 0.875rem)
+    );
+    --_title-line-height: var(--slotted-line-height-md, 1.5);
+    --_item-title-size: var(--slotted-font-size-sm, 0.8125rem);
+    --_item-title-line-height: var(--slotted-line-height-sm, 1.45);
+    --_meta-size: var(--slotted-font-size-xs, 0.75rem);
+    --_meta-line-height: var(--slotted-line-height-xs, 1.4);
+    --_control: min(
+      calc(var(--_glyph) + 2 * var(--slotted-space-2, 0.25rem)),
+      var(--slotted-control-inner-size-sm, 22px)
+    );
+    --_visual: var(--slotted-avatar-size-xs, 24px);
+    --_visual-glyph: calc(var(--_visual) * 6 / 7);
+  }
+
+  /* ── The header ──────────────────────────────────────────────────────── */
+
+  /**
+   * The title pushes the rest to the end; a control that wraps lands at the
+   * end of its own line, under the one before it, not at the start.
+   */
+  [data-ui-notification-center] > [data-part-header] {
+    align-items: center;
+    border-block-end: var(--_rule-size) solid var(--_rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-3, 0.375rem) var(--_gap);
+    justify-content: flex-end;
+    min-inline-size: 0;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+  }
+
+  [data-ui-notification-center] > [data-part-header] > [data-part-title] {
+    align-items: center;
+    color: var(--_text);
+    display: inline-flex;
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--_title-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    gap: var(--slotted-space-3, 0.375rem);
+    letter-spacing: -0.01em;
+    line-height: var(--_title-line-height);
+    margin: 0;
+    margin-inline-end: auto;
+    min-inline-size: 0;
+  }
+
+  /**
+   * A count beside words — the unread total after the title, the size of a
+   * view in its tab: a chip on the type scale's smallest step, in tabular
+   * figures, on the sunken surface so it reads as a figure and not as a
+   * status. On the header it takes the accent pair, because what it counts
+   * is what waits.
+   */
+  /** One measure for both dimensions: a single digit is a circle, two digits a pill. */
+  [data-ui-notification-center] [data-part-count] {
+    align-items: center;
+    background-color: var(--slotted-surface-sunken, Canvas);
+    block-size: var(--_count-box);
+    border-radius: var(--slotted-radius-full, 9999px);
+    border: var(--slotted-border-width-thin, 1px) solid
+      color-mix(in oklab, currentcolor 20%, transparent);
+    box-sizing: border-box;
+    color: var(--_muted);
+    display: inline-flex;
+    font-size: var(--_count-size);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    justify-content: center;
+    line-height: 1;
+    min-inline-size: var(--_count-box);
+    padding-block: 0;
+    padding-inline: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-notification-center] > [data-part-header] > [data-part-title] > [data-part-count] {
+    background-color: var(--slotted-tone-accent-surface, Canvas);
+    color: var(--slotted-tone-accent-text, Highlight);
+  }
+
+  /** The slot a Button sits in, pushed to the end of the row; the consumer's actions after it. */
+  [data-ui-notification-center] > [data-part-header] > [data-part-mark-all] {
+    display: inline-flex;
+  }
+
+  /** The consumer's controls read at the row's meta size: a link beside a small button, not beside the title. */
+  [data-ui-notification-center] > [data-part-header] > [data-part-actions] {
+    align-items: center;
+    display: inline-flex;
+    font-size: var(--_meta-size);
+    gap: var(--slotted-control-gap-sm, 6px);
+    line-height: var(--_meta-line-height);
+  }
+
+  /* ── The views ───────────────────────────────────────────────────────── */
+
+  /**
+   * The strip sits on the header's rule, so the tabs family's own track is
+   * off (`track="none"`) and the marker lands on the line the header drew.
+   */
+  [data-ui-notification-center] > [data-part-views] {
+    border-block-end: var(--_rule-size) solid var(--_rule);
+    min-inline-size: 0;
+    padding-inline: var(--_inset-inline);
+  }
+
+  /* ── Fresh and more ──────────────────────────────────────────────────── */
+
+  /**
+   * Two things that are not notifications: the held arrivals, and the end of
+   * what has been loaded. Both are family-drawn pills on the control scale,
+   * the idiom `timeline` set for the same two controls; `fresh` in the accent
+   * pair so it reads as something new, `more` in the secondary.
+   */
+  [data-ui-notification-center] > [data-part-fresh],
+  [data-ui-notification-center] > button[data-part-more] {
+    align-items: center;
+    appearance: none;
+    background-color: var(--_ground);
+    border: var(--_rule-size) solid var(--_rule);
+    border-radius: var(--slotted-radius-full, 9999px);
+    color: var(--_text);
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-size: var(--_meta-size);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    gap: var(--slotted-control-gap-sm, 6px);
+    inline-size: fit-content;
+    justify-content: center;
+    line-height: var(--slotted-control-line-height, 1);
+    margin-block: var(--_inset-block);
+    margin-inline: auto;
+    min-block-size: var(--slotted-control-height-sm, 30px);
+    padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    transition:
+      background-color var(--_duration) var(--_easing),
+      border-color var(--_duration) var(--_easing),
+      color var(--_duration) var(--_easing);
+  }
+
+  [data-ui-notification-center] > [data-part-fresh] {
+    background-color: var(--slotted-tone-accent-surface, Canvas);
+    border-color: var(--slotted-tone-accent-border, Highlight);
+    color: var(--slotted-tone-accent-text, Highlight);
+  }
+
+  [data-ui-notification-center] > [data-part-fresh]:enabled:hover {
+    background-color: var(--slotted-tone-accent-subtle-hover, Canvas);
+  }
+
+  [data-ui-notification-center] > [data-part-fresh]:enabled:active {
+    background-color: var(--slotted-tone-accent-subtle-active, Canvas);
+  }
+
+  [data-ui-notification-center] > button[data-part-more]:enabled:hover {
+    background-color: var(--_hover);
+  }
+
+  [data-ui-notification-center] > button[data-part-more]:enabled:active {
+    background-color: var(--_active);
+  }
+
+  [data-ui-notification-center] > button[data-part-more]:disabled {
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: default;
+  }
+
+  /** Under growing=scroll the sentinel is a box the observer watches, and it says it is waiting. */
+  [data-ui-notification-center] > div[data-part-more] {
+    color: var(--_muted);
+    font-size: var(--_meta-size);
+    line-height: var(--_meta-line-height);
+    min-block-size: var(--slotted-space-6, 1rem);
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    text-align: center;
+  }
+
+  [data-ui-notification-center] > [data-part-fresh]:focus-visible,
+  [data-ui-notification-center] > button[data-part-more]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── The feed ────────────────────────────────────────────────────────── */
+
+  /**
+   * The one part that gives way. A host with a height — the popover under the
+   * bell, whose panel is bounded by the room the positioner reports — bounds
+   * the feed alone: the header, the views and the footer keep their rows and
+   * the feed scrolls between them, which is what GitHub's and Linear's inboxes
+   * do. A host with no height, a page, gets the whole feed and no bar. The bar
+   * is `scroll-area`'s: a reserved gutter so the rows do not move when the
+   * feed grows past the panel, the thin platform bar, the family's ink on it.
+   */
+  [data-ui-notification-center] > [data-part-feed] {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-block-size: 0;
+    min-inline-size: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: var(--_scrollbar-thumb) var(--_scrollbar-track);
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+  }
+
+  /** The footer draws its own rule above, so the last row gives up the one below it: one seam, not two. */
+  [data-ui-notification-center]
+    > [data-part-feed]:has(+ [data-part-footer])
+    > [data-part-item]:last-child,
+  [data-ui-notification-center]
+    > [data-part-feed]:has(+ [data-part-footer])
+    > [data-part-group]:last-child
+    > [data-part-item]:last-child {
+    border-block-end: 0;
+  }
+
+  [data-ui-notification-center] > [data-part-feed] > [data-part-group] {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  /**
+   * A group's heading: an overline in the muted text, on the feed's inset, so
+   * the groups read as one list with dates between rather than as boxes.
+   */
+  [data-ui-notification-center] > [data-part-feed] > [data-part-group] > [data-part-group-label] {
+    color: var(--_muted);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    letter-spacing: 0.06em;
+    line-height: var(--slotted-line-height-xs, 1.4);
+    margin: 0;
+    padding-block: var(--_inset-block) var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_inset-inline);
+    text-transform: uppercase;
+  }
+
+  /* ── An item ─────────────────────────────────────────────────────────── */
+
+  /**
+   * One row: the visual, the content, the two controls at the end. A rule under each, so a list of forty reads as
+   * rows and not as a column of cards. The visual, the title's first line
+   * and the controls are centred on one axis.
+   */
+  [data-ui-notification-center] > [data-part-feed] [data-part-item] {
+    align-items: flex-start;
+    border-block-end: var(--_rule-size) solid var(--_rule);
+    display: grid;
+    gap: 0 var(--slotted-space-4, 0.5rem);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    min-inline-size: 0;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    position: relative;
+    transition: background-color var(--_duration) var(--_easing);
+  }
+
+  [data-ui-notification-center] > [data-part-feed] [data-part-item][data-tone='secondary'] {
+    --_tone-solid: var(--slotted-tone-secondary-solid, ButtonText);
+    --_tone-text: var(--slotted-tone-secondary-text, ButtonText);
+    --_tone-surface: var(--slotted-tone-secondary-surface, Canvas);
+  }
+  [data-ui-notification-center] > [data-part-feed] [data-part-item][data-tone='success'] {
+    --_tone-solid: var(--slotted-tone-success-solid, ButtonText);
+    --_tone-text: var(--slotted-tone-success-text, ButtonText);
+    --_tone-surface: var(--slotted-tone-success-surface, Canvas);
+  }
+
+  [data-ui-notification-center] > [data-part-feed] [data-part-item][data-tone='info'] {
+    --_tone-solid: var(--slotted-tone-info-solid, ButtonText);
+    --_tone-text: var(--slotted-tone-info-text, ButtonText);
+    --_tone-surface: var(--slotted-tone-info-surface, Canvas);
+  }
+  [data-ui-notification-center] > [data-part-feed] [data-part-item][data-tone='warning'] {
+    --_tone-solid: var(--slotted-tone-warning-solid, ButtonText);
+    --_tone-text: var(--slotted-tone-warning-text, ButtonText);
+    --_tone-surface: var(--slotted-tone-warning-surface, Canvas);
+  }
+  [data-ui-notification-center] > [data-part-feed] [data-part-item][data-tone='danger'] {
+    --_tone-solid: var(--slotted-tone-danger-solid, ButtonText);
+    --_tone-text: var(--slotted-tone-danger-text, ButtonText);
+    --_tone-surface: var(--slotted-tone-danger-surface, Canvas);
+  }
+
+  /** Unread stands on the wash; read stands on the surface. The dot says the same thing a second way. */
+  [data-ui-notification-center] > [data-part-feed] [data-part-item]:not([data-read]) {
+    background-color: var(--_unread-ground);
+  }
+
+  /**
+   * The row answers the pointer as a row does, and the guard is the
+   * vocabulary's: an item is never disabled, and the rule says so where the
+   * states test looks.
+   */
+  [data-ui-notification-center] > [data-part-feed] [data-part-item]:not([data-disabled]):hover {
+    background-color: var(--_hover);
+  }
+
+  /**
+   * The article is in the tab sequence, which is where PageDown lands. Its
+   * ring is drawn inward, because the rows touch and an outward ring would be
+   * cut by the neighbours.
+   */
+  [data-ui-notification-center] > [data-part-feed] [data-part-item]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-notification-center] > [data-part-feed] [data-part-item] > [data-part-visual] {
+    align-items: center;
+    display: flex;
+    grid-column: 1;
+    justify-content: center;
+    min-inline-size: 0;
+  }
+
+  /** Without a visual the words take the column. */
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]:not(:has(> [data-part-visual]))
+    > [data-part-content] {
+    grid-column: 1 / 3;
+  }
+
+  /**
+   * The family's visual: the tone's glyph, filled. Every tone glyph but the
+   * bell is a ring with a mark in it, and the ring is what the visual is
+   * bounded by: the tone's surface is painted as a disc under the glyph,
+   * with the radius the ring is drawn at on the icon grid — ten units of
+   * twenty-four — so the ring is the disc's own edge and the mark stands
+   * inside it. The disc and the glyph are two pseudo-elements on one box,
+   * the same size at the same place, so the two are concentric by
+   * construction. What stood here before was a disc with an edge of its own
+   * and a smaller ringed glyph on top — a circle drawn inside a circle —
+   * and at a zoom or a density where the two rounded to different pixels
+   * the inner one sat visibly off centre. A bare glyph, tried in between,
+   * read as a coloured mark left loose in the column.
+   *
+   * The glyph is the size the avatar beside it is, less the step the icon
+   * grid keeps clear, so the filled ring is the avatar's own diameter. The
+   * wrapper carries the tone only when the item states one; a wrapper a
+   * consumer's template left empty on an untoned item is withdrawn, so the
+   * words keep the column.
+   *
+   * The binding renders the tone's glyph in an icon box marked
+   * `data-tone-glyph`, which is what tells the family's visual from an icon
+   * the consumer put there. The disc is the wrapper's own background, centred
+   * on the box the glyph is centred in, so the two stay concentric.
+   */
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-visual]:empty:not([data-tone]) {
+    display: none;
+  }
+
+  /**
+   * The disc: the ring's own radius on the grid, less a half unit so the
+   * fill stops under the stroke rather than beside it, cut in lengths
+   * rather than percentages of the ray (Chrome paints a `calc(100% - …)`
+   * stop as a ramp several pixels wide).
+   */
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-visual][data-tone]:has(> [data-tone-glyph]) {
+    --slotted-icon-size: var(--_visual-glyph);
+
+    align-items: center;
+    background-image: radial-gradient(
+      circle,
+      var(--_tone-surface) calc(var(--_visual-glyph) * 9.5 / 24 - 0.5px),
+      transparent calc(var(--_visual-glyph) * 9.5 / 24 + 0.5px)
+    );
+    block-size: var(--_visual);
+    color: var(--_tone-text);
+    display: flex;
+    inline-size: var(--_visual);
+    justify-content: center;
+  }
+
+  /**
+   * The content's type is the title's, so `1lh` here is the title's first
+   * line and the offset centres that line on the visual — a visual taller
+   * than the line pushes the words down, never the other way.
+   */
+  [data-ui-notification-center] > [data-part-feed] [data-part-item] > [data-part-content] {
+    display: flex;
+    flex-direction: column;
+    font-size: var(--_item-title-size);
+    gap: var(--slotted-space-1, 0.125rem);
+    grid-column: 2;
+    line-height: var(--_item-title-line-height);
+    margin-block-start: max(0px, calc((var(--_visual) - 1lh) / 2));
+    min-inline-size: 0;
+  }
+
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-content]
+    > [data-part-title] {
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--slotted-notification-center-title-clamp, 2);
+    color: var(--_text);
+    display: -webkit-box;
+    font-size: var(--_item-title-size);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    line-height: var(--_item-title-line-height);
+    margin: 0;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+  }
+
+  /** Unread says so with weight as well as with the dot and the wash. */
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]:not([data-read])
+    > [data-part-content]
+    > [data-part-title] {
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  /**
+   * A title that is a link covers the row: the press anywhere on the item
+   * opens the thing, and the controls stand above it so they take their own
+   * press. The ring stays on the article, which is what has focus.
+   */
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-content]
+    > a[data-part-title]::after {
+    content: '';
+    inset: 0;
+    position: absolute;
+  }
+
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-content]
+    > a[data-part-title]:not([data-disabled]):hover {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-content]
+    > a[data-part-title]:focus-visible {
+    outline: none;
+  }
+
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-content]
+    > [data-part-description] {
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--slotted-notification-center-description-clamp, 3);
+    color: var(--_muted);
+    display: -webkit-box;
+    font-size: var(--_meta-size);
+    line-height: var(--_meta-line-height);
+    margin: 0;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-content]
+    > [data-part-time] {
+    color: var(--_muted);
+    font-size: var(--_meta-size);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--_meta-line-height);
+  }
+
+  /** The consumer's controls for the item, above the covering link. */
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-content]
+    > [data-part-actions] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-control-gap-sm, 6px);
+    margin-block-start: var(--slotted-space-2, 0.25rem);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── The family's controls ───────────────────────────────────────────── */
+
+  [data-ui-notification-center] > [data-part-feed] [data-part-item] > [data-part-controls] {
+    display: flex;
+    gap: var(--slotted-space-1, 0.125rem);
+    grid-column: 3;
+    /* Centred on the same axis as the visual. */
+    margin-block-start: max(0px, calc((var(--_visual) - var(--_control)) / 2));
+    position: relative;
+    z-index: 1;
+  }
+
+  /**
+   * Two icon controls the family draws itself: mark read or unread, and
+   * dismiss. Each box is the glyph plus a step of air a side, capped by the
+   * inner-control scale, and the hit area is taken to the target minimum by a
+   * transparent halo — the same construction the row's copy control in
+   * description-list uses. The binding renders the glyph: `check` while
+   * unread, `dot` while read (the control offers to mark it unread), and `x`
+   * to dismiss; the control hands its icon box the glyph size.
+   */
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-controls]
+    > button {
+    --slotted-icon-size: var(--_glyph);
+
+    align-items: center;
+    appearance: none;
+    background: none;
+    block-size: var(--_control);
+    border: 0;
+    border-radius: var(--slotted-control-radius, 4px);
+    color: var(--_muted);
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    inline-size: var(--_control);
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    transition:
+      color var(--_duration) var(--_easing),
+      background-color var(--_duration) var(--_easing);
+  }
+
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-controls]
+    > button::before {
+    /* The halo: the target minimum, centred on the box, taking the press and drawing nothing. */
+    block-size: max(var(--_control), var(--slotted-target-min, 24px));
+    content: '';
+    inline-size: max(var(--_control), var(--slotted-target-min, 24px));
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    position: absolute;
+    translate: -50% -50%;
+  }
+
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-controls]
+    > button:enabled:hover {
+    background-color: var(--_hover);
+    color: var(--_text);
+  }
+
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-controls]
+    > button:enabled:active {
+    background-color: var(--_active);
+  }
+
+  [data-ui-notification-center]
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-controls]
+    > button:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /** The `controls` axis: a product with its own triage keeps one of the two, or neither. */
+  [data-ui-notification-center][data-controls='read']
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-controls]
+    > [data-part-dismiss],
+  [data-ui-notification-center][data-controls='dismiss']
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-controls]
+    > [data-part-read-toggle],
+  [data-ui-notification-center][data-controls='none']
+    > [data-part-feed]
+    [data-part-item]
+    > [data-part-controls] {
+    display: none;
+  }
+
+  /* ── Loading, empty and the footer ───────────────────────────────────── */
+
+  /** The waiting rows are skeleton's; the family gives them the item's inset and rule, and no wash. */
+  [data-ui-notification-center] > [data-part-feed] > [data-part-item][aria-hidden] {
+    background-color: transparent;
+  }
+
+  [data-ui-notification-center] > [data-part-empty] {
+    color: var(--_muted);
+    display: grid;
+    font-size: var(--_meta-size);
+    line-height: var(--_meta-line-height);
+    min-block-size: calc(2 * var(--slotted-space-12, 4rem));
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    place-items: center;
+    text-align: center;
+  }
+
+  [data-ui-notification-center] > [data-part-footer] {
+    align-items: center;
+    border-block-start: var(--_rule-size) solid var(--_rule);
+    display: flex;
+    font-size: var(--_meta-size);
+    gap: var(--_gap);
+    justify-content: center;
+    line-height: var(--_meta-line-height);
+    margin-block-start: auto;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+  }
+
+  /* ── Narrow ──────────────────────────────────────────────────────────── */
+
+  /**
+   * Below 320 pixels — a popover on a narrow phone — the controls drop under the
+   * content rather than squeezing it, and the header's actions wrap under
+   * the title.
+   */
+  @container notification-center (max-width: 319px) {
+    [data-ui-notification-center] > [data-part-feed] [data-part-item] {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    [data-ui-notification-center] > [data-part-feed] [data-part-item] > [data-part-controls] {
+      grid-column: 2;
+      justify-content: flex-end;
+      margin-block-start: var(--slotted-space-2, 0.25rem);
+    }
+  }
+
+  /* ── On a finger ─────────────────────────────────────────────────────── */
+
+  /**
+   * The two controls are a glyph with a step of air a side, and the halo
+   * that takes the press is the target minimum. A finger is not a pointer:
+   * the theme raises every control it owns to `--slotted-target-comfortable`
+   * under a coarse pointer, and these are the family's own, so the family
+   * raises them. The box grows rather than the halo, so two controls side by
+   * side keep their distance instead of sharing one press; the glyph stays
+   * its size. A box taller than the visual is centred on the visual's axis,
+   * which puts its top above the row's inset — the box is transparent, and
+   * the halo already reached there.
+   */
+  @media (pointer: coarse) {
+    [data-ui-notification-center] > [data-part-feed] [data-part-item] > [data-part-controls] {
+      --_control: var(--slotted-target-comfortable, 44px);
+
+      margin-block-start: calc((var(--_visual) - var(--_control)) / 2);
+    }
+  }
+
+  /* ── Forced colours ──────────────────────────────────────────────────── */
+
+  /**
+   * The glyphs are `Glyph` elements drawn in their box's ink, which the
+   * system has already forced. The count takes the highlight pair as
+   * top-navigation's does; the wash under unread is gone, so the weight
+   * carries unread.
+   */
+  @media (forced-colors: active) {
+    [data-ui-notification-center] [data-part-count] {
+      background-color: Highlight;
+      border-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+  }
+}

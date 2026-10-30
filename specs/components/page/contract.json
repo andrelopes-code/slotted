@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 5,
+  "family": "page",
+  "ui": "page",
+  "catalog": {
+    "group": "Layout",
+    "summary": "Page body with width, scroll and footer."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/",
+  "composes": ["container", "presence", "typography"],
+  "anatomy": {
+    "root": "main, or div under landmark=none. A flex column. Under scroll=ancestor it is at least as tall as the scrollport, so the footer has a bottom to stick to; under scroll=self it is exactly as tall as its parent gives it, and the scroll part is what overflows",
+    "scroll": "the box the page-header and the body live in. It is the one element a page-header may be a direct child of: a sticky element never leaves the box that contains it, so a header part exactly the header's height would pin nothing — which is why there is no header part",
+    "header": "page-header",
+    "body": "the padded column, holding one container at the page's width and inset. Under fill, 600 pixels and wider, it is a flex column with min-block-size 0 and the container stretches",
+    "footer": "the bar for the actions that finish the task. In the flow, never fixed: it takes its own height, so the last line of content scrolls up to it rather than under it",
+    "actions": "the row inside the footer's container, aligned to the end, wrapping when the width runs out. It exists because the container places each child on a row of its own, and the footer's controls belong on one"
+  },
+  "landmark": {
+    "main": "the root is a main element. One per document",
+    "none": {
+      "element": "div",
+      "reason": "a page inside a drawer, a dialog or the detail pane of a master–detail layout, where the document already has its main"
+    },
+    "reason": "The APG asks for one main landmark per page and the page is the primary content of the route, so it is the main unless the consumer says the document already has one. Sirius takes the same default with landmark=false"
+  },
+  "scroll": {
+    "ancestor": "the page lives inside whatever scrolls — the document, or the content column of an application shell. The root is min-block-size 100%, the scroll part grows, and the footer is sticky to the bottom of the root",
+    "self": "the page is the scroller. The root is block-size 100%, the scroll part is flex 1 1 auto with overflow auto, and the footer sits below it in the flow, outside the scroller, so it needs no sticky at all",
+    "default": "ancestor",
+    "reason": "sap.f.DynamicPage owns its scroller and Sirius refuses to; PatternFly makes main the scroller. Both are real situations — a document that scrolls, and a column that scrolls inside a shell — so the question is an axis and not a decision this family takes for the consumer. page-header attaches to whichever it finds"
+  },
+  "fill": {
+    "on": "at 600 pixels and wider, the body is a flex column with min-block-size 0 and the container inside it stretches to the rest of the height, for a master–detail, a splitter or a canvas that scroll their own panes. The rules sit inside @container slotted-page (width >= 600px); below it see responsive.below",
+    "header": "the page-header is given the body as contained (@slotted/core/sticky-header): the body's principal scroller scrolling down past 16 pixels snaps the header area shut with the reason scroll, and the same scroller back at its top opens it again. Principal means not a form control and at least half the body's client block size, as page-header's snapDetection.contained defines it, so a textarea or a short scroll area in the body never moves the header. A collapse by the toggle or the application is not undone by that return. Fiori's Dynamic Page snaps on the content's scroll the same way",
+    "cost": "with scroll=self and fill, the body is exactly the height it has and nothing scrolls outside it, so only a scroller inside the body moves the header. sap.f.fitContent drops the snap there and does not record it"
+  },
+  "responsive": {
+    "container": "slotted-page",
+    "compact": "600px",
+    "below": "every container in the page with inset 5 to 12 takes step 4 of the space scale as its inset. fill does not apply: the body grows with its content and the page scrolls as a page without fill does, under either scroll value, and the page-header is in the flow and scrolls away with it (page-header compact). A data-grid in the body without a block-size of its own grows to its rows and windows nothing, the data-grid contract's rootReason; a server-paged grid holds one page of rows. A child that took its height from the stretched container — flex-basis 0 in a column, or block-size 100% — has no definite height to take there and collapses to its minimum block size, 0 pixels for a grid under flex: 1 1 0 and min-block-size 0 in headless Chrome at 375 pixels; flex: 1 1 auto fills the stretched column at 600 pixels and wider and is the content's height below. Measured on a 375 by 667 phone, the chrome above a filled list left its rows 155 pixels, 23 per cent of the screen"
+  },
+  "ground": {
+    "sunken": "--slotted-surface-sunken: the canvas of an application, where cards and tables separate from the page",
+    "surface": "--slotted-surface: the ground of a document page, where the content is the page",
+    "reason": "sap.m.PageBackgroundDesign has four values and Ant has ghost; the foundation has two page surfaces, and a third would be a value no token holds"
+  },
+  "footer": {
+    "position": "sticky",
+    "label": "messages.footer",
+    "presence": "mounted only while the consumer renders it, and held through its exit by @slotted/core/presence so the bar slides out rather than vanishing. sap.f animates showFooter both ways",
+    "reason": "sticky and not fixed: a fixed bar covers the last line of content and every implementation that uses one then pads the body by a magic number. A sticky footer takes its height in the flow"
+  },
+  "loading": "data-loading on the root and aria-busy=true on the body. The body draws no placeholder of its own: each family inside draws its own, and page-header draws the title's",
+  "runtime": {
+    "--slotted-page-sticky-top": {
+      "writer": "page-header",
+      "target": "the nearest scroll container, or the document element",
+      "value": "the height of the chrome that stays at the top: the title area and the tabs, plus the header area while it is pinned or re-opened in place; 0px below the compact size class, where the page-header is in the flow"
+    },
+    "--slotted-page-sticky-bottom": {
+      "writer": "page",
+      "target": "the nearest scroll container, or the document element",
+      "value": "the footer's height while it is mounted, under scroll=ancestor; 0px under scroll=self, where the footer is outside the scroller"
+    },
+    "--slotted-page-scrollport-block-size": {
+      "writer": "page",
+      "target": "the nearest scroll container, or the document element",
+      "value": "the visible block size of what scrolls the page: the scroll container's clientHeight under scroll=ancestor, the page's own scroll part under scroll=self. Under an app-shell whose canvas is inset the scroller is shorter than the viewport, so a consumer's sticky element caps its height by this and not by 100dvh"
+    }
+  },
+  "bridge": {
+    "--slotted-table-sticky-offset": "--slotted-page-sticky-top",
+    "--slotted-table-sticky-offset-end": "--slotted-page-sticky-bottom"
+  },
+  "bridgeReason": "The page is the only element that knows where its fixed chrome ends, and table with stickyTo=page has to stop under it. The bridge is written on the page root, so every table inside a page stops below the header without the consumer writing two lines. Cost: a theme that sets --slotted-table-sticky-offset for the whole application loses it inside a page. Recorded in docs/build-briefing.md under Decisions already taken",
+  "heading": {
+    "provider": "typography",
+    "body": "+1",
+    "reason": "typography owns the outline: HeadingLevel steps it by one. The page wraps its body in one step, so a section placed directly in the page takes h2 under the page-header's h1 without either family reading the other"
+  },
+  "messages": ["footer"],
+  "declined": {
+    "breakpointEvent": {
+      "reason": "sap.f.breakpointChange reports the media range. The family answers its own width with a container query, and a consumer who needs the number writes a three-line ResizeObserver on the root"
+    },
+    "headerPart": {
+      "reason": "See anatomy.scroll: a wrapper the header's height would keep the sticky title from ever sticking. The header is the page-header family as the first child of the scroll part"
+    },
+    "ownMeasure": {
+      "deferTo": "container",
+      "reason": "Measure belongs to container and to it alone. The width axis names the container's own sizes and is passed to the container the body renders"
+    },
+    "fixedFooter": {
+      "reason": "A fixed footer covers content and needs a padding no token explains. Sticky takes its height in the flow"
+    }
+  },
+  "axes": {
+    "width": ["measure", "content", "wide", "full", "bleed"],
+    "inset": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+    "scroll": ["ancestor", "self"],
+    "fill": [false, true],
+    "ground": ["sunken", "surface"],
+    "landmark": ["main", "none"]
+  },
+  "resolution": {
+    "width": ["prop", "defaults", "wide"],
+    "inset": ["prop", "defaults", "6"],
+    "scroll": ["prop", "defaults", "ancestor"],
+    "ground": ["prop", "defaults", "sunken"],
+    "landmark": ["prop", "defaults", "main"]
+  },
+  "provides": {
+    "pageDefaults": ["width", "inset", "scroll", "ground", "landmark"]
+  },
+  "stateAttributes": {
+    "loading": "data-loading"
+  },
+  "members": {
+    "page": {
+      "nativeElement": "main",
+      "defaults": {
+        "width": "wide",
+        "inset": "6",
+        "scroll": "ancestor",
+        "fill": false,
+        "ground": "sunken",
+        "landmark": "main",
+        "loading": false
+      },
+      "capabilities": ["appearance", "loading", "wiring"],
+      "states": ["default", "loading"],
+      "parts": ["root", "scroll", "body", "footer", "actions"]
+    }
+  },
+  "scenarios": {
+    "page": [
+      "playground",
+      "width",
+      "scroll",
+      "fill",
+      "ground",
+      "footer",
+      "loading",
+      "composition",
+      "defaults",
+      "accessibility"
+    ]
+  }
+}

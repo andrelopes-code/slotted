@@ -1,0 +1,53 @@
+{
+  "name": "@slotted/angular",
+  "version": "0.1.0-beta.29",
+  "description": "Slotted UI components for Angular, one secondary entry point per family.",
+  "keywords": [
+    "slotted",
+    "angular",
+    "ui",
+    "components",
+    "design-system",
+    "accessibility"
+  ],
+  "homepage": "https://github.com/andrelopes-code/slotted/tree/main/packages/angular#readme",
+  "bugs": "https://github.com/andrelopes-code/slotted/issues",
+  "author": "André Lopes",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrelopes-code/slotted.git",
+    "directory": "packages/angular"
+  },
+  "type": "module",
+  "publishConfig": {
+    "directory": "dist"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "ng build slotted-angular && node ../../tools/agent-docs/bin/build.mjs --binding angular --out dist/docs",
+    "test": "ng test slotted-angular --watch=false && pnpm build && node --test src/bundle.styles.test.mjs src/bundle.boundaries.test.mjs src/entry-points.source.test.mjs",
+    "typecheck": "ng build slotted-angular --configuration development",
+    "verify": "pnpm test && pnpm build"
+  },
+  "peerDependencies": {
+    "@angular/common": ">=22.1.0 <23",
+    "@angular/core": ">=22.1.0 <23",
+    "@angular/forms": ">=22.1.0 <23",
+    "@slotted/core": "workspace:*",
+    "@slotted/theme": "workspace:*"
+  },
+  "devDependencies": {
+    "@angular/router": "22.1.7",
+    "@ng-icons/core": "35.0.1",
+    "@ng-icons/lucide": "35.0.1",
+    "@slotted/agent-docs": "workspace:*",
+    "@slotted/core": "workspace:*",
+    "@slotted/storybook-workbench": "workspace:*",
+    "@slotted/styles": "workspace:*",
+    "@slotted/theme": "workspace:*",
+    "@storybook/angular-vite": "10.5.10",
+    "marked": "18.0.5",
+    "storybook": "10.5.10"
+  }
+}

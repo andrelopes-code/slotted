@@ -1,0 +1,488 @@
+@layer slotted.components {
+  /**
+   * A scrollport, and the box that frames it.
+   *
+   * The scrollbar is the platform's. Radix, Base UI, Zag, Chakra and Mantine
+   * all hide the native bar — `scrollbar-width: none` plus a
+   * `::-webkit-scrollbar` rule — and redraw it from a thumb element kept in
+   * sync by a scroll listener and a `ResizeObserver`. That costs the trough
+   * click, the scrollbar context menu, the system's own overlay behaviour, and
+   * the correct bar before hydration or without JavaScript.
+   * `docs/component-features.md` §4 asks for the opposite in this family's own
+   * sentence, and `scrollbar-color` reached Baseline in December 2025, so the
+   * themed bar no longer needs a thumb of the library's own. What that costs is
+   * written in `specs/components/scroll-area/contract.json`, field `scrollbar`.
+   *
+   * There is no APG pattern. The keyboard is the platform's too: a focused
+   * scrollport answers the arrows, the page keys, `Home`, `End` and `Space` on
+   * its own. What the family adds is the tab stop that makes those reachable,
+   * and the name that tab stop owes — and both live in the bindings, because
+   * both are conditional on a measurement CSS cannot make.
+   *
+   * ── Why the frame and the scrollport are two elements ───────────────────
+   *
+   * They were one, and the first capture is what refused it. The affordance is
+   * a mask, and a mask applies to everything the element paints — its border
+   * included. A bounded region with a border round it is the commonest shape
+   * this family has, and the veil took the top and bottom of that border with
+   * the content: three boxes in one capture had a crisp border down both sides
+   * and no border at all across the ends, which reads as a rendering fault
+   * rather than as an affordance.
+   *
+   * Nothing can be excluded from a mask — `mask-clip` moves where the mask is
+   * painted and never what it covers — so the frame has to be on an element the
+   * mask is not on. `root` is that element: it holds the border, the radius and
+   * the maximum, and `viewport` inside it holds the scroll and the veil.
+   */
+  [data-ui-scroll-area] {
+    /**
+     * How far the veil reaches in from an edge that has content behind it.
+     *
+     * Capped against the box, which is the construction `splitter` already uses
+     * for its own gaps: a fixed reach is a fifth of a tall panel and a third of
+     * a short one, and at a third the affordance stops being a hint and starts
+     * being a hole. A percentage inside a gradient resolves against that
+     * gradient's own axis, so one declaration caps both.
+     *
+     * It does not vary by density, and that is a decision rather than an
+     * omission: nothing this family draws is a control, and the one thing it
+     * does draw is a veil over the consumer's own content. Scaling it with
+     * density would change how much content is hidden rather than how much
+     * space is used, and the content inside already answers density through the
+     * tokens its own families read.
+     */
+    --_fade: min(var(--slotted-scroll-area-fade-size, var(--slotted-space-8, 1.5rem)), 20%);
+
+    /**
+     * The thumb takes the **strong** border step, which is the step the
+     * foundation holds to 3:1 against every surface a control can sit on — a
+     * scrollbar is a non-text element and that is its floor. The track takes
+     * the sunken surface, which is what a groove is: the page, one step back.
+     */
+    --_thumb: var(--slotted-scroll-area-thumb-color, var(--slotted-border-strong, ButtonBorder));
+    --_track: var(--slotted-scroll-area-track-color, var(--slotted-surface-sunken, Canvas));
+
+    /**
+     * One cell, so the scrollport takes whatever the consumer gave the box and
+     * nothing more. `min-block-size: 0` on both is what lets it: a grid item's
+     * automatic minimum is its content, and without the override a scrollport
+     * inside a bounded box grows to its content and scrolls nothing.
+     *
+     * The family paints no frame of its own. A border, a radius and a ground
+     * are the consumer's, and they go here — on the element the mask is not on.
+     */
+    display: grid;
+    box-sizing: border-box;
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+
+  [data-ui-scroll-area] > [data-part-viewport] {
+    /**
+     * One length per logical edge: the veil's reach where that end of the
+     * content is out of view, and nothing where it is showing.
+     *
+     * The resting value is the reach and the attribute *removes* it, because
+     * `data-at-block-start` says the reader can see that end — so the rule that
+     * paints is the plain one and the rule that clears is the qualified one,
+     * and no selector needs `:not()`.
+     */
+    --_scroll-area-fade-block-start: var(--_fade);
+    --_scroll-area-fade-block-end: var(--_fade);
+    --_scroll-area-fade-inline-start: var(--_fade);
+    --_scroll-area-fade-inline-end: var(--_fade);
+
+    /**
+     * The same four, mapped to the axes a gradient can actually be given. CSS
+     * has no logical gradient direction and no logical `mask-position`, so the
+     * mapping is written here once instead of in four rules.
+     */
+    --_fade-top: var(--_scroll-area-fade-block-start);
+    --_fade-bottom: var(--_scroll-area-fade-block-end);
+    --_fade-left: var(--_scroll-area-fade-inline-start);
+    --_fade-right: var(--_scroll-area-fade-inline-end);
+
+    box-sizing: border-box;
+    min-block-size: 0;
+    min-inline-size: 0;
+
+    /**
+     * The root is where a consumer's radius goes, and the scrollport is what
+     * clips: without this the content ran square into a rounded frame, and so
+     * did the veil.
+     */
+    border-radius: inherit;
+
+    /**
+     * `stable` rather than `auto` by default: content that jumps sideways the
+     * moment it grows past its box is the defect `scrollbar-gutter` was added
+     * for, and it is the one Mantine approximates with padding.
+     */
+    scrollbar-gutter: stable;
+
+    /**
+     * A bounded region whose last inch of scroll moves the page behind it is
+     * the other defect the platform named. `contain` is the default here and
+     * opt-in in Mantine; the remaining two values are the consumer's.
+     */
+    overscroll-behavior: contain;
+
+    /**
+     * `thin` rather than `auto`, and it is still the platform's bar: the trough
+     * click, the scrollbar context menu and the system's own behaviour all
+     * survive it. What it drops is the pair of stepper buttons Chrome draws on
+     * Linux and Windows once a scrollbar is themed at all — read in the first
+     * capture with a bar visible, they took thirty-two pixels off a hundred and
+     * seventy-six-pixel panel and read as a control from another decade beside
+     * the rest of the library. Every surveyed implementation draws its bar at
+     * about this width.
+     *
+     * A product that wants the system's full-width bar writes
+     * `scrollbar-width: auto` on the part; it is one declaration, and the
+     * reference page carries it.
+     */
+    scrollbar-width: thin;
+    scrollbar-color: var(--_thumb) var(--_track);
+
+    /**
+     * The veil, and the whole of the affordance.
+     *
+     * Four edges need more than the two pseudo-elements a box has, and a
+     * pseudo-element positioned inside a scrollport scrolls away with the
+     * content. A mask applies to the border box and stays.
+     *
+     * It is a mask rather than a gradient for the reason `table` wrote when it
+     * refused one: a gradient over the content has to be the colour of the
+     * ground beneath it, so it is wrong on every surface but one and in every
+     * scheme but one. A mask fades the content to transparent and needs no ink
+     * at all — `#000` here is alpha 1, not a colour decision.
+     *
+     * One layer per physical axis, each fading both of its ends, composed with
+     * `intersect` so the two alphas multiply at a corner.
+     */
+    mask-image:
+      linear-gradient(
+        to bottom,
+        transparent 0,
+        #000 var(--_fade-top),
+        #000 calc(100% - var(--_fade-bottom)),
+        transparent 100%
+      ),
+      linear-gradient(
+        to right,
+        transparent 0,
+        #000 var(--_fade-left),
+        #000 calc(100% - var(--_fade-right)),
+        transparent 100%
+      );
+    mask-composite: intersect;
+
+    /**
+     * The veil moves rather than appearing. A state change the eye has to
+     * follow carries a transition, and this one is the whole of the feedback
+     * that there is more behind an edge.
+     *
+     * `mask-image` is not an animatable property, so what transitions is the
+     * four lengths inside it: a registered custom property is interpolable, and
+     * `@property` is what registers one. The registrations are at the foot of
+     * this file, outside the cascade layer, where `@property` belongs.
+     */
+    transition:
+      --_scroll-area-fade-block-start var(--slotted-duration-short) var(--slotted-easing-standard),
+      --_scroll-area-fade-block-end var(--slotted-duration-short) var(--slotted-easing-standard),
+      --_scroll-area-fade-inline-start var(--slotted-duration-short) var(--slotted-easing-standard),
+      --_scroll-area-fade-inline-end var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  /**
+   * The inline axis is the one the document can turn round, and a gradient
+   * cannot be given a logical direction. So the two physical lengths swap here
+   * and nowhere else: every other rule in this sheet states the logical edge,
+   * and the mapping is corrected once.
+   *
+   * `:dir()` rather than `[dir='rtl']`, because a document may be turned round
+   * by the `direction` property with no attribute to select on — and the
+   * attribute form would then paint the veil on the edge the reader can already
+   * see.
+   */
+  [data-ui-scroll-area]:dir(rtl) > [data-part-viewport] {
+    --_fade-left: var(--_scroll-area-fade-inline-end);
+    --_fade-right: var(--_scroll-area-fade-inline-start);
+  }
+
+  /**
+   * ── Which axes scroll ──────────────────────────────────────────────────
+   *
+   * The physical pair is declared first and the logical pair after it. A
+   * browser that does not know `overflow-block` drops those two declarations
+   * and keeps the physical ones; a browser that does takes the later pair,
+   * which is the one that stays correct in a vertical writing mode. No
+   * `@supports` is needed for that — an unknown declaration is discarded at
+   * parse time and the cascade does the rest.
+   */
+  [data-ui-scroll-area][data-axis='block'] > [data-part-viewport] {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overflow-inline: hidden;
+    overflow-block: auto;
+  }
+
+  [data-ui-scroll-area][data-axis='inline'] > [data-part-viewport] {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overflow-inline: auto;
+    overflow-block: hidden;
+  }
+
+  [data-ui-scroll-area][data-axis='both'] > [data-part-viewport] {
+    overflow: auto;
+  }
+
+  /**
+   * `always` is `overflow: scroll`, which is the platform's own way of saying
+   * "reserve the bar whether or not it is needed". It is stated per axis so it
+   * does not turn a one-axis area into a two-axis one.
+   */
+  [data-ui-scroll-area][data-scrollbars='always'][data-axis='block'] > [data-part-viewport] {
+    overflow-y: scroll;
+    overflow-block: scroll;
+  }
+
+  [data-ui-scroll-area][data-scrollbars='always'][data-axis='inline'] > [data-part-viewport] {
+    overflow-x: scroll;
+    overflow-inline: scroll;
+  }
+
+  [data-ui-scroll-area][data-scrollbars='always'][data-axis='both'] > [data-part-viewport] {
+    overflow: scroll;
+  }
+
+  /**
+   * `none` removes the bar and nothing else: the content still scrolls by
+   * wheel, by touch, by keyboard and by `scrollTo`.
+   *
+   * `docs/component-features.md` §4 warns against it where the scrollbar is how
+   * the reader discovers there is more — which is why the veil is the default
+   * and why this value is worth having at all: an area with no bar and no veil
+   * says nothing.
+   */
+  [data-ui-scroll-area][data-scrollbars='none'] > [data-part-viewport] {
+    scrollbar-width: none;
+  }
+
+  /**
+   * `hover` paints the bar transparent until a pointer or the keyboard is
+   * inside. It is the CSS half of what Radix and Mantine spend a timer on, and
+   * the gutter stays reserved underneath so nothing moves when the bar appears.
+   *
+   * The `:not([data-disabled])` guard is the repository rule for every weak
+   * state — `packages/styles/src/states.test.mjs` — rather than a state this
+   * family holds: a scrollport is not a control and has no disabled form.
+   */
+  [data-ui-scroll-area][data-scrollbars='hover'] > [data-part-viewport] {
+    scrollbar-color: transparent transparent;
+    transition:
+      scrollbar-color var(--slotted-duration-short) var(--slotted-easing-standard),
+      --_scroll-area-fade-block-start var(--slotted-duration-short) var(--slotted-easing-standard),
+      --_scroll-area-fade-block-end var(--slotted-duration-short) var(--slotted-easing-standard),
+      --_scroll-area-fade-inline-start var(--slotted-duration-short) var(--slotted-easing-standard),
+      --_scroll-area-fade-inline-end var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-scroll-area][data-scrollbars='hover']:not([data-disabled]):hover > [data-part-viewport],
+  [data-ui-scroll-area][data-scrollbars='hover']:focus-within > [data-part-viewport] {
+    scrollbar-color: var(--_thumb) var(--_track);
+  }
+
+  /* ── The gutter ────────────────────────────────────────────────────────── */
+
+  [data-ui-scroll-area][data-gutter='auto'] > [data-part-viewport] {
+    scrollbar-gutter: auto;
+  }
+
+  [data-ui-scroll-area][data-gutter='both-edges'] > [data-part-viewport] {
+    scrollbar-gutter: stable both-edges;
+  }
+
+  /* ── Scroll chaining ───────────────────────────────────────────────────── */
+
+  [data-ui-scroll-area][data-overscroll='auto'] > [data-part-viewport] {
+    overscroll-behavior: auto;
+  }
+
+  [data-ui-scroll-area][data-overscroll='none'] > [data-part-viewport] {
+    overscroll-behavior: none;
+  }
+
+  /**
+   * Chaining is held back only on the axes the area scrolls. An axis it does
+   * not scroll is still an axis of a scroll container — `overflow: hidden` is
+   * one — and under `contain` Chrome kept the page's wheel inside a one-line
+   * code block. These come after the two above, so a chosen `none` holds the
+   * scrolling axis and lets the other through.
+   */
+  [data-ui-scroll-area][data-axis='inline'] > [data-part-viewport] {
+    overscroll-behavior-y: auto;
+    overscroll-behavior-block: auto;
+  }
+
+  [data-ui-scroll-area][data-axis='block'] > [data-part-viewport] {
+    overscroll-behavior-x: auto;
+    overscroll-behavior-inline: auto;
+  }
+
+  /* ── The veil, edge by edge ────────────────────────────────────────────── */
+
+  [data-ui-scroll-area][data-at-block-start] > [data-part-viewport] {
+    --_scroll-area-fade-block-start: 0px;
+  }
+
+  [data-ui-scroll-area][data-at-block-end] > [data-part-viewport] {
+    --_scroll-area-fade-block-end: 0px;
+  }
+
+  [data-ui-scroll-area][data-at-inline-start] > [data-part-viewport] {
+    --_scroll-area-fade-inline-start: 0px;
+  }
+
+  [data-ui-scroll-area][data-at-inline-end] > [data-part-viewport] {
+    --_scroll-area-fade-inline-end: 0px;
+  }
+
+  /**
+   * `end` veils only the edges there is more content *toward*. The start of a
+   * scroller holds what the reader has already passed, and a product that
+   * would rather not dim it says so here.
+   */
+  [data-ui-scroll-area][data-fade='end'] > [data-part-viewport] {
+    --_scroll-area-fade-block-start: 0px;
+    --_scroll-area-fade-inline-start: 0px;
+  }
+
+  /**
+   * No veil at all, and no mask either: a mask with nothing to hide still puts
+   * the element on its own compositing layer, and a long list pays for that on
+   * every frame.
+   */
+  [data-ui-scroll-area][data-fade='none'] > [data-part-viewport],
+  /**
+   * A vertical writing mode turns the box, and a gradient cannot be given a
+   * logical direction. Rather than veil the wrong two edges, the family veils
+   * none: the four attributes stay correct, so a consumer who wants the
+   * affordance there draws it from them. The binding writes `data-sideways`
+   * because only script can read a writing mode.
+   */
+  [data-ui-scroll-area][data-sideways] > [data-part-viewport] {
+    mask-image: none;
+  }
+
+  /* ── The inset that scrolls with the content ───────────────────────────── */
+
+  /**
+   * Padding on a scrollport is not applied at the end edge of its scrollable
+   * overflow in every engine, so an inset that has to survive a scroll to the
+   * end goes on an element inside it. The part carries one by default — the
+   * step a card's own inset takes — because nearly every area wants one and a
+   * part that only held the consumer's padding would be a part nobody used.
+   * A consumer whose content carries its own inset renders no `content` at
+   * all, or sets the token to nought.
+   *
+   * `min-inline-size: fit-content` so a row wider than the scrollport widens
+   * this box with it, and the inset survives at the far end.
+   */
+  [data-ui-scroll-area] > [data-part-viewport] > [data-part-content] {
+    box-sizing: border-box;
+    min-inline-size: fit-content;
+    padding: var(--slotted-scroll-area-inset, var(--slotted-space-5, 0.75rem));
+  }
+
+  /* ── Focus ─────────────────────────────────────────────────────────────── */
+
+  /**
+   * The scrollport is what takes focus, and the **root** is what draws the ring.
+   *
+   * Drawn on the scrollport, the ring was cut: an outline is part of what the
+   * element paints, so the veil fades it exactly where the veil is — the
+   * capture showed a ring crisp down both sides and gone across the bottom,
+   * which is a focus indicator that disappears on the edge the reader is moving
+   * toward. A focus ring is the last thing that may be half-drawn.
+   *
+   * `:has()` rather than `:focus-within`, because a link inside the content is
+   * focus *within* the area and is not the area being focused.
+   *
+   * The ring is drawn for a focus from the keyboard: a click on the content
+   * focuses the viewport too, and the next Shift would make it match
+   * `:focus-visible` (`createFocusOrigin`). The browser's own ring on the
+   * viewport is suppressed: the frame draws the one ring.
+   */
+  [data-ui-scroll-area] > [data-part-viewport]:focus {
+    outline: none;
+  }
+  [data-ui-scroll-area]:has(> [data-part-viewport]:focus-visible[data-focus-origin='keyboard']) {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── Paper ─────────────────────────────────────────────────────────────── */
+
+  /**
+   * A printed page carries the whole content, not the slice that happened to
+   * be in view. None of the five surveyed implementations answers this, and
+   * `docs/component-features.md` §4 names printing in this family's own
+   * sentence.
+   */
+  @media print {
+    [data-ui-scroll-area],
+    [data-ui-scroll-area] > [data-part-viewport] {
+      max-block-size: none;
+      max-inline-size: none;
+      overflow: visible;
+      mask-image: none;
+    }
+  }
+
+  /**
+   * The system owns the palette under forced colours, and a veil over system
+   * text is a legibility loss with nothing bought. The scrollbar goes back to
+   * the system's own, which is what `scrollbar-color: auto` means.
+   */
+  @media (forced-colors: active) {
+    [data-ui-scroll-area] > [data-part-viewport] {
+      mask-image: none;
+      scrollbar-color: auto;
+    }
+  }
+}
+
+/**
+ * The four lengths are registered so they interpolate. An unregistered custom
+ * property animates discretely — it would snap from nothing to the full reach —
+ * and `@property` is what gives one a type the browser can move through.
+ *
+ * These sit outside `@layer slotted.components` because `@property` is not a
+ * rule a cascade layer holds; it is a registration, and the layer would only
+ * hide it.
+ */
+@property --_scroll-area-fade-block-start {
+  syntax: '<length-percentage>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --_scroll-area-fade-block-end {
+  syntax: '<length-percentage>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --_scroll-area-fade-inline-start {
+  syntax: '<length-percentage>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --_scroll-area-fade-inline-end {
+  syntax: '<length-percentage>';
+  inherits: false;
+  initial-value: 0px;
+}

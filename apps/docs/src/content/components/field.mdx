@@ -1,0 +1,86 @@
+---
+title: Field
+description: Names a control, says whether it is required, and carries the description and the error a reader hears with it.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Necessity
+
+A required field draws an asterisk after its label by default, and the control carries `aria-required`, so a screen reader announces "required" and never reads the asterisk. In a form where most fields are required, set `necessity="optional"` to mark the exception instead: _(optional)_ appears on the fields a reader may skip and nothing appears on the rest. `necessity="words"` writes _(required)_ and _(optional)_ in full.
+
+<Example name="necessity" />
+
+## Label placement
+
+`labelPlacement="side"` puts the label in a column beside its control, so the labels of a settings form line up and the controls start on one edge. A description stays under the control, not under the label.
+
+<Example name="placement" wide />
+
+## Narrow containers
+
+A side label stacks above its control when the field itself is narrower than 320 pixels. The field measures its own width, not the window's, so the same field keeps its side label in a page and stacks in a two-column row, a drawer or a phone screen without a prop change.
+
+<Example name="narrow" />
+
+## Sizes
+
+`size` sets the label, the messages and the counter to the step of the control they belong to: `sm` for dense tables and toolbars, `md` for most forms, `lg` for sparse forms. The library's controls inside a field take the same size, so one prop sizes both.
+
+<Example name="sizes" />
+
+## States
+
+`invalid` sets `aria-invalid` on the control and draws it in the danger tone; the label keeps its colour, because the error already says what is wrong. `readOnly` sets the native `readonly`, so the value stays focusable and copyable. `disabled` sets the native `disabled`, which takes the control out of the tab order and out of form submission. Set the state on the field, not on the control.
+
+<Example name="states" />
+
+## Description and error
+
+A description says what to enter, and an error says what is wrong with what was entered. Both sit under the control and join its accessible description, in that order. An error that does not block submission takes `tone="warning"`.
+
+<Example name="messages" />
+
+## Validation on submit
+
+Validate when the form is submitted, then set `invalid` and write the error. `live="polite"` announces the error once when it appears, and `reserve` keeps a line open for it, so the button below does not move. Submit the empty form, then type a valid address and submit again.
+
+<Example name="validation" />
+
+## Help
+
+A help button beside the label holds guidance that would crowd the description line. It opens a tooltip on hover and on keyboard focus, and a press keeps it open until a second press, Escape or a press elsewhere. A disabled field keeps its help operable, so it can say why the field is off.
+
+<Example name="help" />
+
+## Label row
+
+A header holds the label with the parts that stand beside it: an indicator such as a Beta badge, and an action such as a link or a button at the end of the row. The action keeps `type="button"`, so it never submits the form, and it stays operable when the field is disabled.
+
+<Example name="header" />
+
+## Counter
+
+A text field or textarea with `showCount` publishes its length and the field draws the count at the end of the label row. For any other measure, such as words or tags, write the counter yourself and set its `invalid` when the count passes its limit. The count joins the control's accessible description.
+
+<Example name="counter" />
+
+## Controls
+
+Select, number field, date picker, textarea and text field read the field they sit in: they take its identifiers, its description and its states with no wiring.
+
+<Example name="controls" />
+
+## Your own control
+
+A control the library does not ship takes the same wiring through the field's control part: the identifier the label points at, the accessible description and the states. An attribute written on the control wins over the one the field would set.
+
+<Example name="custom-control" />
+
+## Defaults for a section
+
+A defaults provider sets `size`, `labelPlacement`, `necessity`, `disabled` and `readOnly` once for every field under it. A field that states a value of its own keeps it.
+
+<Example name="defaults" wide />

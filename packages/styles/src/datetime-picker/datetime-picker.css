@@ -1,0 +1,896 @@
+@layer slotted.components {
+  /**
+   * ── A datetime field, a trigger, and two surfaces behind them ──────────
+   *
+   *   ┌─ root ──────────────────────────────────────────────────────────┐
+   *   │  ┌─ control ─────────────────────────────────────────────────┐  │
+   *   │  │  datetime-field                                ┌ trigger ┐ │  │
+   *   │  └───────────────────────────────────────────────────────────┘  │
+   *   └─────────────────────────────────────────────────────────────────┘
+   *          ┌─ positioner ─ the layer ────────────────────────────────┐
+   *          │  ┌─ content ─ role="dialog" ────────────────────────┐   │
+   *          │  │  head: now │ presets                             │   │
+   *          │  │  ┌─ panels ────────────────────────────────────┐ │   │
+   *          │  │  │ date-panel ─ calendar │ time-panel ─ list   │ │   │
+   *          │  │  └─────────────────────────────────────────────┘ │   │
+   *          │  │  footer                                          │   │
+   *          │  └──────────────────────────────────────────────────┘   │
+   *          └────────────────────────────────────────────────────────┘
+   *
+   * **The only family in the library holding two surfaces.** One layer, one
+   * dialog, and inside it a `grid` that `calendar` draws and a `listbox` that
+   * this family draws. Both are in the DOM at every width: a `tablist` that
+   * exists on a narrow container and not on a wide one tells assistive
+   * technology two different stories about the same component, and Kendo's tabs
+   * and MUI's mobile tabs are what that decline is against.
+   *
+   * `datetime-field` and `calendar` inside keep their own `data-ui`, so nothing
+   * here restyles a segment or a day cell. This stylesheet owns the box the
+   * positioner measures, the trigger inside the field, the layer, and the list.
+   */
+  [data-ui-datetime-picker][data-part-root] {
+    display: block;
+    /* In a flex row the item's basis is its content, not the whole row. */
+    flex-basis: content;
+    /* The anchor the positioner measures is the control, and a block root lets
+       the frame take the width the form gave it. */
+    inline-size: 100%;
+  }
+
+  /**
+   * The box the positioner measures, and nothing else.
+   *
+   * It draws no frame: the `datetime-field` inside it draws its own, and the
+   * trigger is handed to that field's `end` slot by the binding.
+   */
+  [data-ui-datetime-picker] [data-part-control] {
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_height: var(--slotted-control-height-md, 34px);
+
+    align-items: center;
+    display: flex;
+    inline-size: 100%;
+    min-inline-size: 0;
+    position: relative;
+  }
+
+  /**
+   * The `datetime-field` is the control's flex item, and its own basis is its
+   * content. It grows to the control, so the frame takes the width the field
+   * gave the root: the whole field at `full`, the step at `short` and `medium`.
+   */
+  [data-ui-datetime-picker] [data-part-control] > [data-ui-datetime-field] {
+    flex: 1 1 auto;
+  }
+
+  [data-ui-datetime-picker][data-part-root][data-size='sm'] [data-part-control] {
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_height: var(--slotted-control-height-sm, 30px);
+  }
+
+  [data-ui-datetime-picker][data-part-root][data-size='lg'] [data-part-control] {
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_height: var(--slotted-control-height-lg, 38px);
+  }
+
+  /**
+   * The button that opens the panel.
+   *
+   * Its mark is a calendar, which is the mark `input[type=datetime-local]`
+   * draws for the same control and the one `date-picker` already uses. The
+   * panel holds two surfaces and each names itself inside; the trigger names
+   * the kind of value the control holds, which is the one thing about it that
+   * never changes — so it does not turn while the panel is open either. It is
+   * a `Glyph` the binding draws inside an `icon` box, at the field's icon step.
+   *
+   * It is always drawn. Angular Material records why: ChromeOS turns
+   * `Alt`+`ArrowDown` into `PageDown` before the browser sees it, so the chord
+   * cannot be the only way in.
+   */
+  [data-ui-datetime-picker] [data-part-trigger] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(
+      --slotted-datetime-picker-trigger-size,
+      min(
+        calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)),
+        calc(
+          var(--_height) - var(--slotted-control-border-width, 1px) * 2 -
+            var(--slotted-space-2, 0.25rem)
+        )
+      )
+    );
+    border: 0;
+    border-radius: var(--slotted-datetime-picker-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-datetime-picker-trigger-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    inline-size: var(
+      --slotted-datetime-picker-trigger-size,
+      min(
+        calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)),
+        calc(
+          var(--_height) - var(--slotted-control-border-width, 1px) * 2 -
+            var(--slotted-space-2, 0.25rem)
+        )
+      )
+    );
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The hit area, recovered outside the paint, exactly as every other inner
+     control in the library recovers it. */
+  [data-ui-datetime-picker] [data-part-trigger]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: the ground and the focus ring stay square, and
+     the hit area above grows to 44 pixels around them. Before the field's
+     clear it does not reach across it. */
+  @media (pointer: coarse) {
+    [data-ui-datetime-picker] [data-part-trigger]::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+    }
+
+    [data-ui-datetime-picker]
+      [data-part-end]:has(+ [data-part-clear]:not([hidden]))
+      > [data-part-trigger]::after {
+      inset-inline-end: 0;
+    }
+  }
+
+  [data-ui-datetime-picker] [data-part-trigger]:hover:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-datetime-picker-trigger-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-datetime-picker] [data-part-trigger]:active:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-datetime-picker-trigger-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  /* Its own ring: tabbing from the last segment to the trigger has to move
+     something visible, and the frame's ring would sit still. */
+  [data-ui-datetime-picker] [data-part-trigger]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-datetime-picker][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-datetime-picker-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+  }
+
+  [data-ui-datetime-picker] [data-part-trigger]:disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  /* ── The layer ────────────────────────────────────────────────────────
+   *
+   * What `packages/core/src/positioner` writes `position`, `left` and `top`
+   * onto. The painted surface is one element in, as every anchored family in
+   * the library is built.
+   */
+  [data-ui-datetime-picker][data-part-positioner] {
+    /* Only the block inset: the positioner writes `left` and never `right`,
+       and `inset-inline-start` would resolve to `right` in a right-to-left
+       document and win over the measured value. */
+    position: absolute;
+    inset-block-start: 0;
+
+    box-sizing: border-box;
+    isolation: isolate;
+    /* The layer is only a frame around the surface; the surface takes the
+       pointer, and the frame must not swallow a press meant for the page. */
+    pointer-events: none;
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+
+    /* The layer arrives along the axis it opens on and never along the inline
+       one, which is the rule `select` records. */
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+    opacity: 0;
+    translate: 0 calc(-1 * var(--_enter-distance));
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-exit),
+      translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-datetime-picker][data-part-positioner][data-side='top'] {
+    translate: 0 var(--_enter-distance);
+  }
+
+  /* A lateral side has no block direction to arrive from, so it only fades. */
+  [data-ui-datetime-picker][data-part-positioner]:is([data-side='left'], [data-side='right']) {
+    translate: 0 0;
+  }
+
+  [data-ui-datetime-picker][data-part-positioner][data-open] {
+    opacity: 1;
+    translate: 0 0;
+    transition: none;
+  }
+
+  /**
+   * The entrance is a keyframe animation and not a transition, for the reason
+   * `select` records: a transition starts from the style the browser computed
+   * last, and the positioner writes `data-side` in the same style update as the
+   * family opens the layer. A layer written open in static markup — the
+   * harness, a docs snippet — is simply there, and is photographed where it
+   * stands.
+   */
+  [data-ui-datetime-picker][data-part-positioner][data-open][data-positioned] {
+    animation: slotted-datetime-picker-enter-down var(--slotted-duration-medium)
+      var(--slotted-easing-enter);
+  }
+
+  [data-ui-datetime-picker][data-part-positioner][data-open][data-positioned][data-side='top'] {
+    animation-name: slotted-datetime-picker-enter-up;
+  }
+
+  [data-ui-datetime-picker][data-part-positioner][data-open][data-positioned]:is(
+      [data-side='left'],
+      [data-side='right']
+    ) {
+    animation-name: slotted-datetime-picker-fade;
+  }
+
+  @keyframes slotted-datetime-picker-enter-down {
+    from {
+      opacity: 0;
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-datetime-picker-enter-up {
+    from {
+      opacity: 0;
+      translate: 0 var(--_enter-distance);
+    }
+  }
+
+  @keyframes slotted-datetime-picker-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Stillness keeps the fade and drops the movement. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-datetime-picker][data-part-positioner],
+    [data-ui-datetime-picker][data-part-positioner][data-side='top'],
+    [data-ui-datetime-picker][data-part-positioner][data-side='left'],
+    [data-ui-datetime-picker][data-part-positioner][data-side='right'] {
+      translate: 0 0;
+      transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-datetime-picker][data-part-positioner][data-open][data-positioned],
+    [data-ui-datetime-picker][data-part-positioner][data-open][data-positioned][data-side='top'],
+    [data-ui-datetime-picker][data-part-positioner][data-open][data-positioned][data-side='left'],
+    [data-ui-datetime-picker][data-part-positioner][data-open][data-positioned][data-side='right'] {
+      animation-name: slotted-datetime-picker-fade;
+    }
+  }
+
+  /* The anchor scrolled out of its own clipper. The panel is still open and
+     still belongs to a control the reader can no longer see. */
+  [data-ui-datetime-picker][data-part-positioner][data-detached] {
+    visibility: hidden;
+  }
+
+  /**
+   * The surface.
+   *
+   * It is shrink-wrapped from the two panels and capped by the room the
+   * positioner measured, rather than sized to the anchor: a calendar has a
+   * width of its own and a field narrower than one would squeeze the month
+   * rather than the panel. That is also why there is **no container query
+   * here**. `container-type: inline-size` would make the surface's inline size
+   * independent of its contents, which is the opposite of what a panel sized to
+   * a calendar needs; the two panels wrap instead, which needs no threshold to
+   * guess at and cannot be wrong at a width nobody tested.
+   */
+  [data-ui-datetime-picker] [data-part-content] {
+    --_content-radius: var(--slotted-datetime-picker-content-radius, var(--slotted-radius-lg, 8px));
+    --_content-padding: var(
+      --slotted-datetime-picker-content-padding,
+      var(--slotted-space-3, 0.375rem)
+    );
+    /* Concentric with the panel: its radius less the inset, floored at 0. */
+    --_option-radius: var(
+      --slotted-datetime-picker-option-radius,
+      max(0px, calc(var(--_content-radius) - var(--_content-padding)))
+    );
+
+    background-color: var(--slotted-datetime-picker-surface, var(--slotted-surface-raised, Canvas));
+    border: var(--slotted-border-width-thin, 1px) solid
+      var(
+        --slotted-datetime-picker-content-border-color,
+        var(--slotted-border-subtle, ButtonBorder)
+      );
+    border-radius: var(--_content-radius);
+    box-shadow: var(--slotted-datetime-picker-content-shadow, var(--slotted-shadow-md));
+    box-sizing: border-box;
+    color: var(--slotted-datetime-picker-content-color, var(--slotted-text, CanvasText));
+
+    /**
+     * One row's height, stated once, because the list's cap is counted in rows
+     * at every density. Read from the control scale rather than from the target
+     * floor alone, so a dense panel shrinks its rows and its cap together — the
+     * alternative shrinks only the cap and shows fewer options, which is
+     * density changing what a reader can see rather than how much room it
+     * takes.
+     */
+    --_row: max(var(--slotted-target-min, 24px), var(--slotted-control-height-sm, 30px));
+    --_row-pitch: calc(var(--_row) + var(--slotted-space-1, 0.125rem));
+
+    display: grid;
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-template-areas: 'head' 'panels' 'footer';
+    grid-template-columns: minmax(0, 1fr);
+    inline-size: auto;
+    max-inline-size: min(34rem, var(--slotted-positioner-available-width, 34rem));
+    padding: var(--_content-padding);
+    /* The layer above gave up the pointer; the surface takes it back. */
+    pointer-events: auto;
+  }
+
+  /**
+   * The head band.
+   *
+   * It says what the reader has chosen **so far**, which is the one thing
+   * neither surface can show: a month grid says which day is chosen and a
+   * column of times says which time is, and a reader who chose a day and is now
+   * reading a column of times has nothing telling them which day those times
+   * belong to. No surveyed panel says it at all.
+   *
+   * It replaces a pair of labels — `Data` and `Hora`, each with a mark small
+   * enough to sit in eleven-pixel text — that were decoration twice over: a
+   * month grid is a date and a column of times is times, which is why none of
+   * the four surveyed panels labels either, and a mark that small is a mark
+   * nobody can read. The listbox's name is written in `aria-label` instead,
+   * where a name belongs when the thing it names says what it is.
+   *
+   * The rule under it is what makes this a band rather than a line of text
+   * floating over two columns.
+   */
+  [data-ui-datetime-picker] [data-part-head] {
+    /**
+     * The band renders at the panel's width and contributes nothing to it.
+     *
+     * A grid track sizes to the widest thing in it, so a row of the consumer's
+     * own shortcuts stretched the whole panel — and with it the column of
+     * times, which then ran the width of a page. `inline-size: 0` takes the
+     * band out of that measurement and `min-inline-size: 100%` puts it back at
+     * the track's own width, so the two surfaces decide how wide the panel is
+     * and the band wraps inside whatever they decide.
+     */
+    /* `border-box`, and it is load-bearing: under `content-box` the percentage
+       resolves to the content box and the padding is added on top, so the band
+       came out twelve pixels wider than the area it sits in and pushed the
+       control at its end six pixels past the panel's own edge. */
+    box-sizing: border-box;
+    inline-size: 0;
+    min-inline-size: 100%;
+
+    align-items: center;
+    border-block-end: var(--slotted-border-width-thin, 1px) solid
+      var(
+        --slotted-datetime-picker-content-border-color,
+        var(--slotted-border-subtle, ButtonBorder)
+      );
+    column-gap: var(--slotted-space-4, 0.5rem);
+    display: flex;
+    flex-wrap: wrap;
+    grid-area: head;
+    justify-content: space-between;
+    /**
+     * No inline padding of its own. The surface's own padding is the panel's
+     * one gutter, and every box under this band starts and ends on it: the
+     * month's column, the page trigger inside it, the list's column and the
+     * ground of every row in it. With six pixels more here the title stood six
+     * pixels inside the month below it and the control at the end stopped six
+     * pixels short of the rows below *it* — two edges that almost line up,
+     * which reads worse than two that plainly do not.
+     *
+     * Measured on the default theme at `comfortable`, 720 pixels: the surface's
+     * inner edges are 32 and 405.4, and the month's column, the list's column
+     * and this band now all begin and end there.
+     */
+    /**
+     * Air under the controls before the rule — the same step the footer keeps
+     * between its own rule and its buttons, so the two bands hold the surface
+     * symmetrically. With none, the rule read as an underline on `now` and on
+     * the consumer's shortcuts rather than as the bottom of the band they
+     * stand in.
+     */
+    padding-block-end: var(--slotted-space-3, 0.375rem);
+    row-gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  /**
+   * The value as it stands. It is the panel's own title, so it takes the
+   * surface's ink and a step of weight, and its digits line up with the list's
+   * below it.
+   */
+  [data-ui-datetime-picker] [data-part-head-value] {
+    color: var(--slotted-datetime-picker-content-color, var(--slotted-text, CanvasText));
+    font-size: var(--slotted-font-size-sm, 13px);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    min-inline-size: 0;
+    /* A datetime in words is a mixed run — a month name beside two numbers — so
+       it is laid out by its own content rather than by the paragraph, which is
+       the rule the field's own preview records. */
+    unicode-bidi: plaintext;
+  }
+
+  /**
+   * The half the reader has not written yet, drawn as its placeholder beside
+   * the half they have. It is the family's own answer to a value that is not
+   * whole, said where the reader is looking rather than only in the field.
+   */
+  [data-ui-datetime-picker] [data-part-head-value] [data-placeholder] {
+    color: var(--slotted-datetime-picker-label-color, var(--slotted-text-muted, GrayText));
+  }
+
+  /**
+   * One press for the current datetime — what a reader who never discovers that
+   * `+` opens an expression still has.
+   *
+   * It is drawn as a control and not as a link. `time-picker` writes its own
+   * `now` as accent text, and alone at the head of a single list that reads
+   * correctly; here it stands at the end of a band opposite a title, where bare
+   * coloured text is a third register beside the panel's plain ink and its one
+   * solid accent block — it read as a stray link rather than as the shortcut it
+   * is. A quiet bordered control at the small step is the shape the library
+   * already gives an action of this weight, and the divergence from the sibling
+   * is the band around it.
+   *
+   * It carries the clock, which is the second of the family's two marks and the
+   * only place one earns its keep: this is the control that writes a time, so
+   * the mark names what it does, and at the control glyph size inside a control
+   * it is legible rather than a speck beside a word.
+   */
+  [data-ui-datetime-picker] [data-part-now] {
+    align-items: center;
+    appearance: none;
+    background-color: var(--slotted-datetime-picker-now-background, transparent);
+    /* The control's own border token rather than the surface's subtle one: this
+       button stands *on* the raised surface, where `--slotted-border-subtle` is
+       within a shade of the ground and the dark capture showed no edge at all. */
+    border: var(--slotted-control-border-width, 1px) solid
+      var(
+        --slotted-datetime-picker-now-border-color,
+        var(--slotted-control-border-color, ButtonBorder)
+      );
+    border-radius: var(--slotted-datetime-picker-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-datetime-picker-now-color, var(--slotted-text, CanvasText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font: inherit;
+    font-size: var(--slotted-control-font-size-sm, 12px);
+    gap: var(--slotted-space-2, 0.25rem);
+    justify-content: center;
+    min-block-size: var(--slotted-control-height-sm, 30px);
+    padding-block: 0;
+    padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing);
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /**
+   * The mark — the clock `Glyph` the binding draws before the label, at the
+   * `sm` icon step — takes the muted ink the label does not, so the pair reads
+   * as one control with a glyph rather than as two things of equal weight.
+   */
+  [data-ui-datetime-picker] [data-part-now] > [data-ui-icon] {
+    /* No system colour: a theme that never loaded should let the mark take the
+       label's ink rather than the operating system's own grey, which is the
+       rule `fallbacks.test.mjs` holds. */
+    color: var(--slotted-datetime-picker-now-icon-color, var(--slotted-text-muted));
+  }
+
+  [data-ui-datetime-picker] [data-part-now]:hover:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-datetime-picker-now-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    border-color: var(
+      --slotted-datetime-picker-now-hover-border-color,
+      var(--slotted-tone-accent-border)
+    );
+  }
+
+  [data-ui-datetime-picker] [data-part-now]:active:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-datetime-picker-now-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  [data-ui-datetime-picker] [data-part-now]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /**
+   * The consumer's own shortcuts. This family ships no list of them: "tomorrow
+   * at nine" is a business clock, and a library that guessed at one would be
+   * guessing at an industry. What it ships is the row they stand in, at the
+   * reading end of the head beside `now`.
+   */
+  [data-ui-datetime-picker] [data-part-presets] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  /* ── The two panels ───────────────────────────────────────────────────
+   *
+   * A wrapping flex row of exactly two items, in the value's own order. Where
+   * the positioner measured room for both, they stand side by side; where it
+   * did not, the time panel wraps under the date panel and nothing is hidden.
+   *
+   * The reflow is the row's own, at every width. `openTo` does not reorder it:
+   * moving a whole calendar because focus starts elsewhere would make one
+   * setting look like a different component, and what answers the narrow case
+   * is `scrollIntoView` on the surface focus lands in.
+   */
+  [data-ui-datetime-picker] [data-part-panels] {
+    /**
+     * The two columns are told apart by the air between them and by what they
+     * hold, not by a rule. A rule would have to be on one inline edge, and the
+     * same declaration is a divider beside the month in one arrangement and a
+     * stray line under it in the other — the arrangement is the row's own and
+     * no selector can tell which one is on screen.
+     */
+    column-gap: var(--slotted-space-6, 1rem);
+    display: flex;
+    flex-wrap: wrap;
+    grid-area: panels;
+    min-inline-size: 0;
+    row-gap: var(--slotted-space-4, 0.5rem);
+  }
+
+  /**
+   * The month's column never shrinks below the month.
+   *
+   * A calendar has an intrinsic width — its cell is a share of its own
+   * container — and this column is that width. A flexible basis with
+   * `min-inline-size: 0` would let the grid be squeezed under it, and a squeezed
+   * month is the half of this panel a reader came for. When the room runs out it
+   * is the time panel that wraps instead, which is the arrangement this family
+   * already draws.
+   */
+  [data-ui-datetime-picker] [data-part-date-panel] {
+    flex: 0 0 auto;
+  }
+
+  /**
+   * The list's column.
+   *
+   * `flex-grow: 1` against a basis of seven rem does two things at once and
+   * needs no query to tell them apart. Beside the month, the surface is
+   * shrink-wrapped to the sum of the two bases, so there is no free space to
+   * grow into and the column stays the narrow one it should be — a column of
+   * times spread across half a panel is a column of numbers nobody chose that
+   * shape for. Wrapped onto a line of its own, the free space is the whole line
+   * and the column takes it, so the times read as a section rather than as a
+   * narrow strip under a wide month.
+   */
+  [data-ui-datetime-picker] [data-part-time-panel] {
+    display: flex;
+    flex: 1 1 var(--slotted-datetime-picker-time-panel-inline-size, 7rem);
+    flex-direction: column;
+    gap: var(--slotted-space-2, 0.25rem);
+    min-inline-size: var(--slotted-datetime-picker-time-panel-inline-size, 7rem);
+  }
+
+  /* ── The list ─────────────────────────────────────────────────────────
+   *
+   * One column of times on the day the reader is on, capped in control heights
+   * so the cap holds at every density and every type step, and scrolled rather
+   * than truncated: a day of quarter-hours is ninety-six rows and every one of
+   * them is choosable.
+   */
+  [data-ui-datetime-picker] [data-part-list] {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    /**
+     * One step of air between rows, so the chosen row's painted ground and the
+     * focused row's inset ring never share an edge. Touching, the two read as
+     * one band with a dark underline rather than as two states of two rows.
+     */
+    gap: var(--slotted-space-1, 0.125rem);
+    /**
+     * Seven rows and a half, which is deliberately *shorter* than a six-week
+     * month: the month is what governs the height of a panel holding both, and
+     * a list one row taller left the calendar's column with dead space under it
+     * and cut the list's last row against the panel's own border. Under the cap
+     * the list stretches to whatever the month leaves, so the two surfaces end
+     * on the same line at every density and in every month.
+     *
+     * The half is the point wherever the cap is what applies — the wrapped
+     * arrangement and the sheet: a list cut on a row boundary looks like the
+     * whole list, and a reader who cannot see that ninety-six times are
+     * available never scrolls for them.
+     */
+    max-block-size: var(--slotted-datetime-picker-list-block-size, calc(var(--_row-pitch) * 7.5));
+    /* Beside a month, the column is stretched to the month's height and the
+       list fills what the label leaves — so the list is as tall as the calendar
+       rather than a number of rows chosen against nothing. The cap above is
+       what holds when there is no month beside it, which is the wrapped
+       arrangement and the sheet. */
+    min-block-size: 0;
+    min-inline-size: 0;
+    overflow-y: auto;
+    /* A highlight moved by a key lands whole rather than half under the edge. */
+    scroll-padding-block: var(--slotted-space-2, 0.25rem);
+  }
+
+  /**
+   * One time on the day the reader is on.
+   *
+   * The row carries the time and nothing else. The day is the calendar's to
+   * say, and repeating it ninety-six times beside a month that already shows it
+   * would spend the whole column on one word.
+   */
+  [data-ui-datetime-picker] [data-part-option] {
+    align-items: center;
+    background-color: transparent;
+    border-radius: var(--_option-radius);
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    flex: 0 0 auto;
+    font-variant-numeric: tabular-nums;
+    gap: var(--slotted-space-2, 0.25rem);
+    /* The row *is* `--_row`: no block padding on top of it, so eight rows are
+       eight rows and the cap that counts them is arithmetic rather than an
+       estimate. A time never wraps, so there is nothing for the padding to
+       protect. */
+    min-block-size: var(--_row);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── Option states ────────────────────────────────────────────────────
+   *
+   * Written strongest last, and each weaker one guarded against every stronger
+   * one it can meet, which is the order `STATE_PRECEDENCE` sets: the chosen
+   * time outranks the highlight, and the highlight outranks the pointer.
+   *
+   * Specificity is what makes this a rule rather than an ordering: a hover
+   * selector carrying `:hover` and one `:not()` outweighs a plain
+   * `[data-selected]`, so a chosen row turns grey under the pointer however far
+   * down the file its own rule is written. Found by the reviewer at
+   * `time-picker`'s visual gate and inherited whole.
+   */
+  [data-ui-datetime-picker]
+    [data-part-option]:hover:not([data-disabled]):not([data-selected]):not([data-current]) {
+    background-color: var(
+      --slotted-datetime-picker-option-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-datetime-picker] [data-part-option][data-current]:not([data-selected]) {
+    background-color: var(
+      --slotted-datetime-picker-option-current-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  [data-ui-datetime-picker] [data-part-option]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-datetime-picker] [data-part-option][data-selected] {
+    background-color: var(
+      --slotted-datetime-picker-option-selected-background,
+      var(--slotted-tone-accent-solid)
+    );
+    color: var(
+      --slotted-datetime-picker-option-selected-color,
+      var(--slotted-tone-accent-on-solid)
+    );
+  }
+
+  /* The chosen row still answers the pointer — one step along its own tone,
+     rather than the grey every other row takes. A row that swapped colour
+     family under the pointer read as a different row. */
+  [data-ui-datetime-picker] [data-part-option][data-selected]:hover:not([data-disabled]) {
+    background-color: var(
+      --slotted-datetime-picker-option-selected-hover-background,
+      var(--slotted-tone-accent-solid-hover)
+    );
+  }
+
+  /**
+   * A time a bound or a predicate refuses. It stays in the list by default,
+   * because a list that silently drops rows is a list whose step the reader
+   * cannot infer — and it is muted to the colour the theme measures rather than
+   * faded by opacity, so it stays readable.
+   */
+  [data-ui-datetime-picker] [data-part-option][data-disabled] {
+    background-color: transparent;
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  /**
+   * The day the reader is on offers no time at all — a closed Saturday, a
+   * window `minTime` and `maxTime` leave empty, a predicate that refuses every
+   * step. It is a sentence rather than an empty box, and it is the state that
+   * makes the list worth recomputing as the reader moves through the month.
+   */
+  [data-ui-datetime-picker] [data-part-empty] {
+    align-items: center;
+    color: var(--slotted-datetime-picker-label-color, var(--slotted-text-muted, GrayText));
+    display: flex;
+    flex: 1 1 auto;
+    justify-content: center;
+    min-block-size: calc(var(--_row) * 2);
+    padding: var(--slotted-space-4, 0.5rem);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  [data-ui-datetime-picker] [data-part-footer] {
+    /* The band's rule, for the same reason: a consumer's two buttons are not
+       what decides how wide a month is drawn — and `border-box` with it, or the
+       padding pushes the last button past the panel's edge. */
+    box-sizing: border-box;
+    inline-size: 0;
+    min-inline-size: 100%;
+
+    align-items: center;
+    border-block-start: var(--slotted-border-width-thin, 1px) solid
+      var(
+        --slotted-datetime-picker-content-border-color,
+        var(--slotted-border-subtle, ButtonBorder)
+      );
+    display: flex;
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-area: footer;
+    justify-content: flex-end;
+    /* The same one gutter: the last button ends where the rows above it end. */
+    padding-block-start: var(--slotted-space-3, 0.375rem);
+  }
+
+  /* ── Narrow, on a finger ──────────────────────────────────────────────
+   *
+   * §2.7 of `docs/component-features.md` asks for it by name: a popover on the
+   * desktop and a sheet in a narrow viewport. The DOM does not change, so the
+   * decision is testable without a device — and the query is on the viewport
+   * rather than on a container because a layer in a portal has no container to
+   * ask, and the question really is how much screen there is.
+   */
+  @media (max-width: 480px) and (pointer: coarse) {
+    [data-ui-datetime-picker][data-part-positioner][data-presentation='sheet'] {
+      /* The positioner's own measurement is overridden here on purpose: a sheet
+         is not placed against an anchor, it is placed against the screen. */
+      inset: auto 0 0;
+      position: fixed;
+      translate: 0 var(--slotted-space-9, 2rem);
+    }
+
+    [data-ui-datetime-picker][data-part-positioner][data-presentation='sheet'][data-open] {
+      translate: 0 0;
+    }
+
+    [data-ui-datetime-picker][data-part-positioner][data-presentation='sheet'] [data-part-content] {
+      border-end-end-radius: 0;
+      border-end-start-radius: 0;
+      border-inline: 0;
+      border-block-end: 0;
+      inline-size: var(--slotted-datetime-picker-sheet-inline-size, 100%);
+      max-inline-size: none;
+      /* The two surfaces are stacked here and the sheet has the screen's height
+         to spend, so the whole panel scrolls rather than each surface scrolling
+         inside its own box. */
+      max-block-size: 85vh;
+      overflow-y: auto;
+    }
+
+    /* Stacked under a month, the list gets a shorter run: the reader scrolls
+       the sheet to reach it, and a full-height list would put the footer out of
+       reach behind ninety-six rows. */
+    [data-ui-datetime-picker][data-part-positioner][data-presentation='sheet'] [data-part-list] {
+      max-block-size: calc(var(--_row-pitch) * 5.5);
+    }
+
+    /**
+     * The grip every bottom sheet carries, in the drawer's geometry and line
+     * colour: a pill three rem by a quarter, centred in a row one target tall
+     * that the content keeps clear at its top. A pull down on it dismisses the
+     * sheet; Escape and the press outside stay the accessible ways out.
+     */
+    [data-ui-datetime-picker][data-part-positioner][data-presentation='sheet']
+      > [data-part-content] {
+      padding-block-start: var(--slotted-target-min, 24px);
+      position: relative;
+    }
+
+    [data-ui-datetime-picker][data-part-positioner][data-presentation='sheet']
+      > [data-part-content]
+      > [data-part-grip] {
+      background-clip: content-box;
+      background-color: var(
+        --slotted-drawer-resizer-line-color,
+        var(--slotted-border-strong, ButtonBorder)
+      );
+      block-size: var(--slotted-space-2, 0.25rem);
+      border-radius: var(--slotted-radius-full, 9999px);
+      box-sizing: content-box;
+      cursor: grab;
+      inline-size: var(--slotted-space-11, 3rem);
+      inset-block-start: 0;
+      inset-inline: 0;
+      margin-inline: auto;
+      padding-block: calc((var(--slotted-target-min, 24px) - var(--slotted-space-2, 0.25rem)) / 2);
+      position: absolute;
+      touch-action: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    /* The chosen row and the highlighted row both lose their painted grounds,
+       so each says what it is with a system pair the operating system
+       guarantees legible together. */
+    [data-ui-datetime-picker] [data-part-option][data-selected] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-datetime-picker] [data-part-option][data-current]:not([data-selected]) {
+      outline: var(--slotted-focus-ring-width, 2px) solid Highlight;
+      outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+    }
+
+    /* No rule between the two surfaces is added here. The gap between them is
+       only space, but each panel already carries a label with its own mark
+       above it, and a label is a boundary that reads in both arrangements — a
+       border on one inline edge would be a divider beside the month in one and
+       a stray rule under it in the other. */
+  }
+}

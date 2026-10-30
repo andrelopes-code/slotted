@@ -1,0 +1,173 @@
+@layer slotted.components {
+  /**
+   * Grid arranges its children across two axes and reflows by measuring itself,
+   * not the viewport. It paints nothing: a layout that carried a colour would be
+   * a surface, and a surface is another family's decision.
+   *
+   * Without a stated column count the track list is as many equal tracks as fit
+   * while each stays at or above `minItemWidth`. `min(100%, …)` is what keeps a
+   * minimum wider than the container from overflowing it: at 240 pixels the grid
+   * becomes one full-width track instead of one track hanging past the edge.
+   *
+   * `auto-fit` is used here so a single child fills the row rather than sitting
+   * alone at its minimum.
+   */
+  [data-ui-grid] {
+    --_gap: var(--slotted-space-6, 1rem);
+    --_min-item: var(--slotted-grid-min-item-width-md, 16rem);
+
+    display: grid;
+    gap: var(--_gap);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--_min-item)), 1fr));
+    /**
+     * A flex or grid item is at least as wide as its content unless it is told
+     * otherwise, so a grid nested in one would refuse to narrow below its widest
+     * child and push the layout past the edge instead of reflowing.
+     */
+    min-inline-size: 0;
+  }
+
+  /**
+   * A stated count is a ceiling, not a promise: the track is the larger of the
+   * minimum and the share each column would take, so twelve columns become six
+   * and then one as the container narrows, with no breakpoint and no container
+   * query anywhere in the family. The count reaches CSS as a custom property
+   * because a track function cannot read an integer from an attribute.
+   *
+   * `auto-fill` is used here so two children in a three-column grid occupy two
+   * thirds of it rather than stretching across the whole row.
+   */
+  [data-ui-grid][data-columns] {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(
+        min(
+          100%,
+          max(
+            var(--_min-item),
+            (100% - (var(--slotted-grid-columns, 1) - 1) * var(--_gap)) /
+              var(--slotted-grid-columns, 1)
+          )
+        ),
+        1fr
+      )
+    );
+  }
+
+  /* Separation is a step on the scale, never a length the consumer states. */
+  [data-ui-grid][data-gap='0'] {
+    --_gap: 0;
+  }
+
+  [data-ui-grid][data-gap='1'] {
+    --_gap: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-grid][data-gap='2'] {
+    --_gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-grid][data-gap='3'] {
+    --_gap: var(--slotted-space-3, 0.375rem);
+  }
+
+  [data-ui-grid][data-gap='4'] {
+    --_gap: var(--slotted-space-4, 0.5rem);
+  }
+
+  [data-ui-grid][data-gap='5'] {
+    --_gap: var(--slotted-space-5, 0.75rem);
+  }
+
+  [data-ui-grid][data-gap='6'] {
+    --_gap: var(--slotted-space-6, 1rem);
+  }
+
+  [data-ui-grid][data-gap='7'] {
+    --_gap: var(--slotted-space-7, 1.25rem);
+  }
+
+  [data-ui-grid][data-gap='8'] {
+    --_gap: var(--slotted-space-8, 1.5rem);
+  }
+
+  [data-ui-grid][data-gap='9'] {
+    --_gap: var(--slotted-space-9, 2rem);
+  }
+
+  [data-ui-grid][data-gap='10'] {
+    --_gap: var(--slotted-space-10, 2.5rem);
+  }
+
+  [data-ui-grid][data-gap='11'] {
+    --_gap: var(--slotted-space-11, 3rem);
+  }
+
+  [data-ui-grid][data-gap='12'] {
+    --_gap: var(--slotted-space-12, 4rem);
+  }
+
+  /**
+   * The narrowest a cell may become before the grid drops a column. The five
+   * steps state their lengths because the foundation holds no measure scale:
+   * these are cell minima rather than reading measure, which `container` owns.
+   * A theme retunes any of them through its token.
+   */
+  [data-ui-grid][data-min-item-width='xs'] {
+    --_min-item: var(--slotted-grid-min-item-width-xs, 8rem);
+  }
+
+  [data-ui-grid][data-min-item-width='sm'] {
+    --_min-item: var(--slotted-grid-min-item-width-sm, 12rem);
+  }
+
+  [data-ui-grid][data-min-item-width='md'] {
+    --_min-item: var(--slotted-grid-min-item-width-md, 16rem);
+  }
+
+  [data-ui-grid][data-min-item-width='lg'] {
+    --_min-item: var(--slotted-grid-min-item-width-lg, 20rem);
+  }
+
+  [data-ui-grid][data-min-item-width='xl'] {
+    --_min-item: var(--slotted-grid-min-item-width-xl, 24rem);
+  }
+
+  /**
+   * `align` positions a child across the flow, inside its own cell, and
+   * `justify` positions it along the flow, inside the same cell. Neither
+   * distributes tracks: the tracks already fill the row, so there is nothing
+   * between them to distribute.
+   */
+  [data-ui-grid][data-align='start'] {
+    align-items: start;
+  }
+
+  [data-ui-grid][data-align='center'] {
+    align-items: center;
+  }
+
+  [data-ui-grid][data-align='end'] {
+    align-items: end;
+  }
+
+  [data-ui-grid][data-align='stretch'] {
+    align-items: stretch;
+  }
+
+  [data-ui-grid][data-justify='start'] {
+    justify-items: start;
+  }
+
+  [data-ui-grid][data-justify='center'] {
+    justify-items: center;
+  }
+
+  [data-ui-grid][data-justify='end'] {
+    justify-items: end;
+  }
+
+  [data-ui-grid][data-justify='stretch'] {
+    justify-items: stretch;
+  }
+}

@@ -1,0 +1,605 @@
+@layer slotted.components {
+  /**
+   * The surface wave 0 named. A card reads `--slotted-surface-raised` instead
+   * of painting a neutral of its own.
+   *
+   * Resting and state values are declared as custom properties, per fill, and
+   * one gated rule per state swaps them. That is what lets each fill answer a
+   * state in the property that fill is made of — an elevated card raises its
+   * shadow where an outlined card darkens its edge — instead of all three
+   * sharing one grey. It is Fluent 2's model, and the review found the library
+   * had the axis without the answers.
+   *
+   * The root does not clip. Media rounds the corners it touches and clips
+   * itself, so an overlay opened inside a card is not cut off by the card.
+   */
+  [data-ui-card] {
+    --_card-edge-width: var(--slotted-card-border-width, var(--slotted-border-width-thin, 1px));
+    --_card-radius: var(--slotted-card-radius, var(--slotted-radius-lg, 8px));
+    --_card-inset-block: var(--slotted-card-padding-block, var(--slotted-space-6, 1rem));
+    --_card-inset-inline: var(--slotted-card-padding-inline, var(--slotted-space-6, 1rem));
+    /* One step below the inset, never equal to it. At every size the region
+       gap used to resolve to exactly the outer inset, so the header, the body
+       and the footer sat as far from each other as from the card's own edge and
+       nothing grouped. */
+    --_card-region-gap: var(--slotted-card-region-gap, var(--slotted-space-3, 0.375rem));
+
+    /**
+     * Resting, state, and current — three names, in that order, and a state
+     * value may only ever reference a resting one.
+     *
+     * Writing `--_card-edge-hover: var(--_card-edge)` to mean "hold the edge
+     * still" is a cycle: the hover rule sets `--_card-edge` from
+     * `--_card-edge-hover`. CSS resolves a cycle to the guaranteed-invalid
+     * value, the `border` shorthand becomes invalid at computed-value time, and
+     * the edge does not hold still — it disappears. Every fill that held its
+     * edge on hover lost it instead, and so did every selected card.
+     */
+    --_card-surface-rest: var(--slotted-card-background, var(--slotted-surface-raised, Canvas));
+    --_card-edge-rest: var(--slotted-card-border-color, var(--slotted-border-subtle, ButtonBorder));
+    --_card-shadow-rest: var(--slotted-card-shadow, none);
+
+    /* What this fill answers with. Read by the gated state rules below. */
+    --_card-surface-hover: var(--_card-surface-rest);
+    --_card-edge-hover: var(
+      --slotted-card-border-color-hover,
+      var(--slotted-border-strong, ButtonBorder)
+    );
+    --_card-shadow-hover: var(--slotted-card-shadow-hover, var(--slotted-shadow-xs));
+    /* Press fills, where hover does not. Hover holding the surface still is
+       what keeps it from reading as disabled; a press is momentary and arrives
+       with the pointer already down, so the fill is unambiguous — and it is the
+       one state all three fills answer the same way, which is what makes a
+       press feel like the same gesture across a page. Fluent and Material 3
+       both darken the ground on press for every appearance they ship. */
+    --_card-surface-active: var(--slotted-tone-secondary-subtle-active);
+    --_card-edge-active: var(--_card-edge-hover);
+    --_card-shadow-active: none;
+
+    /* Current. The gated state rules below move these and nothing else. */
+    --_card-surface: var(--_card-surface-rest);
+    --_card-edge: var(--_card-edge-rest);
+    --_card-shadow: var(--_card-shadow-rest);
+    /* Disabled recedes from the raised surface. The control's disabled ground
+       is a heavier grey than a card can carry: at card area it drew more
+       attention than the operable cards around it, which is the same error as
+       filling a card with a tone surface calibrated on a badge. */
+    --_card-surface-disabled: var(
+      --slotted-card-background-disabled,
+      var(--slotted-surface-sunken, Canvas)
+    );
+
+    background-color: var(--_card-surface);
+    /* The ground a family inside states its own ground from — a table's rows,
+       a grid's cells — so they stand on the card and not on the page. */
+    --slotted-ground: var(--_card-surface);
+    /* The edge is drawn by `::before` over the border box, never in flow, so a
+       hairline becoming a selected 2px edge moves no text. A real border would
+       have to reserve its own width, and reserving the resting width is what
+       makes the jump shift every region by a pixel. Five of the six surveyed
+       systems that solve this solve it on a pseudo-element, three of them with
+       a comment naming the reason. */
+    border: none;
+    border-radius: var(--_card-radius);
+    box-shadow: var(--_card-shadow);
+    box-sizing: border-box;
+    color: var(--slotted-card-color, var(--slotted-text, CanvasText));
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+    /* The containing block for the edge and for the stretched hit area. */
+    position: relative;
+    transition:
+      background-color var(--slotted-duration-short) var(--slotted-easing-standard),
+      box-shadow var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  /**
+   * The edge, at every state. It is a border rather than a box-shadow so that
+   * it survives `forced-colors`, where a shadow is removed outright, and it
+   * changes width without moving a pixel of content because it is out of flow.
+   */
+  [data-ui-card]::before {
+    border: var(--_card-edge-width) solid var(--_card-edge);
+    border-radius: inherit;
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: border-color var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  /* Density is the application's choice and governs control geometry; `size`
+     is this card's own inset, so a summary card and a card in a dense list can
+     stand on the same page. */
+  [data-ui-card][data-size='sm'] {
+    --_card-inset-block: var(--slotted-card-padding-block-sm, var(--slotted-space-5, 0.75rem));
+    --_card-inset-inline: var(--slotted-card-padding-inline-sm, var(--slotted-space-5, 0.75rem));
+    --_card-region-gap: var(--slotted-card-region-gap-sm, var(--slotted-space-2, 0.25rem));
+  }
+
+  [data-ui-card][data-size='lg'] {
+    --_card-inset-block: var(--slotted-card-padding-block-lg, var(--slotted-space-8, 1.5rem));
+    --_card-inset-inline: var(--slotted-card-padding-inline-lg, var(--slotted-space-8, 1.5rem));
+    --_card-region-gap: var(--slotted-card-region-gap-lg, var(--slotted-space-4, 0.5rem));
+  }
+
+  /**
+   * Three ways to bound a surface, and a page uses more than one: a grid of
+   * outlined list cards, a summary that lifts off the page, and a filled block
+   * that recedes into it.
+   *
+   * `elevated` rests at the medium step. The small step under a hairline does
+   * not separate on a white page, and `0 1px 3px rgb(0 0 0 / 0.5)` on a
+   * near-black one is invisible, so `elevated` and `outline` were one picture
+   * in both schemes. It keeps its hairline, because a shadow is removed under
+   * forced colours and an edge is not.
+   */
+  [data-ui-card][data-fill='elevated'] {
+    --_card-shadow-rest: var(--slotted-card-shadow, var(--slotted-shadow-md));
+    /* The shadow moves and the edge holds still: elevation is what this fill
+       is made of. */
+    --_card-edge-hover: var(--_card-edge-rest);
+    --_card-shadow-hover: var(--slotted-card-shadow-hover, var(--slotted-shadow-lg));
+    --_card-edge-active: var(--_card-edge-rest);
+    /* The elevation falls back under the finger rather than to nothing: an
+       elevated card that flattens completely reads as removed, not pressed. */
+    --_card-shadow-active: var(--slotted-shadow-sm);
+  }
+
+  /**
+   * `subtle` is a fill, and it keeps the same hairline the outlined card has.
+   *
+   * Dropping the edge was tried, on Fluent's rule for the same appearance —
+   * "similar to filled-alternative, but no border is applied" — and reverted.
+   * Fluent's subtle background differs from its page; the high-contrast scheme
+   * here paints `--slotted-surface-sunken` and `--slotted-surface` the same
+   * white, so an edgeless subtle card had neither fill nor edge and stopped
+   * being a card at all. A hairline that reads as slightly redundant in two
+   * schemes fails more loudly than a card that disappears in the third.
+   */
+  [data-ui-card][data-fill='subtle'] {
+    --_card-surface-rest: var(
+      --slotted-card-background-subtle,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    /* The fill is what this variant is made of, so the fill is what moves —
+       toward the raised surface, which is a card coming forward rather than a
+       card greying out. The edge holds still. */
+    --_card-surface-hover: var(--slotted-surface-raised, Canvas);
+    --_card-edge-hover: var(--_card-edge-rest);
+    --_card-shadow-hover: none;
+    --_card-surface-active: var(--slotted-tone-secondary-subtle-active);
+    --_card-edge-active: var(--_card-edge-rest);
+    /* This fill already rests on the sunken surface, so receding onto it would
+       leave a disabled card and an operable one the same picture. It is the one
+       fill that takes the control's disabled ground. */
+    --_card-surface-disabled: var(
+      --slotted-card-background-disabled,
+      var(--slotted-disabled-background, Canvas)
+    );
+  }
+
+  /**
+   * A card is interactive when it holds a destination or a choice. Every state
+   * below was previously gated on `[data-part-link]` alone, so the chooser —
+   * a `<label>` around a native input, which is the whole-card selection this
+   * family documents — answered no hover, no press and no ring.
+   *
+   * The two guards are the state precedence: a disabled card does not answer
+   * the pointer, and neither does a card whose only control is disabled.
+   */
+  [data-ui-card]:not([data-disabled]):has(
+      :is([data-part-link], [data-part-selection] :is(input, button)):not(:disabled)
+    ):hover {
+    --_card-surface: var(--_card-surface-hover);
+    --_card-edge: var(--_card-edge-hover);
+    --_card-shadow: var(--_card-shadow-hover);
+  }
+
+  /**
+   * A card that resolves somewhere or holds a choice is a target, and the
+   * pointer says so over the whole surface. The link's own hit area already
+   * carried the pointer, so only the chooser was left with the default arrow
+   * over a surface that is entirely clickable.
+   *
+   * Descendants inherit it rather than reverting to a text caret: the surface
+   * is one target, and a caret over it offers a selection the `<label>` will
+   * not make. Anything a consumer raises above the hit area — `actions`, the
+   * `footer` — sets its own cursor, because it is its own target.
+   */
+  [data-ui-card]:not([data-disabled]):has(
+      :is([data-part-link], [data-part-selection] :is(input, button)):not(:disabled)
+    ) {
+    cursor: pointer;
+  }
+
+  [data-ui-card]:not([data-disabled]):has([data-part-selection] :is(input, button):not(:disabled))
+    :where(*) {
+    cursor: inherit;
+  }
+
+  [data-ui-card]:not([data-disabled]):has(
+      :is([data-part-link], [data-part-selection] :is(input, button)):not(:disabled)
+    ):active {
+    --_card-surface: var(--_card-surface-active);
+    --_card-edge: var(--_card-edge-active);
+    --_card-shadow: var(--_card-shadow-active);
+  }
+
+  /**
+   * Vertical rhythm is carried by each region's own block padding rather than
+   * by a gap on the root, which is what lets an absent region collapse to
+   * nothing instead of leaving its gap behind — the case a three-region layout
+   * usually gets wrong.
+   */
+  [data-ui-card] > :is([data-part-header], [data-part-body], [data-part-footer]) {
+    min-inline-size: 0;
+    padding-block: var(--_card-region-gap);
+    padding-inline: var(--_card-inset-inline);
+  }
+
+  /* A region at either end absorbs the padding its missing neighbour would
+     have carried, so a card of only a body is not visibly tighter than a full
+     one. Media bleeds, so the region next to it counts as an end. */
+  [data-ui-card] > :is([data-part-header], [data-part-body], [data-part-footer]):first-child,
+  [data-ui-card]
+    > [data-part-media]
+    + :is([data-part-header], [data-part-body], [data-part-footer]) {
+    padding-block-start: var(--_card-inset-block);
+  }
+
+  [data-ui-card] > :is([data-part-header], [data-part-body], [data-part-footer]):last-child,
+  [data-ui-card]
+    > :is([data-part-header], [data-part-body], [data-part-footer]):has(+ [data-part-media]) {
+    padding-block-end: var(--_card-inset-block);
+  }
+
+  /**
+   * The header stacks a title and the line that supports it in the first
+   * column, and keeps a second column for whatever belongs in the corner: a
+   * badge, a status, a menu button. Both are Typography and both are the
+   * consumer's, so the header decides only the two distances and the corner.
+   */
+  [data-ui-card] > [data-part-header] {
+    align-items: start;
+    column-gap: var(--slotted-card-header-column-gap, var(--slotted-space-5, 0.75rem));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: var(--slotted-card-header-gap, var(--slotted-space-2, 0.25rem));
+  }
+
+  /* A column gap is drawn beside an empty track too, so a header with no corner
+     keeps no corner column. */
+  [data-ui-card] > [data-part-header]:not(:has(> [data-part-actions])) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  [data-ui-card] > [data-part-header] > * {
+    grid-column: 1;
+    min-inline-size: 0;
+  }
+
+  /* The corner. It stays on the first row, so a title that wraps to two lines
+     does not drag the badge down with it, and it takes the last column whether
+     the header has two or three. */
+  [data-ui-card] > [data-part-header] > [data-part-actions] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    /* Centred on the title's own row rather than on the row's start edge: a
+       badge aligned to the line box sits optically high against cap height. */
+    align-self: center;
+    gap: var(--slotted-card-actions-gap, var(--slotted-space-3, 0.375rem));
+    grid-column: -2 / -1;
+    grid-row: 1;
+    /* Above the stretched hit area, like the footer: a control in the corner
+       of a card that resolves elsewhere still has to be operable. */
+    position: relative;
+  }
+
+  /**
+   * The place a choice card keeps for its control. It is the slot and not the
+   * glyph: `checkbox radio-group` owns where a check and a dot are drawn, and a
+   * card drawing its own would be the second answer to that question.
+   *
+   * It leads rather than trails, because `actions` already owns the corner.
+   * Spectrum and Mantine put selection at the inline start for the same reason;
+   * Carbon, Fluent and Cloudscape trail only because none of them keeps a
+   * corner in the header.
+   */
+  [data-ui-card] > [data-part-header]:has([data-part-selection]) {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  [data-ui-card] > [data-part-header]:has([data-part-selection]):not(:has(> [data-part-actions])) {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  [data-ui-card] > [data-part-header]:has([data-part-selection]) > * {
+    grid-column: 2;
+  }
+
+  [data-ui-card] > [data-part-header] > [data-part-selection] {
+    /**
+     * On the title's first line, not in the middle of its block (C1, the rule
+     * R5 gives every mark beside a title): the slot is one line of the title's
+     * step tall and centres the control inside it, so a title that wraps to
+     * two lines keeps its control beside the first. The step is the large one,
+     * which is the title a card header holds; a header set at another step
+     * retunes the line with the family token.
+     */
+    --_selection-line: var(
+      --slotted-card-selection-line,
+      calc(var(--slotted-font-size-lg, 1rem) * var(--slotted-line-height-lg, 1.5))
+    );
+
+    align-items: center;
+    align-self: start;
+    block-size: var(--_selection-line);
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    /* Above the stretched hit area: a card holding a choice is not a
+       destination, but a consumer may still raise something over the surface. */
+    position: relative;
+  }
+
+  /**
+   * The control is the selection scale's square, the one `checkbox` and
+   * `radio-group` draw in, and it does not follow density: the control glyph
+   * scale it read before fell to thirteen pixels at `dense`, and a chooser
+   * smaller than the check beside it in the same form was two answers.
+   *
+   * The card sizes and places the control and paints none of it. Tinting it
+   * with `accent-color` was tried and reverted: the accent is a dark blue, so
+   * on a dark card the platform had to draw its mark and ring in white against
+   * it, and the checked radio came out ringed in white — brighter than the
+   * card's own selected edge. Left alone, the control follows `color-scheme`
+   * and reads correctly in both. It is the same boundary the part is drawn on:
+   * `checkbox radio-group` owns what the control looks like, and a brand-tinted
+   * check arrives with the family that owns the geometry.
+   *
+   * The control's box is below the WCAG minimum target on its own. The target
+   * is the card: the surface is the `<label>`, so the hit area is the whole
+   * card, which is the correction the token foundation asks a family to make.
+   */
+  [data-ui-card] > [data-part-header] > [data-part-selection] > :is(input, button) {
+    block-size: var(--slotted-card-selection-size, var(--slotted-selection-size-md, 16px));
+    inline-size: var(--slotted-card-selection-size, var(--slotted-selection-size-md, 16px));
+    margin: 0;
+  }
+
+  /* Cards stretched to a common height in a grid keep their footers on one
+     line, because the body takes the leftover. */
+  [data-ui-card] > [data-part-body] {
+    flex: 1 1 auto;
+    min-block-size: 0;
+  }
+
+  [data-ui-card] > [data-part-footer] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-card-footer-gap, var(--slotted-space-4, 0.5rem));
+    /* Above the stretched hit area: a secondary action belongs in the footer
+       and has to stay operable while the card resolves to somewhere else. */
+    position: relative;
+  }
+
+  /**
+   * A rule between two regions is a Divider written between them, not an axis
+   * of this family. It runs edge to edge because the region padding is the
+   * region's own, and `inset` on the rule lines it up with the text instead.
+   * The regions on either side keep the distance they already had.
+   */
+  [data-ui-card] > [data-ui-divider] {
+    flex-shrink: 0;
+  }
+
+  [data-ui-card][data-orientation='horizontal'] > [data-ui-divider] {
+    grid-column: 2;
+  }
+
+  [data-ui-card] > [data-part-media] {
+    display: block;
+    min-inline-size: 0;
+    overflow: hidden;
+  }
+
+  [data-ui-card] > [data-part-media] > :is(img, video, canvas, picture, svg) {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+    object-fit: cover;
+  }
+
+  /* The media rounds the corners it touches and no others. The radius is the
+     card's own, less the edge it sits inside. */
+  [data-ui-card] > [data-part-media]:first-child {
+    border-start-end-radius: var(--_card-radius);
+    border-start-start-radius: var(--_card-radius);
+  }
+
+  [data-ui-card] > [data-part-media]:last-child {
+    border-end-end-radius: var(--_card-radius);
+    border-end-start-radius: var(--_card-radius);
+  }
+
+  /**
+   * A horizontal card is a grid of two columns and four rows: the media takes
+   * the first column across every row, and the three regions take rows one to
+   * three of the second. The fourth row is empty until the card reflows, and
+   * an empty row costs nothing because the rhythm is padding, not a gap.
+   */
+  [data-ui-card][data-orientation='horizontal'] {
+    container-name: slotted-card;
+    container-type: inline-size;
+    display: grid;
+    /* A card that reflows on its own inline size cannot also be sized by its
+       content: `container-type` removes the inline contribution, so a
+       horizontal card in a flex row would collapse to one word per line. It
+       fills the inline size it is given instead, and shrinks with its row. */
+    inline-size: 100%;
+    /* A ratio rather than a length: a card decides how much of itself the
+       media may take, and a theme that wants a fixed strip sets the token to
+       one. Neither is a scale the family invents. */
+    grid-template-columns: var(--slotted-card-media-size, minmax(0, 1fr)) minmax(0, 2fr);
+    grid-template-rows: repeat(4, auto);
+  }
+
+  [data-ui-card][data-orientation='horizontal'] > [data-part-media] {
+    border-end-end-radius: 0;
+    border-end-start-radius: var(--_card-radius);
+    border-start-end-radius: 0;
+    border-start-start-radius: var(--_card-radius);
+    grid-area: 1 / 1 / -1 / 2;
+  }
+
+  [data-ui-card][data-orientation='horizontal'] > [data-part-header] {
+    grid-area: 1 / 2;
+  }
+
+  [data-ui-card][data-orientation='horizontal'] > [data-part-body] {
+    grid-area: 2 / 2;
+  }
+
+  [data-ui-card][data-orientation='horizontal'] > [data-part-footer] {
+    grid-area: 3 / 2;
+  }
+
+  /**
+   * The card answers its own inline size, not the viewport's. Below the
+   * breakpoint every part spans both columns, which collapses the media
+   * column and returns the media to the top of a single column. The value is
+   * a literal because CSS forbids a custom property in a container condition.
+   */
+  @container slotted-card (max-inline-size: 24rem) {
+    [data-ui-card][data-orientation='horizontal'] > [data-part-media] {
+      border-end-start-radius: 0;
+      border-start-end-radius: var(--_card-radius);
+      grid-area: 1 / 1 / 2 / -1;
+    }
+
+    [data-ui-card][data-orientation='horizontal'] > [data-part-header] {
+      grid-area: 2 / 1 / 3 / -1;
+    }
+
+    [data-ui-card][data-orientation='horizontal'] > [data-part-body] {
+      grid-area: 3 / 1 / 4 / -1;
+    }
+
+    [data-ui-card][data-orientation='horizontal'] > [data-part-footer] {
+      grid-area: 4 / 1 / 5 / -1;
+    }
+  }
+
+  /**
+   * A card that resolves to one destination stretches that anchor's hit area
+   * across the whole surface. The element stays an `<a href>`, so the name,
+   * Enter, the context menu and middle-click are the platform's, and the name
+   * is the title rather than every string in the card.
+   */
+  [data-ui-card] [data-part-link]::after {
+    content: '';
+    inset: 0;
+    position: absolute;
+  }
+
+  /**
+   * Focus keeps the accent and stays outside the card; selection takes the
+   * inverse surface and sits on the edge. In this theme
+   * `--slotted-focus-ring-color` and `--slotted-tone-accent-border` resolve to
+   * the same hex, so a selected card and a focused card were the same image.
+   * They now differ in colour, in width and in position.
+   */
+  [data-ui-card]:has(
+    :is([data-part-link], [data-part-selection] :is(input, button)):focus-visible
+  ) {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * Written inside `:has()` on purpose: a browser without it drops the whole
+   * rule and keeps the native outline, rather than removing the only ring.
+   *
+   * The control's own ring goes for the same reason the link's does. The card
+   * is the label and the click target, so the card is what the ring is about;
+   * drawing both left a ring around a 16px radio inside a ring around the whole
+   * surface. Carbon and Fluent avoid the pair by hiding the control outright,
+   * which is not open here — the control is meant to be seen.
+   */
+  [data-ui-card]:has([data-part-link]) [data-part-link]:focus-visible,
+  [data-ui-card]:has([data-part-selection]) [data-part-selection] :is(input, button):focus-visible {
+    outline: none;
+  }
+
+  /**
+   * Selection is the accent surface under a one-pixel accent edge (C1, by R1:
+   * `selected` is the `accent-subtle` ground, never a rail or a heavier
+   * stroke), the same pair `list-item` paints on a selected row, so a chosen
+   * card and a chosen row in one page are one state. The edge keeps the
+   * resting width; the ground is what says chosen.
+   *
+   * The `high-contrast` scheme paints the accent surface white and the accent
+   * edge black, like every other border, so there the card itself says
+   * nothing — and does not have to: the control inside is checked, and the
+   * check is what carries the state, as it does for assistive technology. The
+   * inverse-surface edge this replaced survived that scheme by being thicker,
+   * and was the rail R1 removes.
+   *
+   * A selected card still answers the pointer: the ground steps to the
+   * accent's hover and active tints, as a selected row's does, and the edge
+   * holds, because it is already saying the stronger thing.
+   */
+  [data-ui-card][data-selected] {
+    --_card-surface-rest: var(
+      --slotted-card-background-selected,
+      var(--slotted-tone-accent-surface, Canvas)
+    );
+    --_card-surface-hover: var(
+      --slotted-card-background-selected-hover,
+      var(--slotted-tone-accent-subtle-hover, Canvas)
+    );
+    --_card-surface-active: var(
+      --slotted-card-background-selected-active,
+      var(--slotted-tone-accent-subtle-active, Canvas)
+    );
+    --_card-edge-rest: var(
+      --slotted-card-edge-color-selected,
+      var(--slotted-tone-accent-border, CanvasText)
+    );
+    --_card-edge: var(--_card-edge-rest);
+    --_card-edge-hover: var(--_card-edge-rest);
+    --_card-edge-active: var(--_card-edge-rest);
+    --_card-edge-width: var(
+      --slotted-card-edge-width-selected,
+      var(--slotted-border-width-thin, 1px)
+    );
+  }
+
+  /**
+   * Disabled is answered per fill like every other state: the two that rest on
+   * the raised surface recede onto the sunken one, and the fill already resting
+   * there takes the control's disabled ground instead. The edge and the text
+   * mute in every case, and the elevation drops to nothing — a card that cannot
+   * be used does not float above the page.
+   */
+  [data-ui-card][data-disabled] {
+    --_card-surface: var(--_card-surface-disabled);
+    --_card-edge: var(
+      --slotted-card-border-color-disabled,
+      var(--slotted-disabled-border, GrayText)
+    );
+    --_card-shadow: none;
+
+    color: var(--slotted-card-color-disabled, var(--slotted-disabled-foreground, GrayText));
+  }
+
+  /* The card withdraws the hit area it added. Disabling the control itself is
+     the consumer's, because only the control can refuse an interaction. */
+  [data-ui-card][data-disabled] [data-part-link]::after {
+    display: none;
+  }
+}

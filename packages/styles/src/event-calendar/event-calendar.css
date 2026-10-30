@@ -1,0 +1,2106 @@
+@layer slotted.components {
+  /**
+   * ── The root ────────────────────────────────────────────────────────────
+   *
+   * A heading, the controls that move it, and one of three bodies: the month
+   * table, the time grid, or the list. Everything is sized from the control
+   * scales, so a calendar at `dense` is the same calendar with less air rather
+   * than a different drawing.
+   */
+  [data-ui-event-calendar][data-part-root] {
+    container: slotted-event-calendar / inline-size;
+
+    /** Grid rules, drawn once per cell edge. */
+    --_rule: var(--slotted-event-calendar-rule-color, var(--slotted-border-subtle, #d8dee6));
+    --_rule-width: var(--slotted-border-width-thin, 1px);
+    /**
+     * The air between an event and anything beside it: a grid rule, the
+     * event in the next column, the one in the next lane. An event that
+     * touched a rule read as part of the grid, and two that touched read as
+     * one.
+     */
+    --_air: var(--slotted-space-2, 0.25rem);
+    /**
+     * An hour is two small controls tall, so a thirty-minute slot is one small
+     * control: the grid shrinks with density as the controls around it do —
+     * 60, 52 and 48 pixels at the three steps.
+     */
+    --_hour: var(
+      --slotted-event-calendar-hour-size,
+      calc(var(--slotted-control-height-sm, 30px) * 2)
+    );
+    /**
+     * An event line is the inside of a small control; lanes are that far
+     * apart plus the air. It never goes below the minimum target less the
+     * air, so two lanes stand at least a minimum target apart: at `dense`
+     * the inside of a small control is 16, a pitch of 20, and the 12-pixel
+     * type filled the line to its edges.
+     */
+    --_event-size: max(
+      var(--slotted-control-inner-size-sm, 22px),
+      calc(var(--slotted-target-min, 24px) - var(--_air))
+    );
+    --_event-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_event-radius: var(--slotted-event-calendar-event-radius, var(--slotted-radius-sm, 4px));
+    /**
+     * An event is its calendar's slot of the data scale mixed into the
+     * ground, inside an edge of the same slot mixed stronger, and written in
+     * the page's ink tinted toward the same slot: one hue carries the
+     * identity through the ground, the edge and the words. Each state moves
+     * the same three along one line — rest, hover, press — and the event that
+     * is open or held by the pointer leaves the line for the solid slot,
+     * darkened until white type on it passes 4.5:1 (the palette's lightest
+     * slot, green, needs a fifth of black).
+     */
+    --_tint: 14%;
+    --_tint-hover: 21%;
+    --_tint-active: 27%;
+    --_edge: 34%;
+    --_edge-hover: 50%;
+    /* A slot mixed a seventh into a near-black ground is mud: the dark scheme
+       takes more of the slot at every step, chosen by the region's own
+       `color-scheme` through `light-dark()`, so a light island in a dark page
+       keeps the light scale. */
+    --_tint-dark: 24%;
+    --_tint-hover-dark: 32%;
+    --_tint-active-dark: 38%;
+    --_edge-dark: 44%;
+    --_edge-hover-dark: 60%;
+    --_ink-mix: 58%;
+    --_hue: var(--slotted-text-muted, #5b6b7f);
+    /** The ground of time nobody works in, in every scheme a step off the page. */
+    --_off: color-mix(in oklab, var(--slotted-text-muted, #5b6b7f) 7%, transparent);
+    /** The gutter holds the longest hour label of a 12-hour locale, "12 PM". */
+    --_gutter: calc(var(--slotted-space-11, 3rem) + var(--slotted-space-4, 0.5rem));
+    --_gap: var(--slotted-control-gap-md, 8px);
+    /**
+     * The line box of the two small texts, rounded to a whole pixel against
+     * the element's own size. 1.4 × 12 is 16.8 and 1.45 × 13 is 18.85: a
+     * weekday header, a column header and a list day stack those lines under
+     * a rule, and every rule below them landed on a fraction of a pixel.
+     */
+    --_line-xs: round(nearest, calc(1em * var(--slotted-line-height-xs, 1.4)), 1px);
+    --_line-sm: round(nearest, calc(1em * var(--slotted-line-height-sm, 1.45)), 1px);
+
+    /**
+     * The ground the calendar sits on. It draws no box of its own — on a
+     * sunken page, a card or a panel it takes that ground — and every fill it
+     * mixes is mixed over this one value, so a consumer who names the ground
+     * with `--slotted-event-calendar-background` moves the fills with it.
+     */
+    --_base: var(--slotted-event-calendar-background, var(--slotted-surface, #ffffff));
+
+    background-color: var(--slotted-event-calendar-background, transparent);
+    box-sizing: border-box;
+    color: var(--slotted-text, #0f172a);
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--slotted-control-font-size-md, 13px);
+    gap: var(--slotted-space-5, 0.75rem);
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+
+  [data-ui-event-calendar] *,
+  [data-ui-event-calendar] *::before,
+  [data-ui-event-calendar] *::after {
+    box-sizing: border-box;
+  }
+
+  /**
+   * ── The header ──────────────────────────────────────────────────────────
+   *
+   * `header`, `title`, `body` and `actions` are also parts of `popover` and
+   * `alert`, which this family draws inside itself — the "+N" panel, the
+   * detail, the error. A descendant selector reached into them and laid the
+   * popover's header out as this one's grid; these four are selected as
+   * children of the root, where only this family's own can be.
+   *
+   * Three compositions, chosen by the calendar's own width rather than left
+   * to wrapping: one row when everything fits; the title and the navigation
+   * over the views and the filter; and, narrowest, the title alone, then the
+   * navigation and the filter, then the views across the whole width. Wrapping
+   * decided the order by accident and left a filter alone on a line of its
+   * own.
+   *
+   * It is a grid with no column gap: an area a calendar does not draw — no
+   * filter with one calendar, no actions — is an empty `auto` track, and a gap
+   * beside it would still be drawn. The air is each area's own start margin.
+   */
+  [data-ui-event-calendar] > [data-part-header] {
+    align-items: center;
+    display: grid;
+    grid-template-areas: 'title navigation views filter actions';
+    grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+    row-gap: var(--slotted-space-4, 0.5rem);
+  }
+
+  [data-ui-event-calendar] > [data-part-header] > [data-part-title] {
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--slotted-font-size-lg, 1rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    grid-area: title;
+    line-height: var(--slotted-line-height-lg, 1.5);
+    margin: 0;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-event-calendar] [data-part-navigation] {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-area: navigation;
+    margin-inline-start: var(--slotted-space-6, 1rem);
+  }
+
+  [data-ui-event-calendar] [data-part-views] {
+    display: flex;
+    grid-area: views;
+    margin-inline-start: var(--slotted-space-5, 0.75rem);
+    min-inline-size: 0;
+  }
+
+  [data-ui-event-calendar] [data-part-filter] {
+    grid-area: filter;
+    margin-inline-start: var(--_gap);
+  }
+
+  [data-ui-event-calendar] > [data-part-header] > [data-part-actions] {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--_gap);
+    grid-area: actions;
+    margin-inline-start: var(--_gap);
+  }
+
+  /**
+   * The four header controls the family draws itself: "today", the filter,
+   * and the two page triggers. `button` fixes its own `data-part` to `root`,
+   * so it cannot carry this family's part; the look is the outlined secondary
+   * control every form already shows, read from the same control tokens.
+   */
+  [data-ui-event-calendar] [data-part-today],
+  [data-ui-event-calendar] [data-part-filter],
+  [data-ui-event-calendar] [data-part-previous],
+  [data-ui-event-calendar] [data-part-next] {
+    align-items: center;
+    appearance: none;
+    background-color: var(--slotted-control-surface, #ffffff);
+    block-size: var(--slotted-control-height-md, 34px);
+    border: var(--slotted-border-width-thin, 1px) solid var(--slotted-control-border-color, #bfc7d1);
+    border-radius: var(--slotted-control-radius, 4px);
+    box-shadow: var(--slotted-control-shadow, none);
+    color: var(--slotted-text, #0f172a);
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    gap: var(--slotted-control-gap-md, 8px);
+    justify-content: center;
+    padding-block: 0;
+    padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing);
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-event-calendar] [data-part-previous],
+  [data-ui-event-calendar] [data-part-next] {
+    inline-size: var(--slotted-control-height-md, 34px);
+    padding-inline: 0;
+  }
+
+  [data-ui-event-calendar] [data-part-today]:hover:not([data-disabled]),
+  [data-ui-event-calendar] [data-part-filter]:hover:not([data-disabled]),
+  [data-ui-event-calendar] [data-part-previous]:hover:not([data-disabled]),
+  [data-ui-event-calendar] [data-part-next]:hover:not([data-disabled]) {
+    background-color: var(--slotted-tone-secondary-subtle-hover, #eef1f5);
+  }
+
+  [data-ui-event-calendar] [data-part-today]:active:not([data-disabled]),
+  [data-ui-event-calendar] [data-part-filter]:active:not([data-disabled]),
+  [data-ui-event-calendar] [data-part-previous]:active:not([data-disabled]),
+  [data-ui-event-calendar] [data-part-next]:active:not([data-disabled]),
+  [data-ui-event-calendar] [data-part-filter][aria-expanded='true'] {
+    background-color: var(--slotted-tone-secondary-subtle-active, #e2e8f0);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /**
+   * One chevron, turned. The artwork points along the writing direction, so
+   * "previous" is "next" turned half a turn, and both follow `dir` — the rule
+   * `pagination` set and `calendar` follows. The mark is the library's `Glyph`
+   * inside an `icon` box, which the binding draws; the header only sizes and
+   * turns the box.
+   */
+  [data-ui-event-calendar] [data-part-previous] > [data-ui-icon],
+  [data-ui-event-calendar] [data-part-next] > [data-ui-icon],
+  [data-ui-event-calendar] [data-part-filter] > [data-ui-icon] {
+    --slotted-icon-size: var(--slotted-control-icon-size-md, 16px);
+  }
+
+  [data-ui-event-calendar] [data-part-previous] > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  [data-ui-event-calendar]:dir(rtl) [data-part-previous] > [data-ui-icon] {
+    rotate: 0deg;
+  }
+
+  [data-ui-event-calendar]:dir(rtl) [data-part-next] > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  [data-ui-event-calendar] [data-part-filter] > [data-ui-icon] {
+    color: var(--slotted-text-muted, #5b6b7f);
+  }
+
+  /**
+   * ── Focus ───────────────────────────────────────────────────────────────
+   *
+   * Every control of the family draws the theme's ring. A cell draws it
+   * inside its own edge, because the cell beside it shares that edge and a
+   * ring hung outside would be half under the neighbour.
+   */
+  [data-ui-event-calendar] [data-part-today]:focus-visible,
+  [data-ui-event-calendar] [data-part-filter]:focus-visible,
+  [data-ui-event-calendar] [data-part-previous]:focus-visible,
+  [data-ui-event-calendar] [data-part-next]:focus-visible,
+  [data-ui-event-calendar] [data-part-day-number]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  [data-ui-event-calendar] [data-part-day]:focus-visible,
+  [data-ui-event-calendar] [data-part-column-header]:focus-visible,
+  [data-ui-event-calendar] [data-part-all-day-cell]:focus-visible,
+  [data-ui-event-calendar] [data-part-column]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-width, 2px) * -1);
+  }
+
+  /**
+   * An event sits in the air the grid leaves around it, and its ring stands
+   * in that air: one pixel out, inside the space to the next event or rule.
+   */
+  [data-ui-event-calendar] [data-part-event]:focus-visible,
+  [data-ui-event-calendar] [data-part-more]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: 1px;
+    z-index: 3;
+  }
+
+  /**
+   * ── The body ────────────────────────────────────────────────────────────
+   *
+   * A column that fills what the root is given. With no height on the root,
+   * the month and the list take their content's height and the hours take at
+   * most 40rem; a root with a height gives the hours the rest of it.
+   */
+  [data-ui-event-calendar] > [data-part-body] {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-block-size: 0;
+    position: relative;
+  }
+
+  /**
+   * With a context menu the body is that family's target. Its inward mark
+   * would outline the whole grid; the calendar marks the event or the
+   * stretch the commands act on instead.
+   */
+  [data-ui-event-calendar] > [data-part-body][data-ui-context-menu] {
+    --slotted-context-menu-mark-width: 0px;
+  }
+
+  /**
+   * One indicator for the wait: an indeterminate bar on the body's top edge,
+   * over the grid's first rule. The grid stays painted — it is structure the
+   * date already decides — and nothing moves when the events arrive.
+   */
+  /* A list in a root given a height scrolls under its header, as a screen of
+     an application does; with no height the body is the list's height and
+     nothing scrolls. The panels are the body's siblings, so nothing it
+     clips. */
+  [data-ui-event-calendar][data-layout='list'] > [data-part-body] {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  [data-ui-event-calendar] > [data-part-body] > [data-part-loader] {
+    inset-block-start: 0;
+    inset-inline: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 4;
+  }
+
+  [data-ui-event-calendar] > [data-part-body] > [data-part-error] {
+    margin-block-end: var(--slotted-space-5, 0.75rem);
+  }
+
+  [data-ui-event-calendar] > [data-part-body][aria-busy='true'] [data-part-event] {
+    opacity: 0.6;
+  }
+
+  /**
+   * ── The month ───────────────────────────────────────────────────────────
+   *
+   * A real `table` with the grid role, so rows and cells are implied, as in
+   * `calendar`. Every week reserves the same lanes — `maxEvents` of them and
+   * one for "+N" — so the rows are one height across weeks and months, and a
+   * month whose events are still loading is the same boxes as the month they
+   * land in.
+   */
+  /* A root given a height — a phone screen, a pane of an application — gives
+     the rest of it to the weeks: the month grows as a column item and the
+     table spreads the height over its rows, instead of ending half way down
+     the screen. With no height on the root it is its content's height. */
+  [data-ui-event-calendar] [data-part-month] {
+    flex: 1 0 auto;
+    border-block-start: var(--_rule-width) solid var(--_rule);
+    border-collapse: separate;
+    border-inline-start: var(--_rule-width) solid var(--_rule);
+    border-spacing: 0;
+    inline-size: 100%;
+    table-layout: fixed;
+  }
+
+  [data-ui-event-calendar] [data-part-weekday],
+  [data-ui-event-calendar] [data-part-week-number-header] {
+    color: var(--slotted-text-muted, #5b6b7f);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    line-height: var(--_line-xs);
+    overflow: hidden;
+    padding-block: var(--slotted-space-3, 0.375rem);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    text-align: start;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-event-calendar] [data-part-month] [data-part-weekday],
+  [data-ui-event-calendar] [data-part-month] [data-part-week-number-header] {
+    border-block-end: var(--_rule-width) solid var(--_rule);
+    border-inline-end: var(--_rule-width) solid var(--_rule);
+  }
+
+  /** The week-number column is a quarter of a day, enough for two digits. */
+  [data-ui-event-calendar] [data-part-week-number-header],
+  [data-ui-event-calendar] [data-part-week-number] {
+    inline-size: calc(var(--slotted-space-9, 2rem) + var(--slotted-space-2, 0.25rem));
+  }
+
+  [data-ui-event-calendar] [data-part-week-number] {
+    border-block-end: var(--_rule-width) solid var(--_rule);
+    border-inline-end: var(--_rule-width) solid var(--_rule);
+    color: var(--slotted-text-muted, #5b6b7f);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-regular, 400);
+    padding-block-start: var(--slotted-space-4, 0.5rem);
+    text-align: center;
+    vertical-align: top;
+  }
+
+  /**
+   * A day is a cell with a ruled end and bottom. `--_pad` is its inset — the
+   * air between the rules and what the cell holds — and the one number a bar
+   * reads to reach across into the cells after it.
+   */
+  [data-ui-event-calendar] [data-part-day] {
+    --_pad: var(--_air);
+
+    border-block-end: var(--_rule-width) solid var(--_rule);
+    border-inline-end: var(--_rule-width) solid var(--_rule);
+    padding: var(--_pad);
+    position: relative;
+    vertical-align: top;
+  }
+
+  [data-ui-event-calendar] [data-part-day][data-non-working],
+  [data-ui-event-calendar] [data-part-column][data-non-working],
+  [data-ui-event-calendar] [data-part-all-day-cell][data-non-working] {
+    background-color: var(--slotted-event-calendar-off-background, var(--_off));
+  }
+
+  /**
+   * A run of days is one band, not a row of boxes: every chosen cell draws
+   * the band's top and bottom edge, and only the first and last of a run in
+   * a row draw its start and end. The inline edges are inset shadows, so the
+   * offset carries the direction: `--_run-direction` turns it in RTL.
+   */
+  [data-ui-event-calendar] [data-part-day][data-selected],
+  [data-ui-event-calendar] [data-part-all-day-cell][data-selected] {
+    --_run-edge: var(--slotted-border-width-thin, 1px);
+    --_run-color: var(
+      --slotted-event-calendar-selection-border-color,
+      var(--slotted-tone-accent-border, #2563eb)
+    );
+    --_run-start: 0px;
+    --_run-end: 0px;
+    --_run-direction: 1;
+
+    background-color: var(
+      --slotted-event-calendar-selection-background,
+      var(--slotted-tone-accent-surface, #eff6ff)
+    );
+    box-shadow:
+      inset 0 var(--_run-edge) 0 0 var(--_run-color),
+      inset 0 calc(var(--_run-edge) * -1) 0 0 var(--_run-color),
+      inset calc(var(--_run-start) * var(--_run-direction)) 0 0 0 var(--_run-color),
+      inset calc(var(--_run-end) * var(--_run-direction) * -1) 0 0 0 var(--_run-color);
+  }
+
+  [data-ui-event-calendar]:dir(rtl) [data-part-day][data-selected],
+  [data-ui-event-calendar]:dir(rtl) [data-part-all-day-cell][data-selected] {
+    --_run-direction: -1;
+  }
+
+  [data-ui-event-calendar] [data-part-day][data-selected]:not([data-selected] + *),
+  [data-ui-event-calendar] [data-part-all-day-cell][data-selected]:not([data-selected] + *) {
+    --_run-start: var(--_run-edge);
+  }
+
+  [data-ui-event-calendar] [data-part-day][data-selected]:not(:has(+ [data-selected])),
+  [data-ui-event-calendar] [data-part-all-day-cell][data-selected]:not(:has(+ [data-selected])) {
+    --_run-end: var(--_run-edge);
+  }
+
+  /**
+   * The day's number on the start side, the consumer's content for the day
+   * on the end side, one line: a price, a count of free slots, a holiday.
+   */
+  [data-ui-event-calendar] [data-part-day-header] {
+    align-items: center;
+    display: flex;
+    gap: var(--slotted-space-2, 0.25rem);
+    justify-content: space-between;
+    margin-block-end: var(--_air);
+    min-inline-size: 0;
+  }
+
+  [data-ui-event-calendar] [data-part-day-content] {
+    color: var(--slotted-text-muted, #5b6b7f);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    line-height: var(--_line-xs);
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    unicode-bidi: plaintext;
+    white-space: nowrap;
+  }
+
+  /**
+   * The day's number is a small round control, the size of what stands inside
+   * a control, so it lines up with the lanes under it. Today is the accent
+   * solid, the one filled mark on the page.
+   */
+  [data-ui-event-calendar] [data-part-day-number] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_event-size);
+    border: 0;
+    border-radius: var(--slotted-radius-full, 9999px);
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font: inherit;
+    font-size: var(--_event-font-size);
+    font-variant-numeric: tabular-nums;
+    justify-content: center;
+    min-inline-size: var(--_event-size);
+    padding-block: 0;
+    padding-inline: var(--slotted-space-2, 0.25rem);
+    transition: background-color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-event-calendar] [data-part-day-number]:hover:not([data-disabled]) {
+    background-color: var(--slotted-tone-secondary-subtle-hover, #eef1f5);
+  }
+
+  [data-ui-event-calendar] [data-part-day-number]:active:not([data-disabled]) {
+    background-color: var(--slotted-tone-secondary-subtle-active, #e2e8f0);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  [data-ui-event-calendar] [data-part-day][data-outside-month] [data-part-day-number] {
+    color: var(--slotted-text-muted, #5b6b7f);
+  }
+
+  [data-ui-event-calendar] [data-today] > [data-part-day-header] [data-part-day-number],
+  [data-ui-event-calendar] [data-part-column-header][data-today] [data-part-day-number] {
+    background-color: var(
+      --slotted-event-calendar-today-background,
+      var(--slotted-tone-accent-solid, #2563eb)
+    );
+    color: var(--slotted-event-calendar-today-color, var(--slotted-tone-accent-on-solid, #ffffff));
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  /**
+   * Lanes. One grid row per lane and one more for "+N", every row one lane
+   * tall and the air between them, so a lane is the same height in every day
+   * of every week and a bar crossing from one cell into the next stays on its
+   * line.
+   */
+  [data-ui-event-calendar] [data-part-day-events],
+  [data-ui-event-calendar] [data-part-all-day-cell] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(var(--slotted-event-calendar-lanes, 3), var(--_event-size));
+    row-gap: var(--_air);
+  }
+
+  [data-ui-event-calendar] [data-part-day-events] {
+    container: slotted-event-calendar-day / inline-size;
+    grid-template-rows:
+      repeat(var(--slotted-event-calendar-lanes, 3), var(--_event-size))
+      var(--_event-size);
+    position: relative;
+  }
+
+  [data-ui-event-calendar] [data-part-day-events] > [data-part-event],
+  [data-ui-event-calendar] [data-part-all-day-cell] > [data-part-event] {
+    grid-column: 1;
+    grid-row: var(--slotted-event-lane, 1);
+    justify-self: start;
+  }
+
+  [data-ui-event-calendar] [data-part-day-events] > [data-part-more] {
+    grid-column: 1;
+    grid-row: -2 / -1;
+    justify-self: start;
+  }
+
+  /**
+   * ── The event ───────────────────────────────────────────────────────────
+   *
+   * One element in three places: a line in a lane, a block in a column, a row
+   * in the list. What it is painted with is its calendar's slot of the data
+   * scale; the slot is the identity and the text is the meaning, so the ink
+   * stays the page's own.
+   */
+  [data-ui-event-calendar] [data-part-event] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: var(--slotted-border-width-thin, 1px) solid transparent;
+    border-radius: var(--_event-radius);
+    color: var(--slotted-text, #0f172a);
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-size: var(--_event-font-size);
+    gap: var(--slotted-space-2, 0.25rem);
+    line-height: var(--_line-xs);
+    margin: 0;
+    min-inline-size: 0;
+    overflow: hidden;
+    padding-block: 0;
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    text-align: start;
+    text-decoration: none;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-color='1'] {
+    --_hue: var(--slotted-data-1, #2563eb);
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-color='2'] {
+    --_hue: var(--slotted-data-2, #ea580c);
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-color='3'] {
+    --_hue: var(--slotted-data-3, #0891b2);
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-color='4'] {
+    --_hue: var(--slotted-data-4, #dc2626);
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-color='5'] {
+    --_hue: var(--slotted-data-5, #7c3aed);
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-color='6'] {
+    --_hue: var(--slotted-data-6, #a16207);
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-color='7'] {
+    --_hue: var(--slotted-data-7, #c026d3);
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-color='8'] {
+    --_hue: var(--slotted-data-8, #16a34a);
+  }
+
+  /**
+   * Each text of an event takes its direction from its own content. A title
+   * is the consumer's string, and an English title on a Hebrew page read
+   * "AM 7:30" and lost its start to the ellipsis when it inherited the page's
+   * direction instead.
+   */
+  [data-ui-event-calendar] [data-part-event-time],
+  [data-ui-event-calendar] [data-part-event-title],
+  [data-ui-event-calendar] [data-part-event-location],
+  [data-ui-event-calendar] [data-part-more],
+  [data-ui-event-calendar] [data-part-hour],
+  [data-ui-event-calendar] [data-part-zone],
+  [data-ui-event-calendar] [data-part-selection],
+  [data-ui-event-calendar] [data-part-offset-change] {
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-event-calendar] [data-part-event-time] {
+    color: var(--slotted-text-muted, #5b6b7f);
+    flex: 0 0 auto;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  [data-ui-event-calendar] [data-part-event-title] {
+    flex: 0 1 auto;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-event-calendar] [data-part-event-location] {
+    color: var(--slotted-text-muted, #5b6b7f);
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /** Text for assistive technology alone, in the shape `visually-hidden` draws. */
+  [data-ui-event-calendar] [data-part-event-meta],
+  [data-ui-event-calendar] [data-part-continuation] {
+    block-size: 1px;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  /**
+   * A timed event of one day in the month is a line, not a bar: its mark, its
+   * time and its title, and no ground. A month where every meeting was a bar
+   * read as a wall of colour, and the all-day events — the ones a month is
+   * for — no longer stood out from it.
+   */
+  [data-ui-event-calendar] [data-part-day-events] > [data-part-event]:not([data-bar]) {
+    position: relative;
+    block-size: var(--_event-size);
+    inline-size: 100%;
+    padding-inline: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-event-calendar] [data-part-day-events] > [data-part-event]:not([data-bar])::before,
+  [data-ui-event-calendar] [data-part-list-events] [data-part-event]::before {
+    background-color: var(--_hue);
+    block-size: var(--slotted-space-4, 0.5rem);
+    border-radius: var(--slotted-radius-full, 9999px);
+    content: '';
+    flex: 0 0 auto;
+    inline-size: var(--slotted-space-4, 0.5rem);
+  }
+
+  [data-ui-event-calendar]
+    [data-part-day-events]
+    > [data-part-event]:not([data-bar]):hover:not([data-disabled]) {
+    background-color: var(--slotted-tone-secondary-subtle-hover, #eef1f5);
+  }
+
+  [data-ui-event-calendar]
+    [data-part-day-events]
+    > [data-part-event]:not([data-bar]):active:not([data-disabled], [data-open]) {
+    background-color: var(--slotted-tone-secondary-subtle-active, #e2e8f0);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  [data-ui-event-calendar] [data-part-day-events] > [data-part-event]:not([data-bar])[data-open] {
+    background-color: light-dark(
+      color-mix(in oklab, var(--_hue) var(--_tint), var(--_base)),
+      color-mix(in oklab, var(--_hue) var(--_tint-dark), var(--_base))
+    );
+  }
+
+  /**
+   * A bar and a block: the calendar's ground inside the calendar's edge, all
+   * the way round, written in the calendar's ink. A coloured stripe down one
+   * side was the other answer, and it is the one every generated interface
+   * reaches for. `--_ground` is named because the block's fade below paints
+   * with it, so the fade follows every state the ground does.
+   */
+  [data-ui-event-calendar] [data-part-event][data-bar],
+  [data-ui-event-calendar] [data-part-column] > [data-part-event] {
+    --_ground: light-dark(
+      color-mix(in oklab, var(--_hue) var(--_tint), var(--_base)),
+      color-mix(in oklab, var(--_hue) var(--_tint-dark), var(--_base))
+    );
+    --_ink: color-mix(in oklab, var(--_hue) var(--_ink-mix), var(--slotted-text, #0f172a));
+
+    background-color: var(--_ground);
+    border-color: light-dark(
+      color-mix(in oklab, var(--_hue) var(--_edge), var(--_base)),
+      color-mix(in oklab, var(--_hue) var(--_edge-dark), var(--_base))
+    );
+    color: var(--_ink);
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-bar] [data-part-event-time],
+  [data-ui-event-calendar] [data-part-event][data-bar] [data-part-event-location],
+  [data-ui-event-calendar] [data-part-column] > [data-part-event] > [data-part-event-time],
+  [data-ui-event-calendar] [data-part-column] > [data-part-event] > [data-part-event-location] {
+    color: color-mix(in oklab, var(--_ink) 72%, var(--_ground));
+  }
+
+  [data-ui-event-calendar]
+    [data-part-event][data-bar]:hover:not(
+      [data-disabled],
+      [data-open],
+      [data-dragging],
+      [data-context]
+    ),
+  [data-ui-event-calendar]
+    [data-part-column]
+    > [data-part-event]:hover:not([data-disabled], [data-open], [data-dragging], [data-context]) {
+    --_ground: light-dark(
+      color-mix(in oklab, var(--_hue) var(--_tint-hover), var(--_base)),
+      color-mix(in oklab, var(--_hue) var(--_tint-hover-dark), var(--_base))
+    );
+
+    border-color: light-dark(
+      color-mix(in oklab, var(--_hue) var(--_edge-hover), var(--_base)),
+      color-mix(in oklab, var(--_hue) var(--_edge-hover-dark), var(--_base))
+    );
+  }
+
+  [data-ui-event-calendar]
+    [data-part-event][data-bar]:active:not(
+      [data-disabled],
+      [data-open],
+      [data-dragging],
+      [data-context]
+    ),
+  [data-ui-event-calendar]
+    [data-part-column]
+    > [data-part-event]:active:not([data-disabled], [data-open], [data-dragging], [data-context]) {
+    --_ground: light-dark(
+      color-mix(in oklab, var(--_hue) var(--_tint-active), var(--_base)),
+      color-mix(in oklab, var(--_hue) var(--_tint-active-dark), var(--_base))
+    );
+
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /**
+   * The event whose detail is open, and the one the pointer is carrying, is
+   * the solid slot: the one thing on the grid in its calendar's full colour,
+   * so the eye finds it without reading. The slot is darkened by a fifth so
+   * white type holds 4.5:1 on every slot of the scale. The event a context
+   * menu acts on is drawn the same way, for the same reason.
+   */
+  [data-ui-event-calendar] [data-part-event][data-bar][data-open],
+  [data-ui-event-calendar] [data-part-column] > [data-part-event][data-open],
+  [data-ui-event-calendar] [data-part-event][data-bar][data-context],
+  [data-ui-event-calendar] [data-part-column] > [data-part-event][data-context],
+  [data-ui-event-calendar] [data-part-event][data-bar][data-dragging],
+  [data-ui-event-calendar] [data-part-column] > [data-part-event][data-dragging] {
+    --_ground: color-mix(in oklab, var(--_hue) 80%, #000000);
+    --_ink: #ffffff;
+
+    border-color: var(--_ground);
+  }
+
+  /**
+   * A destination `canDrop` refuses: the event in hand leaves the solid slot
+   * for its resting tint inside the danger edge, dashed — the outline of an
+   * event that will not land there — and the pointer says it cannot drop.
+   * Letting go puts it back where it was.
+   */
+  [data-ui-event-calendar] [data-part-event][data-bar][data-dragging][data-drop-invalid],
+  [data-ui-event-calendar]
+    [data-part-column]
+    > [data-part-event][data-dragging][data-drop-invalid] {
+    --_ground: light-dark(
+      color-mix(in oklab, var(--_hue) var(--_tint), var(--_base)),
+      color-mix(in oklab, var(--_hue) var(--_tint-dark), var(--_base))
+    );
+    --_ink: color-mix(in oklab, var(--_hue) var(--_ink-mix), var(--slotted-text, #0f172a));
+
+    border-color: var(--slotted-tone-danger-border, #dc2626);
+    border-style: dashed;
+  }
+
+  [data-ui-event-calendar]:has([data-part-event][data-drop-invalid]),
+  [data-ui-event-calendar]:has([data-part-event][data-drop-invalid]) * {
+    cursor: not-allowed;
+  }
+
+  /* The solid slot answers the pointer by darkening, never by going back to the tint. */
+  [data-ui-event-calendar] [data-part-event][data-bar][data-open]:hover:not([data-disabled]),
+  [data-ui-event-calendar]
+    [data-part-column]
+    > [data-part-event][data-open]:hover:not([data-disabled]) {
+    --_ground: color-mix(in oklab, var(--_hue) 70%, #000000);
+  }
+
+  /* And the press one step further down the same line: 80, 70, 60. */
+  [data-ui-event-calendar] [data-part-event][data-bar][data-open]:active:not([data-disabled]),
+  [data-ui-event-calendar]
+    [data-part-column]
+    > [data-part-event][data-open]:active:not([data-disabled]) {
+    --_ground: color-mix(in oklab, var(--_hue) 60%, #000000);
+
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /**
+   * A block holds what its height holds. When the title wraps past the end of
+   * a short block, the last line fades into the block's own ground instead of
+   * being cut by its edge; a block whose words end above the fade shows
+   * nothing of it, because the fade is the ground it lies on.
+   */
+  [data-ui-event-calendar] [data-part-column] > [data-part-event]:not([data-short])::after {
+    background-image: linear-gradient(to bottom, transparent, var(--_ground));
+    block-size: min(var(--slotted-space-6, 1rem), 45%);
+    border-end-end-radius: inherit;
+    border-end-start-radius: inherit;
+    content: '';
+    inset-block-end: 0;
+    inset-inline: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  /**
+   * An event that has ended steps back: less of its colour, its words in the
+   * muted ink. The day's remaining events are the ones a reader acts on.
+   */
+  [data-ui-event-calendar] [data-part-event][data-past]:not([data-open], [data-dragging]) {
+    --_tint: 7%;
+    --_tint-hover: 13%;
+    --_edge: 20%;
+    --_tint-dark: 12%;
+    --_tint-hover-dark: 19%;
+    --_edge-dark: 26%;
+    --_ink-mix: 30%;
+  }
+
+  [data-ui-event-calendar]
+    [data-part-day-events]
+    > [data-part-event][data-past]:not([data-bar])::before {
+    opacity: 0.55;
+  }
+
+  [data-ui-event-calendar] [data-part-day-events] > [data-part-event][data-past]:not([data-bar]) {
+    color: var(--slotted-text-muted, #5b6b7f);
+  }
+
+  /* The list steps a past event back the same way: its mark faded and its
+     words in the muted ink, the time and the place quieter still. */
+  [data-ui-event-calendar] [data-part-list-events] [data-part-event][data-past]::before {
+    opacity: 0.55;
+  }
+
+  [data-ui-event-calendar] [data-part-list-events] [data-part-event][data-past] {
+    color: var(--slotted-text-muted, #5b6b7f);
+  }
+
+  /**
+   * A bar across days is drawn in the cell of its first day in the row, as
+   * wide as the cells it covers less the air at both ends: `span` cells, each
+   * its content plus two insets and one rule, less the inset and rule of the
+   * last. It is placed out of flow in its lane's grid area — the cell's lanes
+   * are its containing block — for two reasons: the cells after it paint their
+   * ground after it in tree order, and a bar under the next cell's ground is a
+   * bar cut off at the first edge; and a bar in flow is content running out of
+   * its cell, where a placed one is a box put where it belongs.
+   *
+   * A bar that goes on past the row — into next week, or from last week —
+   * stops in the air like any other, with its end squared and a chevron on
+   * it pointing the way it continues. Running it into the table's edge made
+   * it read as clipped rather than continued.
+   */
+  [data-ui-event-calendar] [data-part-event][data-bar] {
+    block-size: var(--_event-size);
+    inline-size: calc(
+      var(--slotted-event-span, 1) * (100% + 2 * var(--_pad, 0px) + var(--_rule-width)) - 2 *
+        var(--_pad, 0px) - var(--_rule-width)
+    );
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    position: absolute;
+    z-index: 1;
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-bar][data-continues-before] {
+    border-end-start-radius: 0;
+    border-start-start-radius: 0;
+    padding-inline-start: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-bar][data-continues-after] {
+    border-end-end-radius: 0;
+    border-start-end-radius: 0;
+    padding-inline-end: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-bar] > [data-ui-icon][data-edge] {
+    color: color-mix(in oklab, var(--_hue) 70%, var(--slotted-text, #0f172a));
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-bar] > [data-ui-icon][data-edge='start'] {
+    rotate: 180deg;
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-bar] > [data-ui-icon][data-edge='end'] {
+    margin-inline-start: auto;
+  }
+
+  [data-ui-event-calendar]:dir(rtl)
+    [data-part-event][data-bar]
+    > [data-ui-icon][data-edge='start'] {
+    rotate: 0deg;
+  }
+
+  [data-ui-event-calendar]:dir(rtl) [data-part-event][data-bar] > [data-ui-icon][data-edge='end'] {
+    rotate: 180deg;
+  }
+
+  /**
+   * Tentative is the edge without the ground, dashed: an event not yet agreed
+   * is an outline of one. Cancelled keeps its place and strikes its title, so
+   * the slot a reader remembers is still where they remember it.
+   */
+  [data-ui-event-calendar]
+    [data-part-event][data-status='tentative'][data-bar]:not([data-open], [data-dragging]),
+  [data-ui-event-calendar]
+    [data-part-column]
+    > [data-part-event][data-status='tentative']:not([data-open], [data-dragging]) {
+    --_tint: 0%;
+    --_tint-hover: 7%;
+    --_tint-active: 12%;
+    --_tint-dark: 0%;
+    --_tint-hover-dark: 12%;
+    --_tint-active-dark: 18%;
+
+    border-color: var(--_hue);
+    border-style: dashed;
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-status='cancelled'] {
+    color: var(--slotted-text-muted, #5b6b7f);
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-status='cancelled'] [data-part-event-title] {
+    text-decoration: line-through;
+  }
+
+  /**
+   * ── Editing ─────────────────────────────────────────────────────────────
+   *
+   * An editable event in a grid is picked up by a press that travels four
+   * pixels; `touch-action: none` is what lets a finger drag it instead of
+   * scrolling the page under it. While it moves it is drawn where it would
+   * land — the layout is the family's own, not a ghost — lifted by the
+   * floating shadow, and it lets the pointer through to the cell beneath it so
+   * the cell under the finger is the one it lands on.
+   */
+  [data-ui-event-calendar] [data-part-event][data-editable] {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-dragging] {
+    box-shadow: var(--slotted-shadow-md, none);
+    cursor: grabbing;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /**
+   * The end an edit pulls: the bottom of a block, the inline end of a bar. A
+   * strip the width of the air around an event, drawn with a short grip only
+   * while the event is hovered or focused, so a resting grid carries no marks
+   * nobody is using.
+   */
+  [data-ui-event-calendar] [data-part-resize-handle] {
+    display: flex;
+    inset-block-end: 0;
+    inset-inline: 0;
+    align-items: center;
+    block-size: var(--slotted-space-4, 0.5rem);
+    cursor: ns-resize;
+    justify-content: center;
+    position: absolute;
+    touch-action: none;
+    /* Over the fade a block ends in, which is painted after its children. */
+    z-index: 1;
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-bar] > [data-part-resize-handle] {
+    block-size: auto;
+    cursor: ew-resize;
+    inline-size: var(--slotted-space-4, 0.5rem);
+    inset-block: 0;
+    inset-inline: auto 0;
+  }
+
+  [data-ui-event-calendar] [data-part-resize-handle]::before {
+    background-color: var(--_ink, var(--_hue));
+    block-size: var(--slotted-border-width-thick, 2px);
+    border-radius: var(--slotted-radius-full, 9999px);
+    content: '';
+    inline-size: var(--slotted-space-6, 1rem);
+    opacity: 0;
+    /* The grip leaves on the exit curve and arrives, below, on the enter one. */
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-event-calendar] [data-part-event][data-bar] > [data-part-resize-handle]::before {
+    block-size: var(--slotted-space-4, 0.5rem);
+    inline-size: var(--slotted-border-width-thick, 2px);
+  }
+
+  [data-ui-event-calendar]
+    [data-part-event]:hover:not([data-disabled])
+    > [data-part-resize-handle]::before,
+  [data-ui-event-calendar] [data-part-event]:focus-visible > [data-part-resize-handle]::before,
+  [data-ui-event-calendar] [data-part-event][data-dragging] > [data-part-resize-handle]::before {
+    opacity: 1;
+    transition-timing-function: var(--slotted-easing-enter);
+  }
+
+  /** "+N": a quiet line under the lanes, or a block in the last column. */
+  [data-ui-event-calendar] [data-part-more] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_event-size);
+    border: var(--slotted-border-width-thin, 1px) solid transparent;
+    border-radius: var(--_event-radius);
+    color: var(--slotted-text-muted, #5b6b7f);
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-size: var(--_event-font-size);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    /* "+2" and "more" are two items of the flex row, which drops the space
+       between them; the gap is that space. */
+    gap: 0.3em;
+    max-inline-size: 100%;
+    overflow: hidden;
+    padding-block: 0;
+    padding-inline: var(--slotted-space-2, 0.25rem);
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    white-space: nowrap;
+  }
+
+  [data-ui-event-calendar] [data-part-more]:hover:not([data-disabled]),
+  [data-ui-event-calendar] [data-part-more][aria-expanded='true'] {
+    background-color: var(--slotted-tone-secondary-subtle-hover, #eef1f5);
+    color: var(--slotted-text, #0f172a);
+  }
+
+  [data-ui-event-calendar] [data-part-more]:active:not([data-disabled]) {
+    background-color: var(--slotted-tone-secondary-subtle-active, #e2e8f0);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  /**
+   * What an event keeps when it is narrow. The title is the event's name and
+   * goes last; the time is already said by where the event stands, and the
+   * place is a detail. A day of the month narrower than a time and a word keeps
+   * the mark and the title; a block narrower than a word keeps the title, and
+   * one narrower than three letters keeps its colour alone — its name stays in
+   * the accessibility tree whatever the width. Cut to "D…" and "1:…", the
+   * words were noise that looked like text.
+   */
+  @container slotted-event-calendar-day (max-width: 7.5rem) {
+    [data-ui-event-calendar]
+      [data-part-day-events]
+      > [data-part-event]:not([data-bar])
+      > [data-part-event-time] {
+      display: none;
+    }
+  }
+
+  @container slotted-event-calendar-event (max-width: 4.5rem) {
+    [data-ui-event-calendar] [data-part-column] > [data-part-event] > [data-part-event-time],
+    [data-ui-event-calendar] [data-part-column] > [data-part-event] > [data-part-event-location] {
+      display: none;
+    }
+
+    [data-ui-event-calendar] [data-part-column] > [data-part-event] {
+      padding-inline: var(--slotted-space-2, 0.25rem);
+    }
+  }
+
+  @container slotted-event-calendar-event (max-width: 2rem) {
+    [data-ui-event-calendar] [data-part-column] > [data-part-event] > [data-part-event-title] {
+      block-size: 1px;
+      clip-path: inset(50%);
+      inline-size: 1px;
+      overflow: hidden;
+      position: absolute;
+      white-space: nowrap;
+    }
+  }
+
+  @container slotted-event-calendar-event (max-width: 4.5rem) {
+    [data-ui-event-calendar] [data-part-column] > [data-part-more] > span {
+      display: none;
+    }
+  }
+
+  /**
+   * ── The time grid ───────────────────────────────────────────────────────
+   *
+   * Three rows that must share their columns: the headers, the all-day lanes
+   * and the hours. They are three grids with one template, not one grid, so
+   * the hours can scroll under the two that stay. The two that stay reserve
+   * the scroller's gutter, which is what keeps a column header over its
+   * column when the hours have a scrollbar and the headers do not.
+   */
+  [data-ui-event-calendar] [data-part-time-grid] {
+    border-block-start: var(--_rule-width) solid var(--_rule);
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-block-size: 0;
+  }
+
+  [data-ui-event-calendar] [data-part-time-head] {
+    border-block-end: var(--_rule-width) solid var(--_rule);
+    overflow: hidden;
+    scrollbar-gutter: stable;
+  }
+
+  [data-ui-event-calendar] [data-part-columns],
+  [data-ui-event-calendar] [data-part-all-day-row],
+  [data-ui-event-calendar] [data-part-time-row] {
+    display: grid;
+    grid-template-columns: var(--_gutter) repeat(
+        var(--slotted-event-calendar-days, 7),
+        minmax(0, 1fr)
+      );
+  }
+
+  [data-ui-event-calendar] [data-part-columns] {
+    border-block-end: var(--_rule-width) solid var(--_rule);
+  }
+
+  [data-ui-event-calendar] [data-part-zone] {
+    align-self: end;
+    color: var(--slotted-text-muted, #5b6b7f);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--_line-xs);
+    overflow: hidden;
+    padding-block: var(--slotted-space-3, 0.375rem);
+    padding-inline: var(--slotted-space-2, 0.25rem) var(--slotted-space-3, 0.375rem);
+    text-align: end;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /**
+   * The weekday over the date, centred in the column. The date is a round
+   * mark with its digits centred in it, and a weekday set on the column's
+   * start edge sat a padding and a half away from digits it was meant to
+   * stand over.
+   */
+  [data-ui-event-calendar] [data-part-column-header] {
+    align-items: center;
+    border-inline-start: var(--_rule-width) solid var(--_rule);
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-1, 0.125rem);
+    min-inline-size: 0;
+    padding-block: var(--slotted-space-3, 0.375rem);
+    padding-inline: var(--_air);
+  }
+
+  [data-ui-event-calendar] [data-part-column-header] [data-part-weekday] {
+    max-inline-size: 100%;
+    padding: 0;
+  }
+
+  [data-ui-event-calendar] [data-part-column-header][data-today] [data-part-weekday] {
+    color: var(--slotted-tone-accent-text, #1d4ed8);
+  }
+
+  [data-ui-event-calendar] [data-part-column-header] [data-part-day-number] {
+    block-size: var(--slotted-control-inner-size-lg, 28px);
+    font-size: var(--slotted-font-size-lg, 1rem);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    min-inline-size: var(--slotted-control-inner-size-lg, 28px);
+  }
+
+  [data-ui-event-calendar] [data-part-column-header] [data-part-day-content],
+  [data-ui-event-calendar] [data-part-offset-change] {
+    color: var(--slotted-text-muted, #5b6b7f);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    line-height: var(--_line-xs);
+    max-inline-size: 100%;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Two short lines rather than an ellipsis: "Dia inteiro" in the gutter of
+     "12 PM" read "Dia int…". */
+  [data-ui-event-calendar] [data-part-all-day-label] {
+    color: var(--slotted-text-muted, #5b6b7f);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    hyphens: auto;
+    line-height: var(--_line-xs);
+    overflow-wrap: break-word;
+    padding-block: calc(var(--_air) + (var(--_event-size) - 1lh) / 2);
+    padding-inline: var(--slotted-space-2, 0.25rem) var(--slotted-space-3, 0.375rem);
+    text-align: end;
+  }
+
+  [data-ui-event-calendar] [data-part-all-day-cell] {
+    --_pad: var(--_air);
+
+    border-inline-start: var(--_rule-width) solid var(--_rule);
+    min-inline-size: 0;
+    padding: var(--_pad);
+    position: relative;
+  }
+
+  [data-ui-event-calendar] [data-part-scroller] {
+    flex: 1 1 40rem;
+    max-block-size: max-content;
+    min-block-size: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  [data-ui-event-calendar] [data-part-gutter] {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  /**
+   * An hour label is set on the line it names, half above and half below it.
+   * The first hour's line is the grid's own top edge, so its label is not
+   * drawn: half of it would hang above the scroller.
+   */
+  [data-ui-event-calendar] [data-part-hour] {
+    block-size: var(--_hour);
+    color: var(--slotted-text-muted, #5b6b7f);
+    flex: 0 0 auto;
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--_line-xs);
+    overflow: hidden;
+    padding-inline-end: var(--slotted-space-3, 0.375rem);
+    text-align: end;
+    text-overflow: ellipsis;
+    translate: 0 calc(var(--_line-xs) / -2);
+    white-space: nowrap;
+  }
+
+  [data-ui-event-calendar] [data-part-hour]:nth-child(1 of [data-part-hour]) {
+    visibility: hidden;
+  }
+
+  /**
+   * A column is its day's hours. The hour rules and the slot rules are a
+   * background, not elements: forty-eight lines a day across seven days would
+   * be three hundred nodes that say nothing.
+   */
+  [data-ui-event-calendar] [data-part-column] {
+    background-image:
+      linear-gradient(to bottom, var(--_rule) var(--_rule-width), transparent var(--_rule-width)),
+      linear-gradient(
+        to bottom,
+        color-mix(in oklab, var(--_rule) 45%, transparent) var(--_rule-width),
+        transparent var(--_rule-width)
+      );
+    background-size:
+      100% var(--_hour),
+      100% calc(var(--_hour) * var(--slotted-event-calendar-slot, 30) / 60);
+    border-inline-start: var(--_rule-width) solid var(--_rule);
+    min-inline-size: 0;
+    position: relative;
+  }
+
+  [data-ui-event-calendar] [data-part-column][data-today] {
+    background-color: color-mix(
+      in oklab,
+      var(--slotted-tone-accent-surface, #eff6ff) 50%,
+      transparent
+    );
+  }
+
+  /**
+   * A block in a column: its place and height are minutes, its column and
+   * span a share of the day's width. Every block stands in the air: off the
+   * column's rule, off its neighbour, off the hour line it starts on and the
+   * block that starts where it ends. The last stretch of the column's width is
+   * left clear, so there is always an empty slot under the pointer to press.
+   */
+  [data-ui-event-calendar] [data-part-column] > [data-part-event],
+  [data-ui-event-calendar] [data-part-column] > [data-part-more],
+  [data-ui-event-calendar] [data-part-column] > [data-part-selection] {
+    --_room: calc(100% - var(--slotted-space-5, 0.75rem));
+    --_share: calc(var(--_room) / var(--slotted-event-columns, 1));
+
+    block-size: max(
+      calc(var(--slotted-event-length, 30) * var(--_hour) / 60 - var(--_air)),
+      var(--_event-size)
+    );
+    inline-size: calc(var(--_share) * var(--slotted-event-span, 1) - var(--_air));
+    inset-block-start: calc(var(--slotted-event-start, 0) * var(--_hour) / 60 + var(--_air) / 2);
+    inset-inline-start: calc(var(--_share) * var(--slotted-event-column, 0) + var(--_air));
+    position: absolute;
+  }
+
+  [data-ui-event-calendar] [data-part-column] > [data-part-event] {
+    align-content: start;
+    align-items: start;
+    container: slotted-event-calendar-event / inline-size;
+    flex-direction: column;
+    gap: 0;
+    padding-block: var(--slotted-space-1, 0.125rem);
+    z-index: 1;
+  }
+
+  /**
+   * The lines of a block keep their height and the block clips what does not
+   * fit, the last line first. A flex column that shrank them laid the time
+   * over the title in a one-hour block at `dense`.
+   */
+  [data-ui-event-calendar] [data-part-column] > [data-part-event] > * {
+    flex-shrink: 0;
+  }
+
+  [data-ui-event-calendar] [data-part-column] > [data-part-event] > [data-part-event-title] {
+    max-inline-size: 100%;
+    order: -1;
+  }
+
+  /**
+   * A block tall enough for two lines wraps its title on words, up to three
+   * lines, before it truncates: a block a third of a column wide showed
+   * "Design …" where "Design critique" fits on two lines. A word wider than
+   * the block is hyphenated in the page's language, and cut only without one.
+   */
+  [data-ui-event-calendar]
+    [data-part-column]
+    > [data-part-event]:not([data-short])
+    > [data-part-event-title] {
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    hyphens: auto;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow-wrap: break-word;
+    white-space: normal;
+  }
+
+  [data-ui-event-calendar] [data-part-column] > [data-part-event] > [data-part-event-location],
+  [data-ui-event-calendar] [data-part-column] > [data-part-event] > [data-part-event-time] {
+    max-inline-size: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /**
+   * A short block puts its time after its title on one line, and the title
+   * takes the room first: a block that can show one word shows the name, not
+   * the hour the grid already states by where the block stands.
+   */
+  [data-ui-event-calendar] [data-part-column] > [data-part-event][data-short] {
+    align-items: center;
+    flex-direction: row;
+    gap: var(--slotted-space-2, 0.25rem);
+    padding-block: 0;
+  }
+
+  [data-ui-event-calendar]
+    [data-part-column]
+    > [data-part-event][data-short]
+    > [data-part-event-title] {
+    flex: 0 0 auto;
+    max-inline-size: 100%;
+  }
+
+  [data-ui-event-calendar]
+    [data-part-column]
+    > [data-part-event][data-short]
+    > [data-part-event-time] {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  /**
+   * A block that goes on above or below what the column shows — it began
+   * yesterday, it ends tomorrow, it runs past the visible hours — has that
+   * edge squared and dashed: the same edge, broken where the event is not
+   * over.
+   */
+  [data-ui-event-calendar] [data-part-column] > [data-part-event][data-clipped-start],
+  [data-ui-event-calendar] [data-part-column] > [data-part-event][data-continues-before] {
+    border-block-start-style: dashed;
+    border-start-end-radius: 0;
+    border-start-start-radius: 0;
+  }
+
+  [data-ui-event-calendar] [data-part-column] > [data-part-event][data-clipped-end],
+  [data-ui-event-calendar] [data-part-column] > [data-part-event][data-continues-after] {
+    border-block-end-style: dashed;
+    border-end-end-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  /* A step of muted ink over the page, not the sunken surface: in the dark
+     scheme that surface lies below the page, and the "+N" read as a hole.
+     Hover and press take six more points of the same ink each, 9, 15 and
+     21: the surface's own hover landed within a hundredth of the rest in
+     every scheme, lighter than the chip in the light one. */
+  [data-ui-event-calendar] [data-part-column] > [data-part-more] {
+    align-items: start;
+    container: slotted-event-calendar-event / inline-size;
+    background-color: color-mix(in oklab, var(--slotted-text-muted, #5b6b7f) 9%, var(--_base));
+    border-color: color-mix(in oklab, var(--slotted-text-muted, #5b6b7f) 24%, var(--_base));
+    padding-block: var(--slotted-space-1, 0.125rem);
+    z-index: 1;
+  }
+
+  [data-ui-event-calendar] [data-part-column] > [data-part-more]:hover:not([data-disabled]),
+  [data-ui-event-calendar] [data-part-column] > [data-part-more][aria-expanded='true'] {
+    background-color: color-mix(in oklab, var(--slotted-text-muted, #5b6b7f) 15%, var(--_base));
+  }
+
+  [data-ui-event-calendar] [data-part-column] > [data-part-more]:active:not([data-disabled]) {
+    background-color: color-mix(in oklab, var(--slotted-text-muted, #5b6b7f) 21%, var(--_base));
+  }
+
+  /**
+   * A day one column wide draws its first events whole and lays the count of
+   * the rest at the end of the time they take, at the end of the line: a chip
+   * on the surface, not a column of its own, clear of the title the drawn
+   * event opens with. It is the day's "+N" by every other measure — the same
+   * popover, the same name — and shows the count alone.
+   */
+  [data-ui-event-calendar] [data-part-column] > [data-part-more][data-overlay] {
+    align-items: center;
+    background-color: var(--_base);
+    block-size: auto;
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-shadow: var(--slotted-shadow-sm, none);
+    /* Not a container: a size container ignores its content, and the chip
+       is exactly its content. */
+    container-type: normal;
+    inline-size: auto;
+    inset-block-start: calc(
+      (var(--slotted-event-start, 0) + var(--slotted-event-length, 30)) * var(--_hour) / 60 -
+        var(--_air)
+    );
+    inset-inline: auto var(--slotted-space-4, 0.5rem);
+    line-height: var(--_line-xs);
+    translate: 0 -100%;
+    padding-block: 0;
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    z-index: 3;
+  }
+
+  [data-ui-event-calendar] [data-part-column] > [data-part-more][data-overlay] > span {
+    display: none;
+  }
+
+  [data-ui-event-calendar] [data-part-column] > [data-part-selection] {
+    background-color: var(
+      --slotted-event-calendar-selection-background,
+      var(--slotted-tone-accent-surface, #eff6ff)
+    );
+    border: var(--slotted-border-width-thin, 1px) solid
+      var(
+        --slotted-event-calendar-selection-border-color,
+        var(--slotted-tone-accent-border, #2563eb)
+      );
+    border-radius: var(--_event-radius);
+    color: var(--slotted-tone-accent-text, #1d4ed8);
+    font-size: var(--_event-font-size);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    inline-size: calc(var(--_room) - var(--_air));
+    inset-inline-start: var(--_air);
+    line-height: var(--_line-xs);
+    overflow: hidden;
+    padding-block: var(--slotted-space-1, 0.125rem);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    pointer-events: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    z-index: 2;
+  }
+
+  /** Time nobody works in: the same step off the page in every scheme. */
+  [data-ui-event-calendar] [data-part-off-hours] {
+    background-color: var(--slotted-event-calendar-off-background, var(--_off));
+    block-size: calc(var(--slotted-event-length, 0) * var(--_hour) / 60);
+    inset-block-start: calc(var(--slotted-event-start, 0) * var(--_hour) / 60);
+    inset-inline: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  /**
+   * Now: a thick accent line across today's column, with a dot where it meets
+   * the column's edge. Accent and not danger — the present is not a failure.
+   */
+  [data-ui-event-calendar] [data-part-now],
+  [data-ui-event-calendar] [data-part-offset-line] {
+    inset-block-start: calc(var(--slotted-event-start, 0) * var(--_hour) / 60);
+    inset-inline: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  [data-ui-event-calendar] [data-part-now] {
+    border-block-start: var(--slotted-border-width-thick, 2px) solid
+      var(--slotted-event-calendar-now-color, var(--slotted-tone-accent-solid, #2563eb));
+    translate: 0 -50%;
+    z-index: 2;
+  }
+
+  [data-ui-event-calendar] [data-part-now]::before {
+    background-color: var(
+      --slotted-event-calendar-now-color,
+      var(--slotted-tone-accent-solid, #2563eb)
+    );
+    block-size: var(--slotted-space-4, 0.5rem);
+    border-radius: var(--slotted-radius-full, 9999px);
+    content: '';
+    inline-size: var(--slotted-space-4, 0.5rem);
+    inset-block-start: calc(
+      var(--slotted-space-4, 0.5rem) / -2 - var(--slotted-border-width-thick, 2px) / 2
+    );
+    inset-inline-start: calc(var(--slotted-space-4, 0.5rem) / -2);
+    position: absolute;
+  }
+
+  [data-ui-event-calendar] [data-part-offset-line] {
+    border-block-start: var(--slotted-border-width-thin, 1px) dashed
+      var(--slotted-border-strong, #78899c);
+    z-index: 1;
+  }
+
+  /**
+   * ── The list ────────────────────────────────────────────────────────────
+   *
+   * A day per section: its heading on the start side, its events beside it,
+   * and one rule between days. Reached through the root and the body, so a
+   * description list in a detail — whose own part is also `list` — keeps none
+   * of it.
+   */
+  [data-ui-event-calendar] > [data-part-body] > [data-part-list] {
+    border-block-start: var(--_rule-width) solid var(--_rule);
+    display: flex;
+    flex-direction: column;
+  }
+
+  [data-ui-event-calendar] [data-part-list-day] {
+    border-block-end: var(--_rule-width) solid var(--_rule);
+    column-gap: var(--slotted-space-6, 1rem);
+    display: grid;
+    grid-template-columns: calc(var(--slotted-space-12, 4rem) * 2) minmax(0, 1fr);
+    padding-block: var(--slotted-space-4, 0.5rem);
+  }
+
+  /**
+   * The day in two lines: the weekday small and quiet over the date, which
+   * carries the weight. A line of its own each, so the date is never broken
+   * inside itself; beside the events at every width but the narrowest, where
+   * the two sit on one line above them.
+   */
+  [data-ui-event-calendar] [data-part-list-day-heading] {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding-block: var(--slotted-space-3, 0.375rem);
+  }
+
+  [data-ui-event-calendar] [data-part-list-weekday] {
+    color: var(--slotted-text-muted, #5b6b7f);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    line-height: var(--_line-xs);
+  }
+
+  [data-ui-event-calendar] [data-part-list-date] {
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--_line-sm);
+  }
+
+  [data-ui-event-calendar] [data-part-list-day][data-today] [data-part-list-day-heading],
+  [data-ui-event-calendar] [data-part-list-day][data-today] [data-part-list-weekday] {
+    color: var(--slotted-tone-accent-text, #1d4ed8);
+  }
+
+  [data-ui-event-calendar] [data-part-list-events] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-1, 0.125rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /**
+   * A list row: the time in a column of its own, the calendar's mark, the
+   * title and the place under it. The time column is one width for every row,
+   * so the titles start on one line down the whole list.
+   */
+  [data-ui-event-calendar] [data-part-list-events] [data-part-event] {
+    align-items: start;
+    column-gap: var(--slotted-space-4, 0.5rem);
+    display: grid;
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    /* Wide enough for "11:00 AM – 12:00 PM" on one line at the list's size. */
+    grid-template-columns: calc(var(--slotted-space-12, 4rem) * 2.5) auto minmax(0, 1fr);
+    inline-size: 100%;
+    line-height: var(--_line-sm);
+    min-block-size: var(--slotted-control-height-md, 34px);
+    padding-block: var(--slotted-space-3, 0.375rem);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+  }
+
+  /** The mark sits on the centre of the title's first line, whatever the row's height. */
+  [data-ui-event-calendar] [data-part-list-events] [data-part-event]::before {
+    grid-column: 2;
+    grid-row: 1;
+    margin-block-start: calc((1lh - var(--slotted-space-4, 0.5rem)) / 2);
+  }
+
+  [data-ui-event-calendar] [data-part-list-events] [data-part-event-time] {
+    grid-column: 1;
+    grid-row: 1;
+    white-space: normal;
+  }
+
+  /* A row grows downward, so a list wraps what a grid cell truncates. */
+  [data-ui-event-calendar] [data-part-list-events] [data-part-event-title] {
+    grid-column: 3;
+    grid-row: 1;
+    overflow-wrap: break-word;
+    white-space: normal;
+  }
+
+  [data-ui-event-calendar] [data-part-list-events] [data-part-event-location] {
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    grid-column: 3;
+    line-height: var(--_line-xs);
+    grid-row: 2;
+    overflow-wrap: break-word;
+    white-space: normal;
+  }
+
+  [data-ui-event-calendar] [data-part-list-events] [data-part-event]:hover:not([data-disabled]) {
+    background-color: var(--slotted-tone-secondary-subtle-hover, #eef1f5);
+  }
+
+  [data-ui-event-calendar]
+    [data-part-list-events]
+    [data-part-event]:active:not([data-disabled], [data-open], [data-context]) {
+    background-color: var(--slotted-tone-secondary-subtle-active, #e2e8f0);
+    transition-duration: var(--slotted-duration-instant);
+  }
+
+  [data-ui-event-calendar] [data-part-list-events] [data-part-event][data-open],
+  [data-ui-event-calendar] [data-part-list-events] [data-part-event][data-context] {
+    background-color: light-dark(
+      color-mix(in oklab, var(--_hue) var(--_tint), var(--_base)),
+      color-mix(in oklab, var(--_hue) var(--_tint-dark), var(--_base))
+    );
+  }
+
+  [data-ui-event-calendar]
+    [data-part-list-events]
+    [data-part-event][data-status='tentative']::before {
+    background-color: transparent;
+    border: var(--slotted-border-width-medium, 1.5px) solid var(--_hue);
+  }
+
+  /* The day and the hours of the detail break between them, never inside. */
+  [data-ui-event-calendar] [data-part-detail-day],
+  [data-ui-event-calendar] [data-part-detail-range] {
+    display: inline-block;
+  }
+
+  /**
+   * The detail's body holds the application's blocks — a description list, a
+   * row of actions — and spaces them, so a template needs no wrapper to keep
+   * its button off the list above it.
+   */
+  [data-ui-event-calendar] [data-ui-popover] > [data-part-content] > [data-part-body],
+  [data-ui-event-calendar] [data-ui-drawer] [data-part-panel] > [data-part-body] {
+    display: grid;
+    gap: var(--slotted-space-5, 0.75rem);
+  }
+
+  /**
+   * The events of one day in the "+N" panel: the mark and the title, the time
+   * under the title. The panel is a sixth of a page wide, and a column of time
+   * beside the titles left each title a word.
+   */
+  [data-ui-event-calendar] [data-part-list-events][data-layout='stacked'] [data-part-event] {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  [data-ui-event-calendar]
+    [data-part-list-events][data-layout='stacked']
+    [data-part-event]::before {
+    grid-column: 1;
+  }
+
+  [data-ui-event-calendar] [data-part-list-events][data-layout='stacked'] [data-part-event-title] {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  [data-ui-event-calendar] [data-part-list-events][data-layout='stacked'] [data-part-event-time] {
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    grid-column: 2;
+    grid-row: 2;
+    line-height: var(--_line-xs);
+  }
+
+  [data-ui-event-calendar]
+    [data-part-list-events][data-layout='stacked']
+    [data-part-event-location] {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  [data-ui-event-calendar] [data-part-empty] {
+    align-items: center;
+    color: var(--slotted-text-muted, #5b6b7f);
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-5, 0.75rem);
+    padding-block: var(--slotted-space-10, 2.5rem);
+    padding-inline: var(--slotted-space-6, 1rem);
+    text-align: center;
+  }
+
+  /**
+   * ── Reflow ──────────────────────────────────────────────────────────────
+   *
+   * The breakpoints are literal because CSS forbids a custom property in a
+   * container condition. They answer the calendar's own width, never the
+   * viewport's. The switch from a grid to a list under 600 pixels is the
+   * script's, because it changes what is in the DOM; everything here is a
+   * grid that stays a grid, laid out for the room it has.
+   *
+   * 960: the header's five areas no longer fit one row beside a day view's
+   * title ("Wednesday, September 23, 2026"), so the title and the navigation
+   * take the first row and the views and the filter the second.
+   */
+  @container slotted-event-calendar (max-width: 959px) {
+    /* The navigation spans the last two columns of the first line: held to
+       the fourth alone, it made that column its width, and with no actions
+       the filter stopped short of the edge by the width of three buttons. */
+    [data-ui-event-calendar] > [data-part-header] {
+      grid-template-areas:
+        'title title navigation navigation'
+        'views . filter actions';
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+    }
+
+    [data-ui-event-calendar] [data-part-navigation] {
+      justify-self: end;
+    }
+
+    [data-ui-event-calendar] [data-part-views] {
+      margin-inline-start: 0;
+    }
+  }
+
+  /**
+   * 600: a list row's time column goes under its title, the month and the
+   * week draw their events as marks of colour, and the day becomes the
+   * target. Seven columns of 50 pixels hold a colour and nothing legible:
+   * three letters of a title are a guess, not a name, and every event keeps
+   * its whole name for assistive technology.
+   */
+  @container slotted-event-calendar (max-width: 599px) {
+    [data-ui-event-calendar][data-part-root] {
+      --_gutter: calc(var(--slotted-space-10, 2.5rem) + var(--slotted-space-2, 0.25rem));
+    }
+
+    [data-ui-event-calendar] [data-part-list-day] {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--slotted-space-1, 0.125rem);
+    }
+
+    /* Above the events, the weekday and the date read as one line. */
+    [data-ui-event-calendar] [data-part-list-day-heading] {
+      align-items: baseline;
+      column-gap: var(--slotted-space-3, 0.375rem);
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    [data-ui-event-calendar] [data-part-list-events] [data-part-event] {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    [data-ui-event-calendar] [data-part-list-events] [data-part-event]::before {
+      grid-column: 1;
+    }
+
+    [data-ui-event-calendar] [data-part-list-events] [data-part-event-title] {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    [data-ui-event-calendar] [data-part-list-events] [data-part-event-time] {
+      font-size: var(--slotted-font-size-xs, 0.75rem);
+      grid-column: 2;
+      grid-row: 2;
+      line-height: var(--_line-xs);
+    }
+
+    [data-ui-event-calendar] [data-part-list-events] [data-part-event-location] {
+      grid-column: 2;
+      grid-row: 3;
+    }
+
+    [data-ui-event-calendar] [data-part-month] [data-part-day] {
+      --_event-size: var(--slotted-space-3, 0.375rem);
+      --_air: var(--slotted-space-1, 0.125rem);
+    }
+
+    [data-ui-event-calendar] [data-part-month] [data-part-day-header] {
+      margin-block-end: var(--slotted-space-2, 0.25rem);
+    }
+
+    [data-ui-event-calendar] [data-part-month] [data-part-day-number] {
+      block-size: var(--slotted-control-inner-size-sm, 22px);
+      min-inline-size: var(--slotted-control-inner-size-sm, 22px);
+    }
+
+    /** The whole cell is the day's target, through its number. */
+    [data-ui-event-calendar] [data-part-month] [data-part-day-number]::after {
+      content: '';
+      inset: 0;
+      position: absolute;
+    }
+
+    /* A month's mark is six pixels tall and no target; the day is. A block in
+       a column is a column wide and stays one. */
+    [data-ui-event-calendar] [data-part-month] [data-part-event] {
+      padding: 0;
+      pointer-events: none;
+    }
+
+    /**
+     * A block with no words carries its calendar alone, so it takes the
+     * pressed tint and the calendar's own edge: at the resting tint a column
+     * of pale blocks read as one colour.
+     */
+    [data-ui-event-calendar] [data-part-column] > [data-part-event] {
+      background-color: light-dark(
+        color-mix(in oklab, var(--_hue) var(--_tint-active), var(--_base)),
+        color-mix(in oklab, var(--_hue) var(--_tint-active-dark), var(--_base))
+      );
+      border-color: var(--_hue);
+      padding: 0;
+    }
+
+    [data-ui-event-calendar] [data-part-column] > [data-part-more] {
+      justify-content: center;
+      padding-inline: 0;
+    }
+
+    [data-ui-event-calendar] [data-part-month] [data-part-event][data-bar] {
+      background-color: var(--_hue);
+      border-color: var(--_hue);
+      border-radius: var(--slotted-radius-full, 9999px);
+    }
+
+    [data-ui-event-calendar] [data-part-month] [data-part-event]:not([data-bar]) {
+      inline-size: var(--slotted-space-4, 0.5rem);
+    }
+
+    [data-ui-event-calendar] [data-part-month] [data-part-event]::before {
+      block-size: var(--slotted-space-3, 0.375rem);
+      inline-size: var(--slotted-space-3, 0.375rem);
+    }
+
+    [data-ui-event-calendar] [data-part-month] [data-part-event][data-bar]::before,
+    [data-ui-event-calendar] [data-part-month] [data-part-event][data-bar]::after {
+      display: none;
+    }
+
+    [data-ui-event-calendar] [data-part-month] [data-part-event] > *,
+    [data-ui-event-calendar] [data-part-column] > [data-part-event] > *,
+    [data-ui-event-calendar] [data-part-month] [data-part-day-content],
+    [data-ui-event-calendar] [data-part-month] [data-part-more] > *,
+    [data-ui-event-calendar] [data-part-column-header] [data-part-day-content],
+    [data-ui-event-calendar] [data-part-offset-change] {
+      block-size: 1px;
+      clip-path: inset(50%);
+      inline-size: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      white-space: nowrap;
+    }
+
+    [data-ui-event-calendar] [data-part-month] [data-part-more] {
+      block-size: auto;
+      font-size: var(--slotted-font-size-xs, 0.75rem);
+      line-height: var(--_line-xs);
+      padding: 0;
+      pointer-events: none;
+    }
+
+    [data-ui-event-calendar] [data-part-month] [data-part-day-events] {
+      grid-template-rows:
+        repeat(var(--slotted-event-calendar-lanes, 3), var(--_event-size))
+        auto;
+    }
+
+    [data-ui-event-calendar] [data-part-column-header] [data-part-day-number] {
+      block-size: var(--slotted-control-inner-size-md, 24px);
+      font-size: var(--slotted-font-size-md, 0.875rem);
+      min-inline-size: var(--slotted-control-inner-size-md, 24px);
+    }
+
+    [data-ui-event-calendar] [data-part-column] > [data-part-event],
+    [data-ui-event-calendar] [data-part-column] > [data-part-more] {
+      --_room: 100%;
+    }
+  }
+
+  /**
+   * 480: the title takes a row of its own, the navigation and the filter the
+   * next, and the views the whole width of the last, one equal segment each.
+   * The filter keeps its name for assistive technology and draws its funnel
+   * alone.
+   */
+  @container slotted-event-calendar (max-width: 479px) {
+    [data-ui-event-calendar] > [data-part-header] {
+      grid-template-areas:
+        'title title title title'
+        'navigation . filter actions'
+        'views views views views';
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+    }
+
+    [data-ui-event-calendar] [data-part-navigation] {
+      justify-self: start;
+      margin-inline-start: 0;
+    }
+
+    [data-ui-event-calendar] [data-part-views] > * {
+      flex: 1 1 auto;
+      min-inline-size: 0;
+    }
+
+    [data-ui-event-calendar] [data-part-filter] {
+      inline-size: var(--slotted-control-height-md, 34px);
+      padding-inline: 0;
+    }
+
+    /* The funnel stays: an icon-only control keeps its mark and names itself
+       with the words it hides. The chevron goes with the words. */
+    [data-ui-event-calendar] [data-part-filter] > [data-ui-icon]:last-child {
+      display: none;
+    }
+
+    [data-ui-event-calendar] [data-part-filter] > :not([data-ui-icon]) {
+      block-size: 1px;
+      clip-path: inset(50%);
+      inline-size: 1px;
+      margin: -1px;
+      overflow: hidden;
+      position: absolute;
+      white-space: nowrap;
+    }
+  }
+
+  @media (forced-colors: active) {
+    /* The event's dot and the now marker are shapes painted with a
+       background, which forced colours would replace: the mark would go and
+       the box it sat in would stay. The icons are `Glyph` elements stroked
+       with the forced ink, and need nothing here. */
+    [data-ui-event-calendar] [data-part-event]::before,
+    [data-ui-event-calendar] [data-part-now]::before {
+      forced-color-adjust: none;
+    }
+
+    /**
+     * The tint has nothing to mix in a palette the system replaced, so an
+     * event keeps its edge, in the text colour.
+     */
+    [data-ui-event-calendar] [data-part-event][data-bar],
+    [data-ui-event-calendar] [data-part-column] > [data-part-event] {
+      border-color: currentcolor;
+    }
+
+    /* A timed line of the month and a row of the list have no edge: the
+       transparent one they keep for geometry would be painted in the text
+       colour, and the line would read as a bar. */
+    [data-ui-event-calendar] [data-part-day-events] > [data-part-event]:not([data-bar]),
+    [data-ui-event-calendar] [data-part-list-events] [data-part-event] {
+      border-color: Canvas;
+    }
+
+    /* Today is the one filled mark: the system's own highlight pair, kept
+       whole, where the replaced palette left a ring round an empty square. */
+    [data-ui-event-calendar] [data-today] > [data-part-day-header] [data-part-day-number],
+    [data-ui-event-calendar] [data-part-column-header][data-today] [data-part-day-number] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+  }
+}

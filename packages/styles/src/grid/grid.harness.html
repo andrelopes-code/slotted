@@ -1,0 +1,313 @@
+<section data-scene="columns">
+  <!--
+    The rules below belong to the harness, not to the family. Grid paints
+    nothing and the page carries only this family's stylesheet, so a cell needs
+    edges before there is anything to look at, and the vertical rhythm between
+    examples is an inline grid rather than a Stack, which this page does not
+    load. The block sits inside the first scene because the builder emits scenes
+    and drops everything around them.
+  -->
+  <style>
+    [data-demo] {
+      background: var(--slotted-surface-sunken);
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-sm);
+      color: var(--slotted-text);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px;
+      padding-block: var(--slotted-space-4);
+      padding-inline: var(--slotted-space-4);
+    }
+
+    [data-demo='tall'] {
+      padding-block: var(--slotted-space-9);
+    }
+
+    [data-demo-column] {
+      display: grid;
+      /* A track that may shrink below its content: without it a nowrap run
+         would set the width of every example beside it. */
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--slotted-space-8);
+    }
+
+    [data-demo-column='3'] {
+      gap: var(--slotted-space-3);
+    }
+
+    [data-demo-column='6'] {
+      gap: var(--slotted-space-6);
+    }
+
+    [data-demo-label] {
+      color: var(--slotted-text-muted);
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      margin: 0;
+    }
+
+    [data-demo-body] {
+      color: var(--slotted-text);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    [data-demo-frame] {
+      border: 1px dashed var(--slotted-border-strong);
+      border-radius: var(--slotted-radius-md);
+      padding: var(--slotted-space-3);
+    }
+  </style>
+
+  <div data-demo-column>
+    <div data-demo-column="3">
+      <span data-demo-label>columns 2 · minItemWidth xs</span>
+      <div
+        data-ui="grid"
+        data-ui-grid=""
+        data-part="root"
+        data-part-root=""
+        data-columns="2"
+        data-min-item-width="xs"
+        style="--slotted-grid-columns: 2"
+      >
+        <div data-demo>Revenue</div>
+        <div data-demo>Refunds</div>
+        <div data-demo>Disputes</div>
+        <div data-demo>Payouts</div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>columns 3 · minItemWidth xs · two cells fill two thirds</span>
+      <div
+        data-ui="grid"
+        data-ui-grid=""
+        data-part="root"
+        data-part-root=""
+        data-columns="3"
+        data-min-item-width="xs"
+        style="--slotted-grid-columns: 3"
+      >
+        <div data-demo>Revenue</div>
+        <div data-demo>Refunds</div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>columns 4 · minItemWidth xs · gap 2</span>
+      <div
+        data-ui="grid"
+        data-ui-grid=""
+        data-part="root"
+        data-part-root=""
+        data-columns="4"
+        data-min-item-width="xs"
+        data-gap="2"
+        style="--slotted-grid-columns: 4"
+      >
+        <div data-demo>Jan</div>
+        <div data-demo>Feb</div>
+        <div data-demo>Mar</div>
+        <div data-demo>Apr</div>
+        <div data-demo>May</div>
+        <div data-demo>Jun</div>
+        <div data-demo>Jul</div>
+        <div data-demo>Aug</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="reflow">
+  <div data-demo-column>
+    <div data-demo-column="3">
+      <span data-demo-label>no count · as many tracks as fit · minItemWidth sm</span>
+      <div
+        data-ui="grid"
+        data-ui-grid=""
+        data-part="root"
+        data-part-root=""
+        data-min-item-width="sm"
+      >
+        <div data-demo>Workspace settings</div>
+        <div data-demo>Members and roles</div>
+        <div data-demo>Billing history</div>
+        <div data-demo>Audit log</div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>no count · minItemWidth md · the default</span>
+      <div data-ui="grid" data-ui-grid="" data-part="root" data-part-root="">
+        <div data-demo>Workspace settings</div>
+        <div data-demo>Members and roles</div>
+        <div data-demo>Billing history</div>
+        <div data-demo>Audit log</div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>columns 12 · a ceiling, not a promise · minItemWidth xs</span>
+      <div
+        data-ui="grid"
+        data-ui-grid=""
+        data-part="root"
+        data-part-root=""
+        data-columns="12"
+        data-min-item-width="xs"
+        data-gap="2"
+        style="--slotted-grid-columns: 12"
+      >
+        <div data-demo>1</div>
+        <div data-demo>2</div>
+        <div data-demo>3</div>
+        <div data-demo>4</div>
+        <div data-demo>5</div>
+        <div data-demo>6</div>
+        <div data-demo>7</div>
+        <div data-demo>8</div>
+        <div data-demo>9</div>
+        <div data-demo>10</div>
+        <div data-demo>11</div>
+        <div data-demo>12</div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>minItemWidth xl · wider than 240px, so it becomes one track</span>
+      <div
+        data-ui="grid"
+        data-ui-grid=""
+        data-part="root"
+        data-part-root=""
+        data-min-item-width="xl"
+      >
+        <div data-demo>A cell that refuses to be narrow</div>
+        <div data-demo>And its neighbour</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="alignment">
+  <div data-demo-column>
+    <div data-demo-column="3">
+      <span data-demo-label>align stretch · the platform default · cells share a height</span>
+      <div
+        data-ui="grid"
+        data-ui-grid=""
+        data-part="root"
+        data-part-root=""
+        data-columns="2"
+        data-min-item-width="xs"
+        style="--slotted-grid-columns: 2"
+      >
+        <div data-demo="tall">Taller cell</div>
+        <div data-demo>Shorter cell</div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>align start · each cell keeps its own height</span>
+      <div
+        data-ui="grid"
+        data-ui-grid=""
+        data-part="root"
+        data-part-root=""
+        data-columns="2"
+        data-min-item-width="xs"
+        data-align="start"
+        style="--slotted-grid-columns: 2"
+      >
+        <div data-demo="tall">Taller cell</div>
+        <div data-demo>Shorter cell</div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>align center · justify center · the cell holds its content</span>
+      <div
+        data-ui="grid"
+        data-ui-grid=""
+        data-part="root"
+        data-part-root=""
+        data-columns="2"
+        data-min-item-width="xs"
+        data-align="center"
+        data-justify="center"
+        style="--slotted-grid-columns: 2"
+      >
+        <div data-demo="tall">Taller cell</div>
+        <div data-demo>Shorter cell</div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>justify end · mirrors in a right-to-left document</span>
+      <div
+        data-ui="grid"
+        data-ui-grid=""
+        data-part="root"
+        data-part-root=""
+        data-columns="2"
+        data-min-item-width="xs"
+        data-justify="end"
+        style="--slotted-grid-columns: 2"
+      >
+        <div data-demo>Revenue</div>
+        <div data-demo>Refunds</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="extremes">
+  <div data-demo-column="6">
+    <span data-demo-label>right to left · the first cell is the rightmost one</span>
+    <div data-demo-frame lang="ar" dir="rtl">
+      <div
+        data-ui="grid"
+        data-ui-grid=""
+        data-part="root"
+        data-part-root=""
+        data-columns="3"
+        data-min-item-width="xs"
+        style="--slotted-grid-columns: 3"
+      >
+        <div data-demo>الأول</div>
+        <div data-demo>الثاني</div>
+        <div data-demo>الثالث</div>
+      </div>
+    </div>
+
+    <span data-demo-label>a token longer than the cell breaks instead of widening it</span>
+    <div
+      data-ui="grid"
+      data-ui-grid=""
+      data-part="root"
+      data-part-root=""
+      data-columns="2"
+      data-min-item-width="xs"
+      style="--slotted-grid-columns: 2"
+    >
+      <div data-demo>
+        <span data-demo-body>
+          postgresql://reporting-service@analytics-primary.internal:5432/warehouse_events
+        </span>
+      </div>
+      <div data-demo>Neighbour</div>
+    </div>
+
+    <span data-demo-label>one cell, and a grid that holds nothing</span>
+    <div data-ui="grid" data-ui-grid="" data-part="root" data-part-root="" data-min-item-width="sm">
+      <div data-demo>Alone, and filling the row</div>
+    </div>
+    <div data-demo-frame>
+      <div data-ui="grid" data-ui-grid="" data-part="root" data-part-root=""></div>
+    </div>
+  </div>
+</section>

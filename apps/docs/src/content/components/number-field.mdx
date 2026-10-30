@@ -1,0 +1,122 @@
+---
+title: Number Field
+description: Takes a number in a text input that writes it in the reader's locale, with stepper buttons, bounds and keyboard stepping.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Sizes
+
+`size` sets the height, the padding, the type and the stepper glyphs to one step of the control scale: `sm` for dense tables and toolbars, `md` for most forms, `lg` for sparse forms. Inside a field, a number field that states no size takes the field's.
+
+<Example name="sizes" />
+
+## Variants
+
+`variant` sets how much frame the control draws. `outline`, the default, draws a border on the ground it sits on. `subtle` fills the control with a sunken ground. `plain` draws no border and no ground at rest and keeps the same box, so a table cell that holds one does not change size under the pointer; it pairs with `stepper="none"` for an amount that is typed and never spun.
+
+<Example name="variants" />
+
+## Steppers
+
+`stepper` places the two buttons. `stacked`, the default, puts increment over decrement in one column at the inline end, which is what a form expects. `split` puts decrement before the value and increment after it, the arrangement of a quantity picker and the one whose targets are at least 24 pixels in both directions. `none` removes them. Held down, a button steps once, waits, and then repeats. Neither button is in the tab order: the arrow keys in the input do the same.
+
+<Example name="steppers" />
+
+## Bounds and step
+
+`min` and `max` bound the value, and the button that would leave the range is disabled at the bound. Home and End move to `min` and `max`. `step` is what one press or one arrow key adds, 1 by default. With `snapToStep`, stepping lands on multiples of `step` counted from `min`, and a typed value goes to the nearest one when the field commits: type 20 into the second field and leave it.
+
+<Example name="range" />
+
+## Keyboard and wheel
+
+ArrowUp and ArrowDown move by `step`. Shift with an arrow, Page Up and Page Down move by `largeStep`, which defaults to ten steps. Alt with an arrow moves by `smallStep`, which defaults to a tenth of a step. `wheel` lets the mouse wheel step the value while the input has focus and the pointer is over it; it is off by default, so scrolling a form never changes an amount. Escape is not bound.
+
+<Example name="keyboard" />
+
+## Out of range
+
+`clamp` decides what happens to a typed value outside `min` and `max`. `blur`, the default, accepts any keystroke and returns the value to the range when the field commits, on blur or Enter. `strict` refuses the keystroke that would leave the range. `none` keeps the value and sets `aria-invalid` on the input and `data-invalid` on the frame while it is out of range, for a form that shows an error instead of changing the reader's number.
+
+<Example name="clamp" />
+
+## Currency, percent and units
+
+`format` takes `Intl.NumberFormatOptions`, so currency, percent and unit are ways of writing one number rather than separate components. The value stays a plain number: the credit limit below holds `25000` and the sales tax `0.0825`. The input reads back what it writes, so a pasted `$25,000.00` parses.
+
+<Example name="format" />
+
+## Decimals
+
+Precision is set in `format` with `minimumFractionDigits` and `maximumFractionDigits`. The text is rounded and padded when the field commits, never while you type, and the committed number is the one the input shows. With `maximumFractionDigits: 0` the input refuses the decimal separator. The on-screen keyboard follows the props: `numeric` for a whole number at or above zero, `decimal` when the format allows a fraction, and the full keyboard when `min` allows a negative.
+
+<Example name="decimals" />
+
+## Locale
+
+`locale` takes a BCP 47 tag and sets the decimal separator, the grouping and the digits the input writes and reads. Without it, the number field uses the locale of `SlottedProvider` in React and of `provideSlotted` in Angular, then `en-US`. Set the locale once for the application unless one amount is written differently from the rest.
+
+<Example name="locale" />
+
+## When the text is formatted
+
+`formatOn="change"`, the default, regroups the text on every keystroke and keeps the caret on the character it was on, so a long number is readable while you type it. `formatOn="commit"` leaves your text as typed until blur, Enter, a stepper press or an arrow key, for an amount that is pasted and checked rather than typed. Under both, the number itself changes on every keystroke that parses.
+
+<Example name="format-on" />
+
+## Adornments
+
+`start` and `end` hold content before and after the value in the reading direction: a currency mark, a unit or a code. They sit beside the number and are never selected, copied or parsed with it. A symbol that belongs inside the value, such as the `$` a currency format writes, comes from `format` instead.
+
+<Example name="adornments" />
+
+## Scrubbing
+
+`NumberFieldScrub` in React and `slNumberFieldScrub` in Angular, placed in `start` or `end`, moves the value when it is dragged sideways: one step per `sensitivity` pixels, 2 by default, `largeStep` with Shift and `smallStep` with Alt. Dragging towards the inline end steps up, so a right-to-left document steps up towards the left. A press moves focus to the input. The mark is hidden from assistive technology, because the arrow keys do the same.
+
+<Example name="scrub" />
+
+## States
+
+A number field inside a field reads `invalid`, `readOnly` and `disabled` from it. `invalid` sets `aria-invalid` on the input and draws the frame in the danger tone. `readOnly` sets the native `readonly`: the value keeps full contrast, stays focusable and is still submitted, and both buttons are disabled. `disabled` sets the native `disabled`, which takes the input out of the tab order and out of form submission. A state written on the number field itself wins over the field's.
+
+<Example name="states" />
+
+## Controlled value and empty
+
+`value` with `onValueChange` in React, and `[value]` with `(valueChange)` in Angular, make the number yours. `null` is empty, and empty is not zero: an empty field sets no `aria-valuenow`, and the first press of a stepper starts from `stepFrom`, which defaults to `min` and then to 0. Remove the limit below, then press increment.
+
+<Example name="controlled" />
+
+## Stepping from your own code
+
+`handle` in React reaches `increment()` and `decrement()`; in Angular, export the input as `slNumberFieldInput` and call the same methods from the template. Both move by one `step`, respect the bounds and report the reason `programmatic`. Use them for a shortcut or a button elsewhere on the page.
+
+<Example name="handle" />
+
+## Forms and validation
+
+`name` writes the raw number to a hidden input beside the visible one, so the form submits `12` rather than formatted text. Validate when the form is submitted, then set `invalid` on the field and write the error. The React example owns the value through `value` and `onValueChange`; the Angular example binds the input to a reactive form control, because `slNumberFieldInput` is a `ControlValueAccessor` that hands the form the number. Enter commits the value and submits the form. Submit the empty form, then a quantity.
+
+<Example name="validation" />
+
+## Defaults for a section
+
+`NumberFieldDefaultsProvider` in React and `provideNumberFieldDefaults` in Angular set `size`, `variant`, `stepper`, `formatOn` and `clamp` once for every number field under them. A number field that states a value of its own keeps it, and inside a field the field's size wins over the provider's.
+
+<Example name="defaults" wide />
+
+## Order lines
+
+A quantity per line, with `stepper="split"` at `size="sm"`, `max` set to the stock on hand and the line total computed from the controlled value. An emptied quantity counts as zero in the total.
+
+<Example name="order-line" wide />
+
+## Price editor
+
+Two controlled inputs in currency and percent, and a read-only result computed from them with `stepper="none"`. The markup holds `0.5` and shows `50%`; Shift with an arrow moves it by ten points through `largeStep`.
+
+<Example name="price-editor" wide />

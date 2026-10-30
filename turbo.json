@@ -1,0 +1,82 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "@slotted/angular#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/specs/components/*/contract.json",
+        "$TURBO_ROOT$/packages/styles/src/*/*.tokens.json",
+        "$TURBO_ROOT$/apps/docs/examples/**",
+        "$TURBO_ROOT$/tools/agent-docs/src/**",
+        "$TURBO_ROOT$/tools/agent-docs/bin/**",
+        "$TURBO_ROOT$/tools/agent-docs/content/**"
+      ]
+    },
+    "@slotted/react#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/specs/components/*/contract.json",
+        "$TURBO_ROOT$/packages/styles/src/*/*.tokens.json",
+        "$TURBO_ROOT$/apps/docs/examples/**",
+        "$TURBO_ROOT$/tools/agent-docs/src/**",
+        "$TURBO_ROOT$/tools/agent-docs/bin/**",
+        "$TURBO_ROOT$/tools/agent-docs/content/**"
+      ]
+    },
+    "@slotted/docs#build": {
+      "dependsOn": ["^build", "@slotted/react#build", "@slotted/angular#build"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "dependsOn": ["@slotted/theme#build", "@slotted/themes#build"],
+      "cache": false,
+      "persistent": true
+    },
+    "verify": {
+      "dependsOn": ["^verify"],
+      "outputs": ["dist/**", "coverage/**"]
+    },
+    "@slotted/agent-docs#verify": {
+      "dependsOn": [
+        "^verify",
+        "@slotted/core#verify",
+        "@slotted/theme#verify",
+        "@slotted/themes#verify"
+      ],
+      "outputs": ["dist/**", "coverage/**"]
+    },
+    "@slotted/theme#verify": {
+      "dependsOn": ["^verify"],
+      "outputs": ["dist/**", "coverage/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/themes/src/default/values.json",
+        "$TURBO_ROOT$/packages/styles/src/*/*.tokens.json",
+        "$TURBO_ROOT$/packages/styles/src/*/*.css",
+        "$TURBO_ROOT$/specs/components/*/contract.json"
+      ]
+    },
+    "@slotted/themes#verify": {
+      "dependsOn": ["^verify"],
+      "outputs": ["dist/**", "coverage/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/docs/token-foundation.md",
+        "$TURBO_ROOT$/scripts/generate-icon-glyphs.mjs",
+        "$TURBO_ROOT$/scripts/glyph-ink.mjs"
+      ]
+    },
+    "@slotted/docs#verify": {
+      "dependsOn": ["^verify", "@slotted/react#verify", "@slotted/angular#verify"],
+      "outputs": ["dist/**"]
+    }
+  }
+}

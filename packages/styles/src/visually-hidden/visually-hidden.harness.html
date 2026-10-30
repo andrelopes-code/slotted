@@ -1,0 +1,194 @@
+<!--
+  The family paints nothing, so the picture to judge is the one it must not
+  change. Each scene puts a row carrying hidden content beside the same row
+  without it, and a difference of one pixel between the two is the defect.
+
+  The dotted outlines and the inline grids are scaffolding for that comparison.
+  They are written here rather than in the stylesheet, which owns no layout and
+  reads no token: a hiding technique has nothing a theme retunes.
+-->
+<section data-scene="parity">
+  <div style="display: grid; gap: var(--slotted-space-5)">
+    <div style="display: grid; gap: var(--slotted-space-2)">
+      <span>without hidden content</span>
+      <div
+        style="
+          display: flex;
+          gap: var(--slotted-space-4);
+          align-items: center;
+          outline: 1px dotted currentColor;
+        "
+      >
+        <button type="button">A</button>
+        <button type="button">B</button>
+      </div>
+    </div>
+    <div style="display: grid; gap: var(--slotted-space-2)">
+      <span>with hidden content</span>
+      <div
+        style="
+          display: flex;
+          gap: var(--slotted-space-4);
+          align-items: center;
+          outline: 1px dotted currentColor;
+        "
+      >
+        <button type="button">
+          A<span
+            data-ui="visually-hidden"
+            data-ui-visually-hidden=""
+            data-part="root"
+            data-part-root=""
+            >pprove</span
+          >
+        </button>
+        <span
+          data-ui="visually-hidden"
+          data-ui-visually-hidden=""
+          data-part="root"
+          data-part-root=""
+          >Not a third gap</span
+        >
+        <button type="button">B</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The revealed variant. Captured without `--focus` the anchor is absent, and
+  the two paragraphs sit at the top of the stage. Captured with
+  `--focus "[data-focusable]"` the anchor re-enters the flow as the consumer
+  wrote it, and the paragraphs move down by its line. The family paints nothing
+  on it: how a skip link looks belongs to the anchor, not to the hiding rule.
+-->
+<section data-scene="revealed">
+  <div style="display: grid; justify-items: start; gap: var(--slotted-space-4)">
+    <a
+      data-ui="visually-hidden"
+      data-ui-visually-hidden=""
+      data-part="root"
+      data-part-root=""
+      data-focusable
+      href="#visually-hidden-target"
+      >Skip to content</a
+    >
+    <p style="margin: 0">Repeated navigation the link jumps over.</p>
+    <p id="visually-hidden-target" style="margin: 0">The destination.</p>
+  </div>
+</section>
+
+<!--
+  Extreme content, and the two ways this primitive can leak into layout: a
+  hidden string longer than the paragraph that holds it, and a hidden string
+  inside a scrolling panel that is also its containing block. The second is
+  where the negative margin in the hiding rule earns its place — without it
+  the panel gains one pixel of scrollable height.
+-->
+<section data-scene="content">
+  <div style="display: grid; gap: var(--slotted-space-5)">
+    <p style="margin: 0">
+      Read more<span
+        data-ui="visually-hidden"
+        data-ui-visually-hidden=""
+        data-part="root"
+        data-part-root=""
+      >
+        about the quarterly billing statement issued on the first working day of each month,
+        including every line item and the payment method it settles against</span
+      >
+    </p>
+    <div
+      id="visually-hidden-scroller"
+      style="
+        position: relative;
+        overflow: auto;
+        outline: 1px dotted currentColor;
+        padding: var(--slotted-space-2);
+      "
+    >
+      <p style="margin: 0">A scrolling panel that is its own containing block.</p>
+      <span data-ui="visually-hidden" data-ui-visually-hidden="" data-part="root" data-part-root=""
+        >A hidden string after the last line of a scrolling panel</span
+      >
+    </div>
+  </div>
+</section>
+
+<!--
+  The three uses the primitive exists for: an accessible name for a control
+  that shows a glyph, a column header shown as a glyph, and context a repeated
+  link needs and the page does not.
+
+  Each glyph is a mask from the foundation's glyph scale rather than a
+  character, because a character is never an icon. The icon belongs to the
+  consumer here, and the stand-in has to be the kind of icon the library
+  accepts.
+-->
+<section data-scene="composition">
+  <div style="display: grid; justify-items: start; gap: var(--slotted-space-5)">
+    <button type="button">
+      <span
+        aria-hidden="true"
+        style="
+          display: inline-block;
+          inline-size: 14px;
+          block-size: 14px;
+          vertical-align: -2px;
+          background: currentColor;
+          mask-image: var(--slotted-icon-x);
+          mask-size: contain;
+        "
+      ></span>
+      <span data-ui="visually-hidden" data-ui-visually-hidden="" data-part="root" data-part-root=""
+        >Remove invoice</span
+      >
+    </button>
+    <table style="border-collapse: collapse">
+      <thead>
+        <tr>
+          <th scope="col" style="text-align: start; padding-inline-end: var(--slotted-space-5)">
+            Invoice
+          </th>
+          <th scope="col" style="text-align: start">
+            <span
+              aria-hidden="true"
+              style="
+                display: inline-block;
+                inline-size: 14px;
+                block-size: 14px;
+                vertical-align: -2px;
+                background: currentColor;
+                mask-image: var(--slotted-icon-check);
+                mask-size: contain;
+              "
+            ></span>
+            <span
+              data-ui="visually-hidden"
+              data-ui-visually-hidden=""
+              data-part="root"
+              data-part-root=""
+              >Paid</span
+            >
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding-inline-end: var(--slotted-space-5)">INV-0042</td>
+          <td>Yes</td>
+        </tr>
+      </tbody>
+    </table>
+    <a href="#visually-hidden-target"
+      >Read more<span
+        data-ui="visually-hidden"
+        data-ui-visually-hidden=""
+        data-part="root"
+        data-part-root=""
+      >
+        about quarterly billing</span
+      ></a
+    >
+  </div>
+</section>

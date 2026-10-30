@@ -1,0 +1,252 @@
+@layer slotted.components {
+  /**
+   * ── An action and the menu of its alternatives, joined ─────────────────
+   *
+   * The root is a `div` carrying `role="group"`; inside it stand two elements
+   * of the `button` family — a Button carrying this family's `primary` part
+   * and an IconButton carrying `menu-trigger`, rendered as `menu`'s trigger.
+   * `button` selects itself by `data-ui` alone and reads no `data-part` on
+   * its root, so the part slot is free for the family that owns the
+   * composition; what this sheet writes is composition against `button`'s
+   * public contract — `data-ui`, `data-tone`, `data-variant`, `data-shape`,
+   * `data-pressed`, `data-disabled` — and never against its inner DOM, save
+   * the one part `button` declares in public for its icon.
+   *
+   * The family paints two things and only two: the join, and the chevron.
+   * Every tone, variant, size, density, hover, press, focus ring, loading
+   * indicator and disabled reading is `button`'s, which is the reason the two
+   * halves are `button`'s elements rather than this family's own.
+   *
+   * ── The join is `button-group`'s, for two children on one axis ─────────
+   *
+   * `button-group` keys on its own identifier and the root here carries this
+   * family's, so the rules that make one shape of two controls are restated,
+   * each citing the measurement the group made:
+   *
+   * - the two overlap by one border width, so two joined edges occupy one
+   *   column rather than two;
+   * - exactly one border is painted in that column — the leading edge of the
+   *   trigger — because two of them are one line on paper and two different
+   *   lines at 110%, 150% and 175% zoom, where the browser snaps each border
+   *   box to device pixels on its own (five uneven boundaries out of fifteen,
+   *   measured by `button-group` before it wrote the rule);
+   * - the corners on the two ends of the bar survive and the two facing the
+   *   seam go;
+   * - the seam between two solid halves is the tone's darkest step, read from
+   *   `data-tone`, which `button` declares in public;
+   * - the frame is stated by the family under `pressed` and `disabled` for the
+   *   two variants that have one, so a half does not redraw the bar around
+   *   itself;
+   * - only focus is raised.
+   */
+  [data-ui-split-button][data-part-root] {
+    --_radius: var(--slotted-split-button-radius, var(--slotted-control-radius, 4px));
+    --_overlap: calc(-1 * var(--slotted-control-border-width, 1px));
+
+    align-items: stretch;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0;
+    /* A half raised by focus is raised inside the group, never over the page. */
+    isolation: isolate;
+    /**
+     * A flex item is at least as wide as its content unless it is told
+     * otherwise, so a split button nested in one would refuse to narrow below
+     * its label and push the layout past the edge instead of letting the
+     * label wrap inside its own control, which is `button`'s rule.
+     */
+    min-inline-size: 0;
+    /* A control written inside a sentence sits on the text's centre. */
+    vertical-align: middle;
+  }
+
+  /* ── Width ────────────────────────────────────────────────────────────── */
+
+  /**
+   * Asking for the whole line means the action takes it: the trigger is
+   * square from the control height and stays so, because a wide chevron is a
+   * second button nobody asked for.
+   */
+  [data-ui-split-button][data-part-root][data-full-width] {
+    display: flex;
+    inline-size: 100%;
+  }
+
+  [data-ui-split-button][data-part-root][data-full-width] > [data-part-primary] {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  /* ── The shape ────────────────────────────────────────────────────────── */
+
+  [data-ui-split-button][data-part-root] > [data-part-primary] {
+    border-end-end-radius: 0;
+    border-end-start-radius: var(--_radius);
+    border-start-end-radius: 0;
+    border-start-start-radius: var(--_radius);
+    /* A label that outgrows the bar wraps inside its own control rather than
+       pushing the bar past the container. */
+    min-inline-size: 0;
+  }
+
+  [data-ui-split-button][data-part-root] > [data-part-menu-trigger] {
+    border-end-end-radius: var(--_radius);
+    border-end-start-radius: 0;
+    border-start-end-radius: var(--_radius);
+    border-start-start-radius: 0;
+    /* Square from the control height; never shrinks below its own target. */
+    flex: none;
+    margin-inline-start: var(--_overlap);
+  }
+
+  /**
+   * ── The frame belongs to the group ────────────────────────────────────
+   *
+   * `button` repaints its whole border when it is pressed or unavailable —
+   * correctly, for a control standing on its own — and inside a bar that
+   * punches a hole in the frame exactly where that control sits. The family
+   * states the edge for the two variants that have one to state, and it
+   * states it for the states that would otherwise overwrite it.
+   *
+   * The root is selected by its part as well as its family, for the reason
+   * `button-group` records: the rule has to outrank every border rule `button`
+   * writes for the same control whatever order the two sheets load in.
+   */
+  [data-ui-split-button][data-part-root] > [data-ui-button][data-variant='outline'][data-pressed],
+  [data-ui-split-button][data-part-root] > [data-ui-button][data-variant='outline'][data-disabled],
+  [data-ui-split-button][data-part-root] > [data-ui-button][data-variant='outline']:disabled {
+    border-color: var(--slotted-control-border-color, ButtonBorder);
+  }
+
+  [data-ui-split-button][data-part-root] > [data-ui-button][data-variant='ghost'][data-pressed],
+  [data-ui-split-button][data-part-root] > [data-ui-button][data-variant='ghost'][data-disabled],
+  [data-ui-split-button][data-part-root] > [data-ui-button][data-variant='ghost']:disabled {
+    border-color: transparent;
+  }
+
+  /**
+   * ── One border in the shared column ───────────────────────────────────
+   *
+   * The primary's trailing edge is taken out of the paint entirely — not
+   * narrowed, because a narrower border box would move its label by half a
+   * pixel — and the trigger's leading edge is the one seen.
+   */
+  [data-ui-split-button][data-part-root] > [data-ui-button][data-part-primary][data-variant] {
+    border-inline-end-color: transparent;
+  }
+
+  /**
+   * ── The seam between two filled halves ────────────────────────────────
+   *
+   * `button` paints a filled control's edge with its own fill, so two joined
+   * solid halves are one uninterrupted rectangle with no way to tell where
+   * the action ends and the menu begins. The seam is the darkest step of the
+   * control's own tone — Primer, Material UI, Ant Design and Bootstrap all
+   * reach for it, and `button-group` measured the alternative: a white line
+   * through a filled bar cuts it into separate buttons instead of dividing
+   * one. It is painted on the trigger's leading edge, the one edge the rule
+   * above leaves in the column.
+   */
+  [data-ui-split-button][data-part-root] > [data-tone='accent'] {
+    --_seam: var(--slotted-tone-accent-solid-active);
+  }
+
+  [data-ui-split-button][data-part-root] > [data-tone='secondary'] {
+    --_seam: var(--slotted-tone-secondary-solid-active);
+  }
+
+  [data-ui-split-button][data-part-root] > [data-tone='success'] {
+    --_seam: var(--slotted-tone-success-solid-active);
+  }
+
+  [data-ui-split-button][data-part-root] > [data-tone='info'] {
+    --_seam: var(--slotted-tone-info-solid-active);
+  }
+
+  [data-ui-split-button][data-part-root] > [data-tone='warning'] {
+    --_seam: var(--slotted-tone-warning-solid-active);
+  }
+
+  [data-ui-split-button][data-part-root] > [data-tone='danger'] {
+    --_seam: var(--slotted-tone-danger-solid-active);
+  }
+
+  [data-ui-split-button][data-part-root]
+    > [data-ui-button][data-variant='solid'][data-part-menu-trigger] {
+    border-inline-start-color: var(--_seam, ButtonBorder);
+  }
+
+  /**
+   * A filled half that is unavailable has no darkest step to draw the seam
+   * in: `button` paints it the disabled ground inside the disabled border,
+   * and the seam takes that border so the bar reads as one unavailable
+   * control rather than as a grey one with a coloured line through it.
+   */
+  [data-ui-split-button][data-part-root]
+    > [data-ui-button][data-variant='solid'][data-part-menu-trigger]:disabled,
+  [data-ui-split-button][data-part-root]
+    > [data-ui-button][data-variant='solid'][data-part-menu-trigger][data-disabled] {
+    border-inline-start-color: var(--slotted-disabled-border, ButtonBorder);
+  }
+
+  /**
+   * Only focus is raised. The ring is an outline drawn outside the border
+   * box, so without this the primary's ring is cut by the trigger that
+   * follows it in the DOM. Hover and press repaint a fill and never an edge,
+   * so there is nothing to lift for them — `button-group`'s reading.
+   */
+  [data-ui-split-button][data-part-root] > *:focus-visible {
+    z-index: 1;
+  }
+
+  /**
+   * ── The chevron ───────────────────────────────────────────────────────
+   *
+   * The mark `select` draws for "a list opens here", which is the promise a
+   * menu button keeps; not the ellipsis, which says "more" without saying
+   * what opens. It is the `chevron-down` Glyph element the binding renders in
+   * the icon part, stroked in the control's own ink, so it follows the label
+   * into hover, press, disabled, every tone's `on-solid` and forced colours.
+   * `button` sizes it through the icon part; this stylesheet paints nothing.
+   *
+   * It does not turn while the menu is open. None of the six surveyed split
+   * buttons turns it; a mark that flips says the surface will close, while
+   * the surface below is what the reader is looking at. `select` turns its
+   * own because a select's arrow discloses the value's list; a menu button's
+   * chevron is a promise, not a state.
+   */
+
+  /**
+   * ── Loading ───────────────────────────────────────────────────────────
+   *
+   * The primary shows `button`'s own indicator and holds its width and name.
+   * The trigger is `aria-disabled` for the duration — choosing "Save as
+   * draft" while "Save" is in flight is a double submission — and it keeps
+   * its place in the tab sequence and its name, so a reader who reaches it
+   * hears why nothing opens.
+   *
+   * It keeps its paint. `data-disabled` would have `button` paint it the
+   * unavailable grey beside an action still in its tone, and the capture
+   * read that as two controls — one working, one broken. The bar is one
+   * control that is busy, so the trigger stays in the tone and simply stops
+   * answering the pointer; the binding refuses the activation a key would
+   * send. `pointer-events: none` is also what takes hover away without a
+   * state the stylesheet would have to hold back.
+   */
+  [data-ui-split-button][data-part-root][data-loading] > [data-part-menu-trigger] {
+    pointer-events: none;
+  }
+
+  /**
+   * Under forced colours the theme flattens every fill, so a half that is
+   * pressed has only its edge left to say so. `button` makes that edge
+   * `Highlight`; the frame rule above would have taken it away, and this
+   * puts it back — `button-group`'s rule for the same case.
+   */
+  @media (forced-colors: active) {
+    [data-ui-split-button][data-part-root] > [data-ui-button][data-pressed] {
+      border-color: Highlight;
+    }
+  }
+}

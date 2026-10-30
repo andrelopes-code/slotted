@@ -1,0 +1,2505 @@
+<!--
+  The third place this family's DOM is written, after React and Angular. Every
+  `data-part` the contract declares appears here:
+
+    div[data-ui='transfer'][data-part='root'][role='group']   data-layout, data-size, data-pane
+      div[data-part='switch'] > segmented-control
+      div[data-part='body']
+        div[data-part='pane'][data-side='source'][role='group']   data-current on the switch's pane
+          div[data-part='pane-header']
+            span[data-part='select-all'] > checkbox
+            span[data-part='title']
+            span[data-part='count']
+          div[data-part='search'] > text-field (span[data-part='search-icon'] in its start slot)
+          div[data-part='list']
+            listbox (plain, multiple) > option…
+              listbox empty > div[data-part='empty']      only when the pane shows nothing
+            div[data-part='drop-indicator']               only while a drag hovers
+          div[data-part='pane-footer']                    only when the consumer gives one
+        div[data-part='actions'][role='group']
+          button[data-part='move-to-target'] · button[data-part='move-all-to-target']
+          button[data-part='move-to-source'] · button[data-part='move-all-to-source']
+          div[data-part='reorder'][role='group']          only under reorderable
+            button[data-part='move-up'] · button[data-part='move-down']
+        div[data-part='pane'][data-side='target'] …
+
+  The page has no script beyond the checkbox's indeterminate flag, so what
+  script writes is written by hand: the active option, the counts, the drag
+  state and the drop line's offset.
+-->
+
+<style>
+  [data-demo-row] {
+    display: grid;
+    gap: var(--slotted-space-6);
+  }
+</style>
+
+<section data-scene="default">
+  <div
+    data-ui="transfer"
+    data-ui-transfer=""
+    data-part="root"
+    data-part-root=""
+    data-layout="auto"
+    data-size="md"
+    data-pane="source"
+    role="group"
+    aria-label="Project members"
+  >
+    <div data-part="switch" data-part-switch="">
+      <div
+        data-ui="segmented-control"
+        data-ui-segmented-control=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-orientation="horizontal"
+        data-condense="none"
+        role="radiogroup"
+        aria-label="Lists"
+        aria-orientation="horizontal"
+        style="--slotted-segmented-control-count: 2; --slotted-segmented-control-index: 0"
+      >
+        <span data-part="indicator" data-part-indicator="" aria-hidden="true"></span>
+        <label data-part="item" data-part-item="" data-checked>
+          <input
+            data-part="control"
+            data-part-control=""
+            type="radio"
+            name="d-pane"
+            value="source"
+            checked
+          />
+          <span data-part="label" data-part-label="">Available (6)</span>
+        </label>
+        <label data-part="item" data-part-item="">
+          <input
+            data-part="control"
+            data-part-control=""
+            type="radio"
+            name="d-pane"
+            value="target"
+          />
+          <span data-part="label" data-part-label="">Chosen (3)</span>
+        </label>
+      </div>
+    </div>
+    <div data-part="body" data-part-body="">
+      <div
+        data-part="pane"
+        data-part-pane=""
+        data-side="source"
+        data-current
+        role="group"
+        aria-labelledby="d-s-t"
+      >
+        <div data-part="pane-header" data-part-pane-header="">
+          <span data-part="select-all" data-part-select-all=""
+            ><div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+              data-indeterminate
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                aria-label="Select all in Available"
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg></span
+              ></span></div
+          ></span>
+          <span data-part="title" data-part-title="" id="d-s-t">Available</span>
+          <span data-part="count" data-part-count="">2 of 6 selected</span>
+        </div>
+        <div data-part="search" data-part-search="">
+          <div
+            data-ui="text-field"
+            data-ui-text-field=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="outline"
+          >
+            <span data-part="start" data-part-start="" aria-hidden="true"
+              ><span data-part="search-icon" data-part-search-icon=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+            ></span>
+            <input
+              data-part="input"
+              data-part-input=""
+              type="search"
+              placeholder="Search Available"
+              aria-label="Search Available"
+            />
+          </div>
+        </div>
+        <div data-part="list" data-part-list="">
+          <div
+            data-ui="listbox"
+            data-ui-listbox=""
+            data-part="root"
+            data-part-root=""
+            data-variant="plain"
+            data-size="md"
+            data-indicator="check"
+            data-focus-mode="roving"
+            data-orientation="vertical"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby="d-s-t"
+          >
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Ana Souza</span
+              ><span data-part="meta" data-part-meta="">Design</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              data-selected
+              data-current
+              role="option"
+              aria-selected="true"
+              tabindex="0"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Bruno Lima</span
+              ><span data-part="meta" data-part-meta="">Engineering</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              data-selected
+              role="option"
+              aria-selected="true"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Carla Dias</span
+              ><span data-part="meta" data-part-meta="">Engineering</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Diego Rocha</span
+              ><span data-part="meta" data-part-meta="">Sales</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              data-disabled
+              role="option"
+              aria-selected="false"
+              aria-disabled="true"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Elisa Prado</span
+              ><span data-part="meta" data-part-meta="">Suspended</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Fabian Nash</span
+              ><span data-part="meta" data-part-meta="">Support</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-part="actions" data-part-actions="" role="group" aria-label="Move items">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-to-target"
+          data-part-move-to-target=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+          aria-keyshortcuts="Enter"
+        >
+          <span data-part="label" data-part-label="">Add</span
+          ><span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg></span
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-all-to-target"
+          data-part-move-all-to-target=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Add all</span
+          ><span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevrons-right"></svg></span
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-to-source"
+          data-part-move-to-source=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          data-disabled
+          type="button"
+          aria-disabled="true"
+          aria-keyshortcuts="Delete"
+        >
+          <span data-part="start" data-part-start="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg
+                data-part="glyph"
+                data-part-glyph=""
+                data-glyph="chevron-right"
+              ></svg></span></span
+          ><span data-part="label" data-part-label="">Remove</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-all-to-source"
+          data-part-move-all-to-source=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="start" data-part-start="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg
+                data-part="glyph"
+                data-part-glyph=""
+                data-glyph="chevrons-right"
+              ></svg></span></span
+          ><span data-part="label" data-part-label="">Remove all</span>
+        </button>
+      </div>
+      <div
+        data-part="pane"
+        data-part-pane=""
+        data-side="target"
+        role="group"
+        aria-labelledby="d-t-t"
+      >
+        <div data-part="pane-header" data-part-pane-header="">
+          <span data-part="select-all" data-part-select-all=""
+            ><div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                aria-label="Select all in Chosen"
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span></div
+          ></span>
+          <span data-part="title" data-part-title="" id="d-t-t">Chosen</span>
+          <span data-part="count" data-part-count="">3 items</span>
+        </div>
+        <div data-part="search" data-part-search="">
+          <div
+            data-ui="text-field"
+            data-ui-text-field=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="outline"
+          >
+            <span data-part="start" data-part-start="" aria-hidden="true"
+              ><span data-part="search-icon" data-part-search-icon=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+            ></span>
+            <input
+              data-part="input"
+              data-part-input=""
+              type="search"
+              placeholder="Search Chosen"
+              aria-label="Search Chosen"
+            />
+          </div>
+        </div>
+        <div data-part="list" data-part-list="">
+          <div
+            data-ui="listbox"
+            data-ui-listbox=""
+            data-part="root"
+            data-part-root=""
+            data-variant="plain"
+            data-size="md"
+            data-indicator="check"
+            data-focus-mode="roving"
+            data-orientation="vertical"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby="d-t-t"
+          >
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="0"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Gabriela Reis</span
+              ><span data-part="meta" data-part-meta="">Design</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Hugo Matos</span
+              ><span data-part="meta" data-part-meta="">Product</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Iara Costa</span
+              ><span data-part="meta" data-part-meta="">Engineering</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="reorder">
+  <div
+    data-ui="transfer"
+    data-ui-transfer=""
+    data-part="root"
+    data-part-root=""
+    data-layout="auto"
+    data-size="md"
+    data-pane="target"
+    role="group"
+    aria-label="Dashboard widgets"
+  >
+    <div data-part="switch" data-part-switch="">
+      <div
+        data-ui="segmented-control"
+        data-ui-segmented-control=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-orientation="horizontal"
+        data-condense="none"
+        role="radiogroup"
+        aria-label="Lists"
+        aria-orientation="horizontal"
+        style="--slotted-segmented-control-count: 2; --slotted-segmented-control-index: 1"
+      >
+        <span data-part="indicator" data-part-indicator="" aria-hidden="true"></span>
+        <label data-part="item" data-part-item="">
+          <input
+            data-part="control"
+            data-part-control=""
+            type="radio"
+            name="r-pane"
+            value="source"
+          />
+          <span data-part="label" data-part-label="">Available (2)</span>
+        </label>
+        <label data-part="item" data-part-item="" data-checked>
+          <input
+            data-part="control"
+            data-part-control=""
+            type="radio"
+            name="r-pane"
+            value="target"
+            checked
+          />
+          <span data-part="label" data-part-label="">Shown (4)</span>
+        </label>
+      </div>
+    </div>
+    <div data-part="body" data-part-body="">
+      <div
+        data-part="pane"
+        data-part-pane=""
+        data-side="source"
+        role="group"
+        aria-labelledby="r-s-t"
+      >
+        <div data-part="pane-header" data-part-pane-header="">
+          <span data-part="select-all" data-part-select-all=""
+            ><div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                aria-label="Select all in Available"
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span></div
+          ></span>
+          <span data-part="title" data-part-title="" id="r-s-t">Available</span>
+          <span data-part="count" data-part-count="">2 items</span>
+        </div>
+        <div data-part="list" data-part-list="">
+          <div
+            data-ui="listbox"
+            data-ui-listbox=""
+            data-part="root"
+            data-part-root=""
+            data-variant="plain"
+            data-size="md"
+            data-indicator="check"
+            data-focus-mode="roving"
+            data-orientation="vertical"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby="r-s-t"
+          >
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="0"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Churn</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Support queue</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-part="actions" data-part-actions="" role="group" aria-label="Move items">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-to-target"
+          data-part-move-to-target=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          data-disabled
+          type="button"
+          aria-disabled="true"
+          aria-keyshortcuts="Enter"
+        >
+          <span data-part="label" data-part-label="">Add</span
+          ><span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg></span
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-all-to-target"
+          data-part-move-all-to-target=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Add all</span
+          ><span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevrons-right"></svg></span
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-to-source"
+          data-part-move-to-source=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+          aria-keyshortcuts="Delete"
+        >
+          <span data-part="start" data-part-start="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg
+                data-part="glyph"
+                data-part-glyph=""
+                data-glyph="chevron-right"
+              ></svg></span></span
+          ><span data-part="label" data-part-label="">Remove</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-all-to-source"
+          data-part-move-all-to-source=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="start" data-part-start="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg
+                data-part="glyph"
+                data-part-glyph=""
+                data-glyph="chevrons-right"
+              ></svg></span></span
+          ><span data-part="label" data-part-label="">Remove all</span>
+        </button>
+        <div data-part="reorder" data-part-reorder="" role="group" aria-label="Order">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="move-up"
+            data-part-move-up=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+            aria-keyshortcuts="Alt+ArrowUp"
+          >
+            <span data-part="start" data-part-start="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg
+                  data-part="glyph"
+                  data-part-glyph=""
+                  data-glyph="chevron-down"
+                ></svg></span></span
+            ><span data-part="label" data-part-label="">Up</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="move-down"
+            data-part-move-down=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="sm"
+            type="button"
+            aria-keyshortcuts="Alt+ArrowDown"
+          >
+            <span data-part="start" data-part-start="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg
+                  data-part="glyph"
+                  data-part-glyph=""
+                  data-glyph="chevron-down"
+                ></svg></span></span
+            ><span data-part="label" data-part-label="">Down</span>
+          </button>
+        </div>
+      </div>
+      <div
+        data-part="pane"
+        data-part-pane=""
+        data-side="target"
+        data-current
+        role="group"
+        aria-labelledby="r-t-t"
+      >
+        <div data-part="pane-header" data-part-pane-header="">
+          <span data-part="select-all" data-part-select-all=""
+            ><div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+              data-indeterminate
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                aria-label="Select all in Shown"
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg></span
+              ></span></div
+          ></span>
+          <span data-part="title" data-part-title="" id="r-t-t">Shown</span>
+          <span data-part="count" data-part-count="">1 of 4 selected</span>
+        </div>
+        <div data-part="list" data-part-list="">
+          <div
+            data-ui="listbox"
+            data-ui-listbox=""
+            data-part="root"
+            data-part-root=""
+            data-variant="plain"
+            data-size="md"
+            data-indicator="check"
+            data-focus-mode="roving"
+            data-orientation="vertical"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby="r-t-t"
+          >
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Revenue</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              data-selected
+              data-current
+              role="option"
+              aria-selected="true"
+              tabindex="0"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Active users</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Conversion</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Pipeline</span>
+            </div>
+          </div>
+        </div>
+        <div data-part="pane-footer" data-part-pane-footer="">
+          The first four widgets fill the top row.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="drag">
+  <div
+    data-ui="transfer"
+    data-ui-transfer=""
+    data-part="root"
+    data-part-root=""
+    data-layout="auto"
+    data-size="md"
+    data-pane="source"
+    role="group"
+    aria-label="Reviewers"
+    style="--slotted-transfer-rows: 4"
+  >
+    <div data-part="body" data-part-body="">
+      <div
+        data-part="pane"
+        data-part-pane=""
+        data-side="source"
+        data-current
+        role="group"
+        aria-labelledby="g-s-t"
+      >
+        <div data-part="pane-header" data-part-pane-header="">
+          <span data-part="select-all" data-part-select-all=""
+            ><div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                aria-label="Select all in Available"
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span></div
+          ></span>
+          <span data-part="title" data-part-title="" id="g-s-t">Available</span>
+          <span data-part="count" data-part-count="">3 items</span>
+        </div>
+        <div data-part="list" data-part-list="">
+          <div
+            data-ui="listbox"
+            data-ui-listbox=""
+            data-part="root"
+            data-part-root=""
+            data-variant="plain"
+            data-size="md"
+            data-indicator="check"
+            data-focus-mode="roving"
+            data-orientation="vertical"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby="g-s-t"
+          >
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="0"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Ana</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator="" data-dragging
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Bruno</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Carla</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-part="actions" data-part-actions="" role="group" aria-label="Move items">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-to-target"
+          data-part-move-to-target=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          data-disabled
+          type="button"
+          aria-disabled="true"
+        >
+          <span data-part="label" data-part-label="">Add</span
+          ><span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg></span
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-all-to-target"
+          data-part-move-all-to-target=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Add all</span
+          ><span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevrons-right"></svg></span
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-to-source"
+          data-part-move-to-source=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          data-disabled
+          type="button"
+          aria-disabled="true"
+        >
+          <span data-part="start" data-part-start="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg
+                data-part="glyph"
+                data-part-glyph=""
+                data-glyph="chevron-right"
+              ></svg></span></span
+          ><span data-part="label" data-part-label="">Remove</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-all-to-source"
+          data-part-move-all-to-source=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          type="button"
+        >
+          <span data-part="start" data-part-start="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg
+                data-part="glyph"
+                data-part-glyph=""
+                data-glyph="chevrons-right"
+              ></svg></span></span
+          ><span data-part="label" data-part-label="">Remove all</span>
+        </button>
+      </div>
+      <div
+        data-part="pane"
+        data-part-pane=""
+        data-side="target"
+        data-drop-target
+        role="group"
+        aria-labelledby="g-t-t"
+      >
+        <div data-part="pane-header" data-part-pane-header="">
+          <span data-part="select-all" data-part-select-all=""
+            ><div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                aria-label="Select all in Chosen"
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span></div
+          ></span>
+          <span data-part="title" data-part-title="" id="g-t-t">Chosen</span>
+          <span data-part="count" data-part-count="">2 items</span>
+        </div>
+        <div data-part="list" data-part-list="">
+          <div
+            data-ui="listbox"
+            data-ui-listbox=""
+            data-part="root"
+            data-part-root=""
+            data-variant="plain"
+            data-size="md"
+            data-indicator="check"
+            data-focus-mode="roving"
+            data-orientation="vertical"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby="g-t-t"
+          >
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="0"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Diego</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Elisa</span>
+            </div>
+          </div>
+          <div
+            data-part="drop-indicator"
+            data-part-drop-indicator=""
+            aria-hidden="true"
+            style="--_drop-offset: calc(var(--slotted-space-2) + var(--slotted-control-height-md))"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="empty">
+  <div
+    data-ui="transfer"
+    data-ui-transfer=""
+    data-part="root"
+    data-part-root=""
+    data-layout="auto"
+    data-size="md"
+    data-pane="source"
+    role="group"
+    aria-label="Tags"
+    style="--slotted-transfer-rows: 4"
+  >
+    <div data-part="body" data-part-body="">
+      <div
+        data-part="pane"
+        data-part-pane=""
+        data-side="source"
+        data-current
+        role="group"
+        aria-labelledby="e-s-t"
+      >
+        <div data-part="pane-header" data-part-pane-header="">
+          <span data-part="select-all" data-part-select-all=""
+            ><div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                aria-label="Select all in Available"
+                disabled
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span></div
+          ></span>
+          <span data-part="title" data-part-title="" id="e-s-t">Available</span>
+          <span data-part="count" data-part-count="">0 of 5 shown</span>
+        </div>
+        <div data-part="search" data-part-search="">
+          <div
+            data-ui="text-field"
+            data-ui-text-field=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="outline"
+          >
+            <span data-part="start" data-part-start="" aria-hidden="true"
+              ><span data-part="search-icon" data-part-search-icon=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+            ></span>
+            <input
+              data-part="input"
+              data-part-input=""
+              type="search"
+              value="zzz"
+              placeholder="Search Available"
+              aria-label="Search Available"
+            />
+          </div>
+        </div>
+        <div data-part="list" data-part-list="">
+          <div
+            data-ui="listbox"
+            data-ui-listbox=""
+            data-part="root"
+            data-part-root=""
+            data-variant="plain"
+            data-size="md"
+            data-indicator="check"
+            data-focus-mode="roving"
+            data-orientation="vertical"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby="e-s-t"
+            tabindex="0"
+          >
+            <div data-part="empty" data-part-empty="">
+              <div data-part="empty" data-part-empty="" data-query>
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="search-x"></svg></span
+                >No matches
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-part="actions" data-part-actions="" role="group" aria-label="Move items">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-to-target"
+          data-part-move-to-target=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          data-disabled
+          type="button"
+          aria-disabled="true"
+        >
+          <span data-part="label" data-part-label="">Add</span
+          ><span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg></span
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-all-to-target"
+          data-part-move-all-to-target=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          data-disabled
+          type="button"
+          aria-disabled="true"
+        >
+          <span data-part="label" data-part-label="">Add all</span
+          ><span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevrons-right"></svg></span
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-to-source"
+          data-part-move-to-source=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          data-disabled
+          type="button"
+          aria-disabled="true"
+        >
+          <span data-part="start" data-part-start="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg
+                data-part="glyph"
+                data-part-glyph=""
+                data-glyph="chevron-right"
+              ></svg></span></span
+          ><span data-part="label" data-part-label="">Remove</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-all-to-source"
+          data-part-move-all-to-source=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="sm"
+          data-disabled
+          type="button"
+          aria-disabled="true"
+        >
+          <span data-part="start" data-part-start="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg
+                data-part="glyph"
+                data-part-glyph=""
+                data-glyph="chevrons-right"
+              ></svg></span></span
+          ><span data-part="label" data-part-label="">Remove all</span>
+        </button>
+      </div>
+      <div
+        data-part="pane"
+        data-part-pane=""
+        data-side="target"
+        role="group"
+        aria-labelledby="e-t-t"
+      >
+        <div data-part="pane-header" data-part-pane-header="">
+          <span data-part="select-all" data-part-select-all=""
+            ><div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="md"
+              data-label-placement="end"
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                aria-label="Select all in Chosen"
+                disabled
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span></div
+          ></span>
+          <span data-part="title" data-part-title="" id="e-t-t">Chosen</span>
+          <span data-part="count" data-part-count="">0 items</span>
+        </div>
+        <div data-part="search" data-part-search="">
+          <div
+            data-ui="text-field"
+            data-ui-text-field=""
+            data-part="root"
+            data-part-root=""
+            data-size="sm"
+            data-variant="outline"
+          >
+            <span data-part="start" data-part-start="" aria-hidden="true"
+              ><span data-part="search-icon" data-part-search-icon=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+            ></span>
+            <input
+              data-part="input"
+              data-part-input=""
+              type="search"
+              placeholder="Search Chosen"
+              aria-label="Search Chosen"
+            />
+          </div>
+        </div>
+        <div data-part="list" data-part-list="">
+          <div
+            data-ui="listbox"
+            data-ui-listbox=""
+            data-part="root"
+            data-part-root=""
+            data-variant="plain"
+            data-size="md"
+            data-indicator="check"
+            data-focus-mode="roving"
+            data-orientation="vertical"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby="e-t-t"
+            tabindex="0"
+          >
+            <div data-part="empty" data-part-empty="">
+              <div data-part="empty" data-part-empty="">
+                <span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="inbox"></svg></span
+                >No items
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="states">
+  <div data-demo-row>
+    <div
+      data-ui="transfer"
+      data-ui-transfer=""
+      data-part="root"
+      data-part-root=""
+      data-layout="auto"
+      data-size="sm"
+      data-pane="source"
+      data-invalid
+      data-required
+      role="group"
+      aria-label="Approvers"
+      style="--slotted-transfer-rows: 3"
+    >
+      <div data-part="body" data-part-body="">
+        <div
+          data-part="pane"
+          data-part-pane=""
+          data-side="source"
+          data-current
+          role="group"
+          aria-labelledby="i-s-t"
+        >
+          <div data-part="pane-header" data-part-pane-header="">
+            <span data-part="select-all" data-part-select-all=""
+              ><div
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-label-placement="end"
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  aria-label="Select all in Available"
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span></div
+            ></span>
+            <span data-part="title" data-part-title="" id="i-s-t">Available</span>
+            <span data-part="count" data-part-count="">3 items</span>
+          </div>
+          <div data-part="list" data-part-list="">
+            <div
+              data-ui="listbox"
+              data-ui-listbox=""
+              data-part="root"
+              data-part-root=""
+              data-variant="plain"
+              data-size="sm"
+              data-indicator="check"
+              data-focus-mode="roving"
+              data-orientation="vertical"
+              data-invalid
+              data-required
+              role="listbox"
+              aria-multiselectable="true"
+              aria-labelledby="i-s-t"
+              aria-invalid="true"
+              aria-required="true"
+            >
+              <div
+                data-part="option"
+                data-part-option=""
+                role="option"
+                aria-selected="false"
+                tabindex="0"
+              >
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg
+                      data-part="glyph"
+                      data-part-glyph=""
+                      data-glyph="check"
+                    ></svg></span></span
+                ><span data-part="label" data-part-label="">Finance lead</span>
+              </div>
+              <div
+                data-part="option"
+                data-part-option=""
+                role="option"
+                aria-selected="false"
+                tabindex="-1"
+              >
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg
+                      data-part="glyph"
+                      data-part-glyph=""
+                      data-glyph="check"
+                    ></svg></span></span
+                ><span data-part="label" data-part-label="">Legal</span>
+              </div>
+              <div
+                data-part="option"
+                data-part-option=""
+                role="option"
+                aria-selected="false"
+                tabindex="-1"
+              >
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg
+                      data-part="glyph"
+                      data-part-glyph=""
+                      data-glyph="check"
+                    ></svg></span></span
+                ><span data-part="label" data-part-label="">Security</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-part="actions" data-part-actions="" role="group" aria-label="Move items">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="move-to-target"
+            data-part-move-to-target=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            data-disabled
+            type="button"
+            aria-disabled="true"
+          >
+            <span data-part="label" data-part-label="">Add</span
+            ><span data-part="end" data-part-end="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg></span
+            ></span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="move-all-to-target"
+            data-part-move-all-to-target=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Add all</span
+            ><span data-part="end" data-part-end="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevrons-right"></svg></span
+            ></span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="move-to-source"
+            data-part-move-to-source=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            data-disabled
+            type="button"
+            aria-disabled="true"
+          >
+            <span data-part="start" data-part-start="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg
+                  data-part="glyph"
+                  data-part-glyph=""
+                  data-glyph="chevron-right"
+                ></svg></span></span
+            ><span data-part="label" data-part-label="">Remove</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="move-all-to-source"
+            data-part-move-all-to-source=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            data-disabled
+            type="button"
+            aria-disabled="true"
+          >
+            <span data-part="start" data-part-start="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg
+                  data-part="glyph"
+                  data-part-glyph=""
+                  data-glyph="chevrons-right"
+                ></svg></span></span
+            ><span data-part="label" data-part-label="">Remove all</span>
+          </button>
+        </div>
+        <div
+          data-part="pane"
+          data-part-pane=""
+          data-side="target"
+          role="group"
+          aria-labelledby="i-t-t"
+        >
+          <div data-part="pane-header" data-part-pane-header="">
+            <span data-part="select-all" data-part-select-all=""
+              ><div
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-label-placement="end"
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  aria-label="Select all in Chosen"
+                  disabled
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span></div
+            ></span>
+            <span data-part="title" data-part-title="" id="i-t-t">Chosen</span>
+            <span data-part="count" data-part-count="">0 items</span>
+          </div>
+          <div data-part="list" data-part-list="">
+            <div
+              data-ui="listbox"
+              data-ui-listbox=""
+              data-part="root"
+              data-part-root=""
+              data-variant="plain"
+              data-size="sm"
+              data-indicator="check"
+              data-focus-mode="roving"
+              data-orientation="vertical"
+              data-invalid
+              data-required
+              role="listbox"
+              aria-multiselectable="true"
+              aria-labelledby="i-t-t"
+              aria-invalid="true"
+              aria-required="true"
+              tabindex="0"
+            >
+              <div data-part="empty" data-part-empty="">
+                <div data-part="empty" data-part-empty="">
+                  <span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="inbox"></svg></span
+                  >No items
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      data-ui="transfer"
+      data-ui-transfer=""
+      data-part="root"
+      data-part-root=""
+      data-layout="auto"
+      data-size="sm"
+      data-pane="source"
+      data-disabled
+      role="group"
+      aria-label="Channels"
+      aria-disabled="true"
+      style="--slotted-transfer-rows: 3"
+    >
+      <div data-part="body" data-part-body="">
+        <div
+          data-part="pane"
+          data-part-pane=""
+          data-side="source"
+          data-current
+          role="group"
+          aria-labelledby="x-s-t"
+        >
+          <div data-part="pane-header" data-part-pane-header="">
+            <span data-part="select-all" data-part-select-all=""
+              ><div
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-label-placement="end"
+                data-disabled
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  aria-label="Select all in Available"
+                  disabled
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span></div
+            ></span>
+            <span data-part="title" data-part-title="" id="x-s-t">Available</span>
+            <span data-part="count" data-part-count="">2 items</span>
+          </div>
+          <div data-part="list" data-part-list="">
+            <div
+              data-ui="listbox"
+              data-ui-listbox=""
+              data-part="root"
+              data-part-root=""
+              data-variant="plain"
+              data-size="sm"
+              data-indicator="check"
+              data-focus-mode="roving"
+              data-orientation="vertical"
+              data-disabled
+              role="listbox"
+              aria-multiselectable="true"
+              aria-labelledby="x-s-t"
+              aria-disabled="true"
+            >
+              <div data-part="option" data-part-option="" role="option" aria-selected="false">
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg
+                      data-part="glyph"
+                      data-part-glyph=""
+                      data-glyph="check"
+                    ></svg></span></span
+                ><span data-part="label" data-part-label="">Email</span>
+              </div>
+              <div data-part="option" data-part-option="" role="option" aria-selected="false">
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg
+                      data-part="glyph"
+                      data-part-glyph=""
+                      data-glyph="check"
+                    ></svg></span></span
+                ><span data-part="label" data-part-label="">SMS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-part="actions" data-part-actions="" role="group" aria-label="Move items">
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="move-to-target"
+            data-part-move-to-target=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            data-disabled
+            type="button"
+            disabled
+          >
+            <span data-part="label" data-part-label="">Add</span
+            ><span data-part="end" data-part-end="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg></span
+            ></span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="move-all-to-target"
+            data-part-move-all-to-target=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            data-disabled
+            type="button"
+            disabled
+          >
+            <span data-part="label" data-part-label="">Add all</span
+            ><span data-part="end" data-part-end="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevrons-right"></svg></span
+            ></span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="move-to-source"
+            data-part-move-to-source=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            data-disabled
+            type="button"
+            disabled
+          >
+            <span data-part="start" data-part-start="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg
+                  data-part="glyph"
+                  data-part-glyph=""
+                  data-glyph="chevron-right"
+                ></svg></span></span
+            ><span data-part="label" data-part-label="">Remove</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="move-all-to-source"
+            data-part-move-all-to-source=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="sm"
+            data-disabled
+            type="button"
+            disabled
+          >
+            <span data-part="start" data-part-start="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg
+                  data-part="glyph"
+                  data-part-glyph=""
+                  data-glyph="chevrons-right"
+                ></svg></span></span
+            ><span data-part="label" data-part-label="">Remove all</span>
+          </button>
+        </div>
+        <div
+          data-part="pane"
+          data-part-pane=""
+          data-side="target"
+          role="group"
+          aria-labelledby="x-t-t"
+        >
+          <div data-part="pane-header" data-part-pane-header="">
+            <span data-part="select-all" data-part-select-all=""
+              ><div
+                data-ui="checkbox"
+                data-ui-checkbox=""
+                data-part="root"
+                data-part-root=""
+                data-size="sm"
+                data-label-placement="end"
+                data-disabled
+                data-checked
+              >
+                <input
+                  data-part="control"
+                  data-part-control=""
+                  type="checkbox"
+                  aria-label="Select all in Chosen"
+                  checked
+                  disabled
+                />
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+                ></span></div
+            ></span>
+            <span data-part="title" data-part-title="" id="x-t-t">Chosen</span>
+            <span data-part="count" data-part-count="">1 of 1 selected</span>
+          </div>
+          <div data-part="list" data-part-list="">
+            <div
+              data-ui="listbox"
+              data-ui-listbox=""
+              data-part="root"
+              data-part-root=""
+              data-variant="plain"
+              data-size="sm"
+              data-indicator="check"
+              data-focus-mode="roving"
+              data-orientation="vertical"
+              data-disabled
+              role="listbox"
+              aria-multiselectable="true"
+              aria-labelledby="x-t-t"
+              aria-disabled="true"
+            >
+              <div
+                data-part="option"
+                data-part-option=""
+                data-selected
+                role="option"
+                aria-selected="true"
+              >
+                <span data-part="indicator" data-part-indicator=""
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    aria-hidden="true"
+                    ><svg
+                      data-part="glyph"
+                      data-part-glyph=""
+                      data-glyph="check"
+                    ></svg></span></span
+                ><span data-part="label" data-part-label="">Push</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="content">
+  <div
+    data-ui="transfer"
+    data-ui-transfer=""
+    data-part="root"
+    data-part-root=""
+    data-layout="auto"
+    data-size="lg"
+    data-pane="source"
+    role="group"
+    aria-label="Permissions"
+    style="--slotted-transfer-rows: 4"
+  >
+    <div data-part="switch" data-part-switch="">
+      <div
+        data-ui="segmented-control"
+        data-ui-segmented-control=""
+        data-part="root"
+        data-part-root=""
+        data-size="lg"
+        data-orientation="horizontal"
+        data-condense="none"
+        role="radiogroup"
+        aria-label="Lists"
+        aria-orientation="horizontal"
+        style="--slotted-segmented-control-count: 2; --slotted-segmented-control-index: 0"
+      >
+        <span data-part="indicator" data-part-indicator="" aria-hidden="true"></span>
+        <label data-part="item" data-part-item="" data-checked>
+          <input
+            data-part="control"
+            data-part-control=""
+            type="radio"
+            name="c-pane"
+            value="source"
+            checked
+          />
+          <span data-part="label" data-part-label="">Available permissions (3)</span>
+        </label>
+        <label data-part="item" data-part-item="">
+          <input
+            data-part="control"
+            data-part-control=""
+            type="radio"
+            name="c-pane"
+            value="target"
+          />
+          <span data-part="label" data-part-label="">Concedidas (2)</span>
+        </label>
+      </div>
+    </div>
+    <div data-part="body" data-part-body="">
+      <div
+        data-part="pane"
+        data-part-pane=""
+        data-side="source"
+        data-current
+        role="group"
+        aria-labelledby="c-s-t"
+      >
+        <div data-part="pane-header" data-part-pane-header="">
+          <span data-part="select-all" data-part-select-all=""
+            ><div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="lg"
+              data-label-placement="end"
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                aria-label="Select all in Available permissions"
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span></div
+          ></span>
+          <span data-part="title" data-part-title="" id="c-s-t">Available permissions</span>
+          <span data-part="count" data-part-count="">3 items</span>
+        </div>
+        <div data-part="list" data-part-list="">
+          <div
+            data-ui="listbox"
+            data-ui-listbox=""
+            data-part="root"
+            data-part-root=""
+            data-variant="plain"
+            data-size="lg"
+            data-indicator="check"
+            data-focus-mode="roving"
+            data-orientation="vertical"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby="c-s-t"
+          >
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="0"
+            >
+              <span data-part="indicator" data-part-indicator=""></span
+              ><span data-part="label" data-part-label="">billing.invoices.write</span
+              ><span data-part="description" data-part-description=""
+                >Create, edit and void invoices on behalf of every customer account.</span
+              >
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""></span
+              ><span data-part="label" data-part-label=""
+                >Supercalifragilisticexpialidocious-administrative-override</span
+              >
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Read reports</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-part="actions" data-part-actions="" role="group" aria-label="Mover itens">
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-to-target"
+          data-part-move-to-target=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          data-disabled
+          type="button"
+          aria-disabled="true"
+        >
+          <span data-part="label" data-part-label="">Conceder</span
+          ><span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg></span
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-all-to-target"
+          data-part-move-all-to-target=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="label" data-part-label="">Conceder todas</span
+          ><span data-part="end" data-part-end="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevrons-right"></svg></span
+          ></span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-to-source"
+          data-part-move-to-source=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          data-disabled
+          type="button"
+          aria-disabled="true"
+        >
+          <span data-part="start" data-part-start="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg
+                data-part="glyph"
+                data-part-glyph=""
+                data-glyph="chevron-right"
+              ></svg></span></span
+          ><span data-part="label" data-part-label="">Revogar</span>
+        </button>
+        <button
+          data-ui="button"
+          data-ui-button=""
+          data-part="move-all-to-source"
+          data-part-move-all-to-source=""
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          type="button"
+        >
+          <span data-part="start" data-part-start="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg
+                data-part="glyph"
+                data-part-glyph=""
+                data-glyph="chevrons-right"
+              ></svg></span></span
+          ><span data-part="label" data-part-label="">Revogar todas</span>
+        </button>
+      </div>
+      <div
+        data-part="pane"
+        data-part-pane=""
+        data-side="target"
+        role="group"
+        aria-labelledby="c-t-t"
+      >
+        <div data-part="pane-header" data-part-pane-header="">
+          <span data-part="select-all" data-part-select-all=""
+            ><div
+              data-ui="checkbox"
+              data-ui-checkbox=""
+              data-part="root"
+              data-part-root=""
+              data-size="lg"
+              data-label-placement="end"
+            >
+              <input
+                data-part="control"
+                data-part-control=""
+                type="checkbox"
+                aria-label="Select all in Granted"
+              />
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span
+              ></span></div
+          ></span>
+          <span data-part="title" data-part-title="" id="c-t-t">Concedidas</span>
+          <span data-part="count" data-part-count="">2 itens</span>
+        </div>
+        <div data-part="list" data-part-list="">
+          <div
+            data-ui="listbox"
+            data-ui-listbox=""
+            data-part="root"
+            data-part-root=""
+            data-variant="plain"
+            data-size="lg"
+            data-indicator="check"
+            data-focus-mode="roving"
+            data-orientation="vertical"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby="c-t-t"
+          >
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="0"
+            >
+              <span data-part="indicator" data-part-indicator=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="check"></svg></span></span
+              ><span data-part="label" data-part-label="">Read customers</span>
+            </div>
+            <div
+              data-part="option"
+              data-part-option=""
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              <span data-part="indicator" data-part-indicator="" data-unresolved></span
+              ><span data-part="label" data-part-label="">perm_7f3a91</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  for (const root of document.querySelectorAll('[data-ui="checkbox"][data-indeterminate]')) {
+    root.querySelector('[data-part="control"]').indeterminate = true;
+  }
+</script>

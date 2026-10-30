@@ -1,0 +1,67 @@
+/*
+ * The column's pinned rows stand on the geometry the shell publishes: a row's
+ * inset from the region's edge, and a mark column the width of a control, so
+ * the avatar centres over the icons of the destinations under it.
+ */
+.nav-row {
+  padding-inline: var(--slotted-app-shell-row-inset);
+}
+.nav-mark {
+  display: grid;
+  flex: 0 0 auto;
+  inline-size: var(--slotted-app-shell-row-mark);
+  place-items: center;
+}
+
+/* The workspace row: the tenant's name over what the session is scoped to. */
+.workspace {
+  display: grid;
+  min-inline-size: 0;
+  line-height: var(--slotted-line-height-sm);
+}
+.workspace-name,
+.workspace-scope {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.workspace-name {
+  font-weight: var(--slotted-font-weight-semibold);
+}
+.workspace-scope {
+  color: var(--slotted-text-muted);
+  font-size: var(--slotted-font-size-xs);
+}
+.shell-error {
+  min-height: 100dvh;
+}
+
+/* The rail: the mark stays, the words go. `data-open` is absent when the column is collapsed. */
+[data-ui='app-shell'][data-nav-mode='inline']:not([data-open]) .workspace,
+[data-ui='app-shell'][data-nav-mode='inline']:not([data-open]) app-connection-status {
+  display: none;
+}
+
+/*
+ * A painted region: the ground restated on the region, so it resolves in the
+ * scheme the region carries rather than in the page's.
+ */
+.painted {
+  --slotted-app-shell-banner-surface: var(--slotted-surface);
+  --slotted-app-shell-nav-surface: var(--slotted-surface);
+}
+
+/* A wash behind the frame: two pools of the accent tone, through the family's own token. */
+.frame-wash {
+  --slotted-app-shell-frame-image:
+    radial-gradient(
+      60% 80% at 0% 0%,
+      color-mix(in oklab, var(--slotted-tone-accent-surface) 90%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      50% 70% at 100% 100%,
+      color-mix(in oklab, var(--slotted-tone-accent-surface) 70%, transparent),
+      transparent
+    );
+}

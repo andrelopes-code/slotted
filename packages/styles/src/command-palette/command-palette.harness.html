@@ -1,0 +1,4213 @@
+<!--
+  The layer is `dialog`'s and the caps are `kbd`'s: both families are named by
+  their own `data-ui` in these scenes, which is what puts their stylesheets on
+  the page. Every scene that holds a layer declares `data-fixed`, for the
+  reason `dialog.harness.html` gives.
+
+  Read at the gate:
+    node tools/harness/shoot.mjs command-palette --scene default --focus "[data-scene='default'] [data-part='input']"
+    node tools/harness/shoot.mjs command-palette --scene pages --focus "[data-scene='pages'] [data-part='page']"
+    node tools/harness/shoot.mjs command-palette --scene query --focus "[data-scene='query'] [data-part='clear']"
+-->
+
+<section data-scene="default" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Deployments</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      Twelve services across three regions. The page under the scrim is inert while the palette is
+      open.
+    </p>
+  </div>
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="md"
+    data-placement="top"
+    data-scroll="content"
+    data-surface="plain"
+    data-full-screen="narrow"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-label="Command palette"
+      >
+        <div
+          data-ui="command-palette"
+          data-ui-command-palette=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          data-presentation="dialog"
+          data-open
+        >
+          <div data-part="header" data-part-header="">
+            <span data-part="search" data-part-search="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+            ><input
+              data-part="input"
+              data-part-input=""
+              type="text"
+              role="combobox"
+              aria-label="Search commands"
+              aria-expanded="true"
+              aria-controls="cp-list"
+              aria-autocomplete="list"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Type a command or search…"
+              value=""
+              aria-activedescendant="cp-deploy-prod"
+            /><button
+              data-part="clear"
+              data-part-clear=""
+              type="button"
+              tabindex="-1"
+              aria-label="Clear"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span></button
+            ><button data-part="close" data-part-close="" type="button">Close</button>
+          </div>
+          <div data-part="list" data-part-list="" role="listbox" id="cp-list" aria-label="Commands">
+            <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-recent">
+              <div
+                data-part="group-label"
+                data-part-group-label=""
+                role="presentation"
+                id="cp-g-recent"
+              >
+                Recent
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-deploy-prod"
+                aria-selected="true"
+                data-current
+                aria-keyshortcuts="Meta+Shift+D"
+                title="Deploy to production"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+                    />
+                    <path
+                      d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+                    /></svg></span
+                ><span data-part="label" data-part-label="">Deploy to production</span
+                ><span data-part="description" data-part-description=""
+                  >Ship the current release of api-gateway</span
+                ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+                  ><kbd
+                    data-ui="kbd"
+                    data-ui-kbd=""
+                    data-part="shortcut"
+                    data-part-shortcut=""
+                    data-platform="mac"
+                    data-size="md"
+                    data-variant="plain"
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-key="mod"
+                      data-size="md"
+                      data-variant="plain"
+                      ><span
+                        data-part="legend"
+                        data-part-legend=""
+                        aria-hidden="true"
+                        data-legend="symbol"
+                        >⌘</span
+                      ><span data-part="name" data-part-name="">Command</span></kbd
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-key="shift"
+                      data-size="md"
+                      data-variant="plain"
+                      ><span
+                        data-part="legend"
+                        data-part-legend=""
+                        aria-hidden="true"
+                        data-legend="symbol"
+                        >⇧</span
+                      ><span data-part="name" data-part-name="">Shift</span></kbd
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="plain"
+                      ><span data-part="legend" data-part-legend="">D</span></kbd
+                    ></kbd
+                  ></span
+                >
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-open-billing"
+                aria-selected="false"
+                title="Open billing"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+                    /></svg></span
+                ><span data-part="label" data-part-label="">Open billing</span
+                ><span data-part="description" data-part-description=""
+                  >Invoices and payment methods</span
+                >
+              </div>
+            </div>
+            <div data-part="separator" data-part-separator="" role="separator"></div>
+            <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-nav">
+              <div
+                data-part="group-label"
+                data-part-group-label=""
+                role="presentation"
+                id="cp-g-nav"
+              >
+                Go to
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-inbox"
+                aria-selected="false"
+                aria-keyshortcuts="G+I"
+                title="Inbox"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+                    <path
+                      d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"
+                    /></svg></span
+                ><span data-part="label" data-part-label="">Inbox</span
+                ><span data-part="description" data-part-description="">14 unread</span
+                ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+                  ><kbd
+                    data-ui="kbd"
+                    data-ui-kbd=""
+                    data-part="shortcut"
+                    data-part-shortcut=""
+                    data-platform="mac"
+                    data-size="md"
+                    data-variant="plain"
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="plain"
+                      ><span data-part="legend" data-part-legend="">G</span></kbd
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="plain"
+                      ><span data-part="legend" data-part-legend="">I</span></kbd
+                    ></kbd
+                  ></span
+                >
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-projects"
+                aria-selected="false"
+                aria-keyshortcuts="G+P"
+                title="Projects"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+                    /></svg></span
+                ><span data-part="label" data-part-label="">Projects</span
+                ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+                  ><kbd
+                    data-ui="kbd"
+                    data-ui-kbd=""
+                    data-part="shortcut"
+                    data-part-shortcut=""
+                    data-platform="mac"
+                    data-size="md"
+                    data-variant="plain"
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="plain"
+                      ><span data-part="legend" data-part-legend="">G</span></kbd
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="plain"
+                      ><span data-part="legend" data-part-legend="">P</span></kbd
+                    ></kbd
+                  ></span
+                >
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-settings"
+                aria-selected="false"
+                aria-keyshortcuts="Meta+,"
+                title="Settings"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                      d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.07-7.07-1.41 1.41M8.34 15.66l-1.41 1.41m0-10.14 1.41 1.41m7.32 7.32 1.41 1.41"
+                    /></svg></span
+                ><span data-part="label" data-part-label="">Settings</span
+                ><span data-part="description" data-part-description=""
+                  >Workspace, members and billing</span
+                ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+                  ><kbd
+                    data-ui="kbd"
+                    data-ui-kbd=""
+                    data-part="shortcut"
+                    data-part-shortcut=""
+                    data-platform="mac"
+                    data-size="md"
+                    data-variant="plain"
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-key="mod"
+                      data-size="md"
+                      data-variant="plain"
+                      ><span
+                        data-part="legend"
+                        data-part-legend=""
+                        aria-hidden="true"
+                        data-legend="symbol"
+                        >⌘</span
+                      ><span data-part="name" data-part-name="">Command</span></kbd
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="plain"
+                      ><span data-part="legend" data-part-legend="">,</span></kbd
+                    ></kbd
+                  ></span
+                >
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-team"
+                aria-selected="false"
+                data-page
+                title="Switch team…"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="8" r="5" />
+                    <path d="M20 21a8 8 0 0 0-16 0" /></svg></span
+                ><span data-part="label" data-part-label="">Switch team…</span
+                ><span data-part="description" data-part-description="">3 teams</span
+                ><span data-part="arrow" data-part-arrow="" aria-hidden="true"
+                  ><span
+                    data-ui="icon"
+                    data-ui-icon=""
+                    data-part="root"
+                    data-part-root=""
+                    data-directional=""
+                    aria-hidden="true"
+                    ><svg
+                      data-part="glyph"
+                      data-part-glyph=""
+                      data-glyph="chevron-right"
+                    ></svg></span
+                ></span>
+              </div>
+            </div>
+            <div data-part="separator" data-part-separator="" role="separator"></div>
+            <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-actions">
+              <div
+                data-part="group-label"
+                data-part-group-label=""
+                role="presentation"
+                id="cp-g-actions"
+              >
+                Actions
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-new-project"
+                aria-selected="false"
+                aria-keyshortcuts="Meta+N"
+                title="New project"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14M12 5v14" /></svg></span
+                ><span data-part="label" data-part-label="">New project</span
+                ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+                  ><kbd
+                    data-ui="kbd"
+                    data-ui-kbd=""
+                    data-part="shortcut"
+                    data-part-shortcut=""
+                    data-platform="mac"
+                    data-size="md"
+                    data-variant="plain"
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-key="mod"
+                      data-size="md"
+                      data-variant="plain"
+                      ><span
+                        data-part="legend"
+                        data-part-legend=""
+                        aria-hidden="true"
+                        data-legend="symbol"
+                        >⌘</span
+                      ><span data-part="name" data-part-name="">Command</span></kbd
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="plain"
+                      ><span data-part="legend" data-part-legend="">N</span></kbd
+                    ></kbd
+                  ></span
+                >
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-theme"
+                aria-selected="false"
+                aria-keyshortcuts="Meta+Shift+L"
+                title="Toggle dark mode"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg></span
+                ><span data-part="label" data-part-label="">Toggle dark mode</span
+                ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+                  ><kbd
+                    data-ui="kbd"
+                    data-ui-kbd=""
+                    data-part="shortcut"
+                    data-part-shortcut=""
+                    data-platform="mac"
+                    data-size="md"
+                    data-variant="plain"
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-key="mod"
+                      data-size="md"
+                      data-variant="plain"
+                      ><span
+                        data-part="legend"
+                        data-part-legend=""
+                        aria-hidden="true"
+                        data-legend="symbol"
+                        >⌘</span
+                      ><span data-part="name" data-part-name="">Command</span></kbd
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-key="shift"
+                      data-size="md"
+                      data-variant="plain"
+                      ><span
+                        data-part="legend"
+                        data-part-legend=""
+                        aria-hidden="true"
+                        data-legend="symbol"
+                        >⇧</span
+                      ><span data-part="name" data-part-name="">Shift</span></kbd
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="plain"
+                      ><span data-part="legend" data-part-legend="">L</span></kbd
+                    ></kbd
+                  ></span
+                >
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-delete"
+                aria-selected="false"
+                data-disabled
+                aria-disabled="true"
+                title="Delete workspace"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"
+                    /></svg></span
+                ><span data-part="label" data-part-label="">Delete workspace</span
+                ><span data-part="description" data-part-description=""
+                  >Requires the owner role</span
+                >
+              </div>
+            </div>
+          </div>
+          <div data-part="status" data-part-status="" role="status">9 results</div>
+          <div data-part="footer" data-part-footer="" aria-hidden="true">
+            <span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="up"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↑</span
+                  ><span data-part="name" data-part-name="">Up arrow</span></kbd
+                ></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="down"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↓</span
+                  ><span data-part="name" data-part-name="">Down arrow</span></kbd
+                ></kbd
+              ><span>Navigate</span></span
+            ><span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="enter"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↩</span
+                  ><span data-part="name" data-part-name="">Return</span></kbd
+                ></kbd
+              ><span>Select</span></span
+            ><span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="escape"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span data-part="legend" data-part-legend="" aria-hidden="true">Esc</span
+                  ><span data-part="name" data-part-name="">Escape</span></kbd
+                ></kbd
+              ><span>Close</span></span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="query" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Deployments</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      Twelve services across three regions. The page under the scrim is inert while the palette is
+      open.
+    </p>
+  </div>
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="md"
+    data-placement="top"
+    data-scroll="content"
+    data-surface="plain"
+    data-full-screen="narrow"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-label="Command palette"
+      >
+        <div
+          data-ui="command-palette"
+          data-ui-command-palette=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          data-presentation="dialog"
+          data-open
+          data-query
+        >
+          <div data-part="header" data-part-header="">
+            <span data-part="search" data-part-search="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+            ><input
+              data-part="input"
+              data-part-input=""
+              type="text"
+              role="combobox"
+              aria-label="Search commands"
+              aria-expanded="true"
+              aria-controls="cp-list"
+              aria-autocomplete="list"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Type a command or search…"
+              value="dep"
+              aria-activedescendant="cp-deploy-prod"
+            /><button
+              data-part="clear"
+              data-part-clear=""
+              type="button"
+              tabindex="-1"
+              aria-label="Clear"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </div>
+          <div data-part="list" data-part-list="" role="listbox" id="cp-list" aria-label="Commands">
+            <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-actions">
+              <div
+                data-part="group-label"
+                data-part-group-label=""
+                role="presentation"
+                id="cp-g-actions"
+              >
+                Actions
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-deploy-prod"
+                aria-selected="true"
+                data-current
+                aria-keyshortcuts="Meta+Shift+D"
+                title="Deploy to production"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+                    />
+                    <path
+                      d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+                    /></svg></span
+                ><span data-part="label" data-part-label=""
+                  ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+                    ><mark data-part="match" data-part-match="">Dep</mark>loy to production</span
+                  ></span
+                ><span data-part="description" data-part-description=""
+                  >Ship the current release of api-gateway</span
+                ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+                  ><kbd
+                    data-ui="kbd"
+                    data-ui-kbd=""
+                    data-part="shortcut"
+                    data-part-shortcut=""
+                    data-platform="mac"
+                    data-size="md"
+                    data-variant="plain"
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-key="mod"
+                      data-size="md"
+                      data-variant="plain"
+                      ><span
+                        data-part="legend"
+                        data-part-legend=""
+                        aria-hidden="true"
+                        data-legend="symbol"
+                        >⌘</span
+                      ><span data-part="name" data-part-name="">Command</span></kbd
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-key="shift"
+                      data-size="md"
+                      data-variant="plain"
+                      ><span
+                        data-part="legend"
+                        data-part-legend=""
+                        aria-hidden="true"
+                        data-legend="symbol"
+                        >⇧</span
+                      ><span data-part="name" data-part-name="">Shift</span></kbd
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="plain"
+                      ><span data-part="legend" data-part-legend="">D</span></kbd
+                    ></kbd
+                  ></span
+                >
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-deploy-staging"
+                aria-selected="false"
+                title="Deploy to staging"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+                    />
+                    <path
+                      d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+                    /></svg></span
+                ><span data-part="label" data-part-label=""
+                  ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+                    ><mark data-part="match" data-part-match="">Dep</mark>loy to staging</span
+                  ></span
+                >
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-rollback"
+                aria-selected="false"
+                title="Roll back deployment"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+                    />
+                    <path
+                      d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+                    /></svg></span
+                ><span data-part="label" data-part-label=""
+                  ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+                    >Roll back <mark data-part="match" data-part-match="">dep</mark>loyment</span
+                  ></span
+                ><span data-part="description" data-part-description=""
+                  >Restore the previous release</span
+                >
+              </div>
+            </div>
+            <div data-part="separator" data-part-separator="" role="separator"></div>
+            <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-nav">
+              <div
+                data-part="group-label"
+                data-part-group-label=""
+                role="presentation"
+                id="cp-g-nav"
+              >
+                Go to
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-deployments"
+                aria-selected="false"
+                aria-keyshortcuts="G+D"
+                title="Deployments"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+                    /></svg></span
+                ><span data-part="label" data-part-label=""
+                  ><span data-ui="highlight" data-ui-highlight="" data-part="root" data-part-root=""
+                    ><mark data-part="match" data-part-match="">Dep</mark>loyments</span
+                  ></span
+                ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+                  ><kbd
+                    data-ui="kbd"
+                    data-ui-kbd=""
+                    data-part="shortcut"
+                    data-part-shortcut=""
+                    data-platform="mac"
+                    data-size="md"
+                    data-variant="plain"
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="plain"
+                      ><span data-part="legend" data-part-legend="">G</span></kbd
+                    ><kbd
+                      data-ui="kbd"
+                      data-ui-kbd=""
+                      data-part="root"
+                      data-part-root=""
+                      data-size="md"
+                      data-variant="plain"
+                      ><span data-part="legend" data-part-legend="">D</span></kbd
+                    ></kbd
+                  ></span
+                >
+              </div>
+            </div>
+          </div>
+          <div data-part="status" data-part-status="" role="status">4 results</div>
+          <div data-part="footer" data-part-footer="" aria-hidden="true">
+            <span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="up"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↑</span
+                  ><span data-part="name" data-part-name="">Up arrow</span></kbd
+                ></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="down"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↓</span
+                  ><span data-part="name" data-part-name="">Down arrow</span></kbd
+                ></kbd
+              ><span>Navigate</span></span
+            ><span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="enter"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↩</span
+                  ><span data-part="name" data-part-name="">Return</span></kbd
+                ></kbd
+              ><span>Select</span></span
+            ><span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="escape"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span data-part="legend" data-part-legend="" aria-hidden="true">Esc</span
+                  ><span data-part="name" data-part-name="">Escape</span></kbd
+                ></kbd
+              ><span>Close</span></span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="pages" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Deployments</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      Twelve services across three regions. The page under the scrim is inert while the palette is
+      open.
+    </p>
+  </div>
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="md"
+    data-placement="top"
+    data-scroll="content"
+    data-surface="plain"
+    data-full-screen="narrow"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-label="Command palette"
+      >
+        <div
+          data-ui="command-palette"
+          data-ui-command-palette=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          data-presentation="dialog"
+          data-open
+        >
+          <div data-part="header" data-part-header="">
+            <span data-part="search" data-part-search="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span
+            ></span>
+            <ol data-part="pages" data-part-pages="" aria-label="Pages">
+              <li>
+                <button data-part="page" data-part-page="" type="button">
+                  <span>Switch team</span>
+                </button>
+              </li>
+            </ol>
+            <input
+              data-part="input"
+              data-part-input=""
+              type="text"
+              role="combobox"
+              aria-label="Search commands"
+              aria-expanded="true"
+              aria-controls="cp-list"
+              aria-autocomplete="list"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Search teams…"
+              value=""
+              aria-activedescendant="cp-t-acme"
+            /><button
+              data-part="clear"
+              data-part-clear=""
+              type="button"
+              tabindex="-1"
+              aria-label="Clear"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </div>
+          <div data-part="list" data-part-list="" role="listbox" id="cp-list" aria-label="Commands">
+            <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-teams">
+              <div
+                data-part="group-label"
+                data-part-group-label=""
+                role="presentation"
+                id="cp-g-teams"
+              >
+                Teams
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-t-acme"
+                aria-selected="true"
+                data-current
+                title="Acme Robotics"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="8" r="5" />
+                    <path d="M20 21a8 8 0 0 0-16 0" /></svg></span
+                ><span data-part="label" data-part-label="">Acme Robotics</span
+                ><span data-part="description" data-part-description="">14 members</span>
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-t-globex"
+                aria-selected="false"
+                title="Globex Freight"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="8" r="5" />
+                    <path d="M20 21a8 8 0 0 0-16 0" /></svg></span
+                ><span data-part="label" data-part-label="">Globex Freight</span
+                ><span data-part="description" data-part-description="">6 members</span>
+              </div>
+              <div
+                data-part="item"
+                data-part-item=""
+                role="option"
+                id="cp-t-initech"
+                aria-selected="false"
+                title="Initech Studio"
+              >
+                <span data-part="icon" data-part-icon=""
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="8" r="5" />
+                    <path d="M20 21a8 8 0 0 0-16 0" /></svg></span
+                ><span data-part="label" data-part-label="">Initech Studio</span
+                ><span data-part="description" data-part-description="">You are the owner</span>
+              </div>
+            </div>
+          </div>
+          <div data-part="status" data-part-status="" role="status">3 results</div>
+          <div data-part="footer" data-part-footer="" aria-hidden="true">
+            <span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="up"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↑</span
+                  ><span data-part="name" data-part-name="">Up arrow</span></kbd
+                ></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="down"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↓</span
+                  ><span data-part="name" data-part-name="">Down arrow</span></kbd
+                ></kbd
+              ><span>Navigate</span></span
+            ><span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="enter"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↩</span
+                  ><span data-part="name" data-part-name="">Return</span></kbd
+                ></kbd
+              ><span>Select</span></span
+            ><span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="backspace"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >⌫</span
+                  ><span data-part="name" data-part-name="">Delete</span></kbd
+                ></kbd
+              ><span>Back</span></span
+            ><span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="escape"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span data-part="legend" data-part-legend="" aria-hidden="true">Esc</span
+                  ><span data-part="name" data-part-name="">Escape</span></kbd
+                ></kbd
+              ><span>Close</span></span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="loading" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Deployments</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      Twelve services across three regions. The page under the scrim is inert while the palette is
+      open.
+    </p>
+  </div>
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="md"
+    data-placement="top"
+    data-scroll="content"
+    data-surface="plain"
+    data-full-screen="narrow"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-label="Command palette"
+      >
+        <div
+          data-ui="command-palette"
+          data-ui-command-palette=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          data-presentation="dialog"
+          data-open
+          data-query
+          data-loading
+        >
+          <div data-part="header" data-part-header="">
+            <span
+              data-part="busy"
+              data-part-busy=""
+              data-ui="spinner"
+              data-ui-spinner=""
+              aria-hidden="true"
+            ></span
+            ><input
+              data-part="input"
+              data-part-input=""
+              type="text"
+              role="combobox"
+              aria-label="Search commands"
+              aria-expanded="true"
+              aria-controls="cp-list"
+              aria-autocomplete="list"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Type a command or search…"
+              value="dep"
+            /><button
+              data-part="clear"
+              data-part-clear=""
+              type="button"
+              tabindex="-1"
+              aria-label="Clear"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </div>
+          <div
+            data-part="list"
+            data-part-list=""
+            role="listbox"
+            id="cp-list"
+            aria-label="Commands"
+            aria-busy="true"
+            data-loading
+          >
+            <div data-part="placeholder" data-part-placeholder="" aria-hidden="true">
+              <div>
+                <span
+                  data-ui="skeleton"
+                  data-ui-skeleton=""
+                  data-part="root"
+                  data-part-root=""
+                  data-shape="text"
+                  data-loading
+                ></span>
+              </div>
+              <div>
+                <span
+                  data-ui="skeleton"
+                  data-ui-skeleton=""
+                  data-part="root"
+                  data-part-root=""
+                  data-shape="text"
+                  data-loading
+                ></span>
+              </div>
+              <div>
+                <span
+                  data-ui="skeleton"
+                  data-ui-skeleton=""
+                  data-part="root"
+                  data-part-root=""
+                  data-shape="text"
+                  data-loading
+                ></span>
+              </div>
+            </div>
+          </div>
+          <div data-part="status" data-part-status="" role="status">Loading…</div>
+          <div data-part="footer" data-part-footer="" aria-hidden="true">
+            <span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="up"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↑</span
+                  ><span data-part="name" data-part-name="">Up arrow</span></kbd
+                ></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="down"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↓</span
+                  ><span data-part="name" data-part-name="">Down arrow</span></kbd
+                ></kbd
+              ><span>Navigate</span></span
+            ><span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="enter"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↩</span
+                  ><span data-part="name" data-part-name="">Return</span></kbd
+                ></kbd
+              ><span>Select</span></span
+            ><span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="escape"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span data-part="legend" data-part-legend="" aria-hidden="true">Esc</span
+                  ><span data-part="name" data-part-name="">Escape</span></kbd
+                ></kbd
+              ><span>Close</span></span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="empty" data-fixed>
+  <div style="display: grid; gap: var(--slotted-space-4)">
+    <h2 style="font-size: var(--slotted-font-size-xl); margin: 0">Deployments</h2>
+    <p style="color: var(--slotted-text-muted); margin: 0">
+      Twelve services across three regions. The page under the scrim is inert while the palette is
+      open.
+    </p>
+  </div>
+  <div
+    data-ui="dialog"
+    data-ui-dialog=""
+    data-part="root"
+    data-part-root=""
+    data-open
+    data-size="md"
+    data-placement="top"
+    data-scroll="content"
+    data-surface="plain"
+    data-full-screen="narrow"
+    data-mount="active"
+  >
+    <div data-part="backdrop" data-part-backdrop=""></div>
+    <div data-part="viewport" data-part-viewport="">
+      <div
+        data-part="content"
+        data-part-content=""
+        role="dialog"
+        aria-modal="true"
+        aria-label="Command palette"
+      >
+        <div
+          data-ui="command-palette"
+          data-ui-command-palette=""
+          data-part="root"
+          data-part-root=""
+          data-size="md"
+          data-presentation="dialog"
+          data-open
+          data-query
+          data-empty
+        >
+          <div data-part="header" data-part-header="">
+            <span data-part="search" data-part-search="" aria-hidden="true"
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+            ><input
+              data-part="input"
+              data-part-input=""
+              type="text"
+              role="combobox"
+              aria-label="Search commands"
+              aria-expanded="true"
+              aria-controls="cp-list"
+              aria-autocomplete="list"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Type a command or search…"
+              value="xylophone"
+            /><button
+              data-part="clear"
+              data-part-clear=""
+              type="button"
+              tabindex="-1"
+              aria-label="Clear"
+            >
+              <span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+              ></span>
+            </button>
+          </div>
+          <div data-part="list" data-part-list="" role="listbox" id="cp-list" aria-label="Commands">
+            <div data-part="empty" data-part-empty="">No results for “xylophone”</div>
+          </div>
+          <div data-part="status" data-part-status="" role="status">No results</div>
+          <div data-part="footer" data-part-footer="" aria-hidden="true">
+            <span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="up"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↑</span
+                  ><span data-part="name" data-part-name="">Up arrow</span></kbd
+                ></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="down"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↓</span
+                  ><span data-part="name" data-part-name="">Down arrow</span></kbd
+                ></kbd
+              ><span>Navigate</span></span
+            ><span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="enter"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span
+                    data-part="legend"
+                    data-part-legend=""
+                    aria-hidden="true"
+                    data-legend="symbol"
+                    >↩</span
+                  ><span data-part="name" data-part-name="">Return</span></kbd
+                ></kbd
+              ><span>Select</span></span
+            ><span data-part="hint" data-part-hint=""
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="inherit"
+                data-variant="outline"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-key="escape"
+                  data-size="inherit"
+                  data-variant="outline"
+                  ><span data-part="legend" data-part-legend="" aria-hidden="true">Esc</span
+                  ><span data-part="name" data-part-name="">Escape</span></kbd
+                ></kbd
+              ><span>Close</span></span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="inline">
+  <div style="display: grid; gap: var(--slotted-space-4); max-inline-size: 22rem">
+    <p style="color: var(--slotted-text-muted); margin: 0; font-size: var(--slotted-font-size-sm)">
+      Inline, inside a popover the consumer owns: the filtered menu <code>menu</code> refused.
+    </p>
+    <div
+      data-ui="command-palette"
+      data-ui-command-palette=""
+      data-part="root"
+      data-part-root=""
+      data-size="md"
+      data-presentation="inline"
+      data-open
+    >
+      <div data-part="header" data-part-header="">
+        <span data-part="search" data-part-search="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+        ><input
+          data-part="input"
+          data-part-input=""
+          type="text"
+          role="combobox"
+          aria-label="Search commands"
+          aria-expanded="true"
+          aria-controls="cp-list"
+          aria-autocomplete="list"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Search people…"
+          value=""
+          aria-activedescendant="cp-a1"
+        /><button
+          data-part="clear"
+          data-part-clear=""
+          type="button"
+          tabindex="-1"
+          aria-label="Clear"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="list" data-part-list="" role="listbox" id="cp-list" aria-label="Commands">
+        <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-nav">
+          <div data-part="group-label" data-part-group-label="" role="presentation" id="cp-g-nav">
+            Assign to
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            id="cp-a1"
+            aria-selected="true"
+            data-current
+            title="Amara Okafor"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="8" r="5" />
+                <path d="M20 21a8 8 0 0 0-16 0" /></svg></span
+            ><span data-part="label" data-part-label="">Amara Okafor</span
+            ><span data-part="description" data-part-description="">Design</span>
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            id="cp-a2"
+            aria-selected="false"
+            title="Bogdan Petrov"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="8" r="5" />
+                <path d="M20 21a8 8 0 0 0-16 0" /></svg></span
+            ><span data-part="label" data-part-label="">Bogdan Petrov</span
+            ><span data-part="description" data-part-description="">Platform</span>
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            id="cp-a3"
+            aria-selected="false"
+            title="Chen Wei"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="8" r="5" />
+                <path d="M20 21a8 8 0 0 0-16 0" /></svg></span
+            ><span data-part="label" data-part-label="">Chen Wei</span
+            ><span data-part="description" data-part-description="">Growth</span>
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            id="cp-a4"
+            aria-selected="false"
+            title="Dalia Haddad"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="8" r="5" />
+                <path d="M20 21a8 8 0 0 0-16 0" /></svg></span
+            ><span data-part="label" data-part-label="">Dalia Haddad</span
+            ><span data-part="description" data-part-description="">Support</span>
+          </div>
+        </div>
+      </div>
+      <div data-part="status" data-part-status="" role="status">4 results</div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="sizes">
+  <div style="display: grid; gap: var(--slotted-space-6)">
+    <div
+      data-ui="command-palette"
+      data-ui-command-palette=""
+      data-part="root"
+      data-part-root=""
+      data-size="sm"
+      data-presentation="inline"
+      data-open
+    >
+      <div data-part="header" data-part-header="">
+        <span data-part="search" data-part-search="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+        ><input
+          data-part="input"
+          data-part-input=""
+          type="text"
+          role="combobox"
+          aria-label="Search commands"
+          aria-expanded="true"
+          aria-controls="cp-list"
+          aria-autocomplete="list"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Type a command or search…"
+          value=""
+          aria-activedescendant="cp-sm1"
+        /><button
+          data-part="clear"
+          data-part-clear=""
+          type="button"
+          tabindex="-1"
+          aria-label="Clear"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="list" data-part-list="" role="listbox" id="cp-list" aria-label="Commands">
+        <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-nav">
+          <div data-part="group-label" data-part-group-label="" role="presentation" id="cp-g-nav">
+            Go to
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            id="cp-sm1"
+            aria-selected="true"
+            data-current
+            aria-keyshortcuts="G+I"
+            title="Inbox"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+                <path
+                  d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"
+                /></svg></span
+            ><span data-part="label" data-part-label="">Inbox</span
+            ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="sm"
+                data-variant="plain"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-variant="plain"
+                  ><span data-part="legend" data-part-legend="">G</span></kbd
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-variant="plain"
+                  ><span data-part="legend" data-part-legend="">I</span></kbd
+                ></kbd
+              ></span
+            >
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            id="cp-sm2"
+            aria-selected="false"
+            aria-keyshortcuts="G+P"
+            title="Projects"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+                /></svg></span
+            ><span data-part="label" data-part-label="">Projects</span
+            ><span data-part="description" data-part-description="">12 active</span
+            ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="sm"
+                data-variant="plain"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-variant="plain"
+                  ><span data-part="legend" data-part-legend="">G</span></kbd
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="sm"
+                  data-variant="plain"
+                  ><span data-part="legend" data-part-legend="">P</span></kbd
+                ></kbd
+              ></span
+            >
+          </div>
+        </div>
+      </div>
+      <div data-part="status" data-part-status="" role="status">2 results</div>
+      <div data-part="footer" data-part-footer="" aria-hidden="true">
+        <span data-part="hint" data-part-hint=""
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="shortcut"
+            data-part-shortcut=""
+            data-platform="mac"
+            data-size="inherit"
+            data-variant="outline"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="root"
+              data-part-root=""
+              data-key="up"
+              data-size="inherit"
+              data-variant="outline"
+              ><span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+                >↑</span
+              ><span data-part="name" data-part-name="">Up arrow</span></kbd
+            ></kbd
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="shortcut"
+            data-part-shortcut=""
+            data-platform="mac"
+            data-size="inherit"
+            data-variant="outline"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="root"
+              data-part-root=""
+              data-key="down"
+              data-size="inherit"
+              data-variant="outline"
+              ><span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+                >↓</span
+              ><span data-part="name" data-part-name="">Down arrow</span></kbd
+            ></kbd
+          ><span>Navigate</span></span
+        ><span data-part="hint" data-part-hint=""
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="shortcut"
+            data-part-shortcut=""
+            data-platform="mac"
+            data-size="inherit"
+            data-variant="outline"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="root"
+              data-part-root=""
+              data-key="enter"
+              data-size="inherit"
+              data-variant="outline"
+              ><span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+                >↩</span
+              ><span data-part="name" data-part-name="">Return</span></kbd
+            ></kbd
+          ><span>Select</span></span
+        ><span data-part="hint" data-part-hint=""
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="shortcut"
+            data-part-shortcut=""
+            data-platform="mac"
+            data-size="inherit"
+            data-variant="outline"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="root"
+              data-part-root=""
+              data-key="escape"
+              data-size="inherit"
+              data-variant="outline"
+              ><span data-part="legend" data-part-legend="" aria-hidden="true">Esc</span
+              ><span data-part="name" data-part-name="">Escape</span></kbd
+            ></kbd
+          ><span>Close</span></span
+        >
+      </div>
+    </div>
+    <div
+      data-ui="command-palette"
+      data-ui-command-palette=""
+      data-part="root"
+      data-part-root=""
+      data-size="lg"
+      data-presentation="inline"
+      data-open
+    >
+      <div data-part="header" data-part-header="">
+        <span data-part="search" data-part-search="" aria-hidden="true"
+          ><span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+        ><input
+          data-part="input"
+          data-part-input=""
+          type="text"
+          role="combobox"
+          aria-label="Search commands"
+          aria-expanded="true"
+          aria-controls="cp-list"
+          aria-autocomplete="list"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Type a command or search…"
+          value=""
+          aria-activedescendant="cp-lg1"
+        /><button
+          data-part="clear"
+          data-part-clear=""
+          type="button"
+          tabindex="-1"
+          aria-label="Clear"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+          ></span>
+        </button>
+      </div>
+      <div data-part="list" data-part-list="" role="listbox" id="cp-list" aria-label="Commands">
+        <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-nav">
+          <div data-part="group-label" data-part-group-label="" role="presentation" id="cp-g-nav">
+            Go to
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            id="cp-lg1"
+            aria-selected="true"
+            data-current
+            aria-keyshortcuts="G+I"
+            title="Inbox"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+                <path
+                  d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"
+                /></svg></span
+            ><span data-part="label" data-part-label="">Inbox</span
+            ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="lg"
+                data-variant="plain"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="lg"
+                  data-variant="plain"
+                  ><span data-part="legend" data-part-legend="">G</span></kbd
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="lg"
+                  data-variant="plain"
+                  ><span data-part="legend" data-part-legend="">I</span></kbd
+                ></kbd
+              ></span
+            >
+          </div>
+          <div
+            data-part="item"
+            data-part-item=""
+            role="option"
+            id="cp-lg2"
+            aria-selected="false"
+            aria-keyshortcuts="G+P"
+            title="Projects"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+                /></svg></span
+            ><span data-part="label" data-part-label="">Projects</span
+            ><span data-part="description" data-part-description="">12 active</span
+            ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="shortcut"
+                data-part-shortcut=""
+                data-platform="mac"
+                data-size="lg"
+                data-variant="plain"
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="lg"
+                  data-variant="plain"
+                  ><span data-part="legend" data-part-legend="">G</span></kbd
+                ><kbd
+                  data-ui="kbd"
+                  data-ui-kbd=""
+                  data-part="root"
+                  data-part-root=""
+                  data-size="lg"
+                  data-variant="plain"
+                  ><span data-part="legend" data-part-legend="">P</span></kbd
+                ></kbd
+              ></span
+            >
+          </div>
+        </div>
+      </div>
+      <div data-part="status" data-part-status="" role="status">2 results</div>
+      <div data-part="footer" data-part-footer="" aria-hidden="true">
+        <span data-part="hint" data-part-hint=""
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="shortcut"
+            data-part-shortcut=""
+            data-platform="mac"
+            data-size="inherit"
+            data-variant="outline"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="root"
+              data-part-root=""
+              data-key="up"
+              data-size="inherit"
+              data-variant="outline"
+              ><span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+                >↑</span
+              ><span data-part="name" data-part-name="">Up arrow</span></kbd
+            ></kbd
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="shortcut"
+            data-part-shortcut=""
+            data-platform="mac"
+            data-size="inherit"
+            data-variant="outline"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="root"
+              data-part-root=""
+              data-key="down"
+              data-size="inherit"
+              data-variant="outline"
+              ><span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+                >↓</span
+              ><span data-part="name" data-part-name="">Down arrow</span></kbd
+            ></kbd
+          ><span>Navigate</span></span
+        ><span data-part="hint" data-part-hint=""
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="shortcut"
+            data-part-shortcut=""
+            data-platform="mac"
+            data-size="inherit"
+            data-variant="outline"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="root"
+              data-part-root=""
+              data-key="enter"
+              data-size="inherit"
+              data-variant="outline"
+              ><span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+                >↩</span
+              ><span data-part="name" data-part-name="">Return</span></kbd
+            ></kbd
+          ><span>Select</span></span
+        ><span data-part="hint" data-part-hint=""
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="shortcut"
+            data-part-shortcut=""
+            data-platform="mac"
+            data-size="inherit"
+            data-variant="outline"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="root"
+              data-part-root=""
+              data-key="escape"
+              data-size="inherit"
+              data-variant="outline"
+              ><span data-part="legend" data-part-legend="" aria-hidden="true">Esc</span
+              ><span data-part="name" data-part-name="">Escape</span></kbd
+            ></kbd
+          ><span>Close</span></span
+        >
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="content">
+  <div
+    data-ui="command-palette"
+    data-ui-command-palette=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-presentation="inline"
+    data-open
+    data-query
+  >
+    <div data-part="header" data-part-header="">
+      <span data-part="search" data-part-search="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+      ><input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="combobox"
+        aria-label="Search commands"
+        aria-expanded="true"
+        aria-controls="cp-list"
+        aria-autocomplete="list"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Type a command or search…"
+        value="ver"
+        aria-activedescendant="cp-l1"
+      /><button data-part="clear" data-part-clear="" type="button" tabindex="-1" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+    <div data-part="list" data-part-list="" role="listbox" id="cp-list" aria-label="Commands">
+      <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-long">
+        <div data-part="group-label" data-part-group-label="" role="presentation" id="cp-g-long">
+          Verwaltung
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-l1"
+          aria-selected="true"
+          data-current
+          aria-keyshortcuts="Meta+Shift+Alt+P"
+          title="Benachrichtigungseinstellungen für alle Arbeitsbereiche und Teams synchronisieren"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.07-7.07-1.41 1.41M8.34 15.66l-1.41 1.41m0-10.14 1.41 1.41m7.32 7.32 1.41 1.41"
+              /></svg></span
+          ><span data-part="label" data-part-label=""
+            >Benachrichtigungseinstellungen für alle Arbeitsbereiche und Teams synchronisieren</span
+          ><span data-part="description" data-part-description=""
+            >Eine sehr lange Beschreibung, die abgeschnitten werden muss, weil sie sonst drei Zeilen
+            einnehmen würde</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="mac"
+              data-size="md"
+              data-variant="plain"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="plain"
+                ><span
+                  data-part="legend"
+                  data-part-legend=""
+                  aria-hidden="true"
+                  data-legend="symbol"
+                  >⌘</span
+                ><span data-part="name" data-part-name="">Command</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="shift"
+                data-size="md"
+                data-variant="plain"
+                ><span
+                  data-part="legend"
+                  data-part-legend=""
+                  aria-hidden="true"
+                  data-legend="symbol"
+                  >⇧</span
+                ><span data-part="name" data-part-name="">Shift</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="alt"
+                data-size="md"
+                data-variant="plain"
+                ><span
+                  data-part="legend"
+                  data-part-legend=""
+                  aria-hidden="true"
+                  data-legend="symbol"
+                  >⌥</span
+                ><span data-part="name" data-part-name="">Option</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="">P</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-l2"
+          aria-selected="false"
+          title="Supercalifragilisticexpialidocious-Bereitstellungspipeline"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label=""
+            >Supercalifragilisticexpialidocious-Bereitstellungspipeline</span
+          ><span data-part="meta" data-part-meta="" aria-hidden="true">Empfohlen</span>
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-l3"
+          aria-selected="false"
+          aria-keyshortcuts="G"
+          title="Go"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Go</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="mac"
+              data-size="md"
+              data-variant="plain"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="">G</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-l4"
+          aria-selected="false"
+          aria-keyshortcuts="Meta+K"
+          title="Sicherheitsüberprüfung"
+        >
+          <span data-part="icon" data-part-icon=""></span
+          ><span data-part="label" data-part-label="">Sicherheitsüberprüfung</span
+          ><span data-part="description" data-part-description="">Kurz</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="mac"
+              data-size="md"
+              data-variant="plain"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="plain"
+                ><span
+                  data-part="legend"
+                  data-part-legend=""
+                  aria-hidden="true"
+                  data-legend="symbol"
+                  >⌘</span
+                ><span data-part="name" data-part-name="">Command</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="">K</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+      </div>
+    </div>
+    <div data-part="status" data-part-status="" role="status">4 results</div>
+    <div data-part="footer" data-part-footer="" aria-hidden="true">
+      <span data-part="hint" data-part-hint=""
+        ><kbd
+          data-ui="kbd"
+          data-ui-kbd=""
+          data-part="shortcut"
+          data-part-shortcut=""
+          data-platform="mac"
+          data-size="inherit"
+          data-variant="outline"
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="root"
+            data-part-root=""
+            data-key="up"
+            data-size="inherit"
+            data-variant="outline"
+            ><span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+              >↑</span
+            ><span data-part="name" data-part-name="">Up arrow</span></kbd
+          ></kbd
+        ><kbd
+          data-ui="kbd"
+          data-ui-kbd=""
+          data-part="shortcut"
+          data-part-shortcut=""
+          data-platform="mac"
+          data-size="inherit"
+          data-variant="outline"
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="root"
+            data-part-root=""
+            data-key="down"
+            data-size="inherit"
+            data-variant="outline"
+            ><span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+              >↓</span
+            ><span data-part="name" data-part-name="">Down arrow</span></kbd
+          ></kbd
+        ><span>Navigate</span></span
+      ><span data-part="hint" data-part-hint=""
+        ><kbd
+          data-ui="kbd"
+          data-ui-kbd=""
+          data-part="shortcut"
+          data-part-shortcut=""
+          data-platform="mac"
+          data-size="inherit"
+          data-variant="outline"
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="root"
+            data-part-root=""
+            data-key="enter"
+            data-size="inherit"
+            data-variant="outline"
+            ><span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+              >↩</span
+            ><span data-part="name" data-part-name="">Return</span></kbd
+          ></kbd
+        ><span>Select</span></span
+      ><span data-part="hint" data-part-hint=""
+        ><kbd
+          data-ui="kbd"
+          data-ui-kbd=""
+          data-part="shortcut"
+          data-part-shortcut=""
+          data-platform="mac"
+          data-size="inherit"
+          data-variant="outline"
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="root"
+            data-part-root=""
+            data-key="escape"
+            data-size="inherit"
+            data-variant="outline"
+            ><span data-part="legend" data-part-legend="" aria-hidden="true">Esc</span
+            ><span data-part="name" data-part-name="">Escape</span></kbd
+          ></kbd
+        ><span>Close</span></span
+      >
+    </div>
+  </div>
+</section>
+
+<section data-scene="shortcut-variants">
+  <div
+    data-ui="command-palette"
+    data-ui-command-palette=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-presentation="inline"
+    data-open
+  >
+    <div data-part="header" data-part-header="">
+      <span data-part="search" data-part-search="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+      ><input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="combobox"
+        aria-label="Search commands"
+        aria-expanded="true"
+        aria-controls="cp-list"
+        aria-autocomplete="list"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Type a command or search…"
+        value=""
+      /><button data-part="clear" data-part-clear="" type="button" tabindex="-1" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+    <div data-part="list" data-part-list="" role="listbox" id="cp-list" aria-label="Commands">
+      <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-v-outline-">
+        <div
+          data-part="group-label"
+          data-part-group-label=""
+          role="presentation"
+          id="cp-g-v-outline-"
+        >
+          outline
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-outline--a"
+          aria-selected="false"
+          title="Deploy to production"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Deploy to production</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true" style=""
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="outline"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Ctrl</span
+                ><span data-part="name" data-part-name="">Control</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="shift"
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Shift</span
+                ><span data-part="name" data-part-name="">Shift</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="">D</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-outline--b"
+          aria-selected="false"
+          title="Inbox"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Inbox</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true" style=""
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="outline"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="">G</span></kbd
+              ><span data-part="separator" data-part-separator="" data-separator="then">then</span
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="">I</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-outline--c"
+          aria-selected="false"
+          title="Settings"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Settings</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true" style=""
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="outline"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Ctrl</span
+                ><span data-part="name" data-part-name="">Control</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="">,</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+      </div>
+      <div
+        data-part="group"
+        data-part-group=""
+        role="group"
+        aria-labelledby="cp-g-v-outline-display:contents"
+      >
+        <div
+          data-part="group-label"
+          data-part-group-label=""
+          role="presentation"
+          id="cp-g-v-outline-display:contents"
+        >
+          outline display:contents
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-outline-display:contents-a"
+          aria-selected="false"
+          title="Deploy to production"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Deploy to production</span
+          ><span
+            data-part="shortcut"
+            data-part-shortcut=""
+            aria-hidden="true"
+            style="display: contents"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="outline"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Ctrl</span
+                ><span data-part="name" data-part-name="">Control</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="shift"
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Shift</span
+                ><span data-part="name" data-part-name="">Shift</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="">D</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-outline-display:contents-b"
+          aria-selected="false"
+          title="Inbox"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Inbox</span
+          ><span
+            data-part="shortcut"
+            data-part-shortcut=""
+            aria-hidden="true"
+            style="display: contents"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="outline"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="">G</span></kbd
+              ><span data-part="separator" data-part-separator="" data-separator="then">then</span
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="">I</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-outline-display:contents-c"
+          aria-selected="false"
+          title="Settings"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Settings</span
+          ><span
+            data-part="shortcut"
+            data-part-shortcut=""
+            aria-hidden="true"
+            style="display: contents"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="outline"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Ctrl</span
+                ><span data-part="name" data-part-name="">Control</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="outline"
+                ><span data-part="legend" data-part-legend="">,</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+      </div>
+      <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-v-raised-">
+        <div
+          data-part="group-label"
+          data-part-group-label=""
+          role="presentation"
+          id="cp-g-v-raised-"
+        >
+          raised
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-raised--a"
+          aria-selected="false"
+          title="Deploy to production"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Deploy to production</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true" style=""
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="raised"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="raised"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Ctrl</span
+                ><span data-part="name" data-part-name="">Control</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="shift"
+                data-size="md"
+                data-variant="raised"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Shift</span
+                ><span data-part="name" data-part-name="">Shift</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="raised"
+                ><span data-part="legend" data-part-legend="">D</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-raised--b"
+          aria-selected="false"
+          title="Inbox"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Inbox</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true" style=""
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="raised"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="raised"
+                ><span data-part="legend" data-part-legend="">G</span></kbd
+              ><span data-part="separator" data-part-separator="" data-separator="then">then</span
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="raised"
+                ><span data-part="legend" data-part-legend="">I</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-raised--c"
+          aria-selected="false"
+          title="Settings"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Settings</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true" style=""
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="raised"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="raised"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Ctrl</span
+                ><span data-part="name" data-part-name="">Control</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="raised"
+                ><span data-part="legend" data-part-legend="">,</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+      </div>
+      <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-v-soft-">
+        <div data-part="group-label" data-part-group-label="" role="presentation" id="cp-g-v-soft-">
+          soft
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-soft--a"
+          aria-selected="false"
+          title="Deploy to production"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Deploy to production</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true" style=""
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="soft"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="soft"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Ctrl</span
+                ><span data-part="name" data-part-name="">Control</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="shift"
+                data-size="md"
+                data-variant="soft"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Shift</span
+                ><span data-part="name" data-part-name="">Shift</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="soft"
+                ><span data-part="legend" data-part-legend="">D</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-soft--b"
+          aria-selected="false"
+          title="Inbox"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Inbox</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true" style=""
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="soft"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="soft"
+                ><span data-part="legend" data-part-legend="">G</span></kbd
+              ><span data-part="separator" data-part-separator="" data-separator="then">then</span
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="soft"
+                ><span data-part="legend" data-part-legend="">I</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-soft--c"
+          aria-selected="false"
+          title="Settings"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Settings</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true" style=""
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="soft"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="soft"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Ctrl</span
+                ><span data-part="name" data-part-name="">Control</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="soft"
+                ><span data-part="legend" data-part-legend="">,</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+      </div>
+      <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-v-plain-">
+        <div
+          data-part="group-label"
+          data-part-group-label=""
+          role="presentation"
+          id="cp-g-v-plain-"
+        >
+          plain
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-plain--a"
+          aria-selected="false"
+          title="Deploy to production"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Deploy to production</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true" style=""
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="plain"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Ctrl</span
+                ><span data-part="name" data-part-name="">Control</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="shift"
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Shift</span
+                ><span data-part="name" data-part-name="">Shift</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="">D</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-plain--b"
+          aria-selected="false"
+          title="Inbox"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Inbox</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true" style=""
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="plain"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="">G</span></kbd
+              ><span data-part="separator" data-part-separator="" data-separator="then">then</span
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="">I</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-plain--c"
+          aria-selected="false"
+          title="Settings"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Settings</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true" style=""
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="windows"
+              data-size="md"
+              data-variant="plain"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="" aria-hidden="true">Ctrl</span
+                ><span data-part="name" data-part-name="">Control</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="">,</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+      </div>
+    </div>
+    <div data-part="status" data-part-status="" role="status"></div>
+  </div>
+</section>
+
+<section data-scene="states">
+  <div
+    data-ui="command-palette"
+    data-ui-command-palette=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-presentation="inline"
+    data-open
+  >
+    <div data-part="header" data-part-header="">
+      <span data-part="search" data-part-search="" aria-hidden="true"
+        ><span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="search"></svg></span></span
+      ><input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="combobox"
+        aria-label="Search commands"
+        aria-expanded="true"
+        aria-controls="cp-list"
+        aria-autocomplete="list"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Type a command or search…"
+        value=""
+        aria-activedescendant="cp-s-current"
+      /><button data-part="clear" data-part-clear="" type="button" tabindex="-1" aria-label="Clear">
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg
+        ></span>
+      </button>
+    </div>
+    <div data-part="list" data-part-list="" role="listbox" id="cp-list" aria-label="Commands">
+      <div data-part="group" data-part-group="" role="group" aria-labelledby="cp-g-states">
+        <div data-part="group-label" data-part-group-label="" role="presentation" id="cp-g-states">
+          States
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-s-default"
+          aria-selected="false"
+          aria-keyshortcuts="Meta+1"
+          title="At rest"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">At rest</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="mac"
+              data-size="md"
+              data-variant="plain"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="plain"
+                ><span
+                  data-part="legend"
+                  data-part-legend=""
+                  aria-hidden="true"
+                  data-legend="symbol"
+                  >⌘</span
+                ><span data-part="name" data-part-name="">Command</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="">1</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-s-current"
+          aria-selected="true"
+          data-current
+          aria-keyshortcuts="Meta+2"
+          title="Current, from the keyboard"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Current, from the keyboard</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="mac"
+              data-size="md"
+              data-variant="plain"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="plain"
+                ><span
+                  data-part="legend"
+                  data-part-legend=""
+                  aria-hidden="true"
+                  data-legend="symbol"
+                  >⌘</span
+                ><span data-part="name" data-part-name="">Command</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="">2</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-s-loading"
+          aria-selected="false"
+          data-loading
+          aria-busy="true"
+          aria-keyshortcuts="Meta+3"
+          title="Running… the handler has not answered"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Running… the handler has not answered</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="mac"
+              data-size="md"
+              data-variant="plain"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="plain"
+                ><span
+                  data-part="legend"
+                  data-part-legend=""
+                  aria-hidden="true"
+                  data-legend="symbol"
+                  >⌘</span
+                ><span data-part="name" data-part-name="">Command</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="">3</span></kbd
+              ></kbd
+            ></span
+          ><span
+            data-part="busy"
+            data-part-busy=""
+            data-ui="spinner"
+            data-ui-spinner=""
+            aria-hidden="true"
+          ></span>
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-s-disabled"
+          aria-selected="false"
+          data-disabled
+          aria-disabled="true"
+          aria-keyshortcuts="Meta+4"
+          title="Disabled, kept in place and announced"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"
+              /></svg></span
+          ><span data-part="label" data-part-label="">Disabled, kept in place and announced</span
+          ><span data-part="shortcut" data-part-shortcut="" aria-hidden="true"
+            ><kbd
+              data-ui="kbd"
+              data-ui-kbd=""
+              data-part="shortcut"
+              data-part-shortcut=""
+              data-platform="mac"
+              data-size="md"
+              data-variant="plain"
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-key="mod"
+                data-size="md"
+                data-variant="plain"
+                ><span
+                  data-part="legend"
+                  data-part-legend=""
+                  aria-hidden="true"
+                  data-legend="symbol"
+                  >⌘</span
+                ><span data-part="name" data-part-name="">Command</span></kbd
+              ><kbd
+                data-ui="kbd"
+                data-ui-kbd=""
+                data-part="root"
+                data-part-root=""
+                data-size="md"
+                data-variant="plain"
+                ><span data-part="legend" data-part-legend="">4</span></kbd
+              ></kbd
+            ></span
+          >
+        </div>
+        <div
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-s-page"
+          aria-selected="false"
+          data-page
+          title="Opens a page"
+        >
+          <span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="8" r="5" />
+              <path d="M20 21a8 8 0 0 0-16 0" /></svg></span
+          ><span data-part="label" data-part-label="">Opens a page</span
+          ><span data-part="arrow" data-part-arrow="" aria-hidden="true"
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              data-directional=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg></span
+          ></span>
+        </div>
+        <a
+          data-part="item"
+          data-part-item=""
+          role="option"
+          id="cp-s-link"
+          aria-selected="false"
+          href="#inbox"
+          title="A destination, rendered as a link"
+          ><span data-part="icon" data-part-icon=""
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+              <path
+                d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"
+              /></svg></span
+          ><span data-part="label" data-part-label="">A destination, rendered as a link</span
+          ><span data-part="meta" data-part-meta="" aria-hidden="true">Page</span></a
+        >
+      </div>
+    </div>
+    <div data-part="status" data-part-status="" role="status">6 results</div>
+    <div data-part="footer" data-part-footer="" aria-hidden="true">
+      <span data-part="hint" data-part-hint=""
+        ><kbd
+          data-ui="kbd"
+          data-ui-kbd=""
+          data-part="shortcut"
+          data-part-shortcut=""
+          data-platform="mac"
+          data-size="inherit"
+          data-variant="outline"
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="root"
+            data-part-root=""
+            data-key="up"
+            data-size="inherit"
+            data-variant="outline"
+            ><span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+              >↑</span
+            ><span data-part="name" data-part-name="">Up arrow</span></kbd
+          ></kbd
+        ><kbd
+          data-ui="kbd"
+          data-ui-kbd=""
+          data-part="shortcut"
+          data-part-shortcut=""
+          data-platform="mac"
+          data-size="inherit"
+          data-variant="outline"
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="root"
+            data-part-root=""
+            data-key="down"
+            data-size="inherit"
+            data-variant="outline"
+            ><span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+              >↓</span
+            ><span data-part="name" data-part-name="">Down arrow</span></kbd
+          ></kbd
+        ><span>Navigate</span></span
+      ><span data-part="hint" data-part-hint=""
+        ><kbd
+          data-ui="kbd"
+          data-ui-kbd=""
+          data-part="shortcut"
+          data-part-shortcut=""
+          data-platform="mac"
+          data-size="inherit"
+          data-variant="outline"
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="root"
+            data-part-root=""
+            data-key="enter"
+            data-size="inherit"
+            data-variant="outline"
+            ><span data-part="legend" data-part-legend="" aria-hidden="true" data-legend="symbol"
+              >↩</span
+            ><span data-part="name" data-part-name="">Return</span></kbd
+          ></kbd
+        ><span>Select</span></span
+      ><span data-part="hint" data-part-hint=""
+        ><kbd
+          data-ui="kbd"
+          data-ui-kbd=""
+          data-part="shortcut"
+          data-part-shortcut=""
+          data-platform="mac"
+          data-size="inherit"
+          data-variant="outline"
+          ><kbd
+            data-ui="kbd"
+            data-ui-kbd=""
+            data-part="root"
+            data-part-root=""
+            data-key="escape"
+            data-size="inherit"
+            data-variant="outline"
+            ><span data-part="legend" data-part-legend="" aria-hidden="true">Esc</span
+            ><span data-part="name" data-part-name="">Escape</span></kbd
+          ></kbd
+        ><span>Close</span></span
+      >
+    </div>
+  </div>
+</section>

@@ -1,0 +1,727 @@
+/*
+ * The site's own rules. `docs` is declared after every `slotted` layer, so a
+ * rule here outranks the library's: nothing below may select an element the
+ * library draws. Every selector names a site class; a family is reached only
+ * through its public tokens and the `data-slotted-*` axes.
+ *
+ * Sizes, spacing, radii, weights, durations and easing are the theme's
+ * tokens. What the theme has no token for is derived from one in `:root`:
+ * the page's layout widths, and the hairline and secondary ink mixed from
+ * the theme's text colour.
+ */
+
+@layer docs {
+  :root {
+    --docs-header-h: calc(var(--slotted-space-12) - var(--slotted-space-4));
+    --docs-nav-w: 18rem;
+    --docs-rail-w: var(--slotted-space-10);
+    --docs-prose-w: 48rem;
+    --docs-toc-w: 13rem;
+    --docs-gutter: var(--slotted-space-6);
+    --docs-leading: 1.75;
+    --docs-line-amount: 7%;
+    --docs-line: color-mix(in oklab, var(--slotted-text) var(--docs-line-amount), transparent);
+    --docs-ink-2: color-mix(in oklab, var(--slotted-text) 72%, var(--slotted-surface));
+    --docs-hatch: repeating-linear-gradient(315deg, var(--docs-line) 0 1px, transparent 0 50%);
+    --docs-frame-radius: calc(var(--slotted-radius-lg) + var(--slotted-space-2));
+    /* The page's ground: the base surface in light, the darkest step of the ramp in dark. */
+    --docs-canvas: var(--slotted-surface);
+    scroll-padding-top: calc(var(--docs-header-h) + var(--slotted-space-8));
+    -webkit-text-size-adjust: 100%;
+    scrollbar-color: color-mix(in oklab, var(--slotted-text) 22%, transparent) transparent;
+  }
+
+  :root[data-slotted-scheme='dark'] {
+    --docs-line-amount: 10%;
+    --docs-canvas: var(--slotted-surface-sunken);
+  }
+
+  /*
+   * ── A deeper dark, for this site only ─────────────────────────────────
+   *
+   * The site retunes the default theme's dark scheme on its own scope, as a
+   * consumer application does: the tokens are the theme's public names, the
+   * values a near-black neutral ramp. All three root forms the theme writes
+   * are restated: a dark scope nested in a light page (the code frames), and
+   * a theme element inside the dark page that names no scheme of its own (the
+   * console's frame), where the theme re-roots its own tinted ramp and the
+   * console read bluer than the popovers it opens on the page. The default
+   * theme is untouched.
+   */
+  [data-slotted-theme='default'][data-slotted-scheme='dark'],
+  [data-slotted-theme='default'] [data-slotted-scheme='dark'],
+  [data-slotted-scheme='dark'] [data-slotted-theme='default']:not([data-slotted-scheme]) {
+    --slotted-surface-sunken: #000000;
+    --slotted-surface: #0a0a0a;
+    --slotted-surface-raised: #111111;
+    --slotted-surface-inverse: #ededed;
+    --slotted-text: #ededed;
+    --slotted-text-muted: #a1a1a1;
+    --slotted-text-inverse: #0a0a0a;
+    --slotted-border-subtle: #1f1f1f;
+    --slotted-border-strong: #6e6e6e;
+    --slotted-control-border-color: #333333;
+    --slotted-disabled-background: #111111;
+    --slotted-disabled-border: #1f1f1f;
+    --slotted-disabled-foreground: #6e6e6e;
+    --slotted-tone-secondary-solid: #1a1a1a;
+    --slotted-tone-secondary-surface: #1a1a1a;
+    --slotted-tone-secondary-solid-hover: #262626;
+    --slotted-tone-secondary-solid-active: #111111;
+    --slotted-tone-secondary-on-solid: #ededed;
+    --slotted-tone-secondary-border: #333333;
+    --slotted-tone-secondary-text: #ededed;
+    --slotted-tone-secondary-subtle-hover: #161616;
+    --slotted-tone-secondary-subtle-active: #1f1f1f;
+    --slotted-tone-accent-surface: #0f1522;
+    --slotted-tone-accent-subtle-hover: #0b0f18;
+    --slotted-tone-accent-subtle-active: #0f1522;
+    --slotted-code-comment: #a1a1a1;
+  }
+
+  @media (min-width: 40rem) {
+    :root {
+      --docs-gutter: var(--slotted-space-8);
+    }
+  }
+
+  body {
+    margin: 0;
+    background: var(--docs-canvas);
+    color: var(--slotted-text);
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--slotted-font-size-lg);
+    line-height: var(--docs-leading);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--slotted-tone-accent-solid) 22%, transparent);
+  }
+
+  :where(
+    .docs-brand,
+    .docs-header-nav a,
+    .docs-nav-list a,
+    .docs-crumbs a,
+    .docs-prose a:not(.docs-example a),
+    .docs-skip,
+    .docs-search,
+    .home a:not(.stage a)
+  ):focus-visible {
+    outline: var(--slotted-focus-ring-width) solid var(--slotted-focus-ring-color);
+    outline-offset: var(--slotted-focus-ring-offset);
+    border-radius: var(--slotted-radius-xs);
+  }
+
+  .docs-skip {
+    position: fixed;
+    inset-block-start: var(--slotted-space-4);
+    inset-inline-start: var(--slotted-space-4);
+    z-index: 100;
+    padding: var(--slotted-space-4) var(--slotted-space-5);
+    border-radius: var(--slotted-radius-md);
+    background: var(--slotted-text);
+    color: var(--slotted-surface);
+    font-size: var(--slotted-font-size-md);
+    translate: 0 -200%;
+  }
+
+  .docs-skip:focus-visible {
+    translate: 0 0;
+  }
+
+  /* ── Header ─────────────────────────────────────────────────────────── */
+
+  .docs-header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 40;
+    block-size: var(--docs-header-h);
+    border-block-end: 1px solid var(--docs-line);
+    background: color-mix(in oklab, var(--docs-canvas) 90%, transparent);
+    backdrop-filter: blur(10px);
+  }
+
+  .docs-header-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--slotted-space-9);
+    block-size: 100%;
+    padding-inline: var(--docs-gutter);
+  }
+
+  .docs-brand {
+    color: var(--slotted-text);
+    font-size: var(--slotted-font-size-lg);
+    font-weight: var(--slotted-font-weight-semibold);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+
+  .docs-header-nav {
+    display: none;
+    gap: var(--slotted-space-8);
+    font-size: var(--slotted-font-size-md);
+    line-height: var(--slotted-line-height-md);
+  }
+
+  .docs-header-nav a {
+    color: var(--docs-ink-2);
+    text-decoration: none;
+    transition: color var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  .docs-header-nav a:hover,
+  .docs-header-nav a[aria-current] {
+    color: var(--slotted-text);
+  }
+
+  .docs-header-tools {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--slotted-space-4);
+    min-inline-size: 0;
+  }
+
+  /*
+   * The search trigger: the site's own button, drawn as the field it opens
+   * onto — the glass at the start, the words left-aligned, the shortcut
+   * against the end. Below 48rem it is the glass alone.
+   */
+  .docs-search {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: var(--slotted-space-4);
+    inline-size: var(--slotted-control-height-sm);
+    block-size: var(--slotted-control-height-sm);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--slotted-radius-md);
+    background: color-mix(in oklab, var(--slotted-text) 3%, transparent);
+    box-shadow: inset 0 0 0 1px var(--docs-line);
+    color: var(--docs-ink-2);
+    font: inherit;
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-sm);
+    cursor: pointer;
+    transition:
+      box-shadow var(--slotted-duration-short) var(--slotted-easing-standard),
+      color var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  .docs-search:hover {
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--slotted-text) 18%, transparent);
+    color: var(--slotted-text);
+  }
+
+  .docs-search-label,
+  .docs-search-keys {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .docs-header-nav {
+      display: flex;
+    }
+
+    .docs-search {
+      flex-shrink: 1;
+      justify-content: flex-start;
+      inline-size: 100%;
+      max-inline-size: 16rem;
+      padding-inline: var(--slotted-space-5) var(--slotted-space-3);
+    }
+
+    .docs-search-label {
+      display: block;
+      flex: 1;
+      min-inline-size: 0;
+      overflow: hidden;
+      text-align: start;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .docs-search-keys {
+      display: inline-flex;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .docs-nav-toggle {
+      display: none;
+    }
+  }
+
+  /* ── Shell: navigation | hatched rail | page | hatched rail ─────────── */
+
+  .docs-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-block-size: calc(100dvh - var(--docs-header-h));
+  }
+
+  .docs-nav,
+  .docs-rail {
+    display: none;
+  }
+
+  @media (min-width: 64rem) {
+    .docs-shell {
+      grid-template-columns: var(--docs-nav-w) var(--docs-rail-w) minmax(0, 1fr) var(--docs-rail-w);
+    }
+
+    .docs-nav {
+      display: block;
+      position: sticky;
+      inset-block-start: var(--docs-header-h);
+      align-self: start;
+      max-block-size: calc(100dvh - var(--docs-header-h));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: var(--slotted-space-9) var(--slotted-space-8) var(--slotted-space-12);
+      scrollbar-width: thin;
+    }
+
+    .docs-rail {
+      display: block;
+      border-inline: 1px solid var(--docs-line);
+      background-image: var(--docs-hatch);
+      background-size: 10px 10px;
+      background-attachment: fixed;
+    }
+  }
+
+  /* Navigation: a list on a hairline, the current page on a dark one. */
+
+  .docs-nav-group + .docs-nav-group {
+    margin-block-start: var(--slotted-space-9);
+  }
+
+  .docs-nav-heading {
+    margin: 0 0 var(--slotted-space-5);
+    color: var(--slotted-text);
+    font-size: var(--slotted-font-size-sm);
+    font-weight: var(--slotted-font-weight-semibold);
+    line-height: var(--slotted-line-height-sm);
+  }
+
+  .docs-nav-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-inline-start: 1px solid var(--docs-line);
+  }
+
+  .docs-nav-list a {
+    display: block;
+    margin-inline-start: -1px;
+    padding-block: var(--slotted-space-2);
+    padding-inline-start: var(--slotted-space-6);
+    border-inline-start: 1px solid transparent;
+    color: var(--docs-ink-2);
+    font-size: var(--slotted-font-size-md);
+    line-height: var(--slotted-line-height-md);
+    text-decoration: none;
+    transition:
+      color var(--slotted-duration-short) var(--slotted-easing-standard),
+      border-color var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  .docs-nav-list a:hover {
+    border-inline-start-color: color-mix(in oklab, var(--slotted-text) 30%, transparent);
+    color: var(--slotted-text);
+  }
+
+  .docs-nav-list a[aria-current='page'] {
+    border-inline-start-color: var(--slotted-text);
+    color: var(--slotted-text);
+    font-weight: var(--slotted-font-weight-semibold);
+  }
+
+  /* ── Page: the article, and "On this page" beside it ───────────────── */
+
+  .docs-main {
+    min-inline-size: 0;
+  }
+
+  .docs-page {
+    box-sizing: border-box;
+    max-inline-size: calc(var(--docs-prose-w) + 2 * var(--docs-gutter));
+    margin-inline: auto;
+    padding: var(--slotted-space-10) var(--docs-gutter) calc(var(--slotted-space-12) * 2);
+  }
+
+  .docs-toc {
+    display: none;
+  }
+
+  /* From 90rem: below it, the column beside "On this page" measures 590px
+     at 1280px, and a data grid under 600px moves its columns into pop-ins. */
+  @media (min-width: 90rem) {
+    .docs-page {
+      display: grid;
+      grid-template-columns: minmax(0, var(--docs-prose-w)) var(--docs-toc-w);
+      column-gap: var(--slotted-space-12);
+      max-inline-size: calc(
+        var(--docs-prose-w) + var(--docs-toc-w) + var(--slotted-space-12) + 2 * var(--docs-gutter)
+      );
+    }
+
+    .docs-toc {
+      display: block;
+      position: sticky;
+      inset-block-start: var(--docs-header-h);
+      align-self: start;
+      max-block-size: calc(100dvh - var(--docs-header-h));
+      overflow-y: auto;
+      padding-block: var(--slotted-space-2) var(--slotted-space-9);
+    }
+  }
+
+  .docs-article {
+    min-inline-size: 0;
+  }
+
+  .docs-crumbs {
+    display: flex;
+    align-items: center;
+    gap: var(--slotted-space-4);
+    color: var(--docs-ink-2);
+    font-size: var(--slotted-font-size-md);
+    line-height: var(--slotted-line-height-md);
+  }
+
+  .docs-crumbs a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .docs-crumbs a:hover {
+    color: var(--slotted-text);
+  }
+
+  .docs-article h1 {
+    margin: var(--slotted-space-4) 0 0;
+    font-size: var(--slotted-font-size-4xl);
+    line-height: var(--slotted-line-height-4xl);
+    font-weight: var(--slotted-font-weight-medium);
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  .docs-lead {
+    max-inline-size: 40rem;
+    margin: var(--slotted-space-7) 0 var(--slotted-space-10);
+    color: var(--docs-ink-2);
+    font-size: var(--slotted-font-size-lg);
+    line-height: var(--docs-leading);
+    text-wrap: pretty;
+  }
+
+  /* Prose */
+
+  .docs-prose > h2 {
+    margin: calc(var(--slotted-space-12) - var(--slotted-space-4)) 0 var(--slotted-space-6);
+    font-size: var(--slotted-font-size-2xl);
+    line-height: var(--slotted-line-height-2xl);
+    font-weight: var(--slotted-font-weight-semibold);
+    letter-spacing: -0.015em;
+    scroll-margin-block-start: calc(var(--docs-header-h) + var(--slotted-space-8));
+  }
+
+  .docs-prose > h3 {
+    margin: var(--slotted-space-10) 0 var(--slotted-space-4);
+    font-size: var(--slotted-font-size-lg);
+    line-height: var(--slotted-line-height-lg);
+    font-weight: var(--slotted-font-weight-semibold);
+  }
+
+  .docs-prose > :is(p, ul, ol) {
+    margin: 0 0 var(--slotted-space-7);
+    color: var(--docs-ink-2);
+    text-wrap: pretty;
+  }
+
+  .docs-prose > :is(ul, ol) {
+    padding-inline-start: var(--slotted-space-7);
+  }
+
+  /* The site's links, never a family's inside a running example. */
+  .docs-prose a:not(.docs-example a) {
+    color: var(--slotted-text);
+    font-weight: var(--slotted-font-weight-medium);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--slotted-text) 30%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+  }
+
+  .docs-prose a:not(.docs-example a):hover {
+    text-decoration-color: var(--slotted-text);
+  }
+
+  .docs-prose > :is(p, ul, ol, table) code,
+  .docs-table code {
+    padding: var(--slotted-space-1) var(--slotted-space-3);
+    border-radius: var(--slotted-radius-sm);
+    background: color-mix(in oklab, var(--slotted-text) 5%, transparent);
+    color: var(--slotted-text);
+    font-family: var(--slotted-font-family-mono);
+    font-size: 0.8125em;
+    font-weight: var(--slotted-font-weight-medium);
+  }
+
+  .docs-prose > h4 {
+    margin: var(--slotted-space-9) 0 var(--slotted-space-3);
+    font-size: var(--slotted-font-size-md);
+    line-height: var(--slotted-line-height-md);
+    font-weight: var(--slotted-font-weight-semibold);
+  }
+
+  /* ── Tables: a region that scrolls on its own when the column is narrow ── */
+
+  .docs-table {
+    margin: 0 0 var(--slotted-space-8);
+    overflow-x: auto;
+    border-radius: var(--slotted-radius-xs);
+  }
+
+  .docs-table:focus-visible {
+    outline: var(--slotted-focus-ring-width) solid var(--slotted-focus-ring-color);
+    outline-offset: var(--slotted-focus-ring-offset);
+  }
+
+  .docs-prose > table,
+  .docs-table table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--slotted-font-size-md);
+    line-height: var(--slotted-line-height-md);
+  }
+
+  .docs-prose > table {
+    margin: 0 0 var(--slotted-space-8);
+  }
+
+  /* Narrower than this, the region scrolls rather than the columns crushing. */
+  .docs-table table {
+    min-inline-size: 36rem;
+  }
+
+  :is(.docs-prose > table, .docs-table) :is(th, td) {
+    padding: var(--slotted-space-4) var(--slotted-space-6) var(--slotted-space-4) 0;
+    border-block-end: 1px solid var(--docs-line);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  :is(.docs-prose > table, .docs-table) th {
+    color: var(--slotted-text);
+    font-weight: var(--slotted-font-weight-semibold);
+  }
+
+  :is(.docs-prose > table, .docs-table) td {
+    color: var(--docs-ink-2);
+    text-wrap: pretty;
+  }
+
+  /* Props and composition: a signature line over a description at full measure. */
+  .docs-props {
+    margin: 0 0 var(--slotted-space-9);
+    border-block-start: 1px solid var(--docs-line);
+  }
+
+  .docs-prop {
+    padding-block: var(--slotted-space-5);
+    border-block-end: 1px solid var(--docs-line);
+  }
+
+  .docs-prop-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--slotted-space-2) var(--slotted-space-4);
+  }
+
+  .docs-prop-head code {
+    padding: var(--slotted-space-1) var(--slotted-space-3);
+    border-radius: var(--slotted-radius-sm);
+    background: color-mix(in oklab, var(--slotted-text) 5%, transparent);
+    font-family: var(--slotted-font-family-mono);
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-sm);
+  }
+
+  .docs-prop-name {
+    color: var(--slotted-text);
+    font-weight: var(--slotted-font-weight-semibold);
+  }
+
+  /* A union keeps each member whole while the line has room; a signature
+     longer than the column still breaks rather than widening the page. */
+  .docs-prop-type {
+    max-inline-size: 100%;
+    color: var(--docs-ink-2);
+    overflow-wrap: anywhere;
+  }
+
+  .docs-prop-default {
+    margin-inline-start: auto;
+    color: var(--slotted-text-muted);
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-sm);
+  }
+
+  .docs-prop-body {
+    margin: var(--slotted-space-3) 0 0;
+    color: var(--docs-ink-2);
+    font-size: var(--slotted-font-size-md);
+    line-height: var(--slotted-line-height-md);
+    text-wrap: pretty;
+  }
+
+  .docs-prop-body .docs-ref-applies {
+    display: block;
+    margin-block-end: var(--slotted-space-1);
+  }
+
+  /* Reference tables: the name never breaks, the type takes a bounded column,
+     and the description takes what is left. */
+  .docs-table td:first-child {
+    white-space: nowrap;
+  }
+
+  .docs-table td.docs-ref-type {
+    inline-size: 13rem;
+    min-inline-size: 10rem;
+  }
+
+  .docs-table td {
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-sm);
+  }
+
+  /* A union type breaks between its members, never inside one. */
+  .docs-ref-type span {
+    white-space: nowrap;
+  }
+
+  /* The parts a row applies to, when they are not the member itself. */
+  .docs-ref-applies {
+    display: block;
+    color: var(--slotted-text-muted);
+    font-size: var(--slotted-font-size-sm);
+    line-height: var(--slotted-line-height-sm);
+  }
+
+  .docs-table kbd {
+    display: inline-block;
+    padding: 0 var(--slotted-space-3);
+    border-radius: var(--slotted-radius-sm);
+    box-shadow: inset 0 0 0 1px var(--docs-line);
+    color: var(--slotted-text);
+    font-family: var(--slotted-font-family-mono);
+    font-size: 0.8125em;
+    white-space: nowrap;
+  }
+
+  /*
+   * ── Code: one card in the dark scheme whatever the page's ────────────
+   *
+   * `.docs-code` carries `data-slotted-scheme="dark"`, so every token read
+   * here and inside the block is the dark scheme's. The block is the card:
+   * no second frame is drawn around it.
+   */
+  .docs-code {
+    --slotted-code-block-radius: var(--docs-frame-radius);
+    --slotted-code-block-surface: var(--slotted-surface);
+    --slotted-code-block-border-color: var(--slotted-border-subtle);
+    margin: var(--slotted-space-7) 0 var(--slotted-space-9);
+  }
+
+  /*
+   * ── Example: one frame, a Preview and a Code tab ─────────────────────
+   *
+   * The tab bar sits on the frame's surface; the selected tab's marker
+   * stands on the hairline that opens either panel.
+   */
+
+  .docs-example {
+    margin: var(--slotted-space-9) 0 var(--slotted-space-10);
+    background: var(--slotted-surface);
+    border-radius: var(--docs-frame-radius);
+    box-shadow: 0 0 0 1px var(--docs-line);
+    overflow: clip;
+  }
+
+  .docs-example-frame {
+    padding-block-start: var(--slotted-space-2);
+  }
+
+  /* One track with a zero minimum: a wide table inside scrolls in its own
+     region instead of widening the frame past the column at 390px. */
+  .docs-example-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    place-items: center;
+    min-block-size: 14rem;
+    padding: var(--slotted-space-10) var(--slotted-space-8);
+    border-block-start: 1px solid var(--docs-line);
+    background-color: var(--slotted-surface);
+    color: var(--slotted-text);
+  }
+
+  /* The element the example renders into: the width an example is read at. */
+  .docs-example-preview {
+    inline-size: min(100%, 24rem);
+    min-inline-size: 0;
+  }
+
+  .docs-example[data-wide] .docs-example-preview {
+    inline-size: 100%;
+  }
+
+  /*
+   * At least as tall as the preview last measured (`ExampleFrame`), so the
+   * frame keeps its height across a switch; the code block scrolls inside
+   * its own line limit.
+   */
+  .docs-example-code {
+    display: grid;
+    box-sizing: border-box;
+    min-block-size: var(--docs-example-h, 14rem);
+    border-block-start: 1px solid var(--docs-line);
+  }
+
+  /*
+   * Inside an example, the code is the Code panel itself: no corners and no
+   * edge of its own inside the example's card, which clips it to its radius.
+   */
+  .docs-code[data-joined] {
+    display: grid;
+    margin: 0;
+    --slotted-code-block-radius: 0;
+    --slotted-code-block-border-color: transparent;
+  }
+
+  /*
+   * The expanded code (`ExampleFrame`): the block is the panel's body, so it
+   * takes the panel's ground and edge instead of drawing a card inside it.
+   */
+  .docs-code-dialog {
+    --slotted-code-block-radius: 0;
+    --slotted-code-block-surface: var(--slotted-dialog-surface, var(--slotted-surface));
+    --slotted-code-block-border-color: transparent;
+  }
+
+  .docs-code-dialog > [data-part='body'] {
+    padding: 0;
+  }
+}

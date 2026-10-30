@@ -1,0 +1,520 @@
+{
+  "schemaVersion": 5,
+  "family": "datetime-range-picker",
+  "ui": "datetime-range-picker",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Start and end date-times with a picker."
+  },
+  "controlPart": "control",
+  "rootRole": null,
+  "contentRole": "dialog",
+  "valueType": "DateTimeRange | null",
+  "valueRules": {
+    "empty": "a request whose both ends are null carries null; the family speaks one word for nothing",
+    "openEnd": "{ start, end: null } and { start: null, end } are values: an open end is written in the field, where the reader sees it",
+    "reversed": "an end typed before its start is invalid and stays as typed",
+    "halves": "a PlainDateTime is whole or it is nothing: a date without a time, or a time without a date, lives in the work while the panel is open and in the field's segments, never in the value"
+  },
+  "composes": ["datetime-field", "calendar"],
+  "fields": 1,
+  "predicates": ["isDateUnavailable", "isTimeUnavailable"],
+  "core": [
+    "@slotted/core/date",
+    "@slotted/core/state",
+    "@slotted/core/presence",
+    "@slotted/core/portal",
+    "@slotted/core/positioner",
+    "@slotted/core/dismissable-layer",
+    "@slotted/core/typeahead",
+    "@slotted/core/focus"
+  ],
+  "stateSource": "field",
+  "mirrorsState": true,
+  "pattern": {
+    "url": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/datepicker-dialog/",
+    "title": "Date Picker Dialog Example, for the popup; the tabs pattern for the two ends; the grid pattern for the calendar; the listbox pattern for the list",
+    "readOn": "2026-09-15",
+    "rangePattern": "none exists; the three patterns the composed families already transcribed, unchanged",
+    "departure": "the dialog example closes on the first press and this family closes when the work is whole, because a range with hours is at least four presses; closeOnSelect names the rest"
+  },
+  "panel": {
+    "perEnd": false,
+    "current": "one panel, the current end's: the calendar in range mode with both dates drawn, and the list of that end running on that end's day",
+    "order": "the band with the tabs, the field and the hint, then the presets, then the panel: the calendar and the list of the current end side by side, the list under the grid where the row cannot hold both",
+    "role": "listbox",
+    "labelledBy": "the current tab, so a screen reader hears \"Pickup, 12 Sep, 14:00\" before the first option",
+    "day": "the list runs on the date of the current end, or on the calendar's focused day while that end has no date; the tab says the date and the hint says \"Now the time, 12 Sep\" while the time is missing, so panel-day is not needed",
+    "why": "One end at a time. Two lists side by side, under two fields, were refused at the release gate as too much interface at once for a lay reader and for a phone: two lists of ninety-six rows with 32-pixel targets, a full-screen sheet with no way out, nested scrolling. The tab says which end, the panel shows only that end, and choosing one end moves to the other; the end list appears already striking what the chosen start refuses, in the same gesture.",
+    "reversed": "the first contract declined tabs with one end at a time because a tablist that exists at one width and not at another tells assistive technology two stories; the tabs now exist at every width, and the DOM does not change with the presentation"
+  },
+  "list": {
+    "shape": "time-picker's list, unchanged: step, options, maxOptions, unavailableOptions",
+    "against": "the date of its own end, or the calendar's focused day while that end has no date; the day window bounds it, as datetime-picker's list is bounded",
+    "otherEnd": "the other end refuses options only when the two ends are on the same day — the end list refuses the times before the start and outside the duration limits, the start list the symmetric — because on different days the order is the dates', and the grid already imposes it; the duration limits apply across days as well",
+    "refusedDrawn": "a refused option is still drawn with aria-disabled, or hidden with unavailableOptions=hide",
+    "duration": "each option in the list of one end carries, beside its time, the duration the run would have with the other end as it stands — \"15:00 · 1 hr\" — but only while the two ends are on the same day: across days the rows differ by minutes inside a duration of days, and a column of \"3 days 18 hr 15 min\" says nothing the band does not; the band's length says the whole, in a live region, in every case"
+  },
+  "preview": {
+    "drawnBy": "calendar",
+    "reportedBy": "onPreviewChange",
+    "attribute": "data-preview on the calendar's cells"
+  },
+  "focusRule": {
+    "rule": "the press that leaves the work incomplete carries focus to the half that is missing, swapping the tab when it is the other end's; the press that completes the work closes the panel",
+    "gridWritesDate": "a day pressed for an end that has no time carries focus to the list of that end",
+    "listWritesTime": "a time pressed for an end that has no date carries focus to the grid",
+    "otherEnd": "with its own end whole, the missing half of the other end is next: the tab swaps, and focus goes to its date in the grid, or to its time in the list",
+    "whole": "with the work already whole, a press writes the value and the panel stays open; focus stays where the reader put it",
+    "source": "datetime-picker's rule, once per end"
+  },
+  "draft": {
+    "rule": "while the panel is open the family holds the work: the two ends as the reader left them, each with its date and time. A press that leaves the work incomplete emits no value; the press that completes it emits the whole run with reason select, and every later press that changes a whole work emits again",
+    "halves": "each end of the work holds its date and time as two nullable halves, so a chosen day waits for its time and a chosen time waits for its day",
+    "abandonedBy": "Escape, an outside press and the trigger abandon the work and keep the previous value"
+  },
+  "length": {
+    "liveRegion": "polite",
+    "pending": "the duration of the run that would exist if the pending end were chosen — the option under the pointer or the highlighted option of the focused list, or the calendar's pending day — with the other end taken from the work",
+    "pendingDate": "a pending day enters the duration with the time that end already holds, or midnight when it holds none",
+    "unit": "seconds between the two ends, turned into words",
+    "label": "durationLabel(seconds, locale, granularity) by default, replaceable per instance and per provider as lengthLabel(seconds, locale)"
+  },
+  "highlight": {
+    "shape": "{ start: PlainTime | null, end: PlainTime | null }: the highlighted option of each list",
+    "focusedDate": "the calendar's own, as in date-range-picker; the family does not hold it"
+  },
+  "position": {
+    "meaning": "the end whose tab carries aria-selected and data-current, whose field, list and pending band are shown, the end the next press in the grid writes, and where focus goes when the panel opens",
+    "onOpen": "the first end with a half missing; with a whole value, where it was",
+    "calendarReceives": {
+      "end": "{ start, end: null }, so the next press writes the end instead of restarting the run",
+      "start": "the whole value, so the next press restarts the run"
+    },
+    "calendarOrders": "when the grid orders the two dates — an end pressed before the start — the hours stay with the end they were on",
+    "afterGridStart": "end, once the start has its time",
+    "afterGridEnd": "the end whose half is missing, or start",
+    "afterListWritesOtherEmpty": "the other end",
+    "afterTab": "the pressed end, reason pointer or keyboard",
+    "afterPreset": "start",
+    "afterClear": "start"
+  },
+  "now": {
+    "part": "now",
+    "perEnd": false,
+    "writes": "the current date and time into the current end, both halves, and follows the focus rule",
+    "why": "one now, because one end is shown at a time"
+  },
+  "step": {
+    "unit": "seconds",
+    "default": 900,
+    "base": "min's time when min is stated, midnight when it is not",
+    "notTheFieldArrows": "the panel's step is the panel's; a segment steps by one of its own unit"
+  },
+  "opensOn": ["the cell of the current end", "today"],
+  "selectionFollowsFocus": false,
+  "selectionFollowsFocusReason": "The listbox pattern lists it as optional and warns it can degrade accessibility. Here a reader arrowing through ninety-six quarter-hours would emit ninety-six requests; the highlight moves, and Enter, Space or a press moves the work.",
+  "limits": {
+    "bounds": ["min", "max", "minTime", "maxTime"],
+    "dayWindow": "each list runs between dayWindow(date, { min, max, minTime, maxTime }) for the day of its end — the rule datetime-picker states and MUI declines",
+    "crossed": "the start field takes max = min(max, end); the end field takes min = max(min, start); the lists take the same, on the same day",
+    "length": ["minLength", "maxLength"],
+    "unit": "seconds",
+    "contiguous": {
+      "default": true,
+      "grid": "with an open run, the days beyond the first unavailable day after the start are refused in the grid, through blockedAround as date-range-picker",
+      "list": "on the same day, the options beyond the first unavailable option after the start are refused in the end list",
+      "search": "once per chosen start over the days, up to maxLength days or 366; over the list for the times",
+      "typed": "the day predicate runs over every day between two typed ends and the time predicate over the two ends, once per value change"
+    },
+    "explained": "the limit part names minLength and maxLength while either is set, through the limit.between, limit.atLeast and limit.atMost messages, each duration written by lengthLabel"
+  },
+  "validity": {
+    "owned": "bounds, the day window, unavailable days and times, the order of the two ends, and the duration",
+    "reversed": "an end before its start is invalid on the end field and on the frame; the ends are not swapped",
+    "angularErrors": [
+      "slottedDateTimeRangeMin",
+      "slottedDateTimeRangeMax",
+      "slottedDateTimeRangeUnavailable",
+      "slottedDateTimeRangeOrder",
+      "slottedDateTimeRangeLength"
+    ]
+  },
+  "clear": {
+    "fields": "the two fields do not draw their own clear; one button on the frame empties both ends with reason clear"
+  },
+  "preset": {
+    "reason": "select",
+    "selectedAttribute": "data-selected",
+    "value": "a DateTimeRange, or a function returning one, resolved on press",
+    "invalid": "a preset whose range fails a rule still writes it and the value is invalid; the preset is not hidden"
+  },
+  "wiring": {
+    "aria-haspopup": "dialog",
+    "aria-expanded": "the trigger, while the popup is showing",
+    "aria-controls": "the content, while the popup is showing",
+    "aria-label": "the trigger, carrying both ends and the duration"
+  },
+  "triggerIcon": "calendar",
+  "triggerName": {
+    "empty": "the choose message",
+    "chosen": "the change message, with both ends in words and the duration in its start, end and length slots; changeReversed, without the duration, while the ends are out of order",
+    "why": "Focus returns to the trigger when the popup closes, so the name is where the reader is told what was chosen."
+  },
+  "keyboard": [
+    {
+      "key": "Enter, Space",
+      "effect": "open",
+      "from": "the trigger",
+      "focusTo": "the first segment of the current end's field, or its grid where the field is not drawn"
+    },
+    {
+      "key": "ArrowDown, Alt+ArrowDown",
+      "effect": "open",
+      "from": "the trigger",
+      "focusTo": "the cell of the current end's date, or today when it is empty"
+    },
+    {
+      "key": "ArrowLeft, ArrowRight, Home, End",
+      "effect": "the other tab, with automatic activation: position moves and the panel swaps",
+      "from": "a tab"
+    },
+    {
+      "key": "the field's own keys",
+      "effect": "datetime-field's, unchanged, the relative expression included",
+      "from": "the field"
+    },
+    {
+      "key": "the grid pattern's own keys",
+      "effect": "calendar's, unchanged, including the three views; each move is the pending day and length says the duration",
+      "from": "the calendar"
+    },
+    {
+      "key": "ArrowDown, ArrowUp, Home, End, PageDown, PageUp, a-z0-9",
+      "effect": "time-picker's list keys; each move is the pending end and length says the duration",
+      "from": "the list"
+    },
+    {
+      "key": "Enter, Space",
+      "effect": "writes the half; then the focus rule",
+      "from": "a cell or an option"
+    },
+    {
+      "key": "Enter, Space",
+      "effect": "writes the value",
+      "from": "a preset",
+      "closes": "when closeOnSelect says so"
+    },
+    {
+      "key": "Enter, Space",
+      "effect": "close, emitting a whole work first",
+      "from": "done",
+      "focusTo": "trigger"
+    },
+    {
+      "key": "Escape",
+      "effect": "close",
+      "focusTo": "trigger",
+      "staged": "the relative expression of the field first; the calendar's view; then the panel closes and the work is abandoned"
+    },
+    {
+      "key": "Tab",
+      "effect": "contained",
+      "while": "open",
+      "sequence": "the tabs (one stop), the field, now, presets, the grid as one stop, the list, footer, done"
+    }
+  ],
+  "platformNotes": {
+    "altArrowDown": "ChromeOS turns Alt+ArrowDown into PageDown before the browser sees it, which Angular Material records for its own input. The trigger button is therefore the guaranteed path and the chord is a shortcut, never the only way in."
+  },
+  "dismissal": {
+    "escape": "through dismissable-layer, in the capture phase",
+    "outsidePress": true,
+    "closeOnSelect": "auto closes when the work becomes whole, by a press in the grid or a list, by now or by a preset; always closes on any press that changes the value; never closes on none"
+  },
+  "layer": {
+    "modal": false,
+    "scrollLock": false,
+    "branches": ["the trigger, so pressing it again closes rather than dismissing and reopening"],
+    "depthProperty": "--slotted-layer-depth",
+    "zIndexToken": "--slotted-z-index-popover"
+  },
+  "responsive": {
+    "sheet": "below 480px on a coarse pointer, the content takes the sheet presentation",
+    "decidedIn": "the stylesheet; the DOM does not change",
+    "months": "one by default, where date-range-picker draws two: the list sits beside the grid, and two months beside a list do not fit in 720 pixels without wrapping; a consumer who wants two asks for them",
+    "coarsePointer": "the rows and the tabs stand at the control height the theme raises to --slotted-target-comfortable; the field is not drawn",
+    "sheetList": "four rows and a half under the grid, the only thing that scrolls; the content is capped at 100dvh and scrolls as one when it does not fit, ending with the safe-area inset and done",
+    "presets": "a wrapping row of chips between the head and the panel, at every width"
+  },
+  "portalledIdentity": {
+    "attribute": "data-ui",
+    "on": ["root", "positioner"],
+    "reason": "The family is two subtrees: the control where the consumer wrote it, and the popup portalled to the end of the document. A stylesheet cannot reach a subtree that is no longer inside the root, so data-ui is written on both."
+  },
+  "forms": {
+    "react": ["startName", "endName"],
+    "angular": "ControlValueAccessor writes the whole DateTimeRange; Validator reports the family's own errors",
+    "hiddenInputs": "two, on the frame, because the panel in a portal is not inside the form while it is closed"
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "subtle", "plain"],
+    "placement": ["bottom-start", "bottom", "bottom-end", "top-start", "top", "top-end"],
+    "closeOnSelect": ["auto", "always", "never"],
+    "unavailableOptions": ["disable", "hide"],
+    "hourCycle": [12, 24],
+    "granularity": ["hour", "minute", "second"],
+    "calendar": ["gregory"],
+    "position": ["start", "end"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "placement": ["prop", "defaults", "bottom-start"],
+    "closeOnSelect": ["prop", "defaults", "auto"],
+    "step": ["prop", "defaults", "900"],
+    "maxOptions": ["prop", "defaults", "1440"],
+    "unavailableOptions": ["prop", "defaults", "disable"],
+    "months": ["prop", "defaults", "1"],
+    "locale": ["prop", "slotted", "en-US"],
+    "timeZone": ["prop", "defaults", "runtime"],
+    "hourCycle": ["prop", "defaults", "locale"],
+    "granularity": ["prop", "defaults", "minute"],
+    "calendar": ["prop", "defaults", "gregory"]
+  },
+  "provides": {
+    "dateTimeRangePickerDefaults": [
+      "calendar",
+      "closeOnSelect",
+      "firstDayOfWeek",
+      "granularity",
+      "hourCycle",
+      "lengthLabel",
+      "maxOptions",
+      "months",
+      "placement",
+      "size",
+      "step",
+      "timeZone",
+      "unavailableOptions",
+      "variant"
+    ]
+  },
+  "messages": [
+    "bounds",
+    "change",
+    "changeReversed",
+    "choose",
+    "chooseDay",
+    "chooseTime",
+    "clear",
+    "done",
+    "empty",
+    "end",
+    "length",
+    "limit.between",
+    "limit.atLeast",
+    "limit.atMost",
+    "now",
+    "order",
+    "start",
+    "truncated",
+    "unavailable"
+  ],
+  "imperative": ["focus", "open", "close"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "required": "data-required",
+    "open": "data-open",
+    "current": "data-current",
+    "selected": "data-selected"
+  },
+  "dataAttributes": {
+    "data-position": "on a tab, the field and the panel: start or end",
+    "data-granularity": "hour, minute or second, on the root",
+    "data-calendar": "the calendar axis, on the root",
+    "data-truncated": "on a list: it stops short of the times the configuration asked for, at maxOptions",
+    "data-placement": "the side and alignment the positioner resolved",
+    "data-presentation": "popover or sheet",
+    "data-placeholder": "on summary and on a tab: there is no value and the text is the placeholder",
+    "data-pending": "on length: what is shown is the duration for the pending end, not the work"
+  },
+  "statePrecedence": {
+    "order": ["disabled", "selected", "current", "hover"],
+    "guard": "every weaker rule carries a :not() for each stronger state it can meet, because specificity rather than source order is what decides between them"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "clear", "blur", "programmatic"],
+      "carries": ["value", "previous", "reason", "event"]
+    },
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "outsidePress", "select"],
+      "carries": ["value", "previous", "reason", "event"]
+    },
+    "current": {
+      "position": {
+        "controlled": "position",
+        "uncontrolled": "defaultPosition",
+        "request": "onPositionChange",
+        "reasons": ["pointer", "keyboard", "select", "clear", "programmatic"],
+        "carries": ["value", "previous", "reason", "event"]
+      },
+      "highlighted": {
+        "controlled": "highlighted",
+        "uncontrolled": "defaultHighlighted",
+        "request": "onHighlightedChange",
+        "reasons": ["pointer", "keyboard", "programmatic"],
+        "carries": ["value", "previous", "reason", "event"]
+      }
+    }
+  },
+  "literals": {
+    "--slotted-datetime-range-picker-sheet-inline-size": "100%, which the shared exemption list already holds.",
+    "--slotted-datetime-range-picker-list-block-size": "Eight rows and half of the ninth, counted in the row height the panel states once — the literal time-picker records, for the same reason."
+  },
+  "members": {
+    "dateTimeRangePicker": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "placement": "bottom-start",
+        "closeOnSelect": "auto",
+        "step": 900,
+        "maxOptions": 1440,
+        "unavailableOptions": "disable",
+        "granularity": "minute",
+        "months": 1,
+        "contiguous": true,
+        "calendar": "gregory",
+        "clearable": false
+      },
+      "capabilities": [
+        "value",
+        "open",
+        "current",
+        "placement",
+        "appearance",
+        "size",
+        "content",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "readonly",
+        "required",
+        "open",
+        "current",
+        "selected"
+      ],
+      "parts": [
+        "root",
+        "control",
+        "trigger",
+        "summary",
+        "clear",
+        "hidden-input",
+        "positioner",
+        "content",
+        "grip",
+        "head",
+        "tabs",
+        "tab",
+        "tab-label",
+        "tab-value",
+        "field",
+        "now",
+        "hint",
+        "length",
+        "limit",
+        "presets",
+        "preset",
+        "panel",
+        "date-panel",
+        "list",
+        "option",
+        "option-duration",
+        "empty",
+        "footer",
+        "done"
+      ]
+    }
+  },
+  "scenarios": {
+    "dateTimeRangePicker": [
+      "playground",
+      "panel",
+      "completeness",
+      "length",
+      "limits",
+      "day-window",
+      "unavailable",
+      "months",
+      "now",
+      "presets",
+      "open-end",
+      "sizes",
+      "variants",
+      "states",
+      "forms",
+      "narrow",
+      "composition",
+      "keyboard"
+    ]
+  },
+  "control": {
+    "shape": "one line at the control height: the value written short in the locale, or the placeholder, cut with an ellipsis when it does not fit, a clear, and the trigger that fills the frame",
+    "fieldsInFrame": false,
+    "why": "two datetime fields in one frame need about 360 pixels on one line, a segment cannot shrink, and below that the frame broke into two lines against the control height every form counts on. Withdrawn at the visual gate on the reviewer's reading; a container query could not hide the fields without duplicating them in the panel for typing",
+    "fullName": "the trigger carries both ends in words and the duration, so the ellipsis removes nothing a reader cannot hear"
+  },
+  "head": {
+    "holds": "three rows: the two tabs; the current end's field and now; the hint, then the length and the limit",
+    "current": "data-current and aria-selected on the current tab, painted whenever the panel is open",
+    "fieldsSubmit": "the field carries no name; the two hidden-input parts on the frame submit startName and endName"
+  },
+  "tabs": {
+    "role": "tablist",
+    "tab": "role=\"tab\" on a button, one per end, carrying tab-label and tab-value; aria-selected and data-current on the current end; data-placeholder while the end has no value",
+    "activation": "automatic: ArrowLeft, ArrowRight, Home and End move position with reason keyboard; a press moves it with reason pointer",
+    "value": "the end written short in the locale — \"12 Sep, 14:00\" — a date alone, a time alone, or a dash"
+  },
+  "hint": {
+    "part": "hint",
+    "says": "what the next press should be, or what is wrong: chooseDay while the current end has no date, chooseTime while it has a date and no time; order, length, unavailable or bounds while the work is whole and invalid; empty while the work is whole and valid, when length says the duration",
+    "messages": "chooseDay with {end} for the end's name; chooseTime with {end} and {day} for the day the list serves; order, length, unavailable, bounds",
+    "wiring": "aria-describedby of the list and of the field",
+    "why": "a panel that only refuses — struck rows, a red frame — does not say what can be done; the hint does"
+  },
+  "done": {
+    "part": "done",
+    "label": "the done message",
+    "effect": "closes with reason pointer; a whole work is emitted with reason select before closing; one end alone stays as it is",
+    "always": true,
+    "why": "a sheet that fills the screen has no outside to press and no Escape key; on the desktop it is the way out of an edit left half way"
+  },
+  "field": {
+    "one": "the current end's datetime-field in variant plain, under the tabs, with now beside it",
+    "finePointerOnly": "a segment is a spinbutton, not an input, and raises no keyboard on a phone; the stylesheet does not draw the field under (pointer: coarse)",
+    "writes": "the current end of the work at every request the field emits, with the field's reason; a whole work is emitted as the value"
+  }
+}

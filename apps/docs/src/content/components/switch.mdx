@@ -1,0 +1,62 @@
+---
+title: Switch
+description: Turns a setting on or off, takes effect at once, and can hold its place while the change is saved.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Label and description
+
+The content of the switch is its label: a `label` element that names the control, so a press on the text toggles the switch too. A description sits under the label, outside it, and joins the control's accessible description; a press on it changes nothing. `labelPlacement="start"` puts the label first and the pill at the end of the row, the layout of a settings page; the default, `end`, puts the pill first.
+
+<Example name="placement" />
+
+## Sizes
+
+`size` sets the pill, the thumb and the label to one step: `sm` for dense tables and toolbars, `md` for most forms, `lg` for sparse forms. Inside a field the switch takes the field's size, so one prop sizes the label and the control together.
+
+<Example name="sizes" />
+
+## Indicator
+
+The thumb draws a check when the switch is on, so the state reads without relying on colour or on the thumb's position. `indicator="none"` removes the check; use it only where text beside the switch states the value, as the description does here. Press the second switch to change the store's status.
+
+<Example name="indicator" />
+
+## States
+
+`readOnly` keeps the switch focusable and submitted but refuses every press, and sets `aria-readonly`: use it for a value the reader may see but not change, such as one set by a policy. `disabled` sets the native `disabled`, which takes the switch out of the tab order and out of form submission. A disabled switch keeps its position, so a locked setting still shows which way it is set.
+
+<Example name="states" />
+
+## Controlled
+
+Pass `checked` to own the state. A press calls `onCheckedChange` in React and emits `checkedChange` in Angular, and the switch moves only when you pass the new value back. Here the first switch pauses the alerts below it, which read `disabled` from the same state.
+
+<Example name="controlled" />
+
+## Saving a change
+
+When a change is saved to a server, set `loading` until the save returns and move the switch only when it succeeds. While loading, the thumb draws a turning arc in place of its check, the switch keeps its size and refuses a second press, and the control carries `aria-busy`. A screen reader hears `messages.loading` only if the wait passes two seconds. Press the switch: the save takes 2.5 seconds.
+
+<Example name="loading" />
+
+## Inside a field
+
+A switch inside a field takes the field's identifier, its description, its error and its states with no wiring. The field label names the setting, and the switch label states what turning it on does. `invalid` on the field sets `aria-invalid` on the switch and draws its edge in the danger tone.
+
+<Example name="field" />
+
+## Forms
+
+A switch is a checkbox with the `switch` role, so it submits like one: its `name` with the value `on` when it is on, and nothing when it is off. A form reset returns each switch to its starting state. In Angular, `formControlName` and `ngModel` bind a boolean on the switch. Save the form, change a switch, then reset it.
+
+<Example name="form" />
+
+## Settings list
+
+A settings card lists one switch per row with the label first, so every pill ends on the same edge however long the labels are. A defaults provider sets `labelPlacement`, `size` and `indicator` once for every switch under it: `SwitchDefaultsProvider` in React, `provideSwitchDefaults` in Angular. A switch that states a value of its own keeps it.
+
+<Example name="settings" />

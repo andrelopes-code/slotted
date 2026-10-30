@@ -1,0 +1,405 @@
+{
+  "schemaVersion": 5,
+  "family": "message",
+  "ui": "message",
+  "catalog": {
+    "group": "Data display",
+    "summary": "Chat message with author, bubble and actions."
+  },
+  "pattern": null,
+  "patternAbsent": {
+    "index": "https://www.w3.org/WAI/ARIA/apg/patterns/",
+    "reason": "There is no Authoring Practices pattern for a message in a conversation. Each message is an `article`, the element the Feed Pattern gives each entry and the one a screen reader jumps between; its controls follow the Button pattern.",
+    "feed": "https://www.w3.org/WAI/ARIA/apg/patterns/feed/",
+    "button": "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
+    "toolbar": "https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/"
+  },
+  "sources": {
+    "shadcn": "https://ui.shadcn.com/r/styles/base-nova/message.json",
+    "reui": "https://reui.io/r/c-message-4.json",
+    "aiElements": "https://registry.ai-sdk.dev/message.json",
+    "antDesignX": "https://raw.githubusercontent.com/ant-design/x/main/packages/x/components/bubble/index.en-US.md",
+    "patternfly": "https://raw.githubusercontent.com/patternfly/chatbot/main/packages/module/src/Message/Message.tsx",
+    "chatscope": "https://raw.githubusercontent.com/chatscope/chat-ui-kit-react/master/src/components/Message/Message.jsx"
+  },
+  "rootPart": {
+    "message": "root",
+    "bubble": "bubble"
+  },
+  "rootPartReason": "A bubble nests inside a message and both belong to one family. Two roots written `data-part=\"root\"` under one `data-ui` would make every selector for the row match the surface inside it, so the bubble's root is written `data-part=\"bubble\"`.",
+  "roles": {
+    "root": "article",
+    "group": "none; a div around consecutive articles of one sender",
+    "actions": "toolbar",
+    "activity": "status",
+    "versions": "group",
+    "quote": "none, or button when it asks to jump to the quoted message",
+    "typing": "img",
+    "reactions": "group",
+    "reaction": "button with aria-pressed",
+    "more": "button with aria-expanded",
+    "activity-step": "none; the current step carries aria-current=\"step\"",
+    "retry": "button, named for what it resends",
+    "meta": "none"
+  },
+  "labelling": {
+    "root": "aria-labelledby author",
+    "actions": "aria-label from the actions message",
+    "versions": "aria-label from the versions message",
+    "reactions": "aria-label from the reactions message",
+    "typing": "aria-label from the typing message; a written aria-label wins",
+    "receipt": "the status word, visible or in a visually hidden span"
+  },
+  "inference": {
+    "end": {
+      "variant": "solid",
+      "tone": "accent"
+    },
+    "thread": {
+      "variant": "plain"
+    }
+  },
+  "inferenceReason": "A message at the end is the reader's own, and every surveyed chat paints it in the accent; a thread paints no box. The binding resolves it and writes `data-variant` and `data-tone`, so the DOM always states the painting and a consumer's explicit value still wins.",
+  "statusStates": {
+    "sending": ["loading"],
+    "streaming": ["loading"],
+    "failed": ["invalid"],
+    "read": ["read"]
+  },
+  "receipt": {
+    "part": "receipt",
+    "inside": "bubble › meta, beside the hour, at the end of the last line",
+    "glyphs": {
+      "sending": "clock",
+      "sent": "check",
+      "delivered": "check-check",
+      "read": "check-check"
+    },
+    "word": "visually hidden inside a bubble, read by assistive technology",
+    "readInk": {
+      "solid": "the tone's on-solid ink at full strength",
+      "soft": "--slotted-tone-accent-text"
+    },
+    "failed": "a word in the footer, in the danger ink, lined up with the surface's edge; no mark",
+    "outsideBubble": "a word in the footer, with no mark",
+    "reason": "A mark beside a twelve-pixel word under the bubble read as two voices saying one thing and never shared a centre line. Inside the bubble the hour and the mark share one box of the line's height (WhatsApp, Telegram); the reviewer rejected the caption under the bubble."
+  },
+  "activity": {
+    "part": "activity",
+    "step": "activity-step",
+    "states": {
+      "complete": "a tick in the success ink, words in the muted ink",
+      "current": "the shared ring and a band of light across the words"
+    },
+    "loop": "--slotted-duration-loop-slow",
+    "reducedMotion": "the ring keeps its track and the band stops; the words stand in the plain ink",
+    "reason": "ReUI's `c-message-7` draws one muted line that pulses. A log of steps says what has been done, not only that something is being done; a single step is the same card with one line."
+  },
+  "streaming": {
+    "text": "stream",
+    "chunk": "stream-chunk",
+    "caret": "caret",
+    "engine": "@slotted/core/text-stream",
+    "arrival": "each arrival is split into words; every word is in the DOM at once and its paint enters after a delay of 28 ms per word, compressed so no word waits more than 320 ms",
+    "entrance": "opacity 0 to 1 by 45 %, blur 0.25em to 0, over --slotted-duration-long",
+    "caretShape": "a dot of round(0.6em, 2px), breathing between scale 1 and 0.72 over --slotted-duration-loop",
+    "replacement": "text that does not extend the previous replaces it at once",
+    "reducedMotion": "every arrival lands settled; the dot stands lit",
+    "busy": "aria-busy on the root while sending or streaming",
+    "reason": "A transport serves a reply in bursts: a word, a pause, forty words. Painted as received, the burst lands as a block and the eye reads blocks. The family paints each burst as a short wave without holding any received word back from the DOM; the wave never trails the transport by more than 320 ms. The reviewer rejected the blinking bar and the block landing."
+  },
+  "group": {
+    "part": "group",
+    "avatarColumn": "reserved in every row of a group that holds an avatar, by `:has()`",
+    "corners": "consecutive bubbles flatten the corner on the sender's side to --slotted-radius-sm",
+    "reason": "shadcn asks for an empty avatar slot in every earlier row; Chatscope asks for a position prop per message. A run is a shape the stylesheet can read from the DOM."
+  },
+  "actionsVisibility": {
+    "always": "the actions are painted at rest",
+    "hover": "the actions appear on hover, on focus inside the message, and always under `(hover: none)`",
+    "reason": "A reveal by hover alone hides the actions from the keyboard and from a touch screen."
+  },
+  "versions": {
+    "count": "versionCount",
+    "label": "the versionLabel message, with {current} and {total}",
+    "glyph": "chevron-right",
+    "mirrored": "the previous control turns the chevron, and a right-to-left document turns both",
+    "boundary": "the previous control is disabled at the first version and the next one at the last; no wrap"
+  },
+  "quote": {
+    "part": "quote",
+    "author": "quote-author",
+    "jump": "a quote with `onJump` (React) or `(jump)` (Angular) is a button that asks the page to scroll to the quoted message"
+  },
+  "clamp": {
+    "prop": "maxLines",
+    "property": "-webkit-line-clamp",
+    "part": "more",
+    "measured": "the binding shows `more` only while the content overflows its clamp, read by a ResizeObserver",
+    "reason": "Truncation never removes content: the whole text stays in the DOM for copying, finding in the page and assistive technology."
+  },
+  "reactions": {
+    "part": "reactions",
+    "item": "reaction",
+    "count": "reaction-count",
+    "placement": "straddles the bubble's lower edge on the sender's side; the bubble reserves half of the row's height below it",
+    "reason": "shadcn's row hangs three quarters outside the bubble and its example needs a 32-pixel gap so the row does not land on the next message."
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next target: a reaction, the more control, a quote that jumps, an action, a version control",
+      "focus": "the next focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous target under the same rule",
+      "focus": "the previous focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "activates the focused control",
+      "focus": "stays on the control",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "activates the focused control",
+      "focus": "stays on the control",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "on a version control, shows the next version; the previous one in a right-to-left document; no wrap",
+      "focus": "stays on the control",
+      "source": "family"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "on a version control, shows the previous version; the next one in a right-to-left document; no wrap",
+      "focus": "stays on the control",
+      "source": "family"
+    }
+  ],
+  "rovingTabindex": false,
+  "rovingReason": "A message holds up to six targets and a conversation holds hundreds; a composite with arrow keys would hide the actions behind a mode, which is what `attachment` and `list-item` decided for the same shape.",
+  "composesFamilies": ["avatar", "button", "icon"],
+  "declined": {
+    "attachments": {
+      "reason": "A file in a message is `attachment`, placed in the body: `<MessageBody><AttachmentGroup>…</AttachmentGroup><Bubble>…</Bubble></MessageBody>`.",
+      "deferTo": "attachment"
+    },
+    "editing": {
+      "reason": "Editing a sent message is the composer's field in the bubble's place: `{editing ? <Textarea defaultValue={text} /> : <Bubble>…</Bubble>}`. Whether a message is being edited belongs to the product."
+    },
+    "emptyState": {
+      "reason": "A conversation with no messages is the page's result state: `{messages.length ? <MessageScroller>…</MessageScroller> : <ResultState status=\"empty\" … />}`.",
+      "deferTo": "result-state"
+    },
+    "systemMessage": {
+      "reason": "A line the system writes (someone joined, a call ended) is a separator or an activity row of `message-scroller`, not a message with no sender."
+    },
+    "typewriter": {
+      "reason": "Ant Design X replays received text at a pace of its own. The transport already streams; a family that holds text back shows less than it has."
+    }
+  },
+  "axes": {
+    "align": ["start", "end"],
+    "layout": ["bubble", "thread"],
+    "actionsVisibility": ["always", "hover"],
+    "status": ["sending", "sent", "delivered", "read", "failed", "streaming"],
+    "variant": ["solid", "soft", "outline", "plain"],
+    "tone": ["accent", "secondary", "info", "success", "warning", "danger"]
+  },
+  "resolution": {
+    "align": ["prop", "start"],
+    "layout": ["prop", "group", "defaults", "bubble"],
+    "actionsVisibility": ["prop", "defaults", "hover"],
+    "variant": ["prop", "message", "defaults", "soft"],
+    "tone": ["prop", "message", "defaults", "secondary"]
+  },
+  "provides": {
+    "messageDefaults": ["layout", "actionsVisibility", "variant", "tone"]
+  },
+  "messages": [
+    "actions",
+    "delivered",
+    "failed",
+    "less",
+    "more",
+    "nextVersion",
+    "previousVersion",
+    "reactions",
+    "read",
+    "retry",
+    "sending",
+    "sent",
+    "streaming",
+    "typing",
+    "versionLabel",
+    "versions"
+  ],
+  "dataAttributes": {
+    "root": ["data-align", "data-layout", "data-status", "data-actions"],
+    "bubble": ["data-variant", "data-tone", "data-interactive"],
+    "content": ["data-clamped"],
+    "receipt": ["data-status"]
+  },
+  "stateAttributes": {
+    "loading": "data-loading",
+    "invalid": "data-invalid",
+    "read": "data-read",
+    "pressed": "data-pressed",
+    "revealed": "data-revealed",
+    "disabled": "data-disabled",
+    "complete": "data-complete",
+    "current": "data-current"
+  },
+  "stateModel": {
+    "current": {
+      "controlled": "version",
+      "uncontrolled": "defaultVersion",
+      "request": "onVersionChange",
+      "reasons": ["pointer", "keyboard"]
+    },
+    "pressed": {
+      "controlled": "pressed",
+      "uncontrolled": "defaultPressed",
+      "request": "onPressedChange",
+      "reasons": ["pointer", "keyboard"]
+    },
+    "revealed": {
+      "controlled": "revealed",
+      "uncontrolled": "defaultRevealed",
+      "request": "onRevealedChange",
+      "reasons": ["pointer", "keyboard"]
+    }
+  },
+  "stateModelReason": {
+    "current": "The version of a reply on screen: which alternative the reader is on. `versionCount` says how many exist; the content of each is the consumer's.",
+    "pressed": "One reaction the reader has given. The count is the consumer's, from its store.",
+    "revealed": "A long bubble shown whole after it was clamped."
+  },
+  "members": {
+    "message": {
+      "nativeElement": "article",
+      "defaults": {
+        "align": "start",
+        "layout": "bubble",
+        "actionsVisibility": "hover",
+        "defaultVersion": 0
+      },
+      "capabilities": ["appearance", "arrangement", "content", "status", "current"],
+      "states": [
+        "default",
+        "hover",
+        "focus-visible",
+        "loading",
+        "invalid",
+        "read",
+        "complete",
+        "current"
+      ],
+      "parts": [
+        "root",
+        "group",
+        "avatar",
+        "body",
+        "header",
+        "author",
+        "time",
+        "footer",
+        "receipt",
+        "actions",
+        "activity",
+        "activity-step",
+        "versions",
+        "version-previous",
+        "version-label",
+        "version-next"
+      ]
+    },
+    "bubble": {
+      "nativeElement": "div",
+      "defaults": {
+        "variant": "soft",
+        "tone": "secondary",
+        "defaultRevealed": false
+      },
+      "capabilities": ["appearance", "content", "focusable", "pressed", "revealed", "disabled"],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "pressed",
+        "revealed",
+        "loading",
+        "disabled"
+      ],
+      "parts": [
+        "root",
+        "content",
+        "meta",
+        "quote",
+        "quote-author",
+        "more",
+        "stream",
+        "stream-chunk",
+        "caret",
+        "typing",
+        "retry",
+        "reactions",
+        "reaction",
+        "reaction-count"
+      ]
+    }
+  },
+  "scenarios": {
+    "overview": ["anatomy", "conversation", "thread", "composition", "accessibility"],
+    "message": [
+      "playground",
+      "align",
+      "avatar",
+      "group",
+      "header",
+      "receipt",
+      "actions",
+      "activity",
+      "versions",
+      "layout"
+    ],
+    "bubble": [
+      "playground",
+      "variants",
+      "tones",
+      "interactive",
+      "quote",
+      "clamp",
+      "streaming",
+      "typing",
+      "reactions",
+      "content"
+    ]
+  },
+  "retry": {
+    "part": "retry",
+    "member": "bubble",
+    "placement": "beside the surface on the side away from the sender, centred on the last line",
+    "glyph": "rotate-ccw",
+    "request": {
+      "react": "onRetry",
+      "angular": "(retry)"
+    },
+    "reason": "A red rim round an accent bubble read as a second, clashing bubble, and a faded fill dropped the white words under 4.5:1. The control beside the surface says the message did not go and is the way to send it again, as iMessage places it; the receipt says it in words."
+  },
+  "meta": {
+    "part": "meta",
+    "member": "bubble",
+    "layout": "a float at the end of the words: it shares the last line when there is room and takes a line of its own at the end when there is not",
+    "ink": "the bubble's ink at 90%, the lowest share that keeps 4.5:1 on every fill (4.50 on the dark accent)",
+    "box": "the line rounded down to an even length, so the 14-pixel digits and the 14-pixel mark centre on whole pixels"
+  }
+}

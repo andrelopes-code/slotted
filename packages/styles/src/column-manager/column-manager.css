@@ -1,0 +1,444 @@
+@layer slotted.components {
+  /**
+   * The panel that edits a grid's column state.
+   *
+   *   ┌─────────────────────────────────────────────┐
+   *   │ header ▸ title · summary                    │
+   *   │ search ▸ text-field (icon)                  │
+   *   ├─────────────────────────────────────────────┤
+   *   │ list ▸ section ▸ section-label              │
+   *   │          item ▸ handle · visibility · pin   │
+   *   │                  (checkbox ▸ label, status, │
+   *   │                   description)             │
+   *   │          drop-indicator                     │
+   *   │        empty                                │
+   *   ├─────────────────────────────────────────────┤
+   *   │ footer ▸ show-all · reset · cancel · apply  │
+   *   └─────────────────────────────────────────────┘
+   *
+   * The checkbox, the text field, the buttons and the pin menu are their
+   * families', and so are the glyphs: the magnifier, the grip and the pin are
+   * each an `icon` holding the library's `Glyph`, drawn by the binding and
+   * coloured by the control it stands in. Every part of this family is reached from the root with child
+   * combinators, because the checkbox has a `description` and a `label` of its
+   * own, and the buttons a `label`: a descendant rule would restyle theirs.
+   *
+   * Density is answered through the control geometry: the inset is the md
+   * control's inline padding and a row's air is the sm control's gap, so a
+   * dense panel is tighter by the amount a dense control is.
+   */
+  [data-ui-column-manager] {
+    --_text: var(--slotted-text, CanvasText);
+    --_muted: var(--slotted-text-muted, GrayText);
+    --_rule: var(--slotted-border-subtle, ButtonBorder);
+    --_hover: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+    --_active: var(--slotted-tone-secondary-subtle-active, ButtonFace);
+    --_inset: var(--slotted-control-padding-inline-md, 13px);
+    --_row-block: var(--slotted-control-gap-sm, 6px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_line-height: var(--slotted-line-height-md, 1.5);
+    /* The checkbox's label line: the family's controls centre on it. */
+    --_line: calc(var(--_font-size) * var(--_line-height));
+    --_glyph: var(--slotted-control-icon-size-sm, 14px);
+    --_control: min(
+      calc(var(--_glyph) + 2 * var(--slotted-space-2, 0.25rem)),
+      var(--slotted-control-inner-size-md, 24px)
+    );
+    --_radius: var(--slotted-radius-sm, 4px);
+    --_duration: var(--slotted-control-transition-duration);
+    --_easing: var(--slotted-control-transition-easing);
+    --_inline-size: var(--slotted-column-manager-inline-size, 22rem);
+    --_list-max: var(--slotted-column-manager-list-max-block-size, min(60vh, 28rem));
+
+    box-sizing: border-box;
+    color: var(--_text);
+    display: grid;
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    line-height: var(--_line-height);
+    max-block-size: 100%;
+    min-inline-size: 0;
+    text-align: start;
+    /* The footer regroups its four actions in two rows below 20rem. */
+    container-name: column-manager;
+    container-type: inline-size;
+  }
+
+  /**
+   * In a popover the root is the panel's one child and states its own width;
+   * the popover's lg measure is the cap around it, and the positioner's room
+   * the cap around that.
+   */
+  [data-ui-column-manager][data-presentation='popover'] {
+    /* The layer sizes to its content, so a percentage here would read a
+       width the root itself decides. The positioner's room, less the layer's
+       own inset, is the cap a narrow viewport needs. */
+    inline-size: min(
+      var(--_inline-size),
+      calc(var(--slotted-positioner-available-width, 100vw) - var(--slotted-space-8, 1.5rem))
+    );
+  }
+
+  /** In a drawer the root fills the panel and the list takes what is left. */
+  [data-ui-column-manager][data-presentation='drawer'] {
+    block-size: 100%;
+    inline-size: 100%;
+  }
+
+  [data-ui-column-manager][data-presentation='inline'] {
+    inline-size: 100%;
+  }
+
+  [data-ui-column-manager] > [data-part-header] {
+    align-items: baseline;
+    column-gap: var(--_gap);
+    display: flex;
+    flex-wrap: wrap;
+    padding-block: var(--_inset) var(--slotted-space-4, 0.5rem);
+    padding-inline: var(--_inset);
+  }
+
+  [data-ui-column-manager] > [data-part-header] > [data-part-title] {
+    color: var(--_text);
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--slotted-font-size-md, 0.875rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  [data-ui-column-manager] > [data-part-header] > [data-part-summary] {
+    color: var(--_muted);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--slotted-line-height-sm, 1.45);
+    margin-inline-start: auto;
+    white-space: nowrap;
+  }
+
+  [data-ui-column-manager] > [data-part-search] {
+    padding-block-end: var(--_gap);
+    padding-inline: var(--_inset);
+  }
+
+  [data-ui-column-manager] > [data-part-search] > [data-ui-text-field] {
+    inline-size: 100%;
+  }
+
+  /**
+   * The rows scroll between two rules; the search and the footer stay put. A
+   * popover and an inline host bound the list; a drawer gives it the rest of
+   * the panel.
+   */
+  [data-ui-column-manager] > [data-part-list] {
+    border-block: var(--slotted-border-width-thin, 1px) solid var(--_rule);
+    max-block-size: var(--_list-max);
+    min-block-size: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-column-manager][data-presentation='drawer'] > [data-part-list] {
+    max-block-size: none;
+  }
+
+  [data-ui-column-manager] > [data-part-list] > [data-part-section] {
+    padding-block: var(--slotted-space-2, 0.25rem);
+    position: relative;
+  }
+
+  [data-ui-column-manager] > [data-part-list] > [data-part-section] + [data-part-section] {
+    border-block-start: var(--slotted-border-width-thin, 1px) solid var(--_rule);
+  }
+
+  [data-ui-column-manager] > [data-part-list] > [data-part-section] > [data-part-section-label] {
+    color: var(--_muted);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    line-height: var(--slotted-line-height-xs, 1.4);
+    padding-block: var(--slotted-space-3, 0.375rem) var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_inset);
+  }
+
+  /**
+   * A section alone needs no heading on screen — "Columns" under "Columns" —
+   * but the group keeps its name, so the label is read and not shown.
+   */
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section][data-sole]
+    > [data-part-section-label] {
+    block-size: 1px;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  /**
+   * A row: the handle, the checkbox, the pin. The two controls stand on the
+   * checkbox's first line, so a column with a description keeps them level
+   * with its name rather than with the middle of two lines.
+   */
+  [data-ui-column-manager] > [data-part-list] > [data-part-section] > [data-part-item] {
+    align-items: start;
+    column-gap: var(--slotted-space-2, 0.25rem);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding-block: var(--_row-block);
+    padding-inline: calc(var(--_inset) - var(--slotted-space-2, 0.25rem));
+    position: relative;
+    transition: opacity var(--_duration) var(--_easing);
+  }
+
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item][data-dragging] {
+    opacity: 0.5;
+  }
+
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item]
+    > :is([data-part-handle], [data-part-pin]) {
+    align-items: center;
+    background-color: transparent;
+    block-size: var(--_control);
+    border: 0;
+    border-radius: var(--_radius);
+    color: var(--_muted);
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--_control);
+    justify-content: center;
+    margin: 0;
+    margin-block: calc((var(--_line) - var(--_control)) / 2);
+    padding: 0;
+    transition:
+      background-color var(--_duration) var(--_easing),
+      color var(--_duration) var(--_easing);
+  }
+
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item]
+    > [data-part-handle] {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  /* A pinned column's pin is in the accent ink: the zone it is in is also the
+     section it stands under, so the colour is the second of two signals. */
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item]
+    > [data-part-pin][data-pinned] {
+    color: var(--slotted-tone-accent-text, LinkText);
+  }
+
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item]
+    > :is([data-part-handle], [data-part-pin]):not([data-disabled]):hover,
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item]
+    > [data-part-pin][data-open]:not([data-disabled]) {
+    background-color: var(--_hover);
+    color: var(--_text);
+  }
+
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item]
+    > :is([data-part-handle], [data-part-pin]):not([data-disabled]):active {
+    background-color: var(--_active);
+  }
+
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item]
+    > :is([data-part-handle], [data-part-pin]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid
+      var(--slotted-focus-ring-color, currentColor);
+    outline-offset: calc(var(--slotted-focus-ring-width, 2px) * -1);
+  }
+
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item]
+    > [data-part-handle][data-disabled] {
+    color: var(--slotted-disabled-foreground, GrayText);
+    cursor: default;
+  }
+
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item][data-dragging]
+    > [data-part-handle] {
+    cursor: grabbing;
+  }
+
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item]
+    > [data-part-visibility] {
+    display: block;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    padding-inline: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item]
+    > [data-part-visibility]
+    [data-part-description] {
+    text-wrap: pretty;
+  }
+
+  /**
+   * Why a box does not do what the reader expects: Required beside a locked
+   * column, Hidden for space beside one the grid dropped. It sits in the
+   * checkbox's label, so it is heard with the name, a step down in size and
+   * ink so the name still reads first.
+   */
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item]
+    > [data-part-visibility]
+    [data-part-status] {
+    color: var(--_muted);
+    display: inline-block;
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+  }
+
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-item][data-space-hidden]
+    > [data-part-visibility]
+    [data-part-status] {
+    color: var(--slotted-tone-warning-text, CanvasText);
+  }
+
+  /**
+   * Where a pointer drop would land: a line of no height between two rows, so
+   * nothing moves while the reader aims. It is drawn in the section's inset
+   * and in the accent solid, the colour the grid's own drop line takes.
+   */
+  [data-ui-column-manager] > [data-part-list] > [data-part-section] > [data-part-drop-indicator] {
+    block-size: 0;
+    pointer-events: none;
+    position: relative;
+  }
+
+  [data-ui-column-manager]
+    > [data-part-list]
+    > [data-part-section]
+    > [data-part-drop-indicator]::before {
+    background-color: var(--slotted-tone-accent-solid);
+    block-size: var(--slotted-border-width-thick, 2px);
+    border-radius: var(--slotted-radius-full, 9999px);
+    content: '';
+    inset-block-start: calc(var(--slotted-border-width-thick, 2px) / -2);
+    inset-inline: var(--_inset);
+    position: absolute;
+  }
+
+  [data-ui-column-manager] > [data-part-list] > [data-part-section][data-drop-target] {
+    background-color: var(--_hover);
+  }
+
+  [data-ui-column-manager] > [data-part-list] > [data-part-empty] {
+    color: var(--_muted);
+    padding-block: var(--slotted-space-8, 1.5rem);
+    padding-inline: var(--_inset);
+    text-align: center;
+  }
+
+  [data-ui-column-manager] > [data-part-footer] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--_gap);
+    padding: var(--_inset);
+  }
+
+  [data-ui-column-manager] > [data-part-footer] > :is([data-part-show-all], [data-part-reset]) {
+    flex: none;
+  }
+
+  /* Cancel and Apply stand at the end, away from the two that act at once. */
+  [data-ui-column-manager] > [data-part-footer] > [data-part-cancel] {
+    margin-inline-start: auto;
+  }
+
+  [data-ui-column-manager] > [data-part-footer] > [data-part-apply] {
+    flex: none;
+  }
+
+  /**
+   * Below 20rem the four actions stand two by two — the pair that acts at once
+   * over the pair that settles the draft — rather than wrapping one by one.
+   */
+  @container column-manager (max-width: 20rem) {
+    [data-ui-column-manager] > [data-part-footer] {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    [data-ui-column-manager] > [data-part-footer] > [data-part-cancel] {
+      margin-inline-start: 0;
+    }
+  }
+
+  /**
+   * The trigger is the consumer's button, usually another family's root, so it
+   * is reached by the attribute this family writes on it rather than by a
+   * part it could not keep. The count is a chip beside the words, in the
+   * accent pair, as the notification centre draws an unread count.
+   */
+  [data-part-trigger][data-column-manager-trigger],
+  [data-column-manager-trigger] {
+    --_count-size: var(--slotted-font-size-xs, 0.75rem);
+  }
+
+  [data-column-manager-trigger] [data-part-count] {
+    background-color: var(--slotted-tone-accent-surface, Canvas);
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-sizing: border-box;
+    color: var(--slotted-tone-accent-text, LinkText);
+    display: inline-block;
+    font-size: var(--_count-size);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: calc(var(--_count-size) + 2 * var(--slotted-space-1, 0.125rem));
+    margin-inline-start: var(--slotted-space-3, 0.375rem);
+    min-inline-size: calc(var(--_count-size) + 2 * var(--slotted-space-2, 0.25rem));
+    padding-inline: var(--slotted-space-2, 0.25rem);
+    text-align: center;
+  }
+}

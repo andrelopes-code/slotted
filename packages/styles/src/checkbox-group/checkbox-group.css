@@ -1,0 +1,70 @@
+@layer slotted.components {
+  /**
+   * ── A set of choices, and the array behind it ──────────────────────────
+   *
+   * The group arranges the checkboxes and holds the value; every box draws
+   * itself, because `checkbox` is the family beside this one rather than a part
+   * of it. Nothing here selects into that family: a rule reaching
+   * `[data-ui-checkbox]` from this stylesheet would make one family's DOM part
+   * of another's contract, and moving a box inside a wrapper would then change
+   * its appearance with no test to notice.
+   *
+   * Where nothing else has grouped them the root carries `role="group"`. Inside
+   * a `field-group` it carries none: a `fieldset` with a `legend` is already a
+   * named group, and a second one named by the same legend is the same group
+   * announced twice.
+   */
+  [data-ui-checkbox-group][data-part-root] {
+    --_gap: var(--slotted-control-gap-md, 8px);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-checkbox-group-gap, var(--_gap));
+  }
+
+  /**
+   * A choice that carries a description is two rows tall, and one control gap
+   * between two of them puts a description as near the next label as its own.
+   * Proximity then names the wrong owner, which is the whole of what proximity
+   * is for. The distance doubles exactly where the second row exists, so a
+   * column of bare labels keeps the tighter rhythm it reads well at.
+   *
+   * It is the same doubling the horizontal rule below already applies, and for
+   * the same stated reason: two choices have to read as further apart than a
+   * box and its own label.
+   */
+  [data-ui-checkbox-group][data-part-root]:has([data-part-description]) {
+    row-gap: var(--slotted-checkbox-group-gap, calc(var(--_gap) * 2));
+  }
+
+  /**
+   * Horizontal wraps rather than scrolls or clips. A row of choices that runs
+   * past the container is a row whose last option nobody can see.
+   */
+  [data-ui-checkbox-group][data-part-root][data-orientation='horizontal'] {
+    /** Twice the control gap: two choices have to read as further apart than a
+        box and its own label. */
+    column-gap: calc(var(--_gap) * 2);
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────
+   *
+   * The group holds no type of its own; the step it carries is the gap between
+   * its items, and the boxes take their own step from the value the group hands
+   * them through the binding rather than through a descendant selector.
+   */
+
+  [data-ui-checkbox-group][data-part-root][data-size='sm'] {
+    --_gap: var(--slotted-control-gap-sm, 6px);
+  }
+
+  [data-ui-checkbox-group][data-part-root][data-size='md'] {
+    --_gap: var(--slotted-control-gap-md, 8px);
+  }
+
+  [data-ui-checkbox-group][data-part-root][data-size='lg'] {
+    --_gap: var(--slotted-control-gap-lg, 8px);
+  }
+}

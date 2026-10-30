@@ -1,0 +1,565 @@
+@layer slotted.components {
+  /**
+   * ── The segmented date control ─────────────────────────────────────────
+   *
+   * The same frame `text-field` draws, holding a row of spin buttons instead
+   * of one `input`. The frame carries no role: `role="group"` is on the row,
+   * because the APG's spin-button example names the group as what tells a
+   * screen-reader user that three buttons are one date.
+   *
+   * There is no `input[type=date]` under any of it. The browser's own control
+   * cannot be styled, cannot be given a calendar of the application's, and
+   * takes its field order from the browser's locale rather than the
+   * application's — so the value reaches a form through a hidden input, which
+   * is the decision `currency-field` already took for a number.
+   */
+  [data-ui-date-field][data-part-root] {
+    /**
+     * Type, height, inline padding, gap and glyph size come from the control
+     * scales — the only ones the theme restates per density — so a date in a
+     * dense table shrinks whole rather than in parts.
+     */
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_icon-floor: var(--slotted-date-field-icon-size-min, 14px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-md, 16px));
+
+    /* The same inner-control box every family in the library draws: the glyph,
+       and one step of air on each side, bounded by the frame's own height. */
+    --_action-size: var(
+      --slotted-date-field-action-size,
+      min(
+        calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)),
+        calc(
+          var(--_height) - var(--slotted-control-border-width, 1px) * 2 -
+            var(--slotted-space-2, 0.25rem)
+        )
+      )
+    );
+
+    align-items: center;
+    background-color: var(--slotted-date-field-background, var(--slotted-control-surface, Field));
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-date-field-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--slotted-date-field-radius, var(--slotted-control-radius, 4px));
+    box-shadow: var(--slotted-date-field-shadow, var(--slotted-control-shadow, none));
+    box-sizing: border-box;
+    color: var(--slotted-date-field-color, var(--slotted-text, CanvasText));
+    display: flex;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    gap: var(--_gap);
+    /* In a flex row the item's basis is its content, not the whole row. */
+    flex-basis: content;
+    inline-size: 100%;
+    min-block-size: var(--_height);
+    min-inline-size: 0;
+    padding-inline: var(--_padding-inline);
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * The button inside the frame is inset by its own gutter less than the value
+   * is, so the *glyph* ends the same distance from the border as the digits
+   * begin from it — the arithmetic `text-field` records, holding at every step
+   * and every density.
+   */
+  [data-ui-date-field][data-part-root]:has(> [data-part-clear]:last-child) {
+    padding-inline-end: max(
+      0px,
+      calc(var(--_padding-inline) - (var(--_action-size) - var(--_icon-size)) / 2)
+    );
+  }
+
+  /**
+   * The row of segments. It takes the whole of the space the adornments leave
+   * and puts the date at the reading edge, so an empty field and a full one
+   * start in the same place.
+   */
+  [data-ui-date-field] [data-part-segments] {
+    align-items: center;
+    /**
+     * It says what it is before it is pressed. A date is typed, so the pointer
+     * over it is a caret — and the row rather than only the segments, because
+     * the gap between two fields and the air at either end are part of the
+     * control the reader is aiming at.
+     */
+    cursor: text;
+    display: flex;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    /**
+     * One line, whatever the frame's width. The fields keep their digits and
+     * the row is clipped at the frame's edge, the way a text input clips a
+     * value longer than itself; a field the reader steps into is scrolled into
+     * view, because a clipped box is still a scroll container to the focus.
+     * Read on a 130-pixel column: the row ran under the button beside it and
+     * `dd` was drawn over `yyyy`.
+     */
+    overflow: hidden;
+    /* Digits that do not shift under one another as a value is typed over, and
+       a date whose three fields keep their columns while the reader steps. */
+    font-variant-numeric: tabular-nums;
+  }
+
+  /**
+   * One field of the date.
+   *
+   * Its width is stated rather than measured, so the row does not move when a
+   * single digit becomes two: `1ch` is the advance of a digit in a tabular
+   * face, and `--_digits` is how many the field can hold. A segment showing
+   * `9` and one showing `09` therefore occupy the same column, and the two
+   * separators never step sideways under the pointer.
+   */
+  [data-ui-date-field] [data-part-segment] {
+    --_digits: 2;
+
+    background-color: transparent;
+    cursor: text;
+    border-radius: var(--slotted-date-field-segment-radius, var(--slotted-radius-xs, 2px));
+    box-sizing: content-box;
+    color: inherit;
+    /* The caret belongs to no segment: the whole field is replaced by typing,
+       and a caret between two digits would offer an edit the family refuses. */
+    caret-color: transparent;
+    font: inherit;
+    /* A field never shrinks under its digits: a row narrower than its value
+       overflows and is clipped at the frame, the way an input clips text. A
+       flex item shrunk to its minimum drew `mm` as `mr`. */
+    flex: 0 0 auto;
+    min-inline-size: var(--slotted-date-field-segment-min-inline-size, calc(var(--_digits) * 1ch));
+    padding-inline: var(
+      --slotted-date-field-segment-padding-inline,
+      var(--slotted-space-1, 0.125rem)
+    );
+    text-align: center;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    /* A spin button is operated by keys and by the pointer; nothing in it is
+       text a reader selects, and a drag across it would look like one. */
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-date-field] [data-part-segment][data-field='year'] {
+    --_digits: 4;
+  }
+
+  /**
+   * A field with no value yet. It is muted rather than hidden, because the
+   * placeholder is the format — `dd/mm/aaaa` to a Brazilian reader, in the
+   * reader's own words rather than in English — and a date being typed has to
+   * keep saying what is still missing.
+   */
+  [data-ui-date-field] [data-part-segment][data-placeholder] {
+    color: var(--slotted-date-field-placeholder-color, var(--slotted-text-muted, GrayText));
+  }
+
+  /**
+   * The separator the locale writes. It is decoration: the group's accessible
+   * name already carries the whole date in words, so a screen reader reading
+   * "slash" between two numbers would be reading punctuation aloud.
+   */
+  [data-ui-date-field] [data-part-literal] {
+    color: var(--slotted-date-field-literal-color, var(--slotted-text-muted, GrayText));
+    flex: 0 0 auto;
+    /* Its own bidi run: a slash between two numbers takes the paragraph's
+       direction, and in a right-to-left document the date read back to front. */
+    unicode-bidi: plaintext;
+    user-select: none;
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────
+   *
+   * Three steps, matching the field the control sits in. A `size="sm"` field
+   * holding an `md` control is a field and a control disagreeing about one row.
+   */
+
+  [data-ui-date-field][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-sm, 14px));
+  }
+
+  [data-ui-date-field][data-part-root][data-size='md'] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-md, 16px));
+  }
+
+  [data-ui-date-field][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 16px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+    --_icon-size: max(var(--_icon-floor), var(--slotted-control-icon-size-lg, 18px));
+  }
+
+  /* ── Variant ──────────────────────────────────────────────────────────
+   *
+   * The three steps `text-field` set, so a form holding a name and a date
+   * shows one frame twice rather than two frames.
+   */
+
+  [data-ui-date-field][data-part-root][data-variant='subtle'] {
+    background-color: var(
+      --slotted-date-field-subtle-background,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    border-color: var(
+      --slotted-date-field-subtle-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+  }
+
+  [data-ui-date-field][data-part-root][data-variant='plain'] {
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: var(--slotted-radius-none, 0px);
+    box-shadow: none;
+  }
+
+  /* ── Adornments ───────────────────────────────────────────────────────
+   *
+   * Named for the reading direction rather than for a side, and quieter than
+   * the value: an adornment annotates, and a reader looking for the date
+   * should not have to step over it.
+   */
+  [data-ui-date-field] > [data-part-start],
+  [data-ui-date-field] > [data-part-end] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    color: var(--slotted-date-field-adornment-color, var(--slotted-text-muted, GrayText));
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: var(--slotted-space-2, 0.25rem);
+    line-height: 1;
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-date-field] > [data-part-start] > svg,
+  [data-ui-date-field] > [data-part-end] > svg {
+    block-size: var(--_icon-size);
+    inline-size: var(--_icon-size);
+  }
+
+  /* ── The clear button ─────────────────────────────────────────────────
+   *
+   * A real button, with the `Glyph` element the binding renders rather than a
+   * character, and held to the target minimum by the family rather than by the
+   * page.
+   */
+  [data-ui-date-field] > [data-part-clear] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_action-size);
+    border: 0;
+    border-radius: var(--slotted-date-field-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-date-field-action-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    inline-size: var(--_action-size);
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /**
+   * The hit area, recovered outside the paint. At `sm` with `dense` the whole
+   * control is 24 pixels tall — the WCAG 2.2 minimum — so nothing drawn inside
+   * it can also be 24. This grows the target back in both axes and leaves a
+   * larger one alone, which is the correction `docs/token-foundation.md`
+   * leaves to the family rather than to the theme.
+   */
+  [data-ui-date-field] > [data-part-clear]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: the ground and the focus ring stay square, and
+     the hit area above grows to 44 pixels around them. After an end
+     adornment — a picker's trigger — it does not reach back across it. */
+  @media (pointer: coarse) {
+    [data-ui-date-field] > [data-part-clear]::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+    }
+
+    [data-ui-date-field] > [data-part-end] + [data-part-clear]::after {
+      inset-inline-start: 0;
+    }
+  }
+
+  /* The cross is drawn at the control's own icon step. */
+  [data-ui-date-field] > [data-part-clear] {
+    --slotted-icon-size: var(--_icon-size);
+  }
+
+  [data-ui-date-field] > [data-part-clear]:hover:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-date-field-action-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-date-field] > [data-part-clear]:active:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-date-field-action-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  /**
+   * The button carries its own ring rather than borrowing the frame's. Tabbing
+   * from the last segment to the clear button has to move something visible,
+   * and a ring around the whole frame would sit still while focus moved inside
+   * it.
+   */
+  [data-ui-date-field] > [data-part-clear]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* ── States ───────────────────────────────────────────────────────────
+   *
+   * Written strongest last, and each weaker one guarded against every stronger
+   * one it can meet, which is the order `STATE_PRECEDENCE` sets.
+   */
+
+  [data-ui-date-field][data-part-root]:hover:not([data-disabled]):not([data-readonly]):not(
+      [data-invalid]
+    ) {
+    border-color: var(--slotted-date-field-hover-border-color, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-date-field][data-part-root][data-variant='subtle']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid]) {
+    background-color: var(
+      --slotted-date-field-subtle-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-date-field][data-part-root][data-variant='plain']:hover:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid]) {
+    background-color: var(
+      --slotted-date-field-plain-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    border-color: transparent;
+  }
+
+  /**
+   * Focus is two marks and they answer two different questions.
+   *
+   * The frame's ring says the control has the reader's attention, exactly as
+   * every other control in the library says it. The band on one segment says
+   * which of the three fields a key will move, and no ring can say that: a
+   * second outline two pixels inside the first would be two rings nested, and
+   * at `dense` there is not room for two.
+   *
+   * So the segment takes the accent solid and its own ink. Under forced
+   * colours the accent tone maps to `Highlight` and `HighlightText`, which is
+   * the one pair the operating system guarantees legible together.
+   *
+   * Both are `:focus` and not `:focus-visible`, and that is the whole reason a
+   * reader could press this control and see nothing happen. A browser matches
+   * `:focus-visible` on a text input for a pointer press as well as for a Tab —
+   * the caret has to show either way — but it refuses it for a `div` that a
+   * pointer focused, and every part of this control is a `div`. Painted on
+   * `:focus-visible`, a clicked field answered a keystroke and looked exactly
+   * as it had before the press.
+   */
+  [data-ui-date-field][data-part-root]:has([data-part-segment]:focus) {
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-control-focus-ring-offset, var(--slotted-focus-ring-offset, 2px));
+  }
+
+  /**
+   * The ring of a control whose box is not its own is drawn inside that box,
+   * the way the inner controls draw theirs inside the frame: two pixels past
+   * the control is two pixels over the next row's rule. No lift either — a
+   * shadow that appears only under focus is a cell that changes size when it
+   * is used.
+   */
+  [data-ui-date-field][data-part-root][data-variant='plain']:has([data-part-segment]:focus) {
+    box-shadow: none;
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-date-field] [data-part-segment]:focus {
+    background-color: var(
+      --slotted-date-field-segment-focus-background,
+      var(--slotted-tone-accent-solid)
+    );
+    color: var(--slotted-date-field-segment-focus-color, var(--slotted-tone-accent-on-solid));
+    /* The frame already draws the ring, so the segment does not draw a second. */
+    outline: none;
+  }
+
+  /**
+   * Invalid outranks hover and is written after it: a control reporting an
+   * error should not stop looking wrong because the pointer is over it. The
+   * ring is retargeted rather than repainted, so the frame's outline, the
+   * shadow under it and the ring on the clear button all move at once.
+   */
+  [data-ui-date-field][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-date-field-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+    --_invalid-edge-width: var(
+      --slotted-date-field-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+    --_invalid-edge-color: var(
+      --slotted-date-field-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    --_invalid-edge: inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color);
+
+    border-color: var(--slotted-date-field-invalid-border-color, var(--slotted-tone-danger-border));
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger border is the resting edge's black. The line
+     * is a shadow inside the border, so neither box nor text moves, and it
+     * takes the resting lift's place.
+     */
+    box-shadow: var(--_invalid-edge);
+  }
+
+  [data-ui-date-field][data-part-root][data-invalid]:has([data-part-segment]:focus) {
+    box-shadow:
+      var(--_invalid-edge),
+      var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+        var(--slotted-focus-ring-color, Highlight);
+  }
+
+  [data-ui-date-field][data-part-root][data-variant='plain'][data-invalid]:has(
+      [data-part-segment]:focus
+    ) {
+    /* The ring lies inside the box here, over the border and an edge as wide as
+       it; the edge reaches past the ring. */
+    box-shadow: inset 0 0 0
+      calc(
+        var(--slotted-focus-ring-offset, 2px) - var(--slotted-control-border-width, 1px) +
+          var(--_invalid-edge-width)
+      )
+      var(--_invalid-edge-color);
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The
+   * width comes back as an outline inside the border, and a focused invalid
+   * control draws its ring double, which a valid ring is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-date-field][data-part-root][data-invalid] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(
+        -1 * (var(--slotted-control-border-width, 1px) + var(--_invalid-edge-width))
+      );
+    }
+
+    [data-ui-date-field][data-part-root][data-invalid]:has([data-part-segment]:focus) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(
+        --slotted-control-focus-ring-offset,
+        var(--slotted-focus-ring-offset, 2px)
+      );
+    }
+
+    [data-ui-date-field][data-part-root][data-variant='plain'][data-invalid]:has(
+        [data-part-segment]:focus
+      ) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: calc(
+        -1 * (var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width))
+      );
+    }
+  }
+
+  /**
+   * Read-only stays focusable, readable and copyable, and must not be
+   * mistakable for disabled: the value is still real and still submitted. The
+   * ground says "not yours to change" and the ink says nothing at all.
+   */
+  [data-ui-date-field][data-part-root][data-readonly],
+  [data-ui-date-field][data-part-root][data-readonly] [data-part-segments],
+  [data-ui-date-field][data-part-root][data-readonly] [data-part-segment] {
+    cursor: default;
+  }
+
+  [data-ui-date-field][data-part-root][data-readonly] {
+    background-color: var(
+      --slotted-date-field-readonly-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  /**
+   * Muted to the colour the theme measures rather than faded by opacity: a
+   * date nobody can read is a field nobody can check, and a disabled form
+   * still has to say what it holds.
+   */
+  [data-ui-date-field][data-part-root][data-disabled] {
+    background-color: var(
+      --slotted-date-field-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(--slotted-date-field-disabled-border-color, var(--slotted-disabled-border));
+    /* Nothing a person cannot reach is lifted off the page. */
+    box-shadow: none;
+    color: var(--slotted-date-field-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+  }
+
+  [data-ui-date-field][data-part-root][data-disabled] [data-part-segments],
+  [data-ui-date-field][data-part-root][data-disabled] [data-part-segment] {
+    cursor: not-allowed;
+  }
+
+  [data-ui-date-field][data-part-root][data-disabled] > [data-part-start],
+  [data-ui-date-field][data-part-root][data-disabled] > [data-part-end],
+  [data-ui-date-field][data-part-root][data-disabled] [data-part-literal],
+  [data-ui-date-field][data-part-root][data-disabled] [data-part-segment][data-placeholder] {
+    color: var(--slotted-disabled-foreground);
+  }
+
+  @media (forced-colors: active) {
+    /* A transparent border has no system colour to be remapped to, so the
+       `plain` control would lose its only edge where an edge matters most. */
+    [data-ui-date-field][data-part-root][data-variant='plain'] {
+      border-color: ButtonBorder;
+    }
+  }
+}

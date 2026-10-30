@@ -1,0 +1,1345 @@
+<!--
+  The two halves are the real `button` family markup and the page carries the
+  real `button` stylesheet: the subject of this family is how it joins two of
+  that one, so a page without it would show two unstyled boxes. The builder
+  reads the families to load from the `data-ui` values written below, and
+  `data-ui="menu"` in the last scene loads the menu's sheet for the open
+  surface drawn there.
+
+  Every half carries `data-ui="button"` and this family's part name, which is
+  the composition the contract records: `button` selects itself by `data-ui`
+  alone and reads no part on its root.
+-->
+<section data-scene="variants">
+  <style>
+    [data-demo-column] {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--slotted-space-6);
+    }
+
+    [data-demo-label] {
+      color: var(--slotted-text-muted);
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      margin: 0;
+    }
+
+    [data-demo-row] {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--slotted-space-3);
+      justify-items: start;
+    }
+
+    [data-demo-row] > * {
+      max-inline-size: 100%;
+    }
+
+    [data-demo-inline] {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--slotted-space-4);
+    }
+
+    [data-demo-frame] {
+      justify-self: stretch;
+      border: 1px dashed var(--slotted-border-strong);
+      border-radius: var(--slotted-radius-md);
+      padding: var(--slotted-space-3);
+    }
+
+    /* A row of controls at their own widths beside a field, so the bar's
+       height can be read against a control that is not this family's. */
+    [data-demo-form-row] {
+      align-items: center;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: var(--slotted-space-4);
+    }
+
+    [data-demo-field] {
+      background: var(--slotted-surface);
+      block-size: var(--slotted-control-height-md);
+      border: var(--slotted-control-border-width) solid var(--slotted-control-border-color);
+      border-radius: var(--slotted-control-radius);
+      box-sizing: border-box;
+      color: var(--slotted-text-muted);
+      flex: 1 1 auto;
+      font-size: var(--slotted-control-font-size-md);
+      min-inline-size: 0;
+      padding-inline: var(--slotted-control-padding-inline-md);
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* The surface is portaled and positioned by script in both bindings; here
+       it stands where the positioner would put it, under the trigger's end. */
+    [data-demo-anchor] {
+      display: inline-block;
+      position: relative;
+    }
+
+    [data-demo-room] {
+      padding-block-end: 11rem;
+    }
+
+    [data-demo-anchor] > [data-ui='menu'] {
+      position: absolute;
+      inset-block-start: calc(100% + 4px);
+      inset-inline-start: 0;
+    }
+  </style>
+
+  <div data-demo-column>
+    <div data-demo-row>
+      <p data-demo-label>solid · every tone</p>
+      <div data-demo-inline>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More save options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="secondary"
+          data-variant="solid"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="secondary"
+            data-variant="solid"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Export</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="secondary"
+            data-variant="solid"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More export options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="success"
+          data-variant="solid"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="success"
+            data-variant="solid"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Approve</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="success"
+            data-variant="solid"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More approval options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="warning"
+          data-variant="solid"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="warning"
+            data-variant="solid"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Suspend</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="warning"
+            data-variant="solid"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More suspension options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="danger"
+          data-variant="solid"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="danger"
+            data-variant="solid"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Delete</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="danger"
+            data-variant="solid"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More delete options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <p data-demo-label>outline · ghost</p>
+      <div data-demo-inline>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="outline"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="outline"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More save options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Export</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More export options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="ghost"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="ghost"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="ghost"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More save options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="secondary"
+          data-variant="ghost"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Export</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="secondary"
+            data-variant="ghost"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More export options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <p data-demo-label>sm · md · lg, beside a field</p>
+      <div data-demo-form-row>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="solid"
+          data-size="sm"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="sm"
+            data-shape="square"
+            type="button"
+            aria-label="More save options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div data-demo-field>Invoice title</div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="outline"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="outline"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More save options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="solid"
+          data-size="lg"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="lg"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="lg"
+            data-shape="square"
+            type="button"
+            aria-label="More save options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The states the root and its halves carry. `loading` is the case no surveyed
+  implementation answers: the action shows `button`'s indicator with its width
+  held, and the trigger is `aria-disabled` — painted unavailable, still in the
+  tab sequence, still named. `disabled` takes both halves out natively.
+  `open` sits on the trigger, written by `menu`; the surface itself is the
+  last scene's.
+-->
+<section data-scene="states">
+  <div data-demo-column>
+    <div data-demo-row>
+      <p data-demo-label>loading · the trigger waits with the action</p>
+      <div data-demo-inline>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          data-loading
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            type="button"
+            data-loading
+            aria-disabled="true"
+          >
+            <span data-part="label" data-part-label="">Save</span>
+            <span
+              data-part="indicator"
+              data-part-indicator=""
+              data-ui="spinner"
+              data-ui-spinner=""
+              role="progressbar"
+              aria-label="Saving"
+            ></span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More save options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-disabled="true"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+          data-loading
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+            data-loading
+            aria-disabled="true"
+          >
+            <span data-part="label" data-part-label="">Export</span>
+            <span
+              data-part="indicator"
+              data-part-indicator=""
+              data-ui="spinner"
+              data-ui-spinner=""
+              role="progressbar"
+              aria-label="Exporting"
+            ></span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More export options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-disabled="true"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <p data-demo-label>disabled · solid, outline, ghost</p>
+      <div data-demo-inline>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          data-disabled
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            type="button"
+            disabled
+            data-disabled
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More save options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            disabled
+            data-disabled
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="outline"
+          data-size="md"
+          data-disabled
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+            disabled
+            data-disabled
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="outline"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More save options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            disabled
+            data-disabled
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="ghost"
+          data-size="md"
+          data-disabled
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="ghost"
+            data-size="md"
+            type="button"
+            disabled
+            data-disabled
+          >
+            <span data-part="label" data-part-label="">Save</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="ghost"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More save options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            disabled
+            data-disabled
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <p data-demo-label>one half out · the other still an action</p>
+      <div data-demo-inline>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            type="button"
+            disabled
+            data-disabled
+          >
+            <span data-part="label" data-part-label="">Merge</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More merge options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="secondary"
+          data-variant="outline"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Export</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="secondary"
+            data-variant="outline"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More export options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            disabled
+            data-disabled
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  Width. The bar narrows before the page does: the label wraps inside its own
+  control, which is `button`'s rule, and the trigger stays square. Full width
+  gives the line to the action alone.
+-->
+<section data-scene="width">
+  <div data-demo-column>
+    <div data-demo-row>
+      <p data-demo-label>full width · the action takes the line</p>
+      <div data-demo-frame>
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="solid"
+          data-size="md"
+          data-full-width
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Place order</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="More ordering options"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-row>
+      <p data-demo-label>a long translated action in a narrow room</p>
+      <div data-demo-frame style="max-inline-size: 12rem">
+        <div
+          data-ui="split-button"
+          data-ui-split-button=""
+          data-part="root"
+          data-part-root=""
+          role="group"
+          data-tone="accent"
+          data-variant="outline"
+          data-size="md"
+        >
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="primary"
+            data-part-primary=""
+            data-tone="accent"
+            data-variant="outline"
+            data-size="md"
+            type="button"
+          >
+            <span data-part="label" data-part-label="">Speichern und Benachrichtigung senden</span>
+          </button>
+          <button
+            data-ui="button"
+            data-ui-button=""
+            data-part="menu-trigger"
+            data-part-menu-trigger=""
+            data-tone="accent"
+            data-variant="outline"
+            data-size="md"
+            data-shape="square"
+            type="button"
+            aria-label="Weitere Speicheroptionen"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span data-part="icon" data-part-icon=""
+              ><span
+                data-ui="icon"
+                data-ui-icon=""
+                data-part="root"
+                data-part-root=""
+                aria-hidden="true"
+                ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+            ></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The menu open under the trigger, with `remember` on: the alternatives are
+  `menu`'s radio items, one of them checked, and the action's label is the
+  checked one. The surface is drawn where the positioner would put it.
+-->
+<section data-scene="open">
+  <div data-demo-column>
+    <div data-demo-row>
+      <p data-demo-label>open · remember, the chosen strategy is the action</p>
+      <div data-demo-room>
+        <div data-demo-anchor>
+          <div
+            data-ui="split-button"
+            data-ui-split-button=""
+            data-part="root"
+            data-part-root=""
+            role="group"
+            data-tone="accent"
+            data-variant="solid"
+            data-size="md"
+          >
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="primary"
+              data-part-primary=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="md"
+              type="button"
+            >
+              <span data-part="label" data-part-label="">Squash and merge</span>
+            </button>
+            <button
+              data-ui="button"
+              data-ui-button=""
+              data-part="menu-trigger"
+              data-part-menu-trigger=""
+              data-tone="accent"
+              data-variant="solid"
+              data-size="md"
+              data-shape="square"
+              type="button"
+              id="split-button-open-trigger"
+              aria-label="More merge options"
+              aria-haspopup="menu"
+              aria-expanded="true"
+              aria-controls="split-button-open-menu"
+              data-open
+            >
+              <span data-part="icon" data-part-icon=""
+                ><span
+                  data-ui="icon"
+                  data-ui-icon=""
+                  data-part="root"
+                  data-part-root=""
+                  aria-hidden="true"
+                  ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg></span
+              ></span>
+            </button>
+          </div>
+          <div
+            data-ui="menu"
+            data-ui-menu=""
+            data-part="root"
+            data-part-root=""
+            data-side="bottom"
+            data-align="start"
+            data-size="md"
+            data-open
+            style="
+              --slotted-positioner-available-width: 16rem;
+              --slotted-positioner-transform-origin: left top;
+            "
+          >
+            <div
+              data-part="content"
+              data-part-content=""
+              id="split-button-open-menu"
+              role="menu"
+              aria-labelledby="split-button-open-trigger"
+              tabindex="-1"
+            >
+              <div data-part="group" data-part-group="" role="group">
+                <button
+                  data-part="item"
+                  data-part-item=""
+                  role="menuitemradio"
+                  type="button"
+                  aria-checked="false"
+                >
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+                  ></span>
+                  <span data-part="label" data-part-label="">Create a merge commit</span>
+                </button>
+                <button
+                  data-part="item"
+                  data-part-item=""
+                  role="menuitemradio"
+                  type="button"
+                  aria-checked="true"
+                  data-checked
+                >
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+                  ></span>
+                  <span data-part="label" data-part-label="">Squash and merge</span>
+                </button>
+                <button
+                  data-part="item"
+                  data-part-item=""
+                  role="menuitemradio"
+                  type="button"
+                  aria-checked="false"
+                >
+                  <span data-part="indicator" data-part-indicator=""
+                    ><span
+                      data-ui="icon"
+                      data-ui-icon=""
+                      data-part="root"
+                      data-part-root=""
+                      aria-hidden="true"
+                      ><svg data-part="glyph" data-part-glyph="" data-glyph="dot"></svg></span
+                  ></span>
+                  <span data-part="label" data-part-label="">Rebase and merge</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 5,
+  "family": "pagination",
+  "ui": "pagination",
+  "catalog": {
+    "group": "Navigation",
+    "summary": "Moves between pages of results."
+  },
+  "rootRole": "navigation",
+  "currentValue": "page",
+  "currentSource": "aria-current",
+  "arithmetic": "@slotted/core/pagination",
+  "itemElement": {
+    "withoutHref": "button",
+    "withHref": "a",
+    "decidedBy": "itemHref"
+  },
+  "compaction": {
+    "container": "slotted-pagination",
+    "breakpoint": "22rem",
+    "below": "summary",
+    "above": "list",
+    "reason": "@container (min-width: var(--x)) is invalid CSS, so the breakpoint is a literal, under rule 4 of docs/token-foundation.md."
+  },
+  "focusAfterChange": [
+    "the control that was pressed, while it survives the change",
+    "previous",
+    "last",
+    "first",
+    "the current page in the row"
+  ],
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to each trigger, each page and the page size in reading order",
+      "focus": "the next control",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "activates the focused control, or follows it when itemHref made it a link",
+      "focus": "stays, unless the control became unavailable",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "activates the focused control while it is a button",
+      "focus": "stays, unless the control became unavailable",
+      "source": "platform"
+    }
+  ],
+  "declined": {
+    "shortcuts": {
+      "deferTo": "the application",
+      "reason": "Polaris is the only surveyed implementation binding j and k to the triggers. packages/core/src/keys/keys.ts already records that registering a shortcut belongs to whoever can turn it off, which is WCAG 2.2 criterion 2.1.4."
+    },
+    "rovingFocus": {
+      "deferTo": "the platform",
+      "reason": "No surveyed implementation moves a single tab stop through the page numbers. A list of controls inside a landmark is a list of tab stops, and a roving one would be a widget claiming to be navigation."
+    },
+    "slicing": {
+      "deferTo": "the consumer",
+      "reason": "Zag ships api.slice(data). The collection is the consumer's, and a family that sliced it would hold a copy of data it does not own. itemRange from @slotted/core/pagination is the same arithmetic without the copy."
+    },
+    "ellipsisMenu": {
+      "deferTo": "the consumer",
+      "reason": "The ellipsis is a span announced to nobody, which is what Zag, MUI and Primer all ship. A jump-to-page control is a different widget, and the first and last triggers already reach the ends it would hide."
+    }
+  },
+  "provides": {
+    "paginationDefaults": [
+      "siblingCount",
+      "boundaryCount",
+      "defaultPageSize",
+      "pageSizeOptions",
+      "live"
+    ]
+  },
+  "messages": [
+    "label",
+    "first",
+    "last",
+    "next",
+    "page",
+    "pageSize",
+    "previous",
+    "range",
+    "summary"
+  ],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "current": {
+      "controlled": "page",
+      "uncontrolled": "defaultPage",
+      "request": "onPageChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    },
+    "value": {
+      "controlled": "pageSize",
+      "uncontrolled": "defaultPageSize",
+      "request": "onPageSizeChange",
+      "reasons": ["select", "programmatic"]
+    }
+  },
+  "literals": {
+    "--slotted-pagination-compact-breakpoint": "The inline size below which the numbered row gives way to the summary. A container query cannot read a custom property, which docs/token-foundation.md rule 4 states."
+  },
+  "members": {
+    "pagination": {
+      "nativeElement": "nav",
+      "defaults": {
+        "defaultPage": 1,
+        "defaultPageSize": 20,
+        "siblingCount": 1,
+        "boundaryCount": 1,
+        "disabled": false,
+        "loading": false,
+        "live": "polite"
+      },
+      "capabilities": ["current", "value", "live", "disabled", "loading", "wiring"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled", "loading"],
+      "parts": [
+        "root",
+        "list",
+        "item",
+        "page",
+        "ellipsis",
+        "summary",
+        "first",
+        "previous",
+        "next",
+        "last",
+        "status",
+        "page-size",
+        "page-size-label"
+      ]
+    }
+  },
+  "scenarios": {
+    "pagination": [
+      "playground",
+      "numbered",
+      "cursor",
+      "range",
+      "pageSize",
+      "links",
+      "compact",
+      "states",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

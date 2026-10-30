@@ -1,0 +1,506 @@
+{
+  "schemaVersion": 5,
+  "family": "command-palette",
+  "ui": "command-palette",
+  "catalog": {
+    "group": "Navigation",
+    "summary": "Searchable dialog of commands and destinations."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/combobox/",
+  "layerPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+  "patternStatus": "The combobox pattern with a listbox popup answers the search field and the list: DOM focus stays on the input and the list is navigated with aria-activedescendant, which is the pattern's own note. The popup never closes on its own — the list is the surface — so aria-expanded is always true, recorded as a departure The dialog pattern is answered by the dialog family this one composes. Both read on 2026-09-15.",
+  "roles": {
+    "input": "combobox",
+    "list": "listbox",
+    "item": "option",
+    "group": "group",
+    "separator": "separator",
+    "status": "status"
+  },
+  "nativeElement": {
+    "considered": "input + datalist",
+    "refused": true,
+    "reason": "As combobox records it: a datalist is drawn by the operating system and cannot hold a group, a description, a shortcut or a disabled option. The input itself is kept — a real input with the browser's caret, selection, IME and text editing."
+  },
+  "composes": [
+    "dialog",
+    "kbd",
+    "highlight",
+    "spinner",
+    "skeleton",
+    "collection",
+    "keys",
+    "live-announcer",
+    "state"
+  ],
+  "composedFamilies": {
+    "dialog": "the layer, the scrim, presence, portal, focus containment and restoration, Escape and outside press, the single z-index stack. Composed as upload-viewer composes it: React wraps the panel in Dialog with surface plain and placement top; Angular projects it into sl-dialog. Nothing of the layer is redrawn.",
+    "kbd": "the legends of every shortcut, on an item and in a footer hint, through Shortcut with variant plain. The family writes the notation once and kbd resolves it for the reader's platform.",
+    "highlight": "the mark on the run the query found, as combobox draws it.",
+    "spinner": "the ring that stands in for the search glyph while loading.",
+    "skeleton": "the three rows the list shows while loading with nothing to show."
+  },
+  "adds": {
+    "collection": {
+      "module": "packages/core/src/collection",
+      "export": "createRanker",
+      "reason": "docs/component-features.md §5 makes the ranking an adapter with a default. The default scores label and keywords with the collator createFilter already builds, at base sensitivity, so an item cannot pass the ranker and show no mark. Four strengths — whole label, prefix, word start, substring — and a keyword one step below them. The typeahead module the scope named is a prefix matcher with a reset window and a cycle; it does not score, and it is not this.",
+      "nextConsumer": "combobox, when it is reopened"
+    },
+    "keys": {
+      "module": "packages/core/src/keys",
+      "export": "matchesShortcut, isEditableTarget",
+      "reason": "menu announces aria-keyshortcuts and never fires one; this family has to fire one, the hotkey that opens it. The matcher decides what mod means on the reader's platform and refuses a modifier the shortcut did not ask for. isEditableTarget is where a shortcut without a modifier stays quiet, which is what §5 asks of a global shortcut."
+    }
+  },
+  "presentation": {
+    "dialog": "the family composes dialog: a modal layer at the top of the viewport, opened by the trigger, the hotkey or the handle, closed by Escape, the scrim, an executed item or the handle",
+    "inline": "the root is written where the consumer put it, with no layer: inside a popover, a drawer or a page. It is the answer menu gave when it refused the filtered menu — a list filtered by typing is a combobox by role, and this is that surface without a dialog around it.",
+    "default": "dialog",
+    "attribute": "data-presentation"
+  },
+  "highlight": {
+    "mechanism": "aria-activedescendant",
+    "attribute": "data-current",
+    "focus": "stays on the input for the whole interaction",
+    "scroll": "scrollIntoView({ block: 'nearest' }) on every change",
+    "reason": "The pattern's own note, and the model combobox already uses. The input must keep focus for the reader to type."
+  },
+  "items": {
+    "shape": "id, label, keywords, description, group, icon, shortcut, meta, disabled, href, onSelect, children",
+    "data": "Items are values, not children: the ranker scores label and keywords, and a family that read the DOM would rank what it had just painted (cmdk reads textContent). renderItem in React and an ng-template in Angular substitute the item's content; the option element and its wiring are the family's.",
+    "href": "an item with href renders as an anchor with role option; Enter follows it and a modified Enter is left to the browser",
+    "children": "an item with children opens a page whose items are the children; the item carries data-page and draws the arrow part",
+    "disabled": "kept in the list, announced with aria-disabled, skipped by every movement key, never highlighted by the pointer and never executed"
+  },
+  "ranking": {
+    "default": "createRanker().rank over label and keywords, locale-sensitive at base sensitivity",
+    "adapter": "rank: (item, query) => number | null",
+    "off": "rank={null}, for a list the consumer has already ranked on a server",
+    "order": "with a query: within a group by score, then by the consumer's order; groups by their best item. Without a query: the consumer's order, groups in the order of the groups prop, ungrouped items last.",
+    "highlight": "matchRanges on the label, and the match part that marks what it found",
+    "limit": "limit caps the rows drawn; it is a product decision and not virtualization",
+    "reason": "docs/component-features.md §5: 'Ranking is a replaceable adapter'."
+  },
+  "pages": {
+    "open": "an item with children: Enter or the pointer pushes its id onto pages, clears the query and highlights the first child",
+    "trail": "the pages part lists every open page as a page button; pressing one returns to it",
+    "back": "Backspace with an empty query, and Escape with an empty query, pop one page before anything closes",
+    "async": "children may arrive later: the consumer replaces items and the family finds the page by id again",
+    "reason": "cmdk leaves pages to the consumer's own state and kbar navigates by parent; Raycast and Linear draw the trail and return on Backspace. The stack is state a consumer can own, so it has a model."
+  },
+  "recent": {
+    "shown": "with an empty query, at the root page, when recent holds at least one id that names an item: a first group labelled by the recent message, in the order of the array",
+    "updated": "executing an item asks onRecentChange with the id moved to the front and the array cut at recentLimit",
+    "unknown": "an id that names no item is not drawn and is kept in the array",
+    "persist": "the product's: it receives the array and stores it",
+    "reason": "VS Code, Raycast and Linear open on recents; no surveyed library ships them. Filed under queue, the word toast put in the vocabulary for an ordered collection the family holds and trims and the consumer may own."
+  },
+  "execution": {
+    "event": "onSelect(item, request) on the root and onSelect on the item; reason pointer or keyboard, the source event, keepOpen() and the pending promise",
+    "async": "a handler that returns a promise keeps the palette open, marks the item data-loading and aria-busy, and refuses to execute the same item again until it settles; on fulfilment the palette closes unless keepOpen() was called; on rejection it stays open and the status row announces the error message",
+    "close": "closeOnSelect closes with reason select after a synchronous handler and after a fulfilled promise",
+    "reason": "docs/process/build-order.md: 'async actions' and 'does not run a disabled item'."
+  },
+  "hotkey": {
+    "default": "mod+k",
+    "off": "hotkey={null}",
+    "listener": "keydown on the document, capture phase, preventDefault when it matches",
+    "editable": "a shortcut without a modifier does not fire inside an editable target; a chord with one fires anywhere",
+    "open": "when the palette is already open the hotkey focuses the input and selects the query instead of closing; toggle() on the handle closes",
+    "reason": "Mantine defaults to mod+K, React Aria's example opens on ⌘J, and Linear, Slack, GitHub and Vercel all answer ⌘K. Firefox uses it for its search bar and preventDefault wins."
+  },
+  "waiting": {
+    "busy": {
+      "part": "busy",
+      "ui": "spinner",
+      "stylesheet": "spinner/spinner.css",
+      "reason": "While an answer is travelling the header shows the ring where the search glyph was, as combobox shows it where the chevron was."
+    },
+    "placeholder": {
+      "part": "placeholder",
+      "ui": "skeleton",
+      "stylesheet": "skeleton/skeleton.css",
+      "reason": "The list waits as three rows the height of an item rather than as one sentence. It is hidden from assistive technology: the status row is the live region."
+    }
+  },
+  "mark": {
+    "family": "highlight",
+    "ui": "highlight",
+    "part": "match",
+    "inside": "label",
+    "reason": "As combobox records it: the span a query found is the `highlight` family inside this family's label part, from the same collator the ranker used."
+  },
+  "announce": {
+    "part": "status",
+    "module": "packages/core/src/live-announcer",
+    "count": "the count message, a plural on {count}, after every change of the result set",
+    "loading": "the loading message while loading",
+    "error": "the error message, with {message} filled, after a rejected handler",
+    "reason": "docs/process/build-order.md: 'announces the number of results through the live-announcer'. The row is visually hidden and never duplicated: the announcer refuses to say the same sentence twice in a row."
+  },
+  "wiring": {
+    "role": "combobox on the input, listbox on the list, option on each item, group on each group, separator between groups, status on the live region",
+    "aria-expanded": "true, always: the list is the surface and never closes on its own",
+    "aria-controls": "the input names the list",
+    "aria-activedescendant": "the input names the highlighted item, and nothing while there is none",
+    "aria-autocomplete": "list",
+    "aria-selected": "true on the highlighted item, false on every other, because the pattern says selection follows focus in the listbox and the palette has no other selection",
+    "aria-disabled": "on a disabled item",
+    "aria-busy": "on the list while loading, on an item while its handler is pending",
+    "aria-keyshortcuts": "on an item with a shortcut, as menu writes it: Meta+K for mod+k on a Mac, Control+K elsewhere; a sequence is drawn and not announced",
+    "aria-labelledby": "on each group, naming its group-label",
+    "aria-label": "the input message on the input; the label message on the dialog's content, through the dialog family",
+    "aria-hidden": "on shortcut, meta, arrow, search, busy, placeholder and the footer hints: each is drawn for the eye and said another way",
+    "autocomplete": "off on the input, with spellcheck false",
+    "tabindex": "-1 on clear; the page buttons in the trail keep their place in the tab sequence",
+    "data-page": "on an item that opens a page",
+    "data-empty": "on the root while the list holds nothing",
+    "data-query": "on the root while the query is not empty"
+  },
+  "keyboard": [
+    {
+      "key": "ArrowDown",
+      "effect": "moves the highlight to the next item, wrapping when loop is true",
+      "focus": "stays on the input, and the caret does not move",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "moves the highlight to the previous item, wrapping when loop is true",
+      "focus": "the input, caret unmoved",
+      "source": "pattern"
+    },
+    {
+      "key": "Enter",
+      "effect": "executes the highlighted item; with children, opens its page; with href, follows it. With no highlight, nothing. A disabled item is never highlighted and never executed.",
+      "focus": "the input, or wherever the executed item sent it",
+      "source": "pattern"
+    },
+    {
+      "key": "Escape",
+      "effect": "with a query, clears it; with a page open and no query, returns one page; otherwise closes the palette, which is the dialog's Escape. In inline presentation the last step does not exist. The pattern's optional clearing of the combobox is the first step.",
+      "focus": "the input, or the trigger once the palette has closed",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "the browser's caret movement, never intercepted, which is the pattern's editable branch",
+      "focus": "the input, caret at the first character",
+      "source": "platform"
+    },
+    {
+      "key": "End",
+      "effect": "the browser's caret movement, never intercepted",
+      "focus": "the input, caret after the last character",
+      "source": "platform"
+    },
+    {
+      "key": "Ctrl+Home",
+      "effect": "highlights the first item",
+      "focus": "the input",
+      "source": "family"
+    },
+    {
+      "key": "Ctrl+End",
+      "effect": "highlights the last item",
+      "focus": "the input",
+      "source": "family"
+    },
+    {
+      "key": "PageDown",
+      "effect": "moves the highlight ten items on, or to the last, and never wraps. Optional in the pattern for a grid popup; adopted as combobox adopted it.",
+      "focus": "the input",
+      "source": "family"
+    },
+    {
+      "key": "PageUp",
+      "effect": "moves the highlight ten items back, or to the first, and never wraps",
+      "focus": "the input",
+      "source": "family"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "the browser's caret movement, never intercepted",
+      "focus": "the input",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "the browser's caret movement, never intercepted",
+      "focus": "the input",
+      "source": "platform"
+    },
+    {
+      "key": "Backspace",
+      "effect": "the browser's text editing, never intercepted while the query holds text. With an empty query and a page open, returns one page, which is what Raycast and cmdk do.",
+      "focus": "the input",
+      "source": "platform"
+    },
+    {
+      "key": "Delete",
+      "effect": "the browser's text editing, never intercepted",
+      "focus": "the input",
+      "source": "platform"
+    },
+    {
+      "key": "Printable character",
+      "effect": "typed into the input, which ranks the collection. Never intercepted.",
+      "focus": "the input",
+      "source": "platform"
+    },
+    {
+      "key": "Tab",
+      "effect": "inside the dialog, the layer's focus containment: the trail's page buttons are reachable and clear is not. Inline, focus leaves the family.",
+      "focus": "the next tabbable element",
+      "source": "family"
+    },
+    {
+      "key": "Hotkey",
+      "effect": "opens the palette from anywhere in the document; already open, focuses the input and selects the query",
+      "focus": "the input",
+      "source": "family"
+    }
+  ],
+  "focus": {
+    "onOpen": "the input, through the dialog's initial focus; the highlight goes to the first enabled item when autoHighlight is set and to nothing otherwise",
+    "roving": false,
+    "contained": "by the dialog family while presentation is dialog",
+    "restore": "to the trigger by the dialog family; inline, focus never left the input",
+    "disabledItems": "announced with aria-disabled, carry data-disabled, keep their place and are skipped by every movement key",
+    "removal": "a query that removes the highlighted item moves the highlight to the first enabled item with autoHighlight, and to nothing without it"
+  },
+  "responsive": {
+    "container": "command-palette",
+    "breakpoint": "360px",
+    "below": "description and meta are hidden; the shortcut stays; the trail keeps one page and truncates",
+    "reason": "The panel answers its own inline size, which is the dialog's measure or the popover's. Rule 4 of docs/token-foundation.md: the breakpoint is a literal."
+  },
+  "motion": {
+    "layer": "dialog's, unchanged",
+    "highlight": "none: the current row does not transition, because a change of row is a reading and not a movement",
+    "reason": "Only the layer arrives and leaves. A transition on the highlight lags behind a reader holding ArrowDown."
+  },
+  "declined": {
+    "closeAtEveryWidth": {
+      "reason": "The dialog closes on Escape and on the scrim, and a ✕ beside a search field reads as clear, so above the dialog's full-screen step there is no close part. Below it there is no scrim to press and a touch screen has no Escape, which left a palette opened by mistake with nothing to press but a command: close is a word — the close message — at the end of the field, drawn by the stylesheet under the dialog's own full-screen query alone, and it asks open to be false with the reason dismiss. A consumer with outsidePress none above the step still draws its own in the footer."
+    },
+    "itemShortcuts": {
+      "reason": "Shortcuts on items are drawn and announced, never bound. kbd says 'does not register shortcuts on its own', and a global registry is a family of its own. The consumer binds one with matchesShortcut in three lines, shown on both reference pages."
+    },
+    "prefixModes": {
+      "reason": "Modes by prefix (> # /) are composition: onQueryChange reads the first character and the consumer swaps items. Shown on both reference pages."
+    },
+    "virtualization": {
+      "deferTo": "collection",
+      "reason": "As menu and select defer it. limit and a scrolling list cover the palette until then."
+    },
+    "checkedItems": {
+      "deferTo": "menu",
+      "reason": "A palette executes; it does not toggle. menuitemcheckbox belongs to menu."
+    },
+    "vimBindings": {
+      "reason": "Ctrl+N, Ctrl+P and Ctrl+J belong to the browser and the platform; the pattern does not list them. A consumer binds them on the input's own keydown."
+    },
+    "debounce": {
+      "reason": "As combobox declines it: the consumer debounces the fetch."
+    }
+  },
+  "axes": {
+    "presentation": ["dialog", "inline"],
+    "size": ["sm", "md", "lg"],
+    "outsidePress": ["close", "none"],
+    "loop": [true, false],
+    "autoHighlight": [true, false],
+    "closeOnSelect": [true, false],
+    "clearOnClose": [true, false],
+    "highlightMatch": [true, false],
+    "loading": [true, false],
+    "disabled": [true, false]
+  },
+  "resolution": {
+    "presentation": ["prop", "defaults", "dialog"],
+    "size": ["prop", "defaults", "md"],
+    "outsidePress": ["prop", "defaults", "close"],
+    "loop": ["prop", "defaults", true],
+    "autoHighlight": ["prop", "defaults", true],
+    "closeOnSelect": ["prop", "defaults", true],
+    "clearOnClose": ["prop", "defaults", true],
+    "highlightMatch": ["prop", "defaults", true],
+    "loading": ["prop", "defaults", false],
+    "disabled": ["prop", "defaults", false]
+  },
+  "provides": {
+    "commandPaletteDefaults": [
+      "presentation",
+      "size",
+      "outsidePress",
+      "loop",
+      "autoHighlight",
+      "closeOnSelect",
+      "clearOnClose",
+      "highlightMatch",
+      "hotkey",
+      "recentLimit"
+    ]
+  },
+  "messages": [
+    "back",
+    "clear",
+    "close",
+    "count",
+    "empty",
+    "error",
+    "hintBack",
+    "hintClose",
+    "hintNavigate",
+    "hintSelect",
+    "input",
+    "label",
+    "loading",
+    "placeholder",
+    "recent"
+  ],
+  "stateAttributes": {
+    "open": "data-open",
+    "disabled": "data-disabled",
+    "loading": "data-loading",
+    "current": "data-current"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "escape",
+        "outsidePress",
+        "select",
+        "dismiss",
+        "programmatic"
+      ]
+    },
+    "value": {
+      "controlled": "query",
+      "uncontrolled": "defaultQuery",
+      "request": "onQueryChange",
+      "reasons": ["keyboard", "clear", "select", "programmatic"]
+    },
+    "current": {
+      "item": {
+        "controlled": "highlightedId",
+        "uncontrolled": "defaultHighlightedId",
+        "request": "onHighlightedIdChange",
+        "reasons": ["pointer", "keyboard", "programmatic"]
+      },
+      "page": {
+        "controlled": "pages",
+        "uncontrolled": "defaultPages",
+        "request": "onPagesChange",
+        "reasons": ["select", "keyboard", "pointer", "programmatic"]
+      }
+    },
+    "queue": {
+      "controlled": "recent",
+      "uncontrolled": "defaultRecent",
+      "request": "onRecentChange",
+      "reasons": ["select"]
+    }
+  },
+  "members": {
+    "commandPalette": {
+      "nativeElement": "div",
+      "defaults": {
+        "presentation": "dialog",
+        "size": "md",
+        "outsidePress": "close",
+        "loop": true,
+        "autoHighlight": true,
+        "closeOnSelect": true,
+        "clearOnClose": true,
+        "highlightMatch": true,
+        "loading": false,
+        "disabled": false,
+        "hotkey": "mod+k",
+        "recentLimit": 5
+      },
+      "capabilities": [
+        "open",
+        "value",
+        "current",
+        "queue",
+        "size",
+        "appearance",
+        "disabled",
+        "loading",
+        "content",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "open",
+        "disabled",
+        "loading",
+        "current"
+      ],
+      "parts": [
+        "root",
+        "trigger",
+        "header",
+        "search",
+        "busy",
+        "pages",
+        "page",
+        "input",
+        "clear",
+        "close",
+        "list",
+        "group",
+        "group-label",
+        "item",
+        "icon",
+        "label",
+        "match",
+        "description",
+        "meta",
+        "shortcut",
+        "arrow",
+        "separator",
+        "empty",
+        "status",
+        "placeholder",
+        "footer",
+        "hint"
+      ]
+    }
+  },
+  "scenarios": {
+    "commandPalette": [
+      "playground",
+      "anatomy",
+      "groups",
+      "ranking",
+      "pages",
+      "recent",
+      "shortcuts",
+      "destinations",
+      "async",
+      "loading",
+      "empty",
+      "inline",
+      "sizes",
+      "states",
+      "content",
+      "hotkey",
+      "defaults",
+      "composition",
+      "keyboard",
+      "accessibility"
+    ]
+  }
+}

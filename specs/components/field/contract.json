@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 5,
+  "family": "field",
+  "ui": "field",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Label, control, help and error for one input."
+  },
+  "messageFamily": "inline-message",
+  "messageTones": {
+    "description": "secondary",
+    "error": "danger"
+  },
+  "messageMark": "none",
+  "messagePlacement": "after",
+  "identifiers": ["control", "label", "indicator", "help", "description", "counter", "error"],
+  "describedBy": ["indicator", "help", "description", "counter", "error"],
+  "wiring": {
+    "id": "always",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "disabled": "disabled",
+    "readonly": "readOnly"
+  },
+  "markHidden": true,
+  "header": {
+    "optional": true,
+    "inside": ["label", "help", "indicator", "action", "counter"],
+    "outsideLabel": ["help", "indicator", "action", "counter"],
+    "reason": "A button is labelable content, which HTML forbids inside a label other than the control it labels, and a press on it would move focus to the control. The header gives the help, the indicator, the action and the counter a place beside the label rather than inside it. A field with a label alone writes the label on the root."
+  },
+  "help": {
+    "glyph": "circle-question",
+    "name": "messages.help",
+    "describedBy": "hidden-node",
+    "tooltipDescribes": "none",
+    "opensOn": "press, hover and focus",
+    "reason": "The tooltip layer exists only while it is open, so the control and the button are described by a hidden node carrying the same text; the tooltip describes nothing, so the hint is not read twice. The family controls the tooltip's open and toggles it on activation, because a tooltip alone opens on a coarse pointer only by a long press."
+  },
+  "disabledLeaves": ["help", "action"],
+  "containerName": "slotted-field",
+  "reflowBreakpoint": "320px",
+  "literals": {
+    "--slotted-field-label-inline-size": "12rem is a line length rather than a step on a scale: the width at which a label of about twenty characters at the md step sits on one line beside its control. No scale in docs/token-foundation.md holds a line length.",
+    "reflowBreakpoint": "320px is literal because CSS forbids a custom property in a container condition, which docs/token-foundation.md rule 4 records.",
+    "--slotted-field-width-short": "6rem is a line length rather than a step on a scale: the width of an integer of up to four digits at the md step with the control's padding and a stepper. No scale in docs/token-foundation.md holds a line length.",
+    "--slotted-field-width-medium": "15rem is a line length rather than a step on a scale: the width of an amount, a code or a short word at the md step with the control's padding and a trailing affordance. No scale in docs/token-foundation.md holds a line length."
+  },
+  "provides": {
+    "fieldDefaults": ["size", "labelPlacement", "necessity"]
+  },
+  "messages": ["help", "optional", "required"],
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "labelPlacement": ["top", "side"],
+    "necessity": ["mark", "optional", "words", "none"],
+    "width": ["full", "medium", "short"]
+  },
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "required": "data-required",
+    "readonly": "data-readonly",
+    "open": "data-open"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "escape", "blur", "programmatic"]
+    }
+  },
+  "members": {
+    "field": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "labelPlacement": "top",
+        "necessity": "mark",
+        "width": "full"
+      },
+      "capabilities": [
+        "appearance",
+        "size",
+        "placement",
+        "live",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "open",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "required",
+        "readonly",
+        "open"
+      ],
+      "parts": [
+        "root",
+        "header",
+        "label",
+        "mark",
+        "help",
+        "indicator",
+        "action",
+        "counter",
+        "control"
+      ]
+    }
+  },
+  "scenarios": {
+    "field": [
+      "playground",
+      "necessity",
+      "placement",
+      "sizes",
+      "states",
+      "messages",
+      "counter",
+      "header",
+      "content",
+      "composition",
+      "accessibility"
+    ]
+  }
+}

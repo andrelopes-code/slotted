@@ -1,0 +1,1403 @@
+@layer slotted.components {
+  /**
+   * ── A one-line frame, and behind it one end at a time: the range calendar and its list ──
+   *
+   *   ┌─ root ──────────────────────────────────────────────────────────────┐
+   *   │  ┌─ control ── the frame ─────────────────────────────────────────┐ │
+   *   │  │  ┌ trigger ──────────────────────────────────────────────────┐ │ │
+   *   │  │  │ summary: 12 set, 14:00 – 16 set, 11:00   ┌ clear ┐   cal. │ │ │
+   *   │  │  └───────────────────────────────────────────┴───────┴───────┘ │ │
+   *   │  └────────────────────────────────────────────────────────────────┘ │
+   *   └─────────────────────────────────────────────────────────────────────┘
+   *          ┌─ positioner ─ the layer ───────────────────────────────────┐
+   *          │  ┌─ content ─ the surface ─────────────────────────────┐   │
+   *          │  │  head: tabs  [ PICKUP · 12 Sep, 14:00 ] [ RETURN · — ] │   │
+   *          │  │        field [datetime-field]                 now   │   │
+   *          │  │        hint  Choose the return day  length · limit  │   │
+   *          │  │  presets: chip chip chip                            │   │
+   *          │  │  panel (the current end): date-panel │ list         │   │
+   *          │  │  footer                                       done  │   │
+   *          │  └─────────────────────────────────────────────────────┘   │
+   *          └───────────────────────────────────────────────────────────┘
+   *
+   * The field and the calendar inside keep their own `data-ui`. Nothing here
+   * selects a segment or a day: this stylesheet owns the frame, the layer,
+   * the band the field stands in, and the list beside the calendar.
+   *
+   * **The frame is one line at any width.** Two segmented fields stood in it
+   * first — the shape `date-range-picker` has — and were withdrawn at the
+   * visual gate: a segment cannot shrink, and two fields broke the frame into
+   * two lines in any form column narrower than they are, against the height
+   * every control shares. The frame keeps the value in words.
+   *
+   * **The band speaks to the field through its tokens and never through its
+   * parts** — the rule `date-range-picker` records.
+   *
+   * **One end at a time.** Two lists side by side, under two fields, were
+   * refused at the release gate as too much interface at once for a lay
+   * reader and for a phone. The tab says which end, the panel shows only
+   * that end, and choosing one end moves to the other — the end list
+   * appears already striking what the chosen start refuses.
+   */
+  [data-ui-datetime-range-picker][data-part-root] {
+    display: block;
+    /* In a flex row the item's basis is its content, not the whole row. */
+    flex-basis: content;
+    /* The anchor the positioner measures is the control, and a block root
+       lets the frame take the width the form gave it. */
+    inline-size: 100%;
+  }
+
+  /* ── The frame ────────────────────────────────────────────────────────
+   *
+   * One line, at the height the scale gives every control. The frame
+   * `select` draws: the value in words, cut with an ellipsis where it does
+   * not fit, and the trigger filling the box. Two segmented fields stood here
+   * first and were withdrawn at the visual gate — a segment cannot shrink,
+   * and two of them broke the frame into two lines in any form column
+   * narrower than they are, against the height every control shares.
+   */
+  [data-ui-datetime-range-picker] [data-part-control] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_border-width: var(--slotted-control-border-width, 1px);
+
+    /* The same inner-control box every family in the library draws: the glyph,
+       and one step of air on each side, bounded by the frame's own height. */
+    --_action-size: var(
+      --slotted-datetime-range-picker-action-size,
+      min(
+        calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)),
+        calc(var(--_height) - var(--_border-width) * 2 - var(--slotted-space-2, 0.25rem))
+      )
+    );
+    --_action-inset: max(
+      0px,
+      calc(var(--_padding-inline) - (var(--_action-size) - var(--_icon-size)) / 2)
+    );
+
+    background-color: var(
+      --slotted-datetime-range-picker-background,
+      var(--slotted-control-surface, Field)
+    );
+    block-size: var(--_height);
+    border: var(--_border-width) solid
+      var(
+        --slotted-datetime-range-picker-border-color,
+        var(--slotted-control-border-color, ButtonBorder)
+      );
+    border-radius: var(--slotted-datetime-range-picker-radius, var(--slotted-control-radius, 4px));
+    box-shadow: var(--slotted-datetime-range-picker-shadow, var(--slotted-control-shadow, none));
+    box-sizing: border-box;
+    color: var(--slotted-datetime-range-picker-color, var(--slotted-text, CanvasText));
+    display: flex;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    inline-size: 100%;
+    min-inline-size: 0;
+    position: relative;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-datetime-range-picker][data-part-root][data-size='sm'] [data-part-control] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 11px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+  }
+
+  [data-ui-datetime-range-picker][data-part-root][data-size='lg'] [data-part-control] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 15px);
+    --_gap: var(--slotted-control-gap-lg, 10px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+  }
+
+  /* ── Variant ──────────────────────────────────────────────────────────
+   *
+   * The three steps `text-field` set, through the field's own variant tokens.
+   */
+  [data-ui-datetime-range-picker][data-part-root][data-variant='subtle'] [data-part-control] {
+    background-color: var(
+      --slotted-datetime-range-picker-subtle-background,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    border-color: var(
+      --slotted-datetime-range-picker-subtle-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+  }
+
+  [data-ui-datetime-range-picker][data-part-root][data-variant='plain'] [data-part-control] {
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: var(--slotted-radius-none, 0px);
+    box-shadow: none;
+  }
+
+  /* ── The trigger ──────────────────────────────────────────────────────
+   *
+   * A transparent button filling the frame, with the value as its content and
+   * the glyph at its reading end: the whole box opens the panel, which is the
+   * shape `select` has. It is always drawn — ChromeOS turns `Alt`+`ArrowDown`
+   * into `PageDown` before the browser sees it, so a chord cannot be the only
+   * way in.
+   */
+  [data-ui-datetime-range-picker] [data-part-trigger] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: inherit;
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    flex: 1 1 auto;
+    font: inherit;
+    gap: var(--_gap);
+    min-inline-size: 0;
+    padding-block: 0;
+    padding-inline-start: var(--_padding-inline);
+    /* Room for the glyph, and for the clear beside it when there is one. */
+    padding-inline-end: calc(
+      var(--_action-inset) + var(--_action-size) * var(--_actions, 1) +
+        var(--slotted-space-1, 0.125rem) * (var(--_actions, 1) - 1) +
+        var(--slotted-space-2, 0.25rem)
+    );
+    text-align: start;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-control]:has(> [data-part-clear]) {
+    --_actions: 2;
+  }
+
+  /* The value in words, one line, cut where it does not fit: the trigger's
+     name carries it whole, so the ellipsis removes nothing a reader cannot
+     hear. Tabular figures, so two ranges in a form line up. */
+  [data-ui-datetime-range-picker] [data-part-summary] {
+    flex: 1 1 auto;
+    font-variant-numeric: tabular-nums;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    unicode-bidi: plaintext;
+    white-space: nowrap;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-summary][data-placeholder] {
+    color: var(
+      --slotted-datetime-range-picker-placeholder-color,
+      var(--slotted-text-muted, GrayText)
+    );
+  }
+
+  /* The calendar `datetime-picker` puts on its trigger — the mark
+     `input[type=datetime-local]` draws for the same control, a `Glyph` the
+     binding draws after the summary; it does not turn while the surface is
+     open. */
+  /* The frame draws the ring for the trigger; the browser's own ring on the
+     trigger would be a second one, inside the frame and over its edge. */
+  [data-ui-datetime-range-picker] [data-part-trigger]:focus-visible {
+    outline: none;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-trigger] > [data-ui-icon] {
+    --slotted-icon-size: var(--_icon-size);
+
+    /* No system-colour fallback on a decoration: unthemed, it takes the
+       trigger's ink rather than shouts. */
+    color: var(--slotted-datetime-range-picker-action-color, var(--slotted-text-muted));
+    inset-block-start: 50%;
+    inset-inline-end: calc(var(--_action-inset) + (var(--_action-size) - var(--_icon-size)) / 2);
+    position: absolute;
+    translate: 0 -50%;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-trigger]:disabled {
+    cursor: not-allowed;
+  }
+
+  /* ── The clear ────────────────────────────────────────────────────────
+   *
+   * The inner-control box, before the glyph, as every clear in the library
+   * stands. Its own ring: tabbing from the trigger to it has to move
+   * something visible, and the frame's ring would sit still.
+   */
+  [data-ui-datetime-range-picker] [data-part-clear] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_action-size);
+    border: 0;
+    border-radius: var(--slotted-datetime-range-picker-radius, var(--slotted-control-radius, 4px));
+    color: var(--slotted-datetime-range-picker-action-color, var(--slotted-text-muted, GrayText));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    inline-size: var(--_action-size);
+    inset-block-start: calc((var(--_height) - var(--_border-width) * 2 - var(--_action-size)) / 2);
+    inset-inline-end: calc(
+      var(--_action-inset) + var(--_action-size) + var(--slotted-space-1, 0.125rem)
+    );
+    justify-content: center;
+    padding: 0;
+    position: absolute;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The hit area, recovered outside the paint, as every inner control does. */
+  [data-ui-datetime-range-picker] [data-part-clear]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: the ground and the focus ring stay square, and
+     the hit area above grows to 44 pixels around them. It does not reach into
+     the calendar's lane after it, which is the trigger's to answer. */
+  @media (pointer: coarse) {
+    [data-ui-datetime-range-picker] [data-part-clear]::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+      inset-inline-end: 0;
+    }
+  }
+
+  [data-ui-datetime-range-picker] [data-part-clear]:hover:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-datetime-range-picker-action-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-datetime-range-picker] [data-part-clear]:active:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-datetime-range-picker-action-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  [data-ui-datetime-range-picker] [data-part-clear]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-datetime-range-picker] [data-part-clear]:disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  /* ── States on the frame ──────────────────────────────────────────────
+   *
+   * Written strongest last, and each weaker one guarded against every stronger
+   * one it can meet, which is the order `STATE_PRECEDENCE` sets.
+   */
+
+  [data-ui-datetime-range-picker][data-part-root]:not([data-disabled]):not([data-readonly]):not(
+      [data-invalid]
+    )
+    [data-part-control]:hover {
+    border-color: var(
+      --slotted-datetime-range-picker-hover-border-color,
+      var(--slotted-tone-accent-border)
+    );
+  }
+
+  [data-ui-datetime-range-picker][data-part-root][data-variant='subtle']:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid])
+    [data-part-control]:hover {
+    background-color: var(
+      --slotted-datetime-range-picker-subtle-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-datetime-range-picker][data-part-root][data-variant='plain']:not([data-disabled]):not(
+      [data-readonly]
+    ):not([data-invalid])
+    [data-part-control]:hover {
+    background-color: var(
+      --slotted-datetime-range-picker-plain-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    border-color: transparent;
+  }
+
+  /* The trigger is the only thing in the frame that takes focus, apart from
+     the clear, which draws its own ring; the frame's ring is drawn for it. */
+  [data-ui-datetime-range-picker] [data-part-control]:has(> [data-part-trigger]:focus-visible) {
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* The ring of a control whose box is not its own is drawn inside that box,
+     and there is no lift — the `plain` rule of `plain-variant.test.mjs`. */
+  [data-ui-datetime-range-picker][data-part-root][data-variant='plain']
+    [data-part-control]:has(> [data-part-trigger]:focus-visible) {
+    box-shadow: none;
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* Invalid outranks hover and is written after it. The ring is retargeted
+     rather than repainted, so every ring in the frame moves at once. */
+  [data-ui-datetime-range-picker][data-part-root][data-invalid] [data-part-control] {
+    --slotted-focus-ring-color: var(
+      --slotted-datetime-range-picker-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+    --_invalid-edge-width: var(
+      --slotted-datetime-range-picker-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+    --_invalid-edge-color: var(
+      --slotted-datetime-range-picker-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    --_invalid-edge: inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color);
+
+    border-color: var(
+      --slotted-datetime-range-picker-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger border is the resting edge's black. The line
+     * is a shadow inside the border, so neither box nor text moves, and it
+     * takes the resting lift's place.
+     */
+    box-shadow: var(--_invalid-edge);
+  }
+
+  [data-ui-datetime-range-picker][data-invalid]
+    [data-part-control]:has(> [data-part-trigger]:focus-visible) {
+    box-shadow:
+      var(--_invalid-edge),
+      var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+        var(--slotted-focus-ring-color, Highlight);
+  }
+
+  [data-ui-datetime-range-picker][data-part-root][data-variant='plain'][data-invalid]
+    [data-part-control]:has(> [data-part-trigger]:focus-visible) {
+    /* The ring lies inside the box here, over the border and an edge as wide as
+       it; the edge reaches past the ring. */
+    box-shadow: inset 0 0 0
+      calc(
+        var(--slotted-focus-ring-offset, 2px) - var(--_border-width) + var(--_invalid-edge-width)
+      )
+      var(--_invalid-edge-color);
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The
+   * width comes back as an outline inside the border, and a focused invalid
+   * control draws its ring double, which a valid ring is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-datetime-range-picker][data-part-root][data-invalid] [data-part-control] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(-1 * (var(--_border-width) + var(--_invalid-edge-width)));
+    }
+
+    [data-ui-datetime-range-picker][data-invalid]
+      [data-part-control]:has(> [data-part-trigger]:focus-visible) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(--slotted-focus-ring-offset, 2px);
+    }
+
+    [data-ui-datetime-range-picker][data-part-root][data-variant='plain'][data-invalid]
+      [data-part-control]:has(> [data-part-trigger]:focus-visible) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: calc(
+        -1 * (var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width))
+      );
+    }
+  }
+
+  /* Read-only stays focusable, readable and copyable, and must not be
+     mistakable for disabled: the ground says "not yours to change". */
+  [data-ui-datetime-range-picker][data-part-root][data-readonly] [data-part-control] {
+    background-color: var(
+      --slotted-datetime-range-picker-readonly-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    cursor: default;
+  }
+
+  /* Muted to the colour the theme measures rather than faded by opacity. */
+  [data-ui-datetime-range-picker][data-part-root][data-disabled] [data-part-control] {
+    background-color: var(
+      --slotted-datetime-range-picker-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(
+      --slotted-datetime-range-picker-disabled-border-color,
+      var(--slotted-disabled-border)
+    );
+    box-shadow: none;
+    color: var(--slotted-datetime-range-picker-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+  }
+
+  [data-ui-datetime-range-picker][data-part-root][data-disabled]
+    [data-part-trigger]
+    > [data-ui-icon] {
+    color: var(--slotted-disabled-foreground);
+  }
+
+  /* ── The layer ────────────────────────────────────────────────────────
+   *
+   * What `packages/core/src/positioner` writes `position`, `left` and `top`
+   * onto. The painted surface is one element in, as every overlay is built.
+   */
+  [data-ui-datetime-range-picker][data-part-positioner] {
+    /* Only the block inset: the positioner writes `left` and never `right`,
+       and `inset-inline-start` would resolve to `right` in a right-to-left
+       document and win over the measured value. */
+    position: absolute;
+    inset-block-start: 0;
+
+    box-sizing: border-box;
+    isolation: isolate;
+    pointer-events: none;
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+
+    /* The layer arrives along the axis it opens on and never along the inline
+       one, which is the rule `select` records. */
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+    opacity: 0;
+    translate: 0 calc(-1 * var(--_enter-distance));
+    transition:
+      opacity var(--slotted-duration-short) var(--slotted-easing-exit),
+      translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-datetime-range-picker][data-part-positioner][data-side='top'] {
+    translate: 0 var(--_enter-distance);
+  }
+
+  [data-ui-datetime-range-picker][data-part-positioner]:is(
+      [data-side='left'],
+      [data-side='right']
+    ) {
+    translate: 0 0;
+  }
+
+  [data-ui-datetime-range-picker][data-part-positioner][data-open] {
+    opacity: 1;
+    translate: 0 0;
+    transition: none;
+  }
+
+  /* The entrance is a keyframe animation and not a transition, for the reason
+     `select` records: only a layer the positioner placed arrives. */
+  [data-ui-datetime-range-picker][data-part-positioner][data-open][data-positioned] {
+    animation: slotted-datetime-range-picker-enter-down var(--slotted-duration-medium)
+      var(--slotted-easing-enter);
+  }
+
+  [data-ui-datetime-range-picker][data-part-positioner][data-open][data-positioned][data-side='top'] {
+    animation-name: slotted-datetime-range-picker-enter-up;
+  }
+
+  [data-ui-datetime-range-picker][data-part-positioner][data-open][data-positioned]:is(
+      [data-side='left'],
+      [data-side='right']
+    ) {
+    animation-name: slotted-datetime-range-picker-fade;
+  }
+
+  @keyframes slotted-datetime-range-picker-enter-down {
+    from {
+      opacity: 0;
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-datetime-range-picker-enter-up {
+    from {
+      opacity: 0;
+      translate: 0 var(--_enter-distance);
+    }
+  }
+
+  @keyframes slotted-datetime-range-picker-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Stillness keeps the fade and drops the movement. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-datetime-range-picker][data-part-positioner],
+    [data-ui-datetime-range-picker][data-part-positioner][data-side='top'],
+    [data-ui-datetime-range-picker][data-part-positioner][data-side='left'],
+    [data-ui-datetime-range-picker][data-part-positioner][data-side='right'] {
+      translate: 0 0;
+      transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-datetime-range-picker][data-part-positioner][data-open][data-positioned],
+    [data-ui-datetime-range-picker][data-part-positioner][data-open][data-positioned][data-side='top'],
+    [data-ui-datetime-range-picker][data-part-positioner][data-open][data-positioned][data-side='left'],
+    [data-ui-datetime-range-picker][data-part-positioner][data-open][data-positioned][data-side='right'] {
+      animation-name: slotted-datetime-range-picker-fade;
+    }
+  }
+
+  /* The anchor scrolled out of its own clipper. */
+  [data-ui-datetime-range-picker][data-part-positioner][data-detached] {
+    visibility: hidden;
+  }
+
+  /**
+   * The surface. It is sized by the calendar and the list inside it rather
+   * than by the control it hangs from, and it is a grid of one
+   * `minmax(0, 1fr)` track for the reason `date-range-picker` records: an
+   * `auto` track takes the calendar's own width as its floor, and the cap
+   * below would then cap a box the track had already overflowed.
+   */
+  [data-ui-datetime-range-picker] [data-part-content] {
+    background-color: var(
+      --slotted-datetime-range-picker-surface,
+      var(--slotted-surface-raised, Canvas)
+    );
+    border: var(--slotted-border-width-thin, 1px) solid
+      var(
+        --slotted-datetime-range-picker-content-border-color,
+        var(--slotted-border-subtle, ButtonBorder)
+      );
+    border-radius: var(
+      --slotted-datetime-range-picker-content-radius,
+      var(--slotted-radius-lg, 8px)
+    );
+    box-shadow: var(--slotted-datetime-range-picker-content-shadow, var(--slotted-shadow-md));
+    box-sizing: border-box;
+    color: var(--slotted-datetime-range-picker-content-color, var(--slotted-text, CanvasText));
+    /* The type of the surface follows density with the control scale, as the
+       calendar's does: a list at the page's size beside a grid at the
+       control's read as two sizes in dense. */
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--slotted-control-font-size-md, 13px);
+    /**
+     * One row's height, stated once, because the list's cap is counted in
+     * rows — eight and a half of them at every density, the arithmetic
+     * `time-picker` records. The pitch is the row plus the air under it.
+     */
+    --_row: max(var(--slotted-target-min, 24px), var(--slotted-control-height-sm, 30px));
+    --_row-pitch: calc(var(--_row) + var(--slotted-space-1, 0.125rem));
+
+    display: grid;
+    /* The bands breathe by the step the dialogs of the date chain use: a
+       surface holding a field and a list is a dialog, not a menu. */
+    gap: var(--slotted-space-5, 0.75rem);
+    grid-template-areas: 'head' 'presets' 'panel' 'footer';
+    grid-template-columns: minmax(0, 1fr);
+    /* Capped by the room the positioner measured, so the list drops under a
+       calendar it does not fit beside instead of running past the edge of
+       the screen; and by thirty rems before that, because a surface that
+       shrink-wraps a list takes its widest row, and a column of times reads
+       at half of that. */
+    max-inline-size: min(
+      var(--slotted-positioner-available-width, 100vw),
+      var(--slotted-datetime-range-picker-content-max-inline-size, 30rem)
+    );
+    padding: var(--slotted-datetime-range-picker-content-padding, var(--slotted-space-5, 0.75rem));
+    /* The layer above gave up the pointer; the surface takes it back. */
+    pointer-events: auto;
+  }
+
+  /* ── The band ─────────────────────────────────────────────────────────
+   *
+   * Three rows: which end is being chosen, where the reader types it, and
+   * what to do next. It renders at the panel's width and contributes nothing
+   * to it, by the pair `datetime-picker` records.
+   */
+  [data-ui-datetime-range-picker] [data-part-head] {
+    box-sizing: border-box;
+    inline-size: 0;
+    min-inline-size: 100%;
+
+    /* A grid, so the field and now, and the hint and the length, share a
+       row without a wrapper the anatomy would have to name. */
+    column-gap: var(--slotted-space-2, 0.25rem);
+    display: grid;
+    grid-area: head;
+    grid-template-areas: 'tabs tabs' 'field now' 'hint length' 'limit limit';
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-datetime-range-picker] [data-part-tabs] {
+    grid-area: tabs;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-field] {
+    grid-area: field;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-head] > [data-part-now] {
+    align-self: center;
+    grid-area: now;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-hint] {
+    align-self: center;
+    grid-area: hint;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-length] {
+    align-self: center;
+    grid-area: length;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-limit] {
+    grid-area: limit;
+  }
+
+  /* ── The two ends, as tabs ────────────────────────────────────────────
+   *
+   * One end at a time. Two equal halves, the label over the value; the
+   * current one carries the underline `date-range-picker` draws under its
+   * current field, in the accent, and the other reads as the step to come.
+   * The row is the whole width so the two are the same size whatever their
+   * values, and a thumb finds them without aiming.
+   */
+  [data-ui-datetime-range-picker] [data-part-tabs] {
+    border-block-end: var(--slotted-border-width-thin, 1px) solid
+      var(
+        --slotted-datetime-range-picker-content-border-color,
+        var(--slotted-border-subtle, ButtonBorder)
+      );
+    display: grid;
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-ui-datetime-range-picker] [data-part-tab] {
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-start-end-radius: var(
+      --slotted-datetime-range-picker-option-radius,
+      var(--slotted-radius-sm, 4px)
+    );
+    border-start-start-radius: var(
+      --slotted-datetime-range-picker-option-radius,
+      var(--slotted-radius-sm, 4px)
+    );
+    color: var(--slotted-datetime-range-picker-content-color, var(--slotted-text, CanvasText));
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    font: inherit;
+    gap: var(--slotted-space-1, 0.125rem);
+    min-block-size: var(--slotted-datetime-range-picker-tab-block-size, calc(var(--_row) * 1.5));
+    min-inline-size: 0;
+    padding-block: var(--slotted-space-2, 0.25rem) var(--slotted-space-3, 0.375rem);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    position: relative;
+    text-align: start;
+    touch-action: manipulation;
+    transition: background-color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-tab]::after {
+    background-color: var(
+      --slotted-datetime-range-picker-current-color,
+      var(--slotted-tone-accent-solid)
+    );
+    block-size: var(--slotted-datetime-range-picker-current-size, 2px);
+    border-start-end-radius: var(--slotted-radius-xs, 2px);
+    border-start-start-radius: var(--slotted-radius-xs, 2px);
+    content: '';
+    /* Over the row's own hairline, so the current tab's mark and the rule
+       are one line. */
+    inset-block-end: calc(-1 * var(--slotted-border-width-thin, 1px));
+    inset-inline: 0;
+    opacity: 0;
+    position: absolute;
+    transition: opacity var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-datetime-range-picker] [data-part-tab][data-current]::after {
+    opacity: 1;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-tab]:hover:not(:disabled):not([data-current]) {
+    background-color: var(
+      --slotted-datetime-range-picker-option-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-datetime-range-picker] [data-part-tab]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-datetime-range-picker] [data-part-tab]:disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  /* The label, in the muted ink for both ends alike: which end is current
+     is said once, by the underline. */
+  [data-ui-datetime-range-picker] [data-part-tab-label] {
+    color: var(--slotted-datetime-range-picker-label-color, var(--slotted-text-muted, GrayText));
+    font-size: var(--slotted-font-size-xs, 11px);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    letter-spacing: var(--slotted-letter-spacing-wide, 0.02em);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-tab-value] {
+    font-size: var(--slotted-font-size-sm, 13px);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-medium, 500);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    unicode-bidi: plaintext;
+    white-space: nowrap;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-tab][data-placeholder] [data-part-tab-value] {
+    color: var(--slotted-datetime-range-picker-label-color, var(--slotted-text-muted, GrayText));
+    font-weight: var(--slotted-font-weight-regular, 400);
+  }
+
+  /* ── The field row ────────────────────────────────────────────────────
+   *
+   * The current end's field in `plain`, spoken to in the only language this
+   * stylesheet is allowed: the tokens the field reads. Its border, inline
+   * padding, hover wash, invalid edge and lift are zeroed; its own focus ring
+   * stays, because in the band the field is the control the reader is in.
+   * `now` sits at the reading end of the same row. On a coarse pointer the
+   * row is `now` alone: a segment is a spinbutton and raises no keyboard.
+   */
+  [data-ui-datetime-range-picker] [data-part-field] {
+    --slotted-control-border-width: 0px;
+    --slotted-control-padding-inline-sm: var(--slotted-space-2, 0.25rem);
+    --slotted-control-padding-inline-md: var(--slotted-space-2, 0.25rem);
+    --slotted-control-padding-inline-lg: var(--slotted-space-2, 0.25rem);
+    --slotted-datetime-field-plain-hover-background: transparent;
+    --slotted-datetime-field-invalid-border-color: transparent;
+    --slotted-datetime-field-shadow: none;
+    --slotted-control-shadow-focus-geometry: 0 0 0 0;
+
+    display: flex;
+    flex: 0 1 auto;
+    min-inline-size: 0;
+  }
+
+  /* ── What to do next ──────────────────────────────────────────────────
+   *
+   * The hint at the start, the duration at the reading end; the limit on a
+   * line of its own under them. The hint is the difference between a panel
+   * that refuses and a panel that explains.
+   */
+  [data-ui-datetime-range-picker] [data-part-hint] {
+    color: var(--slotted-datetime-range-picker-hint-color, var(--slotted-text-muted, GrayText));
+    font-size: var(--slotted-font-size-sm, 13px);
+    min-inline-size: 0;
+    padding-inline-start: var(--slotted-space-2, 0.25rem);
+    text-wrap: balance;
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-hint][data-invalid] {
+    color: var(--slotted-datetime-range-picker-invalid-color, var(--slotted-tone-danger-text));
+  }
+
+  /* The duration, at the reading end, in the accent's text tone: it is the
+     number the band exists to say. Pending, it drops a step of weight. */
+  [data-ui-datetime-range-picker] [data-part-length] {
+    color: var(--slotted-datetime-range-picker-length-color, var(--slotted-tone-accent-text));
+    font-size: var(--slotted-font-size-sm, 13px);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    padding-inline: var(--slotted-space-4, 0.5rem) var(--slotted-space-2, 0.25rem);
+    unicode-bidi: plaintext;
+    white-space: nowrap;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-length][data-pending] {
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  /* An empty length still holds its line, so the band does not grow a row
+     when the first end is chosen. */
+  [data-ui-datetime-range-picker] [data-part-length]:empty::before {
+    content: '\200B';
+  }
+
+  [data-ui-datetime-range-picker] [data-part-limit] {
+    color: var(--slotted-datetime-range-picker-limit-color, var(--slotted-text-muted, GrayText));
+    font-size: var(--slotted-font-size-xs, 11px);
+    padding-inline-start: var(--slotted-space-2, 0.25rem);
+    unicode-bidi: plaintext;
+  }
+
+  /* ── The panel ────────────────────────────────────────────────────────
+   *
+   * The current end, one at a time: the calendar in range mode with both
+   * dates drawn, and the list of that end beside it, running on its day.
+   * `data-position` says which. Two items in a wrapping row: the list drops
+   * under the grid when the row cannot hold the grid and a list of nine rems
+   * — with one list there is nothing to keep together, so the row wraps by
+   * itself and no break in rems is needed; a break in rems broke the row in
+   * dense, where the grid is narrower and both fit. Half a step on every
+   * item and the same half taken back on the row, in place of `gap`, the
+   * habit of the date chain.
+   */
+  [data-ui-datetime-range-picker] [data-part-panel] {
+    --_panel-gap: calc(var(--slotted-space-4, 0.5rem) / 2);
+
+    align-items: stretch;
+    display: flex;
+    flex-wrap: wrap;
+    grid-area: panel;
+    margin: calc(-1 * var(--_panel-gap));
+    min-inline-size: 0;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-panel] > * {
+    margin: var(--_panel-gap);
+  }
+
+  /* The calendar keeps its own width and wraps its second month under the
+     first when the surface is narrow, which is its own container rule. */
+  [data-ui-datetime-range-picker] [data-part-date-panel] {
+    flex: 0 1 auto;
+    min-inline-size: 0;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-panel] > [data-part-list],
+  [data-ui-datetime-range-picker] [data-part-panel] > [data-part-empty] {
+    flex: 1 1 var(--slotted-datetime-range-picker-list-min-inline-size, 9rem);
+    min-inline-size: var(--slotted-datetime-range-picker-list-min-inline-size, 9rem);
+  }
+
+  /* A hairline between the grid and the list while they share a row. */
+  [data-ui-datetime-range-picker] [data-part-date-panel] + [data-part-list],
+  [data-ui-datetime-range-picker] [data-part-date-panel] + [data-part-empty] {
+    border-inline-start: var(--slotted-border-width-thin, 1px) solid
+      var(
+        --slotted-datetime-range-picker-content-border-color,
+        var(--slotted-border-subtle, ButtonBorder)
+      );
+    padding-inline-start: var(--slotted-space-4, 0.5rem);
+  }
+
+  [data-ui-datetime-range-picker] [data-part-now] {
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(
+      --slotted-datetime-range-picker-option-radius,
+      var(--slotted-radius-sm, 4px)
+    );
+    color: var(--slotted-datetime-range-picker-now-color, var(--slotted-tone-accent-text));
+    cursor: pointer;
+    flex: 0 0 auto;
+    font: inherit;
+    font-size: var(--slotted-font-size-sm, 13px);
+    min-block-size: var(--_row);
+    padding-block: var(--slotted-space-1, 0.125rem);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    touch-action: manipulation;
+    transition: background-color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-datetime-range-picker] [data-part-now]:hover:not(:disabled):not([data-disabled]) {
+    background-color: var(
+      --slotted-datetime-range-picker-option-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-datetime-range-picker] [data-part-now]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-datetime-range-picker] [data-part-now]:disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  /* ── The shortcuts ────────────────────────────────────────────────────
+   *
+   * This family ships no list of them: "the morning shift" is a business
+   * clock. It ships the row they stand in and the chip each one is, between
+   * the band and the panel, wrapping when they do not fit.
+   */
+  [data-ui-datetime-range-picker] [data-part-presets] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-area: presets;
+    min-inline-size: 0;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-preset] {
+    appearance: none;
+    background-color: var(
+      --slotted-datetime-range-picker-preset-background,
+      var(--slotted-tone-secondary-subtle)
+    );
+    border: 0;
+    border-radius: var(
+      --slotted-datetime-range-picker-preset-radius,
+      var(--slotted-radius-pill, 999px)
+    );
+    color: var(--slotted-datetime-range-picker-content-color, var(--slotted-text, CanvasText));
+    cursor: pointer;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--slotted-font-size-sm, 13px);
+    line-height: var(--slotted-line-height-sm, 1.4);
+    min-block-size: var(--_row);
+    padding-block: var(--slotted-space-1, 0.125rem);
+    padding-inline: var(--slotted-space-4, 0.5rem);
+    text-align: start;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-preset]:hover:not(:disabled):not([data-selected]) {
+    background-color: var(
+      --slotted-datetime-range-picker-preset-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-datetime-range-picker] [data-part-preset]:active:not(:disabled):not([data-selected]) {
+    background-color: var(
+      --slotted-datetime-range-picker-preset-active-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  [data-ui-datetime-range-picker] [data-part-preset][data-selected] {
+    background-color: var(
+      --slotted-datetime-range-picker-preset-selected-background,
+      var(--slotted-tone-accent-subtle-hover)
+    );
+    color: var(
+      --slotted-datetime-range-picker-preset-selected-color,
+      var(--slotted-tone-accent-text)
+    );
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-datetime-range-picker] [data-part-preset]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  [data-ui-datetime-range-picker] [data-part-preset]:disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  /* ── The list ─────────────────────────────────────────────────────────
+   *
+   * One column of times, the current end's, capped in control heights so the
+   * cap holds at every density, and scrolled rather than truncated —
+   * `time-picker`'s list.
+   */
+  [data-ui-datetime-range-picker] [data-part-list] {
+    display: flex;
+    flex-direction: column;
+    /* One step of air between rows, so the chosen row's painted ground and
+       the focused row's inset ring never share an edge. */
+    gap: var(--slotted-space-1, 0.125rem);
+    /* Eight rows and half of the ninth: a list cut on a row boundary looks
+       like the whole list. */
+    max-block-size: var(
+      --slotted-datetime-range-picker-list-block-size,
+      calc(var(--_row-pitch) * 8.5)
+    );
+    min-inline-size: 0;
+    overflow-y: auto;
+    /* A highlight moved by a key lands whole rather than half under the edge. */
+    scroll-padding-block: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-datetime-range-picker] [data-part-option] {
+    /* The time and its duration share a baseline, and the line box is the
+       row: baseline alignment alone would seat both at the top of a row
+       taller than one line, and a length line-height centres them in it. */
+    align-items: baseline;
+    background-color: transparent;
+    border-radius: var(
+      --slotted-datetime-range-picker-option-radius,
+      var(--slotted-radius-sm, 4px)
+    );
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    flex: 0 0 auto;
+    font-variant-numeric: tabular-nums;
+    gap: var(--slotted-space-3, 0.375rem);
+    justify-content: space-between;
+    line-height: var(--_row);
+    /* The row *is* `--_row`: no block padding on top of it, so eight rows are
+       eight rows and the cap that counts them is arithmetic. */
+    min-block-size: var(--_row);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /**
+   * The duration this option would make, beside it: "15:00 · 1 hr", the way
+   * a calendar application lists the end times of an event. It is the answer
+   * to the question the reader is actually asking while choosing an end, read
+   * row by row rather than one option at a time from the band. In the list of
+   * the other end it is the duration to the end already chosen. Muted, so the
+   * time stays what the row is; on the chosen row it takes the row's own ink.
+   */
+  [data-ui-datetime-range-picker] [data-part-option-duration] {
+    color: var(--slotted-datetime-range-picker-label-color, var(--slotted-text-muted, GrayText));
+    flex: 0 1 auto;
+    font-size: var(--slotted-font-size-xs, 11px);
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    unicode-bidi: plaintext;
+    white-space: nowrap;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-option][data-selected] [data-part-option-duration],
+  [data-ui-datetime-range-picker] [data-part-option][data-disabled] [data-part-option-duration] {
+    color: inherit;
+  }
+
+  /* ── Option states ────────────────────────────────────────────────────
+   *
+   * Written strongest last, and each weaker one guarded against every stronger
+   * one it can meet: the chosen time outranks the highlight, and the highlight
+   * outranks the pointer. Specificity is what makes this a rule rather than an
+   * ordering — the defect `time-picker` records from its visual gate.
+   */
+  [data-ui-datetime-range-picker]
+    [data-part-option]:hover:not([data-disabled]):not([data-selected]):not([data-current]) {
+    background-color: var(
+      --slotted-datetime-range-picker-option-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-datetime-range-picker] [data-part-option][data-current]:not([data-selected]) {
+    background-color: var(
+      --slotted-datetime-range-picker-option-current-background,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+  }
+
+  [data-ui-datetime-range-picker] [data-part-option]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  [data-ui-datetime-range-picker] [data-part-option][data-selected] {
+    background-color: var(
+      --slotted-datetime-range-picker-option-selected-background,
+      var(--slotted-tone-accent-solid)
+    );
+    color: var(
+      --slotted-datetime-range-picker-option-selected-color,
+      var(--slotted-tone-accent-on-solid)
+    );
+  }
+
+  /* The chosen row still answers the pointer, one step along its own tone. */
+  [data-ui-datetime-range-picker] [data-part-option][data-selected]:hover:not([data-disabled]) {
+    background-color: var(
+      --slotted-datetime-range-picker-option-selected-hover-background,
+      var(--slotted-tone-accent-solid-hover)
+    );
+  }
+
+  /**
+   * A time a bound, the predicate or the other end refuses. It stays in the
+   * list by default, because a list that silently drops rows is a list whose
+   * step the reader cannot infer — and it is muted to the colour the theme
+   * measures rather than faded by opacity, so it stays readable.
+   */
+  [data-ui-datetime-range-picker] [data-part-option][data-disabled] {
+    background-color: transparent;
+    color: var(--slotted-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  /* Nothing available for this end at all. A sentence rather than an empty
+     box, the reason `time-picker` records. */
+  [data-ui-datetime-range-picker] [data-part-empty] {
+    align-items: center;
+    color: var(--slotted-datetime-range-picker-label-color, var(--slotted-text-muted, GrayText));
+    display: flex;
+    font-size: var(--slotted-font-size-sm, 13px);
+    justify-content: center;
+    min-block-size: calc(var(--_row) * 2);
+    padding: var(--slotted-space-4, 0.5rem);
+    text-align: center;
+    text-wrap: balance;
+    /* A sentence laid out by its own first strong character, so a full stop
+       does not lead it in a right-to-left document. */
+    unicode-bidi: plaintext;
+  }
+
+  /* The consumer's own actions and, at the reading end, `done`: the way out
+     of a sheet that fills the screen and of an edit left half way. */
+  [data-ui-datetime-range-picker] [data-part-footer] {
+    box-sizing: border-box;
+    inline-size: 0;
+    min-inline-size: 100%;
+
+    align-items: center;
+    border-block-start: var(--slotted-border-width-thin, 1px) solid
+      var(
+        --slotted-datetime-range-picker-content-border-color,
+        var(--slotted-border-subtle, ButtonBorder)
+      );
+    display: flex;
+    gap: var(--slotted-space-2, 0.25rem);
+    grid-area: footer;
+    justify-content: flex-end;
+    padding-block-start: var(--slotted-space-3, 0.375rem);
+  }
+
+  [data-ui-datetime-range-picker] [data-part-done] {
+    appearance: none;
+    background-color: var(
+      --slotted-datetime-range-picker-done-background,
+      var(--slotted-tone-accent-solid)
+    );
+    border: 0;
+    border-radius: var(--slotted-datetime-range-picker-radius, var(--slotted-control-radius, 4px));
+    color: var(
+      --slotted-datetime-range-picker-done-color,
+      var(--slotted-tone-accent-on-solid, Canvas)
+    );
+    cursor: pointer;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--slotted-font-size-sm, 13px);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    line-height: var(--slotted-line-height-sm, 1.4);
+    margin-inline-start: auto;
+    min-block-size: var(--_row);
+    padding-block: var(--slotted-space-1, 0.125rem);
+    padding-inline: var(--slotted-space-5, 0.75rem);
+    touch-action: manipulation;
+    transition: background-color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-ui-datetime-range-picker] [data-part-done]:hover:not(:disabled) {
+    background-color: var(
+      --slotted-datetime-range-picker-done-hover-background,
+      var(--slotted-tone-accent-solid-hover)
+    );
+  }
+
+  [data-ui-datetime-range-picker] [data-part-done]:active:not(:disabled) {
+    background-color: var(
+      --slotted-datetime-range-picker-done-active-background,
+      var(--slotted-tone-accent-solid-active)
+    );
+  }
+
+  [data-ui-datetime-range-picker] [data-part-done]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── On a finger ──────────────────────────────────────────────────────
+   *
+   * The row is the touch target: the theme raises the control heights to
+   * `--slotted-target-comfortable` under a coarse pointer, and the row is
+   * counted in them. The field is not drawn — a segment is a spinbutton and
+   * raises no keyboard — and the list is the way to a time.
+   */
+  @media (pointer: coarse) {
+    [data-ui-datetime-range-picker] [data-part-field] {
+      display: none;
+    }
+  }
+
+  /* ── Narrow, on a finger ──────────────────────────────────────────────
+   *
+   * §2.7 of `docs/component-features.md` asks for it by name: a popover on the
+   * desktop and a sheet in a narrow viewport. The DOM does not change.
+   */
+  @media (max-width: 480px) and (pointer: coarse) {
+    [data-ui-datetime-range-picker][data-part-positioner][data-presentation='sheet'] {
+      inset: auto 0 0;
+      position: fixed;
+      translate: 0 var(--slotted-space-9, 2rem);
+    }
+
+    [data-ui-datetime-range-picker][data-part-positioner][data-presentation='sheet'][data-open] {
+      translate: 0 0;
+    }
+
+    [data-ui-datetime-range-picker][data-part-positioner][data-presentation='sheet']
+      [data-part-content] {
+      border-end-end-radius: 0;
+      border-end-start-radius: 0;
+      border-inline: 0;
+      border-block-end: 0;
+      inline-size: var(--slotted-datetime-range-picker-sheet-inline-size, 100%);
+      max-inline-size: none;
+      /* A month wider than the screen would scroll sideways; the grid inside
+         answers its own width instead. */
+      justify-content: center;
+      /* A sheet taller than the screen — a grid and a list on a short phone,
+         a list on a phone held sideways — scrolls as one, so the tabs stay
+         reachable rather than above the top edge. `dvh` follows the
+         browser's own bars; `vh` is the fallback. */
+      max-block-size: 100vh;
+      max-block-size: 100dvh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding-block-end: max(
+        var(--slotted-datetime-range-picker-content-padding, var(--slotted-space-5, 0.75rem)),
+        env(safe-area-inset-bottom, 0px)
+      );
+    }
+
+    /* Four rows and a half under the grid on a phone, at the touch height:
+       the grid, the list and done fit a short screen together. */
+    [data-ui-datetime-range-picker][data-part-positioner][data-presentation='sheet']
+      [data-part-list] {
+      max-block-size: calc(var(--_row-pitch) * 4.5);
+    }
+
+    /* The list under the grid on a phone, whatever the row's width: a grid
+       and a column side by side leave neither room enough. */
+    [data-ui-datetime-range-picker][data-part-positioner][data-presentation='sheet']
+      [data-part-panel]
+      > [data-part-list],
+    [data-ui-datetime-range-picker][data-part-positioner][data-presentation='sheet']
+      [data-part-panel]
+      > [data-part-empty] {
+      flex-basis: 100%;
+    }
+
+    [data-ui-datetime-range-picker][data-part-positioner][data-presentation='sheet']
+      [data-part-date-panel]
+      + [data-part-list] {
+      border-inline-start: 0;
+      padding-inline-start: 0;
+    }
+
+    [data-ui-datetime-range-picker][data-part-positioner][data-presentation='sheet']
+      [data-part-tab] {
+      min-block-size: var(
+        --slotted-datetime-range-picker-tab-block-size,
+        var(--slotted-target-comfortable, 44px)
+      );
+    }
+
+    /**
+     * The grip every bottom sheet carries, in the drawer's geometry and line
+     * colour: a pill three rem by a quarter, centred in a row one target tall
+     * that the content keeps clear at its top. A pull down on it dismisses the
+     * sheet; Escape and the press outside stay the accessible ways out.
+     */
+    [data-ui-datetime-range-picker][data-part-positioner][data-presentation='sheet']
+      > [data-part-content] {
+      padding-block-start: var(--slotted-target-min, 24px);
+      position: relative;
+    }
+
+    [data-ui-datetime-range-picker][data-part-positioner][data-presentation='sheet']
+      > [data-part-content]
+      > [data-part-grip] {
+      background-clip: content-box;
+      background-color: var(
+        --slotted-drawer-resizer-line-color,
+        var(--slotted-border-strong, ButtonBorder)
+      );
+      block-size: var(--slotted-space-2, 0.25rem);
+      border-radius: var(--slotted-radius-full, 9999px);
+      box-sizing: content-box;
+      cursor: grab;
+      inline-size: var(--slotted-space-11, 3rem);
+      inset-block-start: 0;
+      inset-inline: 0;
+      margin-inline: auto;
+      padding-block: calc((var(--slotted-target-min, 24px) - var(--slotted-space-2, 0.25rem)) / 2);
+      position: absolute;
+      touch-action: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-datetime-range-picker][data-part-root][data-variant='plain'] [data-part-control] {
+      border-color: ButtonBorder;
+    }
+
+    /* The tab's underline is painted with a background, and forced colours
+       replace a background that is not one of the system's own. */
+    [data-ui-datetime-range-picker] [data-part-tab]::after {
+      forced-color-adjust: none;
+    }
+
+    [data-ui-datetime-range-picker] [data-part-tab]::after {
+      background-color: currentcolor;
+    }
+
+    [data-ui-datetime-range-picker] [data-part-preset][data-selected],
+    [data-ui-datetime-range-picker] [data-part-option][data-selected] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-datetime-range-picker] [data-part-option][data-current]:not([data-selected]) {
+      outline: var(--slotted-focus-ring-width, 2px) solid Highlight;
+      outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+    }
+  }
+}

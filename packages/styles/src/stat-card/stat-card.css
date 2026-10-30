@@ -1,0 +1,831 @@
+@layer slotted.components {
+  /**
+   * A metric with its name, its change and its trend, in a frame. The frame
+   * is the one `card` draws — a raised surface, a hairline edge out of flow —
+   * restated here in the family's own tokens rather than composed, because a
+   * card brings media, a body, a link and a selection, and a figure has none
+   * of them; what the two share is a surface, and a surface is three tokens.
+   *
+   * The root is the query container and the body is the grid, one element
+   * in: a container cannot change its own tracks
+   * (`docs/build-briefing.md`, _Decisions already taken_).
+   */
+  [data-ui-stat-card] {
+    --_edge-width: var(--slotted-stat-card-border-width, var(--slotted-border-width-thin, 1px));
+    --_radius: var(--slotted-stat-card-radius, var(--slotted-radius-lg, 8px));
+    --_inset-block: var(--slotted-stat-card-padding-block, var(--slotted-space-6, 1rem));
+    --_inset-inline: var(--slotted-stat-card-padding-inline, var(--slotted-space-6, 1rem));
+    /* Between the name and the figure, and between the figure and the prose
+       under it: one step below the inset, so the regions group with each
+       other before they group with the edge. */
+    --_region-gap: var(--slotted-stat-card-region-gap, var(--slotted-space-3, 0.375rem));
+    /* Between the figure and the trend beside it. */
+    --_trend-gap: var(--slotted-stat-card-trend-gap, var(--slotted-space-6, 1rem));
+    /* The trend column's width when it sits beside the figure. A proportion
+       of the largest space step rather than a step: the scale ends at four
+       rem, and a line needs six to have room for twelve points. */
+    --_trend-size: var(
+      --slotted-stat-card-trend-inline-size,
+      calc(var(--slotted-space-12, 4rem) * 1.5)
+    );
+    /* The trend's height when it takes the last row and the card's whole
+       width: one step above the sparkline's own, because a line as wide as
+       the card at the sparkline's height reads flat. */
+    --_trend-block: var(--slotted-stat-card-trend-block-size, var(--slotted-space-11, 3rem));
+    /* The least height of a trend beside the figure, which otherwise takes
+       the figure's height: the sparkline's own step. */
+    --_trend-floor: var(--slotted-sparkline-block-size, var(--slotted-space-9, 2rem));
+
+    --_surface: var(--slotted-stat-card-background, var(--slotted-surface-raised, Canvas));
+    --_edge: var(--slotted-stat-card-border-color, var(--slotted-border-subtle, ButtonBorder));
+    --_shadow: var(--slotted-stat-card-shadow, none);
+    --_ink: var(--slotted-stat-card-color, var(--slotted-text, CanvasText));
+    --_ink-muted: var(--slotted-stat-card-color-muted, var(--slotted-text-muted, GrayText));
+
+    /* The figure's type, by size step. */
+    --_value-size: var(--slotted-stat-card-value-font-size, var(--slotted-font-size-3xl, 1.5rem));
+    --_value-line: var(--slotted-stat-card-value-line-height, var(--slotted-line-height-3xl, 1.3));
+    --_label-size: var(--slotted-stat-card-label-font-size, var(--slotted-font-size-sm, 0.8125rem));
+    --_label-line: var(--slotted-stat-card-label-line-height, var(--slotted-line-height-sm, 1.45));
+    --_delta-size: var(--slotted-stat-card-delta-font-size, var(--slotted-font-size-sm, 0.8125rem));
+    --_prose-size: var(--slotted-stat-card-prose-font-size, var(--slotted-font-size-xs, 0.75rem));
+    --_prose-line: var(--slotted-stat-card-prose-line-height, var(--slotted-line-height-xs, 1.4));
+    /* The indicator beside the delta, one step under the delta's own type so
+       the mark sits inside the x-height band rather than over it. */
+    --_indicator-size: var(
+      --slotted-stat-card-indicator-size,
+      var(--slotted-control-icon-size-sm, 14px)
+    );
+    /* One step under the value, for the box under 220 pixels. */
+    --_value-size-narrow: var(--slotted-font-size-2xl, 1.25rem);
+    --_value-line-narrow: var(--slotted-line-height-2xl, 1.4);
+
+    /* The tone of the change, as the delta and the trend read it. Neutral
+       until a delta states one. */
+    --_tone-text: var(--_ink-muted);
+
+    background-color: var(--_surface);
+    border: none;
+    border-radius: var(--_radius);
+    box-shadow: var(--_shadow);
+    box-sizing: border-box;
+    color: var(--_ink);
+    container-name: stat-card;
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    /**
+     * A floor, and under it the card overflows its column rather than
+     * shrinking: squeezed below the width of a word, a card wrapped its
+     * label and its value one character to a line, which is a column of
+     * letters and not a metric. Ten rem holds a six-digit value at 24
+     * pixels with the trend under it; a grid that gives a card less has
+     * one column too many, and the overflow is what says so. A proportion
+     * of the largest space step, as the trend's width is.
+     */
+    min-inline-size: var(
+      --slotted-stat-card-min-inline-size,
+      calc(var(--slotted-space-12, 4rem) * 2.5)
+    );
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    position: relative;
+  }
+
+  /* The edge, out of flow, so a frame that changes width moves no text. */
+  [data-ui-stat-card]::before {
+    border: var(--_edge-width) solid var(--_edge);
+    border-radius: inherit;
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  [data-ui-stat-card][data-size='sm'] {
+    --_inset-block: var(--slotted-stat-card-padding-block-sm, var(--slotted-space-5, 0.75rem));
+    --_inset-inline: var(--slotted-stat-card-padding-inline-sm, var(--slotted-space-5, 0.75rem));
+    --_region-gap: var(--slotted-stat-card-region-gap-sm, var(--slotted-space-2, 0.25rem));
+    --_trend-gap: var(--slotted-stat-card-trend-gap-sm, var(--slotted-space-5, 0.75rem));
+    --_trend-size: var(--slotted-stat-card-trend-inline-size-sm, var(--slotted-space-12, 4rem));
+    --_trend-block: var(--slotted-stat-card-trend-block-size-sm, var(--slotted-space-9, 2rem));
+    --_trend-floor: var(--slotted-sparkline-block-size-sm, var(--slotted-space-7, 1.25rem));
+    --_value-size: var(
+      --slotted-stat-card-value-font-size-sm,
+      var(--slotted-font-size-2xl, 1.25rem)
+    );
+    --_value-line: var(
+      --slotted-stat-card-value-line-height-sm,
+      var(--slotted-line-height-2xl, 1.4)
+    );
+    --_label-size: var(
+      --slotted-stat-card-label-font-size-sm,
+      var(--slotted-font-size-xs, 0.75rem)
+    );
+    --_label-line: var(
+      --slotted-stat-card-label-line-height-sm,
+      var(--slotted-line-height-xs, 1.4)
+    );
+    --_delta-size: var(
+      --slotted-stat-card-delta-font-size-sm,
+      var(--slotted-font-size-xs, 0.75rem)
+    );
+    --_value-size-narrow: var(--slotted-font-size-xl, 1.125rem);
+    --_value-line-narrow: var(--slotted-line-height-xl, 1.45);
+  }
+
+  [data-ui-stat-card][data-size='lg'] {
+    --_inset-block: var(--slotted-stat-card-padding-block-lg, var(--slotted-space-8, 1.5rem));
+    --_inset-inline: var(--slotted-stat-card-padding-inline-lg, var(--slotted-space-8, 1.5rem));
+    --_region-gap: var(--slotted-stat-card-region-gap-lg, var(--slotted-space-4, 0.5rem));
+    --_trend-gap: var(--slotted-stat-card-trend-gap-lg, var(--slotted-space-8, 1.5rem));
+    --_trend-size: var(
+      --slotted-stat-card-trend-inline-size-lg,
+      calc(var(--slotted-space-12, 4rem) * 2)
+    );
+    --_trend-block: var(--slotted-stat-card-trend-block-size-lg, var(--slotted-space-12, 4rem));
+    --_trend-floor: var(--slotted-sparkline-block-size-lg, var(--slotted-space-11, 3rem));
+    --_value-size: var(--slotted-stat-card-value-font-size-lg, var(--slotted-font-size-4xl, 2rem));
+    --_value-line: var(
+      --slotted-stat-card-value-line-height-lg,
+      var(--slotted-line-height-4xl, 1.2)
+    );
+    --_label-size: var(
+      --slotted-stat-card-label-font-size-lg,
+      var(--slotted-font-size-md, 0.875rem)
+    );
+    --_label-line: var(
+      --slotted-stat-card-label-line-height-lg,
+      var(--slotted-line-height-md, 1.5)
+    );
+    --_delta-size: var(
+      --slotted-stat-card-delta-font-size-lg,
+      var(--slotted-font-size-md, 0.875rem)
+    );
+    --_prose-size: var(
+      --slotted-stat-card-prose-font-size-lg,
+      var(--slotted-font-size-sm, 0.8125rem)
+    );
+    --_prose-line: var(
+      --slotted-stat-card-prose-line-height-lg,
+      var(--slotted-line-height-sm, 1.45)
+    );
+    --_indicator-size: var(
+      --slotted-stat-card-indicator-size-lg,
+      var(--slotted-control-icon-size-md, 16px)
+    );
+    --_value-size-narrow: var(--slotted-font-size-3xl, 1.5rem);
+    --_value-line-narrow: var(--slotted-line-height-3xl, 1.3);
+  }
+
+  /* ── Fill: the three frames a card has, and none ─────────────────────── */
+
+  [data-ui-stat-card][data-fill='elevated'] {
+    --_shadow: var(--slotted-stat-card-shadow-elevated, var(--slotted-shadow-md));
+  }
+
+  [data-ui-stat-card][data-fill='subtle'] {
+    --_surface: var(--slotted-stat-card-background-subtle, var(--slotted-surface-sunken, Canvas));
+  }
+
+  /**
+   * `plain` is the figure with no frame of its own: in a table cell, in a row
+   * of metrics separated by dividers, inside a card that is already a card.
+   * It keeps no inset either, because the host's inset is the inset.
+   */
+  [data-ui-stat-card][data-fill='plain'] {
+    --_surface: transparent;
+    --_edge: transparent;
+    --_shadow: none;
+    --_inset-block: 0;
+    --_inset-inline: 0;
+    --_radius: var(--slotted-radius-none, 0px);
+  }
+
+  /* ── Attention: a figure past a threshold the product states ─────────── */
+
+  /**
+   * The value and the edge take the tone; the delta keeps the tone of its
+   * change, and the trend the root's `tone`. The binding writes the
+   * attribute on a ready value only. A `plain` card has no edge to paint.
+   */
+  [data-ui-stat-card][data-attention='warning'] {
+    --_attention-ink: var(--slotted-stat-card-attention-ink, var(--slotted-tone-warning-text));
+    --_attention-edge: var(
+      --slotted-stat-card-attention-border-color,
+      var(--slotted-tone-warning-border)
+    );
+  }
+
+  [data-ui-stat-card][data-attention='danger'] {
+    --_attention-ink: var(--slotted-stat-card-attention-ink, var(--slotted-tone-danger-text));
+    --_attention-edge: var(
+      --slotted-stat-card-attention-border-color,
+      var(--slotted-tone-danger-border)
+    );
+  }
+
+  [data-ui-stat-card][data-attention]:not([data-fill='plain']) {
+    --_edge: var(--_attention-edge);
+  }
+
+  /* ── The body ─────────────────────────────────────────────────────────── */
+
+  /**
+   * A grid with named rows, and the second row is the one that grows. Cards
+   * in a row are stretched to one height by the grid that holds them, and
+   * what a reader compares across the row is the value and the trend: the
+   * figure sits at the top of its row under the header, and the trend sits
+   * beside it (`inline`) or on the last row (`stacked`), which is the bottom
+   * of every card whatever the card beside it holds. A card with a shorter
+   * label or no comparison keeps its trend level with its neighbours'.
+   *
+   * Which layout applies is decided by the consumer's `layout` and by the
+   * container's width, never by the content. A wrapping row was tried — it
+   * moved the trend under a value too wide to sit beside it — and it was
+   * given up for this: a row of cards has to lay out the same way at the same
+   * width whatever the numbers in it, or the trends of three cards sit at
+   * three heights.
+   *
+   * What gives way to a wide value is the trend's width, not the number: the
+   * figure's column is floored at its min-content, which is the value whole
+   * (`break-word` leaves min-content alone), and the trend's column shrinks
+   * from its size step down to nothing. A value that leaves the trend no
+   * room is a value the consumer formats compact or stacks the card for; a
+   * number is broken only when it is wider than the card itself. A floor on
+   * the trend was tried and pushed the trend through the card's edge.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-body] {
+      column-gap: var(--_trend-gap);
+      display: grid;
+      flex: 1 1 auto;
+      grid-template-areas:
+        'header header'
+        'figure trend'
+        'message message';
+      grid-template-columns: minmax(min-content, 1fr) minmax(0, var(--_trend-size));
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      min-inline-size: 0;
+      row-gap: var(--_region-gap);
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-layout='stacked'] [data-part-body] {
+      grid-template-areas:
+        'header'
+        'figure'
+        'message'
+        'trend';
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr) auto auto;
+    }
+  }
+
+  /**
+   * The header, the comparison and the message hold text a consumer writes,
+   * and a line set on one row (`nowrap` with an ellipsis) has the whole line
+   * as its min-content. The figure's column is floored at its min-content, so
+   * that line would widen the column past the card. Size containment on the
+   * inline axis gives these regions no intrinsic width: the figure alone
+   * decides the column, and the text is cut or wrapped by the card's width.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-header] {
+      contain: inline-size;
+      grid-area: header;
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-figure] {
+      align-self: start;
+      grid-area: figure;
+      min-inline-size: 0;
+    }
+  }
+
+  /**
+   * The trend is a query container of its own, so what is inside it can
+   * answer the width the column gave it: under forty pixels a sparkline is
+   * a smear, and the region hides what it holds rather than draw one. The
+   * width is the space a wide value left, which a query on the card cannot
+   * see.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-trend] {
+      /* The marker's ring is the card's ground, not the page's. */
+      --slotted-sparkline-ring-color: var(--_surface);
+
+      align-self: stretch;
+      container-name: stat-card-trend;
+      container-type: inline-size;
+      grid-area: trend;
+      inline-size: 100%;
+      min-inline-size: 0;
+    }
+  }
+
+  @container stat-card-trend (max-width: 39px) {
+    @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+      :scope [data-part-trend] > * {
+        visibility: hidden;
+      }
+    }
+  }
+
+  /**
+   * On the last row the trend reaches the card's edges: its sides and its
+   * bottom bleed through the inset, and the card's corners round it. A line
+   * drawn inside the inset ends a gutter short of each edge and reads as a
+   * picture placed in the card; a line that runs to the frame reads as the
+   * card's ground. The edge is drawn over it, out of flow. A plain card has
+   * no inset, so the margins are nought there.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-layout='stacked'] [data-part-trend] {
+      align-self: end;
+      border-end-end-radius: calc(var(--_radius) - var(--_edge-width));
+      border-end-start-radius: calc(var(--_radius) - var(--_edge-width));
+      margin-block-end: calc(-1 * var(--_inset-block));
+      margin-block-start: var(--slotted-space-2, 0.25rem);
+      margin-inline: calc(-1 * var(--_inset-inline));
+      overflow: clip;
+      /* The region is wider than the column by the two insets. */
+      inline-size: auto;
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-layout='stacked'] [data-part-trend] > * {
+      block-size: var(--_trend-block);
+      min-block-size: 0;
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-message] {
+      contain: inline-size;
+      grid-area: message;
+    }
+  }
+
+  /**
+   * Under 220 pixels the trend has no room beside a figure — a value of six
+   * digits at 24 pixels is already 90 — so it goes under it, and the value
+   * drops one step of type. Literal, as every container breakpoint is
+   * (`docs/token-foundation.md`, rule 4).
+   */
+  @container stat-card (max-width: 219px) {
+    @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+      :scope [data-part-body] {
+        grid-template-areas:
+          'header'
+          'figure'
+          'message'
+          'trend';
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr) auto auto;
+      }
+    }
+
+    @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+      :scope [data-part-trend] {
+        align-self: end;
+        border-end-end-radius: calc(var(--_radius) - var(--_edge-width));
+        border-end-start-radius: calc(var(--_radius) - var(--_edge-width));
+        margin-block-end: calc(-1 * var(--_inset-block));
+        margin-block-start: var(--slotted-space-2, 0.25rem);
+        margin-inline: calc(-1 * var(--_inset-inline));
+        overflow: clip;
+        /* The region is wider than the column by the two insets. */
+        inline-size: auto;
+      }
+    }
+
+    @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+      :scope [data-part-trend] > * {
+        block-size: var(--_trend-block);
+        min-block-size: 0;
+      }
+    }
+
+    @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+      :scope [data-part-value] {
+        font-size: var(--_value-size-narrow);
+        line-height: var(--_value-line-narrow);
+      }
+    }
+
+    /* The value steps down here, and so does the line its placeholder keeps. */
+    @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+      :scope[data-loading] [data-part-value] {
+        min-block-size: calc(var(--_value-size-narrow) * var(--_value-line-narrow));
+      }
+    }
+  }
+
+  /* ── Header: the name, a status beside it, an action at the end ──────── */
+
+  /**
+   * On the baseline rather than centred: a label that wraps to two lines
+   * keeps its status and its action on its first line, where the eye reads
+   * them as part of the name, instead of floating them at the middle of the
+   * block.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-header] {
+      align-items: baseline;
+      column-gap: var(--slotted-space-3, 0.375rem);
+      display: flex;
+      flex-wrap: wrap;
+      min-inline-size: 0;
+      row-gap: var(--slotted-space-2, 0.25rem);
+    }
+  }
+
+  /**
+   * A basis of nought, so the label wraps beside its status rather than
+   * taking the line alone and sending the status under it — and a floor of
+   * ten rem, so a narrow card does not squeeze the name into a column of
+   * single words to keep a badge and a link on its first line. Under the
+   * floor the status and the action take the next line instead. A
+   * proportion of the type rather than a scale step: it is a width of
+   * words, and it scales with them.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-label] {
+      color: var(--_ink-muted);
+      flex: 1 1 0%;
+      font-size: var(--_label-size);
+      font-weight: var(--slotted-font-weight-medium, 500);
+      line-height: var(--_label-line);
+      margin: 0;
+      min-inline-size: min(100%, 10rem);
+      overflow-wrap: break-word;
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-status] {
+      display: inline-flex;
+      flex: none;
+    }
+  }
+
+  /* The action takes the end of the header's first line and stays there
+     when the label wraps: it is the one thing on the card the reader presses,
+     and a corner is where a control is looked for. */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-action] {
+      /* An action slot states one size for the links it holds. */
+      --slotted-link-font-size: var(--slotted-font-size-sm, 0.8125rem);
+
+      flex: none;
+      /* The label's line, so a link here is as tall in the fallback face as in
+         the web face and the header does not grow when the font arrives. */
+      font-size: var(--_label-size);
+      line-height: var(--_label-line);
+      margin-inline-start: auto;
+    }
+  }
+
+  /* On a finger the card's one control is a full target among 44-pixel
+     controls: a transparent `::before` centred on the link or button — the
+     part itself when `render` made it one — reaches
+     the comfortable size in both axes, and the header keeps its height. */
+  @media (pointer: coarse) {
+    @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+      :scope :is([data-part-action]:is(a, button), [data-part-action] > :is(a, button)) {
+        position: relative;
+      }
+    }
+
+    @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+      :scope :is([data-part-action]:is(a, button), [data-part-action] > :is(a, button))::before {
+        content: '';
+        inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+        position: absolute;
+      }
+    }
+  }
+
+  /* ── Figure: the value, its unit, the delta ───────────────────────────── */
+
+  /**
+   * The figure holds the value with its unit and delta on one line, and the
+   * comparison under them. The value line is a wrapping row on the baseline,
+   * so a delta that does not fit beside a wide number drops under it rather
+   * than pushing the number.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-figure] {
+      align-items: baseline;
+      column-gap: var(--slotted-space-3, 0.375rem);
+      display: flex;
+      flex-wrap: wrap;
+      row-gap: 0;
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-comparison] {
+      contain: inline-size;
+      flex: 1 1 100%;
+    }
+  }
+
+  /**
+   * Proportional figures, deliberately: `tabular-nums` gives every digit the
+   * width of a nought and a value like 121 reads loose at this size. A column
+   * of values in a table wants the tabular ones, and a table cell says so on
+   * its own cell.
+   *
+   * The tracking is a proportion of the type and not a scale step: it exists
+   * to pull a large numeral's counters back together, and it is the same
+   * fraction at every size.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-value] {
+      /* The figure and its unit are two flex items on one baseline — the text
+         node is an item of its own — so the gap spaces the unit from the digit
+         on whichever side it stands. A margin on the unit, reset by
+         `:first-child` for a leading unit, hugged a trailing one: after a bare
+         figure the unit is the first element child. */
+      align-items: baseline;
+      color: var(--_ink);
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 0.15em;
+      font-size: var(--_value-size);
+      font-variant-numeric: proportional-nums;
+      font-weight: var(--slotted-font-weight-semibold, 600);
+      /* The figure is set at the 3xl or 4xl step, where the theme's tighter
+         tracking applies. */
+      letter-spacing: var(--slotted-letter-spacing-tighter, -0.03em);
+      unicode-bidi: plaintext;
+      line-height: var(--_value-line);
+      margin: 0;
+      min-inline-size: 0;
+      /* A number is never truncated: a value wider than its column breaks
+         rather than clips, and a consumer who wants it whole formats it
+         compact or stacks the card. */
+      overflow-wrap: break-word;
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-attention] [data-part-value] {
+      color: var(--_attention-ink);
+    }
+  }
+
+  /* The unit is in the value's own line, a step down in size and weight, so
+     `$` and `%` read as annotation of the number rather than as digits. */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-unit] {
+      color: var(--_ink-muted);
+      font-size: var(--_delta-size);
+      font-weight: var(--slotted-font-weight-medium, 500);
+      letter-spacing: 0;
+    }
+  }
+
+  /**
+   * The delta: a mark and a number in the tone the change earned. Text, not
+   * a chip — a chip on every card is twelve pills on a page of twelve
+   * metrics, and the tone's text role already clears the reading ratio on
+   * the surface. It sits on the value's baseline.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-delta] {
+      align-items: center;
+      color: var(--_tone-text);
+      column-gap: var(--slotted-space-1, 0.125rem);
+      display: inline-flex;
+      font-size: var(--_delta-size);
+      font-variant-numeric: tabular-nums;
+      font-weight: var(--slotted-font-weight-semibold, 600);
+      line-height: 1;
+      /* A signed number is a run of its own: in a right-to-left document the
+         sign of `+12.4%` is a neutral character and drifts to the far end of
+         the run, so the run is laid out by its own content. */
+      unicode-bidi: plaintext;
+      white-space: nowrap;
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-delta][data-tone='neutral'] {
+      --_tone-text: var(--_ink-muted);
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-delta][data-tone='accent'] {
+      --_tone-text: var(--slotted-tone-accent-text);
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-delta][data-tone='secondary'] {
+      --_tone-text: var(--slotted-tone-secondary-text);
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-delta][data-tone='success'] {
+      --_tone-text: var(--slotted-tone-success-text);
+    }
+
+    :scope [data-part-delta][data-tone='info'] {
+      --_tone-text: var(--slotted-tone-info-text);
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-delta][data-tone='warning'] {
+      --_tone-text: var(--slotted-tone-warning-text);
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-delta][data-tone='danger'] {
+      --_tone-text: var(--slotted-tone-danger-text);
+    }
+  }
+
+  /**
+   * The mark: one glyph, `trending-up`, turned over for a fall. Lucide's
+   * `trending-down` is the same artwork reflected across the horizontal
+   * axis, so the family draws one glyph and mirrors it, the way every
+   * chevron in the scale is mirrored by the family that draws it. A flat
+   * change draws `minus`. The binding renders the glyph inside the icon box;
+   * the part hands the box its size, and the box inherits the delta's ink.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-indicator] {
+      --slotted-icon-size: var(--_indicator-size);
+
+      display: inline-flex;
+      flex: none;
+    }
+  }
+
+  /* A reflection across the horizontal axis, not motion: nothing travels when
+     a rise becomes a fall. Time runs from the right in a right-to-left
+     document, so the rise points the other way there, as the sparkline beside
+     it does — the `directional` icon box the binding draws does that. */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-delta][data-trend='down'] [data-part-indicator] > [data-ui-icon] {
+      rotate: x 180deg;
+    }
+  }
+
+  /* ── Comparison: the prose under the figure ───────────────────────────── */
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-comparison] {
+      color: var(--_ink-muted);
+      font-size: var(--_prose-size);
+      line-height: var(--_prose-line);
+      margin-block-start: var(--_region-gap);
+      margin: 0;
+      min-inline-size: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-period] {
+      color: var(--_ink-muted);
+    }
+  }
+
+  /* ── Trend: where a sparkline goes ────────────────────────────────────── */
+
+  /**
+   * The region hands its tone to the sparkline inside it, which reads
+   * `--slotted-sparkline-color` when it has no tone or series of its own. The
+   * tone is the delta's: a rise that is good draws the line in `success`.
+   * Neutral hands nothing, so the sparkline keeps the data scale's first slot
+   * — a card with no delta, or a metric with no valence, draws its trend in
+   * the theme's blue and not in grey.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-trend] {
+      display: flex;
+    }
+  }
+
+  /**
+   * Beside the figure the trend is as tall as the figure — the value, the
+   * delta and the comparison under them — so its last point is read level
+   * with the number it ends at, and no gap opens above or below a line of a
+   * fixed height centred on a taller column. The sparkline's own step is the
+   * floor, for a figure with no comparison.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-trend] > * {
+      block-size: auto;
+      /* No height of its own to give the row: the drawing would otherwise
+         make the figure's row taller than the figure. */
+      contain: size;
+      min-block-size: var(--_trend-floor);
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-tone='success'] [data-part-trend] {
+      --slotted-sparkline-color: var(--slotted-tone-success-text);
+    }
+
+    :scope[data-tone='info'] [data-part-trend] {
+      --slotted-sparkline-color: var(--slotted-tone-info-text);
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-tone='danger'] [data-part-trend] {
+      --slotted-sparkline-color: var(--slotted-tone-danger-text);
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-tone='warning'] [data-part-trend] {
+      --slotted-sparkline-color: var(--slotted-tone-warning-text);
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-tone='accent'] [data-part-trend] {
+      --slotted-sparkline-color: var(--slotted-tone-accent-text);
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-tone='secondary'] [data-part-trend] {
+      --slotted-sparkline-color: var(--slotted-tone-secondary-text);
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-fill='plain'] [data-part-trend] {
+      --slotted-sparkline-ring-color: var(--slotted-surface-raised, Canvas);
+    }
+  }
+
+  /* ── Message: what stands in for a value that is missing or failed ────── */
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope [data-part-message] {
+      color: var(--_ink-muted);
+      font-size: var(--_prose-size);
+      line-height: var(--_prose-line);
+      margin: 0;
+      min-inline-size: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-status='error'] [data-part-message] {
+      color: var(--slotted-tone-danger-text);
+    }
+  }
+
+  /* A value that is not there is a dash in the muted step, at the value's
+     own size, so the row keeps its height and its rhythm. */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-status='empty'] [data-part-value],
+    :scope[data-status='error'] [data-part-value] {
+      color: var(--_ink-muted);
+    }
+  }
+
+  /* ── Loading ──────────────────────────────────────────────────────────── */
+
+  /**
+   * The binding renders a `skeleton` in place of each text part and a block
+   * in the trend. The block is the trend region's child, so the rules that
+   * size a sparkline there size it too: the figure's height beside the
+   * figure, the card's width and `--_trend-block` on the last row. The card
+   * does not change size when the line arrives.
+   */
+  /**
+   * The value's box is an inline flex line, so its height is its content's.
+   * A text placeholder is one cap tall — that is what makes a bar sit on the
+   * band a capital occupies — and a card whose figure is a bar was one cap
+   * tall where the same card loaded is one line, fourteen pixels shorter at
+   * the small step. Every box under a row of figures moved when the answer
+   * arrived. The floor is one line of the value's own type, so the two states
+   * occupy the same box.
+   */
+  @scope ([data-ui-stat-card]) to (:scope [data-ui] > *) {
+    :scope[data-loading] [data-part-value] {
+      min-block-size: calc(var(--_value-size) * var(--_value-line));
+    }
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 5,
+  "family": "button",
+  "ui": "button",
+  "catalog": {
+    "group": "Actions",
+    "summary": "Button, link button, icon button and toggle button."
+  },
+  "axes": {
+    "tone": ["accent", "secondary", "neutral", "info", "success", "warning", "danger"],
+    "variant": ["solid", "outline", "ghost"],
+    "size": ["sm", "md", "lg"],
+    "shape": ["square", "circle"],
+    "justify": ["center", "between"]
+  },
+  "spinner": {
+    "ui": "spinner",
+    "part": "indicator",
+    "stylesheet": "spinner/spinner.css"
+  },
+  "messages": ["loading"],
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "loading": "data-loading",
+    "pressed": "data-pressed"
+  },
+  "stateModel": {
+    "pressed": {
+      "controlled": "pressed",
+      "uncontrolled": "defaultPressed",
+      "request": "onPressedChange",
+      "reasons": ["pointer", "keyboard"]
+    }
+  },
+  "members": {
+    "button": {
+      "nativeElement": "button",
+      "defaults": {
+        "tone": "accent",
+        "variant": "solid",
+        "size": "md",
+        "type": "button",
+        "fullWidth": false,
+        "justify": "center",
+        "disabled": false,
+        "focusableWhenDisabled": false,
+        "loading": false,
+        "loadingDelay": 0
+      },
+      "capabilities": ["appearance", "content", "fullWidth", "disabled", "loading"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled", "loading"],
+      "parts": ["root", "start", "label", "end", "indicator"]
+    },
+    "buttonLink": {
+      "nativeElement": "a",
+      "defaults": {
+        "tone": "accent",
+        "variant": "solid",
+        "size": "md",
+        "fullWidth": false,
+        "justify": "center",
+        "disabled": false
+      },
+      "capabilities": ["appearance", "content", "fullWidth", "disabled"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled"],
+      "parts": ["root", "start", "label", "end"]
+    },
+    "iconButton": {
+      "nativeElement": "button",
+      "defaults": {
+        "tone": "secondary",
+        "variant": "ghost",
+        "size": "md",
+        "shape": "square",
+        "type": "button",
+        "disabled": false,
+        "focusableWhenDisabled": false,
+        "loading": false,
+        "loadingDelay": 0
+      },
+      "capabilities": ["appearance", "shape", "disabled", "loading", "pressed"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled", "loading", "pressed"],
+      "parts": ["root", "icon", "indicator"]
+    },
+    "iconButtonLink": {
+      "nativeElement": "a",
+      "defaults": {
+        "tone": "secondary",
+        "variant": "ghost",
+        "size": "md",
+        "shape": "square",
+        "disabled": false
+      },
+      "capabilities": ["appearance", "shape", "disabled"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled"],
+      "parts": ["root", "icon"]
+    },
+    "toggleButton": {
+      "nativeElement": "button",
+      "defaults": {
+        "tone": "secondary",
+        "variant": "outline",
+        "size": "md",
+        "type": "button",
+        "fullWidth": false,
+        "justify": "center",
+        "disabled": false,
+        "focusableWhenDisabled": false,
+        "loading": false,
+        "loadingDelay": 0,
+        "defaultPressed": false
+      },
+      "capabilities": ["appearance", "content", "fullWidth", "disabled", "loading", "pressed"],
+      "states": ["default", "hover", "active", "focus-visible", "disabled", "loading", "pressed"],
+      "parts": ["root", "start", "label", "end", "indicator"]
+    }
+  },
+  "scenarios": {
+    "overview": ["matrix", "tones", "densities"],
+    "button": [
+      "playground",
+      "variants",
+      "content",
+      "states",
+      "loading",
+      "fullWidth",
+      "composition",
+      "defaults",
+      "accessibility"
+    ],
+    "buttonLink": ["playground", "states", "routerIntegration", "accessibility"],
+    "iconButton": [
+      "playground",
+      "shapes",
+      "sizes",
+      "states",
+      "loading",
+      "pressed",
+      "accessibility"
+    ],
+    "iconButtonLink": ["playground", "states", "routerIntegration", "accessibility"],
+    "toggleButton": ["playground", "pressed", "states", "loading", "accessibility"]
+  }
+}

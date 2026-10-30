@@ -1,0 +1,1705 @@
+@layer slotted.components {
+  /**
+   * ── Files, and what happens to them ───────────────────────────────────
+   *
+   * One family for what `docs/component-features.md` §17 lists as three: a
+   * drop region, a file input, and the manager that shows what is being sent.
+   * `variant` decides which of the three shapes is drawn; everything below the
+   * region — the list, the rows, their bars and their controls — is the same
+   * in all three.
+   *
+   * **The trigger is the `<label>` and the region is not.** What the reader
+   * focuses is an `<input type="file">` clipped to one pixel inside the
+   * trigger, so the trigger is what draws the ring, through `:has()`. Putting
+   * the label around the trigger rather than around the whole region is what
+   * makes the input's accessible name three words instead of every word in the
+   * box.
+   *
+   * **The family owns its own container.** Four of its layout decisions answer
+   * the width of the box rather than the width of the window — a row folds its
+   * size under its name, the region's mark and text stop sharing a line, the
+   * summary stacks, and a grid of previews changes its track count. A drop
+   * region goes in a sidebar, in a dialog and across a page in the same
+   * application, and none of those is a viewport.
+   */
+  /**
+   * The private properties, on either box that stands on its own. The viewer is
+   * portalled to the end of the document — it must be, because the rule below
+   * makes this box a container and a container is a containing block for a
+   * fixed descendant — so it is not inside the family it belongs to, inherits
+   * none of these, and states the same set for itself. They are declared once,
+   * for both, rather than copied into a second block that drifts from the first.
+   */
+  [data-ui-upload][data-part-root],
+  [data-ui-upload][data-part-viewer] {
+    /**
+     * Type, glyph, control height and inner gap come from the control scales,
+     * the only ones the theme restates per density, so an upload inside a dense
+     * form shrinks with the fields around it. The insets come from the space
+     * scale, which does not vary by density — the cost `card` and `alert` both
+     * accepted, and recorded there for the same reason.
+     */
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_glyph-size: var(--slotted-control-icon-size-md, 16px);
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+    --_control-height: var(--slotted-control-height-md, 34px);
+    --_control-inset: var(--slotted-control-padding-inline-md, 13px);
+    --_gap: var(--slotted-control-gap-md, 8px);
+
+    /**
+     * The square a row's preview stands in. Two glyphs wide, so it holds a
+     * thumbnail at a size worth looking at and still steps with the density
+     * that every other measure in the row steps with. A stated pixel size
+     * would have been a sixth scale for one box.
+     */
+    --_preview-size: var(--slotted-upload-preview-size, calc(2 * var(--_glyph-size)));
+
+    /**
+     * How a control inside the family answers a pointer. It is a state layer
+     * rather than a step on the tone ramp, for the reason `tag` measured and
+     * `alert` restated: the tone's `subtle-hover` is calibrated against the
+     * page, and these controls sit on a row that may already be tinted by its
+     * own status. `currentcolor` is legible on whatever ground it has by
+     * construction — it is the colour the words beside it are read in.
+     */
+    --_state-hover: color-mix(
+      in oklab,
+      currentcolor var(--slotted-upload-state-layer-hover, 8%),
+      transparent
+    );
+    --_state-active: color-mix(
+      in oklab,
+      currentcolor var(--slotted-upload-state-layer-active, 14%),
+      transparent
+    );
+
+    /**
+     * Each measure is named once and a reach moves only the value it falls
+     * back to, so an application that retunes `--slotted-upload-item-gap`
+     * retunes every reach rather than discovering that the name it set is the
+     * one the default happens to read.
+     *
+     * Rows stand one step of air apart. At a quarter-rem the two edges of
+     * neighbouring rows read as one double rule rather than as two objects —
+     * what the `statuses` capture showed down a list of nine — and eight is
+     * the gap ReUI's attachment list measures (`c-attachment-5`).
+     */
+    --_section-gap: var(--slotted-upload-section-gap, var(--slotted-space-5, 0.75rem));
+    --_item-gap: var(--slotted-upload-item-gap, var(--slotted-space-4, 0.5rem));
+    --_line-gap: var(--slotted-upload-line-gap, var(--slotted-space-1, 0.125rem));
+    --_item-inset-block: var(--slotted-upload-item-padding-block, var(--slotted-space-4, 0.5rem));
+    --_item-inset-inline: var(
+      --slotted-upload-item-padding-inline,
+      var(--slotted-space-5, 0.75rem)
+    );
+    --_radius: var(--slotted-upload-radius, var(--slotted-radius-md, 6px));
+    /*
+     * The row's corner is the region's and `list-item`'s. A row is a card-sized
+     * object holding a four-pixel tile eight pixels in, and a four-pixel outer
+     * corner around it was the same curve as the tile's, which reads as a box
+     * cut from sheet rather than as a surface.
+     */
+    --_item-radius: var(--slotted-upload-item-radius, var(--slotted-radius-md, 6px));
+    --_border-width: var(--slotted-upload-border-width, var(--slotted-border-width-thin, 1px));
+
+    /**
+     * The region's own frame. The border is dashed and one step thicker than a
+     * control's, which is the one convention every surveyed drop region shares:
+     * a dashed edge says the box is waiting for something, where a solid edge
+     * of the same weight would read as a fieldset.
+     */
+    --_zone-inset-block: var(--slotted-upload-zone-padding-block, var(--slotted-space-9, 2rem));
+    --_zone-inset-inline: var(--slotted-upload-zone-padding-inline, var(--slotted-space-6, 1rem));
+    --_zone-border-width: var(
+      --slotted-upload-zone-border-width,
+      var(--slotted-border-width-medium, 1.5px)
+    );
+    /*
+     * The region at rest. A state of the whole family — invalid, disabled, the
+     * field shape — moves these two; a state of the region itself — the drag
+     * verdict, a pointer over it — moves the two the region paints with, which
+     * it derives from these, so the pointer can step a ground it did not choose.
+     */
+    --_zone-edge: var(--slotted-upload-zone-border-color, var(--slotted-border-strong));
+    --_zone-ground: var(--slotted-upload-zone-background, var(--slotted-surface-sunken));
+    --_zone-glyph-size: var(--slotted-upload-zone-icon-size, calc(1.5 * var(--_glyph-size)));
+
+    /**
+     * A row's controls are inner controls (R2): the glyph plus a step of air on
+     * each side, floored at WCAG 2.2 SC 2.5.8's twenty-four pixels so the
+     * target holds at every density. The glyph itself is floored at fourteen
+     * pixels for the reason the field families floor theirs — the control glyph
+     * scale falls to twelve at `dense`, and a cross that small beside a file
+     * name is a speck.
+     */
+    --_action-glyph-size: max(var(--slotted-upload-icon-size-min, 14px), var(--_glyph-size));
+    --_action-size: var(
+      --slotted-upload-action-size,
+      max(
+        var(--slotted-target-min, 24px),
+        min(
+          calc(var(--_action-glyph-size) + 2 * var(--slotted-space-2, 0.25rem)),
+          var(--_inner-size)
+        )
+      )
+    );
+
+    /**
+     * The status the row is in decides one colour, and every part of the row
+     * that says something about the status reads it. Neutral by default, so a
+     * row that has not been sent yet says nothing in colour at all.
+     */
+    --_status-text: var(--slotted-text-muted);
+    --_item-surface: var(--slotted-upload-item-background, var(--slotted-surface));
+    --_item-border: var(--slotted-upload-item-border-color, var(--slotted-border-subtle));
+
+    /** What a file's tile is painted when nothing more specific claims it. */
+    --_kind-tile: var(--slotted-upload-kind-other);
+
+    /**
+     * The leading, rounded up to a whole pixel. Thirteen at 1.5 is 19.5, and a
+     * row built from two lines and whole-pixel insets then stood at 59.5: every
+     * edge below the first fractional row landed between two device pixels and
+     * blurred at 1×. The rule is `timeline`'s `--_leading`. The computed
+     * `line-height` is a length and is inherited as that length, so a part set
+     * a step smaller reads `var(--_leading)` again: the custom property is
+     * inherited unresolved, and its `1em` resolves against that part's size.
+     */
+    --_leading: round(up, calc(1em * var(--slotted-line-height-md, 1.5)), 1px);
+
+    color: var(--slotted-text);
+    font-family: var(--slotted-upload-font-family, var(--slotted-control-font-family));
+    font-size: var(--_font-size);
+    line-height: var(--_leading);
+  }
+
+  /* The family itself: the column the reader sees in the page. */
+  [data-ui-upload][data-part-root] {
+    container-name: slotted-upload;
+    container-type: inline-size;
+    /**
+     * `container-type: inline-size` applies `contain: inline-size`, which makes
+     * the box's intrinsic width nought. In normal flow nothing is wrong; in a
+     * column that shrink-wraps its children — a flex column aligned to `start`,
+     * which is what the workbench stage is — the family would collapse to one
+     * character. `alert` found this in a rendered page rather than in a test,
+     * and the width is stated here for the same reason.
+     */
+    inline-size: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--_section-gap);
+  }
+
+  [data-ui-upload][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_glyph-size: var(--slotted-control-icon-size-sm, 14px);
+    --_inner-size: var(--slotted-control-inner-size-sm, 22px);
+    --_control-height: var(--slotted-control-height-sm, 30px);
+    --_control-inset: var(--slotted-control-padding-inline-sm, 10px);
+    --_gap: var(--slotted-control-gap-sm, 6px);
+  }
+
+  [data-ui-upload][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_glyph-size: var(--slotted-control-icon-size-lg, 18px);
+    --_inner-size: var(--slotted-control-inner-size-lg, 28px);
+    --_control-height: var(--slotted-control-height-lg, 38px);
+    --_control-inset: var(--slotted-control-padding-inline-lg, 16px);
+    --_gap: var(--slotted-control-gap-lg, 8px);
+  }
+
+  /* ── The family's own label and guidance ───────────────────────────────
+   *
+   * Both are absent when the family sits inside a `field`, which owns the
+   * label row, the description and the error slot for every control in this
+   * library. They exist for the upload that stands on its own.
+   */
+  [data-ui-upload] [data-part-label] {
+    color: var(--slotted-text);
+    flex: none;
+    font-weight: var(--slotted-upload-label-font-weight, var(--slotted-font-weight-medium, 500));
+  }
+
+  [data-ui-upload] [data-part-description] {
+    color: var(--slotted-text-muted);
+    flex: none;
+    margin: 0;
+  }
+
+  /* ── The region ────────────────────────────────────────────────────────
+   *
+   * A column: the mark, the sentence, and the trigger. The whole box forwards
+   * a click to the trigger when `clickToBrowse` is on, so the target is the
+   * box the reader is already looking at; the trigger is what the keyboard
+   * reaches, and WCAG 2.2 SC 2.5.7 is discharged by its being there rather
+   * than by the region pretending to be a control.
+   */
+  [data-ui-upload] [data-part-dropzone] {
+    --_zone-border-color: var(--_zone-edge);
+    --_zone-surface: var(--_zone-ground);
+
+    align-items: center;
+    background-color: var(--_zone-surface);
+    border: var(--_zone-border-width) dashed var(--_zone-border-color);
+    border-radius: var(--_radius);
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: var(--_gap);
+    padding-block: var(--_zone-inset-block);
+    padding-inline: var(--_zone-inset-inline);
+    text-align: center;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * The mark: an `Icon` holding the `upload` glyph, which the binding draws in
+   * the `dropzone` shape only. The `field` shape is one control's height and
+   * has no room for a second mark beside the trigger's.
+   */
+  [data-ui-upload] [data-part-dropzone] > [data-ui-icon] {
+    --slotted-icon-size: var(--_zone-glyph-size);
+
+    color: var(--slotted-text-muted);
+  }
+
+  /**
+   * The pointer is over the region and carrying something it will take. The
+   * accent border and its own tint are the pair `docs/token-foundation.md`
+   * requires for a state that has to be seen: the border holds the non-text
+   * ratio against the page and against the ground it encloses, and the ground
+   * alone would not.
+   */
+  [data-ui-upload] [data-part-dropzone][data-drop-target] {
+    --_zone-border-color: var(--slotted-tone-accent-border);
+    --_zone-surface: var(--slotted-tone-accent-surface);
+  }
+
+  /**
+   * The pointer is over the region carrying something it will refuse, and the
+   * reader has not let go yet. Only three of the five rules can be answered
+   * before the drop — `DataTransfer.items` gives the kind and the type and not
+   * the name or the size — so this is painted for a refusal that is already
+   * certain and never for one that is merely possible.
+   */
+  [data-ui-upload] [data-part-dropzone][data-drop-invalid] {
+    --_zone-border-color: var(--slotted-tone-danger-border);
+    --_zone-surface: var(--slotted-tone-danger-surface);
+  }
+
+  /**
+   * A region that forwards a click is a target, and a target answers the
+   * pointer. The binding writes `data-browsable` only while the forward is
+   * live, so a region that does nothing when pressed does not promise
+   * anything on hover.
+   *
+   * The edge takes the muted ink and the ground takes a share of the text
+   * colour: four per cent on hover, eight on press. The shares are half the
+   * family's control state layer because the layer here covers a card-sized
+   * box rather than a glyph-sized one, and eight per cent across the whole
+   * region read as a disabled block. Four moves the sunken ground by 0.031 in
+   * OKLab L, above the 0.02 the theme holds every surface step to, and eight
+   * by 0.062.
+   */
+  [data-ui-upload] [data-part-dropzone][data-browsable] {
+    cursor: pointer;
+  }
+
+  [data-ui-upload]:not([data-disabled])
+    [data-part-dropzone][data-browsable]:not([data-drop-target], [data-drop-invalid]):hover {
+    --_zone-surface: color-mix(
+      in oklab,
+      var(--slotted-text) var(--slotted-upload-zone-state-layer-hover, 4%),
+      var(--_zone-ground)
+    );
+  }
+
+  [data-ui-upload]:not([data-disabled])
+    [data-part-dropzone][data-browsable]:not([data-drop-target], [data-drop-invalid]):active {
+    --_zone-surface: color-mix(
+      in oklab,
+      var(--slotted-text) var(--slotted-upload-zone-state-layer-active, 8%),
+      var(--_zone-ground)
+    );
+  }
+
+  /* An invalid region keeps its danger edge under the pointer. */
+  [data-ui-upload]:not([data-disabled], [data-invalid])
+    [data-part-dropzone][data-browsable]:not([data-drop-target], [data-drop-invalid]):is(
+      :hover,
+      :active
+    ) {
+    --_zone-border-color: var(--slotted-text-muted);
+  }
+
+  /*
+   * The trigger answers its own pointer. A hover over the trigger is also a
+   * hover over the region around it, and the two answering at once drew two
+   * targets for one press.
+   */
+  [data-ui-upload]:not([data-disabled])
+    [data-part-dropzone][data-browsable]:not([data-drop-target], [data-drop-invalid]):has(
+      [data-part-trigger]:hover
+    ) {
+    --_zone-border-color: var(--_zone-edge);
+    --_zone-surface: var(--_zone-ground);
+  }
+
+  [data-ui-upload][data-disabled][data-part-root] {
+    --_zone-edge: var(--slotted-disabled-border);
+    --_zone-ground: var(--slotted-disabled-background);
+  }
+
+  [data-ui-upload][data-disabled] [data-part-dropzone] {
+    color: var(--slotted-disabled-foreground);
+  }
+
+  [data-ui-upload][data-invalid][data-part-root] {
+    --_zone-edge: var(--slotted-tone-danger-border);
+  }
+
+  /* ── The trigger, and the control inside it ────────────────────────────
+   *
+   * A `label` drawn as a control. It is not `button`: mounting another family
+   * here would give the label a second family's `data-ui` and a second
+   * family's contract, and what is wanted is one control-height box that opens
+   * the picker natively.
+   */
+  [data-ui-upload] [data-part-trigger] {
+    align-items: center;
+    background-color: var(--slotted-upload-trigger-background, var(--slotted-surface));
+    block-size: var(--_control-height);
+    border: var(--slotted-control-border-width, 1px) solid var(--slotted-control-border-color);
+    border-radius: var(--slotted-control-radius, 4px);
+    box-shadow: var(--slotted-control-shadow);
+    color: var(--slotted-text);
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    font: inherit;
+    font-weight: var(--slotted-control-font-weight, 600);
+    gap: var(--_gap);
+    justify-content: center;
+    padding-inline: var(--_control-inset);
+    position: relative;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      translate var(--slotted-duration-instant) var(--slotted-control-transition-easing);
+    white-space: nowrap;
+  }
+
+  /**
+   * The binding draws the mark on the trigger only where the region does not:
+   * in the `dropzone` shape the region already carries it, and two of the same
+   * mark eighty pixels apart is one mark too many.
+   */
+  [data-ui-upload] [data-part-trigger] > [data-ui-icon] {
+    --slotted-icon-size: var(--_glyph-size);
+  }
+
+  [data-ui-upload]:not([data-disabled]) [data-part-trigger]:hover {
+    background-color: var(--slotted-tone-secondary-subtle-hover);
+  }
+
+  /*
+   * The trigger is drawn as a control and presses like `button` does: the
+   * ground takes the next step and the box settles by a hairline, at once.
+   */
+  [data-ui-upload]:not([data-disabled]) [data-part-trigger]:active {
+    background-color: var(--slotted-tone-secondary-subtle-active);
+    translate: 0 var(--slotted-border-width-thin, 1px);
+  }
+
+  [data-ui-upload][data-disabled] [data-part-trigger] {
+    background-color: var(--slotted-disabled-background);
+    border-color: var(--slotted-disabled-border);
+    box-shadow: none;
+    color: var(--slotted-disabled-foreground);
+    cursor: default;
+  }
+
+  /**
+   * The ring belongs to the trigger and the focus belongs to the input inside
+   * it. A ring around a one-pixel input would be a ring around nothing.
+   */
+  [data-ui-upload] [data-part-trigger]:has(:focus-visible) {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  [data-ui-upload][data-invalid] [data-part-trigger] {
+    --slotted-focus-ring-color: var(--slotted-focus-ring-color-invalid);
+
+    border-color: var(--slotted-tone-danger-border);
+    /* Width as well as colour (WCAG 1.4.1): in `high-contrast` the danger
+       border is the resting edge's black. The trigger is the control in both
+       shapes, so it carries the edge `text-field` draws — inside the border,
+       so nothing moves, in place of the resting lift; its focus is an outline
+       and leaves the edge alone. The region keeps its dashed line. */
+    --_invalid-edge-width: var(--slotted-control-invalid-edge-width, 1px);
+
+    box-shadow: inset 0 0 0 var(--_invalid-edge-width) var(--slotted-tone-danger-border);
+  }
+
+  /**
+   * Clipped, and removed from nothing else. `display: none` and
+   * `visibility: hidden` take the control out of the tab order and out of the
+   * accessibility tree, which discards the reason the label pairing exists;
+   * stretching a transparent input across the region takes the drop away from
+   * the region and makes the drag state unobservable.
+   */
+  [data-ui-upload] [data-part-input] {
+    block-size: 1px;
+    border: 0;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  /**
+   * The family draws the ring on the trigger, so the one the browser would
+   * draw on the element holding focus has to go: `tree` moved its ring and
+   * forgot this, and a focused row carried two rings in two colours.
+   */
+  [data-ui-upload] [data-part-input]:focus-visible {
+    outline: none;
+  }
+
+  /* ── The summary ───────────────────────────────────────────────────────
+   *
+   * What the whole queue is doing, in one line: how many files, how far along,
+   * how much longer, and the controls that act on every row at once. It is
+   * drawn only when there is more than one file, because for a single file the
+   * row already says all of it.
+   */
+  [data-ui-upload] [data-part-summary] {
+    align-items: center;
+    color: var(--slotted-text-muted);
+    display: flex;
+    flex: none;
+    gap: var(--_gap);
+    justify-content: space-between;
+  }
+
+  [data-ui-upload] [data-part-clear] {
+    appearance: none;
+    flex: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--slotted-control-radius, 4px);
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    padding-block: var(--slotted-space-1, 0.125rem);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    text-decoration-line: underline;
+    text-underline-offset: 0.2em;
+    transition: background-color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-upload] [data-part-clear]:enabled:hover {
+    background-color: var(--_state-hover);
+  }
+
+  [data-ui-upload] [data-part-clear]:enabled:active {
+    background-color: var(--_state-active);
+  }
+
+  [data-ui-upload] [data-part-clear]:disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: default;
+  }
+
+  [data-ui-upload] [data-part-clear]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── The list ──────────────────────────────────────────────────────────
+   *
+   * A directory selection produces four hundred files, and four hundred rows
+   * is not a list a person reads. The block size is bounded in rows and the
+   * platform scrolls the rest: no disclosure, no second state model, and a row
+   * left half-visible at the fold is what says there is more.
+   *
+   * `--slotted-upload-visible-rows` is written by the binding from `maxRows`,
+   * because it is a fact about this instance rather than a value a theme can
+   * hold — the category `--slotted-tree-depth` is in. `maxRows: 0` means no
+   * bound, and the binding says so by writing the number of files rather than
+   * by a second property: a cap that is the content's own height is a cap
+   * nothing reaches, and the sheet then needs one rule instead of two.
+   *
+   * The row height in the sum is a row at rest. A row that has grown a bar and
+   * a message is taller, so the fold falls inside the last row rather than
+   * between two — which is what says there is more below without a shadow, a
+   * gradient or a count.
+   */
+  [data-ui-upload] [data-part-list] {
+    /** One row, from the parts a row is made of. Used twice below. */
+    --_row-block-size: calc(
+      max(var(--_preview-size), 2lh) + 2 * var(--_item-inset-block) + 2 * var(--_border-width) +
+        var(--_item-gap)
+    );
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--_item-gap);
+    list-style: none;
+    margin: 0;
+    /*
+     * The list is the one part of the column that gives. Everything above it
+     * holds its size, so an 18rem panel takes the room out of the queue and
+     * not out of the region, the summary or the label — and the queue answers
+     * by scrolling. A flex item's floor is its content, so the floor is stated
+     * here: without it the list is what an outer bound pushes on, and it went
+     * to nought inside a short panel while the region kept every pixel.
+     */
+    flex: 1 1 auto;
+    min-block-size: var(--_row-block-size);
+    max-block-size: calc(var(--slotted-upload-visible-rows, 6) * var(--_row-block-size));
+    overflow-y: auto;
+    padding: 0;
+  }
+
+  /* ── One file ──────────────────────────────────────────────────────────
+   *
+   * A row is one object and it is laid out as a grid, not as a flex line. Four
+   * things follow from that, and all four were wrong in the shape before it.
+   *
+   * **The marks are centred on the block they are about.** The chip and the
+   * controls sit in the first track; the sentence a failure carries spans a
+   * second track underneath. So a row that has something to explain grows
+   * downwards and moves nothing: centring is over the name and its detail,
+   * which is what the chip and the controls are about, rather than over a box
+   * whose height a two-line message decided.
+   *
+   * **The size left the name's line.** It stood at the far end of it, so the
+   * column of sizes moved with however many controls each row happened to
+   * offer, and the list read as ragged. It is secondary information and it now
+   * sits under the name with the status, where it lines up with the name above
+   * it and needs no reserved width anywhere.
+   *
+   * **The bar left the flow.** It is the row's own bottom edge, so a row is the
+   * same height whether it is waiting, sending or done, and progress is
+   * readable straight down a list of nine.
+   *
+   * **The row has a surface and an edge.** Before, a file was a naked line of
+   * text with icons beside it, and only a failed one had a box; a file is a
+   * thing the reader acts on, and it reads as one.
+   */
+  [data-ui-upload] [data-part-item] {
+    align-items: center;
+    /*
+     * A row is never squeezed. Flex children shrink by default, so nine rows in
+     * the room for three were compressed to slivers — the tile flattened, the
+     * names spilled out of the rows that no longer had height for them, and
+     * nothing scrolled, because the content had been made to fit. Read at 420
+     * pixels with `--slotted-upload-visible-rows: 3` and nine files.
+     */
+    flex: none;
+    background-color: var(--_item-surface);
+    border: var(--_border-width) solid var(--_item-border);
+    border-radius: var(--_item-radius);
+    column-gap: var(--_gap);
+    display: grid;
+    grid-template-areas:
+      'preview body actions'
+      'message message message';
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    /*
+     * The bar is a child positioned against this box, and the corner radius is
+     * what clips it to the row's own shape.
+     */
+    overflow: hidden;
+    padding-block: var(--_item-inset-block);
+    padding-inline: var(--_item-inset-inline);
+    position: relative;
+    row-gap: var(--_line-gap);
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      opacity var(--slotted-duration-medium) var(--slotted-easing-enter),
+      translate var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  /**
+   * A file arrives: it fades in from a step above its place, so a row that
+   * lands in a list of nine is seen landing rather than found there. It starts
+   * from the style below only on the frame the row is first rendered — a row
+   * that re-renders with a new status does not arrive again.
+   *
+   * A row that leaves does not animate. The binding removes it when the files
+   * change, and holding it for an exit would need a second list beside the
+   * controlled `files`; the promise is in `docs/process/build-order.md`.
+   */
+  @starting-style {
+    [data-ui-upload] [data-part-item] {
+      opacity: 0;
+      translate: 0 calc(-1 * var(--slotted-space-2, 0.25rem));
+    }
+  }
+
+  [data-ui-upload] [data-part-item][data-status='success'] {
+    --_status-text: var(--slotted-tone-success-text);
+  }
+
+  /**
+   * A file the reader has chosen and not yet sent has a dashed edge: the edge
+   * the region has, which already means *waiting for something* in this
+   * family. It is said in line rather than in colour, which keeps the rule
+   * above — a row not yet sent says nothing in colour — and it holds under
+   * forced colours, where the line survives and a tint does not. ReUI draws
+   * its `idle` attachment the same way (`c-attachment-5`).
+   */
+  [data-ui-upload] [data-part-item][data-status='ready'] {
+    border-style: dashed;
+  }
+
+  [data-ui-upload] [data-part-item][data-status='paused'],
+  [data-ui-upload] [data-part-item][data-status='stalled'] {
+    --_status-text: var(--slotted-tone-warning-text);
+  }
+
+  /**
+   * The three failures, and the two of them that tint their row. A file that
+   * was refused before it entered the queue and a file whose transfer failed
+   * both need the reader to do something; a file the reader stopped themselves
+   * does not, so it stays neutral and only its word changes.
+   */
+  [data-ui-upload] [data-part-item][data-status='rejected'],
+  [data-ui-upload] [data-part-item][data-status='error'] {
+    --_status-text: var(--slotted-tone-danger-text);
+    --_item-surface: var(--slotted-tone-danger-surface);
+    --_item-border: var(--slotted-tone-danger-border);
+  }
+
+  [data-ui-upload] [data-part-item][data-status='canceled'] {
+    --_status-text: var(--slotted-text-muted);
+  }
+
+  [data-ui-upload][data-disabled] [data-part-item] {
+    color: var(--slotted-disabled-foreground);
+  }
+
+  /* ── The chip ──────────────────────────────────────────────────────────
+   *
+   * A solid tile in the file's own colour with the mark knocked out of it.
+   *
+   * The shape this replaced was a grey square with a coloured mark inside, and
+   * the reviewer's reading of it was the right one: a wash of a tone at twelve
+   * per cent over a white page is not a colour, it is a grey box with a colour
+   * near it. A tile is a decision; a tint is an apology for not making one.
+   *
+   * The colours are the ones a reader has already learnt from every product
+   * they use — a PDF red, a word-processed document blue, a spreadsheet green,
+   * a deck orange, a film indigo — and they are a scale of the theme's rather
+   * than five tones stretched over nine kinds, because the tones hold no second
+   * blue and no indigo at all. The argument, the values and the measurements
+   * are under **File kind** in `docs/token-foundation.md`.
+   *
+   * One ratio answers both questions the pair raises, because the mark is the
+   * tile's own foreground: the tile against the page, and the mark against the
+   * tile. `packages/themes/test/default-theme.test.mjs` measures all
+   * twenty-seven.
+   */
+  [data-ui-upload] [data-part-preview] {
+    align-items: center;
+    background-color: var(--_kind-tile);
+    block-size: var(--_preview-size);
+    border-radius: var(--slotted-upload-preview-radius, var(--slotted-radius-sm, 4px));
+    color: var(--slotted-upload-kind-foreground);
+    display: inline-flex;
+    flex-direction: column;
+    grid-area: preview;
+    inline-size: var(--_preview-size);
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  [data-ui-upload] [data-part-preview] > img {
+    block-size: 100%;
+    inline-size: 100%;
+    object-fit: cover;
+  }
+
+  /* The kind's glyph, drawn by the binding when there is no picture to show. */
+  [data-ui-upload] [data-part-preview] > [data-ui-icon] {
+    --slotted-icon-size: var(--_glyph-size);
+  }
+
+  [data-ui-upload] [data-part-preview][data-kind='pdf'] {
+    --_kind-tile: var(--slotted-upload-kind-pdf);
+  }
+
+  [data-ui-upload] [data-part-preview][data-kind='document'] {
+    --_kind-tile: var(--slotted-upload-kind-document);
+  }
+
+  [data-ui-upload] [data-part-preview][data-kind='spreadsheet'] {
+    --_kind-tile: var(--slotted-upload-kind-spreadsheet);
+  }
+
+  [data-ui-upload] [data-part-preview][data-kind='presentation'] {
+    --_kind-tile: var(--slotted-upload-kind-presentation);
+  }
+
+  [data-ui-upload] [data-part-preview][data-kind='image'] {
+    --_kind-tile: var(--slotted-upload-kind-image);
+  }
+
+  [data-ui-upload] [data-part-preview][data-kind='video'] {
+    --_kind-tile: var(--slotted-upload-kind-video);
+  }
+
+  [data-ui-upload] [data-part-preview][data-kind='audio'] {
+    --_kind-tile: var(--slotted-upload-kind-audio);
+  }
+
+  [data-ui-upload] [data-part-preview][data-kind='archive'] {
+    --_kind-tile: var(--slotted-upload-kind-archive);
+  }
+
+  /*
+   * A tinted row keeps its tiles. The rule here was the other way round for one
+   * capture — the status took the tile's colour, on the argument that what went
+   * wrong outranks what the file is — and the capture showed what it cost: a
+   * refused archive turned red on the one row whose message says archives are
+   * not accepted, so the colour stopped answering the question the reader had.
+   *
+   * The status has four signals already: the row's ground, its edge, its word
+   * and its sentence. The tile is about the file. Measured rather than assumed,
+   * every kind clears 4.03 : 1 against a failed row's ground in `light`,
+   * 6.46 : 1 in `dark` and 8.31 : 1 in `high-contrast`, against a 3 : 1 floor —
+   * held by `packages/themes/test/default-theme.test.mjs`.
+   */
+
+  /* ── What the row says ─────────────────────────────────────────────────
+   *
+   * Two lines: the name, and everything secondary about it on one line under
+   * it. The body is the only part of the row with `min-inline-size: 0`, which
+   * is what makes a long name truncate instead of pushing the controls off the
+   * end.
+   */
+  [data-ui-upload] [data-part-item] > [data-part-body] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--_line-gap);
+    grid-area: body;
+    min-inline-size: 0;
+  }
+
+  /**
+   * The name and its extension are one run, and the run is laid out in the
+   * name's own direction rather than the document's. The binding writes
+   * `dir="auto"` here, so `claim-form-2026-0914.pdf` reads in that order inside
+   * a right-to-left page: without the wrapper the two are separate flex items,
+   * the container places them right to left, and the reader is shown
+   * `pdf.claim-form-2026-0914`. Found in the harness capture at `dir="rtl"`,
+   * where nothing failed and the name was backwards.
+   */
+  [data-ui-upload] [data-part-filename] {
+    display: flex;
+    /*
+     * The name is the row's title and the detail line under it is at the same
+     * weight as body text, so the two lines differed by one pixel of size and
+     * nothing else. Medium is the weight `label` already uses for the family's
+     * own heading.
+     */
+    font-weight: var(--slotted-upload-name-font-weight, var(--slotted-font-weight-medium, 500));
+    min-inline-size: 0;
+    unicode-bidi: isolate;
+  }
+
+  /**
+   * The name opens the file. A reader who has just attached a scan clicks the
+   * scan, which is what every product they already use does, and it is why the
+   * eye that used to sit in the controls is gone: a third affordance for an
+   * action the name already implies, in a row that has enough in it.
+   *
+   * It is a real `button` when the file can be previewed and a plain `span`
+   * when it cannot, so the affordance is present exactly when the action is.
+   * Nothing about it looks like a control until the pointer is on it — a list
+   * of nine underlined names is a list nobody can read.
+   */
+  [data-ui-upload] button[data-part-filename] {
+    appearance: none;
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    /* Everything but the weight, which the name states for itself above. */
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    padding: 0;
+    text-align: start;
+    transition: translate var(--slotted-duration-instant) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-upload] button[data-part-filename]:enabled:hover {
+    text-decoration-line: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /*
+   * A name has no ground to step, and its hover already drew the underline, so
+   * a press answers in place: the name settles by a hairline — the answer
+   * `timeline` gives its group heading.
+   */
+  [data-ui-upload] button[data-part-filename]:enabled:active {
+    text-decoration-line: underline;
+    text-underline-offset: 0.2em;
+    translate: 0 var(--slotted-border-width-thin, 1px);
+  }
+
+  [data-ui-upload] button[data-part-filename]:focus-visible {
+    border-radius: var(--slotted-control-radius, 4px);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* In a wall of pictures the picture is the thing the reader is pointing at. */
+  [data-ui-upload][data-layout='grid'] button[data-part-preview] {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  /**
+   * The name shrinks to an ellipsis and the extension does not, so
+   * `quarterly-report-consolidated-final-v7.pdf` becomes
+   * `quarterly-report-conso….pdf` rather than losing the part that says what
+   * the file is. CSS cannot truncate in the middle; the split is made at the
+   * last dot in the binding, and this is the half of the answer the sheet owes.
+   */
+  [data-ui-upload] [data-part-name] {
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-upload] [data-part-extension] {
+    flex: none;
+  }
+
+  /** The second line: the size, then the word for what is happening to it. */
+  [data-ui-upload] [data-part-detail] {
+    align-items: baseline;
+    color: var(--slotted-text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    line-height: var(--_leading);
+    min-inline-size: 0;
+  }
+
+  [data-ui-upload] [data-part-meta] {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /**
+   * The word, in the colour the status set. A status said in colour alone fails
+   * WCAG 2.2 SC 1.4.1, which is why it is a word first and a colour second.
+   */
+  [data-ui-upload] [data-part-status] {
+    color: var(--_status-text);
+    font-weight: var(--slotted-upload-status-font-weight, var(--slotted-font-weight-medium, 500));
+    min-inline-size: 0;
+  }
+
+  /**
+   * The separator between the two, and it is a character because it is one: a
+   * middot between two pieces of text is punctuation, not a mark the family
+   * draws. `breadcrumb` writes its own the same way.
+   *
+   * It hangs off the size rather than off the word, so that a detail line which
+   * wraps breaks *after* the dot and not before it. Written the other way round
+   * it left an orphaned middot at the start of the second line, which is what
+   * the card at 720 pixels showed.
+   */
+  [data-ui-upload] [data-part-meta]:has(+ [data-part-status])::after {
+    color: var(--slotted-text-muted);
+    content: ' ·';
+    margin-inline-end: 0.4em;
+  }
+
+  [data-ui-upload] [data-part-message] {
+    color: var(--_status-text);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    line-height: var(--_leading);
+    grid-area: message;
+    margin: 0;
+  }
+
+  /**
+   * The bar is the row's own bottom edge. It is `progress-indicator`, drawn
+   * where the family put it: the family says how much room a bar gets and
+   * nothing about how it is drawn, because a second bar here would be a second
+   * answer to one question, drifting from the first the moment either is
+   * retuned.
+   */
+  [data-ui-upload] [data-part-progress] {
+    display: block;
+    inset-block-end: 0;
+    inset-inline: 0;
+    position: absolute;
+  }
+
+  /* ── A row's controls ──────────────────────────────────────────────────
+   *
+   * Inner controls (R2): the glyph plus a step of air, no frame and no ground
+   * at rest, one ground step on hover and one more on press, the theme's ring
+   * on focus, and a target that reaches the WCAG minimum without the glyph
+   * growing to fill it.
+   */
+  /**
+   * Two slots, whatever this row happens to offer. A row with one control and a
+   * row with two would otherwise end their bodies fifty pixels apart, and the
+   * column of sizes down the list read as ragged rather than as a column —
+   * which is what the first capture at 420 pixels showed.
+   */
+  /**
+   * Packed to the end of the row and reserving nothing. The reservation this
+   * replaced existed to keep a column of sizes straight while the size lived at
+   * the far end of the name's line; the size is on its own line now, so there
+   * is no column to keep and a row that offers one control no longer carries
+   * two empty slots to prove it.
+   */
+  [data-ui-upload] [data-part-actions] {
+    display: inline-flex;
+    gap: var(--slotted-space-1, 0.125rem);
+    grid-area: actions;
+    justify-content: flex-end;
+  }
+
+  [data-ui-upload] [data-part-viewerexternal],
+  [data-ui-upload] [data-part-viewerclose],
+  [data-ui-upload] [data-part-start],
+  [data-ui-upload] [data-part-pause],
+  [data-ui-upload] [data-part-retry],
+  [data-ui-upload] [data-part-cancel],
+  [data-ui-upload] [data-part-remove] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_action-size);
+    border: 0;
+    border-radius: var(--slotted-upload-action-radius, var(--slotted-control-radius, 4px));
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    font: inherit;
+    inline-size: var(--_action-size);
+    justify-content: center;
+    padding: 0;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      color var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * Each control holds the `Icon` its binding chose for it: external, x, play,
+   * pause, rotate-ccw, x and trash. A cross means *stop this* and a bin means
+   * *take it away*, because the marks appear together on one row.
+   */
+  [data-ui-upload] [data-part-viewerexternal] > [data-ui-icon],
+  [data-ui-upload] [data-part-viewerclose] > [data-ui-icon],
+  [data-ui-upload] [data-part-start] > [data-ui-icon],
+  [data-ui-upload] [data-part-pause] > [data-ui-icon],
+  [data-ui-upload] [data-part-retry] > [data-ui-icon],
+  [data-ui-upload] [data-part-cancel] > [data-ui-icon],
+  [data-ui-upload] [data-part-remove] > [data-ui-icon] {
+    --slotted-icon-size: var(--_action-glyph-size);
+  }
+
+  /**
+   * On a finger the target is the comfortable size in both axes and the box
+   * is the one a mouse sees: a transparent `::after` centred on each control
+   * reaches 44 pixels, and the ground and the ring stay square. The controls
+   * of one row stand two pixels apart, so none reaches across the edge it
+   * shares with the one beside it; between two of them each keeps its own
+   * width and is 44 tall.
+   */
+  @media (pointer: coarse) {
+    [data-ui-upload]
+      :is(
+        [data-part-viewerexternal],
+        [data-part-viewerclose],
+        [data-part-start],
+        [data-part-pause],
+        [data-part-retry],
+        [data-part-cancel],
+        [data-part-remove]
+      ) {
+      position: relative;
+    }
+
+    [data-ui-upload]
+      :is(
+        [data-part-viewerexternal],
+        [data-part-viewerclose],
+        [data-part-start],
+        [data-part-pause],
+        [data-part-retry],
+        [data-part-cancel],
+        [data-part-remove]
+      )::after {
+      content: '';
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+      position: absolute;
+    }
+
+    [data-ui-upload]
+      :is(
+        [data-part-viewerexternal],
+        [data-part-start],
+        [data-part-pause],
+        [data-part-retry],
+        [data-part-cancel]
+      ):has(
+        + :is(
+            [data-part-viewerclose],
+            [data-part-pause],
+            [data-part-retry],
+            [data-part-cancel],
+            [data-part-remove]
+          ):not([hidden])
+      )::after {
+      inset-inline-end: 0;
+    }
+
+    [data-ui-upload]
+      :is(
+        [data-part-viewerexternal],
+        [data-part-start],
+        [data-part-pause],
+        [data-part-retry],
+        [data-part-cancel]
+      ):not([hidden])
+      + :is(
+        [data-part-viewerclose],
+        [data-part-pause],
+        [data-part-retry],
+        [data-part-cancel],
+        [data-part-remove]
+      )::after {
+      inset-inline-start: 0;
+    }
+  }
+
+  /**
+   * `:enabled` is the guard `packages/styles/src/states.test.mjs` requires,
+   * and the reason it exists: a control the browser has already refused must
+   * not answer a pointer.
+   */
+  [data-ui-upload] [data-part-viewerexternal]:enabled:hover,
+  [data-ui-upload] [data-part-viewerclose]:enabled:hover,
+  [data-ui-upload] [data-part-start]:enabled:hover,
+  [data-ui-upload] [data-part-pause]:enabled:hover,
+  [data-ui-upload] [data-part-retry]:enabled:hover,
+  [data-ui-upload] [data-part-cancel]:enabled:hover,
+  [data-ui-upload] [data-part-remove]:enabled:hover {
+    background-color: var(--_state-hover);
+  }
+
+  [data-ui-upload] [data-part-viewerexternal]:enabled:active,
+  [data-ui-upload] [data-part-viewerclose]:enabled:active,
+  [data-ui-upload] [data-part-start]:enabled:active,
+  [data-ui-upload] [data-part-pause]:enabled:active,
+  [data-ui-upload] [data-part-retry]:enabled:active,
+  [data-ui-upload] [data-part-cancel]:enabled:active,
+  [data-ui-upload] [data-part-remove]:enabled:active {
+    background-color: var(--_state-active);
+  }
+
+  [data-ui-upload] [data-part-viewerexternal]:disabled,
+  [data-ui-upload] [data-part-viewerclose]:disabled,
+  [data-ui-upload] [data-part-start]:disabled,
+  [data-ui-upload] [data-part-pause]:disabled,
+  [data-ui-upload] [data-part-retry]:disabled,
+  [data-ui-upload] [data-part-cancel]:disabled,
+  [data-ui-upload] [data-part-remove]:disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: default;
+  }
+
+  [data-ui-upload] [data-part-viewerexternal]:focus-visible,
+  [data-ui-upload] [data-part-viewerclose]:focus-visible,
+  [data-ui-upload] [data-part-start]:focus-visible,
+  [data-ui-upload] [data-part-pause]:focus-visible,
+  [data-ui-upload] [data-part-retry]:focus-visible,
+  [data-ui-upload] [data-part-cancel]:focus-visible,
+  [data-ui-upload] [data-part-remove]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /* ── The viewer ────────────────────────────────────────────────────────
+   *
+   * A file, full screen, on a surface of its own. `dialog` owns the layer, the
+   * scrim, the focus containment, the scroll lock and Escape; what this family
+   * owns is the stage, the header and the two controls that move through the
+   * set.
+   *
+   * A preview that left the page was the first answer and it was the wrong one:
+   * it loses the form the reader was in the middle of filling in. The new tab
+   * survives as the escape hatch inside the viewer, where a PDF is better read
+   * in the browser's own full window.
+   */
+  [data-ui-upload][data-part-viewer] {
+    background-color: var(--slotted-surface);
+    block-size: 100%;
+    display: grid;
+    /*
+     * The dialog's panel is a three-row grid — header, body, footer — and this
+     * family brings a header of its own. Written into the first row the viewer
+     * is as tall as its own content, with the rest of a full-screen layer left
+     * blank under it; spanning the three makes the layer the viewer's surface.
+     * The declaration is ignored wherever the parent is not a grid, which is
+     * what lets the same box be photographed on its own in the harness.
+     */
+    grid-row: 1 / -1;
+    grid-template-rows: auto minmax(0, 1fr);
+    inline-size: 100%;
+  }
+
+  [data-ui-upload] [data-part-viewerheader] {
+    align-items: center;
+    border-block-end: var(--_border-width) solid var(--slotted-border-subtle);
+    column-gap: var(--_gap);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-block: var(--slotted-space-4, 0.5rem);
+    padding-inline: var(--slotted-space-6, 1rem);
+  }
+
+  [data-ui-upload] [data-part-viewertitle] {
+    font-size: var(--slotted-font-size-md, 0.875rem);
+    line-height: var(--_leading);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-upload] [data-part-viewermeta] {
+    color: var(--slotted-text-muted);
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    line-height: var(--_leading);
+  }
+
+  [data-ui-upload] [data-part-vieweractions] {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--slotted-space-1, 0.125rem);
+  }
+
+  /**
+   * The stage. A sunken ground rather than the page's own, because what stands
+   * on it is the consumer's content and a photograph with a white border on a
+   * white page has no edge at all.
+   */
+  [data-ui-upload] [data-part-viewerstage] {
+    background-color: var(--slotted-surface-sunken);
+    display: grid;
+    min-block-size: 0;
+    /*
+     * The stage clips. Read at 720 pixels without it, an SVG with a `viewBox`
+     * and no intrinsic size filled the width, ran its height past the surface
+     * and covered the header of the next one: a percentage maximum against an
+     * auto height is not a maximum.
+     */
+    overflow: hidden;
+    padding: var(--slotted-space-6, 1rem);
+    place-items: center;
+    position: relative;
+  }
+
+  /*
+   * The picture takes the whole stage and is contained inside it. It is
+   * stretched into its grid area rather than given `block-size: 100%`, because
+   * a percentage needs an area that is definite to resolve against and falls
+   * back to the picture's own height where it is not: a portrait scan four
+   * thousand pixels tall then grew downwards and out of the layer, which is what
+   * a reader saw as an image running off the screen. `contain` is what keeps a
+   * portrait scan and a wide dashcam frame both whole in the same box.
+   */
+  [data-ui-upload] [data-part-viewerstage] > img,
+  [data-ui-upload] [data-part-viewerstage] > iframe {
+    align-self: stretch;
+    block-size: auto;
+    inline-size: auto;
+    justify-self: stretch;
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+
+  [data-ui-upload] [data-part-viewerstage] > img {
+    object-fit: contain;
+  }
+
+  /*
+   * A PDF frame carries no `sandbox` and a text frame does, and the asymmetry is
+   * measured: Chrome's PDF viewer is blocked in a sandboxed frame either way,
+   * and an HTML document served as `application/pdf` in an unsandboxed one runs
+   * no script. Both bindings state it; it is written here because a reader of
+   * this file will ask why one frame differs from the other.
+   */
+  [data-ui-upload] [data-part-viewerstage] > iframe {
+    background-color: var(--slotted-surface);
+    border: 0;
+  }
+
+  /* Sized by the film rather than by the stage, and never past it. */
+  [data-ui-upload] [data-part-viewerstage] > video,
+  [data-ui-upload] [data-part-viewerstage] > audio {
+    max-block-size: 100%;
+    max-inline-size: 100%;
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+
+  /**
+   * What a kind the viewer cannot render gets: its own tile at the size of the
+   * stage, its name, and one press to the file. `.docx` and `.xlsx` are here
+   * because a browser cannot draw them and drawing them needs a server or a
+   * megabyte of engine — which is the honest answer rather than an empty box.
+   */
+  [data-ui-upload] [data-part-viewerstage] > [data-part-preview] {
+    block-size: var(--slotted-upload-viewer-tile-size, 6rem);
+    inline-size: var(--slotted-upload-viewer-tile-size, 6rem);
+  }
+
+  [data-ui-upload] [data-part-viewerstage] > [data-part-preview] > [data-ui-icon] {
+    --slotted-icon-size: calc(3 * var(--_glyph-size));
+  }
+
+  /*
+   * The one sentence that says what is different about this file. It is a label
+   * the defaults provider holds, so an application translates it once; the name
+   * and the way out are in the header, where they are for every other file.
+   */
+  [data-ui-upload] [data-part-viewerstage] > p {
+    color: var(--slotted-text-muted);
+    margin: 0;
+    max-inline-size: 28ch;
+    text-align: center;
+  }
+
+  /*
+   * The unsupported stage is a column rather than a grid. Read at 720 pixels as
+   * a grid, the tile and its sentence landed in two cells that centred against
+   * different axes and sat diagonally apart; a column of two things centred is
+   * one rule with one meaning.
+   */
+  [data-ui-upload] [data-part-viewerstage]:has(> [data-part-preview]) {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--slotted-space-5, 0.75rem);
+    justify-content: center;
+  }
+
+  /**
+   * The two that move through the set. They sit over the stage rather than in
+   * the header, where the reader's pointer already is, and they are held off
+   * the edge so a photograph that fills the stage is not covered at its corner.
+   */
+  [data-ui-upload] [data-part-viewerprevious],
+  [data-ui-upload] [data-part-viewernext] {
+    align-items: center;
+    appearance: none;
+    background-color: color-mix(
+      in oklab,
+      var(--slotted-surface) var(--slotted-upload-viewer-control-opacity, 92%),
+      transparent
+    );
+    block-size: var(--slotted-upload-viewer-control-size, 2.5rem);
+    border: 0;
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-shadow: var(--slotted-shadow-sm);
+    color: var(--slotted-text);
+    cursor: pointer;
+    display: inline-flex;
+    inline-size: var(--slotted-upload-viewer-control-size, 2.5rem);
+    justify-content: center;
+    padding: 0;
+    position: absolute;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      translate var(--slotted-duration-instant) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-upload] [data-part-viewerprevious] {
+    inset-inline-start: var(--slotted-space-5, 0.75rem);
+  }
+
+  [data-ui-upload] [data-part-viewernext] {
+    inset-inline-end: var(--slotted-space-5, 0.75rem);
+  }
+
+  /**
+   * One mark for both, turned for the one that goes back — which is the rule
+   * every chevron in this library follows, and the reason the scale holds one
+   * chevron rather than a pair. The binding marks both icons `directional`, so
+   * they mirror where reading runs right to left.
+   */
+  [data-ui-upload] [data-part-viewerprevious] > [data-ui-icon],
+  [data-ui-upload] [data-part-viewernext] > [data-ui-icon] {
+    --slotted-icon-size: var(--_glyph-size);
+  }
+
+  [data-ui-upload] [data-part-viewerprevious] > [data-ui-icon] {
+    rotate: 180deg;
+  }
+
+  /*
+   * The plate is already nearly opaque, so going to fully opaque on hover moved
+   * the ground by 0.002 in OKLab L — no answer at all. The family's state layer
+   * is mixed into the plate instead, which keeps it opaque over the photograph
+   * and steps it by the amount every other control in the family steps.
+   */
+  [data-ui-upload] [data-part-viewerprevious]:enabled:hover,
+  [data-ui-upload] [data-part-viewernext]:enabled:hover {
+    background-color: color-mix(
+      in oklab,
+      currentcolor var(--slotted-upload-state-layer-hover, 8%),
+      var(--slotted-surface)
+    );
+  }
+
+  [data-ui-upload] [data-part-viewerprevious]:enabled:active,
+  [data-ui-upload] [data-part-viewernext]:enabled:active {
+    background-color: color-mix(
+      in oklab,
+      currentcolor var(--slotted-upload-state-layer-active, 14%),
+      var(--slotted-surface)
+    );
+    translate: 0 var(--slotted-border-width-thin, 1px);
+  }
+
+  [data-ui-upload] [data-part-viewerprevious]:disabled,
+  [data-ui-upload] [data-part-viewernext]:disabled {
+    color: var(--slotted-disabled-foreground);
+    cursor: default;
+  }
+
+  [data-ui-upload] [data-part-viewerprevious]:focus-visible,
+  [data-ui-upload] [data-part-viewernext]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── Inside a field ────────────────────────────────────────────────────
+   *
+   * A field owns the label row, the description, the necessity mark and the
+   * error slot for every control in this library, so an upload under one draws
+   * none of its own: two labels on one control and two messages under it is
+   * what a form gets otherwise, and the second of each is the one no other
+   * control in that form has.
+   *
+   * The rule is written here as well as in both bindings, because the harness
+   * is a third place the DOM is written and a scene that puts an upload in a
+   * field has to look like the form does.
+   */
+  [data-ui-field] [data-ui-upload] > [data-part-label],
+  [data-ui-field] [data-ui-upload] > [data-part-description],
+  [data-ui-field] [data-ui-upload] > [data-part-message] {
+    display: none;
+  }
+
+  /**
+   * A form is a column of rows the same height, and an upload in it must not be
+   * the one that pushes the rhythm out. Inside a field the sections close up by
+   * one step: the region, the summary and the list are one block rather than
+   * three things with a paragraph's air between them.
+   */
+  [data-ui-field] [data-ui-upload][data-part-root] {
+    --_section-gap: var(--slotted-upload-field-section-gap, var(--slotted-space-4, 0.5rem));
+  }
+
+  /* ── The bare trigger ──────────────────────────────────────────────────
+   *
+   * No region at all. The trigger still takes a drop and a paste, because it
+   * is still a target; what it does not do is claim a box the size of a card
+   * for an application that wanted a button.
+   */
+  [data-ui-upload][data-variant='button'] [data-part-trigger] {
+    align-self: start;
+  }
+
+  /* ── The field shape ───────────────────────────────────────────────────
+   *
+   * One control-height row: the trigger at the inline start and what has been
+   * chosen beside it, inside the frame a text field would have. This is the
+   * shape `file-input` was, and the reason it is a variant rather than a
+   * family is that everything under the frame is the same list.
+   */
+  /*
+   * The frame a text field has, at rest. It moves the region's resting pair
+   * rather than painting over it, so the family's states — invalid, disabled,
+   * the drag verdict, a pointer — reach this shape as they reach the other:
+   * written as a border colour on the region, it held one colour through all
+   * of them. `:where` keeps it below the invalid and disabled pair.
+   */
+  [data-ui-upload][data-variant='field']:where([data-part-root]) {
+    --_zone-edge: var(--slotted-control-border-color);
+    --_zone-ground: var(--slotted-control-surface, Field);
+  }
+
+  [data-ui-upload][data-variant='field'] [data-part-dropzone] {
+    align-items: center;
+    border-style: solid;
+    border-width: var(--slotted-control-border-width, 1px);
+    flex-direction: row;
+    gap: var(--_gap);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--slotted-space-2, 0.25rem);
+    text-align: start;
+  }
+
+  /* ── A wall of pictures ────────────────────────────────────────────────
+   *
+   * The same rows, arranged. An image set is read by looking rather than by
+   * reading, so the preview takes the card and the name sits under it; the
+   * controls move to the corner of the picture, where they are over the one
+   * thing the reader is pointing at.
+   */
+  [data-ui-upload][data-layout='grid'] [data-part-list] {
+    display: grid;
+    gap: var(--_gap);
+    grid-template-columns: repeat(auto-fill, minmax(var(--slotted-upload-card-measure, 9rem), 1fr));
+  }
+
+  [data-ui-upload][data-layout='grid'] [data-part-item] {
+    /*
+     * Cards in one row share its height, and the spare height of the shorter
+     * ones goes under their content rather than between the picture and the
+     * name: without this, a card whose neighbour carried a two-line message
+     * set its name lower than the name beside it.
+     */
+    align-content: start;
+    align-items: stretch;
+    /* So the picture can be sized from the card's own width; see `preview`. */
+    container-type: inline-size;
+    grid-template-areas:
+      'preview'
+      'body'
+      'message';
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /*
+   * Four by three, rounded down to a whole pixel. The card's width is a share
+   * of the row and is fractional, and `aspect-ratio` carried the fraction into
+   * the height: 117.66 at 720 pixels, with every edge under it blurred. The
+   * card is a container, so `cqi` is the width the picture fills.
+   */
+  [data-ui-upload][data-layout='grid'] [data-part-preview] {
+    block-size: round(down, calc(100cqi * 3 / 4), 1px);
+    inline-size: 100%;
+  }
+
+  /**
+   * Over the picture, the controls need a ground of their own: the consumer's
+   * photograph is any colour, and a dark mark on a mid-blue sky was the reading
+   * the first capture at 720 pixels gave. The ground is on the group rather than
+   * on each control, so the five keep the frameless rest state R2 requires of
+   * them and the reader still gets one legible plate.
+   */
+  /**
+   * Over the picture, and inside it. Three things the first capture at 720
+   * pixels got wrong and this rule fixes: the plate stood at the item's own
+   * edge rather than inside the photograph, so it read as stuck to the corner;
+   * it was translucent enough for a bright sky to come through the marks; and
+   * it reserved three slots it did not need, which pushed it off the picture.
+   *
+   * The ground is on the group rather than on each control, so the five keep
+   * the frameless rest state R2 requires of them and the reader still gets one
+   * legible plate.
+   */
+  [data-ui-upload][data-layout='grid'] [data-part-actions] {
+    background-color: color-mix(
+      in oklab,
+      var(--slotted-surface) var(--slotted-upload-card-actions-opacity, 96%),
+      transparent
+    );
+    border-radius: var(--_item-radius);
+    box-shadow: var(--slotted-shadow-xs);
+    inset-block-start: calc(var(--_item-inset-block) + var(--slotted-space-3, 0.375rem));
+    inset-inline-end: calc(var(--_item-inset-inline) + var(--slotted-space-3, 0.375rem));
+    margin-block-start: 0;
+    min-inline-size: 0;
+    padding: var(--slotted-space-1, 0.125rem);
+    position: absolute;
+  }
+
+  /**
+   * A card has room for the extension in words, and a reader scanning a wall of
+   * thumbnails for the one PDF among nine photographs finds it faster by the
+   * three letters than by the silhouette. It is drawn from the attribute the
+   * binding already writes, so the label costs no element.
+   */
+  [data-ui-upload][data-layout='grid'] [data-part-preview]:not(:has(img))::after {
+    content: attr(data-extension);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    letter-spacing: 0.06em;
+    margin-block-start: var(--slotted-space-3, 0.375rem);
+    text-transform: uppercase;
+  }
+
+  /* A card's tile carries a mark the size of the card, not the size of a row. */
+  [data-ui-upload][data-layout='grid'] [data-part-preview] > [data-ui-icon] {
+    --slotted-icon-size: calc(2 * var(--_glyph-size));
+  }
+
+  /* ── Composition that answers the box, not the window ──────────────────
+   *
+   * Below 26rem the row has no room for a name, a size and four controls on
+   * one line, so the size leaves the name's line and joins the status under
+   * it, and the region's mark stops asking for a column of its own.
+   */
+  /**
+   * The summary is a sentence and a control, and the sentence is the longer of
+   * the two by a factor of ten. It stacks a step earlier than everything else
+   * below, because at 420 pixels the row still fitted and the control's two
+   * words broke across two lines with the underline broken between them.
+   */
+  @container slotted-upload (max-width: 30rem) {
+    [data-ui-upload] [data-part-summary] {
+      align-items: start;
+      flex-direction: column;
+    }
+  }
+
+  @container slotted-upload (max-width: 26rem) {
+    /*
+     * The chip keeps the start of the row and the controls drop under the text,
+     * because at this width three of them beside a name leave the name seven
+     * characters. The chip spans both rows, so the block it is centred on is
+     * still the block it is about.
+     */
+    [data-ui-upload] [data-part-item] {
+      grid-template-areas:
+        'preview body'
+        'preview actions'
+        'message message';
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    [data-ui-upload] [data-part-preview] {
+      align-self: start;
+    }
+
+    [data-ui-upload] [data-part-actions] {
+      justify-content: flex-start;
+      margin-inline-start: calc(-1 * var(--slotted-space-2, 0.25rem));
+    }
+
+    [data-ui-upload] [data-part-dropzone] {
+      padding-block: var(--slotted-space-6, 1rem);
+    }
+  }
+
+  /* ── Forced colours ────────────────────────────────────────────────────
+   *
+   * The theme remaps every semantic token to a system colour, so a family that
+   * reads tokens needs no rule of its own for colour. What it does need is the
+   * region's dashed edge, whose colour comes from a token that becomes
+   * `CanvasText` — correct — and the row tint, which the system flattens to
+   * `Canvas` and which then leaves the failed row saying nothing. The border
+   * carries it there instead.
+   */
+  @media (forced-colors: active) {
+    [data-ui-upload] [data-part-item][data-status='rejected'],
+    [data-ui-upload] [data-part-item][data-status='error'] {
+      --_item-border: CanvasText;
+    }
+
+    /*
+     * The theme maps every kind to `ButtonFace` and the foreground to
+     * `ButtonText`, so the tile is still a tile and the mark is still knocked
+     * out of it — in the system's two colours rather than in nine. What kind a
+     * file is, is then said by its shape, which is what survives this mode.
+     */
+    [data-ui-upload] [data-part-preview] {
+      border: var(--_border-width) solid ButtonBorder;
+    }
+
+    [data-ui-upload] [data-part-dropzone][data-drop-target],
+    [data-ui-upload] [data-part-dropzone][data-drop-invalid] {
+      --_zone-border-color: Highlight;
+    }
+
+    /*
+     * The state layer is a mix of `currentcolor` into nothing, and the system
+     * paints every ground `Canvas`, so a pointer over a control changed nothing
+     * the reader could see. The system's own pair answers instead — the one
+     * `alert` gives its dismiss.
+     */
+    [data-ui-upload]
+      :is(
+        [data-part-clear],
+        [data-part-viewerexternal],
+        [data-part-viewerclose],
+        [data-part-viewerprevious],
+        [data-part-viewernext],
+        [data-part-start],
+        [data-part-pause],
+        [data-part-retry],
+        [data-part-cancel],
+        [data-part-remove]
+      ):enabled:is(:hover, :active) {
+      background-color: Highlight;
+      color: HighlightText;
+    }
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The width
+   * comes back as an outline inside the border, and where focus draws the ring
+   * on the same box an invalid ring is double, which a valid one is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-upload][data-invalid] [data-part-trigger] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(
+        -1 * (var(--slotted-control-border-width, 1px) + var(--_invalid-edge-width))
+      );
+    }
+
+    [data-ui-upload][data-invalid] [data-part-trigger]:has(:focus-visible) {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(--slotted-focus-ring-offset, 2px);
+    }
+  }
+}

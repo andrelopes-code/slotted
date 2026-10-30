@@ -1,0 +1,1053 @@
+@layer slotted.components {
+  /**
+   * A search that executes. The reader opens it by a shortcut or a trigger,
+   * types, and the list answers with commands and destinations in the order
+   * the ranker put them; Enter runs the current one.
+   *
+   *   ┌─ root ─ the panel ─────────────────────────────────────────────────┐
+   *   │ ┌─ header ───────────────────────────────────────────────────────┐ │
+   *   │ │ search│busy  pages ▸ page › page   input (combobox)     clear  │ │
+   *   │ └────────────────────────────────────────────────────────────────┘ │
+   *   │ ┌─ list ─ role="listbox" ─ scrolls ──────────────────────────────┐ │
+   *   │ │ group ▸ group-label                                            │ │
+   *   │ │ item ▸ icon │ label ▸ match      │ meta │ shortcut │ arrow     │ │
+   *   │ │              description                                       │ │
+   *   │ │ separator · placeholder · empty                                │ │
+   *   │ └────────────────────────────────────────────────────────────────┘ │
+   *   │ status (live region, visually hidden)                              │
+   *   │ ┌─ footer ─ hint ▸ kbd word · hint ▸ kbd word ────────────────────┐ │
+   *   └────────────────────────────────────────────────────────────────────┘
+   *
+   * ── What this sheet does not draw ───────────────────────────────────
+   *
+   * The layer, the scrim, the motion of arriving and leaving, the focus
+   * containment and the Escape that closes are `dialog`'s: the panel stands
+   * inside a dialog whose surface is `plain`, and `identity.test.mjs` keeps
+   * this sheet off `[data-ui-dialog]`. The keys in an item's shortcut and in
+   * the footer's hints are `kbd`'s, worn as `data-ui='kbd'` under this family's
+   * own `shortcut` and `hint` parts, so every selector on those two parts is a
+   * child selector and never reaches the caps inside them. The mark on the
+   * run a query found is `highlight`'s, the ring while loading is `spinner`'s
+   * and the three bars are `skeleton`'s, exactly as `combobox` composes them.
+   *
+   * ── The panel draws itself ───────────────────────────────────────────
+   *
+   * `dialog`'s `plain` surface hands over the paint and keeps the mechanism,
+   * which is what this family needs: a palette is not a dialog with a title
+   * and a footer of buttons, it is a field over a list, and the two rows meet
+   * at a rule rather than at a header. The same root, drawn where the consumer
+   * wrote it under `presentation="inline"`, is the surface inside a popover —
+   * the filtered menu `menu` refused — and there the panel's own edge is the
+   * only edge it has.
+   *
+   * ── Why the list is a grid and the item a subgrid ────────────────────
+   *
+   * `menu`'s reasons, and `menu`'s columns plus two: the mark, the words, the
+   * meta, the shortcut and the arrow. A long translated label gives way in
+   * column two and never pushes a shortcut off the surface, and the shortcut
+   * column is as wide as the widest binding in the list, so `⌘K` and
+   * `Ctrl+Shift+P` end on one line. No `column-gap`, for the reason `menu`
+   * gives: a gap is drawn between two tracks even when the first is empty.
+   *
+   * ── Density ─────────────────────────────────────────────────────────
+   *
+   * A row is a control and reads control geometry: height, inset, type, glyph
+   * and gap. The header is one step up from the row — a field the reader is
+   * typing into is the thing the palette is about — and the footer one step
+   * down. Only the panel's own radius and the list's inset come off the space
+   * and radius scales.
+   */
+  [data-ui-command-palette] {
+    --_surface: var(--slotted-command-palette-surface, var(--slotted-surface-raised, #ffffff));
+    --_text: var(--slotted-command-palette-text, var(--slotted-text, #0f172a));
+    --_muted: var(--slotted-command-palette-text-muted, var(--slotted-text-muted, #5b6b7f));
+    --_border-color: var(
+      --slotted-command-palette-border-color,
+      var(--slotted-border-subtle, #e2e8f0)
+    );
+    --_border-width: var(--slotted-border-width-thin, 1px);
+    --_radius: var(--slotted-command-palette-radius, var(--slotted-radius-lg, 8px));
+    --_shadow: var(--slotted-command-palette-shadow, var(--slotted-shadow-lg));
+
+    /* The current row: the accent ground under an accent ring, `combobox`'s
+       pair. Nothing on this surface holds focus — DOM focus is on the input —
+       so the ring is what says where the reader is. */
+    --_highlight: var(--slotted-command-palette-highlight, var(--slotted-tone-accent-surface));
+    --_highlight-ring: var(
+      --slotted-command-palette-highlight-ring,
+      var(--slotted-tone-accent-border)
+    );
+    --_hover: var(--slotted-command-palette-hover, var(--slotted-tone-secondary-subtle-hover));
+    --_active: var(--slotted-command-palette-active, var(--slotted-tone-secondary-subtle-active));
+
+    /* The row, at the family's size step; the header one step up. */
+    --_item-height: var(--slotted-control-height-md, 34px);
+    --_item-inset: var(--slotted-control-padding-inline-md, 13px);
+    /* Concentric with the panel: its radius less the inset, floored at 0. */
+    --_item-radius: var(
+      --slotted-command-palette-item-radius,
+      max(0px, calc(var(--_radius) - var(--_list-inset)))
+    );
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_column-gap: var(--slotted-control-gap-md, 8px);
+    --_header-height: var(--slotted-control-height-lg, 38px);
+    --_header-font-size: var(--slotted-control-font-size-lg, 14px);
+    --_header-icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_header-inset: var(--slotted-control-padding-inline-lg, 16px);
+    --_chip-size: var(--slotted-control-inner-size-md, 24px);
+    --_list-inset: var(--slotted-command-palette-list-padding, var(--slotted-space-2, 0.25rem));
+
+    /**
+     * How tall the list may grow before it scrolls. A literal with the reason
+     * `--slotted-dialog-measure` carries one: a height nothing in the scales
+     * holds, and the one number a product retunes when its palette lives in a
+     * short viewport. Ten rows at `md`, comfortable.
+     */
+    --_list-max: var(--slotted-command-palette-list-max-block-size, 22rem);
+
+    background: var(--_surface);
+    border: var(--_border-width) solid var(--_border-color);
+    border-radius: var(--_radius);
+    box-shadow: var(--_shadow);
+    box-sizing: border-box;
+    color: var(--_text);
+    /* The two elements a container query needs: this one is queried, and the
+       rows inside are what it restyles. The panel changes no track of its own. */
+    container-name: command-palette;
+    container-type: inline-size;
+    /**
+     * What the panel is worth to a parent that shrink-wraps it. Inline-size
+     * containment takes the panel's contents out of its intrinsic size, so
+     * inside a popover — which is as wide as its widest child — the panel
+     * measured two pixels: its two borders, around nothing. This is the width
+     * the panel asks for when nothing outside it says; where the parent is a
+     * block, `inline-size: 100%` below is what it takes. A literal, with the
+     * reason `--slotted-dialog-measure` carries one.
+     */
+    contain-intrinsic-inline-size: var(--slotted-command-palette-measure, 22rem);
+    display: grid;
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--_font-size);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    inline-size: 100%;
+    line-height: var(--slotted-line-height-md, 1.5);
+    /* The rows meet the rounded corner and are cut by it, as `table`'s framed
+       variant cuts its rows: a scrolled list otherwise draws square corners
+       inside a rounded panel. */
+    overflow: clip;
+  }
+
+  /**
+   * A theme draws the panel as a material with this filter beside a surface
+   * with alpha: `--slotted-command-palette-backdrop-filter`, `none` unless set.
+   * The root is the one layer that paints a ground under either presentation.
+   * A reader who asked for less transparency gets no filter, and under forced
+   * colours the ground is the system's.
+   */
+  [data-ui-command-palette] {
+    -webkit-backdrop-filter: var(--slotted-command-palette-backdrop-filter, none);
+    backdrop-filter: var(--slotted-command-palette-backdrop-filter, none);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-command-palette] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────── */
+
+  [data-ui-command-palette][data-size='sm'] {
+    --_item-height: var(--slotted-control-height-sm, 30px);
+    --_item-inset: var(--slotted-control-padding-inline-sm, 10px);
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_column-gap: var(--slotted-control-gap-sm, 6px);
+    --_header-height: var(--slotted-control-height-md, 34px);
+    --_header-font-size: var(--slotted-control-font-size-md, 13px);
+    --_header-icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_header-inset: var(--slotted-control-padding-inline-md, 13px);
+    --_chip-size: var(--slotted-control-inner-size-sm, 22px);
+  }
+
+  [data-ui-command-palette][data-size='lg'] {
+    --_item-height: var(--slotted-control-height-lg, 38px);
+    --_item-inset: var(--slotted-control-padding-inline-lg, 16px);
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_column-gap: var(--slotted-control-gap-lg, 8px);
+    /* Nothing in control geometry stands above `lg`, so the header takes its
+       type from the text scale and its air from the space scale instead. */
+    --_header-height: calc(var(--slotted-control-height-lg, 38px) + var(--slotted-space-4, 0.5rem));
+    --_header-font-size: var(--slotted-font-size-lg, 1rem);
+    --_header-icon-size: var(--slotted-control-inner-size-sm, 22px);
+    --_chip-size: var(--slotted-control-inner-size-lg, 28px);
+  }
+
+  /* ── The header ───────────────────────────────────────────────────────── */
+
+  /**
+   * One row: the mark, the trail, the field, the clear. The field is `plain`
+   * in the sense `plain-variant.test.mjs` gives the word — its box belongs to
+   * something else — so it draws no edge and no ground of its own, and the
+   * rule under the header is the one line between the field and the list.
+   */
+  [data-ui-command-palette] > [data-part-header] {
+    align-items: center;
+    border-block-end: var(--_border-width) solid var(--_border-color);
+    box-sizing: border-box;
+    display: flex;
+    gap: var(--_column-gap);
+    min-block-size: var(--_header-height);
+    padding-inline: var(--_header-inset);
+    /* The containing block of the ring drawn under it, below. */
+    position: relative;
+  }
+
+  /**
+   * The ring under the field, and why it is not around it. The field is the
+   * only thing focused for the whole of the interaction, and a box around the
+   * top row of a panel that is itself a box says the wrong thing. The ring is
+   * drawn as a band the ring's own width along the header's bottom edge, in
+   * the theme's ring colour, and it appears only when the keyboard put focus
+   * there — which, for a palette opened with ⌘K, is every time. The band is
+   * a bottom edge: `state-rail.test.mjs` (R1) refuses a state rail on the
+   * start or the top edge, and this is neither.
+   */
+  [data-ui-command-palette] > [data-part-header]:has(> [data-part-input]:focus-visible)::after {
+    background-color: var(--slotted-focus-ring-color, currentColor);
+    block-size: var(--slotted-focus-ring-width, 2px);
+    content: '';
+    inset-block-end: calc(-1 * var(--_border-width));
+    inset-inline: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  [data-ui-command-palette] :is([data-part-search], [data-part-busy]) {
+    color: var(--_muted);
+    flex: none;
+  }
+
+  /**
+   * The mark that says what the field is: the binding's `search` glyph, its
+   * icon box at the header's icon size so it sits on the field's line; a
+   * character is never an icon.
+   */
+  [data-ui-command-palette] [data-part-search] {
+    --slotted-icon-size: var(--_header-icon-size);
+
+    display: flex;
+  }
+
+  /**
+   * The ring while an answer is travelling, where the mark stood. The arc is
+   * `spinner/spinner.css`'s, worn as `data-ui='spinner'` beside this family's
+   * part, and this family only says where it stands and how big it is.
+   */
+  [data-ui-command-palette] [data-part-busy] {
+    --slotted-spinner-size: var(--_header-icon-size);
+  }
+
+  /* ── The trail ────────────────────────────────────────────────────────── */
+
+  /**
+   * The pages the reader has opened, oldest first, as chips before the field.
+   * Each is a control that returns to its page; the last one is where the
+   * reader is and reads as the field's own prefix.
+   */
+  [data-ui-command-palette] [data-part-pages] {
+    align-items: center;
+    display: flex;
+    flex: none;
+    gap: var(--slotted-space-2, 0.25rem);
+    list-style: none;
+    margin: 0;
+    max-inline-size: 50%;
+    min-inline-size: 0;
+    padding: 0;
+  }
+
+  [data-ui-command-palette] [data-part-pages] > li {
+    display: contents;
+  }
+
+  [data-ui-command-palette] [data-part-page] {
+    align-items: center;
+    appearance: none;
+    background-color: var(--slotted-command-palette-page-surface, var(--_hover));
+    block-size: var(--_chip-size);
+    border: 0;
+    border-radius: var(--slotted-radius-sm, 4px);
+    box-sizing: border-box;
+    color: var(--_muted);
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 1 auto;
+    font: inherit;
+    font-size: var(--_secondary-font-size);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    line-height: 1;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    padding-block: 0;
+    padding-inline: var(--slotted-space-4, 0.5rem);
+    /* The containing block of the hit area below. */
+    position: relative;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+    white-space: nowrap;
+  }
+
+  [data-ui-command-palette] [data-part-page] > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* A chip inside the header is shorter than the target minimum at every
+     density; the hit area is recovered outside its paint. */
+  [data-ui-command-palette] [data-part-page]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  [data-ui-command-palette] [data-part-page]:not(:disabled):hover {
+    background-color: var(--_active);
+    color: var(--_text);
+  }
+
+  [data-ui-command-palette] [data-part-page]:not(:disabled):active {
+    background-color: var(--_active);
+  }
+
+  /* Drawn one width inside the chip, as a chip in a scrolling row draws it:
+     the header clips at its padding edge and a ring at the theme's offset
+     would lose its outer half. */
+  [data-ui-command-palette] [data-part-page]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid
+      var(--slotted-focus-ring-color, currentColor);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /**
+   * The chevron between two pages: the binding's `chevron-right` glyph before
+   * every page but the first, in a `directional` icon box that mirrors in a
+   * right-to-left document so the trail reads in the direction the reader
+   * reads.
+   */
+  [data-ui-command-palette] [data-part-pages] > li > [data-ui-icon] {
+    --slotted-icon-size: var(--_icon-size);
+
+    color: var(--_muted);
+    opacity: 0.7;
+  }
+
+  /* ── The field ────────────────────────────────────────────────────────── */
+
+  [data-ui-command-palette] [data-part-input] {
+    appearance: none;
+    background: transparent;
+    block-size: 100%;
+    border: 0;
+    box-sizing: border-box;
+    color: var(--_text);
+    flex: 1 1 auto;
+    font-family: inherit;
+    font-size: var(--_header-font-size);
+    line-height: inherit;
+    margin: 0;
+    min-block-size: var(--_header-height);
+    min-inline-size: 0;
+    /* The ring is the header's, drawn above; the browser's own goes. */
+    outline: none;
+    padding: 0;
+  }
+
+  [data-ui-command-palette] [data-part-input]::placeholder {
+    color: var(--_muted);
+    opacity: 1;
+  }
+
+  /**
+   * A hint longer than the field fades out at the field's end rather than
+   * ending mid-glyph: a phone's field holds a third of the words. A fade and
+   * not `text-overflow: ellipsis`, which Chromium does not draw on a
+   * placeholder whose input the user agent clips (`overflow: clip`), focused
+   * or not — measured on the Nexora palette at 390 pixels. Only while the
+   * placeholder shows: what the reader types is never faded under the caret.
+   */
+  [data-ui-command-palette] [data-part-input]:placeholder-shown {
+    mask-image: linear-gradient(
+      to right,
+      #000 calc(100% - var(--slotted-command-palette-placeholder-fade, 2em)),
+      transparent
+    );
+  }
+
+  /* The browser's own clear and its search decoration, which the family
+     draws itself so the two schemes and the three densities agree. */
+  [data-ui-command-palette] [data-part-input]::-webkit-search-cancel-button,
+  [data-ui-command-palette] [data-part-input]::-webkit-search-decoration {
+    appearance: none;
+  }
+
+  /**
+   * The clear, an inner control: `min(glyph + a step of air a side, the inner
+   * size at the family's step)`, never a control height, as
+   * `inner-control.test.mjs` holds every clear to. Out of the tab sequence,
+   * because Escape already clears and a second stop before the list is a
+   * stop nobody asked for.
+   */
+  [data-ui-command-palette] > [data-part-header] > [data-part-clear] {
+    --_clear-size: min(
+      calc(var(--_icon-size) + 2 * var(--slotted-space-2, 0.25rem)),
+      var(--slotted-control-inner-size-md, 24px)
+    );
+
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_clear-size);
+    border: 0;
+    border-radius: var(--slotted-control-radius, 4px);
+    color: var(--_muted);
+    cursor: pointer;
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--_clear-size);
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    touch-action: manipulation;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-command-palette] > [data-part-header] > [data-part-clear]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  /* On a finger the target is the comfortable size in both axes and the box
+     is the one a mouse sees: the ground and the focus ring stay square, and
+     the hit area above grows to 44 pixels around them. It does not reach
+     across the close control after it. */
+  @media (pointer: coarse) {
+    [data-ui-command-palette] > [data-part-header] > [data-part-clear]::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+    }
+
+    [data-ui-command-palette]
+      > [data-part-header]
+      > [data-part-clear]:has(+ [data-part-close])::after {
+      inset-inline-end: 0;
+    }
+  }
+
+  [data-ui-command-palette] > [data-part-header] > [data-part-clear]:not(:disabled):hover {
+    background-color: var(--_hover);
+    color: var(--_text);
+  }
+
+  [data-ui-command-palette] > [data-part-header] > [data-part-clear]:not(:disabled):active {
+    background-color: var(--_active);
+  }
+
+  [data-ui-command-palette] > [data-part-header] > [data-part-clear]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid
+      var(--slotted-focus-ring-color, currentColor);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /* Present in the DOM whenever the family renders it, drawn only with a
+     query: a clear beside an empty field is a control with nothing to do. */
+  [data-ui-command-palette]:not([data-query]) > [data-part-header] > [data-part-clear] {
+    display: none;
+  }
+
+  /**
+   * The way out where the scrim is not. The dialog closes on Escape and on
+   * the scrim; a palette that has taken the whole screen has no scrim to
+   * press, and a touch screen has no Escape, so a reader who opened it by
+   * mistake had nothing to press but a command. A word, not a cross: a ✕
+   * beside a search field reads as clear, which is what `clear` already is.
+   * Drawn only under the dialog's own full-screen query, below.
+   */
+  [data-ui-command-palette] > [data-part-header] > [data-part-close] {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--slotted-control-height-sm, 30px);
+    border: 0;
+    border-radius: var(--slotted-control-radius, 4px);
+    color: var(--slotted-tone-accent-text, LinkText);
+    cursor: pointer;
+    display: none;
+    flex: none;
+    font: inherit;
+    font-size: var(--_font-size);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    padding-block: 0;
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    touch-action: manipulation;
+    white-space: nowrap;
+  }
+
+  [data-ui-command-palette] > [data-part-header] > [data-part-close]:not(:disabled):hover {
+    background-color: var(--_hover);
+  }
+
+  [data-ui-command-palette] > [data-part-header] > [data-part-close]:not(:disabled):active {
+    background-color: var(--_active);
+  }
+
+  [data-ui-command-palette] > [data-part-header] > [data-part-close]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid
+      var(--slotted-focus-ring-color, currentColor);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /* ── The list ─────────────────────────────────────────────────────────── */
+
+  /**
+   * Five columns, bounded, scrolling. `overscroll-behavior` keeps the page —
+   * or the popover — still once the list has scrolled to its end.
+   */
+  [data-ui-command-palette] > [data-part-list] {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+    align-content: start;
+    max-block-size: var(--_list-max);
+    outline: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--_list-inset);
+    padding-inline: var(--_list-inset);
+    scroll-padding-block: var(--_list-inset);
+  }
+
+  [data-ui-command-palette] > [data-part-list][data-loading] {
+    cursor: progress;
+  }
+
+  /* ── Groups ───────────────────────────────────────────────────────────── */
+
+  [data-ui-command-palette] [data-part-group] {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  /**
+   * A group's label stays at the top of the list while its group is in view.
+   * The group is the label's containing block, so the next label pushes it out
+   * and a group scrolled past takes its label with it. It sticks to the
+   * scrollport's edge rather than the padding's, on the surface's ground, above
+   * the items and below the parts the surface draws over them.
+   */
+  [data-ui-command-palette] [data-part-group-label] {
+    background: var(--_surface);
+    box-sizing: border-box;
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    grid-column: 1 / -1;
+    inset-block-start: calc(-1 * var(--_list-inset));
+    line-height: var(--slotted-line-height-sm, 1.45);
+    min-block-size: var(--_group-label-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+    position: sticky;
+    z-index: 1;
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-command-palette] [data-part-group-label] {
+      background: Canvas;
+    }
+  }
+
+  /**
+   * The label's height, which the list keeps clear above an item the keys
+   * bring into view (`revealWithin` reads the scroll padding), so the item is
+   * never drawn under a label stuck to the top.
+   */
+  [data-ui-command-palette] > [data-part-list]:has([data-part-group-label]) {
+    --_group-label-height: var(
+      --slotted-command-palette-group-label-height,
+      calc(
+        var(--_secondary-font-size) * var(--slotted-line-height-sm, 1.45) + 2 *
+          var(--slotted-space-2, 0.25rem)
+      )
+    );
+
+    scroll-padding-block-start: var(--_group-label-height);
+  }
+
+  /* ── Items ────────────────────────────────────────────────────────────── */
+
+  /**
+   * A `div` — or an `a`, for an item with a destination — carrying
+   * `role="option"`. Not a button: the option is never focused, the input is,
+   * and a button that is never focused is a button lying about what it is.
+   * `min-block-size` rather than a height, because an item with a description
+   * is two lines tall and still has to clear the target minimum.
+   */
+  [data-ui-command-palette] [data-part-item] {
+    align-content: center;
+    border-radius: var(--_item-radius);
+    box-sizing: border-box;
+    color: inherit;
+    cursor: pointer;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    /* The line box every cell inherits, for the reason `menu` states it once:
+       `1lh` on a mark resolves against the mark's own line height. */
+    line-height: var(--slotted-line-height-md, 1.5);
+    min-block-size: var(--_item-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+    /* No gap between the label and the line under it: each line box already
+       carries its own leading, and a gap on top of two leadings read as a
+       command and a footnote rather than as one row. */
+    row-gap: 0;
+    text-decoration: none;
+    user-select: none;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  /**
+   * The pointer over a row that is not the current one: a wash, and nothing
+   * more. The current row is stronger, below, and it is the one the keyboard
+   * moves; the two are told apart so a reader who arrowed to one row while the
+   * pointer rests on another reads exactly one cursor.
+   */
+  [data-ui-command-palette] [data-part-item]:not([data-disabled]):not([data-current]):hover {
+    background-color: var(--_hover);
+  }
+
+  [data-ui-command-palette] [data-part-item]:not([data-disabled]):not([data-current]):active {
+    background-color: var(--_active);
+  }
+
+  /**
+   * The current row: the accent ground under an inset accent ring. An inset
+   * shadow rather than an outline, so it follows the row's own radius and
+   * never overflows the list's rounded edge. It does not transition — a change
+   * of row is a reading, not a movement, and a transition lags behind a reader
+   * holding ArrowDown.
+   */
+  [data-ui-command-palette] [data-part-item][data-current] {
+    background-color: var(--_highlight);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px) var(--_highlight-ring);
+    transition: none;
+  }
+
+  [data-ui-command-palette] [data-part-item][data-current]:not([data-disabled]):active {
+    background-color: var(--_active);
+  }
+
+  /**
+   * Disabled: legible rather than faded, announced, kept in place, never
+   * current — `moveIndex` skips it and the pointer does not highlight it. The
+   * hand goes, because there is nothing to press.
+   */
+  [data-ui-command-palette] [data-part-item][data-disabled] {
+    color: var(--slotted-disabled-foreground, #64748b);
+    cursor: not-allowed;
+  }
+
+  /* A handler that has not answered yet: the cursor says so, and the ring
+     `spinner` draws stands in the last column, where the arrow of a page
+     item stands, sized to the row's own glyph. */
+  [data-ui-command-palette] [data-part-item][data-loading] {
+    cursor: progress;
+  }
+
+  [data-ui-command-palette] [data-part-item] > [data-part-busy] {
+    --slotted-spinner-size: var(--_icon-size);
+
+    color: var(--_muted);
+    grid-column: 5;
+    justify-self: end;
+    margin-inline-start: var(--_column-gap);
+  }
+
+  /* ── The cells ────────────────────────────────────────────────────────── */
+
+  /**
+   * Column one. The mark's box exists whether or not a mark is drawn, so a
+   * list where the third item has an icon and the fourth does not still lines
+   * its labels up. It holds an element of the consumer's own, centred; the
+   * stylesheet paints no mark into it.
+   *
+   * The box sizes what it holds: an icon box reads `--slotted-icon-size` from
+   * its container, and a bare glyph host such as `ng-icon` — which sizes
+   * itself at `1em` — reads the font-size the child rule below gives it.
+   * Nothing placed here is drawn at the row's type size. The font-size is on
+   * the child and not on the box, because the box's `1lh` reads the item's
+   * line box.
+   */
+  [data-ui-command-palette] [data-part-icon] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    block-size: 1lh;
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    inline-size: var(--_icon-size);
+    justify-content: center;
+    justify-self: center;
+    /* One step more than the control gap. A consumer's icon fills its box to
+       the edge — a Lucide glyph drawn at sixteen pixels has ink at fifteen —
+       and at the control gap the mark touched the first letter of the label. */
+    margin-inline-end: calc(var(--_column-gap) + var(--slotted-space-2, 0.25rem));
+  }
+
+  [data-ui-command-palette] [data-part-icon]:not(:empty) > * {
+    block-size: var(--_icon-size);
+    font-size: var(--_icon-size);
+    inline-size: var(--_icon-size);
+  }
+
+  /**
+   * Column two, and the only column that gives way. One line, cut with an
+   * ellipsis: a palette is scanned, and a command that wraps onto three lines
+   * is three rows pretending to be one. The whole text is on the item's
+   * `title` and reachable by the reader, so nothing leaves the DOM.
+   */
+  [data-ui-command-palette] [data-part-label] {
+    grid-column: 2;
+    grid-row: 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-command-palette] [data-part-description] {
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    grid-column: 2;
+    grid-row: 2;
+    line-height: var(--slotted-line-height-xs, 1.4);
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-command-palette] [data-part-item][data-disabled] > [data-part-description] {
+    color: inherit;
+  }
+
+  /* Column three: a word at the end — "Recent", the kind of thing this is. */
+  /**
+   * The three cells at the end of the row span both of its rows and sit on the
+   * row's centre. Placed on the first row alone, a keycap taller than the
+   * label's line box stretched that row, and the description under it dropped
+   * by the difference — a gap that opened only on rows with a binding.
+   */
+  [data-ui-command-palette]
+    [data-part-item]
+    > :is([data-part-meta], [data-part-shortcut], [data-part-arrow], [data-part-busy]) {
+    align-self: center;
+    grid-row: 1 / -1;
+  }
+
+  [data-ui-command-palette] [data-part-meta] {
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    grid-column: 3;
+    justify-self: end;
+    margin-inline-start: var(--slotted-space-6, 1rem);
+    white-space: nowrap;
+  }
+
+  /* A word on a row with no binding takes the binding's column too, so it
+     ends where the bindings on the rows around it end rather than a column
+     short of them. */
+  [data-ui-command-palette] [data-part-item]:not(:has(> [data-part-shortcut])) > [data-part-meta] {
+    grid-column: 3 / 5;
+  }
+
+  /**
+   * Column four. The caps inside are `kbd`'s, in its `plain` variant, and this
+   * rule places the column and states its ink; every selector stops at the
+   * part and never reaches the caps.
+   */
+  [data-ui-command-palette] [data-part-item] > [data-part-shortcut] {
+    align-items: center;
+    color: var(--_muted);
+    display: inline-flex;
+    /**
+     * The caps read this size (`kbd` at `inherit`), and it is under the
+     * secondary type by a tenth: a keycap carries its own inset and edge, so
+     * at the secondary size it stood as tall as the label's line and read as
+     * a second label; a tenth under, it reads as an annotation of the row.
+     * A proportion of a scale value is geometry, as avatar's initials are.
+     */
+    font-size: calc(var(--_secondary-font-size) * 0.9);
+    grid-column: 4;
+    justify-self: end;
+    margin-inline-start: var(--slotted-space-6, 1rem);
+    white-space: nowrap;
+  }
+
+  [data-ui-command-palette]
+    [data-part-item][data-disabled]
+    > :is([data-part-meta], [data-part-shortcut]) {
+    color: inherit;
+  }
+
+  /**
+   * Column five: the mark that says an item opens a page, as `menu` draws the
+   * mark that says an item opens a submenu. The binding's `chevron-right`
+   * glyph in a `directional` icon box, which mirrors in a right-to-left
+   * document; the column is one line box tall and centres it.
+   */
+  [data-ui-command-palette] [data-part-arrow] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    block-size: 1lh;
+    display: flex;
+    grid-column: 5;
+    inline-size: var(--_icon-size);
+    justify-self: end;
+    margin-inline-start: var(--_column-gap);
+    opacity: 0.7;
+  }
+
+  /* ── Separator, empty, status, placeholder ────────────────────────────── */
+
+  /**
+   * A child of the list and nothing deeper: `kbd` names the `+` and the `then`
+   * between two caps `separator` as well, and a descendant selector here
+   * painted them as one-pixel rules — the bar over the word, and the word
+   * itself pushed out of a box one pixel tall.
+   */
+  [data-ui-command-palette] > [data-part-list] [data-part-separator]:not([data-separator]) {
+    background-color: var(--slotted-command-palette-separator-color, var(--_border-color));
+    block-size: var(--_border-width);
+    border: 0;
+    grid-column: 1 / -1;
+    margin-block: var(--slotted-space-2, 0.25rem);
+    margin-inline: 0;
+  }
+
+  [data-ui-command-palette] [data-part-empty] {
+    color: var(--_muted);
+    grid-column: 1 / -1;
+    padding-block: var(--slotted-space-8, 1.5rem);
+    padding-inline: var(--_item-inset);
+    text-align: center;
+    unicode-bidi: plaintext;
+  }
+
+  /**
+   * The live region. It is read, never seen: the count is on the screen in the
+   * list itself, and a sentence under the list saying "12 results" would say
+   * what the reader is looking at. The clip is the visually-hidden idiom, kept
+   * in the DOM so `role="status"` has something to announce from.
+   */
+  [data-ui-command-palette] > [data-part-status] {
+    block-size: 1px;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  /**
+   * The wait, as the shape of the list that is coming: three rows the height
+   * of an item, `combobox`'s decision for `combobox`'s reasons. The bars are
+   * `skeleton/skeleton.css`'s; this family places them.
+   */
+  [data-ui-command-palette] [data-part-placeholder] {
+    display: grid;
+    grid-column: 1 / -1;
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_item-inset);
+  }
+
+  [data-ui-command-palette] [data-part-placeholder] > * {
+    align-items: center;
+    display: flex;
+    min-block-size: var(--_item-height);
+  }
+
+  [data-ui-command-palette] [data-part-placeholder] > :nth-child(2) [data-ui-skeleton] {
+    inline-size: 78%;
+  }
+
+  [data-ui-command-palette] [data-part-placeholder] > :nth-child(3) [data-ui-skeleton] {
+    inline-size: 56%;
+  }
+
+  /* ── The footer ───────────────────────────────────────────────────────── */
+
+  /**
+   * The keys the palette answers, on a sunken row under a rule. The caps are
+   * `kbd`'s in its `plain` variant at the small step; the words beside them
+   * are this family's, one step quieter than the list.
+   */
+  [data-ui-command-palette] > [data-part-footer] {
+    align-items: center;
+    background: var(
+      --slotted-command-palette-footer-surface,
+      var(--slotted-surface-sunken, #f8fafd)
+    );
+    border-block-start: var(--_border-width) solid var(--_border-color);
+    box-sizing: border-box;
+    color: var(--_muted);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    gap: var(--slotted-space-6, 1rem);
+    line-height: var(--slotted-line-height-xs, 1.4);
+    min-block-size: var(--slotted-control-height-sm, 30px);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_header-inset);
+  }
+
+  [data-ui-command-palette] > [data-part-footer] > [data-part-hint] {
+    align-items: center;
+    display: inline-flex;
+    /* The caps read the footer's own size through `kbd` at `inherit`, a tenth
+       under it, for the reason the row's caps are. */
+    font-size: calc(var(--slotted-font-size-xs, 0.75rem) * 0.9);
+    gap: var(--slotted-space-3, 0.375rem);
+    white-space: nowrap;
+  }
+
+  /**
+   * The word beside the caps, at the footer's own size on a line box of its
+   * own height: centred on the caps' box it sat a pixel and a half low,
+   * because a line box of 1.4 is centred on its leading and not on its
+   * letters. `line-height: 1` centres the em box, which is where the word is.
+   */
+  [data-ui-command-palette] > [data-part-footer] > [data-part-hint] > span:not([data-ui]) {
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    line-height: 1;
+  }
+
+  /* ── Narrow ───────────────────────────────────────────────────────────── */
+
+  /**
+   * Below three hundred and sixty pixels the words column has the row to itself: the
+   * description and the meta go, the shortcut stays, and the trail keeps to a
+   * third of the header so the field is never squeezed to nothing.
+   */
+  @container command-palette (max-width: 360px) {
+    [data-ui-command-palette] :is([data-part-description], [data-part-meta]) {
+      display: none;
+    }
+
+    [data-ui-command-palette] [data-part-pages] {
+      max-inline-size: 33%;
+    }
+
+    [data-ui-command-palette] > [data-part-footer] {
+      gap: var(--slotted-space-4, 0.5rem);
+    }
+  }
+
+  /**
+   * The dialog took the layer. Under `fullScreen="narrow"` the dialog family
+   * removes its own radius, margins and measure below thirty rems of its
+   * container, and its `plain` surface has no edge of its own to remove — the
+   * edge is this panel's. The panel is asked the same question the dialog
+   * asked, of the dialog's own named container, so the two answer together:
+   * the corner, the side edges and the lift go, and the list takes the rest
+   * of the screen. Written here rather than on `[data-ui-dialog]` because
+   * `identity.test.mjs` keeps this sheet off another family's identifier;
+   * the container name and the breakpoint are the dialog's, recorded in
+   * `dialog.css` beside its own query.
+   */
+  @container slotted-dialog (max-inline-size: 30rem) {
+    [data-ui-command-palette][data-presentation='dialog'] {
+      --_list-max: none;
+
+      border-inline: 0;
+      border-radius: 0;
+      box-shadow: none;
+      /* The whole layer, stated against the layer itself. A `plain` panel is
+         not bounded by the dialog — that is the cost the dialog family writes
+         beside the variant — so a percentage height here resolved against a
+         track the list had already grown, and the footer left the screen.
+         The layer is the nearest positioned ancestor, and its four edges are
+         where a full-screen palette ends. */
+      inset: 0;
+      position: absolute;
+    }
+
+    /* No scrim to press: the word that closes stands at the end of the field. */
+    [data-ui-command-palette][data-presentation='dialog'] > [data-part-header] > [data-part-close] {
+      display: inline-flex;
+    }
+  }
+
+  /**
+   * A legend for keys the reader has none of. Where the primary input is a
+   * touch screen the footer's hints — arrows, Enter, Escape — name nothing
+   * the reader can press; the list is scrolled and the rows are tapped.
+   */
+  @media (hover: none) and (pointer: coarse) {
+    [data-ui-command-palette] > [data-part-footer] {
+      display: none;
+    }
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────── */
+
+  /**
+   * The one thing the theme cannot reach: every tone surface becomes `Canvas`
+   * under forced colours, so the current row's ground — this family's cursor,
+   * not decoration — would disappear.
+   */
+  @media (forced-colors: active) {
+    [data-ui-command-palette] [data-part-item][data-current] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-command-palette] [data-part-item][data-disabled][data-current] {
+      background-color: Highlight;
+      color: GrayText;
+    }
+
+    /*
+     * The focus bar under the field is painted with a background, and forced
+     * colours replace a background that is not one of the system's own
+     * colours. `forced-color-adjust: none` keeps its `currentColor` fallback,
+     * the host's ink the system has already forced. The glyphs are `Glyph`
+     * elements drawn in `currentColor` and need nothing here.
+     */
+    [data-ui-command-palette] > [data-part-header]:has(> [data-part-input]:focus-visible)::after {
+      forced-color-adjust: none;
+    }
+  }
+}

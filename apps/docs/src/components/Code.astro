@@ -1,0 +1,30 @@
+---
+import { CodeBlock } from '@slotted/react/code-block';
+
+import { highlight, type CodeLanguage } from '../lib/highlight';
+
+interface Props {
+  code: string;
+  lang: CodeLanguage;
+  fileName?: string;
+  /** The header's words, in place of the language. */
+  title?: string;
+  collapseAfter?: number;
+}
+
+const { code, lang, fileName, title, collapseAfter } = Astro.props;
+const tokens = await highlight(code, lang);
+---
+
+<div class="docs-code" data-slotted-theme="default" data-slotted-scheme="dark">
+  <CodeBlock
+    client:visible
+    code={code}
+    tokens={tokens}
+    language={lang}
+    copy
+    {...fileName ? { fileName } : {}}
+    {...title ? { title } : {}}
+    {...collapseAfter ? { collapseAfter } : {}}
+  />
+</div>

@@ -1,0 +1,331 @@
+{
+  "schemaVersion": 5,
+  "family": "notification-center",
+  "ui": "notification-center",
+  "catalog": {
+    "group": "Feedback",
+    "summary": "Read and unread notifications with actions."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/feed/",
+  "reference": "UI5 ui5-notification-list, Novu Inbox, Knock NotificationFeed, MagicBell Inbox, GitHub notifications inbox",
+  "composes": ["tabs", "button", "skeleton", "result-state"],
+  "engine": "@slotted/core/timeline — feedFocusTarget for the Feed keyboard, formatTimestamp and setSizeOf for the items",
+  "rootElement": "section",
+  "rootRole": "region, named by the title message or the consumer's aria-label",
+  "roles": {
+    "feed": "feed",
+    "item": "article",
+    "views": "tablist, held by tabs; the feed is its one panel",
+    "group": "none; the group-label is a heading one rank below the title",
+    "read-toggle": "button",
+    "dismiss": "button",
+    "mark-all": "button"
+  },
+  "anatomy": {
+    "root": "a section: the region, the container query and the element a ref returns",
+    "header": "the row above the views: title, mark-all, the consumer's actions",
+    "title": "on the header, the heading at level with the unread count as a badge after the words; on an item, the words that name it — a link when href, text otherwise, clamped at two lines",
+    "mark-all": "a button that asks to mark every unread item read; disabled while nothing is unread",
+    "actions": "on the header, the consumer's own controls — a preferences link, a menu; on an item, the consumer's controls for that item under its body",
+    "views": "the tabs family's list over views; absent when views holds one entry",
+    "fresh": "the held arrivals: a button naming their count; present while held > 0",
+    "feed": "the list, role=feed, aria-busy while loading, aria-labelledby the title",
+    "group": "when groupBy: the items of one group under a group-label",
+    "group-label": "the heading of a group, one rank below the title",
+    "item": "an article, tabindex=0, aria-labelledby its title, aria-describedby its description, aria-posinset and aria-setsize",
+    "visual": "the consumer's avatar or icon at the small step; for an item with a tone and no visual, the family's own — the tone's glyph filled: the tone's surface as a disc under the ringed glyph at the ring's own radius, the two on one box so they are concentric, the avatar's diameter, the same read or not; absent when the item has neither, and the words take the column",
+    "content": "title, description, time, actions, in that order",
+    "description": "the body of the notification, clamped at three lines",
+    "time": "a time element with datetime, written relative or absolute",
+    "controls": "the family's two controls at the inline end, muted at rest and in the text ink on the row under the pointer or holding focus; each opens a tooltip with its name on hover, keyboard focus and a held touch, and grows to the comfortable target under a coarse pointer; which of the two exist is the controls axis",
+    "read-toggle": "an icon button: the check glyph while unread (mark read), the dot glyph while read (mark unread); named by the markRead and markUnread messages",
+    "dismiss": "an icon button with the x glyph that asks to remove the item; named by the dismiss message",
+    "more": "under growing=button a button asking for the next page; under growing=scroll the sentinel an IntersectionObserver watches; absent under none",
+    "empty": "in place of the feed when it holds nothing: the consumer's result-state, or the empty message (caughtUp under the unread view)",
+    "footer": "the consumer's link from the popover to the page; absent when not written",
+    "count": "a chip beside words, in tabular figures on the sunken surface: the unread total after the header's title, in the accent pair; a view's count in its tab"
+  },
+  "wiring": {
+    "aria-labelledby": "on the root and the feed, naming the title; on an item, naming its title",
+    "aria-describedby": "on an item with a description, naming it",
+    "aria-busy": "true on the feed while loading",
+    "aria-posinset / aria-setsize": "on each article: its position, and count when the consumer states it, the loaded number under growing=none, -1 while more may come",
+    "aria-controls": "on each tab of the views strip, naming the feed",
+    "aria-live": "a polite announcement, once per change, of the held arrivals' count and of the unread count",
+    "datetime": "on time, the ISO value"
+  },
+  "requests": {
+    "onReadChange": {
+      "payload": "{ keys, read }",
+      "reasons": ["pointer", "keyboard", "programmatic"],
+      "from": "read-toggle, mark-all, the handle"
+    },
+    "onRemove": {
+      "payload": "key",
+      "reasons": ["pointer", "keyboard"],
+      "from": "dismiss, Delete on an article"
+    },
+    "onOpen": {
+      "payload": "key",
+      "reasons": ["pointer", "keyboard"],
+      "from": "the title link, before its navigation; cancellable"
+    },
+    "onReveal": {
+      "payload": "count",
+      "reasons": ["pointer", "keyboard"],
+      "from": "fresh, the handle"
+    },
+    "onLoadMore": {
+      "payload": "none",
+      "reasons": ["pointer", "keyboard", "scroll"],
+      "from": "more"
+    },
+    "onUnreadChange": {
+      "payload": "count",
+      "reasons": [],
+      "from": "a fact reported when the unread count changes, for the bell"
+    }
+  },
+  "arrivals": {
+    "hold": "new keys that arrive while document.activeElement is inside the feed or the feed's scroll container is scrolled past its start are held behind fresh; otherwise they show at once",
+    "show": "nothing is held",
+    "reveal": "shows the held keys in the consumer's order and, on a keyboard press, moves focus to the first revealed article",
+    "immediate": "a change to a shown item and a removal apply at once under both values",
+    "announce": "polite, once per change of the held count"
+  },
+  "views": {
+    "builtIn": ["all", "unread"],
+    "unread": "the family shows the items whose read is false",
+    "other": "the items are what the consumer gave for that view",
+    "initial": "all when neither view nor defaultView is stated"
+  },
+  "time": {
+    "value": "PlainDateTime or an ISO instant, as @slotted/core/timeline reads it",
+    "format": "formatTimestamp with locale (the language in force unless stated), timeZone, now and timeFormat",
+    "reason": "one formatter for two families that write a when"
+  },
+  "clamp": {
+    "title": 2,
+    "description": 3,
+    "reason": "the whole text stays in the DOM; a notification longer than that opens the thing it is about. UI5's show-more link is declined"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves through the header's controls, the views strip's selected tab, fresh, then each article and the controls inside it, then more and the footer",
+      "focus": "the next tabbable element",
+      "source": "platform"
+    },
+    {
+      "key": "PageDown",
+      "effect": "on an article: moves to the next article",
+      "focus": "that article",
+      "source": "@slotted/core/timeline"
+    },
+    {
+      "key": "PageUp",
+      "effect": "on an article: moves to the previous article; on the first, to fresh when it is present",
+      "focus": "that article, or fresh",
+      "source": "@slotted/core/timeline"
+    },
+    {
+      "key": "Control+End",
+      "effect": "on an article: moves to the first focusable element after the feed",
+      "focus": "outside the feed",
+      "source": "@slotted/core/timeline"
+    },
+    {
+      "key": "Control+Home",
+      "effect": "on an article: moves to the first focusable element before the feed",
+      "focus": "outside the feed",
+      "source": "@slotted/core/timeline"
+    },
+    {
+      "key": "Delete",
+      "effect": "on an article: asks to remove it with the reason keyboard; accepted, focus moves to the next article, or the previous, or the feed's start",
+      "focus": "the neighbouring article",
+      "source": "family"
+    },
+    {
+      "key": "Enter",
+      "effect": "on the title link: asks onOpen with the reason keyboard before the navigation; on any button: presses it",
+      "focus": "stays",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowLeft / ArrowRight / Home / End",
+      "effect": "on the views strip: moves between views and asks onViewChange with the reason keyboard",
+      "focus": "the tab moved to",
+      "source": "tabs"
+    }
+  ],
+  "messages": [
+    "all",
+    "caughtUp",
+    "dismiss",
+    "empty",
+    "fresh",
+    "loading",
+    "loadMore",
+    "markAll",
+    "markRead",
+    "markUnread",
+    "title",
+    "unread",
+    "unreadView",
+    "views"
+  ],
+  "declined": {
+    "showMore": {
+      "reason": "UI5's wrappingType with a Show more link; the clamp keeps the whole text in the DOM and the item opens the thing"
+    },
+    "preferences": {
+      "reason": "a product's settings screen; the header's actions slot holds the link"
+    },
+    "snooze": {
+      "reason": "a product policy over the store; the item's actions slot holds the control"
+    },
+    "bulkSelection": {
+      "deferTo": "selection-toolbar",
+      "reason": "a selection over the feed composed over the same items"
+    },
+    "virtualization": {
+      "deferTo": "growing",
+      "reason": "the answer timeline gave for the same list"
+    },
+    "collapsibleGroups": {
+      "reason": "only UI5 folds a group, and a folded group hides what the reader came for"
+    },
+    "rail": {
+      "reason": "a notification is a row with a dot, not an event on a rail; timeline's engine is reused and its paint is not"
+    },
+    "bell": {
+      "deferTo": "top-navigation",
+      "reason": "the notifications control with its count is drawn there; the family reports the count"
+    },
+    "open": {
+      "deferTo": "popover",
+      "reason": "the floating host owns open, placement and dismissal"
+    },
+    "badge": {
+      "reason": "a count beside a title is a figure, not a status; badge's smallest step read as a status beside the words, so the count is the family's own chip on the type scale's smallest step, as top-navigation draws the bell's count"
+    }
+  },
+  "axes": {
+    "size": ["sm", "md"],
+    "level": ["2", "3", "4"],
+    "growing": ["none", "button", "scroll"],
+    "arrivals": ["hold", "show"],
+    "timeFormat": ["relative", "absolute"],
+    "tone": ["accent", "secondary", "info", "success", "warning", "danger"],
+    "controls": ["both", "read", "dismiss", "none"]
+  },
+  "resolution": "the consumer's explicit prop, then the family's defaults provider, then the fallback",
+  "provides": {
+    "notificationCenterDefaults": [
+      "size",
+      "level",
+      "growing",
+      "controls",
+      "arrivals",
+      "timeFormat",
+      "timeZone"
+    ]
+  },
+  "stateAttributes": {
+    "read": "data-read",
+    "loading": "data-loading"
+  },
+  "stateModel": {
+    "current": {
+      "controlled": "view",
+      "uncontrolled": "defaultView",
+      "request": "onViewChange",
+      "reasons": ["pointer", "keyboard", "programmatic"]
+    }
+  },
+  "members": {
+    "notificationCenter": {
+      "nativeElement": "section",
+      "defaults": {
+        "size": "md",
+        "level": "2",
+        "growing": "none",
+        "arrivals": "hold",
+        "timeFormat": "relative",
+        "view": "all",
+        "loading": false,
+        "controls": "both"
+      },
+      "capabilities": [
+        "current",
+        "read",
+        "removable",
+        "live",
+        "size",
+        "loading",
+        "content",
+        "wiring"
+      ],
+      "states": ["default", "hover", "focus-visible", "read", "loading"],
+      "parts": [
+        "root",
+        "header",
+        "title",
+        "count",
+        "mark-all",
+        "actions",
+        "views",
+        "fresh",
+        "feed",
+        "group",
+        "group-label",
+        "item",
+        "visual",
+        "content",
+        "description",
+        "time",
+        "controls",
+        "read-toggle",
+        "dismiss",
+        "more",
+        "empty",
+        "footer"
+      ]
+    }
+  },
+  "scenarios": {
+    "notificationCenter": [
+      "playground",
+      "anatomy",
+      "read",
+      "views",
+      "arrivals",
+      "groups",
+      "growing",
+      "actions",
+      "hosts",
+      "loading",
+      "empty",
+      "sizes",
+      "content",
+      "composition",
+      "defaults",
+      "keyboard",
+      "accessibility"
+    ]
+  },
+  "unreadMark": {
+    "signals": "a wash mixed from the tone's text at the highlight share, and the semibold title",
+    "reason": "no mark: a dot in a column of its own read as a bullet, a disc on the title's line sat off the avatar's axis, a dot on a visual that already carries the tone said the tone twice, and a solid visual shouted beside the avatars; the wash and the weight are read without colour, and the read-toggle says the rest"
+  },
+  "toneGlyph": {
+    "accent": "circle-info",
+    "secondary": "bell",
+    "info": "circle-info",
+    "success": "circle-check",
+    "warning": "circle-alert",
+    "danger": "circle-x",
+    "reason": "the family's own visual for an item with a tone and no visual; every glyph is a circle — a triangle is refused in this library for its asymmetry, and the alert family's warning glyph is a debt it owns"
+  }
+}

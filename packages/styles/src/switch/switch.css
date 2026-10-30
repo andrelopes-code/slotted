@@ -1,0 +1,697 @@
+@layer slotted.components {
+  /**
+   * ── The binary setting that takes effect immediately ───────────────────
+   *
+   * The control is an `input[type=checkbox][role=switch]` and the pill is
+   * painted around it. ARIA 1.2 declares the `switch` role **Children
+   * Presentational**, so the role belongs on the void `input` and never on the
+   * box: a root carrying it would fold the label and the description beside it
+   * into the control's own accessible name.
+   *
+   * The anatomy is the one `checkbox` settled one item earlier in this wave,
+   * and the metrics below are its metrics: a two-column grid, the label in the
+   * second column pointing at the control through `for`, and the description
+   * under the label. Two binary controls in one list have to line up, and the
+   * way to guarantee that is to derive both from the same numbers — including
+   * where the target comes from, which in both is the control and not the row
+   * (SW2).
+   *
+   * Every rule keys on `data-ui` and `data-part`. The checked, disabled and
+   * read-only states are read from the element as well as from the attribute
+   * the binding mirrors, because a control can be disabled by something that
+   * never told it so.
+   */
+  [data-ui-switch][data-part-root] {
+    /**
+     * The thumb is the control glyph, which is the scale the theme restates
+     * per density — so a switch in a dense table shrinks whole rather than in
+     * parts. Everything else is a proportion of it: a pill two thumbs and
+     * three gutters wide, whose thumb travels exactly its own diameter plus
+     * one gutter, so the same air is left at both ends in both states.
+     */
+    --_thumb-size: var(--slotted-control-icon-size-md, 16px);
+    --_gutter: var(--slotted-space-1, 0.125rem);
+    --_border: var(--slotted-control-border-width, 1px);
+    --_track-block: calc(var(--_thumb-size) + (var(--_gutter) + var(--_border)) * 2);
+    --_track-inline: var(
+      --slotted-switch-track-inline-size,
+      calc(var(--_thumb-size) * 2 + var(--_gutter) * 3 + var(--_border) * 2)
+    );
+    --_travel: calc(var(--_thumb-size) + var(--_gutter));
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_gap: var(--slotted-control-label-gap-md, 12px);
+    --_line-height: var(--slotted-switch-line-height, var(--slotted-line-height-md, 1.5));
+    /**
+     * The height the label's line is missing before it is as tall as the pill,
+     * split above and below its text, so the text reads centred on the pill
+     * rather than sitting at the top of a row the pill made.
+     *
+     * It was the height a one-line label was missing before it was a WCAG 2.2
+     * target, which made a row of Switch four and a half pixels taller than
+     * the row of Checkbox beside it in the same form — 28.5px against 19.5 at
+     * `md` — for a target the control above the pill already carries. CK3 took
+     * that model out of `checkbox` and `radio-group`; this is the same removal
+     * (SW2). A row is the taller of its label's line and its pill.
+     */
+    --_label-slack: max(0px, (var(--_track-block) - var(--_font-size) * var(--_line-height)) / 2);
+    /**
+     * The distance from the top of the row to the top of the pill, so the pill
+     * sits on the first line of a label that wraps to three rather than in the
+     * middle of the block. The pill is taller than a line box, so this is
+     * usually the slack less a pixel; `max()` keeps it from going negative at
+     * a step where the pill is taller still.
+     */
+    --_lift: max(
+      0px,
+      calc(
+        var(--_label-slack) + (var(--_font-size) * var(--_line-height) - var(--_track-block)) / 2
+      )
+    );
+    /** The box the pointer presses: the pill, or the WCAG 2.2 minimum where
+        the pill is shorter than it. */
+    --_target-block: max(var(--_track-block), var(--slotted-target-min, 24px));
+    /** The distance from the label's text to the description under it. */
+    --_description-gap: max(0px, var(--slotted-space-3, 0.375rem) - var(--_label-slack));
+
+    /* The rows are as tall as they read. Stretched, the description drifted
+       away from the label it belongs to; the surplus is the container's. */
+    align-content: start;
+    color: var(--slotted-switch-color, var(--slotted-text, CanvasText));
+    display: grid;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    grid-template-columns: auto minmax(0, 1fr);
+    line-height: var(--_line-height);
+  }
+
+  /**
+   * The control. It gives up every pixel of its own appearance and keeps
+   * everything that makes it a control: the state, the identifier, the name,
+   * the tab stop, Space, the label association and form submission.
+   *
+   * It is transparent rather than clipped away, because a control removed from
+   * the layout takes its hit area with it — and this one *is* the hit area
+   * over the pill. It is the WCAG minimum in both axes wherever the pill is
+   * smaller than it, and it overhangs the pill by the difference rather than
+   * pushing the row open: the two negative margins take its own overhang back
+   * out of what it contributes to the row, so a Switch row is the height of
+   * its pill and its label and never of its target (SW2). The overhang is on
+   * a transparent box, so nothing about it is visible.
+   */
+  [data-ui-switch] > [data-part-control] {
+    align-self: start;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_target-block);
+    border: 0;
+    cursor: pointer;
+    grid-area: 1 / 1;
+    inline-size: var(--_track-inline);
+    /* It follows the pill onto the label's first line, and gives back what it
+       overhangs at both ends. */
+    margin-block-end: calc((var(--_track-block) - var(--_target-block)) / 2);
+    margin-block-start: calc(var(--_lift) + (var(--_track-block) - var(--_target-block)) / 2);
+    margin-inline: 0;
+    opacity: 0;
+    /* The ring is drawn on the track, so the control never draws a second. */
+    outline: none;
+    padding: 0;
+    /* No tap delay waiting for a second tap a switch cannot use. */
+    touch-action: manipulation;
+    /**
+     * Above the paint, and this is not optional. The track shares this grid
+     * cell and comes later in the DOM, so it paints over the control: a
+     * pointer press landed on the track and the switch answered nothing, and
+     * only the label toggled it. That is the defect a reviewer found by
+     * pressing the pill rather than by reading the rule.
+     *
+     * It is a local stacking order rather than a step on the z-index scale:
+     * that scale ranks application layers — sticky, overlay, popover, toast —
+     * and this ranks two elements inside one control.
+     */
+    z-index: 1;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /**
+   * The track. It carries the ground, the edge and the ring, and it is the
+   * containing block the thumb travels inside. It is lifted onto the label's
+   * first line rather than centred on the label, because `align-items: center`
+   * on a label that wraps to three lines puts the pill beside the second one.
+   */
+  [data-ui-switch] > [data-part-track] {
+    background-color: var(
+      --slotted-switch-track-background,
+      var(--slotted-tone-secondary-solid, ButtonFace)
+    );
+    block-size: var(--_track-block);
+    border: var(--_border) solid
+      var(--slotted-switch-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--slotted-switch-radius, var(--slotted-radius-full, 9999px));
+    box-sizing: border-box;
+    grid-area: 1 / 1;
+    inline-size: var(--_track-inline);
+    margin-block-start: var(--_lift);
+    /* The pointer belongs to the control above it, not to the paint. */
+    pointer-events: none;
+    position: relative;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * The thumb, and the whole of the family's motion.
+   *
+   * It travels on `inset-inline-start` rather than on a translation, so a
+   * right-to-left document mirrors the movement with no direction-specific
+   * rule at all — the axis is the writing direction's, not the screen's.
+   */
+  [data-ui-switch] > [data-part-track] > [data-part-thumb] {
+    /* A flex box, so the mark's icon is centred in the knob as a box and not
+       set on a line of text. */
+    align-items: center;
+    /**
+     * One knob, in both states and all three schemes. `on-solid` is the ink the
+     * theme guarantees against a solid tone, and both tracks are solid tones —
+     * so the thumb is white wherever the theme is legible. Reading `surface`
+     * here instead inverted the relationship between scheme and state: a white
+     * knob on a light track in the light scheme, and a near-black one on a
+     * lighter track in the dark scheme, which is two components rather than one.
+     */
+    background-color: var(--slotted-switch-thumb-background, var(--slotted-tone-accent-on-solid));
+    /**
+     * The thumb keeps an edge in every state. A thumb separated from its track
+     * by colour alone disappears in the `high-contrast` scheme, where the
+     * unchecked track is white, and under forced colours, where it is Canvas.
+     */
+    border: var(--_border) solid
+      var(--slotted-switch-thumb-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--slotted-radius-full, 9999px);
+    block-size: var(--_thumb-size);
+    /**
+     * The shadow every framed control carries, on the one part of this family
+     * that is meant to look raised. It is barely visible on purpose: on a
+     * light unchecked track the knob and the ground are two steps apart, and
+     * without it the knob rests on its own hairline border alone. The theme
+     * withdraws it in `high-contrast` and under forced colours, where the
+     * border is doing the work instead.
+     */
+    box-shadow: var(--slotted-switch-thumb-shadow, var(--slotted-control-shadow, none));
+    box-sizing: border-box;
+    display: flex;
+    inline-size: var(--_thumb-size);
+    inset-block-start: var(--_gutter);
+    inset-inline-start: var(--_gutter);
+    justify-content: center;
+    position: absolute;
+    transition:
+      inset-inline-start var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing);
+  }
+
+  /**
+   * The mark. `docs/component-features.md` asks for the state to be
+   * perceptible beyond colour *and* beyond position, and this is what supplies
+   * it: the check the binding renders in the knob as the `Glyph` element,
+   * never a character. `indicator="none"` is the binding rendering none.
+   *
+   * It is always in the DOM and fades in, so the eye follows one control
+   * changing rather than two marks swapping places. Off is the absence of the
+   * mark, which is the same statement a checkbox makes.
+   */
+  [data-ui-switch] > [data-part-track] > [data-part-thumb] > [data-ui-icon] {
+    /**
+     * Seventy per cent of the knob rather than all of it. The glyph is drawn
+     * on a 24-unit grid with a 3-unit stroke, so filling the knob the check
+     * read as a checkbox on a pill.
+     */
+    block-size: 70%;
+    color: var(--slotted-switch-mark-color, var(--slotted-tone-accent-solid));
+    inline-size: 70%;
+    opacity: 0;
+    transition: opacity var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  /* ── The label ────────────────────────────────────────────────────────
+   *
+   * The label is the control's own element and it names it through `for`, so a
+   * description below it can be read without toggling anything.
+   *
+   * It does not carry the target. The pill is 22 pixels tall at `md` and less
+   * at the tighter densities, and what makes up the difference is the control
+   * stretched over the pill, which is a transparent box with a minimum of its
+   * own — the correction `docs/token-foundation.md` asks the family for. The
+   * padding here is optical: it centres the words on the pill.
+   */
+  [data-ui-switch] > [data-part-label] {
+    cursor: pointer;
+    grid-column: 2;
+    grid-row: 1;
+    /** A label that is one unbroken token — an id, a hash, a URL — breaks. */
+    overflow-wrap: anywhere;
+    padding-block: var(--_label-slack);
+  }
+
+  /**
+   * The gap between the pill and the text is the grid's, opened only beside a
+   * label, and not the label's padding: a padding is laid out in the label's
+   * own direction, and a label in Arabic inside a row in Portuguese took the
+   * gap on its far side and set its text against the pill.
+   *
+   * The padding was also what made the gap toggle the setting. The control
+   * takes that over: it grows by the gap towards the text and gives the growth
+   * back as a negative margin, as it gives back its block overhang, so the row
+   * is no wider and a press between the pill and the words still lands on it.
+   */
+  [data-ui-switch][data-part-root]:has(> [data-part-label]) {
+    column-gap: var(--_gap);
+  }
+
+  /* Beside the pill, the label is as wide as its words: stretched across the
+     column, a label in Arabic in a row in Portuguese aligned its text to its
+     own start and set it at the far end of the row, away from the pill. */
+  [data-ui-switch] > [data-part-label] {
+    justify-self: start;
+  }
+
+  [data-ui-switch][data-part-root]:has(> [data-part-label]) > [data-part-control] {
+    inline-size: calc(var(--_track-inline) + var(--_gap));
+    margin-inline-end: calc(-1 * var(--_gap));
+  }
+
+  /**
+   * Aligned under the label rather than under the pill, and never inside the
+   * label: inside, it would join the accessible name, and a paragraph of help
+   * text that toggles a setting when it is clicked is a paragraph nobody reads.
+   */
+  [data-ui-switch] > [data-part-description] {
+    color: var(--slotted-switch-description-color, var(--slotted-text-muted, GrayText));
+    font-size: var(--slotted-switch-description-font-size, var(--slotted-font-size-xs, 0.75rem));
+    grid-column: 2;
+    grid-row: 2;
+    line-height: var(--slotted-line-height-xs, 1.4);
+    margin: 0;
+    overflow-wrap: anywhere;
+    padding-block-start: var(--_description-gap);
+  }
+
+  /* ── Placement ────────────────────────────────────────────────────────
+   *
+   * The pill on the other side of its label, which is the settings row every
+   * product writes: the label takes the free width and the control sits at the
+   * end. Two columns swap and the column gap stays between them, so the
+   * distance is the same number in both arrangements and in both writing
+   * directions.
+   */
+
+  [data-ui-switch][data-part-root][data-label-placement='start'] {
+    /**
+     * `1fr` and not `max-content`, for the reason `checkbox` records: sizing
+     * the first column from each row's own label ends a list with the controls
+     * at as many different distances from the edge as there are rows.
+     */
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  [data-ui-switch][data-part-root][data-label-placement='start'] > [data-part-control],
+  [data-ui-switch][data-part-root][data-label-placement='start'] > [data-part-track] {
+    grid-area: 1 / 2;
+  }
+
+  [data-ui-switch][data-part-root][data-label-placement='start'] > [data-part-label],
+  [data-ui-switch][data-part-root][data-label-placement='start'] > [data-part-description] {
+    grid-column: 1;
+  }
+
+  /* Before the pill, the label takes the row, so the row is the settings row. */
+  [data-ui-switch][data-part-root][data-label-placement='start'] > [data-part-label] {
+    justify-self: stretch;
+  }
+
+  /* The control reaches across the gap towards the label, now on its start side. */
+  [data-ui-switch][data-part-root][data-label-placement='start']:has(> [data-part-label])
+    > [data-part-control] {
+    margin-inline-end: 0;
+    margin-inline-start: calc(-1 * var(--_gap));
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────
+   *
+   * Three steps, matching the field the control sits in. The control reads the
+   * field's step before its own default, because a `size="sm"` field holding
+   * an `md` control is a field and a control disagreeing about one row.
+   */
+
+  [data-ui-switch][data-part-root][data-size='sm'] {
+    --_thumb-size: var(--slotted-control-icon-size-sm, 14px);
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_gap: var(--slotted-control-label-gap-sm, 8px);
+  }
+
+  [data-ui-switch][data-part-root][data-size='md'] {
+    --_thumb-size: var(--slotted-control-icon-size-md, 16px);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_gap: var(--slotted-control-label-gap-md, 12px);
+  }
+
+  [data-ui-switch][data-part-root][data-size='lg'] {
+    --_thumb-size: var(--slotted-control-icon-size-lg, 18px);
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_gap: var(--slotted-control-label-gap-lg, 12px);
+  }
+
+  /* ── States ───────────────────────────────────────────────────────────
+   *
+   * Written strongest last, and each weaker one guarded against every stronger
+   * one it can meet, which is the order `STATE_PRECEDENCE` sets.
+   *
+   * Each state is matched on the element as well as on the attribute the
+   * binding mirrors. The element is the truth a mirror can lag behind: a
+   * control inside a disabled `fieldset` is never told that it is disabled,
+   * and the deleted `input` family shipped that defect once already.
+   */
+
+  [data-ui-switch][data-part-root]:is([data-checked], :has(> [data-part-control]:checked))
+    > [data-part-track] {
+    background-color: var(
+      --slotted-switch-checked-background,
+      var(--slotted-tone-accent-solid, Highlight)
+    );
+    border-color: var(
+      --slotted-switch-checked-border-color,
+      var(--slotted-tone-accent-solid, Highlight)
+    );
+  }
+
+  [data-ui-switch][data-part-root]:is([data-checked], :has(> [data-part-control]:checked))
+    > [data-part-track]
+    > [data-part-thumb] {
+    border-color: var(
+      --slotted-switch-checked-thumb-border-color,
+      var(--slotted-tone-accent-solid, Highlight)
+    );
+    inset-inline-start: calc(var(--_gutter) + var(--_travel));
+  }
+
+  [data-ui-switch][data-part-root]:is([data-checked], :has(> [data-part-control]:checked)):not(
+      [data-loading]
+    )
+    > [data-part-track]
+    > [data-part-thumb]
+    > [data-ui-icon] {
+    opacity: 1;
+  }
+
+  /**
+   * Hover and press are the track's, because the thumb is the part that says
+   * where the value is and a second thing moving under the pointer only
+   * competes with it. Both are held back for disabled, loading and read-only,
+   * and both are written before `invalid`, which outranks them.
+   */
+  [data-ui-switch][data-part-root]:hover:not([data-disabled]):not([data-loading]):not(
+      [data-readonly]
+    ):not(:has(> [data-part-control]:disabled))
+    > [data-part-track] {
+    background-color: var(
+      --slotted-switch-hover-background,
+      var(--slotted-tone-secondary-solid-hover, ButtonFace)
+    );
+  }
+
+  [data-ui-switch][data-part-root]:is(
+      [data-checked],
+      :has(> [data-part-control]:checked)
+    ):hover:not([data-disabled]):not([data-loading]):not([data-readonly]):not(
+      :has(> [data-part-control]:disabled)
+    )
+    > [data-part-track] {
+    background-color: var(
+      --slotted-switch-checked-hover-background,
+      var(--slotted-tone-accent-solid-hover, Highlight)
+    );
+    border-color: var(
+      --slotted-switch-checked-hover-background,
+      var(--slotted-tone-accent-solid-hover, Highlight)
+    );
+  }
+
+  [data-ui-switch][data-part-root]:active:not([data-disabled]):not([data-loading]):not(
+      [data-readonly]
+    ):not(:has(> [data-part-control]:disabled))
+    > [data-part-track] {
+    background-color: var(
+      --slotted-switch-active-background,
+      var(--slotted-tone-secondary-solid-active, ButtonFace)
+    );
+  }
+
+  [data-ui-switch][data-part-root]:is(
+      [data-checked],
+      :has(> [data-part-control]:checked)
+    ):active:not([data-disabled]):not([data-loading]):not([data-readonly]):not(
+      :has(> [data-part-control]:disabled)
+    )
+    > [data-part-track] {
+    background-color: var(
+      --slotted-switch-checked-active-background,
+      var(--slotted-tone-accent-solid-active, Highlight)
+    );
+    border-color: var(
+      --slotted-switch-checked-active-background,
+      var(--slotted-tone-accent-solid-active, Highlight)
+    );
+  }
+
+  /**
+   * The ring belongs to the track, because the track is the switch a reader
+   * sees; the control it answers is the transparent element over it. The
+   * offset keeps the ring off the pill's own edge, which is what makes a
+   * focused unchecked switch legible against a sunken surface.
+   */
+  [data-ui-switch][data-part-root]:has(> [data-part-control]:focus-visible) > [data-part-track] {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * Read-only stays focusable, announced and submitted, and it must not be
+   * mistakable for disabled. The pill goes hollow rather than grey: the state
+   * keeps its own colour in the mark, and the ground stops saying "press me".
+   */
+  [data-ui-switch][data-part-root][data-readonly] > [data-part-track] {
+    background-color: var(--slotted-switch-readonly-background, var(--slotted-surface, Canvas));
+  }
+
+  [data-ui-switch][data-part-root][data-readonly] > [data-part-control],
+  [data-ui-switch][data-part-root][data-readonly] > [data-part-label] {
+    cursor: default;
+  }
+
+  /**
+   * Read-only outranks checked, so it is written with enough weight to take
+   * the ground back from it: the pill is hollow whichever state it holds.
+   *
+   * The edge stays the neutral control edge rather than turning accent. A
+   * focused read-only switch drew the ring and the border in the same blue,
+   * two pixels apart, and neither could be told from the other. The state is
+   * carried where it always is — the thumb's position, and the mark on it.
+   */
+  [data-ui-switch][data-part-root][data-readonly]:is(
+      [data-checked],
+      :has(> [data-part-control]:checked)
+    )
+    > [data-part-track] {
+    background-color: var(--slotted-switch-readonly-background, var(--slotted-surface, Canvas));
+    border-color: var(
+      --slotted-switch-readonly-border-color,
+      var(--slotted-control-border-color, ButtonBorder)
+    );
+  }
+
+  [data-ui-switch][data-part-root][data-readonly]:is(
+      [data-checked],
+      :has(> [data-part-control]:checked)
+    )
+    > [data-part-track]
+    > [data-part-thumb] {
+    border-color: var(
+      --slotted-switch-readonly-border-color,
+      var(--slotted-control-border-color, ButtonBorder)
+    );
+  }
+
+  /**
+   * Invalid outranks hover and press and is written after them: a setting
+   * reporting an error should not stop looking wrong because the pointer is
+   * over it.
+   *
+   * The ring is retargeted rather than repainted. Every rule that draws focus
+   * reads `--slotted-focus-ring-color`, so pointing that one name at the
+   * invalid colour on the root moves the ring without restating it — the rule
+   * `text-field` wrote for this family to inherit.
+   */
+  [data-ui-switch][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-switch-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+  }
+
+  [data-ui-switch][data-part-root][data-invalid] > [data-part-track],
+  [data-ui-switch][data-part-root][data-invalid] > [data-part-track] > [data-part-thumb] {
+    border-color: var(--slotted-switch-invalid-border-color, var(--slotted-tone-danger-border));
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger border is the resting edge's black. An edge
+     * inside the border of the track and of the thumb, so neither moves, in
+     * place of the thumb's resting lift; the thumb carries it where a checked
+     * track's fill would hide the track's own.
+     */
+    --_invalid-edge-width: var(
+      --slotted-switch-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+
+    box-shadow: inset 0 0 0 var(--_invalid-edge-width)
+      var(--slotted-switch-invalid-border-color, var(--slotted-tone-danger-border));
+  }
+
+  /**
+   * Loading. The geometry does not change — the thumb stays where it is and
+   * the track keeps its size — because a control that resizes while it saves
+   * moves the row under the pointer. The mark gives way to the arc, which is
+   * the one thing in the family that says the value is not settled yet.
+   */
+  [data-ui-switch][data-part-root][data-loading] > [data-part-control] {
+    cursor: progress;
+  }
+
+  [data-ui-switch][data-part-root][data-loading]
+    > [data-part-track]
+    > [data-part-thumb]
+    > [data-ui-icon] {
+    opacity: 0;
+  }
+
+  /**
+   * The arc. It is geometry rather than an icon — a ring with one quarter of
+   * its border left transparent — so no glyph token is invented for a shape
+   * the border already draws. `progress-indicator` is wave 2 and not built;
+   * when it is, this is the first thing it should replace.
+   *
+   * Three quarters rather than one. A single coloured side read as a shape
+   * rather than as a spinner in a still image, and a still image is what a
+   * reader under `prefers-reduced-motion` is looking at.
+   */
+  [data-ui-switch][data-part-root][data-loading] > [data-part-track] > [data-part-thumb]::after {
+    animation: slotted-switch-pending var(--slotted-duration-loop) linear infinite;
+    border: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-switch-pending-color, var(--slotted-tone-accent-solid));
+    border-inline-start-color: transparent;
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-sizing: border-box;
+    content: '';
+    display: block;
+    /* Inset by an eighth so the arc sits inside the thumb's own edge. */
+    inset: 12.5%;
+    position: absolute;
+  }
+
+  @keyframes slotted-switch-pending {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  /**
+   * An animation that repeats forever has to stop rather than hurry, which is
+   * what `docs/token-foundation.md` requires and what the motion scale cannot
+   * do for a loop. The arc stays drawn, so the pending state is still visible
+   * without anything moving.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-switch][data-part-root][data-loading] > [data-part-track] > [data-part-thumb]::after {
+      animation: none;
+    }
+  }
+
+  /**
+   * Disabled is the strongest state and is written last. `:disabled` on the
+   * control is matched beside `[data-disabled]` on the root, because a control
+   * inside a disabled `fieldset` is disabled by something that never told it
+   * so — and left to the attribute alone it would look fully operable and
+   * answer nothing.
+   */
+  [data-ui-switch][data-part-root]:is([data-disabled], :has(> [data-part-control]:disabled))
+    > [data-part-control],
+  [data-ui-switch][data-part-root]:is([data-disabled], :has(> [data-part-control]:disabled))
+    > [data-part-label] {
+    cursor: not-allowed;
+  }
+
+  [data-ui-switch][data-part-root]:is([data-disabled], :has(> [data-part-control]:disabled))
+    > [data-part-track] {
+    background-color: var(
+      --slotted-switch-disabled-background,
+      var(--slotted-disabled-background, ButtonFace)
+    );
+    border-color: var(--slotted-switch-disabled-border-color, var(--slotted-disabled-border));
+  }
+
+  /**
+   * Muted to the colour the theme measures rather than faded by opacity: a
+   * setting nobody can read is a setting nobody can check, and a disabled form
+   * still has to say what it holds.
+   */
+  [data-ui-switch][data-part-root]:is([data-disabled], :has(> [data-part-control]:disabled))
+    > [data-part-track]
+    > [data-part-thumb] {
+    /**
+     * Grey rather than white. The knob is the brightest thing in the family,
+     * and a bright knob on a grey track reads as a control still waiting to be
+     * used. The mark inverts with it, so the state stays readable.
+     */
+    background-color: var(
+      --slotted-switch-disabled-thumb-background,
+      var(--slotted-disabled-foreground)
+    );
+    border-color: var(--slotted-switch-disabled-border-color, var(--slotted-disabled-border));
+    box-shadow: none;
+  }
+
+  [data-ui-switch][data-part-root]:is([data-disabled], :has(> [data-part-control]:disabled))
+    > [data-part-track]
+    > [data-part-thumb]
+    > [data-ui-icon] {
+    color: var(--slotted-switch-disabled-mark-color, var(--slotted-disabled-background));
+  }
+
+  [data-ui-switch][data-part-root]:is([data-disabled], :has(> [data-part-control]:disabled))
+    > [data-part-label],
+  [data-ui-switch][data-part-root]:is([data-disabled], :has(> [data-part-control]:disabled))
+    > [data-part-description] {
+    color: var(--slotted-switch-disabled-color, var(--slotted-disabled-foreground, GrayText));
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The width
+   * comes back as an outline inside the border, on the
+   * track and on the thumb; the focus ring takes the track and the thumb keeps
+   * its edge.
+   */
+  @media (forced-colors: active) {
+    [data-ui-switch][data-part-root][data-invalid] > [data-part-track],
+    [data-ui-switch][data-part-root][data-invalid] > [data-part-track] > [data-part-thumb] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(-1 * (var(--_border) + var(--_invalid-edge-width)));
+    }
+  }
+}

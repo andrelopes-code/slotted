@@ -1,0 +1,671 @@
+@layer slotted.components {
+  /**
+   * A guided walk through an interface, one step at a time: a card that points
+   * at a target, and a spotlight that says which one.
+   *
+   *   ┌─ root ─ fixed, the whole viewport, takes no pointer ──────────────┐
+   *   │ ┌─ backdrop ─ the scrim; takes the pointer on a modal step ─────┐ │
+   *   │ │      ┌─ spotlight ─ the cutout; its shadow is the scrim ─┐    │ │
+   *   │ │      └───────────────────────────────────────────────────┘    │ │
+   *   │ └───────────────────────────────────────────────────────────────┘ │
+   *   │ ┌─ surface ─ the positioned layer, as popover's root ───────────┐ │
+   *   │ │ ▪ focus-guard            ◆ arrow                              │ │
+   *   │ │ ┌─ content ─ role="dialog" ────────────────────────────────┐  │ │
+   *   │ │ │ media                                                     │  │ │
+   *   │ │ │ header ▸ progress ··························· close       │  │ │
+   *   │ │ │ title · description · body ▸ the only part that scrolls  │  │ │
+   *   │ │ │ footer ▸ skip ·························· prev · next      │  │ │
+   *   │ │ └───────────────────────────────────────────────────────────┘ │ │
+   *   │ └───────────────────────────────────────────────────────────────┘ │
+   *   └────────────────────────────────────────────────────────────────────┘
+   *
+   * The surface is popover's layer and the scrim is dialog's
+   *. The card's
+   * geometry, its arrow and its entrance repeat popover's for the reason that
+   * family records beside each of them.
+   *
+   * ── Why the scrim is the spotlight's shadow ──────────────────────────
+   *
+   * A scrim with a hole cut by `clip-path` has square corners, and a
+   * `clip-path: path()` takes no `var()`. A box the size of the cutout, with a
+   * spread shadow wide enough to cover any viewport, paints the scrim around a
+   * rounded hole and moves with two properties the motion scale can animate.
+   * The backdrop holds it and fades it, so the scrim arrives and leaves the way
+   * `dialog`'s does (`scrim-motion.test.mjs`).
+   */
+  [data-ui-tour] {
+    --_scrim: var(--slotted-tour-scrim, var(--slotted-scrim, Canvas));
+    --_spotlight-padding: var(--slotted-tour-spotlight-padding, var(--slotted-space-3, 0.375rem));
+    --_spotlight-radius: var(--slotted-tour-spotlight-radius, var(--slotted-radius-md, 6px));
+    --_gap: var(
+      --slotted-tour-gap,
+      calc(var(--_spotlight-padding) + var(--slotted-space-4, 0.5rem))
+    );
+
+    --_surface: var(--slotted-tour-surface, var(--slotted-surface-raised, #ffffff));
+    --_text: var(--slotted-tour-text, var(--slotted-text, #0f172a));
+    --_border-color: var(--slotted-tour-border-color, var(--slotted-border-subtle, #e2e8f0));
+    --_border-width: var(--slotted-border-width-thin, 1px);
+    --_radius: var(--slotted-tour-radius, var(--slotted-radius-lg, 8px));
+    --_shadow: var(--slotted-tour-shadow, var(--slotted-shadow-lg));
+    --_arrow-size: var(--slotted-tour-arrow-size, 0.625rem);
+    --_arrow-tip-radius: var(--slotted-tour-arrow-tip-radius, var(--slotted-radius-xs, 2px));
+
+    --_inset-block: var(--slotted-tour-padding-block, var(--slotted-space-6, 1rem));
+    --_inset-inline: var(--slotted-tour-padding-inline, var(--slotted-space-6, 1rem));
+    --_row-gap: var(--slotted-control-gap-md, 0.5rem);
+    --_title-font-size: var(--slotted-font-size-lg, 1rem);
+    --_font-size: var(--slotted-font-size-md, 0.875rem);
+    --_measure: var(--slotted-tour-measure, 20rem);
+
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--slotted-z-index-overlay, 1000) + var(--slotted-layer-depth, 0));
+    isolation: isolate;
+    overflow: clip;
+    /* The frame is only a frame. The backdrop takes the pointer when the step
+       is modal, and the card always does. */
+    pointer-events: none;
+
+    /**
+     * The frame's own exit, which is what `@slotted/core/presence` measures
+     * before it lets the tour leave the document. With no duration of its own
+     * the frame was removed after the fifty-millisecond grace, and the scrim
+     * and the card, whose fades are their own, were cut off mid-way: closing
+     * read as a cut. `visibility` is discrete — visible for the whole of the
+     * arrival, hidden only at the end of the exit — so it paints nothing of its
+     * own and only says how long leaving takes, and its `transitionend` is the
+     * moment the fades beneath it have finished.
+     */
+    visibility: hidden;
+    transition: visibility var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  /* Visible at once on the way in: a frame hidden until the end of a transition
+     cannot take focus in the frame it opens, and the card is focused then. */
+  [data-ui-tour][data-open] {
+    visibility: visible;
+    transition: none;
+  }
+
+  [data-ui-tour][data-size='sm'] {
+    --_inset-block: var(--slotted-tour-padding-block-sm, var(--slotted-space-5, 0.75rem));
+    --_inset-inline: var(--slotted-tour-padding-inline-sm, var(--slotted-space-5, 0.75rem));
+    --_title-font-size: var(--slotted-font-size-md, 0.875rem);
+    --_font-size: var(--slotted-font-size-sm, 0.8125rem);
+    --_measure: var(--slotted-tour-measure-sm, 16rem);
+  }
+
+  [data-ui-tour][data-size='lg'] {
+    --_inset-block: var(--slotted-tour-padding-block-lg, var(--slotted-space-7, 1.25rem));
+    --_inset-inline: var(--slotted-tour-padding-inline-lg, var(--slotted-space-7, 1.25rem));
+    --_title-font-size: var(--slotted-font-size-xl, 1.125rem);
+    --_measure: var(--slotted-tour-measure-lg, 24rem);
+  }
+
+  /* ── The scrim ────────────────────────────────────────────────────────── */
+
+  /**
+   * With no spotlight — a centred step, or `spotlight={false}` on a modal
+   * step — the backdrop paints the scrim itself, as `dialog`'s does. With one,
+   * the spotlight's shadow paints it and the backdrop only carries the fade.
+   */
+  [data-ui-tour] > [data-part-backdrop] {
+    position: absolute;
+    inset: 0;
+    overflow: clip;
+    background: var(--_scrim);
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-tour][data-open] > [data-part-backdrop] {
+    opacity: 1;
+    transition: opacity var(--slotted-duration-long) var(--slotted-easing-standard);
+  }
+
+  [data-ui-tour][data-spotlight] > [data-part-backdrop] {
+    background: transparent;
+  }
+
+  /* A modal step takes every press outside the card, the target's included:
+     the page beneath is inert, and a press that reached it would do nothing
+     a reader could see. */
+  [data-ui-tour][data-modal] > [data-part-backdrop] {
+    pointer-events: auto;
+  }
+
+  /**
+   * Physical coordinates, for the reason `logical.test.mjs` records beside its
+   * exemption: the rectangle is `getBoundingClientRect()`'s, in viewport
+   * pixels from the left and the top.
+   *
+   * The spread is twice the larger side of the viewport, so the shadow covers
+   * it from any position the cutout can take, a target half off screen
+   * included.
+   */
+  [data-ui-tour] > [data-part-backdrop] > [data-part-spotlight] {
+    position: absolute;
+    left: calc(var(--slotted-tour-target-x, 0px) - var(--_spotlight-padding));
+    top: calc(var(--slotted-tour-target-y, 0px) - var(--_spotlight-padding));
+    width: calc(var(--slotted-tour-target-width, 0px) + 2 * var(--_spotlight-padding));
+    height: calc(var(--slotted-tour-target-height, 0px) + 2 * var(--_spotlight-padding));
+    border-radius: var(--_spotlight-radius);
+    box-shadow: 0 0 0 200vmax var(--_scrim);
+    /* The hole is the spotlight's own ground; `light` and `close` paint it. */
+    background-color: transparent;
+  }
+
+  /* ── How the cutout moves ─────────────────────────────────────────────── */
+
+  /**
+   * At rest the cutout has no transition, and follows its target frame by
+   * frame: a scroll, a resize, a dialog animating in under it. A transition
+   * here made the cutout trail every scroll by a third of a second, and on the
+   * first step it flew in from the corner of the page — the place a cutout
+   * with no rectangle yet stands — to its target.
+   *
+   * The binding writes `data-spot` on the root for the three movements a
+   * reader's eye should follow, each for the long step on the standard curve,
+   * which is the scrim's own arrival: the eye reads the cutout and the scrim
+   * as one layer.
+   *
+   * - `travel`: from one target to the next, so the reader sees where the
+   *   tour went rather than a light going out in one place and on in another.
+   * - `light`: a cutout opening where there was none — the first step, or the
+   *   step after a centred one. The hole starts in the scrim's ink and clears,
+   *   so the target is lit rather than revealed by a cut.
+   * - `close`: the step after is centred. The hole fills back with the scrim
+   *   before the cutout goes, and the backdrop, which paints the same ink,
+   *   takes over without a seam.
+   */
+  [data-ui-tour][data-spot='travel'] > [data-part-backdrop] > [data-part-spotlight] {
+    transition-property: left, top, width, height;
+    transition-duration: var(--slotted-duration-long);
+    transition-timing-function: var(--slotted-easing-standard);
+  }
+
+  [data-ui-tour][data-spot='light'] > [data-part-backdrop] > [data-part-spotlight] {
+    animation: slotted-tour-light var(--slotted-duration-long) var(--slotted-easing-standard);
+  }
+
+  [data-ui-tour][data-spot='close'] > [data-part-backdrop] > [data-part-spotlight] {
+    background-color: var(--_scrim);
+    transition: background-color var(--slotted-duration-long) var(--slotted-easing-standard);
+  }
+
+  @keyframes slotted-tour-light {
+    from {
+      background-color: var(--_scrim);
+    }
+  }
+
+  /* ── The layer the card stands in ─────────────────────────────────────── */
+
+  /**
+   * `packages/core/src/positioner` writes `left`, `top` and `data-side` on it.
+   * Only the block inset is stated, for the reason `tooltip.css` sets out: the
+   * positioner writes `left` and never `right`, and `inset-inline-start`
+   * resolves to `right` in a right-to-left document.
+   */
+  [data-ui-tour] > [data-part-surface] {
+    position: absolute;
+    inset-block-start: 0;
+
+    box-sizing: border-box;
+    padding: var(--_gap);
+    inline-size: max-content;
+    max-inline-size: min(var(--_measure), var(--slotted-positioner-available-width, 100vw));
+
+    pointer-events: none;
+
+    /**
+     * The card arrives and leaves by its ink alone, as `dialog`'s panel does,
+     * and for the reason that panel records (DG4): a box of text moved by a
+     * fraction of a pixel has every letter resampled on every frame of the
+     * move, and the words lose their edges and get them back. The card slid
+     * four pixels towards its target for one iteration and read as careless
+     * beside the cutout, which is the movement that tells the eye where to
+     * look; the card only has to appear where the cutout has landed.
+     *
+     * Leaving is the short step on the exit curve — a reader who pressed Next
+     * is not waiting for the old card — and arriving the long step on the
+     * standard curve, with the scrim on opening and after the cutout on every
+     * step after.
+     */
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  /**
+   * `data-ready` is the binding's: the card of the step on screen has been
+   * placed — measured by the positioner, or centred — and is not leaving. A
+   * card between two steps, still at the old target with the new words, is
+   * never drawn.
+   */
+  [data-ui-tour][data-open] > [data-part-surface][data-ready]:not([data-leaving]) {
+    opacity: 1;
+    transition: opacity var(--slotted-duration-long) var(--slotted-easing-standard);
+  }
+
+  [data-ui-tour] > [data-part-surface][data-detached] {
+    visibility: hidden;
+  }
+
+  /**
+   * A step with no target, or one whose target could not be found, stands in
+   * the middle of the viewport as `dialog`'s panel does. Auto margins on an
+   * absolutely placed box with all four insets at zero centre it without a
+   * transform, which the entrance owns.
+   */
+  [data-ui-tour] > [data-part-surface][data-placement='centered'] {
+    inset: 0;
+    margin: auto;
+    block-size: max-content;
+    max-inline-size: min(var(--_measure), 100%);
+    max-block-size: 100%;
+  }
+
+  /**
+   * A phone's notch, its rounded corners and its home indicator are outside
+   * the safe area, and a centred card must not stand under them. `env()`
+   * answers zero everywhere else.
+   */
+  @supports (inset: env(safe-area-inset-top)) {
+    [data-ui-tour] > [data-part-surface][data-placement='centered'] {
+      inset: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0)
+        env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+    }
+  }
+
+  /**
+   * On a compact viewport — below the library's 600-pixel size class — the
+   * binding writes `data-compact`, turns a lateral side into a vertical one,
+   * and the card takes the width the positioner says is left rather than its
+   * measure: a 20-rem card beside a button does not fit in 375 pixels, and
+   * one narrower than the screen leaves a sliver of page on either side
+   * that nobody can use.
+   */
+  [data-ui-tour][data-compact] > [data-part-surface][data-placement='anchored'] {
+    /* Capped, so layout="compact" forced on a wide screen is a wide card and
+       not a banner across the page. */
+    --_compact-measure: var(--slotted-tour-measure-compact, 32rem);
+    inline-size: min(var(--slotted-positioner-available-width, 100vw), var(--_compact-measure));
+    max-inline-size: min(var(--slotted-positioner-available-width, 100vw), var(--_compact-measure));
+  }
+
+  [data-ui-tour] > [data-part-surface][data-placement='centered'] > [data-part-arrow] {
+    display: none;
+  }
+
+  [data-ui-tour] > [data-part-surface] > [data-part-focus-guard] {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    overflow: hidden;
+    opacity: 0;
+    outline: none;
+    pointer-events: none;
+  }
+
+  /* ── The card ─────────────────────────────────────────────────────────── */
+
+  [data-ui-tour] > [data-part-surface] > [data-part-content] {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    max-inline-size: 100%;
+    max-block-size: calc(var(--slotted-positioner-available-height, 100vh) - 2 * var(--_gap));
+
+    border: var(--_border-width) solid var(--_border-color);
+    border-radius: var(--_radius);
+    background: var(--_surface);
+    color: var(--_text);
+    box-shadow: var(--_shadow);
+    /* `clip`, as popover's: the media's corners follow the card's, and the
+       card is no scroll container of its own. */
+    overflow: clip;
+
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    line-height: var(--slotted-line-height-md, 1.5);
+    text-align: start;
+
+    pointer-events: auto;
+    outline: none;
+  }
+
+  [data-ui-tour] > [data-part-surface][data-placement='centered'] > [data-part-content] {
+    max-block-size: calc(100vh - 2 * var(--_gap));
+  }
+
+  [data-ui-tour] > [data-part-surface] > [data-part-content]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid
+      var(--slotted-focus-ring-color, currentColor);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /**
+   * The picture that opens a step. Full bleed, so it reads as the card's own
+   * top rather than as an image placed inside it; its height is its own, and
+   * a consumer who wants a fixed frame writes `aspect-ratio` on it.
+   */
+  [data-ui-tour] [data-part-content] > [data-part-media] {
+    display: block;
+    flex: none;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    block-size: auto;
+    object-fit: cover;
+    border-block-end: var(--_border-width) solid var(--_border-color);
+  }
+
+  [data-ui-tour] [data-part-content] > [data-part-media] > :is(img, video, svg) {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+  }
+
+  /**
+   * Where the reader is, and the way out. The row is one control tall, so the
+   * close control sits in it without stretching it, and the progress text is
+   * centred on the same line.
+   */
+  [data-ui-tour] [data-part-content] > [data-part-header] {
+    display: flex;
+    flex: none;
+    /* `start`, so a progress text a translation wraps keeps the close control
+       level with its first line; the text's own inset centres that line on
+       the control. */
+    align-items: flex-start;
+    gap: var(--_row-gap);
+    min-block-size: var(--slotted-control-height-sm, 30px);
+    padding-block-start: calc(var(--_inset-block) - var(--slotted-space-3, 0.375rem));
+    padding-inline: var(--_inset-inline)
+      calc(var(--_inset-inline) - var(--slotted-space-3, 0.375rem));
+  }
+
+  [data-ui-tour] [data-part-content] > [data-part-header] > [data-part-progress] {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    margin: 0;
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    line-height: var(--slotted-line-height-xs, 1.4);
+    color: var(--slotted-text-muted, #5b6b7f);
+    font-variant-numeric: tabular-nums;
+    /* Half of what the close control is taller than one line of this text,
+       above and below, so the first line sits on the control's centre. */
+    padding-block: calc((var(--slotted-control-height-sm, 30px) - 1lh) / 2);
+    /* "2 of 5" in a right-to-left page reads "of 5 2" without it: the numbers
+       are weak characters and take the paragraph's direction. */
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-tour] [data-part-content] > [data-part-header] > [data-part-close] {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--slotted-control-height-sm, 30px);
+    block-size: var(--slotted-control-height-sm, 30px);
+    margin-inline-start: auto;
+    padding: 0;
+
+    border: 0;
+    border-radius: var(--slotted-control-radius, var(--slotted-radius-sm, 4px));
+    background: transparent;
+    color: var(--slotted-text-muted, #5b6b7f);
+    cursor: pointer;
+
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-tour] [data-part-content] > [data-part-header] > [data-part-close]:enabled:hover {
+    background: var(--slotted-tone-secondary-subtle-hover, rgb(15 23 42 / 0.06));
+    color: var(--_text);
+  }
+
+  [data-ui-tour] [data-part-content] > [data-part-header] > [data-part-close]:enabled:active {
+    background: var(--slotted-tone-secondary-subtle-active, rgb(15 23 42 / 0.1));
+  }
+
+  [data-ui-tour] [data-part-content] > [data-part-header] > [data-part-close]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid
+      var(--slotted-focus-ring-color, currentColor);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  [data-ui-tour] [data-part-content] > [data-part-title] {
+    flex: none;
+    margin: 0;
+    padding-inline: var(--_inset-inline);
+    padding-block-start: var(--slotted-space-2, 0.25rem);
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--_title-font-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-lg, 1.5);
+    color: var(--_text);
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+
+  /* A card with no header — the consumer composed their own — starts at the
+     title, and the title takes the header's inset. */
+  [data-ui-tour] [data-part-content] > [data-part-title]:first-child,
+  [data-ui-tour] [data-part-content] > [data-part-media] + [data-part-title] {
+    padding-block-start: var(--_inset-block);
+  }
+
+  [data-ui-tour] [data-part-content] > [data-part-description] {
+    flex: none;
+    margin: 0;
+    padding-inline: var(--_inset-inline);
+    padding-block-start: var(--slotted-space-2, 0.25rem);
+    color: var(--slotted-text-muted, #5b6b7f);
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+
+  /**
+   * The step's own content, and the only part that scrolls. The shadow at each
+   * edge is popover's, for the reason recorded there.
+   */
+  [data-ui-tour] [data-part-content] > [data-part-body] {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overflow-inline: hidden;
+    overflow-block: auto;
+    overscroll-behavior: contain;
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+    margin-block-start: var(--_row-gap);
+    padding-inline: var(--_inset-inline);
+
+    background:
+      linear-gradient(var(--_surface) 30%, transparent) center top / 100%
+        var(--slotted-space-4, 0.5rem) no-repeat local,
+      linear-gradient(transparent, var(--_surface) 70%) center bottom / 100%
+        var(--slotted-space-4, 0.5rem) no-repeat local,
+      radial-gradient(
+          farthest-side at 50% 0,
+          color-mix(in oklab, var(--_text) 12%, transparent),
+          transparent
+        )
+        center top / 100% var(--slotted-space-3, 0.375rem) no-repeat scroll,
+      radial-gradient(
+          farthest-side at 50% 100%,
+          color-mix(in oklab, var(--_text) 12%, transparent),
+          transparent
+        )
+        center bottom / 100% var(--slotted-space-3, 0.375rem) no-repeat scroll;
+  }
+
+  /**
+   * Skip at the start, where it is out of the way of the hand moving forward;
+   * back and next together at the end, next last.
+   *
+   * When the row cannot hold all three, back and next must stay a pair and
+   * skip must be the one that leaves. A plain wrapping row breaks at the last
+   * item that does not fit, which put next on a line of its own under back
+   * the first time a translation lengthened the labels. So the line is filled
+   * from the end: `order` makes next, back, skip the sequence the row fills,
+   * `row-reverse` draws that sequence from the inline end, and `wrap-reverse`
+   * stacks the line skip was pushed onto above the pair. The document order,
+   * which is the tab order, is still skip, back, next, and so is the picture.
+   */
+  [data-ui-tour] [data-part-content] > [data-part-footer] {
+    display: flex;
+    flex: none;
+    flex-direction: row-reverse;
+    flex-wrap: wrap-reverse;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--_row-gap);
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+  }
+
+  [data-ui-tour] [data-part-content] > [data-part-footer] > [data-part-next] {
+    order: 1;
+  }
+
+  [data-ui-tour] [data-part-content] > [data-part-footer] > [data-part-prev] {
+    order: 2;
+  }
+
+  [data-ui-tour] [data-part-content] > [data-part-footer] > [data-part-skip] {
+    order: 3;
+    margin-inline-end: auto;
+    /* A ghost button's label sits a button's padding in from its edge; pulled
+       back by that padding, the word lines up with the title above it. */
+    margin-inline-start: calc(-1 * var(--slotted-control-padding-inline-sm, 10px));
+  }
+
+  /* ── The arrow ────────────────────────────────────────────────────────── */
+
+  /**
+   * popover's, in physical properties and over the card, for the two reasons
+   * `tooltip.css` sets out.
+   */
+  [data-ui-tour] > [data-part-surface] > [data-part-arrow] {
+    /**
+     * Where the arrow may stand: on the straight run of the card's edge. The
+     * positioner keeps it `arrowPadding` from the edge of the **layer**, and
+     * the card stands a `gap` inside the layer — the spotlight's padding and a
+     * step of space, more than the padding — so beside a target in a corner
+     * the arrow landed past the card's rounded corner, and half of the rotated
+     * square that the card normally hides stood outside it: a whole diamond.
+     * Clamped here, the arrow always meets a straight edge, whatever padding,
+     * gap or radius a theme sets; it is the tip that may then be off the
+     * target's centre by a few pixels, which reads, where a diamond does not.
+     */
+    --_arrow-min: calc(var(--_gap) + var(--_radius));
+    --_arrow-max-x: calc(100% - var(--_gap) - var(--_radius) - var(--_arrow-size));
+    --_arrow-x: clamp(
+      var(--_arrow-min),
+      var(--slotted-positioner-arrow-x, 0px),
+      var(--_arrow-max-x)
+    );
+    --_arrow-y: clamp(
+      var(--_arrow-min),
+      var(--slotted-positioner-arrow-y, 0px),
+      calc(100% - var(--_gap) - var(--_radius) - var(--_arrow-size))
+    );
+    position: absolute;
+    z-index: 1;
+    inline-size: var(--_arrow-size);
+    block-size: var(--_arrow-size);
+    rotate: 45deg;
+    background: var(--_surface);
+    border: 0 solid var(--_border-color);
+  }
+
+  [data-ui-tour] > [data-part-surface][data-side='top'] > [data-part-arrow] {
+    left: var(--_arrow-x);
+    top: auto;
+    bottom: calc(var(--_gap) - var(--_arrow-size) / 2);
+    border-right-width: var(--_border-width);
+    border-bottom-width: var(--_border-width);
+    border-bottom-right-radius: var(--_arrow-tip-radius);
+  }
+
+  [data-ui-tour] > [data-part-surface][data-side='bottom'] > [data-part-arrow] {
+    left: var(--_arrow-x);
+    top: calc(var(--_gap) - var(--_arrow-size) / 2);
+    bottom: auto;
+    border-top-width: var(--_border-width);
+    border-left-width: var(--_border-width);
+    border-top-left-radius: var(--_arrow-tip-radius);
+  }
+
+  [data-ui-tour] > [data-part-surface][data-side='left'] > [data-part-arrow] {
+    top: var(--_arrow-y);
+    left: auto;
+    right: calc(var(--_gap) - var(--_arrow-size) / 2);
+    border-top-width: var(--_border-width);
+    border-right-width: var(--_border-width);
+    border-top-right-radius: var(--_arrow-tip-radius);
+  }
+
+  [data-ui-tour] > [data-part-surface][data-side='right'] > [data-part-arrow] {
+    top: var(--_arrow-y);
+    left: calc(var(--_gap) - var(--_arrow-size) / 2);
+    right: auto;
+    border-bottom-width: var(--_border-width);
+    border-left-width: var(--_border-width);
+    border-bottom-left-radius: var(--_arrow-tip-radius);
+  }
+
+  /**
+   * The arrow is painted over the card to hide the card's border under its
+   * base, so it also hides the focus ring there: the first capture of a
+   * focused card showed the ring broken where the arrow meets it. While the
+   * card holds focus the arrow's two outer edges are drawn as the ring, and
+   * the ring runs round the point instead of stopping at it.
+   */
+  [data-ui-tour]
+    > [data-part-surface]:has(> [data-part-content]:focus-visible)
+    > [data-part-arrow] {
+    --_border-width: var(--slotted-focus-ring-width, 2px);
+    border-color: var(--slotted-focus-ring-color, currentColor);
+  }
+
+  /**
+   * The Angular parts are directives on the consumer's own elements and cannot
+   * remove their host, so a part with nothing to show — a step with no
+   * description, Back on the first step — writes `hidden`. Every part here
+   * sets its own `display`, which outranks the user agent's rule for the
+   * attribute, so the attribute is restated last.
+   */
+  [data-ui-tour] [data-part-content] [data-part][hidden] {
+    display: none;
+  }
+
+  @media (forced-colors: active) {
+    /*
+     * Forced colours drop every `box-shadow`, and the scrim is one: the page
+     * stays in full view and the cutout would mark nothing. The outline is
+     * what forced colours keep, so the target is ringed in the system's
+     * highlight instead of being lit.
+     */
+    [data-ui-tour] > [data-part-backdrop] > [data-part-spotlight] {
+      outline: var(--slotted-focus-ring-width, 2px) solid Highlight;
+    }
+
+    [data-ui-tour][data-spotlight] > [data-part-backdrop] {
+      background: transparent;
+    }
+  }
+}

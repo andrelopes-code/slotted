@@ -1,0 +1,675 @@
+@layer slotted.components {
+  /**
+   * A list of options the reader chooses from, and the primitive `select`,
+   * `combobox` and the pickers are built on.
+   *
+   *   ┌─ root ─ role="listbox" ─ scrolls ─ one tab stop ──────────────┐
+   *   │  ┌─ canvas ─ role="presentation" ─ only while windowed ───┐   │
+   *   │  │  ┌─ group ─ role="group" ────────────────────────┐     │   │
+   *   │  │  │  group-label                                  │     │   │
+   *   │  │  │  option ▸ indicator or icon │ label │ meta    │     │   │
+   *   │  │  │                              description      │     │   │
+   *   │  │  └───────────────────────────────────────────────┘     │   │
+   *   │  │  empty  ·  loader                                      │   │
+   *   │  └────────────────────────────────────────────────────────┘   │
+   *   └───────────────────────────────────────────────────────────────┘
+   *
+   * ── Why the surface is a grid and everything inside it is a subgrid ──
+   *
+   * The three columns — the mark, the label, the value — belong to the whole
+   * listbox rather than to one option, so `group`, `canvas` and `option` each
+   * pass through them with `grid-template-columns: subgrid`. Labels line up
+   * across every group, the value column is as wide as the widest value and
+   * never narrower, and the label column is the only one that gives way. A flex
+   * row per option — which is what every surveyed implementation draws — lets a
+   * long translated label eat the value beside it, and leaves two options'
+   * labels out of line whenever one has an icon and the other does not.
+   *
+   * The columns carry no `column-gap`: a gap would be drawn between two tracks
+   * even when the first is empty, so a listbox with no marks at all would open
+   * with a gutter down its start edge. Each optional cell carries its own
+   * margin instead, and a column nothing occupies collapses to nothing. That is
+   * `menu`'s rule, and the two families are the same row under two roles.
+   *
+   * ── Two layouts that are not the subgrid ────────────────────────────
+   *
+   * `data-layout="grid"` puts `columns` options across, so the root's tracks
+   * become the columns and an option owns its own three. `data-orientation
+   * ="horizontal"` lays the options along the inline axis and scrolls that way.
+   * Both are declared by the family from its own props; neither changes what an
+   * option is made of.
+   *
+   * ── Density ─────────────────────────────────────────────────────────
+   *
+   * An option is a control, so its height, inset, type, glyph and gap all read
+   * control geometry. A dense listbox holds more options and is the same
+   * component; only the surface's own inset, radius and shadow come off the
+   * space, radius and shadow scales.
+   */
+  [data-ui-listbox] {
+    --_surface: var(--slotted-listbox-surface, var(--slotted-surface, #ffffff));
+    --_text: var(--slotted-listbox-text, var(--slotted-text, #0f172a));
+    --_muted: var(--slotted-listbox-text-muted, var(--slotted-text-muted, #5b6b7f));
+    --_border-color: var(--slotted-listbox-border-color, var(--slotted-control-border-color));
+    --_border-width: var(--slotted-border-width-thin, 1px);
+    --_radius: var(--slotted-listbox-radius, var(--slotted-radius-md, 6px));
+    --_shadow: var(--slotted-listbox-shadow, var(--slotted-control-shadow));
+
+    /**
+     * One quiet ground for hover and for the option the keyboard is on, and the
+     * two are told apart by the ring rather than by two greys. A second, darker
+     * grey was tried first and read the wrong way round: the pointer's own
+     * feedback shouted louder than the keyboard's position. What separates them
+     * now is that the active option paints nothing at all until the keyboard is
+     * somewhere it can be — see the rule below.
+     */
+    --_highlight: var(--slotted-listbox-highlight, var(--slotted-tone-secondary-subtle-hover));
+    --_highlight-active: var(
+      --slotted-listbox-highlight-active,
+      var(--slotted-tone-secondary-subtle-active)
+    );
+    --_selected-surface: var(
+      --slotted-listbox-selected-surface,
+      var(--slotted-tone-accent-surface)
+    );
+    --_selected-text: var(--slotted-listbox-selected-text, var(--slotted-tone-accent-text));
+
+    --_inset-block: var(--slotted-listbox-padding-block, var(--slotted-space-2, 0.25rem));
+    --_inset-inline: var(--slotted-listbox-padding-inline, var(--slotted-space-2, 0.25rem));
+    --_option-inset: var(--slotted-control-padding-inline-md, 0.8125rem);
+    --_option-height: var(--slotted-control-height-md, 34px);
+    /* Concentric with the panel: its radius less the inset, floored at 0. */
+    --_option-radius: var(
+      --slotted-listbox-option-radius,
+      max(0px, calc(var(--_radius) - var(--_inset-inline)))
+    );
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_column-gap: var(--slotted-control-gap-md, 0.5rem);
+
+    /**
+     * How many options tall the box is, and how many across. `<select size>`
+     * under another name: a listbox with no bound is a listbox that pushes the
+     * page down as its data arrives, and a windowed one has no viewport at all.
+     * The family writes both per instance; the tokens are what a theme retunes.
+     */
+    --_rows: var(--slotted-listbox-rows, 7);
+    --_columns: var(--slotted-listbox-columns, 1);
+
+    /**
+     * The cap. Measure belongs to `container`, so the family offers no axis for
+     * it and still has to stop a `max-content` surface from setting one option
+     * the width of the page.
+     */
+    --_measure: var(--slotted-listbox-measure, 24rem);
+
+    box-sizing: border-box;
+    color: var(--_text);
+    display: grid;
+    font-family: var(--slotted-font-family-sans);
+    font-size: var(--_font-size);
+    grid-auto-rows: min-content;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    inline-size: 100%;
+    max-inline-size: var(--_measure);
+    /**
+     * The block cap is stated rather than the height: a listbox of two options
+     * is two options tall, and one of two hundred stops at `rows` and scrolls.
+     * The inset is added so the last option is not cut in half by the padding
+     * the surface reserved for itself.
+     */
+    max-block-size: calc(var(--_rows) * var(--_option-height) + 2 * var(--_inset-block));
+    outline: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    /* The active option is scrolled to by script, and the browser must not
+       animate a second time over the top of it. */
+    scroll-behavior: auto;
+  }
+
+  [data-ui-listbox][data-size='sm'] {
+    --_option-inset: var(--slotted-control-padding-inline-sm, 0.625rem);
+    --_option-height: var(--slotted-control-height-sm, 30px);
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_secondary-font-size: var(--slotted-font-size-xs, 0.75rem);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+    --_column-gap: var(--slotted-control-gap-sm, 0.375rem);
+  }
+
+  [data-ui-listbox][data-size='lg'] {
+    --_option-inset: var(--slotted-control-padding-inline-lg, 1rem);
+    --_option-height: var(--slotted-control-height-lg, 38px);
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_secondary-font-size: var(--slotted-control-font-size-sm, 12px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+    --_column-gap: var(--slotted-control-gap-lg, 0.5rem);
+  }
+
+  /* ── The two variants ─────────────────────────────────────────────────── */
+
+  /**
+   * `framed` is the standalone control: a box with an edge, which is what
+   * `<select multiple>` looks like and what a listbox presented on its own has
+   * to look like to be recognised as a control at all. `plain` is what `select`
+   * and `combobox` render inside their own layer, where the layer already has
+   * the edge and a second one would draw a box inside a box.
+   */
+  [data-ui-listbox][data-variant='framed'] {
+    background: var(--_surface);
+    border: var(--_border-width) solid var(--_border-color);
+    border-radius: var(--_radius);
+    box-shadow: var(--_shadow);
+  }
+
+  [data-ui-listbox][data-variant='plain'] {
+    background: transparent;
+    border: 0;
+  }
+
+  /**
+   * The ring goes on the box only while the box itself is the focused element,
+   * which is the `activedescendant` model. Under `roving` the ring belongs to
+   * the option, and a second ring around the whole listbox would say the
+   * listbox is the thing being operated.
+   */
+  [data-ui-listbox][data-focus-mode='activedescendant']:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, #2563eb);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  [data-ui-listbox][data-focus-mode='roving']:focus {
+    outline: none;
+  }
+
+  [data-ui-listbox][data-invalid] {
+    --_border-color: var(--slotted-tone-danger-border);
+    --slotted-focus-ring-color: var(--slotted-focus-ring-color-invalid);
+  }
+
+  /* Width as well as colour (WCAG 1.4.1): in `high-contrast` the danger border
+     is the resting edge's black. An edge inside the border, so nothing moves,
+     in place of the resting lift — the one `text-field` draws. Disabled keeps
+     its own edge, as it keeps its own border colour. */
+  [data-ui-listbox][data-invalid]:not([data-disabled]) {
+    --_invalid-edge-width: var(--slotted-control-invalid-edge-width, 1px);
+    --_shadow: inset 0 0 0 var(--_invalid-edge-width) var(--slotted-tone-danger-border);
+  }
+
+  [data-ui-listbox][data-disabled] {
+    --_surface: var(--slotted-disabled-background, #e2e8f0);
+    --_text: var(--slotted-disabled-foreground, #64748b);
+    --_border-color: var(--slotted-disabled-border, #cbd5e1);
+
+    cursor: not-allowed;
+  }
+
+  [data-ui-listbox][data-loading] {
+    cursor: progress;
+  }
+
+  /* ── The two layouts that are not one column ──────────────────────────── */
+
+  /**
+   * `columns` options across. The root's tracks become the columns, so an
+   * option owns its own three and the subgrid stops at the row. React Aria
+   * reads the laid-out geometry to decide what "the option below" is, which is
+   * a layout read during a key press; here the number is stated, the arrows
+   * step by it, and the picture and the keyboard cannot disagree.
+   */
+  [data-ui-listbox][data-layout='grid'] {
+    column-gap: var(--_column-gap);
+    grid-template-columns: repeat(var(--_columns), minmax(0, 1fr));
+    max-block-size: none;
+  }
+
+  [data-ui-listbox][data-layout='grid'] [data-part-option] {
+    grid-column: auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  [data-ui-listbox][data-layout='grid'] :is([data-part-group], [data-part-canvas]) {
+    grid-template-columns: repeat(var(--_columns), minmax(0, 1fr));
+  }
+
+  /**
+   * Along the inline axis. The block cap does not apply — a horizontal listbox
+   * is one row tall — and the scroll turns with it, so `dir="rtl"` reverses the
+   * whole thing without a rule of its own.
+   */
+  [data-ui-listbox][data-orientation='horizontal'] {
+    display: flex;
+    flex-direction: row;
+    max-block-size: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  [data-ui-listbox][data-orientation='horizontal'] [data-part-option] {
+    flex: 0 0 auto;
+    grid-template-columns: auto auto auto;
+  }
+
+  /* ── The canvas, which exists only while the list is windowed ─────────── */
+
+  /**
+   * It carries the whole list's height so the scrollbar is the length of the
+   * data rather than of what is rendered, and it starts the rendered slice at
+   * the offset the engine returned. `padding-block-start` rather than a
+   * transform, so the options are still in flow and the subgrid survives:
+   * `box-sizing: border-box` makes the padding part of the stated height, and
+   * the rows below it overflow a box nothing clips.
+   *
+   * `role="presentation"` is what keeps the options owned by the listbox. A
+   * generic element between a `listbox` and its `option`s is an owned element
+   * with no permitted role, and the role is what makes it transparent.
+   */
+  [data-ui-listbox] > [data-part-canvas] {
+    /**
+     * `align-content: start` and `grid-auto-rows: min-content` together, and
+     * neither is optional: a grid with a definite block size and automatic rows
+     * stretches those rows to fill it, so eight options inside a canvas six
+     * thousand pixels tall became eight rows of eight hundred and fifty and the
+     * window rendered nothing anybody could see.
+     */
+    align-content: start;
+    block-size: var(--_canvas-size, auto);
+    box-sizing: border-box;
+    display: grid;
+    grid-auto-rows: min-content;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    padding-block-start: var(--_canvas-offset, 0);
+    position: relative;
+  }
+
+  /**
+   * A row the window does not cover and the family renders anyway: the active
+   * option, and the anchor a range is measured from. Without it the element
+   * `aria-activedescendant` names leaves the document under a momentum scroll,
+   * and the reader is operating a widget with no focused option at all.
+   *
+   * It sits at its own place on the canvas rather than being pulled into view,
+   * because the reader scrolled it out and moving it back would take the
+   * scrollbar away from them.
+   */
+  [data-ui-listbox] [data-part-option][data-pinned] {
+    /* Out of flow, so out of the subgrid: it states the three columns itself.
+       They are the option's own rather than the listbox's, which is the price
+       of rendering a row the window does not reach. */
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    inset-inline: 0;
+    position: absolute;
+  }
+
+  /* ── Groups ───────────────────────────────────────────────────────────── */
+
+  [data-ui-listbox] [data-part-group] {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  [data-ui-listbox] [data-part-group-label] {
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    grid-column: 1 / -1;
+    line-height: var(--slotted-line-height-sm, 1.45);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_option-inset);
+  }
+
+  /**
+   * The rule between two groups is the group's own edge rather than a separator
+   * element: ARIA 1.2 lets a `listbox` own `option` and `group` and nothing
+   * else, so an `hr` inside one is an owned element with no permitted role.
+   */
+  [data-ui-listbox] [data-part-group] + [data-part-group] {
+    border-block-start: var(--_border-width) solid
+      var(--slotted-listbox-group-border-color, var(--slotted-border-subtle, #e2e8f0));
+    margin-block-start: var(--slotted-space-2, 0.25rem);
+    padding-block-start: var(--slotted-space-2, 0.25rem);
+  }
+
+  /* ── Options ──────────────────────────────────────────────────────────── */
+
+  [data-ui-listbox] [data-part-option] {
+    align-content: center;
+    background: transparent;
+    border-radius: var(--_option-radius);
+    box-sizing: border-box;
+    color: inherit;
+    cursor: default;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    /**
+     * The line box belongs to the option and every cell inherits it, so `1lh`
+     * on the mark resolves against the same line the label is set on. Stated
+     * anywhere else, a mark beside a label that wrapped sits two pixels above
+     * the text it annotates.
+     */
+    line-height: var(--slotted-line-height-md, 1.5);
+    min-block-size: var(--_option-height);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--_option-inset);
+    position: relative;
+    /* The one gap inside an option, between a label and the line under it. */
+    row-gap: var(--slotted-space-1, 0.125rem);
+    text-align: start;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  /**
+   * Hover is a pointer's own feedback and nothing more. Unlike `menu`, it does
+   * not move the active option: a listbox holds a selection as well as a
+   * highlight, and a hover that moved the highlight would fight the arrow keys
+   * a reader is holding down.
+   */
+  [data-ui-listbox]:not([data-disabled]) [data-part-option]:not([data-disabled]):hover {
+    background-color: var(--_highlight);
+  }
+
+  [data-ui-listbox]:not([data-disabled]) [data-part-option]:not([data-disabled]):active {
+    background-color: var(--_highlight-active);
+  }
+
+  /**
+   * Where the keyboard is, and only while the keyboard is somewhere it can be.
+   *
+   * Under `roving` the ground is drawn while focus is inside the listbox: an
+   * option nobody is on is not the active one, and painting it anyway made a
+   * hovered option and the active option the same picture. Under
+   * `activedescendant` it is drawn unconditionally, because focus may
+   * legitimately be elsewhere — a `combobox` keeps it in its own text field and
+   * this ground is then the only thing that says which option is live.
+   */
+  [data-ui-listbox][data-focus-mode='roving']:focus-within [data-part-option][data-current],
+  [data-ui-listbox][data-focus-mode='activedescendant'] [data-part-option][data-current] {
+    background-color: var(--_highlight);
+  }
+
+  /**
+   * The ring, and it is drawn from the listbox rather than from the option.
+   * `:focus-within` is what makes one rule cover both focus models: under
+   * `roving` the focus is on the option and under `activedescendant` it is on
+   * the root, and in both the answer to "is the keyboard in this listbox" is
+   * the same. Keying on the option's own `:focus-visible` would have drawn
+   * nothing at all in the model where the option never holds focus.
+   *
+   * An inset `outline` rather than a `::after` border: an outline follows the
+   * option's own radius without a second radius to keep in step, and forced
+   * colours replace its paint on their own, where a pseudo-element's border
+   * would be decoration the theme cannot reach.
+   */
+  [data-ui-listbox]:focus-within [data-part-option][data-current] {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, #2563eb);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  [data-ui-listbox] [data-part-option]:focus {
+    outline: none;
+  }
+
+  /**
+   * What the reader chose. The ground says it at a glance, the ink says it
+   * again, and the mark says it where neither can: in the `high-contrast`
+   * scheme the accent surface *is* the plain surface, and every tone surface
+   * becomes `Canvas` under forced colours, so a selection painted with a fill
+   * alone disappears in the mode that needs it most — the same failure WCAG
+   * 2.2 SC 1.4.1 describes for colour on its own. A bar on the start edge said
+   * it once; a rail for state is out of the system (R1), and the `indicator`
+   * below is the mark that carries it instead.
+   */
+  [data-ui-listbox] [data-part-option][data-selected] {
+    background-color: var(--_selected-surface);
+    color: var(--_selected-text);
+  }
+
+  /**
+   * Two chosen neighbours are one block (LB2). Every option keeps its own
+   * radius, so two selected siblings painted with the same ground met at a
+   * waist — four rounded corners inside the block — and a multiple selection
+   * read as a column of separate chips. The second gives up its top corners
+   * and the first its bottom ones, so the block is rounded only where the
+   * selection begins and ends. `select` and `combobox` draw the same ground
+   * and answer the same way; `selection-block.test.mjs` holds the three to it.
+   */
+  [data-ui-listbox] [data-part-option][data-selected] + [data-part-option][data-selected] {
+    border-start-end-radius: 0;
+    border-start-start-radius: 0;
+  }
+
+  [data-ui-listbox] [data-part-option][data-selected]:has(+ [data-part-option][data-selected]) {
+    border-end-end-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  [data-ui-listbox]:not([data-disabled])
+    [data-part-option][data-selected]:not([data-disabled]):hover {
+    background-color: var(--slotted-tone-accent-subtle-hover);
+  }
+
+  [data-ui-listbox]:not([data-disabled])
+    [data-part-option][data-selected]:not([data-disabled]):active {
+    background-color: var(--slotted-tone-accent-subtle-active);
+  }
+
+  /**
+   * A disabled option keeps its place in the set and stays reachable when
+   * `navigateDisabled` says so, which the pattern allows and a native disabled
+   * control cannot do. It therefore has to answer the highlight with something,
+   * and answer it more quietly than an option that would do anything.
+   */
+  [data-ui-listbox] [data-part-option][data-disabled] {
+    color: var(--slotted-disabled-foreground, #64748b);
+    cursor: not-allowed;
+  }
+
+  /**
+   * Disabled outranks selected, which is the order `STATE_PRECEDENCE` declares.
+   * The mark stays drawn — the reader still needs to know which option was
+   * chosen — and the ground stops claiming the option is theirs to change.
+   */
+  [data-ui-listbox] [data-part-option][data-disabled]:is([data-selected], [data-current]) {
+    background-color: var(--slotted-disabled-background, #e2e8f0);
+    color: var(--slotted-disabled-foreground, #64748b);
+  }
+
+  [data-ui-listbox][data-readonly] [data-part-option] {
+    cursor: default;
+  }
+
+  /* ── The cells ────────────────────────────────────────────────────────── */
+
+  /**
+   * Column one, and the reason a chosen option and an unchosen one line their
+   * labels up: the mark's box exists whether or not the mark is drawn, so a
+   * list of options does not shift by sixteen pixels as one is chosen.
+   */
+  [data-ui-listbox] :is([data-part-indicator], [data-part-icon]) {
+    /* One line box tall, so a mark beside a label that wrapped onto three lines
+       sits on the first of them rather than in the middle of the option. */
+    block-size: 1lh;
+    grid-column: 1;
+    grid-row: 1;
+    inline-size: var(--_icon-size);
+    justify-self: center;
+    margin-inline-end: var(--_column-gap);
+  }
+
+  /**
+   * The tick is the library's own `Glyph`, an `<svg>` the binding draws inside
+   * an `icon` box, sized here to the column so the mark and a consumer's icon
+   * in the same column are one size.
+   */
+  [data-ui-listbox] [data-part-indicator] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-listbox] [data-part-option][data-selected] > [data-part-indicator] {
+    opacity: 1;
+  }
+
+  /**
+   * The option's own artwork, in the mark column. The box holds content and
+   * paints none: a `Glyph` in an `Icon` box, or an element of the consumer's
+   * own, centred and sized from the column, as the tick is.
+   */
+  [data-ui-listbox] [data-part-icon] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Column two, and the only column that gives way. */
+  [data-ui-listbox] [data-part-label] {
+    grid-column: 2;
+    grid-row: 1;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-listbox] [data-part-description] {
+    color: var(--_muted);
+    font-size: var(--_secondary-font-size);
+    grid-column: 2;
+    grid-row: 2;
+    line-height: var(--slotted-line-height-sm, 1.45);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-listbox]
+    [data-part-option]:is([data-disabled], [data-selected])
+    > [data-part-description] {
+    color: inherit;
+  }
+
+  /**
+   * Column three: the value beside the name — a count, a price, a status word.
+   * `menu` calls the same column `shortcut` because a menu's third column holds
+   * a key binding; naming it that here would be a lie on every listbox in the
+   * library. Never narrower than its own content, so a long label wraps in
+   * column two rather than pushing the value off the surface.
+   */
+  [data-ui-listbox] [data-part-meta] {
+    color: var(--_muted);
+    font-variant-numeric: tabular-nums;
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    margin-inline-start: var(--slotted-space-6, 1rem);
+    white-space: nowrap;
+  }
+
+  [data-ui-listbox] [data-part-option]:is([data-disabled], [data-selected]) > [data-part-meta] {
+    color: inherit;
+  }
+
+  /* ── Empty, and the row that asks for more ────────────────────────────── */
+
+  /**
+   * Both keep the surface's own measure rather than collapsing to a two-pixel
+   * box, which is what a consumer sees flash when the state is not painted at
+   * all. The message lives inside the listbox: outside it the reader hears
+   * "listbox, 0 items" and then nothing.
+   */
+  [data-ui-listbox] :is([data-part-empty], [data-part-loader]) {
+    align-content: center;
+    color: var(--_muted);
+    display: grid;
+    grid-column: 1 / -1;
+    min-block-size: var(--_option-height);
+    padding-block: var(--slotted-space-5, 0.75rem);
+    padding-inline: var(--_option-inset);
+    text-align: center;
+  }
+
+  /**
+   * The row at the end of a page that has not arrived. It is an `option` by
+   * role — a listbox owns nothing else — so it carries the same geometry and
+   * says what it is with a pulse rather than with a second element.
+   */
+  [data-ui-listbox] [data-part-loader] {
+    animation: slotted-listbox-loader var(--slotted-duration-loop) ease-in-out infinite;
+  }
+
+  @keyframes slotted-listbox-loader {
+    0%,
+    100% {
+      opacity: 0.45;
+    }
+
+    50% {
+      opacity: 1;
+    }
+  }
+
+  /**
+   * An animation that repeats forever has to stop rather than hurry: shortening
+   * it is insufficient, which is why the loop durations do not collapse with
+   * the rest of the motion scale.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-listbox] [data-part-loader] {
+      animation: none;
+      opacity: 0.7;
+    }
+  }
+
+  /* ── Forced colours ───────────────────────────────────────────────────── */
+
+  /**
+   * The two things the theme cannot reach. Every tone surface becomes `Canvas`
+   * under forced colours, so both the selection and the highlight — which are
+   * this family's whole state vocabulary, not decoration — would disappear and
+   * leave a reader unable to tell what they have chosen from what they are on.
+   */
+  @media (forced-colors: active) {
+    [data-ui-listbox] [data-part-option][data-selected] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-listbox] [data-part-option][data-disabled] {
+      color: GrayText;
+    }
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The width
+   * comes back as an outline inside the border, and where focus draws the ring
+   * on the same box an invalid ring is double, which a valid one is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-listbox][data-variant='framed'][data-invalid]:not([data-disabled]) {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(-1 * (var(--_border-width) + var(--_invalid-edge-width)));
+    }
+
+    [data-ui-listbox][data-variant='framed'][data-invalid]:not(
+        [data-disabled]
+      )[data-focus-mode='activedescendant']:focus-visible {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(--slotted-focus-ring-offset, 2px);
+    }
+  }
+}

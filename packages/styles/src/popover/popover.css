@@ -1,0 +1,543 @@
+@layer slotted.components {
+  /**
+   * Interactive, non-modal content anchored to the control that opened it.
+   *
+   * The same two boxes `tooltip` is built from, and the same reasons: the
+   * **layer** is what `packages/core/src/positioner` writes `position`, `left`
+   * and `top` onto and what slides and fades, because the module leaves
+   * `transform` alone on purpose; the **content** is the painted panel; the
+   * arrow is the layer's other child, behind the panel. The gap between the
+   * trigger and the panel is the layer's own padding rather than the
+   * positioner's offset, so the arrow has a band to stand in and the pointer
+   * never crosses empty page.
+   *
+   *   ┌─ root ─ the layer ────────────────────────────────┐
+   *   │  ▪ focus-guard                                    │
+   *   │   ┌─ content ─ role="dialog" ─────────────────┐   │
+   *   │   │ header ▸ title · description │ close      │   │
+   *   │   ├────────────────────────────────────────────┤  │
+   *   │   │ body ▸ the only part that scrolls          │  │
+   *   │   ├────────────────────────────────────────────┤  │
+   *   │   │ footer ▸ the actions                       │  │
+   *   │   └────────────────────────────────────────────┘  │
+   *   │  ▪ focus-guard                     ◆ arrow        │
+   *   └───────────────────────────────────────────────────┘
+   *
+   * ── Why the panel is a grid of three rows ────────────────────────────
+   *
+   * Radix, Base UI and React Aria each publish the remaining height as a custom
+   * property and none of them uses it. Bounding the whole panel scrolls the
+   * title out of sight, which is the wrong answer for a panel whose name is how
+   * a reader knows what they are in. The middle row takes the height that is
+   * left and scrolls; the header and the footer keep theirs.
+   *
+   * ── Density ─────────────────────────────────────────────────────────
+   *
+   * A panel's own inset is on the space scale, as `card`'s and `alert`'s are.
+   * Density moves what a panel holds — the close control, the buttons in the
+   * footer, the fields in the body — all of which read control geometry. The
+   * gaps inside the header and the footer read it too, so a dense popover is a
+   * tighter popover rather than a smaller one.
+   */
+  [data-ui-popover] {
+    --_gap: var(--slotted-popover-gap, var(--slotted-space-4, 0.5rem));
+
+    --_surface: var(--slotted-popover-surface, var(--slotted-surface-raised, #ffffff));
+    --_text: var(--slotted-popover-text, var(--slotted-text, #0f172a));
+    --_border-color: var(--slotted-popover-border-color, var(--slotted-border-subtle, #e2e8f0));
+    --_border-width: var(--slotted-border-width-thin, 1px);
+    --_radius: var(--slotted-popover-radius, var(--slotted-radius-lg, 8px));
+    --_shadow: var(--slotted-popover-shadow, var(--slotted-shadow-md));
+    --_arrow-size: var(--slotted-popover-arrow-size, 0.625rem);
+    /* The point, softened to the same degree the surface's own corners are.
+       A 90-degree tip beside a rounded panel reads as a different object. */
+    --_arrow-tip-radius: var(--slotted-popover-arrow-tip-radius, var(--slotted-radius-xs, 2px));
+
+    --_inset-block: var(--slotted-popover-padding-block, var(--slotted-space-5, 0.75rem));
+    --_inset-inline: var(--slotted-popover-padding-inline, var(--slotted-space-6, 1rem));
+    --_row-gap: var(--slotted-control-gap-md, 0.5rem);
+    --_title-font-size: var(--slotted-font-size-lg, 1rem);
+    --_font-size: var(--slotted-font-size-md, 0.875rem);
+    /**
+     * The cap, for the reason `tooltip` records: measure belongs to
+     * `container`, so the family offers no axis for it and still has to stop a
+     * `max-content` layer from setting one line the width of the page. Three
+     * steps, and `width="anchor"` replaces all three with the anchor's own.
+     */
+    --_measure: var(--slotted-popover-measure, 20rem);
+
+    /* Only the block inset, for the reason `tooltip.css` sets out: the
+       positioner writes `left` and never `right`, and `inset-inline-start`
+       resolves to `right` in a right-to-left document, where it would win over
+       the measured `left` and pin every layer to the far edge. */
+    position: absolute;
+    inset-block-start: 0;
+
+    z-index: calc(var(--slotted-z-index-popover, 1100) + var(--slotted-layer-depth, 0));
+    isolation: isolate;
+
+    box-sizing: border-box;
+    padding: var(--_gap);
+    inline-size: max-content;
+    max-inline-size: min(var(--_measure), var(--slotted-positioner-available-width, 100vw));
+
+    /* The layer is only a frame around the panel; the panel takes the pointer. */
+    pointer-events: none;
+
+    /**
+     * R7: the layer arrives along the axis it opens on — from one space step
+     * above its place when it opens downward, from one step below when it
+     * opens upward — and never along the inline axis. A `scale` from the
+     * corner the positioner named as origin moved the far edge by four per
+     * cent of the width, which read as an entrance from the left.
+     */
+    --_enter-distance: var(--slotted-space-2, 0.25rem);
+    translate: 0 calc(-1 * var(--_enter-distance));
+    transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-popover][data-side='top'] {
+    translate: 0 var(--_enter-distance);
+  }
+
+  /* A lateral side has no block direction to arrive from, so it only fades. */
+  [data-ui-popover]:is([data-side='left'], [data-side='right']) {
+    translate: 0 0;
+  }
+
+  /**
+   * The entrance is a keyframe animation and not a transition. A transition
+   * starts from the style the browser computed last, and the positioner
+   * writes `data-side` in the same style update as the family opens the
+   * layer, so a transition set out from the closed style of the side the
+   * layer had before it had one — the bottom's — whatever side it opens on.
+   * A keyframe states where it starts. The exit stays a transition: it
+   * leaves from wherever the layer is, on the closed rule's durations.
+   */
+  [data-ui-popover][data-open] {
+    translate: 0 0;
+    transition: none;
+  }
+
+  /**
+   * Only a layer the positioner placed arrives: it writes `data-positioned`
+   * with the side, and a layer written open in static markup — the harness,
+   * a docs snippet — is simply there, and is photographed where it stands.
+   */
+  [data-ui-popover][data-open][data-positioned] {
+    animation: slotted-popover-enter-down var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  [data-ui-popover][data-open][data-positioned][data-side='top'] {
+    animation-name: slotted-popover-enter-up;
+  }
+
+  @keyframes slotted-popover-enter-down {
+    from {
+      translate: 0 calc(-1 * var(--_enter-distance));
+    }
+  }
+
+  @keyframes slotted-popover-enter-up {
+    from {
+      translate: 0 var(--_enter-distance);
+    }
+  }
+
+  @keyframes slotted-popover-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Stillness keeps the fade and drops the movement (R7). */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-popover],
+    [data-ui-popover][data-side='top'],
+    [data-ui-popover][data-side='left'],
+    [data-ui-popover][data-side='right'] {
+      translate: 0 0;
+      transition: translate var(--slotted-duration-short) var(--slotted-easing-exit);
+    }
+
+    [data-ui-popover][data-open][data-positioned],
+    [data-ui-popover][data-open][data-positioned][data-side='top'],
+    [data-ui-popover][data-open][data-positioned][data-side='left'],
+    [data-ui-popover][data-open][data-positioned][data-side='right'] {
+      animation-name: none;
+    }
+  }
+
+  [data-ui-popover][data-detached] {
+    visibility: hidden;
+  }
+
+  [data-ui-popover][data-size='sm'] {
+    --_inset-block: var(--slotted-popover-padding-block-sm, var(--slotted-space-4, 0.5rem));
+    --_inset-inline: var(--slotted-popover-padding-inline-sm, var(--slotted-space-5, 0.75rem));
+    --_title-font-size: var(--slotted-font-size-md, 0.875rem);
+    --_font-size: var(--slotted-font-size-sm, 0.8125rem);
+    --_measure: var(--slotted-popover-measure-sm, 16rem);
+  }
+
+  [data-ui-popover][data-size='lg'] {
+    --_inset-block: var(--slotted-popover-padding-block-lg, var(--slotted-space-6, 1rem));
+    --_inset-inline: var(--slotted-popover-padding-inline-lg, var(--slotted-space-7, 1.25rem));
+    --_title-font-size: var(--slotted-font-size-xl, 1.125rem);
+    --_measure: var(--slotted-popover-measure-lg, 24rem);
+  }
+
+  /**
+   * The panel is exactly as wide as the control it hangs from — a filter panel
+   * under a search field, which is the one case Radix documents a custom
+   * property for. The layer's own padding is added back, so the panel and the
+   * anchor share an edge rather than being inset from one another.
+   */
+  [data-ui-popover][data-width='anchor'] {
+    inline-size: calc(var(--slotted-positioner-anchor-width, 0px) + 2 * var(--_gap));
+    max-inline-size: var(--slotted-positioner-available-width, 100vw);
+  }
+
+  /**
+   * Zero-sized, focusable and hidden from assistive technology. Focus reaching
+   * one of them arrived by `Tab` at the edge of a layer that lives at the end
+   * of the document, so the family closes the popover and puts focus back on
+   * the trigger, from which the next `Tab` continues down the page.
+   */
+  [data-ui-popover] > [data-part-focus-guard] {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    overflow: hidden;
+    opacity: 0;
+    outline: none;
+    pointer-events: none;
+  }
+
+  [data-ui-popover] > [data-part-content] {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    max-inline-size: 100%;
+    /**
+     * The room the positioner says is left, less the layer's own padding at
+     * both ends. Only the body scrolls inside it.
+     */
+    max-block-size: calc(var(--slotted-positioner-available-height, 100vh) - 2 * var(--_gap));
+
+    border: var(--_border-width) solid var(--_border-color);
+    border-radius: var(--_radius);
+    background: var(--_surface);
+    color: var(--_text);
+    box-shadow: var(--_shadow);
+    /**
+     * The radius clips what the rows paint. The body's scroll shadow is two
+     * opaque covers in the panel's own ground, and a child's background runs
+     * square through a parent's rounded corner unless the parent clips: a
+     * panel with no footer stood rounded at the top and square at the bottom.
+     * `clip` and not `hidden`, so the panel is no scroll container of its own
+     * and a focus moving inside the body cannot scroll the panel off its frame.
+     */
+    overflow: clip;
+
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    line-height: var(--slotted-line-height-md, 1.5);
+    text-align: start;
+
+    pointer-events: auto;
+    /* The panel takes focus on open and is not a tab stop of its own. */
+    outline: none;
+    /* A theme that paints this surface as a translucent material blurs what moves behind it. */
+    -webkit-backdrop-filter: var(--slotted-popover-backdrop-filter, none);
+    backdrop-filter: var(--slotted-popover-backdrop-filter, none);
+  }
+
+  /**
+   * The fade belongs to the part that paints the surface, and the layer only
+   * moves. In Chromium an ancestor with `opacity` below one is the Backdrop Root
+   * of what it holds, so a `backdrop-filter` on the content blurs nothing until
+   * the layer is opaque and then appears at once. The content's own opacity
+   * leaves its own filter drawn on every frame of the motion.
+   */
+  [data-ui-popover] > [data-part-content] {
+    opacity: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit);
+  }
+
+  [data-ui-popover][data-open] > [data-part-content] {
+    opacity: 1;
+    transition: none;
+  }
+
+  [data-ui-popover][data-open][data-positioned] > [data-part-content] {
+    animation: slotted-popover-fade var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-popover] > [data-part-content] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /**
+   * The three rows are the header's, the body's and the footer's, and the
+   * body's alone is bounded. A consumer's own composition — the notification
+   * centre under a bell, an inline command palette — stands as the panel's
+   * one child, and as an auto row it grew past the room the positioner
+   * reported: clipped at the panel's edge, its own footer out of sight. The
+   * one child takes the body's row instead, and the family inside it scrolls
+   * what it owns. Two children or more are the consumer's own layout and keep
+   * their auto rows.
+   */
+  [data-ui-popover]
+    > [data-part-content]
+    > :only-child:not([data-part-header], [data-part-body], [data-part-footer]) {
+    grid-row: 2;
+    min-block-size: 0;
+  }
+
+  [data-ui-popover] > [data-part-content]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid
+      var(--slotted-focus-ring-color, currentColor);
+    outline-offset: calc(-1 * var(--slotted-focus-ring-width, 2px));
+  }
+
+  /**
+   * Title and description in the first column, the close control in the second,
+   * on the first row so it stays level with the title rather than centring
+   * itself against a description the title may not have.
+   */
+  [data-ui-popover] > [data-part-content] > [data-part-header] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--_row-gap);
+    row-gap: var(--slotted-space-2, 0.25rem);
+    align-items: start;
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+  }
+
+  /* A column gap is drawn beside an empty track too. */
+  [data-ui-popover] > [data-part-content] > [data-part-header]:not(:has(> [data-part-close])) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  [data-ui-popover] > [data-part-content] > [data-part-header] > [data-part-title] {
+    grid-column: 1;
+    margin: 0;
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--_title-font-size);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-lg, 1.5);
+    color: var(--_text);
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+
+  [data-ui-popover] > [data-part-content] > [data-part-header] > [data-part-description] {
+    grid-column: 1;
+    margin: 0;
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    line-height: var(--slotted-line-height-sm, 1.45);
+    color: var(--slotted-text-muted, #5b6b7f);
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+
+  /**
+   * A square on control geometry, so it holds the WCAG minimum target at every
+   * density, and the mark is the library's own `Glyph` — an `<svg>` the binding
+   * draws inside an `icon` box at `sm` — rather than a character or a mask. It
+   * is pulled level with the title's cap height by the negative
+   * block margin rather than by stretching the row.
+   */
+  [data-ui-popover] > [data-part-content] > [data-part-header] > [data-part-close] {
+    grid-column: 2;
+    grid-row: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--slotted-control-height-sm, 30px);
+    block-size: var(--slotted-control-height-sm, 30px);
+    margin-block-start: calc(-1 * var(--slotted-space-2, 0.25rem));
+    margin-inline-end: calc(-1 * var(--slotted-space-3, 0.375rem));
+    padding: 0;
+
+    border: 0;
+    border-radius: var(--slotted-control-radius, var(--slotted-radius-sm, 4px));
+    background: transparent;
+    color: var(--slotted-text-muted, #5b6b7f);
+    cursor: pointer;
+
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  [data-ui-popover] > [data-part-content] > [data-part-header] > [data-part-close]:enabled:hover {
+    background: var(--slotted-tone-secondary-subtle-hover, rgb(15 23 42 / 0.06));
+    color: var(--_text);
+  }
+
+  [data-ui-popover] > [data-part-content] > [data-part-header] > [data-part-close]:enabled:active {
+    background: var(--slotted-tone-secondary-subtle-active, rgb(15 23 42 / 0.1));
+  }
+
+  [data-ui-popover] > [data-part-content] > [data-part-header] > [data-part-close]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid
+      var(--slotted-focus-ring-color, currentColor);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * The only part that scrolls. It absorbs the header's block padding when
+   * there is no header, so a popover holding one sentence is not inset twice at
+   * the top and once at the bottom.
+   */
+  [data-ui-popover] > [data-part-content] > [data-part-body] {
+    grid-row: 2;
+    min-block-size: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overflow-inline: hidden;
+    overflow-block: auto;
+    overscroll-behavior: contain;
+    /* The first capture put an unbroken 45-character token out through the
+       right edge of the panel and left the body scrolling sideways to reach it.
+       `plaintext` here for the reason the title takes it: the body is the
+       consumer's own prose, in whatever language they wrote it. */
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+    padding-inline: var(--_inset-inline);
+    padding-block-end: var(--_inset-block);
+
+    /**
+     * ── The scroll shadow ────────────────────────────────────────────────
+     *
+     * A body that overflows cuts its last line in half against the footer's
+     * rule, and the capture read as a rendering fault rather than as "there is
+     * more below". The four layers are the standard pair of pairs: two solid
+     * covers that scroll **with** the content (`local`) and two shadows that
+     * stay **with** the box (`scroll`). At the top and bottom of the scroll
+     * range the cover sits over the shadow and hides it, so each edge shades
+     * only while there is something past it, and a body that fits shows
+     * neither.
+     *
+     * The ink is the panel's own text colour at eight per cent rather than a
+     * literal, so it follows every scheme without a rule of its own.
+     */
+    background:
+      linear-gradient(var(--_surface) 30%, transparent) center top / 100% var(--_inset-block)
+        no-repeat local,
+      linear-gradient(transparent, var(--_surface) 70%) center bottom / 100% var(--_inset-block)
+        no-repeat local,
+      radial-gradient(
+          farthest-side at 50% 0,
+          color-mix(in oklab, var(--_text) 12%, transparent),
+          transparent
+        )
+        center top / 100% var(--slotted-space-3, 0.375rem) no-repeat scroll,
+      radial-gradient(
+          farthest-side at 50% 100%,
+          color-mix(in oklab, var(--_text) 12%, transparent),
+          transparent
+        )
+        center bottom / 100% var(--slotted-space-3, 0.375rem) no-repeat scroll;
+  }
+
+  [data-ui-popover] > [data-part-content] > [data-part-body]:first-child {
+    padding-block-start: var(--_inset-block);
+  }
+
+  [data-ui-popover] > [data-part-content] > [data-part-footer] {
+    grid-row: 3;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--_row-gap);
+    padding-block: var(--_inset-block);
+    padding-inline: var(--_inset-inline);
+    border-block-start: var(--_border-width) solid var(--_border-color);
+  }
+
+  /**
+   * Written in physical properties, and painted over the panel rather than
+   * behind it, for the two reasons `tooltip.css` sets out at length: the engine
+   * measures the arrow from the layer's own left and top and `data-side` names
+   * a physical edge, and an arrow behind a bordered panel leaves the panel's own
+   * border running straight across its base.
+   *
+   * Where the arrow may stand is the straight run of the panel's edge. The
+   * positioner keeps it `arrowPadding` from the edge of the **layer**, and
+   * the panel stands a `gap` inside the layer, so beside an anchor near a
+   * corner the arrow landed on the panel's rounded corner, and the half of
+   * the rotated square the panel normally hides showed outside it as a point
+   * of a diamond. Clamped here, the arrow meets a straight edge whatever
+   * padding, gap or radius a theme sets.
+   */
+  [data-ui-popover] > [data-part-arrow] {
+    --_arrow-x: clamp(
+      calc(var(--_gap) + var(--_radius)),
+      var(--slotted-positioner-arrow-x, 0px),
+      calc(100% - var(--_gap) - var(--_radius) - var(--_arrow-size))
+    );
+    --_arrow-y: clamp(
+      calc(var(--_gap) + var(--_radius)),
+      var(--slotted-positioner-arrow-y, 0px),
+      calc(100% - var(--_gap) - var(--_radius) - var(--_arrow-size))
+    );
+    position: absolute;
+    z-index: 1;
+    inline-size: var(--_arrow-size);
+    block-size: var(--_arrow-size);
+    rotate: 45deg;
+    background: var(--_surface);
+    border: 0 solid var(--_border-color);
+  }
+
+  [data-ui-popover][data-side='top'] > [data-part-arrow] {
+    left: var(--_arrow-x);
+    top: auto;
+    bottom: calc(var(--_gap) - var(--_arrow-size) / 2);
+    border-right-width: var(--_border-width);
+    border-bottom-width: var(--_border-width);
+    border-bottom-right-radius: var(--_arrow-tip-radius);
+  }
+
+  [data-ui-popover][data-side='bottom'] > [data-part-arrow] {
+    left: var(--_arrow-x);
+    top: calc(var(--_gap) - var(--_arrow-size) / 2);
+    bottom: auto;
+    border-top-width: var(--_border-width);
+    border-left-width: var(--_border-width);
+    border-top-left-radius: var(--_arrow-tip-radius);
+  }
+
+  [data-ui-popover][data-side='left'] > [data-part-arrow] {
+    top: var(--_arrow-y);
+    left: auto;
+    right: calc(var(--_gap) - var(--_arrow-size) / 2);
+    border-top-width: var(--_border-width);
+    border-right-width: var(--_border-width);
+    border-top-right-radius: var(--_arrow-tip-radius);
+  }
+
+  [data-ui-popover][data-side='right'] > [data-part-arrow] {
+    top: var(--_arrow-y);
+    left: calc(var(--_gap) - var(--_arrow-size) / 2);
+    right: auto;
+    border-bottom-width: var(--_border-width);
+    border-left-width: var(--_border-width);
+    border-bottom-left-radius: var(--_arrow-tip-radius);
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 5,
+  "family": "alert",
+  "ui": "alert",
+  "catalog": {
+    "group": "Feedback",
+    "summary": "Framed notice heading a section, a form or a page."
+  },
+  "axes": {
+    "tone": ["accent", "secondary", "info", "success", "warning", "danger"],
+    "variant": ["soft", "outline", "solid"],
+    "reach": ["inline", "section", "page"],
+    "live": ["off", "polite", "assertive"],
+    "actionsPlacement": ["below", "end"]
+  },
+  "resolution": {
+    "actionsPlacement": ["prop", "reach"]
+  },
+  "provides": {
+    "buttonDefaults": ["tone", "size"]
+  },
+  "actionsPaint": "the actions part gives each Button in it the alert's resolved tone and size sm; variant stays the inherited button default or the Button's own. A Button prop still wins. The first action is solid and every other one ghost; outline draws no fill over the alert's ground and is not used inside an alert",
+  "toneGlyphs": {
+    "accent": "status-info",
+    "secondary": null,
+    "info": "status-info",
+    "success": "status-success",
+    "warning": "status-warning",
+    "danger": "status-danger"
+  },
+  "liveRoles": {
+    "off": null,
+    "polite": "status",
+    "assertive": "alert"
+  },
+  "stateAttributes": {
+    "open": "data-open"
+  },
+  "stateModel": {
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["dismiss", "programmatic"]
+    }
+  },
+  "messages": ["dismiss"],
+  "members": {
+    "alert": {
+      "nativeElement": "section",
+      "defaults": {
+        "tone": "accent",
+        "variant": "soft",
+        "reach": "section",
+        "live": "off",
+        "hideIcon": false,
+        "dismissible": false,
+        "defaultOpen": true,
+        "restoreFocus": true
+      },
+      "capabilities": ["appearance", "live", "open"],
+      "states": ["default", "hover", "active", "focus-visible", "open"],
+      "parts": ["root", "icon", "content", "title", "description", "actions", "dismiss"]
+    }
+  },
+  "scenarios": {
+    "alert": [
+      "playground",
+      "tones",
+      "variants",
+      "reach",
+      "dismissal",
+      "actions",
+      "live",
+      "content",
+      "composition",
+      "accessibility"
+    ]
+  }
+}

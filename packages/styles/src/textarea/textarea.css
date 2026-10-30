@@ -1,0 +1,370 @@
+@layer slotted.components {
+  /**
+   * ── The multi-line text control ────────────────────────────────────────
+   *
+   * The element itself, with no frame around it. `text-field` wraps its input
+   * because an adornment, a clear button and a reveal button have to sit
+   * inside one border and a void element can hold no child; nothing surveyed
+   * puts an adornment inside a textarea, and the corner is where the resize
+   * handle goes. The two families therefore have different anatomies on
+   * purpose rather than one anatomy for symmetry.
+   *
+   * Its rules reach the same foundation tokens `text-field`'s do rather than
+   * `text-field` itself, so a theme can move one without the other and neither
+   * stylesheet depends on the other's selectors.
+   */
+  [data-ui-textarea][data-part-root] {
+    /**
+     * Type, height, inline padding and glyph size come from the control
+     * scales, the only ones the theme restates per density.
+     *
+     * The block padding is derived rather than chosen: half of whatever is
+     * left when one line box is taken out of the control height. A textarea of
+     * one row is then exactly as tall as an input of the same step, at every
+     * density, and no second scale has to be invented for it.
+     */
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+    --_padding-block: max(0px, calc((var(--_height) - 1lh) / 2));
+    /** The control height minus its content box: two paddings and two borders. */
+    --_frame: calc(var(--_padding-block) * 2 + var(--slotted-control-border-width, 1px) * 2);
+    /**
+     * The same frame for a box that scrolls, which is one padding shorter.
+     *
+     * A scroll container's bottom padding belongs to the *end* of its scroll
+     * range, not to the bottom of what is on screen: while the control is
+     * scrolled to the top, the clip edge is the padding box, so a ceiling that
+     * reserved both paddings left forty per cent of a fifth line showing under
+     * the border. Measured rather than reasoned: the first capture of this
+     * family at 240 pixels showed exactly that sliver.
+     */
+    --_scroll-frame: calc(var(--_padding-block) + var(--slotted-control-border-width, 1px) * 2);
+    --_rows: var(--slotted-textarea-rows, 3);
+    --_max-rows: var(--slotted-textarea-max-rows, 12);
+
+    background-color: var(--slotted-textarea-background, var(--slotted-control-surface, Field));
+    /**
+     * The control step of the border scale, not the strong one: a separator
+     * between two surfaces and the edge of a control hold the same 3:1 ratio
+     * and are not the same weight.
+     */
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-textarea-border-color, var(--slotted-control-border-color, ButtonBorder));
+    border-radius: var(--slotted-textarea-radius, var(--slotted-control-radius, 4px));
+    /** The shadow every framed control carries, and the reason the border can soften. */
+    box-shadow: var(--slotted-textarea-shadow, var(--slotted-control-shadow, none));
+    box-sizing: border-box;
+    color: var(--slotted-textarea-color, var(--slotted-text, CanvasText));
+    display: block;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--_font-size);
+    /* In a flex row the item's basis is its content, not the whole row. */
+    flex-basis: content;
+    inline-size: 100%;
+    /**
+     * The text scale's leading rather than the control's `1`. A control's line
+     * height is for a box holding one line; this one holds paragraphs, and
+     * `1lh` is what every block measurement below is stated in.
+     */
+    line-height: var(--slotted-textarea-line-height, var(--slotted-line-height-md, 1.5));
+    min-inline-size: 0;
+    /**
+     * A pasted token with no break in it — a signed URL, a certificate, a
+     * container digest — otherwise runs past the control's edge and takes the
+     * horizontal scrollbar of the page with it. Nothing is removed: the whole
+     * string stays in the value and in the DOM.
+     */
+    overflow-wrap: anywhere;
+    padding-block: var(--_padding-block);
+    padding-inline: var(--_padding-inline);
+    resize: block;
+    transition:
+      background-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      border-color var(--slotted-control-transition-duration)
+        var(--slotted-control-transition-easing),
+      box-shadow var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-textarea][data-part-root]::placeholder {
+    color: var(--slotted-textarea-placeholder-color, var(--slotted-text-muted, GrayText));
+  }
+
+  /* ── Size ─────────────────────────────────────────────────────────────
+   *
+   * Three steps, matching the field the control sits in, and every block
+   * measurement follows because it is written in terms of the step's own
+   * height and its own line box.
+   */
+
+  [data-ui-textarea][data-part-root][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
+    --_height: var(--slotted-control-height-sm, 30px);
+    --_padding-inline: var(--slotted-control-padding-inline-sm, 10px);
+  }
+
+  [data-ui-textarea][data-part-root][data-size='md'] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_height: var(--slotted-control-height-md, 34px);
+    --_padding-inline: var(--slotted-control-padding-inline-md, 13px);
+  }
+
+  [data-ui-textarea][data-part-root][data-size='lg'] {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_height: var(--slotted-control-height-lg, 38px);
+    --_padding-inline: var(--slotted-control-padding-inline-lg, 16px);
+  }
+
+  /* ── Variant ──────────────────────────────────────────────────────────
+   *
+   * The three `text-field` draws, for the same reasons and against the same
+   * tokens: a control that takes the ground it is placed on, one that sinks
+   * into the page, and one that shows nothing until it is used.
+   */
+
+  [data-ui-textarea][data-part-root][data-variant='subtle'] {
+    background-color: var(
+      --slotted-textarea-subtle-background,
+      var(--slotted-surface-sunken, Canvas)
+    );
+    border-color: var(
+      --slotted-textarea-subtle-border-color,
+      var(--slotted-border-subtle, ButtonBorder)
+    );
+  }
+
+  /* No edge, no lift, no ground and no corner of its own: the cell it sits in
+     is the box, the row is the ground, a cell has no corner, and the resting
+     shadow would draw the cell where there is none. */
+  [data-ui-textarea][data-part-root][data-variant='plain'] {
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: var(--slotted-radius-none, 0px);
+    box-shadow: none;
+  }
+
+  /** A transparent border has no system colour to be remapped to. */
+  @media (forced-colors: active) {
+    [data-ui-textarea][data-part-root][data-variant='plain'] {
+      border-color: ButtonBorder;
+    }
+  }
+
+  [data-ui-textarea][data-part-root][data-mono] {
+    font-family: var(--slotted-font-family-mono, monospace);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Resize ───────────────────────────────────────────────────────────
+   *
+   * `block` by default rather than the platform's `both`: a control wider than
+   * its field breaks the field's own grid, and a reader who widens one control
+   * in a form has broken the form's alignment rather than fixed anything.
+   * Horizontal resize is offered and is not the default.
+   */
+
+  [data-ui-textarea][data-part-root][data-resize='none'] {
+    resize: none;
+  }
+
+  [data-ui-textarea][data-part-root][data-resize='both'] {
+    resize: both;
+  }
+
+  /* ── Growing with the content ─────────────────────────────────────────
+   *
+   * `field-sizing: content` is the platform's answer, Baseline since June
+   * 2026: nothing is measured on the main thread, no line height is cached and
+   * no layout is read per keystroke, which is what Angular CDK's autosize and
+   * Mantine's both do.
+   *
+   * It shrinkwraps, so `rows` stops being the floor — the floor is restated
+   * above as a minimum block size, and the ceiling is stated here. Past the
+   * ceiling the control scrolls rather than pushing the page out from under
+   * the caret, which is the defect every auto-grow implementation ships first.
+   *
+   * The manual handle is withdrawn while this is on: a control that sizes
+   * itself and a handle that fixes its size disagree on the next keystroke.
+   *
+   * Where `field-sizing` is unsupported the control keeps the block size
+   * `rows` gives it — a smaller box, not a broken one.
+   */
+  [data-ui-textarea][data-part-root][data-auto-size] {
+    field-sizing: content;
+    max-block-size: calc(var(--_max-rows) * 1lh + var(--_scroll-frame));
+    /**
+     * The floor, and only here. While the control does not size itself the
+     * platform's own `rows` is the height, and a second source of truth beside
+     * it disagrees the moment the two are written differently — which is what
+     * the first capture of this family showed: three two-row controls drawn
+     * three rows tall, because the stylesheet's default outranked the
+     * attribute the page had written.
+     */
+    min-block-size: calc(var(--_rows) * 1lh + var(--_frame));
+    resize: none;
+  }
+
+  /* ── States ───────────────────────────────────────────────────────────
+   *
+   * The same order `text-field` writes, and the same guards: each weaker state
+   * held back for every stronger one it can meet.
+   */
+
+  [data-ui-textarea][data-part-root]:hover:not([data-disabled]):not(:disabled):not(
+      [data-readonly]
+    ):not([data-invalid]) {
+    border-color: var(--slotted-textarea-hover-border-color, var(--slotted-tone-accent-border));
+  }
+
+  [data-ui-textarea][data-part-root][data-variant='subtle']:hover:not([data-disabled]):not(
+      :disabled
+    ):not([data-readonly]):not([data-invalid]) {
+    background-color: var(
+      --slotted-textarea-subtle-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+  }
+
+  [data-ui-textarea][data-part-root][data-variant='plain']:hover:not([data-disabled]):not(
+      :disabled
+    ):not([data-readonly]):not([data-invalid]) {
+    background-color: var(
+      --slotted-textarea-plain-hover-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    /* The accent edge the other variants take would draw the cell's outline. */
+    border-color: transparent;
+  }
+
+  [data-ui-textarea][data-part-root]:focus-visible {
+    /** Foundation geometry, focus-ring ink: the lift and the ring are one colour. */
+    box-shadow: var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+      var(--slotted-focus-ring-color, Highlight);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-control-focus-ring-offset, var(--slotted-focus-ring-offset, 2px));
+  }
+
+  /**
+   * The ring of a control whose box is not its own is drawn inside that box,
+   * the way the inner controls draw theirs inside the frame: two pixels past
+   * the control is two pixels over the next row's rule. No lift either — a
+   * shadow that appears only under focus is a cell that changes size when it
+   * is used.
+   */
+  [data-ui-textarea][data-part-root][data-variant='plain']:focus-visible {
+    box-shadow: none;
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /**
+   * The ring is retargeted rather than repainted: every rule that draws focus
+   * reads `--slotted-focus-ring-color`, so pointing that one name at the
+   * invalid colour on the element moves the outline and the shadow together.
+   */
+  [data-ui-textarea][data-part-root][data-invalid] {
+    --slotted-focus-ring-color: var(
+      --slotted-textarea-invalid-focus-ring-color,
+      var(--slotted-focus-ring-color-invalid, Highlight)
+    );
+    --_invalid-edge-width: var(
+      --slotted-textarea-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+    --_invalid-edge-color: var(
+      --slotted-textarea-invalid-border-color,
+      var(--slotted-tone-danger-border)
+    );
+    --_invalid-edge: inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color);
+
+    border-color: var(--slotted-textarea-invalid-border-color, var(--slotted-tone-danger-border));
+    /*
+     * Width as well as colour (WCAG 1.4.1), the edge `text-field` draws: in
+     * `high-contrast` the danger border is the resting edge's black. The line
+     * is a shadow inside the border, so neither box nor text moves, and it
+     * takes the resting lift's place.
+     */
+    box-shadow: var(--_invalid-edge);
+  }
+
+  [data-ui-textarea][data-part-root][data-invalid]:focus-visible {
+    box-shadow:
+      var(--_invalid-edge),
+      var(--slotted-control-shadow-focus-geometry, 0 1px 4px -1px)
+        var(--slotted-focus-ring-color, Highlight);
+  }
+
+  [data-ui-textarea][data-part-root][data-variant='plain'][data-invalid]:focus-visible {
+    /* The ring lies inside the box here, over the border and an edge as wide as
+       it; the edge reaches past the ring. */
+    box-shadow: inset 0 0 0
+      calc(
+        var(--slotted-focus-ring-offset, 2px) - var(--slotted-control-border-width, 1px) +
+          var(--_invalid-edge-width)
+      )
+      var(--_invalid-edge-color);
+  }
+
+  /*
+   * Forced colours remove every box shadow, and the edge with them. The
+   * width comes back as an outline inside the border, and a focused invalid
+   * control draws its ring double, which a valid ring is not.
+   */
+  @media (forced-colors: active) {
+    [data-ui-textarea][data-part-root][data-invalid] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+      outline-offset: calc(
+        -1 * (var(--slotted-control-border-width, 1px) + var(--_invalid-edge-width))
+      );
+    }
+
+    [data-ui-textarea][data-part-root][data-invalid]:focus-visible {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: var(
+        --slotted-control-focus-ring-offset,
+        var(--slotted-focus-ring-offset, 2px)
+      );
+    }
+
+    [data-ui-textarea][data-part-root][data-variant='plain'][data-invalid]:focus-visible {
+      outline: calc(var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width)) double
+        var(--slotted-focus-ring-color, Highlight);
+      outline-offset: calc(
+        -1 * (var(--slotted-focus-ring-width, 2px) + var(--_invalid-edge-width))
+      );
+    }
+  }
+
+  /**
+   * Read-only stays focusable, selectable and legible. A long value a reader
+   * has to copy is the commonest thing a read-only textarea holds, so the ink
+   * does not change at all and only the ground says the value is not theirs.
+   */
+  [data-ui-textarea][data-part-root][data-readonly] {
+    background-color: var(
+      --slotted-textarea-readonly-background,
+      var(--slotted-tone-secondary-subtle-hover)
+    );
+    cursor: default;
+  }
+
+  /**
+   * `:disabled` beside `data-disabled`, because a disabled `fieldset` disables
+   * every control inside it and tells none of them.
+   */
+  [data-ui-textarea][data-part-root][data-disabled],
+  [data-ui-textarea][data-part-root]:disabled {
+    background-color: var(
+      --slotted-textarea-disabled-background,
+      var(--slotted-disabled-background)
+    );
+    border-color: var(--slotted-textarea-disabled-border-color, var(--slotted-disabled-border));
+    /* Nothing a person cannot reach is lifted off the page. */
+    box-shadow: none;
+    color: var(--slotted-textarea-disabled-color, var(--slotted-disabled-foreground));
+    cursor: not-allowed;
+    /* A handle on a control nobody can type in is a handle that lies. */
+    resize: none;
+  }
+}

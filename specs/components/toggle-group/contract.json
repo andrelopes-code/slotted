@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 5,
+  "family": "toggle-group",
+  "ui": "toggle-group",
+  "catalog": {
+    "group": "Actions",
+    "summary": "Set of toggles, single or multiple."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
+  "navigationPattern": "https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/",
+  "roles": {
+    "root": "group",
+    "item": "button"
+  },
+  "wiring": {
+    "aria-label": "the consumer's own, on the root; the family writes none of its own",
+    "aria-pressed": "on every item, in both states, so the item is announced as a toggle rather than as a button that happens to be pressed",
+    "aria-orientation": "written on the root only when vertical",
+    "disabled": "the platform's own attribute, so `:disabled` and the focus ring agree"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves focus into the group, which holds one tab stop however many items it has",
+      "focus": "the pressed item, or the first item that is not disabled",
+      "source": "roving tabindex"
+    },
+    {
+      "key": "Space",
+      "effect": "toggles the focused item",
+      "focus": "stays on the item",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "toggles the focused item",
+      "focus": "stays on the item",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "moves to the next item in a horizontal group and wraps at the end; it never toggles, because an item is a button",
+      "focus": "the item moved to",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "moves to the previous item in a horizontal group and wraps at the start; it never toggles, because an item is a button",
+      "focus": "the item moved to",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "the same as ArrowRight in a vertical group, and nothing in a horizontal one so the page keeps scrolling",
+      "focus": "the item moved to, in a vertical group",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "the same as ArrowLeft in a vertical group, and nothing in a horizontal one so the page keeps scrolling",
+      "focus": "the item moved to, in a vertical group",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Home",
+      "effect": "moves to the first item that is not disabled",
+      "focus": "the first enabled item",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "End",
+      "effect": "moves to the last item that is not disabled",
+      "focus": "the last enabled item",
+      "source": "@slotted/core/focus"
+    }
+  ],
+  "frame": {
+    "ownedBy": "the items",
+    "rootStates": "no border, no padding and no radius",
+    "joinedBy": "an overlap of one border width, with one border painted in each shared column",
+    "height": "--slotted-control-height-*",
+    "reason": "A joined bar has one edge, and one edge cannot be the sum of several opinions about their own. The first pass framed the root as well as the items, and the reviewer read the result: a coloured border inside a grey one, and an edge that was one pixel in places and two in others. With the frame left to the items the bar is also exactly as tall as every other control, so it lines up beside a text field in a form."
+  },
+  "escapeBound": false,
+  "crossAxisNavigates": false,
+  "arrowsToggle": false,
+  "rovingFocus": {
+    "engine": "@slotted/core/focus",
+    "standsDownInside": "toolbar",
+    "detectedBy": "closest([data-ui='toolbar'])",
+    "override": "rovingFocus",
+    "reason": "A bar is one tab stop with arrow navigation across every control it holds, and a group running a second ring inside it would put two tab stops where the APG asks for one. `toolbar` deferred this capability here by name."
+  },
+  "value": {
+    "type": "string[]",
+    "cappedBy": "multiple",
+    "reason": "Radix switches the value between a string and an array with its `type` prop, which needs a discriminated union in React and has no equivalent in an Angular `model()`. One type in both bindings costs a single-select consumer an array of one entry."
+  },
+  "declined": {
+    "links": {
+      "deferTo": "tabs",
+      "reason": "an item that navigates is not a toggle. `tabs` already ships `controlElement.withHref` and a `links` scenario."
+    },
+    "panels": {
+      "deferTo": "tabs",
+      "reason": "`tabs` owns `tablist`, the panel, `mount` and dismissal."
+    },
+    "formValue": {
+      "deferTo": "checkbox-group",
+      "reason": "`docs/component-features.md` §5 says a toggle group is not a visual substitute for a checkbox in a form. A set of choices a form submits is `checkbox-group` for many and `segmented-control` for one."
+    },
+    "tone": {
+      "deferTo": "button",
+      "reason": "the selected colour of a chosen option is the accent border and surface pair `docs/token-foundation.md` names for the chosen row, card, option and toggle. A five-tone axis here would be a second `button`, and the palette in a joined bar is `button-group` around ToggleButtons."
+    },
+    "focusableWhenDisabled": {
+      "deferTo": "button",
+      "reason": "the APG allows a focusable disabled control where discoverability is crucial, which is an action a reader has to find. Every item here is visible and its group owns the value, so there is nothing to discover."
+    },
+    "selectionIndicator": {
+      "reason": "Angular Material alone draws a check on the selected toggle, and it costs reserved width on every item so the label does not move when the state changes. Composed instead: an icon in the item's `icon` part, selected with `[data-pressed]`."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "ghost", "chips"],
+    "orientation": ["horizontal", "vertical"]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"],
+    "orientation": ["prop", "defaults", "horizontal"]
+  },
+  "provides": {
+    "toggleGroupDefaults": ["size", "variant", "orientation", "attached", "deselectable", "loop"],
+    "toItems": ["disabled", "pressed", "size", "variant"]
+  },
+  "stateAttributes": {
+    "pressed": "data-pressed",
+    "disabled": "data-disabled"
+  },
+  "stateModel": {
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard"]
+    }
+  },
+  "members": {
+    "toggleGroup": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "orientation": "horizontal",
+        "attached": true,
+        "fullWidth": false,
+        "multiple": false,
+        "deselectable": true,
+        "loop": true,
+        "disabled": false
+      },
+      "capabilities": [
+        "selection",
+        "orientation",
+        "size",
+        "appearance",
+        "arrangement",
+        "content",
+        "fullWidth",
+        "disabled",
+        "wiring"
+      ],
+      "states": ["default", "hover", "active", "focus-visible", "pressed", "disabled"],
+      "parts": ["root", "item", "icon", "label"]
+    }
+  },
+  "scenarios": {
+    "toggleGroup": [
+      "playground",
+      "selection",
+      "variant",
+      "sizes",
+      "orientation",
+      "attached",
+      "states",
+      "iconOnly",
+      "width",
+      "toolbar",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  },
+  "chips": {
+    "layout": "Separate rounded items that wrap onto the next line; attached never applies.",
+    "pressed": "The neutral tone: its solid ground under its on-solid label.",
+    "labelledBy": "Inside a field the root is named by the field label through aria-labelledby, unless the consumer names it."
+  }
+}

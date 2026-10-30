@@ -1,0 +1,104 @@
+@layer slotted.components {
+  /**
+   * The target of a context menu: the region the reader presses with the
+   * secondary button, holds on a touch screen, or opens with `Shift+F10`.
+   *
+   *   ┌─ root ─ the target ─ data-open ─ data-pressed ──────────────┐
+   *   │  the consumer's content: a row, a card, a canvas             │
+   *   └──────────────────────────────────────────────────────────────┘
+   *           ┌─ [data-ui-menu] ─ unchanged ─┐  ← anchored to the point
+   *
+   * The family owns this one part and no surface: the menu that opens is
+   * `menu`, imported as it is, the way `menubar` holds it. Radix's context menu
+   * re-exports sixteen parts its dropdown already has, and two copies of one
+   * machine drift.
+   *
+   * ── Why the target paints nothing at rest ────────────────────────────
+   *
+   * Its content is the consumer's. A wash on hover would claim a row that
+   * `table` already paints; a ground would fight the card it wraps. What the
+   * stylesheet owns is the three moments the family adds to the region: the
+   * long press, the open menu, and the browser's own menu taking over.
+   */
+  [data-ui-context-menu] {
+    /* The mark Finder and Explorer leave on the row whose menu is showing:
+       one line, inward, in the colour that separates two surfaces. A consumer
+       whose target already shows its selection sets the width to `0`. */
+    --_mark-width: var(--slotted-context-menu-mark-width, var(--slotted-border-width-thin, 1px));
+    --_mark-color: var(--slotted-context-menu-mark-color, var(--slotted-border-strong, CanvasText));
+  }
+
+  /**
+   * On a coarse pointer a long press on a link or an image inside the target
+   * raises the platform's own callout — the sheet iOS draws with "Open" and
+   * "Copy" — over the family's menu. It is turned off for the whole target
+   * rather than only during the press, because the callout is decided by the
+   * platform at `touchstart`, before any state the family writes could apply.
+   */
+  @media (pointer: coarse) {
+    [data-ui-context-menu] {
+      -webkit-touch-callout: none;
+    }
+  }
+
+  /**
+   * While a long press is running the press must not become a text selection,
+   * which is what a held finger otherwise starts at the same moment. Only
+   * then: a target that is text stays selectable at rest, and a mouse never
+   * sets the state at all.
+   */
+  [data-ui-context-menu][data-pressed] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /**
+   * The open mark is a pseudo-element laid over the whole target rather than a
+   * shadow on the target's own box: the region's content — a card with a
+   * ground of its own, a row's cells — paints over the target's background,
+   * and an inset shadow drawn there showed only at the corners the content's
+   * radius left uncovered. Laid on top, the mark takes no room, follows the
+   * target's own corner through `border-radius: inherit`, and lets every press
+   * through. It is not an outline, because an outline in this library is the
+   * focus ring and nothing else (`focus-ring.test.mjs`).
+   *
+   * The target is positioned so the overlay has a box to fill. It is
+   * positioned at rest rather than only while open, so nothing inside the
+   * region moves at the moment the menu appears.
+   */
+  [data-ui-context-menu] {
+    position: relative;
+  }
+
+  [data-ui-context-menu]::after {
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 var(--_mark-width) transparent;
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: box-shadow var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-context-menu][data-open]::after {
+    box-shadow: inset 0 0 0 var(--_mark-width) var(--_mark-color);
+  }
+
+  /**
+   * A target the consumer made focusable — a row with roving focus, a tile with
+   * `tabindex` — takes the foundation ring, so `Shift+F10` is pressed on a
+   * region the reader can see they are on. The open mark is gone by the time
+   * focus returns, so the two are never drawn together.
+   */
+  [data-ui-context-menu]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * `disabled` means the browser's own menu is the one that opens, and the
+   * family writes nothing: a region that looks disabled while its content
+   * still works would say the wrong thing. The state is in the DOM for a
+   * consumer who wants to say it.
+   */
+}

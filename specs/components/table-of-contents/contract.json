@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 5,
+  "family": "table-of-contents",
+  "ui": "table-of-contents",
+  "catalog": {
+    "group": "Navigation",
+    "summary": "Links to page headings with the current one."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/",
+  "patternStatus": "The APG has no table-of-contents or anchor-navigation pattern; the patterns index was read on 2026-09-16 and holds neither. What applies is the navigation landmark with a name, the link role, and aria-current=location from ARIA 1.2 §6.7 — the token for the current location within a context, which is what a section of the page in view is. The Disclosure Navigation Menu example is the pattern for the trigger of the collapsed layout, and its keyboard table is transcribed below, optional keys included.",
+  "composes": ["scroll-spy", "outline", "dismissable-layer", "skeleton"],
+  "roles": {
+    "root": "navigation",
+    "list": "list",
+    "item": "listitem",
+    "link": "link",
+    "trigger": "button",
+    "reason": "Every role is the element's own: nav > ol > li > a, and a button for the collapsed trigger. A screen reader reads a list of N items under the landmark's name without the family writing a role"
+  },
+  "element": {
+    "root": "nav | div",
+    "label": "div",
+    "trigger": "button",
+    "current": "span",
+    "indicator": "span",
+    "panel": "div",
+    "list": "ol",
+    "item": "li",
+    "link": "a",
+    "group": "ol",
+    "marker": "div",
+    "skeleton": "li",
+    "reason": "The root is a nav on its own and a div under landmark=false, for a list inside a landmark that already carries a name. The list is an ol because the order is the document's; numbered draws counters on it"
+  },
+  "anatomy": {
+    "root": "the landmark. Carries data-layout, data-size, data-sticky, data-numbered, data-open, data-loading and data-empty",
+    "label": "the list's title. When present it names the nav through aria-labelledby; in the collapsed layout it is the trigger's fixed text",
+    "trigger": "the collapsed layout's button: aria-expanded, aria-controls naming the panel. Holds label, current and indicator",
+    "current": "inside the trigger: the label of the current link, so a reader on a phone knows where they are without opening the list",
+    "indicator": "the trigger's chevron, the chevron-down Glyph element in an icon box, turned half a turn while open",
+    "panel": "the region holding the list: the scrolling body of the column when sticky, the inline scroller of the bar, the layer under the trigger when collapsed. Carries the id aria-controls names",
+    "list": "the first level of entries",
+    "item": "one entry: data-depth from 1, data-value, and data-current while its link is current",
+    "link": "an a with href=#id. aria-current=location and data-current while current. The consumer's onClick runs before the family's",
+    "group": "an item's children, indented one --slotted-table-of-contents-indent per level. Not shown in the horizontal layout",
+    "marker": "the segment that slides along the track to the current link, aria-hidden. Positioned by the binding through --_marker-start and --_marker-size; zero size while nothing is current",
+    "skeleton": "a row with an item's geometry whose text is a skeleton box, aria-hidden; four of them while loading"
+  },
+  "track": {
+    "vertical": "the border-inline-start of the first-level list",
+    "horizontal": "a one-track-wide background painted along the panel's end edge; a border would be clipped by the scrolling panel together with the marker standing on it",
+    "reason": "Neither rule is a state rule. packages/styles/src/state-rail.test.mjs (R1) refuses a band that says a state by itself; here current is said by the link's ink and weight, and the marker is a part that travels, on tabs' precedent"
+  },
+  "current": {
+    "attribute": "data-current",
+    "aria": "aria-current",
+    "value": "location",
+    "on": ["link", "item"],
+    "computed": "the last target with a box whose top is at or above the reading line; the last target with a box once the scroller has reached its end, and the first while it is at its start; none otherwise while no target has reached the line. A target the reader chose by a press holds until they scroll again by a gesture — wheel, touch, keyboard, scrollbar — so a choice that lands the document at its end is not overruled by the end rule on the same frame",
+    "readingLine": "--slotted-page-sticky-top read from the scroller at every recomputation, plus offset, plus a tolerance of four pixels (TABLE_OF_CONTENTS_BOUNDS in each binding, Ant's bounds)",
+    "reason": "Ant, PatternFly, Mantine, Docusaurus and Starlight mark the section in view; only Docusaurus handles a last section too short to reach the line. The offset is read rather than declared because page's header changes height as it collapses"
+  },
+  "navigate": {
+    "steps": [
+      "value is requested with pointer or keyboard",
+      "the click's default is prevented",
+      "the scroller scrolls to the target's top minus the reading line, smooth unless prefers-reduced-motion: reduce; a scroll-margin-block-start at least the chrome's height is taken to include it, a smaller one is added",
+      "history decides the URL: push writes history.pushState, replace writes history.replaceState, none writes nothing",
+      "the target is focused with preventScroll; a target without a tabindex gets tabindex=-1 until it blurs"
+    ],
+    "modifiers": "Ctrl, Meta, Shift, Alt or the middle button leave the click to the platform, which opens the fragment in a new tab",
+    "mount": "a location.hash naming a target lands on it instantly and writes nothing, because the native jump left it under the chrome",
+    "cost": ":target does not update and hashchange does not fire, as in Ant; a router is not told, and its next navigation rewrites the fragment"
+  },
+  "source": {
+    "collects": "h1 to h6 inside the source element, between levels, in document order",
+    "ids": "a heading without an id gets one from its text: lower case, letters, digits and hyphens, 64 characters at most, unique by suffix; section-<n> when nothing is left. An existing id is never rewritten",
+    "watches": "a MutationObserver over the source's subtree rebuilds the list; refresh() does the same on demand",
+    "ssr": "the server renders an empty list and the client fills it after mount; a product with SSR passes items"
+  },
+  "layout": {
+    "vertical": "a column: labels wrap, groups indent, the track stands on the start edge",
+    "horizontal": "a bar for page-header's tabs slot: one line that scrolls inline without compressing labels, the current link kept in view, first level only, the track under the bar",
+    "collapsed": "a trigger with the current label that opens the list in a layer under it, closed by Escape, by a press outside and by a choice; the Disclosure Navigation Menu pattern",
+    "reason": "Ant has vertical and horizontal; PatternFly has all three under different props; Docusaurus and Starlight collapse on a phone. layout is not decided by width because a sidebar column is narrower than a phone's bar, so the width does not say which one the consumer wants"
+  },
+  "sticky": {
+    "top": "var(--slotted-page-sticky-top, 0px)",
+    "inset": "--slotted-table-of-contents-sticky-inset, default var(--slotted-space-5): the gap between the chrome and the column, added to the top and subtracted from the height",
+    "height": "the rest of the viewport under the chrome and the inset; the panel scrolls",
+    "reason": "Ant's affix, Docusaurus and Starlight pin the column. A hundred links scroll inside it, and the current one is kept in view with block: nearest so the page does not move"
+  },
+  "loading": {
+    "draws": "four skeleton rows in the list's place",
+    "reason": "A body loaded asynchronously has no headings yet; the rows keep the column's width and rhythm"
+  },
+  "empty": {
+    "attribute": "data-empty",
+    "draws": "nothing",
+    "reason": "Docusaurus and Starlight hide the column without headings; a title with nothing under it is a broken column"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next link; in the collapsed layout, to the trigger and then into the open list",
+      "focus": "the next link or the trigger",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous link, under the same rule",
+      "focus": "the previous link or the trigger",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "follows a link: asks value to move with the reason keyboard, scrolls to the target, writes the URL and focuses the target; toggles the trigger",
+      "focus": "the target; the trigger",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "toggles the trigger; on a link the platform scrolls the page",
+      "focus": "the trigger; unchanged",
+      "source": "platform"
+    },
+    {
+      "key": "Escape",
+      "effect": "closes the collapsed list with the reason escape",
+      "focus": "the trigger",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "on the trigger, opens the list; on a link, moves to the next link",
+      "focus": "the first link; the next link",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "moves to the previous link",
+      "focus": "the previous link",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "in the horizontal layout, moves to the next link along the reading direction",
+      "focus": "the next link",
+      "source": "pattern"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "in the horizontal layout, moves to the previous link",
+      "focus": "the previous link",
+      "source": "pattern"
+    },
+    {
+      "key": "Home",
+      "effect": "moves to the first link",
+      "focus": "the first link",
+      "source": "pattern"
+    },
+    {
+      "key": "End",
+      "effect": "moves to the last link",
+      "focus": "the last link",
+      "source": "pattern"
+    }
+  ],
+  "keyboardReason": "The arrow keys, Home and End are optional in the Disclosure Navigation Menu example and adopted in every layout, for the keyboard user who runs no screen reader; side-navigation took the same decision for the same reason. Every link is in the tab sequence, so nothing rolls",
+  "rovingTabindex": false,
+  "reads": ["--slotted-page-sticky-top"],
+  "readsReason": "page publishes where its chrome ends on the element that scrolls, and every sticky thing under it reads the same property (docs/build-briefing.md). This family reads it for the reading line, for the sticky column's top, and for where a target lands",
+  "messages": ["navigation"],
+  "declined": {
+    "centered": {
+      "reason": "PatternFly's isCentered. One source; justify-content on the nav is one line of the consumer's"
+    },
+    "color": {
+      "reason": "Mantine's color, radius and autoContrast. One source; the theme retunes --slotted-table-of-contents-* once"
+    },
+    "tabs": {
+      "deferTo": "tabs",
+      "reason": "sap.uxap's useIconTabBar swaps the bar for tabs. Tabs with an href per item is the composition page recommended before this family existed"
+    },
+    "arbitraryScrollSpy": {
+      "reason": "Mantine's getDepth and getValue read a heading's depth and text from anything. items is the escape hatch: a consumer with a non-heading outline builds the tree and passes it"
+    }
+  },
+  "axes": {
+    "layout": ["vertical", "horizontal", "collapsed"],
+    "size": ["sm", "md", "lg"],
+    "sticky": [false, true],
+    "history": ["push", "replace", "none"],
+    "numbered": [false, true],
+    "landmark": [true, false],
+    "levels": [[2, 3]],
+    "offset": [0]
+  },
+  "resolution": {
+    "layout": ["prop", "defaults", "vertical"],
+    "size": ["prop", "defaults", "md"],
+    "sticky": ["prop", "defaults", false],
+    "history": ["prop", "defaults", "push"],
+    "numbered": ["prop", "defaults", false],
+    "landmark": ["prop", "defaults", true],
+    "levels": ["prop", "defaults", [2, 3]],
+    "offset": ["prop", "defaults", 0]
+  },
+  "provides": {
+    "tableOfContentsDefaults": [
+      "layout",
+      "size",
+      "sticky",
+      "history",
+      "numbered",
+      "landmark",
+      "levels",
+      "offset"
+    ]
+  },
+  "stateModel": {
+    "current": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["scroll", "pointer", "keyboard", "programmatic"],
+      "attributeOn": "link",
+      "reason": "The id of the target in view, without the hash. scroll is the observer answering the position; a consumer who refuses it keeps the value they hold. Pressing a link asks with pointer or keyboard before scrolling, and the scroll happens whether or not the request is accepted, because the navigation is the anchor's and not the state's"
+    },
+    "open": {
+      "controlled": "open",
+      "uncontrolled": "defaultOpen",
+      "request": "onOpenChange",
+      "reasons": ["pointer", "keyboard", "select", "escape", "outsidePress", "programmatic"],
+      "attributeOn": "root",
+      "reason": "Whether the collapsed layout's list is shown. select is a link chosen inside it; escape and outsidePress come through dismissable-layer. Meaningless in the other two layouts, where the list is always shown"
+    }
+  },
+  "stateAttributes": {
+    "current": "data-current",
+    "open": "data-open",
+    "loading": "data-loading"
+  },
+  "members": {
+    "tableOfContents": {
+      "nativeElement": "nav",
+      "defaults": {
+        "layout": "vertical",
+        "size": "md",
+        "sticky": false,
+        "history": "push",
+        "numbered": false,
+        "landmark": true,
+        "levels": [2, 3],
+        "offset": 0
+      },
+      "capabilities": ["current", "open", "size", "appearance", "loading", "wiring"],
+      "states": ["default", "hover", "active", "focus-visible", "current", "open", "loading"],
+      "parts": [
+        "root",
+        "label",
+        "trigger",
+        "current",
+        "indicator",
+        "panel",
+        "list",
+        "item",
+        "link",
+        "group",
+        "marker",
+        "skeleton"
+      ],
+      "defaultsReason": "Axis defaults only. The uncontrolled starting values are the state models' own uncontrolled names and exist in React alone; Angular ships one model() for each of value and open"
+    }
+  },
+  "scenarios": {
+    "tableOfContents": [
+      "playground",
+      "anatomy",
+      "source",
+      "items",
+      "sticky",
+      "horizontal",
+      "collapsed",
+      "numbered",
+      "size",
+      "states",
+      "content",
+      "loading",
+      "history",
+      "defaults",
+      "composition",
+      "keyboard",
+      "accessibility"
+    ]
+  }
+}

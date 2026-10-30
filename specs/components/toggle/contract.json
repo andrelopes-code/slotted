@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 5,
+  "family": "toggle",
+  "ui": "toggle",
+  "catalog": {
+    "group": "Actions",
+    "summary": "Button that stays pressed or unpressed."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
+  "patternStatus": "The Button pattern's toggle button: a button with aria-pressed whose label does not change with its state. Read on 2026-09-16; the keys and properties are transcribed",
+  "roles": {
+    "root": "button"
+  },
+  "meaning": {
+    "toggle": "a mode: Bold, Wrap, Pin. True the moment it is pressed, neutral until on, one colour when on.",
+    "toggleButton": "an action that persists: Follow, Subscribe. Reaches a server, so it waits; one of five tones. Held by button.",
+    "reason": "Two members with two meanings and one state model. shadcn ships both under Toggle and Button; no surveyed library says which is which, and the reference page of this family does."
+  },
+  "sibling": {
+    "family": "toggle-group",
+    "relation": "toggle-group's item is the picture this family paints, held inside the group so the group is the value's only owner. The reopen recorded in docs/process/build-order.md makes that item this family; until then the two sheets state the same rules under two prefixes and each says so."
+  },
+  "wiring": {
+    "aria-pressed": "in both states, so the control is announced as a toggle rather than as a button that happens to be pressed",
+    "aria-label": "the consumer's own, required by the reference page for an icon-only toggle; the family writes none",
+    "disabled": "the platform's own attribute, so :disabled and the focus ring agree; data-disabled beside it for a control taken out with a fieldset",
+    "type": "button, unless the consumer wrote another"
+  },
+  "keyboard": [
+    {
+      "key": "Space",
+      "effect": "toggles the control",
+      "focus": "stays",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "toggles the control",
+      "focus": "stays",
+      "source": "platform"
+    }
+  ],
+  "keyboardReason": "A single button has no arrows of its own. Inside toolbar the bar owns the tab stop and the arrows and reaches this control as it reaches every focusable control it holds; the family writes no listener.",
+  "icon": {
+    "alignment": "to the label's text, not to the line box",
+    "reason": "the rule docs/build-briefing.md records for a mark beside a line of text; toggle-group's item holds it and this family holds the same"
+  },
+  "on": {
+    "border": "--slotted-tone-accent-border",
+    "background": "--slotted-tone-accent-subtle-active",
+    "color": "--slotted-tone-accent-text",
+    "reason": "the pair docs/token-foundation.md names for the chosen row, card, option and toggle, measured across the pair; the same pair toggle-group's item and button's pressed ToggleButton draw"
+  },
+  "declined": {
+    "loading": {
+      "deferTo": "button",
+      "reason": "ToggleButton waits because it reaches a server. A mode is true the moment it is pressed; a toggle that had to wait would be a toggle whose state the reader cannot trust."
+    },
+    "tone": {
+      "deferTo": "button",
+      "reason": "a mode is one colour, the accent pair; five tones here would be a second ToggleButton"
+    },
+    "focusableWhenDisabled": {
+      "deferTo": "button",
+      "reason": "discoverability is for an action a reader has to find; a mode switch is in view"
+    },
+    "value": {
+      "deferTo": "toggle-group",
+      "reason": "the group owns its item and its value; a standalone toggle has no group to be identified in"
+    },
+    "formValue": {
+      "deferTo": "checkbox",
+      "reason": "docs/component-features.md §5: not a visual substitute for a checkbox in a form. name and value reach the native button unchanged and mean what a button's do; no ControlValueAccessor."
+    },
+    "indicator": {
+      "reason": "Ark ships Toggle.Indicator. Composed instead: [data-pressed] on the root and the icon part; two lines, and no width reserved on a control that is off."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["outline", "ghost", "chips"]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "variant": ["prop", "defaults", "outline"]
+  },
+  "provides": {
+    "toggleDefaults": ["size", "variant"]
+  },
+  "stateAttributes": {
+    "pressed": "data-pressed",
+    "disabled": "data-disabled"
+  },
+  "stateModel": {
+    "pressed": {
+      "controlled": "pressed",
+      "uncontrolled": "defaultPressed",
+      "request": "onPressedChange",
+      "reasons": ["pointer", "keyboard"]
+    }
+  },
+  "members": {
+    "toggle": {
+      "nativeElement": "button",
+      "defaults": {
+        "size": "md",
+        "variant": "outline",
+        "type": "button",
+        "disabled": false,
+        "defaultPressed": false
+      },
+      "capabilities": ["pressed", "size", "appearance", "content", "disabled", "wiring"],
+      "states": ["default", "hover", "active", "focus-visible", "pressed", "disabled"],
+      "parts": ["root", "icon", "label"]
+    }
+  },
+  "scenarios": {
+    "toggle": [
+      "playground",
+      "pressed",
+      "variant",
+      "sizes",
+      "iconOnly",
+      "states",
+      "toolbar",
+      "content",
+      "composition",
+      "keyboard",
+      "versus"
+    ]
+  }
+}

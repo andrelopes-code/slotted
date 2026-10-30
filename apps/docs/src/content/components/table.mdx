@@ -1,0 +1,120 @@
+---
+title: Table
+description: A native HTML table for records a reader compares across columns, with sorting, column filters, row selection, expandable rows, sticky edges and the loading and empty states around them.
+---
+
+<Example name="basic" wide />
+
+<Installation />
+
+## Table or data grid
+
+A table is a document structure: every control inside it, a sort button, a checkbox or an expander, is its own Tab stop, and the arrow keys scroll the page or the table rather than move between cells. Use it for listings, reports and records that a reader reads and acts on row by row. Use the data grid when the reader moves between cells with the arrow keys, edits a spreadsheet of values, or the set runs to thousands of rows that need virtualization.
+
+## Variants
+
+`variant` sets how much of the box the table draws. `plain` draws no frame and no rules, for a table inside a card that already draws one. `ruled`, the default, draws a rule between rows and none around the set. `framed` draws a border and a radius around the table and its footer, which is the form a listing screen takes.
+
+<Example name="variants" wide />
+
+## Striped rows
+
+`striped` tints every other row, which carries the eye across a wide row. Hover, selection and focus paint over the stripe, so a striped row that is selected still reads as selected.
+
+<Example name="striped" wide />
+
+## Alignment and numbers
+
+`numeric` on a header and its cells aligns the column to the end and sets tabular figures, so amounts line up digit under digit. `align` places any other column at `start`, `center` or `end`; set it on the header and on each cell of the column.
+
+<Example name="alignment" wide />
+
+## Long text
+
+`text` decides what a cell does with text longer than its column: `wrap` (the default) breaks it onto more lines, `truncate` cuts it with an ellipsis on one line, and `nowrap` keeps it on one line and widens the column. `layout="fixed"` gives every column the same share of the width instead of sizing columns by their content.
+
+<Example name="text" wide />
+
+## Sorting
+
+Put a `TableSort` (`slTableSort` in Angular) in each header that sorts, and give the header a `column`. Pressing it moves through ascending, descending and back to unsorted. The table holds the sort state and reports it through `onSortChange` (`[(sort)]` in Angular); the rows are yours to sort, so the order matches whatever your query does.
+
+<Example name="sorting" wide />
+
+## Column filters
+
+A filter sits in the header of the column it filters, inside `TableColumnActions`. `TableSetFilter` lists the values the column holds, with the counts you supply; ticking values edits a draft, and only Apply reports the new filter, so one query runs for several changes. Escape or a press outside restores the filter the panel opened with. Past eight values the panel adds a search field. The table filters nothing itself: `createFilterPredicate` from `@slotted/core/filter` turns the reported filter into a test for your rows.
+
+<Example name="filter" wide />
+
+## Selecting rows
+
+`selectionMode="multiple"` with `TableSelectAll` in the header and `TableSelect` in each row gives every row a checkbox. Hold Shift and press a second checkbox to select the rows between the two. A `disabled` row cannot be selected and stays out of what the header checkbox covers. The selection is the list of row `value`s, reported through `onValueChange` (`[(value)]` in Angular).
+
+<Example name="selection" wide />
+
+## Choosing one row
+
+`selectionMode="single"` draws a radio in each row instead of a checkbox, for a choice among records such as a shipping rate. Leave the header cell above the radios empty.
+
+<Example name="single-selection" wide />
+
+## Expandable rows
+
+A `TableExpander` in a cell toggles the `TableDetail` row with the same `value`, which spans every column. The detail row is not rendered while it is closed. `defaultExpanded` opens rows on the first render; `expanded` with `onExpandedChange` (`[(expanded)]` in Angular) controls them.
+
+<Example name="expansion" wide />
+
+## Horizontal scroll
+
+A table wider than its container scrolls inside its own region instead of widening the page. While it overflows, the region is named and takes a Tab stop, so a keyboard reader can scroll it with the arrow keys. `sticky="start"` on the first header and on each row header keeps the identifying column in view.
+
+<Example name="scroll" wide />
+
+## Sticky header and totals
+
+`stickyHeader` keeps the header row in view while the rows scroll, and `stickyFooter` does the same for a `TableSummary` (`tfoot`) of totals. With a height on the scroll region, the header sticks to the table's own scroller, which is the form a drawer or a dialog needs; `stickyTo="page"` sticks it to the page instead.
+
+<Example name="sticky" wide />
+
+## Pagination
+
+`TableFooter` holds a bar under the table and inside its frame, where it does not scroll sideways with the columns. When the rows on screen are part of a larger set, `totalRowCount` on the content and `rowIndex` on each row tell assistive technology where the page sits in the whole.
+
+<Example name="pagination" wide />
+
+## First load
+
+`TableLoader` draws skeleton rows in place of the body while the first rows load, so the page does not jump when they arrive. The skeleton rows are hidden from assistive technology.
+
+<Example name="loading" wide />
+
+## Refreshing
+
+`loading` on a table that already shows rows dims the body and sets `aria-busy`, so every column keeps its width and the reader keeps their place while the new rows load. Press Refresh to see it.
+
+<Example name="refreshing" wide />
+
+## Empty
+
+`TableEmpty` is one cell that spans every column, in a row of its own: the React part writes the row, and Angular's `td[slTableEmpty]` goes inside a `tr`. Put a result state in it: `status="empty"` for a set with nothing in it yet, `status="no-results"` for a set a filter emptied.
+
+<Example name="empty" wide />
+
+## Rich cells
+
+A cell holds any content: a link to the record, an avatar beside a name, a status indicator. Put the link in the row header, so the record's name is the link a reader follows.
+
+<Example name="content" wide />
+
+## Editing in place
+
+A control with `variant="plain"` and `size="sm"` takes the cell's own padding and the row's height, so a row does not grow when it becomes editable. Give each control a label that names its row, because the column header alone does not say which record it edits.
+
+<Example name="editing" wide />
+
+## Recipe: orders list
+
+A listing screen composes the parts above: sortable columns, a status filter that returns to the first page, row selection with a bulk action in the footer, and pagination over the filtered set.
+
+<Example name="orders-list" wide />

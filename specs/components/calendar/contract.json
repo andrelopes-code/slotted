@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 5,
+  "family": "calendar",
+  "ui": "calendar",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Month grid for choosing a date or a range."
+  },
+  "controlPart": "grid",
+  "controlRole": "grid",
+  "rootRole": null,
+  "gridElement": "table",
+  "impliedRoles": ["row", "columnheader", "rowheader", "gridcell"],
+  "valueType": "PlainDate | PlainDate[] | { start: PlainDate | null, end: PlainDate | null } | null",
+  "core": [
+    "@slotted/core/date",
+    "@slotted/core/state",
+    "@slotted/core/focus",
+    "@slotted/core/live-announcer"
+  ],
+  "focusModel": "roving tabindex over the cells; exactly one cell in the tab sequence",
+  "wiring": {
+    "aria-labelledby": "heading",
+    "aria-live": "heading is polite",
+    "abbr": "the full weekday name on every column header",
+    "aria-disabled": "an unavailable date, which stays focusable",
+    "aria-selected": "a chosen cell"
+  },
+  "keyboard": [
+    { "key": "ArrowUp", "effect": "move", "by": "-1 week", "pagesWhenLeaving": true },
+    { "key": "ArrowDown", "effect": "move", "by": "1 week", "pagesWhenLeaving": true },
+    { "key": "ArrowLeft", "effect": "move", "by": "-1 day", "mirroredInRtl": true },
+    { "key": "ArrowRight", "effect": "move", "by": "1 day", "mirroredInRtl": true },
+    { "key": "Home", "effect": "move", "to": "first day of the displayed week" },
+    { "key": "End", "effect": "move", "to": "last day of the displayed week" },
+    { "key": "PageUp", "effect": "page", "by": "-1 month", "clampsDay": true },
+    { "key": "PageDown", "effect": "page", "by": "1 month", "clampsDay": true },
+    { "key": "Shift+PageUp", "effect": "page", "by": "-1 year", "clampsDay": true },
+    { "key": "Shift+PageDown", "effect": "page", "by": "1 year", "clampsDay": true },
+    { "key": "Enter", "effect": "select" },
+    { "key": "Space", "effect": "select" },
+    {
+      "key": "Escape",
+      "effect": "view",
+      "to": "one view down",
+      "onlyWhen": "the view is month or year"
+    }
+  ],
+  "views": {
+    "order": ["day", "month", "year"],
+    "reachedBy": "the heading",
+    "columns": { "day": 7, "month": 4, "year": 4 },
+    "page": { "day": "1 month", "month": "1 year", "year": "12 years" }
+  },
+  "announce": {
+    "headingChange": "polite, from the heading's own live region",
+    "clampedStep": "polite, naming the date a short month pulled the day back to"
+  },
+  "unavailable": {
+    "attribute": "aria-disabled",
+    "focusable": true,
+    "selectable": false,
+    "evaluatedOncePerVisibleCell": true
+  },
+  "range": {
+    "min": "min",
+    "max": "max",
+    "unavailable": "isDateUnavailable"
+  },
+  "axes": {
+    "months": ["1", "2", "3"],
+    "selectionMode": ["single", "range", "multiple"],
+    "view": ["day", "month", "year"],
+    "calendar": ["gregory"],
+    "weekNumbers": ["off", "on"],
+    "fixedWeeks": ["off", "on"],
+    "outsideDays": ["shown", "selectable", "hidden"]
+  },
+  "resolution": {
+    "months": ["prop", "defaults", "1"],
+    "selectionMode": ["prop", "defaults", "single"],
+    "view": ["prop", "defaults", "day"],
+    "weekNumbers": ["prop", "defaults", "off"],
+    "fixedWeeks": ["prop", "defaults", "off"],
+    "outsideDays": ["prop", "defaults", "shown with one month, hidden with more"],
+    "locale": ["prop", "slotted", "en-US"],
+    "timeZone": ["prop", "defaults", "runtime"],
+    "firstDayOfWeek": ["prop", "defaults", "locale"],
+    "calendar": ["prop", "defaults", "gregory"]
+  },
+  "provides": {
+    "calendarDefaults": [
+      "calendar",
+      "firstDayOfWeek",
+      "fixedWeeks",
+      "months",
+      "outsideDays",
+      "timeZone",
+      "weekNumbers"
+    ]
+  },
+  "messages": [
+    "nextMonth",
+    "previousMonth",
+    "nextYear",
+    "previousYear",
+    "nextYears",
+    "previousYears",
+    "markCount",
+    "marked"
+  ],
+  "marks": "marks, keyed by ISO date, draws a mark part inside that day: a dot in the row today's dot reserves, in the mark's tone (accent, info, success, warning, danger; the day's ink when chosen), and a visually hidden ', N items' (markCount) or ', has items' (marked) after the number, so the day's accessible name says it. It composes with every selection mode, min, max and outsideDays; a hidden outside day draws none",
+  "imperative": ["focus", "focusDate"],
+  "container": {
+    "name": "slotted-calendar",
+    "on": "root",
+    "breakpoints": [320],
+    "reflow": "the cell is 100cqi divided by the columns, bounded above by the control height and below by --slotted-target-min, so it shrinks continuously rather than at a step; a second month that no longer fits wraps under the first rather than being withdrawn; below 320px the months close up one space step",
+    "hidesNothing": true,
+    "why": "A literal threshold cannot be right at three densities: seven comfortable columns are 238px and seven dense ones 182px, so any number that fits one shrinks the other while it still had room. CSS forbids a custom property in a container condition, which is what makes the arithmetic the answer and the query the exception."
+  },
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "readonly": "data-readonly",
+    "invalid": "data-invalid",
+    "selected": "data-selected"
+  },
+  "dataAttributes": {
+    "data-today": "the day the reader's own zone is on, marked apart from selection",
+    "data-outside-month": "a day belonging to the month either side",
+    "data-unavailable": "refused by the predicate",
+    "data-range-start": "the first date of a range",
+    "data-range-end": "the last date of a range",
+    "data-in-range": "a date between the two",
+    "data-preview": "beside one of the three range attributes: the band runs to the pending end, not to a chosen one",
+    "data-view": "which of day, month or year the calendar is showing"
+  },
+  "preview": {
+    "pendingEnd": "in range mode, while the run has one end: the day under the pointer, or the focused day when no pointer is over the grid",
+    "reportedBy": "onPreviewChange",
+    "notAModel": "a fact the grid states, like onViewChange; the consumer does not own it"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "clear", "programmatic"],
+      "carries": ["value", "previous", "reason", "event"]
+    },
+    "current": {
+      "controlled": "focusedDate",
+      "uncontrolled": "defaultFocusedDate",
+      "request": "onFocusedDateChange",
+      "reasons": ["pointer", "keyboard", "programmatic"],
+      "carries": ["value", "previous", "reason", "event"]
+    }
+  },
+  "literals": {
+    "--slotted-calendar-cell-size": "A cell is square and its side is the control height, so a day reads to the same rhythm as the buttons above it; the family divides the room it has by the columns it draws and bounds the result by that height and by --slotted-target-min, which is arithmetic over tokens rather than a literal.",
+    "columnCounts": "7, 4 and 4 are the column counts of the three views. They are the shape of a week and of a page of months, not a value a theme retunes, so they are written in the stylesheet as numbers."
+  },
+  "members": {
+    "calendar": {
+      "nativeElement": "div",
+      "defaults": {
+        "months": 1,
+        "selectionMode": "single",
+        "view": "day",
+        "calendar": "gregory",
+        "weekNumbers": false,
+        "fixedWeeks": false,
+        "outsideDays": "shown"
+      },
+      "capabilities": [
+        "value",
+        "current",
+        "appearance",
+        "content",
+        "disabled",
+        "readOnly",
+        "invalid",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "readonly",
+        "invalid",
+        "selected"
+      ],
+      "parts": [
+        "root",
+        "header",
+        "previous",
+        "next",
+        "heading",
+        "grids",
+        "grid",
+        "grid-caption",
+        "week-headers",
+        "week-header",
+        "week",
+        "week-number",
+        "cell",
+        "day",
+        "mark",
+        "months",
+        "years",
+        "period"
+      ]
+    }
+  },
+  "scenarios": {
+    "calendar": [
+      "playground",
+      "selection",
+      "range",
+      "views",
+      "months",
+      "locale",
+      "range-bounds",
+      "unavailable",
+      "week-numbers",
+      "states",
+      "density",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

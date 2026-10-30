@@ -1,0 +1,420 @@
+<!--
+  The target is the family's one part; the surface is `menu`, whose stylesheet
+  the builder adds because `data-ui="menu"` appears below. Scenes carrying
+  `data-fixed` place the layer where `packages/core/src/positioner` would have
+  put it: its start corner on the point the reader pressed, with
+  `inset-inline-start` rather than `left` so the scene mirrors in a right-to-left
+  capture, and clamped to the stage the way `shift` would move it at 240 pixels.
+
+  The domain is a document library: tiles and rows of files, each with the
+  commands a reader expects on a secondary click.
+-->
+<section data-scene="anatomy" data-fixed>
+  <div style="position: relative; padding: 16px 16px 240px">
+    <div
+      data-ui="context-menu"
+      data-ui-context-menu=""
+      data-part="root"
+      data-part-root=""
+      data-open
+      id="context-menu-anatomy-target"
+      tabindex="0"
+      style="
+        display: grid;
+        gap: 4px;
+        inline-size: 12rem;
+        padding: 12px;
+        border: 1px solid var(--slotted-border-subtle);
+        border-radius: 8px;
+        background: var(--slotted-surface-raised);
+        font-family: var(--slotted-font-family-sans);
+        font-size: 13px;
+        color: var(--slotted-text);
+      "
+    >
+      <div
+        aria-hidden="true"
+        style="
+          block-size: 72px;
+          border-radius: 4px;
+          background: var(--slotted-surface-sunken);
+          border: 1px solid var(--slotted-border-subtle);
+        "
+      ></div>
+      <strong style="font-weight: 500">Q3 board deck.pdf</strong>
+      <span style="color: var(--slotted-text-muted); font-size: 12px"
+        >4.2 MB · edited yesterday</span
+      >
+    </div>
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-open
+      style="
+        top: 96px;
+        inset-inline-start: clamp(8px, 118px, calc(100% - 16rem - 8px));
+        --slotted-positioner-available-width: calc(100% - 16px);
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <div
+        data-part="content"
+        data-part-content=""
+        role="menu"
+        aria-labelledby="context-menu-anatomy-target"
+        tabindex="-1"
+      >
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Open</span>
+          <span data-part="shortcut" data-part-shortcut="">↵</span>
+        </button>
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Open in new tab</span>
+          <span data-part="shortcut" data-part-shortcut="">⌘↵</span>
+        </button>
+        <hr
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="horizontal"
+        />
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Rename</span>
+          <span data-part="shortcut" data-part-shortcut="">F2</span>
+        </button>
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="icon" data-part-icon=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="copy"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Duplicate</span>
+          <span data-part="shortcut" data-part-shortcut="">⌘D</span>
+        </button>
+        <button
+          data-part="item"
+          data-part-item=""
+          role="menuitem"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+        >
+          <span data-part="label" data-part-label="">Move to</span>
+          <span
+            data-ui="icon"
+            data-ui-icon=""
+            data-part="root"
+            data-part-root=""
+            data-directional
+            aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-right"></svg
+          ></span>
+        </button>
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Download</span>
+        </button>
+        <hr
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="horizontal"
+        />
+        <button data-part="item" data-part-item="" role="menuitem" type="button" data-tone="danger">
+          <span data-part="icon" data-part-icon=""
+            ><span
+              data-ui="icon"
+              data-ui-icon=""
+              data-part="root"
+              data-part-root=""
+              aria-hidden="true"
+              ><svg data-part="glyph" data-part-glyph="" data-glyph="x"></svg></span
+          ></span>
+          <span data-part="label" data-part-label="">Move to trash</span>
+          <span data-part="shortcut" data-part-shortcut="">⌫</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  The four states of the target beside each other. `pressed` is the long press
+  in flight: nothing is painted, and text selection is off. `open` draws the
+  inward mark. `disabled` paints nothing either — the browser's own menu is the
+  one that will open, and a region that looked disabled would say the wrong
+  thing about content that still works.
+-->
+<section data-scene="states">
+  <div
+    style="
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+      gap: 12px;
+      padding: 12px;
+      font-family: var(--slotted-font-family-sans);
+      font-size: 13px;
+      color: var(--slotted-text);
+    "
+  >
+    <div
+      data-ui="context-menu"
+      data-ui-context-menu=""
+      data-part="root"
+      data-part-root=""
+      style="
+        padding: 12px;
+        border: 1px solid var(--slotted-border-subtle);
+        border-radius: 8px;
+        background: var(--slotted-surface-raised);
+      "
+    >
+      <strong style="font-weight: 500; display: block">Roadmap.fig</strong>
+      <span style="color: var(--slotted-text-muted); font-size: 12px">rest</span>
+    </div>
+    <div
+      data-ui="context-menu"
+      data-ui-context-menu=""
+      data-part="root"
+      data-part-root=""
+      data-pressed
+      style="
+        padding: 12px;
+        border: 1px solid var(--slotted-border-subtle);
+        border-radius: 8px;
+        background: var(--slotted-surface-raised);
+      "
+    >
+      <strong style="font-weight: 500; display: block">Hiring plan.xlsx</strong>
+      <span style="color: var(--slotted-text-muted); font-size: 12px">pressed</span>
+    </div>
+    <div
+      data-ui="context-menu"
+      data-ui-context-menu=""
+      data-part="root"
+      data-part-root=""
+      data-open
+      style="
+        padding: 12px;
+        border: 1px solid var(--slotted-border-subtle);
+        border-radius: 8px;
+        background: var(--slotted-surface-raised);
+      "
+    >
+      <strong style="font-weight: 500; display: block">Brand book.pdf</strong>
+      <span style="color: var(--slotted-text-muted); font-size: 12px">open</span>
+    </div>
+    <div
+      data-ui="context-menu"
+      data-ui-context-menu=""
+      data-part="root"
+      data-part-root=""
+      data-disabled
+      style="
+        padding: 12px;
+        border: 1px solid var(--slotted-border-subtle);
+        border-radius: 8px;
+        background: var(--slotted-surface-raised);
+      "
+    >
+      <strong style="font-weight: 500; display: block">Archive 2023.zip</strong>
+      <span style="color: var(--slotted-text-muted); font-size: 12px">disabled</span>
+    </div>
+  </div>
+</section>
+
+<!--
+  One menu for many rows. Each row is a target; the one whose menu is showing
+  carries the mark, and the surface's start corner sits on the point pressed in
+  it. The rows are plain here — `table` is the family that draws real ones — so
+  the mark is read against a square corner, which is where it is most often
+  seen.
+-->
+<section data-scene="rows" data-fixed>
+  <div
+    style="
+      position: relative;
+      padding: 12px 12px 200px;
+      font-family: var(--slotted-font-family-sans);
+      font-size: 13px;
+      color: var(--slotted-text);
+    "
+  >
+    <div
+      style="
+        border: 1px solid var(--slotted-border-subtle);
+        border-radius: 8px;
+        background: var(--slotted-surface-raised);
+        overflow: clip;
+      "
+    >
+      <div
+        data-ui="context-menu"
+        data-ui-context-menu=""
+        data-part="root"
+        data-part-root=""
+        style="
+          display: grid;
+          grid-template-columns: 1fr auto auto;
+          gap: 16px;
+          padding: 10px 12px;
+          border-block-end: 1px solid var(--slotted-border-subtle);
+        "
+      >
+        <span>Invoice 2026-0412.pdf</span>
+        <span style="color: var(--slotted-text-muted)">312 KB</span>
+        <span style="color: var(--slotted-text-muted)">Today</span>
+      </div>
+      <div
+        data-ui="context-menu"
+        data-ui-context-menu=""
+        data-part="root"
+        data-part-root=""
+        data-open
+        style="
+          display: grid;
+          grid-template-columns: 1fr auto auto;
+          gap: 16px;
+          padding: 10px 12px;
+          border-block-end: 1px solid var(--slotted-border-subtle);
+        "
+      >
+        <span>Supplier contract — Meridian.docx</span>
+        <span style="color: var(--slotted-text-muted)">1.8 MB</span>
+        <span style="color: var(--slotted-text-muted)">Yesterday</span>
+      </div>
+      <div
+        data-ui="context-menu"
+        data-ui-context-menu=""
+        data-part="root"
+        data-part-root=""
+        style="display: grid; grid-template-columns: 1fr auto auto; gap: 16px; padding: 10px 12px"
+      >
+        <span>Onboarding checklist.md</span>
+        <span style="color: var(--slotted-text-muted)">9 KB</span>
+        <span style="color: var(--slotted-text-muted)">Mar 3</span>
+      </div>
+    </div>
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-open
+      style="
+        top: 74px;
+        inset-inline-start: clamp(8px, 140px, calc(100% - 16rem - 8px));
+        --slotted-positioner-available-width: calc(100% - 16px);
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <div
+        data-part="content"
+        data-part-content=""
+        role="menu"
+        aria-label="Supplier contract — Meridian.docx"
+        tabindex="-1"
+      >
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Open</span>
+        </button>
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Share…</span>
+        </button>
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Download</span>
+        </button>
+        <hr
+          data-part="separator"
+          data-part-separator=""
+          role="separator"
+          aria-orientation="horizontal"
+        />
+        <button data-part="item" data-part-item="" role="menuitem" type="button" data-tone="danger">
+          <span data-part="label" data-part-label="">Move to trash</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  Opened from the keyboard: `Shift+F10` on the focused tile. The menu is
+  anchored to the target rather than to a point, so it hangs from the tile's
+  start corner, and the focus ring is photographed with
+  `shoot.mjs --focus "[data-scene='keyboard'] [data-ui='context-menu']"`.
+-->
+<section data-scene="keyboard" data-fixed>
+  <div style="position: relative; padding: 16px 16px 200px">
+    <div
+      data-ui="context-menu"
+      data-ui-context-menu=""
+      data-part="root"
+      data-part-root=""
+      tabindex="0"
+      style="
+        display: grid;
+        gap: 4px;
+        inline-size: 12rem;
+        padding: 12px;
+        border: 1px solid var(--slotted-border-subtle);
+        border-radius: 8px;
+        background: var(--slotted-surface-raised);
+        font-family: var(--slotted-font-family-sans);
+        font-size: 13px;
+        color: var(--slotted-text);
+      "
+    >
+      <strong style="font-weight: 500">Release notes 4.2.md</strong>
+      <span style="color: var(--slotted-text-muted); font-size: 12px"
+        >12 KB · edited 3 days ago</span
+      >
+    </div>
+    <div
+      data-ui="menu"
+      data-ui-menu=""
+      data-part="root"
+      data-part-root=""
+      data-side="bottom"
+      data-align="start"
+      data-size="md"
+      data-open
+      style="
+        top: 82px;
+        inset-inline-start: clamp(8px, 16px, calc(100% - 16rem - 8px));
+        --slotted-positioner-available-width: calc(100% - 16px);
+        --slotted-positioner-transform-origin: left top;
+      "
+    >
+      <div
+        data-part="content"
+        data-part-content=""
+        role="menu"
+        aria-label="Release notes 4.2.md"
+        tabindex="-1"
+      >
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Open</span>
+        </button>
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Rename</span>
+          <span data-part="shortcut" data-part-shortcut="">F2</span>
+        </button>
+        <button data-part="item" data-part-item="" role="menuitem" type="button">
+          <span data-part="label" data-part-label="">Download</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

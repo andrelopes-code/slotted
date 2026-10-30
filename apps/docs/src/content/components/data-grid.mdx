@@ -1,0 +1,138 @@
+---
+title: Data grid
+description: An interactive grid for large record sets, driven by column definitions, with keyboard navigation between cells, sorting, filtering, search, selection, cell editing, grouping, trees and virtualized rows.
+---
+
+<Example name="basic" wide />
+
+<Installation />
+
+## Data grid or table
+
+A data grid is one composite widget: Tab enters it on one cell, and the arrow keys move between cells, rows and the header. It applies the sort, the filter and the search itself, and it mounts only the rows in view. Use it for working sets a reader navigates, edits or selects in. Use the table when the content is a document: a report, a short listing, a summary inside a page, where each control is its own Tab stop.
+
+## Columns
+
+`columns` is a list of `GridColumn` definitions from `@slotted/core/grid`, the same object in React and Angular. `accessor` reads the value from the row, `format` turns it into the text a cell shows, and `kind` (`text`, `number`, `date`, `datetime`, `boolean`, `set`) decides how the column sorts, filters and edits. `width` fixes a column, `flex` shares the space left over, and `rowHeader` marks the column that names each row.
+
+<Example name="columns" wide />
+
+## Column groups
+
+`columnGroups` draws a header row above the column headers, with one cell spanning each group of columns. A group names its columns by `id`.
+
+<Example name="column-groups" wide />
+
+## Sorting
+
+Press a header to sort by that column; press again to reverse it and a third time to clear it. Shift+Enter on a header adds the column to the sort order instead of replacing it. The sort is part of the query: `query` with `onQueryChange` (`[(query)]` in Angular) holds sort, filter, search, grouping and paging as one object.
+
+<Example name="sorting" wide />
+
+## Filter row
+
+`filterRow` adds a row of operands under the headers, one per column, with the control its `kind` calls for: a text field, a number field, a date picker, a yes-or-no select or a multi-select of the column's `options`. `withColumnFilter` from `@slotted/core/grid` builds a query with a filter already applied.
+
+<Example name="filter-row" wide />
+
+## Search
+
+The query's `search` matches every column marked `searchable`, which is every column by default in client mode. Put the search field outside the grid and write its text into the query with `withSearch`.
+
+<Example name="search" wide />
+
+## Selecting rows
+
+`selectionMode="multiple"` draws a checkbox column. Shift+Space toggles the current row, Shift extends from the anchor row, and Ctrl+A selects every row the query left. Keys in `disabledKeys` cannot be selected. `value` with `onValueChange` (`[(value)]` in Angular) holds the selected row keys. `footer` (`slDataGridFooter` in Angular) adds a bar under the grid.
+
+<Example name="selection" wide />
+
+## Selecting a range
+
+`selectionMode="range"` selects a rectangle of cells, the way a spreadsheet does: Shift and the arrow keys extend it from the anchor, a pointer drag sets it, and Ctrl+C copies it as tab-separated text that pastes into a spreadsheet.
+
+<Example name="range" wide />
+
+## Editing cells
+
+A column with `editable: true` opens an editor on Enter, F2, a double press, or a typed character. Enter commits and moves one row down, Tab commits and moves to the next editable cell, Escape cancels. `validate` returns the message shown while a draft is invalid. The grid does not change your rows: `onEditCommit` (`(editCommit)` in Angular) reports the row key and the changed values, and you write them back.
+
+<Example name="editing" wide />
+
+## Editing rows
+
+`editMode="row"` opens every editable cell of the row at once, with Save and Cancel in an actions column. Tab moves between the row's editors, Enter commits the row and Escape cancels it, for records whose fields are checked as a whole.
+
+<Example name="editing-row" wide />
+
+## Pinning, resizing and reordering
+
+`defaultColumnState` sets where columns start: `pinned.start` and `pinned.end` keep columns in view while the others scroll, and `widths` sets starting widths. Columns resize by dragging the edge of the header, or with Ctrl+Shift+ArrowLeft and Ctrl+Shift+ArrowRight on a header, and reorder by dragging the header, or with Alt+ArrowLeft and Alt+ArrowRight. `columnState` with `onColumnStateChange` holds the result.
+
+<Example name="column-state" wide />
+
+## Grouping
+
+`group` in the query lists the columns rows are grouped by, one level per column. Each group row shows its value and how many rows it holds, and groups start open; ArrowLeft closes a group and ArrowRight opens it. A column with an `aggregate` also shows its total on each group row.
+
+<Example name="grouping" wide />
+
+## Totals
+
+`aggregate` on a column (`sum`, `avg`, `min`, `max`, `count`, or a function of the values) adds a summary row with that column's total over the rows the query left.
+
+<Example name="summary" wide />
+
+## Row details
+
+`renderDetail` (an `slDataGridDetail` template in Angular) adds an expander to each row and draws the detail under it. `defaultExpanded` opens rows on the first render.
+
+<Example name="detail" wide />
+
+## Trees
+
+`tree` with a `parentKey` function turns flat rows into a hierarchy: each row with children gets an expander in its first column, and the levels indent under it. `onLoadChildren` with `hasChildren` loads a level when it is first opened.
+
+<Example name="tree" wide />
+
+## Ten thousand rows
+
+The grid mounts only the rows and columns in view, so a set of ten thousand rows scrolls the same as a set of twenty. Sorting, filtering and selection cover every row, mounted or not.
+
+<Example name="virtualization" wide />
+
+## Empty
+
+A grid with no rows shows a result state in place of the body. When a filter or a search left no rows, the message says so and offers to clear them.
+
+<Example name="empty" wide />
+
+## Load error
+
+`error` replaces the body with the message, and `onRetry` (`(retry)` in Angular) adds a Try again button.
+
+<Example name="error" wide />
+
+## Loading
+
+`loading` with no rows draws skeleton rows as wide as the visible columns. Over rows already shown, it dims the body and sets `aria-busy`, and nothing moves.
+
+<Example name="loading" wide />
+
+## Rich cells
+
+`cellRenderers` (an `slDataGridCell="<column id>"` template in Angular) replaces what one column's cells draw, with the row and the value in hand. The column keeps its sort, filter and search, which read the value rather than what the cell draws.
+
+<Example name="content" wide />
+
+## Opening a row
+
+`activatable` with `onActivate` (`(activate)` in Angular) reports a double press on a row, or Enter on its text cell, so a row can open its record.
+
+<Example name="activation" wide />
+
+## Recipe: shipments workspace
+
+A search field writes into the query, the grid selects rows, and the footer holds the bulk action for the selection.
+
+<Example name="shipments-workspace" wide />

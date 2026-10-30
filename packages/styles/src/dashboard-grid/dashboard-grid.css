@@ -1,0 +1,853 @@
+@layer slotted.components {
+  /**
+   * A surface of widgets the reader places and sizes. The root is the
+   * container the size class is read from and the grid is the `ul` one element
+   * in, because a container query changes the tracks of the grid and an
+   * element is never its own query container (the briefing's rule, after
+   * `stepper` and `description-list`).
+   *
+   * Script writes each widget's cell and size as whole numbers it computed from
+   * the layout; the stylesheet places them and picks the class. Nothing is
+   * measured for placement, so a server render and the first client render are
+   * the same picture.
+   *
+   * The family paints no ground of its own. A dashboard stands on the page's
+   * sunken surface, with each widget a raised card on it; the page decides
+   * that ground, and every mark below is drawn to read on it.
+   */
+  [data-ui-dashboard-grid] {
+    --_gap: var(--slotted-dashboard-grid-gap, var(--slotted-space-6, 1rem));
+    --_row: var(--slotted-dashboard-grid-row-size, 4.5rem);
+    --_cols: var(--_dg-columns-expanded, 12);
+    --_radius: var(--slotted-card-radius, var(--slotted-radius-lg, 8px));
+    --_accent: var(--slotted-dashboard-grid-accent, var(--slotted-tone-accent-solid, Highlight));
+
+    container: dashboard-grid / inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: var(--_gap);
+    min-inline-size: 0;
+  }
+
+  /**
+   * A row is the unit a reader moves and resizes by; the tracks are twelve
+   * times finer (`DASHBOARD_SUBROWS` in `@slotted/core/dashboard-grid`), so a
+   * widget sized by its content ends within a twelfth of a row's step of it.
+   * The tracks have no gap between them: each widget draws the gap as its
+   * margin below, inside its own cells, and the grid takes the last one back.
+   * A widget of `h` rows is `h` rows and `h - 1` gaps tall, as before.
+   */
+  [data-ui-dashboard-grid] > [data-part-grid] {
+    column-gap: var(--_gap);
+    display: grid;
+    grid-auto-rows: calc((var(--_row) + var(--_gap)) / 12);
+    margin-block-end: calc(-1 * var(--_gap));
+    row-gap: 0;
+    grid-template-columns: repeat(var(--_cols), minmax(0, 1fr));
+    list-style: none;
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+    /* The containing block of a widget lifted out of its cell. */
+    position: relative;
+  }
+
+  /* `display: grid` above would otherwise override the attribute. */
+  [data-ui-dashboard-grid] [data-part-grid][hidden],
+  [data-ui-dashboard-grid] [data-part-widget][hidden] {
+    display: none;
+  }
+
+  /**
+   * In the expanded class every widget stands at its own cell. The DOM holds
+   * them by row, then column, so the order a reader walks is the picture's.
+   */
+  [data-ui-dashboard-grid] :is([data-part-widget], [data-part-placeholder]) {
+    grid-column: var(--_dg-x, auto) / span var(--_dg-w, 4);
+    grid-row: var(--_dg-y, auto) / span var(--_dg-h, 24);
+    margin-block-end: var(--_gap);
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+
+  [data-ui-dashboard-grid] [data-part-widget] {
+    display: flex;
+    position: relative;
+  }
+
+  /**
+   * The medium class flows the same order, each widget a half or the whole
+   * of the row; its height stays in rows. The compact class is one
+   * column whose widgets are as tall as their content, the way a phone reads a
+   * dashboard. Once the binding has measured the grid it writes the class on
+   * the root (`data-size-class`, from `expandedFrom`), and the rules follow
+   * the attribute. Before that the container queries draw the classes at the
+   * thresholds of §2.7, literal because CSS refuses a custom property in a
+   * container condition.
+   */
+  @container dashboard-grid (width < 1024px) {
+    [data-ui-dashboard-grid]:not([data-size-class]) > [data-part-grid] {
+      --_cols: var(--_dg-columns-medium, 6);
+    }
+
+    [data-ui-dashboard-grid]:not([data-size-class])
+      :is([data-part-widget], [data-part-placeholder]) {
+      grid-column: auto / span var(--_dg-span-medium, 3);
+      grid-row: auto / span var(--_dg-h, 24);
+    }
+  }
+
+  [data-ui-dashboard-grid]:is([data-size-class='medium'], [data-size-class='compact'])
+    > [data-part-grid] {
+    --_cols: var(--_dg-columns-medium, 6);
+  }
+
+  [data-ui-dashboard-grid]:is([data-size-class='medium'], [data-size-class='compact'])
+    :is([data-part-widget], [data-part-placeholder]) {
+    grid-column: auto / span var(--_dg-span-medium, 3);
+    grid-row: auto / span var(--_dg-h, 24);
+  }
+
+  @container dashboard-grid (width < 600px) {
+    [data-ui-dashboard-grid]:not([data-size-class]) > [data-part-grid] {
+      --_cols: var(--_dg-columns-compact, 1);
+
+      grid-auto-rows: auto;
+    }
+
+    [data-ui-dashboard-grid]:not([data-size-class])
+      :is([data-part-widget], [data-part-placeholder]) {
+      grid-column: 1 / -1;
+      grid-row: auto;
+    }
+
+    [data-ui-dashboard-grid]:not([data-size-class]) [data-part-placeholder] {
+      min-block-size: calc(var(--_row) * 2);
+    }
+  }
+
+  [data-ui-dashboard-grid][data-size-class='compact'] > [data-part-grid] {
+    --_cols: var(--_dg-columns-compact, 1);
+
+    grid-auto-rows: auto;
+  }
+
+  [data-ui-dashboard-grid][data-size-class='compact']
+    :is([data-part-widget], [data-part-placeholder]) {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  [data-ui-dashboard-grid][data-size-class='compact'] [data-part-placeholder] {
+    min-block-size: calc(var(--_row) * 2);
+  }
+
+  /* ── The widget ──────────────────────────────────────────────────────── */
+
+  /**
+   * The widget is a card that fills its cell, and its content fills the
+   * card: a body taller than the cell scrolls inside it, and a body shorter
+   * than the cell grows into it, so a chart or a figure uses the height the
+   * reader gave the widget rather than stopping at its own size step.
+   */
+  [data-ui-dashboard-grid] [data-part-widget] > [data-ui-card] {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    min-inline-size: 0;
+    transition: box-shadow var(--slotted-duration-medium) var(--slotted-easing-standard);
+  }
+
+  [data-ui-dashboard-grid] [data-part-widget] > [data-ui-card] > [data-part-body] {
+    /* A chart's plot takes whatever height the widget leaves it, down to a
+       floor of one and a half rows, instead of its own size step: the
+       reader sizes a widget, and every step answers to that size. */
+    --slotted-chart-plot-block-size: calc(var(--_row) * 1.5);
+    --slotted-chart-plot-block-size-sm: calc(var(--_row) * 1.5);
+    --slotted-chart-plot-block-size-lg: calc(var(--_row) * 1.5);
+
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    position: relative;
+  }
+
+  /* The content grows into a taller cell and never shrinks under its own
+     height: shrunk, it overflowed its own box, and the body scrolled only that
+     overflow, so its last rows and the end padding stayed out of reach. */
+  [data-ui-dashboard-grid]
+    [data-part-widget]
+    > [data-ui-card]
+    > [data-part-body]
+    > :not([data-part-busy-indicator]) {
+    flex: 1 0 auto;
+  }
+
+  /* A widget sized by its content is measured by it: what its body holds
+     keeps its own height, and the cell is that height to a twelfth of a row. */
+  [data-ui-dashboard-grid]
+    [data-part-widget][data-rows='auto']
+    > [data-ui-card]
+    > [data-part-body]
+    > :not([data-part-busy-indicator]) {
+    flex-grow: 0;
+  }
+
+  /**
+   * The title is the widget's name and a card header's first line: the
+   * medium step, semibold, two lines and then an ellipsis. The clamp never
+   * removes a word from the DOM, and the article is named by the whole of it.
+   */
+  [data-ui-dashboard-grid] [data-part-widget] [data-part-title] {
+    -webkit-box-orient: vertical;
+    color: var(--slotted-dashboard-grid-title-color, var(--slotted-text, CanvasText));
+    display: -webkit-box;
+    font-family: var(
+      --slotted-dashboard-grid-title-font-family,
+      var(
+        --slotted-font-family-heading,
+        var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+      )
+    );
+    font-size: var(
+      --slotted-dashboard-grid-title-font-size,
+      var(--slotted-font-size-md, 0.8125rem)
+    );
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    line-height: var(--slotted-line-height-md, 1.5);
+    margin: 0;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-dashboard-grid] [data-part-widget] [data-part-description] {
+    color: var(--slotted-dashboard-grid-description-color, var(--slotted-text-muted, GrayText));
+    font-size: var(--slotted-font-size-sm, 0.75rem);
+    line-height: var(--slotted-line-height-sm, 1.5);
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* The corner of the header: the consumer's actions, then the way to the
+     widget's own page, on the title's row without adding to its height. */
+  [data-ui-dashboard-grid] [data-part-widget] [data-part-actions] {
+    flex-wrap: nowrap;
+    gap: var(--slotted-space-1, 0.125rem);
+    margin-block: calc(
+      (
+          var(--slotted-control-height-sm, 1.75rem) - var(--slotted-font-size-md, 0.8125rem) *
+            var(--slotted-line-height-md, 1.5)
+        ) /
+        -2
+    );
+  }
+
+  /* The glyphs of the add, detail and retry controls are `icon` elements in
+     the button family's own icon and start boxes, sized by the button; the
+     detail arrow points out of the widget and is marked directional, so it
+     turns with the writing direction. */
+
+  /* ── The states of the body ──────────────────────────────────────────── */
+
+  /**
+   * A skeleton stands in for the whole body when the consumer gives none of
+   * its own: the family does not know what the body holds, but does know its
+   * box — the grid fixed it.
+   */
+  [data-ui-dashboard-grid] [data-part-widget] [data-part-skeleton] {
+    display: flex;
+    flex-direction: column;
+    min-block-size: var(--slotted-space-12, 4rem);
+  }
+
+  [data-ui-dashboard-grid] [data-part-widget] [data-part-skeleton] > [data-ui-skeleton] {
+    block-size: auto;
+    flex: 1 1 auto;
+    inline-size: 100%;
+  }
+
+  [data-ui-dashboard-grid] [data-part-widget] [data-part-message] {
+    align-content: center;
+    display: grid;
+    justify-items: center;
+  }
+
+  /**
+   * A refresh keeps what is on screen and says so with one line at the top of
+   * the body, where Grafana draws its panel's. It is aria-hidden: the article
+   * carries `aria-busy`, which is the fact, and the line is only its picture.
+   */
+  [data-ui-dashboard-grid] [data-part-widget] [data-part-busy-indicator] {
+    background-color: var(--_accent);
+    block-size: var(--slotted-border-width-medium, 2px);
+    inset-block-start: 0;
+    inset-inline: 0;
+    opacity: 0.35;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-ui-dashboard-grid] [data-part-widget] [data-part-busy-indicator] {
+      animation: slotted-dashboard-grid-busy var(--slotted-duration-loop-slow) linear infinite;
+      background-color: transparent;
+      background-image: linear-gradient(to right, transparent, var(--_accent) 50%, transparent);
+      background-repeat: no-repeat;
+      background-size: 40% 100%;
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-dashboard-grid] [data-part-widget] [data-part-busy-indicator] {
+      animation: none;
+    }
+  }
+
+  @keyframes slotted-dashboard-grid-busy {
+    from {
+      background-position: -40% 0;
+    }
+
+    to {
+      background-position: 140% 0;
+    }
+  }
+
+  /* ── Editing: the bar ────────────────────────────────────────────────── */
+
+  /**
+   * The bar stands on the same ground as the widgets — a raised surface with
+   * the card's hairline and the smallest lift — so on the sunken page it reads
+   * as a tool laid over the dashboard rather than a stripe cut into it.
+   */
+  [data-ui-dashboard-grid] > [data-part-edit-bar] {
+    align-items: center;
+    background-color: var(
+      --slotted-dashboard-grid-edit-bar-background,
+      var(--slotted-surface-raised, Canvas)
+    );
+    border: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-dashboard-grid-edit-bar-border, var(--slotted-border-subtle, CanvasText));
+    border-radius: var(--_radius);
+    box-shadow: var(--slotted-shadow-xs);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-4, 0.5rem) var(--slotted-space-6, 1rem);
+    padding-block: var(--slotted-space-4, 0.5rem);
+    padding-inline: var(--slotted-space-6, 1rem) var(--slotted-space-4, 0.5rem);
+  }
+
+  @starting-style {
+    [data-ui-dashboard-grid] > [data-part-edit-bar] {
+      opacity: 0;
+      translate: 0 calc(var(--slotted-space-4, 0.5rem) * -1);
+    }
+  }
+
+  [data-ui-dashboard-grid] > [data-part-edit-bar] {
+    transition:
+      opacity var(--slotted-duration-medium) var(--slotted-easing-enter),
+      translate var(--slotted-duration-medium) var(--slotted-easing-enter);
+  }
+
+  [data-ui-dashboard-grid] > [data-part-edit-bar] > [data-part-edit-status] {
+    color: var(--slotted-text-muted, GrayText);
+    flex: 1 1 20rem;
+    font-size: var(--slotted-font-size-sm, 0.75rem);
+    line-height: var(--slotted-line-height-sm, 1.5);
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  [data-ui-dashboard-grid] > [data-part-edit-bar] > [data-part-edit-actions] {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--slotted-space-3, 0.375rem);
+    justify-content: flex-end;
+    margin-inline-start: auto;
+  }
+
+  /* ── Editing: the lattice ────────────────────────────────────────────── */
+
+  /**
+   * The cells a widget snaps to are shown by their centres: one dot in the
+   * middle of each cell. One period is a track and a gap on each axis and
+   * the dot sits at the middle of the track, so the lattice lands on the
+   * cells from either edge and holds in a right-to-left document without a
+   * rule of its own. A widget covers the dots of the cells it holds, so every
+   * dot that shows marks a free cell; a dot on the crossing of two gaps
+   * showed between cards and under them, where no widget can land.
+   */
+  [data-ui-dashboard-grid] > [data-part-grid]::before {
+    background-image: radial-gradient(
+      circle at calc((100% - var(--_gap)) / 2) calc((100% - var(--_gap)) / 2),
+      var(--slotted-dashboard-grid-lattice-color, var(--slotted-border-strong, currentColor))
+        var(--slotted-dashboard-grid-lattice-dot, 1.5px),
+      transparent calc(var(--slotted-dashboard-grid-lattice-dot, 1.5px) + 0.75px)
+    );
+    background-size: calc((100% + var(--_gap)) / var(--_cols)) calc(var(--_row) + var(--_gap));
+    content: '';
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--slotted-duration-medium) var(--slotted-easing-standard);
+  }
+
+  [data-ui-dashboard-grid][data-editing] > [data-part-grid] {
+    min-block-size: calc(var(--_row) * 2 + var(--_gap));
+  }
+
+  [data-ui-dashboard-grid][data-editing] > [data-part-grid]::before {
+    opacity: 0.7;
+  }
+
+  /* While a widget is carried or pulled the lattice is what it snaps to, so
+     it comes forward. The attribute is on the grid, in the compound it styles:
+     a browser invalidates by attribute name, and on the root ahead of
+     `> [data-part-grid]` it restyled every element with a `data-part`
+     under the root as a widget was picked up and as it was dropped. */
+  [data-ui-dashboard-grid] > [data-part-grid][data-gesture]::before {
+    opacity: 1;
+  }
+
+  /* Below the expanded class the widgets flow, so no cell is a place to drop
+     on and the lattice would be specks in the gaps. */
+  @container dashboard-grid (width < 1024px) {
+    [data-ui-dashboard-grid]:not([data-size-class]) > [data-part-grid]::before {
+      display: none;
+    }
+  }
+
+  [data-ui-dashboard-grid]:is([data-size-class='medium'], [data-size-class='compact'])
+    > [data-part-grid]::before {
+    display: none;
+  }
+
+  /* ── Editing: the widget ─────────────────────────────────────────────── */
+
+  /* The whole card is a place to pick the widget up from; its controls keep
+     their own cursor because each is its own target. */
+  [data-ui-dashboard-grid][data-editing] [data-part-widget][data-movable] > [data-ui-card] {
+    cursor: grab;
+  }
+
+  [data-ui-dashboard-grid][data-editing]
+    [data-part-widget][data-movable]
+    > [data-ui-card]
+    :is(a, button, input, select, textarea, [tabindex]) {
+    cursor: auto;
+  }
+
+  [data-ui-dashboard-grid][data-editing]
+    [data-part-widget]:not([data-loading]):hover
+    > [data-ui-card] {
+    box-shadow: var(--slotted-shadow-sm);
+  }
+
+  /**
+   * The handle: a small pill of six dots standing on the card's top edge, the
+   * way a block handle sits in a writing tool. It is the widget's keyboard
+   * stop and the button that opens its menu, and it is where a finger picks
+   * the widget up, since a finger on the card has to scroll the page. The
+   * pill is drawn on the raised surface with the control's own edge, so it
+   * reads as part of the card rather than as a button beside it.
+   */
+  [data-ui-dashboard-grid] [data-part-widget] > [data-part-handle] {
+    --_pill-inline: var(--slotted-dashboard-grid-handle-inline-size, 2.25rem);
+    --_pill-block: var(--slotted-dashboard-grid-handle-block-size, 1rem);
+
+    align-items: center;
+    appearance: none;
+    background-color: var(--slotted-control-surface, Canvas);
+    block-size: var(--_pill-block);
+    border: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-control-border-color, ButtonBorder);
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-shadow: var(--slotted-control-shadow);
+    box-sizing: border-box;
+    color: var(--slotted-text-muted, GrayText);
+    cursor: grab;
+    display: flex;
+    font: inherit;
+    inline-size: var(--_pill-inline);
+    inset-block-start: calc(var(--_pill-block) / -2);
+    inset-inline: 0;
+    justify-content: center;
+    margin: 0 auto;
+    padding: 0;
+    position: absolute;
+    touch-action: none;
+    transition:
+      background-color var(--slotted-duration-short) var(--slotted-easing-standard),
+      border-color var(--slotted-duration-short) var(--slotted-easing-standard),
+      color var(--slotted-duration-short) var(--slotted-easing-standard),
+      opacity var(--slotted-duration-medium) var(--slotted-easing-enter),
+      translate var(--slotted-duration-medium) var(--slotted-easing-enter);
+    z-index: 2;
+  }
+
+  @starting-style {
+    [data-ui-dashboard-grid] [data-part-widget] > [data-part-handle] {
+      opacity: 0;
+      translate: 0 var(--slotted-space-3, 0.375rem);
+    }
+  }
+
+  /* The pill is small to the eye and not to the hand: the hit area reaches
+     the target floor on both axes. */
+  [data-ui-dashboard-grid] [data-part-widget] > [data-part-handle]::before {
+    content: '';
+    inset: calc((var(--slotted-target-min, 24px) - var(--_pill-block)) / -2)
+      calc(var(--slotted-space-4, 0.5rem) * -1);
+    position: absolute;
+  }
+
+  /* The grip is an `icon` the binding draws; the pill gives it its size. */
+  [data-ui-dashboard-grid] [data-part-widget] > [data-part-handle] > [data-ui-icon] {
+    --slotted-icon-size: var(--slotted-dashboard-grid-handle-glyph-size, 0.875rem);
+  }
+
+  [data-ui-dashboard-grid][data-editing]
+    [data-part-widget]:not([data-loading]):hover
+    > [data-part-handle] {
+    border-color: var(--slotted-border-strong, ButtonBorder);
+    color: var(--slotted-text, CanvasText);
+  }
+
+  [data-ui-dashboard-grid] [data-part-widget] > [data-part-handle]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* Carried, or its menu open: the pill takes the accent, the one mark on the
+     page that says which widget the reader has in hand. */
+  [data-ui-dashboard-grid]
+    [data-part-widget]:is([data-dragging], [data-resizing])
+    > [data-part-handle],
+  [data-ui-dashboard-grid] [data-part-widget] > [data-part-handle][aria-expanded='true'] {
+    background-color: var(--_accent);
+    border-color: var(--_accent);
+    color: var(--slotted-tone-accent-on-solid, HighlightText);
+  }
+
+  /**
+   * The edges a widget is pulled by: the inline start, the inline end and
+   * the bottom, and the two bottom corners. The top is not one of them —
+   * gravity decides a widget's top from what stands above it. Each is a strip
+   * of hit area straddling the card's edge, with a short pill drawn at its
+   * middle, or at a corner an arc that follows the card's own radius. They
+   * are quiet until the widget is under the pointer, and always shown to a
+   * finger, which has no hover.
+   */
+  [data-ui-dashboard-grid] [data-part-widget] > [data-part-resize-handle] {
+    --_hit: var(--slotted-dashboard-grid-resize-hit, 0.75rem);
+    --_mark: var(--slotted-border-strong, currentColor);
+
+    opacity: 0;
+    position: absolute;
+    touch-action: none;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+    z-index: 2;
+  }
+
+  [data-ui-dashboard-grid][data-editing]
+    [data-part-widget]:not([data-loading]):hover
+    > [data-part-resize-handle],
+  [data-ui-dashboard-grid][data-editing]
+    [data-part-widget]:focus-within
+    > [data-part-resize-handle],
+  [data-ui-dashboard-grid] [data-part-widget][data-resizing] > [data-part-resize-handle] {
+    opacity: 1;
+  }
+
+  @media (pointer: coarse) {
+    [data-ui-dashboard-grid] [data-part-widget] > [data-part-resize-handle] {
+      --_hit: var(--slotted-target-comfortable, 44px);
+
+      opacity: 1;
+    }
+
+    [data-ui-dashboard-grid] [data-part-widget] > [data-part-handle] {
+      --_pill-inline: var(--slotted-dashboard-grid-handle-inline-size-coarse, 2.75rem);
+      --_pill-block: var(--slotted-dashboard-grid-handle-block-size-coarse, 1.25rem);
+    }
+  }
+
+  [data-ui-dashboard-grid] [data-part-resize-handle]::before {
+    background-color: var(--_mark);
+    border-radius: var(--slotted-radius-full, 9999px);
+    content: '';
+    inset: 0;
+    margin: auto;
+    position: absolute;
+    transition:
+      background-color var(--slotted-duration-short) var(--slotted-easing-standard),
+      block-size var(--slotted-duration-short) var(--slotted-easing-standard),
+      inline-size var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-dashboard-grid] [data-part-resize-handle]:is([data-edge='start'], [data-edge='end']) {
+    cursor: ew-resize;
+    inline-size: var(--_hit);
+    inset-block: calc(var(--_radius) + var(--_hit) / 2);
+  }
+
+  [data-ui-dashboard-grid] [data-part-resize-handle][data-edge='start'] {
+    inset-inline-start: calc(var(--_hit) / -2);
+  }
+
+  [data-ui-dashboard-grid] [data-part-resize-handle][data-edge='end'] {
+    inset-inline-end: calc(var(--_hit) / -2);
+  }
+
+  [data-ui-dashboard-grid]
+    [data-part-resize-handle]:is([data-edge='start'], [data-edge='end'])::before {
+    block-size: var(--slotted-dashboard-grid-resize-pill, 1.75rem);
+    inline-size: var(--slotted-border-width-thick, 3px);
+  }
+
+  [data-ui-dashboard-grid] [data-part-resize-handle][data-edge='bottom'] {
+    block-size: var(--_hit);
+    cursor: ns-resize;
+    inset-block-end: calc(var(--_hit) / -2);
+    inset-inline: calc(var(--_radius) + var(--_hit) / 2);
+  }
+
+  [data-ui-dashboard-grid] [data-part-resize-handle][data-edge='bottom']::before {
+    block-size: var(--slotted-border-width-thick, 3px);
+    inline-size: var(--slotted-dashboard-grid-resize-pill, 1.75rem);
+  }
+
+  [data-ui-dashboard-grid]
+    [data-part-resize-handle]:is([data-edge='bottom-start'], [data-edge='bottom-end']) {
+    block-size: calc(var(--_hit) * 1.5);
+    inline-size: calc(var(--_hit) * 1.5);
+    inset-block-end: calc(var(--_hit) / -2);
+  }
+
+  [data-ui-dashboard-grid] [data-part-resize-handle][data-edge='bottom-end'] {
+    cursor: nwse-resize;
+    inset-inline-end: calc(var(--_hit) / -2);
+  }
+
+  [data-ui-dashboard-grid] [data-part-resize-handle][data-edge='bottom-start'] {
+    cursor: nesw-resize;
+    inset-inline-start: calc(var(--_hit) / -2);
+  }
+
+  [data-ui-dashboard-grid] [data-part-resize-handle][data-edge='bottom-end']:dir(rtl) {
+    cursor: nesw-resize;
+  }
+
+  [data-ui-dashboard-grid] [data-part-resize-handle][data-edge='bottom-start']:dir(rtl) {
+    cursor: nwse-resize;
+  }
+
+  /* The corner mark is an arc on the card's own corner: a quarter of a ring
+     whose radius is the card's, drawn over the card's edge. */
+  [data-ui-dashboard-grid]
+    [data-part-resize-handle]:is([data-edge='bottom-start'], [data-edge='bottom-end'])::before {
+    background-color: transparent;
+    block-size: var(--_radius);
+    border-block-end: var(--slotted-border-width-thick, 3px) solid var(--_mark);
+    border-radius: 0;
+    inline-size: var(--_radius);
+    inset: auto;
+    inset-block-end: calc(var(--_hit) / 2 - var(--slotted-border-width-thin, 1px));
+    margin: 0;
+  }
+
+  [data-ui-dashboard-grid] [data-part-resize-handle][data-edge='bottom-end']::before {
+    border-end-end-radius: var(--_radius);
+    border-inline-end: var(--slotted-border-width-thick, 3px) solid var(--_mark);
+    inset-inline-end: calc(var(--_hit) / 2 - var(--slotted-border-width-thin, 1px));
+  }
+
+  [data-ui-dashboard-grid] [data-part-resize-handle][data-edge='bottom-start']::before {
+    border-end-start-radius: var(--_radius);
+    border-inline-start: var(--slotted-border-width-thick, 3px) solid var(--_mark);
+    inset-inline-start: calc(var(--_hit) / 2 - var(--slotted-border-width-thin, 1px));
+  }
+
+  /* Under the pointer, and while it is pulled, the mark takes the accent and
+     the edge pill grows, so the reader sees which side answers. */
+  [data-ui-dashboard-grid] [data-part-resize-handle]:not([data-disabled]):hover,
+  [data-ui-dashboard-grid] [data-part-resize-handle][data-active] {
+    --_mark: var(--_accent);
+  }
+
+  [data-ui-dashboard-grid]
+    [data-part-resize-handle]:is([data-edge='start'], [data-edge='end']):is(
+      :not([data-disabled]):hover,
+      [data-active]
+    )::before {
+    block-size: var(--slotted-dashboard-grid-resize-pill-active, 2.75rem);
+  }
+
+  [data-ui-dashboard-grid]
+    [data-part-resize-handle][data-edge='bottom']:is(
+      :not([data-disabled]):hover,
+      [data-active]
+    )::before {
+    inline-size: var(--slotted-dashboard-grid-resize-pill-active, 2.75rem);
+  }
+
+  /* The medium class flows the widgets, so a widget's start is where the one
+     before it ends: there is no start edge to pull. */
+  @container dashboard-grid (width < 1024px) {
+    [data-ui-dashboard-grid]:not([data-size-class])
+      [data-part-widget]
+      > [data-part-resize-handle]:is([data-edge='start'], [data-edge='bottom-start']) {
+      display: none;
+    }
+  }
+
+  [data-ui-dashboard-grid]:is([data-size-class='medium'], [data-size-class='compact'])
+    [data-part-widget]
+    > [data-part-resize-handle]:is([data-edge='start'], [data-edge='bottom-start']) {
+    display: none;
+  }
+
+  /* A phone reads a dashboard as one column as tall as its content: there is
+     no size to pull, only an order to change. */
+  @container dashboard-grid (width < 600px) {
+    [data-ui-dashboard-grid]:not([data-size-class]) [data-part-widget] > [data-part-resize-handle] {
+      display: none;
+    }
+  }
+
+  [data-ui-dashboard-grid][data-size-class='compact']
+    [data-part-widget]
+    > [data-part-resize-handle] {
+    display: none;
+  }
+
+  /* ── Editing: a widget in hand ───────────────────────────────────────── */
+
+  /**
+   * A widget carried or pulled leaves its cell and floats over the grid. The
+   * script writes where it was picked up (`inset-inline-start`,
+   * `inset-block-start`, `inline-size`, `block-size`) and how far the pointer
+   * took it (`translate`) on the widget itself. A custom property in their
+   * place restyled everything under the widget on every frame. The cell it
+   * would land in is the placeholder, and the widgets around it make room as
+   * the placeholder moves.
+   */
+  [data-ui-dashboard-grid] [data-part-widget]:is([data-dragging], [data-resizing]) {
+    grid-column: auto;
+    grid-row: auto;
+    position: absolute;
+    z-index: 3;
+  }
+
+  /* Picked up: lifted by the largest shadow on the scale. It is not scaled —
+     a card of text grown by two per cent is two per cent blurred (R7). */
+  [data-ui-dashboard-grid] [data-part-widget][data-dragging] {
+    cursor: grabbing;
+  }
+
+  /* A shadow is dark on a dark page, so the widget in hand also takes a
+     hairline of the accent: in the dark scheme it is what lifts the card, and
+     in the light one it says which card is held. */
+  [data-ui-dashboard-grid] [data-part-widget][data-dragging] > [data-ui-card] {
+    box-shadow:
+      var(--slotted-shadow-lg),
+      0 0 0 var(--slotted-border-width-thin, 1px)
+        color-mix(in oklab, var(--_accent) 60%, transparent);
+  }
+
+  /* Pulled: the card follows the pointer at any size, lifted a step less. */
+  [data-ui-dashboard-grid] [data-part-widget][data-resizing] > [data-ui-card] {
+    box-shadow:
+      var(--slotted-shadow-md),
+      0 0 0 var(--slotted-border-width-thin, 1px)
+        color-mix(in oklab, var(--_accent) 60%, transparent);
+  }
+
+  /**
+   * Where the widget in hand will land: its cells in the accent's lightest
+   * wash with a hairline of the accent, rounded like the card it stands for.
+   * No dashes and no fill that competes with the widget over it — it is a
+   * shape the reader aims at, not a second object.
+   */
+  [data-ui-dashboard-grid] > [data-part-grid] > [data-part-placeholder] {
+    background-color: color-mix(in oklab, var(--_accent) 10%, transparent);
+    border: var(--slotted-border-width-thin, 1px) solid
+      color-mix(in oklab, var(--_accent) 55%, transparent);
+    border-radius: var(--_radius);
+    box-sizing: border-box;
+    pointer-events: none;
+  }
+
+  /**
+   * The size the pull has reached, in cells, on a chip of the accent at the
+   * corner the reader is pulling: the only text on screen during the gesture,
+   * where the eye already is.
+   */
+  [data-ui-dashboard-grid] [data-part-widget] > [data-part-size-readout] {
+    background-color: var(--_accent);
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-shadow: var(--slotted-shadow-sm);
+    color: var(--slotted-tone-accent-on-solid, HighlightText);
+    font-size: var(--slotted-font-size-xs, 0.6875rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    inset-block-end: var(--slotted-space-5, 0.75rem);
+    inset-inline-end: var(--slotted-space-5, 0.75rem);
+    line-height: var(--slotted-line-height-xs, 1.4);
+    padding-block: var(--slotted-space-1, 0.125rem);
+    padding-inline: var(--slotted-space-4, 0.5rem);
+    pointer-events: none;
+    position: absolute;
+    white-space: nowrap;
+    z-index: 4;
+  }
+
+  [data-ui-dashboard-grid] [data-part-widget] > [data-part-size-readout][data-edge='start'],
+  [data-ui-dashboard-grid] [data-part-widget] > [data-part-size-readout][data-edge='bottom-start'] {
+    inset-inline: var(--slotted-space-5, 0.75rem) auto;
+  }
+
+  /* A grid with nothing visible. */
+  [data-ui-dashboard-grid] > [data-part-empty] {
+    min-block-size: calc(var(--_row) * 2 + var(--_gap));
+  }
+}
+
+/**
+ * A widget's cell, written on the widget by script and read only by the
+ * widget's own placement. Unregistered, each one inherited into the card and
+ * everything in it, and a preview that moved a widget restyled its whole
+ * content. Registered without inheritance and without a type, a widget no
+ * script placed still takes the fallback of `var()`. These sit outside
+ * `@layer slotted.components` because `@property` is a registration, not a
+ * rule a cascade layer holds.
+ */
+@property --_dg-x {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --_dg-y {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --_dg-w {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --_dg-h {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --_dg-span-medium {
+  syntax: '*';
+  inherits: false;
+}

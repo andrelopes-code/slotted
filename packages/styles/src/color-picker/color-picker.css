@@ -1,0 +1,599 @@
+@layer slotted.components {
+  /**
+   * ── Choosing a colour ──────────────────────────────────────────────────
+   *
+   * A panel: an area for saturation and brightness, a hue channel, an alpha
+   * channel, a preview of the colour now beside the colour it opened with,
+   * the value as text in its notation, the eyedropper, the presets and the
+   * contrast against a background the consumer names. It stands inline, or
+   * inside a popover opened from the field's swatch
+   *.
+   *
+   * Every colour on this page is the reader's colour, written by the binding
+   * as a runtime property (`runtime-properties.mjs`); the panel's own chrome
+   * reads the theme like any other family.
+   */
+  [data-ui-color-picker][data-part-root] {
+    --_thumb: var(--slotted-color-picker-thumb-size, var(--slotted-space-6, 1rem));
+    --_channel: var(--slotted-color-picker-channel-size, var(--slotted-space-5, 0.75rem));
+    --_gap: var(--slotted-space-5, 0.75rem);
+    --_radius: var(--slotted-radius-md, 6px);
+    --_inner-size: var(--slotted-control-inner-size-md, 24px);
+    --_icon-size: var(--slotted-control-icon-size-md, 16px);
+    --_color: var(--slotted-color-picker-color, transparent);
+    --_opaque: var(--slotted-color-picker-opaque, transparent);
+    --_hue: var(--slotted-color-picker-hue, 0);
+    /**
+     * The transparency grid: two squares of the theme's own surfaces, so an
+     * alpha colour reads against the page it will sit on rather than against
+     * a grey nobody chose. The square is half the channel's height.
+     */
+    --_checker: repeating-conic-gradient(
+        var(--slotted-surface-sunken, Canvas) 0 25%,
+        var(--slotted-surface, Canvas) 0 50%
+      )
+      0 0 / var(--_channel) var(--_channel);
+
+    box-sizing: border-box;
+    color: var(--slotted-text, CanvasText);
+    display: grid;
+    font-family: var(--slotted-control-font-family, system-ui, sans-serif);
+    font-size: var(--slotted-control-font-size-md, 13px);
+    gap: var(--_gap);
+    inline-size: var(--slotted-color-picker-width, calc(var(--slotted-space-12, 4rem) * 4));
+    max-inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  [data-ui-color-picker][data-part-root][data-size='sm'] {
+    --_gap: var(--slotted-space-4, 0.5rem);
+    --_inner-size: var(--slotted-control-inner-size-sm, 22px);
+    --_icon-size: var(--slotted-control-icon-size-sm, 14px);
+
+    font-size: var(--slotted-control-font-size-sm, 12px);
+  }
+
+  [data-ui-color-picker][data-part-root][data-size='lg'] {
+    --_gap: var(--slotted-space-6, 1rem);
+    --_inner-size: var(--slotted-control-inner-size-lg, 28px);
+    --_icon-size: var(--slotted-control-icon-size-lg, 18px);
+
+    font-size: var(--slotted-control-font-size-lg, 14px);
+  }
+
+  /* ── The area: saturation across, brightness up ─────────────────────────
+   *
+   * The pure hue at full strength, washed to white along the inline axis and
+   * to black along the block axis — the HSV square. White and black are the
+   * model, not a choice of the theme, which is why they are literals here
+   * and nowhere else. The edge is drawn inside, a hairline of the theme's
+   * subtle border, so a pale colour still has a boundary on a pale page.
+   */
+  [data-ui-color-picker] [data-part-area] {
+    aspect-ratio: 3 / 2;
+    background:
+      linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent),
+      hsl(calc(var(--_hue) * 1deg) 100% 50%);
+    border-radius: var(--_radius);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-border-subtle, transparent);
+    cursor: crosshair;
+    position: relative;
+    /* A finger dragging the thumb must not scroll the page under it. */
+    touch-action: none;
+  }
+
+  /* The area mirrors in a right-to-left document: saturation grows along the
+     reading direction, the way the hue channel does. */
+  [data-ui-color-picker] [data-part-area]:dir(rtl) {
+    background:
+      linear-gradient(to top, #000, transparent), linear-gradient(to left, #fff, transparent),
+      hsl(calc(var(--_hue) * 1deg) 100% 50%);
+  }
+
+  /* ── The thumbs ─────────────────────────────────────────────────────────
+   *
+   * A disc of the colour it stands on, inside a white ring and a hairline of
+   * shadow, so it reads on the black corner and on the white one alike. The
+   * ring is the model's white for the reason the area's is. Held, it grows a
+   * step, so the reader sees what the pointer has taken.
+   */
+  [data-ui-color-picker] :is([data-part-area-thumb], [data-part-channel-thumb]) {
+    background: var(--_opaque);
+    block-size: var(--_thumb);
+    border: var(--slotted-border-width-medium, 2px) solid #fff;
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-shadow:
+      0 0 0 var(--slotted-border-width-thin, 1px) rgb(0 0 0 / 0.24),
+      var(--slotted-shadow-sm, none);
+    box-sizing: border-box;
+    cursor: grab;
+    inline-size: var(--_thumb);
+    position: absolute;
+    transition:
+      scale var(--slotted-duration-short) var(--slotted-easing-standard),
+      box-shadow var(--slotted-duration-short) var(--slotted-easing-standard);
+    translate: -50% -50%;
+  }
+
+  [data-ui-color-picker] [data-part-area-thumb] {
+    inset-block-start: calc((1 - var(--slotted-color-picker-y, 1)) * 100%);
+    inset-inline-start: calc(var(--slotted-color-picker-x, 1) * 100%);
+  }
+
+  [data-ui-color-picker] [data-part-area-thumb]:dir(rtl) {
+    translate: 50% -50%;
+  }
+
+  [data-ui-color-picker]
+    :is([data-part-area], [data-part-channel])[data-dragging]
+    > :is([data-part-area-thumb], [data-part-channel-thumb]) {
+    cursor: grabbing;
+    scale: 1.15;
+  }
+
+  [data-ui-color-picker] :is([data-part-area-thumb], [data-part-channel-thumb]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── The channels ───────────────────────────────────────────────────────
+   *
+   * Hue is one gradient interpolated the long way round the hue circle, so
+   * the browser draws the rainbow rather than seven stops written by hand.
+   * Alpha is the colour fading to nothing over the transparency grid.
+   */
+  [data-ui-color-picker] [data-part-channel] {
+    block-size: var(--_channel);
+    border-radius: var(--slotted-radius-full, 9999px);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-border-subtle, transparent);
+    cursor: pointer;
+    position: relative;
+    touch-action: none;
+  }
+
+  [data-ui-color-picker] [data-part-channel][data-channel='hue'] {
+    background: linear-gradient(to right in hsl longer hue, hsl(0 100% 50%), hsl(0 100% 50%));
+  }
+
+  [data-ui-color-picker] [data-part-channel][data-channel='alpha'] {
+    background: linear-gradient(to right, transparent, var(--_opaque)), var(--_checker);
+  }
+
+  [data-ui-color-picker] [data-part-channel][data-channel='hue']:dir(rtl) {
+    background: linear-gradient(to left in hsl longer hue, hsl(0 100% 50%), hsl(0 100% 50%));
+  }
+
+  [data-ui-color-picker] [data-part-channel][data-channel='alpha']:dir(rtl) {
+    background: linear-gradient(to left, transparent, var(--_opaque)), var(--_checker);
+  }
+
+  [data-ui-color-picker] [data-part-channel-thumb] {
+    inset-block-start: 50%;
+  }
+
+  /* A channel's thumb travels inside the track, its centre a half thumb in
+     from each end, so at 0 and at the maximum it still sits on the colour it
+     names rather than hanging past the rounded end. */
+  [data-ui-color-picker] [data-part-channel-thumb][data-channel='hue'] {
+    background: hsl(calc(var(--_hue) * 1deg) 100% 50%);
+    inset-inline-start: calc(var(--_thumb) / 2 + var(--_hue) / 360 * (100% - var(--_thumb)));
+  }
+
+  [data-ui-color-picker] [data-part-channel-thumb][data-channel='alpha'] {
+    background: linear-gradient(var(--_color), var(--_color)), var(--_checker);
+    inset-inline-start: calc(
+      var(--_thumb) / 2 + var(--slotted-color-picker-alpha, 1) * (100% - var(--_thumb))
+    );
+  }
+
+  [data-ui-color-picker] [data-part-channel-thumb]:dir(rtl) {
+    translate: 50% -50%;
+  }
+
+  /* ── The row under the channels ─────────────────────────────────────────
+   *
+   * The preview on the start, then the text of the value, its notation and
+   * the eyedropper. The row is the control height, so the text input inside
+   * it lines up with any field beside the panel.
+   */
+  [data-ui-color-picker] [data-part-row] {
+    align-items: center;
+    display: flex;
+    gap: var(--slotted-space-3, 0.375rem);
+    min-inline-size: 0;
+  }
+
+  /**
+   * Now and before, side by side in one rounded box: the colour being made on
+   * the start, the colour the panel opened with on the end. Each half is the
+   * colour over the transparency grid. Pressing the old half restores it.
+   */
+  [data-ui-color-picker] [data-part-swatch],
+  [data-ui-color-picker] [data-part-previous] {
+    appearance: none;
+    block-size: var(--slotted-control-height-md, 34px);
+    border: 0;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    inline-size: calc(var(--slotted-control-height-md, 34px) * 3 / 4);
+    margin: 0;
+    padding: 0;
+  }
+
+  [data-ui-color-picker] [data-part-swatch] {
+    background: linear-gradient(var(--_color), var(--_color)), var(--_checker);
+    border-end-start-radius: var(--_radius);
+    border-start-start-radius: var(--_radius);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-border-subtle, transparent);
+  }
+
+  [data-ui-color-picker] [data-part-swatch]:only-child,
+  [data-ui-color-picker] [data-part-swatch]:not(:has(+ [data-part-previous])) {
+    border-radius: var(--_radius);
+  }
+
+  [data-ui-color-picker] [data-part-previous] {
+    background:
+      linear-gradient(
+        var(--slotted-color-picker-previous, transparent),
+        var(--slotted-color-picker-previous, transparent)
+      ),
+      var(--_checker);
+    border-end-end-radius: var(--_radius);
+    border-start-end-radius: var(--_radius);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-border-subtle, transparent);
+    cursor: pointer;
+    margin-inline-start: calc(var(--slotted-space-3, 0.375rem) * -1);
+    position: relative;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  /* The old colour answers the pointer with the revert mark over it. */
+  [data-ui-color-picker] [data-part-previous] > [data-ui-icon] {
+    --slotted-icon-size: var(--_icon-size);
+
+    color: #fff;
+    filter: drop-shadow(0 0 1px rgb(0 0 0 / 0.6));
+    inset: 0;
+    margin: auto;
+    opacity: 0;
+    position: absolute;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-color-picker]
+    [data-part-previous]:is(:hover, :focus-visible):not(:disabled)
+    > [data-ui-icon] {
+    opacity: 1;
+  }
+
+  [data-ui-color-picker] [data-part-previous]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* The value as text sits in a `text-field` the binding renders; it takes
+     the width the row leaves. */
+  [data-ui-color-picker] [data-part-row] > [data-ui-text-field] {
+    flex: 1 1 0;
+    inline-size: auto;
+  }
+
+  /* ── Format and eyedropper ──────────────────────────────────────────────
+   *
+   * Both are inner controls of the row (R2): no frame and no ground at rest,
+   * one step of ground for hover and one for press.
+   */
+  [data-ui-color-picker] :is([data-part-format], [data-part-eyedropper]) {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--_inner-size);
+    border: 0;
+    border-radius: var(--slotted-control-radius, 4px);
+    color: var(--slotted-text-muted, GrayText);
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    gap: var(--slotted-space-2, 0.25rem);
+    justify-content: center;
+    min-inline-size: var(--_inner-size);
+    padding: 0;
+    position: relative;
+    transition: background-color var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+  }
+
+  [data-ui-color-picker] [data-part-format] {
+    color: var(--slotted-text, CanvasText);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    text-transform: uppercase;
+  }
+
+  /**
+   * Words and a mark in one button — a country code over its chevron, a model
+   * name, a notation. The mark is centred on the band the letters occupy, not
+   * on the line box: the line box keeps room under the baseline for
+   * descenders, so a box centred in it sits low beside the letters — every
+   * chevron in these buttons did. The rule is the briefing's (_A mark beside a
+   * line of text is aligned to the text_), here in a grid: items share the
+   * baseline, the mark's synthesized baseline is its bottom edge, a negative
+   * start margin takes back the height it would add above the letters, and a
+   * translate puts its centre at `(1cap + 1ex) / 4` above the baseline — the
+   * midpoint of the capitals' and the lowercase letters' own centres.
+   */
+  [data-ui-color-picker] [data-part-format] {
+    align-content: center;
+    align-items: baseline;
+    display: inline-grid;
+    grid-auto-flow: column;
+    justify-content: center;
+  }
+
+  [data-ui-color-picker] [data-part-format] > [data-ui-icon] {
+    margin-block-start: calc((1cap + 1ex) / 4 - var(--_icon-size) / 2);
+    translate: 0 calc(var(--_icon-size) / 2 - (1cap + 1ex) / 4);
+  }
+
+  [data-ui-color-picker] :is([data-part-format], [data-part-eyedropper])::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  @media (pointer: coarse) {
+    [data-ui-color-picker] :is([data-part-format], [data-part-eyedropper])::after {
+      inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
+    }
+  }
+
+  [data-ui-color-picker]
+    :is([data-part-format], [data-part-eyedropper]):hover:not(:disabled, [aria-expanded='true']) {
+    background-color: var(--slotted-tone-secondary-subtle-hover);
+  }
+
+  [data-ui-color-picker]
+    :is([data-part-format], [data-part-eyedropper]):is(:active, [aria-expanded='true']):not(
+      :disabled
+    ) {
+    background-color: var(--slotted-tone-secondary-subtle-active);
+  }
+
+  [data-ui-color-picker] :is([data-part-format], [data-part-eyedropper]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
+  }
+
+  /* ── Presets ────────────────────────────────────────────────────────────
+   *
+   * A radio group of swatches on a grid that fills the panel's width. The
+   * chosen one is ringed in the theme's ring colour at a gap of the panel's
+   * ground, so the ring never touches the colour it marks.
+   */
+  [data-ui-color-picker] [data-part-presets] {
+    display: grid;
+    gap: var(--slotted-space-3, 0.375rem);
+    /* A step under the control's inner size, so the ten swatches of a
+       palette sit on one line across the panel's default width. */
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(calc(var(--_inner-size) - var(--slotted-space-2, 4px)), 1fr)
+    );
+  }
+
+  [data-ui-color-picker] [data-part-preset] {
+    appearance: none;
+    aspect-ratio: 1;
+    background:
+      linear-gradient(
+        var(--slotted-color-picker-preset, transparent),
+        var(--slotted-color-picker-preset, transparent)
+      ),
+      var(--_checker);
+    border: 0;
+    border-radius: var(--slotted-radius-sm, 4px);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-border-subtle, transparent);
+    cursor: pointer;
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+    position: relative;
+    transition:
+      scale var(--slotted-duration-short) var(--slotted-easing-standard),
+      box-shadow var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-color-picker] [data-part-preset]:hover:not(:disabled) {
+    scale: 1.08;
+  }
+
+  [data-ui-color-picker] [data-part-preset]:active:not(:disabled) {
+    scale: 0.94;
+  }
+
+  [data-ui-color-picker] [data-part-preset][data-selected] {
+    box-shadow:
+      0 0 0 var(--slotted-border-width-medium, 2px) var(--slotted-surface-raised, Canvas),
+      0 0 0 calc(var(--slotted-border-width-medium, 2px) * 2) var(--slotted-text, CanvasText);
+  }
+
+  [data-ui-color-picker] [data-part-preset]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── Contrast and gamut ─────────────────────────────────────────────────
+   *
+   * `Aa` set in the colour on the background the consumer named, beside the
+   * WCAG ratio and the level it reaches. The level is a word in a badge
+   * coloured by its tone, never colour alone.
+   */
+  [data-ui-color-picker] [data-part-contrast] {
+    align-items: center;
+    display: flex;
+    font-variant-numeric: tabular-nums;
+    gap: var(--slotted-space-4, 0.5rem);
+  }
+
+  [data-ui-color-picker] [data-part-contrast-sample] {
+    background: var(--slotted-color-picker-contrast-with, var(--slotted-surface, Canvas));
+    block-size: var(--_inner-size);
+    border-radius: var(--slotted-radius-sm, 4px);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-border-subtle, transparent);
+    color: var(--_color);
+    display: inline-grid;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    inline-size: calc(var(--_inner-size) * 3 / 2);
+    place-items: center;
+  }
+
+  [data-ui-color-picker] [data-part-contrast-ratio] {
+    color: var(--slotted-text, CanvasText);
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-color-picker] [data-part-contrast-level] {
+    border-radius: var(--slotted-radius-sm, 4px);
+    font-size: var(--slotted-font-size-xs, 12px);
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    margin-inline-start: auto;
+    padding: var(--slotted-space-1, 2px) var(--slotted-space-3, 0.375rem);
+  }
+
+  [data-ui-color-picker] [data-part-contrast][data-level^='AA'] [data-part-contrast-level] {
+    background: var(--slotted-tone-success-surface, Canvas);
+    color: var(--slotted-tone-success-text, CanvasText);
+  }
+
+  [data-ui-color-picker] [data-part-contrast][data-level='AA-large'] [data-part-contrast-level] {
+    background: var(--slotted-tone-warning-surface, Canvas);
+    color: var(--slotted-tone-warning-text, CanvasText);
+  }
+
+  [data-ui-color-picker] [data-part-contrast][data-level='fail'] [data-part-contrast-level] {
+    background: var(--slotted-tone-danger-surface, Canvas);
+    color: var(--slotted-tone-danger-text, CanvasText);
+  }
+
+  [data-ui-color-picker] [data-part-gamut] {
+    --slotted-icon-size: var(--_icon-size);
+
+    align-items: center;
+    color: var(--slotted-tone-warning-text, CanvasText);
+    display: flex;
+    font-size: var(--slotted-font-size-xs, 12px);
+    gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  /* ── The field's swatch ─────────────────────────────────────────────────
+   *
+   * In a `text-field`'s start: a rounded square of the colour over the grid,
+   * at the inner size of the control, concentric with the field's corner.
+   * It is the trigger, and it answers the press like the field's other inner
+   * buttons, by its ground — here the ring around it.
+   */
+  [data-ui-text-field] [data-ui-color-picker][data-part-trigger] {
+    appearance: none;
+    background:
+      linear-gradient(var(--_color, transparent), var(--_color, transparent)),
+      repeating-conic-gradient(
+          var(--slotted-surface-sunken, Canvas) 0 25%,
+          var(--slotted-surface, Canvas) 0 50%
+        )
+        0 0 / 8px 8px;
+    block-size: calc(var(--slotted-control-inner-size, 24px) - var(--slotted-space-2, 4px));
+    border: 0;
+    border-radius: var(--slotted-radius-sm, 4px);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px)
+      var(--slotted-border-subtle, transparent);
+    cursor: pointer;
+    flex: 0 0 auto;
+    inline-size: calc(var(--slotted-control-inner-size, 24px) - var(--slotted-space-2, 4px));
+    padding: 0;
+    position: relative;
+    transition: box-shadow var(--slotted-control-transition-duration)
+      var(--slotted-control-transition-easing);
+    --_color: var(--slotted-color-picker-color, transparent);
+  }
+
+  [data-ui-text-field] [data-ui-color-picker][data-part-trigger]::after {
+    content: '';
+    inset: min(0px, calc((100% - var(--slotted-target-min, 24px)) / 2));
+    position: absolute;
+  }
+
+  [data-ui-text-field] [data-ui-color-picker][data-part-trigger]:hover:not(:disabled) {
+    box-shadow:
+      inset 0 0 0 var(--slotted-border-width-thin, 1px) var(--slotted-border-subtle, transparent),
+      0 0 0 var(--slotted-border-width-medium, 2px) var(--slotted-tone-secondary-subtle-hover);
+  }
+
+  [data-ui-text-field]
+    [data-ui-color-picker][data-part-trigger]:is(:active, [aria-expanded='true']):not(:disabled) {
+    box-shadow:
+      inset 0 0 0 var(--slotted-border-width-thin, 1px) var(--slotted-border-subtle, transparent),
+      0 0 0 var(--slotted-border-width-medium, 2px) var(--slotted-tone-secondary-subtle-active);
+  }
+
+  [data-ui-text-field] [data-ui-color-picker][data-part-trigger]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── States ───────────────────────────────────────────────────────────── */
+
+  [data-ui-color-picker][data-part-root][data-disabled] {
+    color: var(--slotted-disabled-foreground);
+  }
+
+  [data-ui-color-picker][data-part-root][data-disabled]
+    :is([data-part-area], [data-part-channel], [data-part-presets]) {
+    filter: grayscale(1);
+    pointer-events: none;
+  }
+
+  [data-ui-color-picker][data-part-root][data-disabled]
+    :is([data-part-area-thumb], [data-part-channel-thumb]) {
+    cursor: not-allowed;
+  }
+
+  [data-ui-color-picker][data-part-root][data-readonly]
+    :is(
+      [data-part-area],
+      [data-part-channel],
+      [data-part-preset],
+      [data-part-area-thumb],
+      [data-part-channel-thumb]
+    ) {
+    cursor: default;
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-color-picker] :is([data-part-area-thumb], [data-part-channel-thumb]) {
+      border-color: CanvasText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-color-picker]
+      :is(
+        [data-part-area],
+        [data-part-channel],
+        [data-part-swatch],
+        [data-part-previous],
+        [data-part-preset]
+      ) {
+      forced-color-adjust: none;
+    }
+  }
+}

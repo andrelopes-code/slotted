@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 5,
+  "family": "accordion",
+  "ui": "accordion",
+  "catalog": {
+    "group": "Layout",
+    "summary": "Stacked sections that expand and collapse."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/accordion/",
+  "itemFamily": "collapsible",
+  "roles": {
+    "root": "none"
+  },
+  "rootRole": {
+    "value": "none",
+    "reason": "The pattern names no role for the set. A group of headings is already an outline the reader can navigate; `group` on top of it would announce a container the APG never asks for, and `region` would put every accordion in the landmark list."
+  },
+  "wiring": {
+    "aria-disabled": "true on the trigger of the one open item while requireOpen holds the set from emptying",
+    "headingLevel": "handed to every item, which renders the heading element itself",
+    "aria-label": "the consumer's own, and only when the set is a named region the page needs"
+  },
+  "keyboard": [
+    {
+      "key": "Enter",
+      "effect": "toggles the panel of the focused header; with `multiple` off, the panel that was open closes with the reason `select`",
+      "focus": "stays on the trigger",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "the same as Enter",
+      "focus": "stays on the trigger",
+      "source": "platform"
+    },
+    {
+      "key": "Tab",
+      "effect": "moves to the next focusable element; every focusable element in the accordion is in the page tab sequence",
+      "focus": "the next focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous focusable element, under the same rule",
+      "focus": "the previous focusable element",
+      "source": "platform"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "moves to the next header and wraps at the end when loop is on; opens nothing",
+      "focus": "the header moved to",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "moves to the previous header and wraps at the start when loop is on; opens nothing",
+      "focus": "the header moved to",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "Home",
+      "effect": "moves to the first header that is not disabled",
+      "focus": "the first enabled header",
+      "source": "@slotted/core/focus"
+    },
+    {
+      "key": "End",
+      "effect": "moves to the last header that is not disabled",
+      "focus": "the last enabled header",
+      "source": "@slotted/core/focus"
+    }
+  ],
+  "escapeBound": false,
+  "rovingTabindex": false,
+  "keyboardDeparture": {
+    "keys": ["ArrowDown", "ArrowUp", "Home", "End"],
+    "source": "https://github.com/w3c/aria-practices/pull/3434",
+    "reason": "The arrows were optional guidance in the accordion pattern and were removed; Base UI has since deprecated both `loopFocus` and `orientation` on its accordion, stating that the orientation state no longer affects keyboard focus behaviour. Radix and Ark still ship them and readers have learned them, so they are shipped here additively: nothing writes tabindex, every header stays in the page tab sequence, and the keys move focus and change nothing else.",
+    "cost": "A key that does something the pattern does not name. A reader who expects ArrowDown to scroll the page inside the header row does not get that; every other element in the accordion, including everything in an open panel, still does."
+  },
+  "declined": {
+    "orientation": {
+      "deferTo": "tabs",
+      "reason": "Radix and Ark both ship a horizontal accordion and Base UI has deprecated its own. A horizontally stacked set of sections of which one is open is a tab list, and `tabs` shipped in this wave with the marker, the scrolling list and the pattern's own keyboard model."
+    },
+    "onFocusChange": {
+      "reason": "Ark alone reports which header has focus, and `onFocusIn` on the root is the same information from the platform: `onFocusIn={(event) => read(event.target.dataset.value)}`."
+    },
+    "roleGroup": {
+      "reason": "No surveyed implementation and no line of the pattern puts a role on the set. A container announced around an outline the reader can already navigate is one more thing to move past."
+    }
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["plain", "ruled", "framed", "separated"],
+    "indicator": ["chevron", "plus-minus", "none"],
+    "togglePlacement": ["end", "start"],
+    "headingLevel": ["none", "1", "2", "3", "4", "5", "6"],
+    "mount": ["active", "lazy", "eager", "until-found"]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "variant": ["prop", "defaults", "ruled"],
+    "indicator": ["prop", "defaults", "chevron"],
+    "togglePlacement": ["prop", "defaults", "end"],
+    "headingLevel": ["prop", "defaults", "3"],
+    "mount": ["prop", "defaults", "eager"],
+    "truncate": ["prop", "defaults", false],
+    "multiple": ["prop", "defaults", false],
+    "requireOpen": ["prop", "defaults", false],
+    "loop": ["prop", "defaults", true]
+  },
+  "provides": {
+    "accordionDefaults": [
+      "size",
+      "variant",
+      "indicator",
+      "togglePlacement",
+      "headingLevel",
+      "mount",
+      "truncate",
+      "multiple",
+      "requireOpen",
+      "loop"
+    ],
+    "toItems": [
+      "size",
+      "variant",
+      "indicator",
+      "togglePlacement",
+      "level",
+      "mount",
+      "truncate",
+      "disabled"
+    ]
+  },
+  "variantMapping": {
+    "plain": "plain",
+    "ruled": "ruled",
+    "framed": "ruled",
+    "separated": "framed",
+    "reason": "The group hands each item a variant through the binding and selects nothing inside it. A rule reaching [data-ui='collapsible'] from this stylesheet would make one family's DOM part of another's contract, which is the rule `checkbox-group` set."
+  },
+  "requireOpen": {
+    "attribute": "aria-disabled",
+    "appliesTo": "the trigger of the one open item",
+    "source": "https://www.w3.org/WAI/ARIA/apg/patterns/accordion/",
+    "reason": "\"If the accordion panel associated with an accordion header is visible, and if the accordion does not permit the panel to be collapsed, the header button element has aria-disabled set to true.\" The APG's own example is the only surveyed source that ships it."
+  },
+  "imperative": {
+    "openAll": "opens every item that is not disabled, with the reason `programmatic`",
+    "closeAll": "closes every item, with the reason `programmatic`, unless requireOpen holds the last one",
+    "reason": "Angular Material ships both on `mat-accordion`. A controlled consumer already owns the array and needs neither; an uncontrolled one has no array to set, which is the case an escape hatch exists for."
+  },
+  "stateAttributes": {
+    "disabled": "data-disabled"
+  },
+  "stateModel": {
+    "selection": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["pointer", "keyboard", "select", "programmatic"]
+    }
+  },
+  "members": {
+    "accordion": {
+      "nativeElement": "div",
+      "defaults": {
+        "size": "md",
+        "variant": "ruled",
+        "indicator": "chevron",
+        "togglePlacement": "end",
+        "headingLevel": "3",
+        "mount": "eager",
+        "truncate": false,
+        "multiple": false,
+        "requireOpen": false,
+        "loop": true,
+        "disabled": false
+      },
+      "capabilities": ["selection", "size", "appearance", "disabled", "wiring"],
+      "states": ["default", "disabled"],
+      "parts": ["root"]
+    }
+  },
+  "scenarios": {
+    "accordion": [
+      "playground",
+      "multiple",
+      "requireOpen",
+      "variant",
+      "sizes",
+      "mount",
+      "states",
+      "imperative",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

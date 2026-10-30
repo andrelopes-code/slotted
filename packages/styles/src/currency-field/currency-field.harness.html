@@ -1,0 +1,965 @@
+<!--
+  The amounts are written the way `Intl` writes them, non-breaking space and
+  all, because that is the string the control actually holds. The stepper
+  glyphs are the empty `Glyph` element the build draws, so nothing here draws
+  a character as an icon; the adornment marks are text, which is what an
+  adornment is when it is not a glyph.
+
+  The DOM differs by arrangement on purpose: under `stacked` the two buttons
+  share a `stepper` box after the value; under `split` they are direct children
+  of the frame, decrement first and increment last, so the reading order and
+  the painted order are the same one.
+-->
+
+<section data-scene="display">
+  <div
+    data-ui="currency-field"
+    data-ui-currency-field=""
+    data-part="root"
+    data-part-root=""
+    data-appearance="display"
+    data-size="md"
+    data-variant="outline"
+    data-align="end"
+    data-entry="cents"
+    data-stepper="none"
+  >
+    <span data-part="symbol" data-part-symbol="">R$</span>
+    <input
+      data-part="input"
+      data-part-input=""
+      type="text"
+      role="spinbutton"
+      inputmode="numeric"
+      value="58,40"
+      aria-valuenow="58.4"
+      aria-valuetext="R$ 58,40"
+    />
+  </div>
+</section>
+
+<section data-scene="default">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        inputmode="numeric"
+        value="R$ 1.480,00"
+        aria-valuenow="1480"
+        aria-valuetext="R$ 1.480,00"
+      />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        inputmode="numeric"
+        placeholder="R$ 0,00"
+      />
+    </div>
+  </div>
+</section>
+
+<section data-scene="currencies">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 1.480,00"
+      />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="US$ 1.480,00"
+      />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input data-part="input" data-part-input="" type="text" role="spinbutton" value="JP¥ 1.480" />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="KWD 1.480,500"
+      />
+    </div>
+  </div>
+</section>
+
+<section data-scene="alignment">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input data-part="input" data-part-input="" type="text" role="spinbutton" value="R$ 12,00" />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 1.480,00"
+      />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="start"
+      data-entry="natural"
+      data-stepper="none"
+    >
+      <input data-part="input" data-part-input="" type="text" role="spinbutton" value="R$ 12,00" />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="start"
+      data-entry="natural"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 1.480,00"
+      />
+    </div>
+  </div>
+</section>
+
+<section data-scene="sizes">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="sm"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input data-part="input" data-part-input="" type="text" role="spinbutton" value="R$ 89,90" />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 1.480,00"
+      />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="lg"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 24.900,00"
+      />
+    </div>
+  </div>
+</section>
+
+<section data-scene="variants">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 1.480,00"
+      />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="subtle"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 1.480,00"
+      />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="plain"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 1.480,00"
+      />
+    </div>
+  </div>
+</section>
+
+<section data-scene="stepper">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="stacked"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 1.480,00"
+      />
+      <span data-part="stepper" data-part-stepper="">
+        <button
+          data-part="increment"
+          data-part-increment=""
+          type="button"
+          tabindex="-1"
+          aria-label="Aumentar"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+        <button
+          data-part="decrement"
+          data-part-decrement=""
+          type="button"
+          tabindex="-1"
+          aria-label="Diminuir"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+      </span>
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="stacked"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 0,00"
+        aria-valuenow="0"
+        aria-valuemin="0"
+        aria-valuemax="5000"
+      />
+      <span data-part="stepper" data-part-stepper="">
+        <button
+          data-part="increment"
+          data-part-increment=""
+          type="button"
+          tabindex="-1"
+          aria-label="Aumentar"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+        <button
+          data-part="decrement"
+          data-part-decrement=""
+          type="button"
+          tabindex="-1"
+          aria-label="Diminuir"
+          disabled
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+      </span>
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="stacked"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 5.000,00"
+        aria-valuenow="5000"
+        aria-valuemin="0"
+        aria-valuemax="5000"
+      />
+      <span data-part="stepper" data-part-stepper="">
+        <button
+          data-part="increment"
+          data-part-increment=""
+          type="button"
+          tabindex="-1"
+          aria-label="Aumentar"
+          disabled
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+        <button
+          data-part="decrement"
+          data-part-decrement=""
+          type="button"
+          tabindex="-1"
+          aria-label="Diminuir"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+      </span>
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="split"
+    >
+      <button
+        data-part="decrement"
+        data-part-decrement=""
+        type="button"
+        tabindex="-1"
+        aria-label="Diminuir"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="minus"></svg
+        ></span>
+      </button>
+      <input data-part="input" data-part-input="" type="text" role="spinbutton" value="R$ 25,00" />
+      <button
+        data-part="increment"
+        data-part-increment=""
+        type="button"
+        tabindex="-1"
+        aria-label="Aumentar"
+      >
+        <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+          ><svg data-part="glyph" data-part-glyph="" data-glyph="plus"></svg
+        ></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section data-scene="adornments">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <span data-part="start" data-part-start="">R$</span>
+      <input data-part="input" data-part-input="" type="text" role="spinbutton" value="1.480,00" />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input data-part="input" data-part-input="" type="text" role="spinbutton" value="1.480,00" />
+      <span data-part="end" data-part-end="">BRL</span>
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="stacked"
+    >
+      <span data-part="start" data-part-start="">$</span>
+      <input data-part="input" data-part-input="" type="text" role="spinbutton" value="1,480.00" />
+      <span data-part="end" data-part-end="">per month</span>
+      <span data-part="stepper" data-part-stepper="">
+        <button
+          data-part="increment"
+          data-part-increment=""
+          type="button"
+          tabindex="-1"
+          aria-label="Aumentar"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+        <button
+          data-part="decrement"
+          data-part-decrement=""
+          type="button"
+          tabindex="-1"
+          aria-label="Diminuir"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+      </span>
+    </div>
+  </div>
+</section>
+
+<section data-scene="scrub">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <span data-part="start" data-part-start=""
+        ><span data-part="scrub" data-part-scrub="" aria-hidden="true">R$</span></span
+      >
+      <input data-part="input" data-part-input="" type="text" role="spinbutton" value="1.480,00" />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+      data-scrubbing=""
+    >
+      <span data-part="start" data-part-start=""
+        ><span data-part="scrub" data-part-scrub="" aria-hidden="true" data-scrubbing=""
+          >R$</span
+        ></span
+      >
+      <input data-part="input" data-part-input="" type="text" role="spinbutton" value="1.512,00" />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+      data-disabled=""
+    >
+      <span data-part="start" data-part-start=""
+        ><span data-part="scrub" data-part-scrub="" aria-hidden="true">R$</span></span
+      >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="1.480,00"
+        disabled
+      />
+    </div>
+  </div>
+</section>
+
+<section data-scene="states">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 1.480,00"
+      />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+      data-invalid
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 0,00"
+        aria-invalid="true"
+      />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+      data-readonly
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 1.480,00"
+        readonly
+      />
+    </div>
+    <!-- The frame answers a control disabled by an ancestor, so the ancestor is
+         here; its own chrome is neutralised because it is not what this scene
+         is about. -->
+    <fieldset disabled style="border: 0; margin: 0; padding: 0">
+      <div
+        data-ui="currency-field"
+        data-ui-currency-field=""
+        data-part="root"
+        data-part-root=""
+        data-size="md"
+        data-variant="outline"
+        data-align="end"
+        data-entry="cents"
+        data-stepper="none"
+      >
+        <input
+          data-part="input"
+          data-part-input=""
+          type="text"
+          role="spinbutton"
+          value="R$ 1.480,00"
+          disabled
+        />
+      </div>
+    </fieldset>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="stacked"
+      data-disabled
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 1.480,00"
+        disabled
+      />
+      <span data-part="stepper" data-part-stepper="">
+        <button
+          data-part="increment"
+          data-part-increment=""
+          type="button"
+          tabindex="-1"
+          aria-label="Aumentar"
+          disabled
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+        <button
+          data-part="decrement"
+          data-part-decrement=""
+          type="button"
+          tabindex="-1"
+          aria-label="Diminuir"
+          disabled
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+      </span>
+    </div>
+  </div>
+</section>
+
+<section data-scene="content">
+  <div data-ui="stack" data-ui-stack="" data-part="root" data-part-root="" data-gap="6">
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="R$ 987.654.321.098,76"
+      />
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="stacked"
+    >
+      <span data-part="start" data-part-start="">US$</span>
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="9.999.999.999.999,99"
+      />
+      <span data-part="stepper" data-part-stepper="">
+        <button
+          data-part="increment"
+          data-part-increment=""
+          type="button"
+          tabindex="-1"
+          aria-label="Aumentar"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+        <button
+          data-part="decrement"
+          data-part-decrement=""
+          type="button"
+          tabindex="-1"
+          aria-label="Diminuir"
+        >
+          <span data-ui="icon" data-ui-icon="" data-part="root" data-part-root="" aria-hidden="true"
+            ><svg data-part="glyph" data-part-glyph="" data-glyph="chevron-down"></svg
+          ></span>
+        </button>
+      </span>
+    </div>
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="1.480,00 Reais brasileiros"
+      />
+    </div>
+    <!-- The longest string this family can hold: the ceiling amount with the
+         currency written as a name. It overflows every width the harness
+         captures, which is the point of the scene. -->
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="9,999,999,999,999.99 US dollars"
+      />
+    </div>
+    <!-- An accounting negative, which `pt-BR` does not write: `Intl` puts the
+         parentheses in `en-US` and a minus sign in Brazilian Portuguese, and the
+         parser reads both. The row is the string a ledger export hands back. -->
+    <div
+      data-ui="currency-field"
+      data-ui-currency-field=""
+      data-part="root"
+      data-part-root=""
+      data-appearance="control"
+      data-size="md"
+      data-variant="outline"
+      data-align="end"
+      data-entry="cents"
+      data-stepper="none"
+    >
+      <input
+        data-part="input"
+        data-part-input=""
+        type="text"
+        role="spinbutton"
+        value="($1,234.56)"
+      />
+    </div>
+  </div>
+</section>

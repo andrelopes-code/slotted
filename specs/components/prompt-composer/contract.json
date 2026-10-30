@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 5,
+  "family": "prompt-composer",
+  "ui": "prompt-composer",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Multi-line message input with send and tools."
+  },
+  "controlPart": "input",
+  "rootRole": null,
+  "stateSource": "field",
+  "mirrorsState": true,
+  "requiredAttribute": "aria-required",
+  "disabledAttribute": "disabled",
+  "wiring": {
+    "id": "always",
+    "aria-describedby": "merged",
+    "aria-invalid": "invalid",
+    "aria-required": "required",
+    "disabled": "disabled",
+    "readonly": "readOnly"
+  },
+  "counter": {
+    "unit": "utf-16",
+    "placedBy": "field",
+    "limitFrom": "maxLength"
+  },
+  "autoSizeMechanism": "field-sizing",
+  "autoSizeFloor": "rows",
+  "autoSizeCeiling": "maxRows",
+  "keyboard": [
+    {
+      "key": "Enter",
+      "when": "submitOn is enter and no composition is in progress",
+      "effect": "requests a submit with reason keyboard"
+    },
+    {
+      "key": "Shift+Enter",
+      "when": "always",
+      "effect": "inserts a line break, the platform's behaviour"
+    },
+    {
+      "key": "Mod+Enter",
+      "when": "always",
+      "effect": "requests a submit with reason keyboard"
+    }
+  ],
+  "imeGuard": ["KeyboardEvent.isComposing", "keyCode 229"],
+  "escapeBound": false,
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "variant": ["raised", "outline", "subtle"],
+    "submitOn": ["enter", "mod-enter"],
+    "status": ["ready", "submitted", "streaming", "error"],
+    "emphasis": ["none", "ring"]
+  },
+  "resolution": {
+    "size": ["prop", "field", "defaults", "md"],
+    "variant": ["prop", "defaults", "raised"],
+    "submitOn": ["prop", "defaults", "enter"],
+    "emphasis": ["prop", "defaults", "none"]
+  },
+  "provides": {
+    "promptComposerDefaults": ["size", "variant", "submitOn", "emphasis"]
+  },
+  "messages": ["attach", "dictate", "listening", "retry", "send", "sending", "stop", "stopped"],
+  "emphasis": {
+    "ring": "the binding draws two aria-hidden marks, ring and glow, and writes data-emphasis=ring: the ring is a band of --slotted-prompt-composer-ring-width cut from a conic gradient of --slotted-prompt-composer-ring-colors (data slots 1, 3, 5, 2), the glow the same gradient on a box the frame's size, blurred by half of --slotted-prompt-composer-ring-glow-reach under the frame's surface (restated on the root's ::after), so its halo fades past the edge and adds no overflow to a scrolling ancestor, at --slotted-prompt-composer-ring-glow-opacity at rest, -focus while the input holds focus, -busy while loading, submitted or streaming; each turns by a transform over --slotted-prompt-composer-ring-duration (duration-loop-slow) at constant speed. The ring replaces the frame's border, focus outline and raised shadow; the controls keep their own focus rings. Reduced motion stops the turn; forced colours remove both marks and bring back the border and the outline"
+  },
+  "stateAttributes": {
+    "disabled": "data-disabled",
+    "invalid": "data-invalid",
+    "readonly": "data-readonly",
+    "loading": "data-loading",
+    "drop-target": "data-drop-target"
+  },
+  "stateModel": {
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["keyboard", "submit", "dictation"]
+    }
+  },
+  "submit": {
+    "part": "submit",
+    "request": "onValueSubmit",
+    "cancelable": true,
+    "reasons": ["keyboard", "pointer"],
+    "clearsOn": "accepted",
+    "emptyRule": "value.trim() is empty, unless canSubmit",
+    "busyWhile": ["submitted"],
+    "stopWhile": ["streaming"],
+    "stop": "onStop",
+    "glyphs": {
+      "send": "arrow-up",
+      "stop": "stop",
+      "retry": "rotate-ccw"
+    },
+    "announces": ["sending", "stopped"],
+    "retryWhile": ["error"]
+  },
+  "attach": {
+    "part": "attach",
+    "sources": ["pointer", "paste", "drop"],
+    "rules": "@slotted/core/upload selectFiles",
+    "output": "onAttach",
+    "detail": ["reason", "rejected"],
+    "dropAttribute": "data-drop-target",
+    "glyph": "paperclip"
+  },
+  "dictate": {
+    "part": "dictate",
+    "engine": "@slotted/core/dictation over the platform's SpeechRecognition (webkitSpeechRecognition in Chrome and Safari), continuous, without interim results",
+    "lang": "the lang prop, else the nearest lang attribute",
+    "writes": "each event's final phrases at the end of the value, one space between, as a value request with reason dictation",
+    "pressed": "aria-pressed while the engine listens; a second press stops it; the name stays dictate",
+    "announces": ["listening"],
+    "absent": "without a recognition engine React renders nothing and Angular hides the button",
+    "glyph": "mic"
+  },
+  "members": {
+    "promptComposer": {
+      "nativeElement": "form",
+      "defaults": {
+        "size": "md",
+        "variant": "raised",
+        "submitOn": "enter",
+        "status": "ready",
+        "rows": 1,
+        "maxRows": 8,
+        "showCount": false
+      },
+      "capabilities": [
+        "value",
+        "appearance",
+        "size",
+        "status",
+        "loading",
+        "content",
+        "disabled",
+        "invalid",
+        "required",
+        "readOnly",
+        "wiring"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "disabled",
+        "invalid",
+        "readonly",
+        "loading",
+        "drop-target"
+      ],
+      "parts": [
+        "root",
+        "header",
+        "input",
+        "footer",
+        "action",
+        "attach",
+        "dictate",
+        "submit",
+        "ring",
+        "glow"
+      ]
+    }
+  },
+  "scenarios": {
+    "promptComposer": [
+      "playground",
+      "chat",
+      "comment",
+      "attachments",
+      "status",
+      "sizes",
+      "states",
+      "content",
+      "composition",
+      "keyboard"
+    ]
+  }
+}

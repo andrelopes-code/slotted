@@ -1,0 +1,728 @@
+@layer slotted.components {
+  /**
+   * Prose is the typography of a region the application did not author element
+   * by element. The tree arrives from a Markdown renderer, a CMS or a language
+   * model, and the page never gets to put an attribute on the `h2`.
+   *
+   * Three things style those bare tags, and this family must lose to the other
+   * two: a Slotted family placed inside the region, selected by `data-ui` at
+   * 0-1-0, and the consumer's own rule. So every content rule below is written
+   *
+   *   [data-ui-prose] :where(<tag>):not(:where(<the donut>))
+   *
+   * which weighs 0-1-0 — the root and nothing else. `:where()` has no weight,
+   * and `:not()` takes the weight of its argument, which here is also none.
+   *
+   * The donut is the opt-out: `data-part='exclude'` and everything inside it.
+   * `@scope ([data-ui-prose]) to ([data-part='exclude'])` says the same thing
+   * in one line and resolves lower still, and it was refused on a date rather
+   * than on a principle: it reached Baseline in March 2026, and an `@scope`
+   * block a browser cannot parse drops this whole stylesheet instead of one
+   * declaration. The attribute is the same either way, so the move costs no
+   * contract change. `specs/components/prose/contract.json` holds the note.
+   */
+  [data-ui-prose] {
+    /**
+     * The space between blocks. Typeset proves one number governs a whole page
+     * — heading gaps, list gaps and the room around a rule all derive from it —
+     * and the `flow` axis names the three values worth having instead of asking
+     * every consumer to pick a length.
+     *
+     * It is stated in `em`, like the heading ladder below, because block rhythm
+     * that did not follow the type would tighten as the reader enlarged it.
+     */
+    --_flow: var(--slotted-prose-flow-normal, 1.15em);
+
+    /**
+     * The heading ladder, and the family's only other literals. A heading in
+     * editorial content is sized relative to the text it introduces; the
+     * foundation type scale is a scale of absolute control steps that stops at
+     * 1.5rem because no control needs more. An `h1` taken from it would be 1.33
+     * times its own body text at `size="xl"`, and adding a fourth step to the
+     * scale would change ground thirty-four families stand on to serve this
+     * one. `docs/token-foundation.md` rule 1 grants the exemption to a
+     * family token whose reason is recorded, which is what `container` already
+     * used for its three page widths.
+     */
+    --_h1: var(--slotted-prose-h1-size, 2em);
+    --_h2: var(--slotted-prose-h2-size, 1.5em);
+    --_h3: var(--slotted-prose-h3-size, 1.25em);
+    --_h4: var(--slotted-prose-h4-size, 1.125em);
+    --_h5: var(--slotted-prose-h5-size, 1em);
+    --_h6: var(--slotted-prose-h6-size, 0.875em);
+
+    --_muted: var(--slotted-text-muted, GrayText);
+    --_rule: var(--slotted-border-subtle, ButtonBorder);
+    --_ground: var(--slotted-surface-sunken, Canvas);
+
+    /**
+     * The query container. It restyles descendants only and never the root's
+     * own tracks, so the family needs one element rather than the two
+     * `docs/build-briefing.md` requires of a family that resizes its own grid.
+     */
+    container-name: slotted-prose;
+    container-type: inline-size;
+
+    font-family: var(
+      --slotted-prose-font-family,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    /* One rem, not the control step: a paragraph is not a button label. */
+    font-size: var(--slotted-font-size-lg, 1rem);
+    /**
+     * The reading leading, stated once rather than taken per step. The scale
+     * pairs 1.45 with its two largest steps because a control's label is one
+     * line; SC 1.4.8 asks a paragraph for at least 1.5, and a paragraph is
+     * what this family sets.
+     */
+    line-height: var(--slotted-prose-line-height, var(--slotted-line-height-md, 1.5));
+    /**
+     * A word longer than its column breaks rather than escaping it, in the
+     * form that also lowers the element's min-content size — so a pasted URL
+     * cannot widen the table cell or the grid track that holds it. The
+     * property inherits, which is the point: it reaches every tag below
+     * without a rule of its own.
+     */
+    overflow-wrap: anywhere;
+    /* No colour is painted: text on a tonal surface reads that surface. */
+  }
+
+  /* ── The two axes ───────────────────────────────────────────────────── */
+
+  /**
+   * Named for the type-scale step the body takes, as `typography`'s own axis
+   * is, so the offset from control type is a fact a reader can check rather
+   * than one hidden behind `sm`.
+   */
+  [data-ui-prose][data-size='md'] {
+    font-size: var(--slotted-font-size-md, 0.875rem);
+  }
+
+  [data-ui-prose][data-size='lg'] {
+    font-size: var(--slotted-font-size-lg, 1rem);
+  }
+
+  [data-ui-prose][data-size='xl'] {
+    font-size: var(--slotted-font-size-xl, 1.125rem);
+  }
+
+  [data-ui-prose][data-flow='tight'] {
+    --_flow: var(--slotted-prose-flow-tight, 0.75em);
+  }
+
+  [data-ui-prose][data-flow='normal'] {
+    --_flow: var(--slotted-prose-flow-normal, 1.15em);
+  }
+
+  [data-ui-prose][data-flow='loose'] {
+    --_flow: var(--slotted-prose-flow-loose, 1.6em);
+  }
+
+  /* ── Flow ───────────────────────────────────────────────────────────────
+   *
+   * Every gap in this family is a `margin-block-start` on the block that
+   * arrives, and nothing selects forward. `:last-child`, `:has()` and `:empty`
+   * each change their own match when a block is appended, which restyles text
+   * already under the reader's eye — the failure a page streaming a language
+   * model's answer hits on every token. `:first-child` and `+` look backwards
+   * and are stable, and `prose.styles.test.mjs` holds the distinction.
+   */
+
+  [data-ui-prose]
+    :where(
+      p,
+      ul,
+      ol,
+      dl,
+      pre,
+      table,
+      figure,
+      blockquote,
+      details,
+      hr,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      [data-part-scroll],
+      [data-part='footnotes']
+    ):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    margin-block-end: 0;
+    margin-block-start: var(--_flow);
+  }
+
+  /**
+   * Nothing opens with space it did not ask for. The rule reaches the first
+   * child of the region and of every box that holds blocks of its own, so a
+   * quotation, a list item and a table cell each start flush.
+   */
+  [data-ui-prose] > :first-child,
+  [data-ui-prose]
+    :where(li, blockquote, td, th, details, figure, [data-part-scroll])
+    > :first-child {
+    margin-block-start: 0;
+  }
+
+  /**
+   * A heading binds to the text it introduces: more room above it than below.
+   * The pair is what keeps two consecutive headings — a section title followed
+   * by its first subsection — from collapsing into one block.
+   */
+  [data-ui-prose]
+    :where(h1, h2, h3, h4, h5, h6):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    color: var(--slotted-text, CanvasText);
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    line-height: var(--slotted-line-height-2xl, 1.4);
+    /**
+     * The gap above a heading is stated in the heading's own `em`, so it grows
+     * with the level: 48 pixels above an `h2` and 40 above an `h3` at the
+     * default step. That compounding is the decision, not a side effect —
+     * Tailwind reaches the same two distances by tuning six per-level values
+     * by hand, and one ratio that follows the ladder is the same result
+     * without the table.
+     */
+    margin-block-start: calc(var(--_flow) * 1.75);
+    /**
+     * A heading reached by its own anchor stops below the top edge rather than
+     * against it, so the reader lands on a title with its text under it.
+     */
+    scroll-margin-block-start: var(--_flow);
+    text-wrap: balance;
+  }
+
+  [data-ui-prose]
+    :where(h1, h2, h3, h4, h5, h6)
+    + :not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    margin-block-start: calc(var(--_flow) * 0.5);
+  }
+
+  [data-ui-prose] :where(h1):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    font-size: var(--_h1);
+    line-height: var(--slotted-line-height-3xl, 1.3);
+  }
+
+  [data-ui-prose] :where(h2):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    font-size: var(--_h2);
+    line-height: var(--slotted-line-height-3xl, 1.3);
+  }
+
+  [data-ui-prose] :where(h3):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    font-size: var(--_h3);
+  }
+
+  [data-ui-prose] :where(h4):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    font-size: var(--_h4);
+  }
+
+  [data-ui-prose] :where(h5):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    font-size: var(--_h5);
+  }
+
+  /**
+   * The sixth level is smaller than the body text, so weight and case are what
+   * carry it. A heading that is merely smaller reads as a caption.
+   */
+  [data-ui-prose] :where(h6):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    color: var(--_muted);
+    font-size: var(--_h6);
+    letter-spacing: var(--slotted-prose-h6-tracking, 0.06em);
+    text-transform: uppercase;
+  }
+
+  /**
+   * The Arabic script joins its letters and has no case at all, so the
+   * tracking that pays back what capitals took would sever the joins. The list
+   * is the common languages written in it, which is the correction
+   * `typography` already carries.
+   */
+  [data-ui-prose]
+    :where(h6):not(:where([data-part='exclude'], [data-part='exclude'] *)):where(
+      :lang(ar),
+      :lang(fa),
+      :lang(ur)
+    ) {
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  /* ── Running text ───────────────────────────────────────────────────── */
+
+  [data-ui-prose] :where(p):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    /**
+     * `pretty` asks the browser for the last few lines rather than the whole
+     * paragraph, which is what keeps a widow off the end without the cost
+     * `balance` carries over a long block.
+     */
+    text-wrap: pretty;
+  }
+
+  [data-ui-prose] :where(strong, b):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  [data-ui-prose] :where(small):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    font-size: var(--slotted-prose-small-size, 0.875em);
+  }
+
+  /**
+   * The one element in editorial text that carries a colour of its own. The
+   * warning tone is the highlighter a reader recognises, and the pair is the
+   * theme's own — a mark painted with a background and no matching ink is a
+   * mark that vanishes in the dark scheme.
+   */
+  [data-ui-prose] :where(mark):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    background-color: var(--slotted-tone-warning-surface, Mark);
+    border-radius: var(--slotted-radius-xs, 2px);
+    color: var(--slotted-tone-warning-text, MarkText);
+    padding-inline: var(--slotted-prose-mark-inset, 0.2em);
+  }
+
+  [data-ui-prose] :where(abbr[title]):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 0.2em;
+  }
+
+  /**
+   * A raised or lowered figure takes its own line height out of the line it
+   * sits in; zero is what keeps the paragraph's rhythm even where a footnote
+   * reference lands.
+   */
+  [data-ui-prose] :where(sub, sup):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    font-size: 0.75em;
+    line-height: 0;
+  }
+
+  /* ── Links ──────────────────────────────────────────────────────────────
+   *
+   * A bare `a` from a Markdown renderer reads the `link` family's own tokens,
+   * so a rendered link and a `<Link>` on the same page are one theme decision
+   * rather than two colours for one idea. No selector here names another
+   * family's `data-ui`, which is the rule `accordion` and `collapsible` set: a
+   * `<Link>` placed inside this region wins on specificity and is left alone.
+   */
+
+  [data-ui-prose] :where(a[href]):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    color: var(--slotted-link-color, var(--slotted-tone-accent-text, LinkText));
+    text-decoration-color: var(
+      --slotted-link-underline-color,
+      color-mix(in oklab, currentColor 55%, transparent)
+    );
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--slotted-link-underline-thickness, from-font);
+    text-underline-offset: var(--slotted-link-underline-offset, 0.15em);
+    transition:
+      color var(--slotted-duration-short) var(--slotted-easing-standard),
+      text-decoration-color var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-prose]
+    :where(a[href]):not(:where([data-part='exclude'], [data-part='exclude'] *)):not(
+      [data-disabled]
+    ):hover {
+    color: var(
+      --slotted-link-color-hover,
+      color-mix(
+        in oklab,
+        var(--slotted-link-color, var(--slotted-tone-accent-text, LinkText)) 65%,
+        var(--slotted-text, CanvasText)
+      )
+    );
+    text-decoration-color: currentColor;
+  }
+
+  [data-ui-prose]
+    :where(a[href]):not(:where([data-part='exclude'], [data-part='exclude'] *)):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-link-focus-ring-offset, 1px);
+  }
+
+  /* ── Lists ──────────────────────────────────────────────────────────────
+   *
+   * The native `::marker` is kept. `list-item` draws its own because its row is
+   * a grid and CSS has no `display` that is both `list-item` and a grid; an
+   * editorial `li` is not a grid, and removing the marker costs the list
+   * semantics Safari drops with it —
+   * <https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html>.
+   */
+
+  [data-ui-prose] :where(ul, ol):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    padding-inline-start: var(--slotted-prose-list-inset, 1.5em);
+  }
+
+  [data-ui-prose] :where(li):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    margin-block-start: calc(var(--_flow) * 0.35);
+    padding-inline-start: var(--slotted-prose-marker-gap, 0.25em);
+  }
+
+  [data-ui-prose] :where(li):not(:where([data-part='exclude'], [data-part='exclude'] *))::marker {
+    color: var(--_muted);
+  }
+
+  /**
+   * A nested list belongs to the row above it, so it takes the gap between two
+   * rows rather than the gap between two blocks.
+   */
+  [data-ui-prose]
+    :where(li)
+    > :where(ul, ol):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    margin-block-start: calc(var(--_flow) * 0.35);
+  }
+
+  [data-ui-prose] :where(dt):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    margin-block-start: calc(var(--_flow) * 0.5);
+  }
+
+  [data-ui-prose] :where(dd):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    margin-inline-start: var(--slotted-prose-list-inset, 1.5em);
+  }
+
+  /* ── Quotation ──────────────────────────────────────────────────────── */
+
+  [data-ui-prose] :where(blockquote):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    border-inline-start: var(
+        --slotted-prose-quote-thickness,
+        var(--slotted-border-width-thick, 2px)
+      )
+      solid var(--slotted-prose-quote-color, var(--slotted-border-strong, ButtonBorder));
+    color: var(--_muted);
+    /**
+     * The user agent indents a quotation by forty physical pixels of its own,
+     * and a family that never says otherwise inherits them: the rule of this
+     * blockquote stood a whole indent to the right of the paragraph above it
+     * in the first capture of this family, and the figure below it did the
+     * same. The reset is what makes the quotation's rule land on the text's
+     * own margin.
+     */
+    margin-inline: 0;
+    padding-inline-start: var(--slotted-prose-quote-inset, 1em);
+  }
+
+  /** The same forty pixels, on the element that holds an image. */
+  [data-ui-prose] :where(figure):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    margin-inline: 0;
+  }
+
+  [data-ui-prose]
+    :where(figcaption, caption):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    color: var(--_muted);
+    font-size: var(--slotted-prose-caption-size, 0.875em);
+    margin-block-start: calc(var(--_flow) * 0.5);
+    text-align: start;
+  }
+
+  /* ── Media ──────────────────────────────────────────────────────────── */
+
+  [data-ui-prose]
+    :where(img, svg, video, canvas):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    block-size: auto;
+    border-radius: var(--slotted-prose-media-radius, var(--slotted-radius-md, 6px));
+    display: block;
+    max-inline-size: 100%;
+  }
+
+  /* ── Code ───────────────────────────────────────────────────────────────
+   *
+   * The type, the ground and the inset. Highlighting, a copy control, line
+   * numbers and a wrap toggle belong to `code-block` in wave 8; a Markdown
+   * fence needs none of them to be readable.
+   *
+   * The ground is a fill and the edge is a border, deliberately: under forced
+   * colours the fill is replaced and the border is what still says where the
+   * code starts.
+   */
+
+  [data-ui-prose]
+    :where(code, kbd, samp, var):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    font-family: var(--slotted-font-family-mono, ui-monospace, monospace);
+    /* The mono face runs large beside the sans at the same size. */
+    font-size: var(--slotted-prose-code-size, 0.9em);
+  }
+
+  [data-ui-prose] :where(code):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    background-color: var(--_ground);
+    border: var(--slotted-border-width-thin, 1px) solid var(--_rule);
+    border-radius: var(--slotted-radius-sm, 4px);
+    padding-inline: var(--slotted-prose-code-inset, 0.3em);
+  }
+
+  [data-ui-prose] :where(kbd):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    background-color: var(--slotted-surface-raised, Canvas);
+    border: var(--slotted-kbd-border-width, var(--slotted-border-width-thin, 1px)) solid
+      var(--slotted-border-strong, ButtonBorder);
+    border-radius: var(--slotted-kbd-radius, var(--slotted-radius-sm, 4px));
+    font-family: var(--slotted-kbd-font-family, var(--slotted-font-family-mono, monospace));
+    font-weight: var(--slotted-kbd-font-weight, var(--slotted-font-weight-medium, 500));
+    padding-inline: var(--slotted-prose-code-inset, 0.3em);
+  }
+
+  [data-ui-prose] :where(pre):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    background-color: var(--_ground);
+    /**
+     * A fence reads left to right in a right-to-left document: the order of
+     * the characters is what the code means, and the first RTL capture of this
+     * family showed the block aligned to the right with its check marks
+     * trailing. The rule is the block's own, so an Arabic sentence around it
+     * is untouched.
+     */
+    direction: ltr;
+    border: var(--slotted-border-width-thin, 1px) solid var(--_rule);
+    border-radius: var(--slotted-prose-media-radius, var(--slotted-radius-md, 6px));
+    overflow-x: auto;
+    padding-block: var(--slotted-space-5, 0.75rem);
+    padding-inline: var(--slotted-space-6, 1rem);
+  }
+
+  /** A fence is one box, not a box of boxes. */
+  [data-ui-prose]
+    :where(pre)
+    > :where(code):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    background-color: transparent;
+    border: 0;
+    border-radius: 0;
+    font-size: inherit;
+    padding-inline: 0;
+  }
+
+  /* ── Tables ─────────────────────────────────────────────────────────────
+   *
+   * The rhythm and the rules. Sorting, sticky headers, column resize and row
+   * selection are the `table` family of wave 6.
+   *
+   * Every separator sits on the row that arrives — `tr + tr` looks backwards —
+   * so a row appended to a streaming answer restyles nothing above it.
+   */
+
+  [data-ui-prose] :where(table):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    border-collapse: collapse;
+    inline-size: 100%;
+    text-align: start;
+  }
+
+  /**
+   * A table the consumer handed to the `scroll` part takes the width its
+   * content asks for and overflows the wrapper, which is the whole point of
+   * having wrapped it. Left at `100%` it would instead be squeezed into the
+   * column, and the inherited `overflow-wrap: anywhere` would then break
+   * "Environment" across two lines rather than let one column be wide — the
+   * defect the first capture of this family showed.
+   *
+   * `min-inline-size` keeps a narrow table filling the column, so wrapping a
+   * table that happens to fit costs nothing.
+   */
+  [data-ui-prose]
+    [data-part-scroll]
+    > :where(table):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    inline-size: max-content;
+    min-inline-size: 100%;
+  }
+
+  [data-ui-prose] :where(th, td):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    padding-block: var(--slotted-space-4, 0.5rem);
+    padding-inline: var(--slotted-space-5, 0.75rem);
+    text-align: start;
+    vertical-align: baseline;
+  }
+
+  [data-ui-prose] :where(th):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    font-weight: var(--slotted-font-weight-semibold, 600);
+  }
+
+  [data-ui-prose]
+    :where(thead)
+    > :where(tr)
+    > :where(th, td):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    border-block-end: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-border-strong, ButtonBorder);
+  }
+
+  [data-ui-prose]
+    :where(tr + tr)
+    > :where(th, td):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    border-block-start: var(--slotted-border-width-thin, 1px) solid var(--_rule);
+  }
+
+  /* ── Rules and disclosure ───────────────────────────────────────────── */
+
+  [data-ui-prose] :where(hr):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    border: 0;
+    border-block-start: var(--slotted-divider-thickness, var(--slotted-border-width-thin, 1px))
+      solid var(--slotted-divider-color, var(--slotted-border-subtle, ButtonBorder));
+    margin-block-start: calc(var(--_flow) * 1.75);
+  }
+
+  [data-ui-prose] :where(summary):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    cursor: pointer;
+    font-weight: var(--slotted-font-weight-medium, 500);
+  }
+
+  [data-ui-prose]
+    :where(summary):not(:where([data-part='exclude'], [data-part='exclude'] *)):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-prose-focus-ring-offset, 2px);
+  }
+
+  /* ── The lead ───────────────────────────────────────────────────────── */
+
+  /**
+   * The block after the lead takes a wider gap than two ordinary paragraphs
+   * do, so the opening reads as its own movement rather than as the first of
+   * several. The selector looks backwards, which is what keeps it stable while
+   * the rest of the document is still arriving.
+   */
+  [data-ui-prose]
+    [data-part='lead']
+    + :not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+    margin-block-start: calc(var(--_flow) * 1.35);
+  }
+
+  [data-ui-prose] [data-part='lead'] {
+    color: var(--_muted);
+    font-size: var(--slotted-prose-lead-size, 1.125em);
+    line-height: var(--slotted-prose-lead-line-height, var(--slotted-line-height-lg, 1.5));
+    text-wrap: pretty;
+  }
+
+  /* ── The heading anchor ─────────────────────────────────────────────────
+   *
+   * Hidden with opacity, never with `display: none` or `visibility: hidden`:
+   * the anchor stays in the tab sequence and in the accessible tree, so a
+   * keyboard reader reaches it and a screen reader announces it. It appears
+   * when its heading is hovered *or* when it is itself focus-visible — a
+   * control that answered hover alone would be a control a keyboard cannot
+   * find.
+   *
+   * It sits on the heading's own line, after the words, and it holds its box
+   * whether it is visible or not — so revealing it moves nothing. Hanging it
+   * in a start gutter is the arrangement Primer uses and the first capture of
+   * this family showed why it cannot be borrowed: a region flush with its
+   * container has no gutter, and the focused anchor was clipped by the edge.
+   * A family cannot assume the page indented it.
+   *
+   * The binding writes a word joiner — U+2060, the zero-width character whose
+   * whole purpose is to forbid a break without occupying anything — before the
+   * anchor, so the last word of a title and its permalink wrap together. It is
+   * the same device `link` uses for its external marker, and for the same
+   * reason: a no-break space would carry a full word space with it.
+   */
+
+  [data-ui-prose] [data-part-anchor] {
+    align-items: center;
+    color: var(--_muted);
+    display: inline-flex;
+    justify-content: center;
+    margin-inline-start: var(--slotted-prose-anchor-gap, 0.35em);
+    /* WCAG 2.2 SC 2.5.8: a target is at least 24 by 24 CSS pixels. */
+    min-block-size: var(--slotted-target-min, 24px);
+    min-inline-size: var(--slotted-target-min, 24px);
+    opacity: 0;
+    text-decoration-line: none;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-prose] :where(h1, h2, h3, h4, h5, h6):hover > [data-part-anchor]:not([data-disabled]),
+  [data-ui-prose] [data-part-anchor]:focus-visible {
+    opacity: 1;
+  }
+
+  [data-ui-prose] [data-part-anchor]:focus-visible {
+    border-radius: var(--slotted-radius-sm, 4px);
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-prose-focus-ring-offset, 2px);
+  }
+
+  /* ── The scrolling block ────────────────────────────────────────────────
+   *
+   * A `pre` or a `table` wider than the column has to scroll sideways, and a
+   * reader with no pointer must be able to do it: the axe rule
+   * `scrollable-region-focusable` is WCAG 2.2 level A. Anything that takes
+   * focus then needs a name and a role, or it fails SC 4.1.2 — which is why
+   * the binding writes `role="region"`, `tabindex="0"` and a name *only while
+   * the block actually overflows*. A tab stop on a block that fits is a tab
+   * stop that does nothing.
+   *
+   * The ring is therefore painted on `[tabindex]` rather than on the part:
+   * Adrian Roselli's own trick, where the selector will not match markup that
+   * is not operable. He writes `:focus`; this writes `:focus-visible`, because
+   * a pointer press inside a `tabindex` box focuses it and a ring drawn then is
+   * a ring nobody asked for.
+   */
+
+  [data-ui-prose] [data-part-scroll] {
+    max-inline-size: 100%;
+    /* The page does not scroll sideways because one table is wide. */
+    overflow-x: auto;
+    /* A swipe that reaches the end of the table does not then move the page. */
+    overscroll-behavior-inline: contain;
+  }
+
+  [data-ui-prose] [data-part-scroll][tabindex]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-prose-focus-ring-offset, 2px);
+  }
+
+  /* ── Footnotes ──────────────────────────────────────────────────────── */
+
+  [data-ui-prose] [data-part='footnotes'] {
+    border-block-start: var(--slotted-border-width-thin, 1px) solid var(--_rule);
+    color: var(--_muted);
+    font-size: var(--slotted-prose-footnotes-size, 0.875em);
+    margin-block-start: calc(var(--_flow) * 2);
+    padding-block-start: var(--_flow);
+  }
+
+  /* ── The opt-out ────────────────────────────────────────────────────────
+   *
+   * The donut on every rule above stops this family reaching inside, and these
+   * four declarations undo what inheritance carried in on its own. Tailwind's
+   * `not-prose` and Typeset's `not-typeset` both leave the inherited type in
+   * place, so a card inside a `prose-xl` region is set in 20-pixel text.
+   * Returning the subtree to control type is what a component placed here
+   * expects, and a component that sets its own overrides all four.
+   */
+
+  [data-ui-prose] [data-part='exclude'] {
+    font-family: var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif);
+    font-size: var(--slotted-font-size-md, 0.875rem);
+    line-height: var(--slotted-line-height-md, 1.5);
+    overflow-wrap: normal;
+    text-wrap: wrap;
+  }
+
+  /* ── Reflow ─────────────────────────────────────────────────────────────
+   *
+   * A container query cannot restyle its own container — `container-type`
+   * makes an element a query container for its descendants — and every rule
+   * here targets a descendant, which is why the family needs one element
+   * rather than two. The breakpoints are literals because CSS forbids a custom
+   * property in a container condition.
+   */
+
+  @container slotted-prose (max-width: 34rem) {
+    /* A 2em heading in a 400-pixel column is six words a line. */
+    [data-ui-prose] :where(h1):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+      font-size: var(--slotted-prose-h1-size-narrow, 1.6em);
+    }
+
+    [data-ui-prose] :where(h2):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+      font-size: var(--slotted-prose-h2-size-narrow, 1.35em);
+    }
+  }
+
+  @container slotted-prose (max-width: 22rem) {
+    [data-ui-prose] :where(blockquote):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+      padding-inline-start: calc(var(--slotted-prose-quote-inset, 1em) / 2);
+    }
+
+    [data-ui-prose] :where(ul, ol):not(:where([data-part='exclude'], [data-part='exclude'] *)) {
+      padding-inline-start: var(--slotted-prose-list-inset-narrow, 1.15em);
+    }
+  }
+}

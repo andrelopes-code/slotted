@@ -1,0 +1,183 @@
+@layer slotted.components {
+  /**
+   * Icon is the box a glyph is drawn in, not the glyph. The library ships no
+   * catalogue: the artwork is the consumer's, and this family owns the size it
+   * is drawn at, the colour it inherits, where it sits against a line of text,
+   * and whether it mirrors in a right-to-left document.
+   *
+   * The size is read through the family token rather than stated, so a
+   * container — a button, a table row, a tag — sizes every icon inside it by
+   * setting `--slotted-icon-size` once and needs to know nothing else about
+   * this family. An instance overrides that container through `data-size`,
+   * which sets the same token on the element itself.
+   */
+  [data-ui-icon] {
+    --_size: var(--slotted-icon-size, var(--slotted-control-icon-size-md, 16px));
+
+    align-items: center;
+    block-size: var(--_size);
+    display: inline-flex;
+    /* A box that shrinks is not a box: an icon keeps its size in a flex row. */
+    flex: none;
+    inline-size: var(--_size);
+    justify-content: center;
+    line-height: 1;
+    /**
+     * An inline box sits with its bottom edge on the baseline, which puts its
+     * centre half its own height above the line while text reads centred
+     * between the baseline and the cap height. The icon reads high without a
+     * correction, and by more the larger it is relative to the type around it:
+     * a constant shift is right at one ratio and wrong at every other, which a
+     * large step inside small text shows plainly.
+     *
+     * The default is therefore computed rather than stated. `cap` is the cap
+     * height of the font the icon inherits and `--_size` is the box, so the
+     * expression puts the box's centre on the text's optical centre at every
+     * combination of the two. At `1em` it resolves near the `-0.125em` this
+     * family used to state, which is why that constant looked right until the
+     * ratio changed. A theme still overrides the whole thing through the token.
+     *
+     * It is inert inside a flex or grid container, where alignment is the
+     * parent's decision.
+     */
+    vertical-align: var(--slotted-icon-baseline-shift, calc(0.5cap - 0.5 * var(--_size)));
+  }
+
+  /**
+   * The artwork fills the box rather than deciding it. The descendant form is
+   * needed as well as the child form because a glyph component renders its own
+   * host in between, as `<ng-icon><svg/></ng-icon>` does. This reaches into
+   * markup the consumer wrote, deliberately: a box whose content sets its own
+   * size is not a box.
+   *
+   * Such a host sizes itself at `1em` from a stylesheet outside any layer,
+   * and an unlayered declaration outranks a layered one whatever its
+   * specificity: the two lengths below never reach it. The box does not fight
+   * that host. It gives the host a font-size equal to the box, and `1em` is
+   * then the box — 14 pixels at `sm`, the type's size at `text`. The font-size
+   * is on the child and not on the box, because `vertical-align` above reads
+   * `cap` from the text the box sits in.
+   */
+  [data-ui-icon] > *,
+  [data-ui-icon] svg {
+    block-size: 100%;
+    display: block;
+    font-size: var(--_size);
+    inline-size: 100%;
+  }
+
+  /**
+   * Three steps read the control icon scale, which the theme restates per
+   * density, so an icon shrinks with the control beside it. The fourth follows
+   * the type it sits in, because sixteen pixels inside a display heading is
+   * not an icon.
+   */
+  /**
+   * A status mark is drawn on three grids (`@slotted/core/glyph`), and the box
+   * shows the one it is sized for, so every cut lands on whole pixels. The box
+   * is a size container for that question alone: its size is its own and never
+   * its content's. Under 1dppx — a page zoomed out — the 12-unit drawing is
+   * the heaviest per pixel, and the one that stays legible.
+   */
+  [data-ui-icon]:has(> svg > svg[data-grid]) {
+    container-type: size;
+  }
+
+  [data-ui-icon] svg[data-grid] {
+    display: none;
+  }
+
+  @container (width < 13px) {
+    [data-ui-icon] svg[data-grid='12'] {
+      display: block;
+    }
+  }
+
+  @container (13px <= width < 15px) {
+    [data-ui-icon] svg[data-grid='14'] {
+      display: block;
+    }
+  }
+
+  @container (width >= 15px) {
+    [data-ui-icon] svg[data-grid='16'] {
+      display: block;
+    }
+  }
+
+  @media (max-resolution: 0.99dppx) {
+    [data-ui-icon] svg[data-grid] {
+      display: none;
+    }
+
+    [data-ui-icon] svg[data-grid='12'] {
+      display: block;
+    }
+  }
+
+  [data-ui-icon][data-size='text'] {
+    --slotted-icon-size: 1em;
+  }
+
+  [data-ui-icon][data-size='sm'] {
+    --slotted-icon-size: var(--slotted-control-icon-size-sm, 14px);
+  }
+
+  [data-ui-icon][data-size='md'] {
+    --slotted-icon-size: var(--slotted-control-icon-size-md, 16px);
+  }
+
+  [data-ui-icon][data-size='lg'] {
+    --slotted-icon-size: var(--slotted-control-icon-size-lg, 18px);
+  }
+
+  /**
+   * Colour is inherited rather than painted, so an icon beside a label is the
+   * colour of that label without anyone deciding it. The family sets `color`
+   * and never `fill` or `stroke`: stroked artwork declares
+   * `stroke="currentColor"` and filled artwork declares `fill="currentColor"`,
+   * and imposing either would break the other.
+   */
+  [data-ui-icon][data-tone='default'] {
+    color: var(--slotted-text, CanvasText);
+  }
+
+  [data-ui-icon][data-tone='muted'] {
+    color: var(--slotted-text-muted, GrayText);
+  }
+
+  [data-ui-icon][data-tone='accent'] {
+    color: var(--slotted-tone-accent-text, LinkText);
+  }
+
+  [data-ui-icon][data-tone='success'] {
+    color: var(--slotted-tone-success-text, CanvasText);
+  }
+
+  [data-ui-icon][data-tone='info'] {
+    color: var(--slotted-tone-info-text, CanvasText);
+  }
+
+  [data-ui-icon][data-tone='warning'] {
+    color: var(--slotted-tone-warning-text, CanvasText);
+  }
+
+  [data-ui-icon][data-tone='danger'] {
+    color: var(--slotted-tone-danger-text, CanvasText);
+  }
+
+  [data-ui-icon][data-tone='inverse'] {
+    color: var(--slotted-text-inverse, Canvas);
+  }
+
+  /**
+   * Only artwork that points somewhere mirrors, and only the consumer knows
+   * which artwork that is. `:dir()` rather than an ancestor `[dir]` selector,
+   * because a mirrored icon inside a left-to-right island inside a
+   * right-to-left page has to read the directionality that actually applies to
+   * it.
+   */
+  [data-ui-icon][data-directional]:dir(rtl) {
+    scale: -1 1;
+  }
+}

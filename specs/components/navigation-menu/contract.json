@@ -1,0 +1,303 @@
+{
+  "schemaVersion": 5,
+  "family": "navigation-menu",
+  "ui": "navigation-menu",
+  "catalog": {
+    "group": "Navigation",
+    "summary": "Site sections that open panels of links."
+  },
+  "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/",
+  "patternStatus": "Read on 2026-10-01 from the rendered example page. The example's own note says it uses the word menu in the colloquial sense and does not use the menu role, because a site's navigation does not need the keyboard the menu and menubar pattern specify; no menu, menubar or menuitem role is written here. The keyboard table transcribes the example's Keyboard Support section, its optional arrow keys, Home and End included, without a roving tabindex: every top-level control stays a tab stop.",
+  "composes": ["presence", "dismissable-layer"],
+  "roles": {
+    "root": "navigation | none",
+    "list": "list",
+    "item": "listitem",
+    "trigger": "button",
+    "link": "link",
+    "links": "list",
+    "group": "group",
+    "reason": "Every role but group is the element's own: nav > ul > li > (button + div) and (a), the disclosure example's structure. A nested root is a div with no landmark, because a navigation landmark inside a navigation landmark is announced twice. group carries role=group and aria-labelledby to its group-label, so a column's title names the links under it"
+  },
+  "element": {
+    "root": "nav | div",
+    "list": "ul",
+    "item": "li",
+    "trigger": "button",
+    "indicator": "span",
+    "link": "a",
+    "content": "div",
+    "links": "ul",
+    "group": "div",
+    "group-label": "div",
+    "icon": "span",
+    "label": "span",
+    "description": "span",
+    "footer": "div",
+    "viewport": "div",
+    "arrow": "span",
+    "reason": "The root is a nav where the family stands alone and a div where it is nested in another navigation-menu's content. The trigger is always a native button: it owns aria-expanded and aria-controls, and the family wires it"
+  },
+  "anatomy": {
+    "root": "the nav landmark, aria-label from messages.navigation unless the consumer wrote one. position: relative: the viewport and every content are placed against it. data-orientation, data-size, and data-nested when inside another root",
+    "list": "the sections and the top-level links, in a row or in a column",
+    "item": "one section — a trigger followed by its content — or one top-level link. data-value names it; data-open while its content is shown",
+    "trigger": "a native button: aria-expanded, aria-controls pointing at content, data-open while open, data-current while its content holds the current link. The control scale's height, inset and type",
+    "indicator": "the chevron-down Glyph element at the trigger's end, a half turn while open; chevron-right with a directional box in a vertical root",
+    "link": "a destination, at the top level beside the triggers or inside a content. aria-current=page and data-current when current; aria-disabled with the activation refused when disabled",
+    "content": "one section's panel, after its trigger in the same li. hidden while closed; data-open, data-motion while it crosses another. A query container whose inline size is stated, columns times the column size, capped by the space available",
+    "links": "the grid of links inside a content or a group; its columns come from the content's data-columns and fall to one below 480 pixels of content",
+    "group": "a column of the panel with a title: role=group and aria-labelledby to group-label",
+    "group-label": "a group's title in the small type and the muted ink",
+    "icon": "a rich link's mark, aligned to the text of its label",
+    "label": "a rich link's title",
+    "description": "a rich link's description: two lines to the eye, whole in the DOM",
+    "footer": "the panel's last row, under a rule: the consumer's call to action",
+    "viewport": "the shared surface: ground, edge, shadow and radius, sized and placed from the measured content. data-open, and data-positioned once the script has placed it. Without script it is not drawn and the open content paints its own surface",
+    "arrow": "a mark on the viewport's edge pointing at the open trigger, sliding from trigger to trigger. Rendered only when arrow is true"
+  },
+  "content": {
+    "inItem": true,
+    "inItemReason": "The content stays after its trigger in the DOM, as the disclosure example places it, and is laid over the viewport's box with no ground of its own. Tab reaches it without the sentinels Radix and Base UI add after porting the content into the viewport, and React ports nothing. Cost: a consumer who clips the root with overflow: hidden clips the panel",
+    "mounted": "always: a closed content is hidden, not removed. The tab sequence, a static render and a search engine read the destinations. A consumer who wants a heavy panel lazy renders its children only while value names it"
+  },
+  "runtimeProperties": {
+    "--slotted-navigation-menu-viewport-inline-size": "the open content's border-box width",
+    "--slotted-navigation-menu-viewport-block-size": "the open content's border-box height",
+    "--slotted-navigation-menu-viewport-inline-start": "from the root's inline start to the viewport's: under a trigger, the trigger's inline start moved toward the start until the viewport fits; beside a column, the column's width",
+    "--slotted-navigation-menu-viewport-block-start": "vertical only: from the root's top to the open trigger's top beside it, or to its bottom under it",
+    "--slotted-navigation-menu-arrow-offset": "the open trigger's centre, measured from the viewport's inline start",
+    "--slotted-navigation-menu-available-inline-size": "the widest a panel may be: the window's inline size less a gutter at each side under a trigger, or the room at the column's end beside it"
+  },
+  "runtimePropertiesReason": "Values a stylesheet needs and only script can measure are custom properties under the name that says so (docs/build-briefing.md). They are runtime values, not design tokens, and are written on the root",
+  "hover": {
+    "open": "a pointer resting on a trigger for openDelay opens its section with the reason pointer",
+    "switch": "with a section open, a pointer entering another trigger switches without the delay",
+    "close": "a pointer leaving the root closes after closeDelay, cancelled when it returns",
+    "touch": "a pointer whose pointerType is touch never opens by hover: a touch is a click",
+    "reason": "Radix and Ark wait 200 milliseconds to open and Ark 300 to close; Base UI waits 50 for both, which opened a panel under a pointer crossing the bar on its way elsewhere. The delays are behaviour, not motion, and do not come from the duration scale"
+  },
+  "keyboard": [
+    {
+      "key": "Tab",
+      "effect": "moves to the next control: each trigger and top-level link, and the links of an open content after its trigger",
+      "focus": "the next control",
+      "source": "platform"
+    },
+    {
+      "key": "Shift+Tab",
+      "effect": "moves to the previous control under the same rule",
+      "focus": "the previous control",
+      "source": "platform"
+    },
+    {
+      "key": "Enter",
+      "effect": "toggles a trigger's section and asks value to move with the reason keyboard; follows a link, and with closeOnSelect asks value to move to null with the reason select",
+      "focus": "unchanged",
+      "source": "platform"
+    },
+    {
+      "key": "Space",
+      "effect": "toggles a trigger's section like Enter; on a link the platform scrolls the page, and the family writes nothing over it",
+      "focus": "unchanged",
+      "source": "platform"
+    },
+    {
+      "key": "Escape",
+      "effect": "closes the open section through dismissable-layer with the reason escape",
+      "focus": "the trigger of the section that closed",
+      "source": "family"
+    },
+    {
+      "key": "ArrowDown",
+      "effect": "horizontal, on an open trigger: enters the content; on a closed trigger or a top-level link in a vertical root: the next top-level control; inside a content: the next focusable of the content",
+      "focus": "the content's first focusable, the next top-level control, or the next focusable of the content",
+      "source": "family"
+    },
+    {
+      "key": "ArrowUp",
+      "effect": "inside a content: the previous focusable, and from the first the trigger; on a top-level control of a vertical root: the previous one",
+      "focus": "the previous focusable, or the trigger",
+      "source": "family"
+    },
+    {
+      "key": "ArrowRight",
+      "effect": "horizontal, on a top-level control: the next one, and the first from the last; vertical, on an open trigger: enters the content",
+      "focus": "the next top-level control, or the content's first focusable",
+      "source": "family"
+    },
+    {
+      "key": "ArrowLeft",
+      "effect": "horizontal, on a top-level control: the previous one, and the last from the first. Mirrored in rtl",
+      "focus": "the previous top-level control",
+      "source": "family"
+    },
+    {
+      "key": "Home",
+      "effect": "on a top-level control: the first one; inside a content: its first focusable",
+      "focus": "the first top-level control, or the content's first focusable",
+      "source": "family"
+    },
+    {
+      "key": "End",
+      "effect": "on a top-level control: the last one; inside a content: its last focusable",
+      "focus": "the last top-level control, or the content's last focusable",
+      "source": "family"
+    }
+  ],
+  "keyboardReason": "The disclosure example lists the arrows, Home and End as optional, for keyboard users without a screen reader. They are adopted as a shortcut over the tab sequence, not as a replacement: no roving tabindex, every top-level control stays a tab stop, and movement by arrow keys does not animate",
+  "rovingTabindex": false,
+  "focusLeaves": "focus leaving the root closes the open section with the reason blur; focus moving between top-level controls leaves it open, as in the disclosure example",
+  "current": {
+    "attribute": "data-current",
+    "aria": "aria-current",
+    "value": "page",
+    "trigger": "a trigger whose content holds the current link carries data-current, so the reader sees which section they are in with every section closed",
+    "painted": "the link's ground in --slotted-tone-accent-surface under --slotted-tone-accent-text, with --slotted-current-edge: the pair top-navigation and side-navigation draw. A current trigger takes the accent ink and keeps its resting ground"
+  },
+  "disabled": {
+    "trigger": "the native disabled attribute; the section never opens",
+    "link": "aria-disabled=true, the click refused, the href kept — list-item's rule",
+    "item": "data-disabled, never aria-disabled, which ARIA 1.2 deprecates on listitem"
+  },
+  "nested": {
+    "rule": "a root inside another root's content renders a div, writes no landmark, is vertical, and draws no viewport: its list is a column at the panel's start and its open section stands beside it on the outer panel's surface, so a second level switches inside the same panel",
+    "attribute": "data-nested"
+  },
+  "dataAttributes": {
+    "data-motion": ["from-start", "from-end", "to-start", "to-end"],
+    "data-positioned": "on the viewport once the script has measured and placed it",
+    "data-columns": "on content: 1, 2 or 3 columns of links",
+    "data-orientation": "on the root",
+    "data-nested": "on a root inside another root's content",
+    "data-placement": "on a vertical root: beside while the column has room at its end for the open panel, below when it has none and the panel drops under the trigger"
+  },
+  "axes": {
+    "size": ["sm", "md", "lg"],
+    "orientation": ["horizontal", "vertical"],
+    "columns": [1, 2, 3],
+    "arrow": [true, false]
+  },
+  "resolution": {
+    "size": ["prop", "defaults", "md"],
+    "orientation": ["prop", "nested", "horizontal"],
+    "openDelay": ["prop", "defaults", 200],
+    "closeDelay": ["prop", "defaults", 300],
+    "closeOnSelect": ["link", "prop", "defaults", true],
+    "arrow": ["prop", "defaults", false]
+  },
+  "provides": {
+    "navigationMenuDefaults": [
+      "size",
+      "openDelay",
+      "closeDelay",
+      "closeOnSelect",
+      "arrow",
+      "messages"
+    ]
+  },
+  "messages": ["navigation"],
+  "stateModel": {
+    "open": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": [
+        "pointer",
+        "keyboard",
+        "escape",
+        "outsidePress",
+        "blur",
+        "select",
+        "programmatic"
+      ],
+      "reason": "Which section is open: the data-value of its item, or null. pointer is a click or a hover with a mouse or a pen; keyboard is Enter or Space on a trigger; escape and outsidePress come from dismissable-layer; blur is focus leaving the root; select is a content link activated while closeOnSelect holds"
+    }
+  },
+  "stateAttributes": {
+    "open": "data-open",
+    "current": "data-current",
+    "disabled": "data-disabled"
+  },
+  "declined": {
+    "menuRole": {
+      "reason": "Radix, Base UI and Ark render no menu role either; the APG example's own note refuses it for site navigation. A list of commands is the menu family"
+    },
+    "backdrop": {
+      "reason": "Base UI ships one. A navigation panel is not modal and does not dim the page; a consumer who wants it writes [data-ui='navigation-menu']:has([data-part='viewport'][data-open])::after in two declarations"
+    },
+    "feature": {
+      "reason": "Radix's demonstration opens with a large card. It is the card family inside a content: a Card rendered as an a in a links cell with grid-row: span 3"
+    },
+    "portal": {
+      "reason": "Radix and Base UI port the content into the viewport and rebuild the tab order with sentinels. The content stays in its li here, which is the disclosure example's own structure (content.inItemReason)"
+    }
+  },
+  "members": {
+    "navigationMenu": {
+      "nativeElement": "nav",
+      "defaults": {
+        "size": "md",
+        "orientation": "horizontal",
+        "openDelay": 200,
+        "closeDelay": 300,
+        "closeOnSelect": true,
+        "arrow": false
+      },
+      "capabilities": ["open", "orientation", "size", "disabled", "wiring", "content"],
+      "states": ["default", "hover", "active", "focus-visible", "open", "current", "disabled"],
+      "parts": [
+        "root",
+        "list",
+        "item",
+        "trigger",
+        "indicator",
+        "link",
+        "content",
+        "links",
+        "group",
+        "group-label",
+        "icon",
+        "label",
+        "description",
+        "footer",
+        "viewport",
+        "arrow"
+      ],
+      "defaultsReason": "Axis defaults and the hover delays. The uncontrolled start is defaultValue, in React alone: Angular ships one model() for value"
+    }
+  },
+  "scenarios": {
+    "navigationMenu": [
+      "playground",
+      "anatomy",
+      "links",
+      "rich",
+      "groups",
+      "footer",
+      "current",
+      "vertical",
+      "nested",
+      "states",
+      "size",
+      "content",
+      "controlled",
+      "defaults",
+      "composition",
+      "keyboard",
+      "accessibility"
+    ]
+  },
+  "indicator": {
+    "closed": "chevron-down in a horizontal root, chevron-right in a vertical one",
+    "open": "chevron-down turned half a turn; in a vertical root chevron-right does not turn, because the section opens beside the trigger, where it already points",
+    "rtl": "chevron-down is not mirrored; chevron-right is, through directional on its icon box"
+  },
+  "placement": {
+    "rule": "a vertical root's panel opens beside the column while the column has room at its end, and drops under the open trigger when it has none, rather than clipping at the window's edge; the chevron turns a quarter to point at it",
+    "reason": "Measured at 240 pixels: a 13rem column left no room at its end, and the panel beside it was clipped to 50 pixels"
+  },
+  "composedBy": {
+    "top-navigation": "the bar's nav part carries the root and its items are sections; a section folded into the bar's overflow panel opens its content in line there, the surface stays away, hover does not open it, and focus or a press inside that content is not outside the menu"
+  }
+}

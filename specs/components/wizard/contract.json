@@ -1,0 +1,316 @@
+{
+  "schemaVersion": 5,
+  "family": "wizard",
+  "ui": "wizard",
+  "catalog": {
+    "group": "Forms",
+    "summary": "Multi-step form with validation per step."
+  },
+  "pattern": "https://www.w3.org/WAI/tutorials/forms/multi-page/",
+  "patternStatus": "No APG pattern names a wizard. Read on 2026-09-25: the WAI Multi-page Forms tutorial supplies the progress in the main heading, the ordered step indicator with its hidden current and completed text, the link back to completed steps that keeps what was typed, and the skippable optional step. The progress keeps the stepper family's own transcription and each step keeps the form family's.",
+  "reference": "PatternFly Wizard, Clarity clr-wizard, SAP OpenUI5 sap.m.Wizard, Carbon for IBM Products CreateTearsheet, Angular CDK Stepper, Zag steps, Mantine Stepper, GOV.UK Question pages and Check answers",
+  "composes": ["stepper", "form", "button", "alert", "tag", "skeleton"],
+  "engine": "@slotted/core/wizard for the flow's arithmetic and the snapshot; @slotted/core/steps under it for reachability; @slotted/core/form through the form family; @slotted/core/state for the three models",
+  "rootElement": "div",
+  "rootRole": null,
+  "roles": {
+    "root": "none: the progress is the stepper, which declined a navigation landmark, and each step form is named by its own heading",
+    "step form": "the form family's form, aria-labelledby step-title",
+    "error": "the alert family, a section named by its title and live=off: focus moves to it, which is what announces it",
+    "draft-status": "status, polite",
+    "complete": "group, aria-labelledby the consumer's heading inside it when there is one"
+  },
+  "anatomy": {
+    "root": "a div carrying data-ui=wizard, data-progress, data-scroll, and data-loading, data-invalid or data-complete for the submission cycle; the container named slotted-wizard",
+    "layout": "the grid of progress and main, one element in from the root so the container query on the root can change its tracks",
+    "progress": "the column or row holding the stepper; data-open while the compact progress is expanded",
+    "progress-toggle": "a button laid out only in the compact class: aria-expanded, aria-controls the stepper's list; holds progress-position, progress-track and a chevron; it does not repeat the step's name, which the heading under it says",
+    "progress-position": "messages.position for the current step, inside the toggle; the toggle's accessible name",
+    "progress-track": "aria-hidden: one progress-segment per step present, the whole flow at a glance where no column can hold the list",
+    "progress-segment": "one step: data-complete, data-current or data-invalid, the facts the stepper's markers carry",
+    "main": "the column of error, step and actions, or of complete",
+    "error": "a div around the alert family in the danger tone, rendered while error or a failed submission stands",
+    "step": "the div around the current step: header and form; aria-busy while a draft is restored",
+    "step-header": "the step's heading and description",
+    "step-title": "an h2, h3 or h4 by level, tabindex=-1, the focus target on every step change; holds position, the step's label and optional",
+    "position": "messages.position inside the heading, on its own line above the label",
+    "optional": "the tag family reading messages.optional, inside the heading, on an optional step only",
+    "step-description": "the consumer's sentence under the heading; absent when none is given",
+    "actions": "the row under the step: actions-start and actions-end",
+    "actions-start": "the actions that leave the flow: cancel and save-draft, then draft-status",
+    "actions-end": "the actions that move it: skip, previous, then next or submit at the end edge",
+    "cancel": "a button, the button family's ghost variant: asks onCancel with dirty; closes nothing",
+    "save-draft": "a button, the button family's secondary variant: writes the snapshot; loading while the save is pending; rendered only when onSaveDraft or persistence is given",
+    "draft-status": "a polite status reading messages.saved, messages.saving or messages.draftFailed; empty until the first save",
+    "skip": "a button, ghost: on an optional step only; accepts the step with {} and moves on",
+    "previous": "a button, secondary: the previous step present; absent on the first",
+    "next": "a submit button, primary, form= the step form's id: on every step but the last; reads messages.return while a return point stands; loading while validate is pending",
+    "submit": "the same button on the last step, reading messages.submit; data-final; loading while onSubmit is pending",
+    "edit": "a button placed by the consumer, usually on a review step: goes to the named step and sets the return point; messages.edit plus the step's label, hidden, for its accessible name",
+    "complete": "the consumer's content after an accepted submission, in place of step and actions; tabindex=-1, the focus target",
+    "skeleton": "stands for the step form while an asynchronous restore is pending: one field family field whose label and control are skeletons; the step-header keeps its parts with skeleton lines for position and title; actions absent"
+  },
+  "wiring": {
+    "form": "next and submit carry form= the step form's id, so they submit it from outside it, as the platform allows",
+    "aria-labelledby": "on the step form, naming step-title",
+    "aria-controls": "on progress-toggle, naming the stepper list; on each stepper trigger, naming the step form",
+    "aria-expanded": "on progress-toggle",
+    "aria-busy": "on the step while a draft is restored; on the step form while validate is pending, through the form family's loading"
+  },
+  "request": {
+    "step": "ChangeRequest<string>: the step's name",
+    "value": "ChangeRequest<WizardValue>: Record<name, StepValues>, the accepted answers",
+    "equal": "a request for a value equal to the current one is not emitted",
+    "cancel": "onCancel({ dirty, source }): dirty is true while any step holds typed values that were not accepted, or accepted values that were not submitted",
+    "saveDraft": "onSaveDraft(snapshot, request): reason pointer from the part, programmatic from the handle, submit from autosave",
+    "submitResult": "onSubmit(values, request) returns void, a WizardFailure { message, step?, errors? }, or a promise of either; a rejected promise is a failure whose message is messages.submitFailed"
+  },
+  "rules": {
+    "complete": "a step is complete exactly when its name is in value; a value from a server declares completed steps without a second field",
+    "drafts": "typed values not yet accepted are held per step as drafts, not value; they reach the fields by the same way value does, and they are part of the snapshot",
+    "advance": "a submission of the step runs the form family's constraint validation, then the step's validate(values, { value, signal }); errors go to the step form; a promise sets next to loading; going back or jumping aborts it through the AbortSignal and a late answer does not advance",
+    "back": "previous and a jump backward keep the step's typed values as a draft without validating them",
+    "jump": "on a jump forward to a reachable step the current step is submitted first; the destination is the header chosen",
+    "destination": "decided after the consumer has rendered the list the accepted answer produces, so a step the answer opens is the next one; after a step is accepted: with a return point, the first incomplete step between the current step and the return point, otherwise the return point; without one, the next step present; on the last step, the submission",
+    "restore": "a restored value is announced in either mode and the draft's step is resolved after the consumer has rendered the list that value produces",
+    "clamp": "a requested step that is absent or unreachable becomes the first incomplete step, requested with the reason programmatic; only a requested step is clamped (a URL, a restore, a controlled step), never the current step because the list changed",
+    "submit": "onSubmit receives the accepted values of only the steps present at submission; with linear=false an incomplete step is requested first and the submission does not run",
+    "failure": "a failure shows in error and takes focus; with step the family requests that step and publishes errors to its form",
+    "branching": "the steps are the ones the consumer renders; the current step leaving the list requests the next present step, or the previous one; an absent step keeps its entry in value and is left out of the submission; a new name is a new step, incomplete and empty",
+    "insertedBefore": "a step that appears before the current one leaves the current step where it is; the next advance goes to the first incomplete step before its destination, and the submission does not run past it",
+    "controlledAbsent": "a controlled step that names an absent step renders the step the family requested, the way pagination renders the clamped page",
+    "returnAbsent": "a return point that leaves the list is dropped, and the advance goes to the next present step",
+    "pendingRemoved": "a step that leaves the list while its validate is pending aborts it; a late answer neither advances nor publishes errors",
+    "uniqueNames": "two steps with one name throw: they would share one answer",
+    "liveConditions": "a condition over value shows its step after the advance that accepted the answer; a live preview reads the consumer's own state",
+    "countChanges": "messages.position is recomputed and not announced; the next step's heading says the new position when it takes focus",
+    "empty": "no steps throws: a wizard with nothing to show is a consumer mistake a render would hide",
+    "skip": "skip accepts an optional step with {} in value",
+    "url": "the family never writes location; a router owns step through the controlled pair, and an unreachable step is clamped",
+    "busy": "while validate or onSubmit is pending the headers, previous, cancel and save-draft refuse, the way a loading control does not answer press"
+  },
+  "snapshot": {
+    "version": "the consumer's version of the flow; a snapshot with another version is not restored",
+    "step": "the step's name",
+    "value": "the accepted answers",
+    "drafts": "the typed answers not yet accepted, per step",
+    "savedAt": "an ISO 8601 string"
+  },
+  "persistence": {
+    "methods": ["load", "save", "clear"],
+    "sync": "a synchronous load is read before the first render, so a reload paints the restored step at once",
+    "storage": "storagePersistence({ key, storage, version }) over sessionStorage or localStorage; a File entry is omitted because Storage holds strings",
+    "version": "a snapshot whose version differs is ignored and cleared",
+    "clear": "an accepted submission and reset() clear it"
+  },
+  "focus": {
+    "initial": "the first render does not move focus",
+    "step": "every step change moves focus to step-title, which says the position and the step's name",
+    "invalid": "a refused submission of a step moves focus where the form family's errorFocus says",
+    "failure": "a failed submission moves focus to the alert in error",
+    "complete": "an accepted submission moves focus to complete",
+    "escape": "Escape inside the expanded compact progress closes it and returns focus to progress-toggle"
+  },
+  "waits": {
+    "restore": "an asynchronous load: the skeleton part after delay, held for minDuration, aria-busy on step, messages.restoring announced once",
+    "validate": "the next button's own loading; aria-busy on the step form",
+    "submit": "the submit button's own loading; data-loading on the root",
+    "draft": "the save-draft button's own loading, then draft-status"
+  },
+  "keyboard": [
+    {
+      "key": "Enter",
+      "effect": "inside a text control of the step form: submits the step, the platform's implicit submission",
+      "focus": "step-title of the next step, or the form family's error focus",
+      "source": "platform"
+    },
+    {
+      "key": "Escape",
+      "effect": "inside the expanded compact progress: closes it",
+      "focus": "progress-toggle",
+      "source": "family"
+    },
+    {
+      "key": "Tab",
+      "effect": "the page's own order: progress, step, actions",
+      "focus": "the next control",
+      "source": "platform"
+    }
+  ],
+  "reflow": {
+    "container": "slotted-wizard",
+    "breakpoint": "600px",
+    "below": "the progress collapses behind progress-toggle and the two action groups stack",
+    "reason": "600px is the compact size class of docs/component-features.md §2.7, the edge under which a page surface changes its composition; the wizard is a page surface"
+  },
+  "declined": {
+    "modal": {
+      "deferTo": "dialog",
+      "reason": "Clarity opens its wizard as a modal and Carbon in a tearsheet. The layer is dialog's and drawer's; scroll=self makes main scroll and pins actions inside it."
+    },
+    "subSteps": {
+      "composition": "a step with several sections composes section inside its form",
+      "reason": "PatternFly alone nests steps under a parent step."
+    },
+    "documentTitle": {
+      "composition": "useEffect(() => { document.title = `${wizard.position} · ${wizard.label}`; }, [wizard.step])",
+      "reason": "The WAI tutorial puts the progress in <title>, which the router owns; two owners of the title diverge."
+    },
+    "timedAutosave": {
+      "composition": "setInterval(() => handle.current?.saveDraft(), 60_000)",
+      "reason": "A timer writes while the reader is typing and saves nothing the accepted step does not already save."
+    },
+    "when": {
+      "composition": "{business && <WizardStep name=\"company\" … />} in React, @if in Angular",
+      "reason": "UI5 and Carbon declare inclusion on the step; each framework already renders conditionally."
+    }
+  },
+  "axes": {
+    "progress": ["start", "top", "none"],
+    "scroll": ["ancestor", "self"],
+    "level": [2, 3, 4],
+    "autosave": ["none", "step"]
+  },
+  "resolution": {
+    "progress": ["prop", "defaults", "start"],
+    "scroll": ["prop", "defaults", "ancestor"],
+    "linear": ["prop", "defaults", true],
+    "level": ["prop", "defaults", 2],
+    "autosave": ["prop", "step when persistence is given", "none"]
+  },
+  "provides": {
+    "wizardDefaults": ["progress", "linear", "level", "scroll", "delay", "minDuration"]
+  },
+  "messages": [
+    "cancel",
+    "draftFailed",
+    "edit",
+    "incomplete",
+    "next",
+    "optional",
+    "position",
+    "previous",
+    "progress",
+    "restoring",
+    "return",
+    "saved",
+    "saveDraft",
+    "saving",
+    "skip",
+    "submit",
+    "submitFailed"
+  ],
+  "messagesReason": "The words the family says come from the wizard catalog of the language in force, laid over by one messages input on the root. position takes the one-based index and the count as slots; saved takes the hour and minute the binding has already written with Intl.DateTimeFormat in the locale in force, so each language orders its own sentence around the time.",
+
+  "stateAttributes": {
+    "loading": "data-loading",
+    "invalid": "data-invalid",
+    "complete": "data-complete",
+    "open": "data-open",
+    "disabled": "data-disabled"
+  },
+  "stateModel": {
+    "current": {
+      "controlled": "step",
+      "uncontrolled": "defaultStep",
+      "request": "onStepChange",
+      "reasons": ["pointer", "keyboard", "submit", "programmatic"]
+    },
+    "value": {
+      "controlled": "value",
+      "uncontrolled": "defaultValue",
+      "request": "onValueChange",
+      "reasons": ["submit", "clear", "programmatic"]
+    },
+    "open": {
+      "controlled": "progressOpen",
+      "uncontrolled": "defaultProgressOpen",
+      "request": "onProgressOpenChange",
+      "reasons": ["pointer", "keyboard", "select", "escape", "programmatic"]
+    }
+  },
+  "literals": {
+    "--slotted-wizard-progress-inline-size": {
+      "value": "14rem",
+      "reason": "The column the vertical progress takes beside the step. Fourteen rem holds a marker, its gap and a two-word label at the default type size without a break; a longer label wraps."
+    },
+    "reflowBreakpoint": "600px is literal because CSS forbids a custom property in a container condition, which docs/token-foundation.md rule 4 records. It is the compact size class, and docs/component-features.md §2.7 names it."
+  },
+  "members": {
+    "wizard": {
+      "nativeElement": "div",
+      "defaults": {
+        "progress": "start",
+        "scroll": "ancestor",
+        "linear": true,
+        "level": 2,
+        "guardUnsaved": false,
+        "delay": 200,
+        "minDuration": 400,
+        "defaultProgressOpen": false,
+        "disabled": false
+      },
+      "capabilities": ["current", "value", "open", "placement", "disabled", "wiring"],
+      "states": [
+        "default",
+        "hover",
+        "active",
+        "focus-visible",
+        "loading",
+        "invalid",
+        "complete",
+        "open",
+        "disabled"
+      ],
+      "parts": [
+        "root",
+        "layout",
+        "progress",
+        "progress-toggle",
+        "progress-position",
+        "progress-track",
+        "progress-segment",
+        "main",
+        "error",
+        "step",
+        "step-header",
+        "step-title",
+        "position",
+        "optional",
+        "step-description",
+        "actions",
+        "actions-start",
+        "actions-end",
+        "cancel",
+        "save-draft",
+        "draft-status",
+        "skip",
+        "previous",
+        "next",
+        "submit",
+        "edit",
+        "complete",
+        "skeleton"
+      ]
+    }
+  },
+  "scenarios": {
+    "wizard": [
+      "playground",
+      "progress",
+      "validation",
+      "branching",
+      "optional",
+      "review",
+      "submit",
+      "drafts",
+      "url",
+      "narrow",
+      "dialog",
+      "content",
+      "forms",
+      "labels",
+      "accessibility"
+    ]
+  }
+}

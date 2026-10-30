@@ -1,0 +1,127 @@
+@layer slotted.components {
+  /**
+   * One ring, drawn once. The indeterminate wait every family shows the same
+   * way — a button that is working, a select or combobox whose options are
+   * still on their way — is drawn here, and a host names it and places it.
+   *
+   * The pattern is Material's and the platform's progress ring: an arc that
+   * chases itself around a faint track, growing from its head and closing
+   * from its tail, so the eye reads work rather than a wheel.
+   *
+   * The drawing is vector and inline: the host writes an `svg` of two circles
+   * inside the box, the track and the arc, stroked in the host's ink. No
+   * image is fetched. The ring was two SVG images used as masks, written as
+   * `data:` URLs, and a page whose policy allows images from its own origin
+   * alone refused both: the ring was absent.
+   *
+   * The turn is the box's `rotate`, which the compositor runs: the arc used to
+   * turn inside the mask image, which is rasterised again on the main thread
+   * for every frame, and with the main thread busy for two seconds the ring
+   * drew no frame at all (`tools/harness/scenarios/spinner-busy.mjs`). The
+   * dash still opens and travels on the main thread; under load the arc keeps
+   * turning at the length it had.
+   *
+   * It was gradients before the masks — a conic arc, two radial caps and a
+   * radial mask, three angles animated as custom properties. A conic
+   * gradient's hard stop has no antialiasing, so the arc stepped from frame to
+   * frame like a GIF, and the half-pixel stops of the caps and the mask
+   * blurred a ring of thirteen pixels. A stroke has round caps and is
+   * antialiased at every size.
+   *
+   * The geometry is the icon set's: in a box of twenty-four units the ring is
+   * twenty across and the stroke is two and a quarter, so the swap with a
+   * glyph is between two shapes of one measure.
+   */
+  [data-ui-spinner] {
+    --_size: var(--slotted-spinner-size, var(--slotted-control-icon-size-md, 16px));
+
+    /* A turn and a dash out of step, so the arc never comes back to the same place. */
+    animation: slotted-spinner-turn calc(var(--slotted-duration-loop-slow) * 1.25) linear infinite;
+    block-size: var(--_size);
+    color: inherit;
+    display: inline-block;
+    /* A ring that shrinks is not a ring: it keeps its size in a flex row. */
+    flex: none;
+    /*
+     * Not adjusting keeps `currentcolor`, the host's ink, which forced colours
+     * have already set, on a stroke the system would otherwise repaint.
+     */
+    forced-color-adjust: none;
+    inline-size: var(--_size);
+    opacity: 1;
+    scale: 1;
+    transition:
+      opacity var(--slotted-control-transition-duration) var(--slotted-control-transition-easing),
+      scale var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
+    vertical-align: middle;
+  }
+
+  [data-ui-spinner] > svg {
+    block-size: 100%;
+    display: block;
+    fill: none;
+    inline-size: 100%;
+    stroke: currentColor;
+    stroke-width: 2.25;
+  }
+
+  /* The track: the whole circle at a fifth of the ink's strength. */
+  [data-ui-spinner] > svg > circle:first-child {
+    stroke-opacity: 0.2;
+  }
+
+  /*
+   * The arc: a dash of one to seventy hundredths of the circle that opens in
+   * the first half of the cycle and travels on in the second, from the top.
+   * Each half eases on its own.
+   */
+  [data-ui-spinner] > svg > circle:last-child {
+    animation: slotted-spinner-arc var(--slotted-duration-loop-slow) infinite;
+    rotate: -90deg;
+    stroke-dasharray: 1 150;
+    stroke-linecap: round;
+    transform-origin: center;
+  }
+
+  @keyframes slotted-spinner-turn {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  @keyframes slotted-spinner-arc {
+    0% {
+      animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+      stroke-dasharray: 1 150;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+      stroke-dasharray: 70 150;
+      stroke-dashoffset: -28;
+    }
+    100% {
+      stroke-dasharray: 70 150;
+      stroke-dashoffset: -99;
+    }
+  }
+
+  @starting-style {
+    [data-ui-spinner] {
+      opacity: 0;
+      scale: 0.6;
+    }
+  }
+
+  /* Still: a track with an arc of three quarters resting on it. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-spinner],
+    [data-ui-spinner] > svg > circle:last-child {
+      animation: none;
+    }
+
+    [data-ui-spinner] > svg > circle:last-child {
+      stroke-dasharray: 75 150;
+    }
+  }
+}

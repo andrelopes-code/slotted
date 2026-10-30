@@ -1,0 +1,55 @@
+name: Finding
+description: A defect, an improvement or a feature met while building an application with Slotted.
+labels: [finding]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options: [bug, improvement, feature]
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Add the matching `area:*` label.
+      options: [family, token, utility, docs, guideline, agent]
+    validations:
+      required: true
+  - type: input
+    id: subject
+    attributes:
+      label: Subject
+      description: Family and part, token name, export, or file and section.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The published version the problem was observed on.
+      placeholder: 0.1.0-beta.20
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: For a bug, the observed and the expected behaviour. For an improvement or a feature, the need. For a guideline or agent instruction, the current text with its file and section.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Reproduction or proposal
+      description: For a bug, a minimal reproduction. Otherwise the proposed API (props, parts, states, tokens) or replacement text, and how it composes with what exists.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance
+      description: The test or check that fails before the change and passes after.
+    validations:
+      required: true

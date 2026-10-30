@@ -1,0 +1,287 @@
+<section data-scene="separation">
+  <!--
+    The rules below belong to the harness, not to the family. Inline paints
+    nothing and the page carries only this family's stylesheet, so a chip needs
+    edges before there is anything to look at, and the vertical rhythm between
+    examples is an inline grid rather than a Stack, which this page does not
+    load. The block sits inside the first scene because the builder emits scenes
+    and drops everything around them.
+  -->
+  <style>
+    [data-demo] {
+      background: var(--slotted-surface-sunken);
+      border: 1px solid var(--slotted-border-subtle);
+      border-radius: var(--slotted-radius-full);
+      color: var(--slotted-text);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px;
+      padding-block: var(--slotted-space-2);
+      padding-inline: var(--slotted-space-4);
+    }
+
+    [data-demo='tall'] {
+      padding-block: var(--slotted-space-6);
+    }
+
+    [data-demo='large'] {
+      font-size: 20px;
+    }
+
+    [data-demo-column] {
+      display: grid;
+      /* A track that may shrink below its content: without it a nowrap run
+         would set the width of every example beside it. */
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--slotted-space-8);
+    }
+
+    [data-demo-column='3'] {
+      gap: var(--slotted-space-3);
+    }
+
+    [data-demo-column='6'] {
+      gap: var(--slotted-space-6);
+    }
+
+    [data-demo-label] {
+      color: var(--slotted-text-muted);
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      margin: 0;
+    }
+
+    [data-demo-body] {
+      color: var(--slotted-text);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    [data-demo-frame] {
+      border: 1px dashed var(--slotted-border-strong);
+      border-radius: var(--slotted-radius-md);
+      padding: var(--slotted-space-3);
+    }
+  </style>
+
+  <div data-demo-column>
+    <div data-demo-column="3">
+      <span data-demo-label>gap 1 · 0.125rem</span>
+      <div data-ui="inline" data-ui-inline="" data-part="root" data-part-root="" data-gap="1">
+        <span data-demo>Draft</span>
+        <span data-demo>Awaiting review</span>
+        <span data-demo>Paid</span>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>gap 4 · 0.5rem · the default</span>
+      <div data-ui="inline" data-ui-inline="" data-part="root" data-part-root="">
+        <span data-demo>Draft</span>
+        <span data-demo>Awaiting review</span>
+        <span data-demo>Paid</span>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>gap 8 · 1.5rem</span>
+      <div data-ui="inline" data-ui-inline="" data-part="root" data-part-root="" data-gap="8">
+        <span data-demo>Draft</span>
+        <span data-demo>Awaiting review</span>
+        <span data-demo>Paid</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="alignment">
+  <div data-demo-column>
+    <div data-demo-column="3">
+      <span data-demo-label>align center · the family default</span>
+      <div data-demo-frame>
+        <div data-ui="inline" data-ui-inline="" data-part="root" data-part-root="" data-gap="4">
+          <span data-demo>Short</span>
+          <span data-demo="tall">Taller item</span>
+          <span data-demo="large">Larger type</span>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>align baseline · the type sits on one line</span>
+      <div data-demo-frame>
+        <div
+          data-ui="inline"
+          data-ui-inline=""
+          data-part="root"
+          data-part-root=""
+          data-gap="4"
+          data-align="baseline"
+        >
+          <span data-demo>Short</span>
+          <span data-demo="tall">Taller item</span>
+          <span data-demo="large">Larger type</span>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>align start</span>
+      <div data-demo-frame>
+        <div
+          data-ui="inline"
+          data-ui-inline=""
+          data-part="root"
+          data-part-root=""
+          data-gap="4"
+          data-align="start"
+        >
+          <span data-demo>Short</span>
+          <span data-demo="tall">Taller item</span>
+          <span data-demo="large">Larger type</span>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>align stretch</span>
+      <div data-demo-frame>
+        <div
+          data-ui="inline"
+          data-ui-inline=""
+          data-part="root"
+          data-part-root=""
+          data-gap="4"
+          data-align="stretch"
+        >
+          <span data-demo>Short</span>
+          <span data-demo="tall">Taller item</span>
+          <span data-demo="large">Larger type</span>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>justify between · the row is pushed to both edges</span>
+      <div data-demo-frame>
+        <div
+          data-ui="inline"
+          data-ui-inline=""
+          data-part="root"
+          data-part-root=""
+          data-gap="4"
+          data-justify="between"
+        >
+          <span data-demo>Cancel</span>
+          <span data-demo>Save changes</span>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>justify end · mirrors in a right-to-left document</span>
+      <div data-demo-frame>
+        <div
+          data-ui="inline"
+          data-ui-inline=""
+          data-part="root"
+          data-part-root=""
+          data-gap="4"
+          data-justify="end"
+        >
+          <span data-demo>Cancel</span>
+          <span data-demo>Save changes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="wrapping">
+  <div data-demo-column>
+    <div data-demo-column="3">
+      <span data-demo-label>wrap · the default · rows keep the same separation</span>
+      <div data-demo-frame>
+        <div data-ui="inline" data-ui-inline="" data-part="root" data-part-root="">
+          <span data-demo>Overdue</span>
+          <span data-demo>Awaiting review</span>
+          <span data-demo>Paid in full</span>
+          <span data-demo>Refunded</span>
+          <span data-demo>Disputed</span>
+          <span data-demo>Written off</span>
+          <span data-demo>Partially settled</span>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>nowrap · the consumer asked for one line, and gets it</span>
+      <div data-demo-frame>
+        <div
+          data-ui="inline"
+          data-ui-inline=""
+          data-part="root"
+          data-part-root=""
+          data-wrap="nowrap"
+        >
+          <span data-demo>Overdue</span>
+          <span data-demo>Awaiting review</span>
+          <span data-demo>Paid in full</span>
+          <span data-demo>Refunded</span>
+          <span data-demo>Disputed</span>
+          <span data-demo>Written off</span>
+          <span data-demo>Partially settled</span>
+        </div>
+      </div>
+    </div>
+
+    <div data-demo-column="3">
+      <span data-demo-label>a run beside its own label</span>
+      <div
+        data-ui="inline"
+        data-ui-inline=""
+        data-part="root"
+        data-part-root=""
+        data-gap="5"
+        data-align="baseline"
+      >
+        <span data-demo-body>Status</span>
+        <span data-demo>Awaiting review</span>
+        <span data-demo>Due 12 March</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-scene="extremes">
+  <div data-demo-column="6">
+    <span data-demo-label>right to left · the run starts at the right edge</span>
+    <div data-demo-frame lang="ar" dir="rtl">
+      <div data-ui="inline" data-ui-inline="" data-part="root" data-part-root="" data-gap="4">
+        <span data-demo>مسودة</span>
+        <span data-demo>قيد المراجعة</span>
+        <span data-demo>مدفوعة</span>
+      </div>
+    </div>
+
+    <span data-demo-label>one item longer than the container</span>
+    <div data-demo-frame>
+      <div data-ui="inline" data-ui-inline="" data-part="root" data-part-root="" data-gap="4">
+        <span data-demo-body>
+          postgresql://reporting-service@analytics-primary.internal:5432/warehouse_events
+        </span>
+        <span data-demo>Copy</span>
+      </div>
+    </div>
+
+    <span data-demo-label>one item, and a run that holds nothing</span>
+    <div data-ui="inline" data-ui-inline="" data-part="root" data-part-root="">
+      <span data-demo>Alone</span>
+    </div>
+    <div data-demo-frame>
+      <div data-ui="inline" data-ui-inline="" data-part="root" data-part-root=""></div>
+    </div>
+  </div>
+</section>

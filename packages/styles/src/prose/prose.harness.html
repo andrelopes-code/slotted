@@ -1,0 +1,397 @@
+<section data-scene="document">
+  <div
+    data-ui="prose"
+    data-ui-prose=""
+    data-part="root"
+    data-part-root=""
+    data-size="lg"
+    data-flow="normal"
+  >
+    <h1>
+      Deploying a service &#8288;<a
+        data-part="anchor"
+        data-part-anchor=""
+        href="#deploying-a-service"
+        aria-label="Link to this section"
+        >#</a
+      >
+    </h1>
+    <p data-part="lead" data-part-lead="">
+      Everything a team needs to move a service from a laptop to production, in the order the steps
+      have to happen.
+    </p>
+    <p>
+      A deployment is three decisions: <strong>where</strong> the code runs, <em>when</em> it moves,
+      and who is told. The rest of this page is about the first one, and it assumes you have already
+      read <a href="#prerequisites">the prerequisites</a>.
+    </p>
+
+    <h2>
+      Prerequisites &#8288;<a
+        data-part="anchor"
+        data-part-anchor=""
+        href="#prerequisites"
+        aria-label="Link to this section"
+        >#</a
+      >
+    </h2>
+    <ul>
+      <li>An account with <code>deploy</code> permission on the target project.</li>
+      <li>
+        The command line tool, installed with <code>npm i -g @acme/cli</code>.
+        <ul>
+          <li>Version 4 or later.</li>
+          <li>Authenticated once with <kbd>acme login</kbd>.</li>
+        </ul>
+      </li>
+      <li>A service definition committed to the default branch.</li>
+    </ul>
+
+    <blockquote>
+      <p>
+        A deployment that cannot be reversed is not a deployment. It is a migration, and it needs a
+        different review.
+      </p>
+    </blockquote>
+
+    <h3>
+      Running it&#8288;<a
+        data-part="anchor"
+        data-part-anchor=""
+        href="#running-it"
+        aria-label="Link to this section"
+        >#</a
+      >
+    </h3>
+    <p>Press <kbd>Ctrl</kbd> then <kbd>C</kbd> to stop the watcher before you start.</p>
+    <pre><code>acme deploy --env production --wait
+  ✓ built in 14s
+  ✓ 3 instances healthy</code></pre>
+
+    <ol>
+      <li>Build the image.</li>
+      <li>Push it to the registry.</li>
+      <li>Roll the instances, one zone at a time.</li>
+    </ol>
+
+    <div
+      data-part="scroll"
+      data-part-scroll=""
+      role="region"
+      tabindex="0"
+      aria-label="Scrollable content"
+    >
+      <table>
+        <caption>
+          Environments and their gates
+        </caption>
+        <thead>
+          <tr>
+            <th>Environment</th>
+            <th>Approval</th>
+            <th>Rollback window</th>
+            <th>Notified</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>development</td>
+            <td>none</td>
+            <td>—</td>
+            <td>nobody</td>
+          </tr>
+          <tr>
+            <td>staging</td>
+            <td>automatic</td>
+            <td>1 hour</td>
+            <td>the owning team</td>
+          </tr>
+          <tr>
+            <td>production</td>
+            <td>two reviewers</td>
+            <td>24 hours</td>
+            <td>the owning team and the on-call rota</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 320 90" role="img" aria-label="Three stages, left to right">
+        <rect x="0" y="0" width="320" height="90" fill="#cbd5e1" />
+        <rect x="16" y="26" width="80" height="38" rx="6" fill="#64748b" />
+        <rect x="120" y="26" width="80" height="38" rx="6" fill="#64748b" />
+        <rect x="224" y="26" width="80" height="38" rx="6" fill="#64748b" />
+      </svg>
+      <figcaption>Build, push, roll — each stage waits for the one before it.</figcaption>
+    </figure>
+
+    <hr />
+
+    <dl>
+      <dt>Zone</dt>
+      <dd>One failure domain. A roll never touches two at once.</dd>
+      <dt>Gate</dt>
+      <dd>A condition that has to hold before the next zone starts.</dd>
+    </dl>
+
+    <details>
+      <summary>What happens when a gate fails</summary>
+      <p>
+        The roll stops where it is. Instances already replaced keep serving, and the ones behind the
+        gate stay on the previous revision until somebody decides.
+      </p>
+    </details>
+
+    <p>
+      Deprecated flags are struck through in the reference: <del>--fast</del> became
+      <ins>--no-wait</ins> in version 4. Terms are marked on first use, like
+      <mark>blue-green</mark>, and <abbr title="Service Level Objective">SLO</abbr> targets are
+      checked at each gate.<sup>1</sup>
+    </p>
+
+    <h6>Revision history</h6>
+    <p><small>Last reviewed in March, by the platform team.</small></p>
+
+    <section data-part="footnotes" data-part-footnotes="">
+      <ol>
+        <li>Measured over the trailing seven days, not over the deployment window.</li>
+      </ol>
+    </section>
+  </div>
+</section>
+
+<section data-scene="sizes">
+  <div
+    data-ui="prose"
+    data-ui-prose=""
+    data-part="root"
+    data-part-root=""
+    data-size="md"
+    data-flow="normal"
+  >
+    <h2>Control size</h2>
+    <p>
+      Body text at <code>--slotted-font-size-md</code>: the step a button label is set in, for a
+      region that sits inside dense product chrome.
+    </p>
+  </div>
+  <div
+    data-ui="prose"
+    data-ui-prose=""
+    data-part="root"
+    data-part-root=""
+    data-size="lg"
+    data-flow="normal"
+  >
+    <h2>Reading size</h2>
+    <p>
+      Body text at one rem, the family default, for documentation and for anything a reader stays
+      with for more than a sentence.
+    </p>
+  </div>
+  <div
+    data-ui="prose"
+    data-ui-prose=""
+    data-part="root"
+    data-part-root=""
+    data-size="xl"
+    data-flow="normal"
+  >
+    <h2>Article size</h2>
+    <p>
+      Body text at <code>--slotted-font-size-xl</code>, where the page is the content rather than a
+      panel beside it.
+    </p>
+  </div>
+</section>
+
+<section data-scene="flow">
+  <div
+    data-ui="prose"
+    data-ui-prose=""
+    data-part="root"
+    data-part-root=""
+    data-size="lg"
+    data-flow="tight"
+  >
+    <h3>Tight</h3>
+    <p>A message in a thread, where each block is one turn and the turns are close together.</p>
+    <p>The second block, at the same distance.</p>
+    <ul>
+      <li>And a list, which keeps its own tighter step.</li>
+      <li>Two rows.</li>
+    </ul>
+  </div>
+  <div
+    data-ui="prose"
+    data-ui-prose=""
+    data-part="root"
+    data-part-root=""
+    data-size="lg"
+    data-flow="normal"
+  >
+    <h3>Normal</h3>
+    <p>A documentation page: the distance a reader scanning for a heading needs.</p>
+    <p>The second block, at the same distance.</p>
+    <ul>
+      <li>And a list, which keeps its own tighter step.</li>
+      <li>Two rows.</li>
+    </ul>
+  </div>
+  <div
+    data-ui="prose"
+    data-ui-prose=""
+    data-part="root"
+    data-part-root=""
+    data-size="lg"
+    data-flow="loose"
+  >
+    <h3>Loose</h3>
+    <p>An article, where the space between blocks is part of how it reads.</p>
+    <p>The second block, at the same distance.</p>
+    <ul>
+      <li>And a list, which keeps its own tighter step.</li>
+      <li>Two rows.</li>
+    </ul>
+  </div>
+</section>
+
+<section data-scene="exclude">
+  <div
+    data-ui="prose"
+    data-ui-prose=""
+    data-part="root"
+    data-part-root=""
+    data-size="lg"
+    data-flow="normal"
+  >
+    <h2>A component inside the page</h2>
+    <p>
+      The paragraph above and this one are set by the family. What follows is not: the subtree is
+      returned to control type and left to whatever put it there.
+    </p>
+    <div data-part="exclude" data-part-exclude="">
+      <div data-ui="card" data-ui-card="" data-part="root" data-part-root="" data-variant="outline">
+        <p>A card keeps its own type, its own rhythm and its own colour.</p>
+        <ul>
+          <li>No marker gap.</li>
+          <li>No editorial leading.</li>
+        </ul>
+      </div>
+    </div>
+    <p>And the page continues, at the family's own size.</p>
+  </div>
+</section>
+
+<section data-scene="content">
+  <div
+    data-ui="prose"
+    data-ui-prose=""
+    data-part="root"
+    data-part-root=""
+    data-size="lg"
+    data-flow="normal"
+  >
+    <h3>A body that does not start at the top level</h3>
+    <h4>Two headings with nothing between them</h4>
+    <p>
+      A pasted destination is one unbroken token and breaks inside the column rather than widening
+      it:
+      <a href="#token"
+        >https://registry.internal.example.com/v2/platform/deployments/8f3c1a9b2d4e6f70/manifests/sha256:9c1f0a</a
+      >
+    </p>
+    <ul>
+      <li>
+        First level
+        <ul>
+          <li>
+            Second level
+            <ul>
+              <li>
+                Third level, where the indentation has to still leave a column to read in
+                <ul>
+                  <li>Fourth</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <p lang="ar" dir="rtl">
+      فقرة عربية داخل نفس المنطقة، تُقرأ من اليمين إلى اليسار وتحتفظ بإيقاعها.
+    </p>
+    <h6 lang="ar">عنوان فرعي</h6>
+    <blockquote>
+      <p>
+        Eine Zusammenarbeitsvereinbarung zwischen Rechenzentrumsbetreibern regelt die
+        Kapazitätsverteilung.
+      </p>
+    </blockquote>
+  </div>
+</section>
+
+<section data-scene="interactive">
+  <div
+    data-ui="prose"
+    data-ui-prose=""
+    data-part="root"
+    data-part-root=""
+    data-size="lg"
+    data-flow="normal"
+  >
+    <h2>
+      Focus and hover &#8288;<a
+        data-part="anchor"
+        data-part-anchor=""
+        href="#focus-and-hover"
+        aria-label="Link to this section"
+        >#</a
+      >
+    </h2>
+    <p>
+      The anchor beside the heading appears under the pointer and when it takes focus. The
+      <a href="#focus">link in this sentence</a> answers both as well.
+    </p>
+    <div
+      data-part="scroll"
+      data-part-scroll=""
+      role="region"
+      tabindex="0"
+      aria-label="Scrollable content"
+    >
+      <table>
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>Instances</th>
+            <th>Revision</th>
+            <th>Started</th>
+            <th>Gate</th>
+            <th>Latency</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>europe-west-1</td>
+            <td>12</td>
+            <td>2026.9.3-a41f0c9</td>
+            <td>09:41</td>
+            <td>passed</td>
+            <td>84 ms</td>
+          </tr>
+          <tr>
+            <td>us-east-2</td>
+            <td>18</td>
+            <td>2026.9.3-a41f0c9</td>
+            <td>09:44</td>
+            <td>waiting</td>
+            <td>71 ms</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

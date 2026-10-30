@@ -1,0 +1,713 @@
+/**
+ * Every selector below the root is written with child combinators, and that is
+ * not a stylistic preference.
+ *
+ * This family renders another family inside itself: the mark in the panel is a
+ * `progress-indicator`, and `progress-indicator` has parts called `indicator`,
+ * `label` and `root` — the same three words this family uses. A descendant
+ * selector would reach into the nested family and restyle its insides, and the
+ * defect would be invisible in the source and obvious only in the picture.
+ *
+ * The chain is `root > scrim > panel > *`, which is also the anatomy, so the
+ * selectors document the tree they depend on.
+ */
+@layer slotted.components {
+  /* ── The region ─────────────────────────────────────────────────────────
+   *
+   * The element the consumer's content already lives in, plus a containing
+   * block for the layer that covers it. Nothing else: the geometry on screen
+   * is the covered content's own, which is the whole difference between this
+   * family and `skeleton`. A region that changed size when it was covered
+   * would move everything below it, twice per load.
+   *
+   * `position: relative` and no `container-type`. Containment is applied to
+   * the layer instead — see the scrim — because `container-type` would apply
+   * it to the consumer's own content, and a family that covers a box has no
+   * business changing how that box lays itself out.
+   */
+  [data-ui-loading-overlay][data-part-root] {
+    /**
+     * The distance the panel keeps from the region's edges. It is the panel's
+     * own margin rather than the layer's padding, and the difference is not
+     * cosmetic: the layer is the query container, container query units measure
+     * its content box, and padding on it would make every `cqb` in this sheet
+     * smaller than the region it is asking about. A margin on the panel moves
+     * the panel and leaves the measurement alone.
+     */
+    --_inset: var(--slotted-loading-overlay-inset, var(--slotted-space-4, 0.5rem));
+
+    position: relative;
+  }
+
+  /**
+   * Page scope. The layer is the whole viewport and there is no region: what
+   * is covered is the application, which this family does not own. The stack
+   * position is the overlay step, below `popover` and `toast`, because a
+   * message about a wait has to stay readable over anything the wait raises.
+   */
+  [data-ui-loading-overlay][data-part-root][data-scope='page'] {
+    inset: 0;
+    position: fixed;
+    z-index: var(--slotted-z-index-overlay, 1000);
+  }
+
+  /* ── The covered content ────────────────────────────────────────────────
+   *
+   * The part that exists so `inert` has somewhere to go, and the reason it
+   * generates no box.
+   *
+   * `inert` is inherited by every flat-tree descendant and only a modal
+   * `dialog` escapes it, so the attribute cannot go on the root: it would take
+   * the announcement out of the accessibility tree — an inert live region says
+   * nothing — and it would make the cancel control unpressable. It needs an
+   * element that wraps the content and excludes the layer.
+   *
+   * `display: contents` is what makes that element free. It generates no box,
+   * so the consumer's children stay the root's own layout children: a covered
+   * grid keeps its tracks, a covered flex row keeps its line. Inertness is a
+   * property of the flat tree and not of the box, so the two compose.
+   *
+   * The cost, recorded here rather than discovered later: this part can never
+   * be painted, because it has no box to paint. Any future rule that needs a
+   * ground, a padding or an edge here reopens the decision. And a root that is
+   * a `table` or a `tbody` cannot legally hold this `div`, so a family covering
+   * table internals covers the table instead.
+   */
+  [data-ui-loading-overlay] > [data-part-content] {
+    display: contents;
+  }
+
+  /* ── The wash ───────────────────────────────────────────────────────────
+   *
+   * One element doing two jobs, and they belong together: it paints what says
+   * the content is out of reach, and it is the one-cell grid that centres the
+   * panel in the region. `dialog` splits the two because its viewport scrolls
+   * and a scrim inside a scrolling box scrolls away with it; nothing here
+   * scrolls, so nothing here is split.
+   *
+   * It is the query container rather than the root, which is the opposite of
+   * the split `docs/build-briefing.md` records and is right for a reason that
+   * split does not cover: `container-type` applies containment, and the root's
+   * other child is the consumer's content. Absolutely positioned to the root's
+   * padding box, the scrim measures the inline size the root does and contains
+   * nothing but the panel.
+   */
+  [data-ui-loading-overlay] > [data-part-scrim] {
+    align-items: center;
+    container-name: slotted-loading-overlay;
+    container-type: size;
+    display: grid;
+    inset: 0;
+    justify-items: center;
+    position: absolute;
+  }
+
+  /**
+   * The wash itself. `--slotted-scrim` is the foundation token the theme
+   * restates per scheme and turns opaque under forced colours, and it is what
+   * `dialog` and `drawer` already read: three families dimming a surface in
+   * three tints would be three answers to one question.
+   */
+  [data-ui-loading-overlay][data-veil='wash'] > [data-part-scrim],
+  [data-ui-loading-overlay][data-veil='blur'] > [data-part-scrim] {
+    background: var(--slotted-loading-overlay-scrim, var(--slotted-scrim, Canvas));
+  }
+
+  /**
+   * The blur is a second signal for the same fact, and it is the one that
+   * still reads when the wash is faint: text under it stops being legible
+   * before it stops being visible, which is exactly the message.
+   *
+   * The radius is a literal in the fallback because no scale in the foundation
+   * measures a blur, and adding one for a single declaration would be the
+   * parallel scale `docs/token-foundation.md` refuses. A theme retunes the
+   * hook instead.
+   */
+  [data-ui-loading-overlay][data-veil='blur'] > [data-part-scrim] {
+    backdrop-filter: blur(var(--slotted-loading-overlay-blur, 3px));
+  }
+
+  /* ── Appearing, and leaving ─────────────────────────────────────────────
+   *
+   * The wash fades and nothing moves. A panel that slid or scaled would be a
+   * dialog's entrance, and this layer is not something the reader asked for:
+   * it arrives while they are looking at the thing it covers, so the eye
+   * should find it rather than follow it.
+   *
+   * Both directions are transitions, and the scrim is in the document from the
+   * moment the family is, which is what makes that possible: a transition
+   * starts from the style the browser computed last, and an element that has
+   * just been mounted has no last style to start from. `menu` solves the same
+   * problem with a keyframe because its layer is mounted at the moment it
+   * opens; this one has no reason to be.
+   *
+   * The first capture of this family is why it is written this way. A keyframe
+   * on the open rule runs on every first paint, including a layer that was
+   * already blocking when the page loaded — so the shutter caught a
+   * half-faded wash with the covered text reading straight through the panel.
+   * A transition does not fire on an initial style, which is exactly the rule
+   * a layer already open on first mount needs.
+   *
+   * What the scrim does not hold at rest is its panel: the binding mounts that
+   * one through `@slotted/core/presence`, so nothing animates a mark nobody is
+   * looking at, and the resting layer holds no control for Tab to find.
+   *
+   * `pointer-events` is dropped on the way out. The covered content stops
+   * being `inert` the moment the wait ends rather than when the fade finishes,
+   * so a click during those hundred and twenty milliseconds has somewhere to
+   * land.
+   */
+  [data-ui-loading-overlay] > [data-part-scrim] {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-exit, ease);
+  }
+
+  [data-ui-loading-overlay] > [data-part-scrim][data-loading] {
+    opacity: 1;
+    pointer-events: auto;
+    transition-duration: var(--slotted-duration-medium);
+    transition-timing-function: var(--slotted-easing-enter, ease);
+  }
+
+  /* ── The panel ──────────────────────────────────────────────────────────
+   *
+   * A surface, not a bare mark on the wash, and the reason is measurable. The
+   * wash is a translucent tint over content this family cannot know, so the
+   * composite behind a label is whatever the covered page happens to be: a
+   * label painted straight onto it holds no contrast ratio anybody can state.
+   * On its own ground it holds the theme's, in all three schemes, over any
+   * content. None of the surveyed implementations draws one, and none of them
+   * can say what its text contrasts against.
+   *
+   * The lift is `dialog`'s and `drawer`'s, one step above a card's. Every
+   * surface in this library that floats over a scrim takes that step, and a
+   * panel that took a smaller one read as part of the wash rather than as
+   * something standing in front of it.
+   *
+   * The edge is not decoration. In `high-contrast` and under forced colours
+   * the shadow is dropped and the scrim goes opaque, so the edge is the only
+   * thing left separating the panel from what is behind it.
+   */
+  [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel] {
+    align-items: center;
+    background: var(--slotted-loading-overlay-surface, var(--slotted-surface-raised, Canvas));
+    border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle, CanvasText);
+    border-radius: var(--slotted-loading-overlay-radius, var(--slotted-radius-md, 6px));
+    box-shadow: var(--slotted-shadow-lg);
+    color: var(--slotted-text, CanvasText);
+    display: grid;
+    gap: var(--_gap);
+    justify-items: center;
+    margin: var(--_inset);
+    max-block-size: calc(100% - 2 * var(--_inset));
+    /**
+     * A floor under the panel's width, three marks across, so a one-word
+     * label does not produce a portrait card taller than it is wide. It is
+     * derived from the mark's own scale rather than stated, and `min()` keeps
+     * it inside a region narrower than the floor.
+     */
+    min-inline-size: var(--_floor);
+    max-inline-size: min(
+      var(--slotted-loading-overlay-measure, 18rem),
+      calc(100% - 2 * var(--_inset))
+    );
+    overflow: clip;
+    padding-block: var(--_padding-block);
+    padding-inline: var(--_padding-inline);
+    text-align: center;
+  }
+
+  /**
+   * Three sizes, and each of them moves three things: the panel's padding and
+   * gap on the space scale, the two lines on the type scale, and the mark on
+   * `progress-indicator`'s own control-height scale.
+   *
+   * The type had to join them. With the geometry alone the three steps were
+   * four pixels of padding and four of mark apart, and the captures of `sm`,
+   * `md` and `lg` side by side were three pictures nobody could tell apart —
+   * an axis a reader cannot see is an axis that does not exist.
+   *
+   * It is the **control** font-size scale and not the general one, for two
+   * reasons. That is the scale the theme restates per density, so it is what
+   * carries `dense` into the panel — the general type scale is stated once and
+   * would leave the panel's words the same size at every density while its
+   * mark and its control shrank around them. And the panel is chrome rather
+   * than prose: it says what a control says.
+   *
+   * Both lines take the same step, which is what `alert` does with its own
+   * title and description. They are told apart by weight and colour, which
+   * holds at every step; a second, smaller step would have run out of scale
+   * under `sm`.
+   */
+  [data-ui-loading-overlay][data-size='sm'] > [data-part-scrim] > [data-part-panel] {
+    --_floor: min(100%, calc(3 * var(--slotted-control-height-sm, 30px)));
+    --_line-height: var(--slotted-line-height-sm, 1.35);
+    --_text-size: var(--slotted-control-font-size-sm, 12px);
+    --_gap: var(--slotted-space-3, 0.375rem);
+    --_padding-block: var(--slotted-space-4, 0.5rem);
+    --_padding-inline: var(--slotted-space-5, 0.75rem);
+  }
+
+  [data-ui-loading-overlay][data-size='md'] > [data-part-scrim] > [data-part-panel] {
+    --_floor: min(100%, calc(3 * var(--slotted-control-height-md, 34px)));
+    --_line-height: var(--slotted-line-height-md, 1.4);
+    --_text-size: var(--slotted-control-font-size-md, 13px);
+    --_gap: var(--slotted-space-4, 0.5rem);
+    --_padding-block: var(--slotted-space-5, 0.75rem);
+    --_padding-inline: var(--slotted-space-6, 1rem);
+  }
+
+  [data-ui-loading-overlay][data-size='lg'] > [data-part-scrim] > [data-part-panel] {
+    --_floor: min(100%, calc(3 * var(--slotted-control-height-lg, 38px)));
+    --_line-height: var(--slotted-line-height-lg, 1.45);
+    --_text-size: var(--slotted-control-font-size-lg, 14px);
+    --_gap: var(--slotted-space-5, 0.75rem);
+    --_padding-block: var(--slotted-space-6, 1rem);
+    --_padding-inline: var(--slotted-space-7, 1.25rem);
+  }
+
+  /* ── The mark ───────────────────────────────────────────────────────────
+   *
+   * A place, and nothing else. The shape, its turn and its reduced-motion rule
+   * belong to `progress-indicator`, which is what renders here by default and
+   * what a consumer substitutes when the wait is determinate. A mark drawn
+   * again in this sheet would be a second answer to one wait, drifting from
+   * the first the moment either is retuned.
+   *
+   * What this family does decide is that the default mark is **contained** —
+   * `progress-indicator`'s own axis, which is M3's 38-in-48 ratio — and it
+   * decides it for two reasons the first captures found.
+   *
+   * The shape turns, and a turning box overflows the box that holds it: a
+   * square 27 pixels across sweeps a 38-pixel diagonal, and every one of those
+   * eleven pixels is scrollable overflow contributed to each ancestor in turn.
+   * Measured on the page rather than reasoned about — 2 to 9 pixels, rising
+   * and falling on the beat of the animation — and an ancestor that scrolls
+   * answers it with a scrollbar that flickers for as long as the wait lasts.
+   *
+   * `contained` is M3's own ratio and takes most of that excess out by
+   * shrinking the shape to 0.79 of its container. What is left — four or five
+   * pixels at each edge — is absorbed by the panel: its own padding is wider
+   * than the excursion, so the ink never reaches the panel's edge, and the
+   * panel clips rather than scrolls. The panel opens its clip again in the one
+   * arrangement where it has no padding to spare, which is the rule for the
+   * smallest regions below.
+   *
+   * The clip is not written on the mark itself. That sheet belongs to another
+   * family and is not this one's to edit, and a family that clipped a mark it
+   * did not draw would be deciding how much of somebody else's artwork is
+   * allowed to show.
+   *
+   * And the mark is the one thing that sits directly on the wash, in the
+   * smallest regions, where the panel has given up its ground. On a dark
+   * scheme that reads: the wash is near black and the accent is a light blue.
+   * On a light one it does not — the wash is a dark tint and the accent is a
+   * dark blue laid over it. `contained` gives the mark the ground the panel
+   * gave up, at the 3:1 `progress-indicator` holds between a contained shape
+   * and its container, in every scheme rather than in one.
+   */
+  [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel] > [data-part-indicator] {
+    display: grid;
+    justify-items: stretch;
+    justify-self: stretch;
+  }
+
+  /**
+   * The family's own mark is centred; a mark the consumer put here fills the
+   * slot. `data-default` is what tells them apart, and the binding writes it —
+   * asking the question in CSS would mean selecting on the nested family's own
+   * attributes, which is the reach this sheet refuses everywhere else.
+   *
+   * The first reference page is why the two cases are split. A determinate
+   * `ProgressBar` in a centred, content-sized slot drew a two-pixel dash at
+   * the left of the panel: a bar has no intrinsic width to be centred at.
+   */
+  [data-ui-loading-overlay]
+    > [data-part-scrim]
+    > [data-part-panel]
+    > [data-part-indicator][data-default] {
+    justify-items: center;
+    justify-self: center;
+  }
+
+  /* ── The two lines ──────────────────────────────────────────────────────
+   *
+   * The first says what is happening and the second says what the first could
+   * not. Both wrap: a translated string is longer than the English one that
+   * was measured, and the panel is bounded by the region it is centred in.
+   *
+   * `overflow-wrap` rather than a truncation, because there is nowhere for
+   * truncated text to be read from — and the announcement holds the same
+   * sentence whole for the one reader who would otherwise lose it.
+   *
+   * The panel clips and never scrolls. A scroll container is what it was
+   * first, and the mark inside it turns: the rotation put a pixel or two of
+   * scrollable overflow into the box on every beat, and the box answered with
+   * a scrollbar that flickered in and out for as long as the wait lasted. A
+   * scrollbar nobody can reach for is not worth a defect that visible.
+   */
+  [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel] > [data-part-label] {
+    font-size: var(--_text-size);
+    font-weight: var(--slotted-font-weight-medium, 500);
+    line-height: var(--_line-height);
+    overflow-wrap: anywhere;
+  }
+
+  [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel] > [data-part-description] {
+    color: var(--slotted-text-muted, GrayText);
+    font-size: var(--_text-size);
+    line-height: var(--_line-height);
+    /**
+     * The two lines are one block and the panel's gap is not for use inside
+     * it. With one gap everywhere the panel read as four objects evenly
+     * spaced — mark, line, line, control — and the second line looked as far
+     * from the first as the control did from both.
+     *
+     * The gap between them is taken back to nothing, and what is left between
+     * the words is the leading the two line boxes already carry. That scales
+     * with the type at every step, where a fixed step would be tight at `lg`
+     * and loose at `sm`, and it leaves the panel's own gap to separate the
+     * three things that are actually separate.
+     */
+    margin-block-start: calc(-1 * var(--_gap));
+    overflow-wrap: anywhere;
+  }
+
+  /* ── The control ────────────────────────────────────────────────────────
+   *
+   * The one thing in the layer that takes focus, and the only escape a reader
+   * has from a wait that has gone wrong. None of the seven surveyed
+   * implementations offers one, which is why a stuck overlay is a page reload
+   * in all of them.
+   *
+   * It reads the control scale rather than a scale of its own, so it is the
+   * size every other control at the same density is, and the theme's own
+   * validation keeps that above the WCAG target minimum.
+   *
+   * `:not([data-ui])` on every rule that paints it. A consumer who puts this
+   * library's own Button in the slot brings a control that is already painted,
+   * and two families painting one element is a button wearing a second set of
+   * clothes. The part is still the part — the panel's own layout, the focus
+   * move and the tight-region rules all still find it — and only the paint
+   * steps back.
+   */
+  [data-ui-loading-overlay]
+    > [data-part-scrim]
+    > [data-part-panel]
+    > [data-part-cancel]:not([data-ui]) {
+    align-items: center;
+    background: transparent;
+    border: var(--slotted-control-border-width, 1px) solid
+      var(--slotted-control-border-color, ButtonBorder);
+    border-radius: var(--slotted-control-radius, 6px);
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-size: var(--slotted-control-font-size-sm, 0.8125rem);
+    justify-content: center;
+    min-block-size: var(--slotted-control-height-sm, 30px);
+    padding-inline: var(--slotted-control-padding-inline-sm, 0.5rem);
+    transition: background-color var(--slotted-duration-short) var(--slotted-easing-standard, ease);
+  }
+
+  /**
+   * The neutral subtle pair, which is the ground every other unfilled control
+   * in the library answers hover and press with. The first capture used the
+   * sunken surface instead and the hover was invisible: on a raised panel that
+   * token is one or two per cent away from the ground it is drawn on, so the
+   * control looked inert while the pointer was on it.
+   *
+   * Both hold themselves back for `disabled`, which is the precedence
+   * `specs/contract.schema.mjs` declares and
+   * `packages/styles/src/states.test.mjs` enforces. A control the browser has
+   * already switched off must not look operable.
+   */
+  [data-ui-loading-overlay]
+    > [data-part-scrim]
+    > [data-part-panel]
+    > [data-part-cancel]:not([data-ui]):hover:not(:disabled) {
+    background: var(--slotted-tone-secondary-subtle-hover);
+  }
+
+  [data-ui-loading-overlay]
+    > [data-part-scrim]
+    > [data-part-panel]
+    > [data-part-cancel]:not([data-ui]):active:not(:disabled) {
+    background: var(--slotted-tone-secondary-subtle-active);
+  }
+
+  [data-ui-loading-overlay]
+    > [data-part-scrim]
+    > [data-part-panel]
+    > [data-part-cancel]:not([data-ui]):disabled {
+    border-color: var(--slotted-disabled-border);
+    color: var(--slotted-disabled-foreground);
+    cursor: default;
+  }
+
+  [data-ui-loading-overlay]
+    > [data-part-scrim]
+    > [data-part-panel]
+    > [data-part-cancel]:not([data-ui]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /**
+   * The panel takes focus when there is no control to take it — the
+   * `'container'` destination the APG advises for content that has to be read
+   * before it is operated. Script puts focus there and Tab never does, so the
+   * ring is the only thing the part needs.
+   */
+  [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  /* ── A region with no room for a column ─────────────────────────────────
+   *
+   * The panel is a column and a column is taller than most regions are. A card
+   * is a hundred and fifty pixels; a stacked mark, line, second line and
+   * control is a hundred and sixty. The first capture of this family showed
+   * exactly that: a panel taller than the box it was centred in, spilling over
+   * both edges with its control clipped.
+   *
+   * So the panel turns on its side rather than scrolling. The mark moves
+   * beside the text, the two lines stack next to it, and the control goes to
+   * the end of the row — a shape sixty pixels tall carrying everything the
+   * column carried. Nothing is dropped, which is what separates this from the
+   * next rule.
+   *
+   * `container-type: size` is what makes a block-size condition legal, and the
+   * scrim is the one element in the family that can carry it: its size comes
+   * from `inset: 0` rather than from its contents, so size containment costs
+   * nothing. The root could not — its block size is the covered content's.
+   *
+   * A row needs width the way a column needs height, and the second condition
+   * is what the capture at 240 pixels added: below 260 the row was a sentence
+   * broken into two-word lines beside a control, which is a worse answer than
+   * the mark alone. The rule below takes that case.
+   */
+  @container slotted-loading-overlay ((height <= 168px) and (width > 260px)) {
+    /**
+     * The measure goes with the column. A card has a reading measure because a
+     * card is read; a bar across a short region has the region's own width, and
+     * holding it to eighteen rem is what squeezed a sentence into one word per
+     * line beside a control that then had nowhere to sit.
+     */
+    [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel] {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      justify-items: stretch;
+      max-inline-size: calc(100% - 2 * var(--_inset));
+      /**
+       * A bar takes a bar's width. Shrink-wrapped, the text column resolved
+       * narrower than the sentence in it and broke "Importing 4 812 rows"
+       * across two lines beside a control with room to spare on both sides —
+       * a panel a third the width of the region it covers, in a form chosen
+       * precisely because the region is wide.
+       *
+       * The floor is the column form's own measure, capped by the region, so
+       * the two arrangements agree about how wide a panel wants to be and the
+       * region still decides how wide it may be. The text track is `1fr` and
+       * takes everything the floor opened up: `auto` left the slack beside the
+       * control instead, and the sentence went on breaking in a panel with
+       * room for it.
+       */
+      min-inline-size: min(
+        calc(100% - 2 * var(--_inset)),
+        var(--slotted-loading-overlay-measure, 18rem)
+      );
+      text-align: start;
+    }
+
+    /**
+     * A mark the consumer supplied gets a track that can hold it. The family's
+     * own is a square and sizes itself; a determinate bar has no intrinsic
+     * width at all, and in an `auto` track it resolved to eight pixels — a
+     * dash at the left of the panel, which is what the first reference page
+     * showed.
+     */
+    [data-ui-loading-overlay]
+      > [data-part-scrim]
+      > [data-part-panel]:not(:has(> [data-part-indicator][data-default])) {
+      grid-template-columns: minmax(6rem, 2fr) minmax(0, 3fr) auto;
+    }
+
+    [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel] > [data-part-indicator] {
+      align-self: center;
+      grid-column: 1;
+      grid-row: 1 / span 2;
+    }
+
+    [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel] > [data-part-label] {
+      align-self: end;
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    /**
+     * One line, and it takes both rows.
+     *
+     * The mark is taller than a single line, and a grid distributes a spanning
+     * item's excess height across the tracks it spans — so with the label in
+     * row 1 and row 2 left empty, the words sat at the top of a 34-pixel block
+     * with six pixels of nothing under them. The reviewer read it as text
+     * pinned to the ceiling of the bar, which is exactly what it was.
+     */
+    [data-ui-loading-overlay]
+      > [data-part-scrim]
+      > [data-part-panel]:not(:has(> [data-part-description]))
+      > [data-part-label] {
+      align-self: center;
+      grid-row: 1 / span 2;
+    }
+
+    [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel] > [data-part-description] {
+      align-self: start;
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    [data-ui-loading-overlay]
+      > [data-part-scrim]
+      > [data-part-panel]
+      > [data-part-cancel]:not([data-ui]) {
+      align-self: center;
+      grid-column: 3;
+      grid-row: 1 / span 2;
+    }
+  }
+
+  /* ── A region too small to hold a sentence ──────────────────────────────
+   *
+   * Three ways for a region to have no room for words: it is narrower than 220
+   * pixels, it is shorter than 88, or it is short enough to want the row and
+   * too narrow to hold one. In all three the two lines go and the mark stays,
+   * centred in the region.
+   *
+   * They have not been taken away from anybody. They are in the announcement,
+   * which is where they were carrying meaning to a screen reader all along —
+   * so the smallest case loses paint and nothing else. Every surveyed
+   * implementation centres a fixed panel here and lets it spill out of the
+   * region instead.
+   *
+   * The ground goes only when the mark is all that is left. A control on no
+   * ground is a control floating over the content it is meant to be separate
+   * from, which is what the first capture of this rule showed: a Cancel
+   * sitting on a paragraph, unpainted and unreadable. `:has()` is what lets
+   * one rule ask whether the panel still holds a control.
+   *
+   * The numbers are literals because a container condition cannot hold a
+   * custom property.
+   */
+  @container slotted-loading-overlay (
+    (width <= 220px) or (height <= 88px) or ((height <= 168px) and (width <= 260px))
+  ) {
+    /**
+     * The one place the panel is allowed out of its region. Everywhere else it
+     * is capped at the region's own block size and scrolls, which is the right
+     * last resort for a pathological string; here there is no string, and what
+     * would be scrolled out of sight is a control. A 36-pixel table row cannot
+     * hold a mark and a Cancel, so a 58-pixel pill overhangs it by eleven
+     * pixels at each end — visible, pressable, and the lesser of the two.
+     */
+    [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel] {
+      --_floor: auto;
+      --_inset: 0px;
+
+      grid-template-columns: auto;
+      justify-items: center;
+      overflow: visible;
+      text-align: center;
+    }
+
+    /**
+     * The mark is capped at what the region actually has. `cqb` measures the
+     * query container's content box, so the cap is the region's own height
+     * less the layer's inset — a 30-pixel table row gets a 14-pixel mark
+     * instead of a 30-pixel one hanging over both its edges.
+     *
+     * Three rules rather than one, because the cap has to be the step this
+     * overlay's own size axis asked for. A single rule capping at the largest
+     * step would grow an `sm` overlay's mark in a region that is narrow and
+     * tall, which is the other half of this query's condition.
+     *
+     * It applies only where the panel has given up its ground. A panel still
+     * holding a control keeps its padding and overhangs the region anyway, and
+     * a mark shrunk to the region's height beside a control that was not is
+     * two objects at two scales in one pill.
+     */
+    [data-ui-loading-overlay][data-size='sm']
+      > [data-part-scrim]
+      > [data-part-panel]:not(:has(> [data-part-cancel]))
+      > [data-part-indicator] {
+      --slotted-progress-indicator-size: min(var(--slotted-control-height-sm, 30px), 100cqb);
+    }
+
+    [data-ui-loading-overlay][data-size='md']
+      > [data-part-scrim]
+      > [data-part-panel]:not(:has(> [data-part-cancel]))
+      > [data-part-indicator] {
+      --slotted-progress-indicator-size: min(var(--slotted-control-height-md, 34px), 100cqb);
+    }
+
+    [data-ui-loading-overlay][data-size='lg']
+      > [data-part-scrim]
+      > [data-part-panel]:not(:has(> [data-part-cancel]))
+      > [data-part-indicator] {
+      --slotted-progress-indicator-size: min(var(--slotted-control-height-lg, 38px), 100cqb);
+    }
+
+    /**
+     * Mark and control side by side rather than stacked: the same two objects
+     * are 58 pixels tall in a row and 96 in a column, and the region that
+     * reached this rule has neither to spare.
+     *
+     * The block padding is what is left to give, and it is given in proportion
+     * rather than dropped: `clamp` spends it down to nothing as the region
+     * approaches the height of the control itself, so a 30-pixel table row
+     * gets a 30-pixel pill that fits inside it, and a narrow 180-pixel card
+     * keeps the padding it has room for.
+     *
+     * The cap is lifted here alone. Below the height of one control there is
+     * no arrangement that fits, and a pill overhanging a very short row by a
+     * few pixels is better than a control clipped out of reach — which is the
+     * one thing this family exists to avoid doing to a reader.
+     */
+    [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel]:has(> [data-part-cancel]) {
+      align-items: center;
+      grid-auto-flow: column;
+      grid-template-columns: none;
+      max-block-size: none;
+      overflow: visible;
+      padding-block: clamp(
+        0px,
+        calc(
+          (
+              100cqb - var(--slotted-control-height-sm, 30px) - 2 *
+                var(--slotted-border-width-thin, 1px)
+            ) /
+            2
+        ),
+        var(--slotted-space-4, 0.5rem)
+      );
+    }
+
+    [data-ui-loading-overlay]
+      > [data-part-scrim]
+      > [data-part-panel]:not(:has(> [data-part-cancel])) {
+      background: none;
+      border: 0;
+      box-shadow: none;
+      padding-block: 0;
+      padding-inline: 0;
+    }
+
+    [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel] > [data-part-label],
+    [data-ui-loading-overlay] > [data-part-scrim] > [data-part-panel] > [data-part-description] {
+      display: none;
+    }
+  }
+}

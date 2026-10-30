@@ -1,0 +1,258 @@
+@layer slotted.components {
+  /**
+   * A link is text that goes somewhere. It is not a control surface: it has no
+   * height, no padding and no fill, it takes the type of the text around it,
+   * and `button` owns the anchor that wants the action surface — `ButtonLink`,
+   * the same family, the same geometry.
+   *
+   * Three values carry every variant: the colour at rest, the colour under the
+   * pointer, and the colour while it is being pressed. A fourth, `--_strong`,
+   * is the maximum-contrast text colour of whatever context the link sits in,
+   * and it is what hover mixes toward. That indirection is the whole reason
+   * this family was rebuilt: the shipped stylesheet painted hover with
+   * `--slotted-tone-accent-solid-hover`, which is a fill colour. In the light
+   * scheme a fill that darkens is also a text colour that darkens, so the
+   * defect never showed. In the dark scheme that token is `#1d4ed8` over a
+   * `#131316` ground, and hovering a link made it harder to read than leaving
+   * it alone. A ramp built for fills cannot be a ramp for text, and the tone
+   * scale has no `text-hover` role to reach for; mixing toward the colour the
+   * theme already holds to the highest ratio in each scheme cannot fail the
+   * same way.
+   */
+  [data-ui-link] {
+    --_strong: var(--slotted-text, CanvasText);
+    --_rest: var(--slotted-link-color, var(--slotted-tone-accent-text, LinkText));
+    --_hover: var(
+      --slotted-link-color-hover,
+      color-mix(in oklab, var(--_rest) 65%, var(--_strong))
+    );
+    --_active: var(
+      --slotted-link-color-active,
+      color-mix(in oklab, var(--_rest) 35%, var(--_strong))
+    );
+    --_visited: var(
+      --slotted-link-color-visited,
+      color-mix(in oklab, var(--_rest) 40%, var(--slotted-text-muted, GrayText))
+    );
+    /**
+     * The underline at rest is lighter than the text it belongs to, and
+     * reaches full strength from hover onward. That is what gives `inverse` a
+     * hover at all: on a solid surface the text colour is already the
+     * strongest one available, so the underline is the only property left that
+     * can answer the pointer.
+     */
+    --_underline: var(
+      --slotted-link-underline-color,
+      color-mix(in oklab, currentColor 55%, transparent)
+    );
+
+    border-radius: var(--slotted-link-radius, var(--slotted-control-radius, 4px));
+    color: var(--_rest);
+    /**
+     * A link inside a `Stack`, a grid cell or any other flex container is
+     * blockified by the layout — `display: inline` is not a choice a flex item
+     * gets to keep — and a blockified link stretches to the full inline size of
+     * the column. Nothing about the text changes, and then the focus ring is
+     * drawn around the whole column instead of around the words, which is what
+     * the first focus capture of this family showed. Shrinking to the content
+     * is inert for an inline link, where inline-size does not apply at all.
+     */
+    inline-size: fit-content;
+    /**
+     * A destination pasted as the link text is one unbroken token. Without
+     * this it widens the column it sits in rather than wrapping inside it,
+     * which is what a 240-pixel capture shows and a paragraph of ordinary
+     * prose never does.
+     */
+    overflow-wrap: anywhere;
+    text-decoration-color: var(--_underline);
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--slotted-link-underline-thickness, from-font);
+    text-underline-offset: var(--slotted-link-underline-offset, 0.15em);
+    transition:
+      color var(--slotted-duration-short) var(--slotted-easing-standard),
+      text-decoration-color var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  /**
+   * The link that takes the colour of the text it sits in — a title inside a
+   * card, a name inside a table row — and reaches the accent under the
+   * pointer. Fluent calls it `subtle`, Primer `muted`, Polaris `monochrome`,
+   * and all three describe the same two colours.
+   */
+  /**
+   * The text size. Unset, a link takes the size an action slot states for the
+   * controls it holds (`--slotted-link-font-size`), or else its parent's; a
+   * `size` states its own.
+   */
+  [data-ui-link] {
+    font-size: var(--slotted-link-font-size, inherit);
+  }
+
+  [data-ui-link][data-size='xs'] {
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+  }
+
+  [data-ui-link][data-size='sm'] {
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+  }
+
+  [data-ui-link][data-size='md'] {
+    font-size: var(--slotted-font-size-md, 0.875rem);
+  }
+
+  [data-ui-link][data-variant='neutral'] {
+    --_rest: var(--slotted-link-color, currentColor);
+    --_hover: var(--slotted-link-color-hover, var(--slotted-tone-accent-text, LinkText));
+    --_active: var(
+      --slotted-link-color-active,
+      color-mix(in oklab, var(--slotted-tone-accent-text, LinkText) 65%, var(--_strong))
+    );
+  }
+
+  /**
+   * The link on a solid or inverse surface. The strong colour changes with the
+   * ground, so hover has nowhere further to go and the underline carries the
+   * state on its own.
+   */
+  [data-ui-link][data-variant='inverse'] {
+    --_strong: var(--slotted-text-inverse, Canvas);
+    --_rest: var(--slotted-link-color, var(--slotted-text-inverse, Canvas));
+  }
+
+  /* ── Underline axis ─────────────────────────────────────────────────────
+   *
+   * `always` is the default because colour alone does not distinguish a link:
+   * the accent text colour clears 4.5:1 against the surface and not 3:1
+   * against the body text beside it, which is the ratio a link with no second
+   * cue has to meet. The other two values are for a link that stands alone,
+   * where there is no sentence for it to disappear into.
+   */
+
+  [data-ui-link][data-underline='hover'],
+  [data-ui-link][data-underline='none'] {
+    text-decoration-line: none;
+  }
+
+  [data-ui-link][data-underline='hover']:not([data-disabled]):hover {
+    text-decoration-line: underline;
+  }
+
+  /**
+   * A keyboard has no hover, so focus is where a deferred underline is owed.
+   * `none` is left alone: it says the underline does not exist, not that it is
+   * waiting for something.
+   */
+  [data-ui-link][data-underline='hover']:focus-visible {
+    text-decoration-line: underline;
+  }
+
+  /* ── Visited ────────────────────────────────────────────────────────────
+   *
+   * Opt-in, and declared before the interaction rules so hover still answers a
+   * link the reader has already followed. `:visited` accepts colour and
+   * nothing else — the restriction is deliberate, and it is also why no test
+   * in this repository can read this rule back.
+   */
+
+  [data-ui-link][data-visited]:visited {
+    color: var(--_visited);
+  }
+
+  /* ── Hover and press, held back for disabled ────────────────────────────── */
+
+  [data-ui-link]:not([data-disabled]):hover {
+    --_underline: currentColor;
+
+    color: var(--_hover);
+  }
+
+  [data-ui-link]:not([data-disabled]):active {
+    --_underline: currentColor;
+
+    color: var(--_active);
+  }
+
+  /* ── Focus ──────────────────────────────────────────────────────────────
+   *
+   * The ring hugs the text at one pixel rather than the two a control uses: a
+   * link has no border for the ring to clear, and on a line of prose a wider
+   * offset reaches into the line above.
+   */
+
+  [data-ui-link]:focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-link-focus-ring-offset, 1px);
+  }
+
+  /* ── Disabled ───────────────────────────────────────────────────────────
+   *
+   * `[data-disabled]` rather than a pseudo-class, because an anchor has none:
+   * what makes the link unavailable is the destination the binding did not
+   * render, plus `aria-disabled`. The underline stays, so the element still
+   * reads as a link that is not available rather than as plain text.
+   */
+
+  [data-ui-link][data-disabled] {
+    color: var(--slotted-link-color-disabled, var(--slotted-disabled-foreground, GrayText));
+    cursor: not-allowed;
+  }
+
+  /* ── The external marker ────────────────────────────────────────────────
+   *
+   * The arrow is the `Glyph` element inside an `icon` box, so it is the colour
+   * of the link at every step of the ramp, in every scheme and under forced
+   * colours, and mirrors in a right-to-left document through the box's own
+   * `directional`. A character would be a font's opinion of an arrow.
+   *
+   * The binding writes a word joiner before this element — U+2060, the
+   * zero-width character whose whole purpose is to forbid a line break without
+   * occupying anything — so the glyph cannot wrap onto the next line without
+   * the word it belongs to. A no-break space would do the same job and carry a
+   * full word space with it, and "published schedule ↗" then reads as three
+   * words rather than a link and its marker. The distance is a token instead.
+   *
+   * The part stays an inline wrapper around the box: the gap is an inline
+   * margin, and the box inside sets its own size and optical alignment from
+   * `--slotted-icon-size`, which the part states at the size of the text.
+   */
+
+  [data-ui-link] [data-part-external-icon] {
+    --slotted-icon-size: var(--slotted-link-external-icon-size, 1em);
+
+    margin-inline-start: var(--slotted-link-external-icon-gap, 0.15em);
+  }
+
+  /* ── The current link ───────────────────────────────────────────────────
+   *
+   * Painted from the platform's own attribute, which is the one a React
+   * consumer writes by hand and the one Angular's `routerLinkActive` writes
+   * through `ariaCurrentWhenActive`. A mirrored `data-current` would need the
+   * family to observe an attribute a router sets at runtime, and would paint
+   * nothing at all for the consumer who never adopted the mirror.
+   *
+   * The destination of a current link is the page the reader is already on, so
+   * it stops being an invitation and takes the body colour. The underline
+   * stays, because it is still a link and colour alone would not say so. The
+   * weight does not change: a nav item that thickens shifts every item beside
+   * it.
+   */
+
+  [data-ui-link][aria-current]:not([aria-current='false']) {
+    --_rest: var(--slotted-link-color-current, var(--slotted-text, CanvasText));
+  }
+
+  /* ── Forced colours ─────────────────────────────────────────────────────
+   *
+   * The theme remaps every token it owns, so this block covers only what the
+   * family paints itself: an underline the axis may have taken away, where a
+   * flattened palette leaves a link with nothing to be recognized by. The
+   * external marker is stroked with `currentColor` and follows the link.
+   */
+
+  @media (forced-colors: active) {
+    [data-ui-link] {
+      text-decoration-line: underline;
+    }
+  }
+}

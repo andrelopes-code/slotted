@@ -1,0 +1,36 @@
+<div slTopNavigation (searchOpenChangeRequest)="searchRequested($event)">
+  <div slTopNavigationBrand>
+    <button slAppShellNavToggle></button>
+    <a slTopNavigationHome [href]="preferences.preferences().startRoute">
+      <span slTopNavigationMark><app-brand-mark /></span>
+      <span slTopNavigationName>Nexora</span>
+    </a>
+  </div>
+
+  <div slTopNavigationSearch class="search">
+    <button
+      type="button"
+      class="search-trigger"
+      [slCommandPaletteTrigger]="palette().palette()"
+      aria-label="Search or jump to…"
+    >
+      <span slIcon size="md"><ng-icon name="lucideSearch" /></span>
+      <span class="search-placeholder">Search or jump to…</span>
+      <kbd slShortcut keys="mod+k" size="sm" variant="soft"></kbd>
+    </button>
+  </div>
+
+  <div slTopNavigationActions>
+    <app-approvals-popover class="product-action" [label]="approvalsLabel()" />
+    <app-tasks-popover class="product-action" [label]="tasksLabel()" />
+    <app-notifications-popover [label]="notificationsLabel()" />
+    <app-help-menu />
+    <button slTopNavigationAction class="product-action" aria-label="Demo controls" (click)="demo().openAt()">
+      <ng-icon name="lucideFlaskConical" />
+    </button>
+    <app-user-menu />
+  </div>
+</div>
+
+<app-command-palette />
+<app-demo-drawer />
