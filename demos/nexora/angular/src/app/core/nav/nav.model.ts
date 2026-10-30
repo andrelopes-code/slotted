@@ -111,7 +111,7 @@ export const NAV_MODULES: readonly NavModule[] = [
     key: 'i',
     slice: 'Inventory',
     destinations: [
-      // The overview summarises and leads; it has no record of its own.
+      // The overview summarizes and leads; it has no record of its own.
       d('inventory', 'overview', 'Overview', '/inventory/overview', { record: false }),
       // The positions are the list an operator lives in, and a list fills its page
       // (LP-12): it is a destination of its own that every figure of the overview
@@ -157,7 +157,7 @@ export const NAV_MODULES: readonly NavModule[] = [
     key: 'f',
     slice: 'Finance',
     destinations: [
-      // The overview summarises and leads; it has no record of its own.
+      // The overview summarizes and leads; it has no record of its own.
       d('finance', 'overview', 'Overview', '/finance/overview', {
         permissions: ['finance.dashboard'],
         record: false,

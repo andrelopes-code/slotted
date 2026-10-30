@@ -117,7 +117,7 @@ import { formatDays, percentFromBps } from '../../core/procurement/procurement.m
     }
     /*
      * The row aligns its cells to the start (LA-05): a field with a line of help under it and
-     * one without keep their controls on the same line. A value read beside them is centred on
+     * one without keep their controls on the same line. A value read beside them is centerd on
      * the controls' height, the line the eye follows across the row.
      */
     .control-line {

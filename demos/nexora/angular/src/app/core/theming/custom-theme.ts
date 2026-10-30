@@ -16,13 +16,13 @@ import {
   inputTokens,
   TAB_STYLES,
 } from './control-styles';
-import type { Customisation, FontId, LabelSpacingChoice, LabelWeightChoice } from './customisation';
+import type { Customization, FontId, LabelSpacingChoice, LabelWeightChoice } from './customization';
 import { nexoraTheme } from './nexora-themes';
 import { facesOf, fontFamily } from './theme-faces';
 import { catalogueTheme, DEFAULT_THEME_ID } from './theme-catalogue';
 
 /**
- * The builder: a customisation is compiled into a theme by `extendTheme` on
+ * The builder: a customization is compiled into a theme by `extendTheme` on
  * the chosen catalogue theme, so the result is a theme of the same shape as
  * the five it starts from, validated against the same contract and written
  * by the same `renderTheme`. Each axis writes one set of entries, at the
@@ -221,7 +221,7 @@ const STRONG_SHADOW: Readonly<Record<'light' | 'dark', SchemeValues>> = {
 };
 const SHADOW_TOKENS = Object.keys(NO_SHADOW);
 
-function shadow(choice: NonNullable<Customisation['shadow']>): ThemeOverrides['schemes'] {
+function shadow(choice: NonNullable<Customization['shadow']>): ThemeOverrides['schemes'] {
   const values = (scheme: 'light' | 'dark'): SchemeValues => {
     if (choice === 'none') return NO_SHADOW;
     if (choice === 'strong') return STRONG_SHADOW[scheme];
@@ -233,7 +233,7 @@ function shadow(choice: NonNullable<Customisation['shadow']>): ThemeOverrides['s
   return { light: values('light'), dark: values('dark') };
 }
 
-function motion(choice: NonNullable<Customisation['motion']>): Base {
+function motion(choice: NonNullable<Customization['motion']>): Base {
   const library = (token: string) => LIBRARY[token]!;
   if (choice === 'off') {
     return {
@@ -270,7 +270,7 @@ function motion(choice: NonNullable<Customisation['motion']>): Base {
   };
 }
 
-function cards(choice: NonNullable<Customisation['cards']>): Components {
+function cards(choice: NonNullable<Customization['cards']>): Components {
   const line = choice === 'bordered' ? 'var(--slotted-border-width-thin)' : '0px';
   const rest = choice === 'elevated' ? 'var(--slotted-shadow-md)' : 'none';
   const ground =
@@ -304,7 +304,7 @@ const ACCENT_SERIES = [
   'var(--slotted-border-strong)',
 ];
 
-function chart(choice: NonNullable<Customisation['chart']>): Components {
+function chart(choice: NonNullable<Customization['chart']>): Components {
   return Object.fromEntries(
     ACCENT_SERIES.map((accent, index) => [
       `--slotted-chart-color-${index + 1}`,
@@ -376,11 +376,11 @@ export const LABEL_SPACING: Readonly<Record<LabelSpacingChoice, string>> = {
 };
 
 /**
- * The overrides a customisation writes over the catalogue theme `themeId`;
+ * The overrides a customization writes over the catalogue theme `themeId`;
  * an axis left to the theme writes nothing.
  */
 export function customOverrides(
-  customisation: Customisation,
+  customization: Customization,
   themeId: string = DEFAULT_THEME_ID,
 ): ThemeOverrides {
   const base: Record<string, string> = {};
@@ -392,74 +392,74 @@ export function customOverrides(
   const theme = nexoraTheme(themeId);
   const own = catalogueTheme(themeId).controls;
 
-  if (customisation.radius !== null) {
-    const written = radius(customisation.radius);
+  if (customization.radius !== null) {
+    const written = radius(customization.radius);
     Object.assign(base, written.base);
     Object.assign(components, written.components);
   }
   for (const written of [
-    customisation.body === null ? null : body(customisation.body),
-    customisation.heading === null ? null : heading(customisation.heading),
+    customization.body === null ? null : body(customization.body),
+    customization.heading === null ? null : heading(customization.heading),
   ]) {
     if (written === null) continue;
     Object.assign(base, written.base);
     Object.assign(components, written.components);
     fonts.push(...written.fonts.filter((face) => !fonts.includes(face)));
   }
-  if (customisation.scale !== null) {
-    const written = scale(customisation.scale);
+  if (customization.scale !== null) {
+    const written = scale(customization.scale);
     Object.assign(base, written.base);
     densities = written.densities;
   }
-  if (customisation.border !== null) {
-    const written = border(customisation.border);
+  if (customization.border !== null) {
+    const written = border(customization.border);
     Object.assign(base, written.base);
     Object.assign(components, written.components);
   }
-  if (customisation.shadow !== null) schemes = shadow(customisation.shadow);
-  if (customisation.motion !== null) Object.assign(base, motion(customisation.motion));
-  if (customisation.cards !== null) Object.assign(components, cards(customisation.cards));
-  if (customisation.tabs !== null) {
-    Object.assign(components, TAB_STYLES[customisation.tabs].components);
-    rules.push(TAB_STYLES[customisation.tabs].rule);
+  if (customization.shadow !== null) schemes = shadow(customization.shadow);
+  if (customization.motion !== null) Object.assign(base, motion(customization.motion));
+  if (customization.cards !== null) Object.assign(components, cards(customization.cards));
+  if (customization.tabs !== null) {
+    Object.assign(components, TAB_STYLES[customization.tabs].components);
+    rules.push(TAB_STYLES[customization.tabs].rule);
   }
-  if (customisation.chart !== null) Object.assign(components, chart(customisation.chart));
+  if (customization.chart !== null) Object.assign(components, chart(customization.chart));
 
   // Controls.
-  const input = customisation.input ?? own.input;
-  const focus = customisation.focus ?? own.focus;
-  const button = customisation.button ?? own.button;
-  if (customisation.input !== null) Object.assign(components, inputTokens(customisation.input));
-  if (customisation.focus !== null) Object.assign(base, FOCUS_TOKENS[customisation.focus]);
-  if (customisation.input !== null || customisation.focus !== null) {
+  const input = customization.input ?? own.input;
+  const focus = customization.focus ?? own.focus;
+  const button = customization.button ?? own.button;
+  if (customization.input !== null) Object.assign(components, inputTokens(customization.input));
+  if (customization.focus !== null) Object.assign(base, FOCUS_TOKENS[customization.focus]);
+  if (customization.input !== null || customization.focus !== null) {
     rules.push(...fieldRules(input, focus));
   }
-  if (customisation.button !== null || customisation.focus !== null) {
+  if (customization.button !== null || customization.focus !== null) {
     rules.push(...buttonRules(button, focus));
   }
-  if (customisation.controlRadius !== null) {
-    base['--slotted-control-radius'] = controlCorner(customisation.controlRadius);
+  if (customization.controlRadius !== null) {
+    base['--slotted-control-radius'] = controlCorner(customization.controlRadius);
     Object.assign(components, every(CONTROL_RADIUS_TOKENS, 'var(--slotted-control-radius)'));
   }
-  if (customisation.cardRadius !== null) {
-    Object.assign(components, every(CARD_RADIUS_TOKENS, corner(customisation.cardRadius)));
+  if (customization.cardRadius !== null) {
+    Object.assign(components, every(CARD_RADIUS_TOKENS, corner(customization.cardRadius)));
   }
-  if (customisation.overlayRadius !== null) {
-    Object.assign(components, every(OVERLAY_RADIUS_TOKENS, corner(customisation.overlayRadius)));
+  if (customization.overlayRadius !== null) {
+    Object.assign(components, every(OVERLAY_RADIUS_TOKENS, corner(customization.overlayRadius)));
   }
-  if (customisation.controlBorder !== null) {
+  if (customization.controlBorder !== null) {
     base['--slotted-control-border-width'] =
-      customisation.controlBorder === 1
+      customization.controlBorder === 1
         ? 'var(--slotted-border-width-thin)'
         : 'var(--slotted-border-width-thick)';
   }
-  if (customisation.labelWeight !== null) {
-    base['--slotted-control-font-weight'] = LABEL_WEIGHT[customisation.labelWeight];
+  if (customization.labelWeight !== null) {
+    base['--slotted-control-font-weight'] = LABEL_WEIGHT[customization.labelWeight];
   }
-  if (customisation.labelSpacing !== null) {
-    base['--slotted-control-letter-spacing'] = LABEL_SPACING[customisation.labelSpacing];
+  if (customization.labelSpacing !== null) {
+    base['--slotted-control-letter-spacing'] = LABEL_SPACING[customization.labelSpacing];
   }
-  if (customisation.controlText !== null || customisation.controlHeight !== null) {
+  if (customization.controlText !== null || customization.controlHeight !== null) {
     const current = themeDensities(theme);
     for (const density of DENSITIES) Object.assign(current[density]!, densities?.[density] ?? {});
     const merge = (written: Densities) => {
@@ -468,11 +468,11 @@ export function customOverrides(
         densities[density] = { ...densities[density], ...written[density] };
       }
     };
-    if (customisation.controlText !== null) {
-      merge(moved(current, '--slotted-control-font-size-', customisation.controlText, 1));
+    if (customization.controlText !== null) {
+      merge(moved(current, '--slotted-control-font-size-', customization.controlText, 1));
     }
-    if (customisation.controlHeight !== null) {
-      merge(moved(current, '--slotted-control-height-', customisation.controlHeight, TARGET_FLOOR));
+    if (customization.controlHeight !== null) {
+      merge(moved(current, '--slotted-control-height-', customization.controlHeight, TARGET_FLOOR));
     }
   }
 
@@ -488,22 +488,22 @@ export function customOverrides(
   return overrides;
 }
 
-/** The theme a customisation of a catalogue theme compiles to, under `name`. */
-export function customTheme(themeId: string, customisation: Customisation, name: string): Theme {
-  return extendTheme(nexoraTheme(themeId), customOverrides(customisation, themeId), { name });
+/** The theme a customization of a catalogue theme compiles to, under `name`. */
+export function customTheme(themeId: string, customization: Customization, name: string): Theme {
+  return extendTheme(nexoraTheme(themeId), customOverrides(customization, themeId), { name });
 }
 
 /**
- * Compiles a customisation into `document` under `name`. A second call with
+ * Compiles a customization into `document` under `name`. A second call with
  * the same name replaces the sheet in place (`applyTheme`); the returned
  * function removes it while this call is still the latest.
  */
 export function applyCustomTheme(
   themeId: string,
-  customisation: Customisation,
+  customization: Customization,
   name: string,
   document: Document,
 ): { readonly theme: Theme; readonly dispose: () => void } {
-  const theme = customTheme(themeId, customisation, name);
+  const theme = customTheme(themeId, customization, name);
   return { theme, dispose: applyTheme(theme, { document }) };
 }

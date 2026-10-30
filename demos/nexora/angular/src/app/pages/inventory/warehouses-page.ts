@@ -52,7 +52,7 @@ import { phoneSignal } from '../../core/layout/phone';
  *
  * Six places are a `table`, not a grid of the list pages: there is nothing
  * to filter, page or arrange. The capacity is the declared volume; Nexora
- * holds no occupancy, so no utilisation is drawn (the ledger row "a
+ * holds no occupancy, so no utilization is drawn (the ledger row "a
  * warehouse's capacity has no occupancy beside it").
  */
 @Component({

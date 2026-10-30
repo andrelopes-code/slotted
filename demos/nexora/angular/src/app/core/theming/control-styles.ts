@@ -1,6 +1,6 @@
 import type { ThemeOverrides } from '@slotted/theme';
 
-import type { ButtonChoice, FocusChoice, InputChoice, TabChoice } from './customisation';
+import type { ButtonChoice, FocusChoice, InputChoice, TabChoice } from './customization';
 
 /**
  * The styles a control can be drawn in, as theme overrides: the vocabulary
@@ -12,8 +12,8 @@ import type { ButtonChoice, FocusChoice, InputChoice, TabChoice } from './custom
  * the builder's last. So the rules of a style restate every property any
  * other style of the same axis writes, in every state that style touches:
  * the later set wins wherever the two would otherwise mix. Focus and the
- * invalid edge are drawn only where colours are not forced; under forced
- * colours each family's own outline, in a system colour, marks both.
+ * invalid edge are drawn only where colors are not forced; under forced
+ * colors each family's own outline, in a system color, marks both.
  */
 
 type Components = NonNullable<ThemeOverrides['components']>;
@@ -55,7 +55,7 @@ const fieldRoot = (ui: string) => `[data-ui='${ui}'][data-part='root']:not([data
 const fieldToken = (ui: string, name: string) => `--slotted-${ui}-${name}`;
 
 /**
- * A field's corner and its invalid edge's width and colour, as its family's
+ * A field's corner and its invalid edge's width and color, as its family's
  * tokens name them, with the family's own fallbacks: an undeclared `var()`
  * with none would discard the whole declaration.
  */
@@ -187,7 +187,7 @@ function fieldFocus(ui: string, focus: string, input: InputChoice, style: FocusC
       ],
       invalid: `box-shadow: ${edge};`,
     },
-    /* The line takes the ring's colour, a 1px ring doubles it, and a halo spreads 3px past it. */
+    /* The line takes the ring's color, a 1px ring doubles it, and a halo spreads 3px past it. */
     glow: {
       at: [
         `border-color: ${RING};`,
@@ -197,7 +197,7 @@ function fieldFocus(ui: string, focus: string, input: InputChoice, style: FocusC
       ],
       invalid: `box-shadow: ${edge}, 0 0 0 1px ${RING}, 0 0 0 4px ${HALO};`,
     },
-    /* The bottom line thickens by the thick line, in the ring's colour; invalid, by the edge as well. */
+    /* The bottom line thickens by the thick line, in the ring's color; invalid, by the edge as well. */
     underline: {
       at: [
         `border-color: ${line};`,

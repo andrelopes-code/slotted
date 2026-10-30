@@ -13,15 +13,15 @@ import {
   readStatus,
   type BrandPreference,
   type NeutralPreference,
-  type StatusColours,
+  type StatusColors,
 } from '../theming/appearance';
 import { CUSTOM_THEME_LOADER, CustomSheet } from '../theming/custom-sheet';
 import {
   isCustomised,
   NO_CUSTOMISATION,
   readCustomisation,
-  type Customisation,
-} from '../theming/customisation';
+  type Customization,
+} from '../theming/customization';
 import {
   catalogueTheme,
   CUSTOM_THEME_ID,
@@ -40,14 +40,14 @@ export interface UserPreferences {
   density: 'comfortable' | 'compact' | 'dense';
   /** A theme of the catalogue in `core/theming/theme-catalogue.ts`. */
   theme: string;
-  /** The accent seed: a preset, or the reader's own colour. */
+  /** The accent seed: a preset, or the reader's own color. */
   brand: BrandPreference;
   /** The neutral seed: a preset, the reader's own grey, or `theme` for the theme's own. */
   neutral: NeutralPreference;
   /** The success, warning and danger seeds; each `null` keeps the theme's own. */
-  status: StatusColours;
+  status: StatusColors;
   /** The builder's axes over `theme`; every axis `null` is the theme as it comes. */
-  customisation: Customisation;
+  customization: Customization;
   /** The language the library writes in; the demo's own pages stay in English. */
   locale: NexoraLocale;
   /** The arrangement of the shell, one of the catalogue in `core/shell/shell-presets.ts`. */
@@ -63,12 +63,12 @@ export interface UserPreferences {
 /** The preferences `html` answers: how Nexora is drawn. */
 export type Appearance = Pick<
   UserPreferences,
-  'scheme' | 'density' | 'theme' | 'brand' | 'neutral' | 'status' | 'customisation'
+  'scheme' | 'density' | 'theme' | 'brand' | 'neutral' | 'status' | 'customization'
 >;
 
 export function appearanceOf(preferences: UserPreferences): Appearance {
-  const { scheme, density, theme, brand, neutral, status, customisation } = preferences;
-  return { scheme, density, theme, brand, neutral, status, customisation };
+  const { scheme, density, theme, brand, neutral, status, customization } = preferences;
+  return { scheme, density, theme, brand, neutral, status, customization };
 }
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
@@ -78,7 +78,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   brand: DEFAULT_BRAND,
   neutral: DEFAULT_NEUTRAL,
   status: NO_STATUS,
-  customisation: NO_CUSTOMISATION,
+  customization: NO_CUSTOMISATION,
   locale: 'en-US',
   shell: DEFAULT_SHELL_PRESET,
   startRoute: '/dashboard',
@@ -109,13 +109,13 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
  * candidate appearance (`preview`), `html` answers the candidate; Discard and
  * leaving the page clear it, which brings back the saved one.
  *
- * A customised theme is compiled by the builder (`custom-theme.ts`, loaded by
- * `import()`): the saved customisation under `nexora-custom`, at once, and a
+ * A customized theme is compiled by the builder (`custom-theme.ts`, loaded by
+ * `import()`): the saved customization under `nexora-custom`, at once, and a
  * candidate that differs from it under `nexora-custom-draft`, after 200 ms
  * without a change, so a dragged slider compiles once. `html` names either
  * once its sheet holds what the appearance asks for; until then, and while a
  * compile fails (`customFailed`), it keeps the theme it shows. A candidate
- * that is dropped — cleared, or equal to the saved customisation — takes its
+ * that is dropped — cleared, or equal to the saved customization — takes its
  * compile failure with it.
  */
 @Injectable({ providedIn: 'root' })
@@ -133,13 +133,13 @@ export class PreferencesStore {
   /** The theme `html` names, which trails the preferences while a sheet loads. */
   private shown = DEFAULT_THEME_ID;
   private readonly loadBuilder = inject(CUSTOM_THEME_LOADER);
-  /** The saved customisation's sheet, compiled as soon as it is asked for. */
+  /** The saved customization's sheet, compiled as soon as it is asked for. */
   private readonly saved = new CustomSheet(CUSTOM_THEME_ID, this.document, 0, this.loadBuilder);
-  /** The candidate customisation's sheet, compiled once the changes pause. */
+  /** The candidate customization's sheet, compiled once the changes pause. */
   private readonly draft = new CustomSheet(DRAFT_THEME_ID, this.document, 200, this.loadBuilder);
 
   /**
-   * A customised theme the appearance asks for did not compile; `html` keeps
+   * A customized theme the appearance asks for did not compile; `html` keeps
    * the theme it shows meanwhile. A signal read.
    */
   readonly customFailed = computed(() => this.saved.failed() || this.draft.failed());
@@ -183,7 +183,7 @@ export class PreferencesStore {
     ).then(() => undefined);
   }
 
-  /** Compiles again the customised themes whose last compile failed. */
+  /** Compiles again the customized themes whose last compile failed. */
   retryCustom(): void {
     this.saved.retry();
     this.draft.retry();
@@ -195,12 +195,12 @@ export class PreferencesStore {
   }
 
   /**
-   * The theme a customisation of `theme` compiled to: the saved one when it is
-   * that customisation, else the latest candidate compiled over `theme` — the
+   * The theme a customization of `theme` compiled to: the saved one when it is
+   * that customization, else the latest candidate compiled over `theme` — the
    * last one during a burst of changes — or `null`; a signal read.
    */
-  compiledTheme(theme: string, customisation: Customisation): Theme | null {
-    if (this.saved.holds(theme, customisation)) return this.saved.compiled()!.theme;
+  compiledTheme(theme: string, customization: Customization): Theme | null {
+    if (this.saved.holds(theme, customization)) return this.saved.compiled()!.theme;
     return this.draft.themeOver(theme);
   }
 
@@ -232,23 +232,23 @@ export class PreferencesStore {
           : 'light'
         : appearance.scheme;
     const saved = this.preferences();
-    if (isCustomised(saved.customisation)) {
-      this.saved.request(catalogueTheme(saved.theme).id, saved.customisation);
+    if (isCustomised(saved.customization)) {
+      this.saved.request(catalogueTheme(saved.theme).id, saved.customization);
     }
     const theme = catalogueTheme(appearance.theme).id;
-    const customisation = appearance.customisation;
-    if (!isCustomised(customisation)) {
+    const customization = appearance.customization;
+    if (!isCustomised(customization)) {
       this.draft.forget();
       if (this.hasSheet(theme)) this.shown = theme;
       else this.useThemes([theme]).catch(() => undefined);
-    } else if (this.saved.holds(theme, customisation)) {
+    } else if (this.saved.holds(theme, customization)) {
       this.draft.forget();
       this.shown = CUSTOM_THEME_ID;
-    } else if (this.saved.wants(theme, customisation)) {
+    } else if (this.saved.wants(theme, customization)) {
       this.draft.forget();
     } else {
-      this.draft.request(theme, customisation);
-      if (this.draft.holds(theme, customisation)) this.shown = DRAFT_THEME_ID;
+      this.draft.request(theme, customization);
+      if (this.draft.holds(theme, customization)) this.shown = DRAFT_THEME_ID;
     }
     html.setAttribute('data-slotted-theme', this.shown);
     const seeds = seedStyle(
@@ -301,7 +301,7 @@ export class PreferencesStore {
         brand: readBrand(stored.brand),
         neutral: readNeutral(stored.neutral),
         status: readStatus(stored.status),
-        customisation: readCustomisation(stored.customisation),
+        customization: readCustomisation(stored.customization),
         locale: NEXORA_LOCALES.includes(stored.locale as NexoraLocale)
           ? (stored.locale as NexoraLocale)
           : DEFAULT_PREFERENCES.locale,

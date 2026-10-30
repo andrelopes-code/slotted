@@ -29,12 +29,12 @@ import {
   SCALE_CHOICES,
   SHADOW_CHOICES,
   TAB_CHOICES,
-  type Customisation,
-} from './customisation';
+  type Customization,
+} from './customization';
 import { nexoraTheme } from './nexora-themes';
 import { THEME_CATALOGUE } from './theme-catalogue';
 
-const set = (axes: Partial<Customisation>): Customisation => ({ ...NO_CUSTOMISATION, ...axes });
+const set = (axes: Partial<Customization>): Customization => ({ ...NO_CUSTOMISATION, ...axes });
 
 describe('customTheme', () => {
   /**
@@ -44,7 +44,7 @@ describe('customTheme', () => {
    * About 300 compiles of 30–50 ms each: the test states its own time limit.
    */
   it('compiles every value of every axis on every theme', () => {
-    const values: Partial<Customisation>[] = [
+    const values: Partial<Customization>[] = [
       { radius: 0 },
       { radius: 24 },
       ...FONT_IDS.map((body) => ({ body })),
@@ -305,12 +305,12 @@ describe('customTheme', () => {
   });
 
   /**
-   * Every focus style keeps a solid mark of the ring's colour where colours
+   * Every focus style keeps a solid mark of the ring's color where colors
    * are not forced — an outline, the field's line doubled, or a bar — and
    * every one is drawn inside `not (forced-colors: active)`, so under forced
-   * colours each family's own outline in a system colour marks focus.
+   * colors each family's own outline in a system color marks focus.
    */
-  it('draws every focus style in the ring’s colour, and leaves forced colours to the families', () => {
+  it('draws every focus style in the ring’s color, and leaves forced colors to the families', () => {
     for (const focus of FOCUS_CHOICES) {
       const [frame, focused] = fieldRules('outlined', focus);
       expect(frame).not.toMatch(/focus/);
@@ -325,8 +325,8 @@ describe('customTheme', () => {
       /inset 0 calc\(-1 \* \(var\(--slotted-border-width-thick\) \+ var\(--slotted-text-field-invalid-edge-width, var\(--slotted-control-invalid-edge-width\)\)\)\) 0/,
     );
     /*
-     * The edge's colour falls back to the danger border as the family's own
-     * does: no theme declares a family's invalid border colour, and an
+     * The edge's color falls back to the danger border as the family's own
+     * does: no theme declares a family's invalid border color, and an
      * undeclared `var()` with no fallback discards the whole box-shadow.
      */
     for (const { ui } of FIELD_FAMILIES) {

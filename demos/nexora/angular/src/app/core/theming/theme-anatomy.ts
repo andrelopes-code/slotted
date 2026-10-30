@@ -3,11 +3,11 @@ import defaultTheme from '@slotted/themes/default';
 
 import { customOverrides } from './custom-theme';
 import {
-  customisedAxes,
+  customizedAxes,
   NO_CUSTOMISATION,
-  type Customisation,
-  type CustomisationAxis,
-} from './customisation';
+  type Customization,
+  type CustomizationAxis,
+} from './customization';
 
 /**
  * A theme read layer by layer, against the library's own theme: what each
@@ -36,7 +36,7 @@ export interface AnatomyLayer {
    * easings of `base` with `reducedMotion`.
    */
   readonly count: number;
-  /** The entries, short: a seed and its colour, a token's name, a family and its count, a selector. */
+  /** The entries, short: a seed and its color, a token's name, a family and its count, a selector. */
   readonly items: readonly string[];
 }
 
@@ -123,25 +123,25 @@ export function themeAnatomy(theme: Theme, reference: Theme = defaultTheme): Ana
 
 /** One axis a reader set, and the layers of the model it writes. */
 export interface AxisAnatomy {
-  readonly axis: CustomisationAxis;
+  readonly axis: CustomizationAxis;
   /** Each layer the axis writes into, with how many entries; no layer it leaves alone. */
   readonly layers: readonly { readonly id: AnatomyLayerId; readonly count: number }[];
 }
 
 /**
- * A customisation of `themeId` read axis by axis: the overrides each axis
+ * A customization of `themeId` read axis by axis: the overrides each axis
  * compiles to on its own, counted by the layer they land in. `base` counts
  * the scales, `motion` the durations and easings, `schemes` and `densities`
  * every entry of every scheme or density.
  */
-export function customisationAnatomy(themeId: string, customisation: Customisation): AxisAnatomy[] {
+export function customizationAnatomy(themeId: string, customization: Customization): AxisAnatomy[] {
   const MOTION = /^--slotted-(duration|easing)-/;
   const sum = (
     groups: Readonly<Record<string, Readonly<Record<string, string>> | undefined>> = {},
   ) => Object.values(groups).reduce((total, group) => total + Object.keys(group ?? {}).length, 0);
-  return customisedAxes(customisation).map((axis) => {
+  return customizedAxes(customization).map((axis) => {
     const overrides = customOverrides(
-      { ...NO_CUSTOMISATION, [axis]: customisation[axis] },
+      { ...NO_CUSTOMISATION, [axis]: customization[axis] },
       themeId,
     );
     const base = Object.keys(overrides.base ?? {});

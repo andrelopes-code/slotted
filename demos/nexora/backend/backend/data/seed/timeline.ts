@@ -69,7 +69,7 @@ export function dailyVolumeFactor(
   const { month } = parseBusinessDate(date);
   const weekday = weekdayOf(date);
   const yearsBack = diffDays(today, date) / 365;
-  // Growth is centred on the history midpoint so the average daily rate is preserved.
+  // Growth is centerd on the history midpoint so the average daily rate is preserved.
   const growth = Math.pow(1 + annualGrowth, historyYears / 2 - yearsBack);
   return (
     (WEEKDAY_FACTOR[weekday] as number) *

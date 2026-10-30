@@ -56,7 +56,7 @@ import {
 /**
  * The stock positions, one SKU in one warehouse per row: the list an operator
  * asks "what is below its reorder point in CHI-01" of. It is a destination of
- * its own rather than the overview's body — the overview summarises and
+ * its own rather than the overview's body — the overview summarizes and
  * leads, and every one of its figures opens this list with the figure's
  * pills applied (OV-01).
  *

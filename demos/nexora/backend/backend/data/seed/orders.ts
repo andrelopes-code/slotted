@@ -147,7 +147,7 @@ export interface OrderWaveSpec {
   status?: Shipment['status'];
   shipmentNumber?: string;
   exception?: boolean;
-  /** Invoice behaviour for this wave. */
+  /** Invoice behavior for this wave. */
   invoiceNumber?: string;
   invoiceOverdueDays?: number;
   noPayment?: boolean;
@@ -400,7 +400,7 @@ function buildLines(
       if (candidate.status !== 'active' && !isHistoricalDiscontinued && !override?.skuIds) continue;
       priceResolution = env.pricing.resolve(customer, candidate, orderDate);
       if (!priceResolution) continue;
-      // Small line budgets favour cheaper items (consumables), which keeps the
+      // Small line budgets favor cheaper items (consumables), which keeps the
       // order-value distribution on target while leaving room for outliers.
       if (
         !override?.skuIds &&
@@ -1488,7 +1488,7 @@ export function buildOrderGraph(env: OrderEnvironment, skeleton: OrderSkeleton):
     graph.invoices.push(invoice);
     graph.invoiceLines.push(...invoiceLines);
 
-    // Payment behaviour
+    // Payment behavior
     const suppressPayment = wave.spec?.noPayment || (override?.noPayment && invoiceCounter === 1);
     const delay = paymentDelayDays(random, customer, override?.paymentDelayDays);
     let paidDate = addDays(dueDate, delay);

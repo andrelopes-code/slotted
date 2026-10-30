@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideTestBackend, resetTestBackend } from '../../../test/testing';
 import { CUSTOM_THEME_LOADER, type CustomThemeModule } from '../theming/custom-sheet';
-import { NO_CUSTOMISATION } from '../theming/customisation';
+import { NO_CUSTOMISATION } from '../theming/customization';
 import { appearanceOf, PreferencesStore } from './preferences.store';
 import { SessionStore } from './session.store';
 
@@ -135,7 +135,7 @@ describe('PreferencesStore', () => {
     expect(html.style.getPropertyValue('--slotted-seed-accent')).toBe('#7c3aed');
   });
 
-  /** A grey of the reader's own is a seed like a preset's; the colour is kept while a preset is chosen. */
+  /** A grey of the reader's own is a seed like a preset's; the color is kept while a preset is chosen. */
   it('writes a custom grey as the neutral seed', () => {
     const prefs = TestBed.inject(PreferencesStore);
     const html = TestBed.inject(DOCUMENT).documentElement;
@@ -173,8 +173,8 @@ describe('PreferencesStore', () => {
     expect(read('clay')).toEqual({ preset: 'theme', custom: '#64748b' });
   });
 
-  /** `seedStyle` refuses the colour, and the brand is read as the default rather than breaking the page. */
-  it('reads a stored brand that is no colour as the default', () => {
+  /** `seedStyle` refuses the color, and the brand is read as the default rather than breaking the page. */
+  it('reads a stored brand that is no color as the default', () => {
     const prefs = TestBed.inject(PreferencesStore);
     const html = TestBed.inject(DOCUMENT).documentElement;
     const userId = TestBed.inject(SessionStore).user()!.id;
@@ -197,7 +197,7 @@ describe('PreferencesStore', () => {
   });
 
   /** Only the broken half is dropped: the preset the reader chose holds, and Custom starts over. */
-  it('keeps a stored preset whose custom colour is no colour', () => {
+  it('keeps a stored preset whose custom color is no color', () => {
     const prefs = TestBed.inject(PreferencesStore);
     const html = TestBed.inject(DOCUMENT).documentElement;
     const userId = TestBed.inject(SessionStore).user()!.id;
@@ -293,9 +293,9 @@ describe('PreferencesStore', () => {
 
   /**
    * The brand the theme brings writes no accent, so the theme sheet's own
-   * holds; Standard's own is Nexora's violet. A status colour is one more seed.
+   * holds; Standard's own is Nexora's violet. A status color is one more seed.
    */
-  it('writes the theme’s own accent only for Standard, and the status colours as seeds', async () => {
+  it('writes the theme’s own accent only for Standard, and the status colors as seeds', async () => {
     const prefs = TestBed.inject(PreferencesStore);
     const html = TestBed.inject(DOCUMENT).documentElement;
     prefs.update({
@@ -316,14 +316,14 @@ describe('PreferencesStore', () => {
     expect(html.style.getPropertyValue('--slotted-seed-accent')).toBe('#7c3aed');
   });
 
-  /** A stored customisation and stored status colours are read axis by axis and seed by seed. */
-  it('reads a stored customisation and status colours, dropping only what it does not offer', () => {
+  /** A stored customization and stored status colors are read axis by axis and seed by seed. */
+  it('reads a stored customization and status colors, dropping only what it does not offer', () => {
     const prefs = TestBed.inject(PreferencesStore);
     const userId = TestBed.inject(SessionStore).user()!.id;
     localStorage.setItem(
       `nexora:preferences:${userId}`,
       JSON.stringify({
-        customisation: {
+        customization: {
           radius: 12,
           body: 'papyrus',
           cards: 'flat',
@@ -338,7 +338,7 @@ describe('PreferencesStore', () => {
     );
     prefs.update({});
 
-    expect(prefs.preferences().customisation).toEqual({
+    expect(prefs.preferences().customization).toEqual({
       ...NO_CUSTOMISATION,
       radius: 12,
       motion: 'off',
@@ -350,7 +350,7 @@ describe('PreferencesStore', () => {
   });
 
   /**
-   * A customised theme is compiled in the browser under `nexora-custom`, and
+   * A customized theme is compiled in the browser under `nexora-custom`, and
    * `html` names it once the sheet is there; without a change left, `html`
    * names the theme under it again.
    */
@@ -361,7 +361,7 @@ describe('PreferencesStore', () => {
     await prefs.useThemes(['nexora-corporate']);
     prefs.update({
       theme: 'nexora-corporate',
-      customisation: { ...NO_CUSTOMISATION, cards: 'flat' },
+      customization: { ...NO_CUSTOMISATION, cards: 'flat' },
     });
     TestBed.flushEffects();
 
@@ -375,7 +375,7 @@ describe('PreferencesStore', () => {
     );
     expect(sheet?.textContent).toContain("[data-ui='table'] [data-part='column-header']");
 
-    prefs.update({ customisation: NO_CUSTOMISATION });
+    prefs.update({ customization: NO_CUSTOMISATION });
     TestBed.flushEffects();
     expect(html.getAttribute('data-slotted-theme')).toBe('nexora-corporate');
   });
@@ -422,7 +422,7 @@ describe('PreferencesStore', () => {
   });
 
   /**
-   * A customised candidate compiles under `nexora-custom-draft` 200 ms after
+   * A customized candidate compiles under `nexora-custom-draft` 200 ms after
    * the last change, and `html` names it once it is there: a burst of changes
    * — a slider dragged across its range — compiles once, with its last
    * value, and asking again for what is on the page compiles nothing.
@@ -439,7 +439,7 @@ describe('PreferencesStore', () => {
     const candidate = (radius: number) => ({
       ...appearanceOf(prefs.preferences()),
       theme: 'nexora-expressive',
-      customisation: { ...NO_CUSTOMISATION, radius },
+      customization: { ...NO_CUSTOMISATION, radius },
     });
 
     for (let radius = 0; radius <= 18; radius += 2) {
@@ -472,14 +472,14 @@ describe('PreferencesStore', () => {
   });
 
   /**
-   * A customised theme that does not compile is said, not swallowed: `html`
+   * A customized theme that does not compile is said, not swallowed: `html`
    * keeps the theme it shows, and a retry compiles it.
    */
-  it('keeps html on the theme it shows while a customisation does not compile, and retries', async () => {
+  it('keeps html on the theme it shows while a customization does not compile, and retries', async () => {
     const prefs = TestBed.inject(PreferencesStore);
     const html = TestBed.inject(DOCUMENT).documentElement;
     loadBuilder = () => Promise.reject(new Error('chunk'));
-    prefs.update({ customisation: { ...NO_CUSTOMISATION, cards: 'flat' } });
+    prefs.update({ customization: { ...NO_CUSTOMISATION, cards: 'flat' } });
     TestBed.flushEffects();
 
     await vi.waitFor(() => expect(prefs.customFailed()).toBe(true));
@@ -497,13 +497,13 @@ describe('PreferencesStore', () => {
 
   /**
    * A candidate that does not compile fails only while it is the candidate:
-   * once it is dropped, the saved customisation is what `html` names and no
+   * once it is dropped, the saved customization is what `html` names and no
    * failure is reported.
    */
   it('drops the failure of a candidate that does not compile once the candidate is cleared', async () => {
     const prefs = TestBed.inject(PreferencesStore);
     const html = TestBed.inject(DOCUMENT).documentElement;
-    prefs.update({ customisation: { ...NO_CUSTOMISATION, cards: 'flat' } });
+    prefs.update({ customization: { ...NO_CUSTOMISATION, cards: 'flat' } });
     await vi.waitFor(() => {
       TestBed.flushEffects();
       expect(html.getAttribute('data-slotted-theme')).toBe('nexora-custom');
@@ -512,7 +512,7 @@ describe('PreferencesStore', () => {
     loadBuilder = () => Promise.reject(new Error('chunk'));
     prefs.preview({
       ...appearanceOf(prefs.preferences()),
-      customisation: { ...NO_CUSTOMISATION, cards: 'bordered' },
+      customization: { ...NO_CUSTOMISATION, cards: 'bordered' },
     });
     TestBed.flushEffects();
     await vi.waitFor(() => expect(prefs.customFailed()).toBe(true));

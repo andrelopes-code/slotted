@@ -20,16 +20,16 @@ import {
   LABEL_WEIGHT_CHOICES,
   OVERLAY_RADIUS_CHOICES,
   readCustomisation,
-  type Customisation,
-  type CustomisationAxis,
-} from '../../core/theming/customisation';
+  type Customization,
+  type CustomizationAxis,
+} from '../../core/theming/customization';
 import { catalogueTheme } from '../../core/theming/theme-catalogue';
 import { CHOICE_GRID } from './choice-grid.styles';
 
 /** The length, in characters, of the longest of `labels`: a choice grid's narrowest track. */
 const longest = (...labels: readonly string[]) => Math.max(...labels.map((label) => label.length));
 
-/** What a Controls tile draws above its label: the style itself, in the page's colours. */
+/** What a Controls tile draws above its label: the style itself, in the page's colors. */
 type Specimen = 'field' | 'focus' | 'button' | null;
 
 interface ControlGroup {
@@ -76,7 +76,7 @@ export const CONTROL_GROUPS: readonly (readonly [string, readonly ControlGroup[]
         axis: 'focus',
         label: 'Focus',
         description:
-          'How a button and a field mark keyboard focus; other controls keep a ring in the same colour.',
+          'How a button and a field mark keyboard focus; other controls keep a ring in the same color.',
         specimen: 'focus',
         options: FOCUS_CHOICES.map((value) => ({
           value,
@@ -204,7 +204,7 @@ export const CONTROL_GROUPS: readonly (readonly [string, readonly ControlGroup[]
  * appearance choice, so the whole application is drawn in it before Save;
  * the builder compiles it at the level of the theme model it belongs to
  * (`custom-theme.ts`). A field, focus or button tile draws its style above
- * its label in the page's own colours; its "Theme" tile draws the theme's
+ * its label in the page's own colors; its "Theme" tile draws the theme's
  * own style.
  */
 @Component({
@@ -228,7 +228,7 @@ export const CONTROL_GROUPS: readonly (readonly [string, readonly ControlGroup[]
       /*
      * A Controls tile draws its style above its label, in a box of one height
      * for the whole group and with room around it for a focus mark: a field,
-     * a focused control or a primary button, in the page's own colours and
+     * a focused control or a primary button, in the page's own colors and
      * corners, painted the way the option paints it.
      */
       .with-specimen {
@@ -450,35 +450,35 @@ export class ControlsSection {
 
   /** How many Controls axes the draft sets. */
   protected readonly controlChanges = computed(
-    () => CONTROL_AXES.filter((axis) => this.draft().customisation[axis] !== null).length,
+    () => CONTROL_AXES.filter((axis) => this.draft().customization[axis] !== null).length,
   );
 
   /** The theme's own input, focus or button style: what a Controls group's "Theme" tile draws. */
-  protected ownControl(axis: CustomisationAxis): string | null {
+  protected ownControl(axis: CustomizationAxis): string | null {
     const controls = catalogueTheme(this.draft().theme).controls;
     return axis === 'input' || axis === 'focus' || axis === 'button' ? controls[axis] : null;
   }
 
-  protected axisValue(axis: CustomisationAxis): string {
-    const value = this.draft().customisation[axis];
+  protected axisValue(axis: CustomizationAxis): string {
+    const value = this.draft().customization[axis];
     return value === null ? 'theme' : String(value);
   }
 
   /** A choice's value, read back through the same check as storage; `theme` clears the axis. */
-  protected chooseAxis(axis: CustomisationAxis, value: unknown): void {
+  protected chooseAxis(axis: CustomizationAxis, value: unknown): void {
     const raw = value === 'theme' ? null : /^-?\d+$/.test(String(value)) ? Number(value) : value;
-    const next = readCustomisation({ ...this.draft().customisation, [axis]: raw });
+    const next = readCustomisation({ ...this.draft().customization, [axis]: raw });
     if (raw !== null && next[axis] === null) return;
-    this.patch.emit({ customisation: next });
+    this.patch.emit({ customization: next });
   }
 
   /** The Controls axes go back to the theme's own; every other change stays. */
   protected resetControls(): void {
     this.patch.emit({
-      customisation: {
-        ...this.draft().customisation,
+      customization: {
+        ...this.draft().customization,
         ...Object.fromEntries(CONTROL_AXES.map((axis) => [axis, null])),
-      } as Customisation,
+      } as Customization,
     });
   }
 }

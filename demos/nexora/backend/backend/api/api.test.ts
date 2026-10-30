@@ -275,7 +275,7 @@ describe('order to cash', () => {
     await api.demo.setPersona('sofia-ramirez');
   });
 
-  it('honours idempotency keys', async () => {
+  it('honors idempotency keys', async () => {
     await api.demo.setPersona('maya-chen');
     const customers = await api.customers.list({ filter: { status: 'active' }, pageSize: 25 });
     const customer = customers.data[1]!;

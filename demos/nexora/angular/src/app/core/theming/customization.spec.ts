@@ -2,15 +2,15 @@ import { describe, expect, it } from 'vitest';
 
 import {
   CONTROL_AXES,
-  customisedAxes,
+  customizedAxes,
   isCustomised,
   NO_CUSTOMISATION,
   readCustomisation,
-  type Customisation,
-} from './customisation';
+  type Customization,
+} from './customization';
 
-describe('customisation', () => {
-  const full: Customisation = {
+describe('customization', () => {
+  const full: Customization = {
     radius: 12,
     body: 'source-serif',
     heading: 'fraunces',
@@ -37,7 +37,7 @@ describe('customisation', () => {
   it('keeps every axis a reader set, and leaves the rest to the theme', () => {
     expect(readCustomisation(full)).toEqual(full);
     expect(readCustomisation({ body: 'inter' })).toEqual({ ...NO_CUSTOMISATION, body: 'inter' });
-    expect(customisedAxes(readCustomisation({ heading: 'outfit', cards: 'flat' }))).toEqual([
+    expect(customizedAxes(readCustomisation({ heading: 'outfit', cards: 'flat' }))).toEqual([
       'heading',
       'cards',
     ]);
@@ -60,7 +60,7 @@ describe('customisation', () => {
     ]);
     for (const axis of CONTROL_AXES) {
       const one = readCustomisation({ [axis]: full[axis] });
-      expect(customisedAxes(one), axis).toEqual([axis]);
+      expect(customizedAxes(one), axis).toEqual([axis]);
     }
     expect(readCustomisation({ controlRadius: 0, controlText: -1, controlHeight: -4 })).toEqual({
       ...NO_CUSTOMISATION,
@@ -104,7 +104,7 @@ describe('customisation', () => {
     expect(readCustomisation(null)).toEqual(NO_CUSTOMISATION);
   });
 
-  it('is customised while any axis is set', () => {
+  it('is customized while any axis is set', () => {
     expect(isCustomised(NO_CUSTOMISATION)).toBe(false);
     expect(isCustomised({ ...NO_CUSTOMISATION, radius: 0 })).toBe(true);
     expect(isCustomised({ ...NO_CUSTOMISATION, focus: 'underline' })).toBe(true);

@@ -9,7 +9,7 @@ import { routes } from '../../app.routes';
 import { PreferencesStore } from '../../core/session/preferences.store';
 import { SessionStore } from '../../core/session/session.store';
 import { CUSTOM_THEME_LOADER, type CustomThemeModule } from '../../core/theming/custom-sheet';
-import { NO_CUSTOMISATION } from '../../core/theming/customisation';
+import { NO_CUSTOMISATION } from '../../core/theming/customization';
 
 /**
  * jsdom has no IntersectionObserver: this one records what each observer
@@ -329,7 +329,7 @@ describe('PreferencesPage › Appearance', () => {
     expect(html.style.getPropertyValue('--slotted-seed-accent')).toBe('#059669');
   });
 
-  const typeColour = (root: HTMLElement, value: string, field = '[data-brand-custom]') => {
+  const typeColor = (root: HTMLElement, value: string, field = '[data-brand-custom]') => {
     const input = root.querySelector<HTMLInputElement>(`${field} input`);
     expect(input).not.toBeNull();
     input!.value = value;
@@ -339,10 +339,10 @@ describe('PreferencesPage › Appearance', () => {
   const checkedBrand = (root: HTMLElement) =>
     root.querySelector<HTMLInputElement>('input[name="brand"]:checked')?.value;
 
-  /** The reader's own colour is a candidate like a preset, and choosing it selects Custom. */
-  it('takes a custom colour from the colour field', async () => {
+  /** The reader's own color is a candidate like a preset, and choosing it selects Custom. */
+  it('takes a custom color from the color field', async () => {
     const { harness, root } = await open();
-    typeColour(root, '#0f766e');
+    typeColor(root, '#0f766e');
     harness.detectChanges();
 
     TestBed.flushEffects();
@@ -350,10 +350,10 @@ describe('PreferencesPage › Appearance', () => {
     expect(checkedBrand(root)).toBe('custom');
   });
 
-  /** A colour typed that is a preset's own chooses the preset, and the custom colour stays as it was. */
-  it('chooses the preset a typed colour equals', async () => {
+  /** A color typed that is a preset's own chooses the preset, and the custom color stays as it was. */
+  it('chooses the preset a typed color equals', async () => {
     const { harness, root } = await open();
-    typeColour(root, '#E11D48');
+    typeColor(root, '#E11D48');
     harness.detectChanges();
 
     TestBed.flushEffects();
@@ -365,10 +365,10 @@ describe('PreferencesPage › Appearance', () => {
     expect(page().accent).toBe('#7c3aed');
   });
 
-  /** The grey takes any colour too: typed, it becomes the neutral seed, and Custom is chosen. */
-  it('takes a custom grey from its colour field', async () => {
+  /** The grey takes any color too: typed, it becomes the neutral seed, and Custom is chosen. */
+  it('takes a custom grey from its color field', async () => {
     const { harness, root } = await open();
-    typeColour(root, '#336699', '[data-neutral-custom]');
+    typeColor(root, '#336699', '[data-neutral-custom]');
     harness.detectChanges();
     TestBed.flushEffects();
 
@@ -579,9 +579,9 @@ describe('PreferencesPage › Appearance', () => {
     expect(sheet).toContain("--slotted-font-family-sans: 'JetBrains Mono Variable'");
     expect(root.querySelector('[data-changes]')!.textContent!.trim()).toBe('2 changes');
     expect(root.querySelector('[data-anatomy] caption')!.textContent).toContain(
-      'Editorial, customised',
+      'Editorial, customized',
     );
-    expect(TestBed.inject(PreferencesStore).preferences().customisation).toEqual(NO_CUSTOMISATION);
+    expect(TestBed.inject(PreferencesStore).preferences().customization).toEqual(NO_CUSTOMISATION);
 
     (root.querySelector('[data-reset]') as HTMLButtonElement).click();
     harness.detectChanges();
@@ -594,13 +594,13 @@ describe('PreferencesPage › Appearance', () => {
   });
 
   /**
-   * A saved customisation is part of the opening wait: the region stays busy
+   * A saved customization is part of the opening wait: the region stays busy
    * until its theme is compiled. A change made afterwards is no wait — the
    * application keeps what it shows until the new candidate lands.
    */
-  it('waits on opening for a saved customisation, and never for a later change', async () => {
+  it('waits on opening for a saved customization, and never for a later change', async () => {
     const store = TestBed.inject(PreferencesStore);
-    store.update({ customisation: { ...NO_CUSTOMISATION, cards: 'elevated' } });
+    store.update({ customization: { ...NO_CUSTOMISATION, cards: 'elevated' } });
     const harness = await RouterTestingHarness.create('/settings/preferences');
     const root = harness.fixture.nativeElement as HTMLElement;
     const region = () => root.querySelector<HTMLElement>('[data-appearance]')!;
@@ -630,7 +630,7 @@ describe('PreferencesPage › Appearance', () => {
     const draft = () =>
       harness.fixture.debugElement
         .query((node) => node.name === 'app-appearance-section')!
-        .componentInstance.draft().customisation;
+        .componentInstance.draft().customization;
     expect(draft()).toMatchObject({ radius: 10, shadow: 'none' });
     expect(root.querySelector('[data-radius-value]')!.textContent).toMatch(/10 px .*yours/);
 
@@ -642,14 +642,14 @@ describe('PreferencesPage › Appearance', () => {
   });
 
   /**
-   * A customisation that does not compile is an error state of its own: it
+   * A customization that does not compile is an error state of its own: it
    * says so once, offers a retry, and the application stays in the theme it
    * shows; the retry compiles it.
    */
-  it('says when a customised theme does not compile, and compiles it on retry', async () => {
+  it('says when a customized theme does not compile, and compiles it on retry', async () => {
     loadBuilder = () => Promise.reject(new Error('chunk'));
     TestBed.inject(PreferencesStore).update({
-      customisation: { ...NO_CUSTOMISATION, cards: 'flat' },
+      customization: { ...NO_CUSTOMISATION, cards: 'flat' },
     });
     const harness = await RouterTestingHarness.create('/settings/preferences');
     const root = harness.fixture.nativeElement as HTMLElement;
@@ -737,7 +737,7 @@ describe('PreferencesPage › Appearance', () => {
 
     button(root, 'Save preferences').click();
     harness.detectChanges();
-    expect(store.preferences().customisation).toMatchObject({
+    expect(store.preferences().customization).toMatchObject({
       shadow: 'none',
       input: 'underline',
       focus: 'glow',
@@ -751,7 +751,7 @@ describe('PreferencesPage › Appearance', () => {
     harness.detectChanges();
     const draft = harness.fixture.debugElement
       .query((node) => node.name === 'app-appearance-section')!
-      .componentInstance.draft().customisation;
+      .componentInstance.draft().customization;
     expect(draft).toEqual({ ...NO_CUSTOMISATION, shadow: 'none' });
     expect(
       root.querySelector<HTMLInputElement>('input[name="axis-input"][value="theme"]')!.checked,
@@ -782,7 +782,7 @@ describe('PreferencesPage › Appearance', () => {
   });
 
   /** Save keeps the builder's changes, and `html` names the saved compiled theme. */
-  it('saves a customisation, which html names once it is compiled', async () => {
+  it('saves a customization, which html names once it is compiled', async () => {
     const { harness, root } = await open();
     const html = TestBed.inject(DOCUMENT).documentElement;
     choose(root, 'axis-shadow', 'strong');
@@ -790,7 +790,7 @@ describe('PreferencesPage › Appearance', () => {
     button(root, 'Save preferences').click();
     harness.detectChanges();
 
-    expect(TestBed.inject(PreferencesStore).preferences().customisation.shadow).toBe('strong');
+    expect(TestBed.inject(PreferencesStore).preferences().customization.shadow).toBe('strong');
     await until(harness, () => html.getAttribute('data-slotted-theme') === 'nexora-custom', 3000);
   });
 

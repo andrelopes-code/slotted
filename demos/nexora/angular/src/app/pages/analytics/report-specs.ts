@@ -46,7 +46,7 @@ export interface SectionSpec {
     /** The measure drawn, the chart's own title (OV-05): never the section's question again. */
     readonly measure: string;
     readonly columns: readonly string[];
-    /** One kind per column, so two series differ by mark as well as by colour. */
+    /** One kind per column, so two series differ by mark as well as by color. */
     readonly kinds?: readonly ('bar' | 'line')[];
     readonly stacked?: boolean;
     readonly orientation?: 'horizontal';

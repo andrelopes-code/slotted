@@ -74,10 +74,10 @@ function resolved(theme: Theme, token: string, density = 'comfortable'): string 
 
 /**
  * The structural axes a theme is read on: what a reader sees before the
- * colour — the faces and the size of the text, the height and corner of a
+ * color — the faces and the size of the text, the height and corner of a
  * control, a field, a focus mark and a primary button, a card's edge, the
  * tabs' marker, the table's head, the shadow, the line, the space and the
- * motion. Colour is not one of them.
+ * motion. Color is not one of them.
  */
 const STRUCTURE: readonly [string, (theme: Theme, entry: ThemeEntry) => string][] = [
   ['text face', (theme) => resolved(theme, '--slotted-font-family-sans')],
@@ -222,7 +222,7 @@ describe('theme catalogue', () => {
   /**
    * Every two themes of the catalogue — Standard among them — differ on at
    * least twelve of the seventeen structural axes: a reader tells them apart
-   * before reading a colour.
+   * before reading a color.
    */
   it('keeps every two themes apart on the structural axes', () => {
     const read = THEME_CATALOGUE.map((entry) => ({

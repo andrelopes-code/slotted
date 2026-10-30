@@ -1,9 +1,9 @@
 import { InjectionToken, signal } from '@angular/core';
 import type { Theme } from '@slotted/theme';
 
-import type { Customisation } from './customisation';
+import type { Customization } from './customization';
 
-/** What a compile of a customisation needs from `custom-theme.ts`, which is loaded by `import()`. */
+/** What a compile of a customization needs from `custom-theme.ts`, which is loaded by `import()`. */
 export type CustomThemeModule = Pick<typeof import('./custom-theme'), 'applyCustomTheme'>;
 
 /** Where the store's builder sheets load the builder from: `custom-theme.ts`, by `import()`. */
@@ -13,7 +13,7 @@ export const CUSTOM_THEME_LOADER = new InjectionToken<() => Promise<CustomThemeM
 );
 
 /**
- * One builder sheet on the page, under one name: the saved customisation that
+ * One builder sheet on the page, under one name: the saved customization that
  * `html` names, or the candidate the preferences page is editing. A request
  * is compiled after `delay` ms in which no other request arrived, so a burst
  * of changes — a slider dragged across its range — compiles once, with its
@@ -31,7 +31,7 @@ export class CustomSheet {
 
   private timer: ReturnType<typeof setTimeout> | undefined;
   private wanted: string | null = null;
-  private last: { readonly theme: string; readonly customisation: Customisation } | null = null;
+  private last: { readonly theme: string; readonly customization: Customization } | null = null;
   private dispose: (() => void) | null = null;
   private ended = false;
 
@@ -42,37 +42,37 @@ export class CustomSheet {
     private readonly load: () => Promise<CustomThemeModule> = () => import('./custom-theme'),
   ) {}
 
-  /** The key a customisation of a theme compiles under. */
-  static signature(theme: string, customisation: Customisation): string {
-    return JSON.stringify([theme, customisation]);
+  /** The key a customization of a theme compiles under. */
+  static signature(theme: string, customization: Customization): string {
+    return JSON.stringify([theme, customization]);
   }
 
-  /** Asks for `customisation` of `theme`; the latest request within `delay` is the one compiled. */
-  request(theme: string, customisation: Customisation): void {
-    const signature = CustomSheet.signature(theme, customisation);
+  /** Asks for `customization` of `theme`; the latest request within `delay` is the one compiled. */
+  request(theme: string, customization: Customization): void {
+    const signature = CustomSheet.signature(theme, customization);
     if (signature !== this.wanted) this.failed.set(false);
     this.wanted = signature;
-    this.last = { theme, customisation };
+    this.last = { theme, customization };
     clearTimeout(this.timer);
     if (signature === this.compiled()?.signature) return;
-    this.timer = setTimeout(() => this.compile(theme, customisation, signature), this.delay);
+    this.timer = setTimeout(() => this.compile(theme, customization, signature), this.delay);
   }
 
   /** Compiles the last request again after a failure; nothing when it did not fail. */
   retry(): void {
     if (!this.failed() || this.last === null) return;
     this.failed.set(false);
-    const { theme, customisation } = this.last;
-    this.compile(theme, customisation, CustomSheet.signature(theme, customisation));
+    const { theme, customization } = this.last;
+    this.compile(theme, customization, CustomSheet.signature(theme, customization));
   }
 
-  private compile(theme: string, customisation: Customisation, signature: string): void {
+  private compile(theme: string, customization: Customization, signature: string): void {
     const current = () => !this.ended && this.wanted === signature;
     this.load().then(
       ({ applyCustomTheme }) => {
         if (!current()) return;
         try {
-          const applied = applyCustomTheme(theme, customisation, this.name, this.document);
+          const applied = applyCustomTheme(theme, customization, this.name, this.document);
           this.dispose = applied.dispose;
           this.compiled.set({ signature, theme: applied.theme });
         } catch {
@@ -95,7 +95,7 @@ export class CustomSheet {
 
   /**
    * Drops any pending request and stops naming what is on the page: the
-   * next customisation shows nothing older than itself. The sheet stays, to
+   * next customization shows nothing older than itself. The sheet stays, to
    * be replaced in place by the next compile.
    */
   forget(): void {
@@ -106,14 +106,14 @@ export class CustomSheet {
     this.failed.set(false);
   }
 
-  /** Whether `customisation` of `theme` is the request pending or compiled. */
-  wants(theme: string, customisation: Customisation): boolean {
-    return this.wanted === CustomSheet.signature(theme, customisation);
+  /** Whether `customization` of `theme` is the request pending or compiled. */
+  wants(theme: string, customization: Customization): boolean {
+    return this.wanted === CustomSheet.signature(theme, customization);
   }
 
-  /** Whether the sheet on the page is the one `customisation` of `theme` compiles to. */
-  holds(theme: string, customisation: Customisation): boolean {
-    return this.compiled()?.signature === CustomSheet.signature(theme, customisation);
+  /** Whether the sheet on the page is the one `customization` of `theme` compiles to. */
+  holds(theme: string, customization: Customization): boolean {
+    return this.compiled()?.signature === CustomSheet.signature(theme, customization);
   }
 
   /** Stops a pending compile and removes the sheet. */

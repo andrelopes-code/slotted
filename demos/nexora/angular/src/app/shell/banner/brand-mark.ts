@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-/** A hexagon with three nodes joined at the centre: a nexus. Inherits `currentColor`. */
+/** A hexagon with three nodes joined at the center: a nexus. Inherits `currentColor`. */
 @Component({
   selector: 'app-brand-mark',
   changeDetection: ChangeDetectionStrategy.OnPush,

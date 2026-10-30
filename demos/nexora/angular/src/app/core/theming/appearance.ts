@@ -2,7 +2,7 @@ import { seedStyle, type SeedName } from '@slotted/theme/seeds';
 
 import { catalogueTheme } from './theme-catalogue';
 
-/** The brand colours offered as one press; `custom` keeps a colour of the reader's own. */
+/** The brand colors offered as one press; `custom` keeps a color of the reader's own. */
 export const BRAND_PRESETS = [
   { id: 'violet', label: 'Violet', color: '#7c3aed' },
   { id: 'blue', label: 'Blue', color: '#2563eb' },
@@ -16,7 +16,7 @@ export type BrandPresetId = (typeof BRAND_PRESETS)[number]['id'];
 export interface BrandPreference {
   /** `theme` keeps the accent the theme brings. */
   readonly preset: BrandPresetId | 'custom' | 'theme';
-  /** The reader's own colour, `#rrggbb`; kept while a preset is chosen, so Custom brings it back. */
+  /** The reader's own color, `#rrggbb`; kept while a preset is chosen, so Custom brings it back. */
   readonly custom: string;
 }
 
@@ -24,7 +24,7 @@ export const DEFAULT_BRAND: BrandPreference = { preset: 'theme', custom: '#7c3ae
 
 /**
  * The grey every surface, border and muted text is derived from. `theme`
- * writes no seed, so the theme's own neutral holds. The four colours carry
+ * writes no seed, so the theme's own neutral holds. The four colors carry
  * enough chroma to tint a ground the reader can see, and stand apart from
  * every theme's own (`theme-catalogue.spec.ts`).
  */
@@ -49,10 +49,10 @@ export const DEFAULT_NEUTRAL: NeutralPreference = { preset: 'theme', custom: '#6
 /** The three status seeds; `null` keeps the theme's own. */
 export const STATUS_SEEDS = ['success', 'warning', 'danger'] as const;
 export type StatusSeed = (typeof STATUS_SEEDS)[number];
-export type StatusColours = Readonly<Record<StatusSeed, string | null>>;
-export const NO_STATUS: StatusColours = { success: null, warning: null, danger: null };
+export type StatusColors = Readonly<Record<StatusSeed, string | null>>;
+export const NO_STATUS: StatusColors = { success: null, warning: null, danger: null };
 
-/** The colours the status fields offer in their panels. */
+/** The colors the status fields offer in their panels. */
 export const STATUS_PRESETS: Readonly<Record<StatusSeed, readonly string[]>> = {
   success: ['#15803d', '#059669', '#0d9488', '#65a30d'],
   warning: ['#d97706', '#ca8a04', '#ea580c', '#facc15'],
@@ -77,7 +77,7 @@ export function neutralColor(neutral: NeutralPreference): string | null {
 }
 
 /**
- * The seeds a reader's colours write over `theme`, in the shape `slThemeScope`
+ * The seeds a reader's colors write over `theme`, in the shape `slThemeScope`
  * and `seedStyle` take: only the ones the reader chose, so the theme's own
  * hold for the rest.
  */
@@ -85,7 +85,7 @@ export function appearanceSeeds(
   theme: string,
   brand: BrandPreference,
   neutral: NeutralPreference,
-  status: StatusColours = NO_STATUS,
+  status: StatusColors = NO_STATUS,
 ): Partial<Record<SeedName, string>> {
   const seeds: Partial<Record<SeedName, string>> = {};
   const accent = brandColor(brand, theme);
@@ -101,8 +101,8 @@ export function appearanceSeeds(
 
 /**
  * A brand read back from storage, each half checked on its own. A known preset
- * holds, and a custom colour `seedStyle` refuses is replaced by the default's.
- * An unknown preset, or `custom` with a refused colour, reads as the default.
+ * holds, and a custom color `seedStyle` refuses is replaced by the default's.
+ * An unknown preset, or `custom` with a refused color, reads as the default.
  */
 export function readBrand(value: unknown): BrandPreference {
   if (typeof value !== 'object' || value === null) return DEFAULT_BRAND;
@@ -116,8 +116,8 @@ export function readBrand(value: unknown): BrandPreference {
 
 /**
  * A grey read back from storage, as a brand is: a known preset holds with a
- * refused custom colour replaced by the default's, and an unknown preset, or
- * `custom` with a refused colour, reads as the default.
+ * refused custom color replaced by the default's, and an unknown preset, or
+ * `custom` with a refused color, reads as the default.
  */
 export function readNeutral(value: unknown): NeutralPreference {
   if (typeof value !== 'object' || value === null) return DEFAULT_NEUTRAL;
@@ -127,8 +127,8 @@ export function readNeutral(value: unknown): NeutralPreference {
   return preset === 'custom' && color !== null ? { preset, custom: color } : DEFAULT_NEUTRAL;
 }
 
-/** Status colours read back from storage: each one a seed, or the theme's own. */
-export function readStatus(value: unknown): StatusColours {
+/** Status colors read back from storage: each one a seed, or the theme's own. */
+export function readStatus(value: unknown): StatusColors {
   if (typeof value !== 'object' || value === null) return NO_STATUS;
   const stored = value as Partial<Record<StatusSeed, unknown>>;
   return {

@@ -65,7 +65,7 @@ export type LabelSpacingChoice = (typeof LABEL_SPACING_CHOICES)[number];
 export type ControlTextChoice = (typeof CONTROL_TEXT_CHOICES)[number];
 export type ControlHeightChoice = (typeof CONTROL_HEIGHT_CHOICES)[number];
 
-export interface Customisation {
+export interface Customization {
   /** The largest corner in px, `RADIUS_RANGE` in its steps; the smaller corners are its fractions. */
   readonly radius: number | null;
   /** The face of the text and the controls. */
@@ -97,9 +97,9 @@ export interface Customisation {
   readonly controlHeight: ControlHeightChoice | null;
 }
 
-export type CustomisationAxis = keyof Customisation;
+export type CustomizationAxis = keyof Customization;
 
-export const NO_CUSTOMISATION: Customisation = {
+export const NO_CUSTOMISATION: Customization = {
   radius: null,
   body: null,
   heading: null,
@@ -123,7 +123,7 @@ export const NO_CUSTOMISATION: Customisation = {
   controlHeight: null,
 };
 
-const AXES = Object.keys(NO_CUSTOMISATION) as CustomisationAxis[];
+const AXES = Object.keys(NO_CUSTOMISATION) as CustomizationAxis[];
 
 /** The axes the Controls section sets, in its order. */
 export const CONTROL_AXES = [
@@ -138,7 +138,7 @@ export const CONTROL_AXES = [
   'labelSpacing',
   'controlText',
   'controlHeight',
-] as const satisfies readonly CustomisationAxis[];
+] as const satisfies readonly CustomizationAxis[];
 
 const isRadius = (value: unknown): value is number =>
   typeof value === 'number' &&
@@ -151,12 +151,12 @@ const choice = <T>(choices: readonly T[], value: unknown): T | null =>
   choices.includes(value as T) ? (value as T) : null;
 
 /**
- * A customisation read back from storage, axis by axis: a value the builder
+ * A customization read back from storage, axis by axis: a value the builder
  * does not offer is the theme's own again, and the other axes hold.
  */
-export function readCustomisation(value: unknown): Customisation {
+export function readCustomisation(value: unknown): Customization {
   if (typeof value !== 'object' || value === null) return NO_CUSTOMISATION;
-  const stored = value as Partial<Record<CustomisationAxis, unknown>>;
+  const stored = value as Partial<Record<CustomizationAxis, unknown>>;
   return {
     radius: isRadius(stored.radius) ? stored.radius : null,
     body: choice(FONT_IDS, stored.body),
@@ -183,10 +183,10 @@ export function readCustomisation(value: unknown): Customisation {
 }
 
 /** The axes a reader has set, in the builder's order. */
-export function customisedAxes(customisation: Customisation): CustomisationAxis[] {
-  return AXES.filter((axis) => customisation[axis] !== null);
+export function customizedAxes(customization: Customization): CustomizationAxis[] {
+  return AXES.filter((axis) => customization[axis] !== null);
 }
 
-export function isCustomised(customisation: Customisation): boolean {
-  return customisedAxes(customisation).length > 0;
+export function isCustomised(customization: Customization): boolean {
+  return customizedAxes(customization).length > 0;
 }

@@ -2,9 +2,9 @@ import defaultTheme from '@slotted/themes/default';
 import { describe, expect, it } from 'vitest';
 
 import { customTheme } from './custom-theme';
-import { NO_CUSTOMISATION } from './customisation';
+import { NO_CUSTOMISATION } from './customization';
 import { nexoraTheme } from './nexora-themes';
-import { ANATOMY_LAYERS, customisationAnatomy, themeAnatomy } from './theme-anatomy';
+import { ANATOMY_LAYERS, customizationAnatomy, themeAnatomy } from './theme-anatomy';
 import { RUNTIME_THEME_IDS } from './theme-catalogue';
 
 const count = (theme: Parameters<typeof themeAnatomy>[0], layer: string) =>
@@ -77,12 +77,12 @@ describe('themeAnatomy', () => {
   });
 
   /**
-   * A customisation read axis by axis: each axis a reader set, with the layers
+   * A customization read axis by axis: each axis a reader set, with the layers
    * of the model it writes and how many entries in each — what the anatomy
    * shows beside the theme's own.
    */
-  it('reads each customised axis by the layers it writes', () => {
-    const read = customisationAnatomy('nexora-expressive', {
+  it('reads each customized axis by the layers it writes', () => {
+    const read = customizationAnatomy('nexora-expressive', {
       ...NO_CUSTOMISATION,
       input: 'underline',
       focus: 'offset',
@@ -112,6 +112,6 @@ describe('themeAnatomy', () => {
     expect(layers('labelWeight')).toEqual({ base: 1 });
     expect(layers('controlHeight')).toEqual({ densities: 9 });
     expect(layers('motion')).toEqual({ motion: 4 });
-    expect(customisationAnatomy('default', NO_CUSTOMISATION)).toEqual([]);
+    expect(customizationAnatomy('default', NO_CUSTOMISATION)).toEqual([]);
   });
 });

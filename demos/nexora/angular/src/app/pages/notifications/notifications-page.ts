@@ -178,7 +178,7 @@ import { NotificationRow } from '../../shell/notifications/notification-row';
                 ></div>
   <!--
     Two glyphs with no words beside them: each names itself in a tooltip on
-    hover, on keyboard focus and on a held touch, as the notification centre
+    hover, on keyboard focus and on a held touch, as the notification center
     in the bell's panel names its own. The accessible name carries the row's
     title; the tooltip says only the action.
   -->

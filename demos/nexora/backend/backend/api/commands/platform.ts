@@ -488,7 +488,7 @@ export function createPlatformCommands(runtime: ApiRuntime) {
                 field: 'Segment',
                 severity: 'warning',
                 code: 'UNKNOWN_SEGMENT',
-                message: `Segment "${row[segmentIndex]}" not recognised; defaulted to SMB.`,
+                message: `Segment "${row[segmentIndex]}" not recognized; defaulted to SMB.`,
               });
               rowWarning = true;
             }

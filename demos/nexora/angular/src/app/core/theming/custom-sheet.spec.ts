@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { CustomSheet, type CustomThemeModule } from './custom-sheet';
-import { NO_CUSTOMISATION } from './customisation';
+import { NO_CUSTOMISATION } from './customization';
 
 const flat = { ...NO_CUSTOMISATION, cards: 'flat' as const };
 

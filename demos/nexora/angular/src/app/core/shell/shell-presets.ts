@@ -135,7 +135,7 @@ export const SHELL_PRESETS: readonly ShellPreset[] = [
   {
     id: 'wash',
     label: 'Washed frame',
-    description: 'Floating cards over a soft wash of the accent colour.',
+    description: 'Floating cards over a soft wash of the accent color.',
     canvas: 'floating',
     primary: 'main',
     separation: 'rule',

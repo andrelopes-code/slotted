@@ -2,12 +2,12 @@
 // The appearance scenario: one browser session on the built demo, served from `dist` with an SPA
 // fallback, on the preferences page, where every choice draws the whole application at once. It
 // waits for the runtime theme sheets, then:
-// - the colour fields paint their colour in the swatch before any interaction, and a font specimen
+// - the color fields paint their color in the swatch before any interaction, and a font specimen
 //   names its face only once it is scrolled into view, in a box that does not move when it does;
 // - for each of the five themes, with the theme's own brand and two presets, in light and dark, it
 //   reads `html` and asserts absolute values: the theme and the scheme `html` names and the ground
 //   they paint; a probe button's corner, case, face and transition; the page heading's face; the
-//   square badge's corner and case; the first data colour; the primary button's label on
+//   square badge's corner and case; the first data color; the primary button's label on
 //   its ground at the scheme's floor and the contrast table stating the ratio of the accent's label
 //   on its solid; the start page select's layer
 //   carrying the theme, scheme and seed of `html`; each face the theme names, loaded; and that the
@@ -18,7 +18,7 @@
 //   line the style requires and every focus mark at 3:1 or more on its ground, an invalid edge
 //   thicker than a valid one at rest and under focus, in light, dark and high-contrast (html set to
 //   it, read once the field paints it); the probe button's focus in the theme's focus style; under
-//   emulated forced colours, focus as a 2px outline in a system colour; the default with absolute
+//   emulated forced colors, focus as a 2px outline in a system color; the default with absolute
 //   values;
 // - with two strongly tinted greys (Ocean #0e7490, Clay #9c6644) and a grey of the reader's own, the
 //   page ground, a table ground and the select's layer carry the grey's hue, and the lines and
@@ -29,12 +29,12 @@
 // - every builder axis moves the computed value it names on `html`: corner (a burst compiles one
 //   sheet; "Use the theme's" brings it back), both faces (each of the eight families, loaded), type
 //   scale, lines, shadows, motion, cards, tabs (the selected tab's corner and ground on
-//   Notifications), chart colours and a status colour; Reset returns to the theme as it came;
+//   Notifications), chart colors and a status color; Reset returns to the theme as it came;
 // - every Controls axis over Standard: each input style drawn on the text field, each focus style
-//   on the field and on the probe button (and as a system-colour outline under forced colours),
+//   on the field and on the probe button (and as a system-color outline under forced colors),
 //   each primary button paint with its label at 4.5:1, and the control, card and overlay corners,
 //   the control line, the label weight and spacing, the control text size and height;
-// - layout, with `html` saved in each of the five themes and in a customised theme in the widest
+// - layout, with `html` saved in each of the five themes and in a customized theme in the widest
 //   face, at 1440, 1024, 768, 390 and 360 px: in each group of choice tiles (theme, brand, grey, both
 //   faces, every builder and Controls axis) every tile has the width and the height of the others (±1 px), no
 //   label runs onto a second line, no tile or label is cut (scrollWidth ≤ clientWidth), and the page
@@ -81,7 +81,7 @@ const PREFERENCES = '/settings/preferences';
 /**
  * What each theme draws, as absolute values: the solid button's corner, case, face and transition;
  * the heading's face; a stat card's top line, shadow in light (a part of the computed value) and
- * inline inset; a square badge's corner and case; the first data colour per scheme; its input and focus
+ * inline inset; a square badge's corner and case; the first data color per scheme; its input and focus
  * styles (`theme-catalogue.ts` › `controls`); the selected tab on Notifications (`underline`, a
  * `pill` on the accent's surface, a raised `chip`, or `null` for the family's own); and the
  * inventory table's head (`band`: the sunken ground; `capitals`; or `null`).
@@ -171,7 +171,7 @@ const check = (name, ok, detail = '') => { results.push(ok); console.log(`${ok ?
 const viewport = (width, height) => send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
 
 /*
- * Helpers installed in the page once: a colour of any CSS notation read as sRGB through a canvas,
+ * Helpers installed in the page once: a color of any CSS notation read as sRGB through a canvas,
  * its OKLCH, its WCAG luminance, the ratio of two of them, a counter of compiled draft sheets, and a
  * probe — a solid button the button family paints by its attributes, and a square badge, appended to
  * the body, outside every theme card, so they answer `html` alone.
@@ -200,7 +200,7 @@ const install = () => js(`(() => {
     return { l: L, c: Math.hypot(A, B), h: ((Math.atan2(B, A) * 180) / Math.PI + 360) % 360 };
   };
   const ratio = (a, b) => { const [x, y] = [luminance(a), luminance(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
-  /* A colour's opacity, 0 to 1: painted on a cleared pixel. */
+  /* A color's opacity, 0 to 1: painted on a cleared pixel. */
   const alpha = (color) => {
     context.clearRect(0, 0, 1, 1);
     context.fillStyle = 'transparent';
@@ -256,7 +256,7 @@ const facts = () => js(`(() => {
     background: T.rgb(style.backgroundColor).join(','),
     /* The label against the ground it is painted on: the probe's own, or the page's under a transparent paint. */
     ratio: T.ratio(style.color, T.alpha(style.backgroundColor) === 1 ? style.backgroundColor : T.ground(probe.parentElement)),
-    /* The pair the contrast table reads: the accent's label colour on its solid. */
+    /* The pair the contrast table reads: the accent's label color on its solid. */
     solidRatio: T.ratio(token('--slotted-tone-accent-on-solid'), token('--slotted-tone-accent-solid')),
     stated: Number.parseFloat(cell?.textContent ?? 'NaN'),
     radius: style.borderTopLeftRadius,
@@ -287,8 +287,8 @@ const facts = () => js(`(() => {
 })()`);
 
 /**
- * Waits until the page has settled: the button family transitions its colours, and a value read
- * mid-transition is neither the old colour nor the new one. Settled is no running transition, and the
+ * Waits until the page has settled: the button family transitions its colors, and a value read
+ * mid-transition is neither the old color nor the new one. Settled is no running transition, and the
  * theme `html` names and the probe's paint reading the same twice, a frame apart.
  */
 const settle = async (label) => {
@@ -356,7 +356,7 @@ const overlay = async () => {
   return read;
 };
 
-/** The custom brand colour's text field: a colour field draws its value in a `text-field`. */
+/** The custom brand color's text field: a color field draws its value in a `text-field`. */
 const FIELD = '[data-brand-custom] [data-ui=text-field]';
 /** A key pressed and released through the browser's input pipeline, as a keyboard would. */
 const press = async (key, code, keyCode) => {
@@ -392,12 +392,12 @@ const fieldFacts = () => js(`(() => {
     outlineAlpha: T.alpha(style.outlineColor),
     outlineRgb: T.rgb(style.outlineColor).join(','),
     outlineOffset: style.outlineOffset,
-    /* The ring's colour against the ground the field stands on: what an outline or a halo is seen on. */
+    /* The ring's color against the ground the field stands on: what an outline or a halo is seen on. */
     ringRatio: T.ratio(style.getPropertyValue('--slotted-focus-ring-color').trim(), T.ground(root.parentElement)),
     /* The ground the field stands on: a fill-drawn field is found only where its fill differs from it. */
     outer: T.rgb(T.ground(root.parentElement)).join(','),
     shadow: style.boxShadow,
-    /* The bottom line's thickness, colour aside: the border and every inset shadow that reaches the bottom edge. */
+    /* The bottom line's thickness, color aside: the border and every inset shadow that reaches the bottom edge. */
     line: Number.parseFloat(style.borderBottomWidth) + Math.max(0, ...[...style.boxShadow.matchAll(/(-?[\\d.]+)px (-?[\\d.]+)px (-?[\\d.]+)px (-?[\\d.]+)px inset/g)].map((m) => Math.max(0, -Number(m[2])) + Math.max(0, Number(m[4])))),
     /* WCAG 1.4.11: the line and the focus mark against the ground they are drawn on. */
     lineRatio: T.ratio(style.borderBottomColor, T.ground(root)),
@@ -416,7 +416,7 @@ const fieldFacts = () => js(`(() => {
   };
 })()`);
 /**
- * The field at rest; invalid with a draft that is no colour; invalid under keyboard focus (Tab from
+ * The field at rest; invalid with a draft that is no color; invalid under keyboard focus (Tab from
  * the swatch before it); under keyboard focus with its value back; and the probe button's ring once
  * keyboard focus moves to it. Focus then leaves, so the field commits the value it already had and
  * the page stays as it was.
@@ -451,8 +451,8 @@ const samples = () => js(`[...document.querySelectorAll('[data-theme-sample]')].
   face: getComputedStyle(sample.querySelector('.sample-title')).fontFamily,
 }))`);
 
-/** A colour typed into one of the section's colour fields and committed with Enter. */
-const typeColour = (selector, value) => js(`(() => {
+/** A color typed into one of the section's color fields and committed with Enter. */
+const typeColor = (selector, value) => js(`(() => {
   const input = document.querySelector('${selector} [data-ui=text-field] input');
   input.focus();
   input.value = '${value}';
@@ -480,13 +480,13 @@ const derived = (theme, scheme, seed, value, tone) => js(`(() => {
  *   bottom edge alone, no corner and no ground, the line at 3:1 on the page; borderless: four
  *   transparent edges on the secondary surface, a fill apart from the ground around the field, and in
  *   high-contrast, where that surface is the page's white, the control's line at 3:1;
- * - keyboard focus — ring: a solid outline in the ring's colour, 2px or wider; offset: the same
+ * - keyboard focus — ring: a solid outline in the ring's color, 2px or wider; offset: the same
  *   outline 4px or more off the field, and no shadow; glow: a transparent outline, the line in the
- *   ring's colour, a 1px ring and a 4px halo; underline: a transparent outline, the bottom line in
- *   the ring's colour thickened by an inset 2px shadow at 3:1 on the field's ground. Every ring at 3:1
+ *   ring's color, a 1px ring and a 4px halo; underline: a transparent outline, the bottom line in
+ *   the ring's color thickened by an inset 2px shadow at 3:1 on the field's ground. Every ring at 3:1
  *   on the ground the field stands on (WCAG 1.4.11);
- * - invalid — an edge thicker than the valid one at rest and under focus, whatever its colour, and
- *   under focus the invalid ring's colour, apart from the valid ring's outside high-contrast.
+ * - invalid — an edge thicker than the valid one at rest and under focus, whatever its color, and
+ *   under focus the invalid ring's color, apart from the valid ring's outside high-contrast.
  */
 const fieldStyle = (name, field, input, focus, scheme) => {
   const ratio = (value) => `${value.toFixed(2)}:1`;
@@ -516,7 +516,7 @@ const fieldStyle = (name, field, input, focus, scheme) => {
     `${at.focused ? 'focus-visible' : 'not focus-visible'} · ${frame(at)} · ring rgb(${at.ring}) ${ratio(at.ringRatio)}`,
   );
   check(
-    `${name}: an invalid field's edge is thicker than a valid one's, at rest and under focus, in the invalid ring's colour under focus`,
+    `${name}: an invalid field's edge is thicker than a valid one's, at rest and under focus, in the invalid ring's color under focus`,
     invalid.invalid && invalid.line > rest.line && invalidFocus.invalid && invalidFocus.focused && invalidFocus.line > at.line &&
       invalidFocus.ring === invalidFocus.invalidRing && (scheme === 'high-contrast' || invalidFocus.ring !== at.ring),
     `line rest ${rest.line}px · invalid ${invalid.line}px · focus ${at.line}px · invalid focus ${invalidFocus.line}px · ring rgb(${at.ring}) · invalid ring rgb(${invalidFocus.ring})`,
@@ -563,7 +563,7 @@ const checkButtonFocus = (name, read, focus) => {
 };
 
 /**
- * Sets the scheme `html` names and waits until the field paints it: its line is the colour its
+ * Sets the scheme `html` names and waits until the field paints it: its line is the color its
  * token resolves to under the new scheme, and no transition is running.
  */
 const paintScheme = async (scheme) => {
@@ -581,9 +581,9 @@ const paintScheme = async (scheme) => {
 };
 
 /**
- * The field under keyboard focus and at rest with forced colours emulated (Chrome DevTools
+ * The field under keyboard focus and at rest with forced colors emulated (Chrome DevTools
  * Protocol `Emulation.setEmulatedMedia`, `forced-colors: active`), where the box shadow is dropped
- * and every line takes a system colour.
+ * and every line takes a system color.
  */
 const forcedFocus = async () => {
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'forced-colors', value: 'active' }] });
@@ -602,16 +602,16 @@ const forcedFocus = async () => {
   return { rest, focus };
 };
 
-/** Under forced colours, whatever the focus style: an outline of 2px or more in a system colour that the field at rest does not have. */
+/** Under forced colors, whatever the focus style: an outline of 2px or more in a system color that the field at rest does not have. */
 const checkForced = (name, forced) => check(
-  `${name}, forced colours: keyboard focus draws an outline of 2px or more in a system colour the field at rest does not have`,
+  `${name}, forced colors: keyboard focus draws an outline of 2px or more in a system color the field at rest does not have`,
   forced.focus.focused && forced.focus.outline.startsWith('solid') && Number.parseFloat(forced.focus.outline.split(' ')[1]) >= 2 && forced.focus.color !== 'rgba(0, 0, 0, 0)' && forced.rest.outline.startsWith('none'),
   `rest ${forced.rest.outline} ${forced.rest.color} · focus ${forced.focus.outline} ${forced.focus.color} · shadow ${forced.focus.shadow} · line ${forced.focus.line}`,
 );
 
 const near = (hue, target, within) => { const d = Math.abs(hue - target) % 360; return Math.min(d, 360 - d) <= within; };
 
-/** The colour fields' swatches as first painted: the colour of the field's text, not a bare button. */
+/** The color fields' swatches as first painted: the color of the field's text, not a bare button. */
 const swatches = () => js(`[...document.querySelectorAll('[data-appearance] [data-ui=text-field] [data-ui=color-picker][data-part=trigger]')].map((trigger) => {
   const style = getComputedStyle(trigger);
   const value = trigger.closest('[data-ui=text-field]').querySelector('input').value;
@@ -656,7 +656,7 @@ const checkLayout = async (label) => {
   check(`${label}: the page does not scroll sideways`, read.overflow <= 0, `${read.overflow}px`);
 };
 
-/** The inventory overview, drawn: a chart shape painted in a series colour, and the table's head. */
+/** The inventory overview, drawn: a chart shape painted in a series color, and the table's head. */
 const OVERVIEW_READY = `[...document.querySelectorAll('[data-ui=chart] svg path, [data-ui=chart] svg rect')].some((shape) => { const fill = shape.getAttribute('fill'); return !!fill && fill !== 'none' && !fill.startsWith('url'); }) && !!document.querySelector('[data-ui=table] [data-part=column-header]')`;
 /** A saved theme on the application's own pages: a stat card, the chart and the table head, the selected tab. */
 const tour = async (theme, scheme) => {
@@ -794,10 +794,10 @@ try {
     if (process.env.STEP === 'shots') break steps;
   }
 
-  // The colour fields, before anything is touched.
+  // The color fields, before anything is touched.
   const fields = await swatches();
   check(
-    'every colour field paints its colour in its swatch on first render',
+    'every color field paints its color in its swatch on first render',
     fields.length === 5 && fields.every((field) => field.image.includes(field.expected) && field.appearance === 'none' && Math.abs(field.width - field.height) <= 1),
     fields.map((field) => `${field.value} ${field.width}×${field.height} ${field.image.slice(0, 48)}`).join(' | '),
   );
@@ -858,7 +858,7 @@ try {
         check(`${name}: the page heading is set in the theme's heading face`, first(read.headingFace) === FACE[theme.heading], first(read.headingFace));
         check(`${name}: the badge's corner and case are the theme's`, read.badgeRadius === theme.badgeRadius && read.badgeCaps === theme.badgeCaps, `${read.badgeRadius} ${read.badgeCaps}`);
         const series = await js(`window.__theme.rgb('${theme.data[scheme]}').join(',')`);
-        check(`${name}: the first data colour is the theme's ${theme.data[scheme]}`, read.data1 === series, `rgb(${read.data1})`);
+        check(`${name}: the first data color is the theme's ${theme.data[scheme]}`, read.data1 === series, `rgb(${read.data1})`);
         const field = await fieldStates();
         fieldStyle(name, field, theme.input, theme.focus, scheme);
         checkButtonFocus(name, await buttonFocus(), theme.focus);
@@ -894,10 +894,10 @@ try {
     await choose('brand', 'theme');
     for (const grey of [{ id: 'theme', hue: null }, ...GREYS]) {
       if (grey.id === 'custom') {
-        /* The field keeps the colour once typed: a later theme chooses it by its tile, as a reader would. */
+        /* The field keeps the color once typed: a later theme chooses it by its tile, as a reader would. */
         const kept = await js(`document.querySelector('[data-neutral-custom] input').value.toLowerCase() === '${grey.value}'`);
         if (kept) await choose('neutral', 'custom');
-        else await typeColour('[data-neutral-custom]', grey.value);
+        else await typeColor('[data-neutral-custom]', grey.value);
         const typed = await until(`document.documentElement.style.getPropertyValue('--slotted-seed-neutral').trim() === '${grey.value}'`, 5000);
         check(`${theme.id}: a grey of the reader's own becomes the neutral seed on html`, typed, await js(`document.documentElement.style.getPropertyValue('--slotted-seed-neutral')`));
         await settle('custom grey');
@@ -1010,7 +1010,7 @@ try {
   await axis('axis-chart', 'accent', (f) => f.chart1 === f.accentSolid, (v) => v === true, 'the first series is the accent solid');
 
   // Controls, over Standard: each input style on the field, each focus style on the field and on a
-  // button (and under forced colours), each primary button paint, then each corner, line and label axis.
+  // button (and under forced colors), each primary button paint, then each corner, line and label axis.
   const control = async (name, value) => {
     await choose(name, value);
     const named = await htmlNames('nexora-custom-draft');
@@ -1112,9 +1112,9 @@ try {
   const ownCorner = await facts();
   check('builder corner: "Use the theme’s" returns the corner, and html, to the theme’s own', ownCorner.theme === 'default' && ownCorner.radius === base.radius, `${ownCorner.theme} ${ownCorner.radius}`);
 
-  // A status colour is a seed: html's danger solid derives from it.
+  // A status color is a seed: html's danger solid derives from it.
   await choose('axis-cards', 'flat');
-  await typeColour('[data-status=danger]', '#be123c');
+  await typeColor('[data-status=danger]', '#be123c');
   await until(`document.documentElement.style.getPropertyValue('--slotted-seed-danger').trim() === '#be123c'`, 5000);
   await htmlNames('nexora-custom-draft');
   await settle('danger');
@@ -1152,11 +1152,11 @@ try {
   await button('Save preferences');
   const custom = await htmlNames('nexora-custom');
   const customSheet = await js(`document.querySelector('style[data-slotted-theme-sheet="nexora-custom"]')?.textContent.includes('--slotted-card-background: var(--slotted-surface-sunken)') ?? false`);
-  check('Save of a customised theme names the compiled nexora-custom on html', custom && customSheet, await js(`document.documentElement.getAttribute('data-slotted-theme')`));
+  check('Save of a customized theme names the compiled nexora-custom on html', custom && customSheet, await js(`document.documentElement.getAttribute('data-slotted-theme')`));
   await js(`document.querySelector('[data-reset]').click()`);
   await choose('brand', 'theme');
 
-  // Layout: html saved in each theme, and in a customised theme in the widest face, at every width.
+  // Layout: html saved in each theme, and in a customized theme in the widest face, at every width.
   const states = [
     ...THEMES.map((theme) => ({ label: theme.id, theme: theme.id, axes: [] })),
     { label: 'custom (Expressive, JetBrains Mono at 112%)', theme: 'nexora-expressive', axes: [['font-body', 'jetbrains-mono'], ['font-heading', 'jetbrains-mono'], ['axis-scale', '112']], html: 'nexora-custom' },

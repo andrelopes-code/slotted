@@ -21,7 +21,7 @@ import { catalogueTheme, DEFAULT_THEME_ID, type ThemeEntry } from './theme-catal
  * on the library's own theme with `extendTheme` and writes every layer of the
  * model:
  *
- * - `seeds` — its five colours;
+ * - `seeds` — its five colors;
  * - `recipe` — the library's derivations with some of them moved. A ground,
  *   a line and a hover keep one neutral family: a theme that tints its
  *   grounds tints its lines and hovers by at least as much, in the same hue;
@@ -36,7 +36,7 @@ import { catalogueTheme, DEFAULT_THEME_ID, type ThemeEntry } from './theme-catal
  *   each theme's own tabs, tables and cards;
  * - `fonts` — the `@font-face` of the faces it brings.
  *
- * The four differ in structure, not only in colour: type family and scale,
+ * The four differ in structure, not only in color: type family and scale,
  * control height, field style, focus treatment, button paint, card edge, tab
  * marker, table head, corner language, shadow language and motion
  * (`theme-catalogue.spec.ts` counts the axes on which every pair differs).
@@ -425,7 +425,7 @@ const precise = extendTheme(
  * corners are 2 px, and there are no shadows on the page: a card is a
  * paper panel under an ink rule, and only overlays lift on a soft warm
  * shadow. Fields are ruled lines, as on a printed form, focus thickens the
- * rule in the ring's colour, and the primary button is outlined in ink.
+ * rule in the ring's color, and the primary button is outlined in ink.
  * Tabs underline in ink; the table head is set in spaced capitals over an
  * ink rule. A warm paper neutral tints every ground and line alike; the
  * accent is a deep teal, with claret in the palette. Motion is slow and

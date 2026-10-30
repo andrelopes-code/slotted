@@ -1,4 +1,4 @@
-import type { ButtonChoice, FocusChoice, FontId, InputChoice } from './customisation';
+import type { ButtonChoice, FocusChoice, FontId, InputChoice } from './customization';
 
 /**
  * The themes a reader can choose from, as data: what the store and the
@@ -106,7 +106,7 @@ export const RUNTIME_THEME_IDS: readonly string[] = THEME_CATALOGUE.filter(
 ).map((entry) => entry.id);
 
 /**
- * The builder's output, under two names: the saved customisation, and the
+ * The builder's output, under two names: the saved customization, and the
  * candidate the preferences page is editing. `html` names the candidate while
  * the page is open, so the whole application is drawn in it before Save;
  * Discard and leaving the page bring back `html` naming the saved one.

@@ -114,7 +114,7 @@ async function freshPage(width = 1280, url = route) {
   await evaluate('localStorage.clear()');
   await open(url);
 }
-/** A real pointer press at the centre of the first element the expression returns. */
+/** A real pointer press at the center of the first element the expression returns. */
 async function press(expression, what, modifiers = 0) {
   await waitFor(expression, what);
   /* A target that is still moving — a toast sliding in, a layer settling —

@@ -55,7 +55,7 @@ import {
   BORDER_CHOICES,
   CARD_CHOICES,
   CHART_CHOICES,
-  customisedAxes,
+  customizedAxes,
   isCustomised,
   MOTION_CHOICES,
   NO_CUSTOMISATION,
@@ -64,10 +64,10 @@ import {
   SCALE_CHOICES,
   SHADOW_CHOICES,
   TAB_CHOICES,
-  type Customisation,
-  type CustomisationAxis,
+  type Customization,
+  type CustomizationAxis,
   type FontId,
-} from '../../core/theming/customisation';
+} from '../../core/theming/customization';
 import type * as NexoraThemesModule from '../../core/theming/nexora-themes';
 import { declareFaces, FONT_FAMILIES, fontFamily } from '../../core/theming/theme-faces';
 import type * as ThemeAnatomyModule from '../../core/theming/theme-anatomy';
@@ -136,7 +136,7 @@ const AXES = [
   },
   {
     axis: 'chart',
-    label: 'Chart colours',
+    label: 'Chart colors',
     description: 'The series of every chart: the theme’s palette, or shades of the accent.',
     options: CHART_CHOICES.map((value) => ({
       value,
@@ -149,7 +149,7 @@ const AXES = [
 const longest = (...labels: readonly string[]) => Math.max(...labels.map((label) => label.length));
 
 /** Every axis's name and the words of each of its values, as the anatomy lists a change. */
-function axisWords(axis: CustomisationAxis, value: unknown): { label: string; value: string } {
+function axisWords(axis: CustomizationAxis, value: unknown): { label: string; value: string } {
   const builder = AXES.find((entry) => entry.axis === axis);
   if (builder !== undefined) {
     return {
@@ -189,7 +189,7 @@ const STATUS_LABELS: Readonly<Record<StatusSeed, string>> = {
  *
  * Every sample on this section is a theme region of its own — a theme card
  * names its theme, a swatch carries its seed — so what it shows is what the
- * theme derives for that choice, not a colour the page wrote. A customised
+ * theme derives for that choice, not a color the page wrote. A customized
  * candidate is one more theme, compiled in the browser by `extendTheme`; the
  * anatomy table reads that theme object layer by layer, and the contrast
  * table reads its recipe's numbers in the three schemes.
@@ -253,8 +253,8 @@ const STATUS_LABELS: Readonly<Record<StatusSeed, string>> = {
       .fonts {
         --_floor: calc(5 * var(--slotted-font-size-2xl));
       }
-      /* LA-05: colour fields side by side start at the line's top. */
-      .colours {
+      /* LA-05: color fields side by side start at the line's top. */
+      .colors {
         display: grid;
         align-items: start;
         gap: var(--slotted-space-6) var(--slotted-space-7);
@@ -389,7 +389,7 @@ const STATUS_LABELS: Readonly<Record<StatusSeed, string>> = {
             @if (store.customFailed()) {
               <section slAlert tone="danger" live="polite" data-custom-failed>
                 <div slAlertContent>
-                  <div slAlertTitle>Your customised theme did not compile</div>
+                  <div slAlertTitle>Your customized theme did not compile</div>
                   <p slAlertDescription>
                     Nexora stays in the theme it is drawn in until it does. Your changes are kept.
                   </p>
@@ -414,7 +414,7 @@ const STATUS_LABELS: Readonly<Record<StatusSeed, string>> = {
               <div slField>
                 <label slFieldLabel>Theme</label>
                 <span slFieldDescription data-theme-description>
-                  {{ themeLabel() }}: {{ themeDescription() }} Each theme sets its own colours,
+                  {{ themeLabel() }}: {{ themeDescription() }} Each theme sets its own colors,
                   type, space, corners, lines, shadows and motion, and dresses the components its
                   own way.
                 </span>
@@ -464,9 +464,9 @@ const STATUS_LABELS: Readonly<Record<StatusSeed, string>> = {
               </div>
             </div>
 
-            <div slStack [gap]="6" data-appearance-group="customise">
+            <div slStack [gap]="6" data-appearance-group="customize">
               <div class="group-head">
-                <h3 slHeading size="md">Customise {{ themeLabel() }}</h3>
+                <h3 slHeading size="md">Customize {{ themeLabel() }}</h3>
                 <span slInline [gap]="3" align="center">
                   @if (changes() > 0) {
                     <span slBadge tone="accent" variant="soft" data-changes
@@ -493,9 +493,9 @@ const STATUS_LABELS: Readonly<Record<StatusSeed, string>> = {
                 {{ themeLabel() }}’s own value.
               </p>
 
-              <h4 slHeading size="sm">Colours</h4>
+              <h4 slHeading size="sm">Colors</h4>
               <div slField>
-                <label slFieldLabel>Brand colour</label>
+                <label slFieldLabel>Brand color</label>
                 <span slFieldDescription>
                   The accent every primary action, link and selection is derived from.
                 </span>
@@ -611,9 +611,9 @@ const STATUS_LABELS: Readonly<Record<StatusSeed, string>> = {
                 </div>
               </div>
 
-              <div class="colours">
+              <div class="colors">
                 <div slField data-brand-custom>
-                  <label slFieldLabel>Custom brand colour</label>
+                  <label slFieldLabel>Custom brand color</label>
                   <div
                     slColorField
                     format="hex"
@@ -623,7 +623,7 @@ const STATUS_LABELS: Readonly<Record<StatusSeed, string>> = {
                     (valueChange)="chooseCustom($event.value)"
                   ></div>
                   <span slFieldDescription
-                    >Any colour; the recipe keeps every text on it readable.</span
+                    >Any color; the recipe keeps every text on it readable.</span
                   >
                 </div>
                 <div slField data-neutral-custom>
@@ -637,7 +637,7 @@ const STATUS_LABELS: Readonly<Record<StatusSeed, string>> = {
                     (valueChange)="chooseNeutralCustom($event.value)"
                   ></div>
                   <span slFieldDescription
-                    >Any colour; grounds, lines and muted text take a share of its chroma.</span
+                    >Any color; grounds, lines and muted text take a share of its chroma.</span
                   >
                 </div>
                 @for (status of statuses; track status) {
@@ -744,7 +744,7 @@ const STATUS_LABELS: Readonly<Record<StatusSeed, string>> = {
                   (valueChange)="chooseRadius($event.value)"
                 ></div>
                 <span slFieldDescription data-radius-value>
-                  @if (draft().customisation.radius === null) {
+                  @if (draft().customization.radius === null) {
                     {{ radius() }} px on the largest corner, {{ themeLabel() }}’s own.
                   } @else {
                     {{ radius() }} px on the largest corner, yours.
@@ -799,9 +799,9 @@ const STATUS_LABELS: Readonly<Record<StatusSeed, string>> = {
 
             <div slStack [gap]="5" data-appearance-group="scheme">
               <h3 slHeading size="md">Scheme and density</h3>
-              <div class="colours">
+              <div class="colors">
                 <div slField>
-                  <label slFieldLabel>Colour scheme</label>
+                  <label slFieldLabel>Color scheme</label>
                   <div
                     slRadioGroup
                     name="scheme"
@@ -834,7 +834,7 @@ const STATUS_LABELS: Readonly<Record<StatusSeed, string>> = {
                 <h3 slHeading size="md">Theme anatomy</h3>
                 <p slText size="sm" tone="muted">
                   A theme is one object of nine layers. These are the entries
-                  {{ anatomyName() }} declares over the library’s own theme; a customised theme is
+                  {{ anatomyName() }} declares over the library’s own theme; a customized theme is
                   the same object with your changes in the layers they belong to, listed after it.
                 </p>
                 <app-anatomy-table
@@ -909,7 +909,7 @@ export class AppearanceSection {
     readonly anatomy: typeof ThemeAnatomyModule;
   } | null>(null);
 
-  private readonly customised = computed(() => isCustomised(this.draft().customisation));
+  private readonly customized = computed(() => isCustomised(this.draft().customization));
 
   /** Every runtime sheet and every module the section draws from is here. */
   private readonly loaded = computed(
@@ -918,26 +918,26 @@ export class AppearanceSection {
       this.definitions() !== null &&
       RUNTIME_THEME_IDS.every((id) => this.store.hasSheet(id)),
   );
-  /** The section opened on a saved customisation whose theme has not been compiled yet. */
+  /** The section opened on a saved customization whose theme has not been compiled yet. */
   private readonly opening = signal(true);
 
   /**
    * One wait: the sheets and the modules, and on opening the first compile
-   * of a saved customisation. A change made afterwards is no wait: the
+   * of a saved customization. A change made afterwards is no wait: the
    * application keeps what it shows until the new candidate is compiled.
    */
   protected readonly pending = computed(
     () => !this.failed() && (!this.loaded() || (this.opening() && this.uncompiled())),
   );
 
-  /** The draft is customised, no theme has been compiled for it yet, and none has failed. */
+  /** The draft is customized, no theme has been compiled for it yet, and none has failed. */
   private uncompiled(): boolean {
-    return this.customised() && this.compiled() === null && !this.store.customFailed();
+    return this.customized() && this.compiled() === null && !this.store.customFailed();
   }
 
-  /** The theme the draft's customisation compiled to, or the latest candidate over its theme. */
+  /** The theme the draft's customization compiled to, or the latest candidate over its theme. */
   private readonly compiled = computed(() =>
-    this.store.compiledTheme(this.draft().theme, this.draft().customisation),
+    this.store.compiledTheme(this.draft().theme, this.draft().customization),
   );
 
   constructor() {
@@ -953,17 +953,17 @@ export class AppearanceSection {
   );
   protected readonly changes = computed(
     () =>
-      customisedAxes(this.draft().customisation).length +
+      customizedAxes(this.draft().customization).length +
       STATUS_SEEDS.filter((status) => this.draft().status[status] !== null).length,
   );
   /** Each axis the draft sets, with the layers of the model it writes, as the anatomy lists it. */
   protected readonly changeAnatomy = computed(() => {
     const definitions = this.definitions();
     if (definitions === null) return [];
-    const { theme, customisation } = this.draft();
-    return definitions.anatomy.customisationAnatomy(theme, customisation).map((entry) => ({
+    const { theme, customization } = this.draft();
+    return definitions.anatomy.customizationAnatomy(theme, customization).map((entry) => ({
       ...entry,
-      ...axisWords(entry.axis, customisation[entry.axis]),
+      ...axisWords(entry.axis, customization[entry.axis]),
     }));
   });
 
@@ -989,13 +989,13 @@ export class AppearanceSection {
   protected readonly anatomy = computed(() => {
     const definitions = this.definitions();
     if (definitions === null) return null;
-    const compiled = this.customised() ? this.compiled() : null;
+    const compiled = this.customized() ? this.compiled() : null;
     return definitions.anatomy.themeAnatomy(
       compiled ?? definitions.themes.nexoraTheme(this.draft().theme),
     );
   });
   protected readonly anatomyName = computed(() =>
-    this.customised() ? `${this.themeLabel()}, customised` : this.themeLabel(),
+    this.customized() ? `${this.themeLabel()}, customized` : this.themeLabel(),
   );
 
   /** The theme's own face for the text or the headings. */
@@ -1004,7 +1004,7 @@ export class AppearanceSection {
   }
 
   protected readonly radius = computed(
-    () => this.draft().customisation.radius ?? catalogueTheme(this.draft().theme).radius,
+    () => this.draft().customization.radius ?? catalogueTheme(this.draft().theme).radius,
   );
 
   /**
@@ -1047,40 +1047,40 @@ export class AppearanceSection {
     return this.failed() && !this.store.hasSheet(theme);
   }
 
-  protected axisValue(axis: CustomisationAxis): string {
-    const value = this.draft().customisation[axis];
+  protected axisValue(axis: CustomizationAxis): string {
+    const value = this.draft().customization[axis];
     return value === null ? 'theme' : String(value);
   }
 
   /** A choice's value, read back through the same check as storage; `theme` clears the axis. */
-  protected chooseAxis(axis: CustomisationAxis, value: unknown): void {
+  protected chooseAxis(axis: CustomizationAxis, value: unknown): void {
     const raw = value === 'theme' ? null : /^-?\d+$/.test(String(value)) ? Number(value) : value;
-    const next = readCustomisation({ ...this.draft().customisation, [axis]: raw });
+    const next = readCustomisation({ ...this.draft().customization, [axis]: raw });
     if (raw !== null && next[axis] === null) return;
     this.patchCustomisation(next);
   }
 
   protected chooseRadius(value: number | number[]): void {
     const radius = Array.isArray(value) ? value[0] : value;
-    const next = readCustomisation({ ...this.draft().customisation, radius });
+    const next = readCustomisation({ ...this.draft().customization, radius });
     if (next.radius !== null) this.patchCustomisation(next);
   }
 
-  private patchCustomisation(customisation: Customisation): void {
-    this.patch.emit({ customisation });
+  private patchCustomisation(customization: Customization): void {
+    this.patch.emit({ customization });
   }
 
-  /** The builder's changes, the reader's colours and grey go; the theme stays. */
+  /** The builder's changes, the reader's colors and grey go; the theme stays. */
   protected reset(): void {
     this.patch.emit({
-      customisation: NO_CUSTOMISATION,
+      customization: NO_CUSTOMISATION,
       status: NO_STATUS,
       brand: { ...this.draft().brand, preset: 'theme' },
       neutral: { ...this.draft().neutral, preset: 'theme' },
     });
   }
 
-  /** The colour a status field shows: the reader's, or the theme's own once its definition is here. */
+  /** The color a status field shows: the reader's, or the theme's own once its definition is here. */
   protected statusValue(status: StatusSeed): string | undefined {
     return (
       this.draft().status[status] ??
@@ -1111,7 +1111,7 @@ export class AppearanceSection {
   }
 
   /**
-   * A colour typed or picked becomes the custom brand, and Custom is chosen
+   * A color typed or picked becomes the custom brand, and Custom is chosen
    * with it; one of the presets offered in the panel chooses that preset.
    * The field writes hex in capitals; the store keeps it in lower case.
    */

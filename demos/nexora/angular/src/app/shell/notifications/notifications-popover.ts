@@ -23,7 +23,7 @@ const TONE: Record<NotificationType, NotificationCenterTone> = {
   action_required: 'danger',
 };
 
-/** The bell, and the centre under it: the family's feed over the store's rows. */
+/** The bell, and the center under it: the family's feed over the store's rows. */
 @Component({
   selector: 'app-notifications-popover',
   imports: [
@@ -41,13 +41,13 @@ const TONE: Record<NotificationType, NotificationCenterTone> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     /*
-     * The centre contributes no intrinsic width (it is a query container), so
+     * The center contributes no intrinsic width (it is a query container), so
      * the popover would settle at the family's 22rem floor; the app states the
      * measure, which is the layer's cap less its own gap. The height is the
      * app's too: the feed scrolls inside it instead of running to the bottom
      * of the viewport.
      */
-    .centre {
+    .center {
       inline-size: min(27rem, calc(100vw - var(--slotted-space-8)));
       max-block-size: 30rem;
     }
@@ -70,7 +70,7 @@ const TONE: Record<NotificationType, NotificationCenterTone> = {
         <div slPopoverContent aria-label="Notifications">
           <section
             slNotificationCenter
-            class="centre"
+            class="center"
             size="sm"
             level="3"
             [items]="items()"

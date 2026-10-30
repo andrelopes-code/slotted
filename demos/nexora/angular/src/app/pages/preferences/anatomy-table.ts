@@ -27,7 +27,7 @@ const LAYERS: readonly {
   readonly label: string;
   readonly what: string;
 }[] = [
-  { id: 'seeds', label: 'Seeds', what: 'The five colours every other colour is derived from' },
+  { id: 'seeds', label: 'Seeds', what: 'The five colors every other color is derived from' },
   { id: 'recipe', label: 'Recipe', what: 'Derivations that differ from the library’s' },
   { id: 'base', label: 'Scales', what: 'Type, weights, space, corners and lines' },
   { id: 'schemes', label: 'Schemes', what: 'Shadows and the chart palette, per scheme' },

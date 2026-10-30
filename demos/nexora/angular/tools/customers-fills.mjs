@@ -1,18 +1,18 @@
 // usage: node tools/customers-fills.mjs [--engine chrome|firefox|webkit|webkit-18]
 //        (after `pnpm build:demo`; PORT optional; ORIGIN=<url> reads a running server)
-// The coloured-fills scenario: the customers list, the screen where Firefox 146 drew the solid
+// The colored-fills scenario: the customers list, the screen where Firefox 146 drew the solid
 // avatar and the "New customer" button with no ground (white text on nothing), the tone badges in
-// the page's grey, and the focus ring in no colour, because the theme's bounded colour tokens were
+// the page's grey, and the focus ring in no color, because the theme's bounded color tokens were
 // invalid there. The build is served from `dist` with an SPA fallback. The engine is driven by the
 // repository's `tools/harness/engines.mjs`, imported by path, so the scenario runs only inside this
 // repository with `tools/harness` installed; FIREFOX, CHROME_BIN, the WebKit drivers and how to
 // obtain each minimum build are named there.
 // With `html` in light, then in dark, it asserts:
-// - every colour token of the standard recipe paints a ground on a probe under `html`: a token the
+// - every color token of the standard recipe paints a ground on a probe under `html`: a token the
 //   engine cannot parse leaves `background-color` transparent;
 // - every solid button and solid avatar paints an opaque ground, and its text holds 4.5:1 on it;
 // - every badge and soft avatar of an accent, success, warning or danger tone writes its text in a
-//   colour of its own, not the colour it inherits.
+//   color of its own, not the color it inherits.
 // Prints one PASS or FAIL per check and exits non-zero on a failure or when the engine cannot start.
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -42,7 +42,7 @@ const server = createServer((request, response) => {
   response.end(readFileSync(file));
 });
 
-/** A computed colour: `oklch(l c h[ / a])` or `rgb[a](r, g, b[, a])`. */
+/** A computed color: `oklch(l c h[ / a])` or `rgb[a](r, g, b[, a])`. */
 function parse(text) {
   const oklch = /^oklch\(([\d.e-]+) ([\d.e-]+) ([\d.e-]+|none)(?: \/ ([\d.]+))?\)$/.exec(text);
   if (oklch) {
@@ -77,7 +77,7 @@ const READ = `(() => {
   };
 })()`;
 
-/** No colour transition running, and the same reading a frame apart. */
+/** No color transition running, and the same reading a frame apart. */
 const SETTLED = `new Promise((resolve) => {
   const read = () => [...document.querySelectorAll('[data-ui="button"][data-variant="solid"]')].map((b) => getComputedStyle(b).backgroundColor).join();
   const first = read();
@@ -135,5 +135,5 @@ try {
   await browser?.close().catch(() => {});
   server.close();
 }
-console.log(failed === 0 ? 'ok — every coloured fill paints' : `${failed} checks failed`);
+console.log(failed === 0 ? 'ok — every colored fill paints' : `${failed} checks failed`);
 process.exit(failed === 0 ? 0 : 1);

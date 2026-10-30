@@ -1,6 +1,6 @@
 import type { FontFaceDefinition } from '@slotted/theme';
 
-import type { FontId } from './customisation';
+import type { FontId } from './customization';
 
 /**
  * The families the themes and the builder choose from. Geist and Geist Mono

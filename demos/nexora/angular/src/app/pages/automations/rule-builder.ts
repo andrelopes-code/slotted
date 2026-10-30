@@ -63,7 +63,7 @@ interface Drop {
  * The Rule Builder of §15 and §34.7: the condition tree of §69.2 written as
  * the tree it is. Each level says its join in words — "Match all of the
  * following", and "and" or "or" between its rows — so the nesting reads
- * without its colour or its rule. A node is added, moved and removed from its
+ * without its color or its rule. A node is added, moved and removed from its
  * menu by keyboard or pointer, and moved by dragging its grip; both take the
  * same moves and refuse the same boundaries: a group into itself, and a level
  * past the fifth. What is left before §69.2's limits is said under the tree
