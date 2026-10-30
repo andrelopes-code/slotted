@@ -2,6 +2,11 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.30 — 2026-10-30
+
+- test(agent-docs): use a prop no spelling turns into an HTML attribute
+- refactor!: use American English spelling in code, docs and public API
+
 ## 0.1.0-beta.29 — 2026-10-30
 
 - fix(media-viewer): download and retry keep the same height; the zoom gesture has no deadline
