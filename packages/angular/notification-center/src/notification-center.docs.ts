@@ -127,7 +127,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div',
     required: false,
     purpose:
-      'Title, description, time, actions, in that order, or what the slNotificationItem template renders. Its first line is centred on the visual.',
+      'Title, description, time, actions, in that order, or what the slNotificationItem template renders. Its first line is centerd on the visual.',
   },
   {
     part: 'description',
@@ -181,7 +181,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div',
     required: false,
     purpose:
-      'The consumer’s [slNotificationCenterFooter] element, centred. Absent when not written.',
+      'The consumer’s [slNotificationCenterFooter] element, centerd. Absent when not written.',
   },
 ];
 
@@ -193,7 +193,7 @@ const scenes: ReferenceSceneMeta[] = [
     snippet: defineSnippet({
       id: 'notification-center-angular-playground',
       language: 'angular',
-      label: 'The centre over a store',
+      label: 'The center over a store',
       source: `<section
   slNotificationCenter
   [items]="items()"
@@ -324,7 +324,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'hosts',
     title: 'Hosts',
-    note: 'The bell is a popover trigger with the store’s unread count — the centre reports the same through unreadChange while it is mounted; inside, the centre at size="sm" with a footer to the page. Open it, press PageDown through the articles, press Escape. The page host is the same family at size="md" with groups.',
+    note: 'The bell is a popover trigger with the store’s unread count — the center reports the same through unreadChange while it is mounted; inside, the center at size="sm" with a footer to the page. Open it, press PageDown through the articles, press Escape. The page host is the same family at size="md" with groups.',
     snippet: defineSnippet({
       id: 'notification-center-angular-hosts',
       language: 'angular',
@@ -407,7 +407,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'Composition',
-    note: 'The families a centre is made of: Avatar in the visual template, Button in the item’s actions and in mark-all, Tabs in the strip, Skeleton while loading, ResultState when empty, Link in the header and the footer. The slNotificationItem template substitutes the content of a row — a Badge with the tone here — while the article, its wiring and its controls stay the family’s.',
+    note: 'The families a center is made of: Avatar in the visual template, Button in the item’s actions and in mark-all, Tabs in the strip, Skeleton while loading, ResultState when empty, Link in the header and the footer. The slNotificationItem template substitutes the content of a row — a Badge with the tone here — while the article, its wiring and its controls stay the family’s.',
     snippet: defineSnippet({
       id: 'notification-center-angular-composition',
       language: 'angular',
@@ -424,7 +424,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'defaults',
     title: 'Defaults and the instance',
-    note: 'Two centres under one provider: neither states a size or a growing mode, and both read small and paged by button; the second states its own controls and wins. The instance, reached through exportAs, focuses the first article, reveals held arrivals and marks every shown item read with the reason programmatic.',
+    note: 'Two centers under one provider: neither states a size or a growing mode, and both read small and paged by button; the second states its own controls and wins. The instance, reached through exportAs, focuses the first article, reveals held arrivals and marks every shown item read with the reason programmatic.',
     snippet: defineSnippet({
       id: 'notification-center-angular-defaults',
       language: 'ts',
@@ -545,7 +545,7 @@ export const ANGULAR_NOTIFICATION_CENTER_DOCS = {
         'string',
         '—',
         'SlNotificationCenter',
-        'The view an unbound centre starts on, read once. With neither, the first entry of views',
+        'The view an unbound center starts on, read once. With neither, the first entry of views',
       ],
       [
         'views',
@@ -657,7 +657,7 @@ export const ANGULAR_NOTIFICATION_CENTER_DOCS = {
         '{ size, level, growing, arrivals, timeFormat, controls, timeZone }',
         '—',
         'an injector',
-        'The decisions an application takes once. A centre that states any of them itself still wins',
+        'The decisions an application takes once. A center that states any of them itself still wins',
       ],
       [
         'host attributes',
@@ -670,7 +670,7 @@ export const ANGULAR_NOTIFICATION_CENTER_DOCS = {
     accessibility: [
       'The governing pattern is the WAI-ARIA Authoring Practices Feed (w3.org/WAI/ARIA/apg/patterns/feed/): the feed is role="feed" named by the title, every item is an article with tabindex="0", aria-labelledby its title, aria-describedby its description, aria-posinset its position and aria-setsize the consumer’s count, the loaded number under growing="none", or -1 while more may come. PageDown and PageUp move between articles, Control+End and Control+Home leave the feed on either side, and the feed is aria-busy while a page is on its way. The keys are @slotted/core/timeline’s, shared with the timeline family.',
       'The root is a section — a region — named by aria-labelledby its own heading, Notifications in English, so a reader finds it in the landmark list under the words it shows; a consumer’s aria-label or aria-labelledby written on the element wins. The strip is the tabs family’s list with the feed as its one panel: every tab carries aria-controls naming the feed, and ArrowLeft, ArrowRight, Home and End are the tabs family’s.',
-      'Read is said three ways and none of them is colour alone: the wash under the row, the semibold title, and the read-toggle’s name — Mark as read while unread, Mark as unread once read — so a reader hears the state on the control that changes it. The family’s tone glyphs are all circles; a triangle is refused in this library.',
+      'Read is said three ways and none of them is color alone: the wash under the row, the semibold title, and the read-toggle’s name — Mark as read while unread, Mark as unread once read — so a reader hears the state on the control that changes it. The family’s tone glyphs are all circles; a triangle is refused in this library.',
       'Held arrivals are announced politely once per change of their count, and the unread count once per change after the first, through the shared live announcer. A keyboard reveal moves focus to the first revealed article; a keyboard removal moves it to the next article, the previous, or the first control of the region, so focus never lands on a row that left.',
       'While loading with nothing loaded, the three skeleton rows are aria-hidden and the feed is busy; the tabs stay, because the views are known before the items are. The article’s focus ring is drawn inward because the rows touch, and every control’s ring outward; the controls are muted at rest and take the text ink on the row under the pointer or holding focus, so they are visible before they are needed and legible when they are.',
     ],

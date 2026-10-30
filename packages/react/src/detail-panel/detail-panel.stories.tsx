@@ -698,7 +698,7 @@ export const Composition: Story = {
     <Grid columns={1}>
       <Scene
         label="The families a record is made of"
-        note="A Table in the lines, a Timeline feed in the history, a DescriptionList in the aside with a copy control on the invoice, a Toolbar with overflow in the header’s actions and a Tag in its marks. The panel places each and owns none of their behaviour."
+        note="A Table in the lines, a Timeline feed in the history, a DescriptionList in the aside with a copy control on the invoice, a Toolbar with overflow in the header’s actions and a Tag in its marks. The panel places each and owns none of their behavior."
       >
         <Room>
           <DetailPanel recordKey={ORDER.id}>

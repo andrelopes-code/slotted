@@ -436,7 +436,7 @@ export const Empty: Story = {
         1,
         scene(
           'messages.empty',
-          'The family’s sentence, centred in the list, with the clear control drawn because there is a query to clear.',
+          'The family’s sentence, centerd in the list, with the clear control drawn because there is a query to clear.',
           panel('query="xylophone"'),
         ) +
           scene(

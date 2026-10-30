@@ -328,7 +328,7 @@ export const States: Story = {
       </Scene>
       <Scene
         label="Invalid"
-        note="Tab into it: the ring is retargeted to the danger colour rather than removed, because a focus indicator is a focus indicator before it is an error."
+        note="Tab into it: the ring is retargeted to the danger color rather than removed, because a focus indicator is a focus indicator before it is an error."
       >
         <Calendar aria-label="Invalid" defaultFocusedDate={NINTH} invalid locale="pt-BR" />
       </Scene>

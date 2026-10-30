@@ -90,11 +90,11 @@ test('rings the frame for the value, and each button for itself', () => {
 });
 
 /**
- * The ring is drawn in its own colour from the first frame, as every framed
+ * The ring is drawn in its own color from the first frame, as every framed
  * control draws it. A transition on `outline-color` started from the resting
  * `currentColor` — the text's ink — and flashed white in a dark scheme.
  */
-test('draws the frame ring without a transition from the text colour', () => {
+test('draws the frame ring without a transition from the text color', () => {
   const transition = rule(root).match(/transition:([^;]*)/)?.[1] ?? '';
   assert.doesNotMatch(transition, /outline/);
 });
@@ -126,13 +126,13 @@ test('paints no glyph itself', () => {
 });
 
 /**
- * A mark beside words is centred on the band the letters occupy, not on the
+ * A mark beside words is centerd on the band the letters occupy, not on the
  * line box, which keeps room for descenders and drops the mark below the
  * letters (docs/build-briefing.md, _A mark beside a line of text is aligned to
- * the text_). Measured in Chrome: the chevron's centre and the letters' band
+ * the text_). Measured in Chrome: the chevron's center and the letters' band
  * agree to 0.00 px.
  */
-test('centres the mark of a worded button on the letters, not on the line box', () => {
+test('centers the mark of a worded button on the letters, not on the line box', () => {
   const flat = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
   assert.match(flat, /align-items: baseline;/);
   assert.match(

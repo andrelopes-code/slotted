@@ -36,7 +36,7 @@ const appearance = (member: string, tone: string, variant: string): ApiTuple[] =
     TONE,
     tone,
     member,
-    'The semantic colour: accent for the primary action, secondary for a neutral one, neutral for a primary action drawn in ink where the accent is kept for data, and success, warning or danger for what the action does.',
+    'The semantic color: accent for the primary action, secondary for a neutral one, neutral for a primary action drawn in ink where the accent is kept for data, and success, warning or danger for what the action does.',
   ],
   ['variant', VARIANT, variant, member, 'How the tone is painted: solid, outline or ghost.'],
   [
@@ -128,7 +128,7 @@ const content = (indicator: boolean): AnatomyRow[] => [
     element: 'span',
     required: true,
     purpose: indicator
-      ? 'Wraps the projected text. Always rendered, because the accessible name is computed from it. With reduced motion or forced colours, a loading button with no icon fades it in place, and it keeps its size.'
+      ? 'Wraps the projected text. Always rendered, because the accessible name is computed from it. With reduced motion or forced colors, a loading button with no icon fades it in place, and it keeps its size.'
       : 'Wraps the projected text. Always rendered, because the accessible name is computed from it.',
   },
   {
@@ -157,7 +157,7 @@ export const ANGULAR_BUTTON_DOCS = {
         'data-justify, and data-full-width, data-disabled and data-loading when they apply.',
       ),
       ...content(true),
-      indicatorRow('in the start box, else in the end box, else centred over the label,'),
+      indicatorRow('in the start box, else in the end box, else centerd over the label,'),
     ],
     composition: apiRows([
       [
@@ -192,7 +192,7 @@ export const ANGULAR_BUTTON_DOCS = {
     accessibility: [
       'SlButton applies to the button element in your template, so Space, Enter, focus, form submission and the disabled state come from the platform. The visible label supplies the accessible name.',
       'While loading, the indicator is a progress bar named by messages.loading, and the button announces aria-disabled while it keeps focus. React Aria’s pending button and Primer’s loading button use the same pattern. aria-busy is not set: screen readers do not announce it reliably on a button, and one mechanism already carries the state.',
-      'Where motion is allowed, the indicator is not drawn: once loadingDelay has passed, a band in the button’s own ink sweeps behind the label and the icon, which stay visible. With reduced motion or forced colours, the indicator is a ring drawn in the start or end icon’s box; a button with neither draws it over the label, which drops to zero opacity but stays in the accessibility tree and in the layout, so the accessible name survives the wait and the button keeps its size.',
+      'Where motion is allowed, the indicator is not drawn: once loadingDelay has passed, a band in the button’s own ink sweeps behind the label and the icon, which stay visible. With reduced motion or forced colors, the indicator is a ring drawn in the start or end icon’s box; a button with neither draws it over the label, which drops to zero opacity but stays in the accessibility tree and in the layout, so the accessible name survives the wait and the button keeps its size.',
       'loading refuses activation on a capture-phase listener, before any click handler in your template, so a submit button cannot submit its form twice.',
       'focusableWhenDisabled keeps a disabled button reachable. Use it when the button has a tooltip or an explanation a keyboard user needs, such as inside a toolbar. A reachable disabled button uses muted text on the subtle neutral background, at a contrast of 4.5:1 or more; a natively disabled button keeps the disabled grey.',
       'SlButton has no render input: it applies to the element you write, so writing a different element replaces it.',
@@ -345,7 +345,7 @@ export const ANGULAR_BUTTON_DOCS = {
       'The accessible name is required: the development build throws when neither aria-label nor aria-labelledby is present, because a template cannot make an attribute mandatory.',
       'aria-pressed is rendered only when pressed or defaultPressed is bound, so a plain icon button does not announce a toggle state it does not have.',
       'Keep the name the same in both pressed states. The APG toggle button pattern announces the state beside an unchanging label.',
-      'A pressed icon button uses the selected colours of the theme — accent text on the accent selection background, inside the accent edge — whatever its tone and variant. On hover it uses the hover step of that background, not the neutral hover of an unpressed button.',
+      'A pressed icon button uses the selected colors of the theme — accent text on the accent selection background, inside the accent edge — whatever its tone and variant. On hover it uses the hover step of that background, not the neutral hover of an unpressed button.',
       'The control is as wide as it is tall, at the control height, and never smaller than the WCAG 2.2 minimum target of 24 by 24 CSS pixels at any density.',
       'Add a tooltip when the icon alone does not say what the action does. The accessible name does not replace a visible label.',
     ],
@@ -432,7 +432,7 @@ export const ANGULAR_BUTTON_DOCS = {
         'data-justify, and data-full-width, data-disabled, data-loading and data-pressed when they apply.',
       ),
       ...content(true),
-      indicatorRow('in the start box, else in the end box, else centred over the label,'),
+      indicatorRow('in the start box, else in the end box, else centerd over the label,'),
     ],
     api: apiRows([
       ...appearance('SlToggleButton', 'secondary', 'outline'),

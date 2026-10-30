@@ -272,7 +272,7 @@ test('sources its keyboard from the APG grid and names every key', () => {
   assert.match(contract.declined.singleLetterShortcuts, /screen reader/);
 });
 
-test('names every event without position or colour', () => {
+test('names every event without position or color', () => {
   assert.match(contract.wiring.eventName, /title/);
   assert.match(contract.wiring.eventName, /calendar/);
   assert.match(contract.wiring.eventName, /status/);

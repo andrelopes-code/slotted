@@ -45,7 +45,7 @@ family's indicator (AF-03).
 
 ## 2. Placeholders are the anatomy, not rectangles
 
-Placeholders are the same layout as the content, drawn in one colour. Build
+Placeholders are the same layout as the content, drawn in one color. Build
 them from the loaded markup:
 
 1. Keep the container, the parts, the grid, the inset and the gap tokens the

@@ -21,7 +21,7 @@ export type ResultStateStatus =
  */
 export type ResultStateReach = 'inline' | 'section' | 'page';
 
-/** Whether the region reads centred or from the inline edge. */
+/** Whether the region reads centerd or from the inline edge. */
 export type ResultStateAlign = 'center' | 'start';
 
 /**

@@ -469,7 +469,7 @@ const bubbleScenes: ReferenceSceneMeta[] = [
   {
     id: 'tones',
     title: 'Five tones',
-    note: 'accent and secondary write in the page’s ink; success, warning and danger in their own, because there the colour of the words is the point — and the words say it too.',
+    note: 'accent and secondary write in the page’s ink; success, warning and danger in their own, because there the color of the words is the point — and the words say it too.',
     snippet: defineSnippet({
       id: 'message-react-tones',
       language: 'tsx',

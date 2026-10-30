@@ -67,7 +67,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'underline',
     title: 'When the underline is drawn',
-    note: 'always is the default and the only value safe inside a sentence: the accent text colour clears 4.5:1 against the surface but not 3:1 against the body text beside it.',
+    note: 'always is the default and the only value safe inside a sentence: the accent text color clears 4.5:1 against the surface but not 3:1 against the body text beside it.',
     snippet: defineSnippet({
       id: 'link-angular-underline',
       language: 'angular',
@@ -79,7 +79,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'variants',
     title: 'How the link is painted',
-    note: 'accent invites, neutral takes the colour of the text around it for a cell or a title, and inverse is the link on a solid surface. Hover moves each one toward the strongest text colour its context has.',
+    note: 'accent invites, neutral takes the color of the text around it for a cell or a title, and inverse is the link on a solid surface. Hover moves each one toward the strongest text color its context has.',
     snippet: defineSnippet({
       id: 'link-angular-variants',
       language: 'angular',
@@ -180,7 +180,7 @@ export const ANGULAR_LINK_DOCS = {
         "'accent' | 'neutral' | 'inverse'",
         'accent',
         'slLink',
-        'Accent, the colour of the surrounding text, or a solid surface',
+        'Accent, the color of the surrounding text, or a solid surface',
       ],
       [
         'size',
@@ -238,9 +238,9 @@ export const ANGULAR_LINK_DOCS = {
     ]),
     accessibility: [
       'The directive sits on the consumer’s own anchor, so the link role, Enter, the context menu and every modified click come from the platform — and routerLink composes on the same element. Space does not activate a link, and nothing here makes it.',
-      'underline="always" is the default because colour alone does not distinguish a link: the accent text colour clears 4.5:1 against the surface and not 3:1 against the body text beside it.',
-      'variant="neutral" takes the colour of the text around it, so it belongs where nothing on the line could be mistaken for it — a cell, a title, a row — and never inside a sentence.',
-      'Whatever the underline axis says, the underline returns under forced-colors, where the palette flattens the colour contrast a bare link relies on.',
+      'underline="always" is the default because color alone does not distinguish a link: the accent text color clears 4.5:1 against the surface and not 3:1 against the body text beside it.',
+      'variant="neutral" takes the color of the text around it, so it belongs where nothing on the line could be mistaken for it — a cell, a title, a row — and never inside a sentence.',
+      'Whatever the underline axis says, the underline returns under forced-colors, where the palette flattens the color contrast a bare link relies on.',
       'A new browsing context is announced in the accessible name and marked with a glyph. external states it, and so does a static target="_blank" the consumer wrote.',
       'rel and target are added only when the anchor carries neither, so an attribute the consumer wrote is never rewritten or removed.',
       'A disabled link keeps no href, which is what stops a middle click as well as a left one, and keeps role="link", aria-disabled and its place in the tab sequence so the state can be discovered.',

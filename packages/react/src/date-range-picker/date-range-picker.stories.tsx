@@ -306,7 +306,7 @@ export const States: Story = {
       </Scene>
       <Scene
         label="A check-out before its check-in"
-        note="Invalid on the end field and on the frame, and nothing is swapped: a value the reader typed is not the family’s to rewrite. Tab in: the ring is retargeted to the danger colour."
+        note="Invalid on the end field and on the frame, and nothing is swapped: a value the reader typed is not the family’s to rewrite. Tab in: the ring is retargeted to the danger color."
       >
         <Field>
           <FieldLabel>Estadia</FieldLabel>

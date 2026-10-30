@@ -110,16 +110,16 @@ export function isSameTimeRange(a: TimeRange | null, b: TimeRange | null): boole
 /**
  * Scrolls the list alone. `scrollIntoView` would scroll every ancestor too,
  * and a page with an open surface must not jump when a list opens on its
- * highlight. Centred when the list opens, and by the least that lands the row
+ * highlight. Centerd when the list opens, and by the least that lands the row
  * whole when a key moves the highlight. jsdom measures nothing, so it is a
  * no-op there rather than a throw.
  */
-function revealRow(list: HTMLElement, row: HTMLElement, centre: boolean) {
+function revealRow(list: HTMLElement, row: HTMLElement, center: boolean) {
   const box = list.getBoundingClientRect();
   const cell = row.getBoundingClientRect();
   if (box.height === 0 || cell.height === 0) return;
   const above = cell.top - box.top;
-  if (centre) list.scrollTop += above - (box.height - cell.height) / 2;
+  if (center) list.scrollTop += above - (box.height - cell.height) / 2;
   else if (above < 0) list.scrollTop += above;
   else if (cell.bottom > box.bottom) list.scrollTop += cell.bottom - box.bottom;
 }
@@ -1164,14 +1164,14 @@ export class SlTimeRangePicker implements ControlValueAccessor, Validator, OnIni
     if (row !== undefined && list) revealRow(list, row, false);
   }
 
-  /** The list scrolled to its highlight: centred as the surface opens, by the least after. */
-  private revealHighlights(centre: boolean) {
+  /** The list scrolled to its highlight: centerd as the surface opens, by the least after. */
+  private revealHighlights(center: boolean) {
     const position = this.currentPosition();
     const index = this.highlightIndex(position);
     if (index < 0) return;
     const list = this.layer?.nativeElement.querySelector<HTMLElement>('[data-part="list"]');
     const row = list?.querySelectorAll<HTMLElement>('[data-part="option"]')[index];
-    if (list && row !== undefined) revealRow(list, row, centre);
+    if (list && row !== undefined) revealRow(list, row, center);
   }
 
   /** The field, or the list where the field is not drawn (a coarse pointer). */

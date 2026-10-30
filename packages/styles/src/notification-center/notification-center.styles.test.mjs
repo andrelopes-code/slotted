@@ -274,7 +274,7 @@ test('offers two sizes on the control and type scales', () => {
 });
 
 /**
- * A host that bounds the centre — a popover under the bell — bounds the feed
+ * A host that bounds the center — a popover under the bell — bounds the feed
  * alone: the header, the views and the footer stay where they are and the
  * feed scrolls between them, with the bar `scroll-area` draws. A host that
  * gives no height, a page, gets the whole feed and no bar.
@@ -293,7 +293,7 @@ test('scrolls the feed alone when the host bounds it', () => {
 /**
  * A finger is not a pointer: the family's own controls grow to the
  * comfortable target under a coarse pointer, as the theme does for the
- * controls it owns, and the taller box is centred on the visual's axis.
+ * controls it owns, and the taller box is centerd on the visual's axis.
  */
 test('raises its own controls to the comfortable target on a finger', () => {
   const coarse = normalized.slice(normalized.indexOf('@media (pointer:coarse)'));
@@ -308,7 +308,7 @@ test('raises its own controls to the comfortable target on a finger', () => {
   );
 });
 
-/** Below 320 pixels the controls drop under the content rather than squeezing it; the media queries are forced colours and the coarse pointer. */
+/** Below 320 pixels the controls drop under the content rather than squeezing it; the media queries are forced colors and the coarse pointer. */
 test('answers its own width and never the viewport', () => {
   assert.match(rule(ui), /container-name:notification-center/);
   assert.match(rule(ui), /container-type:inline-size/);
@@ -318,7 +318,7 @@ test('answers its own width and never the viewport', () => {
 });
 
 /** The count is a chip with an edge, so it stays a chip where the sunken surface is the page's white. */
-test('gives the count an edge in the ink and the highlight pair under forced colours', () => {
+test('gives the count an edge in the ink and the highlight pair under forced colors', () => {
   assert.match(
     rule(`${ui} [data-part-count]`),
     /border:var\(--slotted-border-width-thin,1px\) solid color-mix\(in oklab,currentcolor 20%,transparent\)/,

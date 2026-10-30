@@ -168,7 +168,7 @@ export const States: Story = {
       3,
       scene(
         'Read-only, which is not disabled',
-        'Every radio keeps its tab stop and the lit stars keep their colour, because the value is real; a press and the arrow keys are refused, and aria-readonly says so.',
+        'Every radio keeps its tab stop and the lit stars keep their color, because the value is real; a press and the arrow keys are refused, and aria-readonly says so.',
         `<div slRating aria-label="Nota publicada" readOnly [value]="4">${CAPTION}</div>`,
       ) +
         scene(

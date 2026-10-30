@@ -112,7 +112,7 @@ Level: SHOULD
 Applies to: a record that moves through states other people watch — an order, a quote, a shipment, a ticket
 Rule: The page answers "where is this" above the record's contents: the steps it has passed, the step it is on, what that step is waiting on, and one sentence naming what happens next.
 Why: A reader opening an order is asking what is holding it up, not what is on line seven; a status word alone says where it is and not what it is waiting for, and the lines say neither.
-Do: Draw the steps as the record's own element (CP-04) with the state each one is in, and give the stopped record its own tone — a hold and a cancellation are not the same colour as progress. The figures stay above it (RP-02) and the related records below (RP-03).
+Do: Draw the steps as the record's own element (CP-04) with the state each one is in, and give the stopped record its own tone — a hold and a cancellation are not the same color as progress. The figures stay above it (RP-02) and the related records below (RP-03).
 Don't: Leave the lifecycle to a status `tag` in the header, or bury it under the lines.
 Seen in: Nexora · the sales order workspace and its five steps · corrected
 Verified in: Open an order waiting on an approval: the page says the step, who it is waiting on and what happens next, above the lines

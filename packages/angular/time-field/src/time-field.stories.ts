@@ -388,7 +388,7 @@ export const States: Story = {
       ) +
         scene(
           'Invalid and required, in a field',
-          'The message is the field’s and the state is the control’s. Colour alone never says invalid.',
+          'The message is the field’s and the state is the control’s. Color alone never says invalid.',
           `<div slField invalid>
              <label slFieldLabel>Start time</label>
              <div slTimeField locale="pt-BR" [max]="closes" [defaultValue]="outside"></div>

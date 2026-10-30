@@ -171,7 +171,7 @@ test('names the element it sizes, and announces the same one', () => {
 });
 
 /**
- * The accent is the colour that means "the keyboard is here". SAP is the only
+ * The accent is the color that means "the keyboard is here". SAP is the only
  * one of the seven that keeps hover and focus apart, and spending the accent on
  * hover is the defect this family was invoked to correct.
  */

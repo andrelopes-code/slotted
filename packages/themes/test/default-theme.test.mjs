@@ -23,12 +23,12 @@ import defaultTheme from '../src/default/theme.mjs';
  */
 const theme = flattenTheme(defaultTheme);
 
-/** The literal colours the recipe replaced, as `reference.json` holds them. */
+/** The literal colors the recipe replaced, as `reference.json` holds them. */
 const reference = JSON.parse(
   await readFile(new URL('../src/default/reference.json', import.meta.url), 'utf8'),
 );
 
-/** A colour laid over another at `alpha`, as a browser composites it. */
+/** A color laid over another at `alpha`, as a browser composites it. */
 function over(ink, ground, alpha) {
   const channels = (hex) => [1, 3, 5].map((at) => Number.parseInt(hex.slice(at, at + 2), 16));
   const mixed = channels(ink).map(
@@ -115,12 +115,12 @@ test('keeps the corner of a control at the small step', () => {
 /**
  * In `high-contrast` the edge of a control at rest and the danger border are
  * one black, and so are the two rings, so an invalid control cannot be told
- * from a valid one by colour (WCAG 1.4.1). The families draw an invalid frame
+ * from a valid one by color (WCAG 1.4.1). The families draw an invalid frame
  * with an inset edge of `--slotted-control-invalid-edge-width` inside its
  * border; the theme gives it a width, so the invalid line is thicker in every
  * scheme.
  */
-test('tells an invalid control from a valid one by width where colour cannot', () => {
+test('tells an invalid control from a valid one by width where color cannot', () => {
   const hc = resolveTokens({ ...theme.base, ...theme.schemes['high-contrast'] });
   assert.equal(hc['--slotted-tone-danger-border'], hc['--slotted-control-border-color']);
   const base = resolveTokens(theme.base);
@@ -285,7 +285,7 @@ test('keeps every file-kind tile legible against the page and against its own ma
       );
       /*
        * And against a failed row's ground, because the tile keeps its own
-       * colour there: a refused archive that turned red would stop answering
+       * color there: a refused archive that turned red would stop answering
        * the question its own message raises.
        */
       assert.ok(
@@ -298,10 +298,10 @@ test('keeps every file-kind tile legible against the page and against its own ma
 
 /**
  * Nine hues, and the reader tells them apart at thirty-two pixels. Two kinds
- * painted the same colour would be one kind drawn twice, which is what
+ * painted the same color would be one kind drawn twice, which is what
  * `document` and `pdf` were before they were split.
  */
-test('gives every file kind a colour of its own in every scheme', () => {
+test('gives every file kind a color of its own in every scheme', () => {
   for (const [scheme, values] of Object.entries(theme.schemes)) {
     const painted = contract.tokens
       .filter(
@@ -348,7 +348,7 @@ test('keeps every code scope legible as text against the fence ground', () => {
  * Twelve hues a reader tells apart one character at a time. Two scopes painted
  * alike would be one scope drawn twice.
  */
-test('gives every code scope a colour of its own in every scheme', () => {
+test('gives every code scope a color of its own in every scheme', () => {
   for (const [scheme, raw] of Object.entries(theme.schemes)) {
     const values = resolveTokens(raw);
     const painted = contract.tokens
@@ -403,7 +403,7 @@ test('keeps every code scope legible against the fence ground for every neutral 
 /**
  * The data scale is the first palette in the semantic layer: eight hues in a
  * fixed order, and the order is a measured fact rather than a preference.
- * The colour-vision separation it holds is measured by
+ * The color-vision separation it holds is measured by
  * the `dataviz` validator, not here. What is measured here is the one thing
  * the theme promises every mark: a line, a bar or a dot in any slot separates
  * from every surface a chart can be drawn on, at the non-text ratio.
@@ -504,7 +504,7 @@ test('carries an info tone with every role, its text readable on its surface', (
 });
 
 /** Eight series a reader tells apart; two slots painted alike are one series drawn twice. */
-test('gives every data slot a colour of its own in every scheme', () => {
+test('gives every data slot a color of its own in every scheme', () => {
   for (const [scheme, values] of Object.entries(theme.schemes)) {
     const painted = contract.tokens
       .filter((token) => /^--slotted-data-\d+$/.test(token.name))
@@ -516,8 +516,8 @@ test('gives every data slot a colour of its own in every scheme', () => {
 /**
  * A state layer is laid over whatever surface the element stands on, so the
  * same token reads on the page and on a raised sidebar. It is the scheme's
- * text colour at a small share over transparency, and it never resolves to an
- * opaque colour: an opaque hover ground is the one that changes nothing when
+ * text color at a small share over transparency, and it never resolves to an
+ * opaque color: an opaque hover ground is the one that changes nothing when
  * the surface under it changes.
  */
 test('ships hover, pressed and selected state layers, translucent in every scheme', () => {
@@ -540,10 +540,7 @@ test('ships hover, pressed and selected state layers, translucent in every schem
       const value = css[scheme][token];
       assert.ok(value, `${scheme} has no ${token}`);
       const match = share.exec(value);
-      assert.ok(
-        match,
-        `${scheme} ${token} is ${value}, not a translucent share of the text colour`,
-      );
+      assert.ok(match, `${scheme} ${token} is ${value}, not a translucent share of the text color`);
       const percent = Number(match[1]);
       assert.ok(percent > 0 && percent < 30, `${scheme} ${token} is ${percent}%`);
     }
@@ -562,7 +559,7 @@ test('ships the two tracking steps large type takes, in the built CSS', async ()
 /**
  * A bar that floats over scrolling content is drawn as a material: the
  * surface at a partial share over transparency, behind a backdrop blur. A
- * reader who asks for less transparency, and forced colours, get the opaque
+ * reader who asks for less transparency, and forced colors, get the opaque
  * surface and no blur.
  */
 test('ships a translucent surface material and makes it opaque under reduced transparency', async () => {
@@ -587,6 +584,6 @@ test('ships a translucent surface material and makes it opaque under reduced tra
   assert.match(block, /\[data-slotted-scheme="light"\]/);
   assert.match(block, /--slotted-surface-material:\s*var\(--slotted-surface\);/);
   assert.match(block, /--slotted-material-backdrop:\s*none;/);
-  /* Forced colours come later in source and win over it. */
+  /* Forced colors come later in source and win over it. */
   assert.ok(css.indexOf('@media (forced-colors: active)') > start);
 });

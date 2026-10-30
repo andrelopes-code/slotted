@@ -958,7 +958,7 @@ class KeyboardHost {
 /**
  * The virtual keyboard covers the band of the layout viewport below the
  * visual one. A layer whose panel can cover it carries that band as
- * `--slotted-keyboard-inset`, and a centred panel reads nothing from it.
+ * `--slotted-keyboard-inset`, and a centerd panel reads nothing from it.
  */
 describe('SlDialog over the virtual keyboard', () => {
   const keyboard = (covered: number) => {
@@ -993,7 +993,7 @@ describe('SlDialog over the virtual keyboard', () => {
     fixture.destroy();
   });
 
-  it('leaves a centred layer alone', () => {
+  it('leaves a centerd layer alone', () => {
     keyboard(260);
     const fixture = mount('never');
     expect(inset()).toBe('');

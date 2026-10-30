@@ -202,7 +202,7 @@ test('paints the fallback only in error, with a box of its own and the glyph siz
 /**
  * The edge is a pseudo-element painted last, because an inset shadow on the
  * root is painted under the children and the picture covered it. Turning
- * `bordered` on writes the colour and moves nothing.
+ * `bordered` on writes the color and moves nothing.
  */
 test('draws the edge over the layers, and moves nothing when it is turned on', () => {
   const edge = rule(`${root}::after`);

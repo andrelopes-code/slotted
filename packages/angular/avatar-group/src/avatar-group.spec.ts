@@ -98,7 +98,7 @@ describe('the limit and the summary', () => {
   });
 
   /** `max` counts the discs, the summary included, so a limit of five never draws six. */
-  it('summarises the rest without ever exceeding the limit', () => {
+  it('summarizes the rest without ever exceeding the limit', () => {
     const { fixture, host, shown, overflow, group } = mount();
     host.names.set(NAMES);
     fixture.detectChanges();
@@ -186,7 +186,7 @@ describe('the members the summary stands for', () => {
   });
 
   /** A member past the limit leaves the layout and the accessibility tree in one attribute. */
-  it('hides the members it summarised away', () => {
+  it('hides the members it summarized away', () => {
     const { fixture, host, group } = mount();
     host.names.set(NAMES);
     fixture.detectChanges();
@@ -214,7 +214,7 @@ describe('what the group decides for its members', () => {
   });
 
   /** A tone derived from a name is the member's identity; a group that set it would erase it. */
-  it('never decides the identity colour of its members', () => {
+  it('never decides the identity color of its members', () => {
     const { group } = mount();
     const tones = [...group().querySelectorAll('[data-part="item"] [data-ui="avatar"]')].map(
       (member) => member.getAttribute('data-tone'),

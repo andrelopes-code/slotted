@@ -16,7 +16,7 @@ import type { IconSize, IconTone } from './icon.types';
  * Icon is the box a glyph is drawn in, not the glyph. The library ships no
  * catalogue: the artwork is the consumer's — an `ng-icon`, an inline `svg`,
  * anything that renders one — and this family owns the size it is drawn at,
- * the colour it inherits, where it sits against a line of text, and whether it
+ * the color it inherits, where it sits against a line of text, and whether it
  * mirrors where reading runs the other way.
  *
  * The selector is the bare attribute, so the consumer writes the element. It

@@ -91,8 +91,8 @@ test('creates the row of actions only when there are actions', () => {
 });
 
 /* The glyph each tone draws is the binding's, from the contract's map; the
-   sheet gives every tone its own colour and paints no glyph. */
-test('gives every tone its own colour and leaves the glyph to the binding', () => {
+   sheet gives every tone its own color and paints no glyph. */
+test('gives every tone its own color and leaves the glyph to the binding', () => {
   assert.doesNotMatch(normalized, /mask-image|--_glyph:/);
   for (const tone of Object.keys(contract.toneGlyphs)) {
     const declarations = rule(`${root}[data-tone='${tone}']`);
@@ -109,7 +109,7 @@ test('gives every tone its own colour and leaves the glyph to the binding', () =
  * title's first line: the binding's `Glyph` drawing a hand-drawn status mark,
  * whose silhouette fills its box, so the box is the mark. The size is rounded to an even number of pixels, the
  * disc is hung from the first line's baseline and lowered by a whole number of
- * pixels so its centre is the capitals' centre and it is snapped by the same
+ * pixels so its center is the capitals' center and it is snapped by the same
  * amount as the glyphs, and its own height is cancelled so the words sit where
  * they sit with no mark. `packages/styles/src/status-mark.test.mjs` holds the shared part of
  * the rule for every family that draws a mark.
@@ -147,7 +147,7 @@ test('paints one tone three ways, and gives soft an edge of its own', () => {
     assert.ok(rule(`${root}[data-variant='${variant}']`).length > 0, `${variant} has no rule`);
   }
   /* In `high-contrast` the tone surfaces are the page's own white, so a soft
-     alert with no edge is coloured text with no box around it. */
+     alert with no edge is colored text with no box around it. */
   assert.match(rule(`${root}[data-variant='soft']`), /border-color:var\(--_border\)/);
   assert.match(rule(`${root}[data-variant='solid']`), /color:var\(--_on-solid\)/);
 });
@@ -257,7 +257,7 @@ test('gives a starting style to a live alert and to no other', () => {
 /**
  * The line box is rounded to an even pixel on the root and on the description,
  * so a message of one line is a whole number of pixels tall and the controls
- * centred on it land on whole pixels.
+ * centerd on it land on whole pixels.
  */
 test('rounds every line box it sets to an even pixel', () => {
   const even = /line-height:round\(nearest,calc\(var\(--_line-height\) \* 1em\),2px\)/;
@@ -309,8 +309,8 @@ test('answers its own inline size, in a container it owns', () => {
 });
 
 /**
- * The theme remaps every colour a family reads, so a family writes a forced
- * colours rule only for something the theme cannot reach: here a border
+ * The theme remaps every color a family reads, so a family writes a forced
+ * colors rule only for something the theme cannot reach: here a border
  * painted in its own transparent fill, which the system does not remap. The
  * mark's glyph fills with `currentcolor`, which the system has already forced.
  */

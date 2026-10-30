@@ -74,10 +74,10 @@ export interface PositionerOptions {
   /**
    * The layer is as wide as its anchor — the stylesheet reads the width this
    * module publishes — so along that width there is nowhere better for it than
-   * over the anchor. It is centred on the anchor and never slid along it: a
+   * over the anchor. It is centerd on the anchor and never slid along it: a
    * slide that keeps the boundary padding moves a popup off the control it
    * belongs to, for no room gained. A layer wider than the anchor by a frame
-   * (a padding the family draws around its panel) is centred the same way, so
+   * (a padding the family draws around its panel) is centerd the same way, so
    * the panel and the anchor share an edge. Default `false`.
    */
   matchWidth?: boolean;
@@ -257,7 +257,7 @@ export function createPositioner(
     if (destroyed || token !== generation) return;
 
     const placed = fromPlacement(result.placement);
-    /* Over an anchor of its own width, start, centre and end are one place;
+    /* Over an anchor of its own width, start, center and end are one place;
        the attribute keeps the consumer's word for it. */
     const resolved = { side: placed.side, align: matched ? align : placed.align };
     const arrowData = result.middlewareData.arrow;

@@ -117,7 +117,7 @@ export const Orientation: Story = {
       <Scene
         layout="block"
         label='orientation="vertical"'
-        note="A column, with the connector running down the marker's own centre line and room under each step for the content behind it."
+        note="A column, with the connector running down the marker's own center line and room under each step for the content behind it."
       >
         <Stepper defaultStep={1} orientation="vertical">
           <StepperList>
@@ -138,7 +138,7 @@ export const Statuses: Story = {
       <Scene
         layout="block"
         label="complete, invalid, current, pending, disabled"
-        note="Every status is a fill and a shape as well as a colour: a check on a filled disc, a cross on a red one, a ring where the reader is, and an outline for what is still ahead."
+        note="Every status is a fill and a shape as well as a color: a check on a filled disc, a cross on a red one, a ring where the reader is, and an outline for what is still ahead."
       >
         <Stepper defaultStep={2} labelPlacement="bottom">
           <StepperList>
@@ -238,7 +238,7 @@ export const Placement: Story = {
       <Scene
         layout="block"
         label='labelPlacement="bottom"'
-        note="The marker centres over its own column and the name runs under it, which is what a row of long names needs to stay legible."
+        note="The marker centers over its own column and the name runs under it, which is what a row of long names needs to stay legible."
       >
         <Flow
           defaultStep={1}

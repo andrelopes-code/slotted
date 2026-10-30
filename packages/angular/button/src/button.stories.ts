@@ -158,7 +158,7 @@ export const States: Story = {
  * the name of the wait, so it steps out of the flow rather than out of the
  * accessibility tree, and it is drawn again wherever the band cannot be: on an
  * icon-only control, which has no label to spare, and under reduced motion or
- * forced colours, where an engine has no band to give.
+ * forced colors, where an engine has no band to give.
  *
  * The matrix is every tone against every variant, because `currentColor` is
  * what paints the band: the ink the control is already writing its label with

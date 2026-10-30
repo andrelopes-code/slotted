@@ -124,8 +124,8 @@ test('takes every step from the control scales rather than stating one', () => {
   }
 });
 
-/** A transparent border has no system colour to be remapped to. */
-test('gives the plain variant an edge under forced colours', () => {
+/** A transparent border has no system color to be remapped to. */
+test('gives the plain variant an edge under forced colors', () => {
   assert.match(css, /@media \(forced-colors: active\)/);
   assert.match(
     rule(`${root}[data-variant='plain']`),
@@ -191,10 +191,10 @@ test('insets the split buttons concentrically', () => {
 
 /**
  * The departure from the sibling family, and the reason it is deliberate: a
- * quantity is a token between a minus and a plus and reads centred, while an
+ * quantity is a token between a minus and a plus and reads centerd, while an
  * amount is a figure compared down a column and keeps its alignment.
  */
-test('keeps the amount aligned between two split steppers rather than centring it', () => {
+test('keeps the amount aligned between two split steppers rather than centering it', () => {
   assert.doesNotMatch(normalized, /text-align:center/);
   assert.match(
     rule(`${ui}[data-stepper='split']>[data-part-input]`),
@@ -222,7 +222,7 @@ test('sizes the stepper glyph element and paints none itself', () => {
 });
 
 /**
- * Pointing one name at the invalid colour on the element moves the frame's
+ * Pointing one name at the invalid color on the element moves the frame's
  * outline, the shadow under it and both steppers' rings at once.
  */
 test('retargets the ring rather than repainting every rule that draws it', () => {

@@ -35,7 +35,7 @@ const imports: ReferenceImport = {
   AppShellAsideToggle,
   AppShellBanner,
   AppShellBrand,
-  AppShellCentre,
+  AppShellCenter,
   AppShellDefaultsProvider,
   AppShellFooter,
   AppShellMain,
@@ -79,7 +79,7 @@ const anatomy: AnatomyRow[] = [
       'The start cluster: the toggle, the mark, the name of the application or of the workspace. Shortened to one line by default, so a name never pushes the frame wider than the space there is.',
   },
   {
-    part: 'centre',
+    part: 'center',
     element: 'div',
     required: false,
     purpose:
@@ -111,7 +111,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div, or the element render returns',
     required: false,
     purpose:
-      'A strip of marks before the column: the first level of a two-level navigation, inside the one navigation landmark and under its one open state. With it the region is two columns; closed to rail it keeps the strip and lets the column go. Recognised by :has(), so no attribute is written and a server render has the grid on its first paint.',
+      'A strip of marks before the column: the first level of a two-level navigation, inside the one navigation landmark and under its one open state. With it the region is two columns; closed to rail it keeps the strip and lets the column go. Recognized by :has(), so no attribute is written and a server render has the grid on its first paint.',
   },
   {
     part: 'nav-header',
@@ -256,7 +256,7 @@ const scenes: ReferenceSceneMeta[] = [
     <AppShellBrand>
       <AppShellNavToggle />
     </AppShellBrand>
-    <AppShellCentre>…</AppShellCentre>
+    <AppShellCenter>…</AppShellCenter>
     <AppShellActions>…</AppShellActions>
   </AppShellBanner>
   <AppShellNav>
@@ -295,7 +295,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'banner',
     title: 'Three clusters, and the one that grows',
-    note: 'brand starts the line, centre takes whatever room is left, actions ends it. Aurora puts a search field with its shortcut in the middle; Cadence puts the route’s trail there and the route’s actions at the end; Atrium puts a title. What each holds is the product’s — a TextField, a Breadcrumb, an Avatar — and where it goes is the shell’s. Narrow the frame: the middle gives way first, and a control in actions keeps its width rather than breaking its label one letter per line.',
+    note: 'brand starts the line, center takes whatever room is left, actions ends it. Aurora puts a search field with its shortcut in the middle; Cadence puts the route’s trail there and the route’s actions at the end; Atrium puts a title. What each holds is the product’s — a TextField, a Breadcrumb, an Avatar — and where it goes is the shell’s. Narrow the frame: the middle gives way first, and a control in actions keeps its width rather than breaking its label one letter per line.',
     snippet: defineSnippet({
       id: 'app-shell-react-banner',
       language: 'tsx',
@@ -305,7 +305,7 @@ const scenes: ReferenceSceneMeta[] = [
     <AppShellNavToggle />
     <span>Aurora</span>
   </AppShellBrand>
-  <AppShellCentre>
+  <AppShellCenter>
     <TextField
       placeholder="Search…"
       start={
@@ -315,7 +315,7 @@ const scenes: ReferenceSceneMeta[] = [
       }
       type="search"
     />
-  </AppShellCentre>
+  </AppShellCenter>
   <AppShellActions>
     <IconButton aria-label="Notifications">…</IconButton>
     <Avatar>AB</Avatar>
@@ -340,7 +340,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'separation',
     title: 'A rule, or a tone',
-    note: 'Where two regions touch without a gutter — every seam of flush, the seams inside the panel card, the bar over the content under primary="main" — separation decides what is drawn. rule is a line. tone is no line: the chrome regions take a ground 0.036 OKLab L from the surface, and the subtle tones inside them are recomputed from that ground so a hover still answers. Under forced colours a tone separates nothing, and the rule is drawn whatever the axis says.',
+    note: 'Where two regions touch without a gutter — every seam of flush, the seams inside the panel card, the bar over the content under primary="main" — separation decides what is drawn. rule is a line. tone is no line: the chrome regions take a ground 0.036 OKLab L from the surface, and the subtle tones inside them are recomputed from that ground so a hover still answers. Under forced colors a tone separates nothing, and the rule is drawn whatever the axis says.',
     snippet: defineSnippet({
       id: 'app-shell-react-separation',
       language: 'tsx',
@@ -940,7 +940,7 @@ export const REACT_APP_SHELL_DOCS = {
     <div data-part="brand">
       <button data-part="nav-toggle" aria-expanded="true" aria-controls="…-nav" />
     </div>
-    <div data-part="centre">…</div>
+    <div data-part="center">…</div>
     <div data-part="actions">…</div>
   </header>
   <nav data-part="nav" id="…-nav" aria-label="Main navigation">
@@ -989,7 +989,7 @@ export const REACT_APP_SHELL_DOCS = {
   --slotted-app-shell-border-color: var(--slotted-border-subtle);
   /* The ground separation="tone" gives the chrome regions. */
   --slotted-app-shell-tone-surface: var(--slotted-tone-secondary-subtle-hover);
-  /* A background-image layer over the frame's colour: a wash, a photograph. */
+  /* A background-image layer over the frame's color: a wash, a photograph. */
   --slotted-app-shell-frame-image: radial-gradient(
     60% 80% at 0% 0%,
     var(--slotted-tone-accent-surface),
@@ -1037,7 +1037,7 @@ export const REACT_APP_SHELL_DOCS = {
 /* A dark column on a light frame. The property is written on the region, so it
    resolves in the region's own scope: data-slotted-scheme restates every tone
    inside the column, and the ground is then that scheme's surface rather than
-   one colour borrowed from the page it left. */
+   one color borrowed from the page it left. */
 [data-ui='app-shell'] > [data-part='nav'] {
   --slotted-app-shell-nav-surface: var(--slotted-surface-sunken);
 }

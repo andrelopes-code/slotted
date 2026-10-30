@@ -110,7 +110,7 @@ const meta: Meta<StatCardStoryArgs> = {
       page: createReferencePage({
         title: 'Stat card',
         description:
-          'A metric with its name, its change and its trend, in a frame — and a change whose colour comes from what the metric means, never from its sign.',
+          'A metric with its name, its change and its trend, in a frame — and a change whose color comes from what the metric means, never from its sign.',
         framework: 'Angular',
         ...ANGULAR_STAT_CARD_DOCS['stat-card'],
         tokens: ANGULAR_STAT_CARD_TOKENS,
@@ -266,7 +266,7 @@ export const Fill: Story = {
     template: `
 <div slGrid [columns]="4" [gap]="5">
   ${scene('fill="outline"', 'A hairline on the raised surface: the default card.', openOrders('fill="outline"'))}
-  ${scene('fill="elevated"', 'Lifted on the medium shadow; the hairline stays for forced colours.', openOrders('fill="elevated"'))}
+  ${scene('fill="elevated"', 'Lifted on the medium shadow; the hairline stays for forced colors.', openOrders('fill="elevated"'))}
   ${scene('fill="subtle"', 'Recedes onto the sunken surface, for a summary that should not compete with the table under it.', openOrders('fill="subtle"'))}
   ${scene('fill="plain"', 'No frame and no inset: the card inside a cell, or in a rail whose rules already separate it.', openOrders('fill="plain"'))}
 </div>`,

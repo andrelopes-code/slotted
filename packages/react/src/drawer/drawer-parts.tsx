@@ -1084,7 +1084,7 @@ export function DrawerResizer({
   /**
    * The separator's own picture, and the reason it is three elements rather
    * than a pseudo-element: `packages/styles/src/fallbacks.test.mjs` forbids a
-   * system colour inside `::before` or `::after`, and both steps these take
+   * system color inside `::before` or `::after`, and both steps these take
    * have one as their last resort.
    *
    * Which picture is the stylesheet's decision, by `data-side`: two hairlines

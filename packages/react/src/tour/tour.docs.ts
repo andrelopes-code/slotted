@@ -47,14 +47,14 @@ const anatomy: AnatomyRow[] = [
     element: 'div',
     required: false,
     purpose:
-      'The cutout round the target; its shadow is the scrim. It travels from one target to the next. Absent on a centred step and under spotlight={false}.',
+      'The cutout round the target; its shadow is the scrim. It travels from one target to the next. Absent on a centerd step and under spotlight={false}.',
   },
   {
     part: 'surface',
     element: 'div',
     required: true,
     purpose:
-      'The layer the positioner places, with data-side and data-align; centred by the stylesheet when the step has no target.',
+      'The layer the positioner places, with data-side and data-align; centerd by the stylesheet when the step has no target.',
   },
   {
     part: 'focus-guard',
@@ -68,7 +68,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div',
     required: false,
     purpose:
-      'Points at the target from the card’s edge. Absent on a centred step and under arrow={false}.',
+      'Points at the target from the card’s edge. Absent on a centerd step and under arrow={false}.',
   },
   {
     part: 'content',
@@ -156,7 +156,7 @@ const scenes: ReferenceSceneMeta[] = [
     snippet: defineSnippet({
       id: 'tour-react-playground',
       language: 'tsx',
-      label: 'Five steps, the first one centred',
+      label: 'Five steps, the first one centerd',
       source: `const steps: TourStep[] = [
   { id: 'welcome', title: 'Welcome to Reports', description: 'Five stops, about a minute.' },
   { id: 'search', target: '#search', title: 'Find any report' },
@@ -266,7 +266,7 @@ const [open, setOpen] = useState(false);
   {
     id: 'missing',
     title: 'A target that is not on the page',
-    note: 'The sidebar is collapsed, so the sidebar step has nothing to point at. Under missing="center" it stands centred with data-missing and says what it had to say; under "skip" it is passed over.',
+    note: 'The sidebar is collapsed, so the sidebar step has nothing to point at. Under missing="center" it stands centerd with data-missing and says what it had to say; under "skip" it is passed over.',
     snippet: defineSnippet({
       id: 'tour-react-missing',
       language: 'tsx',
@@ -389,7 +389,7 @@ const [open, setOpen] = useState(false);
   {
     id: 'edges',
     title: 'Targets in the corners, and one that fills the screen',
-    note: 'The corner steps ask for a side with no room: the card flips and slides and the arrow keeps pointing. The chart is taller than the room left around it, so its card is centred over it while the spotlight still frames it.',
+    note: 'The corner steps ask for a side with no room: the card flips and slides and the arrow keeps pointing. The chart is taller than the room left around it, so its card is centerd over it while the spotlight still frames it.',
     snippet: defineSnippet({
       id: 'tour-react-edges',
       language: 'tsx',
@@ -513,7 +513,7 @@ export const REACT_TOUR_DOCS = {
         "'center' | 'skip'",
         'center',
         'Tour',
-        'A step whose target cannot be found is shown centred, or passed over',
+        'A step whose target cannot be found is shown centerd, or passed over',
       ],
       [
         'keyboardNavigation',
@@ -563,7 +563,7 @@ export const REACT_TOUR_DOCS = {
         'Element | Ref | string | () => Element | null',
         '—',
         'TourStep',
-        'What the step points at; absent for a centred step',
+        'What the step points at; absent for a centerd step',
       ],
       ['title', 'ReactNode', '—', 'TourStep', 'The card’s title and accessible name'],
       ['description', 'ReactNode', '—', 'TourStep', 'The card’s accessible description'],
@@ -633,7 +633,7 @@ export const REACT_TOUR_DOCS = {
       'The card is a dialog named by the step’s title and described by its description. It takes focus itself when the tour opens, so a reader hears the step before the buttons and Skip does not arrive armed; closing gives focus back to the element that had it.',
       'Focus follows the reader rather than the tour: a step change moves focus to the new card only when it was in the old one. A reader operating an interactive target keeps their place, and the new step is read out once through the shared polite live region.',
       'ArrowRight and ArrowLeft go on and back from the card, mirrored in a right-to-left document, and are left to a text field inside it. Escape closes from the topmost layer only.',
-      'The progress is text in the card’s reading order — “2 of 5” — and not a row of dots a screen reader would count. The spotlight, the scrim and the arrow are hidden from assistive technology; under forced colours the scrim is dropped and the spotlight is drawn as a ring in the system highlight.',
+      'The progress is text in the card’s reading order — “2 of 5” — and not a row of dots a screen reader would count. The spotlight, the scrim and the arrow are hidden from assistive technology; under forced colors the scrim is dropped and the spotlight is drawn as a ring in the system highlight.',
     ],
     snippets: [
       defineSnippet({

@@ -157,7 +157,7 @@ export const Current: Story = {
     <div className="slotted-demo-grid" data-columns="1">
       <Scene
         label="BreadcrumbPage"
-        note="The last crumb takes the strongest text colour and a heavier weight, so the end of the trail reads without being read."
+        note="The last crumb takes the strongest text color and a heavier weight, so the end of the trail reads without being read."
       >
         <Trail levels={['Workspace', 'Billing', 'Invoices']} />
       </Scene>
@@ -320,7 +320,7 @@ export const Switcher: Story = {
       </Scene>
       <Scene
         label="Beside plain crumbs"
-        note="A switcher is one crumb among links: it keeps their colour, their underline and their focus ring, and only the chevron says a list opens here rather than a page."
+        note="A switcher is one crumb among links: it keeps their color, their underline and their focus ring, and only the chevron says a list opens here rather than a page."
       >
         <Breadcrumb>
           <BreadcrumbList>

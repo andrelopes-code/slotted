@@ -166,8 +166,8 @@ export const Identity: Story = {
         <header className="slotted-demo-scene__header">
           <span className="slotted-demo-scene__label">Derived from the name</span>
           <span className="slotted-demo-scene__note">
-            The same person keeps the same colour in a list that is re-sorted and a table that is
-            paged. Five tones mean collisions are certain: the colour is an aid to scanning, and the
+            The same person keeps the same color in a list that is re-sorted and a table that is
+            paged. Five tones mean collisions are certain: the color is an aid to scanning, and the
             name is the identifier.
           </span>
         </header>
@@ -228,7 +228,7 @@ export const Shapes: Story = {
         <Avatar name="Release bot" shape="square" size="lg" />
       </div>
       <p>
-        A circle is a person and a square is a team, an organisation or a bot — Primer’s rule, taken
+        A circle is a person and a square is a team, an organization or a bot — Primer’s rule, taken
         with its meaning. The corner is a sixth of the box, so it is the same shape at every step.
       </p>
     </div>

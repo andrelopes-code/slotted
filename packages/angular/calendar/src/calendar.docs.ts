@@ -138,7 +138,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div',
     required: false,
     purpose:
-      'The year view’s own grid, four across and twelve to a page. The page is anchored rather than centred, so the year the reader is on keeps its cell between presses.',
+      'The year view’s own grid, four across and twelve to a page. The page is anchored rather than centerd, so the year the reader is on keeps its cell between presses.',
   },
   {
     part: 'period',
@@ -233,7 +233,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'unavailable',
     title: 'Days that are refused',
-    note: 'A refused date stays focusable — aria-disabled, never disabled — so a reader can arrow onto it, be told why it is out, and arrow past. Struck through rather than only faded, because colour alone says nothing under forced colours.',
+    note: 'A refused date stays focusable — aria-disabled, never disabled — so a reader can arrow onto it, be told why it is out, and arrow past. Struck through rather than only faded, because color alone says nothing under forced colors.',
     snippet: defineSnippet({
       id: 'calendar-angular-unavailable',
       label: 'A predicate',
@@ -439,7 +439,7 @@ const api: ApiRow[] = apiRows([
     'Answers no key and no press, and takes every cell out of the tab sequence.',
   ],
   ['readOnly', 'boolean', '—', 'SlCalendar', 'Readable and not changeable, and never faded.'],
-  ['invalid', 'boolean', '—', 'SlCalendar', 'Retargets the focus ring to the danger colour.'],
+  ['invalid', 'boolean', '—', 'SlCalendar', 'Retargets the focus ring to the danger color.'],
   [
     'messages',
     'Partial<CalendarMessages>',
@@ -503,7 +503,7 @@ const accessibility: string[] = [
   'Exactly one cell is in the tab sequence, and the arrows move it. Focus is only put back into the DOM after a key moved it, never on a render, so a calendar on a page does not steal the reader’s place.',
   'The heading is a polite live region, because paging with a key changes nothing that focus lands on and nothing else would announce the new month.',
   'A column header shows the locale’s narrow weekday and carries the full name in abbr, which is the difference between a screen reader saying "Mo" and saying "Monday".',
-  'A date the predicate refuses carries aria-disabled rather than being removed, so a reader can arrow onto it and be told why it is out; and it is struck through as well as dimmed, because colour alone says nothing under forced colours.',
+  'A date the predicate refuses carries aria-disabled rather than being removed, so a reader can arrow onto it and be told why it is out; and it is struck through as well as dimmed, because color alone says nothing under forced colors.',
   'Today is a dot under the number and focus is a ring around it. They were the same ring once, and a reader arrowing onto today saw one box and could not tell which of the two facts it was.',
 ];
 

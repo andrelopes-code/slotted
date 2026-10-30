@@ -92,7 +92,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'orientation',
     title: 'Which way the bar runs',
-    note: 'A horizontal bar centres its controls and a vertical one stretches them, because a column at each control’s natural width is a ragged edge; the separator and the group boundary turn with it.',
+    note: 'A horizontal bar centers its controls and a vertical one stretches them, because a column at each control’s natural width is a ragged edge; the separator and the group boundary turn with it.',
     snippet: defineSnippet({
       id: 'toolbar-react-orientation',
       language: 'tsx',
@@ -174,7 +174,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'keyOwners',
     title: 'An item that keeps the arrows',
-    note: 'A text field needs the inline arrows for its caret, so the bar leaves them to it and focus moves out on the cross axis instead — the APG’s advice for the author, written as behaviour.',
+    note: 'A text field needs the inline arrows for its caret, so the bar leaves them to it and focus moves out on the cross axis instead — the APG’s advice for the author, written as behavior.',
     snippet: defineSnippet({
       id: 'toolbar-react-key-owners',
       language: 'tsx',
@@ -406,7 +406,7 @@ export const REACT_TOOLBAR_DOCS = {
       'A control that announces aria-disabled keeps its place in the ring, which the pattern allows where discoverability of a function is crucial and which is what Button’s focusableWhenDisabled renders. A control carrying the native attribute is skipped, because the platform will not focus it either — including every control inside a disabled fieldset.',
       'The bar names itself with the consumer’s aria-label or aria-labelledby, and each group names itself the same way. The pattern uses the role for three or more controls; that is documented rather than enforced, because a role that disappeared when a permission filter removed a button would be a semantic changing behind the author.',
       'Under overflow="menu" the control that holds what did not fit is a control of the bar like any other: the arrows, Home and End reach it, and it leaves the ring the moment the bar has room for everything, because a hidden control cannot hold focus. Its name carries the count rather than the mark, and focus is moved onto it before the control under focus is hidden — so a reader who was on the fifth button lands on the control that now holds it rather than on the document body.',
-      'Nothing in the bar is painted over: every control keeps its own states, its own focus ring and its own contrast. What the bar adds is the boundary between runs — a group, a rule, a spacer — and under forced colours the rule keeps its own paint, because a background flattens to Canvas and would take the boundary with it.',
+      'Nothing in the bar is painted over: every control keeps its own states, its own focus ring and its own contrast. What the bar adds is the boundary between runs — a group, a rule, a spacer — and under forced colors the rule keeps its own paint, because a background flattens to Canvas and would take the boundary with it.',
     ],
     snippets: [
       defineSnippet({

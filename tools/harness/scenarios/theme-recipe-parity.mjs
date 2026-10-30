@@ -24,7 +24,7 @@ import { engineArgument, readPage } from '../engines.mjs';
  * steps, so the 66 samples cover every lightness, every chroma and every hue,
  * 9 of them achromatic with a hue other than 0 in most. Each sample is put in
  * place of each of the five seeds in turn, in each of the three schemes: 990
- * scopes. Every colour token of the recipe is read through a probe's `color`,
+ * scopes. Every color token of the recipe is read through a probe's `color`,
  * whose computed value keeps OKLCH unclipped.
  *
  * Two failures are told apart: a token the engine cannot parse (the probe

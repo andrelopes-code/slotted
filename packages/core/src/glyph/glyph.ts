@@ -10,10 +10,10 @@ export interface GlyphDrawing {
   /** In viewBox units; `0` for a filled glyph. */
   readonly strokeWidth: number;
   /**
-   * The optical correction that puts the glyph's main shape on the centre of
+   * The optical correction that puts the glyph's main shape on the center of
    * the 24-unit box (`glyph-ink.mjs`): its whole ink, or the elements its
    * manifest entry names as `body` where a protrusion — a calendar's rings, a
-   * pin's needle, a bin's handle — is not what the eye centres.
+   * pin's needle, a bin's handle — is not what the eye centers.
    */
   readonly offset: readonly [number, number];
   /** One `<path d>` each, in Lucide's drawing order. */

@@ -90,7 +90,7 @@ export const Tones: Story = {
     <Grid columns={2}>
       <Scene
         label="The five, and the marks that carry them"
-        note="Each tone draws the glyph the contract maps it to, so an error and a note differ by silhouette as well as by colour."
+        note="Each tone draws the glyph the contract maps it to, so an error and a note differ by silhouette as well as by color."
       >
         {TONES.map(({ body, title, tone }) => (
           <Alert key={tone} tone={tone}>
@@ -102,7 +102,7 @@ export const Tones: Story = {
         ))}
       </Scene>
       <Scene
-        label="The same five with no colour at all"
+        label="The same five with no color at all"
         note="Switch the toolbar to high-contrast: every ground becomes the page’s own white and every border black, and the mark is the only thing left telling the five apart."
       >
         {TONES.map(({ title, tone }) => (
@@ -378,7 +378,7 @@ export const Content: Story = {
     <Grid columns={2}>
       <Scene
         label="Long, and in another language"
-        note="A German compound wraps to a second line and the mark stays on the first, because the mark is one line box tall rather than centred on the whole message."
+        note="A German compound wraps to a second line and the mark stays on the first, because the mark is one line box tall rather than centerd on the whole message."
       >
         <Alert dismissible tone="warning">
           <AlertContent>

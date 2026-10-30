@@ -122,7 +122,7 @@ describe('SlImage', () => {
     expect(fallbackOf(root).hasAttribute('aria-hidden')).toBe(false);
   });
 
-  it('starts with its own size, cropped, centred, square-cornered and on a sunken ground', () => {
+  it('starts with its own size, cropped, centerd, square-cornered and on a sunken ground', () => {
     const { query } = mount();
     const root = query('#plain');
 

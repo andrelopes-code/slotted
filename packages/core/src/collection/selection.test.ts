@@ -60,7 +60,7 @@ describe('nextSelection, single', () => {
   });
 });
 
-describe('nextSelection, multiple with the toggle behaviour', () => {
+describe('nextSelection, multiple with the toggle behavior', () => {
   it('adds and removes one option at a time, with no modifier held', () => {
     const added = request({ selected: ['a'], action: 'toggle', key: 'c' });
     expect(added.selected).toEqual(['a', 'c']);
@@ -94,7 +94,7 @@ describe('nextSelection, multiple with the toggle behaviour', () => {
   });
 });
 
-describe('nextSelection, multiple with the replace behaviour', () => {
+describe('nextSelection, multiple with the replace behavior', () => {
   it('makes a plain press the whole selection', () => {
     const result = request({
       behavior: 'replace',
@@ -135,7 +135,7 @@ describe('nextSelection, ranges', () => {
     expect(up.selected).toEqual(['b', 'c', 'd']);
   });
 
-  it('adds the range to what the reader already had, under the toggle behaviour', () => {
+  it('adds the range to what the reader already had, under the toggle behavior', () => {
     const result = request({ selected: ['a'], anchor: 'c', action: 'range', key: 'd' });
     expect(result.selected).toEqual(['a', 'c', 'd']);
   });

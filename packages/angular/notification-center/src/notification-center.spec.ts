@@ -137,7 +137,7 @@ const ITEMS: NotificationItem[] = [
     <button type="button">depois</button>`,
 })
 class Host {
-  readonly centre = viewChild.required(SlNotificationCenter);
+  readonly center = viewChild.required(SlNotificationCenter);
   readonly items = signal<readonly NotificationItem[]>(ITEMS);
   readonly views = signal<readonly NotificationView[] | undefined>(undefined);
   readonly size = signal<'sm' | 'md' | undefined>(undefined);
@@ -329,7 +329,7 @@ describe('SlNotificationCenter', () => {
     click(button('Mark all as read'));
     expect(host.readRequests.at(-1)).toMatchObject({ keys: ['n1', 'n2'], read: true });
 
-    host.centre().markAllRead();
+    host.center().markAllRead();
     expect(host.readRequests.at(-1)).toMatchObject({ keys: ['n1', 'n2'], reason: 'programmatic' });
   });
 
@@ -440,7 +440,7 @@ describe('SlNotificationCenter', () => {
     expect(element.querySelectorAll('article')).toHaveLength(2);
   });
 
-  it('honours a refusal of the view', async () => {
+  it('honors a refusal of the view', async () => {
     host.onView = (request) => request.cancel();
     click(all('[role="tab"]')[1] as HTMLElement);
     await settle();
@@ -653,7 +653,7 @@ describe('SlNotificationCenter', () => {
   });
 
   it('exposes focus and reveal on the instance', async () => {
-    host.centre().focus();
+    host.center().focus();
     expect(document.activeElement).toBe(article(0));
 
     host.items.set([
@@ -662,7 +662,7 @@ describe('SlNotificationCenter', () => {
     ]);
     await settle();
     expect(articles()).toHaveLength(3);
-    host.centre().reveal();
+    host.center().reveal();
     await settle();
     expect(host.revealRequests.at(-1)).toMatchObject({ count: 1, reason: 'programmatic' });
     expect(articles()).toHaveLength(4);

@@ -17,7 +17,7 @@ describe('highlight', () => {
     ).toBe(source);
   });
 
-  it('colours a template by tag, attribute and string', () => {
+  it('colors a template by tag, attribute and string', () => {
     expect(kinds('<a slLink href="/terms">terms</a>', 'angular')).toEqual([
       'tag:<a',
       'attr:slLink',
@@ -31,13 +31,13 @@ describe('highlight', () => {
     ]);
   });
 
-  it('colours a stylesheet by custom property and value', () => {
+  it('colors a stylesheet by custom property and value', () => {
     expect(kinds("[data-ui='link'] {\n  --slotted-link-radius: 4px;\n}", 'css')).toContain(
       'property:--slotted-link-radius',
     );
   });
 
-  it('colours TypeScript by keyword and string', () => {
+  it('colors TypeScript by keyword and string', () => {
     const tokens = kinds("import { Link } from '@slotted/react';", 'tsx');
     expect(tokens).toContain('keyword:import');
     expect(tokens).toContain('keyword:from');
@@ -46,7 +46,7 @@ describe('highlight', () => {
 
   /**
    * A comment inside JSX is written `{/* … *\/}`, and a highlighter that only
-   * knows `//` colours the braces and leaves the sentence looking like code.
+   * knows `//` colors the braces and leaves the sentence looking like code.
    */
   it('knows a JSX comment from the code around it', () => {
     expect(kinds('{/* Rendered only for a new tab. */}', 'tsx')).toEqual([
@@ -54,7 +54,7 @@ describe('highlight', () => {
     ]);
   });
 
-  it('colours Markdown source by its syntax, and gives the source back whole', () => {
+  it('colors Markdown source by its syntax, and gives the source back whole', () => {
     const source =
       '## Passos\n\n> [!NOTE]\n> Use `--wait`.\n\n- [ ] [docs](/cli)\n\n```ts\nlet a;\n```';
     expect(

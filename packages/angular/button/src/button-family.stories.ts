@@ -121,7 +121,7 @@ export const Matrix: Story = {
         'Four members, one surface. Button acts, ButtonLink navigates, IconButton acts without room for a label, and ToggleButton stays on. They share the tone, variant and size axes, so the appearance is decided once.',
         scene(
           'Tone by variant',
-          'Five semantic colours across four ways of painting them.',
+          'Five semantic colors across four ways of painting them.',
           matrix(
             'button',
             (tone, variant) =>
@@ -228,8 +228,8 @@ export const Matrix: Story = {
             'Unavailable',
             'A disabled toggle still says whether it is on.',
             `<div class="slotted-demo-row">
-              <button slIconButton aria-label="Favourite" defaultPressed shape="circle" tone="warning">${icon('lucideStar')}</button>
-              <button slIconButton aria-label="Favourite, unavailable" defaultPressed disabled shape="circle" tone="warning">${icon('lucideStar')}</button>
+              <button slIconButton aria-label="Favorite" defaultPressed shape="circle" tone="warning">${icon('lucideStar')}</button>
+              <button slIconButton aria-label="Favorite, unavailable" defaultPressed disabled shape="circle" tone="warning">${icon('lucideStar')}</button>
             </div>`,
           ),
         ].join(''),
@@ -243,16 +243,16 @@ export const Matrix: Story = {
             'On and off',
             'The fill and a heavier edge, so neither scheme flattens it.',
             `<div class="slotted-demo-row">
-              <button slToggleButton>${icon('lucideStar', 'slButtonStart')}Favourite</button>
-              <button slToggleButton defaultPressed>${icon('lucideStar', 'slButtonStart')}Favourite</button>
+              <button slToggleButton>${icon('lucideStar', 'slButtonStart')}Favorite</button>
+              <button slToggleButton defaultPressed>${icon('lucideStar', 'slButtonStart')}Favorite</button>
             </div>`,
           ),
           scene(
             'Unavailable',
             'Disabled wins over pressed, and pressed still shows.',
             `<div class="slotted-demo-row">
-              <button slToggleButton disabled>Favourite</button>
-              <button slToggleButton defaultPressed disabled>Favourite</button>
+              <button slToggleButton disabled>Favorite</button>
+              <button slToggleButton defaultPressed disabled>Favorite</button>
             </div>`,
           ),
         ].join(''),

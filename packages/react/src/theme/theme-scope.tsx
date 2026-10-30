@@ -2,7 +2,7 @@ import type { Corner, Density, Scheme } from '@slotted/theme';
 import { seedStyle, type SeedName } from '@slotted/theme/seeds';
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 
-/** The five seeds a theme derives its colours from (`@slotted/theme` › `SEED_NAMES`). */
+/** The five seeds a theme derives its colors from (`@slotted/theme` › `SEED_NAMES`). */
 export type ThemeSeedName = SeedName;
 /** A recipe scheme (`@slotted/theme` › `Scheme`), plus `system`: resolved from `prefers-color-scheme`. */
 export type ThemeSchemeName = Scheme | 'system';
@@ -16,7 +16,7 @@ export interface ThemeScopeProps extends HTMLAttributes<HTMLElement> {
   density?: ThemeDensityName | undefined;
   /** How round the corners are below this element; `--slotted-radius-full` stays. */
   corners?: ThemeCornersName | undefined;
-  /** Seeds for this subtree. Every colour below is derived from them again. */
+  /** Seeds for this subtree. Every color below is derived from them again. */
   seeds?: Readonly<Partial<Record<ThemeSeedName, string>>> | undefined;
   /** Renders another element in place of the `div`, with these props. */
   render?: ((props: HTMLAttributes<HTMLElement>) => ReactNode) | undefined;

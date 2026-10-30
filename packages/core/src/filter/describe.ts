@@ -2,7 +2,7 @@
  * A filter as a sentence.
  *
  * `docs/component-features.md` §12 asks a filter builder for a readable text
- * expression that summarises what is applied. It is written here rather than in
+ * expression that summarizes what is applied. It is written here rather than in
  * a family so that `filter-bar`'s chips, `table`'s announcement and the
  * accessible name of a filtered column's trigger all say the same sentence.
  *

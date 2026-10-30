@@ -401,7 +401,7 @@ export const States: Story = {
       <Scene
         label="Read-only is not disabled"
         layout="stack"
-        note="Read-only keeps full-strength ink and softens its edge, stays focusable and copyable and is still submitted; disabled is muted to a measured colour rather than faded. Both disable the steppers instead of removing them."
+        note="Read-only keeps full-strength ink and softens its edge, stays focusable and copyable and is still submitted; disabled is muted to a measured color rather than faded. Both disable the steppers instead of removing them."
       >
         <NumberField defaultValue={12} readOnly />
         <NumberField defaultValue={12} disabled />

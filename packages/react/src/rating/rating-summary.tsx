@@ -2,7 +2,7 @@ import { keyedProps, selectorKeyProps } from '@slotted/core/selector-key';
 import '@slotted/styles/rating/rating.css';
 
 import { ratingMessages } from '@slotted/core/i18n';
-import { formatRating, formatShare, summariseRatings } from '@slotted/core/rating';
+import { formatRating, formatShare, summarizeRatings } from '@slotted/core/rating';
 import type { RatingInsight } from '@slotted/core/rating';
 import { createControllable } from '@slotted/core/state';
 import { useState } from 'react';
@@ -46,7 +46,7 @@ const sameLevels = (a: readonly number[], b: readonly number[]) =>
  * scale beside it, the stars that draw it and the count, then one bar per
  * level, highest first, each the level's share of the total. `spectrum` reads
  * the same counts as a histogram on the axis of the scale, lowest first, with
- * the mean, its 95% interval and the one conclusion `summariseRatings` draws:
+ * the mean, its 95% interval and the one conclusion `summarizeRatings` draws:
  * divided, too few, a consensus, or mixed.
  *
  * With `filterable`, each level is a `button` with `aria-pressed`, disabled
@@ -83,7 +83,7 @@ export function RatingSummary({
   const resolvedLocale = locale ?? appLocale;
   const levelCounts = Array.from({ length: resolvedMax }, (_, index) => counts[index] ?? 0);
   const thresholds = { ...defaults.insightThresholds, ...insightThresholds };
-  const summary = summariseRatings(levelCounts, thresholds);
+  const summary = summarizeRatings(levelCounts, thresholds);
   const rated = summary.total > 0;
 
   const numbers = new Intl.NumberFormat(resolvedLocale);

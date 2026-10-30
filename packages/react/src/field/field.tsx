@@ -95,7 +95,7 @@ function readParts(node: ReactNode, parts: FieldParts): FieldParts {
  * dependency between siblings and nothing to coordinate during hydration.
  *
  * **`aria-required`, never the native `required`.** The native attribute
- * engages browser constraint validation and changes submit behaviour, which the
+ * engages browser constraint validation and changes submit behavior, which the
  * library must not impose as a side effect of describing a field. A consumer
  * who wants it writes it on the control, and it survives: an explicit value on
  * the control always wins.

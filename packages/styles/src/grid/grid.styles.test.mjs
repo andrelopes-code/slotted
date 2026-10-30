@@ -147,7 +147,7 @@ test('shrinks below its content so a nested grid reflows instead of overflowing'
   assert.ok(ruleFor(ui).includes('min-inline-size:0'));
 });
 
-test('paints nothing at all: a layout that carried a colour would be a surface', () => {
+test('paints nothing at all: a layout that carried a color would be a surface', () => {
   assert.doesNotMatch(declarations, /(^|[;{\s])(color|background|border|box-shadow|padding)\s*:/);
 });
 

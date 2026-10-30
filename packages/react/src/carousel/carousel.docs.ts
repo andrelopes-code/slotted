@@ -160,12 +160,12 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'align',
-    title: 'Centred, with the neighbours showing',
-    note: 'align="center" makes every slide a page and centres it; --slotted-carousel-peek pads the viewport so the slides either side show at its edges. Press a slide that peeks and it comes to the centre.',
+    title: 'Centerd, with the neighbours showing',
+    note: 'align="center" makes every slide a page and centers it; --slotted-carousel-peek pads the viewport so the slides either side show at its edges. Press a slide that peeks and it comes to the center.',
     snippet: defineSnippet({
       id: 'carousel-react-align',
       language: 'tsx',
-      label: 'Centre alignment and a peek',
+      label: 'Center alignment and a peek',
       source: `<Carousel align="center" aria-label="One-of-a-kind pieces" className="peek">
   <CarouselViewport>{slides}</CarouselViewport>
   <CarouselPrevious />
@@ -225,7 +225,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'thumbnails',
     title: 'A product gallery',
-    note: 'variant="thumbnails" with a function child draws each indicator from the consumer’s picture. The strip scrolls on its own when it holds more than it shows, and keeps the current picture in view — one carousel, nothing to synchronise.',
+    note: 'variant="thumbnails" with a function child draws each indicator from the consumer’s picture. The strip scrolls on its own when it holds more than it shows, and keeps the current picture in view — one carousel, nothing to synchronize.',
     snippet: defineSnippet({
       id: 'carousel-react-thumbnails',
       language: 'tsx',
@@ -371,11 +371,11 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'Inside a product page',
-    note: 'The gallery beside the buy box, as a product page lays them out: the picture and its thumbnails on the start, the name, the price and the action on the end. handleRef.scrollToSlide takes the gallery to the picture of the colour chosen.',
+    note: 'The gallery beside the buy box, as a product page lays them out: the picture and its thumbnails on the start, the name, the price and the action on the end. handleRef.scrollToSlide takes the gallery to the picture of the color chosen.',
     snippet: defineSnippet({
       id: 'carousel-react-composition',
       language: 'tsx',
-      label: 'A gallery driven by a colour choice',
+      label: 'A gallery driven by a color choice',
       source: `const gallery = useRef<CarouselHandle>(null);
 
 <>
@@ -384,7 +384,7 @@ const scenes: ReferenceSceneMeta[] = [
   </Carousel>
   <SegmentedControl
     aria-label="Cor"
-    onValueChange={(colour) => gallery.current?.scrollToSlide(photoOf(colour))}
+    onValueChange={(color) => gallery.current?.scrollToSlide(photoOf(color))}
   >
     …
   </SegmentedControl>

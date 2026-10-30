@@ -14,7 +14,7 @@ describe('initialsFrom', () => {
     expect(initialsFrom({ name: 'Prince' })).toBe('P');
   });
 
-  it('honours a ceiling of one, which is what the smallest avatar renders', () => {
+  it('honors a ceiling of one, which is what the smallest avatar renders', () => {
     expect(initialsFrom({ name: 'Ada Lovelace', max: 1 })).toBe('A');
   });
 
@@ -118,7 +118,7 @@ describe('toneFrom', () => {
    * over five hundred seeds, every tone takes between a tenth and a third of
    * them — a uniform draw would take a fifth.
    */
-  it('spreads over the whole palette rather than favouring one tone', () => {
+  it('spreads over the whole palette rather than favoring one tone', () => {
     const seeds = Array.from({ length: 500 }, (_, index) => `person-${index}@example.com`);
     const used = new Map<string, number>();
     for (const seed of seeds) {
@@ -133,7 +133,7 @@ describe('toneFrom', () => {
     }
   });
 
-  /** Two people whose names differ by one letter do not have to differ in colour, but they usually do. */
+  /** Two people whose names differ by one letter do not have to differ in color, but they usually do. */
   it('separates names that differ only slightly, most of the time', () => {
     const pairs: [string, string][] = [
       ['Ada Lovelace', 'Ada Lovelacf'],

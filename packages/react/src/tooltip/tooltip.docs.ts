@@ -77,7 +77,7 @@ const api = apiRows([
     "'inverse' | 'surface'",
     'inverse',
     'Tooltip',
-    'inverse paints the tooltip in the colour opposite to the page, which needs no edge on a light page. surface paints the raised panel colour with a hairline border, for a page that is already dark.',
+    'inverse paints the tooltip in the color opposite to the page, which needs no edge on a light page. surface paints the raised panel color with a hairline border, for a page that is already dark.',
   ],
   [
     'size',
@@ -112,7 +112,7 @@ const api = apiRows([
     "'start' | 'center' | 'end'",
     'center',
     'Tooltip',
-    'Where the tooltip sits along the edge it took: at the start of the trigger, at its centre or at its end.',
+    'Where the tooltip sits along the edge it took: at the start of the trigger, at its center or at its end.',
   ],
   [
     'mount',
@@ -169,7 +169,7 @@ const api = apiRows([
     'boolean',
     'true',
     'Tooltip',
-    'Whether the layer renders into the shared portal root at the end of the document. The portal root keeps the theme, colour scheme, density and direction of the region the tooltip opened from.',
+    'Whether the layer renders into the shared portal root at the end of the document. The portal root keeps the theme, color scheme, density and direction of the region the tooltip opened from.',
   ],
   [
     'disabled',

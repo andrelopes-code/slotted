@@ -7,7 +7,7 @@ import {
   fractionOfValue,
   moveThumb,
   nearestThumb,
-  normaliseValues,
+  normalizeValues,
   sameValues,
   thumbBounds,
   valueAtFraction,
@@ -40,7 +40,7 @@ const positionStyle = (fraction: number): CSSProperties =>
 const spanStyle = (start: number, end: number): CSSProperties =>
   ({ '--_start': start * 100, '--_end': end * 100 }) as CSSProperties;
 
-const normaliseMarks = (marks: readonly (number | SliderMark)[]): SliderMark[] =>
+const normalizeMarks = (marks: readonly (number | SliderMark)[]): SliderMark[] =>
   marks.map((mark) => (typeof mark === 'number' ? { value: mark } : mark));
 
 /**
@@ -144,10 +144,10 @@ export function Slider({
     [isRange, min],
   );
 
-  const [own, setOwn] = useState<number[]>(() => normaliseValues(toArray(defaultValue), scale));
+  const [own, setOwn] = useState<number[]>(() => normalizeValues(toArray(defaultValue), scale));
   const controlled = value !== undefined;
   const values = useMemo(
-    () => (controlled ? normaliseValues(toArray(value), scale) : own),
+    () => (controlled ? normalizeValues(toArray(value), scale) : own),
     [controlled, own, scale, value],
   );
 
@@ -176,7 +176,7 @@ export function Slider({
     [onValueCommit, shape],
   );
 
-  const marksList = useMemo(() => (marks === undefined ? [] : normaliseMarks(marks)), [marks]);
+  const marksList = useMemo(() => (marks === undefined ? [] : normalizeMarks(marks)), [marks]);
 
   /**
    * The APG names `aria-valuetext` for a value that is not user-friendly, and
@@ -337,7 +337,7 @@ export function Slider({
   useEffect(() => {
     const owner = thumbRefs.current[0]?.form;
     if (owner === null || owner === undefined) return;
-    const onReset = () => setOwn(normaliseValues(toArray(defaultValue), scale));
+    const onReset = () => setOwn(normalizeValues(toArray(defaultValue), scale));
     owner.addEventListener('reset', onReset);
     return () => owner.removeEventListener('reset', onReset);
     /* `defaultValue` is read once per mount, which is what uncontrolled means;

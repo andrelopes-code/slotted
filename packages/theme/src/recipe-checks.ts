@@ -18,7 +18,7 @@ const TONES = ['accent', 'secondary', 'neutral', 'success', 'info', 'warning', '
 const DATA_SLOTS = Array.from({ length: 8 }, (_, index) => `--slotted-data-${index + 1}`);
 
 /**
- * The ratios of `theme-conformance` over evaluated colours, as messages. A
+ * The ratios of `theme-conformance` over evaluated colors, as messages. A
  * recipe passes when every seed of `seedGrid()` leaves this list empty.
  */
 export function checkScheme(values: Readonly<Record<string, Oklch>>, scheme: Scheme): string[] {

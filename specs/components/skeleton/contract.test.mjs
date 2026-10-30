@@ -70,7 +70,7 @@ test('sizes the round shapes on the scale this library already owns', () => {
 /**
  * `shimmer` is the default: a band travelling across the placeholder is what
  * says "still coming" rather than "empty", and it is what the field defaults
- * to. Both it and `pulse` derive their second colour from the fill, so both
+ * to. Both it and `pulse` derive their second color from the fill, so both
  * are correct in all three schemes — the reason this family gave in August for
  * having no shimmer at all no longer holds.
  */

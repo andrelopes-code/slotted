@@ -7,7 +7,7 @@ export default function FieldHelpExample() {
     <Stack gap={5}>
       <Field required>
         <FieldHeader>
-          <FieldLabel>Cost centre</FieldLabel>
+          <FieldLabel>Cost center</FieldLabel>
           <FieldHelp>
             The four-digit code finance assigns to your team. It appears on every invoice line.
           </FieldHelp>

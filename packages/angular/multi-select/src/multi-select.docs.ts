@@ -153,7 +153,7 @@ const anatomy: AnatomyRow[] = [
     part: 'icon',
     element: 'span',
     required: false,
-    purpose: 'The first column of an option, for an icon that makes rows recognisable.',
+    purpose: 'The first column of an option, for an icon that makes rows recognizable.',
   },
   {
     part: 'label',

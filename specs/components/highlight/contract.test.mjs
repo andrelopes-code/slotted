@@ -40,13 +40,13 @@ test('is the text and the marks inside it', () => {
  * written: explicit ranges from a server, a matcher the consumer wrote, or the
  * default — the collator scan `createFilter` already uses, so a host's filter
  * and its mark cannot disagree. Every one of the three goes through the same
- * normalisation, which is where an overlapping, inverted or out-of-range span
+ * normalization, which is where an overlapping, inverted or out-of-range span
  * stops being an exception and becomes no mark.
  */
-test('takes ranges over a matcher over the default, and normalises all three', () => {
+test('takes ranges over a matcher over the default, and normalizes all three', () => {
   assert.equal(contract.match.engine, '@slotted/core/highlight');
   assert.match(contract.match.precedence, /ranges wins over matcher/);
-  assert.match(contract.match.normalisation, /grapheme/);
+  assert.match(contract.match.normalization, /grapheme/);
   assert.match(contract.match.empty, /text alone/);
 });
 

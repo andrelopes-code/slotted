@@ -151,7 +151,7 @@ const alertAnatomy: AnatomyRow[] = [
     element: 'your own element, with slAlertDialogIcon on it',
     required: false,
     purpose:
-      'The mark of the tone, drawn from a glyph, so the kind of decision does not depend on colour alone. Under forced colours it is the only signal of the tone.',
+      'The mark of the tone, drawn from a glyph, so the kind of decision does not depend on color alone. Under forced colors it is the only signal of the tone.',
   },
   {
     part: 'cancel',
@@ -209,7 +209,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'placement',
     title: 'Where the panel sits in the layer',
-    note: 'center is right for a panel whose height is settled; top is right for one that grows as the reader types, because a centred panel moves under the cursor every time a line is added.',
+    note: 'center is right for a panel whose height is settled; top is right for one that grows as the reader types, because a centerd panel moves under the cursor every time a line is added.',
     snippet: defineSnippet({
       id: 'dialog-angular-placement',
       language: 'angular',
@@ -332,7 +332,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'content',
     title: 'Content the family did not choose',
-    note: 'A ninety-character unbroken token in the title would widen a centred panel past both edges of the layer at once; overflow-wrap and a zero minimum are the pair that answer it. Long German and right-to-left strings are in the same scene.',
+    note: 'A ninety-character unbroken token in the title would widen a centerd panel past both edges of the layer at once; overflow-wrap and a zero minimum are the pair that answer it. Long German and right-to-left strings are in the same scene.',
     snippet: defineSnippet({
       id: 'dialog-angular-content',
       language: 'angular',
@@ -450,7 +450,7 @@ const alertScenes: ReferenceSceneMeta[] = [
   {
     id: 'tones',
     title: 'What kind of decision this is',
-    note: 'Each tone carries its own mark, so the register survives a reader who cannot tell the colours apart and forced colours, where every tone ground becomes one system colour and the silhouette is all that is left.',
+    note: 'Each tone carries its own mark, so the register survives a reader who cannot tell the colors apart and forced colors, where every tone ground becomes one system color and the silhouette is all that is left.',
     snippet: defineSnippet({
       id: 'alert-dialog-angular-tones',
       language: 'angular',
@@ -512,7 +512,7 @@ const alertScenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'The actions are the consumer’s own buttons',
-    note: 'render hands each control every attribute the family wrote, so the danger button is the library’s Button with the family’s behaviour on it — nothing is reimplemented and nothing is wrapped.',
+    note: 'render hands each control every attribute the family wrote, so the danger button is the library’s Button with the family’s behavior on it — nothing is reimplemented and nothing is wrapped.',
     snippet: defineSnippet({
       id: 'alert-dialog-angular-composition',
       language: 'angular',
@@ -625,7 +625,7 @@ const accessibility = [
   'When the dialog opens, focus moves to its first focusable element, to the element initialFocus names, or to the panel itself with initialFocus="container", for content that is read before it is used. When it closes, focus returns to the element that had it when the dialog opened, or to the element finalFocus names. If that element has left the document, focus goes to its nearest ancestor still in the document.',
   'Containment, inertness and Escape are implemented in JavaScript rather than with the native dialog element, so every overlay of the library shares one stacking order: a select opened inside a dialog paints above it. Without JavaScript, there is no dialog.',
   'The close button’s target is at least 24 by 24 pixels, and its mark is drawn from a glyph, not a character.',
-  'The panel has a border as well as a shadow, so its edge stays visible under forced colours, where shadows are removed and the scrim becomes opaque.',
+  'The panel has a border as well as a shadow, so its edge stays visible under forced colors, where shadows are removed and the scrim becomes opaque.',
 ];
 
 const alertAccessibility = [
@@ -634,7 +634,7 @@ const alertAccessibility = [
   'Focus starts on slAlertDialogCancel, the least destructive answer, as the pattern advises for a step that cannot be undone easily.',
   'A press outside never closes an alert dialog, and it is always modal. Escape closes it, which answers with the cancel; set escape="none" when cancelling is not safe either.',
   'There is no close part: the reader answers with the cancel or the action. slDialogClose inside sl-alert-dialog throws an error.',
-  'The tone is carried by the icon’s shape as well as by its colour, so it survives forced colours and readers who cannot tell the colours apart.',
+  'The tone is carried by the icon’s shape as well as by its color, so it survives forced colors and readers who cannot tell the colors apart.',
 ];
 
 const snippets = [
@@ -861,7 +861,7 @@ export const ANGULAR_DIALOG_DOCS = {
         "'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger'",
         'danger',
         'sl-alert-dialog',
-        'The kind of decision. It sets the mark slAlertDialogIcon draws and its colour.',
+        'The kind of decision. It sets the mark slAlertDialogIcon draws and its color.',
       ],
       ['modal', 'boolean', 'true', 'sl-alert-dialog', 'Fixed: an alert dialog is always modal.'],
       [
@@ -883,7 +883,7 @@ export const ANGULAR_DIALOG_DOCS = {
         "'panel' | 'plain'",
         'panel',
         'sl-alert-dialog',
-        'Whether sl-alert-dialog paints the panel. plain removes the paint and keeps the behaviour.',
+        'Whether sl-alert-dialog paints the panel. plain removes the paint and keeps the behavior.',
       ],
       [
         'fullScreen',

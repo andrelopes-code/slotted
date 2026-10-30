@@ -136,7 +136,7 @@ describe('stepping a segment', () => {
   });
 
   /**
-   * The behaviour no surveyed implementation has. Everywhere else the 31 is
+   * The behavior no surveyed implementation has. Everywhere else the 31 is
    * gone the moment February takes it, so stepping forward again lands on the
    * 28th of March.
    */

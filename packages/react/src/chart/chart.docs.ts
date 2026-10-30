@@ -140,7 +140,7 @@ const anatomy: AnatomyRow[] = [
     element: 'span',
     required: false,
     purpose:
-      'The series’ mark in its colour and shape: a line, a bar or a dot, dashed when the series is.',
+      'The series’ mark in its color and shape: a line, a bar or a dot, dashed when the series is.',
   },
   {
     part: 'legend-label',
@@ -311,7 +311,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'line',
     title: 'Lines for a trend',
-    note: 'Revenue and cost with a marker on the last point, and the target dashed in the neutral tone so it reads as a reference before its colour does.',
+    note: 'Revenue and cost with a marker on the last point, and the target dashed in the neutral tone so it reads as a reference before its color does.',
     snippet: defineSnippet({
       id: 'chart-react-line',
       language: 'tsx',
@@ -442,7 +442,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'donut',
     title: 'A donut with the total inside',
-    note: 'innerRadius opens the middle, and the center holds the total; legendValues puts each slice’s value beside its name. slotField and toneField give each slice the slot or tone its record names, so a category keeps the colour it has everywhere else; a slice that names none takes the next free slot.',
+    note: 'innerRadius opens the middle, and the center holds the total; legendValues puts each slice’s value beside its name. slotField and toneField give each slice the slot or tone its record names, so a category keeps the color it has everywhere else; a slice that names none takes the next free slot.',
     snippet: defineSnippet({
       id: 'chart-react-donut',
       language: 'tsx',
@@ -584,7 +584,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'many-series',
     title: 'More series than slots',
-    note: 'Eleven channels over eight colour slots: the first eight take the palette, the rest take the overflow neutral, and the legend says which is which.',
+    note: 'Eleven channels over eight color slots: the first eight take the palette, the rest take the overflow neutral, and the legend says which is which.',
     snippet: defineSnippet({
       id: 'chart-react-many-series',
       language: 'tsx',
@@ -606,7 +606,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'gaps',
     title: 'Missing values stay missing',
-    note: 'A null breaks the line on the left; connectNulls bridges it on the right, for a series where the gap is a sampling artefact rather than a fact.',
+    note: 'A null breaks the line on the left; connectNulls bridges it on the right, for a series where the gap is a sampling artifact rather than a fact.',
     snippet: defineSnippet({
       id: 'chart-react-gaps',
       language: 'tsx',
@@ -641,7 +641,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'texture',
     title: 'Texture as a second channel',
-    note: 'texture adds a pattern per slot, so a series is told apart in print, in greyscale or by a reader who does not see the difference between two hues.',
+    note: 'texture adds a pattern per slot, so a series is told apart in print, in grayscale or by a reader who does not see the difference between two hues.',
     snippet: defineSnippet({
       id: 'chart-react-texture',
       language: 'tsx',
@@ -744,8 +744,8 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'palette',
-    title: 'Colour from the design system',
-    note: 'categorical tells series apart, sequential orders them by one hue for ranked data, focus draws the first series in colour and the rest in neutral. slot and tone pin a series to a colour.',
+    title: 'Color from the design system',
+    note: 'categorical tells series apart, sequential orders them by one hue for ranked data, focus draws the first series in color and the rest in neutral. slot and tone pin a series to a color.',
     snippet: defineSnippet({
       id: 'chart-react-palette',
       language: 'tsx',
@@ -848,7 +848,7 @@ export const REACT_CHART_DOCS = {
         'readonly ChartSeries[]',
         '—',
         'Chart',
-        'What is drawn: kind, field, label, and how. Order is legend order and colour order',
+        'What is drawn: kind, field, label, and how. Order is legend order and color order',
       ],
       [
         'x',
@@ -974,7 +974,7 @@ export const REACT_CHART_DOCS = {
         'boolean',
         'false',
         'Chart',
-        'A pattern per slot, as a second channel beside colour',
+        'A pattern per slot, as a second channel beside color',
       ],
       [
         'renderer',
@@ -1130,8 +1130,8 @@ export const REACT_CHART_DOCS = {
       'Inside the plot the keyboard follows an adaptation of the APG Grid pattern: Left and Right move along the categories, Up and Down between series, Home and End to the ends, Page keys by a tenth; Enter selects, + − and 0 zoom, Escape clears. The tooltip is aria-hidden, and a polite live region says the point reached — only the last one, so holding an arrow does not queue twelve sentences.',
       'The legend is a toolbar of toggle buttons with a roving tab stop: aria-pressed says whether a series is drawn, Enter hides it, Shift+Enter shows it alone, and the live region confirms the change.',
       'Every chart has a table view with the same numbers in their formats, reachable from the toolbar or the menu; it is the complete reading for anyone the drawing does not serve.',
-      'Colour is never the only channel: series differ in stroke and marker shape, texture adds a pattern per slot, and under forced colours the drawing is redrawn in system colours with the legend markers kept by mask.',
-      'The eight slots of the data scale keep adjacent colours apart under simulated protanopia and deuteranopia in every scheme, and each clears 3:1 against the surface.',
+      'Color is never the only channel: series differ in stroke and marker shape, texture adds a pattern per slot, and under forced colors the drawing is redrawn in system colors with the legend markers kept by mask.',
+      'The eight slots of the data scale keep adjacent colors apart under simulated protanopia and deuteranopia in every scheme, and each clears 3:1 against the surface.',
     ],
     snippets: [
       defineSnippet({

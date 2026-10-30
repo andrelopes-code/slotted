@@ -8,7 +8,7 @@ families: [stat-card, chart, list, list-item, table, section, grid, dashboard-gr
 
 # Overviews
 
-How a screen that summarises a module is composed: what its figures lead to,
+How a screen that summarizes a module is composed: what its figures lead to,
 what a phone keeps first, and when a chart earns its place. The library gives
 `stat-card` a figure and an action, `chart` a comparison and its table, and
 `list` rows that are destinations; it does not say that a figure is a door, in
@@ -21,7 +21,7 @@ Level: SHOULD
 Applies to: a `stat-card` on an overview whose number counts records a list page holds
 Rule: The figure leads to the list page of the records it counts, and that list opens with the figure's condition applied as the bar's own pills, which the reader removes like any other.
 Why: A number the reader cannot open is a question with no way to its answer, and a list opened without the condition makes the reader rebuild the filter the figure already stood for.
-Do: Put the door in the card's `action` part at the desk. Keep the list a destination of its own in the navigation, and let the overview summarise and lead rather than hold the list in its body. Carry the condition in the address, so the door is a link a colleague can paste.
+Do: Put the door in the card's `action` part at the desk. Keep the list a destination of its own in the navigation, and let the overview summarize and lead rather than hold the list in its body. Carry the condition in the address, so the door is a link a colleague can paste.
 Don't: Draw a figure with no way to the records, open the unfiltered list, or narrow the list through a place the bar does not show.
 Seen in: Nexora · Inventory overview, the four exception figures and the stock list they open · corrected
 Check: Press each figure's door: the list's bar shows the figure's pill and its count equals the figure.
@@ -54,7 +54,7 @@ Check: Sign in as a reader whose scope holds one category: the overview draws no
 Level: SHOULD
 Applies to: a figure of an overview whose reading changes at a share the product states — overdue receivables against all receivables
 Rule: The thresholds are stated once in words beside the figures, and a figure past one says so in its own comparison line, on the line the placeholder reserves; the card takes `attention` at the threshold's level (`warning` or `danger`).
-Why: Colour is a second channel: `attention` paints the value and the edge of the card, and a reader who does not see the colour reads the crossing in the comparison. The card's `tone` is the trend's and paints nothing on a card without one, and a mark added beside the label moves the card's header to a second line.
+Why: Color is a second channel: `attention` paints the value and the edge of the card, and a reader who does not see the color reads the crossing in the comparison. The card's `tone` is the trend's and paints nothing on a card without one, and a mark added beside the label moves the card's header to a second line.
 Do: Keep the shares in one place of the page's code and one sentence on screen ("a warning from 20 percent of receivables and a danger from 33"), end the crossed figure's comparison with the threshold it passed ("26% of receivables, above 20%"), and set `attention` to `warning` on that card.
 Don't: Set `attention` on a card whose comparison does not name the threshold, set `tone` to flag a crossing, or add a badge to the card's header for the crossing.
 Seen in: Nexora · Finance overview, overdue receivables in healthy and in collections pressure (ledger row "stat-card, tone is the trend's") · corrected

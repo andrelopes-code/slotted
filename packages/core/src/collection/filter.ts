@@ -4,7 +4,7 @@
  *
  * `docs/component-features.md` §2.9 asks that search, ordering and typeahead use
  * a locale-sensitive comparison, and §6 refuses a family that assumes `contains`
- * and English normalisation. This module is the default a combobox filters with
+ * and English normalization. This module is the default a combobox filters with
  * and the adapter a consumer replaces; it is not the family's only answer.
  *
  * It is deliberately not `packages/core/src/typeahead`, which builds a collator

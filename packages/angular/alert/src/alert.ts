@@ -44,7 +44,7 @@ export type {
  * holds the map. Every one is circled, so every mark is the same disc and the
  * symbol cut out of it tells the tones apart. `secondary` draws none: a neutral
  * note has no severity to state, and a disc with nothing cut out of it said
- * nothing. Its absence is itself the difference under forced colours.
+ * nothing. Its absence is itself the difference under forced colors.
  */
 const TONE_GLYPH: Record<AlertTone, GlyphName | null> = {
   accent: 'status-info',
@@ -84,7 +84,7 @@ export type AlertCloseReason = 'dismiss' | 'programmatic';
  */
 /**
  * A mark the page supplies instead of the tone's own. It is projected into the
- * box the family draws, so it keeps the size, the colour and the place on the
+ * box the family draws, so it keeps the size, the color and the place on the
  * message's first line that the tone's own mark would have had.
  */
 @Directive({

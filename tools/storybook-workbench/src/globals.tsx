@@ -17,7 +17,7 @@ export const LOCALES = ['en-US', 'pt-BR'] as const;
  * One entry per theme package whose stylesheet the preview loads. The value
  * written to `data-slotted-theme` is what selects that theme's block, so a
  * name no loaded stylesheet carries leaves the subtree with no custom property
- * defined at all: every family falls through to the system colours it keeps as
+ * defined at all: every family falls through to the system colors it keeps as
  * a last resort, and a `transition` naming an undefined duration is dropped
  * whole. That is what a grey, motionless workbench means.
  */

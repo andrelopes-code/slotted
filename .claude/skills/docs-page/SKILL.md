@@ -1,6 +1,6 @@
 ---
 name: docs-page
-description: Use when writing or rewriting the public documentation page of one component family in apps/docs (its MDX, its React and Angular examples, and the public text of its *.docs.ts), or when asked to "document <family>", "make the <family> page", "the <family> docs". Not for changing a family's behaviour; a defect found here goes to the package.
+description: Use when writing or rewriting the public documentation page of one component family in apps/docs (its MDX, its React and Angular examples, and the public text of its *.docs.ts), or when asked to "document <family>", "make the <family> page", "the <family> docs". Not for changing a family's behavior; a defect found here goes to the package.
 ---
 
 # Documentation page of a family
@@ -39,11 +39,11 @@ one framework only is an unfinished page.
    capability list the Storybook reference page already demonstrates), the stories, and
    the existing examples. List every capability a reader can use: each axis value,
    each state, controlled and uncontrolled, every part a consumer composes, loading,
-   empty and error where the family has them, keyboard and focus behaviour worth seeing,
-   narrow-width behaviour, composition with sibling families.
+   empty and error where the family has them, keyboard and focus behavior worth seeing,
+   narrow-width behavior, composition with sibling families.
 2. **Roster.** Turn the inventory into the page's sections, in the order a reader needs
    them: the lead (the family doing its everyday job), then the axes (variants, sizes),
-   states, content and parts, behaviour (controlled, events), composition, recipes.
+   states, content and parts, behavior (controlled, events), composition, recipes.
    Size by complexity: simple families 5–8 examples, medium 10–15, complex 20–40 with
    recipes. Write the roster at the top of the MDX as an HTML comment while working and
    delete it when done.
@@ -68,7 +68,7 @@ one framework only is an unfinished page.
    accessibility notes, import) are the site's API section: rewrite them in that voice —
    whole sentences ending with a period; no Portuguese; no repository paths or section
    numbers ("docs/…", "§2.8"); no "the library"/"the family" when the component's name
-   reads better; keep every fact. Do not change behaviour while editing a docs.ts.
+   reads better; keep every fact. Do not change behavior while editing a docs.ts.
 5. **Package defects.** A capability that does not work, a binding that renders a
    different DOM, an API that cannot express a reasonable example: triage with the
    rules of `AGENTS.md` › Demo Feedback Loop (contract decides which binding is wrong),
@@ -89,7 +89,7 @@ one framework only is an unfinished page.
 
 ## Preview layout
 
-An `<Example>` centres a column of 24rem by default. Pass `wide` for examples that need
+An `<Example>` centers a column of 24rem by default. Pass `wide` for examples that need
 the column (tables, toolbars, shells, calendars, anything with a row of controls). A
 preview holds one composition; several variants side by side use the library's own
 `Inline`/`Stack`/`Grid`, not custom CSS.

@@ -140,7 +140,7 @@ Slotted fails is a delta row, whatever ReUI does. When the failing value
 belongs to a composed family (a `progress-indicator` inside a job row), the row
 names that family's files and is marked `other family`. A row ReUI fails and
 Slotted passes is recorded as `exceed` and not changed. ReUI ships no
-high-contrast scheme and no forced-colours treatment; those rows compare the
+high-contrast scheme and no forced-colors treatment; those rows compare the
 Slotted family with itself across schemes.
 
 ## Common mistakes
@@ -151,7 +151,7 @@ Slotted family with itself across schemes.
 | Reading `px-2` or `rounded-md` as the value                | Class names locate a rule; the specimen holds the value.                                                      |
 | Capturing only ReUI                                        | The dossier compares two specimens; the Slotted side is captured first and after.                             |
 | Hover captured as empty on ReUI                            | `specimen.mjs` launches Chrome with a fine pointer; an empty delta is a finding, not a capture error.         |
-| A literal colour or duration copied into a stylesheet      | Semantic token by role; motion token. `motion.test.mjs` rejects literal durations.                            |
+| A literal color or duration copied into a stylesheet       | Semantic token by role; motion token. `motion.test.mjs` rejects literal durations.                            |
 | Opening reui.io pages for general browsing                 | `specimen.mjs` on a named item; the cached `llms-full.txt` for search; `ctx_fetch_and_index` for a docs page. |
 | Treating ReUI as the ceiling                               | Section 7 is where Slotted exceeds it; every `exceed` row names the number.                                   |
 | Stopping because ReUI has no such family                   | Coverage `analogue` or `none`; the craft bar still produces the delta.                                        |

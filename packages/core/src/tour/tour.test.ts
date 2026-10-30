@@ -130,12 +130,12 @@ describe('resolveStep', () => {
     expect(await resolveStep(steps, { from: 'a', direction: -1 })).toBeNull();
   });
 
-  it('shows a step without a target centred, and is not missing anything', async () => {
+  it('shows a step without a target centerd, and is not missing anything', async () => {
     const result = await resolveStep([{ id: 'welcome' }], { from: null, direction: 1 });
     expect(result).toMatchObject({ target: null, missing: false });
   });
 
-  it('centres a step whose target cannot be found, under the center policy', async () => {
+  it('centers a step whose target cannot be found, under the center policy', async () => {
     const result = await resolveStep([{ id: 'a', target: '#gone' }], {
       from: null,
       direction: 1,

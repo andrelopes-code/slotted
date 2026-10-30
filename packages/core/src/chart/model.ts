@@ -16,7 +16,7 @@ import type {
 
 /**
  * The chart the consumer described, resolved once: every series aligned to
- * one list of categories, every colour decided, every stack summed, every
+ * one list of categories, every color decided, every stack summed, every
  * formatter built. The engine draws from it, the legend and the tooltip read
  * from it, and the table and the summary are written from it — four readers
  * of one answer, so none of them can disagree about where a point is or what
@@ -47,7 +47,7 @@ export interface ChartModelSeries {
   /**
    * The line's dash. A consumer asks for `solid` or `dashed`; a series past
    * the eighth slot is given `dashed`, `dotted` or `dash-dot` in turn, because
-   * it shares its colour with every other series past the eighth and a line
+   * it shares its color with every other series past the eighth and a line
    * has no fill to carry a texture.
    */
   readonly stroke: 'solid' | 'dashed' | 'dotted' | 'dash-dot';
@@ -120,7 +120,7 @@ const SLOTS: readonly ChartSlot[] = [1, 2, 3, 4, 5, 6, 7, 8];
  * Slots are assigned in order and never cycled
  * (`docs/token-foundation.md`, Data). A slot a series names is taken out of
  * the sequence before the others are assigned, so naming slot 1 on the third
- * series does not paint the first series the same colour. A tone takes no
+ * series does not paint the first series the same color. A tone takes no
  * slot, because it says what a series means rather than which one it is.
  */
 export function assignColors(

@@ -25,7 +25,7 @@ const COLUMNS: DataGridColumn<Entry>[] = [
 
 /**
  * Every row re-rendered on each selection change and each scroll step: the row
- * is memoised, but it and its cells read the whole grid context, whose value
+ * is memoized, but it and its cells read the whole grid context, whose value
  * changes with the selection and the window.
  */
 describe('DataGrid row renders', () => {

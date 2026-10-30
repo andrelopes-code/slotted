@@ -1,5 +1,5 @@
 /**
- * The scroll behaviour of a conversation, with no framework in it.
+ * The scroll behavior of a conversation, with no framework in it.
  *
  * A conversation is read from the bottom and grows at the bottom, while the
  * reader may be anywhere in it. The engine answers five questions and nothing

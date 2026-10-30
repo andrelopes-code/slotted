@@ -42,7 +42,7 @@ describe('Icon', () => {
     expect(box).toHaveAttribute('data-directional', '');
   });
 
-  it('treats an inherited tone as the absence of a colour', () => {
+  it('treats an inherited tone as the absence of a color', () => {
     render(
       <Icon data-testid="box" tone="inherit">
         {glyph}

@@ -148,7 +148,7 @@ export const FILE_JOBS: readonly ImportExportJob[] = [
 ];
 
 /**
- * A store that answers every request the centre makes, and a server that
+ * A store that answers every request the center makes, and a server that
  * moves the running job forward. Created in an injection context: the timer
  * is torn down with the component that owns it.
  */

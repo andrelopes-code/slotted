@@ -121,7 +121,7 @@ test('gives the search its toggle below the medium step, and the bar while open'
 /**
  * The field stands at the start of the middle: the free space is after it,
  * never shared round it, because the end clusters are never the same width
- * and a field centred between them is centred on nothing.
+ * and a field centerd between them is centerd on nothing.
  */
 test('stands the search at the start of the middle and grows it to its measure', () => {
   const at = css.indexOf('[data-ui-top-navigation] [data-part-search] {');
@@ -299,10 +299,10 @@ test('gives every icon-only control, the consumer action included, the same shap
  * inset on either side of the figures. It used to be a fraction of the bell —
  * 14 pixels holding 10-pixel semibold figures with two pixels of inset — and
  * the figures were crushed against the edge and sat high, because a flex
- * container centres the line box and not the ink. A block container can trim
+ * container centers the line box and not the ink. A block container can trim
  * the line to the cap and the baseline; a flex container cannot.
  */
-test('sizes the count from the small type step and centres its figures on the ink', () => {
+test('sizes the count from the small type step and centers its figures on the ink', () => {
   const rule = stripped.match(/\[data-ui-top-navigation\] \[data-part-count\]\s*\{([^}]*)\}/)?.[1];
   assert.ok(rule, 'no count rule');
   assert.match(rule, /--_count-font: var\(--slotted-control-font-size-sm/);

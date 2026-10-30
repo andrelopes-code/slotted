@@ -867,7 +867,7 @@ describe('DataGrid, columns', () => {
     expect(grid()).toHaveAttribute('aria-colcount', '5');
   });
 
-  it('takes a controlled column state and normalises it', () => {
+  it('takes a controlled column state and normalizes it', () => {
     const state: GridColumnState = {
       order: ['weight', 'id'],
       widths: {},

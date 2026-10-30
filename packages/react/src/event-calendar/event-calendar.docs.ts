@@ -511,8 +511,8 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'calendars',
-    title: 'Calendars and their colours',
-    note: 'Each calendar takes a slot of the data palette in order and never cycles. The filter is a menu of checkboxes; a predicate composes a search on top. Colour is identity only: the calendar is also in every event’s name.',
+    title: 'Calendars and their colors',
+    note: 'Each calendar takes a slot of the data palette in order and never cycles. The filter is a menu of checkboxes; a predicate composes a search on top. Color is identity only: the calendar is also in every event’s name.',
     snippet: defineSnippet({
       id: 'event-calendar-react-calendars',
       language: 'tsx',
@@ -697,7 +697,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'compact',
     title: 'On a phone',
-    note: 'Below 600 pixels the month and the week draw as a list of the same days and the view does not change. With compact="keep" the grid stays: events become marks of colour, the day is the target, and each keeps its name. At that width the “+N” panel and the detail are sheets from the bottom edge rather than popovers.',
+    note: 'Below 600 pixels the month and the week draw as a list of the same days and the view does not change. With compact="keep" the grid stays: events become marks of color, the day is the target, and each keeps its name. At that width the “+N” panel and the detail are sheets from the bottom edge rather than popovers.',
     snippet: defineSnippet({
       id: 'event-calendar-react-compact',
       language: 'tsx',
@@ -829,7 +829,7 @@ export const REACT_EVENT_CALENDAR_DOCS = {
         'readonly EventCalendarCalendar[]',
         '[]',
         'EventCalendar',
-        'Key, label and an optional colour slot 1–8',
+        'Key, label and an optional color slot 1–8',
       ],
       [
         'date',
@@ -1115,7 +1115,7 @@ export const REACT_EVENT_CALENDAR_DOCS = {
     ]),
     accessibility: [
       'No Authoring Practices pattern covers a calendar of events. The month and the week are the layout grid of the Grid pattern with the day as its cell: one cell holds the tab stop, arrows move the day, Enter goes into the day’s widgets and Escape or F2 comes back out, which is the pattern’s own answer for a cell holding several widgets.',
-      'Every event is named by its own content — its time, its title — and a visually hidden continuation of the whole range, its calendar, its status and whether it repeats. Position and colour state nothing the words do not; a multi-day bar is heard as continuing on each day it crosses.',
+      'Every event is named by its own content — its time, its title — and a visually hidden continuation of the whole range, its calendar, its status and whether it repeats. Position and color state nothing the words do not; a multi-day bar is heard as continuing on each day it crosses.',
       'The title is a polite live region, so paging by key announces the new period; a chosen stretch is announced once through the shared live announcer, and a wait once when its indicator appears.',
       'The list is not a grid: each day is a section named by its heading and every event is in the tab order, because a list read top to bottom has no second axis. Below 600 pixels the month and the week become that list, and the view the reader chose does not change.',
       'Every move a pointer makes has a key: with an editable event focused, Alt and the arrows move it a slot or a day, and Alt with Shift moves its end. The request is announced once with the title and the new range, and focus stays on the event where it lands. A destination canDrop refuses is passed over for the next allowed one; with none in reach the event stays and the refusal is announced.',

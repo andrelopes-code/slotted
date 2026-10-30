@@ -193,7 +193,7 @@ export const States: Story = {
       </Scene>
       <Scene
         label="Read-only"
-        note="It keeps every colour and every tab stop and refuses the change on the click a pointer and Space share, because a radio has no readonly and it must not be mistaken for a disabled control."
+        note="It keeps every color and every tab stop and refuses the change on the click a pointer and Space share, because a radio has no readonly and it must not be mistaken for a disabled control."
         layout="block"
       >
         <SegmentedControl aria-label="Plano, somente leitura" defaultValue="team" readOnly>
@@ -263,7 +263,7 @@ export const Variants: Story = {
       </Scene>
       <Scene
         label="The words alone"
-        note="The same radio group with no track: the chosen word in the text colour and underlined, the others muted."
+        note="The same radio group with no track: the chosen word in the text color and underlined, the others muted."
         layout="block"
       >
         <SegmentedControl aria-label="Period, underline" defaultValue="month" variant="underline">

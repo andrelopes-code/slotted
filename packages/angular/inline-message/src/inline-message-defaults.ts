@@ -1,6 +1,6 @@
 import { inject, Injectable, InjectionToken } from '@angular/core';
 
-/** Which of the five semantic colours the message speaks in. */
+/** Which of the five semantic colors the message speaks in. */
 export type InlineMessageTone = 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger';
 
 /**
@@ -39,7 +39,7 @@ export type InlineMessagePrefixes = Record<InlineMessageTone, string | null>;
  * The word a reader hears before the message, per tone.
  *
  * GOV.UK's Error message component publishes the idea and hard-codes the word;
- * this table generalises it to every tone that is a severity and puts it behind
+ * this table generalizes it to every tone that is a severity and puts it behind
  * the token below, which is the only translation surface this library has
  * today. `accent`, `secondary` and `info` carry none: information and help announce
  * themselves by their sentence, and a reader told “Information:” before every

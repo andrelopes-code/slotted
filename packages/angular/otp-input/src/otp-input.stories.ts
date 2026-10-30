@@ -634,7 +634,7 @@ export const Mask: Story = {
     template: grid(
       2,
       scene(
-        'Authorising a payment',
+        'Authorizing a payment',
         'The PIN is a secret on a shared screen: the control is type=password, so a screen reader counts characters instead of reading them, and every filled box shows a bullet.',
         `<div slCard fill="outline" size="md">
            <div slCardHeader>
@@ -677,7 +677,7 @@ export const States: Story = {
       2,
       scene(
         'Wrong code, two attempts left',
-        'Invalid keeps the danger edge on every box and retargets the focus ring; the error is in words below, so the state is never colour alone.',
+        'Invalid keeps the danger edge on every box and retargets the focus ring; the error is in words below, so the state is never color alone.',
         `<div slField invalid>
            <label slFieldLabel>Verification code</label>
            <div slOtpInput [groups]="[3, 3]"><input slOtpInputControl defaultValue="482910" /></div>
@@ -695,7 +695,7 @@ export const States: Story = {
         ) +
         scene(
           'While the code is being checked',
-          'Disabled is muted to a measured colour rather than faded, so a form that is waiting still says what it holds.',
+          'Disabled is muted to a measured color rather than faded, so a form that is waiting still says what it holds.',
           `<div slField disabled>
              <label slFieldLabel>Verification code</label>
              <div slOtpInput [groups]="[3, 3]"><input slOtpInputControl defaultValue="482915" /></div>

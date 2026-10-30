@@ -51,9 +51,9 @@ import {
  * The mark the consumer puts in the panel, in place of the family's own.
  *
  * It writes nothing and behaves in no way: it exists so the overlay can ask
- * whether a mark was projected at all, which decides whether the slot centres
+ * whether a mark was projected at all, which decides whether the slot centers
  * its contents or lets them fill it. A determinate bar has no intrinsic width
- * to be centred at.
+ * to be centerd at.
  */
 @Directive({ selector: '[slLoadingOverlayIndicator]', standalone: true })
 export class SlLoadingOverlayIndicator {}
@@ -213,7 +213,7 @@ export class SlLoadingOverlay {
 
   /**
    * Whether the mark in the panel is the family's own. A consumer's mark fills
-   * the slot and the family's is centred in it, and only a content query can
+   * the slot and the family's is centerd in it, and only a content query can
    * tell the two apart: `ng-content` fallback content leaves no trace in the
    * DOM that CSS could ask about without reaching into the nested family.
    */

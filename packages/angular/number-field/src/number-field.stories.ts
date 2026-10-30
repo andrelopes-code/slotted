@@ -490,7 +490,7 @@ export const States: Story = {
       ) +
         scene(
           'Read-only is not disabled',
-          'Read-only keeps full-strength ink and softens its edge, stays focusable and copyable and is still submitted; disabled is muted to a measured colour rather than faded. Both disable the steppers instead of removing them.',
+          'Read-only keeps full-strength ink and softens its edge, stays focusable and copyable and is still submitted; disabled is muted to a measured color rather than faded. Both disable the steppers instead of removing them.',
           `<div slNumberField><input slNumberFieldInput defaultValue="12" readOnly /></div>
            <div slNumberField><input slNumberFieldInput defaultValue="12" disabled /></div>
            <div slNumberField>

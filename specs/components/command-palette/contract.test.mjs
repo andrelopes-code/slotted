@@ -37,7 +37,7 @@ test('answers the combobox pattern with a listbox popup, and hands the layer to 
 /**
  * `docs/process/build-order.md` says what the family is in five words — "dialog com
  * combobox + listbox dentro" — and `docs/build-briefing.md` says overlay
- * behaviour is composed and never rewritten. The family therefore composes the
+ * behavior is composed and never rewritten. The family therefore composes the
  * dialog family and says so, rather than reaching for the core modules dialog
  * already composes.
  */

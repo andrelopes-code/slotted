@@ -32,7 +32,7 @@ export const REACT_ICON_DOCS = {
         'Icon',
         'Box size; sm, md and lg read the control icon scale, text follows the type',
       ],
-      ['tone', TONE, 'inherit', 'Icon', 'Colour; inherit takes the colour of the text beside it'],
+      ['tone', TONE, 'inherit', 'Icon', 'Color; inherit takes the color of the text beside it'],
       [
         'directional',
         'boolean',
@@ -62,7 +62,7 @@ export const REACT_ICON_DOCS = {
       'WAI-ARIA requires a label on role="img" (§5.2.8 lists img among the roles for which a name is required), which is why the role appears only once a name exists.',
       'A name written as aria-label or aria-labelledby counts as much as the label prop, so the icon a consumer labelled directly is not hidden from the tree.',
       'The name says what the icon means, not what it draws: “Payment failed”, not “red circle”. An icon that repeats adjacent text is decorative and stays out of the tree.',
-      'Colour is inherited, so an icon works in forced colours without a rule of its own. Colour alone never carries the state: the icon accompanies text, or it carries a name.',
+      'Color is inherited, so an icon works in forced colors without a rule of its own. Color alone never carries the state: the icon accompanies text, or it carries a name.',
       'size="text" is 1em, so it follows the type it sits in under page zoom and under a text-only resize alike. The sm, md and lg steps read the theme’s control geometry, which page zoom scales and a text-only resize does not; an application that needs the icon to follow text alone uses text, or retunes the density scale in rem.',
       'The optical shift is computed from the cap height of the surrounding font and the size of the box, so an icon stays on the text’s optical line at every combination of the two rather than at the one ratio a constant would fit.',
     ],

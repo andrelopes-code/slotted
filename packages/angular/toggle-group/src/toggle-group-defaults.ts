@@ -8,7 +8,7 @@ export type ToggleGroupSize = 'sm' | 'md' | 'lg';
  * something already framed — a toolbar, a card header. `chips` are separate
  * rounded items that wrap, the pressed one in the neutral tone's ink, and
  * never join. There is no tone axis:
- * "on" is one colour across the system, and a bar that wants the whole palette
+ * "on" is one color across the system, and a bar that wants the whole palette
  * is `button-group` around toggle buttons.
  */
 export type ToggleGroupVariant = 'outline' | 'ghost' | 'chips';

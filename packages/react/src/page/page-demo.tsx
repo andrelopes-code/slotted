@@ -112,7 +112,7 @@ export const ORDER = {
   supplier: 'Aurora Logistics LLC',
   document: 'EIN 12-3456789',
   buyer: 'Maria Duncan',
-  costCentre: 'Frota Sudeste · CC 4120',
+  costCenter: 'Frota Sudeste · CC 4120',
   delivery: 'September 24, 2026',
   terms: '45 days from invoice',
   status: 'Under review',
@@ -446,7 +446,7 @@ export function OrderSections({
             </DescriptionListItem>
             <DescriptionListItem>
               <DescriptionListTerm>Centro de custo</DescriptionListTerm>
-              <DescriptionListDescription>{ORDER.costCentre}</DescriptionListDescription>
+              <DescriptionListDescription>{ORDER.costCenter}</DescriptionListDescription>
             </DescriptionListItem>
             <DescriptionListItem>
               <DescriptionListTerm>Freight</DescriptionListTerm>

@@ -25,7 +25,7 @@ import type { ProgressShape } from './progress-indicator.constants';
  * has two shapes that report a number.
  *
  * `contained` draws M3's fully rounded container behind the shape, at M3's own
- * 38:48 ratio. It is the form to reach for on a photograph or a coloured
+ * 38:48 ratio. It is the form to reach for on a photograph or a colored
  * surface, where a bare shape has no ground to be seen against.
  *
  * Content after the label is projected, so a loader can stand in a sentence

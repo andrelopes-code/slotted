@@ -63,11 +63,11 @@ const LIVE_ROLE: Record<InlineMessageLive, string | null> = {
  * belongs on is a `p`: the message is a sentence of prose about something else,
  * and a paragraph is the box a screen reader reads as one unit.
  *
- * **The severity is a word as well as a colour.** A reader who cannot see the
+ * **The severity is a word as well as a color.** A reader who cannot see the
  * message hears the sentence and nothing else — neither the red ink nor the
  * crossed circle reaches the accessibility tree — so the family writes the
  * severity in clipped text before the message, which is GOV.UK's answer
- * generalised to every tone and to a table an application replaces once.
+ * generalized to every tone and to a table an application replaces once.
  *
  * **The role goes on this element, not on an inner one.** `slAlert` puts its
  * live role on the text part because it has a dismiss button beside the text,

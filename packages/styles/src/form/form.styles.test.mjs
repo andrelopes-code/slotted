@@ -161,10 +161,10 @@ test('takes no duration of its own', () => {
 });
 
 /**
- * The theme flattens a tone surface to `Canvas` under forced colours, which
+ * The theme flattens a tone surface to `Canvas` under forced colors, which
  * would leave the panel with nothing but its border.
  */
-test('keeps the summary’s reading edge under forced colours', () => {
+test('keeps the summary’s reading edge under forced colors', () => {
   const forced = normalized.split('@media (forced-colors:active){')[1] ?? '';
   assert.match(forced, /border-inline-start-color:Highlight/);
 });

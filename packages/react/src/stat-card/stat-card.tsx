@@ -18,7 +18,7 @@ import type { StatCardContextValue, StatCardProps, StatCardRootProps } from './s
  * trend hands to its sparkline. It is derived here, synchronously, from
  * `delta` and `goodWhen`, so the first paint on the server already carries
  * it; a delta that reported its tone upward after mounting would paint one
- * frame in the wrong colour and mismatch on hydration.
+ * frame in the wrong color and mismatch on hydration.
  *
  * The root is a group named by its label, so a reader who lands on the
  * action inside it hears which metric it belongs to. It carries `aria-busy`

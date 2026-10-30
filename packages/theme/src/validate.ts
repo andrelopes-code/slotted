@@ -226,10 +226,10 @@ export function validateContract(contract: TokenContract): string[] {
       if (token.forcedColor === undefined) {
         errors.push(`${token.name} varies by scheme and declares no forced-colors mapping`);
       } else if (!SYSTEM_COLORS.has(token.forcedColor)) {
-        errors.push(`${token.name} maps to ${token.forcedColor}, which is not a system colour`);
+        errors.push(`${token.name} maps to ${token.forcedColor}, which is not a system color`);
       }
     } else if (token.forcedColor !== undefined) {
-      errors.push(`${token.name} does not vary by scheme, so forced colours cannot replace it`);
+      errors.push(`${token.name} does not vary by scheme, so forced colors cannot replace it`);
     }
   }
 

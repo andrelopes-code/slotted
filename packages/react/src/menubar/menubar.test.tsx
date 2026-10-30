@@ -84,7 +84,7 @@ describe('Menubar', () => {
   });
 
   /**
-   * The behaviour that separates a menubar from a row of buttons: once one menu
+   * The behavior that separates a menubar from a row of buttons: once one menu
    * is open, moving the pointer along the bar switches menus without a press.
    */
   it('switches menus on pointer entry once one is open', async () => {

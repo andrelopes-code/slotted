@@ -88,7 +88,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div',
     required: false,
     purpose:
-      'A rotated square in the panel’s background and border colours, which continues the panel’s outline towards the anchor. Place it beside PopoverContent inside PopoverLayer, not inside the content: the stylesheet selects it as a direct child of the layer.',
+      'A rotated square in the panel’s background and border colors, which continues the panel’s outline towards the anchor. Place it beside PopoverContent inside PopoverLayer, not inside the content: the stylesheet selects it as a direct child of the layer.',
   },
   {
     part: 'focus-guard',
@@ -204,7 +204,7 @@ const api = apiRows([
     'boolean',
     'true',
     'Popover',
-    'Whether the layer is rendered into the shared portal root at the end of the document. The portalled layer keeps the theme, colour scheme, density and direction of the region it was opened from.',
+    'Whether the layer is rendered into the shared portal root at the end of the document. The portalled layer keeps the theme, color scheme, density and direction of the region it was opened from.',
   ],
   [
     'disabled',

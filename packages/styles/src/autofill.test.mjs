@@ -18,7 +18,7 @@ const body = (css, selector) => {
  * inset shadow on the input alone, the tint covered the frame's border where
  * the input overlaps it and left the frame's padding, its slots and its
  * buttons bare. The frame takes the tint; the input repaints the browser's
- * ground in the same colour and stops at the border.
+ * ground in the same color and stops at the border.
  */
 const FRAMES = {
   'text-field': ['[data-ui-text-field][data-part-root]:has(> [data-part-input]:autofill)', true],

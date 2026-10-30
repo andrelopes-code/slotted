@@ -42,7 +42,7 @@ describe('designTokens', () => {
     expect(silent).toEqual([]);
   });
 
-  it('gives each colour a value the type reads in every scheme, and drops what is no colour', () => {
+  it('gives each color a value the type reads in every scheme, and drops what is no color', () => {
     const notHex = tokens.color.tokens.filter(
       (token) => !Object.values(token.value).every((value) => COLOR.test(value)),
     );
@@ -55,19 +55,19 @@ describe('designTokens', () => {
     expect(tokens.color.tokens.find((token) => token.name === 'slotted-scrim')?.value.dark).toBe(
       'rgb(0 0 0 / 0.62)',
     );
-    /* A scheme token that is no colour: the material's filter varies by scheme too. */
+    /* A scheme token that is no color: the material's filter varies by scheme too. */
     expect(dropped).toEqual([
       '--slotted-material-backdrop',
       '--slotted-control-shadow',
       '--slotted-current-edge',
     ]);
-    /* A state layer is the text colour at a share over transparency. */
+    /* A state layer is the text color at a share over transparency. */
     expect(
       tokens.color.tokens.find((token) => token.name === 'slotted-state-hover')?.value.light,
     ).toMatch(/^rgb\(\d+ \d+ \d+ \/ 0\.05\)$/);
   });
 
-  it('carries every colour token the application reads, by scheme', () => {
+  it('carries every color token the application reads, by scheme', () => {
     const read = source.tokens.filter(
       (token) =>
         token.axis === 'scheme' &&

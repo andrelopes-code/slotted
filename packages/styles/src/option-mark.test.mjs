@@ -6,7 +6,7 @@ const source = new URL('.', import.meta.url).pathname;
 
 /**
  * R5 for the mark inside an option (SL7, CB9): the check that says an option
- * is selected sits on the first line of the label, never centred on a label
+ * is selected sits on the first line of the label, never centerd on a label
  * that wrapped or on a label with a description under it.
  *
  * The geometry is the option's own line box. The option states the
@@ -15,8 +15,8 @@ const source = new URL('.', import.meta.url).pathname;
  * of the option's grid, where the label's first line is. A second line of the
  * label, and the description in row two, grow the row under the mark, which
  * stays where the first line is: the harness measures it 0.25px from the
- * centre of that line, which is the asymmetry of the font's ascent and
- * descent, and the audit's larger number (G7) is the centre of the whole
+ * center of that line, which is the asymmetry of the font's ascent and
+ * descent, and the audit's larger number (G7) is the center of the whole
  * label box.
  */
 const OPTIONS = [

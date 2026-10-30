@@ -323,7 +323,7 @@ export const Exclude: Story = {
     type and left to whatever put it there.
   </p>
   <div slProseExclude [style]="card">
-    <p>A card keeps its own type, its own rhythm and its own colour.</p>
+    <p>A card keeps its own type, its own rhythm and its own color.</p>
     <ul>
       <li>No marker gap.</li>
       <li>No editorial leading.</li>
@@ -421,7 +421,7 @@ export const Composition: Story = {
     </p>
     <p>
       A bare <code>a</code> from the renderer reads the same theme tokens, so the two are one
-      decision rather than two colours.
+      decision rather than two colors.
     </p>
   </article>
 </div>`),

@@ -390,7 +390,7 @@ export const States: Story = {
     <Grid columns={1}>
       <Scene
         label="Invalid, read-only and disabled"
-        note="Invalid takes the danger edge and the field says why; read-only keeps the value legible and withdraws the send; disabled mutes everything to the measured colour."
+        note="Invalid takes the danger edge and the field says why; read-only keeps the value legible and withdraws the send; disabled mutes everything to the measured color."
         layout="stack"
       >
         <Field invalid>

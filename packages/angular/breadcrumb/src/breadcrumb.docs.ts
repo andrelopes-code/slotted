@@ -129,7 +129,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'current',
     title: 'The page you are on',
-    note: 'The last crumb carries aria-current="page", which is the value the ARIA specification names for a link inside a set of pages. It gains weight rather than colour alone.',
+    note: 'The last crumb carries aria-current="page", which is the value the ARIA specification names for a link inside a set of pages. It gains weight rather than color alone.',
     snippet: defineSnippet({
       id: 'breadcrumb-angular-current',
       language: 'angular',
@@ -176,7 +176,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'switcher',
     title: 'Crumbs that switch between siblings',
-    note: 'Organisation, ledger and period each open a menu of their siblings. The open one keeps its underline and turns its chevron, and the period the reader is on still says it is this page.',
+    note: 'Organization, ledger and period each open a menu of their siblings. The open one keeps its underline and turns its chevron, and the period the reader is on still says it is this page.',
     snippet: defineSnippet({
       id: 'breadcrumb-angular-switcher',
       language: 'angular',

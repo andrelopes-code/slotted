@@ -114,11 +114,11 @@ test('paints each variant the contract declares', () => {
 });
 
 /**
- * A transparent border has no system colour to be remapped to, so the `plain`
+ * A transparent border has no system color to be remapped to, so the `plain`
  * control would lose its only edge exactly where an edge matters most. It is
  * the one rule the theme cannot write on the family's behalf.
  */
-test('gives the borderless variant an edge under forced colours', () => {
+test('gives the borderless variant an edge under forced colors', () => {
   assert.match(css, /@media \(forced-colors: active\)/);
   assert.match(
     normalized,
@@ -204,8 +204,8 @@ test('recovers the split stepper hit area outside its paint', () => {
   );
 });
 
-/** A quantity between two buttons reads centred; a left-aligned one reads adrift. */
-test('centres the value between two split steppers', () => {
+/** A quantity between two buttons reads centerd; a left-aligned one reads adrift. */
+test('centers the value between two split steppers', () => {
   assert.match(rule(`${ui}[data-stepper='split']>[data-part-input]`), /text-align:center/);
 });
 
@@ -228,7 +228,7 @@ test('sizes the stepper glyph element and paints none itself', () => {
 });
 
 /**
- * Pointing one name at the invalid colour on the element moves the frame's
+ * Pointing one name at the invalid color on the element moves the frame's
  * outline, the shadow under it and both steppers' rings at once, which is what
  * makes `[data-invalid]` one rule instead of five.
  */

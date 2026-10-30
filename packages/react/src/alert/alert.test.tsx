@@ -315,7 +315,7 @@ describe('Alert', () => {
      * `relatedTarget` is stated rather than produced: jsdom's focus manager
      * reports none, and the family reads it because a real browser does supply
      * it on `focusin`. What is under test is the rule — where the keyboard goes
-     * when the message closes with focus inside it — and the live behaviour is
+     * when the message closes with focus inside it — and the live behavior is
      * exercised in the browser at the gate.
      */
     it('returns the keyboard to where it came from when the message closes', () => {
@@ -468,7 +468,7 @@ describe('Alert', () => {
 
 /**
  * A button in the actions part took the button defaults, accent and md: over
- * a warning ground an accent outline button drew no fill, in a colour the
+ * a warning ground an accent outline button drew no fill, in a color the
  * theme never measured against that ground.
  */
 describe('AlertActions paint', () => {

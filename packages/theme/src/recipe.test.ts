@@ -104,7 +104,7 @@ describe('derivationCss', () => {
     expect(derivationCss({ alias: '--slotted-surface' })).toBe('var(--slotted-surface)');
   });
 
-  it('wraps a bounded colour in an oklab whose alpha carries the chroma, once per bound', () => {
+  it('wraps a bounded color in an oklab whose alpha carries the chroma, once per bound', () => {
     const k = Array(27).fill(0);
     const css = derivationCss({
       seed: 'accent',

@@ -58,7 +58,7 @@ export interface TourStepActions {
 export interface TourStep {
   /** Unique in the tour; the value of `step`. */
   id: string;
-  /** An element, a selector, a ref-like `{ current }` or a function. Absent for a centred step. */
+  /** An element, a selector, a ref-like `{ current }` or a function. Absent for a centerd step. */
   target?: TourTarget;
   title: string;
   description?: string | undefined;

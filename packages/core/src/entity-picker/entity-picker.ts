@@ -21,7 +21,7 @@ export interface EntityAvatar {
 }
 
 /**
- * A record, normalised. `description` is the identifier that tells two
+ * A record, normalized. `description` is the identifier that tells two
  * records of one name apart — an address, an account number — and `meta` a
  * short fact read with the name: a type, a status.
  */

@@ -37,11 +37,11 @@ test('answers every value of every axis the contract names', () => {
 });
 
 /**
- * Every status is a fill and an edge rather than a colour alone. Section 7 of
+ * Every status is a fill and an edge rather than a color alone. Section 7 of
  * `docs/component-features.md` requires it in those words: progress must not
- * depend on colour.
+ * depend on color.
  */
-test('separates the four statuses by shape as well as by colour', () => {
+test('separates the four statuses by shape as well as by color', () => {
   for (const status of ['data-current', 'data-complete', 'data-invalid', 'data-disabled']) {
     assert.ok(declarations.includes(`[${status}]`), `${status} paints nothing of its own`);
   }
@@ -54,7 +54,7 @@ test('separates the four statuses by shape as well as by colour', () => {
   );
   assert.ok(
     normalized.includes('background-color:var(--slotted-stepper-marker-surface-complete'),
-    'a finished step fills as well as changing colour',
+    'a finished step fills as well as changing color',
   );
 });
 
@@ -70,7 +70,7 @@ test('draws a bare mark inside the marker rather than a status glyph', () => {
 
 /**
  * The number and the mark are never painted together. Both status rules used
- * to set a colour for the number, both outranked the rule that hides it, and a
+ * to set a color for the number, both outranked the rule that hides it, and a
  * finished step drew its number and its check on top of each other.
  */
 test('hides the number wherever a mark replaces it', () => {
@@ -152,7 +152,7 @@ test('fills the connector from where the reader has been', () => {
 /**
  * Nothing knows how wide a label is, so nothing can position around it. With
  * the label beside the marker the connector is a flex child that takes the
- * rest; with the label under it, the columns are equal and the next centre is
+ * rest; with the label under it, the columns are equal and the next center is
  * exactly one column away.
  */
 test('measures the connector from the marker in both placements', () => {
@@ -209,14 +209,14 @@ test('gives the pending ring more weight than the pending track', () => {
   );
 });
 
-test('restates the statuses forced colours would flatten, and names no system colour in a mark', () => {
+test('restates the statuses forced colors would flatten, and names no system color in a mark', () => {
   assert.ok(normalized.includes('@media(forced-colors:active)'));
   for (const [, block] of declarations.matchAll(/::(?:before|after)[^{]*\{([\s\S]*?)\}/g)) {
     assert.ok(
       !/\b(ButtonText|CanvasText|GrayText|Highlight|HighlightText|Canvas|Mark|MarkText)\b/.test(
         block,
       ),
-      'a pseudo-element must not name a system colour',
+      'a pseudo-element must not name a system color',
     );
   }
 });

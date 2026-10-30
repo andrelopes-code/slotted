@@ -269,7 +269,7 @@ export class SlSegmentedControl implements ControlValueAccessor, OnInit, Validat
   /**
    * Writes every segment's element from the value.
    *
-   * The HTML standard's canceled activation behaviour for a radio restores the
+   * The HTML standard's canceled activation behavior for a radio restores the
    * *clicked* element and nothing else, so the option that was chosen before
    * the refused click stays unchecked. Angular writes a property binding only
    * when its value changes, and the neighbour's did not — the correction is

@@ -8,13 +8,13 @@ import type { TextFieldProps } from '../text-field';
 export type { ColorFormat, ContrastLevel };
 export type ColorPickerSize = 'sm' | 'md' | 'lg';
 
-/** Why the colour moved: a drag, a key, a preset or the colour it opened with, the eyedropper. */
+/** Why the color moved: a drag, a key, a preset or the color it opened with, the eyedropper. */
 export type ColorPickerValueReason = Extract<
   ChangeRequest<string>['reason'],
   'pointer' | 'keyboard' | 'select' | 'programmatic'
 >;
 
-/** What an application sets once for every colour picker under it. */
+/** What an application sets once for every color picker under it. */
 export interface ColorPickerDefaults {
   format: ColorFormat;
   presets: readonly string[] | undefined;
@@ -26,7 +26,7 @@ export interface ColorPickerDefaultsProviderProps extends Partial<ColorPickerDef
 }
 
 interface ColorStateProps {
-  /** Present means controlled: a colour string in any supported notation. */
+  /** Present means controlled: a color string in any supported notation. */
   value?: string | undefined;
   defaultValue?: string | undefined;
   onValueChange?: ((value: string, request: ChangeRequest<string>) => void) | undefined;
@@ -34,9 +34,9 @@ interface ColorStateProps {
   format?: ColorFormat | undefined;
   defaultFormat?: ColorFormat | undefined;
   onFormatChange?: ((format: ColorFormat, request: ChangeRequest<ColorFormat>) => void) | undefined;
-  /** Whether the colour carries an alpha channel. Defaults to `true`. */
+  /** Whether the color carries an alpha channel. Defaults to `true`. */
   alpha?: boolean | undefined;
-  /** Colours offered as one press. Defaults to the provider's. */
+  /** Colors offered as one press. Defaults to the provider's. */
   presets?: readonly string[] | undefined;
   /** The background the contrast is measured against; absent, no contrast is drawn. */
   contrastWith?: string | undefined;

@@ -8,7 +8,7 @@ import { captureUrl, launch } from '../shoot.mjs';
  * A stuck page header with a translucent ground: the ground is composited
  * once, and the backdrop filter the theme names is applied while stuck.
  *
- * The request came from an application that set the ground to a colour with
+ * The request came from an application that set the ground to a color with
  * alpha and saw it denser than it set: the root and the title area both
  * painted it, so 0.5 composited to 0.75, and no backdrop filter existed.
  *

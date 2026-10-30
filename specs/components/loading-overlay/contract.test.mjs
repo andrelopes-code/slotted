@@ -109,7 +109,7 @@ test('emits a cancel request carrying a reason, and moves nothing itself', () =>
  */
 test('binds Escape to the cancel request and to nothing else', () => {
   const escape = contract.keyboard.find((entry) => entry.key === 'Escape');
-  assert.ok(escape, 'the family declares no Escape behaviour');
+  assert.ok(escape, 'the family declares no Escape behavior');
   assert.equal(escape.precondition, 'a cancel part exists and focus is inside the layer');
   assert.equal(escape.reason, 'escape');
   assert.equal(contract.escapeBound, 'cancellable');
@@ -156,10 +156,10 @@ test('blocks a page through the layer that already owns inertness and the scroll
 
 /**
  * Three ways to obscure what is underneath, and one of them obscures nothing.
- * A colour is not among them: §2.4 of the guide refuses arbitrary colour in
+ * A color is not among them: §2.4 of the guide refuses arbitrary color in
  * the agnostic contract, and a theme retunes the token instead.
  */
-test('offers three veils and no free colour', () => {
+test('offers three veils and no free color', () => {
   assert.deepEqual(contract.axes.veil, ['wash', 'blur', 'none']);
   assert.equal(overlay.defaults.veil, 'wash');
   assert.ok(!('color' in overlay.defaults));

@@ -23,13 +23,13 @@ const SIZE = "'sm' | 'md' | 'lg'";
 const SHAPE = "'pill' | 'square'";
 
 const appearance = (member: string): ApiTuple[] => [
-  ['tone', TONE, 'secondary', member, 'Which of the five semantic colours the tag speaks in'],
+  ['tone', TONE, 'secondary', member, 'Which of the five semantic colors the tag speaks in'],
   [
     'variant',
     VARIANT,
     'soft',
     member,
-    'How that colour is painted: filled, tinted, an edge alone, or that edge in dashes. A selected tag fills whatever its variant',
+    'How that color is painted: filled, tinted, an edge alone, or that edge in dashes. A selected tag fills whatever its variant',
   ],
   [
     'size',
@@ -101,7 +101,7 @@ const ACCESSIBILITY_SHARED = [
   'The remove control is as tall as the chip and as wide as its glyph plus a step of air on each side, floored at the WCAG 2.2 2.5.8 minimum of 24 CSS pixels, which carries it past that minimum in both axes at every size and every density. The chip’s own height is floored at that minimum for the same reason.',
   'A tag is one line. A value too long for its container is clipped with an ellipsis rather than reflowed, and the clipping is visual only: the whole value stays in the DOM, in the accessibility tree, and findable by page search.',
   'The label is a bidi isolate whose direction comes from its own first strong character, so an Arabic value inside an English page reads right to left and is clipped at its own end.',
-  'Under forced colours every tone ground becomes one system colour, so the family draws its edge in currentColor there, and a selected chip takes the system’s own Highlight pair.',
+  'Under forced colors every tone ground becomes one system color, so the family draws its edge in currentColor there, and a selected chip takes the system’s own Highlight pair.',
 ];
 
 export const ANGULAR_TAG_DOCS = {
@@ -279,7 +279,7 @@ export const ANGULAR_TAG_DOCS = {
       ...ACCESSIBILITY_SHARED,
       'A selected tag announces aria-pressed, not aria-selected. aria-selected is only valid inside a listbox, a grid or a tree, and an option may not contain the remove control this family puts beside the label.',
       'The label never changes with the state, which is the APG’s rule for a toggle.',
-      'Selection is not colour alone. The chip fills, and a check grows into the label beside the words — WCAG 2.2 1.4.1.',
+      'Selection is not color alone. The chip fills, and a check grows into the label beside the words — WCAG 2.2 1.4.1.',
     ],
     snippets: [
       defineSnippet({

@@ -49,7 +49,7 @@ describe('Text', () => {
     expect(text).toHaveAttribute('data-numeric', 'tabular');
   });
 
-  it('treats an inherited tone as the absence of a colour', () => {
+  it('treats an inherited tone as the absence of a color', () => {
     render(
       <>
         <Text tone="inherit">ambient</Text>

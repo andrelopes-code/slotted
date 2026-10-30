@@ -102,7 +102,7 @@ describe('judgeValue', () => {
 });
 
 describe('admitValues', () => {
-  it('normalises, keeps order, and drops what normalises to nothing', () => {
+  it('normalizes, keeps order, and drops what normalizes to nothing', () => {
     const result = admit({ candidates: ['  b ', '', 'a'] });
     expect(result.next).toEqual(['b', 'a']);
     expect(result.added).toEqual(['b', 'a']);

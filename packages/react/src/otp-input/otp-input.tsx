@@ -42,7 +42,7 @@ function partition(length: number, groups: readonly number[] | undefined): numbe
  * `defaultValue` reaches it as the native attribute, `form.reset()` restores
  * it, and the copy follows.
  *
- * **The selection is normalised, not the keys.** Every key is the browser's.
+ * **The selection is normalized, not the keys.** Every key is the browser's.
  * After each change the family makes sure a cursor inside the value has one
  * character selected, so typing replaces it instead of being refused by
  * `maxlength` — the rule `@slotted/core/otp` holds and input-otp wrote.

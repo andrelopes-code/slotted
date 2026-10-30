@@ -148,10 +148,10 @@ test('offers all three resize axes and defaults to the one that is safe', () => 
 /**
  * The shadow and the ring are one decision, and the multi-line control answers
  * it the same way the single-line one does: the foundation's resting shadow, the
- * same shadow in the focus ring's colour while focused, and none at all on a
+ * same shadow in the focus ring's color while focused, and none at all on a
  * control nobody can reach.
  */
-test('lifts the control at rest, in the state colour on focus, and never while disabled', () => {
+test('lifts the control at rest, in the state color on focus, and never while disabled', () => {
   assert.match(
     rule(root),
     /box-shadow:var\(--slotted-textarea-shadow,var\(--slotted-control-shadow,none\)\)/,
@@ -164,7 +164,7 @@ test('lifts the control at rest, in the state colour on focus, and never while d
 });
 
 /** One declaration moves the outline and the shadow together. */
-test('points the focus ring at the invalid colour rather than repainting it', () => {
+test('points the focus ring at the invalid color rather than repainting it', () => {
   assert.match(
     rule(`${root}[data-invalid]`),
     /--slotted-focus-ring-color:var\(--slotted-textarea-invalid-focus-ring-color,var\(--slotted-focus-ring-color-invalid/,
@@ -207,12 +207,12 @@ test('answers a control the browser disabled and takes its handle away', () => {
   assert.match(disabled, /resize:none/);
 });
 
-test('gives the borderless variant an edge under forced colours', () => {
+test('gives the borderless variant an edge under forced colors', () => {
   assert.ok(
     normalized.includes(
       `@media (forced-colors:active){${root}[data-variant='plain']{border-color:ButtonBorder;}`,
     ),
-    'the plain variant keeps no edge under forced colours',
+    'the plain variant keeps no edge under forced colors',
   );
 });
 

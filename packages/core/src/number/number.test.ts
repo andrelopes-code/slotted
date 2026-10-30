@@ -81,7 +81,7 @@ describe('createNumberFormat', () => {
    * What the keystroke filter asks. A value on its way to being a number keeps
    * the keystroke; anything else is refused before it reaches the element.
    */
-  it('recognises the text a reader is part way through typing', () => {
+  it('recognizes the text a reader is part way through typing', () => {
     const format = createNumberFormat({ locale: 'pt-BR' });
 
     expect(format.isPartial('')).toBe(true);

@@ -155,7 +155,7 @@ export const Types: Story = {
       </Scene>
       <Scene
         label="line, area"
-        note="The same line with its wash, the colour fading to nothing at the bottom edge."
+        note="The same line with its wash, the color fading to nothing at the bottom edge."
       >
         <Sparkline area data={ORDERS} label="Orders" />
       </Scene>

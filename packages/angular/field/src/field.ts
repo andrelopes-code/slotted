@@ -161,7 +161,7 @@ export class SlField {
   /**
    * Unstated rather than `false`. Reaches the control as `aria-required` and
    * never as the native `required`, which would engage browser constraint
-   * validation and change submit behaviour.
+   * validation and change submit behavior.
    */
   readonly required = input<boolean | undefined, boolean | string | undefined>(undefined, {
     transform: (value) => (value === undefined ? undefined : booleanAttribute(value)),

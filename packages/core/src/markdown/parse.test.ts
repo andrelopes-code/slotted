@@ -162,7 +162,7 @@ describe('parseMarkdown', () => {
       expect(parseMarkdown('| a | b |\n| --- |').children?.[0]?.type).toBe('paragraph');
     });
 
-    it('ends the paragraph above it, and reads centre, escaped pipes and short and long rows', () => {
+    it('ends the paragraph above it, and reads center, escaped pipes and short and long rows', () => {
       const tree = parseMarkdown(
         'Totals:\n| a | b \\| c |\n|:-:|-|\n| 1 |\n| 2 | 3 | 4 |\n\nAfter',
       );

@@ -53,7 +53,7 @@ export interface HighlightProps
   query?: string | readonly string[] | undefined;
   /**
    * Spans already found — by a server, by a fuzzy engine — in the text's own
-   * code units. Wins over `query` and `matcher`; normalised like either.
+   * code units. Wins over `query` and `matcher`; normalized like either.
    */
   ranges?: readonly HighlightRange[] | undefined;
   /** Replaces the default matcher. Loses to `ranges`. */

@@ -240,7 +240,7 @@ export const States: Story = {
       </Scene>
       <Scene
         label="Invalid"
-        note="Tab into the field and then into the trigger: the ring is retargeted to the danger colour on both, from one custom property the frame points at the error."
+        note="Tab into the field and then into the trigger: the ring is retargeted to the danger color on both, from one custom property the frame points at the error."
       >
         <DatePicker aria-label="Invalid" defaultValue={NINTH} invalid locale="pt-BR" />
       </Scene>

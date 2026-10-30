@@ -126,7 +126,7 @@ interface ShellProps {
   operandName?: string;
 }
 
-/** Two descriptors are the same filter when they serialise the same. */
+/** Two descriptors are the same filter when they serialize the same. */
 function sameFilter(a: FilterDescriptor | null, b: FilterDescriptor | null) {
   return serializeFilter(a) === serializeFilter(b);
 }

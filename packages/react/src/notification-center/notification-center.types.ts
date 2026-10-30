@@ -88,7 +88,7 @@ export interface NotificationView {
   count?: number | undefined;
 }
 
-/** What an application sets once for every centre under it. */
+/** What an application sets once for every center under it. */
 export interface NotificationCenterDefaults {
   arrivals: NotificationCenterArrivals;
   controls: NotificationCenterControls;
@@ -157,7 +157,7 @@ export interface NotificationCenterProps extends Omit<
    * number under `growing="none"` and `-1` while more may come.
    */
   count?: number | undefined;
-  /** The view an uncontrolled centre starts on, read once. */
+  /** The view an uncontrolled center starts on, read once. */
   defaultView?: string | undefined;
   /** In place of the feed when it holds nothing: a `ResultState`. Unstated, the family's words. */
   empty?: ReactNode | undefined;

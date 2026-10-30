@@ -33,7 +33,7 @@ const source = new URL('.', import.meta.url).pathname;
  * 6. under `@media (pointer: coarse)` the target reaches
  *    `--slotted-target-comfortable` in both axes, and nothing the reader sees
  *    grows taller than it is wide. Either the box grows in both axes at once,
- *    or a transparent pseudo-element centred on the box reaches the
+ *    or a transparent pseudo-element centerd on the box reaches the
  *    comfortable size and the box keeps the size it has on a fine pointer. No
  *    coarse-pointer rule grows the block axis alone or clips the ground to a
  *    content box. The rule it replaces padded the box in the block axis and
@@ -55,7 +55,7 @@ const source = new URL('.', import.meta.url).pathname;
  * 14px fallback (`--slotted-<family>-icon-size-min`) so a theme can retune
  * it and the sheet carries no literal.
  *
- * A `forced-colors` block is exempt: there the user agent owns every colour
+ * A `forced-colors` block is exempt: there the user agent owns every color
  * and `Highlight` on hover is what survives.
  */
 const PARTS = [

@@ -12,7 +12,7 @@ import { SlButtonGroup } from './button-group';
 
 /**
  * A rule between two runs of actions. It takes no room at all: the bar is one
- * shape, and a rule is not licence to cut it — what the rule marks is painted
+ * shape, and a rule is not license to cut it — what the rule marks is painted
  * in the column the shared edge already occupies, one step stronger than the
  * seams around it, so the boundary reads without the bar coming apart. A
  * filled run keeps its seam, which is the darkest step of its own tone and the

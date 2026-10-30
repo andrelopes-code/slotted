@@ -183,7 +183,7 @@ test('says who scrolls, and what the second answer costs the banner', () => {
   assert.match(contract.scroll.content, /below the banner/);
 });
 
-/** Overlay behaviour is composed from packages/core, never rewritten. */
+/** Overlay behavior is composed from packages/core, never rewritten. */
 test('composes the overlay rather than rewriting it', () => {
   for (const module of ['presence', 'dismissable-layer', 'focus', 'portal']) {
     assert.ok(contract.composes.includes(module), `${module} is not composed`);
@@ -300,10 +300,10 @@ test('stands the pane body on the row inset, with the opt-out drawer has', () =>
 
 /** A bar is three clusters: what starts the line, what grows, what ends it. */
 test('gives the banner a middle that grows', () => {
-  assert.ok(member.parts.includes('centre'));
-  assert.equal(member.parts.indexOf('centre'), member.parts.indexOf('brand') + 1);
-  assert.equal(member.parts.indexOf('actions'), member.parts.indexOf('centre') + 1);
-  assert.match(contract.anatomy.centre, /the one cluster that grows/);
+  assert.ok(member.parts.includes('center'));
+  assert.equal(member.parts.indexOf('center'), member.parts.indexOf('brand') + 1);
+  assert.equal(member.parts.indexOf('actions'), member.parts.indexOf('center') + 1);
+  assert.match(contract.anatomy.center, /the one cluster that grows/);
 });
 
 /**

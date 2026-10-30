@@ -36,7 +36,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div[slColorPicker]',
     required: true,
     purpose:
-      'The panel. Carries data-ui="color-picker", data-size, data-format, data-disabled, data-readonly, data-invalid and data-out-of-gamut, and every colour it paints as a runtime property: --slotted-color-picker-color, -opaque, -hue, -x, -y, -alpha, -previous, -contrast-with.',
+      'The panel. Carries data-ui="color-picker", data-size, data-format, data-disabled, data-readonly, data-invalid and data-out-of-gamut, and every color it paints as a runtime property: --slotted-color-picker-color, -opaque, -hue, -x, -y, -alpha, -previous, -contrast-with.',
   },
   {
     part: 'area',
@@ -64,7 +64,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div role="slider"',
     required: false,
     purpose:
-      'The APG slider: arrows ±1, Shift and PageUp/PageDown ±10, Home and End to the ends. It travels inside its track, so at either end it still sits on the colour it names.',
+      'The APG slider: arrows ±1, Shift and PageUp/PageDown ±10, Home and End to the ends. It travels inside its track, so at either end it still sits on the color it names.',
   },
   {
     part: 'row',
@@ -76,21 +76,21 @@ const anatomy: AnatomyRow[] = [
     part: 'swatch',
     element: 'span role="img"',
     required: false,
-    purpose: 'The colour now, over the transparency grid, named by its value.',
+    purpose: 'The color now, over the transparency grid, named by its value.',
   },
   {
     part: 'previous',
     element: 'button',
     required: false,
     purpose:
-      'The colour the panel opened with, beside the colour now; pressing it restores that colour with the reason "select".',
+      'The color the panel opened with, beside the color now; pressing it restores that color with the reason "select".',
   },
   {
     part: 'input',
     element: 'input, in a text-field frame',
     required: false,
     purpose:
-      'The value as text in any notation. A colour still being written is aria-invalid and left alone; Enter or leaving commits it in the current notation, or puts back the last valid one. Always left-to-right.',
+      'The value as text in any notation. A color still being written is aria-invalid and left alone; Enter or leaving commits it in the current notation, or puts back the last valid one. Always left-to-right.',
   },
   {
     part: 'format',
@@ -104,13 +104,13 @@ const anatomy: AnatomyRow[] = [
     element: 'button',
     required: false,
     purpose:
-      'The platform’s EyeDropper, drawn only where window.EyeDropper exists; the colour picked arrives with the reason "programmatic".',
+      'The platform’s EyeDropper, drawn only where window.EyeDropper exists; the color picked arrives with the reason "programmatic".',
   },
   {
     part: 'presets',
     element: 'div role="radiogroup"',
     required: false,
-    purpose: 'Colours offered as one press; arrow keys move and choose, the radio group’s own way.',
+    purpose: 'Colors offered as one press; arrow keys move and choose, the radio group’s own way.',
   },
   {
     part: 'preset',
@@ -124,7 +124,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div aria-live="polite"',
     required: false,
     purpose:
-      'Drawn when contrastWith is given: Aa in the colour over that background, the WCAG ratio, and the level in words — AAA, AA, AA large or Fail.',
+      'Drawn when contrastWith is given: Aa in the color over that background, the WCAG ratio, and the level in words — AAA, AA, AA large or Fail.',
   },
   { part: 'contrast-sample', element: 'span', required: false, purpose: 'The Aa sample.' },
   { part: 'contrast-ratio', element: 'span', required: false, purpose: 'The ratio, 5.17:1.' },
@@ -139,7 +139,7 @@ const anatomy: AnatomyRow[] = [
     element: 'p role="status"',
     required: false,
     purpose:
-      'Drawn when an oklch value lies outside sRGB: the value is kept as written and the panel says the screen shows the nearest colour.',
+      'Drawn when an oklch value lies outside sRGB: the value is kept as written and the panel says the screen shows the nearest color.',
   },
 ];
 
@@ -147,7 +147,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'playground',
     title: 'Playground',
-    note: 'The whole panel. Drag in the area, move the hue and the opacity, type a colour in any notation, change the notation, pick a preset; the value under the panel is what onValueChange receives.',
+    note: 'The whole panel. Drag in the area, move the hue and the opacity, type a color in any notation, change the notation, pick a preset; the value under the panel is what onValueChange receives.',
     snippet: defineSnippet({
       id: 'color-picker-angular-playground',
       language: 'angular',
@@ -157,7 +157,7 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'field',
-    title: 'A field that holds a colour',
+    title: 'A field that holds a color',
     note: 'The swatch in the field’s start opens the panel in a popover; the text takes any notation and keeps the one shown. In a Field, the label names the text.',
     snippet: defineSnippet({
       id: 'color-picker-angular-field',
@@ -182,7 +182,7 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'formats',
-    title: 'Four notations, one colour',
+    title: 'Four notations, one color',
     note: 'The value comes back in the notation shown. Change it in the menu and the value is rewritten; type another notation and it is converted to this one.',
     snippet: defineSnippet({
       id: 'color-picker-angular-formats',
@@ -199,7 +199,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'alpha',
     title: 'Opacity',
-    note: 'The alpha channel fades the colour over the transparency grid, drawn from the theme’s own surfaces. alpha={false} removes it for a colour that must be opaque — a brand colour, a text colour.',
+    note: 'The alpha channel fades the color over the transparency grid, drawn from the theme’s own surfaces. alpha={false} removes it for a color that must be opaque — a brand color, a text color.',
     snippet: defineSnippet({
       id: 'color-picker-angular-alpha',
       language: 'angular',
@@ -222,7 +222,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'contrast',
     title: 'Contrast against the background it will sit on',
-    note: 'contrastWith names the background; the panel shows Aa in the colour over it, the WCAG ratio and the level in words. An alpha colour is composited first, because that is what the reader sees.',
+    note: 'contrastWith names the background; the panel shows Aa in the color over it, the WCAG ratio and the level in words. An alpha color is composited first, because that is what the reader sees.',
     snippet: defineSnippet({
       id: 'color-picker-angular-contrast',
       language: 'angular',
@@ -233,7 +233,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'Disabled, read-only and out of gamut',
-    note: 'Disabled greys the colour and takes the panel out of the tab order; read-only keeps the sliders focusable and moves nothing; an oklch colour outside sRGB is said, never quietly clipped.',
+    note: 'Disabled greys the color and takes the panel out of the tab order; read-only keeps the sliders focusable and moves nothing; an oklch color outside sRGB is said, never quietly clipped.',
     snippet: defineSnippet({
       id: 'color-picker-angular-states',
       language: 'angular',
@@ -271,7 +271,7 @@ const events: EventRow[] = [
   {
     name: '(valueChange)',
     payload: 'ChangeRequest<string>',
-    when: 'Before the colour moves, in the current notation: reason "pointer", "keyboard", "select" (a preset, the restore, a notation change) or "programmatic" (the eyedropper). cancel() refuses the move.',
+    when: 'Before the color moves, in the current notation: reason "pointer", "keyboard", "select" (a preset, the restore, a notation change) or "programmatic" (the eyedropper). cancel() refuses the move.',
   },
   {
     name: '(formatChange)',
@@ -281,7 +281,7 @@ const events: EventRow[] = [
   {
     name: 'ControlValueAccessor',
     payload: 'the form’s own value',
-    when: 'On both slColorPicker and slColorField, whenever the colour moves and nobody refused it.',
+    when: 'On both slColorPicker and slColorField, whenever the color moves and nobody refused it.',
   },
 ];
 
@@ -311,7 +311,7 @@ export const ANGULAR_COLOR_PICKER_DOCS = {
         'string',
         '—',
         'slColorPicker, slColorField',
-        'Present means controlled: a colour in hex, rgb, hsl or oklch',
+        'Present means controlled: a color in hex, rgb, hsl or oklch',
       ],
       [
         'defaultValue',
@@ -332,7 +332,7 @@ export const ANGULAR_COLOR_PICKER_DOCS = {
         'boolean',
         'true',
         'slColorPicker, slColorField',
-        'Whether the colour carries an alpha channel',
+        'Whether the color carries an alpha channel',
       ],
       [
         'size',
@@ -346,7 +346,7 @@ export const ANGULAR_COLOR_PICKER_DOCS = {
         'readonly string[]',
         '—',
         'slColorPicker, slColorField, provideColorPickerDefaults',
-        'Colours offered as one press',
+        'Colors offered as one press',
       ],
       [
         'contrastWith',
@@ -360,7 +360,7 @@ export const ANGULAR_COLOR_PICKER_DOCS = {
         'boolean',
         'from the field, or false',
         'slColorPicker, slColorField',
-        'Out of the tab order; the colour greyed',
+        'Out of the tab order; the color greyed',
       ],
       [
         'readOnly',
@@ -415,11 +415,11 @@ export const ANGULAR_COLOR_PICKER_DOCS = {
       ],
     ]),
     accessibility: [
-      'Each thumb is a slider with a name and a value text in words — "Hue, 221°", "Opacity, 60 %", "Saturation and brightness, 84 %, 92 %" — so the colour is never told by colour alone; the area thumb carries aria-roledescription "2D slider", the React Aria convention for a slider with two axes.',
+      'Each thumb is a slider with a name and a value text in words — "Hue, 221°", "Opacity, 60 %", "Saturation and brightness, 84 %, 92 %" — so the color is never told by color alone; the area thumb carries aria-roledescription "2D slider", the React Aria convention for a slider with two axes.',
       'The keyboard is the APG slider for each channel and the APG radio group for the presets; in a right-to-left document the horizontal arrows follow the mirrored axis.',
-      'The contrast part names the level in words beside the ratio, and it is aria-live polite, so a reader adjusting the colour hears when it crosses AA.',
-      'The text is always left-to-right: a colour notation reads the same in every language.',
-      'Forced colours keep the reader’s colours visible: the area, the channels, the swatches and the presets opt out of the system palette, because a colour picker whose colours are replaced shows nothing.',
+      'The contrast part names the level in words beside the ratio, and it is aria-live polite, so a reader adjusting the color hears when it crosses AA.',
+      'The text is always left-to-right: a color notation reads the same in every language.',
+      'Forced colors keep the reader’s colors visible: the area, the channels, the swatches and the presets opt out of the system palette, because a color picker whose colors are replaced shows nothing.',
     ],
     snippets: [
       defineSnippet({

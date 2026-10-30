@@ -503,7 +503,7 @@ export function NumberField({
         return;
       case 'Enter':
         /* Committed and not intercepted: a single-line control submits its
-           form, which is the platform's behaviour and one a form of one field
+           form, which is the platform's behavior and one a form of one field
            depends on. */
         commit('keyboard', event);
         return;

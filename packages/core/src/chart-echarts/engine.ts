@@ -89,7 +89,7 @@ type ChartInternals = EChartsType;
  * The one internal the engine reads: a series' laid-out items, which is where
  * a bar sits inside a group of bars and where a slice's angles are. No public
  * method answers either, and `convertToPixel` places a bar at its category's
- * centre rather than at its own.
+ * center rather than at its own.
  */
 interface ChartLayoutInternals {
   getModel?: () => {

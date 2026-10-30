@@ -51,7 +51,7 @@ function format(value: number, locale: string | undefined) {
  *
  * Nothing is not the same as an empty badge: a notification badge whose count
  * has fallen to nought leaves the corner rather than sitting there as a blank
- * circle, which is the behaviour Fluent, Ant Design and MUI all ship.
+ * circle, which is the behavior Fluent, Ant Design and MUI all ship.
  *
  * A negative count is written out rather than clamped. It is not a number a
  * badge can mean, and showing it is how the page that produced it finds out.

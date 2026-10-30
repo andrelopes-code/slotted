@@ -673,7 +673,7 @@ export const DayContent: Story = {
     template: grid(
       scene(
         'In the week',
-        'Under the date, centred with it.',
+        'Under the date, centerd with it.',
         `<div slEventCalendar ${STUDIO} defaultView="week"><ng-template slEventCalendarDayContent let-date>{{ onCall(date) }}</ng-template></div>`,
       ),
       scene(
@@ -775,7 +775,7 @@ export const Compact: Story = {
       ),
       scene(
         'compact keep',
-        'The grid stays: marks of colour; a day opens its events as a sheet from the bottom.',
+        'The grid stays: marks of color; a day opens its events as a sheet from the bottom.',
         room(
           'phone',
           `<div slEventCalendar ${STUDIO} compact="keep"><ng-template slEventCalendarDetail let-occurrence><sl-ec-summary [occurrence]="occurrence" /></ng-template></div>`,

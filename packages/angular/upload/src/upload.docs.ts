@@ -120,7 +120,7 @@ const anatomy: AnatomyRow[] = [
     element: 'span',
     required: false,
     purpose:
-      'A thumbnail, or a solid tile in the kind’s colour with the kind’s mark knocked out of it. Carries data-kind and data-extension; in the grid layout the tile also carries the extension in words.',
+      'A thumbnail, or a solid tile in the kind’s color with the kind’s mark knocked out of it. Carries data-kind and data-extension; in the grid layout the tile also carries the extension in words.',
   },
   {
     part: 'filename',
@@ -154,7 +154,7 @@ const anatomy: AnatomyRow[] = [
     element: 'span',
     required: false,
     purpose:
-      'The word for the row’s state, and the percentage while it is moving. A status said in colour alone fails WCAG 2.2 SC 1.4.1, so it is a word first and a colour second.',
+      'The word for the row’s state, and the percentage while it is moving. A status said in color alone fails WCAG 2.2 SC 1.4.1, so it is a word first and a color second.',
   },
   {
     part: 'progress',
@@ -502,8 +502,8 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'kinds',
-    title: 'Nine kinds, nine colours',
-    note: 'A PDF red, a word-processed document blue, a spreadsheet green, a deck orange, a picture teal, a film indigo, a recording magenta, an archive amber. The colours are a scale of the theme’s rather than five tones stretched over nine kinds, because the tones hold no second blue and no indigo at all.',
+    title: 'Nine kinds, nine colors',
+    note: 'A PDF red, a word-processed document blue, a spreadsheet green, a deck orange, a picture teal, a film indigo, a recording magenta, an archive amber. The colors are a scale of the theme’s rather than five tones stretched over nine kinds, because the tones hold no second blue and no indigo at all.',
     snippet: defineSnippet({
       id: 'upload-kinds',
       language: 'css',
@@ -539,7 +539,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'Every state the contract declares',
-    note: 'Disabled refuses the picker and the drop alike, because a drag is not routed through the input at all. Read-only keeps the list readable and takes every control away. Invalid retargets the focus ring to the danger colour. Loading and complete are the queue’s own two, and they are on the root.',
+    note: 'Disabled refuses the picker and the drop alike, because a drag is not routed through the input at all. Read-only keeps the list readable and takes every control away. Invalid retargets the focus ring to the danger color. Loading and complete are the queue’s own two, and they are on the root.',
     snippet: defineSnippet({
       id: 'upload-angular-states',
       language: 'angular',
@@ -567,7 +567,7 @@ const scenes: ReferenceSceneMeta[] = [
     snippet: defineSnippet({
       id: 'upload-angular-composition',
       language: 'angular',
-      label: 'The element is the consumer’s; the behaviour is the family’s',
+      label: 'The element is the consumer’s; the behavior is the family’s',
       source:
         '<div #upload="slUpload" multiple slUpload>\n  <p>Documents are kept for seven years.</p>\n</div>\n\n<button (click)="upload.browse()" type="button">browse()</button>\n<button (click)="upload.retryAll()" type="button">retryAll()</button>\n<button (click)="upload.cancelAll()" type="button">cancelAll()</button>',
     }),
@@ -874,7 +874,7 @@ export const ANGULAR_UPLOAD_DOCS = {
         'boolean',
         'false',
         'div[slUpload]',
-        'Retargets the focus ring to the danger colour and marks the region',
+        'Retargets the focus ring to the danger color and marks the region',
       ],
       [
         'required',
@@ -898,7 +898,7 @@ export const ANGULAR_UPLOAD_DOCS = {
         'provider',
         '—',
         'any injector',
-        'Sets the adapter, the limits and the behaviour once for the application; the words come from provideSlotted',
+        'Sets the adapter, the limits and the behavior once for the application; the words come from provideSlotted',
       ],
       [
         'UPLOAD_DEFAULTS',
@@ -919,7 +919,7 @@ export const ANGULAR_UPLOAD_DOCS = {
         'implemented',
         '—',
         'div[slUpload]',
-        'formControl and ngModel hold the selection. writeValue accepts UploadFile[] or File[] and normalises.',
+        'formControl and ngModel hold the selection. writeValue accepts UploadFile[] or File[] and normalizes.',
       ],
       [
         'Validator',
@@ -955,7 +955,7 @@ export const ANGULAR_UPLOAD_DOCS = {
       'The accessible name comes from a label around the trigger rather than around the whole region, so it is three words instead of every word in the box, and the guidance reaches the input as aria-describedby. The input itself is clipped rather than hidden: display:none and visibility:hidden take it out of the tab order and out of the accessibility tree, which is the whole reason the label pairing exists.',
       'Drag and drop is pointer-only and cannot be made otherwise. WCAG 2.2 SC 2.5.7 asks for a single-pointer alternative to every dragging action, and the trigger inside the region is it — a real control, in the tab order, that opens the picker with Enter or Space.',
       'A file arriving, being refused, failing or finishing is announced through packages/core/src/live-announcer, politely, without moving focus — WCAG 2.2 SC 4.1.3. Progress is never announced: a bar that speaks every event says nothing, and the number is on the row inside a progressbar a reader can inspect on demand.',
-      'A status is a word before it is a colour. Refused, Failed and Stopped are three different words for three different failures, because a reader looking at one red row cannot tell whether to try again, choose another file, or do nothing — and under forced colours the tint goes and only the word is left.',
+      'A status is a word before it is a color. Refused, Failed and Stopped are three different words for three different failures, because a reader looking at one red row cannot tell whether to try again, choose another file, or do nothing — and under forced colors the tint goes and only the word is left.',
       'The viewer is modal: focus is contained inside it, Escape closes it, and focus goes back to the name that opened it. A text frame carries sandbox with neither allow-scripts nor allow-same-origin, because an object URL inherits this document’s origin and a text/html file the reader dropped would otherwise run its own script against it. A PDF frame carries none: Chrome’s PDF viewer is blocked in a sandboxed frame, and the type is what makes the exception safe — an HTML document served as application/pdf runs no script there.',
       'A form submitted while the bytes are still moving is refused twice over: setCustomValidity on the control the reader can see, and { uploadPending: true } from Validator so a Reactive Form agrees with it. None of the nine surveyed implementations answers this at all.',
     ],

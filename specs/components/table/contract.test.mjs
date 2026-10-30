@@ -273,7 +273,7 @@ test('defers a row of records to data-list and a row of controls to field-group'
 });
 
 /**
- * The APG is explicit and the sentence is quoted rather than summarised: a
+ * The APG is explicit and the sentence is quoted rather than summarized: a
  * table "is not an interactive widget. Thus, its cells are not focusable or
  * selectable". Every element of the structure is the platform's own, so the
  * roles, the row and column relationships and the header association arrive

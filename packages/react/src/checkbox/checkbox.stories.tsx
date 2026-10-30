@@ -195,7 +195,7 @@ export const States: Story = {
       </Scene>
       <Scene
         label="Invalid says it twice"
-        note="The border reddens and thickens together, because the high-contrast scheme paints every border the same black and colour alone would leave the two states identical there."
+        note="The border reddens and thickens together, because the high-contrast scheme paints every border the same black and color alone would leave the two states identical there."
         layout="stack"
       >
         <Checkbox invalid>Choose at least one</Checkbox>
@@ -351,7 +351,7 @@ export const Content: Story = {
     <Grid columns={2}>
       <Scene
         label="A label that wraps"
-        note="The box stays on the first line box of the label rather than centring itself against the whole block, which is where align-items would put it as soon as the text reaches a second line."
+        note="The box stays on the first line box of the label rather than centering itself against the whole block, which is where align-items would put it as soon as the text reaches a second line."
         layout="stack"
       >
         <Checkbox
@@ -444,7 +444,7 @@ export const Keyboard: Story = {
       <Grid columns={2}>
         <Scene
           label="The platform’s whole table"
-          note="Tab reaches the box, Space toggles it, and Enter submits the form rather than the control. No key listener exists in this family, which is why the behaviour is already translated and already mirrored."
+          note="Tab reaches the box, Space toggles it, and Enter submits the form rather than the control. No key listener exists in this family, which is why the behavior is already translated and already mirrored."
           layout="stack"
         >
           <Checkbox>Tab to here, then space</Checkbox>

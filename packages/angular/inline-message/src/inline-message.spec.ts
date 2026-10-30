@@ -87,7 +87,7 @@ describe('SlInlineMessage', () => {
 
   /**
    * The capability none of the thirteen surveyed implementations ships. The
-   * mark and the colour reach a reader who looks; the word is what reaches a
+   * mark and the color reach a reader who looks; the word is what reaches a
    * reader who listens, and it is first in the DOM so it is read first.
    */
   it('says the severity in words, before the message, for every tone that is one', () => {

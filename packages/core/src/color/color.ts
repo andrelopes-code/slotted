@@ -1,11 +1,11 @@
 /**
- * Colour as `color-picker` holds it: a string in a notation the reader chose,
+ * Color as `color-picker` holds it: a string in a notation the reader chose,
  * parsed into sRGB channels for the picture and written back in the same
- * notation. This module is the only place a colour is converted; no binding
+ * notation. This module is the only place a color is converted; no binding
  * does arithmetic on one.
  *
  * Channels are 0–255 for red, green and blue and 0–1 for alpha. An `oklch`
- * colour outside sRGB keeps its out-of-range channels here and is reported by
+ * color outside sRGB keeps its out-of-range channels here and is reported by
  * `inGamut`, so the family can say so instead of clipping it in silence.
  */
 
@@ -168,7 +168,7 @@ export function inGamut({ r, g, b }: Rgba): boolean {
 /**
  * Reads hex (`#rgb`, `#rgba`, `#rrggbb`, `#rrggbbaa`), `rgb()`, `rgba()`,
  * `hsl()`, `hsla()` and `oklch()` in either the space or the comma syntax.
- * Anything else — a named colour, a typo, half a value — is `null`, so a
+ * Anything else — a named color, a typo, half a value — is `null`, so a
  * field can hold the reader's text while it is being written.
  */
 export function parseColor(input: string): ParsedColor | null {
@@ -208,7 +208,7 @@ export function parseColor(input: string): ParsedColor | null {
   return null;
 }
 
-/** The colour pulled into sRGB: what a screen can show and a hex can hold. */
+/** The color pulled into sRGB: what a screen can show and a hex can hold. */
 export function clampToGamut({ r, g, b, a }: Rgba): Rgba {
   return { r: clamp(r, 0, 255), g: clamp(g, 0, 255), b: clamp(b, 0, 255), a };
 }
@@ -221,7 +221,7 @@ const hex2 = (value: number) =>
 const percent = (value: number) => `${round(value * 100)}%`;
 const alphaSuffix = (a: number) => (a >= 1 ? '' : ` / ${percent(a)}`);
 
-/** Writes the colour in a notation, in the space syntax CSS Color 4 reads. */
+/** Writes the color in a notation, in the space syntax CSS Color 4 reads. */
 export function formatColor(rgba: Rgba, format: ColorFormat): string {
   const inside = clampToGamut(rgba);
   if (format === 'hex') {
@@ -239,7 +239,7 @@ export function formatColor(rgba: Rgba, format: ColorFormat): string {
   return `oklch(${round(l, 3)} ${round(c, 3)} ${round(h)}${alphaSuffix(rgba.a)})`;
 }
 
-/** The colour as a CSS value for a runtime property, always parseable by the browser. */
+/** The color as a CSS value for a runtime property, always parseable by the browser. */
 export function toCss({ r, g, b, a }: Rgba, opaque = false): string {
   const inside = clampToGamut({ r, g, b, a });
   return `rgb(${round(inside.r, 2)} ${round(inside.g, 2)} ${round(inside.b, 2)}${opaque ? '' : ` / ${round(inside.a, 3)}`})`;
@@ -279,7 +279,7 @@ function luminance({ r, g, b }: Rgba): number {
 }
 
 /**
- * The WCAG 2 contrast ratio of a colour over a background. An alpha colour is
+ * The WCAG 2 contrast ratio of a color over a background. An alpha color is
  * composited over the background first, because that is what the reader sees.
  */
 export function contrastRatio(foreground: Rgba, background: Rgba): number {

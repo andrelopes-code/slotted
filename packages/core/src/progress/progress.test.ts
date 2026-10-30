@@ -163,7 +163,7 @@ describe('the wavy ring', () => {
    * the clip is invisible in a capture of a rotating ring.
    */
   /**
-   * The crests reach 21.6 either side of the centre, and with half a 5-unit
+   * The crests reach 21.6 either side of the center, and with half a 5-unit
    * stroke on top of that they pass the 48-unit box by a tenth — which the
    * stylesheet allows by letting the box overflow, and no more than that.
    */
@@ -236,11 +236,11 @@ describe('the wavy bar', () => {
   /**
    * M3's proportions, in thicknesses: a 40dp wavelength and a 3dp amplitude
    * on a 4dp stroke, and a 20dp wavelength while the value is unknown. The
-   * path is centred on `y = 0`, so the crests reach three quarters of a
-   * thickness either side of the centre line and the viewBox the markup
+   * path is centerd on `y = 0`, so the crests reach three quarters of a
+   * thickness either side of the center line and the viewBox the markup
    * states — `0 -1.25 1200 2.5` — holds them with half a stroke to spare.
    */
-  it('winds M3’s sine along the reach, centred on the track', () => {
+  it('winds M3’s sine along the reach, centerd on the track', () => {
     for (const [path, wavelength] of [
       [PROGRESS_WAVE_BAR_PATH, 10],
       [PROGRESS_WAVE_BAR_INDETERMINATE_PATH, 5],

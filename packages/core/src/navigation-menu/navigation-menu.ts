@@ -1,5 +1,5 @@
 /**
- * The behaviour `navigation-menu` shares between its bindings: which way one
+ * The behavior `navigation-menu` shares between its bindings: which way one
  * section crosses another, where the shared surface stands and how large it
  * is, when a pointer opens and closes a section, and where an arrow key sends
  * focus.
@@ -75,7 +75,7 @@ export interface ViewportGeometry {
   inlineStart: number;
   /** From the root's top to the edge the surface hangs from: the trigger's top beside it, its bottom under it. */
   blockStart: number;
-  /** The trigger's centre from the surface's start, along the edge the surface faces it with. */
+  /** The trigger's center from the surface's start, along the edge the surface faces it with. */
   arrowOffset: number;
   /** The widest a panel may be. */
   available: number;

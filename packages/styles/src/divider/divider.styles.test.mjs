@@ -145,7 +145,7 @@ test('breaks a label that is longer than the container it stands in', () => {
   assert.ok(rule(`${ui} [data-part-label]`).includes('overflow-wrap:anywhere'));
 });
 
-test('lets unthemed decoration disappear rather than reach for a system colour', () => {
+test('lets unthemed decoration disappear rather than reach for a system color', () => {
   for (const match of css.matchAll(/::(?:before|after)[^{]*\{([\s\S]*?)\}/g)) {
     assert.doesNotMatch(match[1] ?? '', /ButtonBorder|CanvasText|GrayText/);
   }

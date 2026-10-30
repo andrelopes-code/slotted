@@ -39,7 +39,7 @@ describe('SlGlyph', () => {
     expect(paths.map((path) => path.getAttribute('d'))).toEqual(GLYPHS.x.paths);
   });
 
-  it('strokes with the colour it inherits, at the manifest’s weight, or fills', () => {
+  it('strokes with the color it inherits, at the manifest’s weight, or fills', () => {
     const query = host();
     const check = query('#check');
     const dot = query('#dot');
@@ -50,7 +50,7 @@ describe('SlGlyph', () => {
     expect(dot.hasAttribute('stroke')).toBe(false);
   });
 
-  it('moves the ink onto the centre the mask centred it on', () => {
+  it('moves the ink onto the center the mask centerd it on', () => {
     const query = host();
     const [dx, dy] = GLYPHS.check.offset;
     expect(query('#check g').getAttribute('transform')).toBe(`translate(${dx} ${dy})`);

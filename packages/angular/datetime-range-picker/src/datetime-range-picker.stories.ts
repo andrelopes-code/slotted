@@ -481,7 +481,7 @@ export const States: Story = {
         ) +
         scene(
           'A return before its pickup',
-          'Invalid on the end field and on the frame, and nothing is swapped: a value the reader typed is not the family’s to rewrite. Tab in: the ring is retargeted to the danger colour.',
+          'Invalid on the end field and on the frame, and nothing is swapped: a value the reader typed is not the family’s to rewrite. Tab in: the ring is retargeted to the danger color.',
           `<div slField>
              <label slFieldLabel>Pickup and return</label>
              <div slDateTimeRangePicker ${AGENCY} [defaultValue]="reversed"></div>

@@ -47,7 +47,7 @@ test('offers one type scale to both members, seven steps deep', () => {
   }
 });
 
-test('lets text take the colour of its context before it takes a tone', () => {
+test('lets text take the color of its context before it takes a tone', () => {
   assert.equal(contract.axes.tone[0], 'inherit');
   assert.equal(contract.members.text.defaults.tone, 'inherit');
   assert.equal(contract.members.heading.defaults.tone, 'inherit');

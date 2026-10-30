@@ -128,7 +128,7 @@ describe('resolveWorkbenchGlobals', () => {
     });
   });
 
-  it('falls back to the safe value for an axis it does not recognise', () => {
+  it('falls back to the safe value for an axis it does not recognize', () => {
     expect(
       resolveWorkbenchGlobals({ scheme: 'sepia', density: 'roomy', direction: 'sideways' }),
     ).toMatchObject({ scheme: 'light', density: 'comfortable', direction: 'ltr' });

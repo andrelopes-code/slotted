@@ -91,7 +91,7 @@ test('scales with the controls beside it, or with the text around it', () => {
 });
 
 /**
- * A key cap depicts a physical object, so its colour belongs to the keyboard
+ * A key cap depicts a physical object, so its color belongs to the keyboard
  * rather than to the message. Chakra and Nuxt both spend an axis on it; where
  * a shortcut carries a tone here it is the row that carries it, and `alert`,
  * `inline-message` and `tag` own that.

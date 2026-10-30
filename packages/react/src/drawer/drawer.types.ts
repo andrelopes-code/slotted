@@ -170,7 +170,7 @@ export interface DrawerContextValue {
   /**
    * The trigger, the panel and the layer, once each is in the document. One
    * stable object for the life of the family, which is what lets it sit on a
-   * memoised context value without changing its identity every render.
+   * memoized context value without changing its identity every render.
    */
   nodes: {
     layer: HTMLElement | null;

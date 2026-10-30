@@ -7,7 +7,7 @@ export type ToggleSize = 'sm' | 'md' | 'lg';
 /**
  * Whether the control is framed or bare. `ghost` is the toggle that sits
  * inside something already framed — a toolbar, a card header. There is no
- * tone axis: a mode is one colour when it is on, and an action that persists
+ * tone axis: a mode is one color when it is on, and an action that persists
  * in one of five tones is `button`'s ToggleButton.
  */
 export type ToggleVariant = 'outline' | 'ghost' | 'chips';

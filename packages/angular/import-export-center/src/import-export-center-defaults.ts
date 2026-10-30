@@ -68,8 +68,8 @@ export const IMPORT_EXPORT_CENTER_DEFAULTS = new InjectionToken<ImportExportCent
 );
 
 /**
- * An application decides once how its job centre reads — the size, the rank,
- * how history loads, how time is written and in which zone. A centre that
+ * An application decides once how its job center reads — the size, the rank,
+ * how history loads, how time is written and in which zone. A center that
  * states any of them still wins. Its words and the locale come from the
  * language in force (`provideSlotted`).
  */

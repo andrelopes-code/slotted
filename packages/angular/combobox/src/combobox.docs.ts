@@ -822,13 +822,13 @@ const composition = apiRows([
     'placeholder, aria-label',
     '—',
     'sl-combobox',
-    'The two attributes the host passes to the input. Other attributes stay on the host element, and every text-editing key keeps its browser behaviour.',
+    'The two attributes the host passes to the input. Other attributes stay on the host element, and every text-editing key keeps its browser behavior.',
   ],
 ]);
 
 const accessibility = [
   'The input has role="combobox" with aria-autocomplete, aria-expanded and aria-controls. The popup has role="listbox", and each row has role="option". The trigger button is out of the tab sequence, as the ARIA combobox pattern requires.',
-  'Focus stays on the input, so Home, End, ArrowLeft, ArrowRight, Backspace and Delete keep their text-editing behaviour. The highlight moves through aria-activedescendant, and the caret does not move with it.',
+  'Focus stays on the input, so Home, End, ArrowLeft, ArrowRight, Backspace and Delete keep their text-editing behavior. The highlight moves through aria-activedescendant, and the caret does not move with it.',
   'Escape works in two steps, both named by the pattern. With the popup open, it closes the popup and keeps the text. With the popup closed, it restores the label of the chosen option, and a second press clears the selection.',
   'The status row is a polite live region. It announces how many options matched, and "Loading…" while a request is in flight.',
   'Tab commits nothing: an option the reader arrowed past is not a choice, which is where the combobox differs from the select. Tab does accept an inline completion that is still showing.',

@@ -21,7 +21,7 @@ export type InlineWrap = 'wrap' | 'nowrap';
  * wrote, so a list of tags stays a list.
  *
  * An axis reaches the stylesheet only when someone decided it. The base rule
- * already carries the family defaults — wrapping, centred, separated by half a
+ * already carries the family defaults — wrapping, centerd, separated by half a
  * rem — and a layout is the most numerous element in a document.
  *
  * There is no input that reverses the children. The order they are written in
@@ -42,8 +42,8 @@ export type InlineWrap = 'wrap' | 'nowrap';
     'data-part-root': '',
     '[attr.data-gap]': 'gap() ?? null',
     '[attr.data-align]': 'align() ?? null',
-    /* `align` is also an obsolete HTML attribute a browser still honours on a
-       div, centring its text; written statically for the input it would stay. */
+    /* `align` is also an obsolete HTML attribute a browser still honors on a
+       div, centering its text; written statically for the input it would stay. */
     '[attr.align]': 'null',
     '[attr.data-justify]': 'justify() ?? null',
     '[attr.data-wrap]': 'wrap() ?? null',

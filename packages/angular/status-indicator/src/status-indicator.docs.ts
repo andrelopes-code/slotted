@@ -42,7 +42,7 @@ const anatomy: AnatomyRow[] = [
     element: 'span',
     required: true,
     purpose:
-      'The disc or the glyph, inside the first line and centred on its capitals, so the mark stays on that line however far the label wraps. Hidden from assistive technology: it says nothing the label does not.',
+      'The disc or the glyph, inside the first line and centerd on its capitals, so the mark stays on that line however far the label wraps. Hidden from assistive technology: it says nothing the label does not.',
   },
   {
     part: 'label',
@@ -56,7 +56,7 @@ const anatomy: AnatomyRow[] = [
     element: 'the consumer’s element with slStatusIndicatorDetail',
     required: false,
     purpose:
-      'A second, quieter line under the words — a progress, a time — set in the muted text colour and hanging under the first word. Projected inside the label, so it is read with the words.',
+      'A second, quieter line under the words — a progress, a time — set in the muted text color and hanging under the first word. Projected inside the label, so it is read with the words.',
   },
   {
     part: 'announcement',
@@ -71,7 +71,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'playground',
     title: 'Playground',
-    note: 'One indicator with every input on it, driven by the controls below the canvas. Switch mark to icon and the meaning survives with the colour switched off.',
+    note: 'One indicator with every input on it, driven by the controls below the canvas. Switch mark to icon and the meaning survives with the color switched off.',
     snippet: defineSnippet({
       id: 'status-indicator-angular-playground',
       language: 'angular',
@@ -94,7 +94,7 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'marks',
-    title: 'The dot, and the mark that does not need colour',
+    title: 'The dot, and the mark that does not need color',
     note: 'A dot is compact and chromatic, so the words beside it carry the meaning. An icon carries a distinct silhouette per status, which is what WCAG 2.2 1.4.1 asks for where the words cannot be shown.',
     snippet: defineSnippet({
       id: 'status-indicator-angular-marks',
@@ -143,7 +143,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'context',
     title: 'Where a status actually lives',
-    note: 'A column of services, and a header where one status stands for a whole page. The words take the page’s own colour, so the status column reads as easily as the one beside it.',
+    note: 'A column of services, and a header where one status stands for a whole page. The words take the page’s own color, so the status column reads as easily as the one beside it.',
     snippet: defineSnippet({
       id: 'status-indicator-angular-context',
       language: 'angular',
@@ -208,7 +208,7 @@ export const ANGULAR_STATUS_INDICATOR_DOCS = {
         "'dot' | 'icon'",
         'dot',
         'SlStatusIndicator',
-        'dot is the compact chromatic mark; icon carries a distinct silhouette per status and is the alternative that does not depend on colour',
+        'dot is the compact chromatic mark; icon carries a distinct silhouette per status and is the alternative that does not depend on color',
       ],
       [
         'size',
@@ -229,7 +229,7 @@ export const ANGULAR_STATUS_INDICATOR_DOCS = {
         'boolean',
         'false',
         'SlStatusIndicator',
-        'A wave leaving the dot, for a change happening now. Not drawn on an icon mark, and withdrawn under reduced motion and under forced colours, so it is never the only carrier',
+        'A wave leaving the dot, for a change happening now. Not drawn on an icon mark, and withdrawn under reduced motion and under forced colors, so it is never the only carrier',
       ],
       [
         'label',
@@ -293,7 +293,7 @@ export const ANGULAR_STATUS_INDICATOR_DOCS = {
     accessibility: [
       'There is no status-indicator pattern in the WAI-ARIA Authoring Practices: the pattern index carries thirty entries and none of them is this family. The applicable guidance is the ARIA status role, WCAG 2.2 1.4.1 Use of Color and 1.4.11 Non-text Contrast, and each is answered below.',
       'The name is always real text in the document — the projected content, or the status’s own word clipped by visually-hidden. role="img" with an aria-label, which is Fluent’s answer, is deliberately not used: text is what lets a live region announce its own contents, lets an aria-labelledby elsewhere point at it, and lets a page search find the word.',
-      'Colour is never the only carrier. Every indicator has words, and mark="icon" adds a distinct silhouette per status — six circles — so the six survive greyscale, the high-contrast scheme, and the operating system’s forced colours, where every author colour is replaced and the glyph is all that is left.',
+      'Color is never the only carrier. Every indicator has words, and mark="icon" adds a distinct silhouette per status — six circles — so the six survive grayscale, the high-contrast scheme, and the operating system’s forced colors, where every author color is replaced and the glyph is all that is left.',
       'Every dot fill clears the 3:1 that WCAG 2.2 1.4.11 asks of a graphic against the surface in the light and dark schemes, except warning, whose yellow is 1.53:1 on white; that dot alone is rimmed in the warning border role, 2.94:1. The word beside the dot carries the status, so the dot is never the only carrier.',
       'live="polite" writes role="status", which the platform gives an implicit aria-live="polite" and aria-atomic="true", so the mark and its word are announced as one thing rather than as two events. live="assertive" writes role="alert" and interrupts, which the APG reserves for a message needing immediate attention. A role written on the host element is read once through HostAttributeToken and kept.',
       'The pulse is withdrawn under prefers-reduced-motion rather than shortened, because an endless animation has to stop; a wave frozen halfway through an expansion is a rendering fault rather than a state. Nothing is lost, since the tone, the glyph and the word were already carrying the status.',

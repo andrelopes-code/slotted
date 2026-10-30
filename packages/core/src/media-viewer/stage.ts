@@ -56,7 +56,7 @@ export interface MediaStageOptions {
 export interface MediaStageHandle {
   /** Size the picture for the state the binding rendered, around the point the last request named. */
   update(): void;
-  /** Ask for a level around the stage's centre, for a button. */
+  /** Ask for a level around the stage's center, for a button. */
   requestZoom(zoom: number, reason: MediaStageReason, event: Event): void;
   destroy(): void;
 }
@@ -95,7 +95,7 @@ export function createMediaStage(options: MediaStageOptions): MediaStageHandle {
   let moved = false;
   /*
    * The spot of the picture a gesture started on, held for the whole gesture:
-   * re-reading it at every step lost what the centring took while the picture
+   * re-reading it at every step lost what the centering took while the picture
    * still fitted an axis, and the spot drifted from under the pointer. The
    * gesture lasts while the pointer stays put and the scroll is the one the
    * controller left: a pause between two turns of the wheel keeps it, a pan or
@@ -107,7 +107,7 @@ export function createMediaStage(options: MediaStageOptions): MediaStageHandle {
 
   const media = () => stage.querySelector<HTMLImageElement>('img[data-part="media"]');
   const frame = () => stage.querySelector<HTMLElement>('[data-part="frame"]');
-  const centre = (): Point => ({ x: stage.clientWidth / 2, y: stage.clientHeight / 2 });
+  const center = (): Point => ({ x: stage.clientWidth / 2, y: stage.clientHeight / 2 });
   const rtl = () => getComputedStyle(keys).direction === 'rtl';
 
   const local = (event: { clientX: number; clientY: number }): Point => {
@@ -280,15 +280,15 @@ export function createMediaStage(options: MediaStageOptions): MediaStageHandle {
       case '+':
       case '=':
         if (!state.zoomable) return false;
-        request(state.zoom + state.zoomStep, centre(), 'keyboard', event);
+        request(state.zoom + state.zoomStep, center(), 'keyboard', event);
         return true;
       case '-':
         if (!state.zoomable) return false;
-        request(state.zoom - state.zoomStep, centre(), 'keyboard', event);
+        request(state.zoom - state.zoomStep, center(), 'keyboard', event);
         return true;
       case '0':
         if (!state.zoomable) return false;
-        request(1, centre(), 'keyboard', event);
+        request(1, center(), 'keyboard', event);
         return true;
       case 'r':
       case 'R':
@@ -356,7 +356,7 @@ export function createMediaStage(options: MediaStageOptions): MediaStageHandle {
     const changed = applied !== null && applied.zoom !== zoom;
     const after = box();
     if (changed && before !== null && after !== null) {
-      const point = anchor?.zoom === zoom ? anchor.point : centre();
+      const point = anchor?.zoom === zoom ? anchor.point : center();
       const fraction =
         gesture !== null && anchor?.zoom === zoom
           ? gesture.fraction
@@ -396,7 +396,7 @@ export function createMediaStage(options: MediaStageOptions): MediaStageHandle {
   return {
     update,
     requestZoom(zoom, reason, event) {
-      request(zoom, centre(), reason, event);
+      request(zoom, center(), reason, event);
     },
     destroy() {
       cancelAnimationFrame(resizeFrame);

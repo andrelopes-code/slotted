@@ -18,7 +18,7 @@ import { SlTextField, SlTextFieldInput } from '@slotted/angular/text-field';
     <div slStack [gap]="5">
       <div slField required>
         <div slFieldHeader>
-          <label slFieldLabel>Cost centre</label>
+          <label slFieldLabel>Cost center</label>
           <button
             slFieldHelp="The four-digit code finance assigns to your team. It appears on every invoice line."
           ></button>

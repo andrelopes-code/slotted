@@ -20,7 +20,7 @@ import type { ProgressCircleProps, ProgressRootProps } from './progress-indicato
  *
  * The number sits beside the ring rather than inside it: the largest ring this
  * family draws is 38 pixels across with a 4.75-pixel stroke, which leaves 28
- * pixels of hole, and a percentage centred in it would be four-pixel type. Ant
+ * pixels of hole, and a percentage centerd in it would be four-pixel type. Ant
  * Design and MUI both put it inside because both draw rings twice this size.
  *
  * With `wave` the indicator is M3's wavy ring from `@slotted/core/progress`

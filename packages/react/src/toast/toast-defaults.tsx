@@ -16,7 +16,7 @@ import type {
  *
  * Five surveyed implementations ship a shortcut and no two chose the same key:
  * Radix `F8`, Base UI `F6`, React Aria `F6`, Ark and Sonner `Alt+T`. `F6` is
- * the one two of them chose for the reason that generalises — it is the
+ * the one two of them chose for the reason that generalizes — it is the
  * landmark-navigation key, and the region is a landmark.
  */
 export const TOAST_HOTKEY = 'F6';

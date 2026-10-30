@@ -1143,7 +1143,7 @@ const api = apiRows([
     'GridColumnState',
     '—',
     'DataGrid',
-    'order, widths, hidden and pinned. Present puts the arrangement in controlled mode; it is normalised against columns.',
+    'order, widths, hidden and pinned. Present puts the arrangement in controlled mode; it is normalized against columns.',
   ],
   [
     'defaultColumnState',
@@ -1670,7 +1670,7 @@ const composition = apiRows([
 ]);
 
 const accessibility = [
-  '`columns`, `disabledKeys` and a function `rowKey` are compared by identity: a new array or function on a render of the parent re-renders every mounted row, so declare them at module scope or memoise them. The renderers — `cellRenderers`, `editorRenderers`, `renderCell`, `renderEditor`, `renderHeader`, `renderGroup`, `renderDetail` — `messages` and `tree` are read when a row renders and may be written inline. A row renders again for its own row object, selection, cursor, edit or expansion, and for a change of `columns` or the language; a renderer whose output reads state outside its row is refreshed by memoising `columns` on that state.',
+  '`columns`, `disabledKeys` and a function `rowKey` are compared by identity: a new array or function on a render of the parent re-renders every mounted row, so declare them at module scope or memoize them. The renderers — `cellRenderers`, `editorRenderers`, `renderCell`, `renderEditor`, `renderHeader`, `renderGroup`, `renderDetail` — `messages` and `tree` are read when a row renders and may be written inline. A row renders again for its own row object, selection, cursor, edit or expansion, and for a change of `columns` or the language; a renderer whose output reads state outside its row is refreshed by memoizing `columns` on that state.',
   'The root is role="grid": a composite widget with one tab stop. The current cell — or the single simple widget inside it, a link, a button or a checkbox — is the only element with tabindex="0"; Tab enters there and leaves the grid to the next control of the page, which is what the APG requires of a grid and what a table cannot give.',
   'Every row carries aria-rowindex against aria-rowcount on the root, and every cell aria-colindex against aria-colcount, always: the grid windows its rows and columns, so the DOM is never the whole set, and the counts are what let a screen reader say “row 4,812 of 9,000”.',
   'aria-sort is written on the first sort key’s header only — the practice says more than one is ambiguous — and the whole order is announced through the live announcer: “Sorted by Carrier ascending, Weight descending”. A resize announces the column and its width; a filter announces its sentence through describeFilter; a copy announces the count.',

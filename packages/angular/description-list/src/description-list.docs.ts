@@ -92,7 +92,7 @@ const anatomy: AnatomyRow[] = [
     element: 'button, drawn by the component',
     required: false,
     purpose:
-      'Puts the value on the clipboard and says it finished, by its mark as well as by its colour. Where the platform refuses the write it selects the value instead, so the reader can take it with the keyboard.',
+      'Puts the value on the clipboard and says it finished, by its mark as well as by its color. Where the platform refuses the write it selects the value instead, so the reader can take it with the keyboard.',
   },
   {
     part: 'toggle',
@@ -209,7 +209,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'copy',
     title: 'A value worth taking away',
-    note: 'An identifier, a key, an ARN. The control writes the rendered text unless you state another, says it finished by its mark as well as its colour for two seconds, and announces the result politely. Pressing it on this page selects the value instead: a browser refuses the clipboard inside an iframe that carries no clipboard-write permission, and the family does the part it still can.',
+    note: 'An identifier, a key, an ARN. The control writes the rendered text unless you state another, says it finished by its mark as well as its color for two seconds, and announces the result politely. Pressing it on this page selects the value instead: a browser refuses the clipboard inside an iframe that carries no clipboard-write permission, and the family does the part it still can.',
     snippet: defineSnippet({
       id: 'description-list-angular-copy',
       language: 'angular',
@@ -422,10 +422,10 @@ export const ANGULAR_DESCRIPTION_LIST_DOCS = {
       'The rendered elements are a dl, a dt and a dd, and the family writes no role at all. HTML-AAM maps them to list, term and definition already, and MDN records that authoring the ARIA term and definition roles by hand changes how VoiceOver announces the construct. The APG has no pattern for a description list — twenty-nine patterns, and none of them is this — so the platform is the specification the family follows.',
       'The div around each pair is the second form the HTML Standard permits inside a dl, and it is what makes a pair one grid area. The row action is a second dd of the same group, because a dt may be followed by more than one dd.',
       'A row action is named by its own term through aria-describedby pointing at the dt, so a reader who tabs to “Change” hears which row it changes. GOV.UK repeats the term as visually hidden text inside every action, which a template system has to do; a reference says it once and cannot drift. A static aria-describedby you wrote is read with HostAttributeToken and composed with rather than replaced.',
-      'A value that is missing is drawn and said: the mark is geometry in CSS and the reason is real text in a visually hidden sibling, because colour and shape alone never carry meaning.',
-      'The reveal toggle is the APG Disclosure pattern — role button, aria-expanded true while the content is visible, Enter and Space toggling — and the copy control is a plain button, so both take their keyboard behaviour from the platform. The family adds no key of its own: a read-only list of pairs is not a composite widget, and inventing arrow navigation would take Tab away from controls that need it.',
+      'A value that is missing is drawn and said: the mark is geometry in CSS and the reason is real text in a visually hidden sibling, because color and shape alone never carry meaning.',
+      'The reveal toggle is the APG Disclosure pattern — role button, aria-expanded true while the content is visible, Enter and Space toggling — and the copy control is a plain button, so both take their keyboard behavior from the platform. The family adds no key of its own: a read-only list of pairs is not a composite widget, and inventing arrow navigation would take Tab away from controls that need it.',
       'Clamping is visual only. Every character stays in the DOM, selectable, copyable and readable by a screen reader, which is what the repository means by never truncating without access.',
-      'A finished copy is announced politely through the shared live announcer rather than a region this family owns, so two copies in one update are both heard; and the control changes its mark as well as its colour, so a reader who cannot see the green still sees it finish.',
+      'A finished copy is announced politely through the shared live announcer rather than a region this family owns, so two copies in one update are both heard; and the control changes its mark as well as its color, so a reader who cannot see the green still sees it finish.',
       'A browser refuses the clipboard where the document is not focused, and inside an iframe carrying no clipboard-write permission — a Storybook page is both. A control that failed silently there would be indistinguishable from a broken one, so the family selects the value instead and announces that it did: the reader sees the selection and copies it with the keyboard.',
       'A clamp is a maximum rather than a promise, so the reveal control appears only for a value that has more text than the clamp allows. A control that reveals nothing is one a reader presses once and learns to distrust.',
     ],

@@ -11,21 +11,21 @@ const data = [
   { month: 'Feb', revenue: 132 },
 ];
 
-const centre = (element: Element) => {
+const center = (element: Element) => {
   const box = element.getBoundingClientRect();
   return box.top + box.height / 2;
 };
 
 /**
  * The controls of the consumer's `actions` and the chart's own toolbar sit on
- * the title's first line, so they share one vertical centre.
+ * the title's first line, so they share one vertical center.
  */
 describe('the header of a card chart', () => {
   afterEach(async () => {
     await page.viewport(412, 915);
   });
 
-  it('centres a small segmented control in actions on the toolbar buttons', async () => {
+  it('centers a small segmented control in actions on the toolbar buttons', async () => {
     /* A phone's frame draws the toolbar's 44px touch targets and folds it into a menu. */
     await page.viewport(1024, 915);
     render(
@@ -54,7 +54,7 @@ describe('the header of a card chart', () => {
     const toolbarButton = document.querySelector('[data-part="toolbar"] button')!;
     expect(actions).not.toBeNull();
     expect(toolbarButton).not.toBeNull();
-    expect(Math.abs(centre(actions) - centre(toolbarButton))).toBeLessThan(0.5);
+    expect(Math.abs(center(actions) - center(toolbarButton))).toBeLessThan(0.5);
   });
 });
 

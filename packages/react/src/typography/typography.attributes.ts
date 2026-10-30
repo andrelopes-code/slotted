@@ -16,7 +16,7 @@ function lines(truncate: TypographyAxes['truncate']) {
  * any document: restating that default on every one of them would be seven
  * attributes of noise per paragraph.
  *
- * `tone: 'inherit'` is the absence of a colour rather than a colour, so it
+ * `tone: 'inherit'` is the absence of a color rather than a color, so it
  * writes nothing at all.
  */
 export function axisAttributes(axes: TypographyAxes): Record<string, string> {

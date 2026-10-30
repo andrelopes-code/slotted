@@ -37,7 +37,7 @@ export function timeLabel(
 
 /**
  * The part of an event's name that is not on screen: its whole span, its
- * calendar, its state. Position and colour say none of it to someone who
+ * calendar, its state. Position and color say none of it to someone who
  * cannot see them, so the words say all of it.
  */
 function metaText(

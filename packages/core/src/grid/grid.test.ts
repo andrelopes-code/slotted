@@ -106,7 +106,7 @@ const columns: GridColumn<Shipment>[] = [
 const rowKey = (row: Shipment) => row.id;
 
 describe('columns', () => {
-  it('normalises a saved state against the model: unknown columns leave, new ones land where declared', () => {
+  it('normalizes a saved state against the model: unknown columns leave, new ones land where declared', () => {
     const state = normalizeColumnState(
       {
         order: ['weight', 'ghost', 'id'],

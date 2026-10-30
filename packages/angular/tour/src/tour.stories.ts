@@ -571,7 +571,7 @@ class EdgesDemo {
       id: 'chart',
       target: '#edges-chart',
       title: 'Revenue by region',
-      description: 'Taller than the room around it: the card is centred over it.',
+      description: 'Taller than the room around it: the card is centerd over it.',
     },
     {
       id: 'feedback',
@@ -980,7 +980,7 @@ export const Edges: Story = {
   render: () =>
     one(
       'Corners, edges and a target that fills the screen',
-      'Each corner step asks for the side that has no room: the card flips and slides along the edge and the arrow keeps pointing. The chart leaves no side tall enough, so its card is centred over it and the spotlight still frames it.',
+      'Each corner step asks for the side that has no room: the card flips and slides along the edge and the arrow keeps pointing. The chart leaves no side tall enough, so its card is centerd over it and the spotlight still frames it.',
       `<sl-tour-edges-demo />`,
     ),
 };

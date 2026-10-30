@@ -114,7 +114,7 @@ const anatomy: AnatomyRow[] = [
     element: 'select',
     required: false,
     purpose:
-      'How many items a page holds. A native select, so its popup follows the colour scheme the theme already emits.',
+      'How many items a page holds. A native select, so its popup follows the color scheme the theme already emits.',
   },
   {
     part: 'page-size-label',
@@ -395,7 +395,7 @@ export const ANGULAR_PAGINATION_DOCS = {
       'The page being read carries aria-current="page" — the value the ARIA specification names for a link within a set of pagination links — and that attribute is also what paints its fill, so what a screen reader announces and what the eye sees are one fact rather than two.',
       'The range is a polite live region, and it is the only one: a paginator that also announced its label would say the same thing twice. It reports the new range after the page settles, and live="off" silences it where an application announces the page itself.',
       'A trigger at a bound stays in the page rather than disappearing, so the row does not reflow under the pointer. In button mode it takes the native disabled; in link mode it loses its href and says aria-disabled, because an anchor has no disabled attribute and one that kept its destination would still navigate on a middle click.',
-      'The page size is a native select wrapped by its own label, which gives the control its accessible name from the platform with no generated id, and its popup follows the colour scheme the theme already emits.',
+      'The page size is a native select wrapped by its own label, which gives the control its accessible name from the platform with no generated id, and its popup follows the color scheme the theme already emits.',
       'Below 22rem of the family’s own inline size the numbered row is replaced by "Page 3 of 24". Both are rendered and exactly one is displayed, so neither is announced twice — and where no summary exists to replace it, as in a cursor paginator, the range is kept instead.',
       'A disabled or loading paginator mutes the current page’s chip into the disabled palette while keeping its shape: the reader still sees which page they are on, and nothing in a greyed row reads as the one thing still operable.',
     ],

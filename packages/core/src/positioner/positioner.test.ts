@@ -74,7 +74,7 @@ describe('geometry', () => {
     expect(resolveSide('inline-end', 'rtl')).toBe('left');
   });
 
-  it('writes the centre alignment as no alignment at all', () => {
+  it('writes the center alignment as no alignment at all', () => {
     expect(toPlacement('bottom', 'center')).toBe('bottom');
     expect(toPlacement('bottom', 'start')).toBe('bottom-start');
     expect(fromPlacement('bottom')).toEqual({ side: 'bottom', align: 'center' });
@@ -459,7 +459,7 @@ describe('createPositioner', () => {
       positioner.destroy();
     });
 
-    it('centres a frame wider than the anchor, so the panel inside it shares the anchor edge', async () => {
+    it('centers a frame wider than the anchor, so the panel inside it shares the anchor edge', async () => {
       const { anchor, floating } = clippedScene();
       sized(floating, FIELD.width + 16, 120);
       const positioner = createPositioner(anchor, floating, {

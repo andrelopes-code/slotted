@@ -215,7 +215,7 @@ export const Variant: Story = {
       ) +
         scene(
           'Bare',
-          'ghost draws no frame, for a bar that sits inside something already framed. The item that is on keeps the same accent ground and edge, because “on” is one colour across the system.',
+          'ghost draws no frame, for a bar that sits inside something already framed. The item that is on keeps the same accent ground and edge, because “on” is one color across the system.',
           `<div slToggleGroup aria-label="Density without frame" variant="ghost" [defaultValue]="['compact']">
              <button slToggleGroupItem value="comfortable">Comfortable</button>
              <button slToggleGroupItem value="compact">Compact</button>
@@ -398,7 +398,7 @@ export const Width: Story = {
       ) +
         scene(
           'Sharing the whole line',
-          'fullWidth gives every item an equal share of the line the bar was given. The labels stay centred, so the bar reads as one control rather than as two stretched buttons.',
+          'fullWidth gives every item an equal share of the line the bar was given. The labels stay centerd, so the bar reads as one control rather than as two stretched buttons.',
           `<div slToggleGroup aria-label="Billing full line" fullWidth [defaultValue]="['monthly']">
              <button slToggleGroupItem value="monthly">Monthly</button>
              <button slToggleGroupItem value="yearly">Yearly</button>

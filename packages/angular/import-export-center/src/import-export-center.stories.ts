@@ -157,7 +157,7 @@ function jobs(attributes: string) {
   return `<sl-iec-jobs ${attributes}></sl-iec-jobs>`;
 }
 
-/* ── The centre over a store ────────────────────────────────────────────── */
+/* ── The center over a store ────────────────────────────────────────────── */
 
 @Component({
   selector: 'sl-iec-jobs',
@@ -440,7 +440,7 @@ class IntakeDemo {
       </div>
       <section
         slImportExportCenter
-        #centre="slImportExportCenter"
+        #center="slImportExportCenter"
         locale="pt-BR"
         [jobs]="store.jobs()"
         [views]="[]"
@@ -461,7 +461,7 @@ class IntakeDemo {
 })
 class ToastsDemo {
   readonly store = new JobStore(jobsOf(['stock-september', 'invoices-q3']));
-  private readonly centre = viewChild.required<SlImportExportCenter>('centre');
+  private readonly center = viewChild.required<SlImportExportCenter>('center');
   private readonly view =
     viewChild.required<TemplateRef<{ $implicit: ToastMessage<ToastContent> }>>('view');
   private readonly toasts = inject(SlToastService);
@@ -474,7 +474,7 @@ class ToastsDemo {
     const key = (message.data.data as JobToastData | undefined)?.key;
     if (key === undefined) return;
     this.toasts.dismiss(message.id, 'pointer');
-    this.centre().reveal(key);
+    this.center().reveal(key);
   }
 }
 
@@ -823,8 +823,8 @@ export const Defaults: Story = {
         '<sl-iec-provided></sl-iec-provided>',
       ) +
         scene(
-          'A centre that states its own',
-          "size md on the centre wins over the provider's sm.",
+          'A center that states its own',
+          "size md on the center wins over the provider's sm.",
           '<sl-iec-provided size="md"></sl-iec-provided>',
         ),
     ),

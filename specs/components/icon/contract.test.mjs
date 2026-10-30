@@ -45,7 +45,7 @@ test('sizes from the control icon scale, and from the type beside it', () => {
   assert.equal(contract.members.icon.defaults.size, 'md');
 });
 
-test('takes the colour of its context before it takes a tone', () => {
+test('takes the color of its context before it takes a tone', () => {
   assert.deepEqual(contract.axes.tone, [
     'inherit',
     'default',

@@ -21,7 +21,7 @@ import type {
   TransferSize,
 } from './transfer.types';
 
-/* ── A project team, drawn from an engineering organisation ────────────── */
+/* ── A project team, drawn from an engineering organization ────────────── */
 
 const PEOPLE: TransferItem[] = [
   { key: 'ana', label: 'Anna Stone', description: 'Design · Seattle' },

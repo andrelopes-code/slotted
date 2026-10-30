@@ -3,7 +3,7 @@ import '@slotted/styles/wizard/wizard.css';
 import '@slotted/styles/field/field.css';
 import '@slotted/styles/visually-hidden/visually-hidden.css';
 
-import { hasErrors, isDirty, normaliseErrors } from '@slotted/core/form';
+import { hasErrors, isDirty, normalizeErrors } from '@slotted/core/form';
 import type { FormErrorInput } from '@slotted/core/form';
 import { wizardMessages } from '@slotted/core/i18n';
 import { createControllable } from '@slotted/core/state';
@@ -587,7 +587,7 @@ export function Wizard({
       if (controller.signal.aborted) return undefined;
       if (validation.current === controller) validation.current = undefined;
       setPending(undefined);
-      if (errors !== undefined && hasErrors(normaliseErrors(errors))) {
+      if (errors !== undefined && hasErrors(normalizeErrors(errors))) {
         setInvalid((names) => new Set([...names, name]));
         jumpTarget.current = undefined;
         return errors;

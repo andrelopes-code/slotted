@@ -13,7 +13,7 @@ import {
   pathOf,
   renderGlyph,
 } from '../../../scripts/generate-icon-glyphs.mjs';
-import { centringOffset, inkBox, opticalOffset, VIEW_BOX } from '../../../scripts/glyph-ink.mjs';
+import { centeringOffset, inkBox, opticalOffset, VIEW_BOX } from '../../../scripts/glyph-ink.mjs';
 import defaultTheme from '../src/default/theme.mjs';
 
 const ROOT = new URL('../../../', import.meta.url).pathname;
@@ -117,7 +117,7 @@ function assertGlyphTable() {
  * name prefix held only while every shadow was called `--slotted-shadow-*`,
  * and it broke the moment a control named its own: `--slotted-control-shadow`
  * is a shadow that does not carry the prefix, and the split sent it to the
- * colour table. The contract already declares what each token is, so the
+ * color table. The contract already declares what each token is, so the
  * declared type is what the tables are partitioned by.
  */
 function assertSchemeTable(title, predicate) {
@@ -166,7 +166,7 @@ test('draws every glyph from the Lucide icon its manifest names', () => {
 
 /**
  * The drawing is Lucide's; where it sits in the box is this repository's. A
- * mask is centred on whatever consumes it, so a glyph framed for a set rather
+ * mask is centerd on whatever consumes it, so a glyph framed for a set rather
  * than for its own middle carries that framing into every family that draws
  * it: `check` paints from y 4.5 to y 18.5 of its twenty-four units, half a
  * unit above the middle, and the checkbox mark inherited 0.208 | 0.250 |
@@ -189,7 +189,7 @@ test('measures the ink of a drawing, not the frame it was given', () => {
   assert.deepEqual([circle.minX, circle.maxX, circle.minY, circle.maxY], [1, 23, 1, 23]);
 });
 
-test('centres the ink of every glyph in the box the mask is drawn in', () => {
+test('centers the ink of every glyph in the box the mask is drawn in', () => {
   const declared = names((token) => token.name.startsWith(GLYPH_PREFIX));
   const moved = [];
   for (const name of declared) {
@@ -199,30 +199,32 @@ test('centres the ink of every glyph in the box the mask is drawn in', () => {
       paint: entry.paint ?? 'stroke',
       strokeWidth: entry['stroke-width'] ?? DEFAULT_STROKE_WIDTH,
     };
-    /* A glyph that names its body is centred on its main shape, held inside the box. */
+    /* A glyph that names its body is centerd on its main shape, held inside the box. */
     const body = entry.body?.map((index) => node[index]);
     const ink = inkBox(body ?? node, options);
     const whole = inkBox(node, options);
     const { dx, dy } =
-      body === undefined ? centringOffset(node, options) : opticalOffset(node, entry.body, options);
-    for (const [axis, centre, offset, min, max] of [
+      body === undefined
+        ? centeringOffset(node, options)
+        : opticalOffset(node, entry.body, options);
+    for (const [axis, center, offset, min, max] of [
       ['x', (ink.minX + ink.maxX) / 2, dx, whole.minX, whole.maxX],
       ['y', (ink.minY + ink.maxY) / 2, dy, whole.minY, whole.maxY],
     ]) {
       const held = min + offset <= 0.0005 || max + offset >= VIEW_BOX - 0.0005;
       assert.ok(
-        Math.abs(centre + offset - VIEW_BOX / 2) <= 0.0005 || (body !== undefined && held),
-        `${name} sits ${(centre + offset - VIEW_BOX / 2).toFixed(4)} off centre on ${axis}`,
+        Math.abs(center + offset - VIEW_BOX / 2) <= 0.0005 || (body !== undefined && held),
+        `${name} sits ${(center + offset - VIEW_BOX / 2).toFixed(4)} off center on ${axis}`,
       );
     }
-    /* A drawing already on the centre is emitted as Lucide wrote it. */
+    /* A drawing already on the center is emitted as Lucide wrote it. */
     if (dx === 0 && dy === 0) {
       assert.doesNotMatch(theme.base[name], /translate/, `${name} is moved by nothing`);
     } else {
       assert.match(
         theme.base[name],
         new RegExp(`transform='translate\\(${dx} ${dy}\\)'`),
-        `${name} does not carry the offset that centres it`,
+        `${name} does not carry the offset that centers it`,
       );
       moved.push(name);
     }
@@ -247,7 +249,7 @@ test('centres the ink of every glyph in the box the mask is drawn in', () => {
       '--slotted-icon-check-check',
       '--slotted-icon-pencil',
     ],
-    'the glyphs Lucide did not frame on their own centre',
+    'the glyphs Lucide did not frame on their own center',
   );
 });
 
@@ -300,11 +302,11 @@ test('documents the control typography every family shares', () => {
   assertBaseTable('Control typography', '--slotted-control-');
 });
 
-test('documents each scheme colour in all three schemes', () => {
+test('documents each scheme color in all three schemes', () => {
   assertSchemeTable('Shadow', (token) => token.type === 'shadow');
   /*
    * The component layer is excluded because it documents itself. `upload`'s
-   * file-kind palette varies by scheme and is not a semantic colour: it has its
+   * file-kind palette varies by scheme and is not a semantic color: it has its
    * own table under **File kind**, for the reason Avatar's sizes have their own
    * under **Avatar size**, and listing it here would say a family's palette is
    * something every family may read.
@@ -313,10 +315,10 @@ test('documents each scheme colour in all three schemes', () => {
    * The data scale is semantic and is not a surface, a text or a border: it is
    * what a series is painted with, and `chart` reads it as a set rather than
    * one token at a time. It has its own table under **Data** so that the
-   * order — which is the scale's colour-vision argument — is read as a list.
+   * order — which is the scale's color-vision argument — is read as a list.
    */
   assertSchemeTable(
-    'Semantic colour',
+    'Semantic color',
     (token) =>
       token.type !== 'shadow' &&
       token.layer !== 'component' &&
@@ -326,12 +328,12 @@ test('documents each scheme colour in all three schemes', () => {
   assertSchemeTable('Data', (token) => token.name.startsWith('--slotted-data-'));
 });
 
-test('documents what forced colours replace each scheme token with', () => {
+test('documents what forced colors replace each scheme token with', () => {
   const entries = tokens(
     (token) => token.axis === 'scheme' && !token.name.startsWith('--slotted-tone-'),
   );
   assertExactTable(
-    'Forced colours',
+    'Forced colors',
     ['Token', 'Replacement'],
     entries.map((token) => [`\`${token.name}\``, `\`${token.forcedColor}\``]),
   );
@@ -428,7 +430,7 @@ test('scopes the law to the families the rebuild has reached', () => {
  * The element and the mask are one drawing. The module the `Glyph` element
  * renders is generated from the same manifest, and every Lucide element it
  * rewrites as path data keeps the ink box Lucide's own element has — the box
- * the centring offset was computed from.
+ * the centering offset was computed from.
  */
 test('draws the glyph element from the drawing the mask is drawn from', async () => {
   const { changed } = await generateModule({ check: true });

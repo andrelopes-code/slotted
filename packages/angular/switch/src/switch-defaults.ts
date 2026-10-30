@@ -5,7 +5,7 @@ export type SwitchSize = 'sm' | 'md' | 'lg';
 
 /**
  * What the thumb carries. `mark` draws a check when the switch is on and
- * nothing when it is off, which is what makes the state readable beyond colour
+ * nothing when it is off, which is what makes the state readable beyond color
  * and beyond position. `none` withdraws it, and is only correct where
  * something else carries the state.
  */

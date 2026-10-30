@@ -141,7 +141,7 @@ test('treats the legend as a toolbar of toggles', () => {
 
 /**
  * Eight slots, assigned in order, never cycled. A ninth series painted in the
- * first slot's colour would be a second series nobody can tell from the first.
+ * first slot's color would be a second series nobody can tell from the first.
  */
 test('assigns the data scale in order and never cycles it', () => {
   assert.equal(contract.slots.count, 8);
@@ -204,14 +204,14 @@ test('takes the whole screen on the reader’s word, and leaves it on Escape', (
 });
 
 /**
- * Colour is retuned through tokens and chosen through meaning, never passed
- * as a value: a colour prop is the arbitrary colour §2.4 keeps out of the
+ * Color is retuned through tokens and chosen through meaning, never passed
+ * as a value: a color prop is the arbitrary color §2.4 keeps out of the
  * contract.
  */
-test('retunes colour through tokens and three palettes, never through a colour value', () => {
+test('retunes color through tokens and three palettes, never through a color value', () => {
   assert.deepEqual(contract.axes.palette, ['categorical', 'sequential', 'focus']);
   assert.match(contract.palette.categorical, /--slotted-chart-color-1\.\.8/);
-  assert.match(contract.palette.override, /no series takes an arbitrary colour/);
+  assert.match(contract.palette.override, /no series takes an arbitrary color/);
 });
 
 test('gathers its own controls in a toolbar that can step back', () => {

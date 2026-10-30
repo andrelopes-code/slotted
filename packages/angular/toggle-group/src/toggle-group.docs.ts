@@ -43,7 +43,7 @@ const anatomy: AnatomyRow[] = [
     element: 'button, with slToggleGroupItem on it',
     required: true,
     purpose:
-      'One two-state control. It carries aria-pressed in both states and data-pressed when it is on, and its border is always present so that turning it on changes a colour and never the geometry.',
+      'One two-state control. It carries aria-pressed in both states and data-pressed when it is on, and its border is always present so that turning it on changes a color and never the geometry.',
   },
   {
     part: 'icon',
@@ -94,7 +94,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'variant',
     title: 'Framed, or bare',
-    note: 'outline draws the bar’s own edge; ghost draws none, for a bar that sits inside something already framed — a toolbar, a card header. The colour of an item that is on is the same in both.',
+    note: 'outline draws the bar’s own edge; ghost draws none, for a bar that sits inside something already framed — a toolbar, a card header. The color of an item that is on is the same in both.',
     snippet: defineSnippet({
       id: 'toggle-group-angular-variant',
       language: 'angular',
@@ -314,7 +314,7 @@ export const ANGULAR_TOGGLE_GROUP_DOCS = {
         "'outline' | 'ghost' | 'chips'",
         'outline',
         'slToggleGroup',
-        'Whether the bar draws its own edge, or draws its items as chips: separate rounded items that wrap, never joined, the pressed one in the neutral tone ink. There is no tone axis: “on” is one colour across the system',
+        'Whether the bar draws its own edge, or draws its items as chips: separate rounded items that wrap, never joined, the pressed one in the neutral tone ink. There is no tone axis: “on” is one color across the system',
       ],
       [
         'orientation',

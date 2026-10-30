@@ -18,13 +18,13 @@ test('names the identifier a consumer selects the family by', () => {
 });
 
 /**
- * No APG pattern covers a job centre. The details follow Disclosure, which is
+ * No APG pattern covers a job center. The details follow Disclosure, which is
  * the one pattern the family cites as `pattern`; the rest is the platform's
  * list and the progressbar role `progress-indicator` already carries.
  */
 test('is a region holding a native list, with the Disclosure pattern on the toggle', () => {
   assert.equal(contract.pattern, 'https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/');
-  assert.match(contract.patternStatus, /no pattern for a job centre/);
+  assert.match(contract.patternStatus, /no pattern for a job center/);
   assert.equal(member.nativeElement, 'section');
   assert.match(contract.roles.list, /native ul/);
   assert.match(contract.roles.job, /native li/);

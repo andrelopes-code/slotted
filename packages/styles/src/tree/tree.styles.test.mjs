@@ -286,7 +286,7 @@ test('draws the checkbox the checkbox family draws', () => {
 /**
  * What a reader sees on a row is the distance from its deepest guide line to
  * its own chevron, and that distance is `step - glyph / 2`, because the line
- * sits on the centre of the chevron one level up. Read from the space scale the
+ * sits on the center of the chevron one level up. Read from the space scale the
  * step moved against the glyph: measured on the built page, five pixels at
  * `sm`, eight at `md`, eleven at `lg`, and nought at 240 pixels, where the line
  * met the chevron. Stated from the glyph it is eight everywhere, and `md` keeps
@@ -355,8 +355,8 @@ test("states its own list geometry rather than inheriting the page's", () => {
   ]) {
     assert.ok(node.includes(property), `a node inherits ${property.split(':')[0]} from the page`);
   }
-  /* The normaliser strips the space before a `:`, so the selector is looked up
-     in the shape it takes after normalising rather than as it is authored. */
+  /* The normalizer strips the space before a `:`, so the selector is looked up
+     in the shape it takes after normalizing rather than as it is authored. */
   const lists = rule(`${ui}:is([data-part-canvas],[data-part-group])`);
   assert.match(lists, /list-style:none/);
   assert.match(lists, /margin-block:0/);

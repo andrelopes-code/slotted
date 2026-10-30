@@ -84,7 +84,7 @@ test('draws the fence prose draws', () => {
 
 /**
  * Twelve scopes, each from the theme's own scale and never from an engine, so
- * a scheme switch reaches every colour. Each falls back to a foundation token,
+ * a scheme switch reaches every color. Each falls back to a foundation token,
  * because the scale is in the component layer.
  */
 test('paints every scope from the code scale', () => {
@@ -96,7 +96,7 @@ test('paints every scope from the code scale', () => {
       `Missing scope ${scope}`,
     );
   }
-  assert.doesNotMatch(declarations, /color:\s*#[0-9a-f]{3,8}/i, 'no colour is stated');
+  assert.doesNotMatch(declarations, /color:\s*#[0-9a-f]{3,8}/i, 'no color is stated');
 });
 
 /**
@@ -226,7 +226,7 @@ test('collapses behind the reveal control and prints the whole block', () => {
   );
 });
 
-test('gives the palette back under forced colours and stops the blur under reduced motion', () => {
+test('gives the palette back under forced colors and stops the blur under reduced motion', () => {
   assert.match(
     declarations,
     /@media \(forced-colors: active\)[\s\S]*\[data-mark\]\s*\{\s*background-color: transparent;/,

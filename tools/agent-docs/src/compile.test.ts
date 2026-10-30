@@ -23,7 +23,7 @@ describe('compileReact', () => {
           key: 'invented-prop',
           language: 'tsx',
           source:
-            'import { Button } from \'@slotted/react\';\n\nexport const A = () => <Button colour="red">Save</Button>;\n',
+            'import { Button } from \'@slotted/react\';\n\nexport const A = () => <Button color="red">Save</Button>;\n',
         },
       ],
       root,
@@ -57,7 +57,7 @@ describe('compileAngular', () => {
         {
           key: 'unknown-input',
           language: 'ts',
-          source: component('<button slButton [colour]="1">Save</button>'),
+          source: component('<button slButton [color]="1">Save</button>'),
         },
         { key: 'template', language: 'html', source: '<button slButton>Save</button>\n' },
       ],
@@ -146,7 +146,7 @@ describe('compileAngular isolation', () => {
         {
           key: 'unknown-input',
           language: 'ts',
-          source: component('<button slButton [colour]="1">Save</button>'),
+          source: component('<button slButton [color]="1">Save</button>'),
         },
         { key: 'complete', language: 'ts', source: component('<button slButton>Save</button>') },
       ],
@@ -175,7 +175,7 @@ describe('readNgcResult', () => {
 
   it('names the blocks with an error and throws on an error outside them', () => {
     const ok = readNgcResult({
-      output: 'block-1.ts:4:82 - error NG8002: Can’t bind to “colour”.',
+      output: 'block-1.ts:4:82 - error NG8002: Can’t bind to “color”.',
       exitCode: 1,
       errorCode: undefined,
     });

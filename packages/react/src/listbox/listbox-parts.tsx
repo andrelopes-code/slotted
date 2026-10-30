@@ -87,7 +87,7 @@ export function ListboxOption({
  * A group of options, named by its own label. The pattern requires the name —
  * "each option group has an accessible name provided via aria-label or
  * aria-labelledby" — and requires the group to hold at least one option, which
- * is the consumer's to honour.
+ * is the consumer's to honor.
  */
 export function ListboxGroup({
   children,
@@ -177,7 +177,7 @@ export function ListboxIndicator({ children, ...nativeProps }: ListboxPartProps)
 /**
  * The option's own artwork, in the same column the mark uses and never beside
  * it: an `Icon` holding a `Glyph`, or an element of the consumer's own. The
- * column sizes and centres it; no stylesheet fills it.
+ * column sizes and centers it; no stylesheet fills it.
  */
 export function ListboxIcon({ children, ...nativeProps }: ListboxPartProps) {
   return (

@@ -1,6 +1,6 @@
 # Framework requirements
 
-Share the family contract, authored stylesheet, semantics, and behavioural intent. Do not force React and Angular through one implementation or make their public APIs artificially identical.
+Share the family contract, authored stylesheet, semantics, and behavioral intent. Do not force React and Angular through one implementation or make their public APIs artificially identical.
 
 The lists below are two different things, and only the first one has been enforced until now. Idiom is how the binding is _written_. Integration is what the binding _reaches_ in its ecosystem, and it is where a family stops being a styled box and starts being usable in a real application.
 
@@ -27,7 +27,7 @@ The lists below are two different things, and only the first one has been enforc
 - Add `exportAs` when a template needs the component or directive instance.
 - Prefer `inject()` over constructor parameters.
 - Import another Slotted entry point only through `@slotted/angular/<name>`; never reach into its source or private path.
-- Preserve native attributes and events on the element that owns them, including forms behaviour where applicable.
+- Preserve native attributes and events on the element that owns them, including forms behavior where applicable.
 
 ## Integration
 
@@ -62,6 +62,6 @@ Answer every line below in writing, for both bindings, before implementing eithe
 
 ## Both
 
-The consumer's explicit value always wins over context, inference, a provider, or derived state. Prefer the platform before ARIA or proprietary behaviour. Keep internal DOM private unless the contract explicitly exposes a part. Validate equivalent concepts and outcomes, not implementation parity.
+The consumer's explicit value always wins over context, inference, a provider, or derived state. Prefer the platform before ARIA or proprietary behavior. Keep internal DOM private unless the contract explicitly exposes a part. Validate equivalent concepts and outcomes, not implementation parity.
 
 Equivalent does not mean equally small. If one ecosystem offers a real integration point the other lacks — Reactive Forms, DI-provided defaults — the binding that has it uses it, and the self-assessment records the asymmetry instead of levelling both down to the smaller shape.

@@ -484,7 +484,7 @@ export const States: Story = {
       ) +
         scene(
           'Read-only is not disabled',
-          'Read-only keeps full-strength ink, stays focusable and copyable and is still submitted; disabled is muted to a measured colour rather than faded, so a disabled form still says what it holds.',
+          'Read-only keeps full-strength ink, stays focusable and copyable and is still submitted; disabled is muted to a measured color rather than faded, so a disabled form still says what it holds.',
           `<div slTextField>
              <input slTextFieldInput readonly defaultValue="Somente leitura" />
            </div>

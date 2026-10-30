@@ -168,12 +168,12 @@ test('keeps the side label and its control on one row, and the count in the labe
 });
 
 /**
- * The side label is centred on the control's first line rather than on the
+ * The side label is centerd on the control's first line rather than on the
  * control, so it stays level with the text a reader is typing when the control
  * is a textarea four lines tall. `max()` keeps a label taller than its control
  * from being pushed down.
  */
-test('centres the side label on the control’s first line', () => {
+test('centers the side label on the control’s first line', () => {
   const query = normalized.split('@container slotted-field (min-width:320px){')[1] ?? '';
   assert.match(
     query,
@@ -222,7 +222,7 @@ test('paints the mark as a severity and the words as a qualifier', () => {
 /**
  * The label is deliberately not repainted when the field is invalid. A red
  * marker on a red label is a marker nobody can see, and the error already says
- * the same thing in words, in colour and in a glyph.
+ * the same thing in words, in color and in a glyph.
  */
 test('never repaints the label for the state the error already carries', () => {
   assert.ok(!normalized.includes(`${root}[data-invalid]>[data-part-label]{`));
@@ -244,7 +244,7 @@ test('holds the counter’s limit back for the stronger state', () => {
  * field, and the change from under the limit to over it is a value moving —
  * which is the one thing in this family worth animating.
  */
-test('counts in tabular figures and moves only the colour', () => {
+test('counts in tabular figures and moves only the color', () => {
   assert.match(rule(`${ui}>[data-part-counter]`), /font-variant-numeric:tabular-nums/);
   assert.match(
     rule(`${ui}>[data-part-counter]`),
@@ -305,8 +305,8 @@ test('never distributes surplus height between its rows', () => {
 /**
  * The header aligns what it holds on the label's first baseline, wraps when it
  * runs out of room, and puts the action and the counter at its end. ReUI
- * centres every item of the same row (`items-center`), which sets a 13-pixel
- * label and a 12-pixel count on one centre instead of one line of text.
+ * centers every item of the same row (`items-center`), which sets a 13-pixel
+ * label and a 12-pixel count on one center instead of one line of text.
  */
 test('sets the header on the label’s baseline and ends it with the action and the count', () => {
   const header = rule(`${ui}>[data-part-header]`);
@@ -322,7 +322,7 @@ test('sets the header on the label’s baseline and ends it with the action and 
  * back the difference between its box and the label's line, and never stands
  * shorter than that line — at dense the inside of a control is 16 pixels and
  * the line 17.39, and a shorter button overflowed downward and grew the row.
- * The badges of the indicator are centred on the line rather than set on its
+ * The badges of the indicator are centerd on the line rather than set on its
  * baseline, where their inset stood them 1.77 pixels above it.
  */
 test('keeps the label row as tall as the label', () => {
@@ -335,7 +335,7 @@ test('keeps the label row as tall as the label', () => {
 
 /**
  * The action speaks the vocabulary `link` settled for text that answers a
- * pointer: accent ink, a hover a third of the way to the body colour with the
+ * pointer: accent ink, a hover a third of the way to the body color with the
  * underline drawn, a press two thirds of the way. The press differs from the
  * hover, which ReUI's does not.
  */
@@ -352,7 +352,7 @@ test('answers the pointer on the action the way a link does', () => {
 });
 
 /** The glyph sits on the band between the capitals and the lowercase. */
-test('centres the help glyph on the label’s text rather than on its line box', () => {
+test('centers the help glyph on the label’s text rather than on its line box', () => {
   assert.match(
     rule(`${ui}>[data-part-header]>[data-part-help]>[data-ui-icon]`),
     /vertical-align:calc\(\(\(1cap \+ 1ex\) \/ 2 - var\(--_help-glyph\)\) \/ 2\)/,

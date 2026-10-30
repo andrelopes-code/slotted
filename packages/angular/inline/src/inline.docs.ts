@@ -50,7 +50,7 @@ export const ANGULAR_INLINE_DOCS = {
       'The directive selector is an attribute, so the element is always the consumer’s. Write ul when the items are list items.',
       'There is no input that reverses the items. Visual order stays DOM order, which is what WCAG 2.2 SC 1.3.2 asks for (technique C27, failure F1) and what keeps the Tab order matching the page.',
       'Wrapping is the default because a row that cannot wrap has one answer to a narrow container: overflow it. Asking for nowrap is asking for that, and WCAG 1.4.10 Reflow is what it costs.',
-      'baseline is the alignment for items that carry text of different sizes. It puts the type on one line where centring only puts the boxes there.',
+      'baseline is the alignment for items that carry text of different sizes. It puts the type on one line where centering only puts the boxes there.',
     ],
     snippets: [
       defineSnippet({

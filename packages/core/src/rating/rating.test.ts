@@ -4,33 +4,33 @@ import {
   formatRating,
   formatRatingValue,
   formatShare,
-  normaliseRating,
+  normalizeRating,
   ratingAtPoint,
   ratingFills,
   ratingForKey,
-  summariseRatings,
+  summarizeRatings,
 } from './rating';
 
 const whole = { max: 5, step: 1 } as const;
 const half = { max: 5, step: 0.5 } as const;
 
-describe('normaliseRating', () => {
+describe('normalizeRating', () => {
   it('keeps an empty value empty', () => {
-    expect(normaliseRating(null, whole)).toBeNull();
-    expect(normaliseRating(undefined, whole)).toBeNull();
-    expect(normaliseRating(Number.NaN, whole)).toBeNull();
+    expect(normalizeRating(null, whole)).toBeNull();
+    expect(normalizeRating(undefined, whole)).toBeNull();
+    expect(normalizeRating(Number.NaN, whole)).toBeNull();
   });
 
   it('puts a value on the grid, rounding up to the step', () => {
-    expect(normaliseRating(3.2, whole)).toBe(4);
-    expect(normaliseRating(3.2, half)).toBe(3.5);
-    expect(normaliseRating(3.5, half)).toBe(3.5);
+    expect(normalizeRating(3.2, whole)).toBe(4);
+    expect(normalizeRating(3.2, half)).toBe(3.5);
+    expect(normalizeRating(3.5, half)).toBe(3.5);
   });
 
   it('clamps to the scale and treats nought and below as empty', () => {
-    expect(normaliseRating(9, whole)).toBe(5);
-    expect(normaliseRating(0, whole)).toBeNull();
-    expect(normaliseRating(-2, whole)).toBeNull();
+    expect(normalizeRating(9, whole)).toBe(5);
+    expect(normalizeRating(0, whole)).toBeNull();
+    expect(normalizeRating(-2, whole)).toBeNull();
   });
 });
 
@@ -105,9 +105,9 @@ describe('ratingFills', () => {
   });
 });
 
-describe('summariseRatings', () => {
+describe('summarizeRatings', () => {
   it('reads the total, the mean and each level’s share, highest level first', () => {
-    const summary = summariseRatings([5, 3, 0, 0, 2]);
+    const summary = summarizeRatings([5, 3, 0, 0, 2]);
 
     expect(summary.total).toBe(10);
     expect(summary.average).toBe(2.1);
@@ -121,7 +121,7 @@ describe('summariseRatings', () => {
   });
 
   it('reports an empty set as no mean rather than a mean of nought', () => {
-    const summary = summariseRatings([0, 0, 0, 0, 0]);
+    const summary = summarizeRatings([0, 0, 0, 0, 0]);
 
     expect(summary.total).toBe(0);
     expect(summary.average).toBeNull();
@@ -129,13 +129,13 @@ describe('summariseRatings', () => {
   });
 
   it('ignores a negative or fractional count', () => {
-    expect(summariseRatings([1.5, -3, 2]).total).toBe(3);
+    expect(summarizeRatings([1.5, -3, 2]).total).toBe(3);
   });
 });
 
-describe('summariseRatings: shape and confidence', () => {
+describe('summarizeRatings: shape and confidence', () => {
   it('reads the spread, the margin of the mean and its interval inside the scale', () => {
-    const summary = summariseRatings([9, 18, 47, 158, 1052]);
+    const summary = summarizeRatings([9, 18, 47, 158, 1052]);
 
     expect(summary.deviation).toBeCloseTo(0.661, 3);
     expect(summary.margin).toBeCloseTo(0.036, 3);
@@ -144,15 +144,15 @@ describe('summariseRatings: shape and confidence', () => {
   });
 
   it('clamps a wide interval to the scale', () => {
-    const summary = summariseRatings([3, 0, 1, 0, 4]);
+    const summary = summarizeRatings([3, 0, 1, 0, 4]);
 
     expect(summary.interval?.[0]).toBeCloseTo(1.965, 3);
     expect(summary.interval?.[1]).toBeCloseTo(4.535, 3);
-    expect(summariseRatings([0, 0, 0, 0, 2]).interval).toEqual([5, 5]);
+    expect(summarizeRatings([0, 0, 0, 0, 2]).interval).toEqual([5, 5]);
   });
 
   it('groups the levels into negative, neutral and positive', () => {
-    expect(summariseRatings([3, 0, 1, 0, 4]).buckets).toEqual({
+    expect(summarizeRatings([3, 0, 1, 0, 4]).buckets).toEqual({
       negative: 0.375,
       neutral: 0.125,
       positive: 0.5,
@@ -160,14 +160,14 @@ describe('summariseRatings: shape and confidence', () => {
   });
 
   it('draws one conclusion, the first rule that holds', () => {
-    expect(summariseRatings([3, 0, 1, 0, 4]).insight).toBe('divided');
-    expect(summariseRatings([0, 0, 1, 2, 4]).insight).toBe('few');
-    expect(summariseRatings([9, 18, 47, 158, 1052]).insight).toBe('consensus');
-    expect(summariseRatings([10, 20, 60, 50, 40]).insight).toBe('mixed');
+    expect(summarizeRatings([3, 0, 1, 0, 4]).insight).toBe('divided');
+    expect(summarizeRatings([0, 0, 1, 2, 4]).insight).toBe('few');
+    expect(summarizeRatings([9, 18, 47, 158, 1052]).insight).toBe('consensus');
+    expect(summarizeRatings([10, 20, 60, 50, 40]).insight).toBe('mixed');
   });
 
   it('draws no conclusion, no margin and no interval from nothing', () => {
-    const summary = summariseRatings([0, 0, 0, 0, 0]);
+    const summary = summarizeRatings([0, 0, 0, 0, 0]);
 
     expect(summary.insight).toBeNull();
     expect(summary.margin).toBeNull();
@@ -176,8 +176,8 @@ describe('summariseRatings: shape and confidence', () => {
   });
 
   it('lets the thresholds be moved', () => {
-    expect(summariseRatings([9, 18, 47, 158, 1052], { consensus: 0.99 }).insight).toBe('mixed');
-    expect(summariseRatings([0, 0, 1, 2, 40], { few: 50 }).insight).toBe('few');
+    expect(summarizeRatings([9, 18, 47, 158, 1052], { consensus: 0.99 }).insight).toBe('mixed');
+    expect(summarizeRatings([0, 0, 1, 2, 40], { few: 50 }).insight).toBe('few');
   });
 });
 

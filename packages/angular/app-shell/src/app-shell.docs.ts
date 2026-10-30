@@ -35,7 +35,7 @@ const imports: ReferenceImport = {
   SlAppShellAsideToggle,
   SlAppShellBanner,
   SlAppShellBrand,
-  SlAppShellCentre,
+  SlAppShellCenter,
   SlAppShellFooter,
   SlAppShellMain,
   SlAppShellNav,
@@ -48,9 +48,9 @@ const imports: ReferenceImport = {
   provideAppShellDefaults,
 } from '@slotted/angular/app-shell';`,
   selector:
-    '[slAppShell] on the frame; header[slAppShellBanner], nav[slAppShellNav], main[slAppShellMain], aside[slAppShellAside], footer[slAppShellFooter] on the regions; [slAppShellBrand], [slAppShellCentre], [slAppShellActions], [slAppShellNavRail], [slAppShellNavHeader], [slAppShellNavBody], [slAppShellNavFooter], [slAppShellAsideHeader], [slAppShellAsideBody], [slAppShellAsideFooter] on their parts; button[slAppShellNavToggle] and button[slAppShellAsideToggle] on the controls; [slAppShellProgress] on any element inside the frame, for the wait',
+    '[slAppShell] on the frame; header[slAppShellBanner], nav[slAppShellNav], main[slAppShellMain], aside[slAppShellAside], footer[slAppShellFooter] on the regions; [slAppShellBrand], [slAppShellCenter], [slAppShellActions], [slAppShellNavRail], [slAppShellNavHeader], [slAppShellNavBody], [slAppShellNavFooter], [slAppShellAsideHeader], [slAppShellAsideBody], [slAppShellAsideFooter] on their parts; button[slAppShellNavToggle] and button[slAppShellAsideToggle] on the controls; [slAppShellProgress] on any element inside the frame, for the wait',
   exportAs:
-    'slAppShell, slAppShellBanner, slAppShellBrand, slAppShellCentre, slAppShellActions, slAppShellNav, slAppShellNavRail, slAppShellNavHeader, slAppShellNavBody, slAppShellNavFooter, slAppShellMain, slAppShellAside, slAppShellAsideHeader, slAppShellAsideBody, slAppShellAsideFooter, slAppShellFooter, slAppShellNavToggle, slAppShellAsideToggle, slAppShellProgress',
+    'slAppShell, slAppShellBanner, slAppShellBrand, slAppShellCenter, slAppShellActions, slAppShellNav, slAppShellNavRail, slAppShellNavHeader, slAppShellNavBody, slAppShellNavFooter, slAppShellMain, slAppShellAside, slAppShellAsideHeader, slAppShellAsideBody, slAppShellAsideFooter, slAppShellFooter, slAppShellNavToggle, slAppShellAsideToggle, slAppShellProgress',
 };
 
 const anatomy: AnatomyRow[] = [
@@ -83,7 +83,7 @@ const anatomy: AnatomyRow[] = [
       'The start cluster: the toggle, the mark, the name of the application or of the workspace. Shortened to one line by default, so a name never pushes the frame wider than the space there is.',
   },
   {
-    part: 'centre',
+    part: 'center',
     element: 'div',
     required: false,
     purpose:
@@ -115,7 +115,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div, or any element the directive is placed on',
     required: false,
     purpose:
-      'A strip of marks before the column: the first level of a two-level navigation, inside the one navigation landmark and under its one open state. With it the region is two columns; closed to rail it keeps the strip and lets the column go. Recognised by :has(), so no attribute is written and a server render has the grid on its first paint.',
+      'A strip of marks before the column: the first level of a two-level navigation, inside the one navigation landmark and under its one open state. With it the region is two columns; closed to rail it keeps the strip and lets the column go. Recognized by :has(), so no attribute is written and a server render has the grid on its first paint.',
   },
   {
     part: 'nav-header',
@@ -260,7 +260,7 @@ const scenes: ReferenceSceneMeta[] = [
     <div slAppShellBrand>
       <button slAppShellNavToggle></button>
     </div>
-    <div slAppShellCentre>…</div>
+    <div slAppShellCenter>…</div>
     <div slAppShellActions>…</div>
   </header>
   <nav slAppShellNav>
@@ -299,7 +299,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'banner',
     title: 'Three clusters, and the one that grows',
-    note: 'brand starts the line, centre takes whatever room is left, actions ends it. Aurora puts a search field with its shortcut in the middle; Cadence puts the route’s trail there and the route’s actions at the end; Atrium puts a title. What each holds is the product’s — slTextField, slBreadcrumb, slAvatar — and where it goes is the shell’s. Narrow the frame: the middle gives way first, and a control in actions keeps its width rather than breaking its label one letter per line.',
+    note: 'brand starts the line, center takes whatever room is left, actions ends it. Aurora puts a search field with its shortcut in the middle; Cadence puts the route’s trail there and the route’s actions at the end; Atrium puts a title. What each holds is the product’s — slTextField, slBreadcrumb, slAvatar — and where it goes is the shell’s. Narrow the frame: the middle gives way first, and a control in actions keeps its width rather than breaking its label one letter per line.',
     snippet: defineSnippet({
       id: 'app-shell-angular-banner',
       language: 'angular',
@@ -309,7 +309,7 @@ const scenes: ReferenceSceneMeta[] = [
     <button slAppShellNavToggle></button>
     <span>Aurora</span>
   </div>
-  <div slAppShellCentre>
+  <div slAppShellCenter>
     <div slTextField size="sm" variant="subtle">
       <span slTextFieldStart><ng-icon name="lucideSearch" /></span>
       <input slTextFieldInput type="search" placeholder="Search…" />
@@ -339,7 +339,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'separation',
     title: 'A rule, or a tone',
-    note: 'Where two regions touch without a gutter — every seam of flush, the seams inside the panel card, the bar over the content under primary="main" — separation decides what is drawn. rule is a line. tone is no line: the chrome regions take a ground 0.036 OKLab L from the surface, and the subtle tones inside them are recomputed from that ground so a hover still answers. Under forced colours a tone separates nothing, and the rule is drawn whatever the input says.',
+    note: 'Where two regions touch without a gutter — every seam of flush, the seams inside the panel card, the bar over the content under primary="main" — separation decides what is drawn. rule is a line. tone is no line: the chrome regions take a ground 0.036 OKLab L from the surface, and the subtle tones inside them are recomputed from that ground so a hover still answers. Under forced colors a tone separates nothing, and the rule is drawn whatever the input says.',
     snippet: defineSnippet({
       id: 'app-shell-angular-separation',
       language: 'angular',
@@ -905,7 +905,7 @@ export const ANGULAR_APP_SHELL_DOCS = {
     <div data-part="brand">
       <button data-part="nav-toggle" aria-expanded="true" aria-controls="…-nav"></button>
     </div>
-    <div data-part="centre">…</div>
+    <div data-part="center">…</div>
     <div data-part="actions">…</div>
   </header>
   <nav data-part="nav" id="…-nav" aria-label="Main navigation">
@@ -948,7 +948,7 @@ export const ANGULAR_APP_SHELL_DOCS = {
   --slotted-app-shell-border-color: var(--slotted-border-subtle);
   /* The ground separation="tone" gives the chrome regions. */
   --slotted-app-shell-tone-surface: var(--slotted-tone-secondary-subtle-hover);
-  /* A background-image layer over the frame's colour: a wash, a photograph. */
+  /* A background-image layer over the frame's color: a wash, a photograph. */
   --slotted-app-shell-frame-image: radial-gradient(
     60% 80% at 0% 0%,
     var(--slotted-tone-accent-surface),

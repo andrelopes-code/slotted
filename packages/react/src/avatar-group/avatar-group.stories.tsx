@@ -103,7 +103,7 @@ export const Overflow: Story = {
         <header className="slotted-demo-scene__header">
           <span className="slotted-demo-scene__label">Within the limit</span>
           <span className="slotted-demo-scene__note">
-            Nothing is summarised: a +1 beside four faces is one more circle than showing the fifth.
+            Nothing is summarized: a +1 beside four faces is one more circle than showing the fifth.
           </span>
         </header>
         <div className="slotted-demo-stage">
@@ -189,8 +189,8 @@ export const Composition: Story = {
         <header className="slotted-demo-scene__header">
           <span className="slotted-demo-scene__label">On a sunken row</span>
           <span className="slotted-demo-scene__note">
-            The ring is a colour, not a boolean, so a group inside a card or a coloured row is still
-            a row of separate faces.
+            The ring is a color, not a boolean, so a group inside a card or a colored row is still a
+            row of separate faces.
           </span>
         </header>
         <div
@@ -249,7 +249,7 @@ export const Extremes: Story = {
         <AvatarGroup aria-label="An empty group" />
       </div>
       <p>
-        A three-figure summary, a group of one that summarises nothing, a deactivated member that
+        A three-figure summary, a group of one that summarizes nothing, a deactivated member that
         does not rise on hover, and an empty group that takes no room at all — so a row built from a
         permission filter does not leave a gap nobody can see in the markup.
       </p>

@@ -90,7 +90,7 @@ test('gives each of the three steps its own geometry and nothing else', () => {
     assert.ok(step.includes(`--_height:var(--slotted-control-height-${size}`), size);
     assert.ok(step.includes(`--_font-size:var(--slotted-control-font-size-${size}`), size);
     assert.ok(step.includes(`--_gap:var(--slotted-control-gap-${size}`), size);
-    assert.doesNotMatch(step, /background|color:/, `${size} decides a colour as well as a size`);
+    assert.doesNotMatch(step, /background|color:/, `${size} decides a color as well as a size`);
   }
 });
 
@@ -204,7 +204,7 @@ test('draws an outline button with a neutral edge and a tone label', () => {
  * The first rebuild grew the border to carry the extra weight, which moved
  * every control in the row; the second drew a ring inside the border instead,
  * which cost no space and read as a control with two edges. The state is a
- * colour, and `aria-pressed` is what announces it.
+ * color, and `aria-pressed` is what announces it.
  *
  * The guard is on the pressed selector rather than on the sheet. It was
  * written as a ban on `::after` anywhere, which is a proxy that stopped
@@ -217,7 +217,7 @@ test('says pressed the way the foundation says selected, and with one edge like 
   assert.ok(pressed.includes('border-color:var(--slotted-tone-accent-border'));
   assert.ok(pressed.includes('color:var(--slotted-tone-accent-text'));
   assert.ok(pressed.includes('box-shadow:var(--slotted-control-shadow'));
-  /* On is one colour across the system, not a shade of each tone's own. */
+  /* On is one color across the system, not a shade of each tone's own. */
   assert.doesNotMatch(pressed, /--_solid|--_on-solid|--_edge/);
 
   const drawn = selectors().filter(
@@ -245,7 +245,7 @@ test('hovers a pressed toggle on the accent ground, never on the neutral one', (
 
 /**
  * The whole reason this family was rebuilt a second time. A state may change
- * a colour and nothing else: a border width, a padding, a margin or a size
+ * a color and nothing else: a border width, a padding, a margin or a size
  * written under a state selector moves every control in the row when the
  * state turns on.
  */
@@ -345,7 +345,7 @@ test('keeps an unavailable control legible, and leaves the disabled grey to :dis
  * nothing to put down, so only its ground changes, to the darker neutral step
  * that pairs with the neutral hover ground.
  */
-test('presses a filled control down by a hairline, and a bare one only in colour', () => {
+test('presses a filled control down by a hairline, and a bare one only in color', () => {
   /* Every space taken out, because the selectors are reflowed across lines. */
   const compact = declarations.replace(/\s+/g, '');
   const block = (selector) => compact.split(`${selector}{`)[1]?.split('}')[0] ?? '';
@@ -414,7 +414,7 @@ test('shows focus only when the keyboard asked for it, and without moving anythi
  * It applies only to the control that has nowhere else to put the ring. A
  * control with a start or end visual gives the ring that box and keeps its
  * label readable, which is the difference between a button that is waiting
- * and a coloured rectangle with nothing in it.
+ * and a colored rectangle with nothing in it.
  */
 test('waits without losing the size or the name of the control', () => {
   const faded = dense.match(
@@ -444,10 +444,10 @@ test('sizes the ring to the glyph it stands in for, wherever it is drawn', () =>
   assert.doesNotMatch(indicator, /border|animation|border-radius/);
   assert.doesNotMatch(css, /slotted-button-spin/, 'the family still draws a ring of its own');
 
-  const centred = dense.split(`${ui}>[data-part-indicator]{`)[1]?.split('}')[0] ?? '';
-  assert.ok(centred.includes('position:absolute'), 'the ring without a slot is in the flow');
-  assert.ok(centred.includes('inset:0'));
-  assert.ok(centred.includes('margin:auto'));
+  const centerd = dense.split(`${ui}>[data-part-indicator]{`)[1]?.split('}')[0] ?? '';
+  assert.ok(centerd.includes('position:absolute'), 'the ring without a slot is in the flow');
+  assert.ok(centerd.includes('inset:0'));
+  assert.ok(centerd.includes('margin:auto'));
 });
 
 test('stops the ring under reduced motion rather than slowing it', () => {
@@ -545,13 +545,13 @@ test('draws the band only where it can move and be seen', () => {
 });
 
 /**
- * A flex container centres the line box, and a line box is not symmetric
- * around the letters in it: the word sat up to 1.2 pixels above the centre of
- * the glyph beside it. Trimming to the cap and the baseline centres the ink
+ * A flex container centers the line box, and a line box is not symmetric
+ * around the letters in it: the word sat up to 1.2 pixels above the center of
+ * the glyph beside it. Trimming to the cap and the baseline centers the ink
  * instead. The padding is what the trim costs a label that wraps — the
  * half-leading that keeps a second line off the border.
  */
-test('centres the ink of the label rather than the box the ink sits in', () => {
+test('centers the ink of the label rather than the box the ink sits in', () => {
   const guarded = css.slice(css.indexOf('@supports (text-box: trim-both cap alphabetic)'));
   assert.ok(guarded.length > 0, 'the trim is applied unguarded, or not at all');
   assert.match(guarded, /text-box:\s*trim-both cap alphabetic/);
@@ -606,7 +606,7 @@ test('keeps the label on one line, cut by an ellipsis only when the control is h
  */
 /**
  * A field trigger — a command launcher, an entry with its shortcut — reads
- * with the label at the start and the end slot at the inline end. Centred
+ * with the label at the start and the end slot at the inline end. Centerd
  * together, the two read as one word.
  */
 test('spreads the label and the end slot to opposite edges under justify between', () => {
@@ -615,7 +615,7 @@ test('spreads the label and the end slot to opposite edges under justify between
   assert.match(label, /flex:1 1 auto/);
   assert.match(label, /text-align:start/);
   assert.match(rule(`${ui}[data-justify='between'] > [data-part-end]`), /inline-size:auto/);
-  /* The default centres, from the base rule. */
+  /* The default centers, from the base rule. */
   assert.match(rule(ui), /justify-content:center/);
 });
 
@@ -661,7 +661,7 @@ test('keeps an icon-only target above the minimum in both axes', () => {
  * The theme remaps every token it owns. This block is only for what the family
  * paints itself — the transparent borders of `ghost` and of a control at rest.
  */
-test('restores the edge forced colours would leave the family without', () => {
+test('restores the edge forced colors would leave the family without', () => {
   const query = css.slice(css.indexOf('@media (forced-colors: active)'));
   assert.match(query, /border-color:\s*ButtonBorder/);
   assert.match(query, /border-color:\s*Highlight/);

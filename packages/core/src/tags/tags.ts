@@ -1,7 +1,7 @@
 /**
  * The arithmetic of a list of typed values, stated once so the two bindings
  * of `tags-input` cannot disagree about it: how a paste is split, in what
- * order a candidate is normalised, judged, deduplicated and capped, and how
+ * order a candidate is normalized, judged, deduplicated and capped, and how
  * the platform is asked whether a text is a valid value.
  *
  * Nothing here holds state and nothing here touches the DOM except
@@ -118,7 +118,7 @@ export interface AdmitOptions {
 export interface AdmitResult {
   /** The list after the candidates that got in. */
   next: readonly string[];
-  /** The candidates that got in, normalised, in order. */
+  /** The candidates that got in, normalized, in order. */
   added: readonly string[];
   /** The candidates that did not, under the cause that refused them. */
   refused: Record<TagsRefuseCause, string[]>;
@@ -127,7 +127,7 @@ export interface AdmitResult {
 }
 
 /**
- * The sequence every commit, paste and edit runs: normalise, judge,
+ * The sequence every commit, paste and edit runs: normalize, judge,
  * deduplicate, cap. Each refusal is collected under its cause rather than
  * thrown away — which is what makes a paste of two hundred addresses into a
  * list of fifty report the hundred and fifty that did not fit instead of

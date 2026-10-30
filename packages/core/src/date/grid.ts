@@ -77,7 +77,7 @@ export function visibleMonths(
 
 /**
  * The page of years the year view shows, anchored so the year the reader is on
- * keeps its place between pages: a grid that recentred on every press would
+ * keeps its place between pages: a grid that recenterd on every press would
  * move every cell under the pointer.
  */
 export function yearPage(year: number, size = 12): number[] {

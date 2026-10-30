@@ -43,7 +43,7 @@ export interface OtpInputRejection {
  * binding both write the element; typing writes it directly, and the copy
  * follows — which is what Angular's own `DefaultValueAccessor` does.
  *
- * **The selection is normalised, not the keys.** Every key is the browser's.
+ * **The selection is normalized, not the keys.** Every key is the browser's.
  * After each change the directive makes sure a cursor inside the value has
  * one character selected, so typing replaces it instead of being refused by
  * `maxlength` — the rule `@slotted/core/otp` holds.

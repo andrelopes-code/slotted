@@ -38,10 +38,10 @@ export const MIRRORED_ATTRIBUTES = [
 ] as const;
 
 /**
- * The seeds a theme derives its colours from. They are custom properties, so a
+ * The seeds a theme derives its colors from. They are custom properties, so a
  * layer moved to the end of the body loses them with its ancestors; the layer
  * carries their computed values in its own `style`, and `data-slotted-seeds`
- * makes it derive every colour from them. `@slotted/theme` › `SEED_NAMES`
+ * makes it derive every color from them. `@slotted/theme` › `SEED_NAMES`
  * holds the same five names.
  */
 export const MIRRORED_PROPERTIES = [

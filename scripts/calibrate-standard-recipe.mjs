@@ -19,15 +19,15 @@ import {
 } from '../packages/theme/dist/index.js';
 
 /**
- * Generates `recipes.standard` from the default theme's colours as they stood
+ * Generates `recipes.standard` from the default theme's colors as they stood
  * before the recipe existed (`packages/themes/src/default/reference.json`):
  *
  * 1. each token becomes a derivation of its seed that reproduces its value —
- *    a `-solid`, `-solid-active`, `-border` or `-text` of a coloured tone
+ *    a `-solid`, `-solid-active`, `-border` or `-text` of a colored tone
  *    follows the seed's lightness by an offset, every other token keeps a
  *    fixed lightness, a `-solid-hover` mixes its solid, a `var()` stays an alias;
  * 2. chroma is capped: 0.25 where the token follows the seed, the reference
- *    chroma + 0.01 (at least 0.06) on a tinted surface; a reference colour
+ *    chroma + 0.01 (at least 0.06) on a tinted surface; a reference color
  *    with no chroma keeps none;
  * 3. a token of the neutral seed takes the seed's hue with no offset, and its
  *    chroma is capped at 0.06 and at the chroma sRGB holds at its lightness
@@ -103,7 +103,7 @@ function gamutCeiling(l) {
 /**
  * The grounds every panel, page and field is painted with. The reference has
  * them achromatic, and a fit to it gave them none of the neutral seed: a
- * neutral seed recoloured lines and text and left every card, popover, dialog
+ * neutral seed recolored lines and text and left every card, popover, dialog
  * and menu where it was. Each ground keeps 0.22 of the seed's chroma, enough
  * for a seed of chroma 0.027 to reach 0.006, and is capped at the chroma sRGB
  * holds at its lightness for every hue, so the tint a screen paints is the one
@@ -162,7 +162,7 @@ const DATA = {
 /**
  * The ink drawn on a slot used as a ground: white or a near-black, whichever
  * reads further from the slot's step at its worst hue. A neutral ink, because
- * the slot is the colour and the mark on it says nothing of its own; it keeps
+ * the slot is the color and the mark on it says nothing of its own; it keeps
  * the neutral seed's share of chroma, as every neutral token does.
  */
 const DATA_INKS = [
@@ -202,7 +202,7 @@ function dataLadder(scheme) {
 
 /**
  * The `neutral` tone, which the reference predates: ink, the inverse surface
- * as a fill and the text colour as a label, each an alias of a neutral token,
+ * as a fill and the text color as a label, each an alias of a neutral token,
  * and the inverse surface's own pointer states.
  */
 const NEUTRAL_TONE = {

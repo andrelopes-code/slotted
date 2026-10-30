@@ -30,7 +30,7 @@ import { pathToFileURL } from 'node:url';
 
 import { icons } from 'lucide';
 
-import { centringOffset, opticalOffset } from './glyph-ink.mjs';
+import { centeringOffset, opticalOffset } from './glyph-ink.mjs';
 
 export const GLYPH_PREFIX = '--slotted-icon-';
 export const DEFAULT_STROKE_WIDTH = 2;
@@ -80,12 +80,12 @@ function element(tag, attributes) {
  * marks that stand in for a photograph or a dot rather than annotate a line.
  *
  * The drawing is Lucide's, and where it sits in the box is not. A mask is
- * centred on whatever consumes it, so what has to be centred is the painted
+ * centerd on whatever consumes it, so what has to be centerd is the painted
  * ink: Lucide frames each icon for the set, and `check` comes out half a unit
  * above the middle of its own viewBox — 0.208 | 0.250 | 0.292px in a checkbox
  * at the three size steps, which is the whole of what CK6 could not remove
  * from the sheet (CK9). The children are therefore emitted unchanged, inside a
- * group that moves them onto the centre when they are not already on it.
+ * group that moves them onto the center when they are not already on it.
  */
 export function renderGlyph({
   icon,
@@ -112,7 +112,7 @@ export function renderGlyph({
   const drawing = node.map(([tag, attributes]) => element(tag, attributes)).join('');
   const { dx, dy } =
     body === undefined
-      ? centringOffset(node, { paint, strokeWidth })
+      ? centeringOffset(node, { paint, strokeWidth })
       : opticalOffset(node, body, { paint, strokeWidth });
   const children =
     dx === 0 && dy === 0 ? drawing : `<g transform='translate(${dx} ${dy})'>${drawing}</g>`;
@@ -188,9 +188,9 @@ export function pathOf(tag, attributes) {
 
 /**
  * One glyph as the element draws it: the paint, the stroke width, the offset
- * that puts the ink on the centre (the one the mask applies), and the paths.
+ * that puts the ink on the center (the one the mask applies), and the paths.
  * A manifest entry that names its `body` — the indices of the elements that
- * make the main shape — is centred on that shape instead (`opticalOffset`).
+ * make the main shape — is centerd on that shape instead (`opticalOffset`).
  */
 export function drawGlyph({
   icon,
@@ -201,7 +201,7 @@ export function drawGlyph({
   const node = lucideIcon(icon);
   const { dx, dy } =
     body === undefined
-      ? centringOffset(node, { paint, strokeWidth })
+      ? centeringOffset(node, { paint, strokeWidth })
       : opticalOffset(node, body, { paint, strokeWidth });
   return {
     paint,

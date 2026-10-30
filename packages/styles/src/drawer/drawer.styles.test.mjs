@@ -17,9 +17,9 @@ const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([, selector, body]
  * gradient over a transparent box. A state that writes `background-color` on
  * it fills the box, and the grip turned into a solid block under the hand,
  * under hover and under focus — reported on every story that rendered the
- * separator. The states of that picture recolour the ink, as `splitter`'s do.
+ * separator. The states of that picture recolor the ink, as `splitter`'s do.
  */
-test('recolours the dot grip in its states and never fills its box', () => {
+test('recolors the dot grip in its states and never fills its box', () => {
   const offenders = rules.filter(
     ({ body, selectors }) =>
       /background-color/.test(body) &&

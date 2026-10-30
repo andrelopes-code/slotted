@@ -287,7 +287,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'States',
-    note: 'Read-only stays focusable and copyable and never looks disabled; disabled answers no key and no pointer, and a reactive form sets it through setDisabledState rather than through the input; invalid keeps its focus ring and retargets its colour; and incomplete is its own quieter state, one tone short of the refused value.',
+    note: 'Read-only stays focusable and copyable and never looks disabled; disabled answers no key and no pointer, and a reactive form sets it through setDisabledState rather than through the input; invalid keeps its focus ring and retargets its color; and incomplete is its own quieter state, one tone short of the refused value.',
     snippet: defineSnippet({
       id: 'datetime-field-angular-states',
       label: 'The four states',

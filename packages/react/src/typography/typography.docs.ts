@@ -29,7 +29,7 @@ export const REACT_TYPOGRAPHY_DOCS = {
     api: apiRows([
       ['size', SIZE, 'md', 'Text', 'Step on the type scale, with the line height paired to it'],
       ['weight', "'regular' | 'medium' | 'semibold'", 'regular', 'Text', 'Typographic emphasis'],
-      ['tone', TONE, 'inherit', 'Text', 'Colour; inherit takes the colour of the surface'],
+      ['tone', TONE, 'inherit', 'Text', 'Color; inherit takes the color of the surface'],
       [
         'align',
         "'start' | 'center' | 'end'",
@@ -107,7 +107,7 @@ export const REACT_TYPOGRAPHY_DOCS = {
         'Heading',
         'Typographic emphasis',
       ],
-      ['tone', TONE, 'inherit', 'Heading', 'Colour; inherit takes the colour of the surface'],
+      ['tone', TONE, 'inherit', 'Heading', 'Color; inherit takes the color of the surface'],
       ['wrap', WRAP, 'balance', 'Heading', 'How lines break; a heading is balanced by default'],
       ['align', "'start' | 'center' | 'end'", '—', 'Heading', 'Alignment'],
       ['transform', "'none' | 'uppercase' | 'capitalize'", '—', 'Heading', 'Letter case'],

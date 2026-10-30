@@ -89,7 +89,7 @@ const INTRO = [
   '',
   'The theme states every value the families draw with. An element of the application\'s own reads the groups on this page, never a literal, and never a token of a group under "Read by their family only" (CP-05, OE-01).',
   '',
-  "A primitive is a step on a scale; a semantic token says what a value is for. Values are the default theme's. A colour has no value here: it changes with the scheme — light, dark, high-contrast — and is chosen by its role. A value that follows density is given for comfortable, compact and dense.",
+  "A primitive is a step on a scale; a semantic token says what a value is for. Values are the default theme's. A color has no value here: it changes with the scheme — light, dark, high-contrast — and is chosen by its role. A value that follows density is given for comfortable, compact and dense.",
   '',
 ];
 

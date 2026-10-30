@@ -307,7 +307,7 @@ function sendFile(onDone: (file: File) => void) {
     });
 }
 
-function IntakeCentre() {
+function IntakeCenter() {
   const store = useJobStore(byKey(['invoices-q3', 'debtors']));
   const [format, setFormat] = useState('csv');
   const [name, setName] = useState('active-customers');
@@ -430,7 +430,7 @@ export const Intake: Story = {
         label="Upload in a dialog, and an export dialog"
         note="Drop a CSV into Importar: upload sends it and the store creates the running job. Exportar queues one."
       >
-        <IntakeCentre />
+        <IntakeCenter />
       </Scene>
     </Grid>
   ),
@@ -439,15 +439,15 @@ export const Intake: Story = {
 function ToastShell() {
   const [toaster] = useState(() => createToaster());
   const store = useJobStore(byKey(['stock-september', 'invoices-q3']));
-  const centre = useRef<ImportExportCenterHandle>(null);
-  useJobToasts(store.jobs, { onView: (key) => centre.current?.reveal(key), toaster });
+  const center = useRef<ImportExportCenterHandle>(null);
+  useJobToasts(store.jobs, { onView: (key) => center.current?.reveal(key), toaster });
   return (
     <ToasterProvider value={toaster}>
       <Stack gap={5}>
         <div className="slotted-demo-viewport" data-size="tall">
           <ToastRegion attach="inline" placement="bottom-end" />
         </div>
-        <ImportExportCenter jobs={store.jobs} locale="pt-BR" ref={centre} views={[]} />
+        <ImportExportCenter jobs={store.jobs} locale="pt-BR" ref={center} views={[]} />
       </Stack>
     </ToasterProvider>
   );
@@ -642,8 +642,8 @@ export const Defaults: Story = {
           <Jobs live={false} locale="en-US" seed={byKey(['invoices-q3', 'debtors'])} />
         </Scene>
         <Scene
-          label="A centre that states its own"
-          note="size md on the centre wins over the provider's sm."
+          label="A center that states its own"
+          note="size md on the center wins over the provider's sm."
         >
           <Jobs live={false} locale="en-US" seed={byKey(['invoices-q3', 'debtors'])} size="md" />
         </Scene>

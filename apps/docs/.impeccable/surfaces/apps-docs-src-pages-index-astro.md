@@ -36,6 +36,6 @@ The console is navigable: side navigation switches screens in place; the axis ba
 
 ## Revision (2026-10-01, user)
 
-- The home ground is monochrome light: three rays from above the opening that sway on their own, a breathing glow at their source and a light under the pointer on a damped spring, drawn into a canvas a sixth of its size (a third on a light ground) and scaled up by the browser, dithered against 8-bit banding (`lib/rays.ts`). 60 fps with a software compositor. Rejected by the user the same day: contour lines (ugly, laggy), a colour shader (psychedelic), a static CSS beam (stiff).
+- The home ground is monochrome light: three rays from above the opening that sway on their own, a breathing glow at their source and a light under the pointer on a damped spring, drawn into a canvas a sixth of its size (a third on a light ground) and scaled up by the browser, dithered against 8-bit banding (`lib/rays.ts`). 60 fps with a software compositor. Rejected by the user the same day: contour lines (ugly, laggy), a color shader (psychedelic), a static CSS beam (stiff).
 - The hatched band behind the console is gone. The console stays inside the rails; the column is 86rem so the overview's dashboard reads at its expanded class.
 - The stage (axis bar and console) can take the whole screen (`fullscreen` family).

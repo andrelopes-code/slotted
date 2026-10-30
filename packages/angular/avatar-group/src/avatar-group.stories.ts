@@ -127,7 +127,7 @@ export const Overflow: Story = {
 <div class="slotted-demo-grid" data-columns="1">
   ${scene(
     'Within the limit',
-    'Nothing is summarised: a +1 beside four faces is one more circle than showing the fifth.',
+    'Nothing is summarized: a +1 beside four faces is one more circle than showing the fifth.',
     `<ul slAvatarGroup aria-label="Five reviewers">${members(5)}</ul>`,
   )}
   ${scene(
@@ -175,7 +175,7 @@ export const Composition: Story = {
   )}
   ${scene(
     'On a sunken row',
-    'The ring is a colour, not a boolean, so a group inside a card or a coloured row is still a row of separate faces.',
+    'The ring is a color, not a boolean, so a group inside a card or a colored row is still a row of separate faces.',
     `<div style="background: var(--slotted-surface-sunken); padding: var(--slotted-space-5)">
        <ul slAvatarGroup aria-label="Reviewers on a sunken row" style="--slotted-avatar-ring-color: var(--slotted-surface-sunken)">${members()}</ul>
      </div>`,
@@ -215,7 +215,7 @@ export const Extremes: Story = {
     <ul slAvatarGroup aria-label="An empty group"></ul>
   </div>
   <p>
-    A three-figure summary, a group of one that summarises nothing, a deactivated member that does
+    A three-figure summary, a group of one that summarizes nothing, a deactivated member that does
     not rise on hover, and an empty group that takes no room at all — so a row built from a
     permission filter does not leave a gap nobody can see in the markup.
   </p>

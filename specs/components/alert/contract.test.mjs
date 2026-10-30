@@ -87,19 +87,19 @@ test('speaks in the library’s five shared tones and invents no sixth word', ()
 
 /**
  * A glyph per tone that states a severity, so the tones are distinguishable
- * in greyscale, in the `high-contrast` scheme and under forced colours, where
- * every tone ground becomes one system colour and the silhouette is all that
+ * in grayscale, in the `high-contrast` scheme and under forced colors, where
+ * every tone ground becomes one system color and the silhouette is all that
  * is left. WCAG 2.2 1.4.1. The marks are the hand-drawn status glyphs, the
  * map `inline-message`, `toast`, `dialog` and `notification-center` share:
- * every silhouette symmetric on both axes, so its visual centre is its box's
- * centre. Warning is the diamond and danger the circle, both with `!`.
+ * every silhouette symmetric on both axes, so its visual center is its box's
+ * center. Warning is the diamond and danger the circle, both with `!`.
  *
  * `secondary` draws none. A neutral note has no severity to state, and the
  * disc it drew had nothing cut out of it: a round blank beside the title.
  * With no mark the note is still told apart from the other four, by the
  * absence, which is the rule `inline-message` already holds.
  */
-test('gives every tone with a severity a mark, so colour is never the only signal', () => {
+test('gives every tone with a severity a mark, so color is never the only signal', () => {
   assert.deepEqual(contract.toneGlyphs, {
     accent: 'status-info',
     secondary: null,

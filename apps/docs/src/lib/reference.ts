@@ -146,7 +146,7 @@ let themeCache: { values: ThemeValues; perScheme: Set<string> } | undefined;
 
 /**
  * The default theme: `values.json` holds what it sets once and per density;
- * the colours it computes per scheme exist only in the built stylesheet,
+ * the colors it computes per scheme exist only in the built stylesheet,
  * inside the light scheme's `@scope`.
  */
 function theme() {

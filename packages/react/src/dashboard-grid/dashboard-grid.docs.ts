@@ -134,7 +134,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div around a ResultState',
     required: false,
     purpose:
-      'status="empty" or "error", centred in the body; the error names Try again when onRetry is given.',
+      'status="empty" or "error", centerd in the body; the error names Try again when onRetry is given.',
   },
   {
     part: 'retry',

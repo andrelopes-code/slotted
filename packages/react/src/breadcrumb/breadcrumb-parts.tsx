@@ -270,7 +270,7 @@ export function BreadcrumbLink({ children, ref, render, ...nativeProps }: Breadc
 }
 
 /**
- * A crumb that opens a menu of its siblings — the organisation, the project,
+ * A crumb that opens a menu of its siblings — the organization, the project,
  * the environment. It is a `button`, because an `a` without `href` takes no
  * focus, dressed as the crumb it stands for, with a chevron after the label.
  * The menu is composed around it:

@@ -223,7 +223,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'Invalid, read-only and disabled',
-    note: 'Invalid takes the danger edge and the field’s message says why; read-only keeps the value legible and copyable and withdraws the send; disabled mutes everything to the measured colour and takes the composer out of the tab order.',
+    note: 'Invalid takes the danger edge and the field’s message says why; read-only keeps the value legible and copyable and withdraws the send; disabled mutes everything to the measured color and takes the composer out of the tab order.',
     snippet: defineSnippet({
       id: 'prompt-composer-react-states',
       language: 'tsx',
@@ -364,7 +364,7 @@ export const REACT_PROMPT_COMPOSER_DOCS = {
         "'none' | 'ring'",
         'none',
         'PromptComposer',
-        'A ring of turning hues and a soft glow in place of the border, the focus outline and the raised shadow. Reduced motion stops the turn; forced colours bring the border back',
+        'A ring of turning hues and a soft glow in place of the border, the focus outline and the raised shadow. Reduced motion stops the turn; forced colors bring the border back',
       ],
       [
         'canSubmit',

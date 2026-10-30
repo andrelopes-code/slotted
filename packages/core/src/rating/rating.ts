@@ -92,7 +92,7 @@ export interface RatingSummary {
  * A value between two steps is rounded up: 3.2 on a whole scale is four,
  * because the reader who is past three has reached into the fourth symbol.
  */
-export function normaliseRating(
+export function normalizeRating(
   value: number | null | undefined,
   { max, step }: RatingScale,
 ): number | null {
@@ -120,7 +120,7 @@ export function ratingAtPoint(
   if (row.width <= 0) return scale.step;
   const fromStart = clamp((point.x - row.x) / row.width, 0, 1);
   const fraction = rtl ? 1 - fromStart : fromStart;
-  return normaliseRating(Math.max(fraction * scale.max, Number.EPSILON), scale) ?? scale.step;
+  return normalizeRating(Math.max(fraction * scale.max, Number.EPSILON), scale) ?? scale.step;
 }
 
 /**
@@ -176,7 +176,7 @@ export function ratingFills(value: number | null, max: number): number[] {
  * A count that is negative or fractional is not a count of people, and it is
  * dropped to its whole non-negative part rather than trusted.
  */
-export function summariseRatings(
+export function summarizeRatings(
   countsByLevel: readonly number[],
   thresholds: Partial<RatingInsightThresholds> = {},
 ): RatingSummary {

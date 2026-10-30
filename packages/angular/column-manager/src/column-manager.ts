@@ -65,7 +65,7 @@ const ZONE_KEYS: readonly ZoneKey[] = ['start', 'middle', 'end'];
 /** No column taken out for room: the grid's set before its frame is measured. */
 const NONE_OUT: GridOutOfSpace = { popin: [], hidden: [] };
 
-/** The three pin zones over the normalised order, every column in one of them. */
+/** The three pin zones over the normalized order, every column in one of them. */
 export function columnZones(state: GridColumnState): Record<ZoneKey, readonly string[]> {
   const start = state.pinned.start.filter((id) => state.order.includes(id));
   const end = state.pinned.end.filter((id) => state.order.includes(id));

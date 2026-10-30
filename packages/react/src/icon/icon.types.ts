@@ -33,7 +33,7 @@ export interface IconProps extends ComponentPropsWithRef<'span'> {
    */
   label?: string | undefined;
   size?: IconSize | undefined;
-  /** `inherit` takes the colour of whatever contains the icon. */
+  /** `inherit` takes the color of whatever contains the icon. */
   tone?: IconTone | undefined;
 }
 

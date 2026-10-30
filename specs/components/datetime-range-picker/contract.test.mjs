@@ -64,7 +64,7 @@ test('keeps the frame on one line and puts the tabs and the field in the band', 
   }
 });
 
-test('takes every overlay behaviour from core, as datetime-picker does', () => {
+test('takes every overlay behavior from core, as datetime-picker does', () => {
   assert.deepEqual(contract.core, dateTimePicker.core);
 });
 

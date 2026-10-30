@@ -109,10 +109,10 @@ test('states one height per size, which no legend and no variant changes', () =>
 /**
  * The other half of K1, which is what makes a stated height legible rather than
  * merely fixed: the legend's line box stops at its own em box, so a substituted
- * glyph cannot grow it, and the cell centres what is in it on both axes rather
+ * glyph cannot grow it, and the cell centers what is in it on both axes rather
  * than leaving the legend sitting on the line box it opened.
  */
-test('centres the legend in a cell instead of in the line box it opened', () => {
+test('centers the legend in a cell instead of in the line box it opened', () => {
   const cap = rule(root);
   assert.ok(cap.includes('display:inline-grid'));
   assert.ok(cap.includes('place-items:center'));
@@ -121,8 +121,8 @@ test('centres the legend in a cell instead of in the line box it opened', () => 
 });
 
 /**
- * A cap centres the line box, and a line box is not symmetric around the
- * letters inside it. `text-box` centres the ink instead, and it needs a block
+ * A cap centers the line box, and a line box is not symmetric around the
+ * letters inside it. `text-box` centers the ink instead, and it needs a block
  * container — the text of a grid container lives in an anonymous item no
  * selector can reach, which is why the `legend` part exists.
  *
@@ -178,7 +178,7 @@ test('pins the order of the keys, and lets the combination flow with the page', 
  * while `badge` was built, so a key made of a shadow is a flat key exactly
  * where the affordance is most needed. The bottom edge is a border.
  */
-test('raises the key with an edge that survives forced colours', () => {
+test('raises the key with an edge that survives forced colors', () => {
   assert.ok(!declarations.includes('box-shadow'), 'the raised key is made of a shadow');
   assert.ok(
     rule(`${ui}[data-variant='raised']`).includes('--_base-width:var(--slotted-kbd-base-width'),
@@ -206,7 +206,7 @@ test('draws the base with the one border the theme holds to a ratio', () => {
 });
 
 /**
- * The face runs into the base: an image, so forced colours drop it with the
+ * The face runs into the base: an image, so forced colors drop it with the
  * ground and keep the edges. It belongs to `raised` alone and leaves with the
  * available state.
  */
@@ -243,7 +243,7 @@ test('reads its own surface, rim and ink ahead of the tokens each variant used',
 });
 
 /**
- * `--slotted-surface-sunken` is the page's own colour on a sunken panel, where
+ * `--slotted-surface-sunken` is the page's own color on a sunken panel, where
  * a key painted with it would disappear. The neutral tone's surface is the step
  * `badge` calibrated to read on both.
  *
@@ -264,12 +264,12 @@ test('paints the tinted key from the neutral tone, and gives it the tone’s edg
  * every edge it draws is a border token. There is no filled variant whose edge
  * is its own fill, which is the case `badge` had to write a rule for.
  */
-test('writes no forced-colours rule, because it paints nothing the theme cannot reach', () => {
+test('writes no forced-colors rule, because it paints nothing the theme cannot reach', () => {
   assert.equal((declarations.match(/forced-colors/g) ?? []).length, 0);
 });
 
 /**
- * A plain key takes the colour of the text it sits in, which is what makes a
+ * A plain key takes the color of the text it sits in, which is what makes a
  * dimmed menu row dim its shortcut with no state set at all. The two variants
  * that own no ground keep owning none when they are unavailable: a disabled
  * `outline` that filled itself grey would be a grey rectangle on whatever

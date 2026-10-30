@@ -241,7 +241,7 @@ export const RUNTIME_PROPERTY_PREFIXES = [
   /**
    * `rating` — where the spectrum places the mean and the two ends of its 95%
    * interval on the scale, from 1 to the maximum, written on the summary's
-   * root from `summariseRatings`.
+   * root from `summarizeRatings`.
    */
   '--slotted-rating-mean',
   '--slotted-rating-low',
@@ -285,11 +285,11 @@ export const RUNTIME_PROPERTY_PREFIXES = [
    */
   '--slotted-carousel-overscroll',
   /**
-   * `color-picker` — the colour this instance holds, with and without its
-   * alpha, the hue it remembers when the colour has none, where the area's
-   * thumb stands (saturation and brightness, 0 to 1), how opaque the colour
-   * is (0 to 1), and the colour the panel opened with. Each is written on the
-   * root by the binding from the value `@slotted/core/color` parsed; a colour
+   * `color-picker` — the color this instance holds, with and without its
+   * alpha, the hue it remembers when the color has none, where the area's
+   * thumb stands (saturation and brightness, 0 to 1), how opaque the color
+   * is (0 to 1), and the color the panel opened with. Each is written on the
+   * root by the binding from the value `@slotted/core/color` parsed; a color
    * the reader picked is a fact about this instance, which no theme can hold.
    */
   '--slotted-color-picker-color',

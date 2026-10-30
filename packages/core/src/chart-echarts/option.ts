@@ -126,8 +126,8 @@ function channels(color: string) {
 }
 
 /**
- * A mark that recedes is the series colour mixed toward the ground, not the
- * series colour made transparent: a translucent bar shows the grid through
+ * A mark that recedes is the series color mixed toward the ground, not the
+ * series color made transparent: a translucent bar shows the grid through
  * itself, and a mixed one stays a solid shape.
  */
 function recede(color: string, ground: string, share = RECEDED) {
@@ -180,7 +180,7 @@ function annotationX(model: ChartModel, value: number | string | undefined) {
 
 /**
  * How far along the plot a place on the category axis falls, from 0 to 1. A
- * category axis with bars centres each category in its band; one without puts
+ * category axis with bars centers each category in its band; one without puts
  * the first and last categories on the plot's edges.
  */
 function plotFraction(model: ChartModel, placed: number | undefined, banded: boolean): number {
@@ -198,7 +198,7 @@ function plotFraction(model: ChartModel, placed: number | undefined, banded: boo
   return high === low ? 0.5 : (placed - low) / (high - low);
 }
 
-/** Where on the category axis a place falls, as left, centre or right of the plot. */
+/** Where on the category axis a place falls, as left, center or right of the plot. */
 function inwardAlign(model: ChartModel, placed: number): 'left' | 'center' | 'right' {
   const count = model.categories.length;
   if (count <= 1) return 'center';
@@ -556,7 +556,7 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
           : undefined,
       showSymbol: series.markers !== 'none',
       symbol: 'circle',
-      /* A disc of the series colour with a ring of the ground around it, as
+      /* A disc of the series color with a ring of the ground around it, as
          the family's own marker is drawn; the ring is outside the disc, so
          the symbol grows by it. */
       symbolSize: theme.markerSize + theme.lineWidth * 1.5,

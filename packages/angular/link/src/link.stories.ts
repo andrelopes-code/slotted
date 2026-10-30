@@ -113,7 +113,7 @@ export const Underline: Story = {
 <div class="slotted-demo-grid" data-columns="3">
   ${scene(
     'underline="always"',
-    'Prose. The only value that survives a reader who cannot separate the colours.',
+    'Prose. The only value that survives a reader who cannot separate the colors.',
     '<p>Charges are listed in the <a slLink href="/invoices">payment history</a>.</p>',
     'prose',
   )}
@@ -140,20 +140,20 @@ export const Variants: Story = {
 <div class="slotted-demo-grid" data-columns="3">
   ${scene(
     'variant="accent"',
-    'The invitation to leave this page. Hover darkens it toward the body colour and fills the underline.',
+    'The invitation to leave this page. Hover darkens it toward the body color and fills the underline.',
     '<p>Charges are listed in the <a slLink href="/history">payment history</a>.</p>',
     'prose',
   )}
   ${scene(
     'variant="neutral"',
-    'The colour of the text around it, reaching the accent under the pointer. It belongs where nothing on the line could be mistaken for it.',
+    'The color of the text around it, reaching the accent under the pointer. It belongs where nothing on the line could be mistaken for it.',
     `<a slLink href="/invoices/0041" underline="hover" variant="neutral">INV-2026-08-0041</a>
      <a slLink href="/invoices/0038" underline="hover" variant="neutral">INV-2026-07-0038</a>`,
     'stack',
   )}
   ${scene(
     'variant="inverse"',
-    'On a solid ground the text colour is already the strongest available, so hover is carried by the underline alone.',
+    'On a solid ground the text color is already the strongest available, so hover is carried by the underline alone.',
     `<div class="slotted-demo-surface" data-surface="inverse">
        Your trial ends in three days.
        <a slLink href="/plans" variant="inverse">Choose a plan</a>
@@ -231,7 +231,7 @@ export const Current: Story = {
 <div class="slotted-demo-grid" data-columns="2">
   ${scene(
     'aria-current="page"',
-    'The link to the page you are already on takes the body colour and keeps its underline. Nothing about its width changes, so the column does not shift.',
+    'The link to the page you are already on takes the body color and keeps its underline. Nothing about its width changes, so the column does not shift.',
     `<nav aria-label="Workspace" class="slotted-demo-stack">
        <a slLink aria-current="page" href="/invoices" underline="hover">Invoices</a>
        <a slLink href="/members" underline="hover">Members</a>

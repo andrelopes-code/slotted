@@ -35,7 +35,7 @@ const theme = defineTheme({
 const css = renderTheme(theme);
 
 describe('renderTheme', () => {
-  it('opens with the layer order and registers every seed as a colour', () => {
+  it('opens with the layer order and registers every seed as a color', () => {
     expect(css.startsWith(LAYER_ORDER_STATEMENT)).toBe(true);
     for (const seed of ['accent', 'neutral', 'success', 'warning', 'danger']) {
       expect(css).toContain(
@@ -370,7 +370,7 @@ describe('variants', () => {
     );
   });
 
-  it('declares every scheme, reduced transparency and forced colours again on an element naming an axis', () => {
+  it('declares every scheme, reduced transparency and forced colors again on an element naming an axis', () => {
     const reroot = ':scope,\n    [data-slotted-seeds],\n    :where([data-slotted-variant-depth]) {';
     expect(variantCss).toContain(`${scope('dark')}\n    ${reroot}\n      color-scheme: dark;`);
     const forced = variantCss.slice(variantCss.indexOf('@media (forced-colors: active)'));

@@ -71,7 +71,7 @@ const LOG = Array.from(
 ).join('\n');
 
 /**
- * A toy tokeniser for the page: keywords, strings, numbers, comments,
+ * A toy tokenizer for the page: keywords, strings, numbers, comments,
  * punctuation. A real application hands the block Prism or Shiki through the
  * two mappings in `@slotted/core/code`; the page has neither and needs
  * nothing that heavy to show what a token looks like.
@@ -89,7 +89,7 @@ const KEYWORDS = new Set([
   'true',
   'false',
 ]);
-function tokenise(code: string): CodeLine[] {
+function tokenize(code: string): CodeLine[] {
   return code.split('\n').map((line) => {
     const tokens: {
       text: string;
@@ -114,7 +114,7 @@ function tokenise(code: string): CodeLine[] {
     return tokens;
   });
 }
-const highlight = async (code: string) => tokenise(code);
+const highlight = async (code: string) => tokenize(code);
 
 const referenceScenes: ReferencePageConfig['scenes'] = () =>
   bindScenes(REACT_CODE_BLOCK_DOCS.codeBlock.scenes, {
@@ -224,7 +224,7 @@ export const Engines: Story = {
         label="The two adapters"
         note="The block below receives ready-made tokens — what fromPrismTokens or fromShikiTokens return — and runs no engine at all."
       >
-        <CodeBlock code={GROUP_TS} language="ts" tokens={tokenise(GROUP_TS)} />
+        <CodeBlock code={GROUP_TS} language="ts" tokens={tokenize(GROUP_TS)} />
       </Scene>
     </Grid>
   ),

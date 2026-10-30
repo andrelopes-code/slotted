@@ -165,11 +165,11 @@ export const Tones: Story = {
       2,
       scene(
         'The five, and the marks that carry them',
-        'Each tone draws the glyph the contract maps it to, so an error and a note differ by silhouette as well as by colour.',
+        'Each tone draws the glyph the contract maps it to, so an error and a note differ by silhouette as well as by color.',
         TONES.map(([tone, title, body]) => message(`tone="${tone}"`, title, body)).join(''),
       ) +
         scene(
-          'The same five with no colour at all',
+          'The same five with no color at all',
           'Switch the toolbar to high-contrast: every ground becomes the page’s own white and every border black, and the mark is the only thing left telling the five apart.',
           TONES.map(([tone, title]) => message(`tone="${tone}" variant="outline"`, title)).join(''),
         ),
@@ -368,7 +368,7 @@ export const Content: Story = {
       2,
       scene(
         'Long, and in another language',
-        'A German compound wraps to a second line and the mark stays on the first, because the mark is one line box tall rather than centred on the whole message.',
+        'A German compound wraps to a second line and the mark stays on the first, because the mark is one line box tall rather than centerd on the whole message.',
         message(
           'tone="warning" dismissible',
           'Die Zahlungsbestätigung konnte nicht zugestellt werden',
@@ -425,7 +425,7 @@ export const Composition: Story = {
         ) +
         scene(
           'The page’s own mark',
-          'An element carrying slAlertIcon is projected into the box the family draws, so it keeps the size, the colour and the place on the first line the tone’s mark would have had.',
+          'An element carrying slAlertIcon is projected into the box the family draws, so it keeps the size, the color and the place on the first line the tone’s mark would have had.',
           `<section slAlert tone="accent">
              <ng-icon slAlertIcon aria-hidden="true" name="lucideShield"></ng-icon>
              <div slAlertContent>

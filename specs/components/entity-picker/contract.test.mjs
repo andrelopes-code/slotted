@@ -133,7 +133,7 @@ test('models every mutable value with its reasons', () => {
   }
 });
 
-test('holds ids as the value and hands the normalised entities on the request', () => {
+test('holds ids as the value and hands the normalized entities on the request', () => {
   assert.match(contract.value.single, /string or null/);
   assert.match(contract.value.multiple, /array of ids/);
   assert.match(contract.value.request, /entities/);

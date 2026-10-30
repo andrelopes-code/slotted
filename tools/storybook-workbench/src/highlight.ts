@@ -11,15 +11,15 @@ export interface Token {
 /**
  * A snippet in a reference page is a few lines of curated code, and it was
  * printed as one grey block. Storybook ships a highlighter, and it reads its
- * colours from a theme context that exists only inside a rendered docs page —
+ * colors from a theme context that exists only inside a rendered docs page —
  * so using it made the drawer untestable and the failure mode was a crash in
- * jsdom rather than a missing colour.
+ * jsdom rather than a missing color.
  *
  * This is the smaller answer: one ordered rule list per language, matched from
  * the start of the remaining source. It is deliberately not a parser. It
- * colours strings, comments, tags, attributes, properties and keywords, which
+ * colors strings, comments, tags, attributes, properties and keywords, which
  * is what a five-line example needs, and anything it does not recognize stays
- * the body colour rather than being coloured wrongly.
+ * the body color rather than being colored wrongly.
  */
 const KEYWORDS =
   /^(?:import|export|from|const|let|var|function|return|type|interface|as|await|async|new|class|extends|implements|default|providers|bootstrapApplication)\b/;
@@ -28,7 +28,7 @@ const KEYWORDS =
  * A bare attribute — `slLink`, `external`, `visited` — is a word with nothing
  * around it, and the same word in a sentence between two tags is prose. The
  * only thing that separates them is whether the tokenizer is inside a tag, so
- * the rules that colour attributes say so and the loop keeps that one bit of
+ * the rules that color attributes say so and the loop keeps that one bit of
  * state.
  */
 interface Rule {

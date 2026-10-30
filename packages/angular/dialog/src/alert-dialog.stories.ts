@@ -127,12 +127,12 @@ export const Tones: Story = {
       2,
       scene(
         'danger — the default',
-        'Press Delete project: a struck circle, because what follows cannot be undone. The mark is a mask from a glyph token, so it survives forced colours, where the tone’s colour does not.',
+        'Press Delete project: a struck circle, because what follows cannot be undone. The mark is a mask from a glyph token, so it survives forced colors, where the tone’s color does not.',
         confirm(),
       ) +
         scene(
           'warning — a decision, not a deletion',
-          'Press Leave without saving: a triangle, the one silhouette in the set that has to be recognised before its colour is. The action reads as the consequence rather than as a threat.',
+          'Press Leave without saving: a triangle, the one silhouette in the set that has to be recognized before its color is. The action reads as the consequence rather than as a threat.',
           confirm('tone="warning"', {
             action: 'Discard edits',
             actionTone: 'warning',
@@ -225,7 +225,7 @@ export const Content: Story = {
       ) +
         scene(
           'A title the panel cannot hold',
-          'The words wrap and the row grows; the mark keeps its own column, so it stays on the first line’s optical centre rather than sliding down beside the second.',
+          'The words wrap and the row grows; the mark keeps its own column, so it stays on the first line’s optical center rather than sliding down beside the second.',
           confirm('', {
             description: 'Der Vorgang entfernt sämtliche Bereitstellungsartefakte unwiderruflich.',
             title: 'Produktions-Bereitstellungspipeline endgültig entfernen?',
@@ -241,7 +241,7 @@ export const Composition: Story = {
   render: () => ({
     template: scene(
       'The actions are the library’s own buttons',
-      'slAlertDialogCancel and slAlertDialogAction are directives on a slButton, so the closing behaviour lands on the library’s own control. The tone comes from the button rather than from the dialog.',
+      'slAlertDialogCancel and slAlertDialogAction are directives on a slButton, so the closing behavior lands on the library’s own control. The tone comes from the button rather than from the dialog.',
       confirm('size="md"'),
     ),
   }),

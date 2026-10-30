@@ -102,7 +102,7 @@ test('draws the indicator with the Glyph element rather than a mask or a charact
 
 /**
  * CL1, and R5's rule for a mark beside a line of words. Spanning both rows and
- * centred, the chevron sat 9.25 to 10.25px under the line it annotates wherever
+ * centerd, the chevron sat 9.25 to 10.25px under the line it annotates wherever
  * a description was written and 32px under it where the title wrapped to three
  * lines — 87 findings across `collapsible` and `accordion`, which draws no
  * indicator of its own and inherits this one.

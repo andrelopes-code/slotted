@@ -27,7 +27,7 @@ test('names the underline axis and defaults to the web convention', () => {
 });
 
 /**
- * `accent` is the link, `neutral` is the link that takes the colour of the
+ * `accent` is the link, `neutral` is the link that takes the color of the
  * text around it, and `inverse` is the link on a solid surface. The five tones
  * are not here: tone marks an action's consequence, navigation has none, and a
  * destructive command is a Button.
@@ -61,11 +61,11 @@ test('paints a disabled link and holds the weaker states back for it', () => {
 });
 
 /**
- * `visited` is opt-in because `:visited` is restricted to colour and cannot be
+ * `visited` is opt-in because `:visited` is restricted to color and cannot be
  * read back by script: a family that turned it on by default would ship a rule
  * no test in this repository can assert.
  */
-test('makes the visited colour a decision the application takes', () => {
+test('makes the visited color a decision the application takes', () => {
   assert.equal(link.defaults.visited, false);
 });
 

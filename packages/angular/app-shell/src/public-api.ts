@@ -10,7 +10,7 @@ export {
   SlAppShellAsideToggle,
   SlAppShellBanner,
   SlAppShellBrand,
-  SlAppShellCentre,
+  SlAppShellCenter,
   SlAppShellFooter,
   SlAppShellMain,
   SlAppShellNav,

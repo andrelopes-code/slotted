@@ -29,7 +29,7 @@ const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => r
  */
 describe('a press on a vertical attachment', () => {
   it.each(['preview', 'detail', 'filename'])(
-    'at the centre of the %s activates the trigger',
+    'at the center of the %s activates the trigger',
     async (part) => {
       const onClick = vi.fn();
       render(

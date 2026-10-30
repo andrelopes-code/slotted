@@ -164,7 +164,7 @@ test('declares every state it paints', () => {
  * made of, and one bar per level. A level may filter the list it sits above,
  * so the levels are toggle buttons and the filter is a state model.
  */
-test('summarises many ratings as an aggregate and a distribution that can filter', () => {
+test('summarizes many ratings as an aggregate and a distribution that can filter', () => {
   const summary = contract.members.ratingSummary;
   assert.equal(summary.nativeElement, 'section');
   assert.deepEqual(

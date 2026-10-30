@@ -49,7 +49,7 @@ describe('a loading button under img-src self', () => {
       data[(Math.round(y) * bitmap.width + Math.round(x)) * 4]! < 230;
     /* A ring: ink on its stroke, none in its middle. */
     const middle = bitmap.width / 2;
-    /* The stroke's centre line: a ring of 8.875 units in a box of 24. */
+    /* The stroke's center line: a ring of 8.875 units in a box of 24. */
     const stroke = bitmap.width * (3.125 / 24);
     expect(inked(middle, middle)).toBe(false);
     expect(

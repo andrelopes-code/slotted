@@ -8,15 +8,15 @@ const specs = new URL('../../../specs/components/', import.meta.url).pathname;
 const EDGE = '--slotted-control-invalid-edge-width';
 
 /**
- * Colour alone does not say a control is wrong (WCAG 1.4.1): in `high-contrast`
+ * Color alone does not say a control is wrong (WCAG 1.4.1): in `high-contrast`
  * the control edge, `--slotted-tone-danger-border` and both focus rings are one
  * black. Every family that paints an invalid state therefore adds width as
- * well as colour, and the width is `--slotted-control-invalid-edge-width` —
+ * well as color, and the width is `--slotted-control-invalid-edge-width` —
  * read directly, or through a family token that falls back to it — so one
  * token retunes the cue everywhere.
  *
  * A family listed here states invalid and draws no edge for it, and the value
- * says where the non-colour cue lives instead.
+ * says where the non-color cue lives instead.
  */
 const ELSEWHERE = {
   'checkbox-group': 'each checkbox in the group takes `data-invalid` and draws its own edge',
@@ -59,7 +59,7 @@ const squash = (text) =>
 
 /**
  * The text of a sheet apart from its `@media (forced-colors: active)` groups,
- * and the text inside them: the second is what a forced-colours reader sees
+ * and the text inside them: the second is what a forced-colors reader sees
  * on top of the first, with every box shadow removed.
  */
 function forcedSplit(css) {
@@ -217,7 +217,7 @@ test('names in the exemptions only families that state invalid', () => {
   }
 });
 
-test('tells invalid by width as well as colour in every family that paints it', () => {
+test('tells invalid by width as well as color in every family that paints it', () => {
   const missing = [];
   for (const { name, css } of families()) {
     if (name in ELSEWHERE) continue;
@@ -315,13 +315,13 @@ test('leaves no inner control’s own ring over the frame’s edge', () => {
 });
 
 /**
- * Forced colours remove every box shadow, so an edge drawn as one is gone for
- * the reader who asked for the system's colours. Each family that draws its
+ * Forced colors remove every box shadow, so an edge drawn as one is gone for
+ * the reader who asked for the system's colors. Each family that draws its
  * edge so restates it there as an outline or a border, which survive, and
  * gives each focused twin a double ring, which a valid ring is not — or,
  * where the focus is a ring of its own inside the frame, the edge again.
  */
-test('keeps a width under forced colours where the edge is a shadow', () => {
+test('keeps a width under forced colors where the edge is a shadow', () => {
   const failures = [];
   for (const { name, css } of families()) {
     if (name in ELSEWHERE) continue;
@@ -342,7 +342,7 @@ test('keeps a width under forced colours where the edge is a shadow', () => {
         /(^|;)(outline|border)[a-z-]*:[^;]*var\(/.test(body) &&
         reads.some((read) => body.includes(read)),
     );
-    if (!kept) failures.push(`${name}: no width under forced colours`);
+    if (!kept) failures.push(`${name}: no width under forced colors`);
     for (const { twin } of focusRules(css).focus) {
       if (twin === undefined) continue;
       const doubled = forcedList.some(

@@ -68,7 +68,7 @@ test('holds no mutable state, and says when it is waiting for one', () => {
 
 /**
  * The reason the family exists rather than a card with a big number in it:
- * the colour of a change comes from what the metric means, never from the
+ * the color of a change comes from what the metric means, never from the
  * sign. A rising error rate is bad; a rising conversion is good; a rising
  * session count is neither. `up` is the default because most metrics on most
  * dashboards are counts a team wants more of, and a consumer who disagrees

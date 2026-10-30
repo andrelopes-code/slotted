@@ -88,7 +88,7 @@ test('sizes each cell by its own stage, so no stage is drawn over its neighbour'
  * The gaps a reviewer reported between the tiles were the page's own ground,
  * seen under every cell shorter than its neighbour. Two rules let it through:
  * `align-items: start`, which sized each cell to its own content while the flex
- * line took the height of the tallest, and a one-pixel gap over a coloured
+ * line took the height of the tallest, and a one-pixel gap over a colored
  * background, which reads as a hairline only while every cell is one size — and
  * the cells are three sizes by design.
  *

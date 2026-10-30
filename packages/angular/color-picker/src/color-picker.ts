@@ -91,12 +91,12 @@ const optionalBoolean = (value: boolean | string | undefined) =>
   value === undefined ? undefined : booleanAttribute(value);
 
 /**
- * Choosing a colour: an area, a hue channel, an alpha channel, the preview of
+ * Choosing a color: an area, a hue channel, an alpha channel, the preview of
  * now beside before, the value as text with its notation and the eyedropper,
  * the presets, and the contrast against `contrastWith`.
  *
  * The value is a string in the notation shown, and it comes back in that
- * notation; every colour the stylesheet paints is written on the host as a
+ * notation; every color the stylesheet paints is written on the host as a
  * runtime property from what `@slotted/core/color` parsed. It belongs in a
  * form as it stands. React lets a consumer choose the parts by passing them as
  * children; an attribute directive cannot see what was projected before it
@@ -306,7 +306,7 @@ const optionalBoolean = (value: boolean | string | undefined) =>
   },
 })
 export class SlColorPicker implements ControlValueAccessor {
-  /** Present means the consumer owns the value: a colour in any supported notation. */
+  /** Present means the consumer owns the value: a color in any supported notation. */
   readonly value = input<string | undefined>(undefined);
   readonly defaultValue = input<string | undefined>(undefined);
   /** The notation the value is written in. */
@@ -332,7 +332,7 @@ export class SlColorPicker implements ControlValueAccessor {
    */
   readonly messages = input<PartialMessages<ColorPickerMessages> | undefined>(undefined);
 
-  /** Before the colour moves: `pointer`, `keyboard`, `select` or `programmatic` (the eyedropper). */
+  /** Before the color moves: `pointer`, `keyboard`, `select` or `programmatic` (the eyedropper). */
   readonly valueChange = output<ChangeRequest<string>>();
   readonly formatChange = output<ChangeRequest<ColorFormat>>();
 
@@ -350,7 +350,7 @@ export class SlColorPicker implements ControlValueAccessor {
   protected readonly dragging = signal<'area' | 'hue' | 'alpha' | null>(null);
   protected readonly draft = signal<string | null>(null);
   protected readonly eyedropper = signal(false);
-  /** The colour the panel opened with, read once after the first render. */
+  /** The color the panel opened with, read once after the first render. */
   protected readonly previous = signal<string | null>(null);
   private onChangeFn: (value: string) => void = () => undefined;
   protected onTouched: () => void = () => undefined;

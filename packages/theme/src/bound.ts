@@ -5,11 +5,11 @@ import { fmt } from './format';
 /**
  * A lightness limit that holds a contrast ratio for every hue and chroma.
  *
- * The relative luminance of an OKLCH colour depends on its hue and chroma as
+ * The relative luminance of an OKLCH color depends on its hue and chroma as
  * well as on `l`: white text holds 4.5:1 up to l 0.568 at chroma 0, and the
  * limit moves by about ±0.13 × chroma with the hue. A bound is a least-squares
  * fit of the exact limit over chroma 0–`maxChroma` and every hue, moved by the
- * fit's largest error toward the safe side, so it never admits a colour the
+ * fit's largest error toward the safe side, so it never admits a color the
  * exact limit refuses. `l + c·(T1 + c·(T2 + c·T3))`, each `Tp` a fourth-order
  * Fourier series in the hue.
  */
@@ -107,9 +107,9 @@ export function boundCss(bound: Bound): string {
 }
 
 /**
- * A colour with its lightness held at the bound: the chroma moves into the
+ * A color with its lightness held at the bound: the chroma moves into the
  * alpha channel, the limit reads it there and the alpha returns to 1, so a
- * bounded colour is opaque.
+ * bounded color is opaque.
  */
 export function boundColorCss(color: string, bound: Bound): string {
   const limit = `${bound.side === 'ceiling' ? 'min' : 'max'}(l, ${boundCss(bound)})`;
@@ -168,7 +168,7 @@ function leastSquares(rows: number[][], targets: number[]): number[] {
 }
 
 /**
- * The bound for a target relative luminance: a ceiling keeps the colour at or
+ * The bound for a target relative luminance: a ceiling keeps the color at or
  * under it, a floor at or over it. Coefficients are rounded before the error
  * is measured, so the shift covers the rounding as well as the fit.
  */

@@ -10,7 +10,7 @@ import type {
  * The word a reader hears before the message, per tone.
  *
  * GOV.UK's Error message component publishes the idea and hard-codes the word;
- * this table generalises it to every tone that is a severity and puts it behind
+ * this table generalizes it to every tone that is a severity and puts it behind
  * the provider below, which is the only translation surface this library has
  * today. `accent`, `secondary` and `info` carry none: information and help announce
  * themselves by their sentence, and a reader told “Information:” before every

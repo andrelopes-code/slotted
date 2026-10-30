@@ -157,13 +157,13 @@ export const Indicator: Story = {
       2,
       scene(
         'A check when it is on, and nothing when it is off',
-        'The mark is what makes the state readable beyond colour and beyond position: a switch you cannot compare to another still says which way it is set.',
+        'The mark is what makes the state readable beyond color and beyond position: a switch you cannot compare to another still says which way it is set.',
         `<span slSwitch defaultChecked>Com marca, ligado</span>
          <span slSwitch>Com marca, desligado</span>`,
       ) +
         scene(
           'Withdrawn, where something else carries the state',
-          'indicator="none" leaves colour and position as the whole of the signal, which is what the mark exists to avoid — so it belongs beside a label that already says the state.',
+          'indicator="none" leaves color and position as the whole of the signal, which is what the mark exists to avoid — so it belongs beside a label that already says the state.',
           `<span slSwitch indicator="none" defaultChecked>Sem marca, ligado</span>
            <span slSwitch indicator="none">Sem marca, desligado</span>`,
         ),

@@ -219,7 +219,7 @@ test('leaves the inside of an SVG drawing to the svg that holds it', () => {
   );
 });
 
-test('lets a rounding artefact through', () => {
+test('lets a rounding artifact through', () => {
   assert.deepEqual(overflowingElements([slot({ scrollWidth: 241, clientWidth: 240 })]), []);
 });
 
@@ -372,14 +372,14 @@ test('takes a tolerance for the overflow it forgives', () => {
 const before = {
   scene: 'anatomy',
   element: 'span[data-part=icon]',
-  markCentre: 151.14,
-  textCentre: 153.14,
+  markCenter: 151.14,
+  textCenter: 153.14,
 };
 const after = {
   scene: 'anatomy',
   element: 'span[data-part=icon]',
-  markCentre: 153.39,
-  textCentre: 153.14,
+  markCenter: 153.39,
+  textCenter: 153.14,
 };
 
 test('reports a mark that sits above the line it annotates', () => {
@@ -387,7 +387,7 @@ test('reports a mark that sits above the line it annotates', () => {
 });
 
 /**
- * A font's ascent and descent are not symmetrical, so a mark centred exactly on
+ * A font's ascent and descent are not symmetrical, so a mark centerd exactly on
  * its line box still misses the middle of the glyphs by a quarter of a pixel.
  * A guard that reported that would be a guard nobody could satisfy.
  */
@@ -396,7 +396,7 @@ test('lets the asymmetry of a typeface through', () => {
 });
 
 test('reports a mark that sits below the line as readily as one above it', () => {
-  const low = { ...before, markCentre: 156.14 };
+  const low = { ...before, markCenter: 156.14 };
   assert.deepEqual(offAxisMarks([low]), [{ ...low, offset: 3 }]);
 });
 
@@ -423,8 +423,8 @@ test('does not measure a mark against words no reader can see', () => {
   const announced = {
     scene: 'bare · light · 240px · comfortable · ltr',
     element: 'span[data-part=mark]',
-    markCentre: 5154.5,
-    textCentre: 5153.25,
+    markCenter: 5154.5,
+    textCenter: 5153.25,
     markTop: 5150,
     markBottom: 5159,
     lineTop: 5145.75,
@@ -455,8 +455,8 @@ test('does not ask a glyph on a row of its own to sit on a line it never shared'
     markBottom: 132,
     lineTop: 148,
     lineBottom: 168,
-    markCentre: 116,
-    textCentre: 158,
+    markCenter: 116,
+    textCenter: 158,
   };
   assert.equal(annotatesTheLine(stacked), false);
   assert.deepEqual(offAxisMarks([stacked]), []);
@@ -470,8 +470,8 @@ test('measures a glyph that shares the line, however far off it sits', () => {
     markBottom: 166,
     lineTop: 148,
     lineBottom: 168,
-    markCentre: 158,
-    textCentre: 148.25,
+    markCenter: 158,
+    textCenter: 148.25,
   };
   assert.equal(annotatesTheLine(beside), true);
   assert.deepEqual(
@@ -481,7 +481,7 @@ test('measures a glyph that shares the line, however far off it sits', () => {
 });
 
 test('treats a record with no bands as one that shares its line', () => {
-  assert.equal(annotatesTheLine({ markCentre: 1, textCentre: 2 }), true);
+  assert.equal(annotatesTheLine({ markCenter: 1, textCenter: 2 }), true);
 });
 
 /**

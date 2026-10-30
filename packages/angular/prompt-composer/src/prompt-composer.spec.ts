@@ -197,7 +197,7 @@ describe('SlPromptComposer', () => {
     expect(input(fixture).value).toBe('Draft');
   });
 
-  it('breaks a line on Shift+Enter, waits for an input method, and honours mod-enter', () => {
+  it('breaks a line on Shift+Enter, waits for an input method, and honors mod-enter', () => {
     const fixture = renderTemplate();
     type(fixture, 'あ');
     enter(fixture, { shiftKey: true });

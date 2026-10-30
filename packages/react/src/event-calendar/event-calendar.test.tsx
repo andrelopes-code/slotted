@@ -130,7 +130,7 @@ describe('the shape the contract declares', () => {
     expect(within(cell('2026-09-09')).getByText('Offsite, continues')).toBeInTheDocument();
   });
 
-  it('expands a recurring event and names every occurrence without its colour', () => {
+  it('expands a recurring event and names every occurrence without its color', () => {
     render(
       <EventCalendar
         calendars={calendars}

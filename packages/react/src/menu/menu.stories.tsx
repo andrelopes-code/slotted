@@ -44,7 +44,7 @@ const Scene = ({ children, label, note }: { children: ReactNode; label: string; 
 /**
  * The box a menu is demonstrated in. `data-place="top"` holds the control near
  * the top with the room under it, which is the shape a surface that opens
- * *below* its control needs; centring it clipped the surface against the floor
+ * *below* its control needs; centering it clipped the surface against the floor
  * of the box.
  */
 const Viewport = ({ children, size }: { children: ReactNode; size?: 'layer' | 'tall' }) => (

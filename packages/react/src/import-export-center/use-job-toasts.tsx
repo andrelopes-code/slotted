@@ -9,17 +9,17 @@ import { useToaster } from '../toast';
 import type { UseJobToastsOptions } from './import-export-center.types';
 
 /**
- * A toast that points at a job, for a page that is not the centre: the job
+ * A toast that points at a job, for a page that is not the center: the job
  * started, finished, finished with failed rows, failed. It is mounted once,
  * where the application keeps its jobs — the shell — so the reader hears of a
  * job that finishes while they work elsewhere.
  *
  * The toast only points. It carries no progress, no cancel and no download;
  * its one action is View, which calls `onView(key)`, and the consumer takes
- * the reader to the centre and calls its `reveal(key)`. Its id is the job's
+ * the reader to the center and calls its `reveal(key)`. Its id is the job's
  * key under `import-export-center:`, so the finishing notice replaces the
  * starting one in place rather than stacking beside it. Its announcement is
- * the sentence the centre says for the same transition, which the shared
+ * the sentence the center says for the same transition, which the shared
  * announcer does not repeat when both are mounted.
  *
  * The jobs present on the first render made no move the reader saw, and get

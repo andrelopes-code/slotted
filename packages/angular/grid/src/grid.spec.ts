@@ -103,9 +103,9 @@ class GridStaticAlignHost {}
 
 describe('SlGrid with a static align', () => {
   /*
-   * `align` is also an obsolete HTML attribute that browsers still honour on
-   * a div — it centres the text inside. Written statically for the input, it
-   * stayed on the element and every line of the content was centred.
+   * `align` is also an obsolete HTML attribute that browsers still honor on
+   * a div — it centers the text inside. Written statically for the input, it
+   * stayed on the element and every line of the content was centerd.
    */
   it('keeps the decision in data-align and leaves no align attribute on the element', () => {
     TestBed.configureTestingModule({ imports: [GridStaticAlignHost] });

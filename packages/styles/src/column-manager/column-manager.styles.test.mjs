@@ -89,7 +89,7 @@ test('draws the drop line with no height of its own', () => {
 
 /**
  * The grip, the pin and the magnifier are `icon` elements the binding draws,
- * inked by the control's `color` in forced colours as everywhere else: no
+ * inked by the control's `color` in forced colors as everywhere else: no
  * mask, no pseudo-element and no `forced-color-adjust` stands in for them.
  */
 test('holds hover back on a disabled handle and paints no glyph of its own', () => {

@@ -241,7 +241,7 @@ export const Sizes: Story = {
         ) +
         scene(
           'lg',
-          'The step for a set that organises a whole page, where each header is a landmark a reader scans for rather than a row in a list.',
+          'The step for a set that organizes a whole page, where each header is a landmark a reader scans for rather than a row in a list.',
           order(`size="lg" variant="separated" [value]="['delivery']"`),
         ),
     ),

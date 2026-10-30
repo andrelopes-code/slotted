@@ -12,7 +12,7 @@ const source = new URL('.', import.meta.url).pathname;
  * beside a `multi-select` painted `transparent` and a `segmented-control`
  * painted `--slotted-surface-sunken`, and the three read as three kinds of
  * thing. `--slotted-surface` is not the same token either: it answers
- * `Canvas` under forced colours where a field answers `Field`.
+ * `Canvas` under forced colors where a field answers `Field`.
  *
  * The rule reads the resting rule of the part — the one that is not a hover,
  * focus, invalid or disabled state — and a variant that gives the fill up

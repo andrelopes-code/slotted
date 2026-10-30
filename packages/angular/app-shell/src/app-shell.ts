@@ -714,12 +714,12 @@ export class SlAppShellBrand {}
 
 /** The middle of the bar, and the one cluster that grows: a search, a trail, a route title. */
 @Directive({
-  selector: '[slAppShellCentre]',
+  selector: '[slAppShellCenter]',
   standalone: true,
-  exportAs: 'slAppShellCentre',
-  host: { 'data-part': 'centre', 'data-part-centre': '' },
+  exportAs: 'slAppShellCenter',
+  host: { 'data-part': 'center', 'data-part-center': '' },
 })
-export class SlAppShellCentre {}
+export class SlAppShellCenter {}
 
 /** The end cluster, pushed there by the space it takes. */
 @Directive({

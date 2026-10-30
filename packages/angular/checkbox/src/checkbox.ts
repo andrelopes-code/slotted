@@ -390,7 +390,7 @@ export class SlCheckbox implements ControlValueAccessor, OnInit {
    * change a checkbox has no `readonly` to refuse.
    *
    * Nothing here writes the element. The HTML standard's canceled activation
-   * behaviour for a checkbox is `checked = !checked` rather than a restore of a
+   * behavior for a checkbox is `checked = !checked` rather than a restore of a
    * saved value, so a family that corrected the element inside the listener
    * would have that correction toggled back out from under it. Refusing the
    * default and letting the platform undo its own pre-click toggle is both

@@ -111,7 +111,7 @@ const meta: Meta = {
       page: createReferencePage({
         title: 'Color Picker',
         description:
-          'Choosing a colour: an area for saturation and brightness, the hue and the opacity, the value as text in the notation the reader chose, a palette, and the contrast against the background the colour will sit on — inline, or in a field whose swatch opens it.',
+          'Choosing a color: an area for saturation and brightness, the hue and the opacity, the value as text in the notation the reader chose, a palette, and the contrast against the background the color will sit on — inline, or in a field whose swatch opens it.',
         framework: 'Angular',
         ...ANGULAR_COLOR_PICKER_DOCS.colorPicker,
         tokens: ANGULAR_COLOR_PICKER_TOKENS,
@@ -139,7 +139,7 @@ export const FieldStory: Story = {
     template: grid(
       2,
       scene(
-        'Brand colour in a settings form',
+        'Brand color in a settings form',
         'Press the swatch: the panel opens under the field. Type rgb(220 38 38) and press Enter: the field keeps hex, the notation it shows.',
         `<div slField>
            <label slFieldLabel>Primary color</label>
@@ -149,7 +149,7 @@ export const FieldStory: Story = {
         'block',
       ) +
         scene(
-          'A label colour, as hsl',
+          'A label color, as hsl',
           'The field keeps the notation it was given; the panel inside writes hsl too.',
           `<div slField>
              <label slFieldLabel>Cor da etiqueta</label>
@@ -187,7 +187,7 @@ export const Formats: Story = {
     template: grid(
       1,
       scene(
-        'Change the notation, keep the colour',
+        'Change the notation, keep the color',
         'Open the HEX menu and choose another notation: the value below is rewritten in it, and every later change arrives in it.',
         `<sl-color-picker-live-demo initial="#2563EB" />`,
       ),
@@ -201,12 +201,12 @@ export const Alpha: Story = {
     template: grid(
       2,
       scene(
-        'A translucent overlay colour',
-        'The opacity channel fades the colour over the transparency grid, and the value carries the alpha.',
+        'A translucent overlay color',
+        'The opacity channel fades the color over the transparency grid, and the value carries the alpha.',
         `<div slColorPicker defaultValue="rgb(22 163 74 / 60%)"></div>`,
       ) +
         scene(
-          'A brand colour that must be opaque',
+          'A brand color that must be opaque',
           '[alpha]="false" takes the channel away; the value never carries an alpha.',
           `<div slColorPicker [alpha]="false" defaultValue="#16A34A"></div>`,
         ),
@@ -241,7 +241,7 @@ export const Contrast: Story = {
       ) +
         scene(
           'Text on a dark header',
-          'The same panel against #0F172A: a light colour passes, the brand blue does not.',
+          'The same panel against #0F172A: a light color passes, the brand blue does not.',
           `<sl-color-picker-live-demo initial="#F8FAFC" contrastWith="#0F172A" />`,
         ),
     ),
@@ -255,7 +255,7 @@ export const States: Story = {
       2,
       scene(
         'Disabled',
-        'Out of the tab order; the colour greyed so nothing reads as choosable.',
+        'Out of the tab order; the color greyed so nothing reads as choosable.',
         `<div slColorPicker disabled defaultValue="#64748B"></div>`,
       ) +
         scene(
@@ -265,7 +265,7 @@ export const States: Story = {
         ) +
         scene(
           'Outside sRGB',
-          'An oklch colour no screen in sRGB can show is said, and kept as written.',
+          'An oklch color no screen in sRGB can show is said, and kept as written.',
           `<div slColorPicker defaultValue="oklch(0.9 0.3 150)"></div>`,
         ),
     ),

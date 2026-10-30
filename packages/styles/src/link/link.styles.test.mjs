@@ -60,13 +60,13 @@ test('paints the current link from the platform attribute', () => {
 });
 
 /**
- * Every colour a state moves to is mixed toward a token the theme holds to a
+ * Every color a state moves to is mixed toward a token the theme holds to a
  * contrast ratio, never toward a fill role. A fill that darkens in the light
  * scheme lightens nothing in the dark one, which is how the shipped family
  * came to make a link harder to read under the pointer than at rest.
  */
 test('never paints text with a fill role', () => {
-  assert.ok(!/tone-[a-z]+-solid/.test(declarations), 'A solid fill is not a text colour');
+  assert.ok(!/tone-[a-z]+-solid/.test(declarations), 'A solid fill is not a text color');
   assert.match(declarations, /--_hover:[\s\S]*?color-mix\(in oklab, var\(--_rest\) 65%/);
 });
 
@@ -81,18 +81,18 @@ test('paints no marker of its own: the arrow is the Glyph element in an icon box
   );
 });
 
-test('restores the underline under forced colours', () => {
+test('restores the underline under forced colors', () => {
   assert.ok(normalized.includes('@media(forced-colors:active)'), 'Missing the query');
   assert.ok(
     /@media\(forced-colors:active\)\{\[data-ui-link\]\{text-decoration-line:underline/.test(
       normalized,
     ),
-    'A link with no underline is unrecognizable once the palette flattens colour',
+    'A link with no underline is unrecognizable once the palette flattens color',
   );
 });
 
 /**
- * `:visited` accepts colour and hides its computed value from script, so this
+ * `:visited` accepts color and hides its computed value from script, so this
  * assertion on the source is the only evidence the rule exists. It is named at
  * the gate for the same reason.
  */

@@ -148,7 +148,7 @@ test('declares a state model for both values a consumer can own', () => {
  * rather than being deleted around it. The separator used to draw nothing at
  * rest and then a two-pixel line in the accent under the hand, on the argument
  * that the edge is already there. It was reported as an edge nobody could find,
- * and the accent — the one colour that means the keyboard is here — had been
+ * and the accent — the one color that means the keyboard is here — had been
  * spent on hover, leaving nothing for focus.
  *
  * So the family now draws `splitter`'s picture: two hairlines and a grip on an
@@ -158,7 +158,7 @@ test('declares a state model for both values a consumer can own', () => {
  */
 test('draws the separator as something a hand can find, with a reach wider than its picture', () => {
   assert.match(contract.anatomy.resizer, /--slotted-target-min/);
-  assert.match(contract.anatomy.resizer, /centred on the gutter/);
+  assert.match(contract.anatomy.resizer, /centerd on the gutter/);
   assert.match(contract.anatomy.resizer, /draws something at rest/);
   assert.match(contract.anatomy.resizer, /grip/);
 
@@ -250,7 +250,7 @@ test('carries the result out on the request rather than as a second state', () =
 /**
  * `line` and `grip` arrived with the separator's repaint. They are elements and
  * not pseudo-elements for one reason: `packages/styles/src/fallbacks.test.mjs`
- * forbids a system colour inside `::before` or `::after`, and both steps the
+ * forbids a system color inside `::before` or `::after`, and both steps the
  * picture takes — the strong border and the muted text — have one as their last
  * resort. The reach is still a pseudo-element, because it paints nothing.
  */
@@ -319,7 +319,7 @@ test('makes the resizer part the capability rather than a prop beside it', () =>
  * A fraction of the layer and not a CSS length. The pattern's three aria values
  * are then the fraction times a hundred, the limits and the snap points are the
  * same kind of number so one clamp covers all three, and a keyboard step is a
- * proportion rather than a pixel literal the family would have to tokenise.
+ * proportion rather than a pixel literal the family would have to tokenize.
  */
 test('measures the extent as a fraction of the layer', () => {
   assert.match(contract.extent.unit, /fraction of the layer/);

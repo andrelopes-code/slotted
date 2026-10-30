@@ -191,10 +191,10 @@ export const Pressed: Story = {
           </IconButton>
         </div>
         <div className="slotted-demo-row">
-          <IconButton aria-label="Favourite" defaultPressed shape="circle" tone="warning">
+          <IconButton aria-label="Favorite" defaultPressed shape="circle" tone="warning">
             <Star aria-hidden="true" focusable="false" strokeWidth={1.75} />
           </IconButton>
-          <IconButton aria-label="Favourite, unavailable" defaultPressed disabled shape="circle">
+          <IconButton aria-label="Favorite, unavailable" defaultPressed disabled shape="circle">
             <Star aria-hidden="true" focusable="false" strokeWidth={1.75} />
           </IconButton>
         </div>

@@ -192,10 +192,10 @@ export const Tone: Story = {
 <div class="slotted-demo-grid" data-columns="1">
   <section class="slotted-demo-scene">
     <header class="slotted-demo-scene__header">
-      <span class="slotted-demo-scene__label">Colour</span>
+      <span class="slotted-demo-scene__label">Color</span>
       <span class="slotted-demo-scene__note">
-        The default is inherit, so an icon beside a label is the colour of that label without anyone
-        deciding it. The family sets colour and never fill or stroke: stroked and filled artwork
+        The default is inherit, so an icon beside a label is the color of that label without anyone
+        deciding it. The family sets color and never fill or stroke: stroked and filled artwork
         both read currentColor, and imposing either would break the other.
       </span>
     </header>
@@ -218,7 +218,7 @@ export const Tone: Story = {
           "
         >
           <span slIcon><ng-icon name="lucideInfo" /></span>
-          inherit — no tone asked for, and the callout’s colour taken
+          inherit — no tone asked for, and the callout’s color taken
         </span>
         <span
           class="slotted-demo-row"

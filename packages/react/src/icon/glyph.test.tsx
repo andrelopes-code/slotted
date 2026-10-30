@@ -45,7 +45,7 @@ describe('Glyph', () => {
     ).toEqual(GLYPHS[name].paths);
   });
 
-  it('strokes with the colour it inherits, at the manifest’s weight, or fills', () => {
+  it('strokes with the color it inherits, at the manifest’s weight, or fills', () => {
     const { container } = render(
       <>
         <Glyph name="check" />
@@ -60,7 +60,7 @@ describe('Glyph', () => {
     expect(dot).not.toHaveAttribute('stroke');
   });
 
-  it('moves the ink onto the centre the mask centred it on', () => {
+  it('moves the ink onto the center the mask centerd it on', () => {
     const { container } = render(<Glyph name="check" />);
     const [dx, dy] = GLYPHS.check.offset;
     expect(container.querySelector('g')).toHaveAttribute('transform', `translate(${dx} ${dy})`);

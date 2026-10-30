@@ -239,7 +239,7 @@ ${scene(
   'center',
   'Right while the block is one line, and wrong as soon as it is three: the mark floats in the middle of a paragraph it is meant to introduce.',
   set(
-    'Centred',
+    'Centerd',
     `
       <li slListItem align="center">
         <div slListItemContent>
@@ -564,7 +564,7 @@ ${scene(
           <span slListItemStart><span slBadge tone="secondary">PH</span></span>
           <span slListItemBody>
             <span slListItemLabel>States its own tone and alignment</span>
-            <span slListItemDescription>Neutral ink, and the mark centred on the block — because an explicit value always wins.</span>
+            <span slListItemDescription>Neutral ink, and the mark centerd on the block — because an explicit value always wins.</span>
           </span>
         </div>
       </li>`,

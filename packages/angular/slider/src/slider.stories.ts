@@ -320,7 +320,7 @@ export const States: Story = {
       2,
       scene(
         'At rest, and in error',
-        'Invalid reddens the fill and the thumb and retargets the focus ring; it is never colour alone, because aria-invalid announces it and the field says it in words.',
+        'Invalid reddens the fill and the thumb and retargets the focus ring; it is never color alone, because aria-invalid announces it and the field says it in words.',
         `<div slSlider aria-label="Normal" [defaultValue]="62"></div>
          <div slField [invalid]="true">
            <label slFieldLabel>Share</label>

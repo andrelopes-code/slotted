@@ -10,7 +10,7 @@ import type { InlineProps, InlineRootProps } from './inline.types';
  * consumer makes through `render`.
  *
  * An axis reaches the stylesheet only when someone decided it. The base rule
- * already carries the family defaults — wrapping, centred, separated by half a
+ * already carries the family defaults — wrapping, centerd, separated by half a
  * rem — and a layout is the most numerous element in a document.
  *
  * There is no axis that reverses the children. The order they are written in is

@@ -102,7 +102,7 @@ test('offers a box a sticky demonstration can be scrolled inside', () => {
 
 /**
  * The primitive a family that answers its own width is demonstrated inside: a
- * room of a stated width, one of five a reader recognises, that scrolls
+ * room of a stated width, one of five a reader recognizes, that scrolls
  * sideways where the page is narrower than it. Added when `top-navigation`'s
  * page showed one folded picture eighteen times, because the documentation
  * column is narrower than the bar's widest step and a grid column narrower
@@ -369,7 +369,7 @@ test('a demonstration stage cannot place two examples against each other', () =>
 });
 
 /**
- * A story that needs a coloured ground, a raised panel or a dense row reaches
+ * A story that needs a colored ground, a raised panel or a dense row reaches
  * for a primitive built from foundation tokens. The alternative is an inline
  * style, which answers no scheme switch and no density.
  */
@@ -386,7 +386,7 @@ test('demonstrations paint their context with tokens rather than inline styles',
   );
   /**
    * A menu row whose item is unavailable dims its label and the value beside
-   * it. A family whose bare form inherits its colour cannot be shown honestly
+   * it. A family whose bare form inherits its color cannot be shown honestly
    * against a label that stays bright.
    */
   assert.match(
@@ -575,7 +575,7 @@ test('offers a viewport as tall as what it holds, for a screen that decides its 
 });
 
 /**
- * Centring is an attribute of its own rather than part of a height, because an
+ * Centering is an attribute of its own rather than part of a height, because an
  * anchored family wants its trigger in the middle at every size and a family
  * that pins something to an edge of the box wants the opposite.
  */
@@ -642,7 +642,7 @@ test('gives a story a block box that cannot outgrow the page', () => {
  * something that scrolls — which a story cannot write for itself, because a
  * story that reaches for an inline style is refused.
  */
-test('offers a viewport that scrolls, for a family whose behaviour is about scrolling', () => {
+test('offers a viewport that scrolls, for a family whose behavior is about scrolling', () => {
   const rule = /\.slotted-demo-viewport\[data-scroll\]\s*\{([\s\S]*?)\}/.exec(css)?.[1] ?? '';
   assert.match(rule, /overflow:\s*auto/);
   /* `contain: paint` on the plain viewport clips instead of scrolling, so the
@@ -654,7 +654,7 @@ test('offers a viewport that scrolls, for a family whose behaviour is about scro
  * The scrolling box has to read as a page, or the demonstration inside it is
  * still a stage. `table`'s page-mode header sticks to what scrolls outside the
  * family, and a box holding nothing but the table draws the same picture the
- * family's own scroller draws: the behaviour is only visible when a heading and
+ * family's own scroller draws: the behavior is only visible when a heading and
  * a paragraph scroll away above the table while the header stays.
  */
 test('offers a viewport laid out as a page, so content can scroll past a demonstration', () => {

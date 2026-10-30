@@ -57,7 +57,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div',
     required: true,
     purpose:
-      'The wash, the one-cell grid that centres the panel, and the query container. In the document for the life of the family, so both directions of the fade are transitions.',
+      'The wash, the one-cell grid that centers the panel, and the query container. In the document for the life of the family, so both directions of the fade are transitions.',
   },
   {
     part: 'panel',

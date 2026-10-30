@@ -95,7 +95,7 @@ export class SlFieldDescription extends SlFieldMessage {}
 
 /**
  * What is wrong with the value, in words — which is what WCAG 2.2 SC 3.3.1
- * requires and what colour and a mark alone do not satisfy.
+ * requires and what color and a mark alone do not satisfy.
  *
  * `tone` accepts the other four, so a warning that does not block submission is
  * the same part in another tone rather than a member of its own. Fluent spends

@@ -18,7 +18,7 @@ import { Text } from '@slotted/react/typography';
 
 const activity = [
   'Jul 4, 9:12 AM. Order placed by Vins et alcools Chevalier.',
-  'Jul 4, 9:40 AM. Payment authorised, 440.00 USD.',
+  'Jul 4, 9:40 AM. Payment authorized, 440.00 USD.',
   'Jul 5, 8:05 AM. Allocated to the Seattle warehouse.',
   'Jul 5, 2:30 PM. Picked by Nancy Davolio.',
   'Jul 6, 10:15 AM. Packed in two cartons, 14.2 kg.',

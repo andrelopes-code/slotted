@@ -118,7 +118,7 @@ export function queriesOf(query: string | readonly string[] | undefined): string
 /**
  * The spans of `text` that `query` matched, in the text's own code units, so
  * a caller can mark them. Every occurrence by default; one per query under
- * `occurrences: 'first'`. The result is not yet normalised: two queries may
+ * `occurrences: 'first'`. The result is not yet normalized: two queries may
  * overlap, and `normalizeRanges` is where they become one run.
  */
 export function matchRanges(
@@ -234,7 +234,7 @@ export function normalizeRanges(text: string, ranges: readonly HighlightRange[])
 
 /**
  * The text split into the runs a binding renders: the ones to mark and the
- * ones not to, in order, with no empty run between them. Expects a normalised
+ * ones not to, in order, with no empty run between them. Expects a normalized
  * set; hand it `normalizeRanges` first, or use `highlightRuns`.
  */
 export function splitRanges(text: string, ranges: readonly HighlightRange[]): HighlightRun[] {
@@ -255,7 +255,7 @@ export function splitRanges(text: string, ranges: readonly HighlightRange[]): Hi
 
 /**
  * The one call a binding makes. `ranges` wins over `matcher`, which wins over
- * the default matcher; every one of the three is normalised the same way, and
+ * the default matcher; every one of the three is normalized the same way, and
  * a text with nothing to mark comes back as a single unmarked run.
  */
 export function highlightRuns(text: string, input: HighlightInput = {}): HighlightRun[] {

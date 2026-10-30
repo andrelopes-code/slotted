@@ -44,7 +44,7 @@ export interface TourController<Step extends TourStepShape> {
   next: (reason: TourNavigationReason, source?: unknown) => void;
   prev: (reason: TourNavigationReason, source?: unknown) => void;
   goTo: (id: string, reason: TourNavigationReason, source?: unknown) => void;
-  /** The shown step's target left the document: the step stays, centred. */
+  /** The shown step's target left the document: the step stays, centerd. */
   markMissing: () => void;
   /** Forgets the shown step, for a tour that closed and may open again. */
   reset: () => void;

@@ -94,7 +94,7 @@ test('records that no APG pattern covers the family, and cites the one it borrow
  * the family owns no key. Arrow navigation would take `Tab` away from controls
  * that need it, and a read-only list of pairs is not a composite widget.
  */
-test('owns no keyboard behaviour of its own', () => {
+test('owns no keyboard behavior of its own', () => {
   assert.deepEqual(
     contract.keyboard.map((entry) => entry.key),
     ['Tab', 'Enter', 'Space'],
@@ -236,7 +236,7 @@ test('names a row action by the term it belongs to', () => {
 
 /**
  * A missing value is a decision, not an omission: the mark is geometry and the
- * reason is text, because colour and shape alone never carry meaning.
+ * reason is text, because color and shape alone never carry meaning.
  */
 test('draws a missing value and says why it is missing', () => {
   assert.equal(contract.empty.part, 'placeholder');

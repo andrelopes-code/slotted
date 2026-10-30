@@ -138,7 +138,7 @@ test('overlaps by a fraction of the member, in a logical direction', () => {
 /**
  * The ring is what separates one member from the one beneath it, and it is the
  * surface the group stands on rather than a fixed white, so a group inside a
- * card or a coloured row is still a row of separate faces.
+ * card or a colored row is still a row of separate faces.
  */
 test('does not add a second group ring to the avatar edge', () => {
   assert.ok(!rule(root).includes('--slotted-avatar-ring-width'));

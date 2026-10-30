@@ -59,8 +59,8 @@ const JOBS: ImportExportJob[] = [
   },
 ];
 
-/** The jobs are Brazilian, so the centre speaks Brazilian Portuguese around them. */
-function Centre(props: Partial<ImportExportCenterProps>) {
+/** The jobs are Brazilian, so the center speaks Brazilian Portuguese around them. */
+function Center(props: Partial<ImportExportCenterProps>) {
   return (
     <SlottedProvider catalogs={{ 'pt-BR': PT_BR }} locale="pt-BR">
       <ImportExportCenter jobs={JOBS} now={NOW} {...props} />
@@ -74,7 +74,7 @@ const job = (key: string) =>
 
 describe('ImportExportCenter', () => {
   it('names itself and its list by the title, and carries the identity the contract declares', () => {
-    render(<Centre />);
+    render(<Center />);
     expect(root().dataset['ui']).toBe(contract.ui);
     // language: pt-BR
     expect(screen.getByRole('region', { name: /Importações e exportações/ })).toBe(root());
@@ -85,7 +85,7 @@ describe('ImportExportCenter', () => {
   });
 
   it('draws the count of active jobs beside the title', () => {
-    render(<Centre />);
+    render(<Center />);
     expect(root().querySelector('[data-part="count"]')?.textContent).toBe('1 em andamento');
   });
 
@@ -109,7 +109,7 @@ describe('ImportExportCenter', () => {
   });
 
   it('derives the partial outcome from the counts and paints the status it declares', () => {
-    render(<Centre />);
+    render(<Center />);
     expect(job('catalog').dataset['outcome']).toBe('partial');
     expect(job('catalog').querySelector('[data-part="status-label"]')?.textContent).toContain(
       // language: pt-BR
@@ -122,7 +122,7 @@ describe('ImportExportCenter', () => {
   });
 
   it('draws the ring of spinner for a running job and a glyph otherwise', () => {
-    render(<Centre />);
+    render(<Center />);
     expect(job('crm').querySelector('[data-part="mark"] [data-ui="spinner"]')).toBeTruthy();
     expect(
       job('invoices').querySelector('[data-part="mark"] [data-glyph="circle-check"]'),
@@ -133,7 +133,7 @@ describe('ImportExportCenter', () => {
   });
 
   it('names every control by its words and the job title', () => {
-    render(<Centre />);
+    render(<Center />);
     // language: pt-BR
     const cancel = within(job('crm')).getByRole('button', { name: 'Cancelar CRM contacts' });
     // language: en-US
@@ -151,7 +151,7 @@ describe('ImportExportCenter', () => {
   });
 
   it('shows progress with its value text and says the stage without wrapping it away', () => {
-    render(<Centre />);
+    render(<Center />);
     const bar = within(job('crm')).getByRole('progressbar');
     expect(bar.getAttribute('aria-valuenow')).toBe('1204');
     expect(job('crm').querySelector('[data-part="stage"]')?.getAttribute('title')).toBe(
@@ -165,7 +165,7 @@ describe('ImportExportCenter', () => {
 
   it('writes the deadline of an export and asks before a download', () => {
     const onDownload = vi.fn((_download, request) => request.cancel());
-    render(<Centre locale="pt-BR" onDownload={onDownload} timeZone="UTC" />);
+    render(<Center locale="pt-BR" onDownload={onDownload} timeZone="UTC" />);
     expect(job('invoices').querySelector('[data-part="message"]')?.textContent).toMatch(
       // language: pt-BR
       /^Disponível até 2 de out/,
@@ -187,7 +187,7 @@ describe('ImportExportCenter', () => {
     const onCancel = vi.fn();
     const onRetry = vi.fn();
     const onRemove = vi.fn();
-    render(<Centre onCancel={onCancel} onRemove={onRemove} onRetry={onRetry} />);
+    render(<Center onCancel={onCancel} onRemove={onRemove} onRetry={onRetry} />);
     fireEvent.click(within(job('crm')).getByRole('button', { name: /^Cancelar/ }), { detail: 1 });
     fireEvent.click(within(job('debtors')).getByRole('button', { name: /^Tentar de novo/ }), {
       detail: 0,
@@ -210,7 +210,7 @@ describe('ImportExportCenter', () => {
 
   it('clears every finished job with the reason clear', () => {
     const onRemove = vi.fn();
-    render(<Centre onRemove={onRemove} />);
+    render(<Center onRemove={onRemove} />);
     // language: pt-BR
     fireEvent.click(screen.getByRole('button', { name: 'Limpar concluídos' }));
     // language: en-US
@@ -222,7 +222,7 @@ describe('ImportExportCenter', () => {
 
   it('opens the details on the toggle, keeping its words, and holds the set uncontrolled', () => {
     const onExpandedChange = vi.fn();
-    render(<Centre onExpandedChange={onExpandedChange} />);
+    render(<Center onExpandedChange={onExpandedChange} />);
     const toggle = within(job('catalog')).getByRole('button', { name: /^Detalhes/ });
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
     fireEvent.click(toggle, { detail: 1 });
@@ -243,7 +243,7 @@ describe('ImportExportCenter', () => {
 
   it('writes the note when the failed rows are a sample', () => {
     render(
-      <Centre
+      <Center
         defaultExpanded={['catalog']}
         jobs={JOBS.map((each) => (each.key === 'catalog' ? { ...each, errorCount: 1284 } : each))}
       />,
@@ -254,16 +254,16 @@ describe('ImportExportCenter', () => {
   });
 
   it('refuses an expanded request the consumer cancels, and follows a controlled set', () => {
-    const { rerender } = render(<Centre expanded={[]} onExpandedChange={() => {}} />);
+    const { rerender } = render(<Center expanded={[]} onExpandedChange={() => {}} />);
     fireEvent.click(within(job('catalog')).getByRole('button', { name: /^Detalhes/ }));
     expect(job('catalog').dataset['expanded']).toBeUndefined();
-    rerender(<Centre expanded={['catalog']} onExpandedChange={() => {}} />);
+    rerender(<Center expanded={['catalog']} onExpandedChange={() => {}} />);
     expect(job('catalog').dataset['expanded']).toBe('');
   });
 
   it('filters the built-in views and asks with the view model', () => {
     const onViewChange = vi.fn();
-    render(<Centre onViewChange={onViewChange} />);
+    render(<Center onViewChange={onViewChange} />);
     // language: pt-BR
     fireEvent.click(screen.getByRole('tab', { name: 'Exportações' }));
     // language: en-US
@@ -281,13 +281,13 @@ describe('ImportExportCenter', () => {
 
   it('draws the empty page of the view, and the error page that asks to reload', () => {
     const onReload = vi.fn();
-    const { rerender } = render(<Centre defaultView="import" jobs={[]} />);
+    const { rerender } = render(<Center defaultView="import" jobs={[]} />);
     // language: pt-BR
     expect(root().querySelector('[data-part="empty"]')?.textContent).toContain(
       'Nenhuma importação',
     );
     // language: en-US
-    rerender(<Centre jobs={[]} onReload={onReload} status="error" />);
+    rerender(<Center jobs={[]} onReload={onReload} status="error" />);
     fireEvent.click(
       within(root().querySelector('[data-part="error"]') as HTMLElement).getByRole('button'),
       { detail: 1 },
@@ -297,7 +297,7 @@ describe('ImportExportCenter', () => {
   });
 
   it('stands skeleton jobs in while nothing has arrived, and marks the list busy', () => {
-    render(<Centre jobs={[]} loading />);
+    render(<Center jobs={[]} loading />);
     const list = screen.getByRole('list', { hidden: true });
     expect(list.getAttribute('aria-busy')).toBe('true');
     expect(list.querySelectorAll('[data-part="job"][aria-hidden="true"]')).toHaveLength(3);
@@ -305,7 +305,7 @@ describe('ImportExportCenter', () => {
 
   it('asks for the next page from the more control', () => {
     const onLoadMore = vi.fn();
-    render(<Centre growing="button" hasMore onLoadMore={onLoadMore} />);
+    render(<Center growing="button" hasMore onLoadMore={onLoadMore} />);
     // language: pt-BR
     fireEvent.click(screen.getByRole('button', { name: 'Carregar mais' }), { detail: 1 });
     // language: en-US
@@ -314,7 +314,7 @@ describe('ImportExportCenter', () => {
 
   it('announces a transition once, and nothing on the first render', () => {
     vi.useFakeTimers();
-    const { rerender } = render(<Centre />);
+    const { rerender } = render(<Center />);
     const region = () =>
       [...document.querySelectorAll('[data-slotted-live-announcer] [aria-live="polite"]')]
         .map((node) => node.textContent)
@@ -322,7 +322,7 @@ describe('ImportExportCenter', () => {
     act(() => vi.advanceTimersByTime(500));
     expect(region()).not.toContain('CRM contacts');
     rerender(
-      <Centre
+      <Center
         jobs={JOBS.map((each) => (each.key === 'crm' ? { ...each, status: 'succeeded' } : each))}
       />,
     );
@@ -334,11 +334,11 @@ describe('ImportExportCenter', () => {
   });
 
   it('keeps focus in a job whose control the status took away', () => {
-    const { rerender } = render(<Centre />);
+    const { rerender } = render(<Center />);
     const cancel = within(job('crm')).getByRole('button', { name: /^Cancelar/ });
     cancel.focus();
     rerender(
-      <Centre
+      <Center
         jobs={JOBS.map((each) =>
           each.key === 'crm'
             ? {
@@ -356,11 +356,11 @@ describe('ImportExportCenter', () => {
   });
 
   it('moves focus to the same control of the next job when a job leaves', () => {
-    const { rerender } = render(<Centre />);
+    const { rerender } = render(<Center />);
     // language: pt-BR
     within(job('catalog')).getByRole('button', { name: 'Remover do histórico' }).focus();
     // language: en-US
-    rerender(<Centre jobs={JOBS.filter((each) => each.key !== 'catalog')} />);
+    rerender(<Center jobs={JOBS.filter((each) => each.key !== 'catalog')} />);
     expect(document.activeElement?.closest('[data-part="job"]')).toBe(job('invoices'));
     // language: pt-BR
     expect(document.activeElement?.getAttribute('aria-label')).toBe('Remover do histórico');
@@ -375,7 +375,7 @@ describe('ImportExportCenter', () => {
           <button onClick={() => ref.current?.reveal('catalog')} type="button">
             ver
           </button>
-          <Centre defaultView="export" ref={ref} />
+          <Center defaultView="export" ref={ref} />
         </>
       );
     }
@@ -390,7 +390,7 @@ describe('ImportExportCenter', () => {
   it('takes its defaults from the provider, and an explicit prop still wins', () => {
     render(
       <ImportExportCenterDefaultsProvider level="3" size="sm">
-        <Centre messages={{ title: 'Jobs' }} size="md" />
+        <Center messages={{ title: 'Jobs' }} size="md" />
       </ImportExportCenterDefaultsProvider>,
     );
     expect(screen.getByRole('heading', { level: 3 }).textContent).toContain('Jobs');
@@ -399,15 +399,15 @@ describe('ImportExportCenter', () => {
 
   it("passes native props through and renders the consumer's own job actions", () => {
     render(
-      <Centre
-        data-testid="centre"
+      <Center
+        data-testid="center"
         id="jobs"
         renderJobActions={(each) =>
           each.key === 'invoices' ? <a href="#share">Partilhar</a> : null
         }
       />,
     );
-    expect(screen.getByTestId('centre').id).toBe('jobs');
+    expect(screen.getByTestId('center').id).toBe('jobs');
     expect(job('invoices').querySelector('[data-part="job-actions"] a')?.textContent).toBe(
       'Partilhar',
     );

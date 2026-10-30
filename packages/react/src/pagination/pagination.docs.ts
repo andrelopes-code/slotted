@@ -106,7 +106,7 @@ const anatomy: AnatomyRow[] = [
     element: 'select',
     required: false,
     purpose:
-      'How many items a page holds. A native select, so its popup follows the colour scheme the theme already emits.',
+      'How many items a page holds. A native select, so its popup follows the color scheme the theme already emits.',
   },
   {
     part: 'page-size-label',
@@ -375,7 +375,7 @@ export const REACT_PAGINATION_DOCS = {
       'The current page carries aria-current="page", which is the value the ARIA specification names for a link within a set of pagination links — and it is the attribute that paints the fill, so what a reader hears and what the eye sees are one fact rather than two.',
       'The range is a polite live region, and it is the only one: one region announcing one sentence is the whole of the announcement, so a page change is not read out twice.',
       'In link mode a trigger at a bound renders an anchor with no destination and aria-disabled, rather than a disabled anchor — there is no such thing, and one that kept its href would still navigate on a middle click.',
-      'The page size is a native select wrapped by its own label, which gives the control its accessible name from the platform and needs no generated id; its popup follows the colour scheme the theme already emits.',
+      'The page size is a native select wrapped by its own label, which gives the control its accessible name from the platform and needs no generated id; its popup follows the color scheme the theme already emits.',
       'Below the family own breakpoint the numbered row gives way to the summary. Both are always in the DOM and exactly one is displayed, so nothing is announced twice — and the range is only hidden where a summary exists to replace it.',
       'Focus stays on the control that was pressed. When pressing it makes it unavailable — Next on the second-to-last page — focus moves to the nearest control that survives, because losing focus to the body after activating a control is what the guide means by preserving position predictably.',
       'The figures are tabular and every cell is at least as wide as it is tall, so page 9 and page 8 942 are the same target and the row does not move under the pointer.',

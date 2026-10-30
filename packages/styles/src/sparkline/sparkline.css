@@ -3,7 +3,7 @@
    * The first SVG the library draws. The geometry — where a point is, how
    * wide a bar is — is computed in `@slotted/core/sparkline` from the box the
    * binding measured, so this sheet decides only what the marks are made of:
-   * the colour, the stroke, the marker, the wash under a line and the height
+   * the color, the stroke, the marker, the wash under a line and the height
    * of the box.
    *
    * The root is inline-block and takes the whole inline size of what holds
@@ -18,23 +18,23 @@
     --_size: var(--slotted-sparkline-block-size, var(--slotted-space-9, 2rem));
     --_stroke: var(--slotted-sparkline-line-width, var(--slotted-border-width-thick, 2px));
     /* A marker six pixels across — four at sm, eight at lg — with a ring in
-       the colour of the ground, so it stays legible where it crosses the
+       the color of the ground, so it stays legible where it crosses the
        line. Smaller than the eight pixels a chart's hover target needs: a
        sparkline has no hover, and a disc a third the height of a 20-pixel
        box was the first thing the reviewer saw. */
     --_marker: var(--slotted-sparkline-marker-size, var(--slotted-space-3, 0.375rem));
     --_ring: var(--slotted-sparkline-ring-width, var(--slotted-border-width-thick, 2px));
     --_ring-color: var(--slotted-sparkline-ring-color, var(--slotted-surface-raised, Canvas));
-    /* The wash under a line: the series colour fading from this share at the
+    /* The wash under a line: the series color fading from this share at the
        line to nothing at the bottom edge. A number rather than a token step,
        recorded in the token file: no scale in the foundation holds an
        opacity for a fill that is read through, and the two that hold one for
        a band (`highlight`, `selection`) are calibrated for text sitting on
        them, which nothing does here. */
     --_area-opacity: var(--slotted-sparkline-area-opacity, 0.18);
-    /* Every bar but the current one is drawn in the colour mixed at this
+    /* Every bar but the current one is drawn in the color mixed at this
        share with the line between two surfaces, so the last period reads as
-       the one the value is about. Mixed with a colour rather than faded
+       the one the value is about. Mixed with a color rather than faded
        with opacity: a bar at half opacity is a tint the page cannot
        promise a ratio for — pale blue on white in `high-contrast` — where
        `--slotted-border-strong` holds 3:1 against every surface in every
@@ -51,9 +51,9 @@
     );
 
     /**
-     * The colour, resolved in one order. A tone says how the series is doing
+     * The color, resolved in one order. A tone says how the series is doing
      * and wins; a series slot says which one it is; a sparkline that names
-     * neither reads the colour its container states — a card's trend region
+     * neither reads the color its container states — a card's trend region
      * writes `--slotted-sparkline-color` from its own tone — or the first slot
      * of the data scale, which takes the accent seed's hue.
      */
@@ -168,7 +168,7 @@
   }
 
   /**
-   * The wash: the series colour, faded to nothing at the bottom by a mask
+   * The wash: the series color, faded to nothing at the bottom by a mask
    * rather than by a gradient element, so the `svg` needs no `id` and a page
    * of forty sparklines does not mint forty gradients. `mask-image` applies to
    * an SVG child from CSS in every engine that ships `@layer`.
@@ -208,7 +208,7 @@
 
   /**
    * A reference is a hairline and it is dashed: it is the one line in the box
-   * that is not data, and the dash is what says so before the colour does.
+   * that is not data, and the dash is what says so before the color does.
    * The dash lengths are geometry of the stroke, not a scale step.
    */
   [data-ui-sparkline] [data-part-reference] {
@@ -227,7 +227,7 @@
    * for the one frame before the box is measured, so a circle there is an
    * ellipse; a stroke under `vector-effect: non-scaling-stroke` is measured
    * on the screen and stays round whatever the grid does. The ring is drawn
-   * in the colour of the ground so the disc stays legible where it lands on
+   * in the color of the ground so the disc stays legible where it lands on
    * the line.
    */
   [data-ui-sparkline] [data-part-ring],
@@ -277,11 +277,11 @@
   }
 
   /**
-   * Under forced colours the theme has already mapped the data scale and the
+   * Under forced colors the theme has already mapped the data scale and the
    * tones to `CanvasText`, so a line and a marker keep their ink. What the
    * theme cannot do is undo the mix in the bars or the wash: a bar mixed from
-   * two system colours is a colour the mode does not have, and the wash is a
-   * tint it has no colour for. The earlier bars take `GrayText`, the current
+   * two system colors is a color the mode does not have, and the wash is a
+   * tint it has no color for. The earlier bars take `GrayText`, the current
    * one `CanvasText`, and the wash goes.
    */
   @media (forced-colors: active) {

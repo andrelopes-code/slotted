@@ -49,9 +49,9 @@ Check: Under a paged list, the pager's last control ends on the region's end edg
 
 Level: MUST
 Applies to: what a consumer places in `app-shell`'s `nav-header` and `nav-footer` — a workspace row, an account row, a status row
-Rule: A consumer's row in the navigation column's pinned parts is inset by `--slotted-app-shell-row-inset` and starts with a mark column `--slotted-app-shell-row-mark` wide, the avatar centred in it.
+Rule: A consumer's row in the navigation column's pinned parts is inset by `--slotted-app-shell-row-inset` and starts with a mark column `--slotted-app-shell-row-mark` wide, the avatar centerd in it.
 Why: The destinations under it are `side-navigation` rows on the same measures; a header row without them stands on the region's edge and its avatar off the icon column.
-Do: Read the two published measures on the row. In the rail the words are hidden and the mark stays centred; in the overlay card the frame adds its own inset and the row's inset stacks on it, as the destinations' does.
+Do: Read the two published measures on the row. In the rail the words are hidden and the mark stays centerd; in the overlay card the frame adds its own inset and the row's inset stacks on it, as the destinations' does.
 Don't: Write a bare avatar and text into the header, or pad the header by a number.
 Seen in: Nexora · navigation column header, on the overlay card at phone width · ledger rows "nav-header and nav-footer carry block padding only" and "the overlay layer is a card"
 Check: The header's avatar and the first destination's icon share a left edge, in the column, in the rail and in the overlay.
@@ -83,9 +83,9 @@ Check: Scroll a long list under the header: the tab strip stays visible under th
 Level: MUST
 Applies to: fields on one line — a table row of editable cells, an inline group of fields, a grid of fields with an action button — where some carry a line of help or an error and others do not
 Rule: Fields on one line are aligned to the start of the block axis, so every control of the line starts at the same height and has the same height whatever stands under it. A button on the line stands on the controls' row, not on the labels' or the help's.
-Why: Centred or aligned to the end, a field with a line of help under it stands its control higher than its neighbour without one, and the line of controls the eye follows across the row breaks by the help's height.
-Do: Set the `cellAlign` axis to `start` on a `table` whose cells hold fields, and the `align` axis to `start` on an `inline` of fields. In a grid of fields with a button, give the grid three rows — label, control, help — each field spanning them with `grid-template-rows: subgrid`, and place the button in the control row; a value read beside the controls is centred on the controls' height.
-Don't: Keep the table's centred cells for a row of fields, where a quantity with help stood 21 pixels above the cost beside it. Align a grid of fields with `align-items: end` to bring a button level with the controls: the field with help lifts its control by the help's height.
+Why: Centerd or aligned to the end, a field with a line of help under it stands its control higher than its neighbour without one, and the line of controls the eye follows across the row breaks by the help's height.
+Do: Set the `cellAlign` axis to `start` on a `table` whose cells hold fields, and the `align` axis to `start` on an `inline` of fields. In a grid of fields with a button, give the grid three rows — label, control, help — each field spanning them with `grid-template-rows: subgrid`, and place the button in the control row; a value read beside the controls is centerd on the controls' height.
+Don't: Keep the table's centerd cells for a row of fields, where a quantity with help stood 21 pixels above the cost beside it. Align a grid of fields with `align-items: end` to bring a button level with the controls: the field with help lifts its control by the help's height.
 Seen in: Nexora · new purchase order, the lines table (ledger row "table, field") · corrected. Nexora · new quote, the line picker: Discount with "Percent off the list price." stood 24 pixels above Item and Quantity · corrected
 Check: On a line where one field carries help and another does not, every control and the button share one top and one height, measured by bounding box.
 

@@ -12,7 +12,7 @@ import { launch } from '../shoot.mjs';
  * for the card's `label` part matched the badge's `label` part as well.
  *
  * The page renders the same badge twice, inside `StatCardStatus` and beside the
- * card, and reads the computed colour, size and weight of each badge's label.
+ * card, and reads the computed color, size and weight of each badge's label.
  *
  * The other half is the card inside a family: a stat card whose parent carries
  * `data-ui` — a `Grid` — took its own root for the scope's limit, and no part

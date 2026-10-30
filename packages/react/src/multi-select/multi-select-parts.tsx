@@ -822,7 +822,7 @@ export function MultiSelectContent({
         {/*
           Every chosen value, whatever the row in the control did with them. It
           is what makes `overflow="collapse"` legal against §6: the `+N` chip
-          summarises and this band is where the whole set stays reachable. Its
+          summarizes and this band is where the whole set stays reachable. Its
           chips carry no remove control — focus never enters this layer, so one
           would be reachable by pointer and by nothing else.
         */}

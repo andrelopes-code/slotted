@@ -181,7 +181,7 @@ test('draws the rule one hairline wide and short of the controls at each end', (
 });
 
 /**
- * Forced colours flatten a background to `Canvas`, and the separator is a
+ * Forced colors flatten a background to `Canvas`, and the separator is a
  * background rather than a border, so keeping the paint is the only way the
  * boundary is still there to read.
  */

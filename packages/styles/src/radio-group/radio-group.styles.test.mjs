@@ -116,7 +116,7 @@ test('differs from checkbox in the corner and in nothing else structural', () =>
 
 /**
  * The circle is the selection scale's, fixed across densities, edged at the
- * medium step in the strong colour — the same decisions `checkbox` takes for
+ * medium step in the strong color — the same decisions `checkbox` takes for
  * its square (CK5, CK3).
  */
 test('takes its circle from the selection scale and edges it as checkbox does', () => {
@@ -142,9 +142,9 @@ test('takes its circle from the selection scale and edges it as checkbox does', 
 
 /**
  * Chosen is a dot of the accent's solid step on the surface, inside an edge of
- * the same colour: the ground does not fill (CK5). The dot fills the control's
- * own box — the glyph is authored at half its grid — so its centre is the
- * circle's centre at every step (CK4).
+ * the same color: the ground does not fill (CK5). The dot fills the control's
+ * own box — the glyph is authored at half its grid — so its center is the
+ * circle's center at every step (CK4).
  */
 test('says chosen with the edge and the dot, and leaves the ground alone', () => {
   const checked = rule(`${part('control')}:checked`);
@@ -329,7 +329,7 @@ test('restates the pair forced colors would collapse', () => {
       `@media (forced-colors:active){${part('control')}{background-color:Field;border-color:FieldText;}`,
     ),
   );
-  /* The dot is the accent on the field, so under forced colours it is
+  /* The dot is the accent on the field, so under forced colors it is
      Highlight on Field rather than HighlightText on Highlight. */
   assert.ok(
     normalized.includes(`${part('control')}:checked + [data-part-indicator]{color:Highlight;}`),
@@ -350,17 +350,17 @@ test('transitions the two changes the eye has to follow, from the scale', () => 
 
 /**
  * The `high-contrast` scheme paints `--slotted-tone-danger-border` the same
- * black as every other border, so an invalid control told apart by colour alone
+ * black as every other border, so an invalid control told apart by color alone
  * would be identical to a valid one in exactly the scheme that exists for
  * people who need the difference.
  */
 /**
- * The theme maps the danger fill to `ButtonFace` under forced colours, and a
+ * The theme maps the danger fill to `ButtonFace` under forced colors, and a
  * checked invalid option painted its edge and its dot in it: the dot vanished
  * into the field. The forced block restates the checked pair for an invalid
  * option too, the dot in `Highlight` and the wider edge in `CanvasText`.
  */
-test('keeps a checked invalid option checked under forced colours', () => {
+test('keeps a checked invalid option checked under forced colors', () => {
   const forced = normalized.slice(normalized.lastIndexOf('@media (forced-colors:active)'));
   const control = `${root}[data-invalid] [data-part-control]`;
   assert.ok(
@@ -376,11 +376,11 @@ test('keeps a checked invalid option checked under forced colours', () => {
 
 /**
  * The edge thickens by `--slotted-control-invalid-edge-width`, the width every
- * invalid control adds (WCAG 1.4.1), as a border so forced colours keep it. A
+ * invalid control adds (WCAG 1.4.1), as a border so forced colors keep it. A
  * tile adds the same width to whatever its state draws, so a chosen invalid
  * tile is still wider than a chosen valid one.
  */
-test('says invalid with weight as well as with colour', () => {
+test('says invalid with weight as well as with color', () => {
   const invalid = rule(`${root}[data-invalid] [data-part-control]`);
   assert.match(
     invalid,

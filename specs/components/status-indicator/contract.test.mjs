@@ -61,7 +61,7 @@ test('names six statuses and defaults to the one that claims nothing', () => {
  * and both bindings write the same attribute the CSS reads.
  *
  * `neutral` and `unknown` share `secondary`, which is the reason the mark has
- * to tell them apart without colour.
+ * to tell them apart without color.
  */
 test('maps every status onto a tone the theme already paints', () => {
   assert.deepEqual(Object.keys(contract.statusTones), contract.axes.status);

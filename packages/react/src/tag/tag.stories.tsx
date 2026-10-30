@@ -127,7 +127,7 @@ export const Content: Story = {
       </DemoScene>
       <DemoScene
         label="glyphs"
-        note="A glyph before or after the words, in a box the family sizes and centres. The artwork is the consumer’s."
+        note="A glyph before or after the words, in a box the family sizes and centers. The artwork is the consumer’s."
       >
         <TagGroup aria-label="Com glifos" role="list">
           <Tag start={GLYPH_TAG} tone="accent">

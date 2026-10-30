@@ -14,7 +14,7 @@ import type { GlyphProps } from './icon.types';
 /**
  * Glyph is the library's own artwork, drawn as a real `<svg>`: the Lucide
  * geometry `@slotted/core/glyph` holds, stroked or filled with `currentColor`.
- * It goes inside an `Icon`, which owns the size, the colour, the alignment and
+ * It goes inside an `Icon`, which owns the size, the color, the alignment and
  * the name; the glyph owns only the drawing. Every family draws its own icons
  * — a close button's cross, a pager's chevrons — with this element, and never
  * with a pseudo-element or a mask of its own.

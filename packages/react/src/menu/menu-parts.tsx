@@ -68,7 +68,7 @@ type Entry = 'first' | 'last';
 
 /**
  * Focus without the browser's own scroll, which reveals an item by scrolling
- * the page as well as the surface and centres it in the window, carrying the
+ * the page as well as the surface and centers it in the window, carrying the
  * layer off its trigger. The surface scrolls inside the room the positioner
  * gives it, so the item is brought into the surface and nothing further.
  */
@@ -102,7 +102,7 @@ const readingDirection = (node: HTMLElement | null) =>
  *
  * The pattern says Tab moves focus out of the menu and says no more, and a
  * layer portalled to the end of the document has no next element a reader would
- * recognise. `popover` answers the same question with two focus guards; a menu
+ * recognize. `popover` answers the same question with two focus guards; a menu
  * binds `Tab` itself, so it can put focus where the reader was going instead.
  */
 function moveOut(trigger: HTMLElement | null, step: 1 | -1) {
@@ -117,7 +117,7 @@ function moveOut(trigger: HTMLElement | null, step: 1 | -1) {
 /**
  * The control that opens the surface.
  *
- * It renders three different elements and holds one behaviour. On its own it is
+ * It renders three different elements and holds one behavior. On its own it is
  * the consumer's control, given through `render`; on a bar it is the bar's own
  * `menuitem`; inside another menu's surface it is an item of that surface, with
  * `aria-haspopup` and a chevron at the end that points along the reading
@@ -213,7 +213,7 @@ export function MenuTrigger({
   /**
    * Hover opens a submenu, and opens a bar's menu only once the bar already has
    * one open. Moving the pointer along a closed bar opens nothing; moving it
-   * along an open one switches menus, which is the behaviour that separates a
+   * along an open one switches menus, which is the behavior that separates a
    * menubar from a row of buttons.
    */
   const onPointerEnter = (event: PointerEvent<HTMLElement>) => {

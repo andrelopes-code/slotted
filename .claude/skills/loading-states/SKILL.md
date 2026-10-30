@@ -35,7 +35,7 @@ read content with a skeleton on every refresh is how a screen flickers.
 
 ## 2. The skeleton is the anatomy, not a rectangle
 
-A skeleton is the same layout as the content, drawn in one colour. Build it from the
+A skeleton is the same layout as the content, drawn in one color. Build it from the
 loaded markup:
 
 1. Keep the container, the parts, the grid, the inset and the gap tokens the loaded

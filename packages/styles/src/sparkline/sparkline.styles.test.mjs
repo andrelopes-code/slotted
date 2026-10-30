@@ -107,12 +107,12 @@ test('fills the inline size of its container and takes its height from its size'
 });
 
 /**
- * Colour resolves in one order: a tone wins, a series slot is next, and a
+ * Color resolves in one order: a tone wins, a series slot is next, and a
  * sparkline naming neither reads `--slotted-sparkline-color` from its
  * container or the first data slot. The rules are written in that order so
  * the cascade agrees with the contract.
  */
-test('resolves colour as tone, then series, then the container, then the first slot', () => {
+test('resolves color as tone, then series, then the container, then the first slot', () => {
   assert.ok(body(ui).includes('--_color:var(--slotted-sparkline-color,var(--slotted-data-1))'));
   const seriesAt = normalized.indexOf("[data-series='1']");
   const toneAt = normalized.indexOf("[data-tone='neutral']");
@@ -168,7 +168,7 @@ test('draws the marker and its ring as round-capped strokes, the ring in the gro
   );
 });
 
-test('washes the area with the colour faded to nothing, without minting a gradient id', () => {
+test('washes the area with the color faded to nothing, without minting a gradient id', () => {
   const area = body(`${ui} [data-part-area]`);
   assert.ok(area.includes('fill:var(--_color)'));
   assert.ok(area.includes('mask-image:linear-gradient(to bottom,black,transparent)'));
@@ -176,8 +176,8 @@ test('washes the area with the colour faded to nothing, without minting a gradie
 });
 
 /**
- * The earlier bars are the colour mixed with the line between two surfaces,
- * not the colour faded: a fade is a tint no scheme promises a ratio for, and
+ * The earlier bars are the color mixed with the line between two surfaces,
+ * not the color faded: a fade is a tint no scheme promises a ratio for, and
  * `--slotted-border-strong` lends its 3:1 to the mix in every scheme.
  */
 test('dims every bar but the current one by mixing, not by fading', () => {
@@ -187,7 +187,7 @@ test('dims every bar but the current one by mixing, not by fading', () => {
   assert.equal(body(`${ui} [data-part-bar][data-current]`), 'fill:var(--_color);');
 });
 
-test('dashes the reference so it is read as not data before its colour is', () => {
+test('dashes the reference so it is read as not data before its color is', () => {
   const reference = body(`${ui} [data-part-reference]`);
   assert.ok(reference.includes('stroke-dasharray:'));
   assert.ok(reference.includes('stroke:var(--_reference-color)'));
@@ -226,11 +226,11 @@ test('holds a nominal width where its container gives it none', () => {
 });
 
 /**
- * Under forced colours the theme maps the data scale to `CanvasText`; what
+ * Under forced colors the theme maps the data scale to `CanvasText`; what
  * the sheet has to do itself is take the mix out of the bars and drop the
- * wash, which is a tint the mode has no colour for.
+ * wash, which is a tint the mode has no color for.
  */
-test('answers forced colours for the bars, the wash and the ring', () => {
+test('answers forced colors for the bars, the wash and the ring', () => {
   const media = '@media (forced-colors:active)';
   assert.equal(body(`${ui} [data-part-area]`, media), 'display:none;');
   assert.equal(body(`${ui} [data-part-bar]`, media), 'fill:GrayText;');

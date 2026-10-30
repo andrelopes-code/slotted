@@ -273,7 +273,7 @@ export const States: Story = {
         ) +
         scene(
           'Invalid',
-          'Tab into the field and then into the trigger: the ring is retargeted to the danger colour on both, from one custom property the frame points at the error.',
+          'Tab into the field and then into the trigger: the ring is retargeted to the danger color on both, from one custom property the frame points at the error.',
           `<div slDatePicker invalid locale="pt-BR" aria-label="Invalid" [defaultValue]="ninth"></div>`,
         ) +
         scene(

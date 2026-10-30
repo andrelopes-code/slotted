@@ -40,7 +40,7 @@ describe('plainTime', () => {
 });
 
 describe('isPlainTime', () => {
-  it('recognises the shape and refuses everything else', () => {
+  it('recognizes the shape and refuses everything else', () => {
     expect(isPlainTime({ hour: 0, minute: 0, second: 0 })).toBe(true);
     expect(isPlainTime({ hour: 1, minute: 2 })).toBe(false);
     expect(isPlainTime(null)).toBe(false);
@@ -153,7 +153,7 @@ describe('nowIn', () => {
 
   /**
    * `Intl` writes midnight as hour 24 in the `h24` cycle `en-US` reaches when
-   * asked for `hourCycle: 'h23'` on some engines, so the read is normalised
+   * asked for `hourCycle: 'h23'` on some engines, so the read is normalized
    * rather than trusted. A time of 24:00:00 is not a time this library has.
    */
   it('never answers hour twenty-four', () => {

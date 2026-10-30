@@ -13,7 +13,7 @@ const packageRoot = new URL('..', import.meta.url);
  * kind: were it to succeed, each entry point would compile its own copy of the
  * class, and two copies of a class are two injection tokens. `inject()`
  * would find nothing, in a build reporting no error. This test states the
- * property that failure would break, against the artefacts rather than the
+ * property that failure would break, against the artifacts rather than the
  * source.
  */
 function entryPoints() {

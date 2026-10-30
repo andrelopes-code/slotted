@@ -64,7 +64,7 @@ export function createXhrUpload(options: XhrUploadOptions): UploadAdapter {
     /*
      * Not pausable. `XMLHttpRequest` has no way to suspend a request in flight,
      * so declaring otherwise would put a pause control over a sender that
-     * cannot honour it — which is the one thing the handshake exists to
+     * cannot honor it — which is the one thing the handshake exists to
      * prevent. A resumable adapter is the consumer's, and `tus` is the protocol
      * for it.
      */

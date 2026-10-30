@@ -140,7 +140,7 @@ test('routes every tone through the same six local properties', () => {
 
 /**
  * The neutral tone twice over, both times for the reason `badge` recorded:
- * `secondary.solid` is the surface colour in all three schemes, so a filled
+ * `secondary.solid` is the surface color in all three schemes, so a filled
  * neutral avatar with that fill would be a hole in the page, and with no rim it
  * would be a smudge in `high-contrast`, where its fill is `#e6e6e6` on white.
  */
@@ -209,7 +209,7 @@ test('crosses the picture over the letters instead of swapping them', () => {
   assert.ok(rule(`${ui}[data-status='loaded'] [data-part-fallback]`).includes('opacity:0'));
   assert.ok(
     rule(root).includes('transition:border-color'),
-    'the edge changes colour when the picture arrives and must cross with it',
+    'the edge changes color when the picture arrives and must cross with it',
   );
 });
 
@@ -224,17 +224,17 @@ test('sizes the person glyph from the slot, and paints no icon of its own', () =
 });
 
 /**
- * A flex container centres the line box, and a line box is not symmetric around
+ * A flex container centers the line box, and a line box is not symmetric around
  * the letters inside it. Measured on this family with the Geist face at
  * `compact`, two initials sat 0.56 pixels high in the 32-pixel disc and 0.68
  * high in the 26-pixel one; at `comfortable`, 1.13 high in the 64-pixel one.
- * `text-box` centres the ink instead, and it needs a block container — a flex
+ * `text-box` centers the ink instead, and it needs a block container — a flex
  * container's text lives in an anonymous item no selector can reach. The
  * fallback has no label part to carry the trim, so the fallback itself becomes
  * the block, and only when it holds nothing but text: a projected logo is not
  * a line of type, and trimming the line it sits in would move it.
  */
-test('centres the ink of the initials rather than their line box, where the engine can', () => {
+test('centers the ink of the initials rather than their line box, where the engine can', () => {
   const guarded = normalized.split('@supports (text-box:trim-both cap alphabetic){')[1] ?? '';
   const trimmed = guarded.split('}')[0];
   assert.ok(
@@ -245,16 +245,16 @@ test('centres the ink of the initials rather than their line box, where the engi
   assert.ok(trimmed.includes('display:block'), 'the trim needs a block container');
   assert.ok(
     trimmed.includes('align-content:center'),
-    'a block centres its line with align-content',
+    'a block centers its line with align-content',
   );
   assert.ok(trimmed.includes('text-align:center'));
 });
 
 /**
  * WCAG 2.2 2.5.8. The overlay is out of flow and stated from all four edges at
- * once, which is the only form of it that stays centred.
+ * once, which is the only form of it that stays centerd.
  *
- * A size with `margin: auto` was the first form, and it centres a box that
+ * A size with `margin: auto` was the first form, and it centers a box that
  * fits. A box wider than the space it is placed in is over-constrained, and the
  * engine then keeps the start margin and puts the whole difference on the end
  * one: the 24-pixel target sat against the leading edge of a 20-pixel avatar
@@ -267,7 +267,7 @@ test('grows the hit area of an interactive avatar to the target minimum', () => 
   const hit = rule(`${root}:any-link::after`);
   assert.ok(hit.includes('inset:min(0px,calc((100% - var(--slotted-target-min'));
   assert.ok(hit.includes('position:absolute'));
-  assert.ok(!hit.includes('margin:auto'), 'an over-constrained box is not centred by auto margins');
+  assert.ok(!hit.includes('margin:auto'), 'an over-constrained box is not centerd by auto margins');
   for (const selector of [`button${ui}[data-part-root]::after`, `${root}[tabindex]::after`]) {
     assert.ok(selects(selector), `${selector} does not grow its hit area`);
   }
@@ -396,7 +396,7 @@ test('keeps what it paints inside itself, so a neighbour is never drawn through'
  * the same path do not agree in the sub-pixel — a hairline of the page showed
  * through between the fill and its rim.
  *
- * Three longhands rather than the shorthand: an undefined colour makes a
+ * Three longhands rather than the shorthand: an undefined color makes a
  * `var()` shorthand invalid at computed-value time, and the width would fall
  * back to `medium` rather than to the family's own.
  */
@@ -421,7 +421,7 @@ test('keeps the ring at nothing until something it overlaps turns it on', () => 
 });
 
 /**
- * The one rule a family may write for forced colours: the theme maps every tone
+ * The one rule a family may write for forced colors: the theme maps every tone
  * ground to `ButtonFace` or `Canvas`, so a tinted avatar and a filled one
  * become the same disc and `currentColor` is the only paint left that separates
  * a face from the page.

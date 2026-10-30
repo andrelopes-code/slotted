@@ -293,7 +293,7 @@ export const Variant: Story = {
     template: grid(
       scene(
         'framed',
-        'The standalone control: an edge, a ground and the shadow that separates it from the page. It is what select multiple looks like, and what a reader recognises as a control.',
+        'The standalone control: an edge, a ground and the shadow that separates it from the page. It is what select multiple looks like, and what a reader recognizes as a control.',
         `<div slListbox aria-label="Framed" defaultValue="europe" rows="3">${REGIONS}</div>`,
       ) +
         scene(
@@ -345,7 +345,7 @@ export const States: Story = {
         ) +
         scene(
           'required and invalid',
-          'The edge and the focus ring both turn, and the Field around it owns the message. Colour alone never carries the state: the ring changes as well as the border.',
+          'The edge and the focus ring both turn, and the Field around it owns the message. Color alone never carries the state: the ring changes as well as the border.',
           `<div slListbox aria-label="Invalid" required invalid rows="3">${REGIONS}</div>`,
         ) +
         scene(

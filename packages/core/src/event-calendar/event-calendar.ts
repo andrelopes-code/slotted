@@ -1201,7 +1201,7 @@ export function occurrenceWhen(
  * The slot of the data scale a calendar is painted with: its own `color`,
  * else its position in `calendars` from 1. A ninth calendar has none and is
  * drawn neutral — the scale is assigned in order and never cycled, so two
- * neighbours never share a colour.
+ * neighbours never share a color.
  */
 export function calendarColor(
   key: string | undefined,

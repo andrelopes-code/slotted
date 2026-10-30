@@ -47,7 +47,7 @@ const anatomy: AnatomyRow[] = [
     element: 'input type="radio"',
     required: true,
     purpose:
-      'The native radio input. It holds the value, the name the group shares, the identifier and every native attribute written on Radio. The shared name gives the set the platform’s keyboard behaviour, and ref reaches the element, so focus() needs no handle of its own.',
+      'The native radio input. It holds the value, the name the group shares, the identifier and every native attribute written on Radio. The shared name gives the set the platform’s keyboard behavior, and ref reaches the element, so focus() needs no handle of its own.',
   },
   {
     part: 'indicator',
@@ -396,7 +396,7 @@ export const REACT_RADIO_GROUP_DOCS = {
         '(props: RadioGroupRootProps | RadioRootProps) => ReactNode',
         '—',
         'RadioGroup, Radio',
-        'Replaces either root and hands it every attribute. The props are typed as HTMLAttributes<HTMLElement>, so a set of choices can render as a ul with each item as an li. The control has no render: it holds the value and the platform’s keyboard behaviour.',
+        'Replaces either root and hands it every attribute. The props are typed as HTMLAttributes<HTMLElement>, so a set of choices can render as a ul with each item as an li. The control has no render: it holds the value and the platform’s keyboard behavior.',
       ],
       [
         'ref',
@@ -433,7 +433,7 @@ export const REACT_RADIO_GROUP_DOCS = {
       'Each item takes its accessible name from its own label, through for pointing at an identifier the control generates. The group takes its name from the field group’s legend or, outside a field group, from an aria-label the consumer writes. Inside a field group the radiogroup role is withdrawn, so the set is not announced twice.',
       'The group writes aria-required, never the native required on an item. The native attribute turns on browser constraint validation and changes how the form submits, which describing the set must not do as a side effect. disabled is native, because the native attribute is also what makes the browser skip the option with the arrow keys.',
       'A radio has no native read-only state, so the radio group enforces one: it refuses the change on the click that a pointer and Space share, aria-readonly announces it on the group, and every item keeps its tab stop, its focus ring and its full contrast. The chosen option keeps its accent, because the value is real.',
-      'The invalid state does not rely on colour alone. In the high-contrast scheme the theme paints the danger border in the same colour as every other border, so the circle also thickens its edge. The sentence that says what is wrong is the field group’s error.',
+      'The invalid state does not rely on color alone. In the high-contrast scheme the theme paints the danger border in the same color as every other border, so the circle also thickens its edge. The sentence that says what is wrong is the field group’s error.',
       'The target is larger than the circle. A 24-pixel square around the circle meets WCAG 2.2 SC 2.5.8 at every size and density, while the circle is 14 pixels at size="sm"; the label extends the target to the end of the text, and the hover wash covers exactly that area. The row keeps its line height: the target is drawn around the circle, not laid out beside it.',
     ],
     snippets: [

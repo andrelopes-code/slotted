@@ -38,7 +38,7 @@ export function readNgcResult({ output, exitCode, errorCode }: NgcRun): Set<stri
     throw new Error(`ngc could not run: ${errorCode}`);
   }
   const failed = new Set<string>();
-  // ngc colours its diagnostics whatever `pretty` says; the codes would hide every error.
+  // ngc colors its diagnostics whatever `pretty` says; the codes would hide every error.
   const plain = stripVTControlCharacters(output);
   for (const line of plain.split('\n')) {
     const match = DIAGNOSTIC.exec(line.trim());

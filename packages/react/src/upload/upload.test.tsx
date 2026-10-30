@@ -261,7 +261,7 @@ describe('Upload', () => {
      * A pause control over a sender that cannot suspend is a control that lies,
      * so the handshake is the adapter's to accept.
      */
-    it('draws pause only when the adapter says it honours the handshake', async () => {
+    it('draws pause only when the adapter says it honors the handshake', async () => {
       const hold = () => new Promise(() => undefined);
       const { rerender } = render(<Upload adapter={hold} />);
       choose([makeFile('a.png', { type: 'image/png' })]);

@@ -20,7 +20,7 @@ pnpm install --frozen-lockfile
 - `pnpm dev`: builds whatever the servers need, then starts both Storybooks —
   React on 6006 and Angular on 6007. `pnpm dev:react` and `pnpm dev:angular`
   start one.
-- `pnpm build`: every generated artefact, in dependency order. Turbo caches it,
+- `pnpm build`: every generated artifact, in dependency order. Turbo caches it,
   so a second run with nothing changed finishes in well under a second. When in
   doubt, run it.
 
@@ -31,9 +31,9 @@ Component work needs no build at all: both Storybooks read `packages/styles`,
 from source, and a saved file is on the page before the editor loses focus.
 
 There is no watch mode and there should not be one. A watcher would still leave
-a process to run, a lag between saving and the artefact appearing, and a window
+a process to run, a lag between saving and the artifact appearing, and a window
 in which a reader sees neither the old value nor the new one. Resolving to
-source removes the artefact from the loop instead of racing it —
+source removes the artifact from the loop instead of racing it —
 `scripts/source-aliases.mjs` does that for `@slotted/core`, and the Angular
 Storybook already did it for `@slotted/angular/*`. Only what cannot be resolved
 to source is left to a build, and that is the table below.

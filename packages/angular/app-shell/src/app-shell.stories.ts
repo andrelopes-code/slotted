@@ -105,7 +105,7 @@ import {
   SlAppShellAsideToggle,
   SlAppShellBanner,
   SlAppShellBrand,
-  SlAppShellCentre,
+  SlAppShellCenter,
   SlAppShellFooter,
   SlAppShellMain,
   SlAppShellNav,
@@ -309,14 +309,14 @@ const AURORA_NAV = (
   </div>
 </nav>`;
 
-const AURORA_BANNER = ({ centre = true, toggle = true } = {}) => `<header slAppShellBanner>
+const AURORA_BANNER = ({ center = true, toggle = true } = {}) => `<header slAppShellBanner>
   <div slAppShellBrand>
     ${toggle ? '<button slAppShellNavToggle></button>' : ''}
     <span class="slotted-demo-bar-wordmark">Aurora</span>
   </div>
   ${
-    centre
-      ? `<div slAppShellCentre>
+    center
+      ? `<div slAppShellCenter>
     <div slTextField class="slotted-demo-bar-search" size="sm" variant="subtle">
       <span slTextFieldStart><ng-icon name="lucideSearch" size="14" /></span>
       <input slTextFieldInput type="search" aria-label="Search" placeholder="Search orders, customers…" />
@@ -417,7 +417,7 @@ const aurora = (
   attributes = '',
   {
     aside = true,
-    centre = true,
+    center = true,
     content = AURORA_CONTENT(),
     footer = false,
     nav = AURORA_NAV(),
@@ -429,7 +429,7 @@ const aurora = (
 ) =>
   viewport(
     `<div slAppShell ${attributes}>
-  ${AURORA_BANNER({ centre, toggle })}
+  ${AURORA_BANNER({ center, toggle })}
   ${nav}
   <main slAppShellMain>${content}</main>
   ${progress}
@@ -581,7 +581,7 @@ const auroraRail = (attributes = '', { aside = false, wordmark = false } = {}) =
     `<div slAppShell asideMode="inline" navMode="inline" ${attributes}>
   <header slAppShellBanner>
     <div slAppShellBrand>${wordmark ? '<span class="slotted-demo-bar-wordmark">Aurora</span>' : ''}</div>
-    <div slAppShellCentre>
+    <div slAppShellCenter>
       <nav slBreadcrumb aria-label="Trilho">
         <ol slBreadcrumbList>
           <li slBreadcrumbItem><a slBreadcrumbLink href="#modulo">{{ module().label }}</a></li>
@@ -672,7 +672,7 @@ const CADENCE_NAV = `<nav slAppShellNav class="slotted-demo-nav slotted-demo-she
 
 const CADENCE_BANNER = `<header slAppShellBanner>
   <div slAppShellBrand></div>
-  <div slAppShellCentre>
+  <div slAppShellCenter>
     <nav slBreadcrumb aria-label="Location">
       <ol slBreadcrumbList>
         <li slBreadcrumbItem><a slBreadcrumbLink href="#platform">Platform</a></li>
@@ -771,7 +771,7 @@ const ATRIO_NAV = `<nav slAppShellNav class="slotted-demo-nav">
 
 const ATRIO_BANNER = (paneToggle = false) => `<header slAppShellBanner>
   <div slAppShellBrand><span class="slotted-demo-bar-wordmark">Atrium</span></div>
-  <div slAppShellCentre>
+  <div slAppShellCenter>
     <span class="slotted-demo-bar-crumbs">
       <span>Schedule</span>
       <span aria-hidden="true">/</span>
@@ -857,7 +857,7 @@ const ANATOMY = viewport(`<div slAppShell asideMode="inline" navMode="inline">
       <button slAppShellNavToggle></button>
       ${SLOT('brand', 'the brand', false)}
     </div>
-    <div slAppShellCentre>${SLOT('centre', 'what grows: search, trail, title')}</div>
+    <div slAppShellCenter>${SLOT('center', 'what grows: search, trail, title')}</div>
     <div slAppShellActions>${SLOT('actions', 'what is global', false)}</div>
   </header>
   <nav slAppShellNav>
@@ -888,7 +888,7 @@ const DIRECTIVES = [
   SlAppShellAsideToggle,
   SlAppShellBanner,
   SlAppShellBrand,
-  SlAppShellCentre,
+  SlAppShellCenter,
   SlAppShellFooter,
   SlAppShellMain,
   SlAppShellNav,
@@ -1131,13 +1131,13 @@ export const BannerScene: StoryObj<Data> = {
   ...story(
     grid(
       scene(
-        'brand · centre · actions — a search in the middle',
+        'brand · center · actions — a search in the middle',
         "Aurora's bar: the control and the name start the line, a search field with its shortcut takes the room in the middle, and notifications, help and the account end it. Narrow the frame below thirty rems of bar and the search gives way; below twenty the optional controls go too. Nothing in actions ever breaks its label.",
         aurora('asideMode="inline" navMode="inline"', { size: 'tall' }),
       ),
       scene(
         "A trail in the middle, the route's actions at the end",
-        "Cadence's bar holds the route rather than the application: an slBreadcrumb in centre, a filter and a primary action in actions, and an empty brand because the workspace lives in the column's own head under primary='nav'. An empty cluster costs nothing.",
+        "Cadence's bar holds the route rather than the application: an slBreadcrumb in center, a filter and a primary action in actions, and an empty brand because the workspace lives in the column's own head under primary='nav'. An empty cluster costs nothing.",
         cadence('navMode="inline"', { size: 'tall' }),
       ),
       scene(
@@ -1160,7 +1160,7 @@ export const Canvas: StoryObj<Data> = {
       ),
       scene(
         "canvas='flush'",
-        "Every region runs edge to edge and each seam is drawn — between the regions, and between the pane's head, body and foot. The rows of the column stand one inset from the screen's edge and from the seam on both sides, so the closed strip stays centred.",
+        "Every region runs edge to edge and each seam is drawn — between the regions, and between the pane's head, body and foot. The rows of the column stand one inset from the screen's edge and from the seam on both sides, so the closed strip stays centerd.",
         aurora('asideMode="inline" canvas="flush" navMode="inline"', { footer: true }),
       ),
       scene(
@@ -1193,7 +1193,7 @@ export const Separation: StoryObj<Data> = {
       ),
       scene(
         "separation='tone' on panel, primary='main'",
-        'Inside the one card the column and the pane are toned and the bar belongs to the content, so the only seam left is none at all. Under forced colours every ground is Canvas and the rule comes back whatever this axis says.',
+        'Inside the one card the column and the pane are toned and the bar belongs to the content, so the only seam left is none at all. Under forced colors every ground is Canvas and the rule comes back whatever this axis says.',
         aurora(
           'asideMode="inline" canvas="panel" navMode="inline" primary="main" separation="tone"',
           {
@@ -1222,7 +1222,7 @@ export const Theming: StoryObj<Data> = {
       ),
       scene(
         'A wash behind the frame — --slotted-app-shell-frame-image',
-        "One theme token, a background-image layer over the frame's colour: two pools of the accent tone behind floating cards. The cards keep their own surface, so everything a reader reads stays on the ground it was calibrated for.",
+        "One theme token, a background-image layer over the frame's color: two pools of the accent tone behind floating cards. The cards keep their own surface, so everything a reader reads stays on the ground it was calibrated for.",
         aurora(
           'asideMode="inline" canvas="floating" class="slotted-demo-frame-wash" navMode="inline" primary="main"',
           { nav: AURORA_NAV('destinations', true), toggle: false },
@@ -1271,7 +1271,7 @@ export const Rail: StoryObj<Data> = {
           'asideMode="inline" collapsedTo="rail" [navOpen]="false" navMode="inline" primary="nav"',
           {
             aside: false,
-            centre: false,
+            center: false,
             nav: AURORA_NAV('destinations', true),
             toggle: false,
           },
@@ -1337,7 +1337,7 @@ export const Aside: StoryObj<Data> = {
         "asideMode='overlay' — the pane as a layer, from the other end",
         "The navigation's layer mirrored: the pane slides in from the end the navigation is not on, stops under the banner, takes the veil, and returns focus to the control that opened it. Escape closes it. On the inset plane it is a card like every other region.",
         aurora('asideMode="overlay" [navOpen]="false" navMode="overlay"', {
-          centre: false,
+          center: false,
           size: 'tall',
         }),
       ),
@@ -1498,7 +1498,7 @@ export const Progress: StoryObj<Data> = {
         'The bar covers the top border of the content card and is clipped by its corners.',
         aurora('canvas="inset" navMode="inline"', {
           aside: false,
-          centre: false,
+          center: false,
           progress: '<div slAppShellProgress [delay]="0"></div>',
           size: 'tall',
         }),
@@ -1508,7 +1508,7 @@ export const Progress: StoryObj<Data> = {
         "The bar covers the banner's seam, from the navigation column's edge to the frame's.",
         aurora('canvas="flush" navMode="inline"', {
           aside: false,
-          centre: false,
+          center: false,
           progress: '<div slAppShellProgress [delay]="0"></div>',
           size: 'tall',
         }),
@@ -1518,7 +1518,7 @@ export const Progress: StoryObj<Data> = {
         "Two cards on the sunken ground; the bar is the content card's, under its corners.",
         aurora('canvas="floating" navMode="inline"', {
           aside: false,
-          centre: false,
+          center: false,
           progress: '<div slAppShellProgress [delay]="0"></div>',
           size: 'tall',
         }),
@@ -1528,7 +1528,7 @@ export const Progress: StoryObj<Data> = {
         "One card holds the regions; the bar covers the card's top edge over the content.",
         aurora('canvas="panel" navMode="inline"', {
           aside: false,
-          centre: false,
+          center: false,
           progress: '<div slAppShellProgress [delay]="0"></div>',
           size: 'tall',
         }),

@@ -27,7 +27,7 @@
    *
    * The resizer is a four-pixel gutter whose pointer reach is
    * `--slotted-target-min`, the WCAG 2.2 floor, drawn by a transparent
-   * pseudo-element centred on it; it is a row of the panel's grid on a block
+   * pseudo-element centerd on it; it is a row of the panel's grid on a block
    * side and an overlay on its inner edge on an inline side. The section that draws it says why the two
    * differ; in one sentence, every rule in this panel runs across the inline
    * axis, and a column would cut all of them.
@@ -82,7 +82,7 @@
      * of nothing at rest, a two-pixel line under the hand, and a reach the
      * pointer finds without the eye being told where it is.
      *
-     * `--_resizer-reach` is the WCAG 2.2 floor and it is centred on the
+     * `--_resizer-reach` is the WCAG 2.2 floor and it is centerd on the
      * gutter, so it takes ten pixels from each side rather than twenty from
      * the panel — which is what keeps it off the header of a sheet.
      */
@@ -98,7 +98,7 @@
      * showed it.
      *
      * It is `splitter`'s track, because the two families draw one picture and a
-     * picture is a geometry as much as a colour. The panel's rows already read
+     * picture is a geometry as much as a color. The panel's rows already read
      * this through `max(--_padding-inline, --_resizer-thickness)`, so widening
      * it moves nothing else.
      */
@@ -307,7 +307,7 @@
 
   /**
    * `--slotted-scrim` is a foundation token the theme restates per scheme and
-   * remaps to `Canvas` under forced colours, where it becomes an opaque ground.
+   * remaps to `Canvas` under forced colors, where it becomes an opaque ground.
    * That is why the panel below carries an edge of its own: every shadow token
    * is `none` in that mode, and a panel separated only by elevation would sit on
    * an opaque ground with nothing marking where it starts.
@@ -582,7 +582,7 @@
 
   /**
    * A sheet on a wide layer is a card over the page, not a strip across it:
-   * forty rems, Material 3's 640 dp, centred, with the scrim on both sides. The
+   * forty rems, Material 3's 640 dp, centerd, with the scrim on both sides. The
    * edge then shows on three sides, so the panel draws it on three. An overlay
    * layer is the viewport, so at the sheet's measure or under it — a phone —
    * the side edges would sit on the screen's own and are not drawn.
@@ -697,7 +697,7 @@
    * which on a phone reads as a stray line under the browser chrome. `dialog`
    * removed the same line from its own full-screen step for the same reason.
    *
-   * A step the layer is too narrow to honour is clamped by `min(…, 100%)` and
+   * A step the layer is too narrow to honor is clamped by `min(…, 100%)` and
    * still draws its edge. CSS cannot compare a resolved length to its
    * container, and the four container queries that would answer it — one per
    * step, because a container condition cannot hold a custom property — buy one
@@ -754,7 +754,7 @@
    * separator drawing anything at rest is a decoration on an edge nobody is
    * touching. Both halves of that were wrong. A resizable edge nobody can see
    * is a capability nobody finds, and it was reported as exactly that; and the
-   * accent is the one colour in the library that means "the keyboard is here",
+   * accent is the one color in the library that means "the keyboard is here",
    * so spending it on hover left nothing to say at focus.
    *
    * The picture is `splitter`'s, which is the family that settled it: two
@@ -772,8 +772,8 @@
    * looking.
    *
    * **The pointer reach is not the picture.** `::before` is a transparent box
-   * of `--slotted-target-min`, centred on the gutter, so the target holds at
-   * the WCAG 2.2 floor while the picture stays thin. Centred rather than run
+   * of `--slotted-target-min`, centerd on the gutter, so the target holds at
+   * the WCAG 2.2 floor while the picture stays thin. Centerd rather than run
    * inward: inward it would take twenty pixels of the panel and, on a sheet,
    * sit over the header.
    *
@@ -804,11 +804,11 @@
     touch-action: none;
 
     /**
-     * The two steps, and the whole of the colour decision — the same one
+     * The two steps, and the whole of the color decision — the same one
      * `splitter` makes, because the two are one picture in two families.
      *
      * The strong border step at rest, not the subtle one and not the accent.
-     * The accent is the one colour in the library that means "the keyboard is
+     * The accent is the one color in the library that means "the keyboard is
      * here", and this family used to spend it on hover as well: a two-pixel
      * accent line appearing under the hand on an edge that drew nothing at all
      * before it. Both halves of that were wrong. An edge nobody can see is a
@@ -835,7 +835,7 @@
   }
 
   /**
-   * The reach. Transparent, centred on the gutter and above the panel's own
+   * The reach. Transparent, centerd on the gutter and above the panel's own
    * rows, which is what makes a four-pixel picture a twenty-four-pixel target.
    */
   [data-ui-drawer] > [data-part-panel] > [data-part-resizer]::before {
@@ -973,7 +973,7 @@
     block-size: calc(3 * var(--slotted-space-2, 0.25rem));
   }
 
-  /* The grabber. Four by thirty-six, full radius, centred above the header. */
+  /* The grabber. Four by thirty-six, full radius, centerd above the header. */
   [data-ui-drawer][data-side='top'] > [data-part-panel] > [data-part-resizer] > [data-part-grip],
   [data-ui-drawer][data-side='bottom']
     > [data-part-panel]
@@ -995,11 +995,11 @@
   }
 
   /**
-   * The dot matrix recolours its ink and nothing else: its dots are
+   * The dot matrix recolors its ink and nothing else: its dots are
    * `currentColor` over a transparent box, and a `background-color` here filled
    * the box — the grip became a solid block under the hand, under hover and
    * under focus. `splitter`, which draws the same picture, only ever changed
-   * `color`. The pill on a block side is a filled box, so it recolours its fill.
+   * `color`. The pill on a block side is a filled box, so it recolors its fill.
    */
   [data-ui-drawer]
     > [data-part-panel]
@@ -1053,7 +1053,7 @@
    * its middle. The two pictures differ, which is all the ring has to do here.
    *
    * It cannot be drawn on the reach instead. `packages/styles/src/fallbacks.test.mjs`
-   * forbids a system colour inside `::before` or `::after`, and the ring's own
+   * forbids a system color inside `::before` or `::after`, and the ring's own
    * last resort is `Highlight`.
    */
   [data-ui-drawer] > [data-part-panel] > [data-part-resizer]:focus-visible {
@@ -1170,7 +1170,7 @@
   /**
    * An inner control, not a button (R2): the box is the glyph plus a step of
    * air on each side, floored at the WCAG 2.2 minimum, and the glyph is
-   * centred in it. It was the control height before, a thirty-four pixel
+   * centerd in it. It was the control height before, a thirty-four pixel
    * square beside a sixteen pixel mark. The glyph is the binding's `Glyph` in
    * an `icon` box, sized here through the icon token so the box and the
    * formula above read one length.
@@ -1204,7 +1204,7 @@
   }
 
   /* On a finger the target is the comfortable size in both axes and the box
-     is the one a mouse sees: a transparent `::before` centred on the control
+     is the one a mouse sees: a transparent `::before` centerd on the control
      reaches 44 pixels, and the ground and the ring stay square. */
   @media (pointer: coarse) {
     [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-close] {
@@ -1343,7 +1343,7 @@
       var(--slotted-drawer-rule-color, var(--slotted-border-subtle, ButtonBorder));
   }
 
-  /* ── Forced colours ───────────────────────────────────────────────────── */
+  /* ── Forced colors ───────────────────────────────────────────────────── */
 
   /**
    * The theme remaps every token this family reads, so the only rule here is the
@@ -1630,7 +1630,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      /* A decoration: unthemed, it is not painted rather than painted in a system colour. */
+      /* A decoration: unthemed, it is not painted rather than painted in a system color. */
       background: var(--slotted-drawer-scrim, var(--slotted-scrim));
       animation: slotted-drawer-sheet-dim linear both;
       animation-timeline: --slotted-drawer-sheet;

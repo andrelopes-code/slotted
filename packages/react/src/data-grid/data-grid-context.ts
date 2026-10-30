@@ -313,8 +313,8 @@ const ROW_IGNORED = new Set<string>([
  *
  * `grid` is a stable proxy over the latest value, and it is what the context
  * carries. A context whose value changed re-renders every consumer under it,
- * a memoised row's cells included, so the context never changes: every part
- * that is not a memoised row re-renders with the root that renders it, and
+ * a memoized row's cells included, so the context never changes: every part
+ * that is not a memoized row re-renders with the root that renders it, and
  * reads the latest value through the proxy; a handler a cell calls is the
  * current one although the cell did not re-render.
  */

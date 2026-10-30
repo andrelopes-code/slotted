@@ -367,7 +367,7 @@ export const Composition: Story = {
         seed={[
           {
             title: 'Written by the page',
-            description: 'The behaviour still belongs to the family.',
+            description: 'The behavior still belongs to the family.',
           },
         ]}
         size="layer"

@@ -1,7 +1,7 @@
 import { cdp } from 'vitest/browser';
 
 /**
- * A real press at the centre of an element, or at a point inside it, through
+ * A real press at the center of an element, or at a point inside it, through
  * the browser's input pipeline: the default actions of a pointer, a mouse or
  * a touch — focus among them — run as they do under a person's hand. The
  * browser project gives the page and the test frame one size

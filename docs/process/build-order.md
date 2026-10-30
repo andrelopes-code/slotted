@@ -897,7 +897,7 @@ and resize of `dialog`) and `gauge` (arc of `progress-indicator`).
   `readOnly`, `disabled`, `required`, `invalid`, preview by `:hover`, drag by touch, and
   `onPreviewChange` event; `ratingDisplay`, `role="img"`, free fractions through
   `--slotted-rating-fill`, parts `value` and `count`, variants `compact` and `histogram`; `ratingSummary`,
-  `bars` or `spectrum` (mean, 95% interval, and conclusion of `summariseRatings`), aggregate and
+  `bars` or `spectrum` (mean, 95% interval, and conclusion of `summarizeRatings`), aggregate and
   distribution per level with `selectedLevels`/`defaultSelectedLevels`/`onSelectedLevelsChange`.
   Arrows without wrap to the start, `Home`/`End`, `Backspace`/`Delete` clear. `size` `sm`/`md`/`lg` outside
   the density; `tone` without `secondary`; scheme edge `--slotted-rating-edge`. Behavior in

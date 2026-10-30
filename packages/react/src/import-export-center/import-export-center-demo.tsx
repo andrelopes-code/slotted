@@ -159,7 +159,7 @@ export interface JobStore {
 }
 
 /**
- * A store that answers every request the centre makes, and a server that
+ * A store that answers every request the center makes, and a server that
  * moves the running job forward: a real application's store answers the
  * same requests against its own API.
  */
@@ -236,7 +236,7 @@ export function useJobStore(
   };
 }
 
-/** The centre over a store: every request answered, the way an application wires it. */
+/** The center over a store: every request answered, the way an application wires it. */
 export function Jobs({
   seed,
   live,

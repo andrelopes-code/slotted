@@ -375,7 +375,7 @@ const events: EventRow[] = [
   {
     name: 'onClick, onKeyDown, onPointerMove, on every part',
     payload: 'the element’s own events',
-    when: 'Whenever the element fires them. The consumer’s handler runs first, and preventDefault() refuses the family’s own behaviour.',
+    when: 'Whenever the element fires them. The consumer’s handler runs first, and preventDefault() refuses the family’s own behavior.',
   },
 ];
 

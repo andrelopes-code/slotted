@@ -188,7 +188,7 @@ test('leaves the help and the action operable on a disabled field', () => {
 
 /**
  * `aria-required`, never the native `required`: the native attribute engages
- * browser constraint validation and changes submit behaviour, which the library
+ * browser constraint validation and changes submit behavior, which the library
  * must not impose as a side effect of describing a field. `disabled` is native,
  * because removing the control from the tab order and from submission is what
  * the word means.

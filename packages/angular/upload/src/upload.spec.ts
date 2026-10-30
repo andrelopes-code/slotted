@@ -287,7 +287,7 @@ describe('SlUpload', () => {
     });
 
     /** A pause control over a sender that cannot suspend is a control that lies. */
-    it('draws pause only when the adapter says it honours the handshake', async () => {
+    it('draws pause only when the adapter says it honors the handshake', async () => {
       fixture.componentInstance.adapter.set(() => new Promise(() => undefined));
       fixture.detectChanges();
       choose([makeFile('a.png', { type: 'image/png' })]);

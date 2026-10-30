@@ -255,7 +255,7 @@ export const Veil: Story = {
     template: `<div class="slotted-demo-grid" data-columns="1">
       ${scene(
         'wash',
-        'The theme’s own scrim, restated per colour scheme and turned opaque under forced colours. It is the same token dialog and drawer read, so three families dim a surface in one tint.',
+        'The theme’s own scrim, restated per color scheme and turned opaque under forced colors. It is the same token dialog and drawer read, so three families dim a surface in one tint.',
         `<div slLoadingOverlay veil="wash" [messages]="{ label: 'Reconciling September' }">${invoices}</div>`,
       )}
       ${scene(
@@ -315,7 +315,7 @@ export const Shapes: Story = {
     template: `<div class="slotted-demo-grid" data-columns="1">
       ${scene(
         'A tall region takes a column',
-        'The mark above the two lines above the control, centred. It is the arrangement for a card, a panel or anything with room to spare in the block axis.',
+        'The mark above the two lines above the control, centerd. It is the arrangement for a card, a panel or anything with room to spare in the block axis.',
         `<div
           slLoadingOverlay
           [messages]="{ label: 'Importing 4 812 rows' }"
@@ -461,7 +461,7 @@ export const Content: Story = {
       )}
       ${scene(
         'One unbroken token',
-        'A file name with nowhere to break. It wraps inside the panel rather than pushing the panel past the region it is centred in.',
+        'A file name with nowhere to break. It wraps inside the panel rather than pushing the panel past the region it is centerd in.',
         `<div class="slotted-demo-measure">
           <div
             slLoadingOverlay

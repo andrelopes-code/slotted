@@ -67,7 +67,7 @@ export function StatusIndicator({
      * or a glyph that is itself hidden, so nothing would be announced either
      * way — but a family whose whole subject is what a reader hears should
      * say which of its parts is not for them. The icon mark's glyph follows
-     * the status; the stylesheet sizes and colours it and draws none of it.
+     * the status; the stylesheet sizes and colors it and draws none of it.
      *
      * The label part is always rendered, even holding nothing but the clipped
      * word, so the two bindings and the harness write one shape rather than

@@ -64,7 +64,7 @@ test('styles every part the contract declares', () => {
  * Wave 0 added `--slotted-surface-raised` so that no family would invent a
  * neutral background again. Card is the first to read it.
  */
-test('takes its background from the foundation surface, not from a colour of its own', () => {
+test('takes its background from the foundation surface, not from a color of its own', () => {
   assert.ok(
     rule(ui).includes(
       '--_card-surface-rest:var(--slotted-card-background,var(--slotted-surface-raised',
@@ -78,7 +78,7 @@ test('takes its background from the foundation surface, not from a colour of its
  * selected edge shifts every region by a pixel. The edge moves to a pseudo
  * element over the border box, which is how five of the six surveyed systems
  * that solve this solve it, and it stays a border rather than a box-shadow so
- * that it survives forced colours.
+ * that it survives forced colors.
  */
 test('draws its edge out of flow, so a wider edge moves no content', () => {
   assert.ok(rule(ui).includes('border:none'), 'the root still reserves a border width');
@@ -87,7 +87,7 @@ test('draws its edge out of flow, so a wider edge moves no content', () => {
   assert.ok(edge.includes('position:absolute'));
   assert.ok(edge.includes('inset:0'));
   assert.ok(edge.includes('pointer-events:none'));
-  assert.ok(!edge.includes('box-shadow'), 'a shadow is removed under forced colours');
+  assert.ok(!edge.includes('box-shadow'), 'a shadow is removed under forced colors');
 });
 
 /**
@@ -328,10 +328,10 @@ test('keeps a column for the control that makes the card a choice', () => {
   assert.ok(selection.includes('grid-column:1'), 'the control does not lead');
   assert.ok(selection.includes('grid-row:1'), 'the control leaves the title row');
   /* On the title's first line (C1, R5): a slot one line of the title's step
-     tall, the control centred in it, so a wrapped title keeps its control
+     tall, the control centerd in it, so a wrapped title keeps its control
      beside the first line rather than in the middle of the block. */
-  assert.ok(selection.includes('align-self:start'), 'the control is centred on the block');
-  assert.ok(selection.includes('align-items:center'), 'the control is not centred on the line');
+  assert.ok(selection.includes('align-self:start'), 'the control is centerd on the block');
+  assert.ok(selection.includes('align-items:center'), 'the control is not centerd on the line');
   assert.match(selection, /block-size:var\(--_selection-line\)/);
   assert.match(
     selection,
@@ -389,7 +389,7 @@ test('scales its own inset without touching the space scale', () => {
 });
 
 /**
- * A shadow is removed outright in a forced-colours document, so an elevated
+ * A shadow is removed outright in a forced-colors document, so an elevated
  * card keeps the hairline every card has rather than trading it for the lift.
  */
 test('adds elevation to the edge rather than replacing it', () => {
@@ -397,7 +397,7 @@ test('adds elevation to the edge rather than replacing it', () => {
   assert.ok(elevated.includes('--_card-shadow-rest:var(--slotted-card-shadow'));
   assert.ok(
     !elevated.includes('--_card-edge-rest:'),
-    'an elevated card that drops its edge has none in forced colours',
+    'an elevated card that drops its edge has none in forced colors',
   );
   assert.ok(
     rule(`${ui}[data-fill='subtle']`).includes(

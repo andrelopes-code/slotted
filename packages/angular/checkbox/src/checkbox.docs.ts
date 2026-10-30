@@ -277,7 +277,7 @@ export const ANGULAR_CHECKBOX_DOCS = {
         'boolean',
         'false',
         'SlCheckbox',
-        'The state an uncontrolled box starts from. It is read once, when the component initialises, and written to the input as the native attribute, which is what a form reset returns to.',
+        'The state an uncontrolled box starts from. It is read once, when the component initializes, and written to the input as the native attribute, which is what a form reset returns to.',
       ],
       [
         'indeterminate',
@@ -395,12 +395,12 @@ export const ANGULAR_CHECKBOX_DOCS = {
       ],
     ]),
     accessibility: [
-      'SlCheckbox follows the WAI-ARIA Authoring Practices checkbox pattern (w3.org/WAI/ARIA/apg/patterns/checkbox/), and the native input supplies every part of it: the role, the checked and mixed states, Space to toggle, Enter left to the form, and disabled behaviour. SlCheckbox adds no key listener, so the keyboard behaviour is the platform’s in every language and in right-to-left documents.',
+      'SlCheckbox follows the WAI-ARIA Authoring Practices checkbox pattern (w3.org/WAI/ARIA/apg/patterns/checkbox/), and the native input supplies every part of it: the role, the checked and mixed states, Space to toggle, Enter left to the form, and disabled behavior. SlCheckbox adds no key listener, so the keyboard behavior is the platform’s in every language and in right-to-left documents.',
       'The label names the control through for, which points at an identifier SlCheckbox generates unless you write a static id on the host. The description is projected outside the label and reaches the control through aria-describedby, so it is read as a description, and a press on it toggles nothing.',
       'Inside a required field the control carries aria-required, never the native required, because the native attribute turns on browser constraint validation and changes how the form submits. Write required on the host to opt into the platform’s validation; it is read as a static attribute and passed through unchanged. disabled is the native attribute.',
       'A native checkbox has no read-only state, so SlCheckbox enforces one: it refuses the click that a pointer and Space both produce, and aria-readonly announces the state. The box keeps its tab stop, its focus ring and its full contrast, because a read-only value is real and must not look disabled.',
       'A refused change is undone by the platform, not by SlCheckbox. The HTML standard undoes a cancelled checkbox click by inverting checked again, so SlCheckbox cancels the click’s default action instead of writing the element; a controlled box therefore shows the value its consumer holds.',
-      'The invalid state does not rely on colour alone. In the high-contrast scheme the theme paints every border the same colour, so an invalid box also draws a thicker border. The message that says what is wrong belongs to the field or field group.',
+      'The invalid state does not rely on color alone. In the high-contrast scheme the theme paints every border the same color, so an invalid box also draws a thicker border. The message that says what is wrong belongs to the field or field group.',
       'The target is larger than the box. A 24-pixel square around the box meets WCAG 2.2 success criterion 2.5.8 at every size and density, including size="sm", where the box is 14 pixels. The label extends the target to the end of its text, and the hover wash covers exactly that area. The target is drawn around the box, so the row keeps its line height.',
     ],
     snippets: [

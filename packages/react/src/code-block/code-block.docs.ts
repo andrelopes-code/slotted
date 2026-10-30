@@ -167,7 +167,7 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'tsx',
       label: 'An engine handed to the block',
       source:
-        '<CodeBlock\n  code={source}\n  highlight={async (code, language) => tokenise(code, language)}\n  language="ts"\n/>;',
+        '<CodeBlock\n  code={source}\n  highlight={async (code, language) => tokenize(code, language)}\n  language="ts"\n/>;',
     }),
   },
   {

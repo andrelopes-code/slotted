@@ -161,17 +161,17 @@ test('hides the range only where a summary exists to replace it', () => {
 
 /**
  * The mark keeps its paint through `forced-color-adjust` on the mark alone
- * rather than through a repaint: it inherits the colour the system has already
+ * rather than through a repaint: it inherits the color the system has already
  * forced onto the button, including the grey a disabled trigger takes.
  */
-test('keeps the chevrons through forced colours without naming a system colour', () => {
+test('keeps the chevrons through forced colors without naming a system color', () => {
   assert.ok(normalized.includes('@media(forced-colors:active)'));
   assert.ok(normalized.includes('forced-color-adjust:none'));
 
   for (const [, block] of declarations.matchAll(/::(?:before|after)[^{]*\{([\s\S]*?)\}/g)) {
     assert.ok(
       !/\b(ButtonText|CanvasText|GrayText|Highlight|HighlightText|Canvas)\b/.test(block),
-      'a pseudo-element must not name a system colour',
+      'a pseudo-element must not name a system color',
     );
   }
 });

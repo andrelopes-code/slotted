@@ -45,7 +45,7 @@ function sameColor(a: string, b: string): boolean {
 }
 
 /**
- * A `text-field` holding a colour: the swatch in its start opens the panel in
+ * A `text-field` holding a color: the swatch in its start opens the panel in
  * a popover, and the value can be typed in any notation and is kept in the
  * one shown. The text is the field's control, so a `slField` label names it;
  * the host is the consumer's element and the form control.

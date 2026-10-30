@@ -101,7 +101,7 @@ const anatomy: AnatomyRow[] = [
     element: 'span',
     required: false,
     purpose:
-      'The mark beside the delta: trending-up, turned over for a fall, minus for no change. Painted from the delta’s ink and kept under forced colours.',
+      'The mark beside the delta: trending-up, turned over for a fall, minus for no change. Painted from the delta’s ink and kept under forced colors.',
   },
   {
     part: 'comparison',
@@ -164,7 +164,7 @@ const scenes: ReferenceSceneMeta[] = [
     snippet: defineSnippet({
       id: 'stat-card-react-good-when',
       language: 'tsx',
-      label: 'goodWhen decides the colour',
+      label: 'goodWhen decides the color',
       source:
         '<StatCard delta={0.18} goodWhen="down">\n  <StatCardHeader>\n    <StatCardLabel>Average lead time</StatCardLabel>\n  </StatCardHeader>\n  <StatCardFigure>\n    <StatCardValue>\n      4.6<StatCardUnit>days</StatCardUnit>\n    </StatCardValue>\n    <StatCardDelta />\n  </StatCardFigure>\n</StatCard>;\n\n// A count nobody wants more or less of.\n<StatCard delta={0.094} goodWhen="none">\n  …\n</StatCard>;',
     }),
@@ -184,7 +184,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'fill',
     title: 'Four frames',
-    note: 'outline is the hairline card; elevated lifts on a shadow and keeps the hairline for forced colours; subtle recedes onto the sunken surface; plain has no frame and no inset, for a table cell or a row divided by rules where a second edge would be a box in a box.',
+    note: 'outline is the hairline card; elevated lifts on a shadow and keeps the hairline for forced colors; subtle recedes onto the sunken surface; plain has no frame and no inset, for a table cell or a row divided by rules where a second edge would be a box in a box.',
     snippet: defineSnippet({
       id: 'stat-card-react-fill',
       language: 'tsx',
@@ -427,7 +427,7 @@ export const REACT_STAT_CARD_DOCS = {
     accessibility: [
       'The root is a group named by its label through aria-labelledby, so a reader who lands on the action inside it hears which metric it belongs to. There is no APG pattern for a statistic; a group with a name is what the platform offers a labelled region that is not a landmark.',
       'The delta reads its direction before its number — “up +12.4%” — from a visually hidden word, because a sign is a glyph some readers skip and “12.4%” alone does not say which way. The indicator is aria-hidden; it repeats what the word says.',
-      'The tone is never the only channel: the indicator turns, the word is read, the sign is written. A rise that is bad and a rise that is good differ in colour and in nothing a reader without colour loses.',
+      'The tone is never the only channel: the indicator turns, the word is read, the sign is written. A rise that is bad and a rise that is good differ in color and in nothing a reader without color loses.',
       'While loading the root carries aria-busy="true" and every placeholder is a skeleton, hidden and inert. One announcement for a whole dashboard is a SkeletonRegion around it, which is the platform’s own answer rather than one per card.',
       'A missing or failed value is a dash and a message, in the DOM and in the tree; a card never announces a stale number as current.',
       'The value is never truncated. A number wider than the trend’s room takes the room; a number wider than the card breaks; nothing is clipped or hidden behind an ellipsis.',

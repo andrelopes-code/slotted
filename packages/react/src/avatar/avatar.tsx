@@ -19,7 +19,7 @@ import type {
 /**
  * The palette `tone="auto"` chooses from, in the order the hash indexes it.
  * Five is a small palette and collisions are frequent by construction: the
- * colour is an aid to scanning a list of faces, and the name is what identifies
+ * color is an aid to scanning a list of faces, and the name is what identifies
  * the person — which is why it is on the root in every one of the four
  * statuses.
  */

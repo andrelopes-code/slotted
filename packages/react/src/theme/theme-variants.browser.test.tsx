@@ -80,7 +80,7 @@ function Probe({ id }: { id: string }) {
   return <div data-testid={id} />;
 }
 
-/** The colour a token paints, as the browser resolves it. */
+/** The color a token paints, as the browser resolves it. */
 function paint(id: string, token: string): string {
   const probe = document.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
   probe.style.backgroundColor = `var(${token})`;
@@ -92,7 +92,7 @@ function paint(id: string, token: string): string {
   return color === swatch ? 'unresolved' : normalize(color);
 }
 
-/** `oklch(0 0 none)` and `rgb(0, 0, 0)` name one colour; the canvas reads both as sRGB. */
+/** `oklch(0 0 none)` and `rgb(0, 0, 0)` name one color; the canvas reads both as sRGB. */
 function normalize(color: string): string {
   const context = document.createElement('canvas').getContext('2d')!;
   context.fillStyle = color;

@@ -148,7 +148,7 @@ export const Statuses: Story = {
       </Scene>
       <Scene
         label="The two that share a tone"
-        note="neutral is filled and unknown is a dashed ring as wide as a lit dot, so “nothing is happening” and “nobody knows” are never told apart by colour alone."
+        note="neutral is filled and unknown is a dashed ring as wide as a lit dot, so “nothing is happening” and “nobody knows” are never told apart by color alone."
       >
         <StatusIndicator status="neutral">Draft — nothing has started</StatusIndicator>
         <StatusIndicator status="unknown">No data — the agent stopped reporting</StatusIndicator>
@@ -179,7 +179,7 @@ export const Marks: Story = {
       </Scene>
       <Scene
         label="icon"
-        note="Six circles, the glyphs alert and toast draw for the same tones. The silhouette is what still separates the six when the colour is gone — in greyscale, in high contrast, and under forced colours."
+        note="Six circles, the glyphs alert and toast draw for the same tones. The silhouette is what still separates the six when the color is gone — in grayscale, in high contrast, and under forced colors."
       >
         {STATUSES.map(({ status, words }) => (
           <StatusIndicator key={status} mark="icon" status={status}>
@@ -310,7 +310,7 @@ export const Context: Story = {
     <div className="slotted-demo-grid" data-columns="2">
       <Scene
         label="A column of services"
-        note="The words take the page’s own colour and the tone stays on the mark, so the status column reads as easily as the column of names beside it."
+        note="The words take the page’s own color and the tone stays on the mark, so the status column reads as easily as the column of names beside it."
       >
         <div className="slotted-demo-rows">
           <Row service="checkout-api">
@@ -469,15 +469,15 @@ export const Accessibility: Story = {
         </div>
       </Scene>
       <Scene
-        label="Colour is never the only carrier"
+        label="Color is never the only carrier"
         layout="prose"
         note="Every indicator has words. Where a product cannot show them, the icon mark gives each status a silhouette of its own — which is what survives the reader’s own high-contrast mode."
       >
         <Heading level={3}>Two ways to say the same six things</Heading>
         <Text>
-          A dot beside its own word, or a glyph that keeps its meaning with the colour switched off.
-          The dot is lit with a halo of its own colour, and the glyph set is six circles, so no two
-          statuses are told apart by colour alone.
+          A dot beside its own word, or a glyph that keeps its meaning with the color switched off.
+          The dot is lit with a halo of its own color, and the glyph set is six circles, so no two
+          statuses are told apart by color alone.
         </Text>
         <div className="slotted-demo-row">
           <StatusIndicator mark="icon" status="success">

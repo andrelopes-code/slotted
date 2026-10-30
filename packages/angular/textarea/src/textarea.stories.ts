@@ -177,7 +177,7 @@ export const AutoSize: Story = {
       2,
       scene(
         'One row until there is more to say',
-        'Type into it: the box grows a line at a time and stops at four, then scrolls. Nothing is measured on the main thread — the whole behaviour is one CSS declaration.',
+        'Type into it: the box grows a line at a time and stops at four, then scrolls. Nothing is measured on the main thread — the whole behavior is one CSS declaration.',
         `<textarea slTextarea autoSize [rows]="1" [maxRows]="4" placeholder="Start writing"></textarea>
          <textarea slTextarea autoSize [rows]="1" [maxRows]="4">The control grows with its content up to the four-line ceiling and scrolls after it, instead of pushing the page out from under the cursor.</textarea>`,
       ) +

@@ -189,7 +189,7 @@ test('speaks the five tones the theme holds, and no list of its own', () => {
 
 /**
  * `loading` is a state and not a tone: a promise starts in it, and the message
- * it is about still has a colour.
+ * it is about still has a color.
  */
 test('keeps loading out of the tone axis', () => {
   assert.ok(!contract.axes.tone.includes('loading'));

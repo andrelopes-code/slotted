@@ -304,7 +304,7 @@ export const States: Story = {
           </ContextMenu>
         </Viewport>
       </Scene>
-      <Scene label="Open" note="The inward mark, in the colour that separates surfaces.">
+      <Scene label="Open" note="The inward mark, in the color that separates surfaces.">
         <Viewport size="layer">
           <ContextMenu defaultOpen portal={false}>
             <Tile name="Brand book.pdf" meta="open" />

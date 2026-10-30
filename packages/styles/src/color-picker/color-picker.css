@@ -1,15 +1,15 @@
 @layer slotted.components {
   /**
-   * ── Choosing a colour ──────────────────────────────────────────────────
+   * ── Choosing a color ──────────────────────────────────────────────────
    *
    * A panel: an area for saturation and brightness, a hue channel, an alpha
-   * channel, a preview of the colour now beside the colour it opened with,
+   * channel, a preview of the color now beside the color it opened with,
    * the value as text in its notation, the eyedropper, the presets and the
    * contrast against a background the consumer names. It stands inline, or
    * inside a popover opened from the field's swatch
    *.
    *
-   * Every colour on this page is the reader's colour, written by the binding
+   * Every color on this page is the reader's color, written by the binding
    * as a runtime property (`runtime-properties.mjs`); the panel's own chrome
    * reads the theme like any other family.
    */
@@ -25,7 +25,7 @@
     --_hue: var(--slotted-color-picker-hue, 0);
     /**
      * The transparency grid: two squares of the theme's own surfaces, so an
-     * alpha colour reads against the page it will sit on rather than against
+     * alpha color reads against the page it will sit on rather than against
      * a grey nobody chose. The square is half the channel's height.
      */
     --_checker: repeating-conic-gradient(
@@ -67,7 +67,7 @@
    * to black along the block axis — the HSV square. White and black are the
    * model, not a choice of the theme, which is why they are literals here
    * and nowhere else. The edge is drawn inside, a hairline of the theme's
-   * subtle border, so a pale colour still has a boundary on a pale page.
+   * subtle border, so a pale color still has a boundary on a pale page.
    */
   [data-ui-color-picker] [data-part-area] {
     aspect-ratio: 3 / 2;
@@ -93,7 +93,7 @@
 
   /* ── The thumbs ─────────────────────────────────────────────────────────
    *
-   * A disc of the colour it stands on, inside a white ring and a hairline of
+   * A disc of the color it stands on, inside a white ring and a hairline of
    * shadow, so it reads on the black corner and on the white one alike. The
    * ring is the model's white for the reason the area's is. Held, it grows a
    * step, so the reader sees what the pointer has taken.
@@ -141,7 +141,7 @@
    *
    * Hue is one gradient interpolated the long way round the hue circle, so
    * the browser draws the rainbow rather than seven stops written by hand.
-   * Alpha is the colour fading to nothing over the transparency grid.
+   * Alpha is the color fading to nothing over the transparency grid.
    */
   [data-ui-color-picker] [data-part-channel] {
     block-size: var(--_channel);
@@ -173,8 +173,8 @@
     inset-block-start: 50%;
   }
 
-  /* A channel's thumb travels inside the track, its centre a half thumb in
-     from each end, so at 0 and at the maximum it still sits on the colour it
+  /* A channel's thumb travels inside the track, its center a half thumb in
+     from each end, so at 0 and at the maximum it still sits on the color it
      names rather than hanging past the rounded end. */
   [data-ui-color-picker] [data-part-channel-thumb][data-channel='hue'] {
     background: hsl(calc(var(--_hue) * 1deg) 100% 50%);
@@ -206,9 +206,9 @@
   }
 
   /**
-   * Now and before, side by side in one rounded box: the colour being made on
-   * the start, the colour the panel opened with on the end. Each half is the
-   * colour over the transparency grid. Pressing the old half restores it.
+   * Now and before, side by side in one rounded box: the color being made on
+   * the start, the color the panel opened with on the end. Each half is the
+   * color over the transparency grid. Pressing the old half restores it.
    */
   [data-ui-color-picker] [data-part-swatch],
   [data-ui-color-picker] [data-part-previous] {
@@ -252,7 +252,7 @@
     transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
   }
 
-  /* The old colour answers the pointer with the revert mark over it. */
+  /* The old color answers the pointer with the revert mark over it. */
   [data-ui-color-picker] [data-part-previous] > [data-ui-icon] {
     --slotted-icon-size: var(--_icon-size);
 
@@ -321,15 +321,15 @@
 
   /**
    * Words and a mark in one button — a country code over its chevron, a model
-   * name, a notation. The mark is centred on the band the letters occupy, not
+   * name, a notation. The mark is centerd on the band the letters occupy, not
    * on the line box: the line box keeps room under the baseline for
-   * descenders, so a box centred in it sits low beside the letters — every
+   * descenders, so a box centerd in it sits low beside the letters — every
    * chevron in these buttons did. The rule is the briefing's (_A mark beside a
    * line of text is aligned to the text_), here in a grid: items share the
    * baseline, the mark's synthesized baseline is its bottom edge, a negative
    * start margin takes back the height it would add above the letters, and a
-   * translate puts its centre at `(1cap + 1ex) / 4` above the baseline — the
-   * midpoint of the capitals' and the lowercase letters' own centres.
+   * translate puts its center at `(1cap + 1ex) / 4` above the baseline — the
+   * midpoint of the capitals' and the lowercase letters' own centers.
    */
   [data-ui-color-picker] [data-part-format] {
     align-content: center;
@@ -376,8 +376,8 @@
   /* ── Presets ────────────────────────────────────────────────────────────
    *
    * A radio group of swatches on a grid that fills the panel's width. The
-   * chosen one is ringed in the theme's ring colour at a gap of the panel's
-   * ground, so the ring never touches the colour it marks.
+   * chosen one is ringed in the theme's ring color at a gap of the panel's
+   * ground, so the ring never touches the color it marks.
    */
   [data-ui-color-picker] [data-part-presets] {
     display: grid;
@@ -434,9 +434,9 @@
 
   /* ── Contrast and gamut ─────────────────────────────────────────────────
    *
-   * `Aa` set in the colour on the background the consumer named, beside the
+   * `Aa` set in the color on the background the consumer named, beside the
    * WCAG ratio and the level it reaches. The level is a word in a badge
-   * coloured by its tone, never colour alone.
+   * colored by its tone, never color alone.
    */
   [data-ui-color-picker] [data-part-contrast] {
     align-items: center;
@@ -498,7 +498,7 @@
 
   /* ── The field's swatch ─────────────────────────────────────────────────
    *
-   * In a `text-field`'s start: a rounded square of the colour over the grid,
+   * In a `text-field`'s start: a rounded square of the color over the grid,
    * at the inner size of the control, concentric with the field's corner.
    * It is the trigger, and it answers the press like the field's other inner
    * buttons, by its ground — here the ring around it.

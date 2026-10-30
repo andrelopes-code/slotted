@@ -5,8 +5,8 @@ import {
   fractionOfValue,
   moveThumb,
   nearestThumb,
-  normaliseValue,
-  normaliseValues,
+  normalizeValue,
+  normalizeValues,
   sameValues,
   thumbBounds,
   valueAtFraction,
@@ -165,18 +165,18 @@ describe('moveThumb', () => {
   });
 });
 
-describe('normaliseValue and normaliseValues', () => {
+describe('normalizeValue and normalizeValues', () => {
   it('puts a value on the grid and inside the scale', () => {
-    expect(normaliseValue(7, { min: 0, max: 10, step: 5 })).toBe(5);
-    expect(normaliseValue(-4, { min: 0, max: 10, step: 5 })).toBe(0);
+    expect(normalizeValue(7, { min: 0, max: 10, step: 5 })).toBe(5);
+    expect(normalizeValue(-4, { min: 0, max: 10, step: 5 })).toBe(0);
   });
 
   it('answers the minimum for a value that is not a number', () => {
-    expect(normaliseValue(Number.NaN, { min: 3, max: 10, step: 1 })).toBe(3);
+    expect(normalizeValue(Number.NaN, { min: 3, max: 10, step: 1 })).toBe(3);
   });
 
   it('orders a set a consumer handed backwards', () => {
-    expect(normaliseValues([80, 20], { min: 0, max: 100, step: 1 })).toEqual([20, 80]);
+    expect(normalizeValues([80, 20], { min: 0, max: 100, step: 1 })).toEqual([20, 80]);
   });
 });
 

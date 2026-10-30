@@ -179,7 +179,7 @@ export const States: Story = {
     <Grid columns={3}>
       <Scene
         label="Invalid says it twice"
-        note="Every circle reddens and thickens together, because the high-contrast scheme paints every border the same black and colour alone would leave the two states identical there."
+        note="Every circle reddens and thickens together, because the high-contrast scheme paints every border the same black and color alone would leave the two states identical there."
         layout="stack"
       >
         <RadioGroup aria-label="No choice" invalid required>
@@ -332,7 +332,7 @@ export const Content: Story = {
     <Grid columns={2}>
       <Scene
         label="An option that wraps"
-        note="The circle stays on the first line box of the label rather than centring itself against the whole block, which is where align-items would put it as soon as the text reaches a second line."
+        note="The circle stays on the first line box of the label rather than centering itself against the whole block, which is where align-items would put it as soon as the text reaches a second line."
         layout="stack"
       >
         <RadioGroup aria-label="Long content" defaultValue="a">

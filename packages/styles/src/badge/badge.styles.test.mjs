@@ -139,7 +139,7 @@ test('fills without a rim, and edges only what is not filled', () => {
 });
 
 /**
- * The one tone whose fill is the page's own colour: `#ffffff` in
+ * The one tone whose fill is the page's own color: `#ffffff` in
  * `high-contrast`, 1.23:1 in `light`. It takes the `solid-hover` step so a
  * filled neutral badge is not the same rectangle as a tinted one, and it is the
  * only tone whose filled form keeps an edge.
@@ -156,9 +156,9 @@ test('excepts the neutral tone, whose fill is the page', () => {
 });
 
 /**
- * A flex container centres the line box, and a line box is not symmetric around
+ * A flex container centers the line box, and a line box is not symmetric around
  * the letters inside it: measured on this family, a word with no descender sat
- * 2.19 pixels high in a 24-pixel badge. `text-box` centres the ink instead, and
+ * 2.19 pixels high in a 24-pixel badge. `text-box` centers the ink instead, and
  * it needs a block container — a flex container's text lives in an anonymous
  * item no selector can reach, which is why the part exists.
  */
@@ -274,8 +274,8 @@ test('takes the correction of the corner from a token on each axis', () => {
   assert.ok(frame.includes('--_offset-block:var(--slotted-badge-anchor-offset-y,0px)'));
 });
 
-/** A badge over a card, a toolbar or a coloured row is not on the page's ground. */
-test('separates the anchored badge from its host with a colour a theme can retune', () => {
+/** A badge over a card, a toolbar or a colored row is not on the page's ground. */
+test('separates the anchored badge from its host with a color a theme can retune', () => {
   assert.ok(
     rule(`${anchor} > ${root}`).includes(
       'var(--slotted-badge-ring-color,var(--slotted-surface,Canvas))',
@@ -293,7 +293,7 @@ test('answers focus and refuses hover and press', () => {
   assert.ok(!/:active/.test(css), 'a badge is not a command');
 });
 
-test('keeps an edge under forced colours, where every tone is discarded', () => {
+test('keeps an edge under forced colors, where every tone is discarded', () => {
   assert.ok(
     normalized.includes(`@media (forced-colors:active){${root}{border-color:currentColor`),
     'a solid, a soft and an outline badge are otherwise the same rectangle',

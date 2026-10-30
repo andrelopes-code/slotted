@@ -44,7 +44,7 @@ import {
   AppShellActions,
   AppShellBanner,
   AppShellBrand,
-  AppShellCentre,
+  AppShellCenter,
   AppShellMain,
   AppShellNav,
   AppShellNavBody,
@@ -164,7 +164,7 @@ export function CadenceBanner() {
   return (
     <AppShellBanner>
       <AppShellBrand />
-      <AppShellCentre>
+      <AppShellCenter>
         <Breadcrumb aria-label="Location">
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -178,7 +178,7 @@ export function CadenceBanner() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-      </AppShellCentre>
+      </AppShellCenter>
       <AppShellActions>
         <Button
           className="slotted-demo-bar-optional"

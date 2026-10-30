@@ -193,7 +193,7 @@ export const Sizes: Story = {
       </Scene>
       <Scene
         label="lg"
-        note="The step for a set that organises a whole page, where each header is a landmark a reader scans for rather than a row in a list."
+        note="The step for a set that organizes a whole page, where each header is a landmark a reader scans for rather than a row in a list."
       >
         <Order defaultValue={['delivery']} size="lg" variant="separated" />
       </Scene>

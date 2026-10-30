@@ -37,7 +37,7 @@ test('is a list, and its members are list items', () => {
  * like one, so it takes the size, the shape, the edge and the ring from the
  * same rules as every member beside it.
  */
-test('summarises what it does not show, in an avatar of its own', () => {
+test('summarizes what it does not show, in an avatar of its own', () => {
   assert.ok(contract.members.avatarGroup.parts.includes('overflow'));
   assert.equal(contract.members.avatarGroup.defaults.max, 5);
 });
@@ -55,9 +55,9 @@ test('overlaps its members by default, and can lay them out apart', () => {
 /**
  * The group decides how its members are drawn, once. It does not decide their
  * tone: a tone derived from a name is the member's own identity, and a group
- * that overrode it would paint eight people the same colour.
+ * that overrode it would paint eight people the same color.
  */
-test('provides the appearance of its members, and never their identity colour', () => {
+test('provides the appearance of its members, and never their identity color', () => {
   assert.deepEqual(contract.provides.avatarDefaults, ['size', 'shape', 'variant']);
   assert.ok(!contract.provides.avatarDefaults.includes('tone'));
 });

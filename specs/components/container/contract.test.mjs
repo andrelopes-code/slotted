@@ -90,7 +90,7 @@ test('insets by the same scale the layout families take their gap from', () => {
   ]);
 });
 
-test('places the bounded column, rather than only centring it', () => {
+test('places the bounded column, rather than only centering it', () => {
   assert.deepEqual(contract.axes.align, ['center', 'start', 'end']);
 });
 

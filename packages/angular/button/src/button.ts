@@ -125,7 +125,7 @@ export class SlButton implements ButtonWait {
   readonly hasStart = computed(() => this.start() !== undefined);
   /**
    * A control with a visual slot gives the ring that box, and the slot draws
-   * it. Only a control with neither draws one of its own, centred over the
+   * it. Only a control with neither draws one of its own, centerd over the
    * label the stylesheet then fades.
    */
   protected readonly hasVisualSlot = computed(

@@ -121,7 +121,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'Every state the contract declares',
-    note: 'Hover, focus, one segment unavailable, the whole control unavailable, read-only and invalid. Read-only keeps its colours and refuses the change; only disabled loses them.',
+    note: 'Hover, focus, one segment unavailable, the whole control unavailable, read-only and invalid. Read-only keeps its colors and refuses the change; only disabled loses them.',
     snippet: defineSnippet({
       id: 'segmented-control-react-states',
       language: 'tsx',
@@ -152,7 +152,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'variants',
     title: 'A track, or the words alone',
-    note: 'underline draws the same radio group as words: each as wide as itself, the chosen one in the text colour and underlined, the others muted. One tab stop, the arrows move the value, and inside a field the label names the set.',
+    note: 'underline draws the same radio group as words: each as wide as itself, the chosen one in the text color and underlined, the others muted. One tab stop, the arrows move the value, and inside a field the label names the set.',
     snippet: defineSnippet({
       id: 'segmented-control-react-variants',
       language: 'tsx',
@@ -370,7 +370,7 @@ export const REACT_SEGMENTED_CONTROL_DOCS = {
         'boolean',
         '—',
         'SegmentedControl',
-        'Enforced by the family, because a radio ignores readonly: the change is refused on the click a pointer and Space share, and the control keeps its colours and its tab stops',
+        'Enforced by the family, because a radio ignores readonly: the change is refused on the click a pointer and Space share, and the control keeps its colors and its tab stops',
       ],
       [
         'invalid',
@@ -449,7 +449,7 @@ export const REACT_SEGMENTED_CONTROL_DOCS = {
       'The pattern is the WAI-ARIA APG’s Radio Group (w3.org/WAI/ARIA/apg/patterns/radio/), and its entire keyboard table is the platform’s: Tab lands on the checked segment or on the first when none is checked, Space checks the focused one, both pairs of arrows move focus and the choice together, the set wraps, and disabled segments are skipped — including the arrow directions of a right-to-left document.',
       'A segment is a real input type="radio" and not a button. Primer builds the row of buttons and pays one tab stop per segment where the pattern gives one for the set; Angular Material writes radiogroup around children carrying aria-pressed, which is a group whose role and children disagree. The family whose items are buttons is toggle-group, and the difference a reader feels is the arrows.',
       'That is why the segments share a name, and why one is generated when none is written: grouping is by name within the form owner, so an unnamed set is not a set. The value reaches FormData with no wiring, which is what makes this the family for a choice a form submits.',
-      'The ring is drawn on the segment and put out on the radio that holds the focus, so the family never paints two rings in two colours. It sits on the segment’s own edge rather than off it, because the segments are flush inside the track and an offset ring would be drawn across the neighbour beside it.',
+      'The ring is drawn on the segment and put out on the radio that holds the focus, so the family never paints two rings in two colors. It sits on the segment’s own edge rather than off it, because the segments are flush inside the track and an offset ring would be drawn across the neighbour beside it.',
       'Read-only has no platform answer for a radio, so it is enforced: the change is refused on the click a pointer and Space share, aria-readonly announces it, and the control keeps its tab stops and its full contrast — it must not be mistaken for an unavailable one.',
       'The thumb is shorter than the control it lives in, so the radio reaches the track’s own edge and the target is the control’s height rather than the thumb’s. With the segment never narrower than 24 CSS pixels, WCAG 2.2 SC 2.5.8 holds at the smallest step and the tightest density.',
       'Condensing hides the words and keeps them: the accessible name of every segment is the same whether the control has room for its labels or not.',

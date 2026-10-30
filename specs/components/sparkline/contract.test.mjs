@@ -73,8 +73,8 @@ test('joins points with straight segments unless asked to smooth them', () => {
 });
 
 /**
- * Colour resolves in one order: a tone says how the series is doing, a series
- * says which one it is, and a sparkline that names neither reads the colour
+ * Color resolves in one order: a tone says how the series is doing, a series
+ * says which one it is, and a sparkline that names neither reads the color
  * its container states or falls back to the first data slot. The tone axis is
  * the five tones of the theme plus `neutral`, which is the comparison series
  * and the aside; the series axis is the eight slots of the data scale,

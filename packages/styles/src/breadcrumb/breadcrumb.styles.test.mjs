@@ -34,7 +34,7 @@ test('reacts to every state the contract declares', () => {
 
 /**
  * A switcher is the crumb it stands for, dressed on a `button`; the one for the
- * page the reader is on keeps the page's colour and weight, and its hover and
+ * page the reader is on keeps the page's color and weight, and its hover and
  * press still differ.
  */
 test('dresses a switcher as a crumb and keeps the page on the current one', () => {
@@ -151,7 +151,7 @@ test('sets the ellipsis on the crumbs’ line, with a whole target and a glyph',
     ),
   );
   assert.ok(ellipsis.includes('font:inherit;'), 'the box keeps the trail’s own line');
-  assert.ok(!ellipsis.includes('translate:'), 'nothing lifts the mark off its own centre');
+  assert.ok(!ellipsis.includes('translate:'), 'nothing lifts the mark off its own center');
   assert.ok(
     ellipsis.startsWith('[data-part-ellipsis]{--slotted-icon-size:var(--_icon-size);'),
     'the box inside is sized at the glyph scale’s own size',
@@ -188,7 +188,7 @@ test('paints the current page from the platform attribute, without a mirror', ()
  * replaced by the page's own background once the system takes the palette.
  * Everything else here is text, which is never removed.
  */
-test('restates only what forced colours would take away', () => {
+test('restates only what forced colors would take away', () => {
   assert.ok(normalized.includes('@media(forced-colors:active)'));
   assert.ok(
     /@media\(forced-colors:active\)\{\[data-ui-breadcrumb\]\[data-part-separator\]:empty\{background-color:GrayText/.test(
@@ -198,5 +198,5 @@ test('restates only what forced colours would take away', () => {
 });
 
 test('never paints text with a fill role', () => {
-  assert.ok(!/tone-[a-z]+-solid/.test(declarations), 'a solid fill is not a text colour');
+  assert.ok(!/tone-[a-z]+-solid/.test(declarations), 'a solid fill is not a text color');
 });

@@ -167,7 +167,7 @@ test('rejects a scale root that also declares a literal reason', () => {
   assert.deepEqual(errors, ['--semantic is a scale root, so a literal reason says nothing']);
 });
 
-/* ---------------------------------------------------------- forced colours */
+/* ---------------------------------------------------------- forced colors */
 
 test('requires every scheme token to declare a forced-colors mapping', () => {
   const contract = structuredClone(validTheme.schemes ? layeredContract : layeredContract);
@@ -176,13 +176,13 @@ test('requires every scheme token to declare a forced-colors mapping', () => {
   assert.deepEqual(errors, ['--scheme varies by scheme and declares no forced-colors mapping']);
 });
 
-test('rejects a forced-colors mapping that is not a system colour', () => {
+test('rejects a forced-colors mapping that is not a system color', () => {
   const contract = structuredClone(layeredContract);
   contract.tokens = [
     token('--scheme', { layer: 'semantic', axis: 'scheme', type: 'color', forcedColor: '#ff0000' }),
   ];
   const errors = validateTheme(contract, { base: {}, schemes: {}, densities: {} });
-  assert.deepEqual(errors, ['--scheme maps to #ff0000, which is not a system colour']);
+  assert.deepEqual(errors, ['--scheme maps to #ff0000, which is not a system color']);
 });
 
 test('rejects a forced-colors mapping on a token no scheme varies', () => {
@@ -190,7 +190,7 @@ test('rejects a forced-colors mapping on a token no scheme varies', () => {
   contract.tokens = [token('--base', { forcedColor: 'Canvas' })];
   const errors = validateTheme(contract, { base: {}, schemes: {}, densities: {} });
   assert.deepEqual(errors, [
-    '--base does not vary by scheme, so forced colours cannot replace it',
+    '--base does not vary by scheme, so forced colors cannot replace it',
     'base is missing --base',
   ]);
 });

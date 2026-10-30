@@ -131,7 +131,7 @@ export const Sizes: Story = {
       </Scene>
       <Scene
         label="lg"
-        note="The step for a section header a page is organised by. The second line steps with it, so the pair keeps its relationship at every size."
+        note="The step for a section header a page is organized by. The second line steps with it, so the pair keeps its relationship at every size."
       >
         <Summary size="lg" />
       </Scene>
@@ -220,7 +220,7 @@ export const Description: Story = {
       </Scene>
       <Scene
         label="The same pair, open"
-        note="The mark is centred on the two lines rather than on the title alone, so the row reads as one block whatever the second line says."
+        note="The mark is centerd on the two lines rather than on the title alone, so the row reads as one block whatever the second line says."
       >
         <Collapsible defaultOpen variant="framed">
           <CollapsibleHeader>

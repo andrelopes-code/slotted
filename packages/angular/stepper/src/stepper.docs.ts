@@ -121,7 +121,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'orientation',
     title: 'Which way the flow runs',
-    note: 'Horizontal divides the width into equal columns so five markers line up however long their labels are; vertical runs the connector down the marker’s own centre line.',
+    note: 'Horizontal divides the width into equal columns so five markers line up however long their labels are; vertical runs the connector down the marker’s own center line.',
     snippet: defineSnippet({
       id: 'stepper-angular-orientation',
       language: 'angular',
@@ -133,7 +133,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'statuses',
     title: 'The four statuses, and the fifth that is not one',
-    note: 'Each is a fill and an edge rather than a colour alone: an outline for pending, a ring for current, a filled disc with a check for complete, a filled disc with a cross for a failure.',
+    note: 'Each is a fill and an edge rather than a color alone: an outline for pending, a ring for current, a filled disc with a check for complete, a filled disc with a cross for a failure.',
     snippet: defineSnippet({
       id: 'stepper-angular-statuses',
       language: 'angular',
@@ -169,7 +169,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'placement',
     title: 'Where the label sits',
-    note: 'end puts the name beside the marker and gives the connector whatever the label leaves; bottom centres the marker over its own label, which is what a row of five names needs.',
+    note: 'end puts the name beside the marker and gives the connector whatever the label leaves; bottom centers the marker over its own label, which is what a row of five names needs.',
     snippet: defineSnippet({
       id: 'stepper-angular-placement',
       language: 'angular',
@@ -385,7 +385,7 @@ export const ANGULAR_STEPPER_DOCS = {
       'Every header carries a visually hidden status, so what a reader hears is "Cart, Step 2 of 4, current" rather than "2". The marker itself is aria-hidden, because it would otherwise announce the number twice, and the status is prefixed with a comma because nothing separates two elements’ text when a name is computed.',
       'A panel is a group labelled by its own trigger and given tabindex="-1", so a consumer who moves focus after a step change has somewhere to put it. It is not a tabpanel, for the same reason the root is not a tablist.',
       'The arrows reach every header, exactly where Tab reaches — they were added on top of the tab sequence rather than replacing it with a roving tab stop, and they follow the reading direction, so ArrowRight moves to the previous step in a right-to-left document. Home and End go to the ends, and the block arrows answer only a vertical flow.',
-      'No status depends on colour alone: a complete step fills its disc and shows a check, a failed one fills and shows a cross, the current one is a ring and a pending one an outline. Section 7 of the feature guide asks for exactly that.',
+      'No status depends on color alone: a complete step fills its disc and shows a check, a failed one fills and shows a cross, the current one is a ring and a pending one an outline. Section 7 of the feature guide asks for exactly that.',
     ],
     snippets: [
       defineSnippet({

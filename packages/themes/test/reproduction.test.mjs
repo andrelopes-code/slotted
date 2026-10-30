@@ -7,7 +7,7 @@ import { deltaE, flattenTheme, parseSeed } from '@slotted/theme';
 import theme from '../src/default/theme.mjs';
 
 /**
- * The recipe replaced 61 literal colours per scheme. Each one is held to the
+ * The recipe replaced 61 literal colors per scheme. Each one is held to the
  * value it had (`reference.json`) within 0.02 in OKLab, except the ones listed
  * here, each taken deliberately and written into the Current boundary section
  * of `docs/token-foundation.md`.
@@ -41,7 +41,7 @@ function resolved(scheme, value, seen = new Set()) {
   return resolved(scheme, flat.schemes[scheme][alias[1]], seen);
 }
 
-test('reproduces every colour the recipe replaced', () => {
+test('reproduces every color the recipe replaced', () => {
   const moved = [];
   for (const [scheme, tokens] of Object.entries(reference)) {
     for (const [token, before] of Object.entries(tokens)) {

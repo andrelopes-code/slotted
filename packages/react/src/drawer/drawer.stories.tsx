@@ -85,7 +85,7 @@ type Story = StoryObj<typeof meta>;
  * and cannot be dismissed. Nothing here changes the picture: the scrim belongs
  * to the layer rather than to the dismissal policy, so `modal` decides only
  * what happens to the page behind it. A scene that exists to be *operated*
- * keeps its real behaviour and is opened from a trigger, one at a time — which
+ * keeps its real behavior and is opened from a trigger, one at a time — which
  * is also what the reader does in an application.
  */
 const STILL = {
@@ -484,7 +484,7 @@ export const Sheet: Story = {
     <Grid columns={2}>
       <Scene
         label="Content height — the default on a block side"
-        note="Three filters and a footer, and nothing under them. No size is written: on top and bottom the panel measures what it holds, and on a layer wider than forty rems it stops there and stands centred on the scrim."
+        note="Three filters and a footer, and nothing under them. No size is written: on top and bottom the panel measures what it holds, and on a layer wider than forty rems it stops there and stands centerd on the scrim."
       >
         <Layer>
           {(container) => (

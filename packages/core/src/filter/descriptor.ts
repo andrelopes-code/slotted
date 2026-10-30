@@ -9,7 +9,7 @@
  * twice.
  *
  * Every field is JSON — no class, no `Date`, no function — because
- * `docs/component-features.md` §12 asks for one serialisable query model that a
+ * `docs/component-features.md` §12 asks for one serializable query model that a
  * client and a server both read.
  */
 
@@ -48,7 +48,7 @@ export type NumberFilter = FilterShape<'number', NumberOperator, number>;
 /**
  * A day, written `YYYY-MM-DD`, which is what `toISODate` in `@slotted/core/date`
  * produces. Two of them compare correctly as strings, and the stored form and
- * the serialised form are then the same text.
+ * the serialized form are then the same text.
  */
 export type DateFilter = FilterShape<'date', DateOperator, string>;
 /**

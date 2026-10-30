@@ -45,7 +45,7 @@ export type {
 /**
  * The palette `tone="auto"` chooses from, in the order the hash indexes it.
  * Five is a small palette and collisions are frequent by construction: the
- * colour is an aid to scanning a list of faces, and the name is what identifies
+ * color is an aid to scanning a list of faces, and the name is what identifies
  * the person — which is why it is on the root in every one of the four
  * statuses.
  */
@@ -130,7 +130,7 @@ const INITIALS_MAX: Record<AvatarSize, number> = { xs: 1, sm: 2, md: 2, lg: 2, x
 export class SlAvatar {
   /**
    * The person or entity this is a picture of. It is the accessible name in
-   * every status, the source of the initials, and the seed of the colour.
+   * every status, the source of the initials, and the seed of the color.
    */
   readonly name = input<string | undefined>(undefined);
   /** The picture. Absent, the avatar is its fallback and nothing is requested. */
@@ -141,7 +141,7 @@ export class SlAvatar {
    */
   readonly initialsOverride = input<string | undefined>(undefined, { alias: 'initials' });
   /**
-   * A stable identifier to derive the colour from, when the name is not stable
+   * A stable identifier to derive the color from, when the name is not stable
    * or two people share one. Defaults to `name`.
    */
   readonly idFor = input<string | undefined>(undefined);

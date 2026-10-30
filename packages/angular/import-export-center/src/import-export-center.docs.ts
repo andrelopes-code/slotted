@@ -100,7 +100,7 @@ const anatomy: AnatomyRow[] = anatomyRows([
     'visual',
     'span, aria-hidden',
     false,
-    'The file-kind tile: the kind’s colour from upload’s File kind scale and the kind’s glyph knocked out of it, so a CSV is the same tile in the field it was chosen from and in the job that imports it.',
+    'The file-kind tile: the kind’s color from upload’s File kind scale and the kind’s glyph knocked out of it, so a CSV is the same tile in the field it was chosen from and in the job that imports it.',
   ],
   [
     'body',
@@ -145,7 +145,7 @@ const anatomy: AnatomyRow[] = anatomyRows([
     'mark',
     'span, aria-hidden',
     false,
-    'An Icon with the status glyph — clock, circle-check, circle-alert, circle-x, circle — or spinner while running, the line’s own size, centred on the band between the cap height and the x-height.',
+    'An Icon with the status glyph — clock, circle-check, circle-alert, circle-x, circle — or spinner while running, the line’s own size, centerd on the band between the cap height and the x-height.',
   ],
   [
     'status-label',
@@ -301,7 +301,7 @@ const scenes: ReferenceSceneMeta[] = [
     snippet: defineSnippet({
       id: 'import-export-center-angular-playground',
       language: 'angular',
-      label: 'The centre over a store',
+      label: 'The center over a store',
       source: `<section
   slImportExportCenter
   [jobs]="store.jobs()"
@@ -318,7 +318,7 @@ const scenes: ReferenceSceneMeta[] = [
     snippet: defineSnippet({
       id: 'import-export-center-angular-anatomy',
       language: 'angular',
-      label: 'The parts, in one centre',
+      label: 'The parts, in one center',
       source: `<section
   slImportExportCenter
   growing="button"
@@ -397,7 +397,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'intake',
     title: 'Starting a job',
-    note: 'Importar opens a dialog with upload as its dropzone; its adapter sends the bytes and the store creates the job, which appears at the top of the list. Exportar opens a dialog with the format and the file name. The centre starts nothing itself and never transfers a byte.',
+    note: 'Importar opens a dialog with upload as its dropzone; its adapter sends the bytes and the store creates the job, which appears at the top of the list. Exportar opens a dialog with the format and the file name. The center starts nothing itself and never transfers a byte.',
     snippet: defineSnippet({
       id: 'import-export-center-angular-intake',
       language: 'angular',
@@ -418,7 +418,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'toasts',
     title: 'The toast points at the job',
-    note: 'jobToasts in the shell raises one toast per job when it starts and replaces it when it finishes, under the job’s key; the consumer’s View reveals the job in the centre — details open, title focused. The toast carries no progress, no cancel and no download.',
+    note: 'jobToasts in the shell raises one toast per job when it starts and replaces it when it finishes, under the job’s key; the consumer’s View reveals the job in the center — details open, title focused. The toast carries no progress, no cancel and no download.',
     snippet: defineSnippet({
       id: 'import-export-center-angular-toasts',
       language: 'angular',
@@ -426,7 +426,7 @@ const scenes: ReferenceSceneMeta[] = [
       source: `<ng-template #view let-message>
   <button slButton size="sm" (click)="reveal(message)">Ver</button>
 </ng-template>
-<section slImportExportCenter #centre="slImportExportCenter" [jobs]="jobs()"></section>`,
+<section slImportExportCenter #center="slImportExportCenter" [jobs]="jobs()"></section>`,
     }),
   },
   {
@@ -501,7 +501,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'defaults',
     title: 'Defaults, once',
-    note: 'provideImportExportCenterDefaults sets the size, the rank, the time format and the zone for a whole application — here with absolute times; the second centre states size="md" itself and wins. The words and the locale come from provideSlotted.',
+    note: 'provideImportExportCenterDefaults sets the size, the rank, the time format and the zone for a whole application — here with absolute times; the second center states size="md" itself and wins. The words and the locale come from provideSlotted.',
     snippet: defineSnippet({
       id: 'import-export-center-angular-defaults',
       language: 'angular',
@@ -617,7 +617,7 @@ export const ANGULAR_IMPORT_EXPORT_CENTER_DOCS = {
         'string',
         '—',
         'SlImportExportCenter',
-        'The view an unbound centre starts on',
+        'The view an unbound center starts on',
       ],
       [
         'views',
@@ -638,7 +638,7 @@ export const ANGULAR_IMPORT_EXPORT_CENTER_DOCS = {
         'readonly string[]',
         '—',
         'SlImportExportCenter',
-        'The keys an unbound centre starts with shown',
+        'The keys an unbound center starts with shown',
       ],
       [
         'size',
@@ -729,7 +729,7 @@ export const ANGULAR_IMPORT_EXPORT_CENTER_DOCS = {
         '{ size, level, growing, timeFormat, timeZone }',
         '—',
         'an injector',
-        'The decisions an application takes once. A centre that states any of them itself still wins',
+        'The decisions an application takes once. A center that states any of them itself still wins',
       ],
       [
         'host attributes',
@@ -740,11 +740,11 @@ export const ANGULAR_IMPORT_EXPORT_CENTER_DOCS = {
       ],
     ]),
     accessibility: [
-      'No WAI-ARIA Authoring Practices pattern covers a job centre, so the platform is the pattern: the root is a section named by its heading, the jobs a native ul of li, every control a real button or link. The toggle follows the Disclosure pattern (w3.org/WAI/ARIA/apg/patterns/disclosure/): Enter and Space show and hide the details, aria-expanded says which, aria-controls names the region the details are, and the words stay Details in both states.',
+      'No WAI-ARIA Authoring Practices pattern covers a job center, so the platform is the pattern: the root is a section named by its heading, the jobs a native ul of li, every control a real button or link. The toggle follows the Disclosure pattern (w3.org/WAI/ARIA/apg/patterns/disclosure/): Enter and Space show and hide the details, aria-expanded says which, aria-controls names the region the details are, and the words stay Details in both states.',
       'Every control of a job is named by its own words and the job title — aria-labelledby holds both ids, so a reader hears Download Q3 invoices and not five Download in a row — and described by the job’s status line. The remove control is an icon, so its name is aria-label and a tooltip shows the same words on hover, on keyboard focus and on a press held on touch.',
       'A job reaching another state is announced once, politely, through the shared live announcer — Import CRM Contacts completed with 12 errors — and nothing is said on the first render or while the bar moves; the bar is a progressbar named by the job title with the progress text as aria-valuetext for a reader who asks. A toast from jobToasts carries the same sentence, which the announcer does not repeat.',
       'Focus never falls to the body. A job that finishes while focus is on Cancel keeps focus in the job, on its first remaining control or on its title; a removed job hands focus to the same control of the job now in its place, then of the one before, then to the list — focusDestination in @slotted/core/import-export-center decides it for both bindings.',
-      'Colour never says a state alone: the outcome has a word and a mark as well as a tone, every mark a circle or a clock, and partial is a warning with its failed-row count in the words. Under forced colours the tile keeps its square as an edge, the marks draw in the system’s ink, and a running mark that turns stops under reduced motion while the bar still says how far the job is.',
+      'Color never says a state alone: the outcome has a word and a mark as well as a tone, every mark a circle or a clock, and partial is a warning with its failed-row count in the words. Under forced colors the tile keeps its square as an edge, the marks draw in the system’s ink, and a running mark that turns stops under reduced motion while the bar still says how far the job is.',
     ],
     snippets: [
       defineSnippet({

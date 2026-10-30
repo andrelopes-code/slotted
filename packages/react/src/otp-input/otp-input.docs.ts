@@ -165,7 +165,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'The four states the frame paints',
-    note: 'Invalid keeps its danger edge on every box while the ring says where the cursor is; read-only keeps full-strength ink and only its ground changes; disabled is muted to a measured colour rather than faded, so a disabled form still says what it holds.',
+    note: 'Invalid keeps its danger edge on every box while the ring says where the cursor is; read-only keeps full-strength ink and only its ground changes; disabled is muted to a measured color rather than faded, so a disabled form still says what it holds.',
     snippet: defineSnippet({
       id: 'otp-input-react-states',
       language: 'tsx',
@@ -265,7 +265,7 @@ const scenes: ReferenceSceneMeta[] = [
     snippet: defineSnippet({
       id: 'otp-input-react-keyboard',
       language: 'tsx',
-      label: 'Nothing is bound; the selection is normalised',
+      label: 'Nothing is bound; the selection is normalized',
       source: `// Inside the value there is always one character selected: the one in
 // front of a collapsed cursor, the last one at the end of a full code. The
 // next key replaces it. A cursor after the last character inserts.
@@ -479,9 +479,9 @@ export const REACT_OTP_INPUT_DOCS = {
       'There is no WAI-ARIA APG pattern for a verification code: the APG lists no such entry, so the control is the platform’s own textbox and the sources are the HTML specification for the element, the autocomplete attribute’s one-time-code token, and the WebOTP API.',
       'One control, one tab stop, one accessible name, one value. Ark, Chakra and Mantine render one input per box and pay for it with N tab stops and no real label; here the boxes are aria-hidden paint over one input, so a screen reader hears "Verification code, edit text, 482" and nothing about boxes.',
       'The control takes its name from the field’s label, through for pointing at the identifier the field derived, and its description and error through aria-describedby merged after anything the consumer wrote.',
-      'aria-required, never the native required: the native attribute engages browser constraint validation and changes submit behaviour. disabled and readonly are native, because that is what those two words mean.',
-      'Every key is the browser’s. The family binds nothing — no Escape, no arrow handling — and only normalises the selection after the fact, so a reader who knows a text field knows this one; WCAG 2.1.4 exists for the class of defect single-key shortcuts produce.',
-      'The focus ring sits on the box where the cursor is, in the theme’s ring colour, and the invalid state retargets that colour rather than repainting it. Invalid is never colour alone: aria-invalid announces it and the field’s error says it in words.',
+      'aria-required, never the native required: the native attribute engages browser constraint validation and changes submit behavior. disabled and readonly are native, because that is what those two words mean.',
+      'Every key is the browser’s. The family binds nothing — no Escape, no arrow handling — and only normalizes the selection after the fact, so a reader who knows a text field knows this one; WCAG 2.1.4 exists for the class of defect single-key shortcuts produce.',
+      'The focus ring sits on the box where the cursor is, in the theme’s ring color, and the invalid state retargets that color rather than repainting it. Invalid is never color alone: aria-invalid announces it and the field’s error says it in words.',
       'mask is a platform decision, not paint: the control becomes type="password", so the screen reader counts the characters instead of reading a PIN aloud and the keyboard keeps nothing. The cost is that a password manager may offer to save it; autoComplete on the control decides.',
     ],
     snippets: [

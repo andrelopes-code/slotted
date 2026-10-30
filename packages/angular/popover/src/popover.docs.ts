@@ -91,7 +91,7 @@ const anatomy: AnatomyRow[] = [
     element: 'the element carrying slPopoverArrow',
     required: false,
     purpose:
-      'A rotated square in the panel’s background and border colours, which continues the panel’s outline towards the anchor. Place it beside the content inside ng-template[slPopoverLayer], not inside the content: the stylesheet selects it as a direct child of the layer. While arrow is false the layer leaves it out.',
+      'A rotated square in the panel’s background and border colors, which continues the panel’s outline towards the anchor. Place it beside the content inside ng-template[slPopoverLayer], not inside the content: the stylesheet selects it as a direct child of the layer. While arrow is false the layer leaves it out.',
   },
   {
     part: 'focus-guard',
@@ -207,7 +207,7 @@ const api = apiRows([
     'boolean',
     'true',
     'slPopover',
-    'Whether the layer is rendered into the shared portal root at the end of the document. The portalled layer keeps the theme, colour scheme, density and direction of the region it was opened from.',
+    'Whether the layer is rendered into the shared portal root at the end of the document. The portalled layer keeps the theme, color scheme, density and direction of the region it was opened from.',
   ],
   [
     'disabled',

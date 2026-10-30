@@ -112,7 +112,7 @@ const anatomy: AnatomyRow[] = [
 const accessibility = [
   'The control is a layout grid with one row: the chips are cells and the field is the last cell, so one Tab reaches the input and the arrows walk the row. The input carries no role, because it opens nothing.',
   'Focus is set on a chip cell rather than on the remove button inside it, which is tabindex="-1"; Delete and Backspace do what the button does, and the row’s hint says so. Angular Material’s own chip grid resolves the grid pattern’s text-plus-widget cell the same way.',
-  'An invalid value is said three ways — the danger tone, the alert mark, and a description carrying the reason — because colour alone is not a message. The same reason is the input’s custom validity and the Validator’s invalidValues error, so a native form and a Reactive Form both refuse it.',
+  'An invalid value is said three ways — the danger tone, the alert mark, and a description carrying the reason — because color alone is not a message. The same reason is the input’s custom validity and the Validator’s invalidValues error, so a native form and a Reactive Form both refuse it.',
   'Every change is announced once, politely: a value added with the count now held and its reason if it failed, a value removed with the count that is left, a move with its new position, a duplicate with the chip that holds it, and a copy with the count copied.',
   'After a removal focus goes to the chip that took the removed one’s index, then the previous one, then the input — it is never lost to the document body.',
 ];

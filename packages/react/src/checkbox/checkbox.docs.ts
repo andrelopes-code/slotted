@@ -371,7 +371,7 @@ export const REACT_CHECKBOX_DOCS = {
         '(props: CheckboxRootProps) => ReactNode',
         '—',
         'Checkbox',
-        'Replaces the root element and receives every attribute it would carry. The props are typed against HTMLAttributes<HTMLElement>, so they can be spread onto a li or a label. The input cannot be replaced, because it holds the value and the platform’s keyboard behaviour.',
+        'Replaces the root element and receives every attribute it would carry. The props are typed against HTMLAttributes<HTMLElement>, so they can be spread onto a li or a label. The input cannot be replaced, because it holds the value and the platform’s keyboard behavior.',
       ],
       [
         'ref',
@@ -403,13 +403,13 @@ export const REACT_CHECKBOX_DOCS = {
       ],
     ]),
     accessibility: [
-      'Checkbox follows the WAI-ARIA Authoring Practices checkbox pattern (w3.org/WAI/ARIA/apg/patterns/checkbox/), and the native input supplies every part of it: the role, the checked and mixed states, Space to toggle, Enter left to the form, and disabled behaviour. Checkbox adds no key listener, so the keyboard behaviour is the platform’s in every language and in right-to-left documents.',
+      'Checkbox follows the WAI-ARIA Authoring Practices checkbox pattern (w3.org/WAI/ARIA/apg/patterns/checkbox/), and the native input supplies every part of it: the role, the checked and mixed states, Space to toggle, Enter left to the form, and disabled behavior. Checkbox adds no key listener, so the keyboard behavior is the platform’s in every language and in right-to-left documents.',
       'The label names the control through for, which points at an identifier Checkbox generates when you pass no id. The description sits outside the label and reaches the control through aria-describedby, so it is read as a description, and a press on it toggles nothing.',
       'Inside a required field the control carries aria-required, never the native required, because the native attribute turns on browser constraint validation and changes how the form submits. Pass required on the box to opt into the platform’s validation; Checkbox leaves it unchanged. disabled is the native attribute.',
       'A native checkbox has no read-only state, so Checkbox enforces one: it refuses the click that a pointer and Space both produce, and aria-readonly announces the state. The box keeps its tab stop, its focus ring and its full contrast, because a read-only value is real and must not look disabled.',
-      'The invalid state does not rely on colour alone. In the high-contrast scheme the theme paints every border the same colour, so an invalid box also draws a thicker border. The message that says what is wrong belongs to the field or field group.',
+      'The invalid state does not rely on color alone. In the high-contrast scheme the theme paints every border the same color, so an invalid box also draws a thicker border. The message that says what is wrong belongs to the field or field group.',
       'The target is larger than the box. A 24-pixel square around the box meets WCAG 2.2 success criterion 2.5.8 at every size and density, including size="sm", where the box is 14 pixels. The label extends the target to the end of its text, and the hover wash covers exactly that area. The target is drawn around the box, so the row keeps its line height.',
-      'The mark stays visible under forced colours. It is a mask over a background colour, and forced colours replace both, so Checkbox restates the pair in system colours.',
+      'The mark stays visible under forced colors. It is a mask over a background color, and forced colors replace both, so Checkbox restates the pair in system colors.',
     ],
     snippets: [
       defineSnippet({

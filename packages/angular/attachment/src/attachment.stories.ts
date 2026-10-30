@@ -320,7 +320,7 @@ export const Orientation: Story = {
 <div class="slotted-demo-grid">
 ${scene(
   'horizontal',
-  'The row: tile at the start, actions at the end, both centred on the name and its detail.',
+  'The row: tile at the start, actions at the end, both centerd on the name and its detail.',
   `<ul slAttachmentGroup aria-label="Photo">${row('FRONT', '', 'PHOTO_FRONT')}</ul>`,
 )}
 ${scene(

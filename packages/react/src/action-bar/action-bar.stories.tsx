@@ -374,7 +374,7 @@ export const Status: Story = {
       </Scene>
       <Scene
         label="A status indicator"
-        note="StatusIndicator already says warning by shape as well as by colour, so the bar adds nothing and repeats nothing."
+        note="StatusIndicator already says warning by shape as well as by color, so the bar adds nothing and repeats nothing."
       >
         <ActionBar aria-label="Order actions" variant="raised">
           <ActionBarStatus>
@@ -521,7 +521,7 @@ export const Align: Story = {
       </Scene>
       <Scene
         label="center"
-        note="The run is centred in what is left after the status — the placement Salesforce's docked form footer uses."
+        note="The run is centerd in what is left after the status — the placement Salesforce's docked form footer uses."
       >
         <Order align="center" variant="raised" />
       </Scene>

@@ -312,7 +312,7 @@ export const States: Story = {
         )}
         ${scene(
           'Open',
-          'The inward mark, in the colour that separates surfaces.',
+          'The inward mark, in the color that separates surfaces.',
           viewport(
             `
             ${tile('open', 'Brand book.pdf', 'open')}

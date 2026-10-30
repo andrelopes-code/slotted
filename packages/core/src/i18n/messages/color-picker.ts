@@ -14,7 +14,7 @@ export interface ColorPickerMessages {
     readonly AALarge: Message;
     readonly fail: Message;
   };
-  /** The letters drawn in the colour to show its contrast against the background. */
+  /** The letters drawn in the color to show its contrast against the background. */
   readonly contrastSample: Message;
   readonly eyedropper: Message;
   /** The notation menu's name, with the notation in force. */
@@ -23,7 +23,7 @@ export interface ColorPickerMessages {
   readonly hue: Message;
   readonly input: Message;
   readonly presets: Message;
-  /** The button that puts back the colour the panel opened with, named with that colour. */
+  /** The button that puts back the color the panel opened with, named with that color. */
   readonly previous: Message<{ color: string }>;
   readonly trigger: Message;
 }

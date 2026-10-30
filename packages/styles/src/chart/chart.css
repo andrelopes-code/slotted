@@ -30,13 +30,13 @@
     --_radius: var(--slotted-chart-radius, var(--slotted-radius-md, 6px));
 
     /**
-     * ── Colour ──────────────────────────────────────────────────────────
+     * ── Color ──────────────────────────────────────────────────────────
      *
      * Declared on the root so the legend, the tooltip, the markers and the
      * engine read one palette. `--slotted-chart-color-1` … `-8` retune it for
      * every chart under a wrapper, or for one chart; unset, it is the theme's
      * data scale. A series names a step with `slot` and a meaning with
-     * `tone`; no series takes a colour value (`docs/component-features.md`
+     * `tone`; no series takes a color value (`docs/component-features.md`
      * §2.4).
      */
     --_chart-slot-1: var(--slotted-chart-color-1, var(--slotted-data-1));
@@ -73,7 +73,7 @@
     --_chart-line-width: var(--slotted-chart-line-width, var(--slotted-border-width-thick, 2px));
     --_chart-marker-size: var(--slotted-chart-marker-size, var(--slotted-space-4, 0.5rem));
     --_chart-bar-radius: var(--slotted-chart-bar-radius, var(--slotted-radius-sm, 4px));
-    /* The wash under a line, as a share of the series colour. A number and
+    /* The wash under a line, as a share of the series color. A number and
        not a token step, for the reason `sparkline` records beside its own:
        no scale in the foundation holds an opacity for a fill read through. */
     --_chart-area-opacity: var(--slotted-chart-area-opacity, 0.18);
@@ -171,7 +171,7 @@
   [data-ui-chart] > [data-part-header] {
     /* The controls sit on the title's first line and hang past their box by
        the difference, so the row does not grow the header. The actions and
-       the toolbar share it, which is what puts them on one centre. */
+       the toolbar share it, which is what puts them on one center. */
     --_control-bleed: calc(
       (
           var(--slotted-font-size-lg, 1rem) * var(--slotted-line-height-lg, 1.5) -
@@ -482,7 +482,7 @@
   }
 
   /**
-   * The colour of one series, resolved in the order the model resolves it:
+   * The color of one series, resolved in the order the model resolves it:
    * a tone says what the series means and wins, a slot says which one it is,
    * and the ninth series and on — which the scale never cycles to — takes the
    * muted step with a dash of its own. The legend, the markers and the
@@ -591,7 +591,7 @@
 
   /**
    * The marker is the shape of the mark it stands for, so a combined chart's
-   * legend reads without colour: a stroke for a line, a square for a bar, an
+   * legend reads without color: a stroke for a line, a square for a bar, an
    * area or a slice, a disc for a scatter.
    */
   [data-ui-chart] :is([data-part-legend-marker], [data-part-tooltip-marker]) {
@@ -613,7 +613,7 @@
   }
 
   /* The line's own dash, drawn at the marker's scale, so three series that
-     share the muted colour past the eighth slot still read apart. */
+     share the muted color past the eighth slot still read apart. */
   [data-ui-chart] :is([data-part-legend-marker], [data-part-tooltip-marker])[data-stroke='dashed'] {
     background: repeating-linear-gradient(to right, var(--_series) 0 3px, transparent 3px 5px);
   }
@@ -654,7 +654,7 @@
    * A hidden series keeps its place in the row — a legend that reflowed on
    * every toggle would move the next item from under the pointer — and reads
    * as off: the marker empties to its outline and the label mutes. The
-   * outline is the series colour, so the item still says which series it
+   * outline is the series color, so the item still says which series it
    * would bring back.
    */
   [data-ui-chart] button[data-part-legend-item]:not([data-pressed]) {
@@ -783,7 +783,7 @@
   }
 
   /**
-   * The marker on the point the reader is on: the series colour with a ring
+   * The marker on the point the reader is on: the series color with a ring
    * of the ground around it, so it separates from the line it sits on and
    * from a neighbouring series crossing at the same place.
    */
@@ -803,7 +803,7 @@
   }
 
   /* The point the reader chose stays marked after the pointer leaves: a ring
-     in the series colour around the ground, larger than the hover marker so
+     in the series color around the ground, larger than the hover marker so
      the two read as two states when they meet. */
   [data-ui-chart] [data-part-marker][data-selected] {
     --_size: calc(var(--_chart-marker-size) * 2 + var(--slotted-space-2, 0.25rem));
@@ -944,7 +944,7 @@
     grid-column: 1 / 3;
   }
 
-  /* ── The centre of a donut ────────────────────────────────────────────── */
+  /* ── The center of a donut ────────────────────────────────────────────── */
 
   [data-ui-chart] [data-part-center] {
     align-content: center;
@@ -1168,7 +1168,7 @@
     opacity: 0.35;
   }
 
-  /* A pie has no axes: its ring, centred, at the size the engine draws it. */
+  /* A pie has no axes: its ring, centerd, at the size the engine draws it. */
   [data-ui-chart] [data-part-skeleton][data-kind='pie'] > [data-ui-skeleton] {
     align-items: center;
     display: flex;
@@ -1406,7 +1406,7 @@
    * A row in the layer is as wide as the layer, so it grows. An entry in the
    * legend's own line keeps the ground a mouse sees — a `+1` grown to the
    * comfortable height stood 26 wide and 44 tall — and a transparent
-   * `::after` centred on it reaches 44 pixels in both axes. The line is that
+   * `::after` centerd on it reaches 44 pixels in both axes. The line is that
    * tall, so its clip does not cut the target, and wrapped lines stand that
    * far apart, so one line's targets do not reach into the next. `+N` follows
    * the last entry two pixels away and does not reach back across it.
@@ -1479,12 +1479,12 @@
     }
   }
 
-  /* ── Forced colours ───────────────────────────────────────────────────── */
+  /* ── Forced colors ───────────────────────────────────────────────────── */
 
   /**
-   * Every series is one system colour here and the engine draws its textures,
+   * Every series is one system color here and the engine draws its textures,
    * so the legend's filled markers would all read as one: they keep their
-   * shape, and the hidden state keeps its strike-through, which colour could
+   * shape, and the hidden state keeps its strike-through, which color could
    * not have carried anyway.
    */
   @media (forced-colors: active) {

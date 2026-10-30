@@ -453,7 +453,7 @@ export const Compact: Story = {
       2,
       scene(
         'mode=compact',
-        'A rail of marks, each a square the width of the mark, centred. Hover or focus a row for its name; Shipments and Orders carry a dot for the count they cannot show.',
+        'A rail of marks, each a square the width of the mark, centerd. Hover or focus a row for its name; Shipments and Orders carry a dot for the count they cannot show.',
         measure(aurora('mode="compact"')),
       ),
       scene(

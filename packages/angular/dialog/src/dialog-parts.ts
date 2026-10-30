@@ -268,8 +268,8 @@ export class SlDialogClose {
 
 /**
  * The glyph each tone draws, and the warning diamond where no tone was resolved. Warning
- * and danger differ in silhouette as well as colour, because under forced
- * colours the silhouette is all that is left.
+ * and danger differ in silhouette as well as color, because under forced
+ * colors the silhouette is all that is left.
  */
 const TONE_GLYPH: Record<DialogTone, GlyphName> = {
   accent: 'status-info',

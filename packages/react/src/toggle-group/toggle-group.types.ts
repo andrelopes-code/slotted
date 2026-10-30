@@ -7,7 +7,7 @@ export type ToggleGroupSize = 'sm' | 'md' | 'lg';
 /**
  * Whether the items are framed or bare. `ghost` is the bar that sits inside
  * something already framed — a toolbar, a card header. There is no tone axis:
- * "on" is one colour across the system, and a bar that wants the whole palette
+ * "on" is one color across the system, and a bar that wants the whole palette
  * is `button-group` around ToggleButtons.
  */
 /**

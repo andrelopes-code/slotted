@@ -59,7 +59,7 @@ const bundledStyles = readFileSync(join(distDirectory, 'styles.css'), 'utf8');
  * Canaries for "the bundled stylesheet still carries the families it imports".
  * They are written in the public identifier because a class name is not
  * contract, and the minifier drops the quotes an authored selector keeps, so
- * both sides are normalised the same way.
+ * both sides are normalized the same way.
  */
 const requiredSelectors = ['[data-ui-button]{', '[data-ui-divider]{', '@layer slotted.components{'];
 const normalize = (css) => css.replace(/\s+/g, '').replace(/['"]/g, '');

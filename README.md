@@ -36,7 +36,7 @@ pnpm build
 pnpm check
 ```
 
-`pnpm dev` starts both Storybooks: React on 6006, Angular on 6007. [CONTRIBUTING.md](CONTRIBUTING.md) holds the generated artefacts, the beta channel, publishing and the validation commands; [docs/README.md](docs/README.md) indexes every document; the [PRD](docs/product/prd.md) holds the product context.
+`pnpm dev` starts both Storybooks: React on 6006, Angular on 6007. [CONTRIBUTING.md](CONTRIBUTING.md) holds the generated artifacts, the beta channel, publishing and the validation commands; [docs/README.md](docs/README.md) indexes every document; the [PRD](docs/product/prd.md) holds the product context.
 
 ## License
 

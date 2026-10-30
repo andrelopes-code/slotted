@@ -389,7 +389,7 @@ export function Returns({ onOrder }: { onOrder: (id: string) => void }) {
   return (
     <ListPage<Return>
       title="Returns"
-      subheading="Return authorisations, from request to refund"
+      subheading="Return authorizations, from request to refund"
       noun={['return', 'returns']}
       actions={exportButton}
       rows={RETURNS}

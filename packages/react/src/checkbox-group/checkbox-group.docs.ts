@@ -374,7 +374,7 @@ export const REACT_CHECKBOX_GROUP_DOCS = {
       ],
     ]),
     accessibility: [
-      'The WAI-ARIA Authoring Practices have no pattern for a group of checkboxes: the Checkbox pattern covers one box, and grouping is a question of naming rather than of keyboard behaviour. The sources are the ARIA group role and the Providing Accessible Names and Descriptions practice (w3.org/WAI/ARIA/apg/practices/names-and-descriptions/).',
+      'The WAI-ARIA Authoring Practices have no pattern for a group of checkboxes: the Checkbox pattern covers one box, and grouping is a question of naming rather than of keyboard behavior. The sources are the ARIA group role and the Providing Accessible Names and Descriptions practice (w3.org/WAI/ARIA/apg/practices/names-and-descriptions/).',
       'Every box is its own tab stop, and Space toggles the box that has focus. The platform provides this whole keyboard model. It is what sets a checkbox group apart from a radio group, where the set is a single tab stop and the arrow keys move the choice.',
       'The role depends on the container. A field group is a fieldset with a legend, which is already a named group to assistive technology; a role="group" inside it, named by the same legend, would announce the set twice. Inside a field group the checkbox group renders no role, and the legend names the set. Inside a field, the field’s label names the group through aria-labelledby.',
       'The group writes aria-required, never the native required on a box. The native attribute on a checkbox demands that one particular box be checked, which is not what "choose at least one" means, and it turns on browser constraint validation.',

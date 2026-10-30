@@ -362,7 +362,7 @@ export abstract class SlDialogBase {
     /**
      * The virtual keyboard, while the panel can cover the layer: the layer
      * carries what the keys cover, and the stylesheet ends a full-screen
-     * panel's rows above them. A centred panel reads nothing from it.
+     * panel's rows above them. A centerd panel reads nothing from it.
      */
     effect((onCleanup) => {
       const node = this.layerRef()?.nativeElement;

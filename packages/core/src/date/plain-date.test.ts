@@ -36,7 +36,7 @@ describe('plainDate', () => {
     expect(() => plainDate(2026, 0, 1)).toThrow(/month/);
   });
 
-  it('recognises its own shape and refuses everything else', () => {
+  it('recognizes its own shape and refuses everything else', () => {
     expect(isPlainDate(plainDate(2026, 9, 9))).toBe(true);
     expect(isPlainDate({ year: 2026, month: 9, day: 9 })).toBe(true);
     expect(isPlainDate(new Date())).toBe(false);
@@ -150,7 +150,7 @@ describe('stepping a month or a year', () => {
   });
 
   /**
-   * The behaviour no surveyed implementation has. A reader on 31 January who
+   * The behavior no surveyed implementation has. A reader on 31 January who
    * steps forward three times reaches 30 April everywhere else, because the
    * 31 was thrown away at February. Carrying `intendedDay` back in is what
    * makes the sequence 31 → 28 → 31 → 30 → 31.

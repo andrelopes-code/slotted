@@ -50,19 +50,19 @@ test('exercises every declared part in the fragment', () => {
 });
 
 /**
- * The status mark is centred on the band `toast` measured for a mark beside a
- * line of text, `(1cap + 1ex) / 2` tall from the baseline: its centre is half
- * the band above the baseline. The box sits on the baseline with its centre at
+ * The status mark is centerd on the band `toast` measured for a mark beside a
+ * line of text, `(1cap + 1ex) / 2` tall from the baseline: its center is half
+ * the band above the baseline. The box sits on the baseline with its center at
  * `0.5em`, so it moves down by `0.5em` less a quarter of `1cap + 1ex`, rounded
  * to a whole pixel.
  *
- * The first version divided by two instead of four — the centre on the band's
+ * The first version divided by two instead of four — the center on the band's
  * top — and the mark stood four pixels above the words on every status line,
  * which a reviewer saw at once and no test caught. Measured in Chrome with
- * Geist at 13px after the fix: the mark's centre 4.50px above the baseline
+ * Geist at 13px after the fix: the mark's center 4.50px above the baseline
  * against a band midpoint of 4.15px, the whole-pixel snap.
  */
-test('centres the status mark on the middle of the cap and x-height band', () => {
+test('centers the status mark on the middle of the cap and x-height band', () => {
   const mark = declarations(`${ui} [data-part-status]>[data-part-mark]`);
   assert.match(mark, /--slotted-icon-size:1em/);
   assert.match(mark, /align-self:baseline/);
@@ -73,12 +73,12 @@ test('centres the status mark on the middle of the cap and x-height band', () =>
 });
 
 /**
- * A separator dot is centred on the middle of the x-height, measured from the
+ * A separator dot is centerd on the middle of the x-height, measured from the
  * baseline with `vertical-align`, not from the line box: anchored to the line
  * box it sat 1.4 pixels below the lowercase letters. Its two inline margins add
  * up to minus its own width, so the words beside it do not move.
  */
-test('centres the separator dot on the middle of the x-height, and moves no word', () => {
+test('centers the separator dot on the middle of the x-height, and moves no word', () => {
   const dot = declarations(`${ui} [data-part-meta]>* + *::before`);
   assert.match(dot, /display:inline-block/);
   assert.match(dot, /vertical-align:calc\(0\.5ex - var\(--_separator\) \/ 2\)/);

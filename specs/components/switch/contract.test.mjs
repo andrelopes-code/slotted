@@ -112,7 +112,7 @@ test('implements read-only rather than declaring it unsupported', () => {
 
 /**
  * The field-aware control mechanism. `aria-required` never becomes the native `required`, which would
- * engage browser constraint validation and change submit behaviour.
+ * engage browser constraint validation and change submit behavior.
  */
 test('takes its identity and its state from the field around it', () => {
   assert.equal(contract.stateSource, 'field');

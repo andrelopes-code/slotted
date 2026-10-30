@@ -345,7 +345,7 @@ export function DescriptionListDescription({
             onKeyDown={remember}
             type="button"
           >
-            {/* A finished copy changes its mark as well as its colour. */}
+            {/* A finished copy changes its mark as well as its color. */}
             <Icon>
               <Glyph name={copied ? 'check' : 'copy'} />
             </Icon>

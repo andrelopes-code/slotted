@@ -69,7 +69,7 @@ const LOG = Array.from(
 ).join('\n');
 
 /**
- * A toy tokeniser for the page: keywords, strings, numbers, comments,
+ * A toy tokenizer for the page: keywords, strings, numbers, comments,
  * punctuation. A real application hands the block Prism or Shiki through the
  * two mappings in `@slotted/core/code`; the page has neither and needs
  * nothing that heavy to show what a token looks like.
@@ -87,7 +87,7 @@ const KEYWORDS = new Set([
   'true',
   'false',
 ]);
-function tokenise(code: string): CodeLine[] {
+function tokenize(code: string): CodeLine[] {
   return code.split('\n').map((line) => {
     const tokens: {
       text: string;
@@ -111,7 +111,7 @@ function tokenise(code: string): CodeLine[] {
     return tokens;
   });
 }
-const highlight = async (code: string) => tokenise(code);
+const highlight = async (code: string) => tokenize(code);
 
 interface CodeBlockStoryArgs {
   code: string;
@@ -166,7 +166,7 @@ const SAMPLES = {
   long: 'x'.repeat(400),
   rtl: 'const مرحبا = "أهلا";\nconsole.log(مرحبا);',
   script: '<script>alert(1)</script>',
-  tokens: tokenise(GROUP_TS),
+  tokens: tokenize(GROUP_TS),
 };
 
 const meta: Meta<CodeBlockStoryArgs> = {

@@ -140,7 +140,7 @@ export const REACT_AVATAR_GROUP_DOCS = {
       defineSnippet({
         id: 'avatar-group-react-ring',
         language: 'tsx',
-        label: 'A group on a coloured row',
+        label: 'A group on a colored row',
         source:
           "<div style={{ background: 'var(--slotted-surface-sunken)' }}>\n  <AvatarGroup\n    aria-label=\"Reviewers\"\n    style={{ '--slotted-avatar-ring-color': 'var(--slotted-surface-sunken)' }}\n  >\n    {reviewers.map((person) => (\n      <Avatar key={person.id} name={person.name} src={person.photograph} />\n    ))}\n  </AvatarGroup>\n</div>;",
       }),

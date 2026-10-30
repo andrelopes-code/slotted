@@ -64,7 +64,7 @@ export interface CodeBlockProps extends Omit<
    * swapped line by line into the grid the text already laid out.
    */
   highlight?: CodeHighlighter | null | undefined;
-  /** Already-tokenised lines, when the consumer ran the engine itself. */
+  /** Already-tokenized lines, when the consumer ran the engine itself. */
   tokens?: readonly CodeLine[] | undefined;
   onHighlightError?: ((error: unknown) => void) | undefined;
 

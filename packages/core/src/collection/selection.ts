@@ -1,7 +1,7 @@
 /**
  * What a collection's selection becomes when the reader acts on one option.
  *
- * One reducer for the three modes and the two behaviours, so `listbox`,
+ * One reducer for the three modes and the two behaviors, so `listbox`,
  * `select`, `combobox`, `multi-select` and `tree` cannot disagree about what
  * `multiple` means. It is pure: it takes the selection it is given and returns
  * the selection that follows, and `packages/core/src/state` decides whether the
@@ -28,9 +28,9 @@ export type SelectionMode = 'none' | 'single' | 'multiple';
 export type SelectionBehavior = 'toggle' | 'replace';
 
 export type SelectionAction =
-  /** Flip one option, honouring the behaviour. */
+  /** Flip one option, honoring the behavior. */
   | 'toggle'
-  /** Make one option the whole selection, whatever the behaviour. */
+  /** Make one option the whole selection, whatever the behavior. */
   | 'replace'
   /** Everything between the anchor and this option, inclusive. */
   | 'range'

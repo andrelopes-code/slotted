@@ -136,10 +136,10 @@ test('draws a caret in the current empty box and stops it under reduced motion',
 
 /**
  * The ring belongs to the current box and answers the control's focus. Its
- * colour is retargeted under `[data-invalid]` rather than repainted, the rule
+ * color is retargeted under `[data-invalid]` rather than repainted, the rule
  * every field family inherits from `text-field`.
  */
-test('rings the current box in the theme colour and retargets it when invalid', () => {
+test('rings the current box in the theme color and retargets it when invalid', () => {
   const ring = rule(`${root}:has(>[data-part-input]:focus-visible) [data-part-slot][data-current]`);
   assert.match(
     ring,
@@ -170,7 +170,7 @@ test('holds the current edge back for invalid and reads disabled from the contro
 });
 
 /** The transparent control stays transparent when the system owns the palette. */
-test('keeps the control invisible under forced colours', () => {
+test('keeps the control invisible under forced colors', () => {
   assert.match(
     normalized,
     /@media \(forced-colors:active\)\{\[data-ui-otp-input\]>\[data-part-input\]\{forced-color-adjust:none/,

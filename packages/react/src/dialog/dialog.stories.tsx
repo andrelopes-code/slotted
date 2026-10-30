@@ -85,7 +85,7 @@ type Story = StoryObj<typeof meta>;
  * So a scene that exists to be *looked at* is not modal, does not take focus and
  * cannot be dismissed. Nothing here changes the picture: `modal` decides what
  * happens to the page behind the scrim, never what the panel looks like. A scene
- * that exists to be *operated* keeps its real behaviour and is opened from a
+ * that exists to be *operated* keeps its real behavior and is opened from a
  * trigger, one at a time — which is also what the reader does in an application.
  */
 const STILL = {
@@ -273,7 +273,7 @@ export const Surface: Story = {
     <Grid columns={2}>
       <Scene
         label="panel — the family paints it"
-        note="The default: a raised surface, a border that survives forced colours, a radius, a shadow, and the three rows that keep the actions on screen however long the body is."
+        note="The default: a raised surface, a border that survives forced colors, a radius, a shadow, and the three rows that keep the actions on screen however long the body is."
       >
         <Layer>{(container) => <Panel container={container} fullScreen="never" />}</Layer>
       </Scene>
@@ -601,7 +601,7 @@ export const Content: Story = {
     <Grid columns={2}>
       <Scene
         label="A title with nowhere to break"
-        note="Sixty-two characters and no space in any of them. Without overflow-wrap the centred panel would widen past both edges of the layer at once, and neither edge would be reachable."
+        note="Sixty-two characters and no space in any of them. Without overflow-wrap the centerd panel would widen past both edges of the layer at once, and neither edge would be reachable."
       >
         <Layer>
           {(container) => (

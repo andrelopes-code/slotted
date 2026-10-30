@@ -34,7 +34,7 @@ describe('Button', () => {
 
   /**
    * A field trigger — a command launcher, an entry with its shortcut — sets
-   * its label at the start and its end slot at the inline end. Centred
+   * its label at the start and its end slot at the inline end. Centerd
    * together, the two read as one word.
    */
   it('spreads the label and the end slot to opposite edges under justify between', () => {
@@ -212,7 +212,7 @@ describe('Button', () => {
     expect(screen.getByRole('button').querySelector(':scope > [data-part="indicator"]')).toBeNull();
   });
 
-  it('centres the ring over the label when the control has no visual slot', () => {
+  it('centers the ring over the label when the control has no visual slot', () => {
     render(<Button loading>Save</Button>);
     const root = screen.getByRole('button');
 

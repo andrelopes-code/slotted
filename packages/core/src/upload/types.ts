@@ -41,7 +41,7 @@ export type UploadRejectionReason =
   | 'directory'
   | 'custom';
 
-/** What a file is, said in one word. The colour and the mark follow from it. */
+/** What a file is, said in one word. The color and the mark follow from it. */
 export type FileKind =
   | 'pdf'
   | 'document'
@@ -107,7 +107,7 @@ export interface UploadAdapter {
 /** The common adapter is one function, so one function is accepted. */
 export type UploadAdapterLike = UploadAdapter | UploadAdapter['send'];
 
-/** Normalises the shorthand. A bare function cannot suspend, so it says so. */
+/** Normalizes the shorthand. A bare function cannot suspend, so it says so. */
 export function toAdapter(adapter: UploadAdapterLike): UploadAdapter {
   return typeof adapter === 'function' ? { send: adapter, pausable: false } : adapter;
 }

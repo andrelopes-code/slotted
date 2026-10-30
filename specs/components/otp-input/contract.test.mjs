@@ -72,7 +72,7 @@ test('reports completion and rejected input as events, not as state', () => {
 
 /**
  * The field-aware control mechanism. `aria-required` never becomes the native `required`, which would
- * engage browser constraint validation and change submit behaviour.
+ * engage browser constraint validation and change submit behavior.
  */
 test('takes its identity and its state from the field around it', () => {
   assert.equal(contract.stateSource, 'field');
@@ -115,11 +115,11 @@ test('mirrors onto the frame exactly the states the frame paints', () => {
 /**
  * Nothing is bound. The control is a native textbox and the platform answers
  * every key: arrows, Backspace, Delete, Home, End, Shift+arrow, select-all,
- * paste and undo. The family only normalises the selection afterwards, so a
+ * paste and undo. The family only normalizes the selection afterwards, so a
  * cursor inside the value always has one character selected and typing
  * replaces it instead of being refused by `maxlength`.
  */
-test('binds no key of its own and normalises the selection', () => {
+test('binds no key of its own and normalizes the selection', () => {
   assert.deepEqual(contract.keyboard, []);
   assert.equal(contract.escapeBound, false);
   assert.equal(contract.selection, 'one-character');

@@ -316,7 +316,7 @@ export const Variant: Story = {
     <div className="slotted-demo-grid">
       <Scene
         label="framed"
-        note="The standalone control: an edge, a ground and the shadow that separates it from the page. It is what select multiple looks like, and what a reader recognises as a control."
+        note="The standalone control: an edge, a ground and the shadow that separates it from the page. It is what select multiple looks like, and what a reader recognizes as a control."
       >
         <Listbox aria-label="Framed" defaultValue="europe" rows={3}>
           {regionOptions()}
@@ -391,7 +391,7 @@ export const States: Story = {
       </Scene>
       <Scene
         label="required and invalid"
-        note="The edge and the focus ring both turn, and the Field around it owns the message. Colour alone never carries the state: the ring changes as well as the border."
+        note="The edge and the focus ring both turn, and the Field around it owns the message. Color alone never carries the state: the ring changes as well as the border."
       >
         <Listbox aria-label="Invalid" invalid required rows={3}>
           {regionOptions()}

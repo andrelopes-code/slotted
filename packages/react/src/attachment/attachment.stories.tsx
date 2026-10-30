@@ -231,7 +231,7 @@ export const Orientation: Story = {
     <div className="slotted-demo-grid">
       <Scene
         label="horizontal"
-        note="The row: tile at the start, actions at the end, both centred on the name and its detail."
+        note="The row: tile at the start, actions at the end, both centerd on the name and its detail."
       >
         <FileRow file={FRONT} src={PHOTO_FRONT} />
       </Scene>

@@ -16,7 +16,7 @@ export type SegmentedControlCondense = 'none' | 'icons';
 
 /**
  * How the choice is drawn. `track` is a box with a thumb behind the chosen
- * segment; `underline` is the words alone, the chosen one in the text colour
+ * segment; `underline` is the words alone, the chosen one in the text color
  * and underlined. The semantics are the same radio group in both.
  */
 export type SegmentedControlVariant = 'track' | 'underline';

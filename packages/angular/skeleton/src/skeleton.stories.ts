@@ -137,7 +137,7 @@ export const Shapes: Story = {
   )}
   ${scene(
     'shape="square"',
-    'The other box an avatar can be — a team, an organisation, a bot — with the corner Avatar derives from the box.',
+    'The other box an avatar can be — a team, an organization, a bot — with the corner Avatar derives from the box.',
     `<span slSkeleton shape="square" size="sm"></span>
      <span slSkeleton shape="square" size="md"></span>
      <span slSkeleton shape="square" size="lg"></span>`,

@@ -91,7 +91,7 @@ test('clips a clamped text at its content edge', () => {
   assert.match(normalized, /overflow:clip;overflow-clip-margin:content-box/);
 });
 
-/** A failure is said by the retry control and the word, never by a rim of a second colour. */
+/** A failure is said by the retry control and the word, never by a rim of a second color. */
 test('does not ring a failed message in the danger tone', () => {
   assert.doesNotMatch(normalized, /\[data-invalid\][^{]*\[data-part-content\]\{[^}]*danger-border/);
 });

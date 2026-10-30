@@ -220,7 +220,7 @@ export const States: Story = {
         ) +
         scene(
           'Invalid says it twice',
-          'The border reddens and thickens together, because the high-contrast scheme paints every border the same black and colour alone would leave the two states identical there.',
+          'The border reddens and thickens together, because the high-contrast scheme paints every border the same black and color alone would leave the two states identical there.',
           `<div slCheckbox invalid>Choose at least one</div>
            <div slCheckbox invalid defaultChecked>Invalid and checked</div>`,
         ),
@@ -358,7 +358,7 @@ export const Content: Story = {
       2,
       scene(
         'A label that wraps',
-        'The box stays on the first line box of the label rather than centring itself against the whole block, which is where align-items would put it as soon as the text reaches a second line.',
+        'The box stays on the first line box of the label rather than centering itself against the whole block, which is where align-items would put it as soon as the text reaches a second line.',
         `<div slCheckbox defaultChecked>
            I agree to receive communications about contract changes, delivery deadlines and
            changes to the returns policy of this and the other stores in the group.
@@ -413,7 +413,7 @@ export const Keyboard: Story = {
       2,
       scene(
         'The platform’s whole table',
-        'Tab reaches the box, Space toggles it, and Enter submits the form rather than the control. No key listener exists in this family, which is why the behaviour is already translated and already mirrored.',
+        'Tab reaches the box, Space toggles it, and Enter submits the form rather than the control. No key listener exists in this family, which is why the behavior is already translated and already mirrored.',
         `<div slCheckbox>Tab to here, then space</div>
          <div slCheckbox defaultChecked>And again</div>`,
       ) +

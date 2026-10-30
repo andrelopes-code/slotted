@@ -266,7 +266,7 @@ export const States: Story = {
     <Grid columns={2}>
       <Scene
         label="disabled on the root"
-        note="Both halves take the native attribute and button’s disabled paint; between two solid halves the seam takes the disabled border, so the bar reads as one unavailable control rather than a grey one with a coloured line through it."
+        note="Both halves take the native attribute and button’s disabled paint; between two solid halves the seam takes the disabled border, so the bar reads as one unavailable control rather than a grey one with a colored line through it."
         layout="row"
       >
         <SaveButton disabled />

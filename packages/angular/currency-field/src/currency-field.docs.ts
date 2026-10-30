@@ -85,7 +85,7 @@ const anatomy: AnatomyRow[] = [
     element: 'button[type=button][tabindex=-1], rendered by the frame',
     required: false,
     purpose:
-      'Steps down by step — one major unit by default, not one cent — by largeStep with Shift and by smallStep with Alt. Held, it repeats. Disabled at min, and out of the tab order because the arrow keys reach the same behaviour from the control.',
+      'Steps down by step — one major unit by default, not one cent — by largeStep with Shift and by smallStep with Alt. Held, it repeats. Disabled at min, and out of the tab order because the arrow keys reach the same behavior from the control.',
   },
   {
     part: 'increment',
@@ -746,9 +746,9 @@ export const ANGULAR_CURRENCY_FIELD_DOCS = {
       'The frame carries no role. WAI-ARIA requires the children of a spinbutton to be non-interactive and presentational, so the two steppers are the control’s siblings inside a box that announces nothing.',
       'Under cents-first entry the caret is put back after the last digit on every edit, and it decides nothing while it is anywhere else: a digit typed against the front of R$ 0,00 is two cents, not twenty reais, because the digits that changed are read from the difference between the text before the edit and the text after it. That is legal here and forbidden in number-field for one reason: the text is generated rather than typed, so there is no reader’s caret to preserve and exactly one position where the next keystroke means something. A separator keystroke is refused outright, and the sign is a key of its own so it never enters the digit run.',
       'inputmode is numeric under cents-first entry — the separator is never typed and the sign is a single key — and derived from the format under natural entry. A static inputmode the consumer wrote is read with HostAttributeToken before the binding computes, so it survives.',
-      'aria-required, never the native required. The native attribute engages browser constraint validation and changes submit behaviour, which the library must not impose as a side effect of describing a field. disabled and readonly are native, because that is what those two words mean.',
+      'aria-required, never the native required. The native attribute engages browser constraint validation and changes submit behavior, which the library must not impose as a side effect of describing a field. disabled and readonly are native, because that is what those two words mean.',
       'transaction-amount and transaction-currency are the standard autofill field names for a payment amount, and naming a field’s purpose is what WCAG 2.2 SC 1.3.5 asks for. The family leaves autocomplete off by default and documents the token.',
-      'The invalid state is never colour alone: aria-invalid announces it and the field’s error says it in words. In the high-contrast scheme the border cannot carry it at all, which is why it never has to.',
+      'The invalid state is never color alone: aria-invalid announces it and the field’s error says it in words. In the high-contrast scheme the border cannot carry it at all, which is why it never has to.',
     ],
     snippets: [
       defineSnippet({

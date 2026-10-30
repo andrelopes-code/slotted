@@ -895,7 +895,7 @@ describe('stacked layers that close in one change', () => {
 /**
  * The virtual keyboard covers the band of the layout viewport below the
  * visual one. A layer whose panel can cover it carries that band as
- * `--slotted-keyboard-inset`, and a centred panel reads nothing from it.
+ * `--slotted-keyboard-inset`, and a centerd panel reads nothing from it.
  */
 describe('the virtual keyboard', () => {
   const keyboard = (covered: number) => {
@@ -926,7 +926,7 @@ describe('the virtual keyboard', () => {
     vi.unstubAllGlobals();
   });
 
-  it('leaves a centred layer alone', () => {
+  it('leaves a centerd layer alone', () => {
     keyboard(260);
     render(
       <Dialog defaultOpen fullScreen="never">

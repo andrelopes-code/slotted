@@ -163,7 +163,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'States',
-    note: 'Read-only stays focusable and copyable and never looks disabled; disabled answers no key and no pointer; invalid keeps its focus ring and retargets its colour. Tab through the row to see each one answer.',
+    note: 'Read-only stays focusable and copyable and never looks disabled; disabled answers no key and no pointer; invalid keeps its focus ring and retargets its color. Tab through the row to see each one answer.',
     snippet: defineSnippet({
       id: 'date-field-angular-states',
       label: 'The four states',
@@ -242,7 +242,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'keyboard',
     title: 'The keyboard',
-    note: 'Every key the spin-button pattern lists, on the field that has focus. Note two behaviours nothing else here has: a step wraps inside its own field, and a day a short month could not hold comes back when a longer one can.',
+    note: 'Every key the spin-button pattern lists, on the field that has focus. Note two behaviors nothing else here has: a step wraps inside its own field, and a day a short month could not hold comes back when a longer one can.',
     snippet: defineSnippet({
       id: 'date-field-angular-keyboard',
       label: 'The keys',

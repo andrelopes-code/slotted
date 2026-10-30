@@ -71,7 +71,7 @@ A delta is the list of properties that change, with both values, copied from
 ## 5. Movimento
 
 Enter, exit and state transitions: property list, duration, easing, keyframes,
-and the reduced-motion behaviour, for ReUI and for the Slotted target.
+and the reduced-motion behavior, for ReUI and for the Slotted target.
 
 ## 6. Capacidades
 

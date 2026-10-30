@@ -151,7 +151,7 @@ export function useNotificationStore(initial: readonly NotificationItem[] = NOTI
   return { arrive, items, loading, onLoadMore, onReadChange, onRemove, reset, setItems };
 }
 
-/** The centre over the store, for the pages that vary one axis. */
+/** The center over the store, for the pages that vary one axis. */
 export function Inbox({
   initial,
   ...props

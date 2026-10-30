@@ -12,7 +12,7 @@
    * the decision the whole box is built around. A status is often a sentence —
    * “Waiting for approval from the security team” — and this family lets it
    * wrap where `badge` clips its own label to one line. The mark is an inline
-   * box before the label, centred on the capitals, and the label is an
+   * box before the label, centerd on the capitals, and the label is an
    * `inline-block` beside it: the words wrap inside that block, so every line
    * after the first starts under the first word rather than under the mark,
    * and the block lends its first baseline to whatever aligns the root — a
@@ -22,10 +22,10 @@
    * becomes an `inline-block`; a cell or a block keeps its own display and its
    * own padding.
    *
-   * The words take the page's own colour. The tone is on the mark, which is
+   * The words take the page's own color. The tone is on the mark, which is
    * what keeps a column of statuses in a table as readable as the column
    * beside it — the answer Spectrum, Chakra and Ant Design all reached, and
-   * the opposite of the coloured pill Primer and Atlassian draw.
+   * the opposite of the colored pill Primer and Atlassian draw.
    */
   [data-ui-status-indicator][data-part-root] {
     /**
@@ -62,13 +62,13 @@
      * Every tone's fill clears WCAG 2.2 1.4.11's 3:1 against the surface in
      * light and dark except `warning`, whose yellow is 1.53:1 on white; that
      * one status sets `--_edge` to the tone's border role. The rim was the
-     * tone's text role on every status, and a second colour around the fill
+     * tone's text role on every status, and a second color around the fill
      * drew a bullseye: brown around yellow, near-black around grey, and a pale
      * ring around every tone in dark (dossier § 3).
      */
     --_rim: var(--slotted-status-indicator-mark-border-color, var(--_edge, var(--_solid)));
     /**
-     * The halo: a band of the dot's own colour at a fifth of its strength,
+     * The halo: a band of the dot's own color at a fifth of its strength,
      * drawn outside the disc with `box-shadow` so it takes no room in the
      * line. It is what separates a status light from a bullet — the disc
      * reads as lit rather than printed — and it costs no contrast, because
@@ -80,7 +80,7 @@
     --_halo-width: calc(var(--slotted-space-1, 0.125rem) * 1.5);
 
     /**
-     * The words keep the page's colour when `render` makes the root an `<a>`;
+     * The words keep the page's color when `render` makes the root an `<a>`;
      * without this the user agent paints the label in its link blue.
      */
     color: inherit;
@@ -91,7 +91,7 @@
     font-size: var(--_font-size);
     /**
      * The leading, rounded up to an even pixel: 13 × 1.5 is 19.5 and lands the
-     * line, and the mark centred on it, across two device pixels.
+     * line, and the mark centerd on it, across two device pixels.
      */
     line-height: round(up, 1em * var(--slotted-line-height-md, 1.5), 2px);
     /**
@@ -125,12 +125,12 @@
    * Six values, and the map is `specs/components/status-indicator/contract.json`
    * rather than a decision taken here: the stylesheet, both bindings and the
    * contract test all read the same table. The glyph each status draws is in
-   * the same contract, and the bindings render it; the sheet only colours it.
+   * the same contract, and the bindings render it; the sheet only colors it.
    *
    * `neutral` and `unknown` share `secondary` on purpose, so the difference
    * between “nothing is happening” and “nobody knows” is never carried by
-   * colour. The filled disc and the dashed ring say it in `high-contrast` and
-   * in greyscale as well as in `light`.
+   * color. The filled disc and the dashed ring say it in `high-contrast` and
+   * in grayscale as well as in `light`.
    */
 
   [data-ui-status-indicator][data-part-root][data-status='neutral'] {
@@ -138,7 +138,7 @@
      * The one neutral the theme calibrates against the surface rather than
      * against a control, and the only fill that makes this dot read as filled.
      *
-     * `--slotted-tone-secondary-solid` is the surface's own colour in all
+     * `--slotted-tone-secondary-solid` is the surface's own color in all
      * three schemes, and its `solid-hover` step — which `badge` reaches for on
      * a chip the size of a word — is one shade off it. Read at 420 pixels on a
      * nine-pixel disc, that was a rim around nothing: `neutral` and `unknown`
@@ -165,7 +165,7 @@
    * The one fill that cannot hold its edge: `#facc15` is 1.53:1 on the light
    * surface. The tone's border role is the same hue a step darker, 2.94:1 in
    * light, the fill itself in dark and black in `high-contrast` — an edge that
-   * reads as the dot's own rim rather than as a second colour around it.
+   * reads as the dot's own rim rather than as a second color around it.
    */
   [data-ui-status-indicator][data-part-root][data-status='warning'] {
     --_edge: var(--slotted-tone-warning-border);
@@ -217,8 +217,8 @@
 
   /* ── The mark ─────────────────────────────────────────────────────────
    *
-   * One box, painted two ways, inside the first line. Its centre is the
-   * centre of the capitals, `0.5cap` above the baseline — the axis
+   * One box, painted two ways, inside the first line. Its center is the
+   * center of the capitals, `0.5cap` above the baseline — the axis
    * `[data-ui-icon]` aligns every icon on — rounded to the device pixel: half
    * a pixel at 2×, a whole one below 1.5×. Layout containment makes the box's
    * own bottom edge its baseline, whatever it holds.
@@ -286,7 +286,7 @@
    * the disc is left to the mark that is a disc.
    *
    * The mark is the icon box's container: it hands the box its own size
-   * through `--slotted-icon-size` and its colour through `color`, and the
+   * through `--slotted-icon-size` and its color through `color`, and the
    * binding puts the status's glyph inside, drawn on the grid of that size.
    */
   [data-ui-status-indicator][data-mark='icon'] [data-part-mark] {
@@ -338,7 +338,7 @@
    * The gap taken back when the label holds nothing a reader can see. A mark
    * with no visible words still carries its own word, clipped by
    * `visually-hidden`, and that word is out of flow — so the label box is
-   * empty, and a gap after the mark puts a bare dot off the centre of the
+   * empty, and a gap after the mark puts a bare dot off the center of the
    * cell it was meant to sit in.
    */
   [data-ui-status-indicator]:has(> [data-part-label] > [data-part-announcement]:only-child)
@@ -421,9 +421,9 @@
   }
 
   /**
-   * The wave is the dot's rim colour, defined for all six statuses —
+   * The wave is the dot's rim color, defined for all six statuses —
    * `unknown` has no fill, and its wave is the neutral edge. It starts at
-   * 0.45 of that colour and ends at three times the dot, 24 pixels at `md`,
+   * 0.45 of that color and ends at three times the dot, 24 pixels at `md`,
    * inside the line above and below without reaching the next status in a
    * list (dossier § 5). The root isolates a
    * stacking context so the wave can sit under the mark (`z-index: -1`)
@@ -471,9 +471,9 @@
   }
 
   /**
-   * ── Forced colours ─────────────────────────────────────────────────────
+   * ── Forced colors ─────────────────────────────────────────────────────
    *
-   * The operating system replaces every author colour here, so the tone is
+   * The operating system replaces every author color here, so the tone is
    * gone whatever the family writes: the six statuses become one mark. What is
    * left to decide is whether that mark is visible, and a dot painted from a
    * forced `Canvas` background is not — the defect `link` found on its own
@@ -484,7 +484,7 @@
    * would bury it. It keeps its silhouette, which is the whole reason the icon
    * mark exists: a triangle and a circled cross are still different from each
    * other when neither of them is red. The pulse is withdrawn, because its wave
-   * is painted from a tone the system replaces with a face colour, and a wave
+   * is painted from a tone the system replaces with a face color, and a wave
    * in `ButtonFace` on `Canvas` is an animation of nothing. The halo needs no
    * rule: the system sets `box-shadow` to `none`.
    */

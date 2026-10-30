@@ -100,7 +100,7 @@ export const Tones: Story = {
     template: page(
       band(
         'Tones',
-        'Four tones for the lit share; warning is the default. secondary is outside the axis, because a lit star in a ground colour reads as an unlit one.',
+        'Four tones for the lit share; warning is the default. secondary is outside the axis, because a lit star in a ground color reads as an unlit one.',
         `<div class="slotted-demo-stage" data-layout="stack">${TONES.map(
           (tone) =>
             `<div class="slotted-demo-row">

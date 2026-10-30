@@ -16,7 +16,7 @@ const FALLBACK: NotificationCenterDefaults = {
 
 const NotificationCenterDefaultsContext = createContext<NotificationCenterDefaults>(FALLBACK);
 
-/** What a notification centre renders as here, before it states anything of its own. */
+/** What a notification center renders as here, before it states anything of its own. */
 export function useNotificationCenterDefaults(): NotificationCenterDefaults {
   return useContext(NotificationCenterDefaultsContext);
 }
@@ -24,7 +24,7 @@ export function useNotificationCenterDefaults(): NotificationCenterDefaults {
 /**
  * An application decides once how its notifications read — the size, the
  * rank, how more loads, whether arrivals are held, how time is written, the
- * time zone — rather than repeating them on every screen. A centre that states
+ * time zone — rather than repeating them on every screen. A center that states
  * any of them itself still wins. Its words and locale come from the language
  * in force (`SlottedProvider`).
  */

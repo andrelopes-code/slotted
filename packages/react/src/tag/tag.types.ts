@@ -3,10 +3,10 @@ import type { PartialMessages, TagMessages } from '@slotted/core/i18n';
 import type { ChangeReason } from '@slotted/core/state';
 import type { ComponentPropsWithRef, HTMLAttributes, ReactNode, Ref, SyntheticEvent } from 'react';
 
-/** Which of the five semantic colours the tag speaks in. */
+/** Which of the five semantic colors the tag speaks in. */
 export type TagTone = 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger';
 
-/** How that colour is painted. `soft` is the tinted chip a tag usually is. */
+/** How that color is painted. `soft` is the tinted chip a tag usually is. */
 export type TagVariant = 'solid' | 'soft' | 'outline' | 'dashed';
 
 export type TagSize = 'sm' | 'md' | 'lg';
@@ -67,7 +67,7 @@ export interface TagContentProps {
   children?: ReactNode | undefined;
   /**
    * A glyph or an avatar before the words, wrapped in the `start` part, which
-   * sizes and centres it. The artwork is the consumer's.
+   * sizes and centers it. The artwork is the consumer's.
    */
   start?: ReactNode | undefined;
   /** A glyph after the words, wrapped in the `end` part. */

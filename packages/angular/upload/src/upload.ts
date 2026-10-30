@@ -611,7 +611,7 @@ export class SlUpload implements ControlValueAccessor, Validator {
     }
     /* A form may hand back either shape; the value the family emits is always
        the richer one, because a row draws more than its bytes. */
-    const normalised = value.map((entry) =>
+    const normalized = value.map((entry) =>
       entry instanceof File
         ? {
             key: `${entry.name}:${entry.size}:${entry.lastModified}`,
@@ -626,7 +626,7 @@ export class SlUpload implements ControlValueAccessor, Validator {
           }
         : entry,
     );
-    this.files.set(normalised as readonly UploadFile[]);
+    this.files.set(normalized as readonly UploadFile[]);
   }
 
   registerOnChange(fn: (value: readonly UploadFile[]) => void) {

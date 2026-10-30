@@ -40,7 +40,7 @@ const meta = {
       page: createReferencePage({
         title: 'Color Picker',
         description:
-          'Choosing a colour: an area for saturation and brightness, the hue and the opacity, the value as text in the notation the reader chose, a palette, and the contrast against the background the colour will sit on — inline, or in a field whose swatch opens it.',
+          'Choosing a color: an area for saturation and brightness, the hue and the opacity, the value as text in the notation the reader chose, a palette, and the contrast against the background the color will sit on — inline, or in a field whose swatch opens it.',
         framework: 'React',
         ...REACT_COLOR_PICKER_DOCS.colorPicker,
         tokens: REACT_COLOR_PICKER_TOKENS,
@@ -93,7 +93,7 @@ export const FieldStory: Story = {
   render: () => (
     <Grid columns={2}>
       <Scene
-        label="Brand colour in a settings form"
+        label="Brand color in a settings form"
         note="Press the swatch: the panel opens under the field. Type rgb(220 38 38) and press Enter: the field keeps hex, the notation it shows."
       >
         <Field>
@@ -103,7 +103,7 @@ export const FieldStory: Story = {
         </Field>
       </Scene>
       <Scene
-        label="A label colour, as hsl"
+        label="A label color, as hsl"
         note="The field keeps the notation it was given; the panel inside writes hsl too."
       >
         <Field>
@@ -164,7 +164,7 @@ export const Formats: Story = {
   render: () => (
     <Grid columns={1}>
       <Scene
-        label="Change the notation, keep the colour"
+        label="Change the notation, keep the color"
         note="Open the HEX menu and choose another notation: the value below is rewritten in it, and every later change arrives in it."
         layout="stack"
       >
@@ -179,14 +179,14 @@ export const Alpha: Story = {
   render: () => (
     <Grid columns={2}>
       <Scene
-        label="A translucent overlay colour"
-        note="The opacity channel fades the colour over the transparency grid, and the value carries the alpha."
+        label="A translucent overlay color"
+        note="The opacity channel fades the color over the transparency grid, and the value carries the alpha."
         layout="stack"
       >
         <ColorPicker defaultValue="rgb(22 163 74 / 60%)" />
       </Scene>
       <Scene
-        label="A brand colour that must be opaque"
+        label="A brand color that must be opaque"
         note="alpha={false} takes the channel away; the value never carries an alpha."
         layout="stack"
       >
@@ -226,7 +226,7 @@ export const Contrast: Story = {
       </Scene>
       <Scene
         label="Text on a dark header"
-        note="The same panel against #0F172A: a light colour passes, the brand blue does not."
+        note="The same panel against #0F172A: a light color passes, the brand blue does not."
         layout="stack"
       >
         <Live contrastWith="#0F172A" initial="#F8FAFC" />
@@ -241,7 +241,7 @@ export const States: Story = {
     <Grid columns={2}>
       <Scene
         label="Disabled"
-        note="Out of the tab order; the colour greyed so nothing reads as choosable."
+        note="Out of the tab order; the color greyed so nothing reads as choosable."
         layout="stack"
       >
         <ColorPicker defaultValue="#64748B" disabled />
@@ -255,7 +255,7 @@ export const States: Story = {
       </Scene>
       <Scene
         label="Outside sRGB"
-        note="An oklch colour no screen in sRGB can show is said, and kept as written."
+        note="An oklch color no screen in sRGB can show is said, and kept as written."
         layout="stack"
       >
         <ColorPicker defaultValue="oklch(0.9 0.3 150)" />

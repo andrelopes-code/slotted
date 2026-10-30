@@ -480,7 +480,7 @@ export const Empty: Story = {
     <Grid columns={1}>
       <Scene
         label="emptyLabel"
-        note="The family’s sentence, centred in the list, with the clear control drawn because there is a query to clear."
+        note="The family’s sentence, centerd in the list, with the clear control drawn because there is a query to clear."
       >
         <Panel defaultQuery="xylophone" />
       </Scene>

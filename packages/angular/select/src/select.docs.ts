@@ -283,7 +283,7 @@ const scenes: ReferenceSceneMeta[] = [
     snippet: defineSnippet({
       id: 'select-angular-multiple',
       language: 'angular',
-      label: 'Several values, summarised',
+      label: 'Several values, summarized',
       source: `<sl-select multiple [(value)]="fruit">
   <ng-template slSelectValue let-values>{{ values.length }} chosen</ng-template>
   <sl-select-item value="apple">Apple</sl-select-item>

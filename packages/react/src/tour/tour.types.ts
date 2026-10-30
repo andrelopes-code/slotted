@@ -58,7 +58,7 @@ export interface TourStepActions {
 export interface TourStep {
   /** Unique in the tour. It is the value of `step`. */
   id: string;
-  /** An element, a ref, a selector or a function. Absent for a centred step. */
+  /** An element, a ref, a selector or a function. Absent for a centerd step. */
   target?: TourTarget;
   title: ReactNode;
   description?: ReactNode | undefined;
@@ -132,7 +132,7 @@ export interface TourState<Step extends TourStep = TourStep> {
   readonly last: boolean;
   /** The next step is preparing, or its target has not arrived. */
   readonly pending: boolean;
-  /** The step named a target that could not be found; it is shown centred. */
+  /** The step named a target that could not be found; it is shown centerd. */
   readonly missing: boolean;
   readonly target: Element | null;
   /** The family's words in the language in force, with the tour's and the step's `messages` laid over them. */

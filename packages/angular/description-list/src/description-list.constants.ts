@@ -134,7 +134,7 @@ export function selectValue(node: HTMLElement | null | undefined): boolean {
  * Putting a value on the clipboard, and saying whether it got there.
  *
  * The two ways and the order they are tried in belong to `@slotted/core`, which
- * is where behaviour the two bindings would otherwise get differently wrong
+ * is where behavior the two bindings would otherwise get differently wrong
  * lives: a temporary selection that is not taken back destroys the reader's
  * own, and that is a bug a family would rediscover once per framework (DL1).
  *

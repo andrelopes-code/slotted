@@ -8,7 +8,7 @@ import type { ComboboxDefaults, ComboboxDefaultsProviderProps } from './combobox
  *
  * `autocomplete` is `list` — the popup shows what matches — rather than `both`,
  * whose completion string writes into the input as the reader types. `both` is
- * the only value with a visible artefact and it is also the one that surprises:
+ * the only value with a visible artifact and it is also the one that surprises:
  * a reader typing `ma` into a list of names sees `Mark` appear under their
  * caret. It is one word away and it is not the default.
  *

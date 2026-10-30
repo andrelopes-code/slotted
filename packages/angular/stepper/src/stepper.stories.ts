@@ -146,7 +146,7 @@ export const Orientation: Story = {
   )}
   ${scene(
     'orientation="vertical"',
-    'The connector runs down the marker’s own centre line, and a second line under each name has room to be read.',
+    'The connector runs down the marker’s own center line, and a second line under each name has room to be read.',
     `<div slStepper [messages]="{ label: 'Release' }" orientation="vertical" [defaultStep]="1">
        <ol slStepperList>
          <li slStepperStep label="Build" description="Compiled in 42 seconds" [complete]="true"></li>
@@ -166,7 +166,7 @@ export const Statuses: Story = {
 <div class="slotted-demo-grid" data-columns="1">
   ${scene(
     'Every status at once',
-    'A fill and an edge for each, never a colour alone: a check on the finished disc, a cross on the failed one, a ring for where the reader is, an outline for what is still ahead.',
+    'A fill and an edge for each, never a color alone: a check on the finished disc, a cross on the failed one, a ring for where the reader is, an outline for what is still ahead.',
     `<div slStepper [messages]="{ label: 'Statuses' }" labelPlacement="bottom" [defaultStep]="2">
        <ol slStepperList>
          <li slStepperStep label="Complete" [complete]="true"></li>
@@ -276,7 +276,7 @@ export const Placement: Story = {
   )}
   ${scene(
     'labelPlacement="bottom"',
-    'The marker centres over its own label and the connector runs between two centres. This is what a row of names longer than a word needs.',
+    'The marker centers over its own label and the connector runs between two centers. This is what a row of names longer than a word needs.',
     `<div slStepper [messages]="{ label: 'Onboarding' }" labelPlacement="bottom" [defaultStep]="1">
        <ol slStepperList>
          <li slStepperStep label="Company details" [complete]="true"></li>

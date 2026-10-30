@@ -30,7 +30,7 @@ describe('parseColor', () => {
     expect(parseColor('hsla(221, 83%, 53%, .5)')!.rgba.a).toBe(0.5);
   });
 
-  it('reads oklch and reports a colour outside sRGB instead of clipping it', () => {
+  it('reads oklch and reports a color outside sRGB instead of clipping it', () => {
     const inside = parseColor('oklch(0.62 0.19 260)')!;
     expect(inside.format).toBe('oklch');
     expect(inside.inGamut).toBe(true);
@@ -56,7 +56,7 @@ describe('formatColor', () => {
     expect(formatColor(blue, 'oklch')).toMatch(/^oklch\(0\.5\d+ 0\.2\d+ 26\d\)$/);
   });
 
-  it('writes alpha only when the colour has some', () => {
+  it('writes alpha only when the color has some', () => {
     expect(formatColor({ ...blue, a: 0.6 }, 'hex')).toBe('#2563EB99');
     expect(formatColor({ ...blue, a: 0.6 }, 'rgb')).toBe('rgb(37 99 235 / 60%)');
   });
@@ -95,7 +95,7 @@ describe('contrast', () => {
     expect(contrastLevel(7.2)).toBe('AAA');
   });
 
-  it('composites an alpha colour over the background before measuring', () => {
+  it('composites an alpha color over the background before measuring', () => {
     const white = { r: 255, g: 255, b: 255, a: 1 };
     expect(contrastRatio({ r: 0, g: 0, b: 0, a: 0 }, white)).toBeCloseTo(1, 5);
   });

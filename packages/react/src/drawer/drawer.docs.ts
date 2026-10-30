@@ -478,7 +478,7 @@ const events: EventRow[] = [
   {
     name: 'onClick, onKeyDown, onPointerDown, on every part',
     payload: 'the element’s own events',
-    when: 'Whenever the element fires them. Your handler runs first, and preventDefault() in it cancels the drawer’s own behaviour for that event.',
+    when: 'Whenever the element fires them. Your handler runs first, and preventDefault() in it cancels the drawer’s own behavior for that event.',
   },
 ];
 

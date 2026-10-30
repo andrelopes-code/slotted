@@ -29,7 +29,7 @@ export const ANGULAR_TYPOGRAPHY_DOCS = {
     api: apiRows([
       ['size', SIZE, 'md', 'slText', 'Step on the type scale, with the line height paired to it'],
       ['weight', "'regular' | 'medium' | 'semibold'", 'regular', 'slText', 'Typographic emphasis'],
-      ['tone', TONE, 'inherit', 'slText', 'Colour; inherit takes the colour of the surface'],
+      ['tone', TONE, 'inherit', 'slText', 'Color; inherit takes the color of the surface'],
       [
         'align',
         "'start' | 'center' | 'end'",
@@ -99,7 +99,7 @@ export const ANGULAR_TYPOGRAPHY_DOCS = {
         'slHeading',
         'Typographic emphasis',
       ],
-      ['tone', TONE, 'inherit', 'slHeading', 'Colour; inherit takes the colour of the surface'],
+      ['tone', TONE, 'inherit', 'slHeading', 'Color; inherit takes the color of the surface'],
       ['wrap', WRAP, 'balance', 'slHeading', 'How lines break; a heading is balanced by default'],
       ['align', "'start' | 'center' | 'end'", '—', 'slHeading', 'Alignment'],
       ['transform', "'none' | 'uppercase' | 'capitalize'", '—', 'slHeading', 'Letter case'],

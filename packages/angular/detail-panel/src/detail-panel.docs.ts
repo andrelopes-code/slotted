@@ -93,7 +93,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div',
     required: false,
     purpose:
-      'In place of the columns under status="not-found" or "error": a centred box, four space-12 tall, for a [slResultState]. The consumer’s element carrying slDetailPanelMessage. The header and the footer stay, so a drawer opened on a deleted record still closes.',
+      'In place of the columns under status="not-found" or "error": a centerd box, four space-12 tall, for a [slResultState]. The consumer’s element carrying slDetailPanelMessage. The header and the footer stay, so a drawer opened on a deleted record still closes.',
   },
   {
     part: 'footer',
@@ -360,7 +360,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'What a section holds, and what sits beside it',
-    note: 'A Table in the lines section, a Timeline feed in the history, a DescriptionList of fields in the aside with a copy control on the invoice, a Toolbar with overflow in the header’s actions and a Tag in its marks. Each is placed by the panel and owned by its own family; the panel writes none of their behaviour.',
+    note: 'A Table in the lines section, a Timeline feed in the history, a DescriptionList of fields in the aside with a copy control on the invoice, a Toolbar with overflow in the header’s actions and a Tag in its marks. Each is placed by the panel and owned by its own family; the panel writes none of their behavior.',
     snippet: defineSnippet({
       id: 'detail-panel-angular-composition',
       language: 'angular',

@@ -47,7 +47,7 @@ describe('the pane edge', () => {
     ['inset', 'end'],
     ['floating', 'start'],
     ['floating', 'end'],
-  ])('lies on the centre of the gutter, canvas %s, navigation at the %s', (canvas, navSide) => {
+  ])('lies on the center of the gutter, canvas %s, navigation at the %s', (canvas, navSide) => {
     const { aside, box, main, resizer, y } = placed(canvas, navSide);
     const [before, after] =
       navSide === 'start' ? [main.right, aside.left] : [aside.right, main.left];
@@ -63,7 +63,7 @@ describe('the pane edge', () => {
     ['flush', 'end'],
     ['panel', 'start'],
     ['panel', 'end'],
-  ])('lies on the centre of the seam, canvas %s, navigation at the %s', (canvas, navSide) => {
+  ])('lies on the center of the seam, canvas %s, navigation at the %s', (canvas, navSide) => {
     const { aside, asideElement, box, resizer, y } = placed(canvas, navSide);
     const style = getComputedStyle(asideElement);
     const seam =

@@ -1,6 +1,6 @@
 ---
 name: build-own-element
-description: Use when writing a component, widget or visual element that no family of {{package}} draws — a timeline strip, a seat map, a heat grid, a bespoke control. Proves first that no family answers, then builds the element from the theme's tokens with the states, focus, target size, forced colours and motion the families keep.
+description: Use when writing a component, widget or visual element that no family of {{package}} draws — a timeline strip, a seat map, a heat grid, a bespoke control. Proves first that no family answers, then builds the element from the theme's tokens with the states, focus, target size, forced colors and motion the families keep.
 ---
 
 # Build an element of the application's own
@@ -37,7 +37,7 @@ Fixed, read from the theme:
 - a tone carries the meaning the `tone` group gives it, and a data series takes
   the `data` slots in order;
 - how its states yield, how focus is drawn, how large a target is, what forced
-  colours keep and how it moves (OE-02 to OE-07).
+  colors keep and how it moves (OE-02 to OE-07).
 
 A new appearance is a new combination of tokens, never a new value.
 
@@ -85,6 +85,6 @@ why no token covers it (CP-05).
 ## 5. Done
 
 1. Each `Check` of `{{docsDir}}/guidelines/own-elements.md` passes.
-2. The element's CSS holds no colour or length literal without its comment.
+2. The element's CSS holds no color or length literal without its comment.
 3. Every custom property the element reads is listed in
    `{{docsDir}}/tokens.md` above "Read by their family only".

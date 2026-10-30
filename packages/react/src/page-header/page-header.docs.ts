@@ -96,7 +96,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div',
     required: false,
     purpose:
-      'The status beside the heading — a Tag, a Badge, a StatusIndicator — centred on the heading’s line. It wraps when there are many. Below 600 pixels it takes a line of its own under the heading, so the header is as tall waiting as loaded whatever the marks say.',
+      'The status beside the heading — a Tag, a Badge, a StatusIndicator — centerd on the heading’s line. It wraps when there are many. Below 600 pixels it takes a line of its own under the heading, so the header is as tall waiting as loaded whatever the marks say.',
   },
   {
     part: 'subheading',
@@ -546,7 +546,7 @@ export const REACT_PAGE_HEADER_DOCS = {
         'boolean',
         'false',
         'PageHeader, PageHeaderDefaultsProvider',
-        'Once content passes under the chrome (data-stuck), its ground is the theme’s --slotted-surface-material and its backdrop filter --slotted-material-backdrop, in every variant; at rest each variant keeps its ground. --slotted-page-header-background and --slotted-page-header-backdrop-filter still win. The theme makes both opaque under prefers-reduced-transparency and forced colours',
+        'Once content passes under the chrome (data-stuck), its ground is the theme’s --slotted-surface-material and its backdrop filter --slotted-material-backdrop, in every variant; at rest each variant keeps its ground. --slotted-page-header-background and --slotted-page-header-backdrop-filter still win. The theme makes both opaque under prefers-reduced-transparency and forced colors',
       ],
       [
         'size',

@@ -164,13 +164,13 @@ export const Width: Story = {
       </Scene>
       <Scene
         label="wide, the default"
-        note="Eighty rems, the width of an application screen with a table in it. Beyond it the column centres and the gutters grow."
+        note="Eighty rems, the width of an application screen with a table in it. Beyond it the column centers and the gutters grow."
       >
         <Policy note="wide — 80rem" width="wide" />
       </Scene>
       <Scene
         label="full"
-        note="The space the frame gives, up to --slotted-container-full — 120rem, a 1920-pixel display. Past it the column centres, so an ultra-wide screen does not stretch a line of text across three thousand pixels."
+        note="The space the frame gives, up to --slotted-container-full — 120rem, a 1920-pixel display. Past it the column centers, so an ultra-wide screen does not stretch a line of text across three thousand pixels."
       >
         <Policy note="full — 120rem" width="full" />
       </Scene>

@@ -25,7 +25,7 @@ describe('Badge', () => {
   });
 
   /**
-   * A flex container centres the line box, not the letters inside it. The trim
+   * A flex container centers the line box, not the letters inside it. The trim
    * that fixes that needs a block container, and a flex container's own text
    * lives in an anonymous item no stylesheet can reach — so the words get a box.
    */

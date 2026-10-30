@@ -446,7 +446,7 @@ export const REACT_COLLAPSIBLE_DOCS = {
       'The heading is real. level renders h1 to h6 and the trigger is its only element, which is what the pattern requires; an accordion sets the level once for a whole set. level="none" writes no heading semantics at all, for a disclosure that belongs to no outline.',
       'aria-disabled appears on the trigger only when an Accordion refuses to let this panel close. That is the pattern’s own instruction for a set that requires one panel to stay open, and it leaves the control focusable and announced rather than removing it from the reader’s path.',
       'The element is a button and a region rather than details and summary. What that costs is written down: a page with JavaScript disabled cannot open a panel. What it buys is the accordion pattern — a summary cannot be wrapped in a heading — a value the consumer can own, a request that carries a reason, and a panel that animates without interpolate-size.',
-      'The mark is never the only thing that says the state: aria-expanded says it to a reader, and the indicator turns rather than changing colour, so the high-contrast scheme and forced colours both keep it.',
+      'The mark is never the only thing that says the state: aria-expanded says it to a reader, and the indicator turns rather than changing color, so the high-contrast scheme and forced colors both keep it.',
     ],
     snippets: [
       defineSnippet({

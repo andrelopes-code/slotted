@@ -154,7 +154,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'The four states a field can be in',
-    note: 'The label never turns red when the field is invalid: the error already says so in words and in colour, and a red marker on a red label is a marker nobody can see. Read-only stays legible and focusable; disabled is muted to a measured colour rather than faded.',
+    note: 'The label never turns red when the field is invalid: the error already says so in words and in color, and a red marker on a red label is a marker nobody can see. Read-only stays legible and focusable; disabled is muted to a measured color rather than faded.',
     snippet: defineSnippet({
       id: 'field-react-states',
       language: 'tsx',
@@ -290,7 +290,7 @@ export const REACT_FIELD_DOCS = {
         'boolean',
         '—',
         'Field, FieldCounter',
-        'On Field: unset rather than false; writes aria-invalid on the control and data-invalid on the field, and leaves the label’s colour unchanged. On FieldCounter: the count has passed its limit, which can happen before validation runs, so it is the counter’s own state and defaults to false.',
+        'On Field: unset rather than false; writes aria-invalid on the control and data-invalid on the field, and leaves the label’s color unchanged. On FieldCounter: the count has passed its limit, which can happen before validation runs, so it is the counter’s own state and defaults to false.',
       ],
       [
         'disabled',

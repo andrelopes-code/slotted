@@ -485,7 +485,7 @@ export const REACT_ATTACHMENT_DOCS = {
         'handler',
         '—',
         'root, remove',
-        'Composed: the page handler runs first and preventDefault refuses the family behaviour',
+        'Composed: the page handler runs first and preventDefault refuses the family behavior',
       ],
       [
         'aria-describedby',

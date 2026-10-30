@@ -169,10 +169,10 @@ test('folds the count at the step minColumnWidth names', () => {
 
 /**
  * A weaker state holds itself back for a stronger one, and a state a reader
- * cannot see in colour is a state that was never painted: the finished copy
- * changes its mark as well as its colour.
+ * cannot see in color is a state that was never painted: the finished copy
+ * changes its mark as well as its color.
  */
-test('paints a finished copy by its mark and not only by its colour', () => {
+test('paints a finished copy by its mark and not only by its color', () => {
   assert.ok(normalized.includes('[data-part-copy][data-complete]{color:'));
   assert.match(
     fragment,

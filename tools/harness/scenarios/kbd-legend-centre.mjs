@@ -5,18 +5,18 @@ import { launch } from '../shoot.mjs';
 
 /**
  * Where a key's legend stands, read in Chrome: in a `Button`'s `end` slot, the
- * centre of every `[data-part=legend]` of a `Kbd` and of a `Shortcut` is the
- * centre of the button's `[data-part=label]`, and the centre of the key box
+ * center of every `[data-part=legend]` of a `Kbd` and of a `Shortcut` is the
+ * center of the button's `[data-part=label]`, and the center of the key box
  * that holds it, at sizes `xs`, `sm` and `inherit` and variants `plain` and
  * `outline`.
  *
  * The request came from an application: with `size="inherit"
- * variant="plain"`, a `Kbd` stood its legend 1.5px above the label's centre
+ * variant="plain"`, a `Kbd` stood its legend 1.5px above the label's center
  * and a `Shortcut` 1.5px below it — the shortcut's root kept the user agent's
  * monospace face and a 16px line box, and its keys sat on that line's
  * baseline.
  *
- * Run: node tools/harness/scenarios/kbd-legend-centre.mjs
+ * Run: node tools/harness/scenarios/kbd-legend-center.mjs
  * Exits non-zero when an assertion fails.
  */
 
@@ -57,7 +57,7 @@ createRoot(document.getElementById('root')).render(
 const READ = `(async () => {
   await document.fonts.ready;
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  const centre = (node) => {
+  const center = (node) => {
     const box = node.getBoundingClientRect();
     return box.top + box.height / 2;
   };
@@ -66,11 +66,11 @@ const READ = `(async () => {
     const legends = [...probe.querySelectorAll('[data-part="legend"]')];
     return {
       probe: probe.getAttribute('data-probe'),
-      label: centre(label),
+      label: center(label),
       legends: legends.map((legend) => ({
         text: legend.textContent,
-        legend: centre(legend),
-        key: centre(legend.closest('[data-part="root"]')),
+        legend: center(legend),
+        key: center(legend.closest('[data-part="root"]')),
         keyTop: legend.closest('[data-part="root"]').getBoundingClientRect().top,
         legendTop: legend.getBoundingClientRect().top,
       })),
@@ -78,7 +78,7 @@ const READ = `(async () => {
   });
 })()`;
 
-const url = await buildReactPage('kbd-legend-centre', entry);
+const url = await buildReactPage('kbd-legend-center', entry);
 const { devtools, close } = await launch();
 let reading;
 

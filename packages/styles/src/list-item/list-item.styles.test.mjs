@@ -90,7 +90,7 @@ test('reaches its parts through the anatomy’s chain, never into a nested famil
 /**
  * A chooser in the leading column sits on the title's first line (LI2). The
  * column stands at the top of that line and is as tall as it, so `checkbox`'s
- * own lift lands the box on the line's centre; centred on the block it stood a
+ * own lift lands the box on the line's center; centerd on the block it stood a
  * pixel low on one line and between the lines on two. The column is the
  * chooser's own square, fixed across densities as the chooser is (CK1).
  */

@@ -161,7 +161,7 @@ function DialogFamily({
 
   /**
    * Ref objects rather than state, and stable for the life of the family, which
-   * is what lets them sit on a memoised context value without changing its
+   * is what lets them sit on a memoized context value without changing its
    * identity on every render.
    */
   const nodes = useRef({

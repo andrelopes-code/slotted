@@ -6,7 +6,7 @@ import { Collapsible } from './collapsible';
 import { CollapsibleHeader, CollapsiblePanel, CollapsibleTrigger } from './collapsible-parts';
 import type { CollapsibleSize } from './collapsible.types';
 
-const centre = (element: Element) => {
+const center = (element: Element) => {
   const box = element.getBoundingClientRect();
   return box.top + box.height / 2;
 };
@@ -21,7 +21,7 @@ const tallControls = {
 
 describe('Collapsible trigger without a description', () => {
   it.each<CollapsibleSize>(['sm', 'md', 'lg'])(
-    'centres the label and the indicator on the trigger at size %s',
+    'centers the label and the indicator on the trigger at size %s',
     (size) => {
       render(
         <div style={tallControls}>
@@ -38,8 +38,8 @@ describe('Collapsible trigger without a description', () => {
       const indicator = trigger.querySelector('[data-part="indicator"]') as HTMLElement;
 
       expect(trigger.getBoundingClientRect().height).toBeGreaterThan(label.offsetHeight + 12);
-      expect(Math.abs(centre(label) - centre(trigger))).toBeLessThanOrEqual(0.5);
-      expect(Math.abs(centre(indicator) - centre(trigger))).toBeLessThanOrEqual(0.5);
+      expect(Math.abs(center(label) - center(trigger))).toBeLessThanOrEqual(0.5);
+      expect(Math.abs(center(indicator) - center(trigger))).toBeLessThanOrEqual(0.5);
     },
   );
 });

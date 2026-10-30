@@ -37,7 +37,7 @@ function rule(selector) {
  * The rule is narrower than `text-scale.test.mjs`, and deliberately: an
  * anchored layer still arrives across one step of the space scale (R7), and a
  * menu is a small box whose movement says which side it opened on. A dialog is
- * centred, has nothing to travel *from*, and is the largest block of type the
+ * centerd, has nothing to travel *from*, and is the largest block of type the
  * library moves.
  */
 test('lets the panel arrive by ink alone (DG4)', () => {

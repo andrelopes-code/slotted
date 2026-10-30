@@ -102,7 +102,7 @@ describe('SlText', () => {
     expect(find('decided').getAttribute('data-align')).toBe('center');
   });
 
-  it('treats an inherited tone as the absence of a colour', () => {
+  it('treats an inherited tone as the absence of a color', () => {
     const { find } = mount(TextHost);
 
     expect(find('decided').getAttribute('data-tone')).toBeNull();

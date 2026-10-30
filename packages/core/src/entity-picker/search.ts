@@ -106,7 +106,7 @@ function isAbort(error: unknown) {
  *   query, a new scope and a refresh ask at once.
  * - Each request aborts the one before it, and an answer that arrives after a
  *   newer request started is ignored by its sequence number — the source may
- *   not honour the signal.
+ *   not honor the signal.
  * - Below `minQueryLength` nothing is asked and nothing on screen answers.
  * - A failure empties the list: the rows of the previous query are not shown
  *   as if they answered this one. A failed next page keeps the pages before

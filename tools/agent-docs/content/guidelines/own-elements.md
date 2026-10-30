@@ -9,7 +9,7 @@ families: [button, typography]
 # Own elements
 
 How an element no family draws is built from the theme: which tokens it reads,
-how its states yield, and what it keeps under focus, touch, forced colours and
+how its states yield, and what it keeps under focus, touch, forced colors and
 reduced motion. The families meet each rule below; an element of the
 application's own meets them through the same tokens. Where a family answers
 the problem, the family is used instead (CP-04).
@@ -28,7 +28,7 @@ Check: Every custom property of the element's own CSS that starts with --slotted
 
 Level: MUST
 Applies to: an interactive element of the application's own
-Rule: Where two states hold at once, the element paints the ground, the edge and the text colour of the stronger, in the order `disabled`, `loading`, `readonly`, `invalid`, `checked`, `selected`, `pressed`, `current`, `complete`, `active`, `hover`; the focus ring of OE-03 is drawn over every state.
+Rule: Where two states hold at once, the element paints the ground, the edge and the text color of the stronger, in the order `disabled`, `loading`, `readonly`, `invalid`, `checked`, `selected`, `pressed`, `current`, `complete`, `active`, `hover`; the focus ring of OE-03 is drawn over every state.
 Why: A disabled element that lights under the pointer reads as operable and answers nothing.
 Do: The hover rule of a day cell excludes the disabled and the selected cell, so a selected day keeps its ground under the pointer.
 Don't: A hover ground declared after the selected ground repaints the chosen day while the pointer crosses it.
@@ -39,7 +39,7 @@ Check: Put the pointer over a disabled, a selected and a current instance: each 
 Level: MUST
 Applies to: every element of the application's own that takes focus
 Rule: In its `focus-visible` state the element draws an outline of `--slotted-focus-ring-width` in `--slotted-focus-ring-color`, offset by `--slotted-focus-ring-offset`.
-Why: The ring is the one focus indicator the families share, and the theme maps its colour to the system highlight under forced colours.
+Why: The ring is the one focus indicator the families share, and the theme maps its color to the system highlight under forced colors.
 Do: A day cell draws the outline in `focus-visible` and keeps it while selected; in error it points `--slotted-focus-ring-color` at `--slotted-focus-ring-color-invalid`.
 Don't: `outline: none` on the cell, with a change of ground as the only sign of focus.
 Check: Move focus with the keyboard in the light, dark and high-contrast schemes: the ring is drawn at the theme's width and offset in each.
@@ -64,15 +64,15 @@ Do: A week picker beside a `button` at the medium step reads `--slotted-control-
 Don't: A height taken from the space scale that matches the button only at the comfortable density.
 Check: Switch the density among comfortable, compact and dense: the element's height equals the height of the button beside it in each.
 
-### OE-06 · Forced colours keep states
+### OE-06 · Forced colors keep states
 
 Level: MUST
 Applies to: an element of the application's own that shows a state
 Rule: Under `forced-colors: active`, each state the element shows differs from rest by a border, an outline or text, not by a ground or a shadow alone.
-Why: The system replaces every ground with its own and removes shadows, so a state carried by colour alone disappears.
+Why: The system replaces every ground with its own and removes shadows, so a state carried by color alone disappears.
 Do: A selected day adds an edge of `--slotted-border-width-thick` to its tinted ground.
 Don't: A selected day told apart only by `--slotted-tone-accent-surface`.
-Check: Emulate forced colours and step through every state: each reads differently from rest.
+Check: Emulate forced colors and step through every state: each reads differently from rest.
 
 ### OE-07 · Motion follows the scale
 
@@ -109,7 +109,7 @@ Check: At a fixed viewport, resize the element's container across its threshold 
 Level: SHOULD
 Applies to: an element of the application's own that stands above another surface
 Rule: A surface above another takes `--slotted-surface-raised` with one step of the `shadow` group, and a layer that floats over the page takes its stacking order from the `z-index` group.
-Why: The theme pairs each elevation with a ground per scheme and drops shadows under forced colours; a shadow or a stacking order written by hand stays outside both.
+Why: The theme pairs each elevation with a ground per scheme and drops shadows under forced colors; a shadow or a stacking order written by hand stays outside both.
 Do: A day's detail card floats with `--slotted-surface-raised`, `--slotted-shadow-md` and `--slotted-z-index-popover`.
 Don't: A shadow written as a literal and a stacking order of 9999.
 Check: Every shadow and every stacking order of the element's own CSS reads a token of these two groups.

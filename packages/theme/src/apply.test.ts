@@ -128,7 +128,7 @@ describe('seedStyle', () => {
     );
   });
 
-  it('refuses a named colour and a functional notation this library does not parse', () => {
+  it('refuses a named color and a functional notation this library does not parse', () => {
     expect(() => seedStyle({ accent: 'red' })).toThrow(
       'seed accent "red" is neither #rrggbb nor oklch(L C H)',
     );

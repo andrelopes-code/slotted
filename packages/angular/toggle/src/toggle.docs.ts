@@ -36,7 +36,7 @@ const anatomy: AnatomyRow[] = [
     element: 'the consumer’s own button, with slToggle on it',
     required: true,
     purpose:
-      'The control. It carries data-ui="toggle", aria-pressed in both states, data-pressed while it is on, and the two axes. Its border is always present, so turning it on changes a colour and never the geometry.',
+      'The control. It carries data-ui="toggle", aria-pressed in both states, data-pressed while it is on, and the two axes. Its border is always present, so turning it on changes a color and never the geometry.',
   },
   {
     part: 'icon',
@@ -86,7 +86,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'variant',
     title: 'Framed, or bare until it is on',
-    note: 'outline draws its own edge and stands beside a field; ghost is the toggle inside something already framed — a toolbar, a card header. Both turn on into the same accent pair, so “on” is one colour wherever the control is.',
+    note: 'outline draws its own edge and stands beside a field; ghost is the toggle inside something already framed — a toolbar, a card header. Both turn on into the same accent pair, so “on” is one color wherever the control is.',
     snippet: defineSnippet({
       id: 'toggle-angular-variant',
       language: 'angular',
@@ -114,7 +114,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'iconOnly',
     title: 'A mark and no words',
-    note: 'Without children the toggle draws square from the control height and the mark is centred in it. The name comes from aria-label, and the type makes nothing of that: the reference page is where the rule is stated, and the harness photographs it.',
+    note: 'Without children the toggle draws square from the control height and the mark is centerd in it. The name comes from aria-label, and the type makes nothing of that: the reference page is where the rule is stated, and the harness photographs it.',
     snippet: defineSnippet({
       id: 'toggle-angular-icon-only',
       language: 'angular',
@@ -207,7 +207,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'versus',
     title: 'Toggle, or ToggleButton',
-    note: 'A mode is one colour and true the moment it is pressed: Toggle. An action that persists — Follow, Subscribe — reaches a server, waits, and stands in one of five tones beside the other actions of a page: button’s ToggleButton. Same state model, different meaning.',
+    note: 'A mode is one color and true the moment it is pressed: Toggle. An action that persists — Follow, Subscribe — reaches a server, waits, and stands in one of five tones beside the other actions of a page: button’s ToggleButton. Same state model, different meaning.',
     snippet: defineSnippet({
       id: 'toggle-angular-versus',
       language: 'angular',
@@ -274,7 +274,7 @@ export const ANGULAR_TOGGLE_DOCS = {
         "'outline' | 'ghost' | 'chips'",
         'outline',
         'slToggle',
-        'Whether the control draws its own edge before it is on, or is a chip pressed in the neutral tone ink. There is no tone axis: a mode is one colour when it is on, and an action that persists in one of five tones is button’s ToggleButton',
+        'Whether the control draws its own edge before it is on, or is a chip pressed in the neutral tone ink. There is no tone axis: a mode is one color when it is on, and an action that persists in one of five tones is button’s ToggleButton',
       ],
       [
         'disabled',

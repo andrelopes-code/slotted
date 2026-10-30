@@ -117,7 +117,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'tones',
     title: 'What the message is about',
-    note: 'Five tones and five marks. The mark is the answer to WCAG 2.2 1.4.1: read in greyscale, or under forced colours where every ground becomes one system colour, the silhouette is the only thing left to tell a failure from a note.',
+    note: 'Five tones and five marks. The mark is the answer to WCAG 2.2 1.4.1: read in grayscale, or under forced colors where every ground becomes one system color, the silhouette is the only thing left to tell a failure from a note.',
     snippet: defineSnippet({
       id: 'toast-react-tones',
       language: 'tsx',
@@ -245,11 +245,11 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'A message a page draws itself',
-    note: 'The region hands each message to a function and keeps everything that is behaviour: the clock, the exit, the swipe, the keyboard and the announcement. What the page writes is the body, and it can be anything at all.',
+    note: 'The region hands each message to a function and keeps everything that is behavior: the clock, the exit, the swipe, the keyboard and the announcement. What the page writes is the body, and it can be anything at all.',
     snippet: defineSnippet({
       id: 'toast-react-composition',
       language: 'tsx',
-      label: 'The family’s behaviour, the page’s markup',
+      label: 'The family’s behavior, the page’s markup',
       source:
         '<ToastRegion>\n  {(message) => (\n    <Toast key={message.id} message={message}>\n      <ToastContent>\n        <ToastTitle>{message.data.title}</ToastTitle>\n      </ToastContent>\n    </Toast>\n  )}\n</ToastRegion>;',
     }),
@@ -351,14 +351,14 @@ export const REACT_TOAST_DOCS = {
         "'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger'",
         'accent',
         'toast.show',
-        'Which of the five semantic colours the message speaks in, and which mark it draws',
+        'Which of the five semantic colors the message speaks in, and which mark it draws',
       ],
       [
         'variant',
         "'raised' | 'soft' | 'solid'",
         'raised',
         'toast.show',
-        'How that colour is painted. raised keeps the neutral surface and puts the tone in the mark, which is what a box floating over unknown content should do',
+        'How that color is painted. raised keeps the neutral surface and puts the tone in the mark, which is what a box floating over unknown content should do',
       ],
       [
         'priority',
@@ -511,7 +511,7 @@ export const REACT_TOAST_DOCS = {
       'When the message holding focus is taken away — by its own control, or by the page’s state — focus goes to the next message, then to the element it came from. Only React Aria answers this at all, and only for its own close button.',
       'WCAG 2.2 SC 2.2.1 is the criterion a timer answers, and the family takes the first of the criterion’s six ways out: the limit can be turned off before a reader meets it, by setting duration to 0 on ToastDefaultsProvider for the whole application. Putting that switch in front of the reader is the application’s work, not the family’s.',
       'A message that carries an action is given no duration unless one is stated, and a message waiting on a promise is given none either. Angular Material states the first rule and is alone in it; five surveyed implementations ship the action and the timer and leave the combination to the consumer.',
-      'Every tone with a severity carries a mark as well as a colour, and secondary carries none: a neutral note has no severity to state. Under forced colours the five grounds become one system colour, so the mark, and its absence on a note, is the only thing distinguishing a failure from a note — WCAG 2.2 1.4.1.',
+      'Every tone with a severity carries a mark as well as a color, and secondary carries none: a neutral note has no severity to state. Under forced colors the five grounds become one system color, so the mark, and its absence on a note, is the only thing distinguishing a failure from a note — WCAG 2.2 1.4.1.',
       'The region takes no pointer events and each message takes its own, so a region pinned over a page never eats a press meant for the page. Every surveyed implementation does this and none of them says so, which is how a consumer finds a dead corner in their own application.',
     ],
     snippets: [

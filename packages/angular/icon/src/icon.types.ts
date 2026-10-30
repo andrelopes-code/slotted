@@ -17,7 +17,7 @@ export type IconTone =
   | 'inverse';
 
 /**
- * `inherit` is the absence of a colour rather than a colour of its own, so it
+ * `inherit` is the absence of a color rather than a color of its own, so it
  * removes the attribute and lets the surface decide.
  */
 export function toneAttribute(tone: IconTone | undefined): string | null {

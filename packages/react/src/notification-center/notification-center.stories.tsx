@@ -377,7 +377,7 @@ export const Hosts: Story = {
     <Grid columns={1}>
       <Scene
         label="Under the bell"
-        note="The trigger shows the store’s unread count — the centre reports the same through onUnreadChange while it is mounted. Open it: the centre at size='sm' and level='3', with the footer to the page. PageDown through the articles, mark one read and read the count change, press Escape."
+        note="The trigger shows the store’s unread count — the center reports the same through onUnreadChange while it is mounted. Open it: the center at size='sm' and level='3', with the footer to the page. PageDown through the articles, mark one read and read the count change, press Escape."
       >
         <Bell />
       </Scene>
@@ -533,8 +533,8 @@ export const Composition: Story = {
   render: () => (
     <Grid columns={1}>
       <Scene
-        label="The families a centre is made of"
-        note="Avatar in the visual, Button in the actions and in mark-all, Tabs in the strip, Link in the header and the footer. The family places each and owns none of their behaviour."
+        label="The families a center is made of"
+        note="Avatar in the visual, Button in the actions and in mark-all, Tabs in the strip, Link in the header and the footer. The family places each and owns none of their behavior."
       >
         <Inbox actions={<Preferences />} footer={<SeeAll />} />
       </Scene>
@@ -601,7 +601,7 @@ export const Defaults: Story = {
   render: () => (
     <Grid columns={1}>
       <Scene
-        label="Two centres under one provider"
+        label="Two centers under one provider"
         note="Neither states a size or a growing mode; both read small and paged by button. The second states controls='none' and wins. The title comes from the language in force."
       >
         <NotificationCenterDefaultsProvider growing="button" size="sm">

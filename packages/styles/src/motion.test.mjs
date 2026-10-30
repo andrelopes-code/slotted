@@ -9,7 +9,7 @@ const ledger = JSON.parse(
 ).families;
 
 /**
- * Reduced motion is honoured by reaching for a duration token, because the
+ * Reduced motion is honored by reaching for a duration token, because the
  * theme collapses those tokens in one query. A literal duration — including
  * one hidden in a `var()` fallback — is outside that query and keeps animating
  * for a reader who asked the operating system for stillness.

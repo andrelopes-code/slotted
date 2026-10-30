@@ -48,7 +48,7 @@ scale in `docs/token-foundation.md`.
 | radius 0, 2, 4, 6, 8, ≥ 9999                                       | `--slotted-radius-none`, `-xs`, `-sm`, `-md`, `-lg`, `-full`                                               |
 | radius 10, 12, 14                                                  | No step. Same rule as the length row without a step.                                                       |
 | transition 150ms `cubic-bezier(0.4, 0, 0.2, 1)` (Tailwind default) | `--slotted-duration-short` (120ms) or `--slotted-duration-medium` (200ms) with `--slotted-easing-standard` |
-| `oklch(...)` or `oklab(... / α)` colour                            | The semantic colour token with the same role (§ Semantic colour). Never a literal.                         |
+| `oklch(...)` or `oklab(... / α)` color                             | The semantic color token with the same role (§ Semantic color). Never a literal.                           |
 | `box-shadow: 0 0 0 Npx <ring>`                                     | The focus ring of `docs/token-foundation.md`, checked by `packages/styles/src/focus-ring.test.mjs`.        |
 | drop shadow                                                        | `--slotted-shadow-*` or `--slotted-control-shadow` (§ Shadow).                                             |
 | `opacity: 0.5` on disabled                                         | The Slotted disabled treatment, which keeps the label legible.                                             |

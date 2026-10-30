@@ -257,7 +257,7 @@ export class SlRadioGroup implements ControlValueAccessor, OnInit, Validator {
   /**
    * Writes every item's element from the value.
    *
-   * The HTML standard's canceled activation behaviour for a radio restores the
+   * The HTML standard's canceled activation behavior for a radio restores the
    * *clicked* element and nothing else, so the option that was chosen before
    * the refused click stays unchecked: checking one radio unchecks its
    * neighbours, and undoing the first half of that is all the platform offers.

@@ -59,7 +59,7 @@ export class SlListSection {
 export class SlListSectionLabel {
   /**
    * How the heading is drawn. `caption` is the small muted name; `ruled` is the
-   * name in the text colour over a rule, with no ground behind it.
+   * name in the text color over a rule, with no ground behind it.
    */
   readonly variant = input<ListSectionLabelVariant>('caption');
   /**

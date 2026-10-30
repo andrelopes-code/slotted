@@ -186,7 +186,7 @@ function idsOf(value: unknown): readonly string[] {
  *
  * The value is an id — or, with `selectionMode="multiple"`, an array of ids —
  * and every request to change it carries the records the family knows for
- * the new value (`request.entities`), so the normalised object reaches the
+ * the new value (`request.entities`), so the normalized object reaches the
  * consumer without a second API. The search, the page after it and the
  * resolution of an id nobody has shown the family are `source`'s; the
  * delay, the abort and the cache are the family's, in

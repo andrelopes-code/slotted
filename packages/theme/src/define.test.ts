@@ -270,7 +270,7 @@ describe('flattenTheme', () => {
     ),
   );
 
-  it('writes a derived colour as hex and an alias as var()', () => {
+  it('writes a derived color as hex and an alias as var()', () => {
     expect(flat.schemes['light']!['--slotted-tone-accent-solid']).toMatch(/^#[0-9a-f]{6}$/);
     expect(flat.schemes['light']!['--slotted-control-surface']).toBe('var(--slotted-surface)');
   });

@@ -138,10 +138,10 @@ test('draws the glyph the contract names for every status', () => {
 
 /**
  * `unknown` and `neutral` share a tone, so the mark is the only thing that can
- * tell them apart — and it has to do it without colour, which is what makes
- * the difference survive `high-contrast` and greyscale.
+ * tell them apart — and it has to do it without color, which is what makes
+ * the difference survive `high-contrast` and grayscale.
  */
-test('tells the two grey statuses apart by shape rather than by colour', () => {
+test('tells the two grey statuses apart by shape rather than by color', () => {
   assert.equal(contract.statusTones.neutral, contract.statusTones.unknown);
   assert.ok(rule(`${root}[data-status='unknown']`).includes('--_solid:transparent'));
   const ring = rule(`${ui}[data-mark='dot'][data-status='unknown'] [data-part-mark]::before`);
@@ -170,7 +170,7 @@ test('leaves the announcement policy to the accessibility tree', () => {
 
 /**
  * The disc is a whole number of pixels from the space scale, and its rim is
- * the fill itself — a rim in another colour drew a bullseye around every tone
+ * the fill itself — a rim in another color drew a bullseye around every tone
  * in dark. `warning` is the one fill below WCAG 2.2 1.4.11's 3:1 on the light
  * surface, and it alone takes an edge: the tone's border role, the same hue a
  * step darker.
@@ -199,7 +199,7 @@ test('sizes the disc on the space scale and rims it in its own fill', () => {
 });
 
 /**
- * The mark is inside the first line, centred on the capitals — `0.5cap` above
+ * The mark is inside the first line, centerd on the capitals — `0.5cap` above
  * the baseline, rounded to the device pixel — and its own bottom edge is its
  * baseline whatever it holds. The label beside it is an `inline-block`, so its
  * lines after the first hang under the first word, and it lends its first
@@ -256,7 +256,7 @@ test('sets the detail on its own muted line under the words', () => {
 
 /**
  * A mark with no visible words still carries its own word, out of flow — so a
- * gap after the mark puts a bare dot off the centre of the cell it was meant
+ * gap after the mark puts a bare dot off the center of the cell it was meant
  * to sit in.
  */
 test('takes the gap back when the label holds nothing a reader can see', () => {
@@ -268,7 +268,7 @@ test('takes the gap back when the label holds nothing a reader can see', () => {
 });
 
 /**
- * The wave is a filled disc in the dot's rim colour, under the mark, and each
+ * The wave is a filled disc in the dot's rim color, under the mark, and each
  * beat ends in a rest. It is the mark's own pseudo-element: no mark is a mask
  * any more, so nothing clips it. An icon mark does not pulse: a disc behind a
  * glyph fills its counters and blurs the silhouette the icon mark exists to
@@ -291,8 +291,8 @@ test('pulses a filled wave behind a dot, and none behind a glyph', () => {
   assert.ok(!rule(`${ui}[data-mark='icon'] [data-part-mark]`).includes('mask'));
 });
 
-/** A band of the disc's own colour outside it, and none around the hollow ring. */
-test('lights the dot with a halo of its own colour', () => {
+/** A band of the disc's own color outside it, and none around the hollow ring. */
+test('lights the dot with a halo of its own color', () => {
   assert.ok(rule(root).includes('--_halo:color-mix(in oklab,var(--_rim) 20%,transparent)'));
   assert.ok(
     rule(`${ui}[data-mark='dot'] [data-part-mark]`).includes(
@@ -324,12 +324,12 @@ test('withdraws the endless ring under reduced motion rather than shortening it'
 });
 
 /**
- * The system replaces every author colour, so the six statuses become one mark
+ * The system replaces every author color, so the six statuses become one mark
  * and the only question left is whether it is visible. A dot painted from a
  * forced `Canvas` background is not — the defect `link` found on its own
  * external mark. The glyph is `currentColor` and needs no fill behind it.
  */
-test('keeps the mark visible under forced colours and withdraws the ring', () => {
+test('keeps the mark visible under forced colors and withdraws the ring', () => {
   const query = normalized.slice(normalized.indexOf('@media (forced-colors:active)'));
   assert.ok(query.includes(`${ui}[data-mark='dot'] [data-part-mark]{background-color:CanvasText`));
   assert.ok(
@@ -370,7 +370,7 @@ test('answers a pointer only on a root the consumer made a link', () => {
   assert.ok(
     rule(`${root}:any-link:not([data-disabled]):active`).includes('color:var(--slotted-text-muted'),
   );
-  assert.ok(rule(root).includes('color:inherit'), 'a linked status keeps the page colour');
+  assert.ok(rule(root).includes('color:inherit'), 'a linked status keeps the page color');
 });
 
 /**

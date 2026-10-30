@@ -8,7 +8,7 @@ describe('spotMove', () => {
   const a = document.createElement('div');
   const b = document.createElement('div');
 
-  it('lights the cutout the tour opens on, and has nothing to do for a centred opening', () => {
+  it('lights the cutout the tour opens on, and has nothing to do for a centerd opening', () => {
     expect(spotMove(undefined, a)).toBe('light');
     expect(spotMove(undefined, null)).toBe('rest');
   });

@@ -29,7 +29,7 @@ export class SlAvatarGroupItem {
   private readonly group = inject(AVATAR_GROUP);
   private readonly avatar = contentChild(SlAvatar);
 
-  /** What the group calls this member when it has to summarise it away. */
+  /** What the group calls this member when it has to summarize it away. */
   readonly memberName = computed(() => this.avatar()?.name());
 
   protected readonly hidden = computed(() => this.group.isHiddenMember(this));

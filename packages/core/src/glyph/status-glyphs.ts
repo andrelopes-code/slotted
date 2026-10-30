@@ -7,7 +7,7 @@
  *
  * Each mark is solid: the silhouette filled, the symbol cut out of it. The
  * silhouette fills its grid edge to edge — a circle, or the warning's diamond,
- * symmetric on both axes so its centre is the box's centre.
+ * symmetric on both axes so its center is the box's center.
  *
  * A binding's `Glyph` draws all three grids and `icon.css` shows the one the
  * icon box is sized for.
@@ -25,7 +25,7 @@ export interface StatusGlyphGrid {
 export const STATUS_GLYPH_GRIDS = [12, 14, 16] as const;
 export type StatusGlyphGridSize = (typeof STATUS_GLYPH_GRIDS)[number];
 
-/** A disc of radius `r` centred on `(c, c)`. */
+/** A disc of radius `r` centerd on `(c, c)`. */
 function disc(c: number, r: number): string {
   return `M${c - r} ${c}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
 }
@@ -103,7 +103,7 @@ export const STATUS_GLYPHS = {
       strokes: ['M6 6a2 2 0 1 1 2.75 1.85c-.45.2-.75.6-.75 1.15'],
     }),
   },
-  /** A ring two units wide: nothing is happening, said by shape as well as by colour. */
+  /** A ring two units wide: nothing is happening, said by shape as well as by color. */
   'status-neutral': {
     12: circled(12, { holes: [disc(6, 4)] }),
     14: circled(14, { holes: [disc(7, 5)] }),

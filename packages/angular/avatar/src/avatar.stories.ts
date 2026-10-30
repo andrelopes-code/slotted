@@ -145,7 +145,7 @@ export const Identity: Story = {
 <div class="slotted-demo-grid" data-columns="1">
   ${scene(
     'Derived from the name',
-    'The same person keeps the same colour in a list that is re-sorted and a table that is paged. Five tones mean collisions are certain: the colour is an aid to scanning, and the name is the identifier.',
+    'The same person keeps the same color in a list that is re-sorted and a table that is paged. Five tones mean collisions are certain: the color is an aid to scanning, and the name is the identifier.',
     `<div class="slotted-demo-row">${PEOPLE.map(
       (name) => `<span slAvatar name="${name}"></span>`,
     ).join('')}</div>`,
@@ -190,7 +190,7 @@ export const Shapes: Story = {
     <span slAvatar name="Release bot" shape="square" size="lg"></span>
   </div>
   <p>
-    A circle is a person and a square is a team, an organisation or a bot — Primer's rule, taken
+    A circle is a person and a square is a team, an organization or a bot — Primer's rule, taken
     with its meaning. The corner is a sixth of the box, so it is the same shape at every step.
   </p>
 </div>`,
@@ -234,7 +234,7 @@ export const Interactive: Story = {
   </div>
   <p>
     Tab through the row. The component is written on the element the page chose, so each of these
-    keeps the platform's own behaviour. An avatar paints nothing at rest; it paints the focus ring
+    keeps the platform's own behavior. An avatar paints nothing at rest; it paints the focus ring
     and the hover edge only where the browser treats it as interactive, and holds both back when it
     is disabled. The extra-small link grows its hit area to the WCAG minimum without moving
     anything.

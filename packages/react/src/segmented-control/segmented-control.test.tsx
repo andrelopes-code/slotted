@@ -255,7 +255,7 @@ describe('SegmentedControl', () => {
     expect(control()).toHaveAttribute('data-size', 'lg');
   });
 
-  it('runs the consumer’s own handler before its own, and honours a refusal', () => {
+  it('runs the consumer’s own handler before its own, and honors a refusal', () => {
     const onClick = vi.fn((event: { preventDefault: () => void }) => {
       event.preventDefault();
     });
@@ -338,7 +338,7 @@ describe('SegmentedControl', () => {
 });
 
 /**
- * A few words, the chosen one underlined in the text colour: the same radio
+ * A few words, the chosen one underlined in the text color: the same radio
  * group — one tab stop, the arrows move the value — drawn with no track.
  */
 describe('the underline variant', () => {

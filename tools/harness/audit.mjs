@@ -62,13 +62,13 @@ export function hasSettled(counts) {
   return last > 0 && last === counts[counts.length - 2];
 }
 
-/** Overflow under this is a rounding artefact, not content leaving its box. */
+/** Overflow under this is a rounding artifact, not content leaving its box. */
 const OVERFLOW_TOLERANCE = 2;
 
 /**
- * How far a mark's centre may sit from the centre of the line it annotates.
+ * How far a mark's center may sit from the center of the line it annotates.
  *
- * A font's ascent and descent are not symmetrical, so a mark centred perfectly
+ * A font's ascent and descent are not symmetrical, so a mark centerd perfectly
  * on its line box still measures a quarter of a pixel from the middle of the
  * glyphs beside it. One pixel is above that floor and below anything a reader
  * would call aligned.
@@ -149,7 +149,7 @@ export function collapsedElements(candidates, floor = COLLAPSE_FLOOR) {
 
 /**
  * The largest amount a square of `width` × `height` can gain on the inline axis
- * by being turned about its centre: its diagonal, less the width it started at.
+ * by being turned about its center: its diagonal, less the width it started at.
  *
  * A rotation moves no layout and changes no box, but the *bounding* box of a
  * turned element is its diagonal, and scrollable overflow is measured from
@@ -240,7 +240,7 @@ export function annotatesTheLine({ markTop, markBottom, lineTop, lineBottom }) {
 }
 
 /**
- * The marks whose centre misses the centre of the line beside them. Kept out of
+ * The marks whose center misses the center of the line beside them. Kept out of
  * the page so the judgement is testable without a browser: the page measures,
  * this decides.
  *
@@ -254,7 +254,7 @@ export function offAxisMarks(marks, tolerance = AXIS_TOLERANCE) {
   return marks
     .filter((mark) => mark.hidden !== true)
     .filter((mark) => annotatesTheLine(mark))
-    .map((mark) => ({ ...mark, offset: +(mark.markCentre - mark.textCentre).toFixed(2) }))
+    .map((mark) => ({ ...mark, offset: +(mark.markCenter - mark.textCenter).toFixed(2) }))
     .filter((mark) => Math.abs(mark.offset) > tolerance);
 }
 
@@ -431,10 +431,10 @@ const MEASURE = `(() => {
    *
    * The comparison is against the *first line's* own rectangle rather than the
    * sibling's box, because a label that wrapped onto three lines has a box
-   * whose centre no mark should ever be aligned to.
+   * whose center no mark should ever be aligned to.
    *
    * A pseudo-element mark has no box to measure and is invisible here. So is a
-   * mark with no text beside it, which is a mark centred in a control of its
+   * mark with no text beside it, which is a mark centerd in a control of its
    * own and has no axis to miss.
    */
   const firstTextNode = (node) => {
@@ -514,8 +514,8 @@ const MEASURE = `(() => {
     marks.push({
       scene: label(node),
       element: describe(node),
-      markCentre: +((box.top + box.bottom) / 2).toFixed(2),
-      textCentre: +((line.top + line.bottom) / 2).toFixed(2),
+      markCenter: +((box.top + box.bottom) / 2).toFixed(2),
+      textCenter: +((line.top + line.bottom) / 2).toFixed(2),
       markTop: +box.top.toFixed(2),
       markBottom: +box.bottom.toFixed(2),
       lineTop: +line.top.toFixed(2),

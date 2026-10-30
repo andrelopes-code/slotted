@@ -275,7 +275,7 @@ export const LoaderScene: Story = {
       <Scene
         label="contained"
         layout="row"
-        note="M3's fully rounded container, at M3's own 38:48 ratio. It is the form for a photograph or a coloured surface, where a bare shape has no ground to be seen against."
+        note="M3's fully rounded container, at M3's own 38:48 ratio. It is the form for a photograph or a colored surface, where a bare shape has no ground to be seen against."
       >
         <Loader contained label="Small" size="sm" />
         <Loader contained label="Medium" size="md" />

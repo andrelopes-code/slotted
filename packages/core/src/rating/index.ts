@@ -3,11 +3,11 @@ export {
   formatRating,
   formatRatingValue,
   formatShare,
-  normaliseRating,
+  normalizeRating,
   ratingAtPoint,
   ratingFills,
   ratingForKey,
-  summariseRatings,
+  summarizeRatings,
 } from './rating';
 export type {
   RatingBuckets,

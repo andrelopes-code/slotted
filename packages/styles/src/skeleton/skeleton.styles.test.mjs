@@ -161,7 +161,7 @@ test('leaves the announcement policy to the accessibility tree', () => {
 /**
  * The fill means "a surface that is not available yet", which is what
  * `--slotted-disabled-background` already means — carried a little toward the
- * text colour, because in the dark scheme that token is one step from the
+ * text color, because in the dark scheme that token is one step from the
  * ground and a page of placeholders read as an empty page. The rim is the
  * second half of the same problem: in `high-contrast` the fill is the page's
  * own white, and the rim is what the box is left with.
@@ -187,11 +187,11 @@ test('fills with the surface that is not available, and rims it for the scheme t
  * Ant Design's answer to the same problem, and the only direction that is a
  * direction in three schemes rather than two.
  */
-test('derives the shimmer highlight instead of inventing a colour for it', () => {
+test('derives the shimmer highlight instead of inventing a color for it', () => {
   const body = rule(paint);
   assert.ok(body.includes('--_highlight:var(--slotted-skeleton-highlight-color,color-mix('));
   assert.ok(body.includes('color-mix(in oklab,var(--_fill) 86%,var(--slotted-text'));
-  assert.ok(!/#[0-9a-f]{3,8}/i.test(declarations), 'a literal colour would be a scale of its own');
+  assert.ok(!/#[0-9a-f]{3,8}/i.test(declarations), 'a literal color would be a scale of its own');
 });
 
 /**
@@ -219,8 +219,8 @@ test('shortens the last row only when there is more than one', () => {
   );
 });
 
-/** The bar sits on the optical centre of the type, not on its baseline. */
-test('centres the inline bar on the cap line, as link does its marker', () => {
+/** The bar sits on the optical center of the type, not on its baseline. */
+test('centers the inline bar on the cap line, as link does its marker', () => {
   assert.ok(rule(`${root}[data-shape='text']`).includes('vertical-align:calc(0.5cap'));
 });
 
@@ -241,7 +241,7 @@ test('never resolves to an invisible box', () => {
 /**
  * The covering form, told apart from the drawn one by the DOM rather than by
  * an attribute the binding would have to invent. `visibility` hides an element
- * child; a bare text node is not an element, and only the colour reaches it.
+ * child; a bare text node is not an element, and only the color reaches it.
  */
 test('takes the geometry of the content it covers, and hides both kinds of child', () => {
   const body = rule(`${root}[data-loading]:not(:empty)`);
@@ -363,7 +363,7 @@ test('stops the endless loop under reduced motion rather than shortening it', ()
  * `background-image` is not remapped, so the sweep is the one thing this
  * family has to withdraw itself.
  */
-test('withdraws the sweep under forced colours, where a gradient is not replaced', () => {
+test('withdraws the sweep under forced colors, where a gradient is not replaced', () => {
   const query = normalized.slice(normalized.indexOf('@media (forced-colors:active)'));
   assert.ok(
     query.includes(

@@ -232,7 +232,7 @@ export const Alignment: Story = {
         label="center"
         note="Right while the block is one line, and wrong as soon as it is three: the mark floats in the middle of a paragraph it is meant to introduce."
       >
-        <Set label="Centred">
+        <Set label="Centerd">
           <ListItem align="center">
             <ListItemContent>
               <ListItemStart>
@@ -643,7 +643,7 @@ export const Composition: Story = {
                 <ListItemBody>
                   <ListItemLabel>States its own tone and alignment</ListItemLabel>
                   <ListItemDescription>
-                    Neutral ink, and the mark centred on the block — because an explicit value
+                    Neutral ink, and the mark centerd on the block — because an explicit value
                     always wins.
                   </ListItemDescription>
                 </ListItemBody>

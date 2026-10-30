@@ -256,7 +256,7 @@ describe('SlEventCalendar', () => {
     ]);
   });
 
-  it('chooses days with Space and Shift, clears with Escape, and honours a cancel', () => {
+  it('chooses days with Space and Shift, clears with Escape, and honors a cancel', () => {
     const fixture = renderTemplate(
       `<div slEventCalendar [events]="[]" [defaultDate]="twentyFourth" selectionMode="range" timeZone="UTC" (selectionRequest)="onSelection($event)"></div>`,
     );

@@ -40,7 +40,7 @@ import { injectMessageScrollerDefaults } from './message-scroller-defaults';
  * a parent whose height is bounded; the viewport inside it scrolls and the
  * jump control stands over it.
  *
- * The behaviour is `@slotted/core/message-scroller`: where a saved
+ * The behavior is `@slotted/core/message-scroller`: where a saved
  * conversation opens, whether new words pull the view (`follow`), where a
  * turn the reader sends stands (`anchor` on the item), older rows arriving
  * above without moving the reader, and jumps — `scrollToMessage()` on the

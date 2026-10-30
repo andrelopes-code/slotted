@@ -214,14 +214,14 @@ export const PROGRESS_WAVE_RING_PATH =
  * size: `LinearProgressIndicatorTokens` states a 4dp stroke, a 3dp amplitude
  * and a 40dp wavelength when the value is known, and a 20dp wavelength while
  * it is not. A crest therefore rises three quarters of a thickness either side
- * of the centre line, one wavelength is ten thicknesses, and the indeterminate
+ * of the center line, one wavelength is ten thicknesses, and the indeterminate
  * wave is twice as tight.
  *
  * Each half-crest is one cubic with its control points at 0.364 and 0.636 of
  * the span, each holding the height of the end it belongs to — the standard
  * cubic approximation of a sine half-wave, and the same fit the ring uses.
  * After the first cubic the path continues with `s`, whose first control point
- * is the reflection of the previous one; every reflection lands on the centre
+ * is the reflection of the previous one; every reflection lands on the center
  * line, so the shorthand draws the same curve in half the characters.
  *
  * The path is drawn in full and the stylesheet shows a window of it with a
@@ -230,7 +230,7 @@ export const PROGRESS_WAVE_RING_PATH =
  * `LinearWavyProgressModifiers` cuts its own segment with a `PathMeasure`.
  * `pathLength` is declared as the path's extent along the inline axis, so a
  * dash of one unit is one thickness of travel whatever the amplitude: the
- * arc length of a sine is longer than its span, and normalising the length to
+ * arc length of a sine is longer than its span, and normalizing the length to
  * the span is what lets the stylesheet place the end at the value without
  * knowing the amplitude the path currently has.
  *
@@ -250,7 +250,7 @@ export function progressWaveBarPath(wavelength: number, amplitude: number): stri
   const first = Number((0.364 * half).toFixed(2));
   const second = Number((0.636 * half).toFixed(2));
   const cycles = PROGRESS_WAVE_BAR_REACH / wavelength;
-  /* The path starts in a trough, so the centre line is `y = 0` and the crests
+  /* The path starts in a trough, so the center line is `y = 0` and the crests
      reach half the amplitude either side of it. */
   let d = `M0 ${-amplitude / 2}c${first} 0 ${second} ${amplitude} ${half} ${amplitude}`;
   for (let i = 1; i < cycles * 2; i += 1) {

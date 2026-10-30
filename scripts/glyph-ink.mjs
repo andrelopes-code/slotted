@@ -1,7 +1,7 @@
 /**
  * Where the ink of a Lucide drawing actually falls inside the 24-unit viewBox.
  *
- * A mask is centred on the box that consumes it, so what has to be centred is
+ * A mask is centerd on the box that consumes it, so what has to be centerd is
  * the ink and not the viewBox. Lucide frames each icon for the set rather than
  * for the middle: the `check` path is drawn from (4, 6) to (20, 17), and with
  * a stroke of 3 and round caps its ink runs from y 4.5 to y 18.5 — half a unit
@@ -20,7 +20,7 @@
  * round joins, and `renderGlyph` writes both into the root element.
  */
 
-/** The viewBox every glyph is drawn in, and therefore the centre to reach. */
+/** The viewBox every glyph is drawn in, and therefore the center to reach. */
 export const VIEW_BOX = 24;
 
 const NUMBER = /-?\d*\.?\d+(?:e[-+]?\d+)?/gi;
@@ -76,11 +76,11 @@ function cubicBounds(bounds, x0, y0, x1, y1, x2, y2, x3, y3) {
 }
 
 /**
- * The endpoint parameterisation an `A` command carries, turned into the centre
+ * The endpoint parameterisation an `A` command carries, turned into the center
  * parameterisation its extremes are solvable in — the conversion the SVG
  * specification writes out in F.6.5.
  */
-function arcCentre(x0, y0, rx, ry, rotation, largeArc, sweep, x1, y1) {
+function arcCenter(x0, y0, rx, ry, rotation, largeArc, sweep, x1, y1) {
   const phi = (rotation * Math.PI) / 180;
   const cos = Math.cos(phi);
   const sin = Math.sin(phi);
@@ -127,7 +127,7 @@ function arcBounds(bounds, x0, y0, rx, ry, rotation, largeArc, sweep, x1, y1) {
   include(bounds, x0, y0);
   include(bounds, x1, y1);
   if (rx === 0 || ry === 0) return;
-  const arc = arcCentre(x0, y0, rx, ry, rotation, largeArc, sweep, x1, y1);
+  const arc = arcCenter(x0, y0, rx, ry, rotation, largeArc, sweep, x1, y1);
   const cos = Math.cos(arc.phi);
   const sin = Math.sin(arc.phi);
   const at = (theta) => [
@@ -294,16 +294,16 @@ export function inkBox(node, { paint, strokeWidth }) {
 }
 
 /**
- * How far the ink has to move for its centre to be the centre of the box.
+ * How far the ink has to move for its center to be the center of the box.
  *
  * Three decimals of a viewBox unit is 0.0007px in a sixteen-pixel mask, which
  * is under the precision the arc solver itself carries: `loader-circle` is a
- * circle drawn as two arcs and comes out 0.0004 of a unit off centre, and that
+ * circle drawn as two arcs and comes out 0.0004 of a unit off center, and that
  * is the solver rounding, not the drawing. Rounding here is what keeps a
- * drawing that is already centred from being wrapped in a transform that moves
+ * drawing that is already centerd from being wrapped in a transform that moves
  * it by nothing.
  */
-export function centringOffset(node, options) {
+export function centeringOffset(node, options) {
   const ink = inkBox(node, options);
   const round = (value) => Number(value.toFixed(3));
   return {
@@ -314,15 +314,15 @@ export function centringOffset(node, options) {
 
 /**
  * The optical correction: the offset that puts the glyph's main shape — the
- * elements `body` names — on the centre, rather than its whole ink. The eye
- * centres a calendar on its page and not on the rings above it: centred on
+ * elements `body` names — on the center, rather than its whole ink. The eye
+ * centers a calendar on its page and not on the rings above it: centerd on
  * the whole ink, the page sat 1 unit low, 0.6px beside a 14px label's
- * cap-height centre. The move is held inside the box, so no protrusion is
+ * cap-height center. The move is held inside the box, so no protrusion is
  * pushed past the viewBox.
  */
 export function opticalOffset(node, body, options) {
   const ink = inkBox(node, options);
-  const main = centringOffset(
+  const main = centeringOffset(
     body.map((index) => node[index]),
     options,
   );

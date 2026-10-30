@@ -12,7 +12,7 @@ describe('fitBound', () => {
     expect(ceiling.k).toHaveLength(27);
   });
 
-  it('never lets a colour under the ceiling exceed the target luminance', () => {
+  it('never lets a color under the ceiling exceed the target luminance', () => {
     for (let h = 0; h < 360; h += 7) {
       for (let c = 0; c <= 0.25; c += 0.025) {
         const l = boundValue(ceiling, c, h);

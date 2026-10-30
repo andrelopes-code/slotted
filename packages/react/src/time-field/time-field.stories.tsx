@@ -410,7 +410,7 @@ export const States: Story = {
       </Scene>
       <Scene
         label="Invalid and required, in a field"
-        note="The message is the field’s and the state is the control’s. Colour alone never says invalid: the group carries aria-invalid and the error is associated by id."
+        note="The message is the field’s and the state is the control’s. Color alone never says invalid: the group carries aria-invalid and the error is associated by id."
       >
         <Field invalid>
           <FieldLabel>Start time</FieldLabel>

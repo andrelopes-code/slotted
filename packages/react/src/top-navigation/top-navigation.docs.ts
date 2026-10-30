@@ -394,7 +394,7 @@ const press = (to: string) => (event: MouseEvent) => {
   {
     id: 'actions',
     title: 'The global controls',
-    note: 'Help as a link to a help centre or as the trigger of a popover; the bell with a count over its corner that grows to a pill away from it; the account as a menu’s trigger; a control of the product’s own — approvals — in the same square, with its own glyph and the same count. Each carries its name for a reader and repeats it in a tooltip.',
+    note: 'Help as a link to a help center or as the trigger of a popover; the bell with a count over its corner that grows to a pill away from it; the account as a menu’s trigger; a control of the product’s own — approvals — in the same square, with its own glyph and the same count. Each carries its name for a reader and repeats it in a tooltip.',
     snippet: defineSnippet({
       id: 'top-navigation-react-actions',
       language: 'tsx',

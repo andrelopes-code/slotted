@@ -7,7 +7,7 @@
  * a pure function over four numbers, so the part that decides whether a control
  * is drawn is tested without a layout engine.
  *
- * The scroll offset is normalised on the way in. A right-to-left scroller
+ * The scroll offset is normalized on the way in. A right-to-left scroller
  * reports a negative `scrollLeft` — zero at the start, which is the right-hand
  * edge — so the distance from the start is its magnitude in both directions,
  * and every rule below is written once instead of mirrored.
@@ -97,7 +97,7 @@ export interface ScrollAffordanceHandle {
  *
  * A CSS transition answers `prefers-reduced-motion` through the theme, which
  * collapses the duration scale under one query. A programmatic scroll is
- * outside that: `behavior: 'smooth'` is honoured by the browser whatever the
+ * outside that: `behavior: 'smooth'` is honored by the browser whatever the
  * setting says, so the setting is read here instead.
  */
 function prefersReducedMotion(view: Window | null): boolean {

@@ -208,9 +208,9 @@ test('aligns a text adornment optically with a glyph one', () => {
 /**
  * The shadow and the ring are one decision. A framed control carries the
  * foundation's resting shadow, a focused one redraws it in the focus ring's
- * colour, and a control nobody can reach carries none.
+ * color, and a control nobody can reach carries none.
  */
-test('lifts the frame at rest, in the state colour on focus, and never while disabled', () => {
+test('lifts the frame at rest, in the state color on focus, and never while disabled', () => {
   assert.match(
     rule(root),
     /box-shadow:var\(--slotted-text-field-shadow,var\(--slotted-control-shadow,none\)\)/,
@@ -231,7 +231,7 @@ test('lifts the frame at rest, in the state colour on focus, and never while dis
  * the frame and the ring on either button all move with one declaration — which
  * is the rule the remaining controls inherit rather than restate.
  */
-test('points the focus ring at the invalid colour rather than repainting it', () => {
+test('points the focus ring at the invalid color rather than repainting it', () => {
   assert.match(
     rule(`${root}[data-invalid]`),
     /--slotted-focus-ring-color:var\(--slotted-text-field-invalid-focus-ring-color,var\(--slotted-focus-ring-color-invalid/,
@@ -244,7 +244,7 @@ test('points the focus ring at the invalid colour rather than repainting it', ()
  * the control's own icon step.
  */
 /**
- * Colour alone does not say a field is wrong (WCAG 1.4.1): in `high-contrast`
+ * Color alone does not say a field is wrong (WCAG 1.4.1): in `high-contrast`
  * the control edge, the danger border and both rings are one black. An
  * invalid frame adds an inset edge of `--slotted-control-invalid-edge-width`
  * inside its border, at rest and under focus, so its line is thicker than a
@@ -254,10 +254,10 @@ test('points the focus ring at the invalid colour rather than repainting it', ()
 test('draws an invalid frame with a thicker edge, at rest and under focus', () => {
   const width =
     'var(--slotted-text-field-invalid-edge-width,var(--slotted-control-invalid-edge-width,1px))';
-  const colour = 'var(--slotted-text-field-invalid-border-color,var(--slotted-tone-danger-border))';
+  const color = 'var(--slotted-text-field-invalid-border-color,var(--slotted-tone-danger-border))';
   const invalid = rule(`${root}[data-invalid]`);
   assert.ok(invalid.includes(`--_invalid-edge-width:${width}`), invalid);
-  assert.ok(invalid.includes(`--_invalid-edge-color:${colour}`), invalid);
+  assert.ok(invalid.includes(`--_invalid-edge-color:${color}`), invalid);
   assert.ok(
     invalid.includes(
       '--_invalid-edge:inset 0 0 0 var(--_invalid-edge-width) var(--_invalid-edge-color)',
@@ -289,10 +289,10 @@ test('takes the plain variant’s edge past the ring drawn inside it', () => {
 });
 
 /**
- * Forced colours remove box shadows, and the edge was one. It comes back as an
+ * Forced colors remove box shadows, and the edge was one. It comes back as an
  * outline inside the border; focused, the invalid ring is double.
  */
-test('keeps the invalid width under forced colours', () => {
+test('keeps the invalid width under forced colors', () => {
   const forced = normalized.slice(normalized.lastIndexOf('@media (forced-colors:active)'));
   assert.ok(
     forced.includes(
@@ -327,7 +327,7 @@ test('withdraws the search decorations the platform would add', () => {
 /**
  * Chrome paints its own ground over an autofilled control and the inset shadow
  * is the only way to reach it. The signal is kept rather than erased: an
- * autofilled value is a fact worth seeing, repainted in a colour the theme
+ * autofilled value is a fact worth seeing, repainted in a color the theme
  * owns instead of in the browser's yellow.
  */
 test('repaints autofill in the theme rather than erasing the signal', () => {
@@ -401,18 +401,18 @@ test('keeps read-only legible and tells it apart from disabled', () => {
 });
 
 /**
- * A transparent border has no system colour to be remapped to, so the `plain`
+ * A transparent border has no system color to be remapped to, so the `plain`
  * control would lose its only edge exactly where an edge matters most. It is
  * the one rule the theme cannot write on the family's behalf.
  */
-test('gives the borderless variant an edge under forced colours', () => {
+test('gives the borderless variant an edge under forced colors', () => {
   assert.match(declarations, /@media \(forced-colors: active\)/);
   assert.match(rule(`${root}[data-variant='plain']`), /border-color:transparent/);
   assert.ok(
     normalized.includes(
       `@media (forced-colors:active){${root}[data-variant='plain']{border-color:ButtonBorder;}`,
     ),
-    'the plain variant keeps no edge under forced colours',
+    'the plain variant keeps no edge under forced colors',
   );
 });
 
@@ -460,13 +460,13 @@ test('states the tables of its scenes as compact on the theme axis', () => {
 });
 
 /**
- * A mark beside words is centred on the band the letters occupy, not on the
+ * A mark beside words is centerd on the band the letters occupy, not on the
  * line box, which keeps room for descenders and drops the mark below the
  * letters (docs/build-briefing.md, _A mark beside a line of text is aligned to
- * the text_). Measured in Chrome: the chevron's centre and the letters' band
+ * the text_). Measured in Chrome: the chevron's center and the letters' band
  * agree to 0.00 px.
  */
-test('centres the mark of a worded button on the letters, not on the line box', () => {
+test('centers the mark of a worded button on the letters, not on the line box', () => {
   const flat = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
   assert.match(flat, /align-items: baseline;/);
   assert.match(

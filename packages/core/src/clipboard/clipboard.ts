@@ -26,7 +26,7 @@
  *   both, in the top document and inside the preview iframe.
  *
  * It lives in `@slotted/core` rather than in each binding because it is now
- * behaviour the two would get differently wrong: a temporary selection that is
+ * behavior the two would get differently wrong: a temporary selection that is
  * not taken back leaves the reader's own selection destroyed, and that is a bug
  * a family would rediscover once per framework.
  */

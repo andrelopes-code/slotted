@@ -222,7 +222,7 @@ export function ComboboxInput({ ref, render, ...nativeProps }: ComboboxInputProp
     /**
      * A completion is offered only while the reader is adding characters. One
      * who is deleting is taking the text apart, and writing the rest of a word
-     * back into the field they are emptying is the behaviour that makes
+     * back into the field they are emptying is the behavior that makes
      * `autocomplete="both"` unusable in the implementations that get it wrong.
      * The popup writes it, because the popup is the only thing that knows which
      * option matched first.

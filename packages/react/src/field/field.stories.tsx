@@ -210,8 +210,8 @@ export const States: Story = {
   render: () => (
     <Grid columns={2}>
       <Scene
-        label="Invalid, and what stays the colour it was"
-        note="Only the message turns. The label keeps its ink because the error already says the same thing in words and in colour, and a red marker on a red label is a marker nobody can see."
+        label="Invalid, and what stays the color it was"
+        note="Only the message turns. The label keeps its ink because the error already says the same thing in words and in color, and a red marker on a red label is a marker nobody can see."
       >
         <Field invalid required>
           <FieldLabel>Tax ID</FieldLabel>
@@ -222,7 +222,7 @@ export const States: Story = {
       </Scene>
       <Scene
         label="Read-only, and disabled"
-        note="Read-only stays focusable and copyable and looks nothing like disabled, which is muted to a colour the theme measures rather than faded by opacity — a label nobody can read is a field nobody can identify."
+        note="Read-only stays focusable and copyable and looks nothing like disabled, which is muted to a color the theme measures rather than faded by opacity — a label nobody can read is a field nobody can identify."
       >
         <Field readOnly>
           <FieldLabel>Account identifier</FieldLabel>

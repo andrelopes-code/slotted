@@ -6,7 +6,7 @@ import { meaningCell, resolveValue, type TokenSource } from './tokens.ts';
 
 /**
  * `project/tokens.json` of the Design System export: the default theme's
- * values in the type's grammar (lists of `{name, value, usage}`, colours as
+ * values in the type's grammar (lists of `{name, value, usage}`, colors as
  * hex per scheme), each usage note the purpose and meaning the theme
  * contract's groups give, as `tokens.md` reads them.
  */
@@ -64,13 +64,13 @@ const THEME_NAMES: Record<Scheme, string> = {
   dark: 'Dark',
   'high-contrast': 'High contrast',
 };
-/** A colour the type reads: hex, or a colour function of plain numbers (`format.md`). */
+/** A color the type reads: hex, or a color function of plain numbers (`format.md`). */
 const COLOR =
   /^(?:#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})|(?:rgba?|hsla?|oklch|oklab|lab|lch)\([0-9.%\s,/+-]+\))$/;
 
 /**
- * A share of a colour over transparency, as a state layer is written, read as
- * the colour itself at that alpha: interpolation is premultiplied, so mixing
+ * A share of a color over transparency, as a state layer is written, read as
+ * the color itself at that alpha: interpolation is premultiplied, so mixing
  * with `transparent` keeps the hue and scales only the alpha.
  */
 function overTransparency(value: string): string {

@@ -69,7 +69,7 @@ function readInk(host: HTMLElement): Ink {
   probe.style.color = 'var(--docs-canvas, var(--slotted-surface))';
   const ground = getComputedStyle(probe).color;
   probe.remove();
-  /* The computed colour may be oklab or color(); a one-pixel canvas reads any of them back as sRGB. */
+  /* The computed color may be oklab or color(); a one-pixel canvas reads any of them back as sRGB. */
   const pixel = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
   let luminance = 1;
   if (pixel) {

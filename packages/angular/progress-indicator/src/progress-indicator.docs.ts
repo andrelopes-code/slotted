@@ -125,7 +125,7 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'angular',
       label: 'Bare, and in M3’s container',
       source:
-        '<span slLoader label="Signing you in"></span>\n\n<!-- On a photograph or a coloured surface, where a bare shape has no ground. -->\n<span slLoader contained label="Signing you in" size="lg"></span>',
+        '<span slLoader label="Signing you in"></span>\n\n<!-- On a photograph or a colored surface, where a bare shape has no ground. -->\n<span slLoader contained label="Signing you in" size="lg"></span>',
     }),
   },
   {
@@ -213,7 +213,7 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'tones',
-    title: 'What the wait means, in colour',
+    title: 'What the wait means, in color',
     note: 'The five the theme owns, each in the context it exists for: work in hand, a background job, an upload that landed, a quota nearly spent, a transfer that failed.',
     snippet: defineSnippet({
       id: 'progress-indicator-angular-tones',
@@ -408,7 +408,7 @@ export const ANGULAR_PROGRESS_INDICATOR_DOCS = {
         'boolean',
         'true',
         'all three',
-        'Whether the wait is still on. false withdraws the indicator, honouring minDuration',
+        'Whether the wait is still on. false withdraws the indicator, honoring minDuration',
       ],
       [
         'delay',
@@ -483,7 +483,7 @@ export const ANGULAR_PROGRESS_INDICATOR_DOCS = {
       'An accessible name is required, and there are three ways to give one: label, an aria-label or aria-labelledby you wrote on your own element — read once through HostAttributeToken and never overwritten — or decorative for the case the feature guide names. With none of the three, development warns and the indicator still renders: a nameless bar reports visually, and taking a screen down mid-upload is worse than the defect.',
       'If the indicator describes the loading of a region, ARIA asks you to set aria-busy on that region and point aria-describedby at the indicator. The family writes neither, because the region is yours; the accessibility demonstration shows both.',
       'Under prefers-reduced-motion every loop stops rather than shortening — an animation that repeats forever needs to stop, and the indeterminate indicator rests at a length that reads as a fraction rather than as nought or as full. The cost is real: a still indicator says nothing on its own, so the name matters more, and the loader is best given a visible label.',
-      'The indicator is a tone’s text role, which the theme holds to the 4.5:1 reading ratio against every surface — more than the 3:1 WCAG 2.2 1.4.11 asks of a meaningful graphic — in all three colour schemes. Under forced colours the track keeps a ButtonBorder edge and the indicator takes Highlight, so the geometry survives a palette the family did not choose.',
+      'The indicator is a tone’s text role, which the theme holds to the 4.5:1 reading ratio against every surface — more than the 3:1 WCAG 2.2 1.4.11 asks of a meaningful graphic — in all three color schemes. Under forced colors the track keeps a ButtonBorder edge and the indicator takes Highlight, so the geometry survives a palette the family did not choose.',
     ],
     snippets: [
       defineSnippet({

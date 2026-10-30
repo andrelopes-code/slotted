@@ -106,8 +106,8 @@ test('windows rows with padding and height, and never with a transform', () => {
 });
 
 /**
- * The cursor at rest is an inset shadow in the theme's ring colour at 60%,
- * and under `:focus-visible` the same trace is an outline in the ring colour
+ * The cursor at rest is an inset shadow in the theme's ring color at 60%,
+ * and under `:focus-visible` the same trace is an outline in the ring color
  * whole, drawn inward because a cell has no margin for an outer ring.
  */
 test('draws the cursor inward, at rest as a shadow and under focus as the ring', () => {
@@ -468,7 +468,7 @@ test('draws the pop-in on the row’s second line, across the frame, after the g
     "[data-ui-data-grid][data-popin] > [data-part-scroll] > [data-part-summary] > [role='row']",
   );
   assert.match(summary, /grid-template-rows:minmax\(var\(--_head-block\),auto\) auto;/);
-  /* The chooser, the expander, the values and the actions are centred on the
+  /* The chooser, the expander, the values and the actions are centerd on the
      values' line, as in a fixed row. */
   const first = rule(
     "[data-ui-data-grid][data-popin] :is([data-part-body],[data-part-pinned-rows]) > [data-part-row] > :is([role='gridcell'],[role='rowheader']):not([data-part-popin])",

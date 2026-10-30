@@ -223,8 +223,8 @@ export const Align: Story = {
   render: () => (
     <Grid columns={1}>
       <Scene
-        label="Centred, two and a half rem of each neighbour"
-        note="Every slide is a page; the ones either side show at the edges. Press one and it comes to the centre."
+        label="Centerd, two and a half rem of each neighbour"
+        note="Every slide is a page; the ones either side show at the edges. Press one and it comes to the center."
       >
         <Carousel align="center" aria-label="One-of-a-kind pieces" defaultPage={1} style={PEEK}>
           <CarouselViewport>
@@ -318,7 +318,7 @@ export const Indicators: Story = {
     <Grid columns={1}>
       <Scene
         label="dots"
-        note="The current page is a bar three dots long; shape, not colour alone, says which."
+        note="The current page is a bar three dots long; shape, not color alone, says which."
       >
         <Slideshow label="Collection with dots" />
       </Scene>
@@ -673,7 +673,7 @@ export const Empty: Story = {
   ),
 };
 
-const COLOURS = [
+const COLORS = [
   { value: 'mel', label: 'Honey', slide: 3 },
   { value: 'salvia', label: 'Sage', slide: 1 },
   { value: 'indigo', label: 'Indigo', slide: 4 },
@@ -681,7 +681,7 @@ const COLOURS = [
 
 function ProductPage() {
   const gallery = useRef<CarouselHandle>(null);
-  const [colour, setColour] = useState<string>('mel');
+  const [color, setColor] = useState<string>('mel');
   return (
     <div className="slotted-demo-grid" data-columns="2">
       <Gallery handleRef={gallery} />
@@ -694,13 +694,13 @@ function ProductPage() {
         <SegmentedControl
           aria-label="Cor"
           onValueChange={(value) => {
-            setColour(value as string);
-            const entry = COLOURS.find((candidate) => candidate.value === value);
+            setColor(value as string);
+            const entry = COLORS.find((candidate) => candidate.value === value);
             if (entry !== undefined) gallery.current?.scrollToSlide(entry.slide);
           }}
-          value={colour}
+          value={color}
         >
-          {COLOURS.map((entry) => (
+          {COLORS.map((entry) => (
             <Segment key={entry.value} value={entry.value}>
               {entry.label}
             </Segment>
@@ -718,7 +718,7 @@ export const Composition: Story = {
     <Grid columns={1}>
       <Scene
         label="A product page"
-        note="Choose a colour and the gallery goes to its photograph through handleRef.scrollToSlide."
+        note="Choose a color and the gallery goes to its photograph through handleRef.scrollToSlide."
       >
         <ProductPage />
       </Scene>

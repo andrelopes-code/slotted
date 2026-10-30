@@ -206,7 +206,7 @@ describe('a picture already in the browser cache', () => {
   });
 });
 
-describe('the colour a name resolves to', () => {
+describe('the color a name resolves to', () => {
   it('gives the same name the same tone, whenever and wherever it is rendered', () => {
     render(
       <>

@@ -76,7 +76,7 @@ describe('the viewer of a 2000 × 1000 picture in a 1440 × 900 window', () => {
     await page.viewport(412, 915);
   });
 
-  it('draws the picture whole at the stage width, centred, on a layer the size of the window', async () => {
+  it('draws the picture whole at the stage width, centerd, on a layer the size of the window', async () => {
     await page.viewport(1440, 900);
     await open('wide');
     const stage = part('stage')!.getBoundingClientRect();
@@ -114,9 +114,9 @@ describe('the viewer of a 2000 × 1000 picture in a 1440 × 900 window', () => {
     await settle();
     const stage = part('stage')!;
     const scroll = { left: stage.scrollLeft, top: stage.scrollTop };
-    const centre = stage.getBoundingClientRect();
-    const x = centre.left + centre.width / 2;
-    const y = centre.top + centre.height / 2;
+    const center = stage.getBoundingClientRect();
+    const x = center.left + center.width / 2;
+    const y = center.top + center.height / 2;
 
     await mouse('mousePressed', x, y);
     await mouse('mouseMoved', x - 120, y - 80);

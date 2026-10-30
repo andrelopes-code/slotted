@@ -47,7 +47,7 @@ test('paints every part the contract declares, and no part it does not', () => {
 });
 
 /**
- * "On" is one colour across the system, and it is the pair
+ * "On" is one color across the system, and it is the pair
  * `docs/token-foundation.md` names for the chosen row, card, option and
  * toggle: the accent ground inside the accent edge. `button` paints a pressed
  * ToggleButton with the same pair, so a toggle that is on reads the same
@@ -78,7 +78,7 @@ test('paints an item that is on with the foundation pair and not with a fill', (
  * The root states no border and no padding, so the group is exactly
  * `--slotted-control-height-*` tall and a bar beside a text field in a form
  * lines up with it. The first pass framed the root as well, and the reviewer
- * read the result correctly: a coloured border inside a grey one, and an edge
+ * read the result correctly: a colored border inside a grey one, and an edge
  * that was one pixel in places and two in others.
  */
 test('leaves the frame to the items, so the bar is one control tall', () => {
@@ -124,12 +124,12 @@ test('joins the items by overlapping one edge and painting one of them', () => {
 });
 
 /**
- * The border is always there and only its colour moves. A border that appears
+ * The border is always there and only its color moves. A border that appears
  * when an item is pressed moves every label in the bar by a pixel, and an item
  * that is on has to be raised or the neighbour that follows it in the document
  * paints over the edge it just stated.
  */
-test('never changes the presence of an edge, only its colour', () => {
+test('never changes the presence of an edge, only its color', () => {
   assert.match(dense, /\[data-part-item\]\{[^}]*border:var\(--_border-width\)solidtransparent/);
   assert.ok(
     !/box-shadow:inset/.test(dense),

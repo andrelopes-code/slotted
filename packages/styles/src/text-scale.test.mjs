@@ -58,11 +58,11 @@ const DECORATIVE = new Map([
   ],
   [
     'color-picker/area-thumb',
-    'the thumbs of the area and the channels: discs of colour with no text, grown to 1.15 while the pointer drags them',
+    'the thumbs of the area and the channels: discs of color with no text, grown to 1.15 while the pointer drags them',
   ],
   [
     'color-picker/preset',
-    'a preset swatch: a square of colour with no text, its name in aria-label, lifted to 1.08 under the pointer and settled to 0.94 under the press',
+    'a preset swatch: a square of color with no text, its name in aria-label, lifted to 1.08 under the pointer and settled to 0.94 under the press',
   ],
   [
     'message/caret',

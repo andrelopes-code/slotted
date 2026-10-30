@@ -20,7 +20,7 @@ import {
 } from './transfer-defaults';
 import { ANGULAR_TRANSFER_DOCS, ANGULAR_TRANSFER_TOKENS } from './transfer.docs';
 
-/* ── A project team, drawn from an engineering organisation ────────────── */
+/* ── A project team, drawn from an engineering organization ────────────── */
 
 const PEOPLE: TransferItem[] = [
   { key: 'ana', label: 'Anna Sutton', description: 'Design · Seattle' },

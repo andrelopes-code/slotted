@@ -17,7 +17,7 @@ const stepper = (part: 'increment' | 'decrement') =>
 
 /**
  * `Intl` separates a symbol from its amount with a non-breaking space, and the
- * normalisation runs over the value the control holds rather than over the
+ * normalization runs over the value the control holds rather than over the
  * expectation: a test that wrote the invisible character itself would compare
  * two strings a reader cannot tell apart.
  */

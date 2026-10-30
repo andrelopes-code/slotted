@@ -177,8 +177,8 @@ export const Pressed: Story = {
         <button slIconButton aria-label="Underline" [defaultPressed]="false">${icon('lucideUnderline')}</button>
       </div>
       <div class="slotted-demo-row">
-        <button slIconButton aria-label="Favourite" defaultPressed shape="circle" tone="warning">${icon('lucideStar')}</button>
-        <button slIconButton aria-label="Favourite, unavailable" defaultPressed disabled shape="circle">${icon('lucideStar')}</button>
+        <button slIconButton aria-label="Favorite" defaultPressed shape="circle" tone="warning">${icon('lucideStar')}</button>
+        <button slIconButton aria-label="Favorite, unavailable" defaultPressed disabled shape="circle">${icon('lucideStar')}</button>
       </div>
     </div>`,
   }),

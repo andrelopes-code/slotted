@@ -175,7 +175,7 @@ test('answers every key the pattern lists, and says where focus lands', () => {
 });
 
 /**
- * The one key whose behaviour departs from the example it was transcribed from.
+ * The one key whose behavior departs from the example it was transcribed from.
  * A departure with no written cost is the failure `patterns.md` names.
  */
 test('records the one key that departs from the example, as a departure', () => {

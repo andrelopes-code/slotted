@@ -9,7 +9,7 @@ import type { TextProps, TypographyRootProps } from './typography.types';
  * default is a span, which claims nothing: a paragraph, a label or a table
  * cell is a claim the consumer makes, through `render`.
  *
- * Colour is inherited rather than painted, so text on a tonal surface reads
+ * Color is inherited rather than painted, so text on a tonal surface reads
  * that surface until `tone` asks for something else.
  */
 export function Text({

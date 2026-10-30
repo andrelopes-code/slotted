@@ -2,7 +2,7 @@ import { computed, Directive, input } from '@angular/core';
 import type { Corner, Density, Scheme } from '@slotted/theme';
 import { seedStyle, type SeedName } from '@slotted/theme/seeds';
 
-/** The five seeds a theme derives its colours from (`@slotted/theme` › `SEED_NAMES`). */
+/** The five seeds a theme derives its colors from (`@slotted/theme` › `SEED_NAMES`). */
 export type ThemeSeedName = SeedName;
 /** A recipe scheme (`@slotted/theme` › `Scheme`), plus `system`: resolved from `prefers-color-scheme`. */
 export type ThemeSchemeName = Scheme | 'system';

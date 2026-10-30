@@ -142,7 +142,7 @@
      * needed: `1lh` read on the mark itself resolved against the mark's own
      * inherited twelve pixels and `normal`, which is a fourteen-pixel line box
      * against the title's nineteen. The mark sat two and a half pixels above
-     * the line it was supposed to be centred on, which is visible and was
+     * the line it was supposed to be centerd on, which is visible and was
      * reported from the picture rather than by a test.
      */
     font-size: var(--_title-font-size);
@@ -264,12 +264,12 @@
   /* ── Align ────────────────────────────────────────────────────────────
    *
    * Carbon left-aligns its empty states inside data-dense views; the other six
-   * surveyed implementations centre unconditionally. Both readings are real,
+   * surveyed implementations center unconditionally. Both readings are real,
    * and one axis is cheaper than a second family.
    *
    * `justify-items` places the boxes and `text-align` places the words inside
-   * them, because a centred box holding left-aligned prose is the defect this
-   * would otherwise ship: the title looks centred until the description wraps
+   * them, because a centerd box holding left-aligned prose is the defect this
+   * would otherwise ship: the title looks centerd until the description wraps
    * onto a second line.
    */
   [data-ui-result-state][data-part-root][data-align='center'] {
@@ -308,7 +308,7 @@
    * projecting a node: the page names its own illustration and shows the box in
    * the same rule, which is one snippet in the family's documentation. It is
    * painted as an image rather than as a mask, because what goes there now is a
-   * drawing in its own colours and not a silhouette in a tone; and when nothing
+   * drawing in its own colors and not a silhouette in a tone; and when nothing
    * names it, the declaration is invalid at computed-value time and the box
    * paints nothing at all.
    */
@@ -346,7 +346,7 @@
     max-inline-size: 100%;
   }
 
-  /** Supplied artwork on the same line, centred on the same axis by its own size. */
+  /** Supplied artwork on the same line, centerd on the same axis by its own size. */
   [data-ui-result-state][data-reach='inline'] > [data-part-media]:not(:empty) {
     align-self: start;
     grid-column: 1;
@@ -368,9 +368,9 @@
    * the guide forbids an illustration from dominating a dense screen. The
    * artwork the page supplied is drawn there as it is.
    *
-   * Under forced colours the browser would replace every fill with `Canvas`
+   * Under forced colors the browser would replace every fill with `Canvas`
    * and leave each drawing as outlines laid on top of one another. The theme
-   * already maps the roles used here to system colours in that mode, so the
+   * already maps the roles used here to system colors in that mode, so the
    * drawing opts out of the browser's adjustment and keeps the theme's.
    */
 
@@ -440,15 +440,15 @@
    *
    * Three layers and two pseudo-elements: the front face is `::before`, the
    * middle layer `::after`, and the farthest is the box's own shadow, drawn
-   * twice — a fill, then a pixel wider in the border colour — because a
+   * twice — a fill, then a pixel wider in the border color — because a
    * shadow has no border of its own. The box itself paints nothing, since a
    * transformed box is a stacking context and its own background would sit
    * above nothing and beneath both pseudo-elements.
    *
    * The drawing's visual bounds are wider and taller than the box, so the box
-   * reserves the difference in its margins and is moved back onto the centre
+   * reserves the difference in its margins and is moved back onto the center
    * of those bounds: 0.325 of a side along the lean and 0.145 down, the
-   * centre of the sheared stack measured against the centre of the square.
+   * center of the sheared stack measured against the center of the square.
    */
   [data-ui-result-state]:not([data-reach='inline'])[data-illustration='stack']
     > [data-part-media]:not(:empty) {
@@ -550,7 +550,7 @@
    * stand above the box, which reserves their two steps in its top margin.
    *
    * ReUI fades the bottom of the drawing into `--background`. That supposes
-   * the colour of the ground, and a result state inside a card or on the
+   * the color of the ground, and a result state inside a card or on the
    * sunken surface is on another one; a mask would clip the cards behind,
    * which stand outside the box. The drawing does not fade.
    */
@@ -581,7 +581,7 @@
     );
     /* A length, not a percentage: a percentage in a background offset is a
        share of the room the layer leaves, which differs for each line height
-       and set the two lines four and three pixels above centre. */
+       and set the two lines four and three pixels above center. */
     --_line-1-y: calc(
       (var(--_thumb) + 2 * var(--_pad) - var(--_line) - var(--_line-gap) - var(--_line-2)) / 2
     );
@@ -725,7 +725,7 @@
 
   /**
    * `balance` is what keeps a two-line title from leaving one word on the
-   * second line, and it is the reason a centred region reads as a shape rather
+   * second line, and it is the reason a centerd region reads as a shape rather
    * than as a ragged edge. It is capped by the browser at a handful of lines,
    * so a long title is unaffected rather than slow.
    *
@@ -798,9 +798,9 @@
    * tall as its tallest item, so a control taller than a line of text made the
    * row thirty pixels deep: the mark and the words then sat at the top of it
    * while the control sat in the middle, and a row with one thing at the top
-   * and another in the centre reads as a mistake. Reported from the picture.
+   * and another in the center reads as a mistake. Reported from the picture.
    *
-   * The box is one line box tall and the control is centred in it, which lets
+   * The box is one line box tall and the control is centerd in it, which lets
    * the control stand proud of the line by the same distance above and below —
    * a distance the region's own block inset already holds.
    */
@@ -808,7 +808,7 @@
     /**
      * `align-content` rather than `align-items`, because the row is allowed to
      * wrap and a wrapping flex container aligns its *lines*: with the line
-     * taller than the box, `align-items: center` centres the control inside a
+     * taller than the box, `align-items: center` centers the control inside a
      * line that is itself parked at the top, which left the control exactly
      * half its overhang too low.
      */
@@ -963,10 +963,10 @@
     transition-delay: var(--slotted-duration-short);
   }
 
-  /* ── Forced colours ───────────────────────────────────────────────────
+  /* ── Forced colors ───────────────────────────────────────────────────
    *
    * Nothing beyond the drawings' own `forced-color-adjust`, above. The
-   * operating system replaces every author colour, the theme already remaps
+   * operating system replaces every author color, the theme already remaps
    * `--slotted-text` and `--slotted-text-muted`, and the words carry the
    * region as they do everywhere else.
    */

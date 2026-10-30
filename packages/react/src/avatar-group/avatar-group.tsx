@@ -53,7 +53,7 @@ export function AvatarGroup({
   /**
    * `max` counts the discs the group draws, the summary included, so a limit of
    * five never puts six circles in a row. Below the limit nothing is
-   * summarised: a `+1` beside four faces is one more circle than showing the
+   * summarized: a `+1` beside four faces is one more circle than showing the
    * fifth, and says less.
    */
   const shownCount = count > limit ? Math.min(limit - 1, members.length) : members.length;

@@ -128,7 +128,7 @@ test('declares a scenario per question a reader of the page has', () => {
   ]);
 });
 
-test('composes the families it renders and owns none of their behaviour', () => {
+test('composes the families it renders and owns none of their behavior', () => {
   assert.deepEqual(contract.composes, ['popover', 'menu', 'button', 'field', 'text-field']);
   assert.match(contract.engine, /@slotted\/core\/grid/);
 });

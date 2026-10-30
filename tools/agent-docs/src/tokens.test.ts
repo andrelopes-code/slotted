@@ -96,7 +96,7 @@ describe('renderTokens', () => {
     );
   });
 
-  it('a pattern group states its names and its dimensions; a colour has no value', () => {
+  it('a pattern group states its names and its dimensions; a color has no value', () => {
     expect(page).toContain('Names: --slotted-tone-{tone}-{role}');
     expect(page).toContain('| accent | The intent. |');
     expect(page).not.toContain('`--slotted-tone-accent-solid`');

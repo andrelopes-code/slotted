@@ -216,7 +216,7 @@ export class SlCurrencyField {
   readonly resolvedAlign = computed(() => this.align() ?? this.defaults.align);
   readonly resolvedStepper = computed(() => this.stepper() ?? this.defaults.stepper);
   /**
-   * The entry model belongs to the control, because it is behaviour before it
+   * The entry model belongs to the control, because it is behavior before it
    * is an axis: the frame only paints what the control resolved. Two inputs
    * for one decision would let the box and the element disagree about how the
    * next keystroke is read.

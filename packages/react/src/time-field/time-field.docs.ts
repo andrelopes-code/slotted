@@ -250,7 +250,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'States',
-    note: 'Read-only stays focusable and copyable and never looks disabled; disabled answers no key and no pointer; invalid keeps its focus ring and retargets its colour. Tab through the row to see each one answer.',
+    note: 'Read-only stays focusable and copyable and never looks disabled; disabled answers no key and no pointer; invalid keeps its focus ring and retargets its color. Tab through the row to see each one answer.',
     snippet: defineSnippet({
       id: 'time-field-react-states',
       label: 'The four states',

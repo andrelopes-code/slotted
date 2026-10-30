@@ -1,8 +1,8 @@
 import { inject, InjectionToken } from '@angular/core';
 
 /**
- * Which of the five semantic colours the fallback is painted in. `auto` derives
- * it from the name, so the same person keeps the same colour in a list that is
+ * Which of the five semantic colors the fallback is painted in. `auto` derives
+ * it from the name, so the same person keeps the same color in a list that is
  * re-sorted and in a table that is paged.
  */
 export type AvatarTone =
@@ -11,7 +11,7 @@ export type AvatarTone =
 /** The palette `auto` chooses from, in the order the hash indexes it. */
 export type AvatarResolvedTone = Exclude<AvatarTone, 'auto'>;
 
-/** How that colour is painted. `soft` is the tinted disc an avatar usually is. */
+/** How that color is painted. `soft` is the tinted disc an avatar usually is. */
 export type AvatarVariant = 'soft' | 'solid';
 /**
  * The ground behind the avatar. `tone` paints the tone behind the fallback and
@@ -22,7 +22,7 @@ export type AvatarSurface = 'tone' | 'none' | 'plate';
 
 export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
-/** A circle is a person; a square is a team, an organisation or a bot. */
+/** A circle is a person; a square is a team, an organization or a bot. */
 export type AvatarShape = 'circle' | 'square';
 
 /** Where the picture is. Four values, because a boolean cannot say why there is none. */

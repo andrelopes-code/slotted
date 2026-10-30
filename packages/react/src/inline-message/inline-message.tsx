@@ -61,11 +61,11 @@ const LIVE_ROLE: Record<InlineMessageLive, string | undefined> = {
  * One sentence about one field or one control; a message about a section is
  * an alert. Help, an error, a warning, a confirmation, or a wait.
  *
- * **The severity is a word as well as a colour.** A reader who cannot see the
+ * **The severity is a word as well as a color.** A reader who cannot see the
  * message hears the sentence and nothing else — neither the red ink nor the
  * crossed circle reaches the accessibility tree — so the family writes the
  * severity in clipped text before the message, which is GOV.UK's answer
- * generalised to every tone and to a table an application replaces once.
+ * generalized to every tone and to a table an application replaces once.
  *
  * **The role goes on this element, not on an inner one.** `Alert` puts its live
  * role on the text part because it has a dismiss button beside the text, and

@@ -111,7 +111,7 @@ export const Matrix: Story = {
       )}
       ${band(
         'TagToggle',
-        'A selection, with both modes and a request that says how it moved. The check grows into the label, so the state is never colour alone.',
+        'A selection, with both modes and a request that says how it moved. The check grows into the label, so the state is never color alone.',
         `<div slTagGroup aria-label="TagToggle">
           <span slTag tone="accent"><button slTagToggle defaultSelected>Aberto</button></span>
           <span slTag tone="accent"><button slTagToggle>Fechado</button></span>
@@ -134,7 +134,7 @@ export const Appearance: Story = {
       scene(
         variant,
         variant === 'solid'
-          ? 'Filled, and its edge is its own fill — except secondary, whose fill is the colour of the page.'
+          ? 'Filled, and its edge is its own fill — except secondary, whose fill is the color of the page.'
           : variant === 'soft'
             ? 'Tinted, and it keeps the tone’s edge: in high contrast every tone surface becomes the page’s own white.'
             : 'The edge alone.',
@@ -228,7 +228,7 @@ export const Composition: Story = {
       )}
       ${scene(
         'in context',
-        'Inside a sentence a tag sits on the text’s centre; inside a list it becomes the list item itself.',
+        'Inside a sentence a tag sits on the text’s center; inside a list it becomes the list item itself.',
         `<div class="slotted-demo-stack">
           <span slText>The <span slTag size="sm"><span slTagBody>March</span></span> delivery is blocked by <span slTag size="sm" tone="danger" variant="outline"><span slTagBody>two dependencies</span></span>.</span>
           <ul style="display: flex; gap: 0.25rem; list-style: none; margin: 0; padding: 0">
@@ -255,8 +255,8 @@ export const Accessibility: Story = {
         </div>`,
       )}
       ${scene(
-        'a value a colour cannot say',
-        'A tone is not a word. What the colour means is written beside it, out of the flow.',
+        'a value a color cannot say',
+        'A tone is not a word. What the color means is written beside it, out of the flow.',
         `<div slTagGroup role="list" aria-label="Status">
           <span slTag tone="danger" variant="solid"><span slTagBody>SLA<span slVisuallyHidden> overdue</span></span></span>
           <span slTag tone="success" variant="solid"><span slTagBody>SLA<span slVisuallyHidden> on time</span></span></span>

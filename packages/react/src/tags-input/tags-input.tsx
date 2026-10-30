@@ -102,7 +102,7 @@ function longDuration(element: HTMLElement | null) {
  * description, marks the root, and blocks the native submit through
  * `setCustomValidity`. Every surveyed implementation drops it instead, and a
  * recipients field that silently drops `jhon.company` has told the reader John
- * was invited. `invalidValues="refuse"` is that behaviour, for the operand of
+ * was invited. `invalidValues="refuse"` is that behavior, for the operand of
  * a filter, where a bad value has nowhere to go.
  *
  * **What is refused is reported, not dropped.** A duplicate, a value past the
@@ -187,7 +187,7 @@ export function TagsInput({
   const full = resolved.max !== null && currentValue.length >= resolved.max;
 
   const collator = useMemo(() => createFilter({ locale }), [locale]);
-  const normalise = normalize ?? ((text: string) => text.trim());
+  const normalizeText = normalize ?? ((text: string) => text.trim());
 
   /* What the typed text matches, by the locale's collator, minus what is already chosen. */
   const matches = useMemo(() => {
@@ -350,7 +350,7 @@ export function TagsInput({
 
   /**
    * The one door into the list. Every candidate runs the sequence
-   * `@slotted/core/tags` states — normalise, judge, deduplicate, cap — and each
+   * `@slotted/core/tags` states — normalize, judge, deduplicate, cap — and each
    * refusal is reported under its cause rather than dropped.
    */
   const admit = useCallback(
@@ -362,7 +362,7 @@ export function TagsInput({
         max: resolved.max,
         allowDuplicates: resolved.allowDuplicates,
         invalidValues: resolved.invalidValues,
-        normalize: normalise,
+        normalize: normalizeText,
         judge,
         equals: collator.equals,
         ...(replacing === undefined ? {} : { replacing }),
@@ -397,7 +397,7 @@ export function TagsInput({
       }
       return result;
     },
-    [announce, collator, commit, judge, labelFor, normalise, resolved, t],
+    [announce, collator, commit, judge, labelFor, normalizeText, resolved, t],
   );
 
   const remove = useCallback(

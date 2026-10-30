@@ -104,7 +104,7 @@ const scenes: ReferenceSceneMeta[] = [
     snippet: defineSnippet({
       id: 'highlight-react-ranges',
       language: 'tsx',
-      label: 'Explicit ranges, normalised',
+      label: 'Explicit ranges, normalized',
       source:
         '<Highlight text="Contractor authorized in 2024" ranges={[[11, 21]]} />;\n<Highlight\n  text="🇧🇷 Brazil Cables"\n  ranges={[\n    [1, 2],\n    [12, 40],\n  ]}\n/>;',
     }),
@@ -292,8 +292,8 @@ export const REACT_HIGHLIGHT_DOCS = {
       'The text a reader hears is the text: every run is a slice of the string handed in, nothing is parsed and nothing is hidden. A label holding <b> reads <b>.',
       'Most screen readers do not announce mark by default (MDN, Accessibility). The family injects no hidden “highlight start” before each match: a five-match option would become ten announcements. An application that needs the announcement writes the ::before rule in its own scope, over [data-ui="highlight"] [data-part="match"].',
       'The mark changes no metric of the word — weight, spacing and padding are the label’s own — so a filter that marks a different span on every keystroke never reflows the label under the reader’s eyes.',
-      'The current match is not a stronger band: 0.075 is the share the 7:1 promise caps in high-contrast, and doubling it leaves 6.5:1. It takes the accent’s solid ground and the ink the theme pairs with it, and under forced colours the Highlight and HighlightText pair the user agent draws its own find match in.',
-      'A disabled row’s mark gives up the tone and keeps the rule, so the reader still sees which span matched on the one option they cannot take, and the loudest colour on the surface is not on it.',
+      'The current match is not a stronger band: 0.075 is the share the 7:1 promise caps in high-contrast, and doubling it leaves 6.5:1. It takes the accent’s solid ground and the ink the theme pairs with it, and under forced colors the Highlight and HighlightText pair the user agent draws its own find match in.',
+      'A disabled row’s mark gives up the tone and keeps the rule, so the reader still sees which span matched on the one option they cannot take, and the loudest color on the surface is not on it.',
     ],
     snippets: [
       defineSnippet({

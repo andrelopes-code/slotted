@@ -32,7 +32,7 @@ import { SlGlyph, SlIcon } from '@slotted/angular/icon';
 import { type PartialMessages, ratingMessages, type RatingMessages } from '@slotted/core/i18n';
 import {
   formatRatingValue,
-  normaliseRating,
+  normalizeRating,
   ratingAtPoint,
   ratingFills,
   ratingForKey,
@@ -325,7 +325,7 @@ export class SlRating implements ControlValueAccessor, Validator {
   }));
 
   /** The value on the grid of the scale: 7 of 5 is 5, 3.2 on whole steps is 4, and `NaN` is none. */
-  readonly current = computed(() => normaliseRating(this.value(), this.scale()));
+  readonly current = computed(() => normalizeRating(this.value(), this.scale()));
 
   protected readonly items = computed<RatingItem[]>(() => {
     const { max, step } = this.scale();
@@ -499,7 +499,7 @@ export class SlRating implements ControlValueAccessor, Validator {
   validate(control: AbstractControl): ValidationErrors | null {
     if (this.resolvedRequired() !== true) return null;
     const value = control.value as number | null | undefined;
-    return normaliseRating(value, this.scale()) === null ? { required: true } : null;
+    return normalizeRating(value, this.scale()) === null ? { required: true } : null;
   }
 
   /**

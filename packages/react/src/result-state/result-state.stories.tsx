@@ -145,7 +145,7 @@ export const Statuses: Story = {
     <Grid columns={1}>
       <Scene
         label="The seven, at the reach a list of them belongs in"
-        note="Each status draws the glyph the contract maps it to and paints in the tone it names, so a permission problem and a failed request differ by silhouette as well as by colour."
+        note="Each status draws the glyph the contract maps it to and paints in the tone it names, so a permission problem and a failed request differ by silhouette as well as by color."
       >
         {STATUSES.map(({ body, status, title }) => (
           <ResultState align="start" key={status} live="off" reach="inline" status={status}>
@@ -157,7 +157,7 @@ export const Statuses: Story = {
         ))}
       </Scene>
       <Scene
-        label="The same seven with no colour at all"
+        label="The same seven with no color at all"
         note="Switch the toolbar to high-contrast: every ground becomes the page’s own white and every mark black, and the shape is the only thing left telling the seven apart. WCAG 2.2 1.4.1."
       >
         {STATUSES.map(({ status, title }) => (
@@ -243,7 +243,7 @@ export const Align: Story = {
     <Grid columns={2}>
       <Scene
         label="center, the default"
-        note="For a panel or a route, where the region is the only thing on the screen and a centred column reads as a considered page rather than as an interruption."
+        note="For a panel or a route, where the region is the only thing on the screen and a centerd column reads as a considered page rather than as an interruption."
       >
         <Panel>
           <ResultState align="center" live="off" status="forbidden">
@@ -259,7 +259,7 @@ export const Align: Story = {
       </Scene>
       <Scene
         label="start, for a data-dense screen"
-        note="Carbon left-aligns its empty states inside data-dense views and the other six surveyed implementations centre unconditionally. Both readings are real, and this is one axis rather than a second family."
+        note="Carbon left-aligns its empty states inside data-dense views and the other six surveyed implementations center unconditionally. Both readings are real, and this is one axis rather than a second family."
       >
         <Panel>
           <ResultState align="start" live="off" status="forbidden">
@@ -379,7 +379,7 @@ export const Illustration: Story = {
       </Scene>
       <Scene
         label="A stack of cards, standing in for the rows that are not there"
-        note="The glyph takes the thumbnail's place and two lines stand in for the text. Without a glyph the lines start at the card's padding; the drawing needs no colour of the ground, so it holds on the sunken panel and on a raised surface alike."
+        note="The glyph takes the thumbnail's place and two lines stand in for the text. Without a glyph the lines start at the card's padding; the drawing needs no color of the ground, so it holds on the sunken panel and on a raised surface alike."
       >
         <Panel>
           <ResultState
@@ -652,7 +652,7 @@ export const Composition: Story = {
     <Grid columns={1}>
       <Scene
         label="The measure belongs to container"
-        note="This family caps no width: two families offering a maximum measure would be two answers to one question. A page-wide region with no measure around it sets a centred sentence the full width of the route."
+        note="This family caps no width: two families offering a maximum measure would be two answers to one question. A page-wide region with no measure around it sets a centerd sentence the full width of the route."
       >
         <Container inset={0} size="measure">
           <ResultState live="off" reach="page" status="no-results">

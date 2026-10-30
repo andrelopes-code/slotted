@@ -85,9 +85,9 @@ test('names every weight, tone, alignment and wrap the contract declares', () =>
   }
 });
 
-test('takes the colour of its container until a tone is asked for', () => {
+test('takes the color of its container until a tone is asked for', () => {
   const base = normalized.split(`${ui}{`)[1]?.split('}')[0] ?? '';
-  assert.ok(!base.includes('color:'), 'the base rule paints a colour, so inheritance is lost');
+  assert.ok(!base.includes('color:'), 'the base rule paints a color, so inheritance is lost');
   assert.ok(normalized.includes(`${ui}[data-tone='default']{color:var(--slotted-text`));
 });
 

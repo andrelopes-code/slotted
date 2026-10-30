@@ -60,7 +60,7 @@ test('draws the hue channel by interpolating along the hue circle', () => {
   );
 });
 
-/** A thumb at either end of a channel still sits on the colour it names. */
+/** A thumb at either end of a channel still sits on the color it names. */
 test('keeps a channel thumb inside its track', () => {
   assert.match(
     normalized,
@@ -68,25 +68,25 @@ test('keeps a channel thumb inside its track', () => {
   );
 });
 
-/** The level is a word in a badge, never colour alone. */
+/** The level is a word in a badge, never color alone. */
 test('says the contrast level in words as well as in tone', () => {
   for (const level of contract.contrast.levels) {
     assert.match(fragment, new RegExp(`data-level="${level}"`), `${level} is in no scene`);
   }
 });
 
-test('marks a colour outside sRGB on the page', () => {
+test('marks a color outside sRGB on the page', () => {
   assert.match(fragment, /data-out-of-gamut/);
 });
 
 /**
- * A mark beside words is centred on the band the letters occupy, not on the
+ * A mark beside words is centerd on the band the letters occupy, not on the
  * line box, which keeps room for descenders and drops the mark below the
  * letters (docs/build-briefing.md, _A mark beside a line of text is aligned to
- * the text_). Measured in Chrome: the chevron's centre and the letters' band
+ * the text_). Measured in Chrome: the chevron's center and the letters' band
  * agree to 0.00 px.
  */
-test('centres the mark of a worded button on the letters, not on the line box', () => {
+test('centers the mark of a worded button on the letters, not on the line box', () => {
   const flat = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
   assert.match(flat, /align-items: baseline;/);
   assert.match(

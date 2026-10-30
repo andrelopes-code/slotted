@@ -12,7 +12,7 @@ import {
 import { injectLocale, injectMessages } from '@slotted/angular/i18n';
 import { SlGlyph, SlIcon } from '@slotted/angular/icon';
 import { type PartialMessages, ratingMessages, type RatingMessages } from '@slotted/core/i18n';
-import { formatRating, formatShare, summariseRatings } from '@slotted/core/rating';
+import { formatRating, formatShare, summarizeRatings } from '@slotted/core/rating';
 import type { RatingInsight, RatingInsightThresholds } from '@slotted/core/rating';
 import { createControllable } from '@slotted/core/state';
 import type { ChangeRequest } from '@slotted/core/state';
@@ -273,11 +273,11 @@ export class SlRatingSummary {
     ...this.insightThresholds(),
   }));
 
-  /** Everything drawn is read from here: `summariseRatings` over the counts on the scale. */
+  /** Everything drawn is read from here: `summarizeRatings` over the counts on the scale. */
   readonly summary = computed(() => {
     const counts = this.counts();
     const levels = Array.from({ length: this.resolvedMax() }, (_, index) => counts[index] ?? 0);
-    return summariseRatings(levels, this.thresholds());
+    return summarizeRatings(levels, this.thresholds());
   });
 
   protected readonly lowestFirst = computed<SummaryLevel[]>(() => {

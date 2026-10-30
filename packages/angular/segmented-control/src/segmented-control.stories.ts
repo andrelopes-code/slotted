@@ -248,7 +248,7 @@ export const States: Story = {
         ) +
         scene(
           'Read-only',
-          'It keeps every colour and every tab stop and refuses the change on the click a pointer and Space share, because a radio has no readonly and it must not look disabled.',
+          'It keeps every color and every tab stop and refuses the change on the click a pointer and Space share, because a radio has no readonly and it must not look disabled.',
           `<div slSegmentedControl aria-label="Plano somente leitura" readOnly defaultValue="team">
              <label slSegment value="starter">Inicial</label>
              <label slSegment value="team">Equipe</label>
@@ -320,7 +320,7 @@ export const Variants: Story = {
       ) +
         scene(
           'The words alone',
-          'The same radio group with no track: the chosen word in the text colour and underlined, the others muted.',
+          'The same radio group with no track: the chosen word in the text color and underlined, the others muted.',
           `<div slSegmentedControl aria-label="Period, underline" defaultValue="month" variant="underline">
              <label slSegment value="day">Day</label>
              <label slSegment value="week">Week</label>

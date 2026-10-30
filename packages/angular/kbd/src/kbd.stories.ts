@@ -170,7 +170,7 @@ export const OneShortcut: Story = {
       ) +
         scene(
           'Keys the vocabulary does not hold',
-          'A token it does not recognise is the page’s own word, rendered verbatim; a single letter is upper-cased, which is what Apple and Microsoft both write.',
+          'A token it does not recognize is the page’s own word, rendered verbatim; a single letter is upper-cased, which is what Apple and Microsoft both write.',
           `<kbd slShortcut keys="mod+plus" platform="windows"></kbd>` +
             `<kbd slShortcut keys="mod+/" platform="windows"></kbd>` +
             `<kbd slShortcut keys="mod+F6" platform="windows"></kbd>`,
@@ -239,7 +239,7 @@ export const Context: Story = {
       2,
       scene(
         'A menu',
-        'plain takes the colour of the text it sits in, so a row that dims dims its shortcut with no state to set on the key at all.',
+        'plain takes the color of the text it sits in, so a row that dims dims its shortcut with no state to set on the key at all.',
         `<div class="slotted-demo-rows">${
           row(
             'Open command palette',
@@ -254,7 +254,7 @@ export const Context: Story = {
       ) +
         scene(
           'A sentence',
-          'Inline is where a kbd element spends most of its life. The cap sits on the text’s centre and takes no more of the line than the words around it.',
+          'Inline is where a kbd element spends most of its life. The cap sits on the text’s center and takes no more of the line than the words around it.',
           `<p slText>Press <kbd slShortcut keys="mod+k" platform="mac" size="inherit"></kbd> to search, or <kbd slKbd keyName="escape" size="inherit"></kbd> to close the field and get the cursor back.</p>`,
           'prose',
         ),

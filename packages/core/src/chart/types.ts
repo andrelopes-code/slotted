@@ -64,7 +64,7 @@ export interface ChartSeries<Field extends string = string> {
   readonly field: Field;
   /** What the legend, the tooltip and the table call it. Defaults to the id. */
   readonly label?: string | undefined;
-  /** Which colour of the data scale. Assigned in order when absent. */
+  /** Which color of the data scale. Assigned in order when absent. */
   readonly slot?: ChartSlot | undefined;
   /** What the series means. Wins over `slot`. */
   readonly tone?: ChartTone | undefined;
@@ -83,7 +83,7 @@ export interface ChartSeries<Field extends string = string> {
   readonly innerRadius?: number | undefined;
   /**
    * A pie's slot per slice: the field of each record that holds its slot, 1
-   * to 8, so a category keeps the colour it has everywhere else in the
+   * to 8, so a category keeps the color it has everywhere else in the
    * application. A slice whose record holds none takes the next free slot.
    */
   readonly slotField?: Field | undefined;
@@ -123,7 +123,7 @@ export interface ChartAnnotation {
   readonly tone?: ChartTone | undefined;
   /**
    * Which side of an upright line its label hangs on: `start` ends at the
-   * line, `end` begins at it, `auto` centres it and moves it inward at an edge
+   * line, `end` begins at it, `auto` centers it and moves it inward at an edge
    * of the plot. Labels that would overlap take a second row; past it, the
    * lowest `priority` is hidden and still named by the tooltip.
    */
@@ -164,7 +164,7 @@ export interface ChartZoom {
 }
 
 /**
- * The colour of a series or a slice. A slot is identity, a tone is meaning,
+ * The color of a series or a slice. A slot is identity, a tone is meaning,
  * and neither is overflow: the ninth series and on, drawn muted with a texture
  * because the scale never cycles.
  */

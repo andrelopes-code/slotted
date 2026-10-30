@@ -66,7 +66,7 @@ describe('recipes.standard', () => {
    * A fixed `h` is what gave a neutral token the slate reference's hue offset
    * instead of the seed's own: the one `a66d725d` removed. A tolerance alone
    * does not guard the regression, because a wide enough one would still pass
-   * a small fixed offset — so the rule itself is read, not only the colour it
+   * a small fixed offset — so the rule itself is read, not only the color it
    * paints.
    */
   it('derives every neutral rule with no fixed hue offset', () => {
@@ -81,8 +81,8 @@ describe('recipes.standard', () => {
   });
 
   /**
-   * A neutral seed recolours every line, highlight, ink and ground it derives,
-   * or a page painted with it reads two colours at once: the pink seed of a
+   * A neutral seed recolors every line, highlight, ink and ground it derives,
+   * or a page painted with it reads two colors at once: the pink seed of a
    * Nexora theme left the highlights a fixed slate share of it, and the step
    * from a pink ground to them read green. Each token is read where an sRGB
    * screen paints it — inside the gamut, so the hue `evaluateRecipe` computes

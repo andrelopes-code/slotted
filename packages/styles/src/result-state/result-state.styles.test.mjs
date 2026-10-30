@@ -85,7 +85,7 @@ test('places the mark, the actions and the footer outside the region that announ
  * region is reporting is in its words.
  *
  * The attribute stays on the root, because it is what a page keys its own
- * illustration on, and the stylesheet may not key a colour or a mask on it
+ * illustration on, and the stylesheet may not key a color or a mask on it
  * again.
  */
 test('paints no status, in no tone and with no mask', () => {
@@ -106,7 +106,7 @@ test('paints no status, in no tone and with no mask', () => {
  *
  * `--slotted-result-state-media` is the way to put a picture there without
  * projecting a node, and it is painted as an image: the drawing is the page's
- * own, in its own colours. Unset, the declaration is invalid at computed-value
+ * own, in its own colors. Unset, the declaration is invalid at computed-value
  * time and the box paints nothing.
  */
 test('withdraws the picture box when there is no picture', () => {
@@ -134,7 +134,7 @@ test('owns a named container and states its own width', () => {
 /**
  * At `inline` reach the mark, the words and the controls share one line, and
  * all three are held to it by the same rule: a box exactly one line box tall,
- * with the content centred inside it. The root carries the title's own type so
+ * with the content centerd inside it. The root carries the title's own type so
  * that `1lh` on any child resolves against the line the title draws.
  *
  * Both halves were reported from the picture. `1lh` read on the mark itself
@@ -142,7 +142,7 @@ test('owns a named container and states its own width', () => {
  * thirteen, and the mark sat two and a half pixels above its own line. The
  * controls were worse: a control taller than a line made the grid row thirty
  * pixels deep, so the mark and the words sat at the top of it while the control
- * sat in the middle. `align-content` rather than `align-items` is what centres
+ * sat in the middle. `align-content` rather than `align-items` is what centers
  * the control, because the row is allowed to wrap and a wrapping flex container
  * aligns its lines.
  */
@@ -254,12 +254,12 @@ test('enters when it announces and leaves when it is hidden, on motion tokens al
 /**
  * Each drawing is a rule of its own on the media box, in the neutral surface
  * and border roles, and the picture leans the other way in a right-to-left
- * page because depth is read from the reading edge. Under forced colours the
- * drawing keeps the theme's own system-colour mapping rather than the
+ * page because depth is read from the reading edge. Under forced colors the
+ * drawing keeps the theme's own system-color mapping rather than the
  * browser's, which would erase every fill and leave the stack as three
  * outlines on top of one another.
  */
-test('draws each illustration from neutral roles, mirrored in rtl and kept under forced colours', () => {
+test('draws each illustration from neutral roles, mirrored in rtl and kept under forced colors', () => {
   for (const drawing of contract.axes.illustration.filter((value) => value !== 'none')) {
     assert.ok(
       normalized.includes(`[data-illustration='${drawing}']>[data-part-media]`),

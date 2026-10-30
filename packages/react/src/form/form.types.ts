@@ -9,7 +9,7 @@ export type { FormErrorEntry, FormErrorInput, FormErrors };
  * When the form checks its own controls.
  *
  * `submit` is the default and re-validates on every change afterwards, which is
- * the behaviour the surveyed field converged on: telling a reader an answer is
+ * the behavior the surveyed field converged on: telling a reader an answer is
  * wrong before they have finished writing it is noise, and telling them nothing
  * after they have fixed it is worse.
  */

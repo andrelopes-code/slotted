@@ -113,7 +113,7 @@ export class SlListboxOption {
  * A group of options, named by its own label. The pattern requires the name —
  * "each option group has an accessible name provided via aria-label or
  * aria-labelledby" — and requires the group to hold at least one option, which
- * is the consumer's to honour.
+ * is the consumer's to honor.
  */
 @Component({
   selector: '[slListboxGroup]',
@@ -169,7 +169,7 @@ export class SlListboxIndicator {}
 /**
  * The option's own artwork, in the same column the mark uses and never beside
  * it: a `span[slIcon]` holding an `svg[slGlyph]`, or an element of the page's
- * own. The column sizes and centres it; no stylesheet fills it.
+ * own. The column sizes and centers it; no stylesheet fills it.
  */
 @Directive({
   selector: '[slListboxIcon]',

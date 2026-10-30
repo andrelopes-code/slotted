@@ -28,7 +28,7 @@ import {
   AppShellAsideToggle,
   AppShellBanner,
   AppShellBrand,
-  AppShellCentre,
+  AppShellCenter,
   AppShellFooter,
   AppShellMain,
   AppShellNav,
@@ -244,9 +244,9 @@ export function Anatomy() {
             <AppShellNavToggle />
             <Slot fill={false} note="a marca" part="brand" />
           </AppShellBrand>
-          <AppShellCentre>
-            <Slot note="what grows: search, trail, title" part="centre" />
-          </AppShellCentre>
+          <AppShellCenter>
+            <Slot note="what grows: search, trail, title" part="center" />
+          </AppShellCenter>
           <AppShellActions>
             <Slot fill={false} note="what is global" part="actions" />
           </AppShellActions>

@@ -120,7 +120,7 @@ test('holds the target minimum on the control alone', () => {
       'the row is the pill and the label, never the target',
     );
   }
-  /* The label's padding is optical now: it centres the words on the pill. */
+  /* The label's padding is optical now: it centers the words on the pill. */
   assert.match(rule(`${ui}>[data-part-label]`), /padding-block:var\(--_label-slack\)/);
   assert.match(
     rule(root),
@@ -168,7 +168,7 @@ test('moves the thumb along the writing direction, through the motion scale', ()
 
 /**
  * `docs/component-features.md` asks for the state to be perceptible beyond
- * colour *and* beyond position. The mark is what supplies it, and it is real
+ * color *and* beyond position. The mark is what supplies it, and it is real
  * geometry from the theme's glyph scale rather than a character.
  */
 test('draws the mark as the glyph element, never as a mask or a character', () => {
@@ -265,7 +265,7 @@ test('draws one ring, on the part a reader can see', () => {
 /**
  * The ring is retargeted rather than repainted: every rule that draws focus
  * reads `--slotted-focus-ring-color`, so pointing that one name at the invalid
- * colour on the root moves the ring without restating it.
+ * color on the root moves the ring without restating it.
  */
 test('retargets the ring for the invalid state instead of repainting it', () => {
   const invalid = rule(`${root}[data-invalid]`);
@@ -311,7 +311,7 @@ test('holds the mark back for the state that outranks it', () => {
 
 /**
  * Read-only outranks checked, so it takes the ground back from it. Its edge
- * stays neutral: drawn in the accent colour, the border and the focus ring
+ * stays neutral: drawn in the accent color, the border and the focus ring
  * were the same blue two pixels apart and neither could be told from the other.
  */
 test('paints read-only as hollow rather than as grey, in both states', () => {

@@ -50,7 +50,7 @@ uses all of them.
   subpath export in `packages/styles/package.json` is invisible to a running Vite
   server, Angular because it reads the entry-point directories once, at startup.
   Say so at the gate rather than restarting unannounced.
-- `pnpm build` covers every generated artefact in dependency order and is cached;
+- `pnpm build` covers every generated artifact in dependency order and is cached;
   run it rather than deciding which build applies. A token or theme change needs
   it before Storybook and the harness see the new value.
 - Nothing else needs building. Both Storybooks read `packages/styles`,
@@ -133,7 +133,7 @@ other families stand on. Justify it at the gate before writing it.
   of the hand-drawn `status-*` glyphs of `@slotted/core/glyph`, drawn on the
   grid it is shown at; the warning mark is `status-warning`, the diamond of a
   warning sign, symmetric on both axes.
-- **Overlay behaviour is composed from `packages/core`, never rewritten in a
+- **Overlay behavior is composed from `packages/core`, never rewritten in a
   family.** `presence`, `portal`, `positioner`, `dismissable-layer`, `focus` and
   `live-announcer` each own one question and none imports another. An overlay
   family takes the ones it needs and no more.
@@ -173,19 +173,19 @@ other families stand on. Justify it at the gate before writing it.
   `--slotted-layer-depth` for the single overlay stack. They are runtime values,
   not design tokens, and they are not in `packages/theme/src/contract.json`.
 - **A mark beside a line of text is aligned to the text, not to the line box.**
-  A box one line tall with its artwork centred in it lands on the centre of the
+  A box one line tall with its artwork centerd in it lands on the center of the
   line box, which is not where the words are. Measured on the default theme at
-  `comfortable`: the line is 19.5 pixels and its centre 9.75 from the top, the
-  baseline is 14 down, a capital is 9 tall and an x is 7 — so the centred mark
+  `comfortable`: the line is 19.5 pixels and its center 9.75 from the top, the
+  baseline is 14 down, a capital is 9 tall and an x is 7 — so the centerd mark
   sits a quarter of a pixel below the capitals and three quarters above the band
-  the lowercase letters occupy, and it reads high. The two centres agree only
+  the lowercase letters occupy, and it reads high. The two centers agree only
   because this font's ascent and descent happen to make them agree; a theme with
   a deeper descent moves the text and leaves the mark behind.
 
   The browser is asked for the baseline instead of the number being assumed. The
   slot stays one line box tall and the artwork becomes an inline-block on that
   line, so the browser places it against the same baseline the title's first
-  line uses; `vertical-align: calc((<band> - <mark size>) / 2)` then centres the
+  line uses; `vertical-align: calc((<band> - <mark size>) / 2)` then centers the
   mark on whichever band of the text the family names.
 
   `toast` names the midpoint of the two, `calc((1cap + 1ex) / 2)`, and the three
@@ -201,7 +201,7 @@ other families stand on. Justify it at the gate before writing it.
   them.
 
   `alert`, `inline-message`, `status-indicator`, `list-item` and `badge` still
-  centre their marks in the line box: they predate the measurement, and none of
+  center their marks in the line box: they predate the measurement, and none of
   them is this session's to edit. Each takes the rule when it is next opened.
 
 - **A dismissable layer takes `Escape` in the capture phase, and refusing it is
@@ -232,7 +232,7 @@ other families stand on. Justify it at the gate before writing it.
   part inherits it from the other side. `toolbar`'s overflow control declared
   `data-part="overflow"` as a static attribute and `slMenuTriggerFor` erased it,
   which took the stylesheet's geometry with it and made the family stop
-  recognising its own part in the DOM.
+  recognizing its own part in the DOM.
 
   React does not have the problem, because the family's own props are spread
   after the other family's. In Angular, write the part back after the first
@@ -290,7 +290,7 @@ other families stand on. Justify it at the gate before writing it.
 - **A `plain` control is a control whose box belongs to something else, and it
   paints nothing past that box.** A cell, a row, another control's frame. The
   variant already gave up its edge, its ground and its lift at rest; it kept a
-  corner radius, an outward focus ring and the recoloured lift under focus, and
+  corner radius, an outward focus ring and the recolored lift under focus, and
   a `plain` text field focused in a table cell was a rounded pill floating two
   pixels past the row's rule. So, in `packages/styles/src/plain-variant.test.mjs`:
   `border-radius` is `--slotted-radius-none`, because a cell has no corner; the

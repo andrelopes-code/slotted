@@ -31,7 +31,7 @@ const INLINE_ARTWORK = /mask(?:-image)?\s*:[^;]*url\(/;
  * fills from CSS — `--slotted-select-item-icon: var(--slotted-icon-star)` —
  * the same painted icon with the token moved out of the stylesheet. A fade or
  * a hole is a gradient the family writes, and may read a public length or
- * colour inside it; only the image itself being a property is refused.
+ * color inside it; only the image itself being a property is refused.
  */
 const MASK_HOOK = /mask(?:-image)?\s*:\s*var\(\s*--slotted-/;
 

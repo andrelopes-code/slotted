@@ -46,7 +46,7 @@ const anatomy: AnatomyRow[] = [
     element: 'h1 to h6, or a div',
     required: false,
     purpose:
-      'The group name. It carries the id the nested list names itself by, data-sticky when it has to hold still while its own rows scroll past, and data-variant: caption, the small muted name, or ruled, the name in the text colour over a rule with no ground behind it.',
+      'The group name. It carries the id the nested list names itself by, data-sticky when it has to hold still while its own rows scroll past, and data-variant: caption, the small muted name, or ruled, the name in the text color over a rule with no ground behind it.',
   },
   {
     part: 'section-end',
@@ -334,7 +334,7 @@ export const REACT_LIST_DOCS = {
       'A group is an li holding a heading and a nested list, which is the grouping HTML already has, and the nested list names itself by that heading. A reader who lands inside a group is told which group it is; the four surveyed libraries that ship groups each leave the heading loose among the rows instead.',
       'loading writes aria-busy on the set, which ARIA 1.2 §5.2.6 asks of a container whose rows have not arrived yet. It draws no spinner and no placeholder: Skeleton owns that geometry and goes inside the rows.',
       'The empty message is an li inside the list. Outside it, a reader hears "list, zero items" and then nothing, and the words fall outside the box a framed set paints.',
-      'The set binds no key. Arrows, Home, End and typeahead belong to a collection, and a role="list" that answers them is the invented keyboard the feature guide refuses — that model is Listbox and Table in wave 6. The cost is that a hundred rows are a hundred Tab presses, which is the platform own behaviour for any page of links; a nav the page labels is what a screen reader jumps by instead.',
+      'The set binds no key. Arrows, Home, End and typeahead belong to a collection, and a role="list" that answers them is the invented keyboard the feature guide refuses — that model is Listbox and Table in wave 6. The cost is that a hundred rows are a hundred Tab presses, which is the platform own behavior for any page of links; a nav the page labels is what a screen reader jumps by instead.',
       'The set holds no state a consumer can own, so it emits no event and declares no state model. A selection is painted by the row and announced by the Checkbox the page composes into it.',
     ],
     snippets: [

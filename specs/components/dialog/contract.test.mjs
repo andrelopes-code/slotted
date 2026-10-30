@@ -27,7 +27,7 @@ test('names the identifier a consumer selects the family by', () => {
  * An alert dialog is a dialog, and a consumer writing `[data-ui='dialog']` in
  * their own stylesheet means every dialog. Two identifiers would mean two
  * stylesheets restating one layer, one panel geometry, one scroll model and one
- * forced-colours rule, because `packages/styles/src/identity.test.mjs` refuses
+ * forced-colors rule, because `packages/styles/src/identity.test.mjs` refuses
  * a family stylesheet that keys on another family's identifier. `button` took
  * the same reading for `iconButton`, which `docs/component-features.md` also
  * gives a section of its own.

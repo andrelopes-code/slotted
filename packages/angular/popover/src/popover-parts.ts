@@ -49,8 +49,8 @@ function resolveFocus(
  * How far the layer moves along its alignment axis so the panel's edge, not
  * the layer's, meets the anchor's. The layer's padding is the gap around the
  * panel, the same on every side, so a layer aligned to the anchor's start edge
- * leaves the panel one gap inside it. A centred layer needs nothing, and
- * neither does one as wide as its anchor, which the positioner centres.
+ * leaves the panel one gap inside it. A centerd layer needs nothing, and
+ * neither does one as wide as its anchor, which the positioner centers.
  */
 function alignInset(
   layer: HTMLElement,

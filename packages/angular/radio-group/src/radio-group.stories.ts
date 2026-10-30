@@ -232,7 +232,7 @@ export const States: Story = {
       3,
       scene(
         'Invalid says it twice',
-        'Every circle reddens and thickens together, because the high-contrast scheme paints every border the same black and colour alone would leave the two states identical there.',
+        'Every circle reddens and thickens together, because the high-contrast scheme paints every border the same black and color alone would leave the two states identical there.',
         `<div slRadioGroup aria-label="No choice" invalid required>
            <div slRadio value="a">No choice yet</div>
            <div slRadio value="b">Second option</div>
@@ -374,7 +374,7 @@ export const Content: Story = {
       2,
       scene(
         'An option that wraps',
-        'The circle stays on the first line box of the label rather than centring itself against the whole block, which is where align-items would put it as soon as the text reaches a second line.',
+        'The circle stays on the first line box of the label rather than centering itself against the whole block, which is where align-items would put it as soon as the text reaches a second line.',
         `<div slRadioGroup aria-label="Long content" defaultValue="a">
            <div slRadio value="a">
              I authorize sharing the delivery data with the carrier responsible for the
@@ -446,7 +446,7 @@ export const Keyboard: Story = {
       ) +
         scene(
           'Nothing chosen yet',
-          'With no value the APG asks Tab to land on the first item and nothing to be selected until Space or an arrow key. That is the platform’s behaviour, left alone.',
+          'With no value the APG asks Tab to land on the first item and nothing to be selected until Space or an arrow key. That is the platform’s behavior, left alone.',
           `<div slRadioGroup aria-label="No initial choice">
              <div slRadio value="a">First, and where Tab lands</div>
              <div slRadio value="b">Second</div>

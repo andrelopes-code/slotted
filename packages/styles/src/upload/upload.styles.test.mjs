@@ -116,7 +116,7 @@ test('clips the control rather than hiding it', () => {
 /**
  * The ring is drawn on the trigger, because what holds focus is one clipped
  * pixel — and the ring the browser would draw there has to go, or a focused
- * trigger carries two rings in two colours.
+ * trigger carries two rings in two colors.
  */
 test('draws the ring on the trigger and suppresses the browser’s own', () => {
   assert.ok(
@@ -252,10 +252,10 @@ test('gives a row’s five controls one box and sizes their five marks', () => {
 });
 
 /**
- * A status said in colour alone fails WCAG 2.2 SC 1.4.1, so the row says it in
- * a word and the colour follows the word.
+ * A status said in color alone fails WCAG 2.2 SC 1.4.1, so the row says it in
+ * a word and the color follows the word.
  */
-test('says a status in a word before it says it in a colour', () => {
+test('says a status in a word before it says it in a color', () => {
   assert.ok(rule(`${ui} [data-part-status]`).includes('color:var(--_status-text)'));
   for (const status of ['success', 'error', 'rejected']) {
     assert.ok(

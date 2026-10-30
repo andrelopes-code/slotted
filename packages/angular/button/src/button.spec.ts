@@ -251,7 +251,7 @@ describe('SlButton', () => {
     expect(indicator?.getAttribute('data-ui')).toBe('spinner');
   });
 
-  it('centres a ring of its own when the control has no visual slot', () => {
+  it('centers a ring of its own when the control has no visual slot', () => {
     const { button, fixture, host } = mount();
     host.loading.set(true);
     fixture.detectChanges();
@@ -325,7 +325,7 @@ describe('SlButton', () => {
    * A field trigger sets its label at the start and its end slot at the
    * inline end; the stylesheet spreads the two under `data-justify`.
    */
-  it('writes how its content is justified, centred unless asked to spread', () => {
+  it('writes how its content is justified, centerd unless asked to spread', () => {
     const { button, fixture, host } = mount();
     expect(button.getAttribute('data-justify')).toBe(defaults.justify);
 

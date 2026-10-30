@@ -274,7 +274,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'The four states the frame paints',
-    note: 'Read-only keeps full-strength ink and only its ground changes, because the value is real and still submitted; disabled is muted to a measured colour rather than faded, so a disabled form still says what it holds.',
+    note: 'Read-only keeps full-strength ink and only its ground changes, because the value is real and still submitted; disabled is muted to a measured color rather than faded, so a disabled form still says what it holds.',
     snippet: defineSnippet({
       id: 'text-field-react-states',
       language: 'tsx',
@@ -364,7 +364,7 @@ const ref = useRef<HTMLInputElement>(null);
       language: 'tsx',
       label: 'No key is bound, and the buttons are real buttons',
       source: `// Enter submits the form the element belongs to — the platform's
-// behaviour for a single-line control, left alone.
+// behavior for a single-line control, left alone.
 <form onSubmit={onSubmit}>
   <TextField name="q" type="search" clearable />
 </form>;`,
@@ -591,7 +591,7 @@ export const REACT_TEXT_FIELD_DOCS = {
       'loading sets aria-busy on the input and leaves it enabled, so the keyboard stays on the input while an asynchronous check runs. The spinner is hidden from assistive technology.',
       'A menu inside the frame follows the APG menu button pattern (w3.org/WAI/ARIA/apg/patterns/menu-button/). The menu trigger on the action supplies aria-haspopup, aria-expanded, and Enter, Space and ArrowDown to open.',
       'No key is bound to Escape. Some browsers clear a search input on Escape, and a text field that consumed the key inside a dialog would leave a keyboard user unable to close the dialog. WCAG success criterion 2.1.4 addresses the defects that single-key shortcuts cause.',
-      'The invalid state does not rely on colour alone: aria-invalid announces it, the field’s error states it in words, and the inline message writes a visually hidden “Error:” before the sentence. In the high-contrast scheme the border cannot carry the state, so nothing depends on it.',
+      'The invalid state does not rely on color alone: aria-invalid announces it, the field’s error states it in words, and the inline message writes a visually hidden “Error:” before the sentence. In the high-contrast scheme the border cannot carry the state, so nothing depends on it.',
     ],
     snippets: [
       defineSnippet({

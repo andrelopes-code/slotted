@@ -25,7 +25,7 @@ const consumers = ['demos/nexora/angular/src'];
 const ALLOWED_PX = new Set([
   '0px', // the absence of a length
   '1px', // a hairline, which the library writes as a literal too
-  '0.5px', // half of one, where a painted edge is met by the next colour stop
+  '0.5px', // half of one, where a painted edge is met by the next color stop
 ]);
 /** A container or media query's own step is a literal in the library as well. */
 const QUERY = /@(container|media)[^{]*\{/g;
@@ -68,7 +68,7 @@ function offencesIn(path) {
       const above = (lines[index - 1] ?? '') + (lines[index - 2] ?? '');
       if (REASONED.test(text) || REASONED.test(above)) continue;
       if (/#[0-9a-fA-F]{3,8}\b/.test(text) || /\b(rgba?|hsla?)\(/.test(text))
-        found.push(`${path}: a colour of its own — ${text}`);
+        found.push(`${path}: a color of its own — ${text}`);
       if (/font-size\s*:/.test(text) && !text.includes('var(--slotted-'))
         found.push(`${path}: a type size of its own — ${text}`);
       // `none` takes a shadow away and paints nothing, as `0px` is the absence of a length.

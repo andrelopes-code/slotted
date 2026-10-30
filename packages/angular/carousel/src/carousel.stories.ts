@@ -260,7 +260,7 @@ class ControlledDemo {
   }
 }
 
-/** A gallery beside the buy box; the colour takes the gallery to its photograph. */
+/** A gallery beside the buy box; the color takes the gallery to its photograph. */
 @Component({
   selector: 'sl-carousel-product-demo',
   standalone: true,
@@ -291,8 +291,8 @@ class ControlledDemo {
       <h3 slHeading size="2xl">Honey Pitcher</h3>
       <p slText tone="muted">Honey-glazed earthenware, hand-thrown. 1.2 liters.</p>
       <p slText size="xl">$72.00</p>
-      <div slSegmentedControl aria-label="Color" [value]="colour()" (valueChange)="choose($event)">
-        @for (entry of colours; track entry.value) {
+      <div slSegmentedControl aria-label="Color" [value]="color()" (valueChange)="choose($event)">
+        @for (entry of colors; track entry.value) {
           <label slSegment [value]="entry.value">{{ entry.label }}</label>
         }
       </div>
@@ -302,17 +302,17 @@ class ControlledDemo {
 })
 class ProductDemo {
   readonly six = PIECES.slice(0, 6);
-  readonly colours = [
+  readonly colors = [
     { value: 'mel', label: 'Honey', slide: 3 },
     { value: 'salvia', label: 'Sage', slide: 1 },
     { value: 'indigo', label: 'Indigo', slide: 4 },
   ];
-  readonly colour = signal('mel');
+  readonly color = signal('mel');
   private readonly gallery = viewChild.required<SlCarousel>('gallery');
 
   choose(value: unknown) {
-    this.colour.set(String(value));
-    const entry = this.colours.find((candidate) => candidate.value === value);
+    this.color.set(String(value));
+    const entry = this.colors.find((candidate) => candidate.value === value);
     if (entry !== undefined) this.gallery().scrollToSlide(entry.slide);
   }
 }
@@ -456,8 +456,8 @@ export const Align: Story = {
     template: grid(
       1,
       scene(
-        'Centred, two and a half rem of each neighbour',
-        'Every slide is a page; the ones either side show at the edges. Press one and it comes to the centre.',
+        'Centerd, two and a half rem of each neighbour',
+        'Every slide is a page; the ones either side show at the edges. Press one and it comes to the center.',
         `<section slCarousel align="center" aria-label="One-of-a-kind pieces" [defaultPage]="1" [style]="peek">
           <div slCarouselViewport>${photos('five')}</div>
           <button slCarouselPrevious></button>
@@ -526,7 +526,7 @@ export const Indicators: Story = {
       1,
       scene(
         'dots',
-        'The current page is a bar three dots long; shape, not colour alone, says which.',
+        'The current page is a bar three dots long; shape, not color alone, says which.',
         slideshow('Collection with dots'),
       ) +
         scene(
@@ -807,7 +807,7 @@ export const Composition: Story = {
       1,
       scene(
         'A product page',
-        'Choose a colour and the gallery goes to its photograph through the instance’s scrollToSlide.',
+        'Choose a color and the gallery goes to its photograph through the instance’s scrollToSlide.',
         '<sl-carousel-product-demo />',
       ),
     ),

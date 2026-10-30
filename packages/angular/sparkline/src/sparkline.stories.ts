@@ -187,7 +187,7 @@ export const Types: Story = {
     template: `
 <div slGrid [columns]="4" [gap]="6">
   ${scene('line', 'Twelve weeks of orders, joined by straight segments; the disc marks the current week.', `<span slSparkline [data]="orders" label="Orders"></span>`)}
-  ${scene('line, area', 'The same line with its wash, the colour fading to nothing at the bottom edge.', `<span slSparkline [data]="orders" label="Orders" area></span>`)}
+  ${scene('line, area', 'The same line with its wash, the color fading to nothing at the bottom edge.', `<span slSparkline [data]="orders" label="Orders" area></span>`)}
   ${scene('curve="monotone"', 'Smoothed, and still never higher or lower than a point it passes through.', `<span slSparkline [data]="orders" label="Orders" area curve="monotone"></span>`)}
   ${scene('type="bar"', 'One bar per week, grown from nought; the earlier weeks are dimmed and the current one is full.', `<span slSparkline [data]="orders" label="Orders" type="bar"></span>`)}
 </div>`,

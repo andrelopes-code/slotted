@@ -140,7 +140,7 @@ export const Matrix: Story = {
         <ToneMatrix
           label="Tone by variant"
           matrix="button"
-          note="Five semantic colours across four ways of painting them."
+          note="Five semantic colors across four ways of painting them."
           renderCell={(tone, variant) => (
             <Button size="sm" tone={tone} variant={variant}>
               {titleCase(tone)}
@@ -291,11 +291,11 @@ export const Matrix: Story = {
         </DemoScene>
         <DemoScene label="Unavailable" note="A disabled toggle still says whether it is on.">
           <div className="slotted-demo-row">
-            <IconButton aria-label="Favourite" defaultPressed shape="circle" tone="warning">
+            <IconButton aria-label="Favorite" defaultPressed shape="circle" tone="warning">
               <DemoIcon name="star" />
             </IconButton>
             <IconButton
-              aria-label="Favourite, unavailable"
+              aria-label="Favorite, unavailable"
               defaultPressed
               disabled
               shape="circle"
@@ -317,17 +317,17 @@ export const Matrix: Story = {
           note="The fill and a heavier edge, so neither scheme flattens it."
         >
           <div className="slotted-demo-row">
-            <ToggleButton start={<DemoIcon name="star" />}>Favourite</ToggleButton>
+            <ToggleButton start={<DemoIcon name="star" />}>Favorite</ToggleButton>
             <ToggleButton defaultPressed start={<DemoIcon name="star" />}>
-              Favourite
+              Favorite
             </ToggleButton>
           </div>
         </DemoScene>
         <DemoScene label="Unavailable" note="Disabled wins over pressed, and pressed still shows.">
           <div className="slotted-demo-row">
-            <ToggleButton disabled>Favourite</ToggleButton>
+            <ToggleButton disabled>Favorite</ToggleButton>
             <ToggleButton defaultPressed disabled>
-              Favourite
+              Favorite
             </ToggleButton>
           </div>
         </DemoScene>

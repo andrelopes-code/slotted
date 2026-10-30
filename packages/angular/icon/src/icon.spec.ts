@@ -75,7 +75,7 @@ describe('SlIcon', () => {
     expect(decided.getAttribute('data-directional')).toBe('');
   });
 
-  it('treats an inherited tone as the absence of a colour', () => {
+  it('treats an inherited tone as the absence of a color', () => {
     const { element } = host();
 
     expect(element('decided').hasAttribute('data-tone')).toBe(false);

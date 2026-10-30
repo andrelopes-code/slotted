@@ -73,8 +73,8 @@ test('makes the artwork fill the box, through a host component if there is one',
   assert.ok(rule.includes('inline-size:100%') && rule.includes('block-size:100%'));
 });
 
-test('takes the colour of its context until a tone is asked for', () => {
-  assert.ok(!base.includes('color:'), 'the base rule paints a colour, so inheritance is lost');
+test('takes the color of its context until a tone is asked for', () => {
+  assert.ok(!base.includes('color:'), 'the base rule paints a color, so inheritance is lost');
   for (const tone of contract.axes.tone.filter((value) => value !== 'inherit')) {
     assert.ok(normalized.includes(`${ui}[data-tone='${tone}']{color:var(`), `Missing tone ${tone}`);
   }

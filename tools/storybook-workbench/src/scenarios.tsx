@@ -63,7 +63,7 @@ interface ContractMember {
    * A default is whatever the contract declares, and two shapes the first
    * version of this type refused are both honest.
    *
-   * `null` is the default for a value whose absence is the behaviour:
+   * `null` is the default for a value whose absence is the behavior:
    * `multi-select` has no limit until a consumer sets `max`, and writing `0` or
    * `Infinity` there would be inventing a number to avoid saying so.
    *

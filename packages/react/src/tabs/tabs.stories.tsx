@@ -222,7 +222,7 @@ export const States: Story = {
     <Grid columns={2}>
       <Scene
         label="One view out of reach"
-        note="A single unavailable tab carries the native attribute, so it dims, refuses its click and is skipped by the arrow keys — three behaviours from one word."
+        note="A single unavailable tab carries the native attribute, so it dims, refuses its click and is skipped by the arrow keys — three behaviors from one word."
       >
         <Tabs defaultValue="a">
           <TabList aria-label="Document">

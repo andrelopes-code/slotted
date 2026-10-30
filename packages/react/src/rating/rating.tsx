@@ -4,7 +4,7 @@ import '@slotted/styles/rating/rating.css';
 import { ratingMessages } from '@slotted/core/i18n';
 import {
   formatRatingValue,
-  normaliseRating,
+  normalizeRating,
   ratingAtPoint,
   ratingFills,
   ratingForKey,
@@ -117,8 +117,8 @@ export function Rating({
   const resolvedRequired = required ?? field?.required;
   const inert = resolvedDisabled === true || resolvedReadOnly === true;
 
-  const [own, setOwn] = useState<number | null>(() => normaliseRating(defaultValue, scale));
-  const current = normaliseRating(value === undefined ? own : value, scale);
+  const [own, setOwn] = useState<number | null>(() => normalizeRating(defaultValue, scale));
+  const current = normalizeRating(value === undefined ? own : value, scale);
   const [preview, setPreview] = useState<number | null>(null);
   const [dragging, setDragging] = useState(false);
 

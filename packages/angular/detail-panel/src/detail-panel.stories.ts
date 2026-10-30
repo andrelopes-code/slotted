@@ -1124,7 +1124,7 @@ export const Composition: Story = {
       1,
       scene(
         'The families a record is made of',
-        'A table in the lines, a timeline feed in the history, a description list in the aside with a copy control on the invoice, a toolbar with overflow in the header’s actions and a tag in its marks. The panel places each and owns none of their behaviour.',
+        'A table in the lines, a timeline feed in the history, a description list in the aside with a copy control on the invoice, a toolbar with overflow in the header’s actions and a tag in its marks. The panel places each and owns none of their behavior.',
         room(PANEL()),
       ),
     ),

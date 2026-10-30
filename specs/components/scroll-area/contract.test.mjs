@@ -173,7 +173,7 @@ test('publishes the measurement in logical names', () => {
 
 /**
  * The affordance is a mask and not a gradient, and the reason is `table`'s own:
- * a gradient needs the colour of the ground under it, and a mask needs none.
+ * a gradient needs the color of the ground under it, and a mask needs none.
  */
 test('draws the affordance without an ink', () => {
   assert.match(contract.affordance.mechanism, /mask-image/);

@@ -700,7 +700,7 @@ class LongMenu {}
 /**
  * The surface scrolls inside the room the positioner gives it, so an item the
  * arrows, Home, End or typeahead reach is brought into the surface rather than
- * by the browser's own focus scroll, which centres it in the window and
+ * by the browser's own focus scroll, which centers it in the window and
  * carried the whole layer off its trigger.
  */
 describe('SlMenu in a surface that scrolls', () => {

@@ -141,7 +141,7 @@ export async function buildDesignSystem({
           by,
           at,
           via: `GitHub · andrelopes-code/slotted@${ref.split('@')[1]}`,
-          note: `${families.length} families, ${markup.size} with a preview; ${tokens.color.tokens.length} colours in three schemes`,
+          note: `${families.length} families, ${markup.size} with a preview; ${tokens.color.tokens.length} colors in three schemes`,
         },
       },
       null,

@@ -146,7 +146,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'context',
     title: 'Where a shortcut actually lives',
-    note: 'A menu, where the label takes the room and the shortcut takes the end of the row. plain inherits the row’s colour, so a row that dims dims its shortcut with no state to set.',
+    note: 'A menu, where the label takes the room and the shortcut takes the end of the row. plain inherits the row’s color, so a row that dims dims its shortcut with no state to set.',
     snippet: defineSnippet({
       id: 'kbd-react-context',
       language: 'tsx',
@@ -243,7 +243,7 @@ export const REACT_KBD_DOCS = {
         "'raised' | 'outline' | 'soft' | 'plain'",
         'raised',
         'Kbd, Shortcut',
-        'raised is a key with a bottom edge, outline owns no ground, soft is the tinted chip, plain takes the colour of the text it sits in',
+        'raised is a key with a bottom edge, outline owns no ground, soft is the tinted chip, plain takes the color of the text it sits in',
       ],
       [
         'disabled',

@@ -102,7 +102,7 @@ const JOBS: ImportExportJob[] = [
   </section>`,
 })
 class Host {
-  readonly centre = viewChild.required(SlImportExportCenter);
+  readonly center = viewChild.required(SlImportExportCenter);
   readonly jobs = signal<readonly ImportExportJob[]>(JOBS);
   readonly status = signal<'ready' | 'error'>('ready');
   readonly loading = signal(false);
@@ -161,7 +161,7 @@ describe('SlImportExportCenter', () => {
     fixture.detectChanges();
   };
 
-  /** The jobs are Brazilian, so the centre speaks Brazilian Portuguese around them. */
+  /** The jobs are Brazilian, so the center speaks Brazilian Portuguese around them. */
   let language: WritableSignal<string>;
 
   beforeEach(async () => {
@@ -358,7 +358,7 @@ describe('SlImportExportCenter', () => {
   it('reveals a job: shows its details and focuses its title', async () => {
     host.view.set('export');
     await settle();
-    host.centre().reveal('catalog');
+    host.center().reveal('catalog');
     await settle();
     expect(root().dataset['view']).toBe('all');
     expect(job('catalog').dataset['expanded']).toBe('');

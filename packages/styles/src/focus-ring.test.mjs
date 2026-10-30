@@ -9,14 +9,14 @@ const source = new URL('.', import.meta.url).pathname;
  * R3: the focus ring is drawn in `--slotted-focus-ring-color` in every scheme,
  * or in `--slotted-focus-ring-color-invalid` on a control that is invalid.
  *
- * A ring in another colour was measured once, on a `Button` in the `dark`
+ * A ring in another color was measured once, on a `Button` in the `dark`
  * scheme: `#d4d4d8` where the theme says `#60a5fa`. That one came from a
  * stylesheet outside this package, and this test is what would have caught the
- * same colour written inside it — a `solid` alert and toast did draw the ring
+ * same color written inside it — a `solid` alert and toast did draw the ring
  * in their own ink, for contrast against the fill, and now keep the theme's
  * ring with a halo inside it instead.
  *
- * A `forced-colors` block is exempt: there the user agent owns every colour,
+ * A `forced-colors` block is exempt: there the user agent owns every color,
  * the theme resolves the token to `Highlight`, and an outline standing in for
  * a border (`ButtonBorder` on a track) is not a focus ring.
  */
@@ -61,7 +61,7 @@ function withoutForcedColors(css) {
   return out + css.slice(index);
 }
 
-function outlineColours(css) {
+function outlineColors(css) {
   const declarations = [];
   const pattern = /(?:^|[;{\s])(outline(?:-color)?)\s*:\s*([^;}]+)/g;
   for (let match = pattern.exec(css); match; match = pattern.exec(css)) {
@@ -73,11 +73,11 @@ function outlineColours(css) {
   return declarations;
 }
 
-test('every focus ring is drawn in the theme’s ring colour', () => {
+test('every focus ring is drawn in the theme’s ring color', () => {
   const offenders = [];
   for (const { path, css } of stylesheets()) {
     const body = withoutForcedColors(stripComments(css));
-    for (const declaration of outlineColours(body)) {
+    for (const declaration of outlineColors(body)) {
       if (!RING.test(declaration)) offenders.push(`${path}: ${declaration}`);
     }
   }
@@ -90,7 +90,7 @@ test('every focus ring is drawn in the theme’s ring colour', () => {
 
 test('finds the rings it guards', () => {
   const rings = stylesheets().flatMap(({ css }) =>
-    outlineColours(withoutForcedColors(stripComments(css))),
+    outlineColors(withoutForcedColors(stripComments(css))),
   );
   assert.ok(rings.length >= 40, `Expected the families' rings, found ${rings.length}`);
 });
@@ -101,14 +101,14 @@ test('finds the rings it guards', () => {
  *
  * The user agent draws one there whether or not the family wants it — Chrome's
  * is a white line inside a dark one — so a family that moves the ring and
- * forgets this paints two at once, in two different colours, one of them not
+ * forgets this paints two at once, in two different colors, one of them not
  * the theme's. `checkbox`, `switch` and `radio-group` each move the ring off
  * the native control and each suppress it; `tree` moved it off the `treeitem`
  * and did not, and a focused branch drew the browser's ring around its whole
  * subtree with the family's inside it around the row.
  *
  * `forced-colors` is exempt for the reason it is above: there the user agent
- * owns every colour and an outline is what survives.
+ * owns every color and an outline is what survives.
  */
 test('a family that moves its ring suppresses the one the browser would draw', () => {
   const offenders = [];

@@ -381,7 +381,7 @@ export abstract class SlTableFilterBase {
   private request(next: FilterDescriptor | null, reason: TableFilterReason, source: unknown) {
     const state = createControllable<FilterDescriptor | null>({
       initial: this.readValue(),
-      /* Two descriptors are the same filter when they serialise the same. */
+      /* Two descriptors are the same filter when they serialize the same. */
       equals: (a, b) => serializeFilter(a) === serializeFilter(b),
       onRequest: (request) => this.valueChangeRequest.emit(request),
     });

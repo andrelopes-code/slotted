@@ -1,8 +1,8 @@
 import type { ComponentPropsWithRef, HTMLAttributes, ImgHTMLAttributes, ReactNode } from 'react';
 
 /**
- * Which of the five semantic colours the fallback is painted in. `auto` derives
- * it from the name, so the same person keeps the same colour in a list that is
+ * Which of the five semantic colors the fallback is painted in. `auto` derives
+ * it from the name, so the same person keeps the same color in a list that is
  * re-sorted and in a table that is paged.
  */
 export type AvatarTone =
@@ -11,7 +11,7 @@ export type AvatarTone =
 /** The palette `auto` chooses from, in the order the hash indexes it. */
 export type AvatarResolvedTone = Exclude<AvatarTone, 'auto'>;
 
-/** How that colour is painted. `soft` is the tinted disc an avatar usually is. */
+/** How that color is painted. `soft` is the tinted disc an avatar usually is. */
 export type AvatarVariant = 'soft' | 'solid';
 /**
  * The ground behind the avatar. `tone` paints the tone behind the fallback and
@@ -22,7 +22,7 @@ export type AvatarSurface = 'tone' | 'none' | 'plate';
 
 export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
-/** A circle is a person; a square is a team, an organisation or a bot. */
+/** A circle is a person; a square is a team, an organization or a bot. */
 export type AvatarShape = 'circle' | 'square';
 
 /** Where the picture is. Four values, because a boolean cannot say why there is none. */
@@ -79,13 +79,13 @@ export interface AvatarProps extends Omit<ComponentPropsWithRef<'span'>, 'childr
   /**
    * Takes the avatar out of the accessibility tree. For an avatar beside the
    * name it belongs to, where announcing it would read the person twice. The
-   * name is still what the initials and the colour are derived from.
+   * name is still what the initials and the color are derived from.
    */
   decorative?: boolean | undefined;
   /** A deactivated account, or an avatar inside a control the page has turned off. */
   disabled?: boolean | undefined;
   /**
-   * A stable identifier to derive the colour from, when the name is not stable
+   * A stable identifier to derive the color from, when the name is not stable
    * or two people share one. Defaults to `name`.
    */
   idFor?: string | undefined;
@@ -98,7 +98,7 @@ export interface AvatarProps extends Omit<ComponentPropsWithRef<'span'>, 'childr
   locale?: string | undefined;
   /**
    * The person or entity this is a picture of. It is the accessible name in
-   * every status, the source of the initials, and the seed of the colour.
+   * every status, the source of the initials, and the seed of the color.
    */
   name?: string | undefined;
   /** Called when the picture's loading status changes. Never called for a status passed in. */
@@ -151,7 +151,7 @@ export interface AvatarGroupProps extends ComponentPropsWithRef<'ul'> {
   locale?: string | undefined;
   /**
    * The largest number of discs the group draws, the summary included. Above
-   * it, one fewer member is shown and the rest are summarised. `false` shows
+   * it, one fewer member is shown and the rest are summarized. `false` shows
    * every member.
    */
   max?: number | false | undefined;

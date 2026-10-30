@@ -309,7 +309,7 @@ describe('where a cell sits in its row', () => {
    * a leftover: the table states it once and the one cell that wants the other
    * answer overrides it.
    */
-  it('centres by default, and lets a table and a cell each say otherwise', () => {
+  it('centers by default, and lets a table and a cell each say otherwise', () => {
     const { rerender } = render(<Invoices />);
 
     const root = screen.getByRole('table').closest('[data-ui="table"]');

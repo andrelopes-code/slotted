@@ -8,7 +8,7 @@ import type { GlyphName } from '@slotted/angular/icon';
 export type StatusIndicatorStatus =
   'neutral' | 'info' | 'success' | 'warning' | 'danger' | 'unknown';
 
-/** The compact mark, and the one that says the status without colour. */
+/** The compact mark, and the one that says the status without color. */
 export type StatusIndicatorMark = 'dot' | 'icon';
 export type StatusIndicatorSize = 'sm' | 'md' | 'lg';
 export type StatusIndicatorLive = 'off' | 'polite' | 'assertive';

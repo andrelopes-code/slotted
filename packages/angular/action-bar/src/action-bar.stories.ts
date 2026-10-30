@@ -359,7 +359,7 @@ export const Status: Story = {
       ) +
         scene(
           'A status indicator',
-          'slStatusIndicator already says warning by shape as well as by colour, so the bar adds nothing and repeats nothing.',
+          'slStatusIndicator already says warning by shape as well as by color, so the bar adds nothing and repeats nothing.',
           `<footer slActionBar aria-label="Order actions" variant="raised">
           <div slActionBarStatus>
             <span slStatusIndicator status="warning">3 fields to fill in</span>
@@ -487,7 +487,7 @@ export const Align: Story = {
         ) +
         scene(
           'center',
-          'The run is centred in what is left after the status — the placement Salesforce’s docked form footer uses.',
+          'The run is centerd in what is left after the status — the placement Salesforce’s docked form footer uses.',
           ORDER('variant="raised" align="center"'),
         ),
     ),
@@ -630,7 +630,7 @@ export const Composition: Story = {
       1,
       scene(
         'The bar is a directive on the page’s own element',
-        'Every part but the overflow is an attribute: the bar here is a footer, the status a p, and the run a div — the family adds behaviour to the element the page already wanted rather than inserting one of its own.',
+        'Every part but the overflow is an attribute: the bar here is a footer, the status a p, and the run a div — the family adds behavior to the element the page already wanted rather than inserting one of its own.',
         `<footer slActionBar aria-label="Order actions" variant="raised">
           <p slActionBarStatus>Draft saved at 14:07</p>
           <div slActionBarActions>

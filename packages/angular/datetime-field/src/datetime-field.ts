@@ -81,7 +81,7 @@ import type {
  * Each half pages the way its own family already pages: year 10, month 5 and
  * day 5 from `date-field`, hour 3, minute 15, second 15 and day period 1 from
  * `time-field`. Two fields drawing the same segment and paging it differently
- * would be one behaviour with two answers.
+ * would be one behavior with two answers.
  */
 const PAGE_STEP: Record<SegmentFieldName, number> = {
   year: 10,

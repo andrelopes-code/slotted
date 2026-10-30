@@ -162,12 +162,12 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'align',
-    title: 'Centred, with the neighbours showing',
-    note: 'align="center" makes every slide a page and centres it; --slotted-carousel-peek pads the viewport so the slides either side show at its edges. Press a slide that peeks and it comes to the centre.',
+    title: 'Centerd, with the neighbours showing',
+    note: 'align="center" makes every slide a page and centers it; --slotted-carousel-peek pads the viewport so the slides either side show at its edges. Press a slide that peeks and it comes to the center.',
     snippet: defineSnippet({
       id: 'carousel-angular-align',
       language: 'angular',
-      label: 'Centre alignment and a peek',
+      label: 'Center alignment and a peek',
       source: `<section slCarousel align="center" aria-label="One-of-a-kind pieces" class="peek">
   <div slCarouselViewport>…</div>
   <button slCarouselPrevious></button>
@@ -218,7 +218,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'thumbnails',
     title: 'A product gallery',
-    note: 'variant="thumbnails" with an slCarouselIndicatorTemplate draws each indicator from the consumer’s picture. The strip scrolls on its own when it holds more than it shows, and keeps the current picture in view — one carousel, nothing to synchronise.',
+    note: 'variant="thumbnails" with an slCarouselIndicatorTemplate draws each indicator from the consumer’s picture. The strip scrolls on its own when it holds more than it shows, and keeps the current picture in view — one carousel, nothing to synchronize.',
     snippet: defineSnippet({
       id: 'carousel-angular-thumbnails',
       language: 'angular',
@@ -347,11 +347,11 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'Inside a product page',
-    note: 'The gallery beside the buy box, as a product page lays them out: the picture and its thumbnails on the start, the name, the price and the action on the end. the instance’s scrollToSlide, reached through exportAs takes the gallery to the picture of the colour chosen.',
+    note: 'The gallery beside the buy box, as a product page lays them out: the picture and its thumbnails on the start, the name, the price and the action on the end. the instance’s scrollToSlide, reached through exportAs takes the gallery to the picture of the color chosen.',
     snippet: defineSnippet({
       id: 'carousel-angular-composition',
       language: 'angular',
-      label: 'A gallery driven by a colour choice',
+      label: 'A gallery driven by a color choice',
       source: `<section slCarousel #gallery="slCarousel" aria-label="Fotografias">…</section>
 <div slSegmentedControl aria-label="Cor" (valueChange)="gallery.scrollToSlide(photoOf($event))">
   …

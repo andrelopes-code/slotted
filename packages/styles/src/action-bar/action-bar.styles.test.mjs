@@ -133,7 +133,7 @@ test('states the stacking breakpoint once, and publishes the fact', () => {
  */
 test('stacks only a bar that has no overflow control', () => {
   const stacked = css.slice(css.indexOf(`(width < ${contract.stack.breakpoint})`));
-  const rules = stacked.slice(0, stacked.indexOf('Forced colours'));
+  const rules = stacked.slice(0, stacked.indexOf('Forced colors'));
   const selectors = [...rules.matchAll(/^ {4}(\[data-ui-action-bar\][^{]*)\{/gm)].map(([, s]) => s);
   assert.ok(selectors.length > 0);
   for (const selector of selectors) {

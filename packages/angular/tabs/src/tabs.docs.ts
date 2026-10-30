@@ -566,7 +566,7 @@ export const ANGULAR_TABS_DOCS = {
       'The paging controls are aria-hidden and outside the Tab sequence, because the arrow keys reach every tab and scroll it into view. Cloudscape’s guidance warns against extra Tab stops between a tab list and its panel.',
       'A list that starts to overflow scrolls the selected tab into view once its paging controls are drawn, so the selected tab is not left behind the end control.',
       'Each tab names its panel with aria-controls and each panel names its tab with aria-labelledby. The ids come from the value, with the characters an id cannot hold escaped rather than replaced, so two values that differ only by a space never share a panel.',
-      'The selected tab is never shown by colour alone: the marker is a bar never thinner than a thick border, which stays visible in the high-contrast scheme, where the theme paints every surface Canvas and the fill of the contained variant disappears.',
+      'The selected tab is never shown by color alone: the marker is a bar never thinner than a thick border, which stays visible in the high-contrast scheme, where the theme paints every surface Canvas and the fill of the contained variant disappears.',
       'A panel carries tabindex="0", so the Tab key reaches it from the list. The pattern permits that stop even when the panel’s first content is focusable.',
     ],
     snippets: [

@@ -542,7 +542,7 @@ export class SlDataGridFilterPanel {
   readonly locale = input<string | undefined>(undefined);
   readonly counts = input<ReadonlyMap<string, number> | undefined>(undefined);
   readonly customTemplate = input<TemplateRef<DataGridFilterOperandContext> | null>(null);
-  /** The normalised descriptor, or null, with how it was applied. */
+  /** The normalized descriptor, or null, with how it was applied. */
   readonly applyRequest = output<{
     filter: FilterDescriptor | null;
     reason: 'pointer' | 'keyboard' | 'clear';

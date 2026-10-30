@@ -36,7 +36,7 @@ describe('motionBetween', () => {
 describe('viewportGeometry', () => {
   const root = { top: 10, left: 100, right: 500, bottom: 44, width: 400, height: 34 };
 
-  it('opens under the trigger with the arrow on its centre', () => {
+  it('opens under the trigger with the arrow on its center', () => {
     const geometry = viewportGeometry({
       orientation: 'horizontal',
       dir: 'ltr',

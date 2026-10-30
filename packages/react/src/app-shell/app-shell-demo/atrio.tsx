@@ -25,7 +25,7 @@ import {
   AppShellAsideToggle,
   AppShellBanner,
   AppShellBrand,
-  AppShellCentre,
+  AppShellCenter,
   AppShellMain,
   AppShellNav,
   AppShellNavBody,
@@ -104,13 +104,13 @@ export function AtrioBanner({ paneToggle = false }: { paneToggle?: boolean | und
       <AppShellBrand>
         <Wordmark>Atrium</Wordmark>
       </AppShellBrand>
-      <AppShellCentre>
+      <AppShellCenter>
         <span className="slotted-demo-bar-crumbs">
           <span>Schedule</span>
           <span aria-hidden>/</span>
           <span aria-current="page">Tuesday, September 16</span>
         </span>
-      </AppShellCentre>
+      </AppShellCenter>
       <AppShellActions>
         {paneToggle ? <AppShellAsideToggle /> : null}
         <Avatar size="sm" tone="secondary" variant="soft">

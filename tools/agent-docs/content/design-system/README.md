@@ -7,7 +7,7 @@ Slotted is a library of component families for React (`@slotted/react`) and Angu
 - Write an element of your own only where no family answers the problem (CP-04), and paint it with the tokens below, never with a literal (CP-05).
 - Space siblings of your own with `inline` or `stack` and a step of the space scale, and size their text with the `typography` family (CP-02).
 
-## Colour
+## Color
 
 - Stand the page's content and a card on `--slotted-surface`. Lift a popover, a menu or a dialog onto `--slotted-surface-raised` with one step of the shadow scale. Set the canvas under the content in `--slotted-surface-sunken`.
 - Write text in `--slotted-text`; text that ranks below the text beside it — a caption, a hint, a secondary value — in `--slotted-text-muted`; text on `--slotted-surface-inverse` in `--slotted-text-inverse`.
@@ -16,12 +16,12 @@ Slotted is a library of component families for React (`@slotted/react`) and Angu
 - Every tone has the same roles. `--slotted-tone-accent-solid` fills a ground and `--slotted-tone-accent-on-solid` writes text and icons on it; `--slotted-tone-accent-surface` tints a ground, and a state that must be seen pairs it with `--slotted-tone-accent-border`; `--slotted-tone-accent-text` writes in the tone on a surface.
 - Draw a series of data with `--slotted-data-1` and the slots after it, in order, never skipping one.
 - Dim the page behind a modal with `--slotted-scrim`.
-- Set colour through the five seeds — `--slotted-seed-accent`, `--slotted-seed-neutral`, `--slotted-seed-success`, `--slotted-seed-warning` and `--slotted-seed-danger`. Every colour token derives from them within contrast bounds, so a new seed keeps the ratios of every scheme.
+- Set color through the five seeds — `--slotted-seed-accent`, `--slotted-seed-neutral`, `--slotted-seed-success`, `--slotted-seed-warning` and `--slotted-seed-danger`. Every color token derives from them within contrast bounds, so a new seed keeps the ratios of every scheme.
 
 ## Schemes and density
 
-- Every colour has a value in `light`, `dark` and `high-contrast`. Name the scheme with `data-slotted-scheme` on any element; `system` follows the reader's preference.
-- In `high-contrast`, states differ by edge width as well as colour: an invalid control adds `--slotted-control-invalid-edge-width` inside its border.
+- Every color has a value in `light`, `dark` and `high-contrast`. Name the scheme with `data-slotted-scheme` on any element; `system` follows the reader's preference.
+- In `high-contrast`, states differ by edge width as well as color: an invalid control adds `--slotted-control-invalid-edge-width` inside its border.
 - Density is `comfortable`, `compact` or `dense`, named with `data-slotted-density`. Controls take their height, inline padding and font size from the control size tokens of their step, such as `--slotted-control-height-md`.
 
 ## Type
@@ -57,4 +57,4 @@ Slotted is a library of component families for React (`@slotted/react`) and Angu
 ## Iconography
 
 - A family draws its own icons with the Glyph element, from the theme's glyph set; no stylesheet paints an icon.
-- An icon that carries meaning has a text alternative, and a state is never told by an icon or a colour alone.
+- An icon that carries meaning has a text alternative, and a state is never told by an icon or a color alone.

@@ -192,7 +192,7 @@ test('shows a child of the title area in one state only through data-when', () =
     normalized.includes(
       `${ui}[data-expanded]>*>[data-part-title-area] [data-part][data-when='snapped'][data-when],${ui}:not([data-expanded])>*>[data-part-title-area] [data-part][data-when='expanded'][data-when]{display:none;}`,
     ),
-    'data-when is not honoured for both values',
+    'data-when is not honored for both values',
   );
   /* Five attribute selectors, and after the heading's own display rule. */
   assert.ok(
@@ -221,7 +221,7 @@ test('paints no mark of its own, and turns the chevron by state', () => {
 
 /**
  * The two inner controls are the family's own (R2): a ring in the theme's
- * colour, a reach to the target minimum, and a hover that moves the ground
+ * color, a reach to the target minimum, and a hover that moves the ground
  * and nothing else, held back for a disabled control.
  */
 test('draws the toggle and the pin as inner controls with a ring and a reachable target', () => {
@@ -295,9 +295,9 @@ test('reorders below 600 pixels by container query', () => {
 
 /**
  * The marks are stroked with `currentColor`, the host's ink, which forced
- * colours already remap: nothing is restated for them.
+ * colors already remap: nothing is restated for them.
  */
-test('restates nothing for its marks under forced colours', () => {
+test('restates nothing for its marks under forced colors', () => {
   assert.doesNotMatch(normalized, /::before\{[^}]*forced-color-adjust/);
 });
 
@@ -414,7 +414,7 @@ test('keeps the actions at the end of their row on a phone', () => {
  * than a control — by three pixels with a pointer, by sixteen on a touch
  * screen, where every control is a 44-pixel target — and stood at the top of
  * the row with the button hanging under it. The title's box is at least a
- * control tall and centres its heading, so one line stands on the control's
+ * control tall and centers its heading, so one line stands on the control's
  * axis and two lines still grow from the top.
  */
 test('stands a one-line heading on the axis of the control beside it', () => {
@@ -589,7 +589,7 @@ test('measures a title beside a folding toolbar by its widest line, not its part
  * A ground with alpha is composited once: the root paints it, and the title
  * area paints it only over a header area it has to cover. Stuck, the root
  * takes the theme's backdrop filter, and gives it up for a reader who asked
- * for less transparency and under forced colours. The composited alpha and the
+ * for less transparency and under forced colors. The composited alpha and the
  * computed filter are read in Chrome by `tools/harness/scenarios/page-header-glass.mjs`.
  */
 test('paints one ground under a title with nothing to cover, and filters the backdrop while stuck', () => {

@@ -845,9 +845,9 @@ export class SlImportExportCenter {
   readonly hasMore = input(false, { transform: booleanAttribute });
   /** Words laid over the catalog of the language in force, key by key. */
   readonly messages = input<PartialMessages<ImportExportCenterMessages> | undefined>(undefined);
-  /** The view an unbound centre starts on, read once. */
+  /** The view an unbound center starts on, read once. */
   readonly defaultView = input<string | undefined>(undefined);
-  /** The keys an unbound centre starts with shown, read once. */
+  /** The keys an unbound center starts with shown, read once. */
   readonly defaultExpanded = input<readonly string[] | undefined>(undefined);
   /** The current view. Two-way. */
   readonly view = model<string | undefined>(undefined);
@@ -888,7 +888,7 @@ export class SlImportExportCenter {
   private readonly contextLocale = injectLocale();
   readonly localeValue = computed(() => this.locale() ?? this.contextLocale());
   readonly timeZoneValue = computed(() => this.timeZone() ?? this.defaults.timeZone);
-  /** The family's words in the language in force, with this centre's `messages` laid over them. */
+  /** The family's words in the language in force, with this center's `messages` laid over them. */
   readonly t = injectMessages(importExportCenterMessages, this.messages);
 
   protected readonly labelledBy = computed(() =>
@@ -1201,7 +1201,7 @@ export class SlImportExportCenter {
     });
     const moved = state.request(next, reason, source);
     /* The model is the state: written once the request is accepted, which is
-       what `[(view)]` binds and what an unbound centre keeps. */
+       what `[(view)]` binds and what an unbound center keeps. */
     if (!cancelled && moved) this.view.set(next);
   }
 

@@ -142,7 +142,7 @@ const summaryAnatomy: AnatomyRow[] = [
     element: 'section, or the element render returns',
     required: true,
     purpose:
-      'A region named by its aria-label. data-variant is summary for bars and spectrum for the spectrum, which also writes --slotted-rating-mean, --slotted-rating-low and --slotted-rating-high from summariseRatings.',
+      'A region named by its aria-label. data-variant is summary for bars and spectrum for the spectrum, which also writes --slotted-rating-mean, --slotted-rating-low and --slotted-rating-high from summarizeRatings.',
   },
   {
     part: 'aggregate',
@@ -305,7 +305,7 @@ const summaryAnatomy: AnatomyRow[] = [
     part: 'swatch',
     element: 'span aria-hidden="true"',
     required: false,
-    purpose: 'The bucket’s colour key.',
+    purpose: 'The bucket’s color key.',
   },
 ];
 
@@ -614,7 +614,7 @@ const shared = {
     "'accent' | 'info' | 'success' | 'warning' | 'danger'",
     'warning',
     'all members, RatingProvider',
-    'The colour a lit symbol takes. secondary is declined: its solid step is a ground, and a star lit in it reads as unlit',
+    'The color a lit symbol takes. secondary is declined: its solid step is a ground, and a star lit in it reads as unlit',
   ],
   max: [
     'max',
@@ -765,7 +765,7 @@ export const REACT_RATING_DOCS = {
       'The pattern is the WAI-ARIA APG’s Rating Radio Group: a radiogroup of native radios that share a name, each named by the itemLabel message — 3,5 de 5 — so the number is heard on every stop. Tab and Space are the platform’s.',
       'The arrows depart from the radio example on purpose: they stop at both ends instead of wrapping, as the APG’s rating slider, Ark, MUI and Mantine do, because a rating that falls from five to one on one keystroke too many is a defect. Home and End reach the ends, and the inline arrows swap in a right-to-left document.',
       'Read-only has no platform answer for a radio, so the change is refused on the click a pointer and Space share, aria-readonly is announced, and every radio keeps its tab stop. aria-required and aria-invalid are written on the group; the native required is not, because it would engage the browser’s own validation.',
-      'In the light and dark schemes a star does not reach 3:1 against the page: the value is always in the accessible name and may be written beside the stars, and the high-contrast scheme and forced colours draw lit and unlit stars as distinct shapes with a contrasting edge.',
+      'In the light and dark schemes a star does not reach 3:1 against the page: the value is always in the accessible name and may be written beside the stars, and the high-contrast scheme and forced colors draw lit and unlit stars as distinct shapes with a contrasting edge.',
       'Under a coarse pointer each target grows to 44 pixels, and a finger can scrub along the row without losing vertical scrolling.',
     ],
     snippets: [
@@ -853,7 +853,7 @@ export const REACT_RATING_DOCS = {
       'The display is one image: role="img" with an aria-label from displayLabel or displayLabelWithCount — Avaliação 4,6 de 5, 1.284 avaliações — and every symbol, number and count inside is hidden, so the value is said once.',
       // language: en-US
       'The value is written in the locale’s digits and, as a label read aloud, a whole value is written whole: 4 de 5, not 4,0 de 5.',
-      'A partial star is a clip of one shape, never a colour alone; the number beside it is the reading that does not depend on seeing the fraction.',
+      'A partial star is a clip of one shape, never a color alone; the number beside it is the reading that does not depend on seeing the fraction.',
     ],
     snippets: [
       defineSnippet({
@@ -946,7 +946,7 @@ export const REACT_RATING_DOCS = {
       // language: pt-BR
       'Each level is named in full by levelLabel — 5 estrelas: 1.052 avaliações, 82% — so a reader hears the level, its count and its share without reading the bar. Filtering, each is a toggle with aria-pressed, disabled where nobody rated.',
       // language: en-US
-      'The spectrum’s axis, its interval and its mean are hidden: the count line says the margin or the interval in words, and the conclusion is text in a pill, never a colour alone.',
+      'The spectrum’s axis, its interval and its mean are hidden: the count line says the margin or the interval in words, and the conclusion is text in a pill, never a color alone.',
     ],
     snippets: [
       defineSnippet({

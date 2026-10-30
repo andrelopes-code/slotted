@@ -43,7 +43,7 @@ test('arranges along the inline axis, which is what makes it a run', () => {
   assert.ok(base.includes('flex-direction:row'));
 });
 
-test('wraps and centres by default, because that is what the contract promises', () => {
+test('wraps and centers by default, because that is what the contract promises', () => {
   const base = ruleFor(ui);
   assert.ok(base.includes(`flex-wrap:${contract.members.inline.defaults.wrap}`));
   assert.ok(base.includes(`align-items:${contract.members.inline.defaults.align}`));
@@ -113,7 +113,7 @@ test('shrinks below its content so a nested run reflows instead of overflowing',
   assert.ok(ruleFor(ui).includes('min-inline-size:0'));
 });
 
-test('paints nothing at all: a layout that carried a colour would be a surface', () => {
+test('paints nothing at all: a layout that carried a color would be a surface', () => {
   assert.doesNotMatch(declarations, /(^|[;{\s])(color|background|border|box-shadow|padding)\s*:/);
 });
 

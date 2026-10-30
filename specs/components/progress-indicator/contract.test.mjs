@@ -142,7 +142,7 @@ test('offers one size axis for three geometries', () => {
  * tone asserted by copying another family's contract is what broke `alert` and
  * `tag` when `badge` was rebuilt.
  */
-test('speaks the five tones the theme owns, and no colour of its own', () => {
+test('speaks the five tones the theme owns, and no color of its own', () => {
   assert.deepEqual(contract.axes.tone, TONES);
   assert.equal(member.defaults.tone, 'accent');
 });

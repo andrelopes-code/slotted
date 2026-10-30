@@ -120,7 +120,7 @@ describe('createChartModel', () => {
   });
 });
 
-describe('colour', () => {
+describe('color', () => {
   it('assigns slots in order and never cycles them', () => {
     const colors = assignColors(Array.from({ length: 10 }, () => ({})));
     expect(colors.slice(0, 8)).toEqual(
@@ -140,7 +140,7 @@ describe('colour', () => {
     ]);
   });
 
-  it('colours a pie by slice', () => {
+  it('colors a pie by slice', () => {
     const model = createChartModel({
       x: { field: 'name' },
       data: [
@@ -157,7 +157,7 @@ describe('colour', () => {
 
   /**
    * An application gives each category a slot of its own, and a pie keeps it:
-   * a colour means the same category on every chart. A slice whose record
+   * a color means the same category on every chart. A slice whose record
    * names no slot takes the next one the others left free.
    */
   it('takes each slice’s slot or tone from the fields the series names', () => {

@@ -6,7 +6,7 @@ import { SlField, SlFieldControl, SlFieldDescription, SlFieldLabel } from '@slot
   imports: [SlField, SlFieldControl, SlFieldDescription, SlFieldLabel],
   template: `
     <div slField>
-      <label slFieldLabel>Brand colour</label>
+      <label slFieldLabel>Brand color</label>
       <input slFieldControl type="color" value="#2f6fde" />
       <span slFieldDescription>Used on invoices and in the customer portal.</span>
     </div>

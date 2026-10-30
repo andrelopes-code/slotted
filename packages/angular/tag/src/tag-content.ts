@@ -2,7 +2,7 @@ import { Directive } from '@angular/core';
 
 /**
  * A glyph or an avatar before the words. The artwork is the consumer's, and
- * the part gives it a box that is sized and centred; the directive is written
+ * the part gives it a box that is sized and centerd; the directive is written
  * on the element the page already has, so nothing is wrapped.
  */
 @Directive({

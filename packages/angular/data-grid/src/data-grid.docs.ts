@@ -1202,7 +1202,7 @@ const api = apiRows([
     'model<Partial<GridColumnState> | undefined>',
     '—',
     'sl-data-grid',
-    'order, widths, hidden and pinned, two-way; normalised against columns on every read.',
+    'order, widths, hidden and pinned, two-way; normalized against columns on every read.',
   ],
   [
     'selectionMode',

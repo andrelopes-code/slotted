@@ -50,7 +50,7 @@ const anatomy: AnatomyRow[] = [
     element: 'h1 to h6, or a div',
     required: false,
     purpose:
-      'The group name. It carries the id the nested list names itself by, data-sticky when it has to hold still while its own rows scroll past, and data-variant: caption, the small muted name, or ruled, the name in the text colour over a rule with no ground behind it.',
+      'The group name. It carries the id the nested list names itself by, data-sticky when it has to hold still while its own rows scroll past, and data-variant: caption, the small muted name, or ruled, the name in the text color over a rule with no ground behind it.',
   },
   {
     part: 'section-end',

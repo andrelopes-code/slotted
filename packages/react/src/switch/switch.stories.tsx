@@ -113,7 +113,7 @@ export const Indicator: Story = {
     <Grid columns={2}>
       <Scene
         label="A check when it is on, and nothing when it is off"
-        note="The mark is what makes the state readable beyond colour and beyond position: a switch you cannot compare to another still says which way it is set."
+        note="The mark is what makes the state readable beyond color and beyond position: a switch you cannot compare to another still says which way it is set."
         layout="block"
       >
         <Switch defaultChecked>Com marca, ligado</Switch>
@@ -121,7 +121,7 @@ export const Indicator: Story = {
       </Scene>
       <Scene
         label="Withdrawn, where something else carries the state"
-        note='indicator="none" leaves colour and position as the whole of the signal, which is what the mark exists to avoid — so it belongs beside a label that already says the state.'
+        note='indicator="none" leaves color and position as the whole of the signal, which is what the mark exists to avoid — so it belongs beside a label that already says the state.'
         layout="block"
       >
         <Switch defaultChecked indicator="none">

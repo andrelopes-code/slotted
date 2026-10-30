@@ -48,7 +48,7 @@ const anatomy: AnatomyRow[] = [
     element: 'span',
     required: false,
     purpose:
-      'Inside the trigger while the grid differs from the view in use: a dot in the accent solid and the word Modified, so the state is never colour alone and the trigger’s name says it.',
+      'Inside the trigger while the grid differs from the view in use: a dot in the accent solid and the word Modified, so the state is never color alone and the trigger’s name says it.',
   },
   {
     part: 'revert',

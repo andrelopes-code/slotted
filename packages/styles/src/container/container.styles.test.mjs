@@ -178,7 +178,7 @@ test('places the column by the growth limit of a gutter, so the keyword is logic
   assert.doesNotMatch(declarations, /\b(left|right)\b/);
 });
 
-test('paints nothing at all: a layout that carried a colour would be a surface', () => {
+test('paints nothing at all: a layout that carried a color would be a surface', () => {
   assert.doesNotMatch(declarations, /(^|[;{\s])(color|background|border|box-shadow)\s*:/);
 });
 

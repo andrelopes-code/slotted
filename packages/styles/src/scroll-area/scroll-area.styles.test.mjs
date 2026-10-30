@@ -143,10 +143,10 @@ test('prints the whole content rather than the visible slice', () => {
 });
 
 /**
- * The system owns the palette under forced colours, and a veil over system text
+ * The system owns the palette under forced colors, and a veil over system text
  * is a legibility loss with nothing bought.
  */
-test('gives the palette back under forced colours', () => {
+test('gives the palette back under forced colors', () => {
   const forced = css.slice(css.indexOf('@media (forced-colors: active)'));
   assert.match(forced, /mask-image: none/);
   assert.match(forced, /scrollbar-color: auto/);

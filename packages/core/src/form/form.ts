@@ -42,19 +42,19 @@ export interface FormErrorEntry {
 }
 
 /** Empty strings are not messages, and a key with none is not an error. */
-export function normaliseErrors(errors: FormErrorInput | undefined): FormErrors {
-  const normalised: Record<string, readonly string[]> = {};
-  if (errors === undefined) return normalised;
+export function normalizeErrors(errors: FormErrorInput | undefined): FormErrors {
+  const normalized: Record<string, readonly string[]> = {};
+  if (errors === undefined) return normalized;
 
   for (const [name, value] of Object.entries(errors)) {
     if (value === null || value === undefined) continue;
     const messages = (typeof value === 'string' ? [value] : [...value])
       .map((message) => message.trim())
       .filter((message) => message.length > 0);
-    if (messages.length > 0) normalised[name] = messages;
+    if (messages.length > 0) normalized[name] = messages;
   }
 
-  return normalised;
+  return normalized;
 }
 
 /**
@@ -63,7 +63,7 @@ export function normaliseErrors(errors: FormErrorInput | undefined): FormErrors 
  * messages saying the same thing twice is what a reader reads as one bug.
  */
 export function mergeErrors(...maps: readonly (FormErrorInput | undefined)[]): FormErrors {
-  return maps.reduce<FormErrors>((merged, map) => ({ ...merged, ...normaliseErrors(map) }), {});
+  return maps.reduce<FormErrors>((merged, map) => ({ ...merged, ...normalizeErrors(map) }), {});
 }
 
 /** The map without one control's errors, or the same map when it had none. */

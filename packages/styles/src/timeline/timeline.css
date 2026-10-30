@@ -10,17 +10,17 @@
    * control icon wide plus one step of air on each side, and a marker holding
    * an avatar is the smallest avatar. The rail is a
    * column as wide as the widest marker the timeline holds. The connector is a
-   * hairline that runs from the centre of one marker to the centre of the
+   * hairline that runs from the center of one marker to the center of the
    * next. Everything else — how far the words stand off the rail, the rhythm
    * between events — is the control gap plus a step, so density moves the
    * whole timeline together.
    *
-   * Every width a centre depends on — the dot, its core, the badge, the rail —
+   * Every width a center depends on — the dot, its core, the badge, the rail —
    * is the line's own width plus an even number of pixels, rounded up to it.
    * The line then stands a whole number of pixels inside each of them. An
    * eight-pixel dot on a one-pixel line put the line three and a half pixels
    * in, the browser rounded the half to a whole CSS pixel, and the line was
-   * drawn one device pixel off the dot's centre at 100%, 150% and 200%.
+   * drawn one device pixel off the dot's center at 100%, 150% and 200%.
    */
   [data-ui-timeline] {
     --_icon: var(--slotted-control-icon-size-md, 16px);
@@ -41,7 +41,7 @@
     /* The glyph a badge holds, and the size of a dot and of a spinner: the glyph less a step of air a side. */
     --_glyph: calc(var(--_icon) - 2 * var(--slotted-space-1, 0.125rem));
     --_dot: calc(var(--_rule) + round(up, var(--_glyph) - var(--_rule), 2px));
-    /* The solid centre of a dot, a proportion of it: the literal the contract records. */
+    /* The solid center of a dot, a proportion of it: the literal the contract records. */
     --_core: calc(
       var(--_rule) +
         round(nearest, var(--_dot) * var(--slotted-timeline-core-ratio, 0.4) - var(--_rule), 2px)
@@ -125,7 +125,7 @@
 
   /**
    * One badge anywhere widens the rail everywhere, groups included, so the
-   * dots of the plain events stay on the same centre as the badge and every
+   * dots of the plain events stay on the same center as the badge and every
    * title starts at the same indent. A spinner and the check of a finished
    * dot are a dot's size and widen nothing.
    */
@@ -295,7 +295,7 @@
    *
    * The column the marker and the line share, the full height of the row.
    * Its type is the title's, so `1lh` here is the title's first line, and the
-   * middle of that line is where every marker centres and where every
+   * middle of that line is where every marker centers and where every
    * connector starts and ends — whatever size the marker is.
    */
 
@@ -313,15 +313,15 @@
    * A dot when the marker is empty or holds a spinner, a badge when it holds
    * a glyph or an avatar. The marker is pushed from the top of the row by half
    * the difference between one line and itself, the rule `toast` and `alert`
-   * draw their marks with, so a dot and a badge in the same list centre on the
+   * draw their marks with, so a dot and a badge in the same list center on the
    * same line. It stands above the connector and wears a halo of the ground,
    * which is the air the line leaves around it; a halo rather than a shortened
-   * line, because the line then runs centre to centre and never has to know
+   * line, because the line then runs center to center and never has to know
    * how big the next marker is.
    *
    * A dot is drawn in three layers of one box: the box's ground, its border,
    * and a core laid over it at a whole-pixel inset. There is no smaller box
-   * centred by arithmetic, so the core lands where the ring does.
+   * centerd by arithmetic, so the core lands where the ring does.
    */
   [data-ui-timeline] [data-part-marker] {
     --_marker: var(--_dot);
@@ -377,7 +377,7 @@
    * off each edge. The badge is odd so the line runs through its middle; a
    * glyph of 12 stood four and a half pixels in, the browser painted it on
    * the next whole pixel, and its ink sat half a CSS pixel right of and below
-   * the disc's centre at every zoom — two device pixels at 400%, measured on
+   * the disc's center at every zoom — two device pixels at 400%, measured on
    * the painted capture. The avatar fills its own marker without a ring.
    *
    * The check of a finished dot is the one icon the family puts in a marker
@@ -424,7 +424,7 @@
    * Four emphases, read on the item, each drawn twice: once as a dot, once as
    * a badge. `subtle` is the default and the quiet one — a solid core in a
    * soft disc of its own tone, or a badge on the tone's ground with its edge,
-   * the pair rule `docs/token-foundation.md` states under semantic colour.
+   * the pair rule `docs/token-foundation.md` states under semantic color.
    * `outline` is the hollow ring, `solid` fills, and `plain` drops every frame:
    * the core alone, threaded on the line, or the bare glyph over it.
    */
@@ -442,7 +442,7 @@
 
   [data-ui-timeline] [data-variant='solid'] [data-part-marker]:is(:empty, :has(> [data-check])) {
     background-color: var(--_tone-mark);
-    /* A border as wide as the radius, so forced colours, which drop the ground, keep the disc. */
+    /* A border as wide as the radius, so forced colors, which drop the ground, keep the disc. */
     border-color: var(--_tone-mark);
     border-width: calc(var(--_marker) / 2);
   }
@@ -488,21 +488,21 @@
 
   /* ── Statuses ───────────────────────────────────────────────────────────
    *
-   * Each one is a shape as well as a colour, because `high-contrast` paints
-   * every tone in one ink and forced colours paint every ring in one. Pending
+   * Each one is a shape as well as a color, because `high-contrast` paints
+   * every tone in one ink and forced colors paint every ring in one. Pending
    * is the variant's own mark; complete is a filled disc with the check
    * knocked out of it; current is a filled disc with a ring around it, a
    * target; loading is the shared spinner. The ring is a shadow and not an
    * outline, because an outline in this library is the focus ring and a ring
-   * in the tone's ink around a marker would read as focus; forced colours drop
+   * in the tone's ink around a marker would read as focus; forced colors drop
    * the shadow, and the block at the end draws it there as an outline in the
-   * system's ink, where no colour can be mistaken.
+   * system's ink, where no color can be mistaken.
    */
 
   /**
    * A finished dot fills with its ground, not with a border as wide as its
    * radius: that border would leave the check no box to stand in. Forced
-   * colours keep the ground through the block at the end.
+   * colors keep the ground through the block at the end.
    */
   [data-ui-timeline] [data-complete]:not([data-current]) [data-part-marker]:has(> [data-check]) {
     background-color: var(--_tone-mark);
@@ -520,7 +520,7 @@
   }
 
   /**
-   * The check is knocked out of the disc in the ground's own colour, so it
+   * The check is knocked out of the disc in the ground's own color, so it
    * reads in every tone and scheme without a token of its own; it is the
    * dot less a step a side, the same air a badge gives its glyph.
    */
@@ -567,10 +567,10 @@
   /* ── The connector ──────────────────────────────────────────────────────
    *
    * A hairline from the middle of this row's first line to the middle of the
-   * next row's, which are the two markers' centres; the markers stand above
+   * next row's, which are the two markers' centers; the markers stand above
    * it and their halo opens the gap. It is a border rather than a painted
    * background, so `dashed` is a word rather than a gradient and the line
-   * keeps its colour under forced colours. The last item of a list draws
+   * keeps its color under forced colors. The last item of a list draws
    * none, because there is nothing after it.
    */
 
@@ -943,11 +943,11 @@
   }
 
   /**
-   * The pill answers with a state layer: its own text colour, at a low
+   * The pill answers with a state layer: its own text color, at a low
    * strength, mixed into the tinted ground, the step `tag` and `avatar` take
    * for the same reason. The tinted ramp ends at the surface the pill rests
    * on — `subtle-hover` lightened it toward the page in the light scheme, and
-   * matched the page in the dark one, and `subtle-active` was the rest colour.
+   * matched the page in the dark one, and `subtle-active` was the rest color.
    */
   [data-ui-timeline] [data-part-fresh]:enabled:hover {
     background-color: color-mix(
@@ -1162,7 +1162,7 @@
   /* ── Horizontal ─────────────────────────────────────────────────────────
    *
    * The same grid turned on its side: the rail above the body, the line
-   * running along the marker's centre to the next item, and the list rolling
+   * running along the marker's center to the next item, and the list rolling
    * in the inline axis when there are more events than width. Every item is
    * the same width, so the markers stay a track apart however long the
    * titles are.
@@ -1211,7 +1211,7 @@
 
   /**
    * A square as tall and as wide as the rail at the start of the item, with
-   * the marker centred in it, so every centre sits half a rail in and the
+   * the marker centerd in it, so every center sits half a rail in and the
    * line runs from one to the next along the same row.
    */
   [data-ui-timeline][data-orientation='horizontal'] [data-part-rail] {
@@ -1230,7 +1230,7 @@
   }
 
   [data-ui-timeline][data-orientation='horizontal'] [data-part-connector] {
-    /* Widths only: the colour and the dash are the rules above, for both edges. */
+    /* Widths only: the color and the dash are the rules above, for both edges. */
     border-block-start-width: var(--_rule);
     border-inline-start-width: 0;
     block-size: 0;
@@ -1545,7 +1545,7 @@
     }
   }
 
-  /* ── Forced colours ─────────────────────────────────────────────────────
+  /* ── Forced colors ─────────────────────────────────────────────────────
    *
    * The system replaces every painted surface with the page's own background
    * and every border with one ink, and drops every shadow. The shapes survive

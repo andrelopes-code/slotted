@@ -676,7 +676,7 @@ class OperandFilterHost {
 }
 
 describe('where a cell sits in its row', () => {
-  it('centres by default, and lets a table and a cell each say otherwise', async () => {
+  it('centers by default, and lets a table and a cell each say otherwise', async () => {
     await TestBed.configureTestingModule({ imports: [Host] }).compileComponents();
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();

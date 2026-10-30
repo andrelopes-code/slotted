@@ -7,7 +7,7 @@ import type { ComponentPropsWithRef, HTMLAttributes, ReactNode, Ref } from 'reac
 export type RatingSize = 'sm' | 'md' | 'lg';
 
 /**
- * The colour a lit symbol takes. `secondary` is not among them: its solid step
+ * The color a lit symbol takes. `secondary` is not among them: its solid step
  * is a ground, and a star lit in it reads as an unlit one.
  */
 export type RatingTone = 'accent' | 'info' | 'success' | 'warning' | 'danger';

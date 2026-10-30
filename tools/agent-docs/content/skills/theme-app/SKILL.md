@@ -1,6 +1,6 @@
 ---
 name: theme-app
-description: Use when changing how an application built with {{package}} looks, as a whole or in one region — its brand colour, a light, dark or high-contrast scheme, density, fonts, corners, or the shape of a control. Chooses the narrowest level that reaches the change — a seed, a token, a family token or a theme rule — and where it is declared.
+description: Use when changing how an application built with {{package}} looks, as a whole or in one region — its brand color, a light, dark or high-contrast scheme, density, fonts, corners, or the shape of a control. Chooses the narrowest level that reaches the change — a seed, a token, a family token or a theme rule — and where it is declared.
 ---
 
 # Theme an application
@@ -14,7 +14,7 @@ Take the first row that reaches the change.
 
 | The change                                                                      | Level                                                           | Declared in                                                                                                  |
 | ------------------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| The brand colour, or the colour of one intent                                   | a seed: `--slotted-seed-accent` or another name of `SEED_NAMES` | the theme's `seeds`, or a scope                                                                              |
+| The brand color, or the color of one intent                                     | a seed: `--slotted-seed-accent` or another name of `SEED_NAMES` | the theme's `seeds`, or a scope                                                                              |
 | Light, dark, high contrast, or the system's preference                          | the scheme: `light`, `dark`, `high-contrast`, `system`          | `data-slotted-scheme`, or the scheme of {{themeScope}}                                                       |
 | How tight controls and rows are                                                 | the density: `comfortable`, `compact`, `dense`                  | `data-slotted-density`, or the density of {{themeScope}}                                                     |
 | How round corners are, chosen by the reader                                     | the corners: `square`, `soft`, `standard`, `round`              | `data-slotted-corners`, or the corners of {{themeScope}}; the theme's `corners` holds each radius scale      |
@@ -24,8 +24,8 @@ Take the first row that reaches the change.
 | One family's look                                                               | a token the family's page lists under Tokens                    | the theme's `components`                                                                                     |
 | What no token reaches                                                           | a theme rule                                                    | the theme's `rules`                                                                                          |
 
-Every colour token derives from the six seeds within contrast bounds, so a
-new seed keeps the ratios of every scheme. A colour of the `tone`, `surface`,
+Every color token derives from the six seeds within contrast bounds, so a
+new seed keeps the ratios of every scheme. A color of the `tone`, `surface`,
 `text` or `border` groups is changed through its seed, or through its
 derivation in the recipe, never declared by hand.
 
@@ -63,16 +63,16 @@ has.
    `data-slotted-variant-<axis>` attribute on the subtree's root or on an
    ancestor of the scheme's root.
 2. A seed for a subtree: the seed property on an element that also carries
-   `data-slotted-seeds`, or the seeds of {{themeScope}}. Every colour under it
+   `data-slotted-seeds`, or the seeds of {{themeScope}}. Every color under it
    derives again from that seed.
-3. A colour the reader picks at runtime: write the seed property on the element
+3. A color the reader picks at runtime: write the seed property on the element
    that carries `data-slotted-theme`, with `seedStyle` from
    `@slotted/theme/seeds`, which leaves the token contract out of the bundle.
 4. A bar of the application's own that floats over scrolling content — a phone
    tab bar, a sticky banner — is a material: its background reads
    `--slotted-surface-material` and its backdrop filter reads
    `--slotted-material-backdrop`. The theme makes both opaque under reduced
-   transparency and forced colours. A page header becomes that material once
+   transparency and forced colors. A page header becomes that material once
    content passes under it with its `material` input, set on the header or on
    its defaults. A theme draws the command palette as one by setting
    `--slotted-command-palette-surface` to the material surface and
@@ -93,7 +93,7 @@ has.
    `--slotted-chart-overlay-backdrop-filter`. A chart's table view takes
    `--slotted-chart-table-surface` and its sticky header
    `--slotted-chart-table-header-surface`; `--slotted-chart-surface` stays
-   opaque, because the series colours mix with it.
+   opaque, because the series colors mix with it.
 
 ## 4. Restyle a control
 
@@ -120,6 +120,6 @@ has.
 ## 5. Done
 
 1. The application's own CSS declares no token of the `tone`, `surface`,
-   `text` or `border` groups, and sets no colour, border, radius, padding or
+   `text` or `border` groups, and sets no color, border, radius, padding or
    type on a family's `data-ui` or `data-part`.
 2. `themeConformance` passes for the theme.

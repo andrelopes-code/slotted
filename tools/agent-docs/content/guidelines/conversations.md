@@ -47,7 +47,7 @@ Applies to: a clock counted in business hours — a first response, a resolution
 Rule: A running clock says the business time left and the hour it falls due in the organization's zone, a passed one by how much and when it was due, a paused one that it is stopped and why; a queue's row says the span alone, and no clock is ever said in raw minutes.
 Why: "1 h 20 min left" read at 19:00 is tomorrow morning: the span alone hides that the time outside business hours does not count, and the hour alone hides how much work time is left.
 Do: Take the remaining minutes from the backend, say them in minutes, hours and business days of the organization's own length, and add the due hour; state the policy once beside the clocks, with the business hours.
-Don't: Recompute a clock in the client, or let a colour alone say that a clock is at risk or passed.
+Don't: Recompute a clock in the client, or let a color alone say that a clock is at risk or passed.
 Seen in: Nexora · the ticket's service-level section and the inbox's rows · corrected
 Verified in: the support suite, "says a running clock with its due hour, a breached one by how much, and a paused one as stopped"
 Check: Read a running, a passed and a paused clock: the first names its due hour, the second how much it passed by, the third that it is stopped and why; none is a count of minutes above 59.

@@ -9,11 +9,11 @@ import type { PartialMessages, ToastMessages } from '@slotted/core/i18n';
 import type { ChangeRequest } from '@slotted/core/state';
 import type { ComponentPropsWithRef, ReactNode } from 'react';
 
-/** Which of the five semantic colours the message speaks in. */
+/** Which of the five semantic colors the message speaks in. */
 export type ToastTone = 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger';
 
 /**
- * How that colour is painted. `raised` is the neutral surface with the tone in
+ * How that color is painted. `raised` is the neutral surface with the tone in
  * the mark, and it is the default: a message floats over content this family
  * does not own, and tinting that content's corner is not its decision.
  */

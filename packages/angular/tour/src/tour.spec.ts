@@ -197,7 +197,7 @@ describe('SlTour', () => {
     expect(title()).toBe('Welcome to Reports');
   });
 
-  it('passes over an unavailable step and centres a missing target', async () => {
+  it('passes over an unavailable step and centers a missing target', async () => {
     const fixture = await mount((host) =>
       host.steps.set([
         { id: 'a', title: 'First' },
@@ -266,7 +266,7 @@ describe('SlTour', () => {
     }
   });
 
-  it('centres the card over a target that leaves it no room, and keeps the spotlight', async () => {
+  it('centers the card over a target that leaves it no room, and keeps the spotlight', async () => {
     const editor = document.createElement('div');
     editor.id = 'editor';
     document.body.append(editor);

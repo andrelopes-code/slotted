@@ -7,7 +7,7 @@ import {
   isDirty,
   mergeErrors,
   namedControls,
-  normaliseErrors,
+  normalizeErrors,
   orderErrors,
   withoutError,
 } from './form';
@@ -19,20 +19,20 @@ function formOf(html: string): HTMLFormElement {
   return host.querySelector('form') as HTMLFormElement;
 }
 
-describe('normaliseErrors', () => {
+describe('normalizeErrors', () => {
   it('reads one message and several the same way', () => {
-    expect(normaliseErrors({ email: 'Required', age: ['Too low', 'Not a number'] })).toEqual({
+    expect(normalizeErrors({ email: 'Required', age: ['Too low', 'Not a number'] })).toEqual({
       email: ['Required'],
       age: ['Too low', 'Not a number'],
     });
   });
 
   it('drops a key whose message is empty, absent or only spaces', () => {
-    expect(normaliseErrors({ a: '', b: '   ', c: null, d: undefined, e: [] })).toEqual({});
+    expect(normalizeErrors({ a: '', b: '   ', c: null, d: undefined, e: [] })).toEqual({});
   });
 
   it('answers an empty map for nothing at all', () => {
-    expect(normaliseErrors(undefined)).toEqual({});
+    expect(normalizeErrors(undefined)).toEqual({});
   });
 });
 

@@ -38,7 +38,7 @@ describe('contrast', () => {
     expect(contrast(parseSeed('#1d4ed8')!, parseSeed('#ffffff')!)).toBeCloseTo(6.7, 1);
   });
 
-  it('takes the lower of the clipped and unclipped ratios for a colour outside sRGB', () => {
+  it('takes the lower of the clipped and unclipped ratios for a color outside sRGB', () => {
     const outside = { l: 0.6, c: 0.35, h: 150 };
     const { raw, clipped } = relativeLuminance(outside);
     expect(raw).not.toBeCloseTo(clipped, 3);
@@ -52,7 +52,7 @@ describe('contrast', () => {
 });
 
 describe('deltaE', () => {
-  it('is zero for one colour and positive for two', () => {
+  it('is zero for one color and positive for two', () => {
     const blue = parseSeed('#1d4ed8')!;
     expect(deltaE(blue, blue)).toBe(0);
     expect(deltaE(blue, parseSeed('#2563eb')!)).toBeGreaterThan(0.05);

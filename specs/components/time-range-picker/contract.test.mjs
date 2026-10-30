@@ -112,7 +112,7 @@ test('says what is missing, and gives the sheet a way out', () => {
   assert.ok(contract.messages.includes('chooseTime'));
 });
 
-test('takes every overlay behaviour from core, as time-picker does', () => {
+test('takes every overlay behavior from core, as time-picker does', () => {
   assert.deepEqual(contract.core, timePicker.core);
 });
 

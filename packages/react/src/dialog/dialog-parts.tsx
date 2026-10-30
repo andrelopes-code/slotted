@@ -241,7 +241,7 @@ export function DialogContent({
   /**
    * The virtual keyboard, while the panel can cover the layer: the layer
    * carries what the keys cover, and the stylesheet ends a full-screen panel's
-   * rows above them. A centred panel reads nothing from it.
+   * rows above them. A centerd panel reads nothing from it.
    */
   const coversLayer = dialog.fullScreen !== 'never' || dialog.fullscreen;
   useEffect(() => {
@@ -279,7 +279,7 @@ export function DialogContent({
 
   /**
    * `render` substitutes the panel and not the layer. The layer, the scrim and
-   * the box that centres them are the mechanism — a consumer who replaced the
+   * the box that centers them are the mechanism — a consumer who replaced the
    * layer would be replacing the thing `dismissable-layer` and `presence` are
    * holding — while the panel is the element a consumer has a reason to change:
    * a `form` that submits, a `section` that is a landmark.
@@ -538,8 +538,8 @@ export function DialogClose({
 
 /**
  * The glyph each tone draws, and the warning diamond where no tone was resolved. Warning
- * and danger differ in silhouette as well as colour, because under forced
- * colours the silhouette is all that is left.
+ * and danger differ in silhouette as well as color, because under forced
+ * colors the silhouette is all that is left.
  */
 const TONE_GLYPH: Record<DialogTone, GlyphName> = {
   accent: 'status-info',

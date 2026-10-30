@@ -107,7 +107,7 @@ test('states the heading ladder as a ratio, and records why it is a literal', ()
 });
 
 /**
- * A Markdown link and a `<Link>` on one page are otherwise two colours for one
+ * A Markdown link and a `<Link>` on one page are otherwise two colors for one
  * idea. Reading another family's token is not reaching into that family: the
  * token belongs to the theme, and no selector in this stylesheet names another
  * family's `data-ui` — the rule `accordion` and `collapsible` set.

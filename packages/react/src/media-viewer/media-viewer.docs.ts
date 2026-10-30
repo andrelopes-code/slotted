@@ -468,7 +468,7 @@ export const REACT_MEDIA_VIEWER_DOCS = {
         'handler',
         '—',
         'close, previous, next',
-        'Composed: the page handler runs first and preventDefault refuses the family behaviour',
+        'Composed: the page handler runs first and preventDefault refuses the family behavior',
       ],
       [
         'useMediaViewer',

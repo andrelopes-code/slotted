@@ -9,7 +9,7 @@ import type { ChartColor, ChartSlot, ChartTone } from './types';
  * on the plot part, the private properties below — each one a token with its
  * fallback — and this module resolves them in the element's own context: a
  * scheme set on an ancestor, a density, a token a consumer overrode on a
- * wrapper, and the system colours of forced-colors mode all reach the engine
+ * wrapper, and the system colors of forced-colors mode all reach the engine
  * through the cascade, with no second source of truth in script.
  *
  * A custom property's computed value is its text with `var()` substituted and
@@ -79,7 +79,7 @@ export function toneProperty(tone: ChartTone) {
   return `--_chart-tone-${tone}`;
 }
 
-/** The colour a legend entry or a series is painted in, from a theme. */
+/** The color a legend entry or a series is painted in, from a theme. */
 export function colorOf(theme: ChartTheme, color: ChartColor): string {
   if (color.type === 'tone') return theme.tones[color.tone];
   if (color.type === 'slot') return theme.slots[color.slot - 1] ?? theme.overflow;
@@ -273,7 +273,7 @@ export function sameTheme(a: ChartTheme | null, b: ChartTheme | null) {
 
 const scratches = new WeakMap<Document, HTMLElement>();
 
-/** An inline style's declarations that can reach a colour: not geometry, not private wiring. */
+/** An inline style's declarations that can reach a color: not geometry, not private wiring. */
 function themedDeclarations(document: Document, text: string | null) {
   let scratch = scratches.get(document);
   if (scratch === undefined) {
@@ -304,7 +304,7 @@ function themedDeclarations(document: Document, text: string | null) {
  * times a second. An ancestor's inline style counts only when it changes a
  * declaration other than its geometry and a family's private wiring (`--_*`):
  * a widget carried across a dashboard writes its `translate` every frame and
- * its cell on every preview, and none of it reaches a colour.
+ * its cell on every preview, and none of it reaches a color.
  */
 export function observeChartTheme(element: Element, onChange: () => void): () => void {
   const document = element.ownerDocument;

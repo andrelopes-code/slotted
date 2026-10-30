@@ -145,8 +145,8 @@ headings their own face by declaring that one token
 (`docs/token-foundation.md` › Font family).
 
 A theme stylesheet declares the seeds on the element that names the theme
-(`data-slotted-theme`), and derives every colour token where a theme and a
-scheme are named. A seed set inline on that element recolours every token
+(`data-slotted-theme`), and derives every color token where a theme and a
+scheme are named. A seed set inline on that element recolors every token
 derived from it, with no build:
 
 ```js
@@ -156,8 +156,8 @@ document
 ```
 
 A seed set on an ancestor of that element is redeclared by the theme. On any
-element inside it, a seed recolours the subtree when the element also carries
-`data-slotted-seeds`, which derives every colour again from the seeds that
+element inside it, a seed recolors the subtree when the element also carries
+`data-slotted-seeds`, which derives every color again from the seeds that
 element sees:
 
 ```html
@@ -269,15 +269,15 @@ export default extendTheme(
 }
 ```
 
-The family points `--slotted-focus-ring-color` at the invalid colour on an
+The family points `--slotted-focus-ring-color` at the invalid color on an
 invalid root, so the focus rule above draws an invalid field's underline in
-that colour without a rule of its own. The family draws an invalid frame with
+that color without a rule of its own. The family draws an invalid frame with
 an inset edge of `--slotted-control-invalid-edge-width` on all four sides; the
 two invalid rules move that edge to the bottom alone, at rest and under focus,
-so an invalid line stays thicker than a valid one where the two share a colour,
+so an invalid line stays thicker than a valid one where the two share a color,
 as they do in `high-contrast`. The transparent outline paints
-nothing until forced colours replace its colour with a system colour; there
-the box shadow is dropped and the line takes a system colour, so the outline
+nothing until forced colors replace its color with a system color; there
+the box shadow is dropped and the line takes a system color, so the outline
 is the only mark of focus.
 
 A theme rule selects by these hooks:

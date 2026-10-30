@@ -50,7 +50,7 @@ export function useListboxDefaults(): ListboxDefaults {
  *
  * Two of the four surveyed component implementations have no answer to this at
  * all, so an application using them repeats `shouldFocusWrap` and
- * `disallowEmptySelection` at every call site or lives with two behaviours.
+ * `disallowEmptySelection` at every call site or lives with two behaviors.
  */
 export function ListboxDefaultsProvider({ children, ...defaults }: ListboxDefaultsProviderProps) {
   const inherited = useListboxDefaults();

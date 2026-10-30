@@ -252,7 +252,7 @@ const ratingApi = apiRows([
     TONE,
     'warning',
     'SlRating, provideRating',
-    'The colour of a lit symbol. secondary is outside the axis: its solid step is a ground, and a lit star in it reads as unlit',
+    'The color of a lit symbol. secondary is outside the axis: its solid step is a ground, and a lit star in it reads as unlit',
   ],
   [
     'name',
@@ -361,7 +361,7 @@ const ratingAccessibility = [
   'The pattern is the WAI-ARIA APG Rating Radio Group example: a radiogroup of native radios, each named "3 de 5" by aria-label. Tab lands on the checked radio or on the first, and Space checks — both the platform’s, because the radios share a name.',
   'The arrows are the family’s and they do not wrap: the APG radio example wraps from the last star to the first, and a rating that falls from five to one on one key too many is the defect the APG slider example, Ark, MUI and Mantine all avoid. Home and End reach both ends; PageUp and PageDown are declined, because ten symbols are crossed key by key.',
   'The caption is aria-hidden, because the checked radio already announces the value; the glyphs are aria-hidden inside slIcon. Read-only is enforced by refusing the press and the keys, and every radio keeps its tab stop, its focus ring and its contrast.',
-  'In the light and dark schemes a lit star measures 1,53:1 against the page, the ReUI yellow the family adopted; the value is never left to colour alone, because it is always in the accessible name and usually written beside the row. The high-contrast scheme and forced colours draw a solid edge around every star.',
+  'In the light and dark schemes a lit star measures 1,53:1 against the page, the ReUI yellow the family adopted; the value is never left to color alone, because it is always in the accessible name and usually written beside the row. The high-contrast scheme and forced colors draw a solid edge around every star.',
 ];
 
 /* ----------------------------------------------------------- ratingDisplay */
@@ -497,7 +497,7 @@ const displayApi = apiRows([
   ],
   ['max', 'number', '5', 'SlRatingDisplay, provideRating', 'How many symbols the scale has'],
   ['size', SIZE, 'md', 'SlRatingDisplay, provideRating', 'The step of the symbols and the text'],
-  ['tone', TONE, 'warning', 'SlRatingDisplay, provideRating', 'The colour of the lit share'],
+  ['tone', TONE, 'warning', 'SlRatingDisplay, provideRating', 'The color of the lit share'],
   [
     'variant',
     "'full' | 'compact' | 'histogram'",
@@ -633,7 +633,7 @@ const summaryAnatomy: AnatomyRow[] = [
   part('tick-share', 'span', 'The level’s share, a whole percent.'),
   part('sentiment', 'p', 'The three buckets, when anything has been rated.'),
   part('bucket', 'span data-tone', 'Positive, neutral or negative, with its share in strong.'),
-  part('swatch', 'span aria-hidden="true"', 'The bucket’s colour key.'),
+  part('swatch', 'span aria-hidden="true"', 'The bucket’s color key.'),
 ];
 
 const summaryScenes: ReferenceSceneMeta[] = [
@@ -787,7 +787,7 @@ const summaryApi = apiRows([
     TONE,
     'warning',
     'SlRatingSummary, provideRating',
-    'The colour of the stars and the bars',
+    'The color of the stars and the bars',
   ],
   [
     'messages',
@@ -809,7 +809,7 @@ const summaryAccessibility = [
   'The summary is a section named by the consumer’s aria-label, so it is a region a screen reader can reach by landmark. The figure is plain text, and the stars inside the aggregate are one image named by the mean.',
   'Each level is named whole — "5 stars: 1,052 ratings, 82%" — and the bar, the axis and the mean mark are aria-hidden, because the name already carries what they draw.',
   'A filterable level is a native toggle button with aria-pressed, so Space and Enter press it; a level with no readings is disabled rather than offered as a filter that returns nothing.',
-  'The conclusion and the three buckets are words, not colours: the tone of the pill and of each swatch repeats a sentence that is already written.',
+  'The conclusion and the three buckets are words, not colors: the tone of the pill and of each swatch repeats a sentence that is already written.',
 ];
 
 export const ANGULAR_RATING_DOCS = {
@@ -929,7 +929,7 @@ bootstrapApplication(App, {
         'SlRatingSummary',
         '—',
         'a template',
-        'Reaches the instance: summary() is the whole summariseRatings result, for a caption of one’s own',
+        'Reaches the instance: summary() is the whole summarizeRatings result, for a caption of one’s own',
       ],
       [
         'provideRating()',

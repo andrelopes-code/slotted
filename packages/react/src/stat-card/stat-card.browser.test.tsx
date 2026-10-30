@@ -8,7 +8,7 @@ import { StatCardFigure, StatCardHeader, StatCardLabel } from './stat-card-parts
 import { StatCardValue } from './stat-card-value';
 import type { StatCardProps } from './stat-card.types';
 
-// The tone roles, stated on a wrapper so the expected colours do not depend on a theme.
+// The tone roles, stated on a wrapper so the expected colors do not depend on a theme.
 const TONES = {
   '--slotted-tone-danger-text': 'rgb(200, 0, 0)',
   '--slotted-tone-danger-border': 'rgb(0, 0, 200)',

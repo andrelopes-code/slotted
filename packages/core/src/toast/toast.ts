@@ -64,7 +64,7 @@ export interface ToastOptions<Data> {
   id?: string;
   /**
    * Milliseconds on screen. `0` never expires — `0` rather than `Infinity`,
-   * because a queue a consumer can own is a value that gets serialised and
+   * because a queue a consumer can own is a value that gets serialized and
    * `Infinity` does not survive JSON.
    *
    * Left unstated it resolves to `0` for a message that is loading or carries

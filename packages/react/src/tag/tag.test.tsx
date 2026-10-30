@@ -26,7 +26,7 @@ describe('Tag', () => {
     );
   });
 
-  it('wraps a glyph in the part that sizes and centres it', () => {
+  it('wraps a glyph in the part that sizes and centers it', () => {
     const { container } = render(
       <Tag end={<span data-testid="after" />} start={<span data-testid="before" />}>
         Design
@@ -331,7 +331,7 @@ describe('TagToggle', () => {
     expect(onSelectedChange).not.toHaveBeenCalled();
   });
 
-  it('gives the selection a mark of its own, so colour is never the only signal', () => {
+  it('gives the selection a mark of its own, so color is never the only signal', () => {
     const { container } = render(<TagToggle defaultSelected>Open</TagToggle>);
 
     expect(container.querySelector('[data-part="indicator"]')).toHaveAttribute(

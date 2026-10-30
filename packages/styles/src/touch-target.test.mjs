@@ -20,7 +20,7 @@ const source = new URL('.', import.meta.url).pathname;
  *    search, in a frame that is not stretched, resolved to its line: 17px.
  * 2. Under a coarse pointer, an inner button keeps the box it has on a fine
  *    pointer and reaches the comfortable target by its `::after`: a
- *    transparent box centred on the button, 44 pixels in both axes. The rule
+ *    transparent box centerd on the button, 44 pixels in both axes. The rule
  *    it replaces padded the button in the block axis and clipped the ground
  *    to the content box, so the ground stayed square while the border box —
  *    and the focus ring drawn on it — stood 24 wide and 44 tall. Two buttons

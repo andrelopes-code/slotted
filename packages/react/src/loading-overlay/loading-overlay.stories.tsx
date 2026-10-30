@@ -204,7 +204,7 @@ export const Veil: Story = {
     <div className="slotted-demo-grid" data-columns="1">
       <Scene
         label="wash"
-        note="The theme’s own scrim, restated per colour scheme and turned opaque under forced colours. It is the same token dialog and drawer read, so three families dim a surface in one tint."
+        note="The theme’s own scrim, restated per color scheme and turned opaque under forced colors. It is the same token dialog and drawer read, so three families dim a surface in one tint."
       >
         <LoadingOverlay veil="wash" messages={{ label: 'Reconciling September' }}>
           <Invoices />
@@ -270,7 +270,7 @@ export const Shapes: Story = {
     <div className="slotted-demo-grid" data-columns="1">
       <Scene
         label="A tall region takes a column"
-        note="The mark above the two lines above the control, centred. It is the arrangement for a card, a panel or anything with room to spare in the block axis."
+        note="The mark above the two lines above the control, centerd. It is the arrangement for a card, a panel or anything with room to spare in the block axis."
       >
         <LoadingOverlay
           messages={{ label: 'Importing 4 812 rows' }}
@@ -482,7 +482,7 @@ export const Content: Story = {
       </Scene>
       <Scene
         label="One unbroken token"
-        note="A file name with nowhere to break, in a region narrow enough to force the question. It breaks inside the panel rather than pushing the panel past the region it is centred in."
+        note="A file name with nowhere to break, in a region narrow enough to force the question. It breaks inside the panel rather than pushing the panel past the region it is centerd in."
         layout="stack"
       >
         <div className="slotted-demo-measure">

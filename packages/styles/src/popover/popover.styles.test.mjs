@@ -32,7 +32,7 @@ test('clips the panel at its radius, so the scrolling body keeps the corners', (
 /**
  * The panel's three rows are the header's, the body's and the footer's, and
  * only the body's is bounded. A consumer's own composition — a notification
- * centre, an inline command palette — stands as the panel's one child, and as
+ * center, an inline command palette — stands as the panel's one child, and as
  * an auto row it grew past the room the positioner reported, clipped at the
  * panel's edge with its own footer out of sight. The one child takes the
  * body's row instead: bounded, with the family inside it scrolling what it

@@ -1099,7 +1099,7 @@ export function EventCalendar<E extends CalendarEvent = CalendarEvent>({
       if (scroller === null || scroller === undefined || column === null || column === undefined)
         return;
       const hourSize = column.getBoundingClientRect().height / Math.max(1, endHour - startHour);
-      /* Half a label above the hour: the label is centred on its rule, and a
+      /* Half a label above the hour: the label is centerd on its rule, and a
          scroll that stopped on the rule cut the first visible one in half. */
       /* Half a line of the label's own type: its box is the whole hour. */
       const label = scroller.querySelector<HTMLElement>("[data-part='hour']");
@@ -1361,7 +1361,7 @@ export function EventCalendar<E extends CalendarEvent = CalendarEvent>({
                     )
                   }
                 >
-                  {/* The calendar's colour opens the label; the column before it is
+                  {/* The calendar's color opens the label; the column before it is
                       the check's. A menu item holds one mark in that column, and a
                       dot there drew the check over itself. */}
                   <svg aria-hidden="true" height="10" viewBox="0 0 14 10" width="14">

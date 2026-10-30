@@ -405,7 +405,7 @@ export const ANGULAR_LIST_ITEM_DOCS = {
       'current is announced, with aria-current and the token the page states. An aria-current the page wrote itself is read with HostAttributeToken and kept.',
       'position and setSize are written only when the page states them. ARIA 1.2 says both are unnecessary while every row is in the document and necessary the moment only part of the set is.',
       'slListItemActions is a sibling of the box and never its child, because interactive content may not nest inside an a or a button. A control inside it is the page own to disable: a disabled row refuses its own box and nothing else.',
-      'The row binds no key. Enter on a link, Enter and Space on a button, and the modified click a browser gives an anchor are the platform own behaviour.',
+      'The row binds no key. Enter on a link, Enter and Space on a button, and the modified click a browser gives an anchor are the platform own behavior.',
       'The focus ring is drawn inside the row rather than around it, because a row runs the full width of its set: an outward ring on the first row of a framed list is drawn under the frame.',
       'Selection is said with a fill and an edge together, because every tone surface is the page own white in the high-contrast scheme.',
       'The title isolates its own direction and breaks a single unbroken token rather than pushing the metadata out of the row.',

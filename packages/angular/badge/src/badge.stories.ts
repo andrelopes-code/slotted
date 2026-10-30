@@ -190,7 +190,7 @@ export const Shapes: Story = {
   )}
   ${scene(
     'The words a dot cannot say',
-    'Colour alone is not a signal. The hidden text is out of flow, so it costs no space.',
+    'Color alone is not a signal. The hidden text is out of flow, so it costs no space.',
     `<div class="slotted-demo-row">
       ${[
         ['success', 'solid', 'Deployed'],

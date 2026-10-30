@@ -194,7 +194,7 @@ test('transfers through an adapter and owns no connection', () => {
  * lies, so the adapter declares the handshake and the part exists only when it
  * does. One of the nine surveyed implementations pauses at all.
  */
-test('offers pause only where the adapter honours it', () => {
+test('offers pause only where the adapter honors it', () => {
   assert.equal(contract.adapter.pausableFlag, 'pausable');
   assert.equal(contract.adapter.pausableDefault, false);
   assert.equal(contract.parts.pause.presentWhen, 'the running adapter declares pausable');
@@ -512,7 +512,7 @@ test('declares a state model for the file the viewer is open on', () => {
  * words, because at thirty-two pixels the name is truncated and the extension
  * is three characters.
  */
-test('says what kind of file a row holds, by colour and by shape', () => {
+test('says what kind of file a row holds, by color and by shape', () => {
   const kinds = Object.entries(contract.kinds);
   assert.equal(kinds.length, 9, 'eight kinds and the fallback');
   const glyphs = new Set();
@@ -539,7 +539,7 @@ test('says what kind of file a row holds, by colour and by shape', () => {
   /* The pair a reader most often has to tell apart is two kinds, not one. */
   assert.notEqual(contract.kinds.pdf.tile, contract.kinds.document.tile);
   assert.equal(contract.kindsForeground, '--slotted-upload-kind-foreground');
-  assert.ok(contract.kindsReason.includes('indigo'), 'the colour decision is not written down');
+  assert.ok(contract.kindsReason.includes('indigo'), 'the color decision is not written down');
 });
 
 /**
@@ -563,11 +563,11 @@ test('gives the field back what the field owns', () => {
 
 /**
  * The row is a grid so that a sentence a failure carries can span a track of
- * its own. A flex line centred the chip and the controls on a box whose height
+ * its own. A flex line centerd the chip and the controls on a box whose height
  * a two-line message had decided, which reads as wrong however correct the
- * centring is.
+ * centering is.
  */
-test('lays a row out so its marks are centred on the block they are about', () => {
+test('lays a row out so its marks are centerd on the block they are about', () => {
   assert.match(contract.row.layout, /grid/);
   assert.equal(contract.row.lines.length, 3);
   assert.ok(contract.row.progress.includes('bottom edge'));

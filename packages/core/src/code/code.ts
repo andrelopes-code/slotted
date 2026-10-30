@@ -12,7 +12,7 @@
  * Twelve scopes rather than Prism's sixteen standard names or TextMate's
  * hundreds, because twelve is what a theme can paint apart from each other on
  * one ground at 4.5:1, and what a reader can tell apart. The scopes are the
- * theme's own scale — `--slotted-code-<scope>` — and an engine's inline colour
+ * theme's own scale — `--slotted-code-<scope>` — and an engine's inline color
  * never reaches the DOM, so a scheme switch reaches every one of them.
  */
 
@@ -186,8 +186,8 @@ export function fromPrismTokens(tokens: readonly (string | PrismTokenLike)[]): C
  * `{ content, explanation?: [{ scopes: [{ scopeName }] }] }`. The last
  * TextMate scope of the last explanation is the most specific, and it folds
  * onto the twelve scopes by its leading segments. Without `includeExplanation`
- * Shiki gives a colour and no scope, and the mapping leaves the token plain
- * rather than guessing from a colour.
+ * Shiki gives a color and no scope, and the mapping leaves the token plain
+ * rather than guessing from a color.
  */
 
 export interface ShikiTokenLike {

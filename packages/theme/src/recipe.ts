@@ -10,7 +10,7 @@ export const SCHEMES = ['light', 'dark', 'high-contrast'] as const;
 export type Scheme = (typeof SCHEMES)[number];
 
 /**
- * A colour taken from a seed: fixed or offset lightness, scaled or limited
+ * A color taken from a seed: fixed or offset lightness, scaled or limited
  * chroma, shifted hue. A limited chroma takes the seed's hue alone — a ladder
  * turned from it stays as vivid whatever the seed's own chroma — and asks for
  * `max` where sRGB holds it at the derivation's fixed lightness.
@@ -23,7 +23,7 @@ export interface SeedDerivation {
   readonly bounds?: readonly Bound[];
 }
 
-/** A colour moved `share` toward white, or toward black when its lightness is above 0.9. */
+/** A color moved `share` toward white, or toward black when its lightness is above 0.9. */
 export interface MixDerivation {
   readonly mix: string;
   readonly share: number;
@@ -36,7 +36,7 @@ export interface AliasDerivation {
 
 export type Derivation = SeedDerivation | MixDerivation | AliasDerivation;
 
-/** Per scheme, the derivation of every colour token the recipe owns. */
+/** Per scheme, the derivation of every color token the recipe owns. */
 export type Recipe = Readonly<Record<Scheme, Readonly<Record<string, Derivation>>>>;
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));

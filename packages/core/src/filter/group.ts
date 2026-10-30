@@ -289,7 +289,7 @@ export function describeFilterGroup(
  * A rule is the field's key, `~`, and `serializeFilter` of its descriptor
  * unchanged. A group is its join, `(`, its members separated by `|`, `)`.
  * `encodeURIComponent` leaves `(` and `)` alone, so the three structural
- * characters are percent-encoded a second time inside a serialised rule, where
+ * characters are percent-encoded a second time inside a serialized rule, where
  * they can only be operand text or a field key; `decodeURIComponent` inside
  * `parseFilter` turns them back.
  */

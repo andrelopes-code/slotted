@@ -19,7 +19,7 @@ import { engineArgument, readPage } from '../engines.mjs';
  * light), with a `default` island inside B:
  *
  * 1. B's rules apply in B and nowhere else — not in A, not in the island;
- * 2. B derives its colours from its own seed, A from the theme's;
+ * 2. B derives its colors from its own seed, A from the theme's;
  * 3. a layer opened from inside B and moved to the end of the body keeps
  *    B's theme, scheme and seed, and B's rules apply inside it;
  * 4. a layer opened from inside a React `ThemeScope` carries the theme,

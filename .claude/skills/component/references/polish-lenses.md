@@ -32,7 +32,7 @@ not a value in the family stylesheet.
 | -------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Exit easing    | Emil: enter and exit both ease-out; never ease-in on UI                    | Exit uses `--slotted-easing-exit`, an accelerating curve. The conflict is undecided; the token stays until `docs/token-foundation.md` › Motion changes. |
 | Custom curves  | Emil: `cubic-bezier(0.23, 1, 0.32, 1)` and similar literals                | Motion tokens only; `motion.test.mjs` rejects literal durations.                                                                                        |
-| What animates  | Emil: transform and opacity. Impeccable: blur, clip-path, mask, shadow too | Hover and press feedback moves transform, opacity and colour. Enter and exit may add clip-path or blur when the specimen shows it smooth.               |
+| What animates  | Emil: transform and opacity. Impeccable: blur, clip-path, mask, shadow too | Hover and press feedback moves transform, opacity and color. Enter and exit may add clip-path or blur when the specimen shows it smooth.                |
 | Hover on touch | Emil: gate hover motion on `@media (hover: hover) and (pointer: fine)`     | Open decision for the whole library; one family gates today. Record the family's choice.                                                                |
 
 ## What to apply
@@ -42,7 +42,7 @@ not a value in the family stylesheet.
 - **Enter and exit.** Nothing appears from `scale(0)`; start from `scale(0.95)`
   with `opacity: 0`, entering through `@starting-style`. Exit is not slower
   than enter.
-- **Origin.** A popover scales from its trigger; a modal stays centred.
+- **Origin.** A popover scales from its trigger; a modal stays centerd.
 - **Interruptibility.** State changes a person can retrigger quickly use
   transitions, not keyframes.
 - **Keyboard repetition.** Movement driven by repeated keys — arrow
@@ -50,7 +50,7 @@ not a value in the family stylesheet.
 - **Browser surfaces.** Selection, caret, scrollbar, focus ring, underline
   offset and tabular numerals inside the family are themed from tokens, not left
   to browser defaults.
-- **Surface habits.** No coloured `border-inline-start` above 1px on alerts,
+- **Surface habits.** No colored `border-inline-start` above 1px on alerts,
   callouts or list items, no gradient text, no glass as decoration, no
   zero-blur offset shadow — unless the family's design document records why.
 

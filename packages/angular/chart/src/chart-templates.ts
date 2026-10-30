@@ -22,14 +22,14 @@ export interface ChartLegendItemTemplateContext {
 
 /**
  * Replaces what one legend item holds. The item — a toggle with its pressed
- * state, its colour and its place in the roving tab stop — stays the chart's.
+ * state, its color and its place in the roving tab stop — stays the chart's.
  */
 @Directive({ selector: 'ng-template[slChartLegendItem]', standalone: true })
 export class SlChartLegendItem {
   readonly template = inject<TemplateRef<ChartLegendItemTemplateContext>>(TemplateRef);
 }
 
-/** Replaces the words in a donut's centre. */
+/** Replaces the words in a donut's center. */
 @Directive({ selector: 'ng-template[slChartCenter]', standalone: true })
 export class SlChartCenter {
   readonly template = inject<TemplateRef<{ $implicit: ChartModel }>>(TemplateRef);

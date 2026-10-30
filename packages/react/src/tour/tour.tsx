@@ -196,7 +196,7 @@ export function Tour<Step extends TourStep = TourStep>(props: TourProps<Step>) {
   const [narrow, setNarrow] = useState(false);
   const layoutNow = layout ?? defaults.layout;
   const compact = layoutNow === 'compact' || (layoutNow === 'auto' && narrow);
-  /** The target leaves a card room on some side; when it does not, the card is centred over it. */
+  /** The target leaves a card room on some side; when it does not, the card is centerd over it. */
   const [fits, setFits] = useState(true);
 
   const settings = {
@@ -482,7 +482,7 @@ export function Tour<Step extends TourStep = TourStep>(props: TourProps<Step>) {
     }
     /**
      * The layer inherits its theme, scheme, density and direction from its
-     * origin, and a centred first step has no target to give it: without one
+     * origin, and a centerd first step has no target to give it: without one
      * the layer is drawn in no theme at all. The element that had focus when
      * the tour opened is the next best — it is where the reader started — and
      * any target the tour will point at is the one after.
@@ -556,7 +556,7 @@ export function Tour<Step extends TourStep = TourStep>(props: TourProps<Step>) {
       surfaceNode.removeAttribute('data-side');
       surfaceNode.removeAttribute('data-positioned');
       reposition.current = () => {};
-      /* A centred card is placed by the stylesheet; it is ready on the next
+      /* A centerd card is placed by the stylesheet; it is ready on the next
          frame, so its arrival starts from nothing rather than being skipped. */
       const frame = requestAnimationFrame(() => setReady(true));
       return () => cancelAnimationFrame(frame);

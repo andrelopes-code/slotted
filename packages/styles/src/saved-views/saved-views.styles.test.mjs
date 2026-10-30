@@ -89,7 +89,7 @@ test('sizes the panel by its own token, inside the room the positioner leaves', 
   assert.ok(tokens.includes('--slotted-saved-views-panel-inline-size'));
 });
 
-/** §4.7: the modified mark is a dot in the accent solid beside its word, never colour alone. */
+/** §4.7: the modified mark is a dot in the accent solid beside its word, never color alone. */
 test('marks a modified view with an accent dot and a word', () => {
   assert.match(css, /--slotted-tone-accent-solid/);
   assert.match(fragment, /data-part="modified"[^>]*>[^<]*Modified/);
@@ -134,9 +134,9 @@ test('draws the focus ring from the foundation on every control the family owns'
 /**
  * The check and the default mark sit on the name's text, not on its line box
  * (`docs/build-briefing.md`, "A mark beside a line of text is aligned to the
- * text"). Both were centred in a box one line tall, which set the pin high and
+ * text"). Both were centerd in a box one line tall, which set the pin high and
  * loose beside "Default". The row aligns its items on the baseline, each mark
- * is the icon's own size, and it moves down until its centre lands on the
+ * is the icon's own size, and it moves down until its center lands on the
  * middle of the band between cap height and x-height.
  */
 test('sets the check and the default mark on the text band of the name', () => {

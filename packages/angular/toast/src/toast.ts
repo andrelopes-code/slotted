@@ -98,7 +98,7 @@ function naturalHeight(item: HTMLElement): number {
 }
 
 /**
- * One message: everything about it that is behaviour rather than markup.
+ * One message: everything about it that is behavior rather than markup.
  *
  * It is a directive rather than a component so a page that writes its own list
  * — from `SlToastService.visible()` and nothing else — gets the timer, the

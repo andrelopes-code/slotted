@@ -73,7 +73,7 @@ export function valueAtFraction(fraction: number, { min, max, step }: Scale): nu
 }
 
 /** One value put on the grid and inside the scale. */
-export function normaliseValue(value: number, { min, max, step }: Scale): number {
+export function normalizeValue(value: number, { min, max, step }: Scale): number {
   if (!Number.isFinite(value)) return min;
   if (step <= 0) return roundTo(clamp(value, min, max), 6);
   return clamp(snapToStep(clamp(value, min, max), step, min), min, max);
@@ -202,8 +202,8 @@ export function moveThumb({
  * thumbs keep their identity because the tab order is the array's order, which
  * is what the multi-thumb pattern requires to stay constant.
  */
-export function normaliseValues(values: readonly number[], scale: Scale): number[] {
-  return values.map((value) => normaliseValue(value, scale)).sort((a, b) => a - b);
+export function normalizeValues(values: readonly number[], scale: Scale): number[] {
+  return values.map((value) => normalizeValue(value, scale)).sort((a, b) => a - b);
 }
 
 /** Whether two value sets are the same, which a `number[]` cannot answer itself. */

@@ -202,7 +202,7 @@ describe('the picture', () => {
   });
 });
 
-describe('the colour a name resolves to', () => {
+describe('the color a name resolves to', () => {
   it('never writes the derived value itself, because a stylesheet cannot resolve it', () => {
     const { query } = mount();
 

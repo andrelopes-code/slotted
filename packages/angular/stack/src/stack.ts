@@ -40,8 +40,8 @@ export type StackJustify = 'start' | 'center' | 'end' | 'between' | 'around' | '
     'data-part-root': '',
     '[attr.data-gap]': 'gap() ?? null',
     '[attr.data-align]': 'align() ?? null',
-    /* `align` is also an obsolete HTML attribute a browser still honours on a
-       div, centring its text; written statically for the input it would stay. */
+    /* `align` is also an obsolete HTML attribute a browser still honors on a
+       div, centering its text; written statically for the input it would stay. */
     '[attr.align]': 'null',
     '[attr.data-justify]': 'justify() ?? null',
   },

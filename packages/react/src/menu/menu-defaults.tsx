@@ -8,7 +8,7 @@ import type { MenuDefaults, MenuDefaultsProviderProps } from './menu.types';
  *
  * `side` and `align` put the surface under the start edge of its own button,
  * where the button's text and the items' labels share one edge; `popover`
- * centres, because it points at something instead of hanging from it.
+ * centers, because it points at something instead of hanging from it.
  *
  * `submenuOpenDelay` is a hundred and fifty milliseconds (M2): short enough
  * that a deliberate hover is answered before the reader presses, long enough

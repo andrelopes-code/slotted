@@ -63,7 +63,7 @@ const enabled = (item: HTMLElement) => item.dataset['disabled'] === undefined;
 
 /**
  * Focus without the browser's own scroll, which reveals an item by scrolling
- * the page as well as the surface and centres it in the window, carrying the
+ * the page as well as the surface and centers it in the window, carrying the
  * layer off its trigger. The surface scrolls inside the room the positioner
  * gives it, so the item is brought into the surface and nothing further.
  */
@@ -586,7 +586,7 @@ export class SlMenu {
    * Where `Tab` goes once every menu has closed: on down the page from the
    * control that opened the outermost surface. The pattern binds the key and
    * says no more, and a layer portalled to the end of the document has no next
-   * element a reader would recognise.
+   * element a reader would recognize.
    */
   private moveOut(trigger: HTMLElement | null, step: 1 | -1) {
     if (trigger === null) return;

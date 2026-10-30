@@ -187,13 +187,13 @@ export const Tones: Story = {
     <Grid columns={2}>
       <Scene
         label="danger — the default"
-        note="Press Delete project: a struck circle, because what follows cannot be undone. The mark is a mask from a glyph token, so it survives forced colours, where the tone’s colour does not."
+        note="Press Delete project: a struck circle, because what follows cannot be undone. The mark is a mask from a glyph token, so it survives forced colors, where the tone’s color does not."
       >
         <Layer>{(container) => <Confirm container={container} />}</Layer>
       </Scene>
       <Scene
         label="warning — a decision, not a deletion"
-        note="Press Leave without saving: a triangle, the one silhouette in the set that has to be recognised before its colour is. The action reads as the consequence rather than as a threat."
+        note="Press Leave without saving: a triangle, the one silhouette in the set that has to be recognized before its color is. The action reads as the consequence rather than as a threat."
       >
         <Layer>
           {(container) => (
@@ -311,7 +311,7 @@ export const Content: Story = {
       </Scene>
       <Scene
         label="A title the panel cannot hold"
-        note="The words wrap and the row grows; the mark keeps its own column, so it stays on the first line’s optical centre rather than sliding down beside the second."
+        note="The words wrap and the row grows; the mark keeps its own column, so it stays on the first line’s optical center rather than sliding down beside the second."
       >
         <Layer>
           {(container) => (
@@ -333,7 +333,7 @@ export const Composition: Story = {
   render: () => (
     <Scene
       label="The actions are the library’s own buttons"
-      note="render hands each control every attribute the family wrote, so the danger button is a Button with the closing behaviour on it. Nothing is wrapped, and the tone comes from the button rather than from the dialog."
+      note="render hands each control every attribute the family wrote, so the danger button is a Button with the closing behavior on it. Nothing is wrapped, and the tone comes from the button rather than from the dialog."
     >
       <Layer>{(container) => <Confirm container={container} size="md" />}</Layer>
     </Scene>

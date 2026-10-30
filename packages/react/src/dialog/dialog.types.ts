@@ -162,7 +162,7 @@ export interface DialogContextValue {
   /**
    * The trigger, the panel and the cancel action, once each is in the document.
    * One stable object for the life of the family, which is what lets it sit on
-   * a memoised context value without changing its identity every render.
+   * a memoized context value without changing its identity every render.
    */
   nodes: {
     cancel: HTMLElement | null;

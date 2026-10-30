@@ -348,7 +348,7 @@ export const Composition: Story = {
           slButton
           size="sm"
           type="button"
-          (click)="demo.show({ title: 'Written by the page', description: 'The behaviour still belongs to the family.', duration: 0, body: body })"
+          (click)="demo.show({ title: 'Written by the page', description: 'The behavior still belongs to the family.', duration: 0, body: body })"
         >
           Mostrar
         </button>

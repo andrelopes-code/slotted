@@ -182,7 +182,7 @@ test('names each article by its author', () => {
 /**
  * A message that did not go is said by a control beside its surface, which
  * is also the way to send it again, and by the receipt in words — never by a
- * rim of a second colour round the surface.
+ * rim of a second color round the surface.
  */
 test('says a failure with a control that resends it, and a wait with a log of steps', () => {
   assert.equal(contract.retry.member, 'bubble');

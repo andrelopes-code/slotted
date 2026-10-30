@@ -91,7 +91,7 @@ to decide and nothing to cancel.
 | uncontrolled start | `defaultValue`                | initial input plus internal state         |
 | forms              | native props                  | `ControlValueAccessor` for Reactive Forms |
 
-The names belong to the bindings. The behaviour belongs to the contract, and
+The names belong to the bindings. The behavior belongs to the contract, and
 the contract is what the tests hold.
 
 `ControlValueAccessor` is not part of the conceptual contract, and the Angular

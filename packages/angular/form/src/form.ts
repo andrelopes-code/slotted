@@ -23,7 +23,7 @@ import {
   isDirty,
   mergeErrors,
   namedControls,
-  normaliseErrors,
+  normalizeErrors,
   orderErrors,
   withoutError,
 } from '@slotted/core/form';
@@ -258,7 +258,7 @@ export class SlForm implements SlFormOwner, OnInit {
   protected readonly submitting = computed(() => this.ownSubmitting() || this.loading());
   private readonly submitted = signal(false);
 
-  private readonly external = computed(() => normaliseErrors(this.errorsInput()));
+  private readonly external = computed(() => normalizeErrors(this.errorsInput()));
   private readonly controlled = computed(() => this.errorsInput() !== undefined);
 
   readonly errors = computed(() => (this.controlled() ? this.external() : this.own()));
@@ -290,7 +290,7 @@ export class SlForm implements SlFormOwner, OnInit {
   }
 
   ngOnInit() {
-    this.own.set(normaliseErrors(this.defaultErrors()));
+    this.own.set(normalizeErrors(this.defaultErrors()));
     this.readControls();
   }
 
@@ -370,13 +370,13 @@ export class SlForm implements SlFormOwner, OnInit {
     this.formSubmit.emit({
       values,
       event,
-      errors: (errors) => this.publish(normaliseErrors(errors), 'submit', event),
+      errors: (errors) => this.publish(normalizeErrors(errors), 'submit', event),
       pending: (work) => {
         this.ownSubmitting.set(true);
         void work
           .then((settled) => {
             if (settled !== undefined && settled !== null) {
-              this.publish(normaliseErrors(settled), 'submit', event);
+              this.publish(normalizeErrors(settled), 'submit', event);
             }
           })
           .finally(() => this.ownSubmitting.set(false));

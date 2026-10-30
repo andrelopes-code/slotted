@@ -68,7 +68,7 @@ export function serializeGridView(
 }
 
 /**
- * Total: malformed text is the empty view, and the column state is normalised
+ * Total: malformed text is the empty view, and the column state is normalized
  * against the model when the model is given, so a column the model no longer
  * has is dropped before it reaches the grid.
  */

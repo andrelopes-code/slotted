@@ -25,9 +25,7 @@ const report = await buildDesignSystem({
   by: git('config', 'user.name'),
 });
 console.log(`design system: ${report.files.length} files in ${resolve(values.out, 'project')}`);
-console.log(
-  `tokens left out (not a colour the type reads): ${report.dropped.join(', ') || 'none'}`,
-);
+console.log(`tokens left out (not a color the type reads): ${report.dropped.join(', ') || 'none'}`);
 console.log(
   `families without a preview (no complete example): ${report.withoutPreview.join(', ')}`,
 );

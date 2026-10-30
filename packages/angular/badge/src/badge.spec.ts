@@ -24,7 +24,7 @@ import { provideBadgeDefaults } from './badge-defaults';
       <span slVisuallyHidden>unread messages</span>
     </span>
 
-    <span slBadge id="localised" [count]="1234" [max]="false" locale="de-DE"></span>
+    <span slBadge id="localized" [count]="1234" [max]="false" locale="de-DE"></span>
 
     <span slBadge id="live" live="polite" [count]="4"></span>
     <span slBadge id="written-role" role="note" live="polite" [count]="4"></span>
@@ -71,7 +71,7 @@ describe('SlBadge', () => {
   });
 
   /**
-   * A flex container centres the line box, not the letters inside it. The trim
+   * A flex container centers the line box, not the letters inside it. The trim
    * that fixes that needs a block container, and a flex container's own text
    * lives in an anonymous item no stylesheet can reach — so the words get a box,
    * and the glyphs are projected as its siblings.
@@ -135,7 +135,7 @@ describe('SlBadge', () => {
     it('writes the digits the locale writes', () => {
       const { byId } = mount();
 
-      expect(byId('localised').textContent).toContain('1.234');
+      expect(byId('localized').textContent).toContain('1.234');
     });
 
     /**
@@ -179,7 +179,7 @@ describe('SlBadge', () => {
       expect(byId('plain').getAttribute('data-tone')).toBe('accent');
       expect(byId('plain').getAttribute('data-size')).toBe('lg');
       expect(byId('counted').textContent).toContain('8');
-      expect(byId('localised').textContent).toContain('1.234');
+      expect(byId('localized').textContent).toContain('1.234');
     });
 
     it('lets an explicit input win over the token', () => {

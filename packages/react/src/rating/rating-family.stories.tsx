@@ -82,7 +82,7 @@ export const Members: Story = {
           <Grid columns={1}>
             <Scene
               label="The aggregate of many"
-              note="Every number comes from summariseRatings in @slotted/core/rating, so both bindings draw the same conclusion."
+              note="Every number comes from summarizeRatings in @slotted/core/rating, so both bindings draw the same conclusion."
               layout="block"
             >
               <RatingSummary aria-label="Ratings" counts={COUNTS} />
@@ -178,7 +178,7 @@ export const Accessibility: Story = {
       </Scene>
       <Scene
         label="Levels in words"
-        note="Each level is named with its count and share, and the spectrum’s conclusion is text, never a colour alone."
+        note="Each level is named with its count and share, and the spectrum’s conclusion is text, never a color alone."
         layout="block"
       >
         <RatingSummary aria-label="Resumo" counts={COUNTS} locale="pt-BR" variant="spectrum" />

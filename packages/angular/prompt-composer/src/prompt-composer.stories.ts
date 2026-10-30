@@ -460,7 +460,7 @@ export const States: Story = {
       1,
       scene(
         'Invalid, read-only and disabled',
-        'Invalid takes the danger edge and the field says why; read-only keeps the value legible and withdraws the send; disabled mutes everything to the measured colour.',
+        'Invalid takes the danger edge and the field says why; read-only keeps the value legible and withdraws the send; disabled mutes everything to the measured color.',
         `<div slField [invalid]="true">
            <label slFieldLabel>Mensagem</label>
            <form slPromptComposer>

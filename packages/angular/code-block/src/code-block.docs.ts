@@ -169,7 +169,7 @@ const scenes: ReferenceSceneMeta[] = [
       id: 'code-block-angular-highlight',
       language: 'angular',
       label: 'An engine handed to the block',
-      source: '<div slCodeBlock [code]="source" [highlight]="tokenise" language="ts"></div>',
+      source: '<div slCodeBlock [code]="source" [highlight]="tokenize" language="ts"></div>',
     }),
   },
   {

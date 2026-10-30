@@ -88,7 +88,7 @@ export interface NotificationView {
   count?: number | undefined;
 }
 
-/** What an application sets once for every centre under it. */
+/** What an application sets once for every center under it. */
 export interface NotificationCenterDefaults {
   arrivals: NotificationCenterArrivals;
   controls: NotificationCenterControls;
@@ -116,7 +116,7 @@ export const NOTIFICATION_CENTER_DEFAULTS = new InjectionToken<NotificationCente
 /**
  * An application decides once how its notifications read — the size, the
  * rank, how more loads, whether arrivals are held, how time is written, the
- * time zone — rather than repeating them on every screen. A centre that states
+ * time zone — rather than repeating them on every screen. A center that states
  * any of them itself still wins. Its words and locale come from the language
  * in force (`provideSlotted`).
  */

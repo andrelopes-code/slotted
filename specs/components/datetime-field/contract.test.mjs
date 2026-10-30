@@ -180,7 +180,7 @@ test('binds every key the sourced pattern lists, and states each departure', () 
 
 /**
  * Each half pages the way its own family pages. Two fields drawing the same
- * segment and stepping it differently would be one behaviour with two answers,
+ * segment and stepping it differently would be one behavior with two answers,
  * so nothing here is reinvented — and the disagreement that remains is with
  * `calendar`, which pages by the month it draws rather than by a unit.
  */

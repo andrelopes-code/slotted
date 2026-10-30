@@ -407,7 +407,7 @@ describe('the pile', () => {
 });
 
 describe('composition', () => {
-  it('lets a page render its own message and keep the family’s behaviour', () => {
+  it('lets a page render its own message and keep the family’s behavior', () => {
     const { toaster } = setup(() => (
       <ToastRegion attach="inline">
         {(message) => (

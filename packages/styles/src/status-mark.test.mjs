@@ -9,7 +9,7 @@ const source = new URL('.', import.meta.url).pathname;
  * R5: a status mark — the glyph a message draws beside its words to say how
  * serious it is — belongs to the title's first line, not to the surface it
  * sits on. A sixteen-pixel glyph from the control scale, parked in the first
- * column of a grid and centred on the whole block, reads as a sticker; the
+ * column of a grid and centerd on the whole block, reads as a sticker; the
  * mark that reads as part of the composition is the one that takes the
  * title's own size and sits on the title's own line.
  *
@@ -27,7 +27,7 @@ const source = new URL('.', import.meta.url).pathname;
  *    fractional margin of the first form lands the mark a pixel above or
  *    below the capitals depending on where the box falls on the page; or
  *    (`anchor: 'inline'`) an inline box inside the first line whose
- *    `vertical-align` puts its centre `0.5cap` above the baseline, rounded
+ *    `vertical-align` puts its center `0.5cap` above the baseline, rounded
  *    to the device pixel;
  * 3. the distance from the mark to the words is `--slotted-space-4` (8px), and
  *    every restatement of it — a reach, a size — keeps that step;
@@ -38,8 +38,8 @@ const source = new URL('.', import.meta.url).pathname;
  *
  * `[data-loading]` rings, supplied artwork (`:not(:empty)`) and the
  * `forced-colors` block are exempt: a ring is a border by construction, a
- * page's own icon owns its size, and under forced colours the user agent owns
- * every colour.
+ * page's own icon owns its size, and under forced colors the user agent owns
+ * every color.
  */
 const MARKS = [
   {
@@ -202,7 +202,7 @@ function audit({ family, part, rest = /./, size, sizeValue, gap, solid, anchor =
           value,
         )
       ) {
-        findings.push(`vertical-align "${value}" does not centre the mark on the capitals`);
+        findings.push(`vertical-align "${value}" does not center the mark on the capitals`);
       }
     }
   } else if (anchor === 'baseline') {

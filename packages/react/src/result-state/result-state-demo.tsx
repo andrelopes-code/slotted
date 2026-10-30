@@ -58,7 +58,7 @@ export function Panel({ children }: { children: ReactNode }) {
 
 /**
  * Artwork a page might supply instead of the status's own mark, for the one
- * demonstration about that. Every colour in it is a foundation token, so it
+ * demonstration about that. Every color in it is a foundation token, so it
  * follows the scheme the way the family does.
  */
 export function BoardIllustration() {

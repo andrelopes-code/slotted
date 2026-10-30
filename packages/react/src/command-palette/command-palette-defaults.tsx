@@ -47,7 +47,7 @@ export function useCommandPaletteDefaults(): CommandPaletteDefaults {
 
 /**
  * The decisions an application takes once — the hotkey, the measure and the
- * behaviour. The sentences the family speaks come from the language in force
+ * behavior. The sentences the family speaks come from the language in force
  * (`SlottedProvider`).
  */
 export function CommandPaletteDefaultsProvider({

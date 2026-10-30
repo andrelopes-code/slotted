@@ -75,14 +75,13 @@ const anatomy: AnatomyRow[] = [
     element: 'path',
     required: false,
     purpose:
-      'The ground-coloured ring under the marker, drawn as a round-capped stroke so it stays round on a stretched grid.',
+      'The ground-colored ring under the marker, drawn as a round-capped stroke so it stays round on a stretched grid.',
   },
   {
     part: 'marker',
     element: 'path',
     required: false,
-    purpose:
-      'The disc on the last real point, in the series colour. Present with marker on a line.',
+    purpose: 'The disc on the last real point, in the series color. Present with marker on a line.',
   },
 ];
 
@@ -101,7 +100,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'types',
     title: 'A line for a trend, bars for a count per period',
-    note: 'The same twelve weeks four ways: a straight line, the line washed, the line smoothed with a monotone curve that never overshoots a point, and one bar per week with the current week at full colour.',
+    note: 'The same twelve weeks four ways: a straight line, the line washed, the line smoothed with a monotone curve that never overshoots a point, and one bar per week with the current week at full color.',
     snippet: defineSnippet({
       id: 'sparkline-angular-types',
       language: 'angular',
@@ -125,7 +124,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'tone',
     title: 'How the series is doing',
-    note: 'A tone paints the line in the tone’s text colour: success for an error rate that fell, danger for a lead time that grew, neutral for the comparison series behind a current one. Without a tone the line is the first slot of the data scale, the accent’s own hue.',
+    note: 'A tone paints the line in the tone’s text color: success for an error rate that fell, danger for a lead time that grew, neutral for the comparison series behind a current one. Without a tone the line is the first slot of the data scale, the accent’s own hue.',
     snippet: defineSnippet({
       id: 'sparkline-angular-tone',
       language: 'angular',
@@ -137,7 +136,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'series',
     title: 'Which series this is',
-    note: 'Eight slots of the data scale in a fixed order, so the sparklines of eight warehouses beside each other are eight colours a reader with deuteranopia still tells apart. A tone wins over a series where both are given.',
+    note: 'Eight slots of the data scale in a fixed order, so the sparklines of eight warehouses beside each other are eight colors a reader with deuteranopia still tells apart. A tone wins over a series where both are given.',
     snippet: defineSnippet({
       id: 'sparkline-angular-series',
       language: 'angular',
@@ -149,7 +148,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'reference',
     title: 'A line that is not data',
-    note: 'The reference is dashed and neutral so it reads as a target before its colour does, and it widens the extent when it lies outside the data: a target of 95% above a series that peaks at 91% is drawn above the line, not clipped.',
+    note: 'The reference is dashed and neutral so it reads as a target before its color does, and it widens the extent when it lies outside the data: a target of 95% above a series that peaks at 91% is drawn above the line, not clipped.',
     snippet: defineSnippet({
       id: 'sparkline-angular-reference',
       language: 'angular',
@@ -352,8 +351,8 @@ export const ANGULAR_SPARKLINE_DOCS = {
       'The root carries role="img" and an aria-label generated from the data: the last value, the direction and the change since the first — “Fill rate: 96.1%, up 3.2% since 92.9%”. Those are the two numbers a sparkline exists to compare, and they reach a reader who cannot see the shape.',
       'The svg is aria-hidden. A drawing with no interaction is an image, and its content is pixels; there is no APG pattern for a sparkline, and the WAI-ARIA Graphics module reserves graphics-document for a drawing whose parts are navigable, which this one has none of.',
       'Nothing here is focusable and nothing answers a key. Tooltips and per-point highlight belong to chart; a sparkline with them would be a small line chart.',
-      'Colour never carries the reading alone: the direction is in the description, the current bar is the last one by position as well as by colour, and a tone is a second encoding on top of the shape.',
-      'Under forced colours the data scale and the tones map to CanvasText, the wash is withdrawn, earlier bars take GrayText and the current one CanvasText, so a series still reads as one.',
+      'Color never carries the reading alone: the direction is in the description, the current bar is the last one by position as well as by color, and a tone is a second encoding on top of the shape.',
+      'Under forced colors the data scale and the tones map to CanvasText, the wash is withdrawn, earlier bars take GrayText and the current one CanvasText, so a series still reads as one.',
       'The eight slots of the data scale were chosen by measurement: adjacent slots separate by at least ΔE 16.8 under simulated protanopia and deuteranopia in every scheme, and every slot clears 3:1 against every surface.',
     ],
     snippets: [
@@ -369,7 +368,7 @@ export const ANGULAR_SPARKLINE_DOCS = {
         language: 'css',
         label: 'Retuning the family for an application',
         source:
-          "[data-ui='sparkline'] {\n  --slotted-sparkline-line-width: 1.5px;\n  --slotted-sparkline-area-opacity: 0.12;\n  --slotted-sparkline-bar-share: 50%;\n}\n\n/* A row on a tinted ground hands the marker its ring colour. */\n[data-ui='table'] [data-part='row']:hover {\n  --slotted-sparkline-ring-color: var(--slotted-tone-secondary-subtle-hover);\n}",
+          "[data-ui='sparkline'] {\n  --slotted-sparkline-line-width: 1.5px;\n  --slotted-sparkline-area-opacity: 0.12;\n  --slotted-sparkline-bar-share: 50%;\n}\n\n/* A row on a tinted ground hands the marker its ring color. */\n[data-ui='table'] [data-part='row']:hover {\n  --slotted-sparkline-ring-color: var(--slotted-tone-secondary-subtle-hover);\n}",
       }),
     ],
   },

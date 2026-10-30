@@ -271,7 +271,7 @@ const TAP_SLOP_PX = 3;
    * pill on a block side — and a directive has nothing to draw them with.
    *
    * Three elements rather than pseudo-elements because
-   * `packages/styles/src/fallbacks.test.mjs` forbids a system colour inside
+   * `packages/styles/src/fallbacks.test.mjs` forbids a system color inside
    * `::before` or `::after`, and both steps these take have one as their last
    * resort. The selector is unchanged, so no consumer's template moves.
    */

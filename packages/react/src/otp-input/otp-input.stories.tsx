@@ -379,7 +379,7 @@ export const Mask: Story = {
   render: () => (
     <Grid columns={2}>
       <Scene
-        label="Authorising a payment"
+        label="Authorizing a payment"
         note="The PIN is a secret on a shared screen: the control is type=password, so a screen reader counts characters instead of reading them, and every filled box shows a bullet."
         layout="block"
       >
@@ -425,7 +425,7 @@ export const States: Story = {
     <Grid columns={2}>
       <Scene
         label="Wrong code, two attempts left"
-        note="Invalid keeps the danger edge on every box and retargets the focus ring; the error is in words below, so the state is never colour alone."
+        note="Invalid keeps the danger edge on every box and retargets the focus ring; the error is in words below, so the state is never color alone."
         layout="block"
       >
         <Field invalid>
@@ -447,7 +447,7 @@ export const States: Story = {
       </Scene>
       <Scene
         label="While the code is being checked"
-        note="Disabled is muted to a measured colour rather than faded, so a form that is waiting still says what it holds."
+        note="Disabled is muted to a measured color rather than faded, so a form that is waiting still says what it holds."
         layout="block"
       >
         <Field disabled>

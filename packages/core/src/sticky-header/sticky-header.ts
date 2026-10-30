@@ -191,7 +191,7 @@ export function createStickyHeader(options: StickyHeaderOptions): StickyHeaderHa
   /**
    * The root is travelling back to its offset after a reveal ended, and the
    * area is still in the scrollport on the way: an "in" report during that
-   * travel is the reveal's own geometry, not a scroll back. Honouring it set
+   * travel is the reveal's own geometry, not a scroll back. Honoring it set
    * `scrolled` false, the area's track went to `0fr`, the content shortened,
    * the scroll position moved, the observer reported again, and the header
    * expanded and collapsed without end. The report is ignored until the area

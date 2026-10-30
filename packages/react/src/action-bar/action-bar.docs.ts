@@ -254,7 +254,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'align',
     title: 'Where the run sits',
-    note: 'end is the anchor and the default; start puts the run beside the status; center places it in what is left. The field disagrees about this one — Salesforce centres a docked footer, Polaris ends it, Fluent starts it — so it is an axis.',
+    note: 'end is the anchor and the default; start puts the run beside the status; center places it in what is left. The field disagrees about this one — Salesforce centers a docked footer, Polaris ends it, Fluent starts it — so it is an axis.',
     snippet: defineSnippet({
       id: 'action-bar-react-align',
       language: 'tsx',
@@ -527,7 +527,7 @@ export const REACT_ACTION_BAR_DOCS = {
         'the Page family’s own slot',
         '—',
         'around an ActionBar',
-        'Where a page’s bar belongs. Page paints the ground, the rule and the sticky behaviour; this family arranges what is on it, which is why variant="plain" paints nothing',
+        'Where a page’s bar belongs. Page paints the ground, the rule and the sticky behavior; this family arranges what is on it, which is why variant="plain" paints nothing',
       ],
     ]),
     accessibility: [
@@ -537,7 +537,7 @@ export const REACT_ACTION_BAR_DOCS = {
       'The trigger’s accessible name carries the count rather than the mark, so a reader hears “3 more actions” instead of three dots, in the language in force with its plural. The count in the DOM, data-collapsed, is the same fact for a stylesheet or a test.',
       'A bar out of action is a fieldset around it: the platform disables every control inside and takes them out of the tab order with it. The family writes no data-disabled and declares no disabled state, because it does not own the capability — a container that refused interaction while its controls still looked operable is the defect the state precedence exists to prevent.',
       'A bar that is not present leaves the document once it has left the view, rather than staying mounted and hidden. Carbon’s batch bar writes aria-hidden on its root and leaves the buttons inside reachable by Tab, which puts focus in a region the screen reader announces as absent. Appearing never moves focus either: the bar is not a dialog, and taking focus from a reader who is ticking boxes is exactly the jump a selection bar must not make.',
-      'Under forced colours the rule between two runs keeps its own paint, because a background flattens to Canvas and would take the boundary between a destructive action and a frequent one with it. Everything else the reader sees belongs to the controls the consumer placed, and each keeps its own states, its own focus ring and its own contrast.',
+      'Under forced colors the rule between two runs keeps its own paint, because a background flattens to Canvas and would take the boundary between a destructive action and a frequent one with it. Everything else the reader sees belongs to the controls the consumer placed, and each keeps its own states, its own focus ring and its own contrast.',
     ],
     snippets: [
       defineSnippet({

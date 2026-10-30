@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 import type { AfterContentInit } from '@angular/core';
 import { ControlContainer } from '@angular/forms';
-import { hasErrors, isDirty, normaliseErrors } from '@slotted/core/form';
+import { hasErrors, isDirty, normalizeErrors } from '@slotted/core/form';
 import type { FormErrorInput } from '@slotted/core/form';
 import { wizardMessages, type PartialMessages, type WizardMessages } from '@slotted/core/i18n';
 import { createControllable } from '@slotted/core/state';
@@ -681,7 +681,7 @@ export class SlWizard implements AfterContentInit {
   private validation: AbortController | undefined;
   private jumpTarget: string | undefined;
   private focusNext: 'title' | 'alert' | 'complete' | undefined;
-  private initialised = false;
+  private initialized = false;
 
   private usable(name: string | undefined) {
     return this.entries().some((entry) => entry.name === name && entry.disabled !== true);
@@ -780,7 +780,7 @@ export class SlWizard implements AfterContentInit {
       const entries = this.entries();
       untracked(() => {
         this.previousEntries = entries;
-        if (!this.initialised) return;
+        if (!this.initialized) return;
         assertUniqueSteps(entries);
         if (current === undefined || current === requested) return;
         this.leave();
@@ -792,7 +792,7 @@ export class SlWizard implements AfterContentInit {
     effect(() => {
       const requested = this.step();
       untracked(() => {
-        if (!this.initialised || requested === undefined || requested === this.ownWrite) return;
+        if (!this.initialized || requested === undefined || requested === this.ownWrite) return;
         const clamped = clampStep({
           linear: this.resolvedLinear(),
           requested,
@@ -868,7 +868,7 @@ export class SlWizard implements AfterContentInit {
         this.step.set(start);
       } else this.requestStep(start, 'programmatic', undefined, false);
     }
-    this.initialised = true;
+    this.initialized = true;
     if (isPromise(loaded)) this.restore(loaded as Promise<WizardSnapshot | undefined>);
   }
 
@@ -992,7 +992,7 @@ export class SlWizard implements AfterContentInit {
       if (controller.signal.aborted) return;
       if (this.validation === controller) this.validation = undefined;
       this.pending.set(undefined);
-      if (errors !== undefined && errors !== null && hasErrors(normaliseErrors(errors))) {
+      if (errors !== undefined && errors !== null && hasErrors(normalizeErrors(errors))) {
         this.markInvalid(name, true);
         this.jumpTarget = undefined;
         return errors;

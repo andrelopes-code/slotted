@@ -30,7 +30,7 @@ import { SlAvatarGroupItem } from './avatar-group-item';
  *
  * `tone` is not among them, deliberately: a tone derived from a name is the
  * member's own identity, and a group that overrode it would paint eight people
- * the same colour.
+ * the same color.
  *
  * The values are read through getters so a member's `computed` tracks the
  * group's signals; a plain snapshot would fix the paint at the moment the first
@@ -115,7 +115,7 @@ export class SlAvatarGroup {
   readonly layout = input<AvatarGroupLayout>('stack');
   /**
    * The largest number of discs the group draws, the summary included. Above
-   * it, one fewer member is shown and the rest are summarised. `false` shows
+   * it, one fewer member is shown and the rest are summarized. `false` shows
    * every member.
    */
   readonly max = input<number | false>(5);
@@ -152,7 +152,7 @@ export class SlAvatarGroup {
   /**
    * `max` counts the discs the group draws, the summary included, so a limit of
    * five never puts six circles in a row. Below the limit nothing is
-   * summarised: a `+1` beside four faces is one more circle than showing the
+   * summarized: a `+1` beside four faces is one more circle than showing the
    * fifth, and says less.
    */
   private readonly shownCount = computed(() => {

@@ -22,7 +22,7 @@ import {
   fractionOfValue,
   moveThumb,
   nearestThumb,
-  normaliseValues,
+  normalizeValues,
   sameValues,
   thumbBounds,
   valueAtFraction,
@@ -270,7 +270,7 @@ export class SlSlider implements ControlValueAccessor {
   readonly values = computed<number[]>(() => {
     const bound = this.value();
     const held = bound ?? this.formValue() ?? this.own() ?? this.defaultValue();
-    return normaliseValues(toArray(held), this.scale());
+    return normalizeValues(toArray(held), this.scale());
   });
 
   private readonly formatter = computed(() => {
@@ -397,7 +397,7 @@ export class SlSlider implements ControlValueAccessor {
 
   writeValue(value: number | readonly number[] | null) {
     this.formValue.set(
-      value === null || value === undefined ? null : normaliseValues(toArray(value), this.scale()),
+      value === null || value === undefined ? null : normalizeValues(toArray(value), this.scale()),
     );
   }
 

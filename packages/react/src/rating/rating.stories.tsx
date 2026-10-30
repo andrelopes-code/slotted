@@ -136,7 +136,7 @@ export const States: Story = {
       </Scene>
       <Scene
         label="Invalid and required"
-        note="aria-invalid and aria-required are written on the group, never on a radio; the focus ring turns to the danger colour."
+        note="aria-invalid and aria-required are written on the group, never on a radio; the focus ring turns to the danger color."
         layout="stack"
       >
         <Rating aria-label="Required rating" invalid required />

@@ -1,5 +1,5 @@
 /**
- * What a name reduces to when there is no picture, which colour that name is
+ * What a name reduces to when there is no picture, which color that name is
  * always drawn in, and how several names are read as one.
  *
  * All three are decisions Avatar and Avatar Group would otherwise take twice —
@@ -140,10 +140,10 @@ export function initialsFrom({ name, max = 2, locale }: InitialsRequest): string
  * Which of a palette a name is always drawn in.
  *
  * FNV-1a over the seed's code points: a hash rather than a counter, because the
- * same person has to keep the same colour in a list that is re-sorted, in a
+ * same person has to keep the same color in a list that is re-sorted, in a
  * table that is paged, and between a server render and the hydration after it.
  *
- * A palette of five means collisions are frequent by construction. The colour
+ * A palette of five means collisions are frequent by construction. The color
  * is an aid to scanning a list of faces; the name is what identifies the
  * person, and it is on every avatar in every one of its states.
  */

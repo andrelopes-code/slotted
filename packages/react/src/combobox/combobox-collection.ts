@@ -10,7 +10,7 @@ import type { ComboboxOptionValue } from './combobox.types';
  * result set. Nothing else in the family knows what matched.
  *
  * The same shape `select` uses, deliberately: the two families are a pair, and
- * a reader who has read one should recognise the other. `moveIndex` in
+ * a reader who has read one should recognize the other. `moveIndex` in
  * `packages/core/src/collection` does the arithmetic; this module only says
  * what the arithmetic is about.
  */

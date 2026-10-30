@@ -67,7 +67,7 @@ export class SlStatusIndicatorDetail {}
   selector: '[slStatusIndicator]',
   standalone: true,
   imports: [SlGlyph, SlIcon],
-  /* The icon mark's glyph follows the status; the sheet sizes and colours it. */
+  /* The icon mark's glyph follows the status; the sheet sizes and colors it. */
   template: `<span aria-hidden="true" data-part="mark" data-part-mark="">
       @if (markValue() === 'icon') {
         <span slIcon><svg slGlyph [name]="glyph()"></svg></span>
@@ -110,7 +110,7 @@ export class SlStatusIndicator {
   /**
    * A wave leaving the dot, for a change happening now. An icon mark does not
    * pulse, and the wave is withdrawn under reduced motion and under forced
-   * colours, so nothing is ever said by the wave alone.
+   * colors, so nothing is ever said by the wave alone.
    */
   readonly pulse = input(false, { transform: booleanAttribute });
   /**

@@ -39,7 +39,7 @@ const key = (element: HTMLElement, init: KeyboardEventInit) =>
   element.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init }));
 
 describe('SlColorPicker', () => {
-  it('draws the anatomy and writes the colour on the host', () => {
+  it('draws the anatomy and writes the color on the host', () => {
     const fixture = renderTemplate(
       `<div slColorPicker defaultValue="#2563EB" [presets]="presets" contrastWith="#FFFFFF"></div>`,
     );
@@ -131,7 +131,7 @@ describe('SlColorPicker', () => {
     });
   });
 
-  it('says a colour lies outside sRGB', () => {
+  it('says a color lies outside sRGB', () => {
     const fixture = renderTemplate(`<div slColorPicker defaultValue="oklch(0.9 0.3 150)"></div>`);
     expect(root(fixture).hasAttribute('data-out-of-gamut')).toBe(true);
     expect(fixture.nativeElement.querySelector('[data-part="gamut"]')).not.toBeNull();
@@ -177,7 +177,7 @@ describe('SlColorPicker', () => {
 });
 
 describe('SlColorField', () => {
-  it('commits a typed colour into the form in its notation', () => {
+  it('commits a typed color into the form in its notation', () => {
     const fixture = renderTemplate(
       `<div slColorField aria-label="Primary" [formControl]="control"></div>`,
     );
@@ -198,7 +198,7 @@ describe('SlColorField', () => {
    * The swatch is the field's own part, drawn by the family's stylesheet. The
    * field has to bring that stylesheet itself: carried only by the panel, it
    * arrived on the first open, and until then the swatch was a bare button —
-   * a grey bar where the colour belongs.
+   * a grey bar where the color belongs.
    */
   it('brings the swatch’s stylesheet before its panel first opens', () => {
     const fixture = renderTemplate(`<div slColorField aria-label="Primary" value="#dc2626"></div>`);

@@ -140,7 +140,7 @@ test('gives the chips a lane of the control and the final controls their own', (
  * The height of the control does not answer the number of chosen values: one
  * line, and a row no taller than the inner box of a select that chose one
  * thing. The chips that do not fit are taken out by the collapse, which is why
- * `tag` has to honour `hidden` — the rule its own sheet is guarded for.
+ * `tag` has to honor `hidden` — the rule its own sheet is guarded for.
  */
 test('keeps the row on one line and no taller than the control', () => {
   const css = sheet('select');

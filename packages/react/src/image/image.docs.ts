@@ -116,7 +116,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'position',
     title: 'The focal point a crop keeps',
-    note: 'A wide picture in a square frame keeps its start, its centre or its end; a portrait in a 16:9 frame keeps its top or its bottom; a CMS focal point is any object-position value. Switch the toolbar to rtl and start and end swap sides, which object-position alone does not do.',
+    note: 'A wide picture in a square frame keeps its start, its center or its end; a portrait in a 16:9 frame keeps its top or its bottom; a CMS focal point is any object-position value. Switch the toolbar to rtl and start and end swap sides, which object-position alone does not do.',
     snippet: defineSnippet({
       id: 'image-react-position',
       language: 'tsx',
@@ -413,8 +413,8 @@ export const REACT_IMAGE_DOCS = {
       'There is no image pattern in the WAI-ARIA Authoring Practices; the applicable guidance is the W3C WAI alt decision tree, and the family follows it by making alt required in the type: an informative picture says what it shows, a decorative one says "" and is skipped, a functional one (a link, a button) says what it does.',
       'The img is never taken out of the DOM. While the picture loads it is transparent over the ground; after it fails it takes no box and the fallback takes its place — but its alt is still the name a reader hears, so a broken thumbnail is announced as what it was meant to show.',
       'The placeholder is aria-hidden and the blurred preview inside it has an empty alt: neither is content. The fallback is not hidden, because a consumer may put a retry button in it, and it is out of the flow until the picture fails so that button is neither focusable nor announced before then.',
-      'A picture is not a control and paints nothing at rest. render can make the root an a or a button, and for exactly that case the family paints the focus ring outside the box and a 2px strong edge on hover — colour and geometry, not the photograph — and holds the hover back on a disabled button.',
-      'The picture crosses over the ground on --slotted-duration-short, which prefers-reduced-motion collapses to 1ms in the theme; nothing loops. Under forced colours the ground becomes Canvas, the edge ButtonBorder, and the glyph keeps currentColor; the photograph is left alone by the user agent’s own rule.',
+      'A picture is not a control and paints nothing at rest. render can make the root an a or a button, and for exactly that case the family paints the focus ring outside the box and a 2px strong edge on hover — color and geometry, not the photograph — and holds the hover back on a disabled button.',
+      'The picture crosses over the ground on --slotted-duration-short, which prefers-reduced-motion collapses to 1ms in the theme; nothing loops. Under forced colors the ground becomes Canvas, the edge ButtonBorder, and the glyph keeps currentColor; the photograph is left alone by the user agent’s own rule.',
       'A caption belongs in a figcaption after the frame, and is not repeated in the alt; zoom and preview belong to Dialog, opened from a root render made a button.',
     ],
     snippets: [

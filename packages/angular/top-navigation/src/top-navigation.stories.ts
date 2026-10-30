@@ -609,7 +609,7 @@ export const Actions: Story = {
     template: grid(
       scene(
         'Help as a destination, the bell, the account',
-        'Help is a link to the help centre; the bell opens a popover with what is waiting; the account opens a menu under the avatar. Hover any of them for its name.',
+        'Help is a link to the help center; the bell opens a popover with what is waiting; the account opens a menu under the avatar. Hover any of them for its name.',
         stage(
           `<header slTopNavigation>${brand()}<nav slTopNavigationNav><ul slTopNavigationList>${item('dashboard', 'Dashboard', 'high')}${item('loads', 'Loads', 'high')}</ul></nav>${actions({ ref: 'g1' })}</header>`,
           'laptop',

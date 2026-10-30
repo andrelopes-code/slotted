@@ -256,7 +256,7 @@ describe('TextField', () => {
     expect(input).toHaveAttribute('aria-required', 'true');
     expect(input).toHaveAttribute('readonly');
     /* `aria-required` and never the native attribute, which would engage
-       browser constraint validation and change submit behaviour. */
+       browser constraint validation and change submit behavior. */
     expect(input).not.toHaveAttribute('required');
     expect(input.getAttribute('aria-describedby')).toContain('-error');
     expect(input.parentElement).toHaveAttribute('data-invalid');

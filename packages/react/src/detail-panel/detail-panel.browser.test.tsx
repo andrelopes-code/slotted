@@ -63,11 +63,11 @@ describe('a detail panel that scrolls itself in a desktop frame', () => {
 
 /**
  * A stacked section's count sits on the heading's optical axis. Inside the
- * uppercase heading, middle-aligned on a 1.4 line box, the capitals' centre
+ * uppercase heading, middle-aligned on a 1.4 line box, the capitals' center
  * stood above the badge's.
  */
 describe('the count of a stacked section', () => {
-  it('shares its centre with the capitals of the heading', async () => {
+  it('shares its center with the capitals of the heading', async () => {
     render(
       <DetailPanel>
         <DetailPanelBody>

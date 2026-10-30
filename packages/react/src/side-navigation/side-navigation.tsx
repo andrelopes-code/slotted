@@ -75,7 +75,7 @@ function visible(element: HTMLElement, root: HTMLElement): boolean {
  * **The rail is a width.** The stylesheet decides the picture from the root's
  * own inline size, before any script; the `ResizeObserver` here writes
  * `data-compact` afterwards, and that is what turns on the tooltip and the
- * flyout, the two behaviours that need a script anyway.
+ * flyout, the two behaviors that need a script anyway.
  *
  * **The keyboard is the pattern's.** Tab reaches every row; the arrow keys,
  * Home and End walk the visible rows — into the flyout, when it is open — and

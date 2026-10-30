@@ -25,7 +25,7 @@ function closure(file, seen = new Set()) {
 /**
  * An application writes a reader's seeds before it has any reason to compile
  * a theme. `@slotted/theme/seeds` is the entry for that: the seed names and
- * `seedStyle`, with the colour parser they need and nothing of the contract,
+ * `seedStyle`, with the color parser they need and nothing of the contract,
  * the validator or the renderer, which a bundler cannot drop from a module it
  * shares with them.
  */

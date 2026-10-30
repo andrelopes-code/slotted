@@ -244,7 +244,7 @@ export const States: Story = {
       2,
       scene(
         'One view out of reach',
-        'A single unavailable tab carries the native attribute, so it dims, refuses its click and is skipped by the arrow keys — three behaviours from one word.',
+        'A single unavailable tab carries the native attribute, so it dims, refuses its click and is skipped by the arrow keys — three behaviors from one word.',
         `<div slTabs defaultValue="a">
           <div slTabList aria-label="Document">
             <div slTab value="a">Content</div>

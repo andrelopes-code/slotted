@@ -28,7 +28,7 @@ export interface TypographyAxes {
   align?: TypographyAlign | undefined;
   numeric?: TypographyNumeric | undefined;
   size?: TypographySize | undefined;
-  /** `inherit` takes the colour of whatever contains the text. */
+  /** `inherit` takes the color of whatever contains the text. */
   tone?: TypographyTone | undefined;
   transform?: TypographyTransform | undefined;
   /**

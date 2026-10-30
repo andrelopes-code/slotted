@@ -82,7 +82,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'tones',
     title: 'What the message is about',
-    note: 'Four severities and one absence of one. secondary is help: no mark, no severity word, and the neutral muted ink rather than a tone’s louder label colour.',
+    note: 'Four severities and one absence of one. secondary is help: no mark, no severity word, and the neutral muted ink rather than a tone’s louder label color.',
     snippet: defineSnippet({
       id: 'inline-message-angular-tones',
       language: 'angular',
@@ -178,7 +178,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'accessibility',
     title: 'What a reader hears before the message',
-    note: 'Turn a screen reader on and read the three rows: the severity is a word, not only a colour and a silhouette, and it is the same word wherever the message is announced.',
+    note: 'Turn a screen reader on and read the three rows: the severity is a word, not only a color and a silhouette, and it is the same word wherever the message is announced.',
     snippet: defineSnippet({
       id: 'inline-message-angular-accessibility',
       language: 'angular',
@@ -272,7 +272,7 @@ export const ANGULAR_INLINE_MESSAGE_DOCS = {
         'directive',
         '—',
         'a projected element',
-        'The page’s own mark, projected into the box the family draws so it keeps the size, the colour and the place on the first line the tone’s mark would have had',
+        'The page’s own mark, projected into the box the family draws so it keeps the size, the color and the place on the first line the tone’s mark would have had',
       ],
       [
         'messageId',
@@ -298,12 +298,12 @@ export const ANGULAR_INLINE_MESSAGE_DOCS = {
     ]),
     accessibility: [
       'A message about a section, a page or a command’s outcome is an alert, at reach section or page. This family is the message of one field or one control, under or beside it.',
-      'There is no WAI-ARIA APG pattern for a message attached to a field. Three documents cover it between them: the APG Alert Pattern (w3.org/WAI/ARIA/apg/patterns/alert/) for the announcing behaviour, MDN’s aria-errormessage reference for the wiring, and WCAG 2.2 Understanding 3.3.1 Error Identification for the requirement that the error be identified in text.',
-      'The severity is a word, not only a colour and a mark. A reader who cannot see the message hears the sentence and nothing else, so the family writes “Error:”, “Warning:” or “Success:” in clipped text before it — GOV.UK’s Error message component publishes the idea for errors, and this generalises it to every severity and to a table an application replaces once through provideInlineMessageDefaults.',
+      'There is no WAI-ARIA APG pattern for a message attached to a field. Three documents cover it between them: the APG Alert Pattern (w3.org/WAI/ARIA/apg/patterns/alert/) for the announcing behavior, MDN’s aria-errormessage reference for the wiring, and WCAG 2.2 Understanding 3.3.1 Error Identification for the requirement that the error be identified in text.',
+      'The severity is a word, not only a color and a mark. A reader who cannot see the message hears the sentence and nothing else, so the family writes “Error:”, “Warning:” or “Success:” in clipped text before it — GOV.UK’s Error message component publishes the idea for errors, and this generalizes it to every severity and to a table an application replaces once through provideInlineMessageDefaults.',
       'The live role goes on the host. slAlert puts its role on an inner part because it has a dismiss button beside its text and MDN’s alert role reference restricts the role to text content; this family owns no controls, so the element that is the text is the element that announces. live defaults to off, because a message already present when the page finishes loading is announced by nothing whatever role it carries.',
       'Wiring is the control’s job and the identifier is the family’s. MDN: set aria-invalid="true" on the control, then aria-errormessage to the id of the element holding the message. exportAs hands the template the instance so it can write [attr.aria-errormessage]="message.messageId" without inventing an id of its own.',
-      'The mark is aria-hidden, because it repeats what the severity word already says. Under forced colours it keeps its silhouette in CanvasText — the circle, the diamond and the circled exclamation are what tell an error from a note when every colour has been replaced, which is WCAG 2.2 1.4.1.',
-      'A disabled message is muted to a measured colour rather than faded by opacity, and its ring stops: STATE_PRECEDENCE puts disabled above loading, and a control nobody can use is not waiting for anything. Nothing is removed from the accessibility tree, because a message about a disabled field is still a message.',
+      'The mark is aria-hidden, because it repeats what the severity word already says. Under forced colors it keeps its silhouette in CanvasText — the circle, the diamond and the circled exclamation are what tell an error from a note when every color has been replaced, which is WCAG 2.2 1.4.1.',
+      'A disabled message is muted to a measured color rather than faded by opacity, and its ring stops: STATE_PRECEDENCE puts disabled above loading, and a control nobody can use is not waiting for anything. Nothing is removed from the accessibility tree, because a message about a disabled field is still a message.',
       'The family never becomes a tooltip. The message is visible text in the flow of the page, which is the requirement WCAG 2.2 3.3.1 states and the one a hover-only error fails for every reader who does not hover.',
     ],
     snippets: [

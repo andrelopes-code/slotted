@@ -1,6 +1,6 @@
 /**
  * A column resolved against the reader's arrangement of it, and the moves
- * that arrangement can make. The state is normalised before anything reads
+ * that arrangement can make. The state is normalized before anything reads
  * it: a saved view names columns the model may have dropped, and a model may
  * have columns the view never saw.
  */
@@ -263,7 +263,7 @@ export function zoneOf<Row>(
 /**
  * The state as one line of text. `order` is written only when it differs from
  * the model's, `widths` only for the columns the reader moved; a state nobody
- * touched serialises to the empty string.
+ * touched serializes to the empty string.
  */
 export function serializeColumnState(
   state: GridColumnState | null | undefined,
@@ -305,7 +305,7 @@ function sameList(a: readonly string[], b: readonly string[]): boolean {
   return a.length === b.length && a.every((entry, index) => entry === b[index]);
 }
 
-/** Whether a serialised state names its pins, rather than leaving them to the model. */
+/** Whether a serialized state names its pins, rather than leaving them to the model. */
 export function statesPins(text: string | null | undefined): boolean {
   return (text ?? '').split(';').some((part) => part.startsWith('ps=') || part.startsWith('pe='));
 }

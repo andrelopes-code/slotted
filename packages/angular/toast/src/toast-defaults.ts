@@ -9,11 +9,11 @@ import type {
 import { computed, DestroyRef, inject, Injectable, InjectionToken, signal } from '@angular/core';
 import type { Signal, TemplateRef } from '@angular/core';
 
-/** Which of the five semantic colours the message speaks in. */
+/** Which of the five semantic colors the message speaks in. */
 export type ToastTone = 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger';
 
 /**
- * How that colour is painted. `raised` is the neutral surface with the tone in
+ * How that color is painted. `raised` is the neutral surface with the tone in
  * the mark, and it is the default: a message floats over content this family
  * does not own, and tinting that content's corner is not its decision.
  */
@@ -100,7 +100,7 @@ export interface ToastDefaults {
 /**
  * The key that moves focus into the region. Five surveyed implementations ship
  * a shortcut and no two chose the same key; `F6` is the one two of them chose
- * for the reason that generalises — it is the landmark-navigation key.
+ * for the reason that generalizes — it is the landmark-navigation key.
  */
 export const TOAST_HOTKEY = 'F6';
 

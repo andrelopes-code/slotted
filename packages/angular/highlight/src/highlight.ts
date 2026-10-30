@@ -60,7 +60,7 @@ export class SlHighlight {
   readonly query = input<string | readonly string[] | undefined>(undefined);
   /**
    * Spans already found — by a server, by a fuzzy engine — in the text's own
-   * code units. Wins over `query` and `matcher`; normalised like either.
+   * code units. Wins over `query` and `matcher`; normalized like either.
    */
   readonly ranges = input<readonly HighlightRange[] | undefined>(undefined);
   /** Replaces the default matcher. Loses to `ranges`. */

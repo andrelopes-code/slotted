@@ -192,13 +192,13 @@ export const Statuses: Story = {
       1,
       scene(
         'The seven, at the reach a list of them belongs in',
-        'Each status draws the glyph the contract maps it to and paints in the tone it names, so a permission problem and a failed request differ by silhouette as well as by colour.',
+        'Each status draws the glyph the contract maps it to and paints in the tone it names, so a permission problem and a failed request differ by silhouette as well as by color.',
         STATUSES.map(([status, title, body]) =>
           region(`align="start" live="off" reach="inline" status="${status}"`, title, body),
         ).join(''),
       ) +
         scene(
-          'The same seven with no colour at all',
+          'The same seven with no color at all',
           'Switch the toolbar to high-contrast: every ground becomes the page’s own white and every mark black, and the shape is the only thing left telling the seven apart. WCAG 2.2 1.4.1.',
           STATUSES.map(([status, title]) =>
             region(`align="start" live="off" reach="inline" status="${status}"`, title),
@@ -272,7 +272,7 @@ export const Align: Story = {
       2,
       scene(
         'center, the default',
-        'For a panel or a route, where the region is the only thing on the screen and a centred column reads as a considered page rather than as an interruption.',
+        'For a panel or a route, where the region is the only thing on the screen and a centerd column reads as a considered page rather than as an interruption.',
         panel(
           region(
             'align="center" live="off" status="forbidden"',
@@ -283,7 +283,7 @@ export const Align: Story = {
       ) +
         scene(
           'start, for a data-dense screen',
-          'Carbon left-aligns its empty states inside data-dense views and the other six surveyed implementations centre unconditionally. Both readings are real, and this is one axis rather than a second family.',
+          'Carbon left-aligns its empty states inside data-dense views and the other six surveyed implementations center unconditionally. Both readings are real, and this is one axis rather than a second family.',
           panel(
             region(
               'align="start" live="off" status="forbidden"',
@@ -389,7 +389,7 @@ export const Illustration: Story = {
         ) +
         scene(
           'A stack of cards, standing in for the rows that are not there',
-          'The glyph takes the thumbnail’s place and two lines stand in for the text. Without a glyph the lines start at the card’s padding; the drawing needs no colour of the ground, so it holds on the sunken panel and on a raised surface alike.',
+          'The glyph takes the thumbnail’s place and two lines stand in for the text. Without a glyph the lines start at the card’s padding; the drawing needs no color of the ground, so it holds on the sunken panel and on a raised surface alike.',
           panel(`<section slResultState illustration="cards" live="off">
                ${glyph('file-text')}
                <div slResultStateContent>
@@ -570,7 +570,7 @@ export const Composition: Story = {
       1,
       scene(
         'The measure belongs to container',
-        'This family caps no width: two families offering a maximum measure would be two answers to one question. A page-wide region with no measure around it sets a centred sentence the full width of the route.',
+        'This family caps no width: two families offering a maximum measure would be two answers to one question. A page-wide region with no measure around it sets a centerd sentence the full width of the route.',
         `<div slContainer size="measure" [inset]="0">
              <section slResultState align="center" live="off" reach="page" status="no-results">
                <div slResultStateContent>

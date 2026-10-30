@@ -43,7 +43,7 @@ test('composes two date fields and one calendar instead of drawing them again', 
   }
 });
 
-test('takes every overlay behaviour from core, as date-picker does', () => {
+test('takes every overlay behavior from core, as date-picker does', () => {
   assert.deepEqual(contract.core, datePicker.core);
 });
 

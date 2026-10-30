@@ -13,10 +13,10 @@
    *
    * The tone roles travel through private properties because three variants
    * paint the same roles differently; naming them once per tone is what keeps
-   * the variant rules from repeating five colour maps each.
+   * the variant rules from repeating five color maps each.
    *
    * Nothing in this sheet changes a size when a state changes. Every state is
-   * a colour; the only one drawn outside the border box is focus, which is an
+   * a color; the only one drawn outside the border box is focus, which is an
    * outline. The rebuild that preceded this one thickened the border on a
    * pressed toggle, which moved every control beside it by two pixels.
    */
@@ -128,12 +128,12 @@
       /* The press below moves the control, and the release eases it back. */ transform
         var(--slotted-control-transition-duration) var(--slotted-control-transition-easing);
     user-select: none;
-    /* A control written inside a sentence sits on the text's centre, not on its baseline. */
+    /* A control written inside a sentence sits on the text's center, not on its baseline. */
     vertical-align: middle;
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* ── Tone: which of the five semantic colours the control speaks in ───── */
+  /* ── Tone: which of the five semantic colors the control speaks in ───── */
 
   [data-ui-button][data-tone='secondary'] {
     --_solid: var(--slotted-tone-secondary-solid);
@@ -265,7 +265,7 @@
   /**
    * The edge of an outline button is neutral and its label carries the tone.
    * A saturated border on all five tones turned a row of actions into a row
-   * of status chips: the eye read five different colours of rectangle before
+   * of status chips: the eye read five different colors of rectangle before
    * it read a single word. The edge is the control step, the one a field
    * carries at rest: reading `--slotted-border-strong` here made the outline
    * button the darkest line on the form, and the foundation now keeps that
@@ -287,7 +287,7 @@
   /**
    * The half of the pair for a variant with no fill of its own. `secondary` is
    * the third case for the same reason it is the exception to every other fill
-   * rule: its solid step is the page's own colour, so it takes the band the way
+   * rule: its solid step is the page's own color, so it takes the band the way
    * a bare control does.
    */
   [data-ui-button][data-variant='outline'],
@@ -302,7 +302,7 @@
    * A toggle that is on is a selected thing, and it is painted the way every
    * selected thing in the foundation is (R1): the accent selection ground
    * under the accent text, inside the accent edge — whatever tone and variant
-   * the toggle was written as, because "on" is one colour across the system
+   * the toggle was written as, because "on" is one color across the system
    * and not a shade of each control's own. It took the tone's solid fill
    * before this, which made a neutral toggle that was on the same rectangle
    * as one being pressed (`#e2e8f0` for both in `light`) and made a toggle
@@ -408,7 +408,7 @@
    *
    * Per variant, because a flat control that fills with grey on the way to
    * being unavailable reads as a different control rather than as the same
-   * one unavailable. A ghost button stays flat and loses only its colour.
+   * one unavailable. A ghost button stays flat and loses only its color.
    *
    * `[data-disabled]` rather than `:disabled` alone, because a control that
    * keeps its place in the tab sequence carries `aria-disabled` and no
@@ -504,7 +504,7 @@
    * A control with a start or end visual keeps its label and gives the ring
    * that one box: the wait is legible, the action stays readable, and the box
    * was already the size of the ring. Primer takes the same decision, and it
-   * is the one that stops a loading button from being a coloured rectangle
+   * is the one that stops a loading button from being a colored rectangle
    * with nothing in it.
    *
    * A control with no visual has nowhere to put the ring but over its own
@@ -556,7 +556,7 @@
   /* Only the ring that has no visual slot to sit in is placed against the box. */
   [data-ui-button] > [data-part-indicator] {
     inset: 0;
-    /* `inset: 0` with a definite size and automatic margins centres on both
+    /* `inset: 0` with a definite size and automatic margins centers on both
        axes without naming a physical side. */
     margin: auto;
     position: absolute;
@@ -588,7 +588,7 @@
    * `currentColor` is what makes the band answer every tone and every variant
    * without a token of its own: it is the ink the control is already painting
    * its own label with, so it contrasts with that control's ground by
-   * construction — the on-tone colour over a filled one, the tone itself over
+   * construction — the on-tone color over a filled one, the tone itself over
    * a bare one, and whatever the scheme remapped either to.
    */
   @media (prefers-reduced-motion: no-preference) {
@@ -663,11 +663,11 @@
   /**
    * A key in a slot is sized by its own family. The slot above is a glyph's
    * box: it stated `display: block` on the key, which put the legend on a line
-   * box's baseline instead of the key's centre, sixteen pixels square, and the
+   * box's baseline instead of the key's center, sixteen pixels square, and the
    * icon's font size, which `size="inherit"` read as the text's. Measured, a
-   * `Kbd` legend stood 1.5px above the label's centre and a `Shortcut` 1.5px
+   * `Kbd` legend stood 1.5px above the label's center and a `Shortcut` 1.5px
    * below it. Here the slot takes the key's measure and the label's type, and
-   * the flex container centres the key on the label.
+   * the flex container centers the key on the label.
    */
   [data-ui-button] :is([data-part-start], [data-part-end]):has(> [data-ui-kbd]) {
     block-size: auto;
@@ -693,20 +693,20 @@
   }
 
   /**
-   * A flex container centres the line box, and a line box is not symmetric
+   * A flex container centers the line box, and a line box is not symmetric
    * around the letters inside it. Measured on this family, the word sat 1.2
-   * pixels above the centre of the glyph beside it at every step of every
+   * pixels above the center of the glyph beside it at every step of every
    * density except the two where the rounding of the font size made it 0.92
-   * and 0.16 — the label and the icon were centred against different things.
+   * and 0.16 — the label and the icon were centerd against different things.
    * `text-box` trims the line to the cap and the baseline, so what the flex
-   * container centres is the ink, and the offset is 0 everywhere.
+   * container centers is the ink, and the offset is 0 everywhere.
    *
    * The trim is paid for rather than taken. Trimming a label that wraps also
    * takes the half-leading off the top and bottom of the whole block, which is
    * the only thing keeping a wrapped word off the border — measured, a
    * two-line control lost 8.39 pixels of height and its descenders fell two
    * pixels below the edge. The padding gives that leading back symmetrically,
-   * so the ink stays centred and the control is the height it was: 36.77
+   * so the ink stays centerd and the control is the height it was: 36.77
    * pixels against 36.78 for the same two lines.
    *
    * Both terms are proportions of the type rather than steps of a scale.
@@ -783,7 +783,7 @@
   }
 
   /**
-   * ── Forced colours ────────────────────────────────────────────────────
+   * ── Forced colors ────────────────────────────────────────────────────
    *
    * The theme remaps every token it owns, so this block exists only for what
    * the family paints itself: the transparent border of `ghost` and of a

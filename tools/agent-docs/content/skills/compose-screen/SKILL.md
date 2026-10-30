@@ -25,7 +25,7 @@ that fact.
 | Lists records, searches, filters, pages               | `list-pages.md`    |
 | Shows one record, its figures and its related records | `record-pages.md`  |
 | Creates or edits a record                             | `forms.md`         |
-| Summarises a domain in figures and charts             | `overviews.md`     |
+| Summarizes a domain in figures and charts             | `overviews.md`     |
 | Places a list beside a tree of its places             | `browsing.md`      |
 | Reads records over a chosen period                    | `reports.md`       |
 | Writes or reads a rule the system runs later          | `builders.md`      |
@@ -75,7 +75,7 @@ element stands in that slot.
   own state at once and renders the region from a deferred value (in React,
   useDeferredValue or startTransition) (CP-09). A list longer than a hundred
   rows is a `data-grid`, which windows its rows where it has a height of its
-  own and is served in pages below 600 pixels (LP-12, LP-14). Its columns, its disabled keys and a function row key are module constants or memoised: a new one on a render of the screen renders every mounted row again. Its renderers, its messages and its tree may be written inline.
+  own and is served in pages below 600 pixels (LP-12, LP-14). Its columns, its disabled keys and a function row key are module constants or memoized: a new one on a render of the screen renders every mounted row again. Its renderers, its messages and its tree may be written inline.
 - An element of the screen's own made `position: sticky` stops under the
   page's chrome: its offset starts at `--slotted-page-sticky-top`, and its
   height cap subtracts it (LA-06). An offset from the scroller's edge alone

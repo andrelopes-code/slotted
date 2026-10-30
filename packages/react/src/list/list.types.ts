@@ -99,7 +99,7 @@ export interface ListSectionProps extends Omit<ComponentPropsWithRef<'li'>, 'chi
   label: ReactNode;
   /**
    * How the heading is drawn. `caption` is the small muted name; `ruled` is the
-   * name in the text colour over a rule, with no ground behind it. Defaults to
+   * name in the text color over a rule, with no ground behind it. Defaults to
    * `caption`.
    */
   labelVariant?: ListSectionLabelVariant | undefined;

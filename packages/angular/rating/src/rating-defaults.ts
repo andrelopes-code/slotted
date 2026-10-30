@@ -6,7 +6,7 @@ import type { RatingInsightThresholds } from '@slotted/core/rating';
 export type RatingSize = 'sm' | 'md' | 'lg';
 
 /**
- * The colour a lit symbol takes. `secondary` is outside the axis: its solid
+ * The color a lit symbol takes. `secondary` is outside the axis: its solid
  * step is a ground, and a lit star painted in it reads as an unlit one.
  */
 export type RatingTone = 'accent' | 'info' | 'success' | 'warning' | 'danger';

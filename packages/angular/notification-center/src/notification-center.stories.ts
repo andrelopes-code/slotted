@@ -244,7 +244,7 @@ function inbox(attributes: string) {
   return `<sl-nc-inbox ${attributes}></sl-nc-inbox>`;
 }
 
-/** The centre over a store of its own, with the slots a scene turns on. */
+/** The center over a store of its own, with the slots a scene turns on. */
 const INBOX_TEMPLATE = `<section
   slNotificationCenter
   locale="pt-PT"
@@ -556,16 +556,16 @@ class RenderedDemo {
   imports: [SlNotificationCenter, SlButton, SlInline, SlStack],
   template: `<div slStack [gap]="4">
     <div slInline [gap]="3">
-      <button slButton size="sm" variant="outline" type="button" (click)="centre().focus()">
+      <button slButton size="sm" variant="outline" type="button" (click)="center().focus()">
         focus()
       </button>
       <button slButton size="sm" variant="outline" type="button" (click)="store.arrive()">
         Chegam duas
       </button>
-      <button slButton size="sm" variant="outline" type="button" (click)="centre().reveal()">
+      <button slButton size="sm" variant="outline" type="button" (click)="center().reveal()">
         reveal()
       </button>
-      <button slButton size="sm" variant="outline" type="button" (click)="centre().markAllRead()">
+      <button slButton size="sm" variant="outline" type="button" (click)="center().markAllRead()">
         markAllRead()
       </button>
     </div>
@@ -583,7 +583,7 @@ class RenderedDemo {
 class HandledDemo {
   readonly now = NOW;
   readonly store = new Store();
-  readonly centre = viewChild.required(SlNotificationCenter);
+  readonly center = viewChild.required(SlNotificationCenter);
 }
 
 @Component({
@@ -856,7 +856,7 @@ export const Hosts: Story = {
     template: grid(
       scene(
         'Under the bell',
-        "The trigger shows the store’s unread count — the centre reports the same through unreadChange while it is mounted. Open it: the centre at size='sm' and level='3', with the footer to the page. PageDown through the articles, mark one read and read the count change, press Escape.",
+        "The trigger shows the store’s unread count — the center reports the same through unreadChange while it is mounted. Open it: the center at size='sm' and level='3', with the footer to the page. PageDown through the articles, mark one read and read the count change, press Escape.",
         '<sl-nc-bell></sl-nc-bell>',
       ) +
         scene(
@@ -955,8 +955,8 @@ export const Composition: Story = {
     props: PROPS,
     template: grid(
       scene(
-        'The families a centre is made of',
-        'Avatar in the visual template, Button in the actions and in mark-all, Tabs in the strip, Link in the header and the footer. The family places each and owns none of their behaviour.',
+        'The families a center is made of',
+        'Avatar in the visual template, Button in the actions and in mark-all, Tabs in the strip, Link in the header and the footer. The family places each and owns none of their behavior.',
         inbox('[actions]="true" [footer]="true"'),
       ) +
         scene(
@@ -974,7 +974,7 @@ export const Defaults: Story = {
     props: PROPS,
     template: grid(
       scene(
-        'Two centres under one provider',
+        'Two centers under one provider',
         "Neither states a size or a growing mode; both read small and paged by button. The second states controls='none' and wins. The title comes from the language in force.",
         '<sl-nc-provided></sl-nc-provided>',
       ) +

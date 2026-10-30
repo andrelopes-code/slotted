@@ -18,7 +18,7 @@ const source = new URL('.', import.meta.url).pathname;
  * reaching for the bar again.
  *
  * A `forced-colors` block is exempt, as in `focus-ring.test.mjs`: there the
- * user agent owns every colour and a border is what survives.
+ * user agent owns every color and a border is what survives.
  */
 const STATE = /\[(?:data|aria)-(?:current|selected|active|checked|pressed)\b/;
 const PSEUDO = /::(?:before|after)\b/;

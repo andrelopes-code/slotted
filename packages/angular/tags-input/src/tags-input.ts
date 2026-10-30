@@ -780,7 +780,7 @@ export class SlTagsInput implements ControlValueAccessor, OnInit, Validator {
 
   /**
    * The one door into the list. Every candidate runs the sequence
-   * `@slotted/core/tags` states — normalise, judge, deduplicate, cap — and each
+   * `@slotted/core/tags` states — normalize, judge, deduplicate, cap — and each
    * refusal is reported under its cause rather than dropped.
    */
   admit(candidates: readonly string[], source?: Event, replacing?: number) {

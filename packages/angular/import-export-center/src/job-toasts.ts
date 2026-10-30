@@ -33,16 +33,16 @@ export interface JobToastData {
 }
 
 /**
- * A toast that points at a job, for a page that is not the centre: the job
+ * A toast that points at a job, for a page that is not the center: the job
  * started, finished, finished with failed rows, failed. Called once in an
  * injection context where the application keeps its jobs — the shell — so
  * the reader hears of a job that finishes while they work elsewhere.
  *
  * The toast only points. It carries no progress, no cancel and no download;
- * its one action is the consumer's View, which takes the reader to the centre
+ * its one action is the consumer's View, which takes the reader to the center
  * and calls its `reveal(key)`. Its id is the job's key under
  * `import-export-center:`, so the finishing notice replaces the starting one
- * in place. Its announcement is the sentence the centre says for the same
+ * in place. Its announcement is the sentence the center says for the same
  * transition, which the shared announcer does not repeat when both are
  * mounted. The jobs present the first time the signal is read made no move
  * the reader saw, and get no toast.

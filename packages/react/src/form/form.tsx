@@ -7,7 +7,7 @@ import {
   isDirty,
   mergeErrors,
   namedControls,
-  normaliseErrors,
+  normalizeErrors,
   orderErrors,
   withoutError,
 } from '@slotted/core/form';
@@ -102,8 +102,8 @@ export function Form({
   const resolvedNativeValidation = nativeValidation ?? defaults.nativeValidation;
 
   const controlled = errors !== undefined;
-  const external = useMemo(() => normaliseErrors(errors), [errors]);
-  const [own, setOwn] = useState<FormErrors>(() => normaliseErrors(defaultErrors));
+  const external = useMemo(() => normalizeErrors(errors), [errors]);
+  const [own, setOwn] = useState<FormErrors>(() => normalizeErrors(defaultErrors));
   const current = controlled ? external : own;
 
   const [ownSubmitting, setOwnSubmitting] = useState(false);
@@ -216,14 +216,14 @@ export function Form({
 
       const answer = onSubmit(values, { event, values });
       if (!(answer instanceof Promise)) {
-        if (answer !== undefined) publish(normaliseErrors(answer), 'submit', event);
+        if (answer !== undefined) publish(normalizeErrors(answer), 'submit', event);
         return;
       }
 
       setOwnSubmitting(true);
       try {
         const settled = await answer;
-        if (settled !== undefined) publish(normaliseErrors(settled), 'submit', event);
+        if (settled !== undefined) publish(normalizeErrors(settled), 'submit', event);
       } finally {
         setOwnSubmitting(false);
       }

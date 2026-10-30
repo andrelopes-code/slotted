@@ -70,7 +70,7 @@
    * "Review" a quarter of the space it gives "Shipping and billing address"
    * and the markers would stop lining up with anything.
    *
-   * Vertical is a column, and the connector runs down the marker's own centre
+   * Vertical is a column, and the connector runs down the marker's own center
    * line rather than beside it.
    */
 
@@ -139,7 +139,7 @@
   /**
    * `end` puts the label beside the marker and `bottom` puts it under, which
    * is what a row of five steps needs once the labels are longer than a word.
-   * The stack is centred so the marker sits over the middle of its own label
+   * The stack is centerd so the marker sits over the middle of its own label
    * rather than over the middle of the column.
    */
   [data-ui-stepper][data-label-placement='bottom'] [data-part-trigger] {
@@ -165,18 +165,18 @@
    *
    * A circle holding the step's number, and the one part that never wraps,
    * never shrinks and never moves. Its four appearances are the four statuses,
-   * and each of them is a fill and an edge rather than a colour alone: a
+   * and each of them is a fill and an edge rather than a color alone: a
    * pending step is an outline, the current one is a filled ring, a complete
    * one is a solid disc with a check, and a step in error is a solid disc with
    * an alert. `docs/component-features.md` section 7 requires exactly this —
-   * progress that does not depend on colour.
+   * progress that does not depend on color.
    */
 
   [data-ui-stepper] [data-part-marker] {
     /**
-     * The colour of the glyph drawn over the number, held on the marker rather
+     * The color of the glyph drawn over the number, held on the marker rather
      * than stated on the glyph's box. Reading it through one custom property
-     * keeps the family's system-colour last resort on the element where the
+     * keeps the family's system-color last resort on the element where the
      * theme's own tokens live, and lets the invalid step restate it once.
      */
     --_mark: var(
@@ -192,11 +192,11 @@
     border-radius: var(--slotted-radius-full, 9999px);
     /**
      * The marker measures `--_marker` including its ring, because every other
-     * rule in this sheet is written as though it does: the connector's centre,
+     * rule in this sheet is written as though it does: the connector's center,
      * the panel's indent and the vertical track all read that one length. With
      * the ring outside it the circle stood four pixels wider than the number
      * the rest of the family was using, and the connector ran two pixels off
-     * every marker centre it was supposed to be on — in both orientations and
+     * every marker center it was supposed to be on — in both orientations and
      * at all three densities (ST2).
      */
     box-sizing: border-box;
@@ -221,7 +221,7 @@
 
   /**
    * The step the reader is on. The ring thickens to the accent and the number
-   * takes the accent's text colour: it is where they are, not where they have
+   * takes the accent's text color: it is where they are, not where they have
    * been, so it stays an outline and does not fill.
    */
   [data-ui-stepper] [data-current] [data-part-marker] {
@@ -279,7 +279,7 @@
   /**
    * The number gives way to the mark. Neither the complete rule nor the
    * invalid one paints the number any more, and that is the fix rather than
-   * the tidying: both used to set a colour for it, both outranked this rule on
+   * the tidying: both used to set a color for it, both outranked this rule on
    * specificity, and a finished step drew its number and its check on top of
    * each other. The capture is what said so — the two marks overlap into a
    * shape that is neither.
@@ -293,11 +293,11 @@
 
     color: var(--_mark);
     /**
-     * Centred by its own box rather than by the flex container's alignment.
+     * Centerd by its own box rather than by the flex container's alignment.
      * An absolutely positioned child takes a static position the engines do
      * not agree on inside a flex container, and the capture showed the result:
      * the check drawn from the marker's top corner, with half of it outside
-     * the disc. `inset` plus automatic margins centres a fixed-size box in
+     * the disc. `inset` plus automatic margins centers a fixed-size box in
      * every engine.
      */
     inset: 0;
@@ -392,11 +392,11 @@
    * reader has reached, so the row reads as a filled track rather than as five
    * separate marks.
    *
-   * Horizontally it runs across the marker's own centre line, which is half a
+   * Horizontally it runs across the marker's own center line, which is half a
    * marker below the top of the item; vertically it runs down the marker's
-   * centre, which is half a marker in from the item's start edge. Both are
+   * center, which is half a marker in from the item's start edge. Both are
    * derived from the marker rather than stated, so the rule stays on the
-   * centre at every density.
+   * center at every density.
    */
 
   [data-ui-stepper] [data-part-separator] {
@@ -444,7 +444,7 @@
 
   /**
    * With the label under the marker, the connector runs between two marker
-   * centres. The columns are equal, so the next centre is exactly one column
+   * centers. The columns are equal, so the next center is exactly one column
    * away, and both ends are derived from the marker rather than stated.
    */
   [data-ui-stepper][data-orientation='horizontal'][data-label-placement='bottom']
@@ -457,7 +457,7 @@
   }
 
   /**
-   * Down the marker's own centre line, from below this marker to above the
+   * Down the marker's own center line, from below this marker to above the
    * next one, with the same room at both ends. The bottom of the item is where
    * the next marker begins, so the end inset is that room and not zero: at
    * zero the rule stopped short of the marker above and ran into the marker
@@ -490,7 +490,7 @@
   /* ── Horizontal geometry ────────────────────────────────────────────────
    *
    * With the label under the marker the header fills its column, so the marker
-   * centres over the column and the connector runs between two centres.
+   * centers over the column and the connector runs between two centers.
    */
 
   [data-ui-stepper][data-orientation='horizontal'][data-label-placement='bottom']
@@ -596,14 +596,14 @@
     }
   }
 
-  /* ── Forced colours ─────────────────────────────────────────────────────
+  /* ── Forced colors ─────────────────────────────────────────────────────
    *
    * The system replaces every painted surface with the page's own background,
    * which would flatten the four statuses into one outline. Three things need
    * restating: the connector, which is a painted rule; the fill that separates
    * a finished step from a pending one; and the glyph inside it, which keeps
    * its paint through the marker's own `forced-color-adjust` rather than
-   * through a system colour this family would have to choose.
+   * through a system color this family would have to choose.
    */
 
   @media (forced-colors: active) {

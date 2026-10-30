@@ -148,7 +148,7 @@ export const Shapes: Story = {
       <Scene
         label='shape="square"'
         layout="row"
-        note="The other box an avatar can be — a team, an organisation, a bot — with the corner Avatar derives from the box."
+        note="The other box an avatar can be — a team, an organization, a bot — with the corner Avatar derives from the box."
       >
         <Skeleton shape="square" size="sm" />
         <Skeleton shape="square" size="md" />

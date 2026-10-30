@@ -189,7 +189,7 @@ export const OneShortcut: Story = {
       <Scene
         label="Keys the vocabulary does not hold"
         layout="stack"
-        note="A token it does not recognise is the page’s own word, rendered verbatim; a single letter is upper-cased, which is what Apple and Microsoft both write."
+        note="A token it does not recognize is the page’s own word, rendered verbatim; a single letter is upper-cased, which is what Apple and Microsoft both write."
       >
         <Shortcut keys="mod+plus" platform="windows" />
         <Shortcut keys="mod+/" platform="windows" />
@@ -261,7 +261,7 @@ export const Context: Story = {
     <div className="slotted-demo-grid" data-columns="2">
       <Scene
         label="A menu"
-        note="plain takes the colour of the text it sits in, so a row that dims dims its shortcut with no state to set on the key at all."
+        note="plain takes the color of the text it sits in, so a row that dims dims its shortcut with no state to set on the key at all."
       >
         <div className="slotted-demo-rows">
           <Row label="Open command palette">
@@ -278,7 +278,7 @@ export const Context: Story = {
       <Scene
         label="A sentence"
         layout="prose"
-        note="Inline is where a kbd element spends most of its life. The cap sits on the text’s centre and takes no more of the line than the words around it."
+        note="Inline is where a kbd element spends most of its life. The cap sits on the text’s center and takes no more of the line than the words around it."
       >
         <Text>
           Press <Shortcut keys="mod+k" platform="mac" size="inherit" /> to search, or{' '}

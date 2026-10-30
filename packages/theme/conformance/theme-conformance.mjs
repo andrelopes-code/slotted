@@ -176,7 +176,7 @@ function structureCases(contract, theme, css) {
     );
   });
 
-  test(`${label} maps every scheme token to a system colour under forced colours`, () => {
+  test(`${label} maps every scheme token to a system color under forced colors`, () => {
     const query = css.slice(
       css.indexOf('@media (forced-colors: active)'),
       css.indexOf('@media (prefers-reduced-motion: reduce)'),
@@ -189,7 +189,7 @@ function structureCases(contract, theme, css) {
       assert.match(
         query,
         new RegExp(`\\[data-slotted-scheme="${scheme}"\\]`),
-        `forced colours must carry the specificity of the ${scheme} block`,
+        `forced colors must carry the specificity of the ${scheme} block`,
       );
     }
   });

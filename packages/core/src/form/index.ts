@@ -5,7 +5,7 @@ export {
   isDirty,
   mergeErrors,
   namedControls,
-  normaliseErrors,
+  normalizeErrors,
   orderErrors,
   withoutError,
 } from './form';

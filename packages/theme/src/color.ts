@@ -1,5 +1,5 @@
 /**
- * Colour arithmetic for themes: OKLCH in, relative luminance and sRGB out. The
+ * Color arithmetic for themes: OKLCH in, relative luminance and sRGB out. The
  * matrices are Björn Ottosson's OKLab reference. A theme carries its seeds in
  * OKLCH because the recipe derives every token by moving lightness and chroma
  * along a fixed hue, which is what `oklch(from …)` computes in the browser.
@@ -34,7 +34,7 @@ export function fromSrgb(r: number, g: number, b: number): Oklch {
   return { l: L, c: C, h: H };
 }
 
-/** Linear-light sRGB, unclipped: a colour outside sRGB has a channel below 0 or above 1. */
+/** Linear-light sRGB, unclipped: a color outside sRGB has a channel below 0 or above 1. */
 export function toLinearSrgb({ l, c, h }: Oklch): [number, number, number] {
   const radians = (h * Math.PI) / 180;
   const a = c * Math.cos(radians);
@@ -74,9 +74,9 @@ export function parseSeed(text: string): Oklch | null {
 }
 
 export interface Luminance {
-  /** Of the colour as computed, which a wide-gamut screen shows. Never below 0. */
+  /** Of the color as computed, which a wide-gamut screen shows. Never below 0. */
   readonly raw: number;
-  /** Of the colour clipped per channel to sRGB, which an sRGB screen shows. */
+  /** Of the color clipped per channel to sRGB, which an sRGB screen shows. */
   readonly clipped: number;
 }
 
@@ -100,7 +100,7 @@ export function contrast(first: Oklch, second: Oklch): number {
   return Math.min(ratio(a.raw, b.raw), ratio(a.clipped, b.clipped));
 }
 
-/** Six-digit hex of the colour clipped to sRGB. */
+/** Six-digit hex of the color clipped to sRGB. */
 export function toHex(color: Oklch): string {
   return `#${toLinearSrgb(color)
     .map((value) =>

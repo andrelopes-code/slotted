@@ -138,12 +138,12 @@ test('spaces its segments apart and rules the middle of each gap', () => {
 });
 
 /**
- * A thing that travels needs longer than a thing that changes colour, and the
+ * A thing that travels needs longer than a thing that changes color, and the
  * thumb's movement is the one motion this family owns.
  */
-test('moves the thumb a step slower than it changes a colour', () => {
+test('moves the thumb a step slower than it changes a color', () => {
   assert.equal(contract.motion.thumb, '--slotted-duration-medium');
-  assert.equal(contract.motion.colour, '--slotted-control-transition-duration');
+  assert.equal(contract.motion.color, '--slotted-control-transition-duration');
   assert.equal(contract.motion.easing, '--slotted-easing-standard');
   assert.ok(contract.motion.reason.length > 0);
 });

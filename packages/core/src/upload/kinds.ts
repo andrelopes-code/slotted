@@ -3,14 +3,14 @@ import type { FileKind } from './types';
 /**
  * What kind of file this is, from its media type and its name.
  *
- * The kind decides the colour of the tile and the mark knocked out of it, and
+ * The kind decides the color of the tile and the mark knocked out of it, and
  * at thirty-two pixels that pair is what a reader picking one attachment out of
  * nine reads first — before the truncated name and before the three characters
  * of extension.
  *
  * A PDF and a word-processed document are two kinds rather than one because
  * they are the pair a reader most often has to tell apart, and every product
- * they use has already given the two different colours.
+ * they use has already given the two different colors.
  */
 
 /** The extensions a kind claims when the platform gave no useful media type. */

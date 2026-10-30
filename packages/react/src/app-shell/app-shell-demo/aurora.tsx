@@ -54,7 +54,7 @@ import {
   AppShellAsideToggle,
   AppShellBanner,
   AppShellBrand,
-  AppShellCentre,
+  AppShellCenter,
   AppShellFooter,
   AppShellMain,
   AppShellNav,
@@ -162,11 +162,11 @@ const TONE = {
 
 /** The bar: the control, the name, the search a coordinator reaches for first, and what is global. */
 export function AuroraBanner({
-  centre = true,
+  center = true,
   toggle = true,
   wordmark = true,
 }: {
-  centre?: boolean | undefined;
+  center?: boolean | undefined;
   toggle?: boolean | undefined;
   wordmark?: boolean | undefined;
 }) {
@@ -176,8 +176,8 @@ export function AuroraBanner({
         {toggle ? <AppShellNavToggle /> : null}
         {wordmark ? <Wordmark>Aurora</Wordmark> : null}
       </AppShellBrand>
-      {centre ? (
-        <AppShellCentre>
+      {center ? (
+        <AppShellCenter>
           <TextField
             aria-label="Procurar"
             className="slotted-demo-bar-search"
@@ -192,7 +192,7 @@ export function AuroraBanner({
             type="search"
             variant="subtle"
           />
-        </AppShellCentre>
+        </AppShellCenter>
       ) : null}
       <AppShellActions>
         <IconButton
@@ -448,7 +448,7 @@ export function AuroraFooter() {
  */
 export function Aurora({
   aside = true,
-  centre = true,
+  center = true,
   children,
   footer = false,
   longLabels = false,
@@ -460,7 +460,7 @@ export function Aurora({
   toggleInFooter = false,
 }: {
   aside?: boolean | undefined;
-  centre?: boolean | undefined;
+  center?: boolean | undefined;
   children?: ReactNode | undefined;
   footer?: boolean | undefined;
   longLabels?: boolean | undefined;
@@ -476,7 +476,7 @@ export function Aurora({
   return (
     <Viewport room={room} size={size}>
       <AppShell {...shell}>
-        <AuroraBanner centre={centre} toggle={!toggleInFooter} />
+        <AuroraBanner center={center} toggle={!toggleInFooter} />
         <AuroraNav longLabels={longLabels} toggleInFooter={toggleInFooter} />
         <AppShellMain>
           {children ?? <AuroraContent {...(title === undefined ? {} : { title })} />}

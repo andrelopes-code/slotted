@@ -340,7 +340,7 @@ export const States: Story = {
         ) +
         scene(
           'A check-out before its check-in',
-          'Invalid on the end field and on the frame, and nothing is swapped: a value the reader typed is not the family’s to rewrite. Tab in: the ring is retargeted to the danger colour.',
+          'Invalid on the end field and on the frame, and nothing is swapped: a value the reader typed is not the family’s to rewrite. Tab in: the ring is retargeted to the danger color.',
           `<div slField>
              <label slFieldLabel>Estadia</label>
              <div slDateRangePicker count="nights" locale="pt-BR" [defaultValue]="reversed"></div>

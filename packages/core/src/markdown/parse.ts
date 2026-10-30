@@ -5,7 +5,7 @@
  * Blocks: paragraphs, ATX headings, fenced code, block quotes, thematic
  * breaks, GFM tables, and bullet and ordered lists nested by indentation.
  * Inline: code spans, strong, emphasis, links, backslash escapes and hard
- * breaks. A construct whose mdast type is outside `allow` is not recognised,
+ * breaks. A construct whose mdast type is outside `allow` is not recognized,
  * so its syntax stays in the text. Anything else — images, HTML, reference
  * links, footnotes, setext headings, indented code — is text too; remark or
  * marked through `fromMarkedTokens` read the whole of CommonMark and GFM.

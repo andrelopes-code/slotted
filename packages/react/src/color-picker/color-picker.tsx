@@ -51,7 +51,7 @@ const FALLBACK_COLOR = '#000000';
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
-/** Whether two colour strings name the same colour, whatever their notation. */
+/** Whether two color strings name the same color, whatever their notation. */
 function sameColor(a: string, b: string): boolean {
   const pa = parseColor(a);
   const pb = parseColor(b);
@@ -76,7 +76,7 @@ interface ColorState {
 }
 
 /**
- * The value, the notation and the hue the colour itself cannot hold. A grey
+ * The value, the notation and the hue the color itself cannot hold. A grey
  * has no hue and a black has no saturation, so the panel remembers the last
  * ones a reader set: dragging the brightness to nothing does not throw the
  * hue channel back to red.
@@ -318,7 +318,7 @@ export function ColorPickerChannel({ channel, ...props }: ColorPickerChannelProp
   );
 }
 
-/** Now and before: the colour being made and the one the panel opened with. */
+/** Now and before: the color being made and the one the panel opened with. */
 export function ColorPickerSwatch(props: ColorPickerPartProps) {
   const picker = usePicker('Swatch');
   return (
@@ -344,8 +344,8 @@ export function ColorPickerSwatch(props: ColorPickerPartProps) {
 
 /**
  * The value as text, in a `text-field` frame drawn from its stylesheet. A
- * colour the reader is still writing is marked invalid and left alone; Enter
- * or leaving the field commits it, or puts back the last valid colour.
+ * color the reader is still writing is marked invalid and left alone; Enter
+ * or leaving the field commits it, or puts back the last valid color.
  */
 export function ColorPickerInput(props: ColorPickerPartProps) {
   const picker = usePicker('Input');
@@ -562,7 +562,7 @@ const CONTRAST_LEVEL_KEYS = {
   fail: 'contrastLevels.fail',
 } as const satisfies Record<ContrastLevel, string>;
 
-/** `Aa` in the colour over the named background, the WCAG ratio, and the level in words. */
+/** `Aa` in the color over the named background, the WCAG ratio, and the level in words. */
 export function ColorPickerContrast(props: ColorPickerPartProps) {
   const picker = usePicker('Contrast');
   const background = picker.contrastWith === undefined ? null : parseColor(picker.contrastWith);
@@ -599,13 +599,13 @@ export function ColorPickerGamut(props: ColorPickerPartProps) {
 }
 
 /**
- * Choosing a colour: an area, a hue channel, an alpha channel, the preview,
+ * Choosing a color: an area, a hue channel, an alpha channel, the preview,
  * the value as text with its notation and the eyedropper, the presets, and the
  * contrast. With no children it draws all of them; with children, exactly the
  * parts given.
  *
  * The value is a string in the notation the reader chose, and it comes back
- * in that notation. Every colour the stylesheet paints is written here as a
+ * in that notation. Every color the stylesheet paints is written here as a
  * runtime property from what `@slotted/core/color` parsed.
  */
 export function ColorPicker({
@@ -697,7 +697,7 @@ export function ColorPicker({
 }
 
 /**
- * A `text-field` holding a colour: the swatch in its start opens the panel in
+ * A `text-field` holding a color: the swatch in its start opens the panel in
  * a popover, and the value can be typed in any notation. The text is the
  * field's control, so a `Field` label names it.
  */

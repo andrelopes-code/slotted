@@ -399,7 +399,7 @@ export const States: Story = {
       2,
       scene(
         'disabled on the root',
-        'Both halves take the native attribute and button’s disabled paint; between two solid halves the seam takes the disabled border, so the bar reads as one unavailable control rather than a grey one with a coloured line through it.',
+        'Both halves take the native attribute and button’s disabled paint; between two solid halves the seam takes the disabled border, so the bar reads as one unavailable control rather than a grey one with a colored line through it.',
         save({ attributes: 'disabled' }) +
           save({ attributes: 'disabled variant="outline"' }) +
           save({ attributes: 'disabled variant="ghost"' }),

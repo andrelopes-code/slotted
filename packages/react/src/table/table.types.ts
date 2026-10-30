@@ -144,7 +144,7 @@ export interface TableFilterSharedProps extends Pick<
   /**
    * The column's name in the trigger's own name. Read from the column header
    * around it when it is not stated, and stated when the header's text is not a
-   * name a reader would recognise on its own.
+   * name a reader would recognize on its own.
    */
   columnLabel?: string | undefined;
   /**

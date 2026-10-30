@@ -119,8 +119,8 @@ test('stands still under reduced motion, as a track with an arc resting on it', 
   assert.match(reduced, /stroke-dasharray:75 150/);
 });
 
-/** Forced colours keep the ink, which they have already set, instead of erasing the background. */
-test('keeps its ink under forced colours', () => {
+/** Forced colors keep the ink, which they have already set, instead of erasing the background. */
+test('keeps its ink under forced colors', () => {
   assert.match(rule(ui), /forced-color-adjust:none/);
 });
 

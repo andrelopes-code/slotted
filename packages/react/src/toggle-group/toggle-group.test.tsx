@@ -251,7 +251,7 @@ describe('ToggleGroup', () => {
     expect(group()).toHaveAttribute('data-size', 'lg');
   });
 
-  it('runs the consumer’s own handler before its own, and honours a refusal', () => {
+  it('runs the consumer’s own handler before its own, and honors a refusal', () => {
     const onClick = vi.fn((event: { preventDefault: () => void }) => {
       event.preventDefault();
     });

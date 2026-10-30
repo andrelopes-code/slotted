@@ -257,7 +257,7 @@ export function renderHarness({
      through under every cell shorter than its neighbour — the gaps a reviewer
      saw between the tiles. A line of cells is a line, not a shelf of boxes.
 
-     The separator is an edge on the cell rather than a gap over a coloured
+     The separator is an edge on the cell rather than a gap over a colored
      ground, for the same reason: an edge belongs to the box it separates and
      has nothing to leak through. */
   body > main { display: flex; flex-wrap: wrap }

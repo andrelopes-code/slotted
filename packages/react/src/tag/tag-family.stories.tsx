@@ -129,7 +129,7 @@ export const Matrix: Story = {
       </LabSection>
 
       <LabSection
-        description="A selection, with both modes and a request that says how it moved. The check grows into the label, so the state is never colour alone."
+        description="A selection, with both modes and a request that says how it moved. The check grows into the label, so the state is never color alone."
         title="TagToggle"
       >
         <TagGroup aria-label="TagToggle">
@@ -163,7 +163,7 @@ export const Appearance: Story = {
           label={variant}
           note={
             variant === 'solid'
-              ? 'Filled, and its edge is its own fill — except secondary, whose fill is the colour of the page.'
+              ? 'Filled, and its edge is its own fill — except secondary, whose fill is the color of the page.'
               : variant === 'soft'
                 ? 'Tinted, and it keeps the tone’s edge: in high contrast every tone surface becomes the page’s own white.'
                 : 'The edge alone.'
@@ -285,7 +285,7 @@ export const Composition: Story = {
       </DemoScene>
       <DemoScene
         label="in context"
-        note="Inside a sentence a tag sits on the text’s centre; inside a list it becomes the list item itself."
+        note="Inside a sentence a tag sits on the text’s center; inside a list it becomes the list item itself."
       >
         <div className="slotted-demo-stack">
           <Text>
@@ -324,8 +324,8 @@ export const Accessibility: Story = {
         </TagGroup>
       </DemoScene>
       <DemoScene
-        label="a value a colour cannot say"
-        note="A tone is not a word. What the colour means is written beside it, out of the flow."
+        label="a value a color cannot say"
+        note="A tone is not a word. What the color means is written beside it, out of the flow."
       >
         <TagGroup aria-label="Status" role="list">
           <Tag tone="danger" variant="solid">

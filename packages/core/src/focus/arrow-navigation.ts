@@ -45,7 +45,7 @@ export interface ArrowNavigationOptions {
    * rule the container can enforce instead: a text field keeps `ArrowLeft`,
    * `ArrowRight`, `Home` and `End` for its caret, and focus leaves it on the
    * cross axis or with `Tab`. Returning nothing, which is the default, is the
-   * behaviour every other caller wants.
+   * behavior every other caller wants.
    */
   ownedKeys?: (item: HTMLElement) => readonly string[];
   /**
@@ -88,7 +88,7 @@ const EMPTY: readonly string[] = Object.freeze([]);
  * disabled `fieldset` carries no attribute of its own and still cannot be
  * focused. That is how a whole bar or a whole set of controls is taken out of
  * action with one word, and a ring that wrote its tab stop on one of them would
- * hand the reader a stop the platform refuses to honour.
+ * hand the reader a stop the platform refuses to honor.
  */
 export function isNavigationDisabled(item: HTMLElement, includeAriaDisabled: boolean) {
   if (item.hasAttribute('disabled')) return true;

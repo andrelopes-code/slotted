@@ -49,7 +49,7 @@ test('declares the parts of the design, each described', () => {
 /**
  * The item is another family's element. A part this family wrote on the `li`
  * would overwrite `list-item`'s own `data-part`, and the row would stop being
- * recognised by the stylesheet that paints it.
+ * recognized by the stylesheet that paints it.
  */
 test('composes list and list-item for the set and the record', () => {
   for (const family of [

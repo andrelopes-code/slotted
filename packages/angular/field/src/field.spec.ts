@@ -165,7 +165,7 @@ describe('SlField', () => {
 
   /**
    * `aria-required`, never the native `required`: the native attribute engages
-   * browser constraint validation and changes submit behaviour, which the
+   * browser constraint validation and changes submit behavior, which the
    * library must not impose as a side effect of describing a field.
    */
   it('describes the control without taking over its submission', () => {

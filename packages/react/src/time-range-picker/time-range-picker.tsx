@@ -96,16 +96,16 @@ export function isSameTimeRange(a: TimeRange | null, b: TimeRange | null): boole
 /**
  * Scrolls the list alone. `scrollIntoView` would scroll every ancestor too,
  * and a page with an open surface must not jump when a list opens on its
- * highlight. Centred when the list opens, and by the least that lands the row
+ * highlight. Centerd when the list opens, and by the least that lands the row
  * whole when a key moves the highlight. jsdom measures nothing, so it is a
  * no-op there rather than a throw.
  */
-function revealRow(list: HTMLElement, row: HTMLElement, centre: boolean) {
+function revealRow(list: HTMLElement, row: HTMLElement, center: boolean) {
   const box = list.getBoundingClientRect();
   const cell = row.getBoundingClientRect();
   if (box.height === 0 || cell.height === 0) return;
   const above = cell.top - box.top;
-  if (centre) list.scrollTop += above - (box.height - cell.height) / 2;
+  if (center) list.scrollTop += above - (box.height - cell.height) / 2;
   else if (above < 0) list.scrollTop += above;
   else if (cell.bottom > box.bottom) list.scrollTop += cell.bottom - box.bottom;
 }
@@ -495,13 +495,13 @@ export function TimeRangePicker({
       revealed.current = false;
       return;
     }
-    const centre = !revealed.current;
+    const center = !revealed.current;
     revealed.current = true;
     const list = listRef.current;
     const index = highlightIndex(currentPosition);
     const row = list?.querySelectorAll<HTMLElement>('[data-part="option"]')[index];
     if (index < 0 || list === null || row === undefined) return;
-    revealRow(list, row, centre);
+    revealRow(list, row, center);
   }, [currentPosition, highlightIndex, isOpen, layerNode]);
 
   const typeahead = useRef({

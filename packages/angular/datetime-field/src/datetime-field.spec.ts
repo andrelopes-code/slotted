@@ -243,7 +243,7 @@ describe('typing', () => {
   });
 
   /**
-   * The behaviour no surveyed implementation has, inherited whole from
+   * The behavior no surveyed implementation has, inherited whole from
    * `date-field`: 31 January stepped forward is 28 February, and stepped
    * forward again it is 31 March rather than the 28th. The engine runs it only
    * when the changed field is a date field, so a stepped hour never touches it.

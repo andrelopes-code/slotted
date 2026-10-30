@@ -175,7 +175,7 @@ test('says how it holds on a phone, at the edges and over another layer', () => 
   assert.equal(contract.members.tour.defaults.layout, 'auto');
   assert.match(contract.compact.threshold, /600/);
   assert.match(contract.compact.side, /bottom/);
-  assert.match(contract.edges.crowded, /centred/);
+  assert.match(contract.edges.crowded, /centerd/);
   assert.match(contract.edges.tracking, /visual viewport/);
   assert.match(contract.layers.focus, /opened over/);
   assert.match(contract.layers.escape, /topmost/);

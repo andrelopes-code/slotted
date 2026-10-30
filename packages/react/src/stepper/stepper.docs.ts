@@ -117,7 +117,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'orientation',
     title: 'Which way the flow runs',
-    note: 'Horizontal is a row of equal columns, so five steps divide the width evenly however long their names are. Vertical runs the connector down the marker centre and leaves room for a panel under each step.',
+    note: 'Horizontal is a row of equal columns, so five steps divide the width evenly however long their names are. Vertical runs the connector down the marker center and leaves room for a panel under each step.',
     snippet: defineSnippet({
       id: 'stepper-react-orientation',
       language: 'tsx',
@@ -128,7 +128,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'statuses',
     title: 'The five things a step can be',
-    note: 'Each status is a fill and a shape, never a colour alone: an outline for pending, a ring for current, a filled disc with a check for complete, a red disc with a cross for a failure, and a grey outline for a step the flow closed.',
+    note: 'Each status is a fill and a shape, never a color alone: an outline for pending, a ring for current, a filled disc with a check for complete, a red disc with a cross for a failure, and a grey outline for a step the flow closed.',
     snippet: defineSnippet({
       id: 'stepper-react-statuses',
       language: 'tsx',
@@ -164,7 +164,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'placement',
     title: 'Where the label sits',
-    note: 'end puts the name beside the marker and leaves the connector whatever the name does not take; bottom centres the marker over its own column, which is what a row of five long names needs.',
+    note: 'end puts the name beside the marker and leaves the connector whatever the name does not take; bottom centers the marker over its own column, which is what a row of five long names needs.',
     snippet: defineSnippet({
       id: 'stepper-react-placement',
       language: 'tsx',
@@ -375,7 +375,7 @@ export const REACT_STEPPER_DOCS = {
       'Each header holds a visually hidden status, so what a reader hears is "Cart, Step 2 of 4, current" rather than "2". The marker is aria-hidden for the same reason: the number is the picture, and the words are the announcement.',
       'A panel is a group labelled by its own header, related through aria-controls and aria-labelledby without either claiming to be a tab, and it takes tabindex="-1" so a consumer moving focus after a step change has somewhere to put it.',
       'The arrows reach every header, exactly where Tab reaches. They were added on top of the tab sequence rather than replacing it with a roving tab stop — that is the model a tablist has — so a step a linear flow has not opened is still one a reader is allowed to find.',
-      'No status depends on colour: a complete step fills and draws a check, a failed one fills and draws a cross, the current one is a ring, and a pending one is an outline whose ring holds the 3:1 a non-text element needs.',
+      'No status depends on color: a complete step fills and draws a check, a failed one fills and draws a cross, the current one is a ring, and a pending one is an outline whose ring holds the 3:1 a non-text element needs.',
     ],
     snippets: [
       defineSnippet({

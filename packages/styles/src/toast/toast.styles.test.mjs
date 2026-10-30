@@ -240,11 +240,11 @@ test('draws the countdown as a full rule under reduced motion', () => {
 });
 
 /**
- * The slot carries the colour and the glyph strokes with `currentcolor`, so
+ * The slot carries the color and the glyph strokes with `currentcolor`, so
  * one rule repaints the mark on a solid message and one repaints it under
- * forced colours.
+ * forced colors.
  */
-test('lets one colour reach the mark, so forced colours can replace it', () => {
+test('lets one color reach the mark, so forced colors can replace it', () => {
   assert.match(rule(`${item}>[data-part-icon]`), /color:var\(--_mark\)/);
   assert.match(rule(`${item}[data-variant='solid']`), /--_mark:var\(--_on-solid\)/);
   assert.match(normalized, /forced-colors[^@]*\[data-part-icon\]\{color:CanvasText/);

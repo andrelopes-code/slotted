@@ -56,7 +56,7 @@ function assignRef<T>(ref: unknown, value: T | null) {
  * bounded; the viewport inside it scrolls and the jump control stands over
  * it.
  *
- * The behaviour is `@slotted/core/message-scroller`: where a saved
+ * The behavior is `@slotted/core/message-scroller`: where a saved
  * conversation opens (`defaultPosition`), whether new words pull the view
  * (`follow`), where a turn the reader sends stands (`anchor` on the item,
  * `peek`, `scrollMargin`), older rows arriving above without moving the

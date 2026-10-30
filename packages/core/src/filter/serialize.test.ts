@@ -106,7 +106,7 @@ describe('parseFilter', () => {
       '',
       'text',
       'text~and',
-      'colour~and~is:red',
+      'color~and~is:red',
       'text~maybe~contains:a',
       'text~and~greaterThan:1',
       'text~and~contains',

@@ -255,7 +255,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'The four states the frame paints',
-    note: 'Read-only keeps full-strength ink and only its ground changes, because the value is real and still submitted; disabled is muted to a measured colour rather than faded, so a disabled form still says what it holds.',
+    note: 'Read-only keeps full-strength ink and only its ground changes, because the value is real and still submitted; disabled is muted to a measured color rather than faded, so a disabled form still says what it holds.',
     snippet: defineSnippet({
       id: 'text-field-angular-states',
       language: 'angular',

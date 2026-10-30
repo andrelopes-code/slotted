@@ -349,7 +349,7 @@ test('aligns the closing control by its mark rather than by its box', () => {
 
 /**
  * The closing control keeps the library's outward ring: it is shorter than the
- * item and centred in it, so nothing about the ring reaches the edge the
+ * item and centerd in it, so nothing about the ring reaches the edge the
  * scroller clips at, and an inset ring on a twenty-four pixel box would be
  * drawn through the mark.
  */

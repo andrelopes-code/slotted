@@ -152,12 +152,12 @@ export const Tones: Story = {
       2,
       scene(
         'Four severities and one absence of one',
-        'secondary is help: no mark, no severity word, and the neutral muted ink rather than a tone’s label colour, which under a field reads as loud as the label above it.',
+        'secondary is help: no mark, no severity word, and the neutral muted ink rather than a tone’s label color, which under a field reads as loud as the label above it.',
         TONES.map(([tone, body]) => message(`tone="${tone}"`, body)).join(''),
       ) +
         scene(
-          'The same five with no colour at all',
-          'Switch the toolbar to high-contrast, or read this in greyscale: the silhouette is what is left telling an error from a note, and the hidden word is what a reader hears.',
+          'The same five with no color at all',
+          'Switch the toolbar to high-contrast, or read this in grayscale: the silhouette is what is left telling an error from a note, and the hidden word is what a reader hears.',
           TONES.map(([tone]) => message(`tone="${tone}"`, `tone="${tone}"`)).join(''),
         ),
     ),
@@ -320,7 +320,7 @@ export const Content: Story = {
       3,
       scene(
         'Long, and in another language',
-        'A German compound wraps to three lines and the mark stays on the first, because the mark’s box is one line box tall rather than centred on the whole message.',
+        'A German compound wraps to three lines and the mark stays on the first, because the mark’s box is one line box tall rather than centerd on the whole message.',
         message(
           'tone="warning"',
           'Die Zahlungsbestätigung konnte nicht zugestellt werden, weil die hinterlegte Rechnungsadresse nicht mit der Adresse der Bank übereinstimmt.',
@@ -375,7 +375,7 @@ export const Composition: Story = {
         ) +
         scene(
           'The page’s own mark, and none at all',
-          'A projected slInlineMessageIcon keeps the box, the colour and the place on the first line; hideIcon removes the box and leaves the severity word a reader hears.',
+          'A projected slInlineMessageIcon keeps the box, the color and the place on the first line; hideIcon removes the box and leaves the severity word a reader hears.',
           `<p slInlineMessage tone="accent">
              <ng-icon slInlineMessageIcon aria-hidden="true" name="lucideShield"></ng-icon>
              The artwork belongs to the application; the box belongs to the family.

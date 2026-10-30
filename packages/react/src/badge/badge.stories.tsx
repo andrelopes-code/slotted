@@ -202,7 +202,7 @@ export const Shapes: Story = {
         <header className="slotted-demo-scene__header">
           <span className="slotted-demo-scene__label">The words a dot cannot say</span>
           <span className="slotted-demo-scene__note">
-            Colour alone is not a signal. The hidden text is out of flow, so it costs no space.
+            Color alone is not a signal. The hidden text is out of flow, so it costs no space.
           </span>
         </header>
         <div className="slotted-demo-stage">

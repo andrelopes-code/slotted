@@ -50,7 +50,7 @@ const anatomy: AnatomyRow[] = [
     element: 'input type="radio", in the item’s template',
     required: true,
     purpose:
-      'The native radio input. It holds the value, the name the group shares and the identifier. The shared name gives the set the platform’s keyboard behaviour. Reach the element through the item’s exportAs: item.inputElement has focus() and click().',
+      'The native radio input. It holds the value, the name the group shares and the identifier. The shared name gives the set the platform’s keyboard behavior. Reach the element through the item’s exportAs: item.inputElement has focus() and click().',
   },
   {
     part: 'indicator',
@@ -314,7 +314,7 @@ export const ANGULAR_RADIO_GROUP_DOCS = {
         'string',
         '—',
         'SlRadioGroup',
-        'The value an uncontrolled group starts from, read once when the directive initialises. Left unset, nothing is chosen and Tab lands on the first item, as the WAI-ARIA Authoring Practices recommend for a set with no default.',
+        'The value an uncontrolled group starts from, read once when the directive initializes. Left unset, nothing is chosen and Tab lands on the first item, as the WAI-ARIA Authoring Practices recommend for a set with no default.',
       ],
       [
         'name',
@@ -437,8 +437,8 @@ export const ANGULAR_RADIO_GROUP_DOCS = {
       'Each item takes its accessible name from its own label, through for pointing at an identifier the component generates. The group takes its name from the field group’s legend or, outside a field group, from an aria-label the consumer writes. Inside a field group the radiogroup role is withdrawn, so the set is not announced twice.',
       'The group writes aria-required, never the native required on an item, and its validator, not any one item, demands a value, because “choose one” is a fact about the set. disabled is native, because the native attribute is also what makes the browser skip the option with the arrow keys.',
       'A radio has no native read-only state, so the radio group enforces one: it refuses the activation, aria-readonly announces it on the group, and every item keeps its tab stop, its focus ring and its full contrast. The chosen option keeps its accent, because the value is real.',
-      'Refusing the activation is not enough on its own. The HTML standard’s canceled activation behaviour restores the clicked radio but not the neighbour it unchecked, so the radio group writes every element from the value afterwards. Without that, a controlled group that refused a change would show no choice at all.',
-      'The invalid state does not rely on colour alone. In the high-contrast scheme the theme paints the danger border in the same colour as every other border, so the circle also thickens its edge. The sentence that says what is wrong is the field group’s error.',
+      'Refusing the activation is not enough on its own. The HTML standard’s canceled activation behavior restores the clicked radio but not the neighbour it unchecked, so the radio group writes every element from the value afterwards. Without that, a controlled group that refused a change would show no choice at all.',
+      'The invalid state does not rely on color alone. In the high-contrast scheme the theme paints the danger border in the same color as every other border, so the circle also thickens its edge. The sentence that says what is wrong is the field group’s error.',
       'The target is larger than the circle. A 24-pixel square around the circle meets WCAG 2.2 SC 2.5.8 at every size and density, while the circle is 14 pixels at size="sm"; the label extends the target to the end of the text, and the hover wash covers exactly that area. The row keeps its line height: the target is drawn around the circle, not laid out beside it.',
     ],
     snippets: [

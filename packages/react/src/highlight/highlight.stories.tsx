@@ -297,7 +297,7 @@ export const Matcher: Story = {
       </Scene>
       <Scene
         label="Whole words only, written by the consumer"
-        note="matcher receives the queries trimmed of empties and returns ranges; here it keeps only the spans that start and end at a word boundary. Its result is normalised like any other."
+        note="matcher receives the queries trimmed of empties and returns ranges; here it keeps only the spans that start and end at a word boundary. Its result is normalized like any other."
       >
         <Text>
           <Highlight matcher={wholeWords} query="cable" text="Steel cable and network cables" />

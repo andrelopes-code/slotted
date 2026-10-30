@@ -124,8 +124,8 @@ describe('a grid reading its rows again', () => {
     );
     const cell = document.querySelector('[data-part="body"] [role="gridcell"]') as HTMLElement;
     const box = cell.getBoundingClientRect();
-    const centre = () => document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
-    expect(cell.contains(centre())).toBe(true);
+    const center = () => document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+    expect(cell.contains(center())).toBe(true);
 
     rerender(
       <DataGrid<Entry>
@@ -136,7 +136,7 @@ describe('a grid reading its rows again', () => {
         rows={ROWS.slice(0, 5)}
       />,
     );
-    expect(cell.contains(centre())).toBe(false);
+    expect(cell.contains(center())).toBe(false);
   });
 });
 

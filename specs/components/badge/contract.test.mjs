@@ -74,11 +74,11 @@ test('renders the element that claims nothing and fits anywhere text fits', () =
 });
 
 /**
- * `tone` names the colour and `variant` names the painting, as they do in
+ * `tone` names the color and `variant` names the painting, as they do in
  * `button`. The previous contract had them the other way round, which is why
  * the rename is written in the design's break table.
  */
-test('separates the colour it speaks in from the way that colour is painted', () => {
+test('separates the color it speaks in from the way that color is painted', () => {
   assert.deepEqual(contract.axes.tone, [
     'accent',
     'secondary',

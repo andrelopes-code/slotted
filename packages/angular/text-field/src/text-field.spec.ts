@@ -266,7 +266,7 @@ describe('SlTextField', () => {
     expect(element.getAttribute('aria-required')).toBe('true');
     expect(element.hasAttribute('readonly')).toBe(true);
     /* `aria-required` and never the native attribute, which would engage
-       browser constraint validation and change submit behaviour. */
+       browser constraint validation and change submit behavior. */
     expect(element.hasAttribute('required')).toBe(false);
     expect(element.getAttribute('aria-describedby')).toContain('-error');
     expect(query(fixture, '[data-ui="text-field"]').hasAttribute('data-invalid')).toBe(true);

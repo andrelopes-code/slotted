@@ -189,7 +189,7 @@ const scenes: ReferenceSceneMeta[] = [
     snippet: defineSnippet({
       id: 'slider-angular-origin',
       language: 'angular',
-      label: 'A balance that fills from the centre',
+      label: 'A balance that fills from the center',
       source: `<div slSlider [defaultValue]="3" [min]="-10" [max]="10" [origin]="0" [marks]="zero"></div>`,
     }),
   },
@@ -493,9 +493,9 @@ export const ANGULAR_SLIDER_DOCS = {
       'Each thumb’s own min and max follow its neighbour, which is the multi-thumb pattern’s requirement that the announced range of a dependent slider be updated when the value changes. The tab order stays the array’s order however the thumbs move, which is the pattern’s second requirement.',
       'The whole keyboard table is the family’s: arrows by step, Shift and the page keys by largeStep, Home and End to this thumb’s own bounds. The inline arrows follow the reading direction and the block arrows do not — a scale has a direction and bidi is not it — which is what the pattern’s note about reversing the direction means in a mirrored document.',
       'aria-valuetext carries the formatted string, because aria-valuenow alone announces 1480 for a scale showing R$ 1.480,00. A mark that carries a label becomes that string at its own value, which is exactly the case the pattern names for the property.',
-      'aria-required, never the native required. The native attribute engages browser constraint validation and changes submit behaviour, which the library must not impose as a side effect of describing a field. disabled is native, because that is what the word means; readonly is not, because input[type=range] does not answer it.',
+      'aria-required, never the native required. The native attribute engages browser constraint validation and changes submit behavior, which the library must not impose as a side effect of describing a field. disabled is native, because that is what the word means; readonly is not, because input[type=range] does not answer it.',
       'The target is the band rather than the thumb: it is floored at 24 CSS pixels in the cross axis, which is WCAG 2.2 SC 2.5.8, and a press anywhere on it moves the nearest thumb and starts a drag.',
-      'Nothing is said by colour alone. Invalid is announced by aria-invalid and said in words by the field’s error, and in the high-contrast scheme the rail is a white channel with a black edge so the fill is still visible inside it.',
+      'Nothing is said by color alone. Invalid is announced by aria-invalid and said in words by the field’s error, and in the high-contrast scheme the rail is a white channel with a black edge so the fill is still visible inside it.',
     ],
     snippets: [
       defineSnippet({

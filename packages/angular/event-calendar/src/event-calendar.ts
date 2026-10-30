@@ -342,7 +342,7 @@ const pressReason = (event: MouseEvent) => (event.detail === 0 ? 'keyboard' : 'p
                 [checked]="shown().includes(entry.key)"
                 (checkedChangeRequest)="onCalendarRequest(entry.key, $event)"
               >
-                <!-- The calendar's colour opens the label; the column before it is the
+                <!-- The calendar's color opens the label; the column before it is the
                      check's, and a dot there drew the check over itself. -->
                 <svg aria-hidden="true" width="14" height="10" viewBox="0 0 14 10">
                   <circle cx="5" cy="5" r="4" [style.fill]="swatch(entry.key)" />
@@ -1665,7 +1665,7 @@ export class SlEventCalendar implements OnInit {
     if (scroller === undefined || column === null || column === undefined) return;
     const [startHour, endHour] = this.hoursValue();
     const hourSize = column.getBoundingClientRect().height / Math.max(1, endHour - startHour);
-    /* Half a label above the hour: the label is centred on its rule, and a
+    /* Half a label above the hour: the label is centerd on its rule, and a
        scroll that stopped on the rule cut the first visible one in half. */
     /* Half a line of the label's own type: its box is the whole hour. */
     const label = scroller.querySelector<HTMLElement>("[data-part='hour']");

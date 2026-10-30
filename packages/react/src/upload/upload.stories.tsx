@@ -331,7 +331,7 @@ export const Pause: Story = {
       />
       <DemoUpload
         adapter={demoAdapter({ bytesPerSecond: 2_000_000 })}
-        description="This one does not, so the row draws none — a control that cannot be honoured is a control that lies."
+        description="This one does not, so the row draws none — a control that cannot be honored is a control that lies."
         label="A sender that cannot suspend"
         seed={[{ ...CLAIM.call, status: 'ready' }]}
       />

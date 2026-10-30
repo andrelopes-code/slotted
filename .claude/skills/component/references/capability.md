@@ -13,7 +13,7 @@ citation. Name the source and the version or URL for every claim.
 ### 1. Surveyed
 
 Name at least three serious implementations of this family and where you read
-them. Prefer sources that disagree with each other: a headless behaviour
+them. Prefer sources that disagree with each other: a headless behavior
 library, an opinionated design system, and the platform or framework's own
 answer.
 
@@ -71,7 +71,7 @@ These are not valid reasons to decline:
 
 What the best surveyed implementation offers that the others do not, and what
 this library can offer that none of them can because of what it already owns:
-three colour schemes, three densities, logical properties, a layered token
+three color schemes, three densities, logical properties, a layered token
 foundation, and two first-class framework bindings rather than one.
 
 At least one row. If a family genuinely has none, write the sentence that says

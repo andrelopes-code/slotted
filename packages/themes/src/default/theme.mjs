@@ -3,7 +3,7 @@ import { defineTheme, recipes } from '@slotted/theme';
 import values from './values.json' with { type: 'json' };
 
 /**
- * The theme the library ships by default. Its colours are `recipes.standard`
+ * The theme the library ships by default. Its colors are `recipes.standard`
  * on these five seeds; `values.json` holds every value the recipe does not
  * derive, glyphs included (written by `scripts/generate-icon-glyphs.mjs`).
  */

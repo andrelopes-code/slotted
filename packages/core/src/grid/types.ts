@@ -146,7 +146,7 @@ export interface GridColumnGroup {
 /**
  * The reader's own arrangement of the columns. A column the state does not
  * name takes the model's order and width; a column the state names and the
- * model no longer has is dropped when the state is normalised.
+ * model no longer has is dropped when the state is normalized.
  */
 export interface GridColumnState {
   readonly order: readonly string[];

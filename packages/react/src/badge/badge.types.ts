@@ -1,9 +1,9 @@
 import type { ComponentPropsWithRef, HTMLAttributes, ReactNode } from 'react';
 
-/** Which of the five semantic colours the badge speaks in. */
+/** Which of the five semantic colors the badge speaks in. */
 export type BadgeTone = 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger';
 
-/** How that colour is painted. `soft` is the tinted chip a badge usually is. */
+/** How that color is painted. `soft` is the tinted chip a badge usually is. */
 export type BadgeVariant = 'solid' | 'soft' | 'outline';
 
 export type BadgeSize = 'sm' | 'md' | 'lg';
@@ -71,7 +71,7 @@ export interface BadgeProps extends ComponentPropsWithRef<'span'> {
   count?: number | undefined;
   /**
    * A glyph after the words. It is wrapped in the `end` part, which sizes and
-   * centres it; the artwork is the consumer's.
+   * centers it; the artwork is the consumer's.
    */
   end?: ReactNode | undefined;
   /**
@@ -100,7 +100,7 @@ export interface BadgeProps extends ComponentPropsWithRef<'span'> {
   size?: BadgeSize | undefined;
   /**
    * A glyph before the words. It is wrapped in the `start` part, which sizes
-   * and centres it; the artwork is the consumer's.
+   * and centers it; the artwork is the consumer's.
    */
   start?: ReactNode | undefined;
   /** Defaults to the provider, then to `secondary`. */

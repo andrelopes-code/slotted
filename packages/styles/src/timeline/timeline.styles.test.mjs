@@ -56,15 +56,15 @@ test('answers every value of every painted axis', () => {
 });
 
 /**
- * Each status is a shape as well as a colour: pending is the variant's own
+ * Each status is a shape as well as a color: pending is the variant's own
  * mark, complete is a filled disc with the check glyph knocked out of it, current is
  * a filled disc with a ring around it, loading is the shared spinner at a
- * dot's size. `high-contrast` paints every tone in one ink and forced colours
+ * dot's size. `high-contrast` paints every tone in one ink and forced colors
  * paint every ring in one, so the shape is what is left. The ring is a shadow,
- * because an outline in this library is the focus ring; forced colours drop
+ * because an outline in this library is the focus ring; forced colors drop
  * the shadow and get the ring back as an outline in their block.
  */
-test('separates the statuses by shape as well as by colour', () => {
+test('separates the statuses by shape as well as by color', () => {
   assert.ok(
     normalized.includes(
       '[data-current][data-part-marker]{box-shadow:000var(--slotted-border-width-thick,2px)var(--_surface),000var(--_reach)var(--_tone-mark),',
@@ -75,7 +75,7 @@ test('separates the statuses by shape as well as by colour', () => {
     normalized.includes(
       '[data-current]:not([data-loading])[data-part-marker]{outline:var(--_edge)solidCanvasText;',
     ),
-    'forced colours get the ring back',
+    'forced colors get the ring back',
   );
   assert.ok(
     normalized.includes(
@@ -101,12 +101,12 @@ test('separates the statuses by shape as well as by colour', () => {
  * air wider than the glyph on each side. The rail widens to the badge only
  * when the timeline holds one.
  *
- * Every width the line is centred in is the line's own width plus an even
+ * Every width the line is centerd in is the line's own width plus an even
  * number of pixels, so the line stands a whole number of pixels inside it.
  * An eight-pixel dot on a one-pixel line put the line three and a half pixels
- * in, and the browser drew it one device pixel off the dot's centre at 100%,
+ * in, and the browser drew it one device pixel off the dot's center at 100%,
  * 150% and 200%. The core is laid over the dot at a whole-pixel inset, never
- * centred inside it as a smaller box.
+ * centerd inside it as a smaller box.
  */
 test('keeps every marker width on the line parity', () => {
   assert.ok(
@@ -134,12 +134,12 @@ test('keeps every marker width on the line parity', () => {
 
 /**
  * The line is a hairline border from the middle of this row's first line to
- * the middle of the next row's — the two markers' centres, whatever their
+ * the middle of the next row's — the two markers' centers, whatever their
  * size — and the markers stand above it with a halo of the ground. A border
- * keeps its colour under forced colours where a background does not, and
+ * keeps its color under forced colors where a background does not, and
  * `dashed` is then a word rather than a gradient.
  */
-test('runs the line from centre to centre as a border', () => {
+test('runs the line from center to center as a border', () => {
   assert.match(
     declarations,
     /\[data-part-connector\] \{[^}]*border-inline-start: var\(--_rule\) solid var\(--_line\)/,
@@ -156,11 +156,11 @@ test('runs the line from centre to centre as a border', () => {
 });
 
 /**
- * The marker centres on the title's first line by the rule `toast` and
+ * The marker centers on the title's first line by the rule `toast` and
  * `alert` draw their marks with: half the difference between one line and the
  * mark, measured in the rail whose type is the title's.
  */
-test('centres the marker on the first line of the title, on a whole pixel', () => {
+test('centers the marker on the first line of the title, on a whole pixel', () => {
   assert.ok(normalized.includes('--_lift:round(nearest,calc((1lh-var(--_marker))/2),1px)'));
   assert.ok(!normalized.includes('--_lift:calc('), 'no lift left unrounded');
   assert.ok(normalized.includes('margin-block-start:var(--_lift)'));
@@ -298,9 +298,9 @@ test('folds the fresh pill it keeps in and out, the events below sliding', () =>
 /**
  * The glyph in a badge takes the badge's parity. An odd badge keeps the line
  * in its middle; an even glyph in it stood half a pixel in and was painted
- * half a CSS pixel off centre at every zoom.
+ * half a CSS pixel off center at every zoom.
  */
-test('centres a badge glyph on whole pixels', () => {
+test('centers a badge glyph on whole pixels', () => {
   assert.ok(
     normalized.includes(
       '[data-part-marker]>[data-ui-icon]{--slotted-icon-size:calc(var(--_badge)-2*round(down,(var(--_badge)-var(--_glyph))/2,1px));',

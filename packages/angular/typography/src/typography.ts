@@ -19,7 +19,7 @@ export type TypographyNumeric = 'normal' | 'tabular';
 export type HeadingLevelValue = 1 | 2 | 3 | 4 | 5 | 6;
 
 /**
- * `inherit` is the absence of a colour rather than a colour of its own, so it
+ * `inherit` is the absence of a color rather than a color of its own, so it
  * removes the attribute and lets the surface decide.
  */
 export function toneAttribute(tone: TypographyTone | undefined): string | null {

@@ -53,7 +53,7 @@ export interface ResolveStepOptions {
 export interface ResolvedStep<Step extends TourStepShape> {
   readonly step: Step;
   readonly index: number;
-  /** The element to point at, or `null` for a centred step. */
+  /** The element to point at, or `null` for a centerd step. */
   readonly target: Element | null;
   /** The step named a target and it could not be found. */
   readonly missing: boolean;
@@ -302,7 +302,7 @@ export const TOUR_ROOM = { block: 140, inline: 240 } as const;
  * Whether any side of the target leaves a card room to stand on. Only the
  * part of the target that is on screen counts, so a target taller than the
  * viewport — a whole editor, a long chart — leaves none, and the card is
- * centred over it while the spotlight still frames it.
+ * centerd over it while the spotlight still frames it.
  */
 export function cardFits(rect: TargetRect, viewport: { width: number; height: number }): boolean {
   const top = Math.max(rect.y, 0);
@@ -427,7 +427,7 @@ export function watchTarget(target: Element, options: WatchTargetOptions): () =>
 
 /**
  * Brings the target into view when any part of it is outside the viewport,
- * centred on the block axis, smooth unless the reader asked for less motion.
+ * centerd on the block axis, smooth unless the reader asked for less motion.
  * Resolves once the scroll has come to rest — on `scrollend` where the
  * platform has it, when the target's rectangle has held still for two frames
  * where it does not, and after a second at the latest — so a caller can wait

@@ -179,10 +179,10 @@ export const Tone: Story = {
     <div className="slotted-demo-grid" data-columns="1">
       <section className="slotted-demo-scene">
         <header className="slotted-demo-scene__header">
-          <span className="slotted-demo-scene__label">Colour</span>
+          <span className="slotted-demo-scene__label">Color</span>
           <span className="slotted-demo-scene__note">
-            The default is inherit, so an icon beside a label is the colour of that label without
-            anyone deciding it. The family sets colour and never fill or stroke: stroked and filled
+            The default is inherit, so an icon beside a label is the color of that label without
+            anyone deciding it. The family sets color and never fill or stroke: stroked and filled
             artwork both read currentColor, and imposing either would break the other.
           </span>
         </header>
@@ -208,7 +208,7 @@ export const Tone: Story = {
               <Icon>
                 <Info />
               </Icon>
-              inherit — no tone asked for, and the callout’s colour taken
+              inherit — no tone asked for, and the callout’s color taken
             </span>
             <span
               className="slotted-demo-row"

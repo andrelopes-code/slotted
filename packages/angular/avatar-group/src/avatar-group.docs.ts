@@ -141,7 +141,7 @@ export const ANGULAR_AVATAR_GROUP_DOCS = {
       defineSnippet({
         id: 'avatar-group-angular-ring',
         language: 'angular',
-        label: 'A group on a coloured row',
+        label: 'A group on a colored row',
         source:
           '<ul\n  slAvatarGroup\n  aria-label="Reviewers"\n  style="--slotted-avatar-ring-color: var(--slotted-surface-sunken)"\n>\n  @for (person of reviewers(); track person.id) {\n    <li slAvatarGroupItem>\n      <span slAvatar [name]="person.name" [src]="person.photograph"></span>\n    </li>\n  }\n</ul>',
       }),

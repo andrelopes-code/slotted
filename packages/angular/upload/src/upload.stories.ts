@@ -402,7 +402,7 @@ export const Pause: Story = {
       ></div>
       <div
         slUploadDemo
-        description="This one does not, so the row draws none — a control that cannot be honoured is a control that lies."
+        description="This one does not, so the row draws none — a control that cannot be honored is a control that lies."
         label="A sender that cannot suspend"
         [adapter]="plain"
         [seed]="audio"

@@ -74,10 +74,10 @@ test('mirrors the thumb in a right-to-left document', () => {
  * changed.
  *
  * It takes one step above the control's own interaction feedback, because a
- * thing that travels needs longer than a thing that changes colour; every step
+ * thing that travels needs longer than a thing that changes color; every step
  * on the scale collapses to a single frame under `prefers-reduced-motion`.
  */
-test('moves the thumb a step slower than a colour changes', () => {
+test('moves the thumb a step slower than a color changes', () => {
   assert.match(dense, /--_travel:var\(--slotted-duration-medium/);
   assert.match(dense, /translatevar\(--_travel\)var\(--slotted-easing-standard\)/);
   assert.match(dense, /opacityvar\(--slotted-control-transition-duration\)/);
@@ -168,7 +168,7 @@ test('hides a condensed label without taking it out of the document', () => {
 });
 
 /**
- * "On" is one colour across the system: the accent ground inside the accent
+ * "On" is one color across the system: the accent ground inside the accent
  * edge, which is the pair `docs/token-foundation.md` names for the chosen row,
  * card, option and toggle, and the pair `button` and `toggle-group` both paint.
  */
@@ -228,7 +228,7 @@ test('moves the ring to the segment and puts out the one the browser draws', () 
 /**
  * The track is the ground the thumb is read against, so an unavailable control
  * keeps it. Painting the track in the disabled ground too made the thumb the
- * same colour as what it sits on, and the reader could no longer tell which of
+ * same color as what it sits on, and the reader could no longer tell which of
  * the three had been chosen.
  */
 test('keeps the track when the whole control is unavailable', () => {
@@ -254,7 +254,7 @@ test('inks an unchecked segment darker than an unavailable one', () => {
   );
 });
 
-/** A read-only control keeps its colours; only a disabled one loses them. */
+/** A read-only control keeps its colors; only a disabled one loses them. */
 test('does not paint read-only the way it paints disabled', () => {
   const readonly = dense.match(/\[data-readonly\]\[data-part-item\],[^{]*\{([^}]*)\}/);
   assert.ok(readonly, 'no rule paints a read-only control');
@@ -299,7 +299,7 @@ test('paints the track as a neutral tint of the ground it stands on', () => {
  * after the icon put four pixels more on its end side than on its start
  * (measured: 8 against 12). An empty label is not a label.
  */
-test('treats an empty label as no label, so an icon-only segment centres its icon', () => {
+test('treats an empty label as no label, so an icon-only segment centers its icon', () => {
   assert.match(
     dense,
     /\[data-ui-segmented-control\]\[data-part-label\]:empty\{display:none;\}|\[data-ui-segmented-control\]\[data-part-label\]:empty\{[^}]*display:none/,

@@ -1,5 +1,5 @@
 /**
- * The behaviour of a carousel, with no framework in it.
+ * The behavior of a carousel, with no framework in it.
  *
  * A carousel is a scroller with snap, and the platform already pages it under
  * a finger, a trackpad and the keyboard. What the platform does not give is
@@ -54,7 +54,7 @@ export interface CarouselPages {
 
 export const EMPTY_PAGES: CarouselPages = { positions: [], starts: [], pageOfSlide: [] };
 
-/** A slide the engine and both stylesheets recognise. */
+/** A slide the engine and both stylesheets recognize. */
 export const SLIDE_SELECTOR = '[data-part="slide"]';
 
 /** The rotation's own wait, when the consumer turns it on with `true`. */
@@ -88,8 +88,8 @@ const EPSILON = 0.5;
  * three cards pages by three and a row whose last page holds two still ends
  * flush. With a number, the next page starts that many slides on.
  *
- * `center` alignment: every slide is a page, centred in the viewport; the
- * slides near the ends, whose centre the track cannot reach, share the page
+ * `center` alignment: every slide is a page, centerd in the viewport; the
+ * slides near the ends, whose center the track cannot reach, share the page
  * at that end.
  */
 export function carouselPages(
@@ -264,8 +264,8 @@ export function indicatorDistance(
 ): CarouselIndicatorDistance | null {
   if (count < adaptiveFrom) return null;
   /* The window keeps five dots whole at the ends, where the current one has no neighbour on one side. */
-  const centre = Math.min(Math.max(current, 2), count - 3);
-  const distance = Math.abs(index - centre);
+  const center = Math.min(Math.max(current, 2), count - 3);
+  const distance = Math.abs(index - center);
   if (index === current || distance === 0) return '0';
   if (distance === 1) return '1';
   if (distance === 2) return '2';

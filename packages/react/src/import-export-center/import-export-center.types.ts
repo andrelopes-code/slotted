@@ -98,12 +98,12 @@ export interface ImportExportCenterProps extends Omit<
   views?: readonly ImportExportView[] | undefined;
   /** The view in use, controlled. */
   view?: string | undefined;
-  /** The view an uncontrolled centre starts on, read once. */
+  /** The view an uncontrolled center starts on, read once. */
   defaultView?: string | undefined;
   onViewChange?: ((view: string, request: ChangeRequest<string>) => void) | undefined;
   /** The keys whose details are shown, controlled. */
   expanded?: readonly string[] | undefined;
-  /** The keys an uncontrolled centre starts with shown, read once. */
+  /** The keys an uncontrolled center starts with shown, read once. */
   defaultExpanded?: readonly string[] | undefined;
   onExpandedChange?:
     ((keys: readonly string[], request: ChangeRequest<readonly string[]>) => void) | undefined;
@@ -158,7 +158,7 @@ export interface ImportExportCenterProps extends Omit<
 export interface UseJobToastsOptions {
   /** The toaster the notices go to; the shared `toast` when absent. */
   toaster?: Toaster | undefined;
-  /** What View does: navigate to the centre, then call its `reveal(key)`. */
+  /** What View does: navigate to the center, then call its `reveal(key)`. */
   onView?: ((key: string) => void) | undefined;
   /** Words laid over the catalog of the language in force: the announcement and View. */
   messages?: PartialMessages<ImportExportCenterMessages> | undefined;

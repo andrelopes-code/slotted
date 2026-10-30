@@ -32,7 +32,7 @@ export interface ProgressIndicatorDefaultsProviderProps extends ProgressIndicato
 /** What all three components share. */
 interface ProgressCommonProps {
   /**
-   * Whether the wait is still on. `false` withdraws the indicator, honouring
+   * Whether the wait is still on. `false` withdraws the indicator, honoring
    * `minDuration`.
    */
   loading?: boolean;

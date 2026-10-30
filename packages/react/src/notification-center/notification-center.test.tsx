@@ -53,7 +53,7 @@ const ITEMS: NotificationItem[] = [
   },
 ];
 
-function Centre(props: Partial<NotificationCenterProps>) {
+function Center(props: Partial<NotificationCenterProps>) {
   return <NotificationCenter items={ITEMS} now={NOW} {...props} />;
 }
 
@@ -68,7 +68,7 @@ const click = (element: HTMLElement) => fireEvent.click(element, { detail: 1 });
 
 describe('NotificationCenter', () => {
   it('renders the region, the feed and one article per item with the pattern wiring', () => {
-    render(<Centre />);
+    render(<Center />);
 
     expect(root()).toHaveAttribute('aria-labelledby', screen.getByRole('heading').id);
     expect(screen.getByRole('heading')).toHaveTextContent('Notifications');
@@ -88,7 +88,7 @@ describe('NotificationCenter', () => {
   });
 
   it('declares every axis on the root and the defaults the contract names', () => {
-    render(<Centre />);
+    render(<Center />);
     const defaults = contract.members.notificationCenter.defaults;
 
     expect(root()).toHaveAttribute('data-size', defaults.size);
@@ -103,7 +103,7 @@ describe('NotificationCenter', () => {
 
   it('renders every part the contract declares', () => {
     render(
-      <Centre
+      <Center
         actions={<a href="#p">Preferences</a>}
         footer={<a href="#all">See all</a>}
         groupBy={(item) => (item.read ? 'Yesterday' : 'Today')}
@@ -127,19 +127,19 @@ describe('NotificationCenter', () => {
   });
 
   it('writes the time as a machine value with relative words, and absolute on request', () => {
-    const { rerender } = render(<Centre />);
+    const { rerender } = render(<Center />);
     const time = article(0).querySelector('time') as HTMLElement;
     expect(time).toHaveAttribute('datetime', '2026-09-17T08:20:00Z');
     expect(time).toHaveTextContent(/2 horas|2 hours|2 h/);
     expect(time).toHaveAttribute('title');
 
-    rerender(<Centre timeFormat="absolute" />);
+    rerender(<Center timeFormat="absolute" />);
     expect(root()).toHaveAttribute('data-time-format', 'absolute');
     expect(article(0).querySelector('time')).not.toHaveAttribute('title');
   });
 
   it('draws a visual for a consumer visual or a tone, and none without either', () => {
-    render(<Centre />);
+    render(<Center />);
     expect(article(0).querySelector('[data-part="visual"]')).toContainElement(
       screen.getByTestId('avatar'),
     );
@@ -154,7 +154,7 @@ describe('NotificationCenter', () => {
   });
 
   it('draws check to mark read, dot to mark unread, and x to dismiss', () => {
-    render(<Centre />);
+    render(<Center />);
     const glyph = (index: number, part: string) =>
       article(index)
         .querySelector(`[data-part="${part}"] > [data-ui="icon"] > svg[data-glyph]`)
@@ -166,7 +166,7 @@ describe('NotificationCenter', () => {
 
   it('asks to mark read and never marks itself', () => {
     const onReadChange = vi.fn();
-    render(<Centre onReadChange={onReadChange} />);
+    render(<Center onReadChange={onReadChange} />);
 
     click(screen.getAllByRole('button', { name: 'Mark as read' })[0] as HTMLElement);
     expect(onReadChange).toHaveBeenLastCalledWith(
@@ -194,7 +194,7 @@ describe('NotificationCenter', () => {
    * tooltip with its accessible name, on keyboard focus in the same task.
    */
   it('names its own controls with a tooltip as well as with aria-label', async () => {
-    render(<Centre />);
+    render(<Center />);
 
     /* A key first: jsdom, like a browser, shows focus only after the keyboard was the last thing used. */
     fireEvent.keyDown(document.body, { key: 'Tab' });
@@ -216,14 +216,14 @@ describe('NotificationCenter', () => {
 
   it('counts the unread in the heading, disables mark-all at zero and reports the count', () => {
     const onUnreadChange = vi.fn();
-    const { rerender } = render(<Centre onUnreadChange={onUnreadChange} />);
+    const { rerender } = render(<Center onUnreadChange={onUnreadChange} />);
 
     expect(screen.getByRole('heading').querySelector('[data-part="count"]')).toHaveTextContent('2');
     expect(screen.getByRole('button', { name: 'Mark all as read' })).toBeEnabled();
     expect(onUnreadChange).toHaveBeenLastCalledWith(2);
 
     rerender(
-      <Centre
+      <Center
         items={ITEMS.map((item) => ({ ...item, read: true }))}
         onUnreadChange={onUnreadChange}
       />,
@@ -236,7 +236,7 @@ describe('NotificationCenter', () => {
 
   it('asks to be removed from the control and from Delete, and moves focus to a neighbour', () => {
     const onRemove = vi.fn();
-    render(<Centre onRemove={onRemove} />);
+    render(<Center onRemove={onRemove} />);
 
     click(screen.getAllByRole('button', { name: 'Dismiss' })[1] as HTMLElement);
     expect(onRemove).toHaveBeenLastCalledWith('n2', expect.objectContaining({ reason: 'pointer' }));
@@ -257,7 +257,7 @@ describe('NotificationCenter', () => {
 
   it('asks before a title link navigates and keeps the reader here when refused', () => {
     const onOpen = vi.fn();
-    render(<Centre onOpen={onOpen} />);
+    render(<Center onOpen={onOpen} />);
     const link = screen.getByRole('link', { name: 'SO-2026-01842 partially fulfilled' });
 
     let event = click(link);
@@ -274,7 +274,7 @@ describe('NotificationCenter', () => {
     render(
       <>
         <button type="button">antes</button>
-        <Centre />
+        <Center />
         <button type="button">depois</button>
       </>,
     );
@@ -293,7 +293,7 @@ describe('NotificationCenter', () => {
 
   it('offers all and unread as views, filters under unread, and wires the strip to the feed', () => {
     const onViewChange = vi.fn();
-    render(<Centre onViewChange={onViewChange} />);
+    render(<Center onViewChange={onViewChange} />);
 
     const tabs = screen.getAllByRole('tab');
     expect(tabs).toHaveLength(2);
@@ -310,9 +310,9 @@ describe('NotificationCenter', () => {
     expect(articles()).toHaveLength(2);
   });
 
-  it('holds the view when controlled and honours a refusal', () => {
+  it('holds the view when controlled and honors a refusal', () => {
     const onViewChange = vi.fn((_view, request) => request.cancel());
-    render(<Centre onViewChange={onViewChange} view="all" />);
+    render(<Center onViewChange={onViewChange} view="all" />);
 
     fireEvent.click(screen.getAllByRole('tab')[1] as HTMLElement);
     expect(onViewChange).toHaveBeenCalled();
@@ -322,7 +322,7 @@ describe('NotificationCenter', () => {
 
   it('takes the consumer views, draws no strip for one, and leaves their items alone', () => {
     const { rerender } = render(
-      <Centre
+      <Center
         defaultView="mentions"
         views={[
           { label: 'All', value: 'all' },
@@ -333,7 +333,7 @@ describe('NotificationCenter', () => {
     expect(root()).toHaveAttribute('data-view', 'mentions');
     expect(articles()).toHaveLength(3);
 
-    rerender(<Centre views={[{ label: 'Todas', value: 'all' }]} />);
+    rerender(<Center views={[{ label: 'Todas', value: 'all' }]} />);
     expect(screen.queryByRole('tablist')).toBeNull();
     expect(root().querySelector('[data-part="views"]')).toBeNull();
   });
@@ -439,7 +439,7 @@ describe('NotificationCenter', () => {
   });
 
   it('groups the feed under labels one rank below the title', () => {
-    render(<Centre groupBy={(item) => (item.read ? 'Yesterday' : 'Today')} level="3" />);
+    render(<Center groupBy={(item) => (item.read ? 'Yesterday' : 'Today')} level="3" />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Notifications');
     const labels = screen.getAllByRole('heading', { level: 4 });
@@ -450,13 +450,13 @@ describe('NotificationCenter', () => {
 
   it('loads a page from the button, from the sentinel, and says so while waiting', () => {
     const onLoadMore = vi.fn();
-    const { rerender } = render(<Centre growing="button" onLoadMore={onLoadMore} />);
+    const { rerender } = render(<Center growing="button" onLoadMore={onLoadMore} />);
 
     click(screen.getByRole('button', { name: 'Load more' }));
     expect(onLoadMore).toHaveBeenLastCalledWith(expect.objectContaining({ reason: 'pointer' }));
     expect(article(0)).toHaveAttribute('aria-setsize', '-1');
 
-    rerender(<Centre growing="scroll" onLoadMore={onLoadMore} />);
+    rerender(<Center growing="scroll" onLoadMore={onLoadMore} />);
     const sentinel = root().querySelector('div[data-part="more"]') as HTMLElement;
     expect(sentinel).toBeInTheDocument();
     const observer = FakeIntersectionObserver.instances.at(-1) as FakeIntersectionObserver;
@@ -468,7 +468,7 @@ describe('NotificationCenter', () => {
     });
     expect(onLoadMore).toHaveBeenLastCalledWith(expect.objectContaining({ reason: 'scroll' }));
 
-    rerender(<Centre count={40} growing="scroll" loading onLoadMore={onLoadMore} />);
+    rerender(<Center count={40} growing="scroll" loading onLoadMore={onLoadMore} />);
     expect(feed()).toHaveAttribute('aria-busy', 'true');
     expect(root()).toHaveAttribute('data-loading');
     expect(root().querySelector('[data-part="more"]')).toHaveTextContent('Loading notifications');
@@ -476,38 +476,38 @@ describe('NotificationCenter', () => {
   });
 
   it('stands skeleton rows in while nothing has arrived, and the empty page when nothing will', () => {
-    const { rerender } = render(<Centre items={[]} loading />);
+    const { rerender } = render(<Center items={[]} loading />);
     expect(feed()).toHaveAttribute('aria-busy', 'true');
     expect(screen.queryAllByRole('article')).toHaveLength(0);
     expect(root().querySelectorAll('[data-ui="skeleton"]').length).toBeGreaterThan(0);
     expect(root().querySelector('[data-part="empty"]')).toBeNull();
 
-    rerender(<Centre items={[]} />);
+    rerender(<Center items={[]} />);
     expect(root().querySelector('[data-part="empty"]')).toHaveTextContent('No notifications');
 
-    rerender(<Centre items={ITEMS.map((item) => ({ ...item, read: true }))} view="unread" />);
+    rerender(<Center items={ITEMS.map((item) => ({ ...item, read: true }))} view="unread" />);
     expect(root().querySelector('[data-part="empty"]')).toHaveTextContent('All caught up');
 
-    rerender(<Centre empty={<p>Nothing here</p>} items={[]} />);
+    rerender(<Center empty={<p>Nothing here</p>} items={[]} />);
     expect(root().querySelector('[data-part="empty"]')).toHaveTextContent('Nothing here');
   });
 
   it('draws the controls the axis names', () => {
-    const { rerender } = render(<Centre controls="read" />);
+    const { rerender } = render(<Center controls="read" />);
     expect(screen.getAllByRole('button', { name: /Mark as/ })).toHaveLength(3);
     expect(screen.queryByRole('button', { name: 'Dismiss' })).toBeNull();
 
-    rerender(<Centre controls="dismiss" />);
+    rerender(<Center controls="dismiss" />);
     expect(screen.queryByRole('button', { name: /Mark as read/ })).toBeNull();
     expect(screen.getAllByRole('button', { name: 'Dismiss' })).toHaveLength(3);
 
-    rerender(<Centre controls="none" />);
+    rerender(<Center controls="none" />);
     expect(article(0).querySelector('[data-part="controls"]')).toBeNull();
   });
 
   it('substitutes an item content and keeps the article', () => {
     render(
-      <Centre
+      <Center
         renderItem={(item, state) => (
           <span data-part="title" data-part-title="" id={state.ids.title}>
             {state.position}. {item.title} · {state.time.dateTime}
@@ -524,7 +524,7 @@ describe('NotificationCenter', () => {
   it('reads its defaults from the provider and lets a prop win', () => {
     render(
       <NotificationCenterDefaultsProvider controls="none" growing="button" size="sm">
-        <Centre level="4" messages={{ title: 'Avisos' }} />
+        <Center level="4" messages={{ title: 'Avisos' }} />
       </NotificationCenterDefaultsProvider>,
     );
     expect(root()).toHaveAttribute('data-size', 'sm');
@@ -537,7 +537,7 @@ describe('NotificationCenter', () => {
   it('speaks the language in force', () => {
     render(
       <SlottedProvider locale="pt-BR" catalogs={{ 'pt-BR': PT_BR }}>
-        <Centre />
+        <Center />
       </SlottedProvider>,
     );
     // language: pt-BR
@@ -549,7 +549,7 @@ describe('NotificationCenter', () => {
 
   it('keeps a consumer name and native props on the root, and renders through render', () => {
     render(
-      <Centre
+      <Center
         aria-label="Caixa de entrada"
         data-testid="nc"
         render={(props) => <div {...(props as ComponentPropsWithRef<'div'>)} data-rendered="" />}

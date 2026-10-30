@@ -52,7 +52,7 @@ const meta = {
       page: createReferencePage({
         title: 'Stat card',
         description:
-          'A metric with its name, its change and its trend, in a frame — and a change whose colour comes from what the metric means, never from its sign.',
+          'A metric with its name, its change and its trend, in a frame — and a change whose color comes from what the metric means, never from its sign.',
         framework: 'React',
         ...REACT_STAT_CARD_DOCS['stat-card'],
         tokens: REACT_STAT_CARD_TOKENS,
@@ -338,7 +338,7 @@ export const Fill: Story = {
       </Scene>
       <Scene
         label='fill="elevated"'
-        note="Lifted on the medium shadow; the hairline stays for forced colours."
+        note="Lifted on the medium shadow; the hairline stays for forced colors."
       >
         <OpenOrders fill="elevated" />
       </Scene>

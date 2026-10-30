@@ -39,7 +39,7 @@ describe('createArrowNavigation', () => {
 
   /**
    * `focus()` scrolls every scroller above the item, the page included, and
-   * Chrome centres an item it has to reveal. A list that scrolls inside a
+   * Chrome centers an item it has to reveal. A list that scrolls inside a
    * layer anchored to a control takes focus its own way.
    */
   it('lets the caller say how an item takes focus', () => {
@@ -199,7 +199,7 @@ describe('createArrowNavigation', () => {
 
 /**
  * The collapse in `toolbar` hides a control the bar has no room for, and a ring
- * that kept it would hand the reader a stop the platform refuses to honour —
+ * that kept it would hand the reader a stop the platform refuses to honor —
  * the same fact `isNavigationDisabled` records for a disabled control.
  */
 describe('createArrowNavigation and an item that cannot be focused', () => {

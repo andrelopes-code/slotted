@@ -34,7 +34,7 @@ test('renders the element that claims nothing and fits anywhere text fits', () =
 
 /**
  * The order every surveyed implementation agrees on, written down because it is
- * the family's whole behaviour. The last step is a glyph the family owns, so a
+ * the family's whole behavior. The last step is a glyph the family owns, so a
  * failed request never paints the browser's torn-page mark.
  */
 test('declares the order it falls back in, ending in artwork rather than in a broken image', () => {
@@ -65,7 +65,7 @@ test('scales in five steps and starts in the middle', () => {
 
 /**
  * Primer's rule, adopted with its meaning: a circle is a person and a square is
- * a team, an organisation or a bot. Atlassian ships a hexagon too, which is its
+ * a team, an organization or a bot. Atlassian ships a hexagon too, which is its
  * own product mark rather than a family capability.
  */
 test('draws itself round for a person and square for everything else', () => {
@@ -75,12 +75,12 @@ test('draws itself round for a person and square for everything else', () => {
 
 /**
  * `auto` is the default because a list of twenty grey circles is a list nobody
- * scans. The palette is the library's five tones rather than a colour list:
- * `docs/product/prd.md` 2.4 refuses an arbitrary colour in the contract, and the
- * five are the only colours whose text-on-surface ratio the theme already
+ * scans. The palette is the library's five tones rather than a color list:
+ * `docs/product/prd.md` 2.4 refuses an arbitrary color in the contract, and the
+ * five are the only colors whose text-on-surface ratio the theme already
  * holds.
  */
-test('colours itself from the name, out of the palette the library already speaks', () => {
+test('colors itself from the name, out of the palette the library already speaks', () => {
   assert.deepEqual(contract.axes.tone, ['auto', ...TONES]);
   assert.equal(contract.members.avatar.defaults.tone, 'auto');
   /* `info` is a tone a reader picks, not one a name is hashed to: its default
@@ -156,7 +156,7 @@ test('holds no state a consumer can own, and therefore declares no state model',
   assert.ok(!('stateModel' in contract));
 });
 
-test('names one reference page, covering the fallback order and the identity colour', () => {
+test('names one reference page, covering the fallback order and the identity color', () => {
   assert.deepEqual(Object.keys(contract.scenarios), ['avatar']);
   assert.deepEqual(contract.scenarios.avatar, [
     'playground',

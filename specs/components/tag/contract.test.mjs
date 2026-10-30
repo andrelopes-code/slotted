@@ -24,16 +24,16 @@ test('names the identifier a consumer selects the family by', () => {
 });
 
 /**
- * The guide's rule for this family is that a tag is never several behaviours at
+ * The guide's rule for this family is that a tag is never several behaviors at
  * once. Every surveyed implementation states that rule and then breaks it with
  * prop combinations: MUI's chip is clickable and deletable together, Ant's is
  * `href` plus `closable`, and Primer's `Token` needed a `hasMultipleActionTargets`
  * branch to keep the DOM legal when the two met.
  *
- * Here the rule is structural. Which behaviour a tag has is which member you
+ * Here the rule is structural. Which behavior a tag has is which member you
  * reached for, and there is no prop that adds a second one.
  */
-test('spends one member on each behaviour a tag can have', () => {
+test('spends one member on each behavior a tag can have', () => {
   assert.deepEqual(Object.keys(contract.members), ['tag', 'tagButton', 'tagLink', 'tagToggle']);
 });
 
@@ -85,7 +85,7 @@ test('reserves the run that holds the tags and owns their keyboard', () => {
   assert.ok(contract.members.tag.capabilities.includes('orientation'));
 });
 
-test('separates the colour it speaks in from the way that colour is painted', () => {
+test('separates the color it speaks in from the way that color is painted', () => {
   assert.deepEqual(contract.axes.tone, TONES);
   assert.deepEqual(contract.axes.variant, ['solid', 'soft', 'outline', 'dashed']);
   assert.ok(!('fill' in contract.axes), 'fill is the word button retired');
@@ -130,7 +130,7 @@ test('holds its selection with both modes and a request that says how it moved',
   }
 });
 
-test('gives the selection a mark of its own, so colour is never the only signal', () => {
+test('gives the selection a mark of its own, so color is never the only signal', () => {
   assert.ok(contract.members.tagToggle.parts.includes('indicator'));
   assert.ok(contract.members.tagToggle.states.includes('selected'));
   assert.equal(contract.stateAttributes.selected, 'data-selected');

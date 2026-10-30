@@ -55,7 +55,7 @@ export interface UploadRunner {
   cancel(key: string): void;
   /** Aborts the run and forgets the file. */
   remove(key: string): void;
-  /** Whether the running adapter says it honours the pause handshake. */
+  /** Whether the running adapter says it honors the pause handshake. */
   readonly pausable: boolean;
   /** Aborts everything. Called when the family goes away. */
   destroy(): void;

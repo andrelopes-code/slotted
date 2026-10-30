@@ -1,6 +1,6 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react';
 
-/** Which of the five semantic colours the message speaks in. */
+/** Which of the five semantic colors the message speaks in. */
 export type InlineMessageTone = 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger';
 
 /**

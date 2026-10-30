@@ -203,7 +203,7 @@ export const Sizes: Story = {
         ) +
         scene(
           'lg',
-          'The step for a section header a page is organised by. The second line steps with it, so the pair keeps its relationship at every size.',
+          'The step for a section header a page is organized by. The second line steps with it, so the pair keeps its relationship at every size.',
           summary('size="lg"'),
         ),
     ),
@@ -272,7 +272,7 @@ export const Description: Story = {
       ) +
         scene(
           'The same pair, open',
-          'The mark is centred on the two lines rather than on the title alone, so the row reads as one block whatever the second line says.',
+          'The mark is centerd on the two lines rather than on the title alone, so the row reads as one block whatever the second line says.',
           `<div slCollapsible variant="framed" [open]="true">
             <h3 slCollapsibleHeader>
               <button slCollapsibleTrigger description="2 regras ativas">Regras de frete</button>

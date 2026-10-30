@@ -76,7 +76,7 @@ test('turns the browser’s bubble off and keeps its validation', () => {
  * `name` is the key the platform already uses and the key a server already
  * sends. The order is `form.elements`, which is document order, so the summary
  * lists the fields down the page rather than in whatever order the server
- * serialised its object.
+ * serialized its object.
  */
 test('keys errors by the control’s name and orders them by the document', () => {
   assert.equal(contract.errorKey, 'name');

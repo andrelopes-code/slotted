@@ -60,7 +60,7 @@ export const REACT_SCROLL_AREA_DOCS = {
       'There is no APG pattern for a scroll container; what governs is WCAG 2.1.1, tested by the scrollable-region-focusable rule, and 4.1.2, which is what a tab stop then owes. The viewport is role="region" with tabindex="0" and a name, written only while the content overflows — a tab stop on content that fits is a tab stop that does nothing.',
       'The name resolves in one order: labelledBy, then messages.label, then the catalog of the language in force, so a product with fifty areas names them once. Base UI and Zag write role="presentation" beside their tab stop, which answers the rule that is tested and breaks the one that is not.',
       'Nine keys are the platform’s on a focused scrollport — the arrows, PageUp and PageDown, Home, End and Space — and the family binds none of them. The one key it owns is Tab, and tabbable={false} gives that back when a consumer knows the content is reachable another way.',
-      'The scrollbar is the platform’s, themed through scrollbar-color and scrollbar-width. The trough click, the scrollbar context menu, the system’s own overlay behaviour and the bar before hydration all survive; a drawn thumb loses every one of them.',
+      'The scrollbar is the platform’s, themed through scrollbar-color and scrollbar-width. The trough click, the scrollbar context menu, the system’s own overlay behavior and the bar before hydration all survive; a drawn thumb loses every one of them.',
       'The veil is a mask and is removed under forced-colors, where the system owns the palette and a veil over system text loses legibility for nothing. The scrollbar goes back to the system’s own there too.',
     ],
     anatomy,
@@ -84,7 +84,7 @@ export const REACT_SCROLL_AREA_DOCS = {
         "'auto' | 'stable' | 'both-edges'",
         'stable',
         'ScrollArea',
-        'scrollbar-gutter. stable stops the content shifting when it first overflows; both-edges keeps a column centred',
+        'scrollbar-gutter. stable stops the content shifting when it first overflows; both-edges keeps a column centerd',
       ],
       [
         'fade',
@@ -250,7 +250,7 @@ export const REACT_SCROLL_AREA_DOCS = {
       {
         id: 'gutter',
         title: 'Room for a bar that is not there yet',
-        note: 'The painted inset is the measure. auto reaches the frame and will shift the moment the content overflows; stable holds a bar’s width back so nothing moves; both-edges holds it back on both sides, so a centred column stays centred.',
+        note: 'The painted inset is the measure. auto reaches the frame and will shift the moment the content overflows; stable holds a bar’s width back so nothing moves; both-edges holds it back on both sides, so a centerd column stays centerd.',
         snippet: defineSnippet({
           id: 'scroll-area-react-gutter',
           language: 'tsx',

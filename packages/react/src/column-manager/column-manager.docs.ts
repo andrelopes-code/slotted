@@ -450,7 +450,7 @@ export const REACT_COLUMN_MANAGER_DOCS = {
         'GridColumnState',
         '—',
         'ColumnManager',
-        'Present means the consumer owns the state, for the life of the component; normalised against columns',
+        'Present means the consumer owns the state, for the life of the component; normalized against columns',
       ],
       [
         'defaultColumnState',

@@ -264,8 +264,8 @@ export const States: Story = {
     template: grid(
       2,
       scene(
-        'Invalid, and what stays the colour it was',
-        'Only the message turns. The label keeps its ink because the error already says the same thing in words and in colour, and a red marker on a red label is a marker nobody can see.',
+        'Invalid, and what stays the color it was',
+        'Only the message turns. The label keeps its ink because the error already says the same thing in words and in color, and a red marker on a red label is a marker nobody can see.',
         `<div slField invalid required>
            <label slFieldLabel>Tax ID</label>
            <input slFieldControl value="12.345.678" />
@@ -275,7 +275,7 @@ export const States: Story = {
       ) +
         scene(
           'Read-only, and disabled',
-          'Read-only stays focusable and copyable and looks nothing like disabled, which is muted to a colour the theme measures rather than faded by opacity — a label nobody can read is a field nobody can identify.',
+          'Read-only stays focusable and copyable and looks nothing like disabled, which is muted to a color the theme measures rather than faded by opacity — a label nobody can read is a field nobody can identify.',
           `<div slField readOnly>
              <label slFieldLabel>Account identifier</label>
              <input slFieldControl value="acc_9f2b7c41" />

@@ -213,7 +213,7 @@ export class SlCodeBlock {
   readonly language = input('text');
   /** The engine, outside the family. `null` refuses the one the provider set. */
   readonly highlight = input<CodeHighlighter | null | undefined>(undefined);
-  /** Already-tokenised lines, when the consumer ran the engine itself. */
+  /** Already-tokenized lines, when the consumer ran the engine itself. */
   readonly tokens = input<readonly CodeLine[] | undefined>(undefined);
   readonly title = input<string | undefined>(undefined);
   /** The file's name, for the glyph beside the title. Defaults to `title`. */

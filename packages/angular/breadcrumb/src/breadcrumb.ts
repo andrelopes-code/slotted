@@ -487,7 +487,7 @@ export class SlBreadcrumbLink {
 export class SlBreadcrumbPage {}
 
 /**
- * A crumb that opens a menu of its siblings — the organisation, the project,
+ * A crumb that opens a menu of its siblings — the organization, the project,
  * the environment. It is a component on the consumer's own `button`, because an
  * `a` without `href` takes no focus, and it draws the chevron after the label.
  * The menu composes on the same element:

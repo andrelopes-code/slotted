@@ -136,7 +136,7 @@ export const AutoSize: Story = {
     <Grid columns={2}>
       <Scene
         label="One row until there is more to say"
-        note="Type into it: the box grows a line at a time and stops at four, then scrolls. Nothing is measured on the main thread — the whole behaviour is one CSS declaration."
+        note="Type into it: the box grows a line at a time and stops at four, then scrolls. Nothing is measured on the main thread — the whole behavior is one CSS declaration."
         layout="stack"
       >
         <Textarea autoSize maxRows={4} placeholder="Comece a escrever" rows={1} />

@@ -455,7 +455,7 @@ describe('SlDrawer', () => {
     measureAs(1600, 800);
     /* The measure a double click restores is the one the consumer's binding
        said before anything moved, so it has to be bound before the drawer
-       initialises rather than set after it. Angular holds one model where
+       initializes rather than set after it. Angular holds one model where
        React holds a controlled input and an uncontrolled default. */
     fixture = TestBed.createComponent(DrawerHost);
     host = fixture.componentInstance;

@@ -150,7 +150,7 @@ export class SlRadio implements SlRadioGroupItem {
   /**
    * Refusing the default undoes the platform's pre-click check of *this*
    * element. It does not put the previously chosen neighbour back — checking a
-   * radio unchecks its neighbours, and the canceled activation behaviour undoes
+   * radio unchecks its neighbours, and the canceled activation behavior undoes
    * only the first half of that — so the group writes every element from the
    * value afterwards.
    */

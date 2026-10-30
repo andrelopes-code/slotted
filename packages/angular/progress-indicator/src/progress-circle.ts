@@ -28,7 +28,7 @@ import type { ProgressShape } from './progress-indicator.constants';
  *
  * The number sits beside the ring rather than inside it: the largest ring this
  * family draws is 38 pixels across with a 4.75-pixel stroke, which leaves 28
- * pixels of hole, and a percentage centred in it would be four-pixel type.
+ * pixels of hole, and a percentage centerd in it would be four-pixel type.
  *
  * With `wave` the indicator is M3's wavy ring from `@slotted/core/progress`
  * and the track stays a circle, which is what `CircularWavyProgressModifiers`

@@ -66,7 +66,7 @@ test('shares the file vocabulary with upload and no implementation', () => {
 });
 
 /**
- * The kind decides the tile's colour and the mark knocked out of it, and a
+ * The kind decides the tile's color and the mark knocked out of it, and a
  * reader who meets a PDF in an upload and the same PDF in a reply has to meet
  * the same tile. The map is read against `upload`'s, so the two cannot drift.
  */
@@ -74,7 +74,7 @@ test('draws every kind with the tile and the mark upload draws it with', () => {
   assert.deepEqual(Object.keys(contract.kinds).sort(), Object.keys(upload.kinds).sort());
   for (const [kind, entry] of Object.entries(contract.kinds)) {
     assert.equal(entry.glyph, upload.kinds[kind].glyph, `${kind} has a second mark`);
-    assert.equal(entry.tile, upload.kinds[kind].tile, `${kind} has a second colour`);
+    assert.equal(entry.tile, upload.kinds[kind].tile, `${kind} has a second color`);
   }
   assert.equal(contract.kindsForeground, upload.kindsForeground);
 });

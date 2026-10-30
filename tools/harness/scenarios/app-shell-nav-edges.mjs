@@ -6,7 +6,7 @@ import { launch } from '../shoot.mjs';
 /**
  * The navigation column of `app-shell`, read in Chrome with classic scrollbars:
  *
- * - a seam colour written on the banner recolours the banner's seam, and
+ * - a seam color written on the banner recolors the banner's seam, and
  *   `transparent` removes it;
  * - a full-width child of `nav-header`, `nav-body` and `nav-footer` ends on
  *   one right edge, though only the body scrolls;
@@ -229,7 +229,7 @@ const check = (condition, message) => {
 
 check(reading.gutter > 0, 'the page draws classic scrollbars, or the edge reading proves nothing');
 
-check(reading.seam.banner === 'rgb(255, 0, 0)', 'the colour written on the banner draws its seam');
+check(reading.seam.banner === 'rgb(255, 0, 0)', 'the color written on the banner draws its seam');
 check(
   reading.seam.footer === 'rgba(0, 0, 0, 0)',
   'transparent written on the footer removes its seam',

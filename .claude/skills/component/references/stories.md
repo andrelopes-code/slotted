@@ -81,7 +81,7 @@ every part a consumer may replace, every prop that changes what is drawn, every
 capability the inventory listed as a differentiator. A capability with no
 demonstration is a capability nobody can find, and the family may as well not
 have shipped it. `date-field` holds the day a short month could not take, and a
-page that never shows 31 → 28 → 31 has hidden the one behaviour no surveyed
+page that never shows 31 → 28 → 31 has hidden the one behavior no surveyed
 implementation has.
 
 Two demonstrations of the same thing under different names is padding, and
@@ -156,7 +156,7 @@ reviewer's words: a page header in four hundred by five hundred and twenty is
 horrible, and what it shows is not the family. Take `screen` and let the
 demonstration be the size the thing actually is.
 
-Add `data-scroll` when the behaviour is about what happens while the reader
+Add `data-scroll` when the behavior is about what happens while the reader
 scrolls past it, and `data-layout="page"` when what scrolls has to read as a
 page rather than as a box.
 

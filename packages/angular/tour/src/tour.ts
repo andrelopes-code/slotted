@@ -373,7 +373,7 @@ export class SlTour implements TourContext {
     const layout = this.layout() ?? this.defaults.layout;
     return layout === 'compact' || (layout === 'auto' && this.narrow());
   });
-  /** The target leaves a card room on some side; when it does not, the card is centred over it. */
+  /** The target leaves a card room on some side; when it does not, the card is centerd over it. */
   private readonly fits = signal(true);
   readonly resolvedSide = computed(() =>
     compactSide(this.current()?.side ?? this.side() ?? this.defaults.side, this.compact()),
@@ -795,7 +795,7 @@ export class SlTour implements TourContext {
     /**
      * The layer inherits its theme, scheme, density and direction from its
      * origin. The tour's own element stands where the consumer wrote it, in
-     * the region whose theme the layer belongs to, which a centred first step
+     * the region whose theme the layer belongs to, which a centerd first step
      * with no target could not otherwise say.
      */
     const host: Element = this.viewContainer.element.nativeElement;
@@ -854,7 +854,7 @@ export class SlTour implements TourContext {
           surface.style.removeProperty('top');
           surface.removeAttribute('data-side');
           surface.removeAttribute('data-positioned');
-          /* A centred card is placed by the stylesheet; it is ready on the
+          /* A centerd card is placed by the stylesheet; it is ready on the
              next frame, so its arrival starts from nothing. */
           requestAnimationFrame(() => live && this.ready.set(true));
           return;

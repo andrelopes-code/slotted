@@ -278,7 +278,7 @@ describe('estimateRemaining', () => {
 
 describe('toAdapter', () => {
   /** A bare function cannot suspend, so it says so rather than being asked. */
-  it('normalises a bare function, and refuses to claim it can pause', () => {
+  it('normalizes a bare function, and refuses to claim it can pause', () => {
     const send = async () => undefined;
     expect(toAdapter(send)).toEqual({ send, pausable: false });
     expect(toAdapter({ send, pausable: true }).pausable).toBe(true);
@@ -449,7 +449,7 @@ describe('createUploadRunner', () => {
    * the only place it can: a pause asked for while `send` is inside a chunk
    * takes effect at the end of that chunk and not before.
    */
-  it('suspends an adapter that honours the handshake, and lets it go again', async () => {
+  it('suspends an adapter that honors the handshake, and lets it go again', async () => {
     const seen: string[] = [];
     const runner = createUploadRunner({
       adapter: {

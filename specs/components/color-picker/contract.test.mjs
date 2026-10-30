@@ -35,7 +35,7 @@ test('draws an area, two channels, a preview, the text, presets and the contrast
 
 /**
  * The value is a string in the format the consumer chose, so what comes in is
- * what goes out; the colour arithmetic lives in one core module.
+ * what goes out; the color arithmetic lives in one core module.
  */
 test('holds a string in the current format and converts nothing in a binding', () => {
   assert.deepEqual(contract.formats, ['hex', 'rgb', 'hsl', 'oklch']);
@@ -55,14 +55,14 @@ test('holds a string in the current format and converts nothing in a binding', (
   assert.deepEqual(contract.resolution.format, ['prop', 'value', 'defaults', 'hex']);
 });
 
-/** A colour outside sRGB is said, never quietly clipped. */
+/** A color outside sRGB is said, never quietly clipped. */
 test('declares a value outside sRGB instead of converting it', () => {
   assert.equal(contract.gamut.space, 'srgb');
   assert.equal(contract.gamut.attribute, 'data-out-of-gamut');
   assert.ok(picker.parts.includes('gamut'));
 });
 
-test('measures the contrast against a colour the consumer names', () => {
+test('measures the contrast against a color the consumer names', () => {
   assert.equal(contract.contrast.against, 'contrastWith');
   assert.deepEqual(contract.contrast.levels, ['AAA', 'AA', 'AA-large', 'fail']);
 });

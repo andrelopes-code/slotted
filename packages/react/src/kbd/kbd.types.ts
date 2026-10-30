@@ -15,7 +15,7 @@ export type KbdSize = 'xs' | 'sm' | 'md' | 'lg' | 'inherit';
 /**
  * `raised` is the only value that looks like a key. `outline` owns no ground,
  * so it carries over any surface. `soft` is the tinted chip. `plain` is the
- * menu-row form, and it takes the colour of the text it sits in.
+ * menu-row form, and it takes the color of the text it sits in.
  */
 export type KbdVariant = 'raised' | 'outline' | 'soft' | 'plain';
 

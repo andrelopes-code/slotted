@@ -41,7 +41,7 @@ test('names the eight parts a trail is made of', () => {
 });
 
 /**
- * A crumb that switches between siblings — the organisation, the project, the
+ * A crumb that switches between siblings — the organization, the project, the
  * environment — is a `button` that opens a `menu`. It is its own part because a
  * `link` is an `a`, and an `a` without `href` cannot take focus. The menu is the
  * consumer's composition; the trail owns how the crumb looks and that the
@@ -118,7 +118,7 @@ test('gives the collapse a controlled and uncontrolled pair', () => {
 /**
  * A trail that does not fit its width folds its middle crumbs into the same
  * ellipsis the count collapses into. What folded is read from the layout, so it
- * is not a value a consumer owns; `wrap` keeps the older behaviour.
+ * is not a value a consumer owns; `wrap` keeps the older behavior.
  */
 test('folds the crumbs that do not fit into the ellipsis', () => {
   assert.ok(breadcrumb.capabilities.includes('overflow'));

@@ -207,7 +207,7 @@ export interface DragControllerOptions {
   /**
    * Turns the pointer into a position. Default: the container whose box holds
    * the point, then the item midpoints along its axis (`resolvePoint`). A
-   * family with another rule — nearest centre, a hit box per cell — replaces
+   * family with another rule — nearest center, a hit box per cell — replaces
    * it here and keeps everything else.
    */
   resolveTarget?: (point: Point, containers: readonly MeasuredContainer[]) => DropTarget | null;

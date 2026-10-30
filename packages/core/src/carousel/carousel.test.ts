@@ -67,7 +67,7 @@ describe('carouselPages', () => {
     expect(pages.positions[1]).toBe(316);
   });
 
-  it('centres every slide and lets the end slides share a page', () => {
+  it('centers every slide and lets the end slides share a page', () => {
     const pages = carouselPages(row(5, 300, 16, 400), { align: 'center' });
     expect(pages.positions[0]).toBe(0);
     expect(pages.positions[1]).toBe(316 + 150 - 200);

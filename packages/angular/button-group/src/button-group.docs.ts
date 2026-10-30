@@ -84,7 +84,7 @@ export const ANGULAR_BUTTON_GROUP_DOCS = {
       'A boundary that carries meaning is better said by a nested group with a name of its own than by a rule: an announced separator says a boundary exists, while a named group says what is on either side of it.',
       'The separator takes its axis from the group, mirrored: a rule across a row is vertical.',
       'Nothing here depends on hover, and nothing is decided by script. The buttons are joined by the stylesheet alone, so the bar is the same shape in a server render and with JavaScript disabled.',
-      'The buttons keep the accessible names, disabled behaviour and loading announcements the button family gives them. The group adds nothing to them and removes nothing from them.',
+      'The buttons keep the accessible names, disabled behavior and loading announcements the button family gives them. The group adds nothing to them and removes nothing from them.',
       'A toggle button belongs in a bar of actions, and the group keeps its frame whole around one — but an exclusive set of them is toggle-group, not this family. Built here by hand the set has no exclusivity, no shared keyboard and one tab stop per control where the pattern gives one for the set; toggle-group owns the value, the roving focus and the group semantics over it.',
     ],
     snippets: [

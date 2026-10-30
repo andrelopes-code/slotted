@@ -177,7 +177,7 @@ export interface FieldProps extends Omit<ComponentPropsWithRef<'div'>, 'children
   /**
    * Unstated rather than `false`. Writes `aria-required` on the control and
    * never the native `required`, which would engage browser constraint
-   * validation and change submit behaviour.
+   * validation and change submit behavior.
    */
   required?: boolean | undefined;
   /** Renders the field into another element. */

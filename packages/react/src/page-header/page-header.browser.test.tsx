@@ -249,7 +249,7 @@ describe('a toolbar of actions under a rich title on a narrow header', () => {
 });
 
 describe('the way back', () => {
-  /* The family's muted colour as the browser resolves it, read off a probe. */
+  /* The family's muted color as the browser resolves it, read off a probe. */
   function muted(within: Element) {
     const probe = document.createElement('span');
     probe.style.color = 'var(--slotted-text-muted, GrayText)';

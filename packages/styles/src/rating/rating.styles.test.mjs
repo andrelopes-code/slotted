@@ -160,12 +160,12 @@ test('draws the edge of both shapes from the scheme token', () => {
 });
 
 /**
- * A flex row centres the line box, and the line box sits the letters high: the
- * figures beside the stars read above the stars' centre until the box was
+ * A flex row centers the line box, and the line box sits the letters high: the
+ * figures beside the stars read above the stars' center until the box was
  * trimmed to the cap and the baseline. The summary's figure stays on its
  * baseline, above the stars rather than beside them.
  */
-test('centres the text beside the stars on its ink', () => {
+test('centers the text beside the stars on its ink', () => {
   const trimmed = normalized.split('@supports (text-box:trim-both cap alphabetic){')[1] ?? '';
   assert.match(
     trimmed,
@@ -177,7 +177,7 @@ test('centres the text beside the stars on its ink', () => {
   assert.doesNotMatch(trimmed.split('}')[0], /aggregate/);
 });
 
-/** A value on the scale sits on the columns' axis: the first column's centre plus one step per unit. */
+/** A value on the scale sits on the columns' axis: the first column's center plus one step per unit. */
 test('places the mean and its interval on the axis the columns are drawn on', () => {
   const place =
     /calc\(var\(--_col\) \/ 2 \+ \(var\(--_mean\) - 1\) \* \(var\(--_col\) \+ var\(--_g\)\)/;
@@ -201,7 +201,7 @@ test('draws an empty level as nothing and marks each share with a real part', ()
   assert.match(rule(`${ui} [data-part-swatch]`), /background-color:var\(--_mark\)/);
 });
 
-test('keeps the lit and unlit shapes apart under forced colours', () => {
+test('keeps the lit and unlit shapes apart under forced colors', () => {
   const forced = normalized.split('@media (forced-colors:active){')[1] ?? '';
   assert.match(forced, /--_on:CanvasText/);
   assert.match(forced, /--_off:Canvas;/);

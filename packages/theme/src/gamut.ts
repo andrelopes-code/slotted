@@ -4,14 +4,14 @@ import { fmt } from './format';
 /**
  * The most chroma sRGB holds at one lightness, as a function of the hue.
  *
- * A colour turned from a seed by a fixed hue offset can land on any hue, and
+ * A color turned from a seed by a fixed hue offset can land on any hue, and
  * the chroma sRGB holds at a lightness ranges from 0.1 (cyan) to over 0.25
  * (red, violet) at 0.6. A single chroma low enough for every hue paints every
  * other hue grey; a single chroma high enough for the reds leaves the screen
  * to clip the cyans, which moves their hue and their lightness. The limit is
  * a fourth-order Fourier series in the hue, fitted over every degree and
  * moved by its largest overshoot toward the inside, so it never admits a
- * colour the gamut refuses.
+ * color the gamut refuses.
  */
 export interface ChromaLimit {
   /** The chroma asked for, where sRGB holds it. */
@@ -109,7 +109,7 @@ function horner(coefficients: readonly number[], u: string): string {
 }
 
 /**
- * The limited colour in CSS. The seed is turned to the hue at chroma 1, so
+ * The limited color in CSS. The seed is turned to the hue at chroma 1, so
  * the `a` and `b` of its OKLab form are the hue's cosine and sine; the series
  * is a polynomial of the two (cos nh = T_n(a), sin nh = b · U_{n−1}(a)), and
  * scaling `a` and `b` by the limited chroma paints it. No trigonometric

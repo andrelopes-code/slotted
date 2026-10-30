@@ -93,7 +93,7 @@ export const Underline: Story = {
         [
           [
             'always',
-            'Prose. The only value that survives a reader who cannot separate the colours.',
+            'Prose. The only value that survives a reader who cannot separate the colors.',
           ],
           ['hover', 'Dense navigation, where a column of underlines is noise. Focus reveals it.'],
           ['none', 'A link a heading or a cell already frames as one.'],
@@ -120,7 +120,7 @@ export const Variants: Story = {
       <Scene
         label='variant="accent"'
         layout="prose"
-        note="The invitation to leave this page. Hover darkens it toward the body colour and fills the underline."
+        note="The invitation to leave this page. Hover darkens it toward the body color and fills the underline."
       >
         <p>
           Charges are listed in the <Link href="/history">payment history</Link>.
@@ -129,7 +129,7 @@ export const Variants: Story = {
       <Scene
         label='variant="neutral"'
         layout="stack"
-        note="The colour of the text around it, reaching the accent under the pointer. It belongs where nothing on the line could be mistaken for it."
+        note="The color of the text around it, reaching the accent under the pointer. It belongs where nothing on the line could be mistaken for it."
       >
         <Link href="/invoices/0041" underline="hover" variant="neutral">
           INV-2026-08-0041
@@ -141,7 +141,7 @@ export const Variants: Story = {
       <Scene
         label='variant="inverse"'
         layout="stack"
-        note="On a solid ground the text colour is already the strongest available, so hover is carried by the underline alone."
+        note="On a solid ground the text color is already the strongest available, so hover is carried by the underline alone."
       >
         <div className="slotted-demo-surface" data-surface="inverse">
           Your trial ends in three days.{' '}
@@ -243,7 +243,7 @@ export const Current: Story = {
       <Scene
         label='aria-current="page"'
         layout="stack"
-        note="The link to the page you are already on takes the body colour and keeps its underline. Nothing about its width changes, so the column does not shift."
+        note="The link to the page you are already on takes the body color and keeps its underline. Nothing about its width changes, so the column does not shift."
       >
         <nav aria-label="Workspace">
           <div className="slotted-demo-stack">

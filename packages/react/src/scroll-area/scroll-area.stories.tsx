@@ -223,7 +223,7 @@ function Fits() {
 /**
  * The inset painted, so the room the gutter holds back is visible as the strip
  * the paint does not reach. The ground is a workbench surface rather than a
- * colour the story states.
+ * color the story states.
  */
 function Painted(props: Omit<ScrollAreaProps, 'ref' | 'children'>) {
   return (

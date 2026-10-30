@@ -93,7 +93,7 @@ test('outranks every border rule the button family writes', () => {
 
 /**
  * The overlap puts two borders in the same one-pixel column. They are the same
- * colour and the same width, so on paper they are one line — and they are,
+ * color and the same width, so on paper they are one line — and they are,
  * until the page is zoomed: the browser snaps each border box to device pixels
  * on its own, so at 110%, 150% and 175% one boundary lands on a single column
  * and the next lands across two. Five of fifteen photographed boundaries came
@@ -102,7 +102,7 @@ test('outranks every border rule the button family writes', () => {
  *
  * Exactly one border is painted there, and it is the leading edge of the
  * control that follows. A rule between two runs stands in that same column,
- * so it changes which colour is painted there and never how many borders are.
+ * so it changes which color is painted there and never how many borders are.
  */
 test('paints one border in each shared column, not two stacked ones', () => {
   const blocks = [...dense.matchAll(/(?<=^|\})([^{}]+)\{([^{}]*)\}/g)].map(
@@ -238,7 +238,7 @@ test('lifts a joined control for focus and for nothing else', () => {
  * A thick rule inside a bar of hairlines is not a stronger boundary, it is a
  * slab: the capture of a vertical joined bar with a rule before its
  * destructive action showed a grey block cutting the component in half. The
- * boundary a framed bar needs is one step of colour in the shared column.
+ * boundary a framed bar needs is one step of color in the shared column.
  */
 test('draws the rule at one border width and no more', () => {
   assert.ok(
@@ -248,7 +248,7 @@ test('draws the rule at one border width and no more', () => {
 });
 
 /**
- * A joined bar is one shape, and a rule is not licence to cut it. Inside one
+ * A joined bar is one shape, and a rule is not license to cut it. Inside one
  * the rule stops being a box: no width, no height, no margin. What it marks is
  * painted on the leading edge of the control that follows, which is the one
  * edge the overlap already leaves in the shared column.

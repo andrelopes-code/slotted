@@ -79,7 +79,7 @@ export const Tones: Story = {
     <Grid columns={2}>
       <Scene
         label="Four severities and one absence of one"
-        note="secondary is help: no mark, no severity word, and the neutral muted ink rather than a tone’s label colour, which under a field reads as loud as the label above it."
+        note="secondary is help: no mark, no severity word, and the neutral muted ink rather than a tone’s label color, which under a field reads as loud as the label above it."
       >
         {TONES.map(({ message, tone }) => (
           <InlineMessage key={tone} tone={tone}>
@@ -88,8 +88,8 @@ export const Tones: Story = {
         ))}
       </Scene>
       <Scene
-        label="The same five with no colour at all"
-        note="Switch the toolbar to high-contrast, or read this in greyscale: the silhouette is what is left telling an error from a note, and the hidden word is what a reader hears."
+        label="The same five with no color at all"
+        note="Switch the toolbar to high-contrast, or read this in grayscale: the silhouette is what is left telling an error from a note, and the hidden word is what a reader hears."
       >
         {TONES.map(({ tone }) => (
           <InlineMessage key={tone} tone={tone}>
@@ -310,7 +310,7 @@ export const Content: Story = {
     <Grid columns={3}>
       <Scene
         label="Long, and in another language"
-        note="A German compound wraps to three lines and the mark stays on the first, because the mark’s box is one line box tall rather than centred on the whole message."
+        note="A German compound wraps to three lines and the mark stays on the first, because the mark’s box is one line box tall rather than centerd on the whole message."
       >
         <InlineMessage tone="warning">
           Die Zahlungsbestätigung konnte nicht zugestellt werden, weil die hinterlegte
@@ -368,7 +368,7 @@ export const Composition: Story = {
       </Scene>
       <Scene
         label="The page’s own mark, and none at all"
-        note="icon keeps the box, the colour and the place on the first line; hideIcon removes the box and leaves the severity word, because that is what a reader hears."
+        note="icon keeps the box, the color and the place on the first line; hideIcon removes the box and leaves the severity word, because that is what a reader hears."
       >
         <InlineMessage icon={<ShieldGlyph />} tone="accent">
           The art belongs to the application; the box belongs to the family.

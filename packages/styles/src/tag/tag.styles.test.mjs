@@ -219,7 +219,7 @@ test('draws a dashed tag as an outline whose edge is dashed', () => {
   );
 });
 
-test('keeps a border under forced colours, where the tone is discarded', () => {
+test('keeps a border under forced colors, where the tone is discarded', () => {
   assert.ok(
     normalized.includes(`@media (forced-colors:active){${root}{border-color:currentColor`),
     'a solid and an outline tag are otherwise indistinguishable',

@@ -273,7 +273,7 @@ export function TableColumnHeader({
 
 /**
  * The cell that identifies the record, which a screen reader repeats in each of
- * the cells beside it. It states no colour of its own, so a selected record's
+ * the cells beside it. It states no color of its own, so a selected record's
  * name turns with the row and a disabled one dims with it.
  */
 export function TableRowHeader({

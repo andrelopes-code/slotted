@@ -66,7 +66,7 @@ test('paints the match through the root, and the root not at all', () => {
  * The criterion CB6 states: the width of a label with the mark and without it
  * differ by zero. Everything that could move the metric of a word is either
  * inherited from the line the word is on or set to nothing, so the only thing
- * the mark changes is colour.
+ * the mark changes is color.
  */
 test('changes no metric of the word it marks', () => {
   const mark = rule(match);
@@ -80,7 +80,7 @@ test('changes no metric of the word it marks', () => {
   assert.match(fragment, /data-scene="metric"/);
 });
 
-test('carries the mark on colour, with a rule of the accent under it', () => {
+test('carries the mark on color, with a rule of the accent under it', () => {
   const mark = rule(match);
   assert.match(
     mark,
@@ -159,7 +159,7 @@ test('steps the mark down inside a row that answers nothing, from the root or ab
   assert.match(fragment, /data-part="root" data-disabled/);
 });
 
-test('names the system pair forced colours would collapse', () => {
+test('names the system pair forced colors would collapse', () => {
   const forced = declarations.slice(declarations.indexOf('@media (forced-colors: active)'));
   assert.match(forced, /background-color:\s*Mark/);
   assert.match(forced, /color:\s*MarkText/);

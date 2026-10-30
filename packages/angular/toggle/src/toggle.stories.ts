@@ -143,7 +143,7 @@ const meta: Meta<ToggleStoryArgs> = {
       page: createReferencePage({
         title: 'Toggle',
         description:
-          'A two-state button standing on its own: a mode — Bold, Wrap, Pin — that is true the moment it is pressed, neutral until it is on and one colour when it is. It is the APG Button pattern’s toggle button; the action that persists and waits is button’s SlToggleButton.',
+          'A two-state button standing on its own: a mode — Bold, Wrap, Pin — that is true the moment it is pressed, neutral until it is on and one color when it is. It is the APG Button pattern’s toggle button; the action that persists and waits is button’s SlToggleButton.',
         framework: 'Angular',
         ...ANGULAR_TOGGLE_DOCS.toggle,
         tokens: ANGULAR_TOGGLE_TOKENS,
@@ -234,7 +234,7 @@ export const Variant: Story = {
       2,
       scene(
         'outline',
-        'An edge of its own, in the control border colour, so the toggle stands beside a field as a control. On, the edge turns accent and the ground tints inside it.',
+        'An edge of its own, in the control border color, so the toggle stands beside a field as a control. On, the edge turns accent and the ground tints inside it.',
         pin() + pin('defaultPressed'),
         'row',
       ) +
@@ -275,7 +275,7 @@ export const IconOnly: Story = {
       2,
       scene(
         'Square, named by aria-label',
-        'With no words the toggle is as wide as it is tall and the mark is centred. The name a reader hears is the aria-label the consumer wrote, and it does not change when the state does.',
+        'With no words the toggle is as wide as it is tall and the mark is centerd. The name a reader hears is the aria-label the consumer wrote, and it does not change when the state does.',
         mark('lucideBold', 'Bold', 'defaultPressed') +
           mark('lucideItalic', 'Italic') +
           mark('lucideUnderline', 'Underline'),
@@ -410,7 +410,7 @@ export const Versus: Story = {
       2,
       scene(
         'Toggle: a mode',
-        'True the moment it is pressed, neutral until on, one colour when on. Wrap, Pin, Bold: nothing is sent anywhere, and the reader sees the effect at once.',
+        'True the moment it is pressed, neutral until on, one color when on. Wrap, Pin, Bold: nothing is sent anywhere, and the reader sees the effect at once.',
         wrap() + pin('defaultPressed'),
         'row',
       ) +

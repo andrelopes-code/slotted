@@ -118,7 +118,7 @@ export const Content: Story = {
       )}
       ${scene(
         'glyphs',
-        'A glyph before or after the words, in a box the family sizes and centres. The artwork is the consumer’s.',
+        'A glyph before or after the words, in a box the family sizes and centers. The artwork is the consumer’s.',
         `<div slTagGroup role="list" aria-label="Com glifos">
           <span slTag tone="accent">
             <span slTagBody><span slTagStart>${glyph(GLYPH_TAG)}</span>entidade</span>

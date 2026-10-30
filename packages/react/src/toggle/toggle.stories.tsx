@@ -38,7 +38,7 @@ const meta = {
       page: createReferencePage({
         title: 'Toggle',
         description:
-          'A two-state button standing on its own: a mode — Bold, Wrap, Pin — that is true the moment it is pressed, neutral until it is on and one colour when it is. It is the APG Button pattern’s toggle button; the action that persists and waits is button’s ToggleButton.',
+          'A two-state button standing on its own: a mode — Bold, Wrap, Pin — that is true the moment it is pressed, neutral until it is on and one color when it is. It is the APG Button pattern’s toggle button; the action that persists and waits is button’s ToggleButton.',
         framework: 'React',
         ...REACT_TOGGLE_DOCS.toggle,
         tokens: REACT_TOGGLE_TOKENS,
@@ -110,7 +110,7 @@ export const Variant: Story = {
     <Grid columns={2}>
       <Scene
         label="outline"
-        note="An edge of its own, in the control border colour, so the toggle stands beside a field as a control. On, the edge turns accent and the ground tints inside it."
+        note="An edge of its own, in the control border color, so the toggle stands beside a field as a control. On, the edge turns accent and the ground tints inside it."
         layout="row"
       >
         <Toggle icon={<Pin size={16} />}>Pin header</Toggle>
@@ -166,7 +166,7 @@ export const IconOnly: Story = {
     <Grid columns={2}>
       <Scene
         label="Square, named by aria-label"
-        note="With no words the toggle is as wide as it is tall and the mark is centred. The name a reader hears is the aria-label the consumer wrote, and it does not change when the state does."
+        note="With no words the toggle is as wide as it is tall and the mark is centerd. The name a reader hears is the aria-label the consumer wrote, and it does not change when the state does."
         layout="row"
       >
         <Toggle aria-label="Bold" icon={<Bold size={16} />} defaultPressed />
@@ -368,7 +368,7 @@ export const Versus: Story = {
     <Grid columns={2}>
       <Scene
         label="Toggle: a mode"
-        note="True the moment it is pressed, neutral until on, one colour when on. Wrap, Pin, Bold: nothing is sent anywhere, and the reader sees the effect at once."
+        note="True the moment it is pressed, neutral until on, one color when on. Wrap, Pin, Bold: nothing is sent anywhere, and the reader sees the effect at once."
         layout="row"
       >
         <Toggle icon={<WrapText size={16} />}>Wrap lines</Toggle>

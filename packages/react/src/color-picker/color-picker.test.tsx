@@ -11,7 +11,7 @@ const root = () =>
 const slider = (name: string) => screen.getByRole('slider', { name });
 
 describe('ColorPicker', () => {
-  it('draws the whole anatomy and writes the colour as runtime properties', () => {
+  it('draws the whole anatomy and writes the color as runtime properties', () => {
     render(
       <ColorPicker
         contrastWith="#FFFFFF"
@@ -69,7 +69,7 @@ describe('ColorPicker', () => {
     expect(screen.queryByRole('slider', { name: 'Opacity' })).toBeNull();
   });
 
-  it('holds a colour still being typed, and commits it in the current notation', () => {
+  it('holds a color still being typed, and commits it in the current notation', () => {
     const onValueChange = vi.fn();
     render(<ColorPicker defaultValue="#2563EB" onValueChange={onValueChange} />);
     const input = screen.getByRole('textbox', { name: 'Color' });
@@ -87,7 +87,7 @@ describe('ColorPicker', () => {
     expect(input.closest('[data-ui="text-field"]')).toHaveAttribute('data-invalid', '');
   });
 
-  it('puts back the last valid colour when the text is abandoned', () => {
+  it('puts back the last valid color when the text is abandoned', () => {
     render(<ColorPicker defaultValue="#2563EB" />);
     const input = screen.getByRole<HTMLInputElement>('textbox', { name: 'Color' });
     fireEvent.change(input, { target: { value: 'azul' } });
@@ -116,7 +116,7 @@ describe('ColorPicker', () => {
     ]);
   });
 
-  it('restores the colour it opened with', () => {
+  it('restores the color it opened with', () => {
     const onValueChange = vi.fn();
     render(<ColorPicker onValueChange={onValueChange} value="#DC2626" />);
     fireEvent.click(screen.getByRole('button', { name: 'Restore #DC2626' }));
@@ -130,7 +130,7 @@ describe('ColorPicker', () => {
     expect(contrast).toHaveTextContent('5.17:1');
   });
 
-  it('says a colour lies outside sRGB instead of converting it', () => {
+  it('says a color lies outside sRGB instead of converting it', () => {
     const onValueChange = vi.fn();
     render(<ColorPicker defaultValue="oklch(0.9 0.3 150)" onValueChange={onValueChange} />);
     expect(root()).toHaveAttribute('data-out-of-gamut');
@@ -177,7 +177,7 @@ describe('ColorPicker', () => {
 });
 
 describe('ColorField', () => {
-  it('commits a typed colour in its notation and paints the swatch', () => {
+  it('commits a typed color in its notation and paints the swatch', () => {
     const onValueChange = vi.fn();
     render(
       <ColorField aria-label="Primary" defaultValue="#2563EB" onValueChange={onValueChange} />,

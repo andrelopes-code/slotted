@@ -229,7 +229,7 @@ export class SlDescriptionListHint {}
         (click)="onCopy($event)"
         (keydown)="onKeydown($event)"
       >
-        <!-- A finished copy changes its mark as well as its colour. -->
+        <!-- A finished copy changes its mark as well as its color. -->
         <span slIcon><svg slGlyph [name]="copied() ? 'check' : 'copy'"></svg></span>
       </button>
     }

@@ -451,7 +451,7 @@ describe('viewTitle', () => {
 });
 
 describe('calendarColor', () => {
-  it('uses the colour given, then the position, and never cycles', () => {
+  it('uses the color given, then the position, and never cycles', () => {
     const calendars = Array.from({ length: 9 }, (_, index) => ({
       key: `c${index}`,
       label: `C${index}`,

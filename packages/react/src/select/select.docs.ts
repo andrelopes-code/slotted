@@ -305,7 +305,7 @@ const scenes: ReferenceSceneMeta[] = [
     snippet: defineSnippet({
       id: 'select-react-multiple',
       language: 'tsx',
-      label: 'Several values, summarised',
+      label: 'Several values, summarized',
       source: `<Select multiple defaultValue={['apple', 'cherry']}>
   <SelectTrigger aria-label="Fruit">
     <SelectValue>{(values) => \`\${values.length} chosen\`}</SelectValue>

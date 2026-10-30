@@ -228,7 +228,7 @@ export function shiftIntoRun(before: string, after: string): string {
 /**
  * A parenthesised amount, unwrapped. `Intl` writes `($1,234.56)` under
  * `currencySign: 'accounting'`, and a reader pastes it back into the field it
- * was copied from. The wrapping is recognised whether or not this format is the
+ * was copied from. The wrapping is recognized whether or not this format is the
  * one that wrote it: a ledger export and a plain field are the same string.
  */
 function unwrapAccounting(text: string) {

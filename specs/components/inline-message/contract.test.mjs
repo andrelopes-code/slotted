@@ -59,7 +59,7 @@ test('speaks in the library’s five shared tones and invents no sixth word', ()
 /**
  * `secondary` is the help tone: the message that sits under most fields, that
  * draws no mark, speaks no severity word, and paints in the neutral muted ink
- * rather than in a tone's label colour. The quietest thing the family can be is
+ * rather than in a tone's label color. The quietest thing the family can be is
  * what it is when nothing is stated.
  */
 test('defaults to help, which is the message a form carries most of', () => {
@@ -69,12 +69,12 @@ test('defaults to help, which is the message a form carries most of', () => {
 });
 
 /**
- * A glyph per severity, so the tones are distinguishable in greyscale, in the
- * `high-contrast` scheme and under forced colours. The map is the one
+ * A glyph per severity, so the tones are distinguishable in grayscale, in the
+ * `high-contrast` scheme and under forced colors. The map is the one
  * `status-indicator` and `alert` declare, so a status light, an alert and a
  * field error about the same thing draw the same mark. WCAG 2.2 1.4.1.
  */
-test('gives every severity a mark, so colour is never the only signal', () => {
+test('gives every severity a mark, so color is never the only signal', () => {
   assert.deepEqual(contract.toneGlyphs, {
     accent: 'status-info',
     secondary: null,
@@ -100,7 +100,7 @@ test('gives every severity a mark, so colour is never the only signal', () => {
  * a page that wants a column of sentences to start on one left edge.
  *
  * `glyph` stays the default: the family is not only a form's, and a message
- * standing on its own keeps the mark that distinguishes it in greyscale.
+ * standing on its own keeps the mark that distinguishes it in grayscale.
  * `field` and `field-group` are what state `none`, in their own contracts.
  */
 test('draws the tone’s silhouette, one neutral bullet, or nothing', () => {
@@ -110,14 +110,14 @@ test('draws the tone’s silhouette, one neutral bullet, or nothing', () => {
 
 /**
  * The capability none of the thirteen surveyed implementations ships, and the
- * one the family exists for. The mark and the colour reach a reader who looks;
+ * one the family exists for. The mark and the color reach a reader who looks;
  * a reader who listens hears the sentence and nothing else, so the severity is
  * also a word, clipped from sight and read first.
  *
  * GOV.UK ships it for errors in one hard-coded template. Here it is a word per
  * severity, and the table is replaced once for the application.
  */
-test('says the severity in words as well as in colour and geometry', () => {
+test('says the severity in words as well as in color and geometry', () => {
   assert.deepEqual(contract.tonePrefixes, {
     accent: null,
     secondary: null,

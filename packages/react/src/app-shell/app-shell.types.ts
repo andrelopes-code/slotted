@@ -327,7 +327,7 @@ export interface AppShellBrandProps extends Native<'div'>, Common {
 export interface AppShellActionsProps extends Native<'div'>, Common {
   render?: ((props: AppShellPartProps) => ReactNode) | undefined;
 }
-export interface AppShellCentreProps extends Native<'div'>, Common {
+export interface AppShellCenterProps extends Native<'div'>, Common {
   render?: ((props: AppShellPartProps) => ReactNode) | undefined;
 }
 export interface AppShellNavProps extends Native<'nav'>, Common {

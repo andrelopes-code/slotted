@@ -580,7 +580,7 @@ export const DayContent: Story = {
   parameters: scenario('day-content'),
   render: () => (
     <Grid columns={1}>
-      <Scene label="In the week" note="Under the date, centred with it.">
+      <Scene label="In the week" note="Under the date, centerd with it.">
         <EventCalendar<StudioEvent>
           {...STUDIO}
           defaultView="week"
@@ -713,7 +713,7 @@ export const Compact: Story = {
       </Scene>
       <Scene
         label="compact keep"
-        note="The grid stays: marks of colour; a day opens its events as a sheet from the bottom."
+        note="The grid stays: marks of color; a day opens its events as a sheet from the bottom."
       >
         <Phone>
           <EventCalendar<StudioEvent>

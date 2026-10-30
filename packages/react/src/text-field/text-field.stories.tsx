@@ -517,7 +517,7 @@ export const States: Story = {
       </Scene>
       <Scene
         label="Read-only is not disabled"
-        note="Read-only keeps full-strength ink, stays focusable and copyable and is still submitted; disabled is muted to a measured colour rather than faded, so a disabled form still says what it holds."
+        note="Read-only keeps full-strength ink, stays focusable and copyable and is still submitted; disabled is muted to a measured color rather than faded, so a disabled form still says what it holds."
         layout="stack"
       >
         <TextField defaultValue="Somente leitura" readOnly />
@@ -684,7 +684,7 @@ function KeyboardScenes() {
       </Scene>
       <Scene
         label="Enter submits, and Escape is left alone"
-        note="Enter is the platform’s behaviour for a single-line control and is not intercepted. Nothing is bound to Escape: a control that swallowed it inside a dialog would be one a keyboard user cannot leave."
+        note="Enter is the platform’s behavior for a single-line control and is not intercepted. Nothing is bound to Escape: a control that swallowed it inside a dialog would be one a keyboard user cannot leave."
         layout="stack"
       >
         <form

@@ -28,7 +28,7 @@ Class names and the shape of the tree below the root are not contract.
 
 ## Axes
 
-`tone` names one of the five semantic colours; `variant` names how it is
+`tone` names one of the five semantic colors; `variant` names how it is
 painted — `solid`, `outline` or `ghost`; `size` names the step of the control
 scale; `shape` belongs to IconButton alone. There is no `fill`: it was the old
 name of `variant`, and `variant` was the old name of `tone`. There is no `soft`
@@ -40,8 +40,8 @@ unbounded one is `ghost`.
 
 - Every geometric value is read from `--slotted-control-*`. The family declares
   no component token, so a theme retunes every control once.
-- **No state changes a size.** A state may change a colour and nothing else;
-  the two that need more weight than a colour are drawn outside the border box,
+- **No state changes a size.** A state may change a color and nothing else;
+  the two that need more weight than a color are drawn outside the border box,
   by a ring and by an outline. A control is exactly the height its density
   states.
 - `loading` refuses activation, announces itself through a named `progressbar`,
@@ -58,7 +58,7 @@ unbounded one is `ghost`.
   leaves unset keeps each member its own.
 - A change is a request carrying the value, the value it replaces, the reason,
   the originating event and `cancel()`.
-- Native props, events, refs and form behaviour reach the element that owns
+- Native props, events, refs and form behavior reach the element that owns
   them, and an explicit consumer value always wins.
 
 ## Accessibility

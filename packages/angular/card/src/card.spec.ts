@@ -171,7 +171,7 @@ describe('SlCard state', () => {
 });
 
 describe('SlCardAction', () => {
-  it('stays the element the page wrote it on, and keeps the platform behaviour', () => {
+  it('stays the element the page wrote it on, and keeps the platform behavior', () => {
     const { action } = mount();
 
     expect(action().tagName).toBe('A');

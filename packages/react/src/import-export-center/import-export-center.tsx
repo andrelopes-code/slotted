@@ -221,7 +221,7 @@ interface JobContext {
     control: (part: string) => string;
   };
   locale: string;
-  /** The family's words in the language in force, with the centre's `messages` laid over them. */
+  /** The family's words in the language in force, with the center's `messages` laid over them. */
   t: ImportExportTranslator;
   now: number | undefined;
   remaining: ReadonlyMap<string, number | null>;

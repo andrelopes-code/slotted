@@ -182,7 +182,7 @@ export function FieldDescription({ children, mark, tone, ...rest }: FieldMessage
 
 /**
  * What is wrong with the value, in words — which is what WCAG 2.2 SC 3.3.1
- * requires and what colour and a mark alone do not satisfy.
+ * requires and what color and a mark alone do not satisfy.
  *
  * `tone` defaults to `danger` and accepts the other four, so a warning that
  * does not block submission is the same part in another tone rather than a

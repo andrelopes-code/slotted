@@ -92,7 +92,7 @@ describe('StatCard', () => {
   });
 
   /**
-   * The reason the family exists: the colour of a change comes from what the
+   * The reason the family exists: the color of a change comes from what the
    * metric means. A rise is good when up is good and bad when down is; the
    * card writes the tone it derived so its trend can read it, and the delta
    * wears the same one.

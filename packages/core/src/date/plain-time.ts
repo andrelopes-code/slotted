@@ -150,7 +150,7 @@ export function parseISOTime(text: string): PlainTime | null {
  *
  * `hourCycle: 'h23'` is asked for explicitly because the default for `en-US`
  * is `h12`, and an engine answering the `h24` cycle writes midnight as `24`.
- * Neither is a time this library has, so the read is normalised rather than
+ * Neither is a time this library has, so the read is normalized rather than
  * trusted — `24` is `0` and the day it belongs to is not this function's.
  */
 export function nowIn(timeZone?: string): PlainTime {

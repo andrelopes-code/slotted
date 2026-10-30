@@ -259,7 +259,7 @@ export const Matcher: Story = {
       ) +
         scene(
           'Whole words only, written by the consumer',
-          'matcher receives the queries trimmed of empties and returns ranges; here it keeps only the spans that start and end at a word boundary. Its result is normalised like any other.',
+          'matcher receives the queries trimmed of empties and returns ranges; here it keeps only the spans that start and end at a word boundary. Its result is normalized like any other.',
           line(mark('text="Steel cable and network cables" query="cable" [matcher]="wholeWords"')),
         ),
     ),

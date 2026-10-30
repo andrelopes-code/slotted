@@ -497,7 +497,7 @@ export class SlNotificationCenter {
    * heading, the controls, the views, the empty pages and the announcements.
    */
   readonly messages = input<PartialMessages<NotificationCenterMessages> | undefined>(undefined);
-  /** The view an unbound centre starts on, read once. */
+  /** The view an unbound center starts on, read once. */
   readonly defaultView = input<string | undefined>(undefined);
   /** The current view. Two-way, so a template may bind it directly. */
   readonly view = model<string | undefined>(undefined);
@@ -551,7 +551,7 @@ export class SlNotificationCenter {
   private readonly runtimeLocale = injectLocale();
   readonly localeValue = computed(() => this.locale() ?? this.runtimeLocale());
   readonly timeZoneValue = computed(() => this.timeZone() ?? this.defaults.timeZone);
-  /** The family's words in the language in force, with this centre's `messages` laid over them. */
+  /** The family's words in the language in force, with this center's `messages` laid over them. */
   readonly t = injectMessages(notificationCenterMessages, this.messages);
 
   /** The unread count among every item, held or shown. */

@@ -20,7 +20,7 @@ import type { LoaderProps, ProgressRootProps } from './progress-indicator.types'
  * already has two shapes that report a number.
  *
  * `contained` draws M3's fully rounded container behind the shape, at M3's own
- * 38:48 ratio. It is the form to reach for on a photograph or a coloured
+ * 38:48 ratio. It is the form to reach for on a photograph or a colored
  * surface, where a bare shape has no ground to be seen against.
  */
 export function Loader({

@@ -276,7 +276,7 @@ describe('the value the segments make', () => {
   });
 
   /**
-   * The behaviour no surveyed implementation has: 31 January stepped forward
+   * The behavior no surveyed implementation has: 31 January stepped forward
    * is 28 February, and stepped forward again it is 31 March rather than the
    * 28th.
    */

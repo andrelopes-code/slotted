@@ -235,7 +235,7 @@ export const States: Story = {
             <Menu disabled portal={false} value="window">
               <MenuTrigger>Window</MenuTrigger>
               <MenuContent>
-                <MenuItem>Minimise</MenuItem>
+                <MenuItem>Minimize</MenuItem>
               </MenuContent>
             </Menu>
           </Menubar>

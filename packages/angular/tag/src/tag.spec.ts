@@ -262,7 +262,7 @@ describe('SlTagToggle', () => {
     expect(byId('uncontrolled').hasAttribute('data-selected')).toBe(false);
   });
 
-  it('gives the selection a mark of its own, so colour is never the only signal', () => {
+  it('gives the selection a mark of its own, so color is never the only signal', () => {
     const { byId } = mount();
 
     expect(

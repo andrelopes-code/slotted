@@ -31,7 +31,7 @@ export type TabsFit = 'auto' | 'equal';
  * When a panel exists. `active` builds it on selection and drops it after,
  * `lazy` builds it on first selection and keeps it, `eager` builds every panel
  * up front. The names are Cloudscape's, which are the clearest three words in
- * the field for the same three behaviours.
+ * the field for the same three behaviors.
  */
 export type TabsMount = 'active' | 'lazy' | 'eager';
 
@@ -85,7 +85,7 @@ export interface TabsContextValue {
    * How the list hands the root its element. The root owns the roving tab stop,
    * the removal focus and the overflow observer, and all three are about the
    * list; a ref passed down is what lets the list stay the consumer's own
-   * element while the behaviour stays with the family that holds the value.
+   * element while the behavior stays with the family that holds the value.
    */
   attachList: (element: HTMLElement | null) => void;
   /** Whether the family as a whole is out of action. */

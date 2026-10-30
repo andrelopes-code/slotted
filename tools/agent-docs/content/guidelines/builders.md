@@ -43,7 +43,7 @@ Applies to: a stored rule — a workflow's trigger, conditions and actions — o
 Rule: The record shows the rule as it reads — When, If, Then, Otherwise — every later line of the condition tree led by its join in words and every nested group opened by its own ("any of:", "all of:"); the editor opens from that reading in the section it is read in; a reader without the permission to edit reads the rule and is not shown an editor.
 Why: A rule shown only as a form makes a reader who cannot edit it decode disabled controls, and makes one who can open an editor to learn what the rule does.
 Do: Set the trigger beside "When", the conditions the way a query is set — the join in a column of its own at the start of each later line, a group's children stepped in one step under the line that opens it, a guide down every level — and the actions numbered under "Then". The editor is a query parameter of the record (FM-12) and stands in the same section (FM-07).
-Don't: Draw the editor in a read-only state for a reader, or join the conditions by colour, a border or indentation alone.
+Don't: Draw the editor in a read-only state for a reader, or join the conditions by color, a border or indentation alone.
 Seen in: Nexora · the workflow record · corrected
 Verified in: the Automation routes suite, "reads the nested tree as a rule, every later line led by its join" and "lets an executive and an auditor read a workflow with no editor, and names who writes them"
 Check: Open a stored rule as a reader who may edit it and as one who may not: both read When, If, Then, Otherwise with every later line led by its join in words, and only the first is offered the editor.

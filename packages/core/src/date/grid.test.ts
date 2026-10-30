@@ -71,7 +71,7 @@ describe('the pages either side of the day view', () => {
   });
 
   /**
-   * The page is anchored rather than centred, so the year the reader is on
+   * The page is anchored rather than centerd, so the year the reader is on
    * keeps its cell between one press and the next.
    */
   it('anchors the year page so a cell does not move under the pointer', () => {

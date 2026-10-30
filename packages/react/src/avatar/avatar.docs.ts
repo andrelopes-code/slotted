@@ -25,7 +25,7 @@ export const REACT_AVATAR_DOCS = {
         'string',
         '—',
         'Avatar',
-        'The person or entity. It is the accessible name in every status, the source of the initials, and the seed of the colour',
+        'The person or entity. It is the accessible name in every status, the source of the initials, and the seed of the color',
       ],
       [
         'src',
@@ -46,21 +46,21 @@ export const REACT_AVATAR_DOCS = {
         "'auto' | 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger'",
         'auto',
         'Avatar',
-        'Which of the five semantic colours the fallback is painted in. auto derives it from the name',
+        'Which of the five semantic colors the fallback is painted in. auto derives it from the name',
       ],
       [
         'idFor',
         'string',
         '—',
         'Avatar',
-        'A stable identifier to derive the colour from, when the name is not stable or two people share one',
+        'A stable identifier to derive the color from, when the name is not stable or two people share one',
       ],
       [
         'variant',
         "'soft' | 'solid'",
         'soft',
         'Avatar',
-        'How that colour is painted: tinted, or filled',
+        'How that color is painted: tinted, or filled',
       ],
       [
         'surface',
@@ -81,7 +81,7 @@ export const REACT_AVATAR_DOCS = {
         "'circle' | 'square'",
         'circle',
         'Avatar',
-        'A circle is a person; a square is a team, an organisation or a bot',
+        'A circle is a person; a square is a team, an organization or a bot',
       ],
       [
         'status',
@@ -158,12 +158,12 @@ export const REACT_AVATAR_DOCS = {
       'There is no avatar pattern in the WAI-ARIA Authoring Practices — the pattern index carries no entry, and the string does not occur on the page. The applicable guidance is the platform’s own: the img element and the img role in WAI-ARIA 1.2, the W3C WAI alt decision tree, and WCAG 2.2 1.1.1 Non-text Content, 1.4.11 Non-text Contrast and 2.5.8 Target Size (Minimum).',
       'The name is on the root, as aria-label with role="img", and the picture takes an empty alt. The avatar therefore announces the same thing in all four statuses: every surveyed implementation names the image instead, which makes the same avatar “Ada Lovelace” once the photograph loads and “AL” before it.',
       'An avatar with no name is aria-hidden, which is the rule Icon already takes: a name present decides role="img", an absent one decides that there is nothing to announce.',
-      'decorative is the third case — a name that is written beside the avatar, where announcing it would read the person twice. The name still drives the initials and the colour.',
-      'The colour derived from a name is an aid to scanning a list, never the identifier: five tones mean collisions are certain, and colour alone is not a signal. The name is what identifies the person, and it is present in every state.',
+      'decorative is the third case — a name that is written beside the avatar, where announcing it would read the person twice. The name still drives the initials and the color.',
+      'The color derived from a name is an aid to scanning a list, never the identifier: five tones mean collisions are certain, and color alone is not a signal. The name is what identifies the person, and it is present in every state.',
       'An avatar is not focusable and not a command. render can make the root an anchor or a button, and the family paints the focus ring and the hover edge for exactly that case — and holds both back when the avatar is disabled.',
-      'An interactive avatar smaller than 24 by 24 CSS pixels grows a centred overlay to --slotted-target-min, so WCAG 2.2 2.5.8 is met at the two tighter densities without changing any layout. Inside a stack the overlay can reach under a neighbour; the raised member wins the pointer.',
+      'An interactive avatar smaller than 24 by 24 CSS pixels grows a centerd overlay to --slotted-target-min, so WCAG 2.2 2.5.8 is met at the two tighter densities without changing any layout. Inside a stack the overlay can reach under a neighbour; the raised member wins the pointer.',
       'The fallback glyph is the person Glyph in an aria-hidden Icon, not a character: no font can be relied on to carry a silhouette, and a character would be read out.',
-      'Under forced colours the family draws its edge in currentColor, because the theme maps every tone ground to one system colour. The photograph is left alone: a portrait reduced to two system colours is not a portrait.',
+      'Under forced colors the family draws its edge in currentColor, because the theme maps every tone ground to one system color. The photograph is left alone: a portrait reduced to two system colors is not a portrait.',
       'The picture crosses over the initials on --slotted-duration-short, which prefers-reduced-motion collapses to 1ms in the theme. Nothing here loops.',
     ],
     snippets: [
@@ -208,7 +208,7 @@ export const REACT_AVATAR_DOCS = {
           '<Avatar\n  name="Ada Lovelace"\n  renderImage={(props) => <Image {...props} height={64} width={64} />}\n  src={person.photograph}\n/>;',
       }),
       defineSnippet({
-        id: 'avatar-react-organisation',
+        id: 'avatar-react-organization',
         language: 'tsx',
         label: 'A square avatar, and a mark of its own',
         source:

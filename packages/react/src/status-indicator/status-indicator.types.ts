@@ -11,7 +11,7 @@ import type { ComponentPropsWithRef, HTMLAttributes, ReactNode } from 'react';
 export type StatusIndicatorStatus =
   'neutral' | 'info' | 'success' | 'warning' | 'danger' | 'unknown';
 
-/** The compact mark, and the one that says the status without colour. */
+/** The compact mark, and the one that says the status without color. */
 export type StatusIndicatorMark = 'dot' | 'icon';
 export type StatusIndicatorSize = 'sm' | 'md' | 'lg';
 export type StatusIndicatorLive = 'off' | 'polite' | 'assertive';
@@ -79,14 +79,14 @@ export interface StatusIndicatorProps extends ComponentPropsWithRef<'span'> {
   live?: StatusIndicatorLive;
   /**
    * `dot` is the compact mark and `icon` is the one that carries the status
-   * without colour, which is what WCAG 2.2 1.4.1 asks for wherever a product
+   * without color, which is what WCAG 2.2 1.4.1 asks for wherever a product
    * cannot spare the room for words.
    */
   mark?: StatusIndicatorMark;
   /**
    * A wave leaving the dot, for a change happening now. An icon mark does not
    * pulse, and the wave is withdrawn under reduced motion and under forced
-   * colours, so nothing is ever said by the wave alone.
+   * colors, so nothing is ever said by the wave alone.
    */
   pulse?: boolean;
   render?: (props: StatusIndicatorRootProps) => ReactNode;

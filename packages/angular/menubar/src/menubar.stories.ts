@@ -232,7 +232,7 @@ export const States: Story = {
                 ${FILE}
                 <button [slMenuTriggerFor]="window">Window</button>
                 <sl-menu #window value="window" [disabled]="true" [portal]="false">
-                  <button slMenuItem>Minimise</button>
+                  <button slMenuItem>Minimize</button>
                 </sl-menu>
               </sl-menubar>
             </div>

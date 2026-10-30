@@ -74,7 +74,7 @@ test('takes tokens from an optional engine and never HTML', () => {
 
 /**
  * The palette is a theme scale — twelve tokens in the component layer — so a
- * scheme switch reaches every colour. An engine's inline colour is the one
+ * scheme switch reaches every color. An engine's inline color is the one
  * thing a scheme switch cannot reach.
  */
 test('paints scopes from a twelve-token scale measured against the fence ground', () => {

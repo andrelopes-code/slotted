@@ -198,7 +198,7 @@ test('truncates the stem, keeps the extension, and isolates the run', () => {
   );
 });
 
-/** A failed attachment says so in line as well as in colour. */
+/** A failed attachment says so in line as well as in color. */
 test('marks a failed file with an edge that survives a scheme with no tint', () => {
   const invalid = rule(`${ui}[data-part-root][data-invalid]`);
   assert.match(invalid, /--_surface:var\(--slotted-tone-danger-surface\)/);
@@ -225,7 +225,7 @@ test('uses logical properties only', () => {
   assert.doesNotMatch(declarations, /(?<![-\w])(?:width|height):/);
 });
 
-test('answers forced colours where a mix into Canvas would say nothing', () => {
+test('answers forced colors where a mix into Canvas would say nothing', () => {
   const forced = normalized.split('@media (forced-colors:active){')[1] ?? '';
   assert.match(forced, /border-color:Highlight/);
   assert.match(forced, /background-color:Highlight;color:HighlightText/);

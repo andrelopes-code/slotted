@@ -1,7 +1,7 @@
 import { parseSeed } from './color';
 
 /**
- * The seeds: the colours every derived colour token is computed from. This
+ * The seeds: the colors every derived color token is computed from. This
  * module is the entry `@slotted/theme/seeds`, which writes a reader's seeds
  * without loading the contract, the validator or the renderer.
  */

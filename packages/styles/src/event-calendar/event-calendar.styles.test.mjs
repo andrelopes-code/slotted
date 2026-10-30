@@ -67,7 +67,7 @@ test('eases the resize grip in and out on the motion curves', () => {
   assert.ok(normalized.includes('transition-timing-function:var(--slotted-easing-enter);'));
 });
 
-test('transitions every colour the "+N" hover paints', () => {
+test('transitions every color the "+N" hover paints', () => {
   const [body] = [...normalized.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
     .filter(([, selector]) => selector.trim() === '[data-ui-event-calendar][data-part-more]')
     .map(([, , declarations]) => declarations);
@@ -76,7 +76,7 @@ test('transitions every colour the "+N" hover paints', () => {
   }
 });
 
-test('keeps today and the timed lines readable in forced colours', () => {
+test('keeps today and the timed lines readable in forced colors', () => {
   const forced = normalized.slice(normalized.indexOf('@media(forced-colors:active)'));
   assert.ok(
     forced.includes('background-color:Highlight;color:HighlightText;forced-color-adjust:none;'),

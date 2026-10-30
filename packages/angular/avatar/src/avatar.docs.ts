@@ -25,7 +25,7 @@ export const ANGULAR_AVATAR_DOCS = {
         'string',
         '—',
         'slAvatar',
-        'The person or entity. It is the accessible name in every status, the source of the initials, and the seed of the colour',
+        'The person or entity. It is the accessible name in every status, the source of the initials, and the seed of the color',
       ],
       [
         'src',
@@ -46,21 +46,21 @@ export const ANGULAR_AVATAR_DOCS = {
         "'auto' | 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger'",
         'auto',
         'slAvatar',
-        'Which of the five semantic colours the fallback is painted in. auto derives it from the name',
+        'Which of the five semantic colors the fallback is painted in. auto derives it from the name',
       ],
       [
         'idFor',
         'string',
         '—',
         'slAvatar',
-        'A stable identifier to derive the colour from, when the name is not stable or two people share one',
+        'A stable identifier to derive the color from, when the name is not stable or two people share one',
       ],
       [
         'variant',
         "'soft' | 'solid'",
         'soft',
         'slAvatar',
-        'How that colour is painted: tinted, or filled',
+        'How that color is painted: tinted, or filled',
       ],
       [
         'surface',
@@ -81,7 +81,7 @@ export const ANGULAR_AVATAR_DOCS = {
         "'circle' | 'square'",
         'circle',
         'slAvatar',
-        'A circle is a person; a square is a team, an organisation or a bot',
+        'A circle is a person; a square is a team, an organization or a bot',
       ],
       [
         'status',
@@ -152,10 +152,10 @@ export const ANGULAR_AVATAR_DOCS = {
       'The name is on the root, as aria-label with role="img", and the picture takes an empty alt. The avatar therefore announces the same thing in all four statuses. An alt the consumer wrote on a projected img is read with HostAttributeToken and kept.',
       'An avatar with no name is aria-hidden, which is the rule Icon already takes. decorative is the third case — a name written beside the avatar, where announcing it would read the person twice.',
       'A role the consumer wrote on the host element is read before the host binding writes one, so an avatar that is also a menu trigger keeps the role its page chose.',
-      'The colour derived from a name is an aid to scanning a list, never the identifier: five tones mean collisions are certain, and colour alone is not a signal.',
-      'The component is written on the element the page chose, so an a or a button is an avatar with the platform’s own keyboard behaviour. The family paints the focus ring and the hover edge only on an element the browser treats as interactive, and holds both back when it is disabled.',
-      'An interactive avatar smaller than 24 by 24 CSS pixels grows a centred overlay to --slotted-target-min, so WCAG 2.2 2.5.8 is met at the two tighter densities without changing any layout.',
-      'The fallback glyph is the person slGlyph in an aria-hidden slIcon, not a character. Under forced colours the family draws its edge in currentColor and leaves the photograph alone.',
+      'The color derived from a name is an aid to scanning a list, never the identifier: five tones mean collisions are certain, and color alone is not a signal.',
+      'The component is written on the element the page chose, so an a or a button is an avatar with the platform’s own keyboard behavior. The family paints the focus ring and the hover edge only on an element the browser treats as interactive, and holds both back when it is disabled.',
+      'An interactive avatar smaller than 24 by 24 CSS pixels grows a centerd overlay to --slotted-target-min, so WCAG 2.2 2.5.8 is met at the two tighter densities without changing any layout.',
+      'The fallback glyph is the person slGlyph in an aria-hidden slIcon, not a character. Under forced colors the family draws its edge in currentColor and leaves the photograph alone.',
       'The picture crosses over the initials on --slotted-duration-short, which prefers-reduced-motion collapses to 1ms in the theme. Nothing here loops.',
     ],
     snippets: [
@@ -200,7 +200,7 @@ export const ANGULAR_AVATAR_DOCS = {
           '<a\n  slAvatar\n  [name]="person.name"\n  [src]="person.photograph"\n  [routerLink]="[\'/people\', person.id]"\n></a>',
       }),
       defineSnippet({
-        id: 'avatar-angular-organisation',
+        id: 'avatar-angular-organization',
         language: 'angular',
         label: 'A square avatar, and a mark of its own',
         source:

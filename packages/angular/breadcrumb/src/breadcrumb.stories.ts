@@ -178,7 +178,7 @@ export const Current: Story = {
 <div class="slotted-demo-grid" data-columns="1">
   ${scene(
     'slBreadcrumbPage',
-    'The last crumb takes the strongest text colour and a heavier weight, so the end of the trail reads without being read.',
+    'The last crumb takes the strongest text color and a heavier weight, so the end of the trail reads without being read.',
     `<nav slBreadcrumb><ol slBreadcrumbList>${SHORT}</ol></nav>`,
   )}
 </div>`,
@@ -309,7 +309,7 @@ export const Switcher: Story = {
   )}
   ${scene(
     'Beside plain crumbs',
-    'A switcher is one crumb among links: it keeps their colour, their underline and their focus ring, and only the chevron says a list opens here rather than a page.',
+    'A switcher is one crumb among links: it keeps their color, their underline and their focus ring, and only the chevron says a list opens here rather than a page.',
     `<nav slBreadcrumb>
        <ol slBreadcrumbList>
          <li slBreadcrumbItem><a slBreadcrumbLink href="#workspace">Workspace</a></li>

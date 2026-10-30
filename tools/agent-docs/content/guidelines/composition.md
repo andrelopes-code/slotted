@@ -66,8 +66,8 @@ Check: For every element of the page's own inside a family's root, the family's 
 Level: MUST
 Applies to: two or more elements a page writes beside each other with no family between them — a name and a badge, a run of tags, the lines of an address, a figure and its caption
 Rule: Sibling elements of the page's own stand in `inline` (one row) or `stack` (one column) with a gap from the space scale, and text of the page's own takes its size from the typography family; bare inline siblings and bare text are not written.
-Why: Two inline elements with nothing between them touch, and a badge beside a word sits on the text baseline rather than the row's centre; bare text takes the document's 16-pixel body size inside a region whose families set 13.
-Do: Wrap the run in `inline` (centre-aligned by default, a two-step gap for marks beside a word) and each line of a block in `stack`; give every span of the page's own the typography family's `size`. The families' own parts — a list item's label, a cell's value, a description — already carry their size and gap and need none of this.
+Why: Two inline elements with nothing between them touch, and a badge beside a word sits on the text baseline rather than the row's center; bare text takes the document's 16-pixel body size inside a region whose families set 13.
+Do: Wrap the run in `inline` (center-aligned by default, a two-step gap for marks beside a word) and each line of a block in `stack`; give every span of the page's own the typography family's `size`. The families' own parts — a list item's label, a cell's value, a description — already carry their size and gap and need none of this.
 Don't: Write a name and a `badge` run together as text in a cell, a `description-list` value holding three tags with nothing between them, or address lines as plain spans.
 Seen in: Nexora · Customer 360 — tags touching in the Account list, "Primary" hanging off a contact's name, addresses at 16 pixels beside a 13-pixel description list · corrected
 Check: Every element of the page's own that has a sibling is a child of `inline` or `stack`; no bare span inside a family's part carries the body size.
@@ -101,10 +101,10 @@ Applies to: any CSS a screen writes for an element of its own, under CP-04 or be
 Rule: Every value the element paints comes from the theme — space, type, ink, border, radius, elevation and motion — where the theme has a token for it; a literal is written only beside a comment that says what decided it and why no token covers it.
 Why: A literal is what makes a screen look adjacent to the product rather than part of it: it ignores the scheme switch, the three densities and the theme's own retuning, and it is the first thing that drifts when the theme moves.
 Do: Read `--slotted-space-*` for every gap and inset, `--slotted-text-*` and `--slotted-surface-*` for ink and ground, the typography family's `size` for every word, and the published measures of the family the element stands in — `--slotted-app-shell-row-inset` inside the navigation column, the control heights beside a control. Some values have no token and never will: a measure a column is capped at, a container query's step, an optical nudge of a pixel, the geometry of a shape the screen draws. Write those, in rem where the value scales with the type and in pixels where it does not, and put the reason beside them — the check reads that comment and passes. The escape is for a value the theme does not hold, not for a value it does.
-Don't: Write a hex colour, a font size or a gap the theme already holds a token for, and do not read another family's private custom property. A literal with no reason beside it is the defect this rule is about; a reasoned one is a decision the next reader can weigh.
+Don't: Write a hex color, a font size or a gap the theme already holds a token for, and do not read another family's private custom property. A literal with no reason beside it is the defect this rule is about; a reasoned one is a decision the next reader can weigh.
 Seen in: Nexora · Customer 360 and Import customers, every element of the page's own · corrected
 Verified in: specs/demo-screen-tokens.test.mjs, "no screen paints with a literal a token covers"
-Check: Read every stylesheet of the screen, skipping media and container queries, hairlines and any line whose comment gives its reason: no colour, type size or gap remains that a theme token covers.
+Check: Read every stylesheet of the screen, skipping media and container queries, hairlines and any line whose comment gives its reason: no color, type size or gap remains that a theme token covers.
 
 ### CP-06 · A state the family already draws is not drawn again
 

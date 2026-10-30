@@ -39,7 +39,7 @@ describe('buildDesignSystem', async () => {
       docs: { readme: 'project/README.md', sections: [] },
     });
     expect(JSON.parse(text('tokens.json'))).toMatchObject({ name: 'Slotted', version: 1 });
-    expect(text('README.md')).toContain('## Colour');
+    expect(text('README.md')).toContain('## Color');
     expect(text('components/Cover/preview.html').split('\n')[0]).toBe(
       '<!-- @dsCard height=288 -->',
     );

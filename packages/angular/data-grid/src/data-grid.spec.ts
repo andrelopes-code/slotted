@@ -790,7 +790,7 @@ describe('SlDataGrid', () => {
     expect(root().getAttribute('aria-colcount')).toBe('5');
   });
 
-  it('takes a controlled column state and normalises it', () => {
+  it('takes a controlled column state and normalizes it', () => {
     host.columnState.set({
       order: ['weight', 'id'],
       widths: {},

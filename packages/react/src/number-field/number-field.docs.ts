@@ -139,7 +139,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'stepper',
     title: 'Where the two buttons sit, and whether they sit at all',
-    note: 'stacked is one column at the inline end; split puts decrement and increment at either end of the frame with the value centred between them, which is the only arrangement whose targets clear 24 pixels in both axes.',
+    note: 'stacked is one column at the inline end; split puts decrement and increment at either end of the frame with the value centerd between them, which is the only arrangement whose targets clear 24 pixels in both axes.',
     snippet: defineSnippet({
       id: 'number-field-react-stepper',
       language: 'tsx',
@@ -272,7 +272,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'The states the frame paints',
-    note: 'Read-only keeps full-strength ink and softens its edge, because the value is real and still submitted; disabled is muted to a measured colour rather than faded, and both withdraw the steppers by disabling them rather than removing them.',
+    note: 'Read-only keeps full-strength ink and softens its edge, because the value is real and still submitted; disabled is muted to a measured color rather than faded, and both withdraw the steppers by disabling them rather than removing them.',
     snippet: defineSnippet({
       id: 'number-field-react-states',
       language: 'tsx',

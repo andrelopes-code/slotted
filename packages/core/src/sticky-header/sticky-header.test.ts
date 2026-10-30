@@ -299,7 +299,7 @@ describe('createStickyHeader', () => {
   /**
    * Scrolled past, revealed by the control, collapsed by the control: the root
    * travels back to its offset and the observer sees the area in on the way.
-   * Honoured, that report emptied the area, moved the scroll and started a
+   * Honored, that report emptied the area, moved the scroll and started a
    * loop of expand and collapse. It is ignored until the area is out again.
    */
   it('ignores the area coming into view while the root travels back after a reveal', () => {
@@ -349,7 +349,7 @@ describe('createStickyHeader', () => {
 
   /**
    * Folded to nothing by the control, the area is a zero-height box on the
-   * observer's edge, and a browser reports it out; honoured, that set
+   * observer's edge, and a browser reports it out; honored, that set
    * `scrolled` at the top of the page and opened the fold again.
    */
   it('ignores a report on an area with no height, and an "out" while nothing is scrolled', () => {

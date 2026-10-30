@@ -129,10 +129,10 @@ test('takes its box from the selection scale, at every density', () => {
 
 /**
  * The edge and the corner (CK1): the medium step of the border scale in the
- * strong border colour, and the smallest radius, so the square does not read
+ * strong border color, and the smallest radius, so the square does not read
  * as the radio's circle's cousin.
  */
-test('edges the box at the medium step, in the strong colour, with the smallest corner', () => {
+test('edges the box at the medium step, in the strong color, with the smallest corner', () => {
   const control = rule(part('control'));
   assert.match(
     control,
@@ -148,7 +148,7 @@ test('edges the box at the medium step, in the strong colour, with the smallest 
  * The glyph is its own box, the square less a whole-pixel clearance on every
  * side, so the two are concentric at every step and every density — the
  * measurement CK4 asks for and CK6 takes off the picture rather than off the
- * layout (the painted ink against the painted square, centre difference
+ * layout (the painted ink against the painted square, center difference
  * ≤ 0.5px).
  *
  * The clearance is a length and not a fraction of the square. A fraction gives
@@ -370,7 +370,7 @@ test('restates the pair forced colors would collapse', () => {
  * (CK6): a clip that opens on the inline axis, which moves no edge and changes
  * no size, so no frame of the entrance can put ink outside the square. It was
  * `scale: 0.6` → `1`, which grows the artwork out of the box's geometric
- * centre and carries every subpixel error in the mark's placement across the
+ * center and carries every subpixel error in the mark's placement across the
  * box while it runs.
  */
 test('draws the mark in along its own stroke, at the medium step of the scale', () => {
@@ -414,17 +414,17 @@ test('keeps only the fade when the reader asked for stillness', () => {
 
 /**
  * The `high-contrast` scheme paints `--slotted-tone-danger-border` the same
- * black as every other border, so an invalid control told apart by colour alone
+ * black as every other border, so an invalid control told apart by color alone
  * would be identical to a valid one in exactly the scheme that exists for
  * people who need the difference.
  */
 /**
- * A checked box is filled, and its border is the fill's colour, so the wider
+ * A checked box is filled, and its border is the fill's color, so the wider
  * border says nothing there: a line of the surface parts the border from the
- * fill. Forced colours remove that shadow, so it comes back as an outline in
- * the page's colour, and the ring of a focused one is double.
+ * fill. Forced colors remove that shadow, so it comes back as an outline in
+ * the page's color, and the ring of a focused one is double.
  */
-test('parts the border from the fill of a checked invalid box, in forced colours as well', () => {
+test('parts the border from the fill of a checked invalid box, in forced colors as well', () => {
   const edge =
     'var(--slotted-checkbox-invalid-edge-width,var(--slotted-control-invalid-edge-width,1px))';
   const checked = rule(
@@ -448,13 +448,13 @@ test('parts the border from the fill of a checked invalid box, in forced colours
 });
 
 /**
- * Forced colours keep the theme's system colours, and the theme maps the
+ * Forced colors keep the theme's system colors, and the theme maps the
  * danger fill to `ButtonFace`: a checked invalid box drew its fill, its border
  * and its `HighlightText` mark all in the page's white and looked unchecked.
  * The forced block restates the checked pair for an invalid box too, with the
  * invalid width in `CanvasText`, and the tile's edge in `CanvasText`.
  */
-test('keeps a checked invalid box checked under forced colours', () => {
+test('keeps a checked invalid box checked under forced colors', () => {
   const forced = normalized.slice(normalized.lastIndexOf('@media (forced-colors:active)'));
   const box = `${root}[data-invalid] [data-part-control]`;
   assert.ok(
@@ -474,11 +474,11 @@ test('keeps a checked invalid box checked under forced colours', () => {
 
 /**
  * The edge thickens by `--slotted-control-invalid-edge-width`, the width every
- * invalid control adds (WCAG 1.4.1), as a border so forced colours keep it. A
+ * invalid control adds (WCAG 1.4.1), as a border so forced colors keep it. A
  * tile adds the same width to whatever its state draws, so a chosen invalid
  * tile is still wider than a chosen valid one.
  */
-test('says invalid with weight as well as with colour', () => {
+test('says invalid with weight as well as with color', () => {
   const invalid = rule(`${root}[data-invalid] [data-part-control]`);
   assert.match(
     invalid,
@@ -535,7 +535,7 @@ test('never distributes surplus height between its rows', () => {
  * A box with no text beside it is still one line tall, with the box in its
  * middle. The lift put the line's air above the box and nothing restored it
  * below, so a bare box stood 17.75px tall with the square against its floor:
- * centred beside a line of text it sat 0.9px low, and the wash closed 4px above
+ * centerd beside a line of text it sat 0.9px low, and the wash closed 4px above
  * the box and 2.25px under it.
  */
 test('keeps the air of its line under the box as well as over it', () => {

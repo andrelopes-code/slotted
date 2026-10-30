@@ -6,7 +6,7 @@ import { Directive } from '@angular/core';
  *
  * It is the slot and not the glyph. The card sizes the control from the icon
  * scale density moves, tints the platform's own check with the accent, and
- * centres it on the title's first row; what a check and a dot look like is one
+ * centers it on the title's first row; what a check and a dot look like is one
  * decision, and it belongs to `checkbox`.
  *
  * The control inside keeps its own `ControlValueAccessor`, so `[(ngModel)]` and

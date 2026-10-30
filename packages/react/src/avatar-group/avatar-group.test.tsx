@@ -65,7 +65,7 @@ describe('the limit and the summary', () => {
   });
 
   /** `max` counts the discs, the summary included, so a limit of five never draws six. */
-  it('summarises the rest without ever exceeding the limit', () => {
+  it('summarizes the rest without ever exceeding the limit', () => {
     render(<AvatarGroup data-testid="group">{members(7)}</AvatarGroup>);
 
     expect(items()).toHaveLength(4);
@@ -203,7 +203,7 @@ describe('what the group decides for its members', () => {
   });
 
   /** A tone derived from a name is the member's identity; a group that set it would erase it. */
-  it('never decides the identity colour of its members', () => {
+  it('never decides the identity color of its members', () => {
     render(
       <AvatarGroup data-testid="group">
         <Avatar name="Ada Lovelace" />
@@ -225,7 +225,7 @@ describe('what the group decides for its members', () => {
     expect(group()).toHaveAttribute('data-size', 'sm');
   });
 
-  /** The summary is not a person, so it never takes an identity colour. */
+  /** The summary is not a person, so it never takes an identity color. */
   it('paints the summary neutral', () => {
     render(<AvatarGroup data-testid="group">{members(7)}</AvatarGroup>);
 

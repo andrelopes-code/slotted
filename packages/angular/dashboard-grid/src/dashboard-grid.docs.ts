@@ -137,7 +137,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div around section[slResultState]',
     required: false,
     purpose:
-      'status="empty" or "error", centred in the body; the error draws Try again under retryable.',
+      'status="empty" or "error", centerd in the body; the error draws Try again under retryable.',
   },
   {
     part: 'retry',

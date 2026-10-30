@@ -26,7 +26,7 @@ describe('Image', () => {
     expect(fallback()).not.toHaveAttribute('aria-hidden');
   });
 
-  it('starts with its own size, cropped, centred, square-cornered and on a sunken ground', () => {
+  it('starts with its own size, cropped, centerd, square-cornered and on a sunken ground', () => {
     render(<Image alt="Warehouse B" src={PHOTO} />);
 
     expect(root()).toHaveAttribute('data-layout', 'intrinsic');

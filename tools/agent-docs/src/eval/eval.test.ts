@@ -116,7 +116,7 @@ describe('assertionPasses', () => {
     );
   });
 
-  it('no-literal fails on a hex colour, and passes on 0px and 1px', () => {
+  it('no-literal fails on a hex color, and passes on 0px and 1px', () => {
     expect(assertionPasses({ kind: 'no-literal' }, 'react', react)).toBe(false);
     expect(
       assertionPasses(

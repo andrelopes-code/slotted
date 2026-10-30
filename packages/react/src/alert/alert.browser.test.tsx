@@ -28,7 +28,7 @@ function placed(props: Partial<AlertProps>) {
   };
 }
 
-const centre = (box: DOMRect) => box.top + box.height / 2;
+const center = (box: DOMRect) => box.top + box.height / 2;
 
 describe('the actions of an alert', () => {
   beforeEach(async () => {
@@ -42,7 +42,7 @@ describe('the actions of an alert', () => {
     const { actions, content } = placed({ actionsPlacement: 'end' });
 
     expect(actions.left).toBeGreaterThanOrEqual(content.right);
-    expect(Math.abs(centre(actions) - centre(content))).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(center(actions) - center(content))).toBeLessThanOrEqual(0.5);
   });
 
   it('keep the dismiss control last, on the same line', () => {

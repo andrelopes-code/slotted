@@ -213,18 +213,18 @@ export function createNumberFormat({ locale, options }: NumberFormatRequest = {}
    * The order matters: affixes first, because a currency symbol may itself
    * contain a character the digit map would otherwise touch.
    */
-  const normalise = (text: string) => {
-    let normalised = text.trim();
-    for (const affix of affixes) normalised = normalised.split(affix).join('');
+  const normalize = (text: string) => {
+    let normalized = text.trim();
+    for (const affix of affixes) normalized = normalized.split(affix).join('');
     digits.forEach((digit, index) => {
-      if (digit !== String(index)) normalised = normalised.split(digit).join(String(index));
+      if (digit !== String(index)) normalized = normalized.split(digit).join(String(index));
     });
-    if (group !== '') normalised = normalised.split(group).join('');
-    normalised = normalised.split(decimal).join('.');
+    if (group !== '') normalized = normalized.split(group).join('');
+    normalized = normalized.split(decimal).join('.');
     /* U+2212 as well as the locale's own sign: a reader may paste either. */
-    normalised = normalised.split(minus).join('-').split('−').join('-');
+    normalized = normalized.split(minus).join('-').split('−').join('-');
     /* Every remaining space, including the narrow ones French grouping uses. */
-    return normalised.replace(/\s+/gu, '');
+    return normalized.replace(/\s+/gu, '');
   };
 
   /**
@@ -329,7 +329,7 @@ export function createNumberFormat({ locale, options }: NumberFormatRequest = {}
     if (roundsBySignificantDigits || writesAccountingSign) return typed;
 
     /**
-     * The reader's own characters, and nothing else. `normalise` is the
+     * The reader's own characters, and nothing else. `normalize` is the
      * parser's route and it removes an affix only whole: a caret that landed
      * between the `R` and the `$` of a prefix and pressed Backspace left
      * `R 12.345`, which no affix matched, so the text stayed broken and the
@@ -423,9 +423,9 @@ export function createNumberFormat({ locale, options }: NumberFormatRequest = {}
     },
 
     parse(text) {
-      const normalised = normalise(text);
-      if (normalised === '' || !partial.test(normalised)) return null;
-      const parsed = Number(normalised);
+      const normalized = normalize(text);
+      if (normalized === '' || !partial.test(normalized)) return null;
+      const parsed = Number(normalized);
       if (Number.isNaN(parsed)) return null;
       return scale === 1
         ? parsed
@@ -433,7 +433,7 @@ export function createNumberFormat({ locale, options }: NumberFormatRequest = {}
     },
 
     isPartial(text) {
-      return partial.test(normalise(text));
+      return partial.test(normalize(text));
     },
   };
 }

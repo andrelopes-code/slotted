@@ -680,7 +680,7 @@ export class SlCurrencyFieldInput implements ControlValueAccessor, OnInit, SlCur
       }
       case 'Enter':
         /* Committed and not intercepted: a single-line control submits its
-           form, which is the platform's behaviour. */
+           form, which is the platform's behavior. */
         this.commit('keyboard', event);
         return;
       default:

@@ -162,7 +162,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'exclude',
     title: 'Opting a component out',
-    note: 'The card below sits inside the region and keeps its own type, rhythm and colour. Everything around it is still set by the family, and the boundary is one directive.',
+    note: 'The card below sits inside the region and keeps its own type, rhythm and color. Everything around it is still set by the family, and the boundary is one directive.',
     snippet: defineSnippet({
       id: 'prose-angular-exclude',
       language: 'angular',

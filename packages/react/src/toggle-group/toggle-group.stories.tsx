@@ -159,7 +159,7 @@ export const Variant: Story = {
       </Scene>
       <Scene
         label="Bare"
-        note="ghost draws no frame, for a bar that sits inside something already framed. The item that is on keeps the same accent ground and edge, because “on” is one colour across the system."
+        note="ghost draws no frame, for a bar that sits inside something already framed. The item that is on keeps the same accent ground and edge, because “on” is one color across the system."
         layout="stack"
       >
         <ToggleGroup aria-label="Density, unframed" defaultValue={['compact']} variant="ghost">
@@ -420,7 +420,7 @@ export const Width: Story = {
       </Scene>
       <Scene
         label="Sharing the whole line"
-        note="fullWidth gives every item an equal share of the line the bar was given. The labels stay centred, so the bar reads as one control rather than as two stretched buttons."
+        note="fullWidth gives every item an equal share of the line the bar was given. The labels stay centerd, so the bar reads as one control rather than as two stretched buttons."
         layout="block"
       >
         <ToggleGroup aria-label="Billing, full row" defaultValue={['monthly']} fullWidth>

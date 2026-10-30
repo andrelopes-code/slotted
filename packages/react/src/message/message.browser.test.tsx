@@ -40,7 +40,7 @@ describe('a bubble holding a markdown tree', () => {
  * with the message's inset.
  */
 describe('a card nested in a message body', () => {
-  it('keeps the colour and inset of a card outside a message', () => {
+  it('keeps the color and inset of a card outside a message', () => {
     render(
       <div style={{ inlineSize: 400 }}>
         <Message>

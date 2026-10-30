@@ -1,4 +1,4 @@
-/** Which side of its line a label hangs on. `auto` centres it and moves it inward at an edge. */
+/** Which side of its line a label hangs on. `auto` centers it and moves it inward at an edge. */
 export type LineLabelPlacement = 'start' | 'end' | 'auto';
 
 export interface LineLabel {

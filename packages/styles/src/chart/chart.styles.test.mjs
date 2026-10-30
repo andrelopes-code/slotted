@@ -50,7 +50,7 @@ test('is selected by the identifier the contract declares', () => {
 /**
  * The empty and the failed plot keep the drawing's box (`heightStable`) and
  * paint one line in it: the baseline, at the foot of the box, below the
- * message. The message is centred over the plot on no surface of its own, so
+ * message. The message is centerd over the plot on no surface of its own, so
  * a band every quarter of the height crossed the empty title and ran between
  * the failed title and its retry.
  */

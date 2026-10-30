@@ -136,7 +136,7 @@ export const Alignment: Story = {
     <header class="slotted-demo-scene__header">
       <span class="slotted-demo-scene__label">Across the flow, and along it</span>
       <span class="slotted-demo-scene__note">
-        baseline puts the type of every item on one line; centre only puts the boxes there. justify
+        baseline puts the type of every item on one line; center only puts the boxes there. justify
         distributes what is left along the inline axis.
       </span>
     </header>

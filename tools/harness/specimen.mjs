@@ -3,7 +3,7 @@
  * decision can cite.
  *
  * The scenario is fixed: one page — a family's harness page (`--family`) or a
- * reference page on the web (`--url`) — at one scheme, width, motion and colour
+ * reference page on the web (`--url`) — at one scheme, width, motion and color
  * preference. It writes a full-page picture, a JSON record of the computed
  * styles of every part the page renders, and, for the elements `--states`
  * names, the computed delta and a clipped picture of hover, press and
@@ -215,14 +215,14 @@ export function specimenStem(options) {
 const readStyles = (selector) => `(() => {
   const properties = ${JSON.stringify(PROPERTIES)};
   const read = (styles) => Object.fromEntries(properties.map((name) => [name, styles.getPropertyValue(name)]));
-  /* Opaque means no alpha channel in the serialisation: rgb(...), or a colour function without ' / α'. */
-  const opaque = (colour) => colour && colour !== 'transparent' && !colour.startsWith('rgba(') && !colour.includes(' / ');
+  /* Opaque means no alpha channel in the serialization: rgb(...), or a color function without ' / α'. */
+  const opaque = (color) => color && color !== 'transparent' && !color.startsWith('rgba(') && !color.includes(' / ');
   return [...document.querySelectorAll(${JSON.stringify(selector)})].map((element) => {
     const rect = element.getBoundingClientRect();
     let ground = '';
     for (let node = element.parentElement; node && !ground; node = node.parentElement) {
-      const colour = getComputedStyle(node).backgroundColor;
-      if (opaque(colour)) ground = colour;
+      const color = getComputedStyle(node).backgroundColor;
+      if (opaque(color)) ground = color;
     }
     return {
       tag: element.tagName.toLowerCase(),

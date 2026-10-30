@@ -252,8 +252,8 @@ test('lets an application set its defaults once', () => {
 });
 
 /**
- * Selection under forced colours is the case a tinted ground alone fails, and
- * it is the same failure WCAG 2.2 SC 1.4.1 describes for colour on its own.
+ * Selection under forced colors is the case a tinted ground alone fails, and
+ * it is the same failure WCAG 2.2 SC 1.4.1 describes for color on its own.
  */
 test('says selection with a mark as well as with a ground', () => {
   assert.deepEqual(contract.axes.indicator, ['check', 'none']);

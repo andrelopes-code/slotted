@@ -20,4 +20,4 @@ Read the skill before the task:
 - Show what a screen draws while it waits, and its empty and error states: `{{docsDir}}/skills/waiting-states/SKILL.md`
 - Review a screen against the guidelines, or fix what a review found: `{{docsDir}}/skills/review-screen/SKILL.md`
 - Write a component or element that no family draws: `{{docsDir}}/skills/build-own-element/SKILL.md`
-- Change the brand colour, the scheme, the density or a control's shape: `{{docsDir}}/skills/theme-app/SKILL.md`
+- Change the brand color, the scheme, the density or a control's shape: `{{docsDir}}/skills/theme-app/SKILL.md`

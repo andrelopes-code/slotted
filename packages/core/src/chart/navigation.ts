@@ -167,7 +167,7 @@ export function zoomRange(model: ChartModel, zoom: ChartZoom | null | undefined)
   return [Math.max(0, first), Math.min(count - 1, Math.max(first, last))];
 }
 
-/** A window scaled around a centre, `factor` below 1 zooming in. */
+/** A window scaled around a center, `factor` below 1 zooming in. */
 export function zoomAround(model: ChartModel, zoom: ChartZoom, center: number, factor: number) {
   const minimum = minimumZoomSpan(model);
   const span = Math.min(1, Math.max(minimum, (zoom.end - zoom.start) * factor));

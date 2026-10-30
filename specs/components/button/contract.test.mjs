@@ -35,7 +35,7 @@ test('names the members the family publishes, in order', () => {
 });
 
 /**
- * The five colours are tones in `docs/token-foundation.md`, so the axis that
+ * The five colors are tones in `docs/token-foundation.md`, so the axis that
  * selects one is named `tone`. `variant` is left to name what it actually
  * selects: how the tone is painted.
  */

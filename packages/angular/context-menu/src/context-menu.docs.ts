@@ -153,7 +153,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'States',
-    note: 'Three tiles: at rest nothing is painted; open draws the inward mark in the colour that separates two surfaces; disabled paints nothing either; pressed exists only for the half second a finger is held, and turns off selection rather than painting.',
+    note: 'Three tiles: at rest nothing is painted; open draws the inward mark in the color that separates two surfaces; disabled paints nothing either; pressed exists only for the half second a finger is held, and turns off selection rather than painting.',
     snippet: defineSnippet({
       id: 'context-menu-states',
       language: 'css',

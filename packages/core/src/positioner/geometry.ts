@@ -49,7 +49,7 @@ export function oppositeSide(side: PhysicalSide): PhysicalSide {
 
 /**
  * How a side and an alignment are written as one token — `bottom-start`, or
- * `bottom` where the alignment is the centre.
+ * `bottom` where the alignment is the center.
  *
  * The type is written here rather than imported. It happens to be the shape
  * every positioning engine uses, and stating it locally is what keeps

@@ -22,7 +22,7 @@ describe('matchesAccept', () => {
     expect(matchesAccept(pdf, 'image/*')).toBe(false);
   });
 
-  it('matches an extension, and does not care how it is capitalised', () => {
+  it('matches an extension, and does not care how it is capitalized', () => {
     expect(matchesAccept({ name: 'REPORT.PDF', type: '' }, '.pdf')).toBe(true);
     expect(matchesAccept(png, '.PNG')).toBe(true);
     expect(matchesAccept(png, '.pdf')).toBe(false);

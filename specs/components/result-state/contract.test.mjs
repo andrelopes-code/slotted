@@ -115,7 +115,7 @@ test('holds the seven things a region can be reporting', () => {
  * anything, is the pattern the rule exists to refuse — and what is left is
  * what an empty state is: a title, a description and an action.
  *
- * Nothing about the axis is lost by not painting it. Colour was never the only
+ * Nothing about the axis is lost by not painting it. Color was never the only
  * signal, because the words are the signal; and `status` still reaches the
  * page as an attribute, which is what a page keys its own illustration on.
  */
@@ -173,10 +173,10 @@ test('carries the reach of the message as an axis, not as three components', () 
 
 /**
  * Carbon left-aligns its empty states inside data-dense views; the other six
- * centre unconditionally. Both readings are real and one axis is cheaper than a
+ * center unconditionally. Both readings are real and one axis is cheaper than a
  * second family.
  */
-test('lets the region start at the inline edge as well as centre', () => {
+test('lets the region start at the inline edge as well as center', () => {
   assert.deepEqual(contract.axes.align, ['center', 'start']);
   assert.equal(contract.members.resultState.defaults.align, 'center');
 });
@@ -187,7 +187,7 @@ test('lets the region start at the inline edge as well as centre', () => {
  * that decided it would be deciding whether the fetch failed.
  *
  * It is also why Radix Primitives, Base UI and React Aria ship no such
- * component: there is no behaviour to hold. A later reader finds this rather
+ * component: there is no behavior to hold. A later reader finds this rather
  * than an omission.
  */
 test('holds no state, and says so rather than leaving it unstated', () => {

@@ -78,7 +78,7 @@ test('leaves room for a focus ring inside every region that scrolls', () => {
   }
 });
 
-/** Every segment fills the track's height; colour separates the states. */
+/** Every segment fills the track's height; color separates the states. */
 test('draws the compact track in one thickness', () => {
   assert.match(normalized, /\[data-part-progress-segment\]\{background-color:[^}]*block-size:100%/);
   assert.doesNotMatch(normalized, /\[data-part-progress-segment\]:is\([^)]*\)\{block-size:/);

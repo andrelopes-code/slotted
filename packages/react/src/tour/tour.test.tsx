@@ -61,7 +61,7 @@ describe('Tour', () => {
     expect(title()).toBe('Welcome to Reports');
   });
 
-  it('centres a step with no target and anchors a step with one', async () => {
+  it('centers a step with no target and anchors a step with one', async () => {
     await opened();
     expect(root()).toHaveAttribute('data-placement', 'centered');
     expect(part('spotlight')).toBeNull();
@@ -153,7 +153,7 @@ describe('Tour', () => {
     await waitFor(() => expect(title()).toBe('Export what you see'));
   });
 
-  it('centres a step whose target is missing, and marks the root', async () => {
+  it('centers a step whose target is missing, and marks the root', async () => {
     const lost = [{ id: 'lost', target: '#nowhere', title: 'Find it in the sidebar' }];
     await opened({ steps: lost });
     expect(root()).toHaveAttribute('data-missing');
@@ -410,7 +410,7 @@ describe('Tour', () => {
     }
   });
 
-  it('centres the card over a target that leaves it no room, and keeps the spotlight on it', async () => {
+  it('centers the card over a target that leaves it no room, and keeps the spotlight on it', async () => {
     const editor = document.createElement('div');
     editor.id = 'editor';
     document.body.append(editor);
@@ -532,7 +532,7 @@ describe('Tour', () => {
    * origin. A first step with no target has none to give, so the layer takes
    * it from where the tour was started.
    */
-  it('draws a centred first step in the theme of the region the tour was started from', async () => {
+  it('draws a centerd first step in the theme of the region the tour was started from', async () => {
     const tour = { current: null as TourHandle | null };
     render(
       <div data-slotted-scheme="dark" data-slotted-theme="default">
@@ -551,7 +551,7 @@ describe('Tour', () => {
   /**
    * The choreography, read off the attributes the stylesheet animates: the
    * cutout lights where the tour opens, travels between two targets, closes
-   * before a centred step, and rests in between; the card leaves while it
+   * before a centerd step, and rests in between; the card leaves while it
    * moves and is drawn again only once it is placed.
    */
   describe('choreography', () => {
@@ -591,7 +591,7 @@ describe('Tour', () => {
       await waitFor(() => expect(surface()).toHaveAttribute('data-ready'));
     });
 
-    it('closes the cutout on its old target before a centred step', async () => {
+    it('closes the cutout on its old target before a centerd step', async () => {
       await opened({ steps: walk, defaultStep: 'export' });
       await waitFor(() => expect(root()).toHaveAttribute('data-spot', 'rest'));
       fireEvent.click(part('next')!);

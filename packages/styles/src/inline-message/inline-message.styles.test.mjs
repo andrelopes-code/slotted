@@ -86,11 +86,11 @@ test('hangs the lines after the first under the sentence, not under the mark', (
 
 /**
  * The mark is the sentence's own size rounded to an even pixel (R5), and its
- * centre is the centre of the capitals, `0.5cap` above the baseline, rounded
+ * center is the center of the capitals, `0.5cap` above the baseline, rounded
  * to the device pixel. `packages/styles/src/status-mark.test.mjs` holds the
  * same rule for every family that draws one.
  */
-test('centres the mark on the capitals of the first line', () => {
+test('centers the mark on the capitals of the first line', () => {
   assert.match(rule(root), /--_mark-size:round\(nearest,1em,2px\)/);
   const icon = rule(`${ui}>[data-part-icon]`);
   assert.match(icon, /display:inline-flex/);
@@ -272,8 +272,8 @@ test('lets the stronger state stop the weaker one’s motion', () => {
 });
 
 /**
- * The theme remaps every colour this family reads, so the ink needs no rule of
- * its own. The mark takes a system colour of its own, which its glyph strokes
+ * The theme remaps every color this family reads, so the ink needs no rule of
+ * its own. The mark takes a system color of its own, which its glyph strokes
  * with through `currentcolor`.
  */
 test('keeps the mark visible when the system replaces the palette', () => {

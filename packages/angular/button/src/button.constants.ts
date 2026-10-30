@@ -1,5 +1,5 @@
 /**
- * The five colours are tones in `docs/token-foundation.md`, so the axis that
+ * The five colors are tones in `docs/token-foundation.md`, so the axis that
  * selects one is `tone`. `variant` names what it actually selects: how the
  * chosen tone is painted.
  */

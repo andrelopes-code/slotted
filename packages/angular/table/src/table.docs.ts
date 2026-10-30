@@ -300,7 +300,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'striped',
     title: 'A stripe to carry the eye across',
-    note: 'Off by default, because a stripe costs a row its own state colours. It is mixed from the ink at five per cent, one step under the header band, and every state is painted over it: a striped row that is selected reads as selected.',
+    note: 'Off by default, because a stripe costs a row its own state colors. It is mixed from the ink at five per cent, one step under the header band, and every state is painted over it: a striped row that is selected reads as selected.',
     snippet: defineSnippet({
       id: 'table-angular-striped',
       language: 'angular',

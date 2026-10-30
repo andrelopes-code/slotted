@@ -838,7 +838,7 @@ export const Actions: Story = {
     <Grid columns={1}>
       <Scene
         label="Help as a destination, the bell, the account"
-        note="Help is a link to the help centre; the bell opens a popover with what is waiting; the account opens a menu under the avatar. Hover any of them for its name."
+        note="Help is a link to the help center; the bell opens a popover with what is waiting; the account opens a menu under the avatar. Hover any of them for its name."
       >
         <Stage room="laptop" tall>
           <TopNavigation>

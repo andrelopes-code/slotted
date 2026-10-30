@@ -44,7 +44,7 @@ export const TOOLTIP_FALLBACK: TooltipDefaults = {
  * When the last tooltip under this provider closed.
  *
  * It is one mutable record shared by every tooltip in the subtree, and it is
- * the whole of the group behaviour: a tooltip asked to open inside
+ * the whole of the group behavior: a tooltip asked to open inside
  * `groupDelay` of that moment opens in the same task instead of waiting. Held
  * per provider rather than per tooltip, because a value held per tooltip could
  * not say what "the next one" means.

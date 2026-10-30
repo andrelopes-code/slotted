@@ -46,11 +46,11 @@ const REFERENCE = /var\(\s*(--[a-z0-9-]+)/g;
  * scheme roots it only when it names no scheme of its own; without the guard,
  * a light panel in a dark page was a root of both scopes at the same distance,
  * and the one written later won. `[data-slotted-seeds]` re-derives every
- * colour from the seeds an element carries itself.
+ * color from the seeds an element carries itself.
  *
  * `targets` replaces those two when given; `reroots` adds the elements that
  * name a variant axis, at no specificity, so every scheme block declares on
- * them again and a later block (reduced transparency, forced colours) still
+ * them again and a later block (reduced transparency, forced colors) still
  * wins over a variant's values there.
  */
 function schemeScope(
@@ -242,7 +242,7 @@ export function renderTheme(theme: Theme): string {
     )}\n}`,
   );
 
-  /* Reduced transparency makes a material opaque, in the scopes that set it; forced colours, later, win. */
+  /* Reduced transparency makes a material opaque, in the scopes that set it; forced colors, later, win. */
   const opaque = declarations(
     Object.fromEntries(
       contract.tokens
@@ -259,7 +259,7 @@ export function renderTheme(theme: Theme): string {
     )}\n}`,
   );
 
-  /* Forced colours replace the palette; the same scopes carry the system colours, later in source. */
+  /* Forced colors replace the palette; the same scopes carry the system colors, later in source. */
   const forced = declarations(
     Object.fromEntries(
       contract.tokens
@@ -303,7 +303,7 @@ export function renderTheme(theme: Theme): string {
 
 /**
  * The blocks of one variant value: each scheme it changes, and `system` for
- * light and dark under the colour scheme the system reports. The light one
+ * light and dark under the color scheme the system reports. The light one
  * names `light` in its query, because a later unconditional block would win
  * over the system's dark scheme.
  */
@@ -335,13 +335,13 @@ function variantBlocks(
  * One variant value of one scheme. It declares the tokens the variant derives,
  * and every scheme value that reads one of them through `var()`, transitively:
  * a custom property holds the value it had where it was declared, so an alias
- * declared at the scheme root would keep the root's colour inside the variant.
+ * declared at the scheme root would keep the root's color inside the variant.
  *
  * Three elements take the value: the scheme root, when it or an ancestor
  * carries the attribute; an element inside the scope that carries it; and a
  * `[data-slotted-seeds]` element at or under such an element. Each selector has the specificity of the scheme block's
  * own selector for that element, and the block comes after the scheme blocks
- * and before reduced transparency and forced colours, so source order decides
+ * and before reduced transparency and forced colors, so source order decides
  * against both.
  */
 function variantScope(

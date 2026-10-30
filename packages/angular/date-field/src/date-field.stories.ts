@@ -276,7 +276,7 @@ export const States: Story = {
         ) +
         scene(
           'Invalid',
-          'Tab into it: the ring is retargeted to the danger colour rather than removed, because a focus indicator is a focus indicator before it is an error.',
+          'Tab into it: the ring is retargeted to the danger color rather than removed, because a focus indicator is a focus indicator before it is an error.',
           `<div slField invalid>
              <label slFieldLabel>Due date</label>
              <div slDateField locale="pt-BR" [defaultValue]="february"></div>

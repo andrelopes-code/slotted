@@ -204,7 +204,7 @@ test('publishes the measures its rows stand on', () => {
     flat,
     /--_row-line-height: var\( ?--slotted-app-shell-row-text-line-height, var\(--slotted-line-height-sm/,
   );
-  /* And a row is as tall as its mark box, or the mark is off-centre in it. */
+  /* And a row is as tall as its mark box, or the mark is off-center in it. */
   assert.match(css, /--slotted-app-shell-row-height: var\(--_row-mark\)/);
   /* The control in the bar is the mark column, or it does not stand over the
      marks in the column. */
@@ -212,7 +212,7 @@ test('publishes the measures its rows stand on', () => {
   assert.match(toggle.body, /inline-size:\s*var\(--_row-mark\)/);
   assert.match(toggle.body, /block-size:\s*var\(--_row-mark\)/);
   /* A rail is one mark column with a row's inset on each side, so it is
-     centred in itself rather than being a column with its air on one side. */
+     centerd in itself rather than being a column with its air on one side. */
   assert.match(css, /--_rail-size:[\s\S]*?var\(--_row-mark\) \+ var\(--_row-inset\) \* 2/);
 });
 
@@ -255,7 +255,7 @@ test('separates the inset canvas with a gutter and not with a rule', () => {
   assert.match(css, /border-radius:\s*var\(--_radius\)/);
   assert.match(css, /box-shadow:\s*var\(--_elevation\)/);
   /* The gutter is a margin, so the navigation's own box is the strip a reader
-     sees and a rail is centred in itself. */
+     sees and a rail is centerd in itself. */
   const inset = rule("[data-canvas='inset'] > [data-part-nav] {");
   assert.match(inset.body, /margin-inline-start:\s*var\(--_gutter\)/);
   assert.equal(/padding-inline-start/.test(inset.body), false);
@@ -305,7 +305,7 @@ test('gives every region a ground and an ink of its own', () => {
 });
 
 /**
- * The closed strip is centred in itself under both planes. It was not: the
+ * The closed strip is centerd in itself under both planes. It was not: the
  * gutter was `padding-inline-start` on the region, so the fifty-pixel strip
  * carried twelve pixels on one side and none on the other — once under `inset`
  * as `padding`, and once more under `flush` after the first was fixed.
@@ -433,9 +433,9 @@ test('gives the pane a pinned head, a scrolling body and a pinned foot', () => {
   assert.match(ends, /flex:\s*0 0 auto/);
   assert.match(ends, /padding-block:\s*var\(--_row-inset\)/);
   /* And the middle of the bar grows, so a bar is three clusters and no void. */
-  const centre = rule('> [data-part-banner] > [data-part-centre] {').body;
-  assert.match(centre, /flex:\s*1 1 auto/);
-  assert.match(centre, /min-inline-size:\s*0/);
+  const center = rule('> [data-part-banner] > [data-part-center] {').body;
+  assert.match(center, /flex:\s*1 1 auto/);
+  assert.match(center, /min-inline-size:\s*0/);
 });
 
 /**
@@ -516,11 +516,11 @@ test('separates by a tone that recalibrates the controls standing on it', () => 
 });
 
 /**
- * `--_seam` declared on the root resolved the root's border colour, so the
- * property written on one region recoloured nothing there. The chain is
+ * `--_seam` declared on the root resolved the root's border color, so the
+ * property written on one region recolored nothing there. The chain is
  * declared again on every region, where a `var()` reads the region's scope.
  */
-test('re-reads the seam colour in each region', () => {
+test('re-reads the seam color in each region', () => {
   const region = rule('[data-ui-app-shell] > [data-part] {').body;
   assert.match(region, /--_rule:\s*var\(--slotted-app-shell-border-color,/);
   assert.match(region, /--_seam:\s*var\(--_rule-width\) solid var\(--_rule\)/);

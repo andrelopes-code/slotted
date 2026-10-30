@@ -42,7 +42,7 @@ describe('observeChartTheme', () => {
    * A container carried or pulled writes its geometry every frame: a widget
    * in hand, a pane being resized. Re-reading the theme on each write cost a
    * probe and two dozen computed styles a frame for a theme that had not
-   * moved. Only a declaration that can reach the plot's colours reads again:
+   * moved. Only a declaration that can reach the plot's colors reads again:
    * a private property (`--_*`) is a family's own wiring, never a theme input.
    */
   it('leaves the theme alone when an ancestor writes only its geometry or private wiring', async () => {
@@ -105,7 +105,7 @@ describe('the theme cache', () => {
    * A wrapper that overrides a token paints the chart under it differently
    * from the one beside it; a wrapper that only places its chart does not.
    */
-  it('keys the context by what can reach a colour', () => {
+  it('keys the context by what can reach a color', () => {
     const wrapper = document.createElement('div');
     const element = document.createElement('div');
     wrapper.append(element);

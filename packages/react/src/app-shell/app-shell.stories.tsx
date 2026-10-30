@@ -157,14 +157,14 @@ export const BannerScene: Story = {
   render: () => (
     <Grid columns={1}>
       <Scene
-        label="brand · centre · actions — a search in the middle"
+        label="brand · center · actions — a search in the middle"
         note="Aurora's bar: the control and the name start the line, a search field with its shortcut takes the room in the middle, and notifications, help and the account end it. Narrow the frame below thirty rems of bar and the search gives way; below twenty the optional controls go too. Nothing in actions ever breaks its label."
       >
         <Aurora size="tall" shell={{ asideMode: 'inline', navMode: 'inline' }} />
       </Scene>
       <Scene
         label="A trail in the middle, the route's actions at the end"
-        note="Cadence's bar holds the route rather than the application: a Breadcrumb in centre, a filter and a primary action in actions, and an empty brand because the workspace lives in the column's own head under primary='nav'. An empty cluster costs nothing."
+        note="Cadence's bar holds the route rather than the application: a Breadcrumb in center, a filter and a primary action in actions, and an empty brand because the workspace lives in the column's own head under primary='nav'. An empty cluster costs nothing."
       >
         <Cadence size="tall" shell={{ navMode: 'inline' }} />
       </Scene>
@@ -207,7 +207,7 @@ export const Canvas: Story = {
       </Scene>
       <Scene
         label="canvas='flush'"
-        note="Every region runs edge to edge and each seam is drawn — between the regions, and between the pane's head, body and foot. The rows of the column stand one inset from the screen's edge and from the seam on both sides, so the closed strip stays centred."
+        note="Every region runs edge to edge and each seam is drawn — between the regions, and between the pane's head, body and foot. The rows of the column stand one inset from the screen's edge and from the seam on both sides, so the closed strip stays centerd."
       >
         <Aurora footer shell={{ asideMode: 'inline', canvas: 'flush', navMode: 'inline' }} />
       </Scene>
@@ -249,7 +249,7 @@ export const Separation: Story = {
       </Scene>
       <Scene
         label="separation='tone' on panel, primary='main'"
-        note="Inside the one card the column and the pane are toned and the bar belongs to the content, so the only seam left is none at all. Under forced colours every ground is Canvas and the rule comes back whatever this axis says."
+        note="Inside the one card the column and the pane are toned and the bar belongs to the content, so the only seam left is none at all. Under forced colors every ground is Canvas and the rule comes back whatever this axis says."
       >
         <Aurora
           shell={{
@@ -286,7 +286,7 @@ export const Theming: Story = {
       </Scene>
       <Scene
         label="A wash behind the frame — --slotted-app-shell-frame-image"
-        note="One theme token, a background-image layer over the frame's colour: two pools of the accent tone behind floating cards. The cards keep their own surface, so everything a reader reads stays on the ground it was calibrated for."
+        note="One theme token, a background-image layer over the frame's color: two pools of the accent tone behind floating cards. The cards keep their own surface, so everything a reader reads stays on the ground it was calibrated for."
       >
         <Aurora
           shell={{
@@ -364,7 +364,7 @@ export const Rail: Story = {
             navMode="inline"
             primary="nav"
           >
-            <AuroraBanner centre={false} toggle={false} />
+            <AuroraBanner center={false} toggle={false} />
             <AuroraNav toggleInFooter />
             <AppShellMain>
               <AuroraContent />
@@ -453,7 +453,7 @@ export const Aside: Story = {
       >
         <Viewport size="tall">
           <AppShell asideMode="overlay" defaultNavOpen={false} navMode="overlay">
-            <AuroraBanner centre={false} />
+            <AuroraBanner center={false} />
             <AuroraNav />
             <AppShellMain>
               <AuroraContent>
@@ -707,7 +707,7 @@ export const Progress: Story = {
           <Scene key={canvas} label={`canvas='${canvas}'`} note={note}>
             <Aurora
               aside={false}
-              centre={false}
+              center={false}
               progress={<AppShellProgress delay={0} />}
               shell={{ canvas, navMode: 'inline' }}
               size="tall"

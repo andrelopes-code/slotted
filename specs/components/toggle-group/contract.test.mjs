@@ -87,7 +87,7 @@ test('stands down inside the bar that deferred this capability to it', () => {
 /**
  * A joined bar has one edge, and one edge cannot be the sum of several
  * opinions about their own. The first pass framed the root as well as the
- * items and produced a coloured border inside a grey one; leaving the frame to
+ * items and produced a colored border inside a grey one; leaving the frame to
  * the items also makes the bar exactly as tall as every other control, which
  * is what lets it stand beside a text field in a form.
  */

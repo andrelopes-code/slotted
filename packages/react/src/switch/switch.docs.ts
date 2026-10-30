@@ -110,7 +110,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'indicator',
     title: 'The mark inside the thumb',
-    note: 'On draws a check and off draws nothing, so the state is readable without colour and without comparing the thumb’s position to a switch you cannot see.',
+    note: 'On draws a check and off draws nothing, so the state is readable without color and without comparing the thumb’s position to a switch you cannot see.',
     snippet: defineSnippet({
       id: 'switch-react-indicator',
       language: 'tsx',
@@ -151,7 +151,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'states',
     title: 'The states the pill paints',
-    note: 'Read-only goes hollow and keeps its colour, because the value is real and still submitted; disabled goes grey and its knob goes with it, so a locked setting still says which way it is set.',
+    note: 'Read-only goes hollow and keeps its color, because the value is real and still submitted; disabled goes grey and its knob goes with it, so a locked setting still says which way it is set.',
     snippet: defineSnippet({
       id: 'switch-react-states',
       language: 'tsx',

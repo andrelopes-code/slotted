@@ -154,7 +154,7 @@ export const TOOLTIP_DOCK_WIDTH = 360;
 /**
  * Where the tooltip's box goes inside the plot. It sits on the inline-end
  * side of the anchor, a gap away, and flips to the start side when it would
- * cross the plot's edge; its block position centres on the anchor and is held
+ * cross the plot's edge; its block position centers on the anchor and is held
  * inside the plot. The plot does not mirror, but the tooltip is text, so in a
  * right-to-left document its preferred side is the left.
  *

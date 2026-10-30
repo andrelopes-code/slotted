@@ -390,7 +390,7 @@ test("gives a narrow bar's end controls a line of their own", () => {
  * those wrap. On a phone the count is a line of its own and keeps its type's
  * height.
  */
-test('starts every member at the top of its line and centres the count in a control height', () => {
+test('starts every member at the top of its line and centers the count in a control height', () => {
   const count =
     normalized
       .split('[data-ui-filter-bar]>[data-part-frame]>[data-part-count]{')
@@ -431,7 +431,7 @@ test('keeps a line of its type for the count while the first answer is on its wa
 /**
  * The builder row's remove control stood a target minimum on a touch screen,
  * 24 pixels in a row of 44-pixel fields. It reaches the comfortable target by
- * a transparent `::before` centred on the box, and the box keeps its 24
+ * a transparent `::before` centerd on the box, and the box keeps its 24
  * pixels. The chip's segments and `more` already take the control height.
  */
 test('makes the builder row’s remove and more full touch targets on a coarse pointer', () => {

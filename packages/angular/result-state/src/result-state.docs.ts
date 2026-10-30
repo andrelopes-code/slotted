@@ -85,7 +85,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'playground',
     title: 'Playground',
-    note: 'One region with every axis on it, driven by the controls below the canvas. Change the status and the mark changes with it, which is what makes the seven distinguishable in greyscale.',
+    note: 'One region with every axis on it, driven by the controls below the canvas. Change the status and the mark changes with it, which is what makes the seven distinguishable in grayscale.',
     snippet: defineSnippet({
       id: 'result-state-angular-playground',
       language: 'angular',
@@ -97,7 +97,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'statuses',
     title: 'What the region is reporting',
-    note: 'Seven semantics, seven silhouettes. Read in greyscale, or under forced colours where every ground becomes one system colour, the shape is the only thing left telling an absent collection from a failed request.',
+    note: 'Seven semantics, seven silhouettes. Read in grayscale, or under forced colors where every ground becomes one system color, the shape is the only thing left telling an absent collection from a failed request.',
     snippet: defineSnippet({
       id: 'result-state-angular-statuses',
       language: 'angular',
@@ -120,14 +120,14 @@ const scenes: ReferenceSceneMeta[] = [
   },
   {
     id: 'align',
-    title: 'Centred, or from the inline edge',
-    note: 'Carbon left-aligns its empty states inside data-dense views and the other six surveyed implementations centre unconditionally. Both readings are real, and align is one axis rather than a second family.',
+    title: 'Centerd, or from the inline edge',
+    note: 'Carbon left-aligns its empty states inside data-dense views and the other six surveyed implementations center unconditionally. Both readings are real, and align is one axis rather than a second family.',
     snippet: defineSnippet({
       id: 'result-state-angular-align',
       language: 'angular',
       label: 'The two readings',
       source:
-        '<!-- The default, for a panel or a route. -->\n<section slResultState align="center"></section>\n\n<!-- For a data-dense screen, where a centred column reads as an interruption. -->\n<section slResultState align="start" reach="inline"></section>',
+        '<!-- The default, for a panel or a route. -->\n<section slResultState align="center"></section>\n\n<!-- For a data-dense screen, where a centerd column reads as an interruption. -->\n<section slResultState align="start" reach="inline"></section>',
     }),
   },
   {
@@ -241,7 +241,7 @@ export const ANGULAR_RESULT_STATE_DOCS = {
         "'center' | 'start'",
         'center',
         'slResultState',
-        'Whether the region reads centred or from the inline edge. start is for a data-dense screen, where a centred column reads as an interruption',
+        'Whether the region reads centerd or from the inline edge. start is for a data-dense screen, where a centerd column reads as an interruption',
       ],
       [
         'live',
@@ -313,7 +313,7 @@ export const ANGULAR_RESULT_STATE_DOCS = {
       'There is no APG pattern for this family: the Authoring Practices list holds no empty, error or result state, and the nearest official guidance is the Region landmark practice, which states that “a region landmark must have a label”. The root is a section and the attribute is written only once a title exists, so an unlabelled region is a plain grouping element rather than a landmark with no name.',
       'The box is a landmark, not a live region. MDN’s alert role reference states that the role “should only be used for text content, not interactive elements such as links or buttons”, and this family has a row of buttons in it. The region that announces is slResultStateContent, which holds the title and the description alone; the mark, the actions and the footer are its siblings.',
       'live defaults to polite, which is the one place this family and alert disagree. WCAG 2.2’s Understanding document for SC 4.1.3 names this family’s own text as its example: “brief text messages displayed about the completion or status of the search, such as ‘Searching…’, ‘18 results returned’ or ‘No results returned’ would be status updates”. An alert may be a standing notice that was on the page before it loaded; a result is always the outcome of an operation. None of the seven surveyed implementations writes a live role of any kind.',
-      'Status is never carried by colour alone, because the family paints no colour for it: what happened is in the title and the description, which forced colours leave legible. The illustrations keep the theme’s system-colour mapping under forced colours, so a stack is still three layers and not three outlines laid over one another.',
+      'Status is never carried by color alone, because the family paints no color for it: what happened is in the title and the description, which forced colors leave legible. The illustrations keep the theme’s system-color mapping under forced colors, so a stack is still three layers and not three outlines laid over one another.',
       'The media box is hidden from assistive technology, with the projected glyph, the drawing made around it and any artwork the page supplies. The title and the description already say what the picture says; an illustration that adds information is not decorative, and what it adds belongs in the description.',
       'The root carries tabindex="-1" and is not in the tab sequence. A template that has just emptied a table calls focus() on the instance exportAs gives it; the family never does it, because moving focus unprompted is a change of context nobody asked for. A tabindex the page wrote is read with HostAttributeToken and kept.',
       'The family holds no mutable value, so it has no model(), no output() and no ControlValueAccessor. Which status a region is in is a fact about the consumer’s own data — a region that decided it would be deciding whether the fetch failed.',

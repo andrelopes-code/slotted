@@ -208,7 +208,7 @@ describe('the keyboard the pattern lists', () => {
   });
 
   /**
-   * The behaviour no surveyed implementation has: 31 January stepped forward is
+   * The behavior no surveyed implementation has: 31 January stepped forward is
    * 28 February, and stepped forward again it is 31 March rather than the 28th.
    */
   it('gives back the day a short month could not hold', () => {

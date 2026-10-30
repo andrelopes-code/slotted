@@ -24,7 +24,7 @@ import { scrollTargetIntoView } from './tour';
  */
 export type SpotMove = 'rest' | 'travel' | 'light' | 'close';
 
-/** `from` is `undefined` when the tour is opening, and `null` for a centred step. */
+/** `from` is `undefined` when the tour is opening, and `null` for a centerd step. */
 export function spotMove(from: Element | null | undefined, to: Element | null): SpotMove {
   if (from === undefined) return to === null ? 'rest' : 'light';
   if (from === to) return 'rest';
@@ -64,7 +64,7 @@ export interface StageStepOptions {
   root: Element | null;
   /** The target the cutout is on now; `undefined` when the tour is opening. */
   from: Element | null | undefined;
-  /** The target of the step arriving; `null` for a centred step. */
+  /** The target of the step arriving; `null` for a centerd step. */
   to: Element | null;
   /** Bring the target into view first, when it is not wholly on screen. */
   scroll: boolean;

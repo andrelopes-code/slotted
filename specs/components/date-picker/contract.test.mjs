@@ -44,10 +44,10 @@ test('composes the two families instead of drawing a field and a grid again', ()
 });
 
 /**
- * The briefing's rule for every overlay: the behaviour comes from
+ * The briefing's rule for every overlay: the behavior comes from
  * `packages/core` and is never rewritten in a family.
  */
-test('takes every overlay behaviour from core', () => {
+test('takes every overlay behavior from core', () => {
   for (const module of [
     '@slotted/core/presence',
     '@slotted/core/portal',

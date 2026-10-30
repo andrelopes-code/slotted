@@ -16,7 +16,7 @@ const CODE = [
   'console.log(sum);',
 ].join('\n');
 
-const tokenise = (code: string): CodeLine[] =>
+const tokenize = (code: string): CodeLine[] =>
   code.split('\n').map((line) =>
     line
       .split(/(\bconst\b|\bexport\b|\d+)/)
@@ -76,7 +76,7 @@ describe('CodeBlock', () => {
   });
 
   it('draws plain text first and swaps the engine’s tokens in when they arrive', async () => {
-    const highlight = vi.fn(async (code: string) => tokenise(code));
+    const highlight = vi.fn(async (code: string) => tokenize(code));
     render(<CodeBlock code={CODE} highlight={highlight} language="ts" />);
     expect(root().querySelector('[data-part="token"]')).toBeNull();
     await waitFor(() => expect(root().querySelectorAll('[data-token="keyword"]').length).toBe(4));

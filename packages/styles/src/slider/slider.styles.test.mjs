@@ -39,7 +39,7 @@ const tight = normalized.replace(/\s/g, '');
 /**
  * The declarations of the first rule whose selector starts with `selector`,
  * with every space taken out. `calc()` keeps the spaces around its operators
- * through normalisation, so matching a computed length against a pattern that
+ * through normalization, so matching a computed length against a pattern that
  * guessed at them is how a passing rule reads as a missing one.
  */
 function rule(selector) {
@@ -118,10 +118,10 @@ test('positions the fill, the marks and the thumbs from private properties', () 
 });
 
 /**
- * The thumb is centred on its position by a logical margin rather than by a
+ * The thumb is centerd on its position by a logical margin rather than by a
  * `translate`, so the mirrored document needs no rule of its own.
  */
-test('centres the thumb with a logical margin, not a physical transform', () => {
+test('centers the thumb with a logical margin, not a physical transform', () => {
   const thumb = rule(`${ui}[data-orientation='horizontal'] [data-part-thumb]`);
   assert.match(thumb, /margin-inline-start:calc\(var\(--_thumb-size\)\/-2\)/);
   assert.ok(!/translate/.test(thumb), 'a percentage translate moves left in both directions');
@@ -201,9 +201,9 @@ test('takes every duration and easing from the motion scale', () => {
 
 /**
  * The theme cannot repaint three backgrounds into three different things under
- * forced colours, so the family writes the one block it owns.
+ * forced colors, so the family writes the one block it owns.
  */
-test('keeps the rail, the fill and the thumb apart under forced colours', () => {
+test('keeps the rail, the fill and the thumb apart under forced colors', () => {
   const forced = normalized.split('@media (forced-colors:active){')[1]?.replace(/\s/g, '') ?? '';
   assert.match(forced, /\[data-part-track\]\{background-color:ButtonFace/);
   assert.match(forced, /\[data-part-indicator\]\{background-color:Highlight/);

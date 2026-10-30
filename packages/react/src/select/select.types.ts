@@ -55,7 +55,7 @@ export type SelectSearchReason = 'keyboard' | 'select' | 'clear' | 'programmatic
  * was given and decides nothing. The default is `createFilter` from
  * `@slotted/core/collection`, which is an adapter like any other —
  * `docs/component-features.md` §6 refuses a family that assumes `contains` and
- * English normalisation, and `combobox` takes the same prop with the same
+ * English normalization, and `combobox` takes the same prop with the same
  * default for the same reason.
  */
 export type SelectFilter = ((label: string, query: string) => boolean) | null;

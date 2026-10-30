@@ -34,7 +34,7 @@ interface Derived {
  * Nothing is reserved without a decision: `width` and `height` on the
  * element, or `ratio` on the root, are the two ways to decide, and both hold
  * the box before the first byte. A root with neither has no height until the
- * picture reports, which is the platform's own behaviour.
+ * picture reports, which is the platform's own behavior.
  *
  * `status` is the one value the family derives, and a load event is a fact
  * rather than a request: there is nothing to cancel, and the closed reason

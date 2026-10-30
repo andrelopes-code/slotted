@@ -226,7 +226,7 @@ describe('the engine draws the option', () => {
     expect(svg).not.toContain('Nowhere');
   });
 
-  /* The label of an upright line sat centred over it: on the last category of a
+  /* The label of an upright line sat centerd over it: on the last category of a
      narrow plot half of "Month end Aug 31" stood past the plot's end and was cut. */
   it('keeps the label of a line on an end category inside the plot', () => {
     const model = createChartModel({

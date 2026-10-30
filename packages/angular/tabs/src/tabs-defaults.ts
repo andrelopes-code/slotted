@@ -28,7 +28,7 @@ export type TabsFit = 'auto' | 'equal';
 
 /**
  * When a panel exists. The names are Cloudscape's, which are the clearest three
- * words in the field for the same three behaviours.
+ * words in the field for the same three behaviors.
  */
 export type TabsMount = 'active' | 'lazy' | 'eager';
 

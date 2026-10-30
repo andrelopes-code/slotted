@@ -331,7 +331,7 @@ export const ANGULAR_SKELETON_DOCS = {
       'The region carries aria-busy="true" while it waits, which is the platform’s own answer: ARIA 1.2 asks an author to set it on the container before the first change and clear it when the last change is complete. There is no APG pattern for a skeleton — the index holds thirty patterns and none is this one.',
       'One region is one announcement. A visually-hidden role="status" holds the label while waiting and is emptied afterwards, and emptying a live region announces nothing, so twelve placeholders do not become twelve messages. loadedLabel opts into a second.',
       'Under prefers-reduced-motion the loop stops rather than shortening: an infinite animation that hurries is still moving. animation="none", set once through the provider, is the author-side mechanism WCAG 2.2 SC 2.2.2 asks for.',
-      'The placeholder is visible in all three colour schemes. The fill is the unavailable surface carried a little toward the text colour, and a hairline rim takes over in high contrast, where that surface is the page’s own white.',
+      'The placeholder is visible in all three color schemes. The fill is the unavailable surface carried a little toward the text color, and a hairline rim takes over in high contrast, where that surface is the page’s own white.',
     ],
     snippets: [
       defineSnippet({

@@ -9,7 +9,7 @@
  * where a point is, and the two would drift.
  *
  * Coordinates are CSS pixels of the box the binding measured. Nothing here
- * knows a stroke width or a colour: the inset the stroke and the marker need
+ * knows a stroke width or a color: the inset the stroke and the marker need
  * is a number the binding passes, because it depends on the size step the
  * stylesheet chose.
  */
@@ -62,7 +62,7 @@ export interface SparklineLayoutRequest {
   readonly height: number;
   /**
    * How far in from every edge the first and last points sit, so a stroke
-   * and a marker centred on a point stay inside the box. Half the stroke
+   * and a marker centerd on a point stay inside the box. Half the stroke
    * width plus the marker's radius is the number a line needs.
    */
   readonly inset?: number | undefined;

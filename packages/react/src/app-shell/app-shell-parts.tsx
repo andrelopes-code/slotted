@@ -34,7 +34,7 @@ import type {
   AppShellAsideToggleProps,
   AppShellBannerProps,
   AppShellBrandProps,
-  AppShellCentreProps,
+  AppShellCenterProps,
   AppShellContextValue,
   AppShellFooterProps,
   AppShellMainProps,
@@ -143,19 +143,19 @@ export function AppShellBrand({
  * The middle of the bar, and the one cluster that grows: a search, a trail, a
  * route title, tabs. Without it a bar is two clusters and a void.
  */
-export function AppShellCentre({
+export function AppShellCenter({
   children,
   className,
   ref,
   render,
   style,
   ...nativeProps
-}: AppShellCentreProps) {
+}: AppShellCenterProps) {
   const rootProps = keyedProps({
     ...nativeProps,
     children,
     className,
-    'data-part': 'centre',
+    'data-part': 'center',
     style,
   });
   const attach = useAttach(ref as never);

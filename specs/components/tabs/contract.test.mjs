@@ -145,7 +145,7 @@ test('draws one measured marker in the list, and keeps the direction attribute',
 });
 
 test('scrolls a list that does not fit, and keeps its paging controls out of the way', () => {
-  assert.equal(contract.overflow.behaviour, 'scroll');
+  assert.equal(contract.overflow.behavior, 'scroll');
   assert.equal(contract.overflow.pagingControls, 2);
   assert.equal(contract.overflow.pagingControlsInTabSequence, false);
   assert.equal(contract.overflow.engine, '@slotted/core/overflow');
