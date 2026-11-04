@@ -123,6 +123,11 @@ export interface DashboardWidgetProps extends Omit<
   /** The widget's name: its heading, its accessible name and its entry in Add widget. */
   title: string;
   description?: ReactNode;
+  /**
+   * A note behind an information control beside the title: what the figure is, read once. The
+   * control is named by `messages.help`.
+   */
+  help?: ReactNode;
   children?: ReactNode;
   headingLevel?: DashboardHeadingLevel | undefined;
   /** Columns of the expanded class a widget with no layout entry takes. Default 4. */

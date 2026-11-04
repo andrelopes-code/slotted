@@ -37,6 +37,8 @@ test('declares every part of the anatomy', () => {
     'grid',
     'widget',
     'title',
+    'title-row',
+    'help',
     'description',
     'detail',
     'handle',
@@ -52,7 +54,14 @@ test('declares every part of the anatomy', () => {
   for (const part of member.parts) {
     assert.ok(typeof contract.anatomy[part] === 'string', `${part} is not described`);
   }
-  assert.deepEqual(contract.composes, ['card', 'button', 'menu', 'result-state', 'skeleton']);
+  assert.deepEqual(contract.composes, [
+    'card',
+    'button',
+    'menu',
+    'popover',
+    'result-state',
+    'skeleton',
+  ]);
 });
 
 /**

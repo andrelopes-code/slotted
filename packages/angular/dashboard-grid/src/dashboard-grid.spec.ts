@@ -699,3 +699,34 @@ describe('persistedDashboardLayout', () => {
     expect(persisted.defaultLayout).toBe(defaultLayout);
   });
 });
+
+@Component({
+  standalone: true,
+  imports: [SlDashboardGrid, SlDashboardWidget],
+  template: `
+    <div slDashboardGrid aria-label="Sales">
+      <sl-dashboard-widget
+        value="liquidity"
+        title="Liquidity"
+        help="Liquid balance divided by the mean monthly expense"
+      />
+      <sl-dashboard-widget value="revenue" title="Revenue" />
+    </div>
+  `,
+})
+class HelpHost {}
+
+describe('SlDashboardWidget help', () => {
+  it('names the control after the title and leaves a widget without help alone', async () => {
+    const fixture = TestBed.createComponent(HelpHost);
+    await settle(fixture);
+    const host = fixture.nativeElement as HTMLElement;
+
+    expect(
+      host
+        .querySelector('[data-key="liquidity"] [data-part="title-row"] > [data-part="help"]')
+        ?.getAttribute('aria-label'),
+    ).toBe('About Liquidity');
+    expect(host.querySelector('[data-key="revenue"] [data-part="title-row"]')).toBeNull();
+  });
+});

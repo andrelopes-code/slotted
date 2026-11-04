@@ -37,6 +37,13 @@ import {
   type MenuSelectEvent,
 } from '@slotted/angular/menu';
 import {
+  SlPopover,
+  SlPopoverBody,
+  SlPopoverContent,
+  SlPopoverLayer,
+  SlPopoverTrigger,
+} from '@slotted/angular/popover';
+import {
   SlResultState,
   SlResultStateActions,
   SlResultStateContent,
@@ -285,6 +292,11 @@ interface Slot {
     SlMenuItem,
     SlMenuSeparator,
     SlMenuTrigger,
+    SlPopover,
+    SlPopoverBody,
+    SlPopoverContent,
+    SlPopoverLayer,
+    SlPopoverTrigger,
     SlResultState,
     SlResultStateActions,
     SlResultStateContent,
@@ -415,32 +427,62 @@ interface Slot {
             [attr.aria-busy]="slot.widget.painted() || slot.widget.busy() ? true : null"
           >
             <div slCardHeader>
-              @switch (levelOf(slot.widget)) {
-                @case (2) {
-                  <h2 data-part="title" data-part-title="" [id]="titleId(slot.tile.key)">
-                    {{ slot.widget.title() }}
-                  </h2>
+              <ng-template #heading>
+                @switch (levelOf(slot.widget)) {
+                  @case (2) {
+                    <h2 data-part="title" data-part-title="" [id]="titleId(slot.tile.key)">
+                      {{ slot.widget.title() }}
+                    </h2>
+                  }
+                  @case (4) {
+                    <h4 data-part="title" data-part-title="" [id]="titleId(slot.tile.key)">
+                      {{ slot.widget.title() }}
+                    </h4>
+                  }
+                  @case (5) {
+                    <h5 data-part="title" data-part-title="" [id]="titleId(slot.tile.key)">
+                      {{ slot.widget.title() }}
+                    </h5>
+                  }
+                  @case (6) {
+                    <h6 data-part="title" data-part-title="" [id]="titleId(slot.tile.key)">
+                      {{ slot.widget.title() }}
+                    </h6>
+                  }
+                  @default {
+                    <h3 data-part="title" data-part-title="" [id]="titleId(slot.tile.key)">
+                      {{ slot.widget.title() }}
+                    </h3>
+                  }
                 }
-                @case (4) {
-                  <h4 data-part="title" data-part-title="" [id]="titleId(slot.tile.key)">
-                    {{ slot.widget.title() }}
-                  </h4>
-                }
-                @case (5) {
-                  <h5 data-part="title" data-part-title="" [id]="titleId(slot.tile.key)">
-                    {{ slot.widget.title() }}
-                  </h5>
-                }
-                @case (6) {
-                  <h6 data-part="title" data-part-title="" [id]="titleId(slot.tile.key)">
-                    {{ slot.widget.title() }}
-                  </h6>
-                }
-                @default {
-                  <h3 data-part="title" data-part-title="" [id]="titleId(slot.tile.key)">
-                    {{ slot.widget.title() }}
-                  </h3>
-                }
+              </ng-template>
+              @if (slot.widget.help(); as help) {
+                <div data-part="title-row" data-part-title-row="">
+                  <ng-container [ngTemplateOutlet]="heading" />
+                  <ng-container slPopover side="bottom" align="start" size="sm">
+                    <button
+                      slIconButton
+                      slPopoverTrigger
+                      slDashboardPart="help"
+                      size="sm"
+                      tone="secondary"
+                      variant="ghost"
+                      [attr.aria-label]="t('help', { title: slot.widget.title() })"
+                    >
+                      <span slIcon><svg slGlyph name="circle-info"></svg></span>
+                    </button>
+                    <ng-template slPopoverLayer>
+                      <div
+                        slPopoverContent
+                        [attr.aria-label]="t('help', { title: slot.widget.title() })"
+                      >
+                        <div slPopoverBody>{{ help }}</div>
+                      </div>
+                    </ng-template>
+                  </ng-container>
+                </div>
+              } @else {
+                <ng-container [ngTemplateOutlet]="heading" />
               }
               @if (slot.widget.description(); as description) {
                 <p

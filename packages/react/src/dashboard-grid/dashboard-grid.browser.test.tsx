@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 
 import { DashboardGrid } from './dashboard-grid';
 import { Chart } from '../chart';
@@ -184,5 +184,49 @@ describe('a chart in a dashboard widget', () => {
     for (const key of ['short', 'tall', 'large']) {
       expect(body(key).scrollHeight).toBeLessThanOrEqual(body(key).clientHeight + 1);
     }
+  });
+});
+
+describe('a widget with help', () => {
+  const note = 'Liquid balance divided by the mean monthly expense';
+
+  it('names the control after the title and leaves the header alone without help', () => {
+    render(
+      <DashboardGrid aria-label="Sales">
+        <DashboardWidget help={note} title="Liquidity" value="liquidity" />
+        <DashboardWidget title="Revenue" value="revenue" />
+      </DashboardGrid>,
+    );
+
+    expect(
+      document.querySelectorAll(
+        '[data-part="widget"] [data-part="title-row"] > [data-part="help"]',
+      ),
+    ).toHaveLength(1);
+    expect(
+      document.querySelector('[data-key="liquidity"] [data-part="help"]'),
+    ).toHaveAccessibleName('About Liquidity');
+    expect(document.querySelector('[data-key="revenue"] [data-part="title-row"]')).toBeNull();
+  });
+
+  it('opens the note on press, then Escape closes it and returns focus', async () => {
+    render(
+      <DashboardGrid aria-label="Sales">
+        <DashboardWidget help={note} title="Liquidity" value="liquidity" />
+      </DashboardGrid>,
+    );
+    const help = document.querySelector<HTMLElement>('[data-part="help"]')!;
+
+    help.focus();
+    await userEvent.keyboard('{Enter}');
+    await frame();
+
+    expect(document.body.textContent).toContain(note);
+
+    await userEvent.keyboard('{Escape}');
+    await frame();
+
+    expect(document.body.textContent).not.toContain(note);
+    expect(document.activeElement).toBe(help);
   });
 });

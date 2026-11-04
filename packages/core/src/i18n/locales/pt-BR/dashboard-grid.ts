@@ -14,6 +14,7 @@ export const ptBR: DashboardGridMessages = {
   emptyTitle: 'Sem dados',
   errorTitle: 'Não foi possível carregar este widget',
   handle: 'Reorganizar {title}',
+  help: 'Sobre {title}',
   hidden: '{title} oculto',
   hide: 'Ocultar',
   moved: '{title} movido para a linha {row}, coluna {column}',

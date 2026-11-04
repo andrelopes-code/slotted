@@ -15,6 +15,7 @@ export interface DashboardGridMessages {
   readonly emptyTitle: Message;
   readonly errorTitle: Message;
   readonly handle: Message<{ title: string }>;
+  readonly help: Message<{ title: string }>;
   readonly hidden: Message<{ title: string }>;
   readonly hide: Message;
   readonly moved: Message<{ title: string; row: number; column: number }>;
@@ -49,6 +50,7 @@ export const en: DashboardGridMessages = {
   emptyTitle: 'No data',
   errorTitle: 'This widget could not load',
   handle: 'Rearrange {title}',
+  help: 'About {title}',
   hidden: '{title} hidden',
   hide: 'Hide',
   moved: '{title} moved to row {row}, column {column}',

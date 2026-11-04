@@ -221,6 +221,25 @@
     overflow-wrap: anywhere;
   }
 
+  /* The title and its help control on one row; the control centers on the
+     title's first line without adding to the row's height. */
+  [data-ui-dashboard-grid] [data-part-widget] [data-part-title-row] {
+    align-items: flex-start;
+    display: flex;
+    gap: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-dashboard-grid] [data-part-widget] [data-part-title-row] > [data-part-help] {
+    flex: none;
+    margin-block: calc(
+      (
+          var(--slotted-control-height-sm, 1.75rem) - var(--slotted-font-size-md, 0.8125rem) *
+            var(--slotted-line-height-md, 1.5)
+        ) /
+        -2
+    );
+  }
+
   [data-ui-dashboard-grid] [data-part-widget] [data-part-description] {
     color: var(--slotted-dashboard-grid-description-color, var(--slotted-text-muted, GrayText));
     font-size: var(--slotted-font-size-sm, 0.75rem);

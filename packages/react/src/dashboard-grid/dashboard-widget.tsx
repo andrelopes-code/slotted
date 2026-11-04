@@ -43,6 +43,7 @@ import {
   type DashboardGridContextValue,
   type DashboardSlot,
 } from './dashboard-grid-context';
+import { DashboardWidgetHelp } from './dashboard-widget-help';
 import type {
   DashboardDetailProps,
   DashboardHeadingLevel,
@@ -257,6 +258,7 @@ const WidgetView = memo(function WidgetView({
   value,
   title,
   description,
+  help,
   children,
   headingLevel,
   busy = false,
@@ -299,6 +301,12 @@ const WidgetView = memo(function WidgetView({
   const Heading = `h${headingLevel}` as const;
   const named = { title };
   const flows = sizeClass !== 'expanded';
+
+  const heading = (
+    <Heading data-part="title" data-part-title="" id={titleId}>
+      {title}
+    </Heading>
+  );
 
   const detail =
     detailHref !== undefined ? (
@@ -509,9 +517,14 @@ const WidgetView = memo(function WidgetView({
           )}
         >
           <CardHeader>
-            <Heading data-part="title" data-part-title="" id={titleId}>
-              {title}
-            </Heading>
+            {help === undefined ? (
+              heading
+            ) : (
+              <div data-part="title-row" data-part-title-row="">
+                {heading}
+                <DashboardWidgetHelp label={t('help', named)}>{help}</DashboardWidgetHelp>
+              </div>
+            )}
             {description === undefined ? null : (
               <p data-part="description" data-part-description="" id={descriptionId}>
                 {description}

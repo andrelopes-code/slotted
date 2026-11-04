@@ -107,6 +107,19 @@ const anatomy: AnatomyRow[] = [
       'The widget’s heading at headingLevel; two lines, then an ellipsis. Names the article.',
   },
   {
+    part: 'title-row',
+    element: 'div',
+    required: false,
+    purpose: 'Holds the title and the help control; present with help.',
+  },
+  {
+    part: 'help',
+    element: 'button, a Popover trigger',
+    required: false,
+    purpose:
+      'The information control after the title, named “About {title}”; opens the note, and Escape closes it and returns focus. Present with help.',
+  },
+  {
     part: 'description',
     element: 'p',
     required: false,
@@ -472,6 +485,13 @@ export const ANGULAR_DASHBOARD_GRID_DOCS = {
         'The heading, the article’s name, the handle’s name and the entry in Add widget. Required',
       ],
       ['description', 'string', '—', 'sl-dashboard-widget', 'The line under the title'],
+      [
+        'help',
+        'string',
+        '—',
+        'sl-dashboard-widget',
+        'A note behind an information control beside the title',
+      ],
       [
         'defaultColumns',
         'number',

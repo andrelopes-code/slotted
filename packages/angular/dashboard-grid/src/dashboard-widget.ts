@@ -128,6 +128,8 @@ export class SlDashboardWidget {
   /** The widget's name: its heading, its accessible name and its entry in Add widget. */
   readonly title = input.required<string>();
   readonly description = input<string | undefined>(undefined);
+  /** A note behind an information control beside the title, named by `messages.help`. */
+  readonly help = input<string | undefined>(undefined);
   readonly headingLevel = input<DashboardHeadingLevel | undefined>(undefined);
 
   readonly defaultColumns = input<number | undefined, number | string | undefined>(undefined, {
