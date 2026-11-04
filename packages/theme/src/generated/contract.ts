@@ -2060,6 +2060,13 @@ export const contract: TokenContract = {
       "root": true
     },
     {
+      "name": "--slotted-action-gap",
+      "layer": "semantic",
+      "axis": "density",
+      "type": "length",
+      "root": true
+    },
+    {
       "name": "--slotted-control-label-gap-sm",
       "layer": "semantic",
       "axis": "density",
@@ -2627,6 +2634,7 @@ export type DensityToken =
   | '--slotted-control-gap-sm'
   | '--slotted-control-gap-md'
   | '--slotted-control-gap-lg'
+  | '--slotted-action-gap'
   | '--slotted-control-label-gap-sm'
   | '--slotted-control-label-gap-md'
   | '--slotted-control-label-gap-lg'

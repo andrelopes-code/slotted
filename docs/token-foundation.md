@@ -21,7 +21,7 @@ convention.
 | Layer       | Holds                                                          | Tokens |
 | ----------- | -------------------------------------------------------------- | ------ |
 | `primitive` | A value with no meaning attached: a step on a scale.           | 131    |
-| `semantic`  | What a value is for: a surface, a border, a control, a target. | 151    |
+| `semantic`  | What a value is for: a surface, a border, a control, a target. | 152    |
 | `component` | One family adjusting a semantic value for itself.              | 28     |
 
 A token is a **scale root** when it states a value rather than composing one: a
@@ -1002,6 +1002,16 @@ An inner control a family draws itself â€” the clear mark, a stepper, a close â€
 reads the scale at the family's own size step as the cap on its box:
 `min(glyph + a step of air a side, --slotted-control-inner-size-*)`, held by
 `packages/styles/src/inner-control.test.mjs`.
+
+## Action gap
+
+The space between two adjacent labelled actions follows density, and every
+row that holds such actions reads it: a page header, a dialog or drawer footer,
+a card footer, an alert. A family keeps its own token as an override.
+
+| Token                  | Comfortable | Compact | Dense |
+| ---------------------- | ----------- | ------- | ----- |
+| `--slotted-action-gap` | `8px`       | `6px`   | `4px` |
 
 ## Avatar size
 
