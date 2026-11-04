@@ -193,8 +193,8 @@
   /**
    * The section's title starts where the mark's ink starts — the row's inset
    * plus the air the box keeps around the glyph — rather than on the label
-   * column: a navigation whose rows carry no marks keeps its titles near its
-   * words, and one whose rows do keeps them on the glyphs' own edge.
+   * column. A section whose rows carry no mark has no glyph to line up with:
+   * its title starts at the inset, where its rows' words start.
    */
   [data-ui-side-navigation] [data-part-section-label] {
     color: var(--_section-color);
@@ -211,6 +211,12 @@
     padding-block: var(--slotted-space-2, 0.25rem);
     overflow-wrap: anywhere;
     padding-inline: calc(var(--_inset) + (var(--_mark) - var(--_icon-size)) / 2);
+  }
+
+  [data-ui-side-navigation]
+    [data-part-section]:not(:has([data-part-icon]))
+    > [data-part-section-label] {
+    padding-inline: var(--_inset);
   }
 
   [data-ui-side-navigation] [data-part-list],
