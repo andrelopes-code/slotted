@@ -231,94 +231,6 @@
       }
     }
 
-    /* ── Activity ───────────────────────────────────────────────────────────
-     *
-     * What a reply is doing before it has words, as a short log of steps on a
-     * raised card: the steps already done carry a tick and step back into the
-     * muted ink, and the step in progress carries the shared ring (`spinner`)
-     * and a band of light that travels across its words. A single step is the
-     * same card with one line. ReUI's `c-message-7` draws one muted line that
-     * pulses; the log says what has been done, not only that something is.
-     *
-     * The band is the one place the family paints text with a gradient, which
-     * the polish lens refuses as decoration: here it is the wait itself, it
-     * moves only while the step is current, and under reduced motion the words
-     * stand in the plain ink.
-     */
-    :scope[data-part-root] [data-part-activity] {
-      display: inline-flex;
-      flex-direction: column;
-      gap: var(--slotted-space-3, 0.375rem);
-      box-sizing: border-box;
-      max-inline-size: 100%;
-      padding-block: var(--_pad-block);
-      padding-inline: var(--_pad-inline) calc(var(--_pad-inline) + var(--slotted-space-2, 0.25rem));
-      border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
-      border-radius: calc(var(--_pad-block) * 2);
-      background-color: var(--slotted-surface-raised);
-      box-shadow: var(--slotted-shadow-xs);
-      color: var(--slotted-text-muted);
-      font-size: var(--slotted-control-font-size-md, 13px);
-      line-height: round(up, calc(1em * var(--slotted-line-height-md, 1.5)), 1px);
-    }
-
-    :scope[data-part-root] [data-part-activity-step] {
-      display: flex;
-      align-items: center;
-      gap: var(--slotted-space-4, 0.5rem);
-      min-inline-size: 0;
-      transition:
-        opacity var(--slotted-duration-medium) var(--slotted-easing-enter, ease-out),
-        translate var(--slotted-duration-medium) var(--slotted-easing-enter, ease-out),
-        color var(--slotted-duration-medium) var(--slotted-easing-standard, ease);
-
-      @starting-style {
-        opacity: 0;
-        translate: 0 var(--slotted-space-2, 0.25rem);
-      }
-    }
-
-    /** The mark column: a tick, or the ring, in one box so the words line up. */
-    :scope[data-part-root] [data-part-activity-step] > :first-child {
-      --slotted-icon-size: var(--_glyph-size);
-      --slotted-spinner-size: var(--_glyph-size);
-
-      display: inline-grid;
-      flex: none;
-      place-items: center;
-      inline-size: var(--_glyph-size);
-      block-size: var(--_glyph-size);
-    }
-
-    :scope[data-part-root] [data-part-activity-step][data-complete] > :first-child {
-      color: var(--slotted-tone-success-text);
-    }
-
-    :scope[data-part-root] [data-part-activity-step][data-current] {
-      color: var(--slotted-text);
-    }
-
-    :scope[data-part-root] [data-part-activity-step][data-current] > :first-child {
-      color: var(--slotted-tone-accent-text);
-    }
-
-    :scope[data-part-root] [data-part-activity-step][data-current] > :last-child {
-      --_base: color-mix(in oklab, var(--slotted-text) 72%, var(--slotted-text-muted));
-
-      background-image: linear-gradient(
-        90deg,
-        var(--_base) 0%,
-        var(--_base) 38%,
-        var(--slotted-text-muted) 50%,
-        var(--_base) 62%,
-        var(--_base) 100%
-      );
-      background-size: 220% 100%;
-      background-clip: text;
-      color: transparent;
-      animation: slotted-message-sweep var(--slotted-duration-loop-slow) linear infinite;
-    }
-
     /* ── Versions ───────────────────────────────────────────────────────────
      *
      * `2 de 3` between two inner controls. The chevron is one glyph turned for
@@ -1150,12 +1062,6 @@
         animation: none;
       }
 
-      :scope[data-part-root] [data-part-activity-step][data-current] > :last-child {
-        animation: none;
-        background-image: none;
-        color: inherit;
-      }
-
       :scope[data-part-bubble] [data-part-typing] > span:nth-child(2) {
         opacity: 0.55;
       }
@@ -1329,6 +1235,110 @@
 
       :scope[data-part-bubble] [data-part-quote] {
         border: var(--slotted-border-width-thin, 1px) solid CanvasText;
+      }
+    }
+  }
+
+  /**
+   * The activity is scoped to itself rather than to the message root. A body
+   * can fold it inside another family (a `Collapsible` panel), and that
+   * family's parts end the message scope above it. The row's custom
+   * properties reach it by inheritance.
+   */
+  @scope ([data-part-activity]) {
+    /* ── Activity ───────────────────────────────────────────────────────────
+     *
+     * What a reply is doing before it has words, as a short log of steps on a
+     * raised card: the steps already done carry a tick and step back into the
+     * muted ink, and the step in progress carries the shared ring (`spinner`)
+     * and a band of light that travels across its words. A single step is the
+     * same card with one line. ReUI's `c-message-7` draws one muted line that
+     * pulses; the log says what has been done, not only that something is.
+     *
+     * The band is the one place the family paints text with a gradient, which
+     * the polish lens refuses as decoration: here it is the wait itself, it
+     * moves only while the step is current, and under reduced motion the words
+     * stand in the plain ink.
+     */
+    :scope {
+      display: inline-flex;
+      flex-direction: column;
+      gap: var(--slotted-space-3, 0.375rem);
+      box-sizing: border-box;
+      max-inline-size: 100%;
+      padding-block: var(--_pad-block);
+      padding-inline: var(--_pad-inline) calc(var(--_pad-inline) + var(--slotted-space-2, 0.25rem));
+      border: var(--slotted-border-width-thin, 1px) solid var(--slotted-border-subtle);
+      border-radius: calc(var(--_pad-block) * 2);
+      background-color: var(--slotted-surface-raised);
+      box-shadow: var(--slotted-shadow-xs);
+      color: var(--slotted-text-muted);
+      font-size: var(--slotted-control-font-size-md, 13px);
+      line-height: round(up, calc(1em * var(--slotted-line-height-md, 1.5)), 1px);
+    }
+
+    [data-part-activity-step] {
+      display: flex;
+      align-items: center;
+      gap: var(--slotted-space-4, 0.5rem);
+      min-inline-size: 0;
+      transition:
+        opacity var(--slotted-duration-medium) var(--slotted-easing-enter, ease-out),
+        translate var(--slotted-duration-medium) var(--slotted-easing-enter, ease-out),
+        color var(--slotted-duration-medium) var(--slotted-easing-standard, ease);
+
+      @starting-style {
+        opacity: 0;
+        translate: 0 var(--slotted-space-2, 0.25rem);
+      }
+    }
+
+    /** The mark column: a tick, or the ring, in one box so the words line up. */
+    [data-part-activity-step] > :first-child {
+      --slotted-icon-size: var(--_glyph-size);
+      --slotted-spinner-size: var(--_glyph-size);
+
+      display: inline-grid;
+      flex: none;
+      place-items: center;
+      inline-size: var(--_glyph-size);
+      block-size: var(--_glyph-size);
+    }
+
+    [data-part-activity-step][data-complete] > :first-child {
+      color: var(--slotted-tone-success-text);
+    }
+
+    [data-part-activity-step][data-current] {
+      color: var(--slotted-text);
+    }
+
+    [data-part-activity-step][data-current] > :first-child {
+      color: var(--slotted-tone-accent-text);
+    }
+
+    [data-part-activity-step][data-current] > :last-child {
+      --_base: color-mix(in oklab, var(--slotted-text) 72%, var(--slotted-text-muted));
+
+      background-image: linear-gradient(
+        90deg,
+        var(--_base) 0%,
+        var(--_base) 38%,
+        var(--slotted-text-muted) 50%,
+        var(--_base) 62%,
+        var(--_base) 100%
+      );
+      background-size: 220% 100%;
+      background-clip: text;
+      color: transparent;
+      animation: slotted-message-sweep var(--slotted-duration-loop-slow) linear infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      [data-part-activity-step][data-current] > :last-child {
+        animation: none;
+        background-image: none;
+        color: inherit;
       }
     }
   }

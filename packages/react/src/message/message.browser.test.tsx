@@ -1,12 +1,26 @@
 import { fromMarkedTokens } from '@slotted/core/markdown';
 import { render } from '@testing-library/react';
 import { marked } from 'marked';
+import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
 
 import { Card, CardBody, CardFooter, CardHeader } from '../card';
+import {
+  Collapsible,
+  CollapsibleHeader,
+  CollapsiblePanel,
+  CollapsibleTrigger,
+} from '../collapsible';
 import { Markdown } from '../markdown';
 import { Text } from '../typography';
-import { Bubble, BubbleContent, Message, MessageBody } from './index';
+import {
+  Bubble,
+  BubbleContent,
+  Message,
+  MessageActivity,
+  MessageActivityStep,
+  MessageBody,
+} from './index';
 
 /**
  * A bubble is as wide as its words, up to its share of the row. A markdown
@@ -83,3 +97,38 @@ function cardPartStyles(id: string) {
     };
   });
 }
+
+/**
+ * The message stylesheet stops at the first child of a nested family root, so
+ * an activity folded into a `Collapsible` panel drew with none of its styling.
+ */
+describe('an activity nested in another family inside a message body', () => {
+  it('keeps the border and padding of an activity directly in the body', () => {
+    render(
+      <Message align="start" style={{ '--slotted-border-subtle': 'gray' } as CSSProperties}>
+        <MessageBody>
+          <MessageActivity>
+            <MessageActivityStep status="complete">Reading accounts</MessageActivityStep>
+          </MessageActivity>
+          <Collapsible defaultOpen>
+            <CollapsibleHeader>
+              <CollapsibleTrigger>Sources consulted: 1</CollapsibleTrigger>
+            </CollapsibleHeader>
+            <CollapsiblePanel>
+              <MessageActivity>
+                <MessageActivityStep status="complete">Reading balances</MessageActivityStep>
+              </MessageActivity>
+            </CollapsiblePanel>
+          </Collapsible>
+        </MessageBody>
+      </Message>,
+    );
+    const [direct, nested] = [...document.querySelectorAll('[data-part="activity"]')].map((node) =>
+      getComputedStyle(node),
+    );
+
+    expect(direct!.borderTopWidth).toBe('1px');
+    expect(nested!.borderTopWidth).toBe(direct!.borderTopWidth);
+    expect(nested!.paddingTop).toBe(direct!.paddingTop);
+  });
+});
