@@ -4080,6 +4080,7 @@ export type ComponentToken =
   | '--slotted-otp-input-subtle-background'
   | '--slotted-otp-input-subtle-border-color'
   | '--slotted-otp-input-subtle-hover-background'
+  | '--slotted-overlay-max-block-size'
   | '--slotted-page-background-sunken'
   | '--slotted-page-background-surface'
   | '--slotted-page-footer-backdrop-filter'
@@ -6386,6 +6387,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-otp-input-subtle-background",
   "--slotted-otp-input-subtle-border-color",
   "--slotted-otp-input-subtle-hover-background",
+  "--slotted-overlay-max-block-size",
   "--slotted-page-background-sunken",
   "--slotted-page-background-surface",
   "--slotted-page-footer-backdrop-filter",

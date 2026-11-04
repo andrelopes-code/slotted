@@ -224,7 +224,10 @@
      * The room the positioner says is left, less the layer's own padding at
      * both ends. Only the body scrolls inside it.
      */
-    max-block-size: calc(var(--slotted-positioner-available-height, 100vh) - 2 * var(--_gap));
+    max-block-size: min(
+      var(--slotted-overlay-max-block-size, 100vh),
+      calc(var(--slotted-positioner-available-height, 100vh) - 2 * var(--_gap))
+    );
 
     border: var(--_border-width) solid var(--_border-color);
     border-radius: var(--_radius);
