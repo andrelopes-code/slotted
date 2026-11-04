@@ -68,10 +68,16 @@
      * automatic minimum is its content, and without the override a scrollport
      * inside a bounded box grows to its content and scrolls nothing.
      *
+     * The row is a flexible track, not the implicit `auto` one: an `auto` row
+     * sizes to its content and ignores a `max-block-size`, so a box bounded by
+     * `maxBlockSize` stopped at the bound while the scrollport overflowed it.
+     * A flexible track is the one grid sizing clamps to the container's maximum.
+     *
      * The family paints no frame of its own. A border, a radius and a ground
      * are the consumer's, and they go here — on the element the mask is not on.
      */
     display: grid;
+    grid-template-rows: minmax(0, 1fr);
     box-sizing: border-box;
     min-block-size: 0;
     min-inline-size: 0;
