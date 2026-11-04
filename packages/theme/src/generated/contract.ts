@@ -3555,6 +3555,7 @@ export type ComponentToken =
   | '--slotted-dialog-close-hover-background'
   | '--slotted-dialog-color'
   | '--slotted-dialog-description-color'
+  | '--slotted-dialog-footer-gap'
   | '--slotted-dialog-footer-surface'
   | '--slotted-dialog-measure'
   | '--slotted-dialog-measure-lg'
@@ -5860,6 +5861,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-dialog-close-hover-background",
   "--slotted-dialog-color",
   "--slotted-dialog-description-color",
+  "--slotted-dialog-footer-gap",
   "--slotted-dialog-footer-surface",
   "--slotted-dialog-measure",
   "--slotted-dialog-measure-lg",

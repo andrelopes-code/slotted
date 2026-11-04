@@ -388,3 +388,32 @@ describe('a full-screen plain dialog with content taller than the window', () =>
     expect(Math.round(content.getBoundingClientRect().height)).toBe(window.innerHeight);
   });
 });
+
+/**
+ * The footer spaced its actions with the private `--_gap`, which also sets the
+ * header buttons' margin, so a theme could not retune one without the other.
+ * `--slotted-dialog-footer-gap` moves the footer alone.
+ */
+describe('the footer gap token', () => {
+  afterEach(() => {
+    document.documentElement.style.removeProperty('--slotted-dialog-footer-gap');
+  });
+
+  it('sets the gap between the footer actions', async () => {
+    document.documentElement.style.setProperty('--slotted-dialog-footer-gap', '0.5rem');
+    render(
+      <Dialog defaultOpen>
+        <DialogContent aria-label="Gap">
+          <DialogFooter>
+            <button type="button">Cancel</button>
+            <button type="button">Save</button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>,
+    );
+    await frame();
+    const footer = document.querySelector('[data-part="footer"]') as HTMLElement;
+
+    expect(getComputedStyle(footer).columnGap).toBe('8px');
+  });
+});
