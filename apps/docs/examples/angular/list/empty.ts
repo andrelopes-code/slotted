@@ -8,7 +8,7 @@ import { SlHeading, SlText } from '@slotted/angular/typography';
   template: `
     <ul slList aria-label="Returns" variant="framed">
       <li slListEmpty>
-        <h3 slHeading [level]="3" size="md">No returns waiting</h3>
+        <h3 slHeading size="md">No returns waiting</h3>
         <span slText tone="muted"
           >A return appears here once the customer ships the parcel back.</span
         >

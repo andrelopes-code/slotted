@@ -27,7 +27,7 @@ import { SlHeading } from '@slotted/angular/typography';
   template: `
     <div slCard>
       <div slCardHeader>
-        <h3 slHeading [level]="3" size="md">On shift in Reno</h3>
+        <h3 slHeading size="md">On shift in Reno</h3>
       </div>
       <div slCardBody>
         <ul slList aria-label="On shift in Reno" inset variant="ruled">
