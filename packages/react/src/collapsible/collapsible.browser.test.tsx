@@ -43,3 +43,39 @@ describe('Collapsible trigger without a description', () => {
     },
   );
 });
+
+describe('Collapsible panel content', () => {
+  it('reserves as much space above the content as below it while open', () => {
+    render(
+      <Collapsible defaultOpen size="lg" variant="framed">
+        <CollapsibleHeader>
+          <CollapsibleTrigger description="Steps and formula">
+            How it is calculated
+          </CollapsibleTrigger>
+        </CollapsibleHeader>
+        <CollapsiblePanel>
+          <p>First line of the content.</p>
+        </CollapsiblePanel>
+      </Collapsible>,
+    );
+    const content = getComputedStyle(document.querySelector('[data-part="content"]')!);
+
+    expect(content.paddingBlockStart).toBe(content.paddingBlockEnd);
+    expect(content.paddingBlockStart).not.toBe('0px');
+  });
+
+  it('holds no space above the content while closed', () => {
+    render(
+      <Collapsible>
+        <CollapsibleHeader>
+          <CollapsibleTrigger>Sources</CollapsibleTrigger>
+        </CollapsibleHeader>
+        <CollapsiblePanel>Body</CollapsiblePanel>
+      </Collapsible>,
+    );
+
+    expect(
+      getComputedStyle(document.querySelector('[data-part="content"]')!).paddingBlockStart,
+    ).toBe('0px');
+  });
+});
