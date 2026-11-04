@@ -1,0 +1,80 @@
+---
+title: List
+description: A vertical run of related rows, with named groups, an empty message and a marker the list draws itself.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Variants
+
+`variant` decides how the rows are told apart. `plain`, the default, separates them by spacing alone, which suits a short run inside a card. `ruled` draws a hairline between rows. `framed` adds a box around the set. `separated` gives every row a surface of its own and is the only variant that puts a gap between rows.
+
+<Example name="variants" />
+
+## Sizes
+
+`size` sets the room each row gets: `sm`, `md`, the default, or `lg`. It changes the row's minimum height, padding, gap and type size together, so a dense side panel and a roomy settings page use the same markup.
+
+<Example name="sizes" />
+
+## Markers
+
+`marker` paints the marker column: `none`, the default, a drawn `bullet`, or a `number`. The reading order is a separate decision. In React, `ordered` renders an `ol`; in Angular, the directive goes on the `ol` you write. An ordered list can paint no number and still read in order, and the bullet keeps its shape whatever typeface the reader has.
+
+<Example name="markers" />
+
+## Groups
+
+`ListSection` in React and `li[slListSection]` in Angular hold a heading and a nested list of rows. The nested list names itself by the heading through `aria-labelledby`, so a screen reader that lands inside a group announces which group it is. `end` in React, or an element marked `slListSectionEnd` in Angular, stands at the end of the heading line in tabular figures, for a day's total or a count. The heading is an `h3` by default; React sets it with `level`, Angular uses the heading element you write.
+
+<Example name="sections" />
+
+## Sticky group headings
+
+`sticky` keeps a group's heading in place while its own rows scroll under it, inside the nearest scroll container. The heading takes the list's surface and the library's sticky stack level, so a row scrolling under it is covered rather than showing through. `labelVariant="ruled"` in React, or `variant="ruled"` on `slListSectionLabel` in Angular, draws the name in the text color over a rule instead of the default small muted `caption`. Scroll the movements to watch each day's heading hold until the next one replaces it.
+
+<Example name="sticky" wide />
+
+## Inside a padded box
+
+A card body or a dialog already pads its content, so rows that carry their own inline padding stand two insets in from the box edge. `inset` removes the rows' inline padding: the names line up with the card heading, and the rules and the hover fill still run edge to edge.
+
+<Example name="inset" />
+
+## Loading
+
+`loading` writes `aria-busy` on the list and draws nothing of its own. The rows stay in place with `loading` set on each, and `Skeleton` lines stand in for the text at the widths the loaded text takes, so nothing moves when the data arrives. A `SkeletonRegion` around the list waits 200 milliseconds before drawing and announces the wait once. Refresh carriers starts a 1.5-second load.
+
+<Example name="loading" />
+
+## Empty
+
+`ListEmpty` in React and `li[slListEmpty]` in Angular are the message a list shows when it holds no rows. The message is an `li` inside the list, so a screen reader announces a list of one item and reads the message, rather than announcing an empty list and nothing else, and the words stay inside the frame of a `framed` list.
+
+<Example name="empty" />
+
+## A page of a larger set
+
+When the list shows one page of a longer result, set `position` and `setSize` on each row. They write `aria-posinset` and `aria-setsize`, so a screen reader announces the row as 41 of 128 rather than 1 of 3. Leave them out when every row is present. Name the list after the page it shows.
+
+<Example name="page-of-set" />
+
+## Navigation
+
+A list of links inside a `nav` landmark is a navigation menu. The list writes no landmark itself: the `nav` and its `aria-label` belong to the page. `current="page"` on the row of the page being shown writes `aria-current` on the row and paints it as current. Choose a section to move the current row.
+
+<Example name="navigation" />
+
+## Selectable rows
+
+The list draws no check of its own. A `Checkbox` in the row's start slot is the control a reader operates and the element a screen reader announces, and `selected` on the row paints the selection. `Badge` in the end slot carries the row's count. Pick an order to add it to the pick list.
+
+<Example name="selection" />
+
+## Defaults for an application
+
+`ListDefaultsProvider` in React and `provideListDefaults` in Angular set `variant`, `size`, `marker` and `inset` once for every list under them. A value a list sets itself still wins: the first list below reads `ruled` and `sm` from the provider, and the second keeps the `sm` size and states `framed`.
+
+<Example name="defaults" />
