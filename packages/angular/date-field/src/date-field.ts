@@ -22,6 +22,7 @@ import type { DateFieldName, PlainDate, SegmentState } from '@slotted/core/date'
 import { createControllable } from '@slotted/core/state';
 import type { ChangeReason, ChangeRequest } from '@slotted/core/state';
 import {
+  afterNextRender,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
@@ -309,6 +310,9 @@ export class SlDateField implements ControlValueAccessor, Validator, OnInit {
    * Nothing is drawn from it: it is the date an empty segment steps to.
    */
   private readonly reference = signal<PlainDate>(plainDate(2000, 1, 1));
+  private readonly resolveReference = afterNextRender(() => {
+    this.reference.set(todayIn(this.timeZone() ?? this.defaults.timeZone));
+  });
   protected readonly activeField = signal<DateFieldName | undefined>(undefined);
 
   private onChangeFn: (value: PlainDate | null) => void = () => undefined;
@@ -440,7 +444,6 @@ export class SlDateField implements ControlValueAccessor, Validator, OnInit {
 
   ngOnInit() {
     this.segments.set(segmentsOf(this.value() ?? this.defaultValue() ?? null));
-    this.reference.set(todayIn(this.timeZone() ?? this.defaults.timeZone));
   }
 
   /* ── The value ───────────────────────────────────────────────────────── */
