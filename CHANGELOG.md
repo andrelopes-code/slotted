@@ -2,6 +2,25 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.31 — 2026-11-04
+
+- fix(theme): regenerate hooks for the dashboard widget help parts
+- feat(dashboard-grid): add help beside a widget's title
+- fix(collapsible): reserve space above the panel content
+- feat(theme): add --slotted-overlay-max-block-size to cap an overlay's height
+- docs(agent-docs): name the family that draws a message in compose and review
+- fix(date-field): resolve today after the first render in Angular
+- feat(theme): add --slotted-action-gap for adjacent labelled actions
+- fix(docs): drop the level binding from the Angular List examples
+- docs(list): add the List page and state the beta channel on the site
+- fix(scroll-area): bound the viewport by maxBlockSize
+- fix(message): style MessageActivity inside another family
+- fix(dialog, drawer): type `children` as present in the render props of button parts
+- fix(side-navigation): align a section label with the rows of a section without icons
+- feat(dialog): add --slotted-dialog-footer-gap
+- docs(readme): add badges, features, quick start and repository map
+- chore(demo): move Nexora to 0.1.0-beta.30 and American English spelling
+
 ## 0.1.0-beta.30 — 2026-10-30
 
 - test(agent-docs): use a prop no spelling turns into an HTML attribute
