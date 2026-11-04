@@ -69,6 +69,11 @@ element stands in that slot.
   written only beside a comment that says why no token covers it (CP-05).
 - A state a family already draws is set on the family and stated once, with
   nothing louder beside it (CP-06).
+- A message names what it is about. The hint or error of one control is the
+  `description` or `error` part of its `field` (no mark, medium weight in the
+  danger and success tones). The failure or outcome of a command, a form, a
+  region or a page is an `alert`. `inline-message` is not drawn on its own: it
+  is the root those two field parts already are (CP-11).
 - A control that switches what a region holds changes words and values, never
   the size or the position of a box (CP-08).
 - A control that switches a region — tabs, a route, a filter — updates its
