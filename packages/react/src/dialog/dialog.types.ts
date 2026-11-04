@@ -284,7 +284,10 @@ type PartProps<Element extends HTMLElement> = HTMLAttributes<Element> & {
 };
 
 export type DialogRootProps = PartProps<HTMLDivElement> & { 'data-ui': 'dialog' };
-export type DialogTriggerRootProps = ComponentPropsWithRef<'button'> & { 'data-part': 'trigger' };
+/** What `render` receives for a button part. `children` is present, as `Button` requires. */
+type ButtonPartProps = ComponentPropsWithRef<'button'> & { children: ReactNode };
+
+export type DialogTriggerRootProps = ButtonPartProps & { 'data-part': 'trigger' };
 
 interface WithRender<RootProps> {
   /** Replaces the rendered element. The props are the ones the part writes. */
@@ -318,8 +321,7 @@ export interface DialogBodyProps
 export interface DialogFooterProps
   extends ComponentPropsWithRef<'footer'>, WithRender<PartProps<HTMLElement>> {}
 
-interface ClosingButtonProps
-  extends ComponentPropsWithRef<'button'>, WithRender<ComponentPropsWithRef<'button'>> {
+interface ClosingButtonProps extends ComponentPropsWithRef<'button'>, WithRender<ButtonPartProps> {
   /** The result the close carries out, which is the platform's `returnValue`. */
   value?: string | undefined;
 }

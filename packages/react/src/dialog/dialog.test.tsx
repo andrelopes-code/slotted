@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/dialog/contract.json';
+import { Button } from '../button';
 import { SlottedProvider } from '../i18n';
 import { AlertDialog, Dialog } from './dialog';
 import { DialogDefaultsProvider } from './dialog-defaults';
@@ -935,5 +936,27 @@ describe('the virtual keyboard', () => {
     );
     expect(inset()).toBe('');
     vi.unstubAllGlobals();
+  });
+});
+
+/**
+ * `render` hands the part's props to another family. `Button` requires its
+ * children, so the props the parts write carry them: the example compiles
+ * under `strict`.
+ */
+describe('AlertDialogAction render', () => {
+  it('hands Button the props the part writes', () => {
+    render(
+      <AlertDialog defaultOpen>
+        <DialogContent>
+          <DialogDescription>The project and its files are removed.</DialogDescription>
+          <AlertDialogAction render={(props) => <Button {...props} tone="danger" />}>
+            Delete project
+          </AlertDialogAction>
+        </DialogContent>
+      </AlertDialog>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Delete project' })).toBeTruthy();
   });
 });

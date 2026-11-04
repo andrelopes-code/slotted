@@ -287,7 +287,10 @@ type PartProps<Element extends HTMLElement> = HTMLAttributes<Element> & {
 };
 
 export type DrawerPanelRootProps = ComponentPropsWithRef<'div'> & { 'data-part': 'panel' };
-export type DrawerTriggerRootProps = ComponentPropsWithRef<'button'> & { 'data-part': 'trigger' };
+/** What `render` receives for a button part. `children` is present, as `Button` requires. */
+type ButtonPartProps = ComponentPropsWithRef<'button'> & { children: ReactNode };
+
+export type DrawerTriggerRootProps = ButtonPartProps & { 'data-part': 'trigger' };
 
 interface WithRender<RootProps> {
   /** Replaces the rendered element. The props are the ones the part writes. */
@@ -329,7 +332,7 @@ export interface DrawerFooterProps
   extends ComponentPropsWithRef<'footer'>, WithRender<PartProps<HTMLElement>> {}
 
 export interface DrawerCloseProps
-  extends ComponentPropsWithRef<'button'>, WithRender<ComponentPropsWithRef<'button'>> {
+  extends ComponentPropsWithRef<'button'>, WithRender<ButtonPartProps> {
   /** The result the close carries out, which is the platform's `returnValue`. */
   value?: string | undefined;
 }
