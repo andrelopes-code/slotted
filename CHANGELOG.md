@@ -2,6 +2,13 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.34 — 2026-11-05
+
+- docs(drawer): add the form scene its reference entry names
+- test(drawer): follow the form variant of the part selectors
+- fix(form): space and bound every direct child of the form, not only fields
+- fix(drawer): keep the parts in the panel's rows for a form around them
+
 ## 0.1.0-beta.33 — 2026-11-05
 
 - fix(chart): keep a tooltip label beside a wide value and span added content
