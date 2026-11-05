@@ -99,7 +99,12 @@ const ROWS = [
       </thead>
       <tbody slTableBody>
         @for (row of rows(); track row.id) {
-          <tr slTableRow [value]="row.id" [disabled]="row.id === disabledRow()">
+          <tr
+            slTableRow
+            [value]="row.id"
+            [disabled]="row.id === disabledRow()"
+            [muted]="row.id === mutedRow()"
+          >
             <td slTableSelect></td>
             <th slTableRowHeader>
               <button slTableExpander></button>
@@ -127,6 +132,7 @@ class Host {
   readonly variant = signal<'plain' | 'ruled' | 'framed' | undefined>(undefined);
   readonly cellAlign = signal<'start' | 'center' | 'end' | undefined>(undefined);
   readonly disabledRow = signal<string | undefined>(undefined);
+  readonly mutedRow = signal<string | undefined>(undefined);
   readonly totalRowCount = signal<number | undefined>(undefined);
   readonly sortRequests: ChangeRequest<TableSortDescriptor | null>[] = [];
   readonly valueRequests: ChangeRequest<readonly string[]>[] = [];
@@ -237,6 +243,20 @@ describe('SlTable', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.value()).toEqual(['INV-1042', 'INV-1044']);
+  });
+
+  it('marks a muted row without disabling it or leaving it out of the selection', () => {
+    fixture.componentInstance.mutedRow.set('INV-1043');
+    fixture.detectChanges();
+    const row = query(fixture, '[data-part="row"][data-value="INV-1043"]');
+
+    query(fixture, '[data-part="head"] [data-part="selection"] span[slCheckbox]').click();
+    fixture.detectChanges();
+
+    expect(row.hasAttribute('data-muted')).toBe(true);
+    expect(row.hasAttribute('data-disabled')).toBe(false);
+    expect(row.hasAttribute('aria-disabled')).toBe(false);
+    expect(fixture.componentInstance.value()).toEqual(['INV-1042', 'INV-1043', 'INV-1044']);
   });
 
   it('states the count the header checkbox covers', () => {

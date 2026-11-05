@@ -141,6 +141,7 @@ export class SlTableFooter {}
     '[attr.aria-current]': "current() ? 'true' : null",
     '[attr.data-current]': "current() ? '' : null",
     '[attr.data-interactive]': "interactive() ? '' : null",
+    '[attr.data-muted]': "muted() ? '' : null",
     '(click)': 'onClick($event)',
   },
 })
@@ -154,6 +155,12 @@ export class SlTableRow {
    * selection, which the checkbox owns.
    */
   readonly current = input(false, { transform: booleanAttribute });
+  /**
+   * Draws the row in the muted ink, for a record that is no longer active. It
+   * changes the ink only: the row is neither `disabled` nor out of the
+   * selection.
+   */
+  readonly muted = input(false, { transform: booleanAttribute });
   /**
    * Paints the row as a thing the pointer can press. Stated beside `(action)`,
    * because an output does not say whether anything listens to it.

@@ -840,6 +840,13 @@ export const REACT_TABLE_DOCS = {
         'The record open elsewhere on the page, a detail pane beside the table, written as aria-current',
       ],
       [
+        'muted',
+        'boolean',
+        'false',
+        'TableRow',
+        'Draws the row in the muted ink, for a record that is no longer active; the row stays selectable and pressable',
+      ],
+      [
         'interactive',
         'boolean',
         'true with onAction',

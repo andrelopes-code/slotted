@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -78,5 +79,57 @@ describe('a pinned column of a framed table wider than its scroller', () => {
     );
 
     expect(ground('td[data-sticky="end"]')).toBe('rgb(1, 2, 3)');
+  });
+});
+
+/**
+ * A record that is no longer active is drawn in the muted ink. The row states
+ * it, the cells read it, and a sibling row keeps the table's ink.
+ */
+describe('a muted row', () => {
+  const colorOf = (selector: string) => getComputedStyle(document.querySelector(selector)!).color;
+
+  function renderRows() {
+    render(
+      <Table
+        columns={2}
+        selectionMode="multiple"
+        style={
+          {
+            '--slotted-table-color': 'rgb(10, 20, 30)',
+            '--slotted-table-color-muted': 'rgb(100, 110, 120)',
+          } as CSSProperties
+        }
+      >
+        <TableContent>
+          <TableBody>
+            <TableRow muted value="ended">
+              <TableCell>Gym</TableCell>
+              <TableCell>Ended</TableCell>
+            </TableRow>
+            <TableRow value="active">
+              <TableCell>Pool</TableCell>
+              <TableCell>Active</TableCell>
+            </TableRow>
+          </TableBody>
+        </TableContent>
+      </Table>,
+    );
+  }
+
+  it('draws its cells in the muted ink and leaves a sibling row in the table ink', () => {
+    renderRows();
+
+    expect(colorOf('tr[data-value="ended"] td')).toBe('rgb(100, 110, 120)');
+    expect(colorOf('tr[data-value="active"] td')).toBe('rgb(10, 20, 30)');
+  });
+
+  it('changes neither aria-disabled nor the selection set', () => {
+    renderRows();
+    const row = document.querySelector('tr[data-value="ended"]')!;
+
+    expect(row.hasAttribute('aria-disabled')).toBe(false);
+    expect(row.hasAttribute('data-disabled')).toBe(false);
+    expect(row.hasAttribute('data-selected')).toBe(false);
   });
 });

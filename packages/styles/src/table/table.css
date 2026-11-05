@@ -514,6 +514,19 @@
     --_row-ground: var(--_selected-hover);
   }
 
+  /**
+   * A record that is no longer active: the row's ink steps down to the muted
+   * ink, and every cell and the row header read it by inheritance. The rule
+   * stands above `selected` and `disabled`, which state their own ink and win.
+   * A link in the row takes the muted ink as its color at rest and keeps the
+   * accent under the pointer.
+   */
+  [data-ui-table] [data-part-row][data-muted] {
+    --slotted-link-color: var(--_muted);
+
+    color: var(--_muted);
+  }
+
   [data-ui-table] [data-part-row][data-disabled] {
     color: var(--slotted-disabled-foreground, GrayText);
   }

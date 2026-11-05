@@ -1028,6 +1028,31 @@ describe('selection', () => {
   });
 });
 
+describe('a muted row', () => {
+  it('is marked without being disabled or leaving the selection set', () => {
+    render(
+      <Table columns={2} selectionMode="multiple">
+        <TableContent>
+          <TableBody>
+            <TableRow muted value="a">
+              <TableSelect />
+              <TableCell>A</TableCell>
+            </TableRow>
+          </TableBody>
+        </TableContent>
+      </Table>,
+    );
+    const row = screen.getAllByRole('row')[0]!;
+
+    fireEvent.click(screen.getByRole('checkbox', { name: /Select/ }));
+
+    expect(row).toHaveAttribute('data-muted');
+    expect(row).not.toHaveAttribute('data-disabled');
+    expect(row).not.toHaveAttribute('aria-disabled');
+    expect(row).toHaveAttribute('data-selected');
+  });
+});
+
 describe('expansion', () => {
   function Expandable() {
     return (

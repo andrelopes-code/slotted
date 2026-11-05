@@ -484,6 +484,12 @@ export interface TableRowProps extends ComponentPropsWithRef<'tr'> {
   current?: boolean | undefined;
   disabled?: boolean | undefined;
   /**
+   * Draws the row in the muted ink, for a record that is no longer active.
+   * It changes the ink only: the row keeps its hover, focus ring and action,
+   * and it is neither `disabled` nor out of the selection.
+   */
+  muted?: boolean | undefined;
+  /**
    * Paints the row as a thing the pointer can press. On by default once
    * `onAction` is given.
    */
