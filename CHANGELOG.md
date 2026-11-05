@@ -2,6 +2,12 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.33 — 2026-11-05
+
+- fix(chart): keep a tooltip label beside a wide value and span added content
+- fix(entity-picker): place content written outside the option parts in the label cell
+- fix(upload): omit the start action on a held file when no adapter is set
+
 ## 0.1.0-beta.32 — 2026-11-05
 
 - feat(chart): add the range series kind for a band around a line
