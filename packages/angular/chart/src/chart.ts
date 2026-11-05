@@ -758,7 +758,12 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
     const tooltip =
       trigger === 'none'
         ? null
-        : tooltipContext(current, active, { trigger, sort: settings.sort, total: settings.total });
+        : tooltipContext(current, active, {
+            trigger,
+            sort: settings.sort,
+            total: settings.total,
+            totalLabel: this.t('total'),
+          });
     this.overlay.set({
       crosshair,
       markers,

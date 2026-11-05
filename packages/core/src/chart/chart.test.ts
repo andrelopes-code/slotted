@@ -373,6 +373,10 @@ describe('tooltip', () => {
     const context = tooltipContext(stacked, { series: 'cost', key: 'Mar' });
     expect(context?.items.map((item) => item.label)).toEqual(['Cost']);
     expect(tooltipContext(stacked, { series: 'cost', key: 'Feb' })?.total?.formatted).toBe('222');
+    expect(tooltipContext(stacked, { series: 'cost', key: 'Feb' })?.total?.label).toBe('Total');
+    expect(
+      tooltipContext(stacked, { series: 'cost', key: 'Feb' }, { totalLabel: 'Soma' })?.total?.label,
+    ).toBe('Soma');
   });
 
   it('places the box at the inline end and flips at the edge', () => {

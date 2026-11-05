@@ -290,7 +290,8 @@ function assignRef<T>(
 export interface ChartTooltipContentProps {
   readonly context: ChartTooltipContext;
   readonly model: ChartModel;
-  readonly totalLabel: string;
+  /** Defaults to the chart's own word for the total, `messages` overrides included. */
+  readonly totalLabel?: string;
   readonly indicator?: ChartTooltipSettings['indicator'];
 }
 
@@ -350,7 +351,7 @@ export function ChartTooltipContent({
       })}
       {context.total ? (
         <div data-part="tooltip-total" data-part-tooltip-total="">
-          <span>{totalLabel}</span>
+          <span>{totalLabel ?? context.total.label}</span>
           <span data-part="tooltip-value" data-part-tooltip-value="">
             {context.total.formatted}
           </span>
@@ -708,6 +709,7 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
             trigger,
             sort: resolved.tooltip.sort,
             total: resolved.tooltip.total,
+            totalLabel: t('total'),
           });
     setOverlay({ crosshair, markers, tooltip, docked: box.clientWidth < TOOLTIP_DOCK_WIDTH });
   };
@@ -1390,7 +1392,6 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
                     context={overlay.tooltip}
                     indicator={resolved.tooltip.indicator}
                     model={model}
-                    totalLabel={t('total')}
                   />
                 ))
               : null}

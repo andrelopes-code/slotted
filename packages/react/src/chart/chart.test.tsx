@@ -41,7 +41,7 @@ vi.mock('@slotted/core/chart-echarts', () => ({
   preloadChartEngine: async () => {},
 }));
 
-const { Chart, ChartDefaultsProvider } = await import('./index');
+const { Chart, ChartDefaultsProvider, ChartTooltipContent } = await import('./index');
 const { SlottedProvider } = await import('../i18n');
 
 const data = [
@@ -377,6 +377,23 @@ describe('Chart', () => {
       );
       await nextFrame();
       expect(screen.getByTestId('custom')).toHaveTextContent('2 series');
+    });
+
+    it('names the total of a wrapped default tooltip with the chart’s own word', async () => {
+      render(
+        <Chart
+          {...base}
+          defaultActivePoint={{ series: 'cost', key: 'Feb' }}
+          messages={{ total: 'Sum' }}
+          renderTooltip={(context, model) => (
+            <ChartTooltipContent context={context} model={model} />
+          )}
+          series={base.series.map((series) => ({ ...series, kind: 'bar' as const, stack: 's' }))}
+        />,
+      );
+      await nextFrame();
+
+      expect(part('tooltip-total')).toHaveTextContent('Sum');
     });
 
     it('shows each series’ value at the active point in the legend', () => {

@@ -1,3 +1,4 @@
+import { chartMessages } from '../i18n';
 import { createNumberFormatter } from './format';
 import { categoryIndex, type ChartModel, seriesOf, visibleSeries } from './model';
 import type { ChartColor, ChartKind, ChartPoint, ChartTrigger } from './types';
@@ -26,7 +27,12 @@ export interface ChartTooltipContext {
   readonly trigger: Exclude<ChartTrigger, 'none'>;
   readonly title: string;
   readonly items: readonly ChartTooltipItem[];
-  readonly total: { readonly value: number; readonly formatted: string } | null;
+  /** The total of a stack, with the word that names it in the chart's language. */
+  readonly total: {
+    readonly value: number;
+    readonly formatted: string;
+    readonly label: string;
+  } | null;
   /**
    * The labels of the upright lines that stand on this category. A label the
    * plot had no room to draw is read here, where the reader's pointer is.
@@ -39,6 +45,8 @@ export interface ChartTooltipOptions {
   readonly sort?: 'none' | 'asc' | 'desc' | undefined;
   /** Shows the total of a stack. Defaults to on for stacked series. */
   readonly total?: boolean | undefined;
+  /** The word that names the total, resolved from the chart's messages. Defaults to the English one. */
+  readonly totalLabel?: string | undefined;
 }
 
 /** The trigger a chart uses when the consumer names none. */
@@ -132,7 +140,13 @@ export function tooltipContext(
     title: category.label,
     items,
     total:
-      wantsTotal && items.length > 1 ? { value: summed, formatted: active.format(summed) } : null,
+      wantsTotal && items.length > 1
+        ? {
+            value: summed,
+            formatted: active.format(summed),
+            label: options.totalLabel ?? chartMessages.base.total,
+          }
+        : null,
     notes,
   };
 }
