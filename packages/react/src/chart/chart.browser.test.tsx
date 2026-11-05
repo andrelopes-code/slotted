@@ -1,10 +1,10 @@
 import { render } from '@testing-library/react';
 import type { CSSProperties } from 'react';
 import { page } from 'vitest/browser';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Segment, SegmentedControl } from '../segmented-control';
-import { Chart } from './index';
+import { Chart, ChartTooltipContent } from './index';
 
 const data = [
   { month: 'Jan', revenue: 120 },
@@ -103,5 +103,79 @@ describe('the table view of a chart', () => {
     }
     expect(slot(themed!)).not.toBe('');
     expect(slot(themed!)).toBe(slot(plain!));
+  });
+});
+
+/**
+ * The tooltip is a grid whose rows are a subgrid, so a wide value and an
+ * element added beside the parts each had to be placed by the family.
+ */
+describe('the tooltip of a chart', () => {
+  /* Wide enough that the value alone fills the tooltip's 18rem. */
+  const money = (value: number) => `$${(value / 100).toFixed(2)} per month, before tax`;
+  const opened = { series: 'y', key: 'a' };
+
+  /* A phone's frame docks the tooltip across the plot, which is wide enough for any value. */
+  beforeEach(async () => {
+    await page.viewport(1024, 915);
+  });
+
+  afterEach(async () => {
+    await page.viewport(412, 915);
+  });
+
+  it('keeps the label of every row beside a wide value', async () => {
+    render(
+      <Chart
+        data={[{ x: 'a', y: 22697167, lo: 22606024, hi: 22709051 }]}
+        defaultActivePoint={opened}
+        series={[
+          { id: 'y', kind: 'line', field: 'y', label: 'Forecast', format: money },
+          {
+            id: 'r',
+            kind: 'range',
+            lower: 'lo',
+            upper: 'hi',
+            of: 'y',
+            label: 'Likely range',
+            format: money,
+          },
+        ]}
+        x={{ field: 'x' }}
+      />,
+    );
+    await vi.waitFor(() => {
+      expect(document.querySelector('[data-part="tooltip-label"]')).not.toBeNull();
+    });
+    const labels = [...document.querySelectorAll('[data-part="tooltip-label"]')];
+
+    for (const label of labels) expect(label.getBoundingClientRect().width).toBeGreaterThan(0);
+  });
+
+  it('gives content added in renderTooltip the width of the tooltip', async () => {
+    render(
+      <Chart
+        data={[{ x: 'a', y: 1 }]}
+        defaultActivePoint={opened}
+        renderTooltip={(context, model) => (
+          <>
+            <ChartTooltipContent context={context} model={model} />
+            <div data-testid="added">Scheduled: -$99.90</div>
+          </>
+        )}
+        series={[{ id: 'y', kind: 'line', field: 'y', label: 'Y' }]}
+        x={{ field: 'x' }}
+      />,
+    );
+    const added = await vi.waitFor(() => {
+      const element = document.querySelector('[data-testid="added"]');
+      expect(element).not.toBeNull();
+      return element as HTMLElement;
+    });
+    const tooltip = document.querySelector('[data-part="tooltip"]') as HTMLElement;
+    const style = getComputedStyle(tooltip);
+    const padding = parseFloat(style.paddingInlineStart) + parseFloat(style.paddingInlineEnd);
+
+    expect(added.getBoundingClientRect().width).toBeCloseTo(tooltip.clientWidth - padding, 0);
   });
 });

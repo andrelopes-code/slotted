@@ -833,7 +833,8 @@
     column-gap: var(--slotted-space-4, 0.5rem);
     display: grid;
     font-size: var(--slotted-control-font-size-sm, 0.75rem);
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    /* The label keeps 4rem, so a wide value never takes the whole row. */
+    grid-template-columns: auto minmax(4rem, 1fr) auto;
     line-height: var(--slotted-line-height-sm, 1.45);
     max-inline-size: min(18rem, 100%);
     min-inline-size: 8rem;
@@ -886,6 +887,12 @@
     transition:
       opacity var(--slotted-duration-short) var(--slotted-easing-standard),
       visibility var(--slotted-duration-instant) linear var(--slotted-duration-short);
+  }
+
+  /* Content a consumer adds beside the parts takes the tooltip's full width. */
+  [data-ui-chart] [data-part-tooltip] > :not([data-part]) {
+    grid-column: 1 / -1;
+    overflow-wrap: anywhere;
   }
 
   [data-ui-chart] [data-part-tooltip-title] {
