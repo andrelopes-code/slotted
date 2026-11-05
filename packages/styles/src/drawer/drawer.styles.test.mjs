@@ -47,9 +47,10 @@ test('filters the footer’s backdrop from its own token, except under reduced t
         body.includes('backdrop-filter: var(--slotted-drawer-footer-backdrop-filter, none);'),
     ),
   );
+  const formFooter = '[data-ui-drawer] > [data-part-panel] > form > [data-part-footer]';
   assert.ok(
     css.includes(
-      `@media (prefers-reduced-transparency: reduce), (forced-colors: active) { ${footer} { -webkit-backdrop-filter: none; backdrop-filter: none; } }`,
+      `@media (prefers-reduced-transparency: reduce), (forced-colors: active) { ${formFooter}, ${footer} { -webkit-backdrop-filter: none; backdrop-filter: none; } }`,
     ),
   );
 });
