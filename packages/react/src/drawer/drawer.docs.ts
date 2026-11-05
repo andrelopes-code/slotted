@@ -317,6 +317,41 @@ const scenes: ReferenceSceneMeta[] = [
     }),
   },
   {
+    id: 'form',
+    title: 'A drawer that is a form',
+    note: 'A drawer that edits a record submits with Enter from any field and with the footer’s submit. render makes the panel the form itself, so the header, the body and the footer stay its rows and keep its inset; a form written around them inside DrawerPanel keeps them too.',
+    snippet: defineSnippet({
+      id: 'drawer-react-form',
+      language: 'tsx',
+      label: 'The panel rendered as the form',
+      source: `<Drawer open={open} onOpenChange={setOpen}>
+  <DrawerPanel
+    render={(props) => (
+      <form
+        {...props}
+        onSubmit={(event) => {
+          event.preventDefault();
+          save(new FormData(event.currentTarget));
+          setOpen(false);
+        }}
+      />
+    )}
+  >
+    <DrawerHeader>
+      <DrawerTitle>Edit contact</DrawerTitle>
+      <DrawerClose />
+    </DrawerHeader>
+    <DrawerBody>
+      <TextField aria-label="Name" defaultValue="Ana Ribeiro" name="name" />
+    </DrawerBody>
+    <DrawerFooter>
+      <Button type="submit">Save</Button>
+    </DrawerFooter>
+  </DrawerPanel>
+</Drawer>;`,
+    }),
+  },
+  {
     id: 'policy',
     title: 'Refusing a close, and refusing it once',
     note: 'Five ways to close and one request. A guard on onOpenChange covers Escape, an outside press, the close button, the trigger and the imperative handle together; Angular Material’s disableClose refuses two of them and Ant needs two booleans for one.',

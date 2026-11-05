@@ -298,6 +298,28 @@ const scenes: ReferenceSceneMeta[] = [
     }),
   },
   {
+    id: 'form',
+    title: 'A drawer that is a form',
+    note: 'A drawer that edits a record submits with Enter from any field and with the footer’s submit. A form written around the header, the body and the footer draws no box of its own, so the parts stay the panel’s rows and keep its inset.',
+    snippet: defineSnippet({
+      id: 'drawer-angular-form',
+      language: 'angular',
+      label: 'A form around the parts',
+      source: `<sl-drawer #drawer="slDrawer" [(open)]="open">
+  <form [formGroup]="contact" (ngSubmit)="save(); drawer.close()">
+    <header slDrawerHeader>
+      <h2 slDrawerTitle>Edit contact</h2>
+      <button slDrawerClose></button>
+    </header>
+    <div slDrawerBody>
+      <input slTextField aria-label="Name" formControlName="name" />
+    </div>
+    <footer slDrawerFooter><button slButton type="submit">Save</button></footer>
+  </form>
+</sl-drawer>`,
+    }),
+  },
+  {
     id: 'policy',
     title: 'Refusing a close, and refusing it once',
     note: 'Five ways to close and one output. A guard on openChangeRequest covers Escape, an outside press, the close button, the trigger and the imperative call together; Angular Material’s disableClose refuses two of them.',

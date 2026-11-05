@@ -484,6 +484,16 @@
     }
   }
 
+  /**
+   * A form written around the header, the body and the footer, so Enter in
+   * any field and the footer's submit belong to one form. It draws no box:
+   * its children are the panel's rows, and every rule of a part is written a
+   * second time through it, so the parts keep the panel's inset and rows.
+   */
+  [data-ui-drawer] > [data-part-panel] > form {
+    display: contents;
+  }
+
   /* ── Where the panel sits, and where it goes when it leaves ───────────── */
 
   [data-ui-drawer][data-side='start'] > [data-part-panel],
@@ -557,7 +567,11 @@
     border-start-end-radius: var(--slotted-drawer-radius-expanded, 0px);
   }
 
-  [data-ui-drawer][data-side='bottom'][data-expanded] > [data-part-panel] > [data-part-header] {
+  [data-ui-drawer][data-side='bottom'][data-expanded] > [data-part-panel] > [data-part-header],
+  [data-ui-drawer][data-side='bottom'][data-expanded]
+    > [data-part-panel]
+    > form
+    > [data-part-header] {
     padding-block-start: calc(var(--_padding-block) + env(safe-area-inset-top, 0px));
   }
 
@@ -566,15 +580,18 @@
    * one. `top` needs no such rule: its separator is the fourth row and the
    * three above it are already where the base puts them.
    */
-  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > [data-part-header] {
+  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > [data-part-header],
+  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > form > [data-part-header] {
     grid-row: 2;
   }
 
-  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > [data-part-body] {
+  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > [data-part-body],
+  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > form > [data-part-body] {
     grid-row: 3;
   }
 
-  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > [data-part-footer] {
+  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > [data-part-footer],
+  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > form > [data-part-footer] {
     grid-row: 4;
   }
 
@@ -678,7 +695,8 @@
    * sits over its end. The inset is padding inside the scrollport, so the last
    * line scrolls clear of the indicator rather than stopping under it.
    */
-  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > [data-part-body]:last-child {
+  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > [data-part-body]:last-child,
+  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > form > [data-part-body]:last-child {
     padding-block-end: calc(var(--_padding-block) + env(safe-area-inset-bottom, 0px));
   }
 
@@ -1090,7 +1108,8 @@
    * consumer can write: a header, a body and a footer draw two rules; a header
    * and a footer alone draw one; and a panel that is only a body draws none.
    */
-  [data-ui-drawer] > [data-part-panel] > [data-part-header] {
+  [data-ui-drawer] > [data-part-panel] > [data-part-header],
+  [data-ui-drawer] > [data-part-panel] > form > [data-part-header] {
     grid-row: 1;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -1107,7 +1126,8 @@
    * panel past its own measure, and a panel pinned to an edge then pushes its
    * inner edge across the layer.
    */
-  [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-title] {
+  [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-title],
+  [data-ui-drawer] > [data-part-panel] > form > [data-part-header] > [data-part-title] {
     grid-column: 1;
     grid-row: 1;
     margin: 0;
@@ -1127,7 +1147,8 @@
   }
 
   /* Actions take a column between the words and the close button, on the title's row. */
-  [data-ui-drawer] > [data-part-panel] > [data-part-header]:has(> [data-part-actions]) {
+  [data-ui-drawer] > [data-part-panel] > [data-part-header]:has(> [data-part-actions]),
+  [data-ui-drawer] > [data-part-panel] > form > [data-part-header]:has(> [data-part-actions]) {
     grid-template-columns: minmax(0, 1fr) auto auto;
   }
 
@@ -1135,17 +1156,26 @@
      columns of the parts it has. */
   [data-ui-drawer]
     > [data-part-panel]
+    > [data-part-header]:has(> [data-part-actions]):not(:has(> [data-part-close])),
+  [data-ui-drawer]
+    > [data-part-panel]
+    > form
     > [data-part-header]:has(> [data-part-actions]):not(:has(> [data-part-close])) {
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
   [data-ui-drawer]
     > [data-part-panel]
+    > [data-part-header]:not(:has(> [data-part-actions], > [data-part-close])),
+  [data-ui-drawer]
+    > [data-part-panel]
+    > form
     > [data-part-header]:not(:has(> [data-part-actions], > [data-part-close])) {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-actions] {
+  [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-actions],
+  [data-ui-drawer] > [data-part-panel] > form > [data-part-header] > [data-part-actions] {
     grid-column: 2;
     grid-row: 1 / span 2;
     align-self: start;
@@ -1154,7 +1184,8 @@
     gap: var(--slotted-space-2, 0.25rem);
   }
 
-  [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-description] {
+  [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-description],
+  [data-ui-drawer] > [data-part-panel] > form > [data-part-header] > [data-part-description] {
     grid-column: 1;
     grid-row: 2;
     margin: 0;
@@ -1175,7 +1206,8 @@
    * an `icon` box, sized here through the icon token so the box and the
    * formula above read one length.
    */
-  [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-close] {
+  [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-close],
+  [data-ui-drawer] > [data-part-panel] > form > [data-part-header] > [data-part-close] {
     --slotted-icon-size: var(--_icon-size);
 
     /* The last column, beside the actions when there are any. */
@@ -1207,11 +1239,13 @@
      is the one a mouse sees: a transparent `::before` centerd on the control
      reaches 44 pixels, and the ground and the ring stay square. */
   @media (pointer: coarse) {
-    [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-close] {
+    [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-close],
+    [data-ui-drawer] > [data-part-panel] > form > [data-part-header] > [data-part-close] {
       position: relative;
     }
 
-    [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-close]::before {
+    [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-close]::before,
+    [data-ui-drawer] > [data-part-panel] > form > [data-part-header] > [data-part-close]::before {
       content: '';
       inset: min(0px, calc((100% - var(--slotted-target-comfortable, 44px)) / 2));
       position: absolute;
@@ -1220,6 +1254,11 @@
 
   [data-ui-drawer]
     > [data-part-panel]
+    > [data-part-header]
+    > [data-part-close]:not(:disabled):hover,
+  [data-ui-drawer]
+    > [data-part-panel]
+    > form
     > [data-part-header]
     > [data-part-close]:not(:disabled):hover {
     /* The ground moves under the pointer and nothing else does (R2). */
@@ -1232,6 +1271,11 @@
   [data-ui-drawer]
     > [data-part-panel]
     > [data-part-header]
+    > [data-part-close]:not(:disabled):active,
+  [data-ui-drawer]
+    > [data-part-panel]
+    > form
+    > [data-part-header]
     > [data-part-close]:not(:disabled):active {
     background-color: var(
       --slotted-drawer-close-active-background,
@@ -1239,7 +1283,12 @@
     );
   }
 
-  [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-close]:focus-visible {
+  [data-ui-drawer] > [data-part-panel] > [data-part-header] > [data-part-close]:focus-visible,
+  [data-ui-drawer]
+    > [data-part-panel]
+    > form
+    > [data-part-header]
+    > [data-part-close]:focus-visible {
     outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
     outline-offset: calc(-1 * var(--slotted-focus-ring-offset, 2px));
   }
@@ -1252,7 +1301,8 @@
    * `dismissable-layer` covers the modal case; this covers the other two, where
    * the page behind is not locked at all.
    */
-  [data-ui-drawer] > [data-part-panel] > [data-part-body] {
+  [data-ui-drawer] > [data-part-panel] > [data-part-body],
+  [data-ui-drawer] > [data-part-panel] > form > [data-part-body] {
     grid-row: 2;
     min-block-size: 0;
     min-inline-size: 0;
@@ -1269,11 +1319,13 @@
   }
 
   /* Content that brings its own inset — a page, a list on the panel's edges. */
-  [data-ui-drawer] > [data-part-panel] > [data-part-body][data-inset='none'] {
+  [data-ui-drawer] > [data-part-panel] > [data-part-body][data-inset='none'],
+  [data-ui-drawer] > [data-part-panel] > form > [data-part-body][data-inset='none'] {
     padding: 0;
   }
 
-  [data-ui-drawer] > [data-part-panel] > [data-part-body]:not(:first-child) {
+  [data-ui-drawer] > [data-part-panel] > [data-part-body]:not(:first-child),
+  [data-ui-drawer] > [data-part-panel] > form > [data-part-body]:not(:first-child) {
     border-block-start: var(--_rule-size) solid
       var(--slotted-drawer-rule-color, var(--slotted-border-subtle, ButtonBorder));
   }
@@ -1285,7 +1337,8 @@
    * instead, and the header, the close button, Escape and the resizer all stay
    * operable: a loading drawer a reader cannot leave is the worse failure.
    */
-  [data-ui-drawer][data-loading] > [data-part-panel] > [data-part-body] {
+  [data-ui-drawer][data-loading] > [data-part-panel] > [data-part-body],
+  [data-ui-drawer][data-loading] > [data-part-panel] > form > [data-part-body] {
     min-block-size: var(--slotted-space-12, 4rem);
   }
 
@@ -1297,7 +1350,8 @@
    * reason the middle one is bounded — an unbounded panel pushes it past the
    * fold, which is the whole failure the three-row grid exists to prevent.
    */
-  [data-ui-drawer] > [data-part-panel] > [data-part-footer] {
+  [data-ui-drawer] > [data-part-panel] > [data-part-footer],
+  [data-ui-drawer] > [data-part-panel] > form > [data-part-footer] {
     grid-row: 3;
     display: flex;
     flex-wrap: wrap;
@@ -1313,7 +1367,8 @@
   }
 
   @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
-    [data-ui-drawer] > [data-part-panel] > [data-part-footer] {
+    [data-ui-drawer] > [data-part-panel] > [data-part-footer],
+    [data-ui-drawer] > [data-part-panel] > form > [data-part-footer] {
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
     }
@@ -1332,13 +1387,15 @@
    * above it and the header already clears it; the body scrolls, so an inset on
    * it would be padding inside a scrollport rather than under it.
    */
-  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > [data-part-footer] {
+  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > [data-part-footer],
+  [data-ui-drawer][data-side='bottom'] > [data-part-panel] > form > [data-part-footer] {
     padding-block-end: calc(
       var(--_footer-padding-block, var(--_padding-block)) + env(safe-area-inset-bottom, 0px)
     );
   }
 
-  [data-ui-drawer] > [data-part-panel] > [data-part-footer]:not(:first-child) {
+  [data-ui-drawer] > [data-part-panel] > [data-part-footer]:not(:first-child),
+  [data-ui-drawer] > [data-part-panel] > form > [data-part-footer]:not(:first-child) {
     border-block-start: var(--_rule-size) solid
       var(--slotted-drawer-rule-color, var(--slotted-border-subtle, ButtonBorder));
   }
@@ -1453,6 +1510,10 @@
 
   [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag]
     > [data-part-panel]
+    > [data-part-footer],
+  [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag]
+    > [data-part-panel]
+    > form
     > [data-part-footer] {
     position: sticky;
     /* A close lands the scroll at once and slides the panel with a transform,
@@ -1487,6 +1548,10 @@
   /* `size="full"` is the screen: the footer rests at its bottom, in the row that takes what is left. */
   [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='panel'][data-size='full']
     > [data-part-panel]
+    > [data-part-footer],
+  [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='panel'][data-size='full']
+    > [data-part-panel]
+    > form
     > [data-part-footer] {
     grid-row: 5;
     align-self: end;
@@ -1509,6 +1574,10 @@
 
   [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='panel']
     > [data-part-panel]
+    > [data-part-body],
+  [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='panel']
+    > [data-part-panel]
+    > form
     > [data-part-body] {
     overflow: visible;
     overscroll-behavior: auto;
@@ -1524,6 +1593,10 @@
 
   [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='panel']
     > [data-part-panel]
+    > [data-part-header],
+  [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='panel']
+    > [data-part-panel]
+    > form
     > [data-part-header] {
     position: sticky;
     inset-block-start: 0;
@@ -1539,6 +1612,10 @@
    */
   [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='panel']
     > [data-part-panel]
+    > :is([data-part-resizer], [data-part-header])[data-stuck],
+  [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='panel']
+    > [data-part-panel]
+    > form
     > :is([data-part-resizer], [data-part-header])[data-stuck] {
     background: var(
       --slotted-drawer-header-surface,
@@ -1551,6 +1628,10 @@
   @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
     [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='panel']
       > [data-part-panel]
+      > :is([data-part-resizer], [data-part-header])[data-stuck],
+    [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='panel']
+      > [data-part-panel]
+      > form
       > :is([data-part-resizer], [data-part-header])[data-stuck] {
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
@@ -1575,6 +1656,10 @@
 
   [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='resizer']
     > [data-part-panel]
+    > [data-part-body],
+  [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='resizer']
+    > [data-part-panel]
+    > form
     > [data-part-body] {
     touch-action: pan-y;
   }
@@ -1583,6 +1668,12 @@
       [data-top-stop]
     )
     > [data-part-panel]
+    > [data-part-body],
+  [data-ui-drawer][data-mode='overlay'][data-side='bottom'][data-drag='resizer']:not(
+      [data-top-stop]
+    )
+    > [data-part-panel]
+    > form
     > [data-part-body] {
     overflow: hidden;
   }

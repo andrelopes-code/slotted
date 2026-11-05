@@ -914,3 +914,79 @@ describe('a bottom sheet’s entrance curve', () => {
     expect((from - first!) / (from - stop)).toBeLessThanOrEqual(0.1);
   });
 });
+
+/**
+ * A drawer that edits a record submits from its footer. The form is the panel
+ * through `render`, or it is written around the parts inside the panel and
+ * draws no box, so the header, the body and the footer keep the panel's rows.
+ */
+describe('a drawer that is a form', () => {
+  const parts = (
+    <>
+      <DrawerHeader>
+        <DrawerTitle>Edit contact</DrawerTitle>
+      </DrawerHeader>
+      <DrawerBody>
+        <input aria-label="Name" defaultValue="Ana" />
+        <div style={{ blockSize: 2000 }} />
+      </DrawerBody>
+      <DrawerFooter>
+        <button type="submit">Save</button>
+      </DrawerFooter>
+    </>
+  );
+
+  /** `panel`: the form is the panel. `wrapper`: a form around the parts, inside it. */
+  function Record({ form }: { form: 'none' | 'panel' | 'wrapper' }) {
+    return (
+      <Drawer defaultOpen side="end">
+        {form === 'panel' ? (
+          <DrawerPanel render={(props) => <form {...props} onSubmit={() => undefined} />}>
+            {parts}
+          </DrawerPanel>
+        ) : (
+          <DrawerPanel>{form === 'wrapper' ? <form>{parts}</form> : parts}</DrawerPanel>
+        )}
+      </Drawer>
+    );
+  }
+
+  const panel = () => document.querySelector('[data-part="panel"]') as HTMLElement;
+
+  const geometry = () => {
+    const box = panel().getBoundingClientRect();
+    return ['header', 'body', 'footer'].map((part) => {
+      const rect = (
+        panel().querySelector(`[data-part="${part}"]`) as HTMLElement
+      ).getBoundingClientRect();
+      return [rect.left - box.left, rect.top - box.top, rect.width, rect.height].map(Math.round);
+    });
+  };
+
+  async function settle() {
+    for (let index = 0; index < 20; index += 1) await frame();
+  }
+
+  async function reference() {
+    const shown = render(<Record form="none" />);
+    await settle();
+    const measured = geometry();
+    shown.unmount();
+    expect(measured[0]![2]).toBeGreaterThan(0);
+    return measured;
+  }
+
+  it.each(['panel', 'wrapper'] as const)(
+    'keeps the header, the body and the footer in the rows when the form is the %s',
+    async (form) => {
+      const expected = await reference();
+      render(<Record form={form} />);
+      await settle();
+      const body = panel().querySelector('[data-part="body"]') as HTMLElement;
+
+      expect(geometry()).toEqual(expected);
+      expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+      expect(panel().scrollHeight).toBeLessThanOrEqual(panel().clientHeight);
+    },
+  );
+});

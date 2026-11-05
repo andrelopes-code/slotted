@@ -286,7 +286,7 @@ type PartProps<Element extends HTMLElement> = HTMLAttributes<Element> & {
   'data-part': string;
 };
 
-export type DrawerPanelRootProps = ComponentPropsWithRef<'div'> & { 'data-part': 'panel' };
+export type DrawerPanelRootProps = PartProps<HTMLElement>;
 /** What `render` receives for a button part. `children` is present, as `Button` requires. */
 type ButtonPartProps = ComponentPropsWithRef<'button'> & { children: ReactNode };
 
