@@ -19,6 +19,7 @@ export interface ChartMessages {
     readonly line: Message;
     readonly mixed: Message;
     readonly pie: Message;
+    readonly range: Message;
     readonly scatter: Message;
   };
   readonly legend: Message;
@@ -33,6 +34,17 @@ export interface ChartMessages {
   readonly retry: Message;
   readonly roledescription: Message;
   readonly selected: Message;
+  /** The lower bound of a range series, as a table column. */
+  readonly rangeLower: Message<{ series: string }>;
+  /** The upper bound of a range series, as a table column. */
+  readonly rangeUpper: Message<{ series: string }>;
+  readonly seriesBand: Message<{
+    series: string;
+    min: string;
+    minAt: string;
+    max: string;
+    maxAt: string;
+  }>;
   readonly seriesRange: Message<{
     series: string;
     first: string;
@@ -81,6 +93,7 @@ export const en: ChartMessages = {
     line: 'Line chart',
     mixed: 'Combined chart',
     pie: 'Pie chart',
+    range: 'Range chart',
     scatter: 'Scatter chart',
   },
   legend: 'Series',
@@ -94,6 +107,9 @@ export const en: ChartMessages = {
   retry: 'Try again',
   roledescription: 'chart',
   selected: 'selected',
+  rangeLower: '{series}, lower bound',
+  rangeUpper: '{series}, upper bound',
+  seriesBand: '{series}: from {min} at {minAt} up to {max} at {maxAt}.',
   seriesRange:
     '{series}: from {first} to {last}; lowest {min} at {minAt}, highest {max} at {maxAt}.',
   showAll: 'Show all series',

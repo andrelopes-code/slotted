@@ -52,6 +52,7 @@ const referenceScenes: ReferencePageConfig['scenes'] = () =>
     donut: Donut,
     scatter: Scatter,
     bubble: Bubble,
+    range: Range,
     annotations: Annotations,
     legend: Legend,
     'legend-values': LegendValues,
@@ -312,6 +313,23 @@ const DATA = {
   bubbles: [
     { kind: 'scatter', field: 'product', label: 'Produto', sizeField: 'customers' },
     { kind: 'scatter', field: 'infra', label: 'Infraestrutura', sizeField: 'customers' },
+  ],
+  forecast: MONTHLY.map((row) => ({
+    month: row['month'],
+    forecast: Number(row['revenue']),
+    low: Math.round(Number(row['revenue']) * 0.9),
+    high: Math.round(Number(row['revenue']) * 1.12),
+  })),
+  forecastSeries: [
+    { id: 'forecast', kind: 'line', field: 'forecast', label: 'Forecast', stroke: 'dashed' },
+    {
+      id: 'likely',
+      kind: 'range',
+      lower: 'low',
+      upper: 'high',
+      label: 'Likely range',
+      of: 'forecast',
+    },
   ],
   annotations: [
     { kind: 'band', from: 55, to: 70, label: 'Tolerance', tone: 'success' },
@@ -582,6 +600,12 @@ export const Bubble = story(
   'bubble',
   `<figure slChart recordKey="id" title="Effort, impact and affected customers"
     [data]="work" [series]="bubbles" [x]="effort" [y]="impact"></figure>`,
+);
+
+export const Range = story(
+  'range',
+  `<figure slChart title="Revenue forecast" description="Revenue forecast with the likely range of each month"
+    [data]="forecast" [series]="forecastSeries" [x]="month" [y]="brl"></figure>`,
 );
 
 export const Annotations = story(

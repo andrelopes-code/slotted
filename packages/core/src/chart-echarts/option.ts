@@ -59,6 +59,9 @@ export interface ChartOptionResult {
 /** Past this many visible marks the canvas renderer draws, when asked for `auto`. */
 export const CANVAS_THRESHOLD = 4000;
 
+/** The id suffix of the invisible line a range's band is stacked on. */
+const RANGE_LOWER = '__lower';
+
 /** How much a mark that is not selected recedes while another one is. */
 const RECEDED = 0.32;
 
@@ -74,7 +77,7 @@ export function requiredChunks(view: ChartEngineView): string[] {
   if (chooseRenderer(view) === 'canvas') chunks.add('canvas');
   if (model.shape === 'cartesian') chunks.add('cartesian');
   for (const series of model.series) {
-    chunks.add(series.kind === 'area' ? 'line' : series.kind);
+    chunks.add(series.kind === 'area' || series.kind === 'range' ? 'line' : series.kind);
     if (series.labels) chunks.add('labels');
   }
   if (model.annotations.length > 0) chunks.add('annotations');
@@ -430,165 +433,220 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
       stackTops.set(`${series.axis}|${series.stack}`, series.id);
   }
 
-  const echartsSeries = visible.map((series, position) => {
-    seriesIndex.set(series.id, position);
-    const color = colorOf(theme, series.color);
-    const values = series.plotted;
-    const data = values.map((value, index) => {
-      const x = axisX(model, index);
-      if (series.kind === 'scatter') {
-        const size = series.sizes?.[index] ?? null;
-        return value === null ? null : horizontal ? [value, x, size] : [x, value, size];
-      }
-      if (model.xType !== 'category') return horizontal ? [value, x] : [x, value];
-      return value;
-    });
+  const echartsSeries = visible
+    .map((series): Record<string, unknown> | Record<string, unknown>[] => {
+      const color = colorOf(theme, series.color);
+      const values = series.plotted;
+      const data = values.map((value, index) => {
+        const x = axisX(model, index);
+        if (series.kind === 'scatter') {
+          const size = series.sizes?.[index] ?? null;
+          return value === null ? null : horizontal ? [value, x, size] : [x, value, size];
+        }
+        if (model.xType !== 'category') return horizontal ? [value, x] : [x, value];
+        return value;
+      });
 
-    const common = {
-      id: series.id,
-      name: series.label,
-      yAxisIndex: horizontal ? 0 : series.axis,
-      xAxisIndex: horizontal ? series.axis : 0,
-      emphasis: { focus: 'series', blurScope: 'coordinateSystem', scale: false },
-      blur: {
-        lineStyle: { opacity: RECEDED },
-        itemStyle: { opacity: RECEDED },
-        areaStyle: { opacity: theme.areaOpacity * RECEDED },
-      },
-      label: {
-        show: series.labels,
-        color: theme.text,
-        fontFamily: theme.fontFamily,
-        fontSize: theme.labelSize,
-        position: series.kind === 'bar' ? (horizontal ? 'right' : 'top') : 'top',
-        formatter: (params: { dataIndex: number }) => {
-          const value = series.values[params.dataIndex];
-          return value === null || value === undefined ? '' : series.format(value);
+      const common = {
+        id: series.id,
+        name: series.label,
+        yAxisIndex: horizontal ? 0 : series.axis,
+        xAxisIndex: horizontal ? series.axis : 0,
+        emphasis: { focus: 'series', blurScope: 'coordinateSystem', scale: false },
+        blur: {
+          lineStyle: { opacity: RECEDED },
+          itemStyle: { opacity: RECEDED },
+          areaStyle: { opacity: theme.areaOpacity * RECEDED },
         },
-      },
-      labelLayout: series.labels ? { hideOverlap: true } : undefined,
-      /* Hover is the family's: the crosshair and the markers are its overlay,
+        label: {
+          show: series.labels,
+          color: theme.text,
+          fontFamily: theme.fontFamily,
+          fontSize: theme.labelSize,
+          position: series.kind === 'bar' ? (horizontal ? 'right' : 'top') : 'top',
+          formatter: (params: { dataIndex: number }) => {
+            const value = series.values[params.dataIndex];
+            return value === null || value === undefined ? '' : series.format(value);
+          },
+        },
+        labelLayout: series.labels ? { hideOverlap: true } : undefined,
+        /* Hover is the family's: the crosshair and the markers are its overlay,
          drawn where the engine reports a point, so a pointer and a keyboard
          give the same picture. A mark that answered the pointer itself would
          light up under the mouse and not under the keyboard. Emphasis still
          reaches a silent series through `dispatchAction`, which is how the
          legend drives it. */
-      silent: true,
-      z: series.kind === 'bar' ? 2 : 3,
-    };
+        silent: true,
+        z: series.kind === 'bar' ? 2 : 3,
+      };
 
-    if (series.kind === 'bar') {
-      const top = series.stack
-        ? stackTops.get(`${series.axis}|${series.stack}`) === series.id
-        : true;
-      const radius = top ? theme.barRadius : 0;
+      /* A band is two stacked lines: an invisible one up to the lower bound, and
+       the visible one for the distance to the upper bound, filled to its
+       neighbour. `all` stacks across zero, where the default would put a
+       negative bound beside the band instead of under it. */
+      if (series.kind === 'range') {
+        const stack = `range|${series.id}`;
+        const place = (value: number | null, index: number) => {
+          const x = axisX(model, index);
+          if (value === null || model.xType === 'category') return value;
+          return horizontal ? [value, x] : [x, value];
+        };
+        const shared = {
+          type: 'line',
+          stack,
+          stackStrategy: 'all',
+          smooth: series.curve === 'monotone',
+          smoothMonotone: series.curve === 'monotone' ? (horizontal ? 'y' : 'x') : undefined,
+          step: series.curve === 'step' ? 'middle' : false,
+          connectNulls: series.connectNulls,
+          showSymbol: false,
+          symbol: 'none',
+          lineStyle: { width: 0, opacity: 0 },
+        };
+        const lower = series.lower ?? [];
+        return [
+          {
+            ...common,
+            ...shared,
+            id: `${series.id}${RANGE_LOWER}`,
+            emphasis: { disabled: true },
+            blur: {},
+            label: { show: false },
+            labelLayout: undefined,
+            z: 1,
+            data: lower.map((value, index) => place(value, index)),
+          },
+          {
+            ...common,
+            ...shared,
+            z: 1,
+            areaStyle: { color: withAlpha(color, theme.areaOpacity) },
+            data: values.map((upper, index) => {
+              const low = lower[index] ?? null;
+              return place(upper === null || low === null ? null : upper - low, index);
+            }),
+          },
+        ];
+      }
+
+      if (series.kind === 'bar') {
+        const top = series.stack
+          ? stackTops.get(`${series.axis}|${series.stack}`) === series.id
+          : true;
+        const radius = top ? theme.barRadius : 0;
+        return {
+          ...common,
+          type: 'bar',
+          stack: series.stack ? `${series.axis}|${series.stack}` : undefined,
+          stackStrategy: 'samesign',
+          barMaxWidth: theme.labelSize * 4,
+          barGap: '16%',
+          barCategoryGap: '32%',
+          itemStyle: {
+            color,
+            borderRadius: horizontal ? [0, radius, radius, 0] : [radius, radius, 0, 0],
+          },
+          data: data.map((value, index) => {
+            const raw = series.values[index] ?? 0;
+            const receded = selectedIndex >= 0 && selectedIndex !== index;
+            if (!receded && raw >= 0) return value;
+            return {
+              value,
+              itemStyle: {
+                ...(receded ? { color: recede(color, theme.surface) } : {}),
+                ...(raw < 0
+                  ? { borderRadius: horizontal ? [radius, 0, 0, radius] : [0, 0, radius, radius] }
+                  : {}),
+              },
+            };
+          }),
+        };
+      }
+
+      if (series.kind === 'scatter') {
+        const sizes = series.sizes?.filter((size): size is number => size !== null) ?? [];
+        const largest = sizes.length ? Math.max(...sizes.map(Math.abs)) : 0;
+        return {
+          ...common,
+          type: 'scatter',
+          symbol: 'circle',
+          /* A gap is a `null` item, which ECharts hands the callback as nothing. */
+          symbolSize: (point: (number | null)[] | null | undefined) => {
+            const size = point?.[2];
+            if (!largest || size === null || size === undefined) return theme.markerSize * 1.5;
+            return Math.max(
+              theme.markerSize,
+              Math.sqrt(Math.abs(size) / largest) * theme.labelSize * 4,
+            );
+          },
+          itemStyle: {
+            color: withAlpha(color, series.sizes ? 0.72 : 0.88),
+            borderColor: color,
+            borderWidth: 1,
+          },
+          large: model.pointCount > CANVAS_THRESHOLD,
+          data,
+        };
+      }
+
+      const last = values.reduce<number>(
+        (found, value, index) => (value !== null ? index : found),
+        -1,
+      );
+      const area = series.kind === 'area';
       return {
         ...common,
-        type: 'bar',
+        type: 'line',
         stack: series.stack ? `${series.axis}|${series.stack}` : undefined,
         stackStrategy: 'samesign',
-        barMaxWidth: theme.labelSize * 4,
-        barGap: '16%',
-        barCategoryGap: '32%',
-        itemStyle: {
-          color,
-          borderRadius: horizontal ? [0, radius, radius, 0] : [radius, radius, 0, 0],
-        },
-        data: data.map((value, index) => {
-          const raw = series.values[index] ?? 0;
-          const receded = selectedIndex >= 0 && selectedIndex !== index;
-          if (!receded && raw >= 0) return value;
-          return {
-            value,
-            itemStyle: {
-              ...(receded ? { color: recede(color, theme.surface) } : {}),
-              ...(raw < 0
-                ? { borderRadius: horizontal ? [radius, 0, 0, radius] : [0, 0, radius, radius] }
-                : {}),
-            },
-          };
-        }),
-      };
-    }
-
-    if (series.kind === 'scatter') {
-      const sizes = series.sizes?.filter((size): size is number => size !== null) ?? [];
-      const largest = sizes.length ? Math.max(...sizes.map(Math.abs)) : 0;
-      return {
-        ...common,
-        type: 'scatter',
+        smooth: series.curve === 'monotone',
+        smoothMonotone: series.curve === 'monotone' ? (horizontal ? 'y' : 'x') : undefined,
+        step: series.curve === 'step' ? 'middle' : false,
+        connectNulls: series.connectNulls,
+        sampling:
+          (view.sampling ?? 'auto') === 'auto' && width > 0 && values.length > width
+            ? 'lttb'
+            : undefined,
+        showSymbol: series.markers !== 'none',
         symbol: 'circle',
-        /* A gap is a `null` item, which ECharts hands the callback as nothing. */
-        symbolSize: (point: (number | null)[] | null | undefined) => {
-          const size = point?.[2];
-          if (!largest || size === null || size === undefined) return theme.markerSize * 1.5;
-          return Math.max(
-            theme.markerSize,
-            Math.sqrt(Math.abs(size) / largest) * theme.labelSize * 4,
-          );
-        },
-        itemStyle: {
-          color: withAlpha(color, series.sizes ? 0.72 : 0.88),
-          borderColor: color,
-          borderWidth: 1,
-        },
-        large: model.pointCount > CANVAS_THRESHOLD,
-        data,
-      };
-    }
-
-    const last = values.reduce<number>(
-      (found, value, index) => (value !== null ? index : found),
-      -1,
-    );
-    const area = series.kind === 'area';
-    return {
-      ...common,
-      type: 'line',
-      stack: series.stack ? `${series.axis}|${series.stack}` : undefined,
-      stackStrategy: 'samesign',
-      smooth: series.curve === 'monotone',
-      smoothMonotone: series.curve === 'monotone' ? (horizontal ? 'y' : 'x') : undefined,
-      step: series.curve === 'step' ? 'middle' : false,
-      connectNulls: series.connectNulls,
-      sampling:
-        (view.sampling ?? 'auto') === 'auto' && width > 0 && values.length > width
-          ? 'lttb'
-          : undefined,
-      showSymbol: series.markers !== 'none',
-      symbol: 'circle',
-      /* A disc of the series color with a ring of the ground around it, as
+        /* A disc of the series color with a ring of the ground around it, as
          the family's own marker is drawn; the ring is outside the disc, so
          the symbol grows by it. */
-      symbolSize: theme.markerSize + theme.lineWidth * 1.5,
-      itemStyle: { color, borderColor: theme.surface, borderWidth: theme.lineWidth * 0.75 },
-      lineStyle: {
-        color,
-        width: theme.lineWidth,
-        type: dash(series, theme.lineWidth),
-        cap: 'round',
-        join: 'round',
-      },
-      areaStyle: area
-        ? {
-            color: {
-              type: 'linear',
-              x: 0,
-              y: 0,
-              x2: horizontal ? 1 : 0,
-              y2: horizontal ? 0 : 1,
-              colorStops: [
-                { offset: 0, color: withAlpha(color, theme.areaOpacity) },
-                { offset: 1, color: withAlpha(color, series.stack ? theme.areaOpacity : 0) },
-              ],
-            },
-          }
-        : undefined,
-      data:
-        series.markers === 'last'
-          ? data.map((value, index) => (index === last ? value : { value, symbolSize: 0 }))
-          : data,
-    };
+        symbolSize: theme.markerSize + theme.lineWidth * 1.5,
+        itemStyle: { color, borderColor: theme.surface, borderWidth: theme.lineWidth * 0.75 },
+        lineStyle: {
+          color,
+          width: theme.lineWidth,
+          type: dash(series, theme.lineWidth),
+          cap: 'round',
+          join: 'round',
+        },
+        areaStyle: area
+          ? {
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: horizontal ? 1 : 0,
+                y2: horizontal ? 0 : 1,
+                colorStops: [
+                  { offset: 0, color: withAlpha(color, theme.areaOpacity) },
+                  { offset: 1, color: withAlpha(color, series.stack ? theme.areaOpacity : 0) },
+                ],
+              },
+            }
+          : undefined,
+        data:
+          series.markers === 'last'
+            ? data.map((value, index) => (index === last ? value : { value, symbolSize: 0 }))
+            : data,
+      };
+    })
+    .flat();
+
+  echartsSeries.forEach((entry, position) => {
+    const id = (entry as { id: string }).id;
+    if (!id.endsWith(RANGE_LOWER)) seriesIndex.set(id, position);
   });
 
   /**
@@ -631,7 +689,7 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
     const axisIndex = annotation.axis === 'end' ? 1 : 0;
     const host =
       echartsSeries.find(
-        (series) => (horizontal ? series.xAxisIndex : series.yAxisIndex) === axisIndex,
+        (series) => (horizontal ? series['xAxisIndex'] : series['yAxisIndex']) === axisIndex,
       ) ?? echartsSeries[0];
     if (!host) continue;
     const key = onValueAxis ? (horizontal ? 'xAxis' : 'yAxis') : horizontal ? 'yAxis' : 'xAxis';

@@ -42,6 +42,7 @@ import {
   observeChartTheme,
   placeLayer,
   placeTooltip,
+  pointText,
   readChartTheme,
   sameTheme,
   seriesOf,
@@ -395,7 +396,9 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
   protected readonly skeletonKind = computed(() => {
     const kinds = this.series().map((entry) => entry.kind);
     if (kinds.includes('pie')) return 'pie';
-    return kinds.every((kind) => kind === 'line' || kind === 'area') ? 'line' : 'bar';
+    return kinds.every((kind) => kind === 'line' || kind === 'area' || kind === 'range')
+      ? 'line'
+      : 'bar';
   });
   protected readonly legendWaiting = computed(() => {
     const current = this.chartModel();
@@ -814,8 +817,7 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
         : key
           ? categoryIndex(current, key)
           : lastDrawn(owner.values);
-    const raw = index >= 0 ? owner.values[index] : null;
-    return raw === null || raw === undefined ? '' : owner.format(raw);
+    return index >= 0 ? pointText(owner, index) : '';
   }
 
   protected isCurrent(entry: ChartLegendEntry) {

@@ -480,6 +480,18 @@ const scenes: ReferenceSceneMeta[] = [
     }),
   },
   {
+    id: 'range',
+    title: 'A band around a line',
+    note: 'A range series fills between two fields of each record, under the line it names with of, in that line’s color. One legend item hides the band, the tooltip reads one row with both bounds, and the table view lists both columns.',
+    snippet: defineSnippet({
+      id: 'chart-angular-range',
+      language: 'angular',
+      label: "kind: 'range'",
+      source:
+        '<figure slChart title="Forecast" [data]="forecast" [series]="forecastSeries"></figure>',
+    }),
+  },
+  {
     id: 'annotations',
     title: 'Targets, ranges and events',
     note: 'A band for the tolerance range, a line for the annual target and a vertical line on the month the campaign started — each labelled on the plot.',
@@ -859,7 +871,7 @@ export const ANGULAR_CHART_DOCS = {
         'readonly ChartSeries[]',
         '[]',
         'slChart',
-        'What is drawn: kind, field, label, and how. Order is legend order and color order',
+        'What is drawn: kind (line, area, bar, pie, scatter, range), field, label, and how. Order is legend order and color order',
       ],
       [
         'x',
@@ -919,6 +931,20 @@ export const ANGULAR_CHART_DOCS = {
         'none',
         'series',
         'Dots on a line: none, the last point, or every point',
+      ],
+      [
+        'lower, upper',
+        'string',
+        '—',
+        'series',
+        'A range series fills between two fields of each record; a record that lacks either leaves a gap',
+      ],
+      [
+        'of',
+        'string',
+        '—',
+        'series',
+        'The id of the line a range belongs to: the band takes its color and axis and is drawn under it',
       ],
       [
         'annotations',

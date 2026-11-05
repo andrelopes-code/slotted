@@ -64,6 +64,8 @@ export interface ChartModelSeries {
   readonly top: readonly (number | null)[];
   /** A bubble's size, when the series names a size field. */
   readonly sizes: readonly (number | null)[] | null;
+  /** A `range`'s lower bound per category, where `values` holds the upper; null for any other kind. */
+  readonly lower: readonly (number | null)[] | null;
   readonly format: (value: number) => string;
 }
 
@@ -265,27 +267,66 @@ export function createChartModel(spec: ChartSpec, options: ChartModelOptions = {
       : createNumberFormatter(axis.format, locale),
   }));
 
-  const colors = pie ? [] : assignColors(spec.series);
-  const ids = uniqueKeys(spec.series.map((series) => series.id ?? series.field));
+  const ids = uniqueKeys(
+    spec.series.map((series) => {
+      const id = series.id ?? series.field ?? series.upper;
+      if (id === undefined) throw new Error('chart: a series needs an id, a field, or an upper');
+      return id;
+    }),
+  );
+  /* A range that names its line takes that line's color and axis, and claims no
+     slot of the scale: the band and the line it surrounds read as one thing. */
+  const owners = spec.series.map((series) => {
+    const owner = series.kind === 'range' && series.of !== undefined ? ids.indexOf(series.of) : -1;
+    return owner >= 0 && spec.series[owner]!.kind !== 'range' ? owner : -1;
+  });
+  const claimants = spec.series.filter((_, position) => owners[position]! < 0);
+  const claimed = pie ? [] : assignColors(claimants);
+  const colors = pie
+    ? []
+    : spec.series.map((_, position) => {
+        const owner = owners[position]!;
+        return owner >= 0 ? null : claimed[claimants.indexOf(spec.series[position]!)]!;
+      });
+  const colorOf = (position: number): ChartColor => {
+    const owner = owners[position]!;
+    return colors[owner >= 0 ? owner : position]!;
+  };
 
   const OVERFLOW_STROKES = ['dashed', 'dotted', 'dash-dot'] as const;
   let overflowIndex = 0;
   const base = spec.series.map((series, position) => {
-    const axisIndex: 0 | 1 = series.axis === 'end' && axisBase.length > 1 ? 1 : 0;
-    const values = placed.map((entry) => chartNumber(entry.record[series.field]));
+    const owned = owners[position]! >= 0 ? spec.series[owners[position]!]! : undefined;
+    const axisIndex: 0 | 1 = (series.axis ?? owned?.axis) === 'end' && axisBase.length > 1 ? 1 : 0;
+    const range = series.kind === 'range';
+    if (range && (series.lower === undefined || series.upper === undefined)) {
+      throw new Error(`chart: the range ${ids[position]!} needs a lower and an upper field`);
+    }
+    const read = (field: string | undefined) =>
+      placed.map((entry) => (field === undefined ? null : chartNumber(entry.record[field])));
+    /* A record that lacks either bound leaves a gap in both, as a line does. */
+    const lowerRaw = range ? read(series.lower) : null;
+    const upperRaw = range ? read(series.upper) : null;
+    const gap = (index: number) => lowerRaw![index] === null || upperRaw![index] === null;
+    const lower = lowerRaw && lowerRaw.map((value, index) => (gap(index) ? null : value));
+    const values = upperRaw
+      ? upperRaw.map((value, index) => (gap(index) ? null : value))
+      : read(series.field);
     return {
       id: ids[position]!,
       label: series.label ?? ids[position]!,
       kind: series.kind,
-      color: pie ? ({ type: 'slot', slot: 1 } as ChartColor) : colors[position]!,
-      stack: series.kind === 'pie' || series.kind === 'scatter' ? null : (series.stack ?? null),
+      color: pie ? ({ type: 'slot', slot: 1 } as ChartColor) : colorOf(position),
+      stack:
+        series.kind === 'pie' || series.kind === 'scatter' || range ? null : (series.stack ?? null),
+      lower,
       axis: axisIndex,
-      curve: series.curve ?? 'linear',
+      curve: series.curve ?? owned?.curve ?? 'linear',
       stroke:
-        !pie && colors[position]!.type === 'overflow' && series.stroke === undefined
+        !pie && colorOf(position).type === 'overflow' && series.stroke === undefined
           ? OVERFLOW_STROKES[overflowIndex++ % OVERFLOW_STROKES.length]!
           : (series.stroke ?? 'solid'),
-      connectNulls: series.connectNulls ?? false,
+      connectNulls: series.connectNulls ?? owned?.connectNulls ?? false,
       markers: series.markers ?? 'none',
       labels: series.labels ?? false,
       innerRadius: Math.min(Math.max(series.innerRadius ?? 0, 0), 0.9),
@@ -415,6 +456,19 @@ export function createChartModel(spec: ChartSpec, options: ChartModelOptions = {
 }
 
 /** The series a point belongs to, or `undefined` for a key the chart does not hold. */
+/**
+ * A point's value as the reader sees it: the value formatted, or for a range
+ * both bounds. The dash is the en dash, which every language writes a range with.
+ */
+export function pointText(series: ChartModelSeries, index: number): string {
+  const value = series.values[index] ?? null;
+  if (value === null) return '';
+  const lower = series.lower?.[index] ?? null;
+  return lower === null
+    ? series.format(value)
+    : `${series.format(lower)} – ${series.format(value)}`;
+}
+
 export function seriesOf(model: ChartModel, id: string) {
   return model.series.find((series) => series.id === id);
 }

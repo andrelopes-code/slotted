@@ -1,6 +1,6 @@
 import type { ChartMessages, FamilyTranslator } from '../i18n';
 import { createNumberFormatter } from './format';
-import { categoryIndex, type ChartModel, seriesOf, visibleSeries } from './model';
+import { categoryIndex, type ChartModel, pointText, seriesOf, visibleSeries } from './model';
 import type { ChartPoint, ChartZoom } from './types';
 import { zoomRange } from './navigation';
 
@@ -69,6 +69,24 @@ export function describeChart(model: ChartModel, t: ChartTranslator): string {
       .map((value, index) => ({ value, index }))
       .filter((entry): entry is { value: number; index: number } => entry.value !== null);
     if (drawn.length === 0) continue;
+    if (series.lower) {
+      /* A band is as low as its lowest lower bound and as high as its highest upper one. */
+      const lows = series.lower
+        .map((value, index) => ({ value, index }))
+        .filter((entry): entry is { value: number; index: number } => entry.value !== null);
+      const bottom = lows.reduce((low, entry) => (entry.value < low.value ? entry : low));
+      const top = drawn.reduce((high, entry) => (entry.value > high.value ? entry : high));
+      parts.push(
+        t('seriesBand', {
+          series: series.label,
+          min: series.format(bottom.value),
+          minAt: categories[bottom.index]!.label,
+          max: series.format(top.value),
+          maxAt: categories[top.index]!.label,
+        }),
+      );
+      continue;
+    }
     const min = drawn.reduce((low, entry) => (entry.value < low.value ? entry : low));
     const max = drawn.reduce((high, entry) => (entry.value > high.value ? entry : high));
     parts.push(
@@ -108,7 +126,7 @@ export function describePoint(
       : t('point', {
           series: series.label,
           category: category.label,
-          value: value === null || value === undefined ? '' : series.format(value),
+          value: pointText(series, index),
         });
   const selected = selection?.series === point.series && selection.key === point.key;
   return selected ? `${text} ${t('selected')}` : text;

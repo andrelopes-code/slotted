@@ -3,7 +3,14 @@ export { placeLayer, trackModality } from './layer';
 export type { ActivationReason, LayerPlacement } from './layer';
 export { describeChart, describePoint, describeZoom } from './describe';
 export { chartNumber, chartTime, createNumberFormatter, createTimeFormatter } from './format';
-export { assignColors, categoryIndex, createChartModel, seriesOf, visibleSeries } from './model';
+export {
+  assignColors,
+  categoryIndex,
+  createChartModel,
+  pointText,
+  seriesOf,
+  visibleSeries,
+} from './model';
 export type {
   ChartCategory,
   ChartEmptyReason,

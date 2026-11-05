@@ -45,6 +45,16 @@ export function chartTable(
       numeric: model.xType !== 'category',
     },
     ...listed.flatMap((series) => {
+      if (series.lower) {
+        return [
+          {
+            key: `${series.id}__lower`,
+            label: t('rangeLower', { series: series.label }),
+            numeric: true,
+          },
+          { key: series.id, label: t('rangeUpper', { series: series.label }), numeric: true },
+        ];
+      }
       const columns: ChartTableColumn[] = [{ key: series.id, label: series.label, numeric: true }];
       if (series.sizes)
         columns.push({ key: `${series.id}__size`, label: `${series.label} ·`, numeric: true });
@@ -57,6 +67,13 @@ export function chartTable(
       { value: category.x, text: category.label },
       ...listed.flatMap((series) => {
         const value = series.values[category.index] ?? null;
+        if (series.lower) {
+          const lower = series.lower[category.index] ?? null;
+          return [
+            { value: lower, text: lower === null ? '' : series.format(lower) },
+            { value, text: value === null ? '' : series.format(value) },
+          ];
+        }
         const cells = [{ value, text: value === null ? '' : series.format(value) }];
         if (series.sizes) {
           const size = series.sizes[category.index] ?? null;
@@ -85,13 +102,23 @@ function csvField(value: string) {
  * because a CSV is read by a program as often as by a person.
  */
 export function chartToCsv(model: ChartModel, t: ChartTranslator): string {
-  const header = [model.x.label ?? t('category'), ...model.series.map((series) => series.label)];
+  const header = [
+    model.x.label ?? t('category'),
+    ...model.series.flatMap((series) =>
+      series.lower
+        ? [t('rangeLower', { series: series.label }), t('rangeUpper', { series: series.label })]
+        : [series.label],
+    ),
+  ];
+  const text = (value: number | null | undefined) =>
+    value === null || value === undefined ? '' : String(value);
   const lines = model.categories.map((category) => [
     model.xType === 'category' ? String(category.x) : category.label,
-    ...model.series.map((series) => {
-      const value = series.values[category.index];
-      return value === null || value === undefined ? '' : String(value);
-    }),
+    ...model.series.flatMap((series) =>
+      series.lower
+        ? [text(series.lower[category.index]), text(series.values[category.index])]
+        : [text(series.values[category.index])],
+    ),
   ]);
   return [header, ...lines].map((line) => line.map(csvField).join(',')).join('\r\n');
 }

@@ -99,7 +99,7 @@ export function preloadChartEngine(
 ): Promise<void> {
   const names = new Set<string>(['base']);
   for (const kind of kinds) {
-    names.add(kind === 'area' ? 'line' : kind);
+    names.add(kind === 'area' || kind === 'range' ? 'line' : kind);
     if (kind !== 'pie') names.add('cartesian');
   }
   if (options.renderer === 'canvas') names.add('canvas');

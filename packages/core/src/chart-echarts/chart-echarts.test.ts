@@ -372,3 +372,70 @@ describe('the extent of the value axis', () => {
     expect(yAxis(fitted).scale).toBe(true);
   });
 });
+
+describe('a range series', () => {
+  const forecast: ChartSpec = {
+    x: { field: 'day' },
+    data: [
+      { day: '1', value: 10, low: 8, high: 13 },
+      { day: '2', value: 12, low: 9, high: 15 },
+      { day: '3', value: 11, low: 7, high: null },
+    ],
+    series: [
+      { id: 'forecast', kind: 'line', field: 'value', label: 'Forecast' },
+      { id: 'likely', kind: 'range', lower: 'low', upper: 'high', label: 'Likely', of: 'forecast' },
+    ],
+  };
+
+  function drawn(hidden: string[] = []) {
+    return buildChartOption({ model: createChartModel(forecast, { hidden }), theme });
+  }
+
+  it('stacks a filled band on an invisible line, so its edges pass through both bounds', () => {
+    const { option, seriesIndex } = drawn();
+    const series = option['series'] as Record<string, unknown>[];
+    const lower = series.find((entry) => entry['id'] === 'likely__lower')!;
+    const band = series.find((entry) => entry['id'] === 'likely')!;
+
+    expect(lower['data']).toEqual([8, 9, null]);
+    expect(band['data']).toEqual([5, 6, null]);
+    expect(band['stack']).toBe(lower['stack']);
+    expect(band['stackStrategy']).toBe('all');
+    expect(band['areaStyle']).toBeDefined();
+    expect(seriesIndex.get('likely')).toBe(series.indexOf(band));
+    expect(seriesIndex.has('likely__lower')).toBe(false);
+  });
+
+  it('draws through the engine, with the axis holding both edges of the band', async () => {
+    const model = createChartModel(forecast);
+    const { init } = await loadEngine(requiredChunks({ model, theme }));
+    const chart = init(null as unknown as HTMLElement, undefined, {
+      renderer: 'svg',
+      ssr: true,
+      width: 400,
+      height: 240,
+    });
+    chart.setOption(buildChartOption({ model, theme: { ...theme, duration: 1 } }, 400).option);
+    const svg = chart.renderToSVGString();
+    const internals = chart as unknown as {
+      getModel: () => { getComponent: (name: string, index: number) => unknown };
+    };
+    const axis = (
+      internals.getModel().getComponent('yAxis', 0) as {
+        axis: { scale: { getExtent: () => [number, number] } };
+      }
+    ).axis;
+    const [low, high] = axis.scale.getExtent();
+    chart.dispose();
+
+    expect(svg).toContain('<path');
+    expect(low).toBeLessThanOrEqual(8);
+    expect(high).toBeGreaterThanOrEqual(15);
+  });
+
+  it('leaves the line alone when the band is hidden', () => {
+    const series = drawn(['likely']).option['series'] as { id: string }[];
+
+    expect(series.map((entry) => entry.id)).toEqual(['forecast']);
+  });
+});

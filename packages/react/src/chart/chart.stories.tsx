@@ -31,6 +31,7 @@ const referenceScenes: ReferencePageConfig['scenes'] = () =>
     donut: Donut,
     scatter: Scatter,
     bubble: Bubble,
+    range: Range,
     annotations: Annotations,
     legend: Legend,
     'legend-values': LegendValues,
@@ -203,6 +204,13 @@ const LATENCY = (() => {
     return { t: index, v: Math.round(value * 10) / 10 };
   });
 })();
+
+const FORECAST = MONTHS.map((month, index) => ({
+  month,
+  forecast: REVENUE[index]!,
+  low: Math.round(REVENUE[index]! * 0.9),
+  high: Math.round(REVENUE[index]! * 1.12),
+}));
 
 const REVENUE_CHART = {
   data: MONTHLY,
@@ -561,6 +569,32 @@ export const Bubble: Story = {
         title="Effort, impact and affected customers"
         x={{ field: 'effort', type: 'value', label: 'Effort (h)' }}
         y={{ label: 'Impact' }}
+      />
+    </Stage>
+  ),
+};
+
+export const Range: Story = {
+  parameters: scenario('range'),
+  render: () => (
+    <Stage>
+      <Chart
+        data={FORECAST}
+        description="Revenue forecast with the likely range of each month"
+        series={[
+          { id: 'forecast', kind: 'line', field: 'forecast', label: 'Forecast', stroke: 'dashed' },
+          {
+            id: 'likely',
+            kind: 'range',
+            lower: 'low',
+            upper: 'high',
+            label: 'Likely range',
+            of: 'forecast',
+          },
+        ]}
+        title="Revenue forecast"
+        x={{ field: 'month' }}
+        y={{ format: brlThousands }}
       />
     </Stage>
   ),

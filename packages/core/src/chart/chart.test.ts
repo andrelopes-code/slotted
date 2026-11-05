@@ -547,3 +547,75 @@ describe('layers', () => {
     modality.destroy();
   });
 });
+
+describe('a range series', () => {
+  const forecast: ChartSpec = {
+    locale: 'en-US',
+    x: { field: 'month' },
+    data: [
+      { month: 'Jan', value: 10, low: 8, high: 13 },
+      { month: 'Feb', value: 12, low: 9, high: null },
+      { month: 'Mar', value: 11, low: 7, high: 16 },
+    ],
+    series: [
+      { id: 'forecast', kind: 'line', field: 'value', label: 'Forecast', stroke: 'dashed' },
+      {
+        id: 'likely',
+        kind: 'range',
+        lower: 'low',
+        upper: 'high',
+        label: 'Likely range',
+        of: 'forecast',
+      },
+    ],
+  };
+
+  it('takes the color and axis of its line, claims no slot, and leaves a gap for a missing bound', () => {
+    const model = createChartModel({
+      ...forecast,
+      series: [...forecast.series, { kind: 'line', field: 'value', label: 'Other' }],
+    });
+    const [line, band, other] = model.series;
+
+    expect(band!.color).toEqual(line!.color);
+    expect(other!.color).not.toEqual(line!.color);
+    expect(band!.lower).toEqual([8, null, 7]);
+    expect(band!.values).toEqual([13, null, 16]);
+  });
+
+  it('reads as one tooltip row with both bounds', () => {
+    const context = tooltipContext(createChartModel(forecast), { series: 'forecast', key: 'Jan' });
+
+    expect(context?.items.map((item) => [item.label, item.formatted])).toEqual([
+      ['Forecast', '10'],
+      ['Likely range', '8 – 13'],
+    ]);
+  });
+
+  it('lists both bounds in the table and the CSV', () => {
+    const model = createChartModel(forecast);
+
+    expect(chartTable(model, t).columns.map((column) => column.label)).toEqual([
+      'Category',
+      'Forecast',
+      'Likely range, lower bound',
+      'Likely range, upper bound',
+    ]);
+    expect(chartToCsv(model, t).split('\r\n')[1]).toBe('Jan,10,8,13');
+  });
+
+  it('states the band’s lowest and highest edge in the summary, and leaves with the legend toggle', () => {
+    const model = createChartModel(forecast);
+
+    expect(describeChart(model, t)).toContain('Likely range: from 7 at Mar up to 16 at Mar.');
+    expect(describeChart(createChartModel(forecast, { hidden: ['likely'] }), t)).not.toContain(
+      'Likely range',
+    );
+  });
+
+  it('refuses a range with no bounds', () => {
+    expect(() =>
+      createChartModel({ ...forecast, series: [{ id: 'r', kind: 'range', upper: 'high' }] }),
+    ).toThrow(/lower and an upper/);
+  });
+});

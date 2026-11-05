@@ -403,6 +403,56 @@ describe('Chart', () => {
     });
   });
 
+  describe('a range series', () => {
+    const band = {
+      locale: 'en-US',
+      title: 'Forecast',
+      x: { field: 'month' } as const,
+      data: [
+        { month: 'Jan', value: 10, low: 8, high: 13 },
+        { month: 'Feb', value: 12, low: 9, high: 15 },
+      ],
+      series: [
+        { id: 'forecast', kind: 'line', field: 'value', label: 'Forecast' },
+        {
+          id: 'likely',
+          kind: 'range',
+          lower: 'low',
+          upper: 'high',
+          label: 'Likely',
+          of: 'forecast',
+        },
+      ],
+    } as const;
+
+    it('reads as one tooltip row with both bounds, two table columns, and one legend item', () => {
+      render(<Chart {...band} defaultActivePoint={{ series: 'forecast', key: 'Jan' }} />);
+
+      expect(parts('tooltip-item').map((row) => row.textContent)).toEqual([
+        'Forecast10',
+        'Likely8 – 13',
+      ]);
+      expect(legendItems()).toHaveLength(2);
+
+      fireEvent.click(part('view-toggle')!);
+
+      expect(
+        [...document.querySelectorAll('[data-part="table-region"] th')].map(
+          (cell) => cell.textContent,
+        ),
+      ).toEqual(expect.arrayContaining(['Likely, lower bound', 'Likely, upper bound']));
+    });
+
+    it('leaves the line when the legend hides the band', () => {
+      render(<Chart {...band} hidden={['likely']} />);
+
+      expect(engine.views.at(-1)!.model.series.map((entry) => [entry.id, entry.visible])).toEqual([
+        ['forecast', true],
+        ['likely', false],
+      ]);
+    });
+  });
+
   describe('views and states', () => {
     it('draws the table region’s ring for a focus from the keyboard, and not for a click followed by Shift', () => {
       /** A pointer press focuses the nearest focusable ancestor, as a browser does. */

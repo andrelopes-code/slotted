@@ -8,7 +8,7 @@
  * the only module that does.
  */
 
-export type ChartKind = 'line' | 'area' | 'bar' | 'pie' | 'scatter';
+export type ChartKind = 'line' | 'area' | 'bar' | 'pie' | 'scatter' | 'range';
 
 export type ChartTone =
   'neutral' | 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger';
@@ -60,8 +60,18 @@ export interface ChartSeries<Field extends string = string> {
   /** Unique within the chart. Defaults to `field`. */
   readonly id?: string | undefined;
   readonly kind: ChartKind;
-  /** The field of each record that holds this series' value. */
-  readonly field: Field;
+  /** The field of each record that holds this series' value. A `range` states `lower` and `upper` instead. */
+  readonly field?: Field | undefined;
+  /** A `range`'s lower bound: the field of each record that holds it. */
+  readonly lower?: Field | undefined;
+  /** A `range`'s upper bound: the field of each record that holds it. */
+  readonly upper?: Field | undefined;
+  /**
+   * The id of the series a `range` belongs to. The band takes that series' color
+   * and axis and is drawn under its line; without it the band takes a color of
+   * its own.
+   */
+  readonly of?: string | undefined;
   /** What the legend, the tooltip and the table call it. Defaults to the id. */
   readonly label?: string | undefined;
   /** Which color of the data scale. Assigned in order when absent. */

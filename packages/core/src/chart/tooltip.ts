@@ -1,7 +1,10 @@
-import { chartMessages } from '../i18n';
+import { chartMessages, createTranslator } from '../i18n';
 import { createNumberFormatter } from './format';
-import { categoryIndex, type ChartModel, seriesOf, visibleSeries } from './model';
+import { categoryIndex, type ChartModel, pointText, seriesOf, visibleSeries } from './model';
 import type { ChartColor, ChartKind, ChartPoint, ChartTrigger } from './types';
+
+/** The words a tooltip uses when its caller resolves none: the catalog's own English. */
+const english = createTranslator({ locale: 'en-US' }).family(chartMessages);
 
 /**
  * What a tooltip shows, as data. The default tooltip renders it; a custom one
@@ -118,7 +121,7 @@ export function tooltipContext(
       kind: series.kind,
       color: series.color,
       value,
-      formatted: value === null ? '' : series.format(value),
+      formatted: pointText(series, index),
       share:
         model.stackMode === 'percent' && series.stack && series.plotted[index] !== null
           ? percent(series.plotted[index]! / 100)
@@ -144,7 +147,7 @@ export function tooltipContext(
         ? {
             value: summed,
             formatted: active.format(summed),
-            label: options.totalLabel ?? chartMessages.base.total,
+            label: options.totalLabel ?? english('total'),
           }
         : null,
     notes,

@@ -26,6 +26,7 @@ import {
   observeChartTheme,
   placeLayer,
   placeTooltip,
+  pointText,
   readChartTheme,
   sameTheme,
   seriesOf,
@@ -944,8 +945,7 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
         : activeKey
           ? categoryIndex(model, activeKey)
           : lastDrawn(owner.values);
-    const raw = index >= 0 ? owner.values[index] : null;
-    return raw === null || raw === undefined ? '' : owner.format(raw);
+    return index >= 0 ? pointText(owner, index) : '';
   };
 
   const moreLayer = useLayer('start');
@@ -968,7 +968,10 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
       <>
         <span
           data-kind={
-            entry.kind === 'area' || entry.kind === 'bar' || entry.kind === 'pie'
+            entry.kind === 'area' ||
+            entry.kind === 'bar' ||
+            entry.kind === 'pie' ||
+            entry.kind === 'range'
               ? 'bar'
               : entry.kind
           }
@@ -1089,7 +1092,9 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
   const summaryId = `${id}-summary`;
   const skeletonKind = spec.series.some((entry) => entry.kind === 'pie')
     ? 'pie'
-    : spec.series.every((entry) => entry.kind === 'line' || entry.kind === 'area')
+    : spec.series.every(
+          (entry) => entry.kind === 'line' || entry.kind === 'area' || entry.kind === 'range',
+        )
       ? 'line'
       : 'bar';
   const table = tableValue && usable && model ? chartTable(model, t) : null;
