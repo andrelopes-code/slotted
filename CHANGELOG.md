@@ -2,6 +2,14 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.32 — 2026-11-05
+
+- feat(chart): add the range series kind for a band around a line
+- feat(chart): resolve the tooltip total word from the chart's messages
+- fix(theme): regenerate hooks for the table row muted attribute
+- feat(chart): add extent to ChartYAxis so a line fits its value axis to the data
+- feat(table): add muted to TableRow for a record that is no longer active
+
 ## 0.1.0-beta.31 — 2026-11-04
 
 - fix(theme): regenerate hooks for the dashboard widget help parts
