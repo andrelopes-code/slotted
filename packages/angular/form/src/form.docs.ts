@@ -86,7 +86,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'playground',
     title: 'Playground',
-    note: 'A form of two fields with the family’s whole lifecycle on it. Submit it empty: the platform’s own messages appear in the summary, focus moves there, and each link jumps to the field it names. Two fields written one after the other inside the form stand apart by --slotted-form-field-gap (space-6 by default), and two field groups by --slotted-form-section-gap (space-9 by default); a layout the page draws itself — a Grid, a Stack — keeps its own gap.',
+    note: 'A form of two fields with the family’s whole lifecycle on it. Submit it empty: the platform’s own messages appear in the summary, focus moves there, and each link jumps to the field it names. Two fields written one after the other inside the form stand apart by --slotted-form-field-gap (space-6 by default), and two field groups by --slotted-form-section-gap (space-9 by default); any other child, such as a row of two fields the page draws itself, stands apart and keeps to --slotted-form-measure the same way, and the gap inside a Grid or a Stack stays its own.',
     snippet: defineSnippet({
       id: 'form-angular-playground',
       language: 'angular',

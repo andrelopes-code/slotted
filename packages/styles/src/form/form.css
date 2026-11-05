@@ -153,15 +153,23 @@
   }
 
   /**
-   * Two fields written one after the other directly inside the form stand
-   * apart by a step of the space scale. The root is a block and drew no
-   * distance at all, so a form written from the minimal example rendered its
-   * fields touching. A layout the page draws itself — a grid of two columns, a
-   * stack with its own gap — is not a field, and keeps its own spacing.
+   * Two children written one after the other directly inside the form stand
+   * apart by a step of the space scale: two fields, a row of fields the page
+   * draws itself, a message or a paragraph between them. The root is a block
+   * and drew no distance at all, so a form written from the minimal example
+   * rendered its fields touching. The aside and the summary keep their own
+   * margins, the action row keeps its own step, and a hidden input draws
+   * nothing, so it neither takes the gap nor gives it away.
+   * shortcut: a hidden input between two children drops the gap between them.
    */
   [data-ui-form][data-part-root]
-    > :is([data-ui-field], [data-ui-field-group])
-    + :is([data-ui-field], [data-ui-field-group]) {
+    > :where(:not([data-ui-form]:is([data-part-aside], [data-part-summary]), [type='hidden']))
+    + :where(
+      :not(
+        [data-ui-form]:is([data-part-aside], [data-part-summary], [data-part-actions]),
+        [type='hidden']
+      )
+    ) {
     margin-block-start: var(--slotted-form-field-gap, var(--slotted-space-6, 1rem));
   }
 
@@ -174,16 +182,11 @@
   }
 
   /**
-   * One column at a bounded measure: a field never spans a wide page, and the
-   * summary and the actions end where the fields end.
+   * One column at a bounded measure: a field, a row of fields, a message and
+   * the summary and the actions end where the fields end. The aside stands
+   * outside the column.
    */
-  [data-ui-form][data-part-root]
-    > :is(
-      [data-ui-field],
-      [data-ui-field-group],
-      [data-ui-form][data-part-summary],
-      [data-ui-form][data-part-actions]
-    ) {
+  [data-ui-form][data-part-root] > :not([data-ui-form][data-part-aside]) {
     max-inline-size: var(--slotted-form-measure, 40rem);
   }
 

@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
 
 import { Field, FieldLabel } from '../field';
@@ -144,5 +145,55 @@ describe('a form with an aside', () => {
     );
 
     expect(box('[data-ui="field"]').width).toBe(40 * rem());
+  });
+});
+
+/**
+ * Slotted has no family for a row of two fields that answer one question, so
+ * the row is a plain element. It stands under the first field and over the
+ * last by the field gap, and keeps to the form's measure beside an aside, as a
+ * field does.
+ */
+describe('a row of fields inside a form', () => {
+  const rem = () => parseFloat(getComputedStyle(document.documentElement).fontSize);
+  const box = (element: Element) => element.getBoundingClientRect();
+
+  it('stands the field gap from its neighbors and keeps to the measure beside an aside', () => {
+    render(
+      <Form style={{ inlineSize: '80rem', '--slotted-form-field-gap': '12px' } as CSSProperties}>
+        <Field>
+          <FieldLabel>Name</FieldLabel>
+          <TextField name="name" />
+        </Field>
+        <div data-testid="row" style={{ display: 'flex', gap: '1rem' }}>
+          <Field>
+            <FieldLabel>Quantity</FieldLabel>
+            <TextField name="quantity" />
+          </Field>
+          <Field>
+            <FieldLabel>Unit price</FieldLabel>
+            <TextField name="price" />
+          </Field>
+        </div>
+        <Field>
+          <FieldLabel>Notes</FieldLabel>
+          <TextField name="notes" />
+        </Field>
+        <FormAside>Preview</FormAside>
+      </Form>,
+    );
+    const row = box(document.querySelector('[data-testid="row"]')!);
+    const [first, , , last] = [...document.querySelectorAll('[data-ui="field"]')].map(box) as [
+      DOMRect,
+      DOMRect,
+      DOMRect,
+      DOMRect,
+    ];
+    const aside = box(document.querySelector('[data-part="aside"]')!);
+
+    expect(row.top - first.bottom).toBeCloseTo(12, 0);
+    expect(last.top - row.bottom).toBeCloseTo(12, 0);
+    expect(row.width).toBeLessThanOrEqual(40 * rem());
+    expect(aside.left).toBeGreaterThanOrEqual(row.right);
   });
 });
