@@ -38,6 +38,7 @@ const referenceScenes: ReferencePageConfig['scenes'] = () =>
     scrimFrom: ScrimFrom,
     keyboard: Keyboard,
     modal: Modal,
+    form: Form,
     policy: Policy,
     focus: Focus,
     loading: Loading,
@@ -674,6 +675,48 @@ export const Modal: Story = {
         </Layer>
       </Scene>
     </Grid>
+  ),
+};
+
+export const Form: Story = {
+  parameters: scenario('form'),
+  render: () => (
+    <Scene
+      label="Enter in the field saves"
+      note="The panel is the form, through render: Enter in the field and the footer’s Save submit it, and the header, the body and the footer keep the panel’s inset and rows."
+    >
+      <Layer>
+        {(container) => (
+          <Drawer container={container} size="sm">
+            <DrawerTrigger
+              render={({ children, ...props }) => (
+                <Button {...props} tone="secondary" variant="outline">
+                  {children}
+                </Button>
+              )}
+            >
+              Edit contact
+            </DrawerTrigger>
+            <DrawerPanel
+              render={(props) => <form {...props} onSubmit={(event) => event.preventDefault()} />}
+            >
+              <DrawerHeader>
+                <DrawerTitle>Edit contact</DrawerTitle>
+                <DrawerClose />
+              </DrawerHeader>
+              <DrawerBody>
+                <TextField aria-label="Name" defaultValue="Ana Ribeiro" />
+              </DrawerBody>
+              <DrawerFooter>
+                <Button size="sm" type="submit">
+                  Save
+                </Button>
+              </DrawerFooter>
+            </DrawerPanel>
+          </Drawer>
+        )}
+      </Layer>
+    </Scene>
   ),
 };
 

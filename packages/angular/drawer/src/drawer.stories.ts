@@ -44,6 +44,7 @@ const referenceScenes: ReferencePageConfig['scenes'] = () =>
     scrimFrom: ScrimFrom,
     keyboard: Keyboard,
     modal: Modal,
+    form: Form,
     policy: Policy,
     focus: Focus,
     loading: Loading,
@@ -547,6 +548,31 @@ export const Modal: Story = {
           'Nothing is inert, nothing is locked and focus is not contained, so the panel writes no aria-modal. The scrim stays: it belongs to the layer rather than to the dismissal policy, and it is why every still demonstration on this page can be this one.',
           panel('size="sm"', { title: 'Detalhes' }),
         ),
+    ),
+  }),
+};
+
+export const Form: Story = {
+  parameters: scenario('form'),
+  render: () => ({
+    template: scene(
+      'Enter in the field saves',
+      'A form around the header, the body and the footer: Enter in the field and the footer’s Save submit it, and the parts keep the panel’s inset and rows.',
+      layer(`<button slButton variant="outline" tone="secondary" [slDrawerTrigger]="d">
+          Edit contact
+        </button>
+        <sl-drawer #d="slDrawer" [container]="box" size="sm">
+          <form (submit)="$event.preventDefault(); d.close()">
+            <header slDrawerHeader>
+              <h2 slDrawerTitle>Edit contact</h2>
+              <button slDrawerClose></button>
+            </header>
+            <div slDrawerBody>
+              <input slTextField aria-label="Name" value="Ana Ribeiro" />
+            </div>
+            <footer slDrawerFooter><button slButton size="sm" type="submit">Save</button></footer>
+          </form>
+        </sl-drawer>`),
     ),
   }),
 };
