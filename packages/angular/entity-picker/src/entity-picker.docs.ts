@@ -652,7 +652,7 @@ export const ANGULAR_ENTITY_PICKER_DOCS = {
         'ng-template, context { $implicit, query, selected, current, disabled }',
         '—',
         'option content',
-        'The content of an option, written with slEntityPickerOptionLabel, slEntityPickerOptionDescription, slEntityPickerOptionMeta and slEntityPickerOptionMedia, which place it in the row. With media="none" an option draws its own face in slEntityPickerOptionMedia',
+        'The content of an option, written with slEntityPickerOptionLabel, slEntityPickerOptionDescription, slEntityPickerOptionMeta and slEntityPickerOptionMedia, which place it in the row; any other element is placed in the name’s cell. With media="none" an option draws its own face in slEntityPickerOptionMedia',
       ],
       [
         'slEntityPickerChip',

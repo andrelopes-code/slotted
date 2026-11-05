@@ -43,6 +43,29 @@ describe('an option written through renderOption', () => {
   });
 });
 
+/**
+ * An element written outside the option parts stood in the first column, which
+ * is as wide as the longest option text, and pushed the offer to create away.
+ */
+describe('an option holding a bare element', () => {
+  it('places the element in the name’s column, as the parts do', async () => {
+    render(
+      <EntityPicker
+        aria-label="Fruit"
+        items={[{ id: 'a', label: 'A long option label to widen the first column', avatar: null }]}
+        media="none"
+        onCreate={(name) => ({ id: name, label: name, avatar: null })}
+        renderOption={(entity) => <div>{entity.label}</div>}
+      />,
+    );
+    await userEvent.click(screen.getByRole('combobox', { name: 'Fruit' }));
+    const option = await screen.findByRole('option', { name: /A long option label/ });
+    const bare = option.firstElementChild as HTMLElement;
+
+    expect(getComputedStyle(bare).gridColumnStart).toBe('2');
+  });
+});
+
 const MANY = Array.from({ length: 150 }, (_, index) => ({
   id: `p${String(index)}`,
   label: `Person ${String(index).padStart(3, '0')}`,

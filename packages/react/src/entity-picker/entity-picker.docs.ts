@@ -640,7 +640,7 @@ export const REACT_ENTITY_PICKER_DOCS = {
         '(entity, state) => ReactNode',
         'name, identifier, fact',
         'EntityPicker',
-        'The content of an option, written with EntityPickerOptionLabel, EntityPickerOptionDescription, EntityPickerOptionMeta and EntityPickerOptionMedia, which place it in the row; the face, the check and the row stay the family’s. With media="none" an option draws its own face in EntityPickerOptionMedia',
+        'The content of an option, written with EntityPickerOptionLabel, EntityPickerOptionDescription, EntityPickerOptionMeta and EntityPickerOptionMedia, which place it in the row; any other element is placed in the name’s cell; the face, the check and the row stay the family’s. With media="none" an option draws its own face in EntityPickerOptionMedia',
       ],
       ['renderChip', '(entity) => ReactNode', 'the name', 'EntityPicker', 'The words of a chip'],
       ['render', '(props) => ReactNode', 'a div', 'EntityPicker', 'Replaces the root element'],
