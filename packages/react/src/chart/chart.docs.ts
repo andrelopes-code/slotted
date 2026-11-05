@@ -874,6 +874,13 @@ export const REACT_CHART_DOCS = {
       ['max', 'number', '—', 'x, y', 'The highest value the axis must hold'],
       ['scale', "'linear' | 'log'", 'linear', 'y', 'A logarithmic value axis'],
       [
+        'extent',
+        "'zero' | 'data'",
+        'zero with a bar or stacked series, else data',
+        'y',
+        'What the axis holds besides the data: zero, for a bar, or the data alone, for a line',
+      ],
+      [
         'orientation',
         "'vertical' | 'horizontal'",
         'vertical',

@@ -403,6 +403,7 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
     splitNumber:
       horizontal && width > 0 ? Math.max(2, Math.floor(width / (theme.labelSize * 9))) : undefined,
     position: horizontal ? (index === 0 ? 'bottom' : 'top') : index === 0 ? 'left' : 'right',
+    ...(axis.extent === 'data' && axis.scale !== 'log' ? { scale: true } : {}),
     min: axis.min,
     max: axis.max,
     axisLine: { show: false },

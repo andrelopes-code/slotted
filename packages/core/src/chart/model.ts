@@ -70,6 +70,7 @@ export interface ChartModelSeries {
 export interface ChartModelAxis {
   readonly label: string | undefined;
   readonly scale: 'linear' | 'log';
+  readonly extent: 'zero' | 'data';
   readonly min: number | undefined;
   readonly max: number | undefined;
   readonly format: (value: number) => string;
@@ -251,7 +252,7 @@ export function createChartModel(spec: ChartSpec, options: ChartModelOptions = {
 
   const axesSpec = axisList(spec.y);
   const percent = stackMode === 'percent';
-  const axes: ChartModelAxis[] = axesSpec.slice(0, 2).map((axis) => ({
+  const axisBase = axesSpec.slice(0, 2).map((axis) => ({
     label: axis.label,
     scale: axis.scale ?? 'linear',
     min: percent ? 0 : axis.min,
@@ -270,7 +271,7 @@ export function createChartModel(spec: ChartSpec, options: ChartModelOptions = {
   const OVERFLOW_STROKES = ['dashed', 'dotted', 'dash-dot'] as const;
   let overflowIndex = 0;
   const base = spec.series.map((series, position) => {
-    const axisIndex: 0 | 1 = series.axis === 'end' && axes.length > 1 ? 1 : 0;
+    const axisIndex: 0 | 1 = series.axis === 'end' && axisBase.length > 1 ? 1 : 0;
     const values = placed.map((entry) => chartNumber(entry.record[series.field]));
     return {
       id: ids[position]!,
@@ -339,6 +340,17 @@ export function createChartModel(spec: ChartSpec, options: ChartModelOptions = {
   }
 
   const series: ChartModelSeries[] = stacked;
+  const axes: ChartModelAxis[] = axisBase.map((axis, index) => ({
+    ...axis,
+    extent:
+      axesSpec[index]?.extent ??
+      (series.some(
+        (entry) =>
+          entry.visible && entry.axis === index && (entry.kind === 'bar' || entry.stack !== null),
+      )
+        ? 'zero'
+        : 'data'),
+  }));
   const legend: ChartLegendEntry[] = pie
     ? categories.map((category, index) => ({
         key: category.key,

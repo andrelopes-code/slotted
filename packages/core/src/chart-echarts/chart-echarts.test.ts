@@ -281,3 +281,94 @@ describe('the engine draws the option', () => {
     }
   });
 });
+
+describe('the extent of the value axis', () => {
+  const balance: ChartSpec = {
+    data: [
+      { day: '1', balance: 9_300_000 },
+      { day: '2', balance: 9_050_000 },
+      { day: '3', balance: 10_200_000 },
+      { day: '4', balance: 9_800_000 },
+    ],
+    series: [{ id: 'balance', kind: 'line', field: 'balance', label: 'Balance' }],
+    x: { field: 'day' },
+  };
+
+  async function lowestTick(spec: ChartSpec) {
+    const model = createChartModel(spec);
+    const { init } = await loadEngine(requiredChunks({ model, theme }));
+    const chart = init(null as unknown as HTMLElement, undefined, {
+      renderer: 'svg',
+      ssr: true,
+      width: 400,
+      height: 240,
+    });
+    chart.setOption(buildChartOption({ model, theme: { ...theme, duration: 1 } }, 400).option);
+    chart.renderToSVGString();
+    const internals = chart as unknown as {
+      getModel: () => { getComponent: (name: string, index: number) => unknown };
+    };
+    const axis = (
+      internals.getModel().getComponent('yAxis', 0) as {
+        axis: { scale: { getTicks: () => { value: number }[] } };
+      }
+    ).axis;
+    const lowest = Math.min(...axis.scale.getTicks().map((tick) => tick.value));
+    chart.dispose();
+    return lowest;
+  }
+
+  function yAxis(spec: ChartSpec) {
+    const { option } = buildChartOption({ model: createChartModel(spec), theme });
+    return (option['yAxis'] as { scale?: boolean }[])[0]!;
+  }
+
+  it('fits the axis of a line to its data', async () => {
+    expect(yAxis(balance).scale).toBe(true);
+    expect(await lowestTick(balance)).toBeGreaterThan(0);
+  });
+
+  it('keeps zero on the axis of a bar', async () => {
+    const bars: ChartSpec = {
+      ...balance,
+      series: [{ id: 'balance', kind: 'bar', field: 'balance', label: 'Balance' }],
+    };
+
+    expect(yAxis(bars).scale).toBeUndefined();
+    expect(await lowestTick(bars)).toBe(0);
+  });
+
+  it('keeps zero under a stacked area, and when the series is hidden lets a line fit', () => {
+    const stacked: ChartSpec = {
+      ...balance,
+      series: [{ id: 'balance', kind: 'area', field: 'balance', stack: 's' }],
+    };
+    const mixed: ChartSpec = {
+      ...balance,
+      series: [
+        { id: 'line', kind: 'line', field: 'balance' },
+        { id: 'bars', kind: 'bar', field: 'balance' },
+      ],
+    };
+    const hiddenBars = buildChartOption({
+      model: createChartModel(mixed, { hidden: ['bars'] }),
+      theme,
+    });
+
+    expect(yAxis(stacked).scale).toBeUndefined();
+    expect(yAxis(mixed).scale).toBeUndefined();
+    expect((hiddenBars.option['yAxis'] as { scale?: boolean }[])[0]!.scale).toBe(true);
+  });
+
+  it('obeys an explicit extent over the default', () => {
+    const forced: ChartSpec = { ...balance, y: { extent: 'zero' } };
+    const fitted: ChartSpec = {
+      ...balance,
+      series: [{ id: 'balance', kind: 'bar', field: 'balance' }],
+      y: { extent: 'data' },
+    };
+
+    expect(yAxis(forced).scale).toBeUndefined();
+    expect(yAxis(fitted).scale).toBe(true);
+  });
+});

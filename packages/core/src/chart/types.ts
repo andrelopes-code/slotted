@@ -107,6 +107,13 @@ export interface ChartYAxis {
   readonly label?: string | undefined;
   readonly format?: ChartNumberFormat | undefined;
   readonly scale?: 'linear' | 'log' | undefined;
+  /**
+   * What the extent of the axis holds besides the data. `zero` extends it to
+   * zero, which a bar's length needs; `data` fits it to the data with rounded
+   * ticks, which a line's position needs. Defaults to `zero` when a visible
+   * bar or stacked series is on the axis, and to `data` otherwise.
+   */
+  readonly extent?: 'zero' | 'data' | undefined;
   readonly min?: number | undefined;
   readonly max?: number | undefined;
 }
