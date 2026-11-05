@@ -546,9 +546,12 @@ export function Upload({
       </button>
     );
 
+    /* Without an adapter the family only holds the file, so no row can start. */
+    const start = adapter === undefined ? [] : [button('start', 'start')];
+
     switch (file.status) {
       case 'ready':
-        return [button('start', 'start'), button('remove', 'remove')];
+        return [...start, button('remove', 'remove')];
       case 'queued':
         return [button('cancel', 'cancel'), button('remove', 'remove')];
       case 'uploading':
@@ -560,7 +563,7 @@ export function Upload({
       case 'error':
         return [button('retry', 'retry'), button('remove', 'remove')];
       case 'canceled':
-        return [button('start', 'start'), button('remove', 'remove')];
+        return [...start, button('remove', 'remove')];
       default:
         return [button('remove', 'remove')];
     }

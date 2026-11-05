@@ -286,6 +286,15 @@ describe('SlUpload', () => {
       expect(part('item')?.getAttribute('data-status')).toBe('success');
     });
 
+    it('draws no start on a held file when there is no adapter to run it', async () => {
+      choose([makeFile('a.csv', { type: 'text/csv' })]);
+      await settle();
+
+      expect(part('item')?.getAttribute('data-status')).toBe('ready');
+      expect(part('start')).toBeNull();
+      expect(part('remove')).not.toBeNull();
+    });
+
     /** A pause control over a sender that cannot suspend is a control that lies. */
     it('draws pause only when the adapter says it honors the handshake', async () => {
       fixture.componentInstance.adapter.set(() => new Promise(() => undefined));

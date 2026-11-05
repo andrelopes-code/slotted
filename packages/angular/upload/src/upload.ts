@@ -900,9 +900,12 @@ export class SlUpload implements ControlValueAccessor, Validator {
       action: 'remove',
     } as const;
 
+    /* Without an adapter the family only holds the file, so no row can start. */
+    const startable = (this.adapter() ?? this.defaults.adapter) === undefined ? [] : [start];
+
     switch (file.status) {
       case 'ready':
-        return [start, remove];
+        return [...startable, remove];
       case 'queued':
         return [cancel, remove];
       case 'uploading':
@@ -914,7 +917,7 @@ export class SlUpload implements ControlValueAccessor, Validator {
       case 'error':
         return [retry, remove];
       case 'canceled':
-        return [start, remove];
+        return [...startable, remove];
       default:
         return [remove];
     }

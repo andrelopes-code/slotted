@@ -238,6 +238,15 @@ describe('Upload', () => {
       await waitFor(() => expect(part('item')).toHaveAttribute('data-status', 'success'));
     });
 
+    it('draws no start on a held file when there is no adapter to run it', () => {
+      render(<Upload />);
+      choose([makeFile('a.csv', { type: 'text/csv' })]);
+
+      expect(part('item')).toHaveAttribute('data-status', 'ready');
+      expect(part('start')).toBeNull();
+      expect(part('remove')).not.toBeNull();
+    });
+
     it('offers a failed row a retry, and nothing else offers one', async () => {
       let attempts = 0;
       render(
