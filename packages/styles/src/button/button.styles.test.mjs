@@ -193,7 +193,7 @@ test('lifts only the variants that draw a frame', () => {
  */
 test('draws an outline button with a neutral edge and a tone label', () => {
   const outline = rule(`${ui}[data-variant='outline']`);
-  assert.ok(outline.includes('border-color:var(--slotted-control-border-color'));
+  assert.ok(outline.includes('border-color:var(--_bare-edge,var(--slotted-control-border-color'));
   assert.ok(!outline.includes('border-color:var(--slotted-border-strong'));
   assert.ok(outline.includes('color:var(--_text'));
   assert.ok(!outline.includes('border-color:var(--_border'));
@@ -273,7 +273,8 @@ test('changes no geometry when a state changes', () => {
  * standard curve. A filled control takes the tone's hover step, which the
  * theme derives from the fill by lightening it; a bare control takes the
  * neutral hover ground whatever its tone, so five outline actions in a row
- * hover as five buttons and not as five status chips.
+ * hover as five buttons and not as five status chips. The danger tone is the
+ * one exception, because a destructive action is not one more neutral action.
  */
 test('hovers by lightening the fill, or by the one neutral ground under a bare control', () => {
   const hovering = [...declarations.matchAll(/(?<=^|\})([^{}]+)\{([^{}]*)\}/g)]
@@ -293,12 +294,30 @@ test('hovers by lightening the fill, or by the one neutral ground under a bare c
     bare?.selector.includes("[data-variant='ghost']"),
     'outline and ghost hover as two rules',
   );
-  assert.equal(bare?.body, 'background:var(--slotted-tone-secondary-subtle-hover,ButtonFace);');
+  assert.equal(
+    bare?.body,
+    'background:var(--_bare-hover,var(--slotted-tone-secondary-subtle-hover,ButtonFace));',
+  );
   assert.doesNotMatch(
     declarations,
     /--_subtle-hover/,
     'a tone still carries a hover ground of its own',
   );
+  const danger = rule(`${ui}[data-tone='danger']`);
+  assert.match(danger, /--_bare-edge:var\(--slotted-tone-danger-border\)/);
+  assert.match(danger, /--_bare-hover:var\(--slotted-tone-danger-subtle-hover\)/);
+  assert.match(danger, /--_bare-active:var\(--slotted-tone-danger-subtle-active\)/);
+  assert.match(
+    rule(`${ui}[data-variant='outline']`),
+    /border-color:var\(--_bare-edge,var\(--slotted-control-border-color,ButtonBorder\)\)/,
+  );
+  for (const tone of ['accent', 'success', 'warning', 'secondary', 'neutral', 'info']) {
+    assert.doesNotMatch(
+      rule(`${ui}[data-tone='${tone}']`),
+      /--_bare-/,
+      `${tone} leaves the neutral bare control`,
+    );
+  }
   assert.match(
     rule(ui),
     /background-color var\(--slotted-control-transition-duration\) var\(--slotted-control-transition-easing\)/,
@@ -360,7 +379,7 @@ test('presses a filled control down by a hairline, and a bare one only in color'
   );
   assert.equal(
     bare,
-    'background:var(--slotted-tone-secondary-subtle-active,ButtonFace);transition-duration:var(--slotted-duration-instant);',
+    'background:var(--_bare-active,var(--slotted-tone-secondary-subtle-active,ButtonFace));transition-duration:var(--slotted-duration-instant);',
   );
   assert.doesNotMatch(
     declarations,

@@ -201,6 +201,10 @@
     --_solid-active: var(--slotted-tone-danger-solid-active);
     --_on-solid: var(--slotted-tone-danger-on-solid);
     --_text: var(--slotted-tone-danger-text);
+    /* A destructive action is the one bare control that leaves the neutral edge and ground. */
+    --_bare-edge: var(--slotted-tone-danger-border);
+    --_bare-hover: var(--slotted-tone-danger-subtle-hover);
+    --_bare-active: var(--slotted-tone-danger-subtle-active);
   }
 
   /* ── Size: the control scale, one step of it per member instance ──────── */
@@ -273,7 +277,7 @@
    */
   [data-ui-button][data-variant='outline'] {
     background: transparent;
-    border-color: var(--slotted-control-border-color, ButtonBorder);
+    border-color: var(--_bare-edge, var(--slotted-control-border-color, ButtonBorder));
     box-shadow: var(--slotted-control-shadow, none);
     color: var(--_text, ButtonText);
   }
@@ -369,7 +373,7 @@
   [data-ui-button][data-variant='ghost']:hover:not(:disabled):not([data-disabled]):not(
       [data-loading]
     ):not([data-pressed]) {
-    background: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
+    background: var(--_bare-hover, var(--slotted-tone-secondary-subtle-hover, ButtonFace));
   }
 
   [data-ui-button][data-variant='outline']:active:not(:disabled):not([data-disabled]):not(
@@ -378,7 +382,7 @@
   [data-ui-button][data-variant='ghost']:active:not(:disabled):not([data-disabled]):not(
       [data-loading]
     ):not([data-pressed]) {
-    background: var(--slotted-tone-secondary-subtle-active, ButtonFace);
+    background: var(--_bare-active, var(--slotted-tone-secondary-subtle-active, ButtonFace));
     transition-duration: var(--slotted-duration-instant);
   }
 
