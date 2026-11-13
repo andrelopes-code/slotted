@@ -128,6 +128,7 @@
     appearance: none;
     background-color: var(--slotted-collapsible-background, transparent);
     border: 0;
+    border-radius: var(--slotted-collapsible-radius, var(--slotted-control-radius, 4px));
     color: var(--slotted-collapsible-color, var(--slotted-text, CanvasText));
     column-gap: var(--_gap);
     cursor: pointer;
@@ -516,6 +517,11 @@
     /* The trigger's own background is drawn to the frame's edge, so the corner
        it meets has to be the corner the frame draws. */
     overflow: clip;
+  }
+
+  /* The frame clips the trigger, so its hover fill meets the frame's own corner. */
+  [data-ui-collapsible][data-variant='framed'] > [data-part-header] > [data-part-trigger] {
+    border-radius: 0;
   }
 
   /* ── Density, direction and the narrow container ──────────────────────── */

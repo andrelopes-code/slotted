@@ -157,6 +157,18 @@ test('takes closed content out of the tree without taking it out of the transiti
   assert.match(fragment, /inert/, 'the harness never shows the attribute the binding writes');
 });
 
+test('rounds the trigger with the control corner, and leaves the framed trigger to the frame', () => {
+  const trigger = `${ui}>[data-part-header]>[data-part-trigger]`;
+  assert.match(
+    rule(trigger),
+    /border-radius:var\(--slotted-collapsible-radius,var\(--slotted-control-radius,4px\)\)/,
+  );
+  assert.match(
+    rule(`${ui}[data-variant='framed']>[data-part-header]>[data-part-trigger]`),
+    /border-radius:0/,
+  );
+});
+
 test('holds hover and press back for a control the browser has disabled', () => {
   for (const state of [':hover', ':active']) {
     const selectors = [...normalized.matchAll(/([^{}]+)\{/g)]
