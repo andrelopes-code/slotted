@@ -559,7 +559,7 @@ reached past the gap in seven of the nine size-and-density pairs.
 | `--slotted-selection-size-sm`      | `14px`        |
 | `--slotted-selection-size-md`      | `16px`        |
 | `--slotted-selection-size-lg`      | `18px`        |
-| `--slotted-selection-halo-opacity` | `0.12`        |
+| `--slotted-selection-halo-opacity` | `0.14`        |
 
 ## Highlight
 

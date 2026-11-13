@@ -1150,10 +1150,10 @@ export const standard: Recipe = {
     '--slotted-tone-accent-text': {
       seed: 'accent',
       l: {
-        offset: 0.321,
+        offset: 0.226,
       },
       c: {
-        scale: 0.44,
+        scale: 0.66,
         max: 0.25,
       },
       bounds: [
@@ -1338,13 +1338,12 @@ export const standard: Recipe = {
     '--slotted-tone-success-text': {
       seed: 'success',
       l: {
-        offset: 0.344,
+        offset: 0.273,
       },
       c: {
-        scale: 0.994,
+        scale: 1.328,
         max: 0.25,
       },
-      h: 4,
       bounds: [
         {
           side: 'floor',
@@ -1461,13 +1460,12 @@ export const standard: Recipe = {
     '--slotted-tone-warning-text': {
       seed: 'warning',
       l: {
-        offset: 0.064,
+        offset: 0,
       },
       c: {
-        scale: 0.665,
+        scale: 1,
         max: 0.25,
       },
-      h: 4,
       bounds: [
         {
           side: 'floor',
@@ -1584,13 +1582,13 @@ export const standard: Recipe = {
     '--slotted-tone-danger-text': {
       seed: 'danger',
       l: {
-        offset: 0.231,
+        offset: 0.134,
       },
       c: {
-        scale: 0.481,
+        scale: 0.772,
         max: 0.25,
       },
-      h: -8,
+      h: -5,
       bounds: [
         {
           side: 'floor',
@@ -1827,10 +1825,10 @@ export const standard: Recipe = {
     '--slotted-tone-info-text': {
       seed: 'info',
       l: {
-        offset: 0.321,
+        offset: 0.226,
       },
       c: {
-        scale: 0.44,
+        scale: 0.66,
         max: 0.25,
       },
       bounds: [

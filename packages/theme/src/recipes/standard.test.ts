@@ -165,6 +165,23 @@ describe('recipes.standard', () => {
    * whose light tints leave the gamut is clipped by the display, a drift no
    * offset in the recipe answers.
    */
+  /**
+   * The dark ink of a tone was a pastel two lightness steps above the seed with
+   * under half its chroma, which read as near-white pink beside the body text.
+   */
+  it('keeps the chroma of a tone in its dark ink', () => {
+    const MINIMUM = 0.12;
+    const misses: string[] = [];
+    const seeds = { ...base, danger: parseSeed('#f87171')! };
+    for (const tone of ['accent', 'success', 'warning', 'danger'] as const) {
+      for (const set of [base, seeds]) {
+        const ink = evaluateRecipe(standard, set, 'dark')[`--slotted-tone-${tone}-text`]!;
+        if (ink.c < MINIMUM) misses.push(`${tone}: chroma ${ink.c.toFixed(3)}`);
+      }
+    }
+    expect(misses).toEqual([]);
+  });
+
   it('keeps the accent hue in the dark edge and ink for any accent seed', () => {
     const misses: string[] = [];
     const tokens = ['--slotted-tone-accent-border', '--slotted-tone-accent-text'];
