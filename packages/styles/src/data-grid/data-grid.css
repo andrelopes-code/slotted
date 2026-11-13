@@ -537,6 +537,23 @@
     margin-inline-start: auto;
   }
 
+  /**
+   * An end-aligned header ends its name where its values end, so the slot
+   * leaves the flow and stands over the start side of the name, where the name
+   * is short of the column's width. Reserved at the trailing edge it left the
+   * name the slot's width short of the numbers under it.
+   */
+  [data-ui-data-grid]
+    [data-part-column-header]:is([data-align='end'], [data-numeric]:not([data-align]))
+    > [data-part-column-actions] {
+    inset-block-start: 50%;
+    inset-inline-start: var(--_pad-inline);
+    margin-block: 0;
+    margin-inline-start: 0;
+    position: absolute;
+    translate: 0 -50%;
+  }
+
   [data-ui-data-grid] [data-part-column-actions] *:has([data-part-filter]) {
     display: contents;
   }

@@ -517,6 +517,19 @@ describe('SlDataGrid', () => {
     expect(root().querySelectorAll('[data-part="row"]')).toHaveLength(6);
   });
 
+  /** The label stands where the first column's aggregate would, so the row stays one line. */
+  it('draws the group label over an aggregating first column, and no cell for its aggregate', () => {
+    host.columnState.set({
+      order: ['weight', 'id', 'customer', 'carrier', 'shipped', 'priority'],
+    });
+    host.query.set({ ...emptyQuery(), group: ['carrier'] });
+    fixture.detectChanges();
+    const group = root().querySelector('[data-part="group-row"]')!;
+
+    expect(group.querySelector('[data-column="weight"][data-aggregate]')).toBeNull();
+    expect(group.querySelectorAll('[role="gridcell"]')).toHaveLength(1);
+  });
+
   it('groups, with counts and aggregates, and closes a group with the left arrow', () => {
     host.query.set({ ...emptyQuery(), group: ['carrier'] });
     host.current.set({ row: 'group:carrier=DHL', column: 'id' });

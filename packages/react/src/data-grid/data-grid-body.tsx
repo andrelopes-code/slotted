@@ -544,7 +544,8 @@ function GroupRow<Row>({
   const grid = useDataGridInternal<Row>();
   const cursorRow = `${GROUP_ROW_PREFIX}${node.key}`;
   const column = grid.columns.find((entry) => entry.id === node.column);
-  const aggregated = grid.resolved.filter((entry) => entry.column.aggregate !== undefined);
+  /* The label stands where the first column's aggregate would: the summary draws that one. */
+  const aggregated = grid.resolved.slice(1).filter((entry) => entry.column.aggregate !== undefined);
   const firstAggregate =
     aggregated.length > 0
       ? Math.min(...aggregated.map((entry) => grid.columnIds.indexOf(entry.id) + 1))

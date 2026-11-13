@@ -1224,7 +1224,7 @@ function contentWidth(cell: HTMLElement): number {
                     <span data-count="">{{ groupCount(entry.node) }}</span>
                   }
                 </div>
-                @for (column of aggregated(); track column.id) {
+                @for (column of groupAggregated(); track column.id) {
                   <div
                     role="gridcell"
                     [attr.aria-colindex]="indexOf(column.id)"
@@ -2020,6 +2020,12 @@ export class SlDataGrid<Row = unknown> implements ControlValueAccessor {
   protected readonly aggregated = computed(() =>
     this.resolved().filter((column) => column.column.aggregate !== undefined),
   );
+  /** A group row's aggregates: the label stands where the first column's would, and the summary draws that one. */
+  protected readonly groupAggregated = computed(() =>
+    this.resolved()
+      .slice(1)
+      .filter((column) => column.column.aggregate !== undefined),
+  );
   /** The aggregating columns in the pop-in: the summary row draws their totals in its own. */
   protected readonly popinAggregated = computed(() =>
     this.popinColumns().filter((column) => column.column.aggregate !== undefined),
@@ -2030,7 +2036,7 @@ export class SlDataGrid<Row = unknown> implements ControlValueAccessor {
       this.resolvedMode() === 'client',
   );
   protected readonly firstAggregateIndex = computed(() => {
-    const aggregated = this.aggregated();
+    const aggregated = this.groupAggregated();
     return aggregated.length === 0
       ? this.columnIds().length + 1
       : Math.min(...aggregated.map((column) => this.indexOf(column.id)));

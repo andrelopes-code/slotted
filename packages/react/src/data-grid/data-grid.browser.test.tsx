@@ -1,3 +1,4 @@
+import { emptyQuery } from '@slotted/core/grid';
 import { act, render } from '@testing-library/react';
 import { useState } from 'react';
 import { cdp, userEvent } from 'vitest/browser';
@@ -224,6 +225,83 @@ describe('DataGrid with a template that fits its frame', () => {
     await frame();
     const scroller = container.querySelector('[data-part="scroll"]') as HTMLElement;
     expect(scroller.scrollWidth - scroller.clientWidth).toBe(0);
+  });
+});
+
+/**
+ * A group row is one row tall whatever the first visible column aggregates:
+ * the label takes that column's place, and the summary draws its aggregate.
+ */
+describe('DataGrid group row over an aggregating first column', () => {
+  it('stays one row tall, and the summary names itself', async () => {
+    const { container } = render(
+      <DataGrid<Entry>
+        aria-label="Entries"
+        columns={[
+          { id: 'group', label: 'Group', accessor: () => 'A' },
+          { id: 'payee', label: 'Payee', flex: 1, aggregate: () => 'Total' },
+          { id: 'amount', label: 'Amount', kind: 'number', aggregate: 'sum' },
+        ]}
+        defaultColumnState={{ hidden: ['group'] }}
+        defaultQuery={{ ...emptyQuery(), group: ['group'] }}
+        rowHeight={44}
+        rowKey="id"
+        rows={ROWS.slice(0, 5)}
+        virtualize={false}
+      />,
+    );
+    await frame();
+    await frame();
+    const group = container.querySelector<HTMLElement>('[data-part="group-row"]')!;
+    const summary = container.querySelector<HTMLElement>(
+      '[data-part="summary-cell"][data-column="payee"]',
+    )!;
+
+    /* The group row carries its own 1px rule and a half pixel of line height; a
+       second line would add a whole row. */
+    expect(group.getBoundingClientRect().height).toBeLessThanOrEqual(44 + 2);
+    expect(summary).toHaveTextContent('Total');
+  });
+});
+
+/**
+ * The end of a numeric header's label and the end of its numbers share one
+ * edge while the column actions are hidden.
+ */
+describe('DataGrid numeric column header', () => {
+  it('ends its label where the numbers end', async () => {
+    const { container } = render(
+      <DataGrid<Entry>
+        aria-label="Entries"
+        columns={[
+          {
+            id: 'amount',
+            label: 'Amount',
+            accessor: 'amount',
+            kind: 'number',
+            numeric: true,
+            width: 220,
+          },
+        ]}
+        rowKey="id"
+        rows={ROWS.slice(0, 3)}
+        virtualize={false}
+      />,
+    );
+    await frame();
+    await frame();
+    const textEnd = (selector: string) => {
+      const cell = container.querySelector<HTMLElement>(selector)!;
+      const range = document.createRange();
+      range.selectNodeContents(cell.querySelector('span') ?? cell);
+      const rects = [...range.getClientRects()];
+      return Math.max(...rects.map((rect) => rect.right));
+    };
+
+    const header = textEnd('[role="columnheader"]');
+    const cell = textEnd('[role="gridcell"]');
+
+    expect(Math.abs(header - cell)).toBeLessThanOrEqual(1);
   });
 });
 
