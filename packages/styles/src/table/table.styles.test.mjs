@@ -190,6 +190,13 @@ test('stands on the ground its container publishes before the page surface', () 
   );
 });
 
+test('pins a column on the ground its container publishes before the page surface', () => {
+  assert.match(
+    normalized,
+    /var\(--slotted-table-sticky-surface,var\(--slotted-ground,var\(--slotted-surface,Canvas\)\)\)/,
+  );
+});
+
 /**
  * `page.css` binds `--slotted-table-sticky-offset` to the page's fixed chrome
  * for every table under it. A header that sticks to the family's own scroller

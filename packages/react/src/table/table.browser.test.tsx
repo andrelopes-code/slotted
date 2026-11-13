@@ -80,6 +80,15 @@ describe('a pinned column of a framed table wider than its scroller', () => {
 
     expect(ground('td[data-sticky="end"]')).toBe('rgb(1, 2, 3)');
   });
+
+  it('paints the ground of the region it stands in under the row ground', () => {
+    const { container } = render(table('light'));
+    const root = container.querySelector('[data-ui="table"]') as HTMLElement;
+    (root.parentElement as HTMLElement).style.setProperty('--slotted-ground', 'rgb(10, 20, 30)');
+    root.style.setProperty('--slotted-table-surface', 'transparent');
+
+    expect(ground('td[data-sticky="end"]')).toBe('rgb(10, 20, 30)');
+  });
 });
 
 /**
