@@ -89,6 +89,10 @@ test('bridges its fixed geometry to table and states its ground for sections', (
   assert.match(root, /--slotted-page-ground:var\(--_ground\)/);
 });
 
+test('publishes the ground it paints as --slotted-ground', () => {
+  assert.match(rule(ui), /--slotted-ground:var\(--_ground\)/);
+});
+
 /**
  * Fill is a layout for the medium class and up. Below 600 pixels the body
  * grows with its content and the page scrolls: on a phone the chrome above a
