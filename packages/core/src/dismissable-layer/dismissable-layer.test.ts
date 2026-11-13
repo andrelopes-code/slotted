@@ -658,6 +658,47 @@ describe('createDismissableLayer', () => {
       expect(element('side').hasAttribute('inert')).toBe(false);
     });
 
+    it('reads a press outside it as its own, and leaves the layers under it open', () => {
+      mount(`
+        <div id="lower"><div id="lower-panel"></div></div>
+        <div id="upper"><div id="scrim"></div><div id="upper-panel"></div></div>`);
+      const lower = recorder();
+      const upper = recorder();
+      const first = createDismissableLayer(element('lower'), { ...lower, modal: true });
+      const second = createDismissableLayer(element('upper'), {
+        ...upper,
+        modal: true,
+        content: element('upper-panel'),
+      });
+
+      press(element('scrim'));
+
+      expect(upper.reasons).toEqual(['outsidePress']);
+      expect(lower.reasons).toEqual([]);
+      second.destroy();
+      first.destroy();
+    });
+
+    it('shields the layers under it when it refuses outside presses', () => {
+      mount(`
+        <div id="lower"></div>
+        <div id="upper"><div id="scrim"></div><div id="upper-panel"></div></div>`);
+      const lower = recorder();
+      const first = createDismissableLayer(element('lower'), { ...lower, modal: true });
+      const second = createDismissableLayer(element('upper'), {
+        ...recorder(),
+        modal: true,
+        outsidePress: false,
+        content: element('upper-panel'),
+      });
+
+      press(element('scrim'));
+
+      expect(lower.reasons).toEqual([]);
+      second.destroy();
+      first.destroy();
+    });
+
     it('leaves an element that was already inert as it found it', () => {
       element('side').setAttribute('inert', '');
       const handle = createDismissableLayer(element('layer'), {

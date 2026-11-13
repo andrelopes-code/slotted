@@ -310,16 +310,20 @@ function handlePress(state: DocumentStack, event: Event) {
 
   /* Top down, so a submenu is asked before the menu it opened from. */
   for (const layer of [...state.layers].reverse()) {
+    const inside =
+      owns(state, layer, event.target) || (began !== null && owns(state, layer, began));
+    if (inside) continue;
+
     const wanted = layer.options.outsidePressEvent ?? 'pointerdown';
-    if (event.type !== wanted) continue;
-
     const outside = layer.options.outsidePress ?? true;
-    if (outside === false) continue;
-    if (owns(state, layer, event.target)) continue;
-    if (began !== null && owns(state, layer, began)) continue;
-    if (typeof outside === 'function' && !outside(event.target, event)) continue;
+    const counts =
+      event.type === wanted &&
+      outside !== false &&
+      (typeof outside !== 'function' || outside(event.target, event));
+    if (counts && !request(layer, 'outsidePress', event)) return;
 
-    if (!request(layer, 'outsidePress', event)) return;
+    /* A modal layer covers the layers under it: a press outside it is not a press on them. */
+    if (layer.options.modal === true) return;
   }
 }
 

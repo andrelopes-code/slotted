@@ -403,6 +403,35 @@ describe('Dialog', () => {
     );
   });
 
+  /** A press on the scrim of the topmost of two stacked dialogs closes that one only. */
+  it('closes the topmost dialog on its scrim and leaves the one under it open', async () => {
+    const onOuter = vi.fn();
+    const onInner = vi.fn();
+    render(
+      <Dialog defaultOpen onOpenChange={onOuter}>
+        <DialogContent>
+          <DialogTitle>Outer</DialogTitle>
+          <Dialog defaultOpen onOpenChange={onInner}>
+            <DialogContent>
+              <DialogTitle>Inner</DialogTitle>
+            </DialogContent>
+          </Dialog>
+        </DialogContent>
+      </Dialog>,
+    );
+    const scrims = document.querySelectorAll('[data-part="backdrop"]');
+    const topmost = scrims[scrims.length - 1] as HTMLElement;
+
+    fireEvent.pointerDown(topmost);
+    fireEvent.click(topmost);
+
+    expect(onInner).toHaveBeenCalledWith(
+      false,
+      expect.objectContaining({ reason: 'outsidePress' }),
+    );
+    expect(onOuter).not.toHaveBeenCalled();
+  });
+
   /** The trigger is a branch of the layer, or opening would close it again. */
   it('does not read a press on its own trigger as a press outside', () => {
     const onOpenChange = vi.fn();
