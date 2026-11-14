@@ -604,6 +604,31 @@
   }
 
   /**
+   * The leading control outside the box (LI2 for a row whose box is a link or
+   * a button). It stands where the box's own leading column would: the row's
+   * inline inset before it, the chooser's square, on the title's first line,
+   * and the control gap before the box, which gives up its own start inset.
+   */
+  [data-ui-list-item] > [data-part-select] {
+    align-items: start;
+    display: flex;
+    flex: none;
+    inline-size: var(--_control-size);
+    min-block-size: calc(var(--_font-size) * var(--slotted-line-height-md, 1.5));
+    padding-block-start: var(--_pad-block);
+    padding-inline-start: var(--_pad-inline);
+    position: relative;
+  }
+
+  [data-ui-list-item][data-inset] > [data-part-select] {
+    padding-inline-start: 0;
+  }
+
+  [data-ui-list-item] > [data-part-select] + [data-part-content] {
+    padding-inline-start: var(--_gap);
+  }
+
+  /**
    * The independent targets follow `align` for the same reason the leading
    * visual and the metadata do. Left centerd on the block while `end` sat on
    * the title's line, a row of two lines put its badge and its delete control

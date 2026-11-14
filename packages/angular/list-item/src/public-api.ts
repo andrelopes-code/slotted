@@ -18,5 +18,6 @@ export {
   SlListItemDescription,
   SlListItemEnd,
   SlListItemLabel,
+  SlListItemSelect,
   SlListItemStart,
 } from './list-item-parts';

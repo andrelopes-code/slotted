@@ -24,7 +24,7 @@ export const REACT_LIST_ITEM_TOKENS = listItemTokens.map((name) => ({
 
 const imports: ReferenceImport = {
   source:
-    "import { ListItem, ListItemActions, ListItemBody, ListItemButton, ListItemContent, ListItemDefaultsProvider, ListItemDescription, ListItemEnd, ListItemLabel, ListItemLink, ListItemStart } from '@slotted/react';",
+    "import { ListItem, ListItemActions, ListItemBody, ListItemButton, ListItemContent, ListItemDefaultsProvider, ListItemDescription, ListItemEnd, ListItemLabel, ListItemLink, ListItemSelect, ListItemStart } from '@slotted/react';",
 };
 
 const anatomy: AnatomyRow[] = [
@@ -42,6 +42,14 @@ const anatomy: AnatomyRow[] = [
     required: false,
     purpose:
       'The bullet, rendered only when marker is bullet: the dot Glyph in the marker column, before content and hidden from assistive technology. A numbered marker is a counter the stylesheet writes, because it is text.',
+  },
+  {
+    part: 'select',
+    parent: 'root',
+    element: 'div',
+    required: false,
+    purpose:
+      "A leading control, a sibling before the box: the checkbox of a row whose box is a link or a button, which may not hold interactive content. It takes the leading column's chooser square on the title's first line.",
   },
   {
     part: 'content',
@@ -248,24 +256,36 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'The families beside it',
-    note: 'Checkbox announces the selection the row paints, Badge carries the count, Button is the independent target, Icon is the leading visual. The row draws none of the four.',
+    note: 'Checkbox announces the selection the row paints, Badge carries the count, Button is the independent target, Icon is the leading visual. The row draws none of the four. A row whose box is a link takes its checkbox in ListItemSelect, before the link, because an anchor may not hold a checkbox.',
     snippet: defineSnippet({
       id: 'list-item-react-composition-scene',
       language: 'tsx',
       label: 'A row of an inbox',
-      source: `<ListItem selected>
-  <ListItemContent>
-    <ListItemStart>
+      source: `<>
+  <ListItem selected>
+    <ListItemContent>
+      <ListItemStart>
+        <Checkbox aria-label="Select" checked />
+      </ListItemStart>
+      <ListItemBody>
+        <ListItemLabel>Quarterly report</ListItemLabel>
+      </ListItemBody>
+      <ListItemEnd>
+        <Badge tone="accent">3</Badge>
+      </ListItemEnd>
+    </ListItemContent>
+  </ListItem>
+  <ListItem selected>
+    <ListItemSelect>
       <Checkbox aria-label="Select" checked />
-    </ListItemStart>
-    <ListItemBody>
-      <ListItemLabel>Quarterly report</ListItemLabel>
-    </ListItemBody>
-    <ListItemEnd>
-      <Badge tone="accent">3</Badge>
-    </ListItemEnd>
-  </ListItemContent>
-</ListItem>;`,
+    </ListItemSelect>
+    <ListItemLink href="/reports/annual">
+      <ListItemBody>
+        <ListItemLabel>Annual report</ListItemLabel>
+      </ListItemBody>
+    </ListItemLink>
+  </ListItem>
+</>;`,
     }),
   },
   {

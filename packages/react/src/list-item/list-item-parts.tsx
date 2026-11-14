@@ -69,3 +69,11 @@ export const ListItemEnd = region('end');
  * no browser can make focusable.
  */
 export const ListItemActions = region('actions');
+
+/**
+ * A leading control, a **sibling** of the box before it, for the reason
+ * `ListItemActions` is one at the end: a row whose box is a link or a button
+ * cannot hold a checkbox inside it. It takes the leading column's chooser
+ * square, so a link row selected for a bulk command keeps its checkbox first.
+ */
+export const ListItemSelect = region('select');

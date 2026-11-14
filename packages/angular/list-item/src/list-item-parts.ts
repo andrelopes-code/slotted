@@ -93,6 +93,20 @@ export class SlListItemEnd {}
  * surveyed implementation lets a consumer nest them instead and produces HTML
  * no browser can make focusable.
  */
+/**
+ * A leading control, a **sibling** of the box before it, for the reason
+ * `slListItemActions` is one at the end: a row whose box is a link or a button
+ * cannot hold a checkbox inside it. It takes the leading column's chooser
+ * square, so a link row selected for a bulk command keeps its checkbox first.
+ */
+@Directive({
+  selector: '[slListItemSelect]',
+  standalone: true,
+  exportAs: 'slListItemSelect',
+  host: { 'data-part': 'select', 'data-part-select': '' },
+})
+export class SlListItemSelect {}
+
 @Directive({
   selector: '[slListItemActions]',
   standalone: true,

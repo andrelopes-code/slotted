@@ -35,8 +35,13 @@
     "sibling": "content",
     "reason": "Interactive content may not nest inside `a` or `button`. A row that navigates and also carries a delete control has to place the two side by side, and every surveyed implementation lets a consumer nest them instead. It is the decision `tag` took for `remove`, stated once for every member."
   },
+  "selectPlacement": {
+    "part": "select",
+    "sibling": "content",
+    "reason": "The leading checkbox of a row selected for a bulk command is interactive content too. Inside a content part that is a link or a button it would nest inside `a` or `button`, so a link row takes its checkbox in a select part before the box, in the leading column's chooser square."
+  },
   "nesting": {
-    "tree": "root > [marker] content (div, button or a) > [start] body > label, description; [end] inside content; actions beside content, inside root",
+    "tree": "root > [marker] [select] content (div, button or a) > [start] body > label, description; [end] inside content; select before content and actions beside content, inside root",
     "endOrActions": "end takes metadata, inside the box and part of its name; actions takes controls, beside the box",
     "check": "in development, body, label and description outside a content part, and a content part inside a body, call console.error once per part, naming the expected parent. React reads a context the content part sets and Angular its injector, so the check holds under render; a production build drops it"
   },
@@ -169,6 +174,7 @@
       "parts": [
         "root",
         "marker",
+        "select",
         "content",
         "start",
         "body",

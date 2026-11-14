@@ -7,6 +7,7 @@ export {
   ListItemDescription,
   ListItemEnd,
   ListItemLabel,
+  ListItemSelect,
   ListItemStart,
 } from './list-item-parts';
 export type {

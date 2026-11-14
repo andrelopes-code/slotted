@@ -33,6 +33,7 @@ test('is one row whose regions are parts rather than families', () => {
   assert.deepEqual(contract.members.listItem.parts, [
     'root',
     'marker',
+    'select',
     'content',
     'start',
     'body',
@@ -70,6 +71,9 @@ test('places independent targets beside the actionable box, never inside it', ()
   assert.equal(contract.actionsPlacement.sibling, 'content');
   const parts = contract.members.listItem.parts;
   assert.ok(parts.indexOf('actions') > parts.indexOf('content'));
+  assert.equal(contract.selectPlacement.part, 'select');
+  assert.equal(contract.selectPlacement.sibling, 'content');
+  assert.ok(parts.indexOf('select') < parts.indexOf('content'));
 });
 
 /** Three elements, one row. The default claims nothing the content does not. */

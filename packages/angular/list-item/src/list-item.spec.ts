@@ -14,8 +14,40 @@ import {
   SlListItemDescription,
   SlListItemEnd,
   SlListItemLabel,
+  SlListItemSelect,
   SlListItemStart,
 } from './list-item-parts';
+
+@Component({
+  imports: [SlListItem, SlListItemBody, SlListItemContent, SlListItemLabel, SlListItemSelect],
+  template: `
+    <ul>
+      <li slListItem selected>
+        <div slListItemSelect><input type="checkbox" aria-label="Select line" /></div>
+        <a slListItemContent href="#line-1">
+          <span slListItemBody><span slListItemLabel>Line</span></span>
+        </a>
+      </li>
+    </ul>
+  `,
+})
+class LinkRowHost {}
+
+describe('a link row with a leading checkbox', () => {
+  it('holds the checkbox in a select part before the anchor, never inside it', () => {
+    const fixture = TestBed.createComponent(LinkRowHost);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const select = root.querySelector('[data-part="select"]')!;
+    const link = root.querySelector('a')!;
+    const checkbox = root.querySelector('input')!;
+
+    expect(select.getAttribute('data-part-select')).toBe('');
+    expect(select.parentElement?.getAttribute('data-ui')).toBe('list-item');
+    expect(link.contains(checkbox)).toBe(false);
+    expect(select.nextElementSibling).toBe(link);
+  });
+});
 
 @Component({
   imports: [

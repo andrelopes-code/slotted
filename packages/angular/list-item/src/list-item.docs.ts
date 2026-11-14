@@ -24,11 +24,11 @@ export const ANGULAR_LIST_ITEM_TOKENS = listItemTokens.map((name) => ({
 
 const imports: ReferenceImport = {
   source:
-    "import { SlListItem, SlListItemActions, SlListItemBody, SlListItemContent, SlListItemDescription, SlListItemEnd, SlListItemLabel, SlListItemStart } from '@slotted/angular/list-item';",
+    "import { SlListItem, SlListItemActions, SlListItemBody, SlListItemContent, SlListItemDescription, SlListItemEnd, SlListItemLabel, SlListItemSelect, SlListItemStart } from '@slotted/angular/list-item';",
   selector:
-    'li[slListItem], [slListItemContent], [slListItemStart], [slListItemBody], [slListItemLabel], [slListItemDescription], [slListItemEnd], [slListItemActions]',
+    'li[slListItem], [slListItemContent], [slListItemStart], [slListItemBody], [slListItemLabel], [slListItemDescription], [slListItemEnd], [slListItemActions], [slListItemSelect]',
   exportAs:
-    'slListItem, slListItemContent, slListItemStart, slListItemBody, slListItemLabel, slListItemDescription, slListItemEnd, slListItemActions',
+    'slListItem, slListItemContent, slListItemStart, slListItemBody, slListItemLabel, slListItemDescription, slListItemEnd, slListItemActions, slListItemSelect',
 };
 
 const anatomy: AnatomyRow[] = [
@@ -46,6 +46,14 @@ const anatomy: AnatomyRow[] = [
     required: false,
     purpose:
       'The bullet, rendered only when marker is bullet: the dot Glyph in the marker column, before content and hidden from assistive technology. A numbered marker is a counter the stylesheet writes, because it is text.',
+  },
+  {
+    part: 'select',
+    parent: 'root',
+    element: 'div',
+    required: false,
+    purpose:
+      "A leading control, a sibling before the box: the checkbox of a row whose box is a link or a button, which may not hold interactive content. It takes the leading column's chooser square on the title's first line.",
   },
   {
     part: 'content',
@@ -246,7 +254,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'The families beside it',
-    note: 'slCheckbox announces the selection the row paints, slBadge carries the count, slButton is the independent target. The row draws none of the three.',
+    note: 'slCheckbox announces the selection the row paints, slBadge carries the count, slButton is the independent target. The row draws none of the three. A row whose box is a link takes its checkbox in slListItemSelect, before the link, because an anchor may not hold a checkbox.',
     snippet: defineSnippet({
       id: 'list-item-angular-composition-scene',
       language: 'angular',
@@ -261,6 +269,16 @@ const scenes: ReferenceSceneMeta[] = [
     </span>
     <span slListItemEnd><span slBadge tone="accent">3</span></span>
   </div>
+</li>
+<li slListItem selected>
+  <div slListItemSelect>
+    <span slCheckbox [checked]="true" aria-label="Select"></span>
+  </div>
+  <a slListItemContent href="/reports/annual">
+    <span slListItemBody>
+      <span slListItemLabel>Annual report</span>
+    </span>
+  </a>
 </li>`,
     }),
   },
