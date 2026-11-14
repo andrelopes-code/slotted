@@ -93,6 +93,7 @@ export const TABLE_ROW_SELECTOR = '[data-part="body"] > [data-part="row"][data-v
     'data-part-root': '',
     '[attr.data-variant]': 'resolvedVariant()',
     '[attr.data-edges]': 'resolvedEdges()',
+    '[attr.data-guides]': "resolvedGuides() ? null : 'false'",
     '[attr.data-layout]': 'resolvedLayout()',
     '[attr.data-cell-align]': 'resolvedCellAlign()',
     '[attr.data-striped]': "resolvedStriped() ? '' : null",
@@ -117,6 +118,13 @@ export class SlTable implements ControlValueAccessor {
    * around it; a `framed` table ignores it.
    */
   readonly edges = input<TableEdges | undefined>(undefined);
+  /**
+   * Draws a line per ancestor level beside the rows that name a `parent`, on
+   * the center of the expander one level up. On by default.
+   */
+  readonly guides = input<boolean | undefined, boolean | string | undefined>(undefined, {
+    transform: (state) => (state === undefined ? undefined : booleanAttribute(state)),
+  });
   readonly layout = input<TableLayout | undefined>(undefined);
   readonly selectionMode = input<TableSelectionMode | undefined>(undefined);
   /**
@@ -178,6 +186,7 @@ export class SlTable implements ControlValueAccessor {
 
   readonly resolvedVariant = computed(() => this.variant() ?? this.defaults.variant);
   readonly resolvedEdges = computed(() => this.edges() ?? this.defaults.edges);
+  readonly resolvedGuides = computed(() => this.guides() ?? this.defaults.guides);
   readonly resolvedLayout = computed(() => this.layout() ?? this.defaults.layout);
   readonly resolvedCellAlign = computed(() => this.cellAlign() ?? this.defaults.cellAlign);
   readonly resolvedMode = computed(() => this.selectionMode() ?? this.defaults.selectionMode);

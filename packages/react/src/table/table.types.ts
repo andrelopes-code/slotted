@@ -326,6 +326,7 @@ export interface TableDefaults {
   cellAlign?: TableAlign | undefined;
   columns?: number | undefined;
   edges?: TableEdges | undefined;
+  guides?: boolean | undefined;
   layout?: TableLayout | undefined;
   selectionMode?: TableSelectionMode | undefined;
   stickyFooter?: boolean | undefined;
@@ -376,6 +377,11 @@ export interface TableProps extends Omit<ComponentPropsWithRef<'div'>, 'onChange
   columns?: number | undefined;
   defaultExpanded?: readonly string[] | undefined;
   defaultSort?: TableSortDescriptor | null | undefined;
+  /**
+   * Draws a line per ancestor level beside the rows that name a `parent`, on
+   * the center of the expander one level up. On by default.
+   */
+  guides?: boolean | undefined;
   defaultValue?: readonly string[] | undefined;
   expanded?: readonly string[] | undefined;
   layout?: TableLayout | undefined;
@@ -435,6 +441,10 @@ export interface TableContextValue {
   expanded: readonly string[];
   id: string;
   isExpanded: (value: string) => boolean;
+  /** Whether a parent row is open and every row above it is open too. */
+  isOpenBranch: (value: string) => boolean;
+  /** Records the parent a row names, so a grandchild hides with its grandparent. */
+  registerParent: (value: string, parent: string) => void;
   isSelected: (value: string) => boolean;
   loading: boolean;
   requestSort: (column: string, source: unknown) => void;
@@ -476,6 +486,16 @@ export interface TableRowContextValue {
 }
 
 export interface TableRowProps extends ComponentPropsWithRef<'tr'> {
+  /**
+   * How deep the row sits under the rows that fold it, from 0. The first cell
+   * that is not the selection is indented by this many steps.
+   */
+  level?: number | undefined;
+  /**
+   * The value of the row whose expander folds this one. The row is not
+   * rendered while that row, or any row above it, is closed.
+   */
+  parent?: string | undefined;
   /**
    * The row the page is showing elsewhere — the record open in a detail pane
    * beside the table. Written as `aria-current="true"` and painted with a

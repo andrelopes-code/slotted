@@ -1101,6 +1101,81 @@ describe('expansion', () => {
   });
 });
 
+describe('rows that fold their children', () => {
+  function Accounts() {
+    return (
+      <Table columns={2} defaultExpanded={['assets']}>
+        <TableContent>
+          <TableBody>
+            <TableRow level={0} value="assets">
+              <TableRowHeader>
+                <TableExpander />
+                Assets
+              </TableRowHeader>
+              <TableCell>1,500.00</TableCell>
+            </TableRow>
+            <TableRow level={1} parent="assets" value="cash">
+              <TableRowHeader>Cash</TableRowHeader>
+              <TableCell>500.00</TableCell>
+            </TableRow>
+            <TableRow level={1} parent="assets" value="bank">
+              <TableRowHeader>Bank</TableRowHeader>
+              <TableCell>1,000.00</TableCell>
+            </TableRow>
+          </TableBody>
+        </TableContent>
+      </Table>
+    );
+  }
+
+  it('opens over its children, and removes them from the document when it closes', () => {
+    render(<Accounts />);
+    const toggle = screen.getByRole('button');
+    const children = ['Cash', 'Bank'].map((name) => screen.getByText(name).closest('tr')!);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(toggle.getAttribute('aria-controls')?.split(' ')).toEqual(children.map((row) => row.id));
+    expect(children.map((row) => row.getAttribute('data-level'))).toEqual(['1', '1']);
+
+    fireEvent.click(toggle);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('Cash')).toBeNull();
+    expect(screen.queryByText('Bank')).toBeNull();
+    expect(toggle).not.toHaveAttribute('aria-controls');
+  });
+
+  it('hides a grandchild when its grandparent closes', () => {
+    render(
+      <Table columns={1} defaultExpanded={['a', 'b']}>
+        <TableContent>
+          <TableBody>
+            <TableRow level={0} value="a">
+              <TableCell>
+                <TableExpander />A
+              </TableCell>
+            </TableRow>
+            <TableRow level={1} parent="a" value="b">
+              <TableCell>
+                <TableExpander />B
+              </TableCell>
+            </TableRow>
+            <TableRow level={2} parent="b" value="c">
+              <TableCell>C</TableCell>
+            </TableRow>
+          </TableBody>
+        </TableContent>
+      </Table>,
+    );
+    expect(screen.getByText('C')).toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByRole('button')[0]!);
+
+    expect(screen.queryByText('B')).toBeNull();
+    expect(screen.queryByText('C')).toBeNull();
+  });
+});
+
 describe('the size of a set the DOM does not hold', () => {
   it('writes the pair only when the consumer states a total', () => {
     const { rerender } = render(<Invoices />);

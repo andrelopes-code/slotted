@@ -405,6 +405,67 @@ describe('the language in force', () => {
   });
 });
 
+@Component({
+  standalone: true,
+  imports: [
+    SlTable,
+    SlTableContent,
+    SlTableBody,
+    SlTableRow,
+    SlTableRowHeader,
+    SlTableCell,
+    SlTableExpander,
+  ],
+  template: `<div slTable #table="slTable" [columns]="2" [(expanded)]="expanded">
+    <div slTableContent>
+      <table>
+        <tbody slTableBody>
+          <tr slTableRow value="assets" [level]="0">
+            <th slTableRowHeader><button slTableExpander></button>Assets</th>
+            <td slTableCell>1,500.00</td>
+          </tr>
+          @if (table.isExpanded('assets')) {
+            <tr slTableRow value="cash" parent="assets" [level]="1">
+              <th slTableRowHeader>Cash</th>
+              <td slTableCell>500.00</td>
+            </tr>
+            <tr slTableRow value="bank" parent="assets" [level]="1">
+              <th slTableRowHeader>Bank</th>
+              <td slTableCell>1,000.00</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>`,
+})
+class Accounts {
+  readonly expanded = signal<readonly string[]>(['assets']);
+}
+
+describe('rows that fold their children', () => {
+  it('opens over its children, and removes them from the document when it closes', async () => {
+    await TestBed.configureTestingModule({ imports: [Accounts] }).compileComponents();
+    const fixture = TestBed.createComponent(Accounts);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const toggle = query(fixture, '[data-part="expander"]');
+    const children = [...fixture.nativeElement.querySelectorAll('tr[data-parent="assets"]')];
+
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(toggle.getAttribute('aria-controls')?.split(' ')).toEqual(children.map((row) => row.id));
+    expect(children.map((row) => row.getAttribute('data-level'))).toEqual(['1', '1']);
+
+    toggle.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(fixture.nativeElement.querySelector('tr[data-parent]')).toBeNull();
+    expect(toggle.hasAttribute('aria-controls')).toBe(false);
+  });
+});
+
 describe('an application setting the family once', () => {
   it('is overridden by a table that states the axis itself', async () => {
     await TestBed.configureTestingModule({

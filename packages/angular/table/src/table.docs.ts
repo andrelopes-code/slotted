@@ -694,6 +694,13 @@ export const ANGULAR_TABLE_DOCS = {
       ],
       ['striped', 'boolean', 'false', 'slTable', 'A tinted ground on every second record'],
       [
+        'guides',
+        'boolean',
+        'true',
+        'slTable',
+        'A line per ancestor level beside the rows that name a parent, on the center of the expander one level up',
+      ],
+      [
         'stickyHeader',
         'boolean',
         'false',
@@ -841,6 +848,20 @@ export const ANGULAR_TABLE_DOCS = {
         '—',
         'slTableRow',
         'The record key the selection and the expansion are held by',
+      ],
+      [
+        'level',
+        'number',
+        '—',
+        'slTableRow',
+        'How deep the row sits under the rows that fold it, from 0. The first cell that is not the selection is indented by this many steps, and a cell without an expander keeps its box as space',
+      ],
+      [
+        'parent',
+        'string',
+        '—',
+        'slTableRow',
+        'The value of the row whose expander folds this one. The consumer writes the @if around it, table.isExpanded(parent), as for a detail row.',
       ],
       [
         'disabled',

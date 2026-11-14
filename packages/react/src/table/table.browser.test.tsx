@@ -8,6 +8,7 @@ import {
   TableCell,
   TableColumnHeader,
   TableContent,
+  TableExpander,
   TableHead,
   TableRow,
 } from './index';
@@ -168,5 +169,55 @@ describe('the padding of a table cell', () => {
     expect(getComputedStyle(probe).paddingTop).toBe(style.paddingTop);
     expect(getComputedStyle(probe).paddingLeft).toBe(style.paddingLeft);
     expect(style.paddingLeft).not.toBe('0px');
+  });
+});
+
+/**
+ * A child row carries the line one level up on the center of its parent's
+ * expander, through its whole height and over the rule above it, so the line
+ * stays continuous across rows of any height.
+ */
+describe('the guide of a folded row', () => {
+  it('stands on the center of the parent’s expander and spans the last child', () => {
+    render(
+      <Table columns={2} defaultExpanded={['assets']}>
+        <TableContent>
+          <TableBody>
+            <TableRow level={0} value="assets">
+              <TableCell>
+                <TableExpander />
+                Assets
+              </TableCell>
+              <TableCell>1,500.00</TableCell>
+            </TableRow>
+            <TableRow level={1} parent="assets" value="cash">
+              <TableCell>Cash</TableCell>
+              <TableCell>500.00</TableCell>
+            </TableRow>
+            <TableRow level={1} parent="assets" value="bank">
+              <TableCell>
+                Bank
+                <br />
+                Second line
+              </TableCell>
+              <TableCell>1,000.00</TableCell>
+            </TableRow>
+          </TableBody>
+        </TableContent>
+      </Table>,
+    );
+    const expander = document.querySelector('[data-part="expander"]')!.getBoundingClientRect();
+    const last = document.querySelector('tr[data-value="bank"] > td')!;
+    const cell = last.getBoundingClientRect();
+    const guide = getComputedStyle(last, '::before');
+    const line = cell.left + parseFloat(guide.left);
+    const text = document.createRange();
+    text.selectNodeContents(last);
+
+    expect(Math.abs(line - (expander.left + expander.width / 2))).toBeLessThan(1);
+    /* The padding box, the rule above it, and not the rule under it, which the next row covers. */
+    expect(parseFloat(guide.height)).toBeCloseTo(cell.height, 0);
+    expect(parseFloat(guide.width)).toBeGreaterThan(0);
+    expect(text.getBoundingClientRect().left).toBeGreaterThan(line);
   });
 });

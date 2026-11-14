@@ -3,6 +3,7 @@ import { isRowAction } from '@slotted/core/pointer-intent';
 import {
   createContext,
   useContext,
+  useLayoutEffect,
   useRef,
   type CSSProperties,
   type MouseEvent,
@@ -136,16 +137,21 @@ export function TableRow({
   current,
   disabled,
   interactive,
+  level,
   muted,
   onAction,
   onClick,
+  parent,
   ref,
   render,
   rowIndex,
+  style,
   value,
   ...nativeProps
 }: TableRowProps) {
   const table = useTable();
+  if (parent !== undefined && value !== undefined) table.registerParent(value, parent);
+
   const selected = value !== undefined && table.isSelected(value);
   const expanded = value !== undefined && table.isExpanded(value);
   const pressable = interactive ?? onAction !== undefined;
@@ -164,6 +170,15 @@ export function TableRow({
 
   const rowProps = keyedProps({
     ...nativeProps,
+    ...(parent === undefined
+      ? {}
+      : { 'data-parent': parent, id: nativeProps.id ?? `${table.id}row${value ?? ''}` }),
+    ...(level === undefined
+      ? { style }
+      : {
+          'data-level': String(level),
+          style: { ...style, '--slotted-table-depth': level } as CSSProperties,
+        }),
     children,
     ...(current === true ? { 'aria-current': 'true' as const, 'data-current': '' } : {}),
     ...(disabled === true ? { 'data-disabled': '' } : {}),
@@ -184,6 +199,9 @@ export function TableRow({
     selected,
     value,
   };
+
+  /* A folded row is not in the document, so nothing is announced that a reader cannot reach. */
+  if (parent !== undefined && !table.isOpenBranch(parent)) return null;
 
   return (
     <TableRowContext.Provider value={context}>
@@ -477,8 +495,19 @@ export function TableSelectAll({
 export function TableExpander({ onClick, ref, value, ...nativeProps }: TableExpanderProps) {
   const table = useTable();
   const row = useTableRow();
+  const self = useRef<HTMLButtonElement | null>(null);
   const key = value ?? row.value;
   const open = key !== undefined && table.isExpanded(key);
+
+  /* aria-controls names only what exists: the detail row and the child rows
+     are in the document only while open, so they are read after the commit. */
+  useLayoutEffect(() => {
+    const node = self.current;
+    if (node === null) return;
+    const ids = open && key !== undefined ? controlledRows(node, key, row.detailId) : [];
+    if (ids.length > 0) node.setAttribute('aria-controls', ids.join(' '));
+    else node.removeAttribute('aria-controls');
+  });
 
   function press(event: MouseEvent<HTMLButtonElement>) {
     onClick?.(event);
@@ -489,8 +518,6 @@ export function TableExpander({ onClick, ref, value, ...nativeProps }: TableExpa
   return (
     <button
       {...nativeProps}
-      /* The detail row exists only while open, and aria-controls names only what exists. */
-      aria-controls={open ? row.detailId : undefined}
       aria-expanded={open}
       aria-label={nativeProps['aria-label'] ?? (open ? table.t('collapse') : table.t('expand'))}
       /* The chevron is drawn unless the consumer wrote content of their own. */
@@ -504,10 +531,19 @@ export function TableExpander({ onClick, ref, value, ...nativeProps }: TableExpa
       data-part="expander"
       data-part-expander=""
       onClick={press}
-      ref={ref}
+      ref={(node) => attach(node, self, ref)}
       type="button"
     />
   );
+}
+
+/** The ids of the detail row and of the rows that name `key` as their parent. */
+function controlledRows(button: HTMLElement, key: string, detailId: string) {
+  const rows = [...(button.closest('table')?.querySelectorAll('tr[data-parent]') ?? [])];
+  const children = rows.filter((row) => row.getAttribute('data-parent') === key);
+  const detail = button.ownerDocument.getElementById(detailId);
+
+  return [...(detail === null ? [] : [detail]), ...children].map((row) => row.id);
 }
 
 /**

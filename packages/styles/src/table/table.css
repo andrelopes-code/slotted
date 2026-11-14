@@ -1135,6 +1135,94 @@
   }
 
   /**
+   * ── Rows that fold their children ──────────────────────────────────────
+   *
+   * A row with a `level` is a node of a bounded hierarchy: accounts, folders,
+   * cost centres. The first cell that is not the selection carries the
+   * indent, and the indent and the guide are the `tree` family's: one step is
+   * half the expander plus a step of the space scale, so the line one level up
+   * sits on the expander's center and the row's own expander starts a fixed
+   * distance past it. A row without an expander keeps the expander's box as
+   * space, so a leaf's text lines up with a sibling's that has one.
+   *
+   * The guide is one box per row with a line per ancestor level, through the
+   * whole row and over the rule above it, so it stays continuous across rows
+   * of any height. It turns no elbow at a last child, which is the rule the
+   * `tree` family settled: a chain of only children drew a staircase of short
+   * segments with a gap under each.
+   */
+  [data-ui-table] [data-part-row][data-level] {
+    --_tree-step: var(
+      --slotted-table-tree-indent,
+      calc(var(--slotted-target-min, 24px) / 2 + var(--slotted-space-4, 0.5rem))
+    );
+    --_guide: var(
+      --slotted-table-guide-color,
+      color-mix(in oklab, var(--slotted-border-strong) 60%, var(--slotted-border-subtle))
+    );
+  }
+
+  [data-ui-table] [data-part-row][data-level] > :nth-child(1 of :not([data-part-selection])) {
+    inline-size: auto;
+    padding-inline-end: var(--_pad-inline);
+    padding-inline-start: calc(
+      var(--_pad-inline) + var(--_tree-step) * var(--slotted-table-depth, 0)
+    );
+  }
+
+  [data-ui-table]
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection])):not(:has(> [data-part-expander])) {
+    padding-inline-start: calc(
+      var(--_pad-inline) + var(--_tree-step) * var(--slotted-table-depth, 0) +
+        var(--slotted-target-min, 24px) + var(--_gap)
+    );
+  }
+
+  [data-ui-table]
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection])):not([data-sticky]) {
+    position: relative;
+  }
+
+  [data-ui-table]
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection]))::before {
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--_guide) 0 var(--_rule-width),
+      transparent var(--_rule-width) var(--_tree-step)
+    );
+    content: '';
+    inline-size: calc(var(--slotted-table-depth, 0) * var(--_tree-step));
+    inset-block: calc(-1 * var(--_rule-width)) 0;
+    inset-inline-start: calc(var(--_pad-inline) + var(--slotted-target-min, 24px) / 2);
+    pointer-events: none;
+    position: absolute;
+  }
+
+  [data-ui-table]
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection])):dir(rtl)::before {
+    background-image: repeating-linear-gradient(
+      to left,
+      var(--_guide) 0 var(--_rule-width),
+      transparent var(--_rule-width) var(--_tree-step)
+    );
+  }
+
+  [data-ui-table] [data-part-row][data-level] > * > [data-part-expander] {
+    margin-inline-end: var(--_gap);
+    vertical-align: top;
+  }
+
+  [data-ui-table][data-guides='false']
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection]))::before {
+    background-image: none;
+  }
+
+  /**
    * ── The expander ───────────────────────────────────────────────────────
    *
    * The Disclosure pattern, borrowed whole: a `button` carrying `aria-expanded`

@@ -4625,6 +4625,7 @@ export type ComponentToken =
   | '--slotted-table-group-color'
   | '--slotted-table-group-sticky-offset'
   | '--slotted-table-group-surface'
+  | '--slotted-table-guide-color'
   | '--slotted-table-header-surface'
   | '--slotted-table-header-surface-hover'
   | '--slotted-table-icon-size'
@@ -4651,6 +4652,7 @@ export type ComponentToken =
   | '--slotted-table-sticky-offset-end'
   | '--slotted-table-sticky-surface'
   | '--slotted-table-surface'
+  | '--slotted-table-tree-indent'
   | '--slotted-tabs-actions-gap'
   | '--slotted-tabs-active-background'
   | '--slotted-tabs-active-marker-color'
@@ -6944,6 +6946,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-table-group-color",
   "--slotted-table-group-sticky-offset",
   "--slotted-table-group-surface",
+  "--slotted-table-guide-color",
   "--slotted-table-header-surface",
   "--slotted-table-header-surface-hover",
   "--slotted-table-icon-size",
@@ -6970,6 +6973,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-table-sticky-offset-end",
   "--slotted-table-sticky-surface",
   "--slotted-table-surface",
+  "--slotted-table-tree-indent",
   "--slotted-tabs-actions-gap",
   "--slotted-tabs-active-background",
   "--slotted-tabs-active-marker-color",

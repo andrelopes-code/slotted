@@ -677,6 +677,13 @@ export const REACT_TABLE_DOCS = {
       ],
       ['striped', 'boolean', 'false', 'Table', 'A tinted ground on every second record'],
       [
+        'guides',
+        'boolean',
+        'true',
+        'Table',
+        'A line per ancestor level beside the rows that name a parent, on the center of the expander one level up',
+      ],
+      [
         'stickyHeader',
         'boolean',
         'false',
@@ -817,6 +824,20 @@ export const REACT_TABLE_DOCS = {
         '—',
         'TableRow',
         'The record key the selection and the expansion are held by',
+      ],
+      [
+        'level',
+        'number',
+        '—',
+        'TableRow',
+        'How deep the row sits under the rows that fold it, from 0. The first cell that is not the selection is indented by this many steps, and a cell without an expander keeps its box as space',
+      ],
+      [
+        'parent',
+        'string',
+        '—',
+        'TableRow',
+        'The value of the row whose expander folds this one. The row is not rendered while that row, or any row above it, is closed.',
       ],
       [
         'disabled',

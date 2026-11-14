@@ -67,6 +67,7 @@ export function Table({
   defaultValue,
   edges,
   expanded,
+  guides,
   layout,
   loading,
   messages,
@@ -96,6 +97,11 @@ export function Table({
   const root = useRef<HTMLDivElement | null>(null);
   /** Where a range starts: the row of the last press that held no modifier. */
   const anchor = useRef<string | undefined>(undefined);
+  /**
+   * The parent each folded row names. Written as rows render, which is order
+   * free: a row only asks about the rows above it, and those rendered first.
+   */
+  const parents = useRef(new Map<string, string>());
 
   const currentSort = sort !== undefined ? sort : ownSort;
   const currentValue = value ?? ownValue;
@@ -103,6 +109,7 @@ export function Table({
 
   const resolvedColumns = columns ?? defaults.columns ?? 1;
   const resolvedEdges = edges ?? defaults.edges ?? 'inset';
+  const resolvedGuides = guides ?? defaults.guides ?? true;
   const resolvedLayout = layout ?? defaults.layout ?? 'auto';
   const resolvedMode = selectionMode ?? defaults.selectionMode ?? 'none';
   const resolvedSticky = (stickyHeader ?? defaults.stickyHeader ?? false) === true;
@@ -153,6 +160,16 @@ export function Table({
     expanded: currentExpanded,
     id,
     isExpanded: (key) => currentExpanded.includes(key),
+    isOpenBranch(key) {
+      const seen = new Set<string>();
+      for (let at: string | undefined = key; at !== undefined; at = parents.current.get(at)) {
+        if (seen.has(at) || !currentExpanded.includes(at)) return false;
+        seen.add(at);
+      }
+
+      return true;
+    },
+    registerParent: (key, parent) => void parents.current.set(key, parent),
     isSelected: (key) => currentValue.includes(key),
     loading: loading === true,
     rows,
@@ -255,6 +272,7 @@ export function Table({
     children,
     'data-cell-align': resolvedCellAlign,
     'data-edges': resolvedEdges,
+    ...(resolvedGuides ? {} : { 'data-guides': 'false' }),
     'data-layout': resolvedLayout,
     ...(loading === true ? { 'data-loading': '' } : {}),
     'data-part': 'root',

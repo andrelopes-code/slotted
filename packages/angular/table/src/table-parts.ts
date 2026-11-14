@@ -1,4 +1,5 @@
 import {
+  afterEveryRender,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
@@ -142,12 +143,29 @@ export class SlTableFooter {}
     '[attr.data-current]': "current() ? '' : null",
     '[attr.data-interactive]': "interactive() ? '' : null",
     '[attr.data-muted]': "muted() ? '' : null",
+    '[attr.data-level]': 'level() ?? null',
+    '[style.--slotted-table-depth]': 'level() ?? null',
+    '[attr.data-parent]': 'parent() ?? null',
+    '[attr.id]': 'parent() === undefined ? null : rowId()',
     '(click)': 'onClick($event)',
   },
 })
 export class SlTableRow {
   /** The row's key, required wherever selection or expansion is on. */
   readonly value = input<string | undefined>(undefined);
+  /**
+   * How deep the row sits under the rows that fold it, from 0. The first cell
+   * that is not the selection is indented by this many steps.
+   */
+  readonly level = input<number | undefined, number | string | undefined>(undefined, {
+    transform: (depth) => (depth === undefined ? undefined : numberAttribute(depth)),
+  });
+  /**
+   * The value of the row whose expander folds this one. **The consumer writes
+   * the `@if`** around it, `table.isExpanded(parent)`, as for a detail row:
+   * a directive cannot remove its own host from the document.
+   */
+  readonly parent = input<string | undefined>(undefined);
   readonly disabled = input(false, { transform: booleanAttribute });
   /**
    * The row the page is showing elsewhere — the record open in a detail pane
@@ -194,6 +212,7 @@ export class SlTableRow {
   });
 
   readonly detailId = computed(() => `${this.table.id}-detail-${this.value() ?? ''}`);
+  readonly rowId = computed(() => `${this.table.id}-row-${this.value() ?? ''}`);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -487,7 +506,6 @@ export class SlTableSelectAll {
     'data-part-expander': '',
     type: 'button',
     '[attr.aria-expanded]': 'row.expanded()',
-    '[attr.aria-controls]': 'row.expanded() ? row.detailId() : null',
     '[attr.aria-label]': 'name()',
     '(click)': 'press($event)',
   },
@@ -497,6 +515,22 @@ export class SlTableExpander {
 
   readonly table = inject(SlTable);
   readonly row = inject(SlTableRow);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  constructor() {
+    /* aria-controls names only what exists: the detail row and the child rows
+       are in the document only while open, so they are read after the render. */
+    afterEveryRender(() => {
+      const node = this.host.nativeElement;
+      const key = this.value() ?? this.row.value();
+      const ids =
+        this.row.expanded() && key !== undefined
+          ? controlledRows(node, key, this.row.detailId())
+          : [];
+      if (ids.length > 0) node.setAttribute('aria-controls', ids.join(' '));
+      else node.removeAttribute('aria-controls');
+    });
+  }
 
   readonly name = computed(() => {
     return this.row.expanded() ? this.table.t('collapse') : this.table.t('expand');
@@ -508,6 +542,15 @@ export class SlTableExpander {
     if (key === undefined) return;
     this.table.toggleExpanded(key, event);
   }
+}
+
+/** The ids of the detail row and of the rows that name `key` as their parent. */
+function controlledRows(button: HTMLElement, key: string, detailId: string) {
+  const rows = [...(button.closest('table')?.querySelectorAll('tr[data-parent]') ?? [])];
+  const children = rows.filter((row) => row.getAttribute('data-parent') === key);
+  const detail = button.ownerDocument.getElementById(detailId);
+
+  return [...(detail === null ? [] : [detail]), ...children].map((row) => row.id);
 }
 
 /**

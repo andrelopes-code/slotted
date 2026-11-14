@@ -54,6 +54,7 @@ export interface TableDefaults {
   cellAlign: TableAlign;
   columns: number;
   edges: TableEdges;
+  guides: boolean;
   layout: TableLayout;
   selectionMode: TableSelectionMode;
   stickyFooter: boolean;
@@ -67,6 +68,7 @@ const FALLBACK: TableDefaults = {
   cellAlign: 'center',
   columns: 1,
   edges: 'inset',
+  guides: true,
   layout: 'auto',
   selectionMode: 'none',
   stickyFooter: false,

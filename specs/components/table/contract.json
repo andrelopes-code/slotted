@@ -256,7 +256,13 @@
     "pattern": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
     "wiring": "the expander is a button carrying aria-expanded and aria-controls, naming the detail row's id",
     "closed": "the detail row is not rendered while it is closed, so nothing is in the DOM that a reader is told about and cannot reach",
-    "detail": "one tr holding one cell that spans every column, which is what keeps the row group valid without a second table"
+    "detail": "one tr holding one cell that spans every column, which is what keeps the row group valid without a second table",
+    "tree": {
+      "rows": "a row names its parent's value and its level; the parent's expander opens and closes the rows that name it, and a closed parent's rows, with every row under them, are not in the document",
+      "wiring": "the same expander, whose aria-controls names the child rows' ids while they are rendered",
+      "role": "the table role and the disclosure pattern rather than treegrid: a treegrid is a composite widget with one tab stop and a cell cursor, which the declined grid role defers to data-grid; a bounded set read row by row keeps one tab stop per expander",
+      "guides": "the tree family's: one box per row with a line per ancestor level on the center of the expander one level up, through the whole row and with no elbow at a last child"
+    }
   },
   "numerals": {
     "rule": "a numeric cell is set in tabular figures, so a column of numbers lines up digit under digit — §12 asks for it by name",
@@ -545,7 +551,8 @@
     "numeric": [true, false],
     "text": ["wrap", "truncate", "nowrap"],
     "sticky": ["start", "end"],
-    "blockAlign": ["start", "center", "end"]
+    "blockAlign": ["start", "center", "end"],
+    "guides": [true, false]
   },
   "resolution": {
     "variant": ["prop", "defaults", "ruled"],
@@ -561,7 +568,8 @@
     "numeric": ["prop", "defaults", false],
     "text": ["prop", "defaults", "wrap"],
     "sticky": ["prop", "defaults", "start"],
-    "blockAlign": ["prop", "defaults", "center"]
+    "blockAlign": ["prop", "defaults", "center"],
+    "guides": ["prop", "defaults", true]
   },
   "provides": {
     "tableDefaults": [
@@ -631,7 +639,8 @@
         "cellAlign": "center",
         "blockAlign": "center",
         "stickyFooter": false,
-        "searchThreshold": 8
+        "searchThreshold": 8,
+        "guides": true
       },
       "capabilities": [
         "sort",
