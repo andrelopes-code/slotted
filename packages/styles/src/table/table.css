@@ -327,6 +327,12 @@
 
   [data-ui-table] [data-part-cell],
   [data-ui-table] [data-part-row-header] {
+    /* Published on the cell and not on the root, where the private values
+       read these two names: content drawn inside a cell reads the padding in
+       use, and an override set by the application still wins. */
+    --slotted-table-cell-padding-block: var(--_pad-block);
+    --slotted-table-cell-padding-inline: var(--_pad-inline);
+
     padding-block: var(--_pad-block);
     padding-inline: var(--_pad-inline);
     text-align: start;

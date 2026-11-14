@@ -142,3 +142,31 @@ describe('a muted row', () => {
     expect(row.hasAttribute('data-selected')).toBe(false);
   });
 });
+
+/* The cell publishes the padding it uses, so content drawn inside it can read it. */
+describe('the padding of a table cell', () => {
+  it('is readable from the two cell padding properties', () => {
+    render(
+      <Table columns={1}>
+        <TableContent>
+          <TableBody>
+            <TableRow value="r1">
+              <TableCell>Value</TableCell>
+            </TableRow>
+          </TableBody>
+        </TableContent>
+      </Table>,
+    );
+    const cell = document.querySelector('[data-part="cell"]') as HTMLElement;
+    const style = getComputedStyle(cell);
+    const probe = document.createElement('div');
+
+    cell.append(probe);
+    probe.style.paddingBlock = 'var(--slotted-table-cell-padding-block)';
+    probe.style.paddingInline = 'var(--slotted-table-cell-padding-inline)';
+
+    expect(getComputedStyle(probe).paddingTop).toBe(style.paddingTop);
+    expect(getComputedStyle(probe).paddingLeft).toBe(style.paddingLeft);
+    expect(style.paddingLeft).not.toBe('0px');
+  });
+});
