@@ -229,15 +229,20 @@
     gap: var(--slotted-space-1, 0.125rem);
   }
 
+  /* An annotation of the title rather than a button beside it: the inline
+     icon button is one line of the title tall, muted until hovered. */
   [data-ui-dashboard-grid] [data-part-widget] [data-part-title-row] > [data-part-help] {
+    color: var(--slotted-dashboard-grid-description-color, var(--slotted-text-muted, GrayText));
     flex: none;
-    margin-block: calc(
-      (
-          var(--slotted-control-height-sm, 1.75rem) - var(--slotted-font-size-md, 0.8125rem) *
-            var(--slotted-line-height-md, 1.5)
-        ) /
-        -2
-    );
+  }
+
+  /**
+   * The note behind it holds a few sentences, wider than the small popover's
+   * measure. The layer is portaled out of the grid, so the rule finds it by
+   * the note it holds, and the width is a theme token for every widget.
+   */
+  [data-ui-popover][data-size]:has([data-part-help-note]) {
+    --_measure: var(--slotted-dashboard-grid-help-measure, 20rem);
   }
 
   [data-ui-dashboard-grid] [data-part-widget] [data-part-description] {

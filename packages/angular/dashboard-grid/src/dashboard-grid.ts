@@ -464,6 +464,7 @@ interface Slot {
                       slIconButton
                       slPopoverTrigger
                       slDashboardPart="help"
+                      inline
                       size="sm"
                       tone="secondary"
                       variant="ghost"
@@ -476,7 +477,9 @@ interface Slot {
                         slPopoverContent
                         [attr.aria-label]="t('help', { title: slot.widget.title() })"
                       >
-                        <div slPopoverBody>{{ help }}</div>
+                        <div slPopoverBody>
+                          <div data-part="help-note" data-part-help-note="">{{ help }}</div>
+                        </div>
                       </div>
                     </ng-template>
                   </ng-container>

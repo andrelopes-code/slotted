@@ -22,6 +22,7 @@ export function DashboardWidgetHelp({ children, label }: DashboardWidgetHelpProp
           <IconButton
             {...props}
             aria-label={label}
+            inline
             render={(button) => <button {...withSelectorKey(button, 'part', 'help')} />}
             size="sm"
             tone="secondary"
@@ -35,7 +36,11 @@ export function DashboardWidgetHelp({ children, label }: DashboardWidgetHelpProp
       />
       <PopoverLayer>
         <PopoverContent aria-label={label}>
-          <PopoverBody>{children}</PopoverBody>
+          <PopoverBody>
+            <div data-part="help-note" data-part-help-note="">
+              {children}
+            </div>
+          </PopoverBody>
         </PopoverContent>
       </PopoverLayer>
     </Popover>

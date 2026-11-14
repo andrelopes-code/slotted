@@ -114,7 +114,14 @@ const anatomy: AnatomyRow[] = [
     element: 'button, a Popover trigger',
     required: false,
     purpose:
-      'The information control after the title, named “About {title}”; opens the note, and Escape closes it and returns focus. Present with help.',
+      'The information control after the title, one line of the title tall and muted, named “About {title}”; opens the note, and Escape closes it and returns focus. Present with help.',
+  },
+  {
+    part: 'help-note',
+    element: 'div, inside the popover body',
+    required: false,
+    purpose:
+      'The note the help control opens. The popover that holds it takes --slotted-dashboard-grid-help-measure (20rem) as its width. Present with help.',
   },
   {
     part: 'description',

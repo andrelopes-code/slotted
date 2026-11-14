@@ -3256,6 +3256,7 @@ export type ComponentToken =
   | '--slotted-dashboard-grid-handle-glyph-size'
   | '--slotted-dashboard-grid-handle-inline-size'
   | '--slotted-dashboard-grid-handle-inline-size-coarse'
+  | '--slotted-dashboard-grid-help-measure'
   | '--slotted-dashboard-grid-lattice-color'
   | '--slotted-dashboard-grid-lattice-dot'
   | '--slotted-dashboard-grid-resize-hit'
@@ -5573,6 +5574,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-dashboard-grid-handle-glyph-size",
   "--slotted-dashboard-grid-handle-inline-size",
   "--slotted-dashboard-grid-handle-inline-size-coarse",
+  "--slotted-dashboard-grid-help-measure",
   "--slotted-dashboard-grid-lattice-color",
   "--slotted-dashboard-grid-lattice-dot",
   "--slotted-dashboard-grid-resize-hit",

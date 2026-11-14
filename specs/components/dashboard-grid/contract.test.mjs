@@ -39,6 +39,7 @@ test('declares every part of the anatomy', () => {
     'title',
     'title-row',
     'help',
+    'help-note',
     'description',
     'detail',
     'handle',

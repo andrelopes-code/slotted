@@ -190,6 +190,31 @@ describe('a chart in a dashboard widget', () => {
 describe('a widget with help', () => {
   const note = 'Liquid balance divided by the mean monthly expense';
 
+  it('draws the control as a glyph no taller than 1.5rem, and the note at the help measure', async () => {
+    const long = `${note}. It counts the accounts marked liquid. It excludes the cards and loans.`;
+    const root = document.documentElement;
+
+    root.style.setProperty('--slotted-dashboard-grid-help-measure', '18rem');
+    render(
+      <DashboardGrid aria-label="Sales">
+        <DashboardWidget help={long} title="Liquidity" value="liquidity" />
+      </DashboardGrid>,
+    );
+    const help = document.querySelector<HTMLElement>('[data-part="help"]')!;
+    const rem = parseFloat(getComputedStyle(root).fontSize);
+
+    expect(help.getBoundingClientRect().height).toBeLessThanOrEqual(1.5 * rem);
+
+    help.focus();
+    await userEvent.keyboard('{Enter}');
+    await frame();
+    const layer = document.querySelector<HTMLElement>('[data-ui="popover"]')!;
+
+    expect(layer.getBoundingClientRect().width).toBeCloseTo(18 * rem, 0);
+
+    root.style.removeProperty('--slotted-dashboard-grid-help-measure');
+  });
+
   it('names the control after the title and leaves the header alone without help', () => {
     render(
       <DashboardGrid aria-label="Sales">
