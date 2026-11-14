@@ -301,4 +301,213 @@
       stroke: Canvas;
     }
   }
+
+  /**
+   * ── The position strip ──────────────────────────────────────────────
+   *
+   *   ┌─ root ─ role="img" ─ data-type="strip" ─────────────────────────┐
+   *   │ start │ ┌─ track ───────────────────────────────────────┐ │ end │
+   *   │       │ │   ░░░░░░ band ░░░░░░  · dot  ● value  ┆ ref    │ │     │
+   *   │       │ └───────────────────────────────────────────────┘ │     │
+   *   └──────────────────────────────────────────────────────────────────┘
+   *
+   * Every mark is placed by a share of the track the binding writes as
+   * --slotted-sparkline-at, so the strip is drawn without measuring and a
+   * stack of rows with the same extent lines up: the two end columns are one
+   * fixed width, and the track takes what is left.
+   */
+  [data-ui-sparkline][data-type='strip'] {
+    --_end: var(--slotted-sparkline-end-size, 3.5rem);
+    --_dot: var(--_marker);
+    --_value-dot: calc(var(--_marker) * 1.75);
+    --_band-color: color-mix(in oklab, var(--_color) 18%, var(--slotted-surface, Canvas));
+
+    align-items: center;
+    column-gap: var(--slotted-space-3, 0.375rem);
+    display: inline-grid;
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-variant-numeric: tabular-nums;
+    grid-template-columns: var(--_end) minmax(0, 1fr) var(--_end);
+    line-height: var(--slotted-line-height-sm, 1.45);
+  }
+
+  [data-ui-sparkline][data-type='strip'] [data-part-track] {
+    block-size: var(--_size);
+    position: relative;
+  }
+
+  [data-ui-sparkline][data-type='strip'] :is([data-part-start], [data-part-end]) {
+    color: var(--slotted-text-muted, GrayText);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-sparkline][data-type='strip'] [data-part-start] {
+    text-align: end;
+  }
+
+  [data-ui-sparkline][data-type='strip'] [data-part-band] {
+    background-color: var(--_band-color);
+    block-size: calc(var(--_size) / 2);
+    border-radius: var(--slotted-radius-full, 9999px);
+    inline-size: calc((var(--slotted-sparkline-to, 0) - var(--slotted-sparkline-from, 0)) * 100%);
+    inset-block-start: calc(var(--_size) / 4);
+    inset-inline-start: calc(var(--slotted-sparkline-from, 0) * 100%);
+    position: absolute;
+  }
+
+  [data-ui-sparkline][data-type='strip']
+    :is([data-part-dot], [data-part-value], [data-part-reference], [data-part-zero]) {
+    inset-inline-start: calc(var(--slotted-sparkline-at, 0) * 100%);
+    position: absolute;
+  }
+
+  [data-ui-sparkline][data-type='strip'] [data-part-dot] {
+    background-color: var(--_bar-dim);
+    block-size: var(--_dot);
+    border-radius: 50%;
+    inline-size: var(--_dot);
+    inset-block-start: calc((var(--_size) - var(--_dot)) / 2);
+    margin-inline-start: calc(var(--_dot) / -2);
+  }
+
+  [data-ui-sparkline][data-type='strip'] [data-part-value] {
+    background-color: var(--_color);
+    block-size: var(--_value-dot);
+    border-radius: 50%;
+    box-shadow: 0 0 0 var(--_ring) var(--_ring-color);
+    inline-size: var(--_value-dot);
+    inset-block-start: calc((var(--_size) - var(--_value-dot)) / 2);
+    margin-inline-start: calc(var(--_value-dot) / -2);
+  }
+
+  /* The reference is dashed and the zero is solid: one is not data, the other is the origin. */
+  [data-ui-sparkline][data-type='strip'] :is([data-part-reference], [data-part-zero]) {
+    block-size: var(--_size);
+    border-inline-start: var(--slotted-border-width-thin, 1px) solid var(--_reference-color);
+    inset-block-start: 0;
+    margin-inline-start: calc(var(--slotted-border-width-thin, 1px) / -2);
+  }
+
+  [data-ui-sparkline][data-type='strip'] [data-part-reference] {
+    border-inline-start-style: dashed;
+  }
+
+  /**
+   * ── The comparison ──────────────────────────────────────────────────
+   *
+   * One row per value: a label column, then a track whose zero, ticks and
+   * bar are placed by shares the binding writes, so roots that state the
+   * same domain draw the same axis. The track keeps room on both sides for
+   * the value written past a bar's end, and rows touch, so the zero line and
+   * the ticks run unbroken through a root.
+   */
+  [data-ui-sparkline][data-type='compare'] {
+    --_label: var(--slotted-sparkline-label-size, 6rem);
+    --_room: var(--slotted-sparkline-value-size, 3.5rem);
+    --_thickness: var(--slotted-sparkline-bar-thickness, var(--slotted-space-5, 0.625rem));
+    --_texture: repeating-linear-gradient(
+      -45deg,
+      var(--_color) 0 var(--slotted-border-width-thin, 1px),
+      var(--slotted-surface, Canvas) var(--slotted-border-width-thin, 1px) 4px
+    );
+
+    block-size: auto;
+    display: grid;
+    font-size: var(--slotted-font-size-xs, 0.75rem);
+    font-variant-numeric: tabular-nums;
+    grid-template-columns: var(--_label) minmax(0, 1fr);
+    line-height: var(--slotted-line-height-sm, 1.45);
+  }
+
+  [data-ui-sparkline][data-type='compare'] [data-part-row] {
+    align-items: center;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  [data-ui-sparkline][data-type='compare'] [data-part-label] {
+    color: var(--slotted-text-muted, GrayText);
+    overflow: hidden;
+    padding-inline-end: var(--slotted-space-4, 0.5rem);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-sparkline][data-type='compare'] [data-part-track] {
+    block-size: calc(var(--_thickness) + var(--slotted-space-4, 0.5rem));
+    margin-inline: var(--_room);
+    position: relative;
+  }
+
+  [data-ui-sparkline][data-type='compare'] :is([data-part-zero], [data-part-tick]) {
+    border-inline-start: var(--slotted-border-width-thin, 1px) solid var(--_reference-color);
+    inset-block: 0;
+    inset-inline-start: calc(var(--slotted-sparkline-at, 0) * 100%);
+    margin-inline-start: calc(var(--slotted-border-width-thin, 1px) / -2);
+    position: absolute;
+  }
+
+  [data-ui-sparkline][data-type='compare'] [data-part-tick] {
+    border-inline-start-color: color-mix(in oklab, var(--_reference-color) 40%, transparent);
+  }
+
+  [data-ui-sparkline][data-type='compare'] [data-part-bar] {
+    background-color: var(--_color);
+    block-size: var(--_thickness);
+    inline-size: calc((var(--slotted-sparkline-to, 0) - var(--slotted-sparkline-from, 0)) * 100%);
+    inset-block-start: calc(50% - var(--_thickness) / 2);
+    inset-inline-start: calc(var(--slotted-sparkline-from, 0) * 100%);
+    position: absolute;
+  }
+
+  [data-ui-sparkline][data-type='compare'] [data-part-row][data-texture] [data-part-bar] {
+    background-image: var(--_texture);
+    box-shadow: inset 0 0 0 var(--slotted-border-width-thin, 1px) var(--_color);
+  }
+
+  /* The value stands past the bar's far end: after a positive bar, before a negative one. */
+  [data-ui-sparkline][data-type='compare'] [data-part-value] {
+    color: var(--slotted-text, CanvasText);
+    inset-block-start: 50%;
+    inset-inline-start: calc(
+      var(--slotted-sparkline-to, 0) * 100% + var(--slotted-space-3, 0.375rem)
+    );
+    position: absolute;
+    translate: 0 -50%;
+    white-space: nowrap;
+  }
+
+  [data-ui-sparkline][data-type='compare'] [data-part-row][data-negative] [data-part-value] {
+    inset-inline-end: calc(
+      (1 - var(--slotted-sparkline-from, 0)) * 100% + var(--slotted-space-3, 0.375rem)
+    );
+    inset-inline-start: auto;
+  }
+
+  /**
+   * Under forced colors a mix of two system colors is a color the mode does
+   * not have: the band and the dots take GrayText, the value and the bars
+   * CanvasText, and the texture is drawn in CanvasText over Canvas.
+   */
+  @media (forced-colors: active) {
+    [data-ui-sparkline][data-type='strip'] :is([data-part-band], [data-part-dot]) {
+      background-color: GrayText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-sparkline][data-type='strip'] [data-part-value],
+    [data-ui-sparkline][data-type='compare'] [data-part-bar] {
+      background-color: CanvasText;
+      forced-color-adjust: none;
+    }
+
+    [data-ui-sparkline][data-type='compare'] [data-part-row][data-texture] [data-part-bar] {
+      background-color: Canvas;
+      background-image: repeating-linear-gradient(-45deg, CanvasText 0 1px, Canvas 1px 4px);
+      box-shadow: inset 0 0 0 1px CanvasText;
+    }
+  }
 }

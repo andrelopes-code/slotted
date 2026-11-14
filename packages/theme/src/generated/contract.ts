@@ -3959,6 +3959,11 @@ export type ComponentToken =
   | '--slotted-message-state-layer-active'
   | '--slotted-message-state-layer-hover'
   | '--slotted-message-thread-avatar-size'
+  | '--slotted-meter-indicator-color'
+  | '--slotted-meter-min-inline-size'
+  | '--slotted-meter-radius'
+  | '--slotted-meter-thickness'
+  | '--slotted-meter-track-color'
   | '--slotted-multi-select-action-active-background'
   | '--slotted-multi-select-action-color'
   | '--slotted-multi-select-action-hover-background'
@@ -4472,10 +4477,13 @@ export type ComponentToken =
   | '--slotted-slider-track-size'
   | '--slotted-sparkline-area-opacity'
   | '--slotted-sparkline-bar-share'
+  | '--slotted-sparkline-bar-thickness'
   | '--slotted-sparkline-block-size'
   | '--slotted-sparkline-block-size-lg'
   | '--slotted-sparkline-block-size-sm'
   | '--slotted-sparkline-color'
+  | '--slotted-sparkline-end-size'
+  | '--slotted-sparkline-label-size'
   | '--slotted-sparkline-line-width'
   | '--slotted-sparkline-line-width-sm'
   | '--slotted-sparkline-marker-size'
@@ -4486,6 +4494,7 @@ export type ComponentToken =
   | '--slotted-sparkline-ring-color'
   | '--slotted-sparkline-ring-width'
   | '--slotted-sparkline-ring-width-sm'
+  | '--slotted-sparkline-value-size'
   | '--slotted-spinner-size'
   | '--slotted-split-button-radius'
   | '--slotted-splitter-disabled-line-color'
@@ -6280,6 +6289,11 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-message-state-layer-active",
   "--slotted-message-state-layer-hover",
   "--slotted-message-thread-avatar-size",
+  "--slotted-meter-indicator-color",
+  "--slotted-meter-min-inline-size",
+  "--slotted-meter-radius",
+  "--slotted-meter-thickness",
+  "--slotted-meter-track-color",
   "--slotted-multi-select-action-active-background",
   "--slotted-multi-select-action-color",
   "--slotted-multi-select-action-hover-background",
@@ -6793,10 +6807,13 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-slider-track-size",
   "--slotted-sparkline-area-opacity",
   "--slotted-sparkline-bar-share",
+  "--slotted-sparkline-bar-thickness",
   "--slotted-sparkline-block-size",
   "--slotted-sparkline-block-size-lg",
   "--slotted-sparkline-block-size-sm",
   "--slotted-sparkline-color",
+  "--slotted-sparkline-end-size",
+  "--slotted-sparkline-label-size",
   "--slotted-sparkline-line-width",
   "--slotted-sparkline-line-width-sm",
   "--slotted-sparkline-marker-size",
@@ -6807,6 +6824,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-sparkline-ring-color",
   "--slotted-sparkline-ring-width",
   "--slotted-sparkline-ring-width-sm",
+  "--slotted-sparkline-value-size",
   "--slotted-spinner-size",
   "--slotted-split-button-radius",
   "--slotted-splitter-disabled-line-color",

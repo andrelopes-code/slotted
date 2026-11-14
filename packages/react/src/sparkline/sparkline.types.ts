@@ -73,3 +73,78 @@ export interface SparklineProps extends Omit<ComponentPropsWithRef<'span'>, 'chi
   messages?: PartialMessages<SparklineMessages> | undefined;
   render?: (props: SparklineRootProps) => ReactNode;
 }
+
+export interface PositionStripRootProps extends ComponentPropsWithRef<'span'> {
+  'aria-label': string;
+  'data-part': string;
+  'data-size': SparklineSize;
+  'data-tone': SparklineTone | undefined;
+  'data-type': 'strip';
+  'data-ui': string;
+  role: 'img';
+}
+
+export interface PositionStripProps extends Omit<ComponentPropsWithRef<'span'>, 'children'> {
+  /** The current value. `null` while it is not known: the dot is left out and the name says so. */
+  value: number | null;
+  /** The periods the value is read against, oldest first. `null` is a gap. */
+  values: readonly SparklineDatum[];
+  /** A dashed tick at this value — a long-run mean — which widens the extent to hold it. */
+  reference?: number | undefined;
+  /**
+   * The extent, when the data's own is not the one to draw. The data widens
+   * it, never narrows it; rows that state the same two line up.
+   */
+  min?: number | undefined;
+  max?: number | undefined;
+  /** Leaves the value dot out while the value is incomplete, and says so in the name. */
+  hideValue?: boolean | undefined;
+  size?: SparklineSize | undefined;
+  /** How the value is doing: the value dot's color. */
+  tone?: SparklineTone | undefined;
+  /** What the strip is, said first in the name: `Savings rate: 800, against a range of …`. */
+  label?: string | undefined;
+  /** The whole accessible name, replacing the generated one. */
+  description?: string | undefined;
+  formatOptions?: Intl.NumberFormatOptions | undefined;
+  valueFormatter?: ((value: number) => string) | undefined;
+  locale?: string | undefined;
+  messages?: PartialMessages<SparklineMessages> | undefined;
+  render?: ((props: PositionStripRootProps) => ReactNode) | undefined;
+}
+
+export interface BarCompareRow {
+  readonly label: string;
+  readonly value: number;
+  /** A hatched fill, to tell a reference from the subject without color. */
+  readonly texture?: boolean | undefined;
+}
+
+export interface BarCompareRootProps extends ComponentPropsWithRef<'span'> {
+  'aria-label': string;
+  'data-part': string;
+  'data-tone': SparklineTone | undefined;
+  'data-type': 'compare';
+  'data-ui': string;
+  role: 'img';
+}
+
+export interface BarCompareProps extends Omit<ComponentPropsWithRef<'span'>, 'children'> {
+  /** The values compared, one row each, in the order they are drawn. */
+  data: readonly BarCompareRow[];
+  /**
+   * The domain. Zero and the data widen it, never narrow it; roots that state
+   * the same `min`, `max` and `step` draw the same axis.
+   */
+  min?: number | undefined;
+  max?: number | undefined;
+  /** The distance between two ticks. Without it, only the zero line is drawn. */
+  step?: number | undefined;
+  tone?: SparklineTone | undefined;
+  /** The whole accessible name, replacing the one built from the rows. */
+  description?: string | undefined;
+  formatOptions?: Intl.NumberFormatOptions | undefined;
+  valueFormatter?: ((value: number) => string) | undefined;
+  locale?: string | undefined;
+  render?: ((props: BarCompareRootProps) => ReactNode) | undefined;
+}

@@ -1,3 +1,5 @@
+export { SlBarCompare } from './bar-compare';
+export { SlPositionStrip } from './position-strip';
 export { SlSparkline } from './sparkline';
 export {
   injectSparklineDefaults,

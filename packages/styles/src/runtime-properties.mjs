@@ -337,6 +337,14 @@ export const RUNTIME_PROPERTY_PREFIXES = [
    * consumer states. No theme can know it.
    */
   '--slotted-meter-ratio',
+  /**
+   * `sparkline` — where a mark of a position strip or a comparison stands on
+   * its axis, as a share from the consumer's data. The family owns theme
+   * tokens under the same prefix, so each is named one by one.
+   */
+  '--slotted-sparkline-at',
+  '--slotted-sparkline-from',
+  '--slotted-sparkline-to',
 ];
 
 /** Whether a custom property is written by script rather than by a theme. */

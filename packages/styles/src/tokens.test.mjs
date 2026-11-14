@@ -167,6 +167,9 @@ test('names every runtime prefix once, where a family can find the reason', () =
     '--slotted-media-viewer-rotation',
     '--slotted-table-depth',
     '--slotted-meter-ratio',
+    '--slotted-sparkline-at',
+    '--slotted-sparkline-from',
+    '--slotted-sparkline-to',
   ]);
   assert.equal(isRuntimeProperty('--slotted-positioner-arrow-x'), true);
   assert.equal(isRuntimeProperty('--slotted-space-4'), false);

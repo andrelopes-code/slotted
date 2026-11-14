@@ -19,3 +19,7 @@ export type {
   SparklineSummary,
   SparklineTrend,
 } from './sparkline';
+export { describeStrip, layoutStrip } from './strip';
+export type { StripDescriptionRequest, StripDot, StripLayout, StripRequest } from './strip';
+export { describeCompare, layoutCompare } from './compare';
+export type { CompareBar, CompareDomain, CompareLayout, CompareRow } from './compare';

@@ -1,5 +1,7 @@
 import sparklineTokens from '@slotted/styles/sparkline/tokens.json';
 import { defineSnippet } from '@slotted/storybook-workbench';
+
+import { ANGULAR_BAR_COMPARE_DOCS, ANGULAR_POSITION_STRIP_DOCS } from './sparkline-members.docs';
 import type {
   AnatomyRow,
   ApiRow,
@@ -372,4 +374,6 @@ export const ANGULAR_SPARKLINE_DOCS = {
       }),
     ],
   },
+  positionStrip: ANGULAR_POSITION_STRIP_DOCS,
+  barCompare: ANGULAR_BAR_COMPARE_DOCS,
 } as const;
