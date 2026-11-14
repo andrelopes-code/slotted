@@ -1,7 +1,7 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideSlotted } from '@slotted/angular/i18n';
-import type { ChartPoint, ChartZoom } from '@slotted/core/chart';
+import type { ChartPoint, ChartRange, ChartZoom } from '@slotted/core/chart';
 import type { ChartEngineCallbacks, ChartEngineRenderView } from '@slotted/core/chart-echarts';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
 import type { ChangeRequest } from '@slotted/core/state';
@@ -54,15 +54,18 @@ const recordingEngine = (_element: HTMLElement, callbacks: ChartEngineCallbacks)
     [error]="error()"
     [zoomable]="true"
     [selectable]="true"
+    [rangeSelectable]="true"
     [legendValues]="legendValues()"
     [(hidden)]="hidden"
     [(activePoint)]="activePoint"
     [(zoom)]="zoom"
+    [(range)]="range"
     [(tableOpen)]="tableOpen"
     [(fullscreen)]="fullscreen"
     (hiddenChangeRequest)="requests.push($event)"
     (activePointChangeRequest)="requests.push($event)"
     (zoomChangeRequest)="requests.push($event)"
+    (rangeChangeRequest)="requests.push($event)"
     (tableOpenChangeRequest)="requests.push($event)"
     (fullscreenChangeRequest)="requests.push($event)"
     (retry)="retries = retries + 1"
@@ -91,6 +94,7 @@ class TestHost {
   readonly hidden = signal<readonly string[]>([]);
   readonly activePoint = signal<ChartPoint | null>(null);
   readonly zoom = signal<ChartZoom>({ start: 0, end: 1 });
+  readonly range = signal<ChartRange | null>(null);
   readonly tableOpen = signal(false);
   readonly fullscreen = signal(false);
   readonly requests: ChangeRequest<unknown>[] = [];
@@ -301,6 +305,47 @@ describe('SlChart', () => {
     ]);
     expect(part('crosshair')?.hidden).toBe(false);
     expect(parts('marker')).toHaveLength(1);
+  });
+
+  it('reports the keys of the two ends of a drag across the plot, and clears them on a click', async () => {
+    const { host, part, settle } = await mount();
+    const plot = part('plot')!;
+    const press = (type: string) =>
+      plot.dispatchEvent(new PointerEvent(type, { bubbles: true, button: 0, pointerId: 1 }));
+
+    engine.callbacks!.onPointer!({ series: 'revenue', key: 'Mar' }, undefined);
+    press('pointerdown');
+    engine.callbacks!.onPointer!({ series: 'revenue', key: 'Feb' }, undefined);
+    engine.callbacks!.onPointer!({ series: 'cost', key: 'Jan' }, undefined);
+    press('pointerup');
+    await settle();
+
+    expect(host.range()).toEqual({ from: 'Jan', to: 'Mar' });
+    expect(host.requests).toContainEqual(
+      expect.objectContaining({ value: { from: 'Jan', to: 'Mar' }, reason: 'pointer' }),
+    );
+    expect(engine.views.at(-1)?.range).toEqual({ from: 'Jan', to: 'Mar' });
+
+    press('pointerdown');
+    press('pointerup');
+    await settle();
+
+    expect(host.range()).toBeNull();
+  });
+
+  it('extends the range with Shift and an arrow', async () => {
+    const { host, part, settle } = await mount((each) => {
+      each.activePoint.set({ series: 'revenue', key: 'Feb' });
+      each.range.set({ from: 'Jan', to: 'Feb' });
+    });
+
+    part('plot')!.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', shiftKey: true, bubbles: true }),
+    );
+    await settle();
+
+    expect(host.range()).toEqual({ from: 'Jan', to: 'Mar' });
+    expect(host.requests.at(-1)).toMatchObject({ reason: 'keyboard' });
   });
 
   it('renders a custom tooltip from a template', async () => {

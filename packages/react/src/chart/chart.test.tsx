@@ -365,6 +365,52 @@ describe('Chart', () => {
       expect(parts('marker')).toHaveLength(1);
     });
 
+    it('reports the keys of the two ends of a drag across a range-selectable plot', () => {
+      const onRangeChange = vi.fn();
+      render(<Chart {...base} onRangeChange={onRangeChange} rangeSelectable />);
+      const plot = part('plot')!;
+
+      act(() => engine.callbacks!.onPointer!({ series: 'revenue', key: 'Mar' }, undefined));
+      fireEvent.pointerDown(plot, { button: 0, pointerId: 1 });
+      act(() => engine.callbacks!.onPointer!({ series: 'revenue', key: 'Feb' }, undefined));
+      act(() => engine.callbacks!.onPointer!({ series: 'cost', key: 'Jan' }, undefined));
+      fireEvent.pointerUp(plot, { button: 0, pointerId: 1 });
+
+      expect(onRangeChange).toHaveBeenLastCalledWith(
+        { from: 'Jan', to: 'Mar' },
+        expect.objectContaining({ reason: 'pointer' }),
+      );
+      expect(engine.views.at(-1)?.range).toEqual({ from: 'Jan', to: 'Mar' });
+    });
+
+    it('clears the range on a click without a drag, and extends it with Shift and an arrow', () => {
+      const onRangeChange = vi.fn();
+      render(
+        <Chart
+          {...base}
+          defaultActivePoint={{ series: 'revenue', key: 'Feb' }}
+          defaultRange={{ from: 'Jan', to: 'Feb' }}
+          onRangeChange={onRangeChange}
+          rangeSelectable
+        />,
+      );
+      const plot = part('plot')!;
+
+      fireEvent.keyDown(plot, { key: 'ArrowRight', shiftKey: true });
+      expect(onRangeChange).toHaveBeenLastCalledWith(
+        { from: 'Jan', to: 'Mar' },
+        expect.objectContaining({ reason: 'keyboard' }),
+      );
+
+      act(() => engine.callbacks!.onPointer!({ series: 'revenue', key: 'Feb' }, undefined));
+      fireEvent.pointerDown(plot, { button: 0, pointerId: 1 });
+      fireEvent.pointerUp(plot, { button: 0, pointerId: 1 });
+      expect(onRangeChange).toHaveBeenLastCalledWith(
+        null,
+        expect.objectContaining({ reason: 'pointer' }),
+      );
+    });
+
     it('renders a custom tooltip from the context', async () => {
       render(
         <Chart

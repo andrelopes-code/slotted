@@ -94,6 +94,18 @@
       "reason": "keyboard"
     },
     {
+      "key": "Shift+ArrowRight",
+      "target": "plot",
+      "effect": "next point, extending the range from the end the active point is not on, when range selection is enabled",
+      "reason": "keyboard"
+    },
+    {
+      "key": "Shift+ArrowLeft",
+      "target": "plot",
+      "effect": "previous point, extending the range from the end the active point is not on, when range selection is enabled",
+      "reason": "keyboard"
+    },
+    {
       "key": "+",
       "target": "plot",
       "effect": "zooms in around the active point, when zoom is enabled",
@@ -114,7 +126,7 @@
     {
       "key": "Escape",
       "target": "plot",
-      "effect": "clears the active point; with none, resets the zoom",
+      "effect": "clears the active point; with none, the range; with neither, resets the zoom",
       "reason": "escape"
     },
     {
@@ -226,6 +238,7 @@
         "texture": false,
         "zoomable": false,
         "selectable": false,
+        "rangeSelectable": false,
         "legendInteractive": true,
         "legendValues": false,
         "tableOpen": false,
@@ -336,7 +349,9 @@
     "retry",
     "roledescription",
     "selected",
+    "rangeCleared",
     "rangeLower",
+    "rangeSelected",
     "rangeUpper",
     "seriesBand",
     "seriesRange",
@@ -375,10 +390,18 @@
       "reasons": ["pointer", "keyboard", "blur", "escape", "programmatic"]
     },
     "selection": {
-      "controlled": "selection",
-      "uncontrolled": "defaultSelection",
-      "request": "onSelectionChange",
-      "reasons": ["pointer", "keyboard", "escape", "programmatic"]
+      "point": {
+        "controlled": "selection",
+        "uncontrolled": "defaultSelection",
+        "request": "onSelectionChange",
+        "reasons": ["pointer", "keyboard", "escape", "programmatic"]
+      },
+      "range": {
+        "controlled": "range",
+        "uncontrolled": "defaultRange",
+        "request": "onRangeChange",
+        "reasons": ["pointer", "keyboard", "escape", "programmatic"]
+      }
     },
     "zoom": {
       "controlled": "zoom",

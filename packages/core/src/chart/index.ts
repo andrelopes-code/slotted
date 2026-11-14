@@ -1,7 +1,7 @@
 export { createLatestAnnouncer } from './announce';
 export { placeLayer, trackModality } from './layer';
 export type { ActivationReason, LayerPlacement } from './layer';
-export { describeChart, describePoint, describeZoom } from './describe';
+export { describeChart, describePoint, describeRange, describeZoom } from './describe';
 export { chartNumber, chartTime, createNumberFormatter, createTimeFormatter } from './format';
 export {
   assignColors,
@@ -31,12 +31,15 @@ export {
   isFullZoom,
   minimumZoomSpan,
   movePoint,
+  rangeBetween,
   toggleHidden,
   zoomAround,
   zoomIncluding,
   zoomRange,
 } from './navigation';
 export type { ChartKeyAction, ChartKeyState, ChartMove } from './navigation';
+export { createRangeDrag } from './range-drag';
+export type { ChartRangeDrag } from './range-drag';
 export { chartTable, chartToCsv } from './table';
 export type { ChartTable, ChartTableColumn, ChartTableRow } from './table';
 export {
@@ -68,6 +71,7 @@ export type {
   ChartNumberFormat,
   ChartOrientation,
   ChartPoint,
+  ChartRange,
   ChartRecord,
   ChartSeries,
   ChartSlot,

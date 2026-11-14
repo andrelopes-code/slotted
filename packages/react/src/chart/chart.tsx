@@ -17,7 +17,9 @@ import {
   createLatestAnnouncer,
   defaultTrigger,
   describeChart,
+  createRangeDrag,
   describePoint,
+  describeRange,
   describeZoom,
   firstPoint,
   FULL_ZOOM,
@@ -41,6 +43,7 @@ import type {
   ChartLegendEntry,
   ChartModel,
   ChartPoint,
+  ChartRange,
   ChartRecord,
   ChartSpec,
   ChartTheme,
@@ -70,6 +73,7 @@ import type {
   CSSProperties,
   FocusEvent as ReactFocusEvent,
   KeyboardEvent as ReactKeyboardEvent,
+  PointerEvent as ReactPointerEvent,
   ReactNode,
   RefObject,
   ToggleEvent as ReactToggleEvent,
@@ -94,6 +98,8 @@ const samePoint = (a: ChartPoint | null, b: ChartPoint | null) =>
 const sameList = (a: readonly string[], b: readonly string[]) =>
   a.length === b.length && a.every((value, index) => value === b[index]);
 const sameZoom = (a: ChartZoom, b: ChartZoom) => a.start === b.start && a.end === b.end;
+const sameRange = (a: ChartRange | null, b: ChartRange | null) =>
+  a === b || (a !== null && b !== null && a.from === b.from && a.to === b.to);
 
 const isPlain = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && Object.getPrototypeOf(value) === Object.prototype;
@@ -408,6 +414,7 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
     tooltip: tooltipProp,
     zoomable,
     selectable,
+    rangeSelectable,
     loading,
     error,
     onRetry,
@@ -420,6 +427,9 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
     selection,
     defaultSelection,
     onSelectionChange,
+    range,
+    defaultRange,
+    onRangeChange,
     zoom,
     defaultZoom,
     onZoomChange,
@@ -474,6 +484,12 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
     defaultSelection ?? null,
     onSelectionChange,
     samePoint,
+  );
+  const [rangeValue, requestRange] = useControllable(
+    range,
+    defaultRange ?? null,
+    onRangeChange,
+    sameRange,
   );
   const [zoomValue, requestZoom] = useControllable(
     zoom,
@@ -620,6 +636,8 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
       selection: selectionValue,
       zoom: zoomValue,
       zoomable: Boolean(zoomable),
+      range: rangeSelectable ? rangeValue : null,
+      rangeSelectable: Boolean(rangeSelectable),
       grid: resolved.grid,
       texture: Boolean(texture),
       renderer: resolved.renderer,
@@ -635,6 +653,8 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
     selectionValue,
     zoomValue,
     zoomable,
+    rangeValue,
+    rangeSelectable,
     resolved.grid,
     texture,
     resolved.renderer,
@@ -746,8 +766,28 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
     wasOpen.current = true;
   }, [overlay, activeValue]);
 
+  /* ── A drag across the plot selects a range ──────────────────────────── */
+
+  const rangeDrag = useMemo(createRangeDrag, []);
+
+  const onPlotPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!rangeSelectable || event.button !== 0 || event.shiftKey || !rangeDrag.press()) return;
+    const view = event.currentTarget.ownerDocument.defaultView;
+    const finish = (ended: PointerEvent) => {
+      view?.removeEventListener('pointerup', finish);
+      view?.removeEventListener('pointercancel', finish);
+      if (ended.type === 'pointercancel') rangeDrag.cancel();
+      else if (rangeDrag.release() && rangeValue) requestRange(null, 'pointer', ended);
+    };
+    view?.addEventListener('pointerup', finish);
+    view?.addEventListener('pointercancel', finish);
+  };
+
   latest.current = {
     onPointer: (point, source) => {
+      const spanned =
+        rangeSelectable && model ? rangeDrag.point(model, point?.key ?? null) : undefined;
+      if (spanned) requestRange(spanned, 'pointer', source);
       if (point) requestActive(point, 'pointer', source);
       else if (document.activeElement !== plot.current) requestActive(null, 'pointer', source);
     },
@@ -771,8 +811,11 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
         zoom: zoomValue,
         zoomable: Boolean(zoomable),
         selectable: Boolean(selectable),
+        range: rangeValue,
+        rangeSelectable: Boolean(rangeSelectable),
       },
       event.key,
+      event.shiftKey,
     );
     if (actionsFor === null) return;
     event.preventDefault();
@@ -784,6 +827,9 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
       } else if (action.type === 'select') {
         requestSelection(action.point, 'keyboard', event.nativeEvent);
         if (action.point) pointAnnouncer.say(describePoint(model, action.point, action.point, t));
+      } else if (action.type === 'range') {
+        requestRange(action.range, action.reason, event.nativeEvent);
+        announce(describeRange(model, action.range, t));
       } else {
         requestZoom(action.zoom, action.reason, event.nativeEvent);
         announce(describeZoom(model, action.zoom, t));
@@ -1341,6 +1387,7 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
           onBlur={(event) => requestActive(null, 'blur', event.nativeEvent)}
           onFocus={onPlotFocus}
           onKeyDown={onPlotKeyDown}
+          onPointerDown={onPlotPointerDown}
           ref={plot}
           role="group"
           tabIndex={0}

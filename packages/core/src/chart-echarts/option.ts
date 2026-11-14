@@ -4,8 +4,10 @@ import {
   colorOf,
   type ChartGrid,
   type ChartModel,
+  type ChartModelAnnotation,
   type ChartModelSeries,
   type ChartPoint,
+  type ChartRange,
   type ChartTheme,
   type ChartZoom,
 } from '../chart/index';
@@ -32,6 +34,10 @@ export interface ChartEngineView {
   readonly selection?: ChartPoint | null | undefined;
   readonly zoom?: ChartZoom | null | undefined;
   readonly zoomable?: boolean | undefined;
+  /** The selected span of the category axis, drawn as a band. */
+  readonly range?: ChartRange | null | undefined;
+  /** A drag selects a range; a zoomed window then pans with Shift held. */
+  readonly rangeSelectable?: boolean | undefined;
   readonly grid?: ChartGrid | undefined;
   readonly texture?: boolean | undefined;
   readonly renderer?: 'auto' | 'svg' | 'canvas' | undefined;
@@ -80,7 +86,7 @@ export function requiredChunks(view: ChartEngineView): string[] {
     chunks.add(series.kind === 'area' || series.kind === 'range' ? 'line' : series.kind);
     if (series.labels) chunks.add('labels');
   }
-  if (model.annotations.length > 0) chunks.add('annotations');
+  if (model.annotations.length > 0 || view.range) chunks.add('annotations');
   if (view.zoomable && model.shape === 'cartesian') chunks.add('zoom');
   if (usesTexture(view)) chunks.add('texture');
   return [...chunks];
@@ -684,7 +690,13 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
 
   /* Annotations ride on the first visible series of the axis they name,
      because ECharts draws a mark line only as part of a series. */
-  for (const annotation of model.annotations) {
+  const annotations: readonly ChartModelAnnotation[] = view.range
+    ? [
+        ...model.annotations,
+        { kind: 'band', axis: 'x', from: view.range.from, to: view.range.to, tone: 'accent' },
+      ]
+    : model.annotations;
+  for (const annotation of annotations) {
     const onValueAxis = annotation.axis !== 'x';
     const axisIndex = annotation.axis === 'end' ? 1 : 0;
     const host =
@@ -815,7 +827,7 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
            that eats the wheel traps the reader scrolling past it. */
         zoomOnMouseWheel: 'ctrl',
         moveOnMouseWheel: false,
-        moveOnMouseMove: true,
+        moveOnMouseMove: view.rangeSelectable ? 'shift' : true,
         preventDefaultMouseMove: true,
         filterMode: 'filter',
       },

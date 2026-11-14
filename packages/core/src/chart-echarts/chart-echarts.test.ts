@@ -101,6 +101,23 @@ describe('buildChartOption', () => {
     expect(zoom).toMatchObject({ start: 25, end: 75, zoomOnMouseWheel: 'ctrl' });
   });
 
+  it('draws the selected range as a band, and pans a range-selectable window with Shift', () => {
+    const view = {
+      model: createChartModel(spec),
+      theme,
+      zoomable: true,
+      range: { from: 'Jan', to: 'Feb' },
+      rangeSelectable: true,
+    };
+    const { option } = buildChartOption(view);
+    const [zoom] = option['dataZoom'] as { moveOnMouseMove: boolean | string }[];
+    const [host] = option['series'] as { markArea?: { data: { xAxis?: number }[][] } }[];
+
+    expect(zoom!.moveOnMouseMove).toBe('shift');
+    expect(host!.markArea?.data.map(([from, to]) => [from!.xAxis, to!.xAxis])).toEqual([[0, 1]]);
+    expect(requiredChunks(view)).toContain('annotations');
+  });
+
   it('asks only for the chunks the view draws', () => {
     expect(requiredChunks({ model: createChartModel(spec), theme }).sort()).toEqual(
       ['bar', 'base', 'cartesian', 'line'].sort(),

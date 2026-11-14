@@ -26,6 +26,7 @@ export type {
   ChartAnnotation,
   ChartKind,
   ChartPoint,
+  ChartRange,
   ChartRecord,
   ChartSeries,
   ChartTooltipContext,

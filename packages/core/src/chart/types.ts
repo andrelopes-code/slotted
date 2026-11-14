@@ -180,6 +180,12 @@ export interface ChartZoom {
   readonly end: number;
 }
 
+/** A span of the category axis, by the keys of its two ends, in axis order. */
+export interface ChartRange {
+  readonly from: string;
+  readonly to: string;
+}
+
 /**
  * The color of a series or a slice. A slot is identity, a tone is meaning,
  * and neither is overflow: the ninth series and on, drawn muted with a texture

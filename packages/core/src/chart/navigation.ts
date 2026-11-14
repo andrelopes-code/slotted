@@ -5,7 +5,7 @@ import {
   seriesOf,
   visibleSeries,
 } from './model';
-import type { ChartPoint, ChartZoom } from './types';
+import type { ChartPoint, ChartRange, ChartZoom } from './types';
 
 /**
  * Where the keyboard goes inside a plot.
@@ -191,6 +191,11 @@ export type ChartKeyAction =
       readonly reason: 'keyboard' | 'escape';
     }
   | { readonly type: 'select'; readonly point: ChartPoint | null }
+  | {
+      readonly type: 'range';
+      readonly range: ChartRange | null;
+      readonly reason: 'keyboard' | 'escape';
+    }
   | { readonly type: 'zoom'; readonly zoom: ChartZoom; readonly reason: 'keyboard' | 'escape' };
 
 export interface ChartKeyState {
@@ -199,7 +204,19 @@ export interface ChartKeyState {
   readonly zoom: ChartZoom | null;
   readonly zoomable: boolean;
   readonly selectable: boolean;
+  readonly range?: ChartRange | null | undefined;
+  readonly rangeSelectable?: boolean | undefined;
 }
+
+/** Moves along the category axis, which Shift turns into extending the range. */
+const ALONG: readonly ChartMove[] = [
+  'next',
+  'previous',
+  'first',
+  'last',
+  'page-next',
+  'page-previous',
+];
 
 const MOVES: Readonly<Record<string, ChartMove>> = {
   ArrowRight: 'next',
@@ -212,15 +229,25 @@ const MOVES: Readonly<Record<string, ChartMove>> = {
   PageUp: 'page-previous',
 };
 
+/** The span between two category keys, in axis order. */
+export function rangeBetween(model: ChartModel, one: string, other: string): ChartRange {
+  return categoryIndex(model, one) <= categoryIndex(model, other)
+    ? { from: one, to: other }
+    : { from: other, to: one };
+}
+
 /**
  * What a key pressed on the plot asks for, or `null` for a key the plot does
  * not own — which the binding then leaves to the page. A move that lands where
- * it started asks for nothing, so the request is not emitted twice.
+ * it started asks for nothing, so the request is not emitted twice. With
+ * `shift` and a range-selectable cartesian plot, a move along the category
+ * axis also extends the range from the end the active point is not on.
  */
 export function chartKeyAction(
   model: ChartModel,
   state: ChartKeyState,
   key: string,
+  shift = false,
 ): ChartKeyAction[] | null {
   if (model.empty) return null;
   const move = MOVES[key];
@@ -233,6 +260,14 @@ export function chartKeyAction(
       return [];
     }
     const actions: ChartKeyAction[] = [{ type: 'active', point: next, reason: 'keyboard' }];
+    if (shift && state.rangeSelectable && model.shape === 'cartesian' && ALONG.includes(move)) {
+      const anchor = rangeAnchor(state.range, state.active?.key ?? next.key);
+      actions.push({
+        type: 'range',
+        range: rangeBetween(model, anchor, next.key),
+        reason: 'keyboard',
+      });
+    }
     if (state.zoomable && state.zoom && model.shape === 'cartesian') {
       const shifted = zoomIncluding(
         state.zoom,
@@ -253,6 +288,9 @@ export function chartKeyAction(
 
   if (key === 'Escape') {
     if (state.active) return [{ type: 'active', point: null, reason: 'escape' }];
+    if (state.rangeSelectable && state.range) {
+      return [{ type: 'range', range: null, reason: 'escape' }];
+    }
     if (state.zoomable && !isFullZoom(state.zoom)) {
       return [{ type: 'zoom', zoom: FULL_ZOOM, reason: 'escape' }];
     }
@@ -276,6 +314,13 @@ export function chartKeyAction(
   }
 
   return null;
+}
+
+/** The end of a range a Shift move extends from: the one the active point is not on. */
+function rangeAnchor(range: ChartRange | null | undefined, active: string) {
+  if (range?.to === active) return range.from;
+  if (range?.from === active) return range.to;
+  return active;
 }
 
 /**

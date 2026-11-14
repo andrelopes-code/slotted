@@ -31,9 +31,11 @@ import {
   chartToCsv,
   createChartModel,
   createLatestAnnouncer,
+  createRangeDrag,
   defaultTrigger,
   describeChart,
   describePoint,
+  describeRange,
   describeZoom,
   firstPoint,
   FULL_ZOOM,
@@ -62,6 +64,7 @@ import type {
   ChartModel,
   ChartOrientation,
   ChartPoint,
+  ChartRange,
   ChartRecord,
   ChartSeries,
   ChartSpec,
@@ -145,6 +148,8 @@ const samePoint = (a: ChartPoint | null, b: ChartPoint | null) =>
 const sameList = (a: readonly string[], b: readonly string[]) =>
   a.length === b.length && a.every((value, index) => value === b[index]);
 const sameZoom = (a: ChartZoom, b: ChartZoom) => a.start === b.start && a.end === b.end;
+const sameRange = (a: ChartRange | null, b: ChartRange | null) =>
+  a === b || (a !== null && b !== null && a.from === b.from && a.to === b.to);
 
 function lastDrawn(values: readonly (number | null)[]) {
   for (let index = values.length - 1; index >= 0; index -= 1)
@@ -253,6 +258,8 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
   readonly tooltip = input<ChartTooltipSettings | undefined>(undefined);
   readonly zoomable = input(false, { transform: booleanAttribute });
   readonly selectable = input(false, { transform: booleanAttribute });
+  /** A drag or Shift and an arrow selects a span of the category axis. */
+  readonly rangeSelectable = input(false, { transform: booleanAttribute });
   readonly loading = input(false, { transform: booleanAttribute });
   readonly error = input(false, { transform: booleanAttribute });
   /** The engine's option, before it is drawn: the escape hatch for what the contract does not say yet. */
@@ -264,6 +271,7 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
   readonly hidden = model<readonly string[]>([]);
   readonly activePoint = model<ChartPoint | null>(null);
   readonly selection = model<ChartPoint | null>(null);
+  readonly range = model<ChartRange | null>(null);
   readonly zoom = model<ChartZoom>(FULL_ZOOM);
   readonly tableOpen = model<boolean>(false);
   readonly fullscreen = model<boolean>(false);
@@ -271,6 +279,7 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
   readonly hiddenChangeRequest = output<ChangeRequest<readonly string[]>>();
   readonly activePointChangeRequest = output<ChangeRequest<ChartPoint | null>>();
   readonly selectionChangeRequest = output<ChangeRequest<ChartPoint | null>>();
+  readonly rangeChangeRequest = output<ChangeRequest<ChartRange | null>>();
   readonly zoomChangeRequest = output<ChangeRequest<ChartZoom>>();
   readonly tableOpenChangeRequest = output<ChangeRequest<boolean>>();
   readonly fullscreenChangeRequest = output<ChangeRequest<boolean>>();
@@ -308,6 +317,7 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
   protected readonly layerOpen = signal<Record<string, boolean>>({});
   private readonly widths = new Map<string, number>();
   private readonly modality = trackModality(this.host);
+  private readonly rangeDrag = createRangeDrag();
   private readonly pointAnnouncer = createLatestAnnouncer((message) =>
     getLiveAnnouncer().announce(message),
   );
@@ -460,6 +470,12 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
       const stop = observeChartTheme(plot, () => this.applyTheme(readChartTheme(plot)));
       this.engine = this.mountEngine(canvas, {
         onPointer: (point, source) => {
+          const current = this.chartModel();
+          const spanned =
+            this.rangeSelectable() && current
+              ? this.rangeDrag.point(current, point?.key ?? null)
+              : undefined;
+          if (spanned) this.requestRange(spanned, 'pointer', source);
           if (point) this.requestActive(point, 'pointer', source);
           else if (document.activeElement !== plot) this.requestActive(null, 'pointer', source);
         },
@@ -530,6 +546,8 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
         selection: this.selection(),
         zoom: this.zoom(),
         zoomable: this.zoomable(),
+        range: this.rangeSelectable() ? this.range() : null,
+        rangeSelectable: this.rangeSelectable(),
         grid: this.grid() ?? this.defaults.grid,
         texture: this.texture(),
         renderer: this.renderer() ?? this.defaults.renderer ?? 'auto',
@@ -640,6 +658,16 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
       this.selection,
       (request) => this.selectionChangeRequest.emit(request),
       samePoint,
+      next,
+      reason,
+      source,
+    );
+  }
+  protected requestRange(next: ChartRange | null, reason: ChangeReason, source?: unknown) {
+    this.ask(
+      this.range,
+      (request) => this.rangeChangeRequest.emit(request),
+      sameRange,
       next,
       reason,
       source,
@@ -1040,8 +1068,11 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
         zoom: this.zoom(),
         zoomable: this.zoomable(),
         selectable: this.selectable(),
+        range: this.range(),
+        rangeSelectable: this.rangeSelectable(),
       },
       event.key,
+      event.shiftKey,
     );
     if (actions === null) return;
     event.preventDefault();
@@ -1055,11 +1086,29 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
         this.requestSelection(action.point, 'keyboard', event);
         if (action.point)
           this.pointAnnouncer.say(describePoint(current, action.point, action.point, this.t));
+      } else if (action.type === 'range') {
+        this.requestRange(action.range, action.reason, event);
+        getLiveAnnouncer().announce(describeRange(current, action.range, this.t));
       } else {
         this.requestZoom(action.zoom, action.reason, event);
         getLiveAnnouncer().announce(describeZoom(current, action.zoom, this.t));
       }
     }
+  }
+
+  /** A drag across the plot selects a range; a click without one clears it. */
+  protected onPlotPointerDown(event: PointerEvent) {
+    if (!this.rangeSelectable() || event.button !== 0 || event.shiftKey) return;
+    if (!this.rangeDrag.press()) return;
+    const view = this.host.ownerDocument.defaultView;
+    const finish = (ended: PointerEvent) => {
+      view?.removeEventListener('pointerup', finish);
+      view?.removeEventListener('pointercancel', finish);
+      if (ended.type === 'pointercancel') this.rangeDrag.cancel();
+      else if (this.rangeDrag.release() && this.range()) this.requestRange(null, 'pointer', ended);
+    };
+    view?.addEventListener('pointerup', finish);
+    view?.addEventListener('pointercancel', finish);
   }
 
   protected onPlotFocus(event: FocusEvent) {

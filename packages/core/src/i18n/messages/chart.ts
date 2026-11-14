@@ -34,8 +34,12 @@ export interface ChartMessages {
   readonly retry: Message;
   readonly roledescription: Message;
   readonly selected: Message;
+  /** Announced when the selected range of the category axis clears. */
+  readonly rangeCleared: Message;
   /** The lower bound of a range series, as a table column. */
   readonly rangeLower: Message<{ series: string }>;
+  /** Announced when the selected range of the category axis changes. */
+  readonly rangeSelected: Message<{ first: string; last: string }>;
   /** The upper bound of a range series, as a table column. */
   readonly rangeUpper: Message<{ series: string }>;
   readonly seriesBand: Message<{
@@ -107,7 +111,9 @@ export const en: ChartMessages = {
   retry: 'Try again',
   roledescription: 'chart',
   selected: 'selected',
+  rangeCleared: 'Range cleared.',
   rangeLower: '{series}, lower bound',
+  rangeSelected: 'Selected {first} to {last}.',
   rangeUpper: '{series}, upper bound',
   seriesBand: '{series}: from {min} at {minAt} up to {max} at {maxAt}.',
   seriesRange:

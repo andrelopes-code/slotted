@@ -820,6 +820,11 @@ const events: EventRow[] = [
     when: 'With selectable, on a click or Enter on a point, and on Escape: pointer, keyboard, escape, programmatic.',
   },
   {
+    name: 'onRangeChange',
+    payload: '(range: ChartRange | null, request: ChangeRequest<ChartRange | null>)',
+    when: 'With rangeSelectable, at each point a drag reaches, on Shift and an arrow, on a click without a drag and on Escape: pointer, keyboard, escape, programmatic.',
+  },
+  {
     name: 'onZoomChange',
     payload: '(zoom: ChartZoom, request: ChangeRequest<ChartZoom>)',
     when: 'With zoomable, on a wheel with Ctrl, + or −, 0, the reset control or a drag that pans a zoomed chart: pointer, keyboard, clear, escape, programmatic. start and end are fractions of the domain.',
@@ -1079,9 +1084,16 @@ export const REACT_CHART_DOCS = {
         'boolean',
         'false',
         'Chart',
-        'Ctrl+wheel and + − 0 zoom the x axis; a drag pans a zoomed chart',
+        'Ctrl+wheel and + − 0 zoom the x axis; a drag pans a zoomed chart, Shift and a drag with rangeSelectable',
       ],
       ['selectable', 'boolean', 'false', 'Chart', 'A click or Enter selects a point'],
+      [
+        'rangeSelectable',
+        'boolean',
+        'false',
+        'Chart',
+        'A drag, or Shift and an arrow, selects a span of the x axis, drawn as a band; a click clears it',
+      ],
       [
         'loading',
         'boolean',
@@ -1096,6 +1108,14 @@ export const REACT_CHART_DOCS = {
       ['defaultActivePoint', 'ChartPoint | null', 'null', 'Chart', 'The point read at first'],
       ['selection', 'ChartPoint | null', '—', 'Chart', 'The selected point, controlled'],
       ['defaultSelection', 'ChartPoint | null', 'null', 'Chart', 'The point selected at first'],
+      [
+        'range',
+        'ChartRange | null',
+        '—',
+        'Chart',
+        'The selected span, by the keys of its two ends in axis order, controlled',
+      ],
+      ['defaultRange', 'ChartRange | null', 'null', 'Chart', 'The span selected at first'],
       ['zoom', 'ChartZoom', '—', 'Chart', 'The visible fraction of the x domain, controlled'],
       ['defaultZoom', 'ChartZoom', '{ start: 0, end: 1 }', 'Chart', 'The zoom at first'],
       ['tableOpen', 'boolean', 'false', 'Chart', 'Whether the plot shows the table, controlled'],
@@ -1166,7 +1186,7 @@ export const REACT_CHART_DOCS = {
     ]),
     accessibility: [
       'The figure is named by its caption, and the plot is one tab stop with role="group", aria-roledescription="chart", the title as its name and a generated summary as its description: kind, series, points, and the range, minimum and maximum of each series.',
-      'Inside the plot the keyboard follows an adaptation of the APG Grid pattern: Left and Right move along the categories, Up and Down between series, Home and End to the ends, Page keys by a tenth; Enter selects, + − and 0 zoom, Escape clears. The tooltip is aria-hidden, and a polite live region says the point reached — only the last one, so holding an arrow does not queue twelve sentences.',
+      'Inside the plot the keyboard follows an adaptation of the APG Grid pattern: Left and Right move along the categories, Up and Down between series, Home and End to the ends, Page keys by a tenth; Enter selects, Shift with Left or Right extends a range, + − and 0 zoom, Escape clears. The tooltip is aria-hidden, and a polite live region says the point reached — only the last one, so holding an arrow does not queue twelve sentences.',
       'The legend is a toolbar of toggle buttons with a roving tab stop: aria-pressed says whether a series is drawn, Enter hides it, Shift+Enter shows it alone, and the live region confirms the change.',
       'Every chart has a table view with the same numbers in their formats, reachable from the toolbar or the menu; it is the complete reading for anyone the drawing does not serve.',
       'Color is never the only channel: series differ in stroke and marker shape, texture adds a pattern per slot, and under forced colors the drawing is redrawn in system colors with the legend markers kept by mask.',

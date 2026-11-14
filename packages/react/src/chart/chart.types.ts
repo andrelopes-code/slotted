@@ -6,6 +6,7 @@ import type {
   ChartModel,
   ChartOrientation,
   ChartPoint,
+  ChartRange,
   ChartRecord,
   ChartSeries,
   ChartStackMode,
@@ -142,6 +143,8 @@ export interface ChartProps<Row extends object = ChartRecord> extends NativeFigu
   readonly tooltip?: ChartTooltipSettings | undefined;
   readonly zoomable?: boolean | undefined;
   readonly selectable?: boolean | undefined;
+  /** A drag or Shift and an arrow selects a span of the category axis. */
+  readonly rangeSelectable?: boolean | undefined;
 
   /* ── Waiting and failing ───────────────────────────────────────────── */
   readonly loading?: boolean | undefined;
@@ -163,6 +166,10 @@ export interface ChartProps<Row extends object = ChartRecord> extends NativeFigu
   readonly defaultSelection?: ChartPoint | null | undefined;
   readonly onSelectionChange?:
     ((value: ChartPoint | null, request: ChangeRequest<ChartPoint | null>) => void) | undefined;
+  readonly range?: ChartRange | null | undefined;
+  readonly defaultRange?: ChartRange | null | undefined;
+  readonly onRangeChange?:
+    ((value: ChartRange | null, request: ChangeRequest<ChartRange | null>) => void) | undefined;
   readonly zoom?: ChartZoom | undefined;
   readonly defaultZoom?: ChartZoom | undefined;
   readonly onZoomChange?:

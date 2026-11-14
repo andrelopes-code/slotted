@@ -1,7 +1,7 @@
 import type { ChartMessages, FamilyTranslator } from '../i18n';
 import { createNumberFormatter } from './format';
 import { categoryIndex, type ChartModel, pointText, seriesOf, visibleSeries } from './model';
-import type { ChartPoint, ChartZoom } from './types';
+import type { ChartPoint, ChartRange, ChartZoom } from './types';
 import { zoomRange } from './navigation';
 
 /** The family's words in the language in force: `useMessages` / `injectMessages` of `chartMessages`. */
@@ -141,6 +141,21 @@ export function describeZoom(
   const [first, last] = zoomRange(model, zoom);
   if (!zoom || (zoom.start <= 0 && zoom.end >= 1) || last < first) return t('zoomReset');
   return t('zoomed', {
+    first: model.categories[first]!.label,
+    last: model.categories[last]!.label,
+  });
+}
+
+/** What the live announcer says when the selected range changes. */
+export function describeRange(
+  model: ChartModel,
+  range: ChartRange | null,
+  t: ChartTranslator,
+): string {
+  const first = range ? categoryIndex(model, range.from) : -1;
+  const last = range ? categoryIndex(model, range.to) : -1;
+  if (first < 0 || last < 0) return t('rangeCleared');
+  return t('rangeSelected', {
     first: model.categories[first]!.label,
     last: model.categories[last]!.label,
   });

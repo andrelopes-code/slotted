@@ -19,6 +19,7 @@ import {
   firstPoint,
   FULL_ZOOM,
   movePoint,
+  rangeBetween,
   placeTooltip,
   toggleHidden,
   tooltipContext,
@@ -271,6 +272,31 @@ describe('keyboard', () => {
     expect(
       chartKeyAction(model, { ...base, active: null, zoom: { start: 0.2, end: 0.6 } }, 'Escape'),
     ).toEqual([{ type: 'zoom', zoom: FULL_ZOOM, reason: 'escape' }]);
+  });
+
+  it('extends the range from the end the point is not on with Shift, and clears it on Escape', () => {
+    const base = { selection: null, zoom: null, zoomable: false, selectable: false };
+    const state = {
+      ...base,
+      active: { series: 'cost', key: 'Mar' },
+      range: { from: 'Mar', to: 'Apr' },
+      rangeSelectable: true,
+    };
+
+    expect(chartKeyAction(model, state, 'ArrowLeft', true)).toEqual([
+      { type: 'active', point: { series: 'cost', key: 'Feb' }, reason: 'keyboard' },
+      { type: 'range', range: { from: 'Feb', to: 'Apr' }, reason: 'keyboard' },
+    ]);
+    expect(chartKeyAction(model, { ...state, rangeSelectable: false }, 'ArrowLeft', true)).toEqual([
+      { type: 'active', point: { series: 'cost', key: 'Feb' }, reason: 'keyboard' },
+    ]);
+    expect(chartKeyAction(model, { ...state, active: null }, 'Escape')).toEqual([
+      { type: 'range', range: null, reason: 'escape' },
+    ]);
+  });
+
+  it('orders the ends of a range by the category axis', () => {
+    expect(rangeBetween(model, 'May', 'Feb')).toEqual({ from: 'Feb', to: 'May' });
   });
 
   it('pans the window to keep the keyboard’s point in view', () => {
