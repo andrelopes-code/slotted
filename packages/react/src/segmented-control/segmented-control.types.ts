@@ -10,9 +10,11 @@ export type SegmentedControlOrientation = 'horizontal' | 'vertical';
 /**
  * What the control does when it is narrower than its labels need. `icons`
  * keeps the marks and hides the words — hidden, never removed, so the
- * accessible name of every segment is the same at every width.
+ * accessible name of every segment is the same at every width. `vertical`
+ * stands the segments in a column with their whole text, and returns to a row
+ * once the row is as wide as the labels need.
  */
-export type SegmentedControlCondense = 'none' | 'icons';
+export type SegmentedControlCondense = 'none' | 'icons' | 'vertical';
 
 /**
  * How the choice is drawn. `track` is a box with a thumb behind the chosen
@@ -75,6 +77,8 @@ export interface SegmentedControlRootProps extends HTMLAttributes<HTMLElement> {
   'data-size': SegmentedControlSize;
   'data-ui': string;
   'data-variant': SegmentedControlVariant;
+  /** Attach it to the rendered root: a control told to condense reads its width through it. */
+  ref?: ((element: HTMLDivElement | null) => void) | undefined;
 }
 
 /** What `render` receives for one segment. */

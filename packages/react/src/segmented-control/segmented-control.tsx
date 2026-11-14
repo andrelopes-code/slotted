@@ -17,6 +17,7 @@ import { useField, useFieldDefaults } from '../field';
 import { useFieldGroup } from '../field-group';
 import { Segment } from './segmented-control-parts';
 import { useSegmentedControlDefaults } from './segmented-control-defaults';
+import { useCondense } from './use-condense';
 import type {
   SegmentProps,
   SegmentedControlContextValue,
@@ -128,6 +129,9 @@ export function SegmentedControl({
   const resolvedSize = size ?? field?.size ?? fieldGroup?.size ?? defaults.size;
   const resolvedOrientation = orientation ?? defaults.orientation;
   const resolvedCondense = condense ?? defaults.condense;
+  const condensed = useCondense(resolvedCondense === 'vertical', ref);
+  /* The axis the segments are drawn on: a row condensed to a column is a column. */
+  const drawnOrientation = condensed.stacked ? 'vertical' : resolvedOrientation;
   const resolvedVariant = variant ?? defaults.variant;
   const resolvedFullWidth = fullWidth ?? defaults.fullWidth;
   const resolvedDisabled = disabled ?? field?.disabled ?? fieldDefaults.disabled;
@@ -188,7 +192,7 @@ export function SegmentedControl({
      */
     'aria-orientation':
       ariaOrientation ??
-      (resolvedRole === 'radiogroup' && resolvedOrientation === 'horizontal'
+      (resolvedRole === 'radiogroup' && drawnOrientation === 'horizontal'
         ? 'horizontal'
         : undefined),
     'aria-readonly': ariaReadOnly ?? (resolvedReadOnly === true ? true : undefined),
@@ -209,7 +213,7 @@ export function SegmentedControl({
     ...(resolvedDisabled === true ? { 'data-disabled': '' } : {}),
     ...(resolvedFullWidth ? { 'data-full-width': '' } : {}),
     ...(resolvedInvalid === true ? { 'data-invalid': '' } : {}),
-    'data-orientation': resolvedOrientation,
+    'data-orientation': drawnOrientation,
     'data-part': 'root',
     ...(resolvedReadOnly === true ? { 'data-readonly': '' } : {}),
     'data-size': resolvedSize,
@@ -228,5 +232,9 @@ export function SegmentedControl({
     } as SegmentedControlRootProps['style'],
   });
 
-  return render === undefined ? <div {...rootProps} ref={ref} /> : render(rootProps);
+  return render === undefined ? (
+    <div {...rootProps} ref={condensed.attach} />
+  ) : (
+    render({ ...rootProps, ref: condensed.attach })
+  );
 }

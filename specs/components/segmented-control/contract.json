@@ -108,6 +108,7 @@
     "declaredOn": "the root, and only under `data-condense=\"icons\"`",
     "fillsItsParent": true,
     "reason": "Primer drops a segmented control's labels at a viewport breakpoint. The control's own inline size is what decides whether its labels fit, and the words stay in the DOM while they are hidden, so the accessible name does not change with the width.",
+    "vertical": "`condense=\"vertical\"` measures rather than queries: the width a row of labels needs depends on their language, which a literal breakpoint cannot know. The binding reads each label's overflow while the row is drawn (core `createCondense`), writes `data-orientation=\"vertical\"` below the width the labels need, and returns to the row once the control has that width. The root takes its parent's width under it, for the reason shapeReason gives; `aria-orientation` follows the drawn axis.",
     "shapeReason": "`container-type: inline-size` contains the inline axis, so an element that declares it is sized as though it had no contents — and a control that shrinks to its labels shrinks to nothing. Measured: every content-width scene stood about one character wide. The container is therefore declared on the one shape that has a width of its own to be asked about, and that shape takes its parent's width. Asking a control to give up its words at a width it chose for itself is a question with no answer."
   },
   "declined": {
@@ -138,7 +139,7 @@
   "axes": {
     "size": ["sm", "md", "lg"],
     "orientation": ["horizontal", "vertical"],
-    "condense": ["none", "icons"],
+    "condense": ["none", "icons", "vertical"],
     "variant": ["track", "underline"]
   },
   "resolution": {

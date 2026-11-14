@@ -166,7 +166,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'condense',
     title: 'Narrower than its words',
-    note: 'Below the width its labels need, a control told to condense keeps its marks and hides its words — hidden, never removed, so every segment is announced the same at every width.',
+    note: 'Below the width its labels need, a control told to condense keeps its marks and hides its words — hidden, never removed, so every segment is announced the same at every width. condense="vertical" keeps the words instead and stands the segments in a column, which suits a set without icons; the width it needs is measured, so it follows the language of the labels.',
     snippet: defineSnippet({
       id: 'segmented-control-angular-condense',
       language: 'angular',
@@ -330,10 +330,10 @@ export const ANGULAR_SEGMENTED_CONTROL_DOCS = {
       ],
       [
         'condense',
-        "'none' | 'icons'",
+        "'none' | 'icons' | 'vertical'",
         'none',
         'slSegmentedControl',
-        'What the control does when it is narrower than its labels need. icons keeps the marks and hides the words, and makes the control take its parent’s width so there is a width to ask a question about',
+        'What the control does when it is narrower than its labels need. icons keeps the marks and hides the words; vertical stands the segments in a column with their whole text, and returns to a row once the control is as wide as the labels need. Both make the control take its parent’s width so there is a width to ask a question about',
       ],
       [
         'fullWidth',

@@ -1,3 +1,4 @@
+import { createCondense } from '@slotted/core/overflow';
 import { createControllable } from '@slotted/core/state';
 import type { ChangeRequest } from '@slotted/core/state';
 import {
@@ -5,6 +6,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
+  ElementRef,
   forwardRef,
   HostAttributeToken,
   inject,
@@ -106,7 +109,7 @@ export interface SlSegmentedControlSegment {
     'data-part-root': '',
     '[attr.role]': 'resolvedRole()',
     '[attr.data-size]': 'resolvedSize()',
-    '[attr.data-orientation]': 'resolvedOrientation()',
+    '[attr.data-orientation]': 'drawnOrientation()',
     '[attr.data-condense]': 'resolvedCondense()',
     '[attr.data-variant]': 'resolvedVariant()',
     '[attr.aria-labelledby]': 'labelledBy()',
@@ -215,6 +218,12 @@ export class SlSegmentedControl implements ControlValueAccessor, OnInit, Validat
   );
   readonly resolvedOrientation = computed(() => this.orientation() ?? this.defaults.orientation);
   readonly resolvedCondense = computed(() => this.condense() ?? this.defaults.condense);
+  /* Whether a control told to condense to a column stands as one now. */
+  private readonly stacked = signal(false);
+  /** The axis the segments are drawn on: a row condensed to a column is a column. */
+  readonly drawnOrientation = computed<SegmentedControlOrientation>(() =>
+    this.stacked() ? 'vertical' : this.resolvedOrientation(),
+  );
   readonly resolvedVariant = computed(() => this.variant() ?? this.defaults.variant);
   readonly resolvedFullWidth = computed(() => this.fullWidth() ?? this.defaults.fullWidth);
   readonly resolvedDisabled = computed(
@@ -247,10 +256,28 @@ export class SlSegmentedControl implements ControlValueAccessor, OnInit, Validat
    * `radiogroup` does not already imply.
    */
   protected readonly ariaOrientation = computed(() =>
-    this.resolvedRole() === 'radiogroup' && this.resolvedOrientation() === 'horizontal'
+    this.resolvedRole() === 'radiogroup' && this.drawnOrientation() === 'horizontal'
       ? 'horizontal'
       : null,
   );
+
+  constructor() {
+    const root: HTMLElement = inject(ElementRef).nativeElement;
+
+    effect((onCleanup) => {
+      if (this.resolvedCondense() !== 'vertical') return;
+
+      const handle = createCondense(root, {
+        labels: () => [...root.querySelectorAll('[data-part="item"] [data-part="label"]')],
+        onChange: (stacked) => this.stacked.set(stacked),
+      });
+
+      onCleanup(() => {
+        handle.destroy();
+        this.stacked.set(false);
+      });
+    });
+  }
 
   ngOnInit() {
     if (this.value() === undefined) this.own.set(this.defaultValue());

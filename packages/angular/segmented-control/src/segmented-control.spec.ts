@@ -233,6 +233,16 @@ describe('SlSegmentedControl', () => {
     expect(radios(fixture)).toHaveLength(3);
   });
 
+  it('keeps the declared axis under condense vertical while every label fits', async () => {
+    const fixture = renderTemplate(`<div slSegmentedControl condense="vertical">${SET}</div>`);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    fixture.detectChanges();
+
+    expect(control(fixture)?.getAttribute('data-condense')).toBe('vertical');
+    expect(control(fixture)?.getAttribute('data-orientation')).toBe('horizontal');
+    expect(control(fixture)?.getAttribute('aria-orientation')).toBe('horizontal');
+  });
+
   it('lets an application state its axes once, and one control outrank it', () => {
     const fixture = renderTemplate(`<div slSegmentedControl>${SET}</div>`, [
       provideSegmentedControlDefaults({ condense: 'icons', fullWidth: true, size: 'sm' }),

@@ -1,5 +1,7 @@
 export { CLIP_TOLERANCE, isClipped } from './clip';
 export { collapseState, createCollapse } from './collapse';
+export { condenseState, createCondense, NOT_STACKED } from './condense';
+export type { CondenseHandle, CondenseInput, CondenseOptions, CondenseState } from './condense';
 export type {
   CollapseHandle,
   CollapseInput,
