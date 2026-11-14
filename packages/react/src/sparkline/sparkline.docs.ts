@@ -1,7 +1,7 @@
 import sparklineTokens from '@slotted/styles/sparkline/tokens.json';
 import { defineSnippet } from '@slotted/storybook-workbench';
 
-import { REACT_BAR_COMPARE_DOCS, REACT_POSITION_STRIP_DOCS } from './sparkline-members.docs';
+import { REACT_BAR_COMPARE_DOCS, REACT_POSITION_STRIP_DOCS } from './sparkline-members.reference';
 import type {
   AnatomyRow,
   ApiRow,
