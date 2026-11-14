@@ -143,7 +143,7 @@ export const REACT_BUTTON_DOCS = {
     anatomy: [
       root(
         'button, or the element render returns',
-        'data-justify, and data-full-width, data-disabled and data-loading when they apply.',
+        'data-justify, and data-full-width, data-inline, data-disabled and data-loading when they apply.',
       ),
       ...content(true),
       indicatorRow('in the start box, else in the end box, else centerd over the label,'),
@@ -174,6 +174,13 @@ export const REACT_BUTTON_DOCS = {
         'Content after the label, such as an icon. It mirrors in a right-to-left document.',
       ],
       ['fullWidth', 'boolean', 'false', 'Button', 'Fills the inline size of the container.'],
+      [
+        'inline',
+        'boolean',
+        'false',
+        'Button',
+        'A word of the surrounding text, for an action inside a sentence or a dense cell: no box in any variant, the font, line height and baseline of the text around it, underlined in the tone. A row of small text keeps its height.',
+      ],
       [
         'justify',
         'center | between',

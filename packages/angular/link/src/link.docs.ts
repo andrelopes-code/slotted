@@ -237,7 +237,7 @@ export const ANGULAR_LINK_DOCS = {
       ],
     ]),
     accessibility: [
-      'The directive sits on the consumer’s own anchor, so the link role, Enter, the context menu and every modified click come from the platform — and routerLink composes on the same element. Space does not activate a link, and nothing here makes it.',
+      'The directive sits on the consumer’s own anchor, so the link role, Enter, the context menu and every modified click come from the platform — and routerLink composes on the same element. Space does not activate a link, and nothing here makes it. An action inside a line that runs a handler and goes nowhere is a button slButton with inline, not an anchor without an href.',
       'underline="always" is the default because color alone does not distinguish a link: the accent text color clears 4.5:1 against the surface and not 3:1 against the body text beside it.',
       'variant="neutral" takes the color of the text around it, so it belongs where nothing on the line could be mistaken for it — a cell, a title, a row — and never inside a sentence.',
       'Whatever the underline axis says, the underline returns under forced-colors, where the palette flattens the color contrast a bare link relies on.',

@@ -79,6 +79,7 @@ import {
     '[attr.data-size]': 'appearance.size()',
     '[attr.data-full-width]': 'stateAttribute(fullWidth())',
     '[attr.data-justify]': 'justify()',
+    '[attr.data-inline]': 'stateAttribute(inline())',
     '[attr.data-disabled]': 'stateAttribute(disabled())',
     '[attr.data-loading]': 'stateAttribute(loading())',
     '[disabled]': 'inert.nativelyDisabled()',
@@ -94,6 +95,11 @@ export class SlButton implements ButtonWait {
    */
   readonly focusableWhenDisabled = input(false, { transform: booleanAttribute });
   readonly fullWidth = input(false, { transform: booleanAttribute });
+  /**
+   * A word of the surrounding text, for an action inside a sentence or a
+   * dense cell: no box, the text's font and baseline, underlined.
+   */
+  readonly inline = input(false, { transform: booleanAttribute });
   /**
    * Where the content sits along the inline axis. `between` sets the label at
    * the start and the end slot at the inline end, as a field trigger reads;

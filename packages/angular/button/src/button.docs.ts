@@ -154,7 +154,7 @@ export const ANGULAR_BUTTON_DOCS = {
     anatomy: [
       root(
         'the button element you write',
-        'data-justify, and data-full-width, data-disabled and data-loading when they apply.',
+        'data-justify, and data-full-width, data-inline, data-disabled and data-loading when they apply.',
       ),
       ...content(true),
       indicatorRow('in the start box, else in the end box, else centerd over the label,'),
@@ -172,6 +172,13 @@ export const ANGULAR_BUTTON_DOCS = {
       ...appearance('SlButton', 'accent', 'solid'),
       ...CONTENT('SlButton'),
       ['fullWidth', 'boolean', 'false', 'SlButton', 'Fills the inline size of the container.'],
+      [
+        'inline',
+        'boolean',
+        'false',
+        'SlButton',
+        'A word of the surrounding text, for an action inside a sentence or a dense cell: no box in any variant, the font, line height and baseline of the text around it, underlined in the tone. A row of small text keeps its height.',
+      ],
       [
         'justify',
         'center | between',

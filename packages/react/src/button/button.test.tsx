@@ -282,6 +282,15 @@ describe('Button', () => {
     expect(button).toHaveAttribute('data-part', 'root');
   });
 
+  it('writes data-inline only when inline', () => {
+    const { rerender } = render(<Button>Split</Button>);
+    expect(screen.getByRole('button')).not.toHaveAttribute('data-inline');
+
+    rerender(<Button inline>Split</Button>);
+
+    expect(screen.getByRole('button')).toHaveAttribute('data-inline', '');
+  });
+
   it('writes each declared axis and no state it is not in', () => {
     render(
       <Button fullWidth size="lg" tone="danger" variant="ghost">

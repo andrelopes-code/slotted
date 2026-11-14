@@ -31,6 +31,7 @@ const defaults = contract.members.button.defaults;
     [disabled]="disabled()"
     [focusableWhenDisabled]="focusableWhenDisabled()"
     [fullWidth]="fullWidth()"
+    [inline]="inline()"
     [justify]="justify()"
     [loading]="loading()"
     [loadingDelay]="loadingDelay()"
@@ -54,6 +55,7 @@ class TestHost {
   readonly disabled = signal(false);
   readonly focusableWhenDisabled = signal(false);
   readonly fullWidth = signal(false);
+  readonly inline = signal(false);
   readonly justify = signal<ButtonJustify>('center');
   readonly loading = signal(false);
   readonly loadingDelay = signal(0);
@@ -310,6 +312,15 @@ describe('SlButton', () => {
     fixture.detectChanges();
 
     expect(button.getAttribute('type')).toBe('submit');
+  });
+
+  it('is a word of the surrounding text only when inline', () => {
+    const { button, fixture, host } = mount();
+    expect(button.hasAttribute('data-inline')).toBe(false);
+
+    host.inline.set(true);
+    fixture.detectChanges();
+    expect(button.getAttribute('data-inline')).toBe('');
   });
 
   it('fills its container only when asked', () => {

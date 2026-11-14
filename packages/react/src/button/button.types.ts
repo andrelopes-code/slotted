@@ -118,6 +118,11 @@ export interface ButtonProps
     ButtonContentProps,
     ButtonDisabledProps,
     ButtonLoadingProps {
+  /**
+   * A word of the surrounding text, for an action inside a sentence or a
+   * dense cell: no box, the text's font and baseline, underlined.
+   */
+  inline?: boolean | undefined;
   render?: ButtonRender<ButtonRootProps> | undefined;
   type?: ButtonType | undefined;
 }

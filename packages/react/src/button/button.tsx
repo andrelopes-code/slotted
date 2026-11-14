@@ -24,6 +24,7 @@ export function Button({
   end,
   focusableWhenDisabled = false,
   fullWidth = false,
+  inline = false,
   justify = 'center',
   loading = false,
   loadingDelay = 0,
@@ -45,7 +46,7 @@ export function Button({
 
   const rootProps: ButtonRootProps = keyedProps({
     ...nativeProps,
-    ...rootData({ disabled, fullWidth, justify, loading, ...appearance }),
+    ...rootData({ disabled, fullWidth, inline, justify, loading, ...appearance }),
     'aria-disabled': inert.ariaDisabled,
     children: (
       <ButtonContent

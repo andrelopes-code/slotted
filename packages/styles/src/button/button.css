@@ -787,6 +787,51 @@
   }
 
   /**
+   * A text action inside a line — "show details" in a sentence, "split" in a
+   * dense table cell — is a word of that line. It takes the font, weight and
+   * line height around it, draws no box in any variant, stands on the
+   * baseline and is underlined in its tone's text color, so the row keeps its
+   * height and the word lines up with its neighbours. WCAG 2.5.8 exempts a
+   * target inside a sentence from the 24px minimum.
+   */
+  [data-ui-button][data-inline]:not([data-shape]) {
+    background: transparent;
+    border-color: transparent;
+    border-radius: var(--slotted-radius-sm, 2px);
+    border-width: 0;
+    box-shadow: none;
+    color: var(--_text, LinkText);
+    font: inherit;
+    gap: 0.25em;
+    min-block-size: 0;
+    padding-inline: 0;
+    text-decoration-line: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.2em;
+    vertical-align: baseline;
+  }
+
+  [data-ui-button][data-inline]:not([data-shape]) [data-part-label] {
+    line-height: inherit;
+    padding-block: 0;
+    text-box: normal;
+  }
+
+  [data-ui-button][data-inline]:not([data-shape]):hover:not(:disabled):not([data-disabled]):not(
+      [data-loading]
+    ):not([data-pressed]),
+  [data-ui-button][data-inline]:not([data-shape]):active:not(:disabled):not([data-disabled]):not(
+      [data-loading]
+    ):not([data-pressed]) {
+    background: transparent;
+  }
+
+  [data-ui-button][data-inline]:not([data-shape]):disabled,
+  [data-ui-button][data-inline]:not([data-shape])[data-disabled] {
+    color: var(--slotted-disabled-foreground, GrayText);
+  }
+
+  /**
    * An icon-only control inside a line of text — a help trigger beside a term
    * — is that line tall, so the line does not grow. The box takes the text's
    * line height and stands on the line box's top, and a pseudo-element outside

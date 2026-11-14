@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import type { CSSProperties } from 'react';
+import { userEvent } from 'vitest/browser';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   DescriptionList,
@@ -8,6 +10,7 @@ import {
   DescriptionListTerm,
 } from '../description-list';
 import { Glyph, Icon } from '../icon';
+import { Table, TableBody, TableCell, TableContent, TableRow } from '../table';
 import { Button, IconButton } from './index';
 
 const box = (element: Element) => {
@@ -152,5 +155,67 @@ describe('an inline icon button inside a description list term', () => {
 
   it('answers a press anywhere in a 24 by 24 pixel target', () => {
     expect(term(true).hits).toEqual([true, true, true, true]);
+  });
+});
+
+/* An inline button is a word of the line it sits in: a dense row keeps its height and baseline. */
+describe('an inline button inside a cell of a 28px table row', () => {
+  const rows = { '--slotted-table-row-min-block-size': '28px' } as CSSProperties;
+
+  function mount(onClick: () => void) {
+    render(
+      <div style={rows}>
+        <Table columns={2}>
+          <TableContent>
+            <TableBody>
+              <TableRow value="plain">
+                <TableCell>Groceries</TableCell>
+                <TableCell>120.00</TableCell>
+              </TableRow>
+              <TableRow value="action">
+                <TableCell>Groceries</TableCell>
+                <TableCell>
+                  <Button inline onClick={onClick}>
+                    Split
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </TableContent>
+        </Table>
+      </div>,
+    );
+  }
+
+  function textBottom(element: Element) {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+
+    return range.getBoundingClientRect().bottom;
+  }
+
+  it('keeps the row 28px high and the label on the baseline of the cell beside it', () => {
+    mount(() => {});
+    const [plain, action] = [...document.querySelectorAll('tbody tr')];
+    const button = document.querySelector('[data-ui="button"]')!;
+    const label = button.querySelector('[data-part="label"]') ?? button;
+
+    /* 28px of row and the 1px rule under it. */
+    expect(plain!.getBoundingClientRect().height).toBeCloseTo(29, 0);
+    expect(action!.getBoundingClientRect().height).toBeCloseTo(29, 0);
+    expect(textBottom(label)).toBeCloseTo(textBottom(action!.firstElementChild!), 0);
+  });
+
+  it('is a button that Enter and Space press', async () => {
+    const onClick = vi.fn();
+    mount(onClick);
+    const button = document.querySelector<HTMLElement>('[data-ui="button"]')!;
+
+    expect(button.getAttribute('role') ?? button.tagName.toLowerCase()).toBe('button');
+    button.focus();
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard(' ');
+
+    expect(onClick).toHaveBeenCalledTimes(2);
   });
 });
