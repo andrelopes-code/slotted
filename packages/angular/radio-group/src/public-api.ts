@@ -9,8 +9,9 @@ export {
 export type {
   RadioGroupDefaults,
   RadioGroupLabelPlacement,
+  RadioGroupMark,
   RadioGroupOrientation,
   RadioGroupSize,
   RadioGroupVariant,
 } from './radio-group-defaults';
-export { SlRadio, SlRadioDescription } from './radio-group-parts';
+export { SlRadio, SlRadioDescription, SlRadioMedia } from './radio-group-parts';

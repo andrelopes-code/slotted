@@ -27,6 +27,7 @@ import { SlFieldGroup } from '@slotted/angular/field-group';
 import { injectRadioGroupDefaults, SlRadioGroupIdFactory } from './radio-group-defaults';
 import type {
   RadioGroupLabelPlacement,
+  RadioGroupMark,
   RadioGroupVariant,
   RadioGroupOrientation,
   RadioGroupSize,
@@ -35,6 +36,7 @@ import type {
 export type {
   RadioGroupDefaults,
   RadioGroupLabelPlacement,
+  RadioGroupMark,
   RadioGroupVariant,
   RadioGroupOrientation,
   RadioGroupSize,
@@ -96,6 +98,7 @@ export interface SlRadioGroupItem {
     '[attr.data-orientation]': 'resolvedOrientation()',
     '[attr.data-label-placement]': 'resolvedLabelPlacement()',
     '[attr.data-variant]': 'resolvedVariant()',
+    '[attr.data-mark]': 'resolvedMark()',
     '[attr.data-disabled]': "resolvedDisabled() === true ? '' : null",
     '[attr.data-invalid]': "resolvedInvalid() === true ? '' : null",
     '[attr.data-readonly]': "resolvedReadOnly() === true ? '' : null",
@@ -122,6 +125,8 @@ export class SlRadioGroup implements ControlValueAccessor, OnInit, Validator {
   readonly orientation = input<RadioGroupOrientation | undefined>(undefined);
   readonly labelPlacement = input<RadioGroupLabelPlacement | undefined>(undefined);
   readonly variant = input<RadioGroupVariant | undefined>(undefined);
+  /** `hidden` removes the circle from every tile; a plain group ignores it. Defaults to `visible`. */
+  readonly mark = input<RadioGroupMark | undefined>(undefined);
   /** Unstated rather than `false`, so the group defers to the field around it. */
   readonly disabled = input<boolean | undefined, boolean | string | undefined>(undefined, {
     transform: (value) => (value === undefined ? undefined : booleanAttribute(value)),
@@ -189,6 +194,9 @@ export class SlRadioGroup implements ControlValueAccessor, OnInit, Validator {
   /** Handed to every choice in the set: one plain box among four tiles is a
       set nobody meant to write. */
   readonly resolvedVariant = computed(() => this.variant() ?? this.defaults.variant);
+  readonly resolvedMark = computed<RadioGroupMark>(() =>
+    this.resolvedVariant() === 'tile' ? (this.mark() ?? 'visible') : 'visible',
+  );
   readonly resolvedDisabled = computed(
     () =>
       this.disabled() ??

@@ -34,6 +34,7 @@ export function Radio({
   description,
   disabled,
   id,
+  media,
   onChange,
   onClick,
   ref,
@@ -79,11 +80,18 @@ export function Radio({
           type="radio"
           value={value}
         />
-        <span data-part="indicator" data-part-indicator="">
-          <Icon>
-            <Glyph name="dot" />
-          </Icon>
-        </span>
+        {group.mark === 'visible' && (
+          <span data-part="indicator" data-part-indicator="">
+            <Icon>
+              <Glyph name="dot" />
+            </Icon>
+          </span>
+        )}
+        {media !== undefined && (
+          <span data-part="media" data-part-media="">
+            {media}
+          </span>
+        )}
         {children === undefined ? null : (
           <label data-part="label" data-part-label="" htmlFor={controlId}>
             {children}

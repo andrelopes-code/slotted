@@ -21,6 +21,13 @@ export type RadioGroupVariant = 'plain' | 'tile';
  */
 export type RadioGroupLabelPlacement = 'end' | 'start';
 
+/**
+ * Whether a tile draws its circle. `hidden` leaves the frame and the chosen
+ * edge to say the choice; the input keeps its role, its name and its tab stop.
+ * A plain group always draws it.
+ */
+export type RadioGroupMark = 'visible' | 'hidden';
+
 /** Why the value moved. A radio group can produce exactly these two. */
 export type RadioGroupSelectionReason = Extract<
   ChangeRequest<string>['reason'],
@@ -52,6 +59,8 @@ export interface RadioGroupContextValue {
   disabled: boolean | undefined;
   invalid: boolean | undefined;
   labelPlacement: RadioGroupLabelPlacement;
+  /** `hidden` only in a tile group: the item renders no indicator. */
+  mark: RadioGroupMark;
   variant: RadioGroupVariant;
   /**
    * The submission name every item shares, and the reason the platform treats
@@ -70,6 +79,7 @@ export interface RadioGroupRootProps extends HTMLAttributes<HTMLElement> {
   'data-disabled'?: '' | undefined;
   'data-invalid'?: '' | undefined;
   'data-label-placement': RadioGroupLabelPlacement;
+  'data-mark': RadioGroupMark;
   'data-orientation': RadioGroupOrientation;
   'data-part': string;
   'data-readonly'?: '' | undefined;
@@ -97,6 +107,8 @@ export interface RadioGroupProps extends Omit<ComponentPropsWithRef<'div'>, 'def
   invalid?: boolean | undefined;
   /** Defaults to the provider, then to `end`. Reaches every item. */
   labelPlacement?: RadioGroupLabelPlacement | undefined;
+  /** `hidden` removes the circle from every tile; a plain group ignores it. Defaults to `visible`. */
+  mark?: RadioGroupMark | undefined;
   /** Defaults to the provider, then to `plain`. Handed to every choice. */
   variant?: RadioGroupVariant | undefined;
   /**
@@ -139,6 +151,11 @@ export interface RadioProps extends Omit<
    * the item with the arrow keys.
    */
   disabled?: boolean | undefined;
+  /**
+   * A picture above the label inside a tile. Decorative: the label names the
+   * option, so an image here takes an empty `alt`.
+   */
+  media?: ReactNode | undefined;
   /** Renders the item's root into another element. */
   render?: ((props: RadioRootProps) => ReactNode) | undefined;
   /** The value this item selects. It is what the group's value holds. */

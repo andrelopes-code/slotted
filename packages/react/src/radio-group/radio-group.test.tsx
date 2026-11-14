@@ -384,3 +384,16 @@ describe('RadioGroup', () => {
     expect(item(2)).toBeChecked();
   });
 });
+
+describe('the mark of a radio group', () => {
+  it('stays drawn in a plain group whatever mark says', () => {
+    render(
+      <RadioGroup aria-label="Shipping" mark="hidden">
+        <Radio value="standard">Standard</Radio>
+      </RadioGroup>,
+    );
+
+    expect(document.querySelector('[data-part="root"]')).toHaveAttribute('data-mark', 'visible');
+    expect(document.querySelector('[data-part="indicator"]')).not.toBeNull();
+  });
+});

@@ -6,6 +6,7 @@ export type {
   RadioGroupDefaults,
   RadioGroupDefaultsProviderProps,
   RadioGroupLabelPlacement,
+  RadioGroupMark,
   RadioGroupOrientation,
   RadioGroupProps,
   RadioGroupRootProps,
