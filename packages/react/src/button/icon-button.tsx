@@ -31,6 +31,7 @@ export function IconButton({
   defaultPressed,
   disabled = false,
   focusableWhenDisabled = false,
+  inline = false,
   loading = false,
   loadingDelay = 0,
   messages,
@@ -57,6 +58,7 @@ export function IconButton({
     ...nativeProps,
     ...rootData({
       disabled,
+      inline,
       loading,
       pressed: toggles ? state.pressed : undefined,
       shape,

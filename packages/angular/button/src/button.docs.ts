@@ -283,7 +283,7 @@ export const ANGULAR_BUTTON_DOCS = {
     anatomy: [
       root(
         'the button element you write',
-        'data-shape, and data-disabled, data-loading and data-pressed when they apply.',
+        'data-shape, and data-inline, data-disabled, data-loading and data-pressed when they apply.',
       ),
       {
         part: 'icon',
@@ -309,6 +309,13 @@ export const ANGULAR_BUTTON_DOCS = {
         'square',
         'SlIconButton',
         'The corners of the control: square keeps the radius of the control scale, circle rounds it fully. Both are as wide as they are tall.',
+      ],
+      [
+        'inline',
+        'boolean',
+        'false',
+        'SlIconButton',
+        "One line of the surrounding text tall, for a help trigger inside a sentence or a term: the line does not grow, the control takes the text's font size, and a 24px target stays around it.",
       ],
       ...unavailable('SlIconButton'),
       ...waiting('SlIconButton'),

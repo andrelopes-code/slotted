@@ -15,6 +15,7 @@ const defaults = contract.members.iconButton.defaults;
     slIconButton
     [attr.aria-label]="label()"
     [shape]="shape()"
+    [inline]="inline()"
     [disabled]="disabled()"
     [loading]="loading()"
     [pressed]="pressed()"
@@ -27,6 +28,7 @@ const defaults = contract.members.iconButton.defaults;
 class TestHost {
   readonly label = signal<string | null>('Add member');
   readonly shape = signal<ButtonShape>('square');
+  readonly inline = signal(false);
   readonly disabled = signal(false);
   readonly loading = signal(false);
   readonly pressed = signal<boolean | undefined>(undefined);
@@ -156,5 +158,15 @@ describe('SlIconButton', () => {
     fixture.detectChanges();
 
     expect(button.getAttribute('data-shape')).toBe('circle');
+  });
+
+  it('writes data-inline only when inline', () => {
+    const { button, fixture, host } = mount();
+    expect(button.hasAttribute('data-inline')).toBe(defaults.inline);
+
+    host.inline.set(true);
+    fixture.detectChanges();
+
+    expect(button.hasAttribute('data-inline')).toBe(true);
   });
 });

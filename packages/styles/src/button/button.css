@@ -787,6 +787,34 @@
   }
 
   /**
+   * An icon-only control inside a line of text — a help trigger beside a term
+   * — is that line tall, so the line does not grow. The box takes the text's
+   * line height and stands on the line box's top, and a pseudo-element outside
+   * layout keeps the target at the WCAG 2.2 minimum around it.
+   */
+  [data-ui-button][data-shape][data-inline] {
+    block-size: 1lh;
+    font-size: inherit;
+    inline-size: 1lh;
+    line-height: inherit;
+    margin-inline-start: 0.25em;
+    min-block-size: 0;
+    min-inline-size: 0;
+    position: relative;
+    vertical-align: top;
+  }
+
+  [data-ui-button][data-shape][data-inline]::before {
+    content: '';
+    /* Measured from the padding edge, so the border is taken back as well. */
+    inset: calc(
+      min(0px, (1lh - var(--slotted-target-min, 24px)) / 2) -
+        var(--slotted-control-border-width, 1px)
+    );
+    position: absolute;
+  }
+
+  /**
    * ── Forced colors ────────────────────────────────────────────────────
    *
    * The theme remaps every token it owns, so this block exists only for what

@@ -23,6 +23,7 @@ import type {
 interface RootDataOptions {
   disabled?: boolean;
   fullWidth?: boolean;
+  inline?: boolean;
   justify?: ButtonJustify;
   loading?: boolean;
   pressed?: boolean | undefined;
@@ -49,6 +50,7 @@ export function rootData(options: RootDataOptions) {
     'data-shape': options.shape,
     'data-full-width': options.fullWidth ? '' : undefined,
     'data-justify': options.justify,
+    'data-inline': options.inline ? '' : undefined,
     'data-disabled': options.disabled ? '' : undefined,
     'data-loading': options.loading ? '' : undefined,
     'data-pressed': options.pressed ? '' : undefined,

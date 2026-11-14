@@ -1,6 +1,12 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
+import {
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListItem,
+  DescriptionListTerm,
+} from '../description-list';
 import { Glyph, Icon } from '../icon';
 import { Button, IconButton } from './index';
 
@@ -90,5 +96,61 @@ describe('a row of buttons narrower than their labels', () => {
       expect(range.getClientRects().length, label.textContent ?? '').toBe(1);
       expect(label.scrollWidth, label.textContent ?? '').toBeLessThanOrEqual(label.clientWidth);
     }
+  });
+});
+
+/* An inline icon button is one line of the text around it, and keeps a full target. */
+describe('an inline icon button inside a description list term', () => {
+  function term(withButton: boolean) {
+    const { unmount } = render(
+      <DescriptionList variant="ruled">
+        <DescriptionListItem>
+          <DescriptionListTerm>
+            Opening balance
+            {withButton && (
+              <IconButton aria-label="About opening balance" inline size="sm" variant="ghost">
+                <Icon size="sm">
+                  <Glyph name="circle-question" />
+                </Icon>
+              </IconButton>
+            )}
+          </DescriptionListTerm>
+          <DescriptionListDescription>1,000.00</DescriptionListDescription>
+        </DescriptionListItem>
+      </DescriptionList>,
+    );
+    const dt = document.querySelector('[data-part="term"]') as HTMLElement;
+    const button = document.querySelector('[data-ui="button"]') as HTMLElement | null;
+    const result = {
+      button: button?.getBoundingClientRect(),
+      height: dt.getBoundingClientRect().height,
+    };
+    const hits = button === null ? [] : corners(button);
+
+    unmount();
+
+    return { ...result, hits };
+  }
+
+  /* The four points 12px from the centre, which a 24px target covers. */
+  function corners(button: HTMLElement) {
+    const box = button.getBoundingClientRect();
+    const x = box.left + box.width / 2;
+    const y = box.top + box.height / 2;
+
+    return [
+      [x - 11.5, y - 11.5],
+      [x + 11.5, y - 11.5],
+      [x - 11.5, y + 11.5],
+      [x + 11.5, y + 11.5],
+    ].map(([px, py]) => button.contains(document.elementFromPoint(px!, py!)));
+  }
+
+  it('keeps the term one line tall', () => {
+    expect(term(true).height).toBeCloseTo(term(false).height, 1);
+  });
+
+  it('answers a press anywhere in a 24 by 24 pixel target', () => {
+    expect(term(true).hits).toEqual([true, true, true, true]);
   });
 });

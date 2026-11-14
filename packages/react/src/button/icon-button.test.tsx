@@ -193,6 +193,23 @@ describe('IconButton', () => {
     expect(screen.getByRole('button')).toHaveAttribute('data-shape', 'circle');
   });
 
+  it('writes data-inline only when inline', () => {
+    const { rerender } = render(
+      <IconButton aria-label="Help">
+        <svg />
+      </IconButton>,
+    );
+    expect(screen.getByRole('button').hasAttribute('data-inline')).toBe(defaults.inline);
+
+    rerender(
+      <IconButton aria-label="Help" inline>
+        <svg />
+      </IconButton>,
+    );
+
+    expect(screen.getByRole('button')).toHaveAttribute('data-inline', '');
+  });
+
   /**
    * A trigger hands its root every attribute a button can carry, so its props
    * type `aria-labelledby` as an optional string. The icon button has to take

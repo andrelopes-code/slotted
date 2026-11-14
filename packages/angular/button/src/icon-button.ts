@@ -83,6 +83,7 @@ import {
     '[attr.data-variant]': 'appearance.variant()',
     '[attr.data-size]': 'appearance.size()',
     '[attr.data-shape]': 'shape()',
+    '[attr.data-inline]': 'stateAttribute(inline())',
     '[attr.data-disabled]': 'stateAttribute(disabled())',
     '[attr.data-loading]': 'stateAttribute(loading())',
     '[attr.data-pressed]': 'stateAttribute(toggles() && isPressed())',
@@ -93,6 +94,11 @@ import {
 export class SlIconButton implements AfterViewInit {
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly focusableWhenDisabled = input(false, { transform: booleanAttribute });
+  /**
+   * One line of the surrounding text tall, for a trigger inside a sentence
+   * or a term: the line does not grow, and the target stays 24px square.
+   */
+  readonly inline = input(false, { transform: booleanAttribute });
   readonly loading = input(false, { transform: booleanAttribute });
   readonly loadingDelay = input(0, { transform: numberAttribute });
   /**

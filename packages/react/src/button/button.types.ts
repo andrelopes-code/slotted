@@ -170,6 +170,11 @@ export type IconButtonProps = Omit<
   ButtonPressedProps &
   IconButtonAccessibleName & {
     children: ReactNode;
+    /**
+     * One line of the surrounding text tall, for a trigger inside a sentence
+     * or a term: the line does not grow, and the target stays 24px square.
+     */
+    inline?: boolean | undefined;
     render?: ButtonRender<ButtonRootProps> | undefined;
     shape?: ButtonShape | undefined;
     type?: ButtonType | undefined;
