@@ -4312,6 +4312,7 @@ export type ComponentToken =
   | '--slotted-scroll-area-thumb-color'
   | '--slotted-scroll-area-track-color'
   | '--slotted-section-border'
+  | '--slotted-section-description-gap'
   | '--slotted-section-description-measure'
   | '--slotted-section-gap'
   | '--slotted-section-header-background'
@@ -6620,6 +6621,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-scroll-area-thumb-color",
   "--slotted-scroll-area-track-color",
   "--slotted-section-border",
+  "--slotted-section-description-gap",
   "--slotted-section-description-measure",
   "--slotted-section-gap",
   "--slotted-section-header-background",

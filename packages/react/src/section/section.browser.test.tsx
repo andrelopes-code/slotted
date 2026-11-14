@@ -2,7 +2,14 @@ import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { Section } from './section';
-import { SectionBody, SectionHeader, SectionHeading, SectionTitle } from './section-parts';
+import {
+  SectionActions,
+  SectionBody,
+  SectionDescription,
+  SectionHeader,
+  SectionHeading,
+  SectionTitle,
+} from './section-parts';
 import type { SectionProps } from './section.types';
 
 function Titled(props: Partial<SectionProps>) {
@@ -74,5 +81,56 @@ describe('the divider of a section on a surface', () => {
     expect(header.getBoundingClientRect().left).toBe(
       section.getBoundingClientRect().left + section.clientLeft,
     );
+  });
+});
+
+function Described({ actions }: { actions?: number | undefined }) {
+  return (
+    <Section>
+      <SectionHeader>
+        <SectionTitle>
+          <SectionHeading>Title</SectionHeading>
+          <SectionDescription>One sentence.</SectionDescription>
+        </SectionTitle>
+        {actions !== undefined && (
+          <SectionActions style={{ minBlockSize: actions }}>
+            <button type="button">Action</button>
+          </SectionActions>
+        )}
+      </SectionHeader>
+      <SectionBody />
+    </Section>
+  );
+}
+
+/* The actions span the header's rows, so their height is not added to the heading's row. */
+describe('a section header with actions taller than its heading', () => {
+  function distance(actions?: number) {
+    const { unmount } = render(<Described actions={actions} />);
+    const heading = document.querySelector('[data-part="heading"]') as HTMLElement;
+    const description = document.querySelector('[data-part="description"]') as HTMLElement;
+    const centre = (box: DOMRect) => box.top + box.height / 2;
+    const result =
+      centre(description.getBoundingClientRect()) - centre(heading.getBoundingClientRect());
+
+    unmount();
+
+    return result;
+  }
+
+  it('keeps the distance from the heading to the description', () => {
+    expect(distance(64)).toBeCloseTo(distance(), 1);
+  });
+});
+
+describe('the gap between the heading and the description', () => {
+  it('reads --slotted-section-description-gap', () => {
+    render(<Described />);
+    const section = document.querySelector('[data-ui="section"]') as HTMLElement;
+    const description = section.querySelector('[data-part="description"]') as HTMLElement;
+
+    section.style.setProperty('--slotted-section-description-gap', '0');
+
+    expect(getComputedStyle(description).marginBlockStart).toBe('0px');
   });
 });

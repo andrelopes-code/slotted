@@ -218,12 +218,12 @@ test('publishes its raised ground to the families inside it', () => {
 });
 
 /**
- * The heading, the tags and the actions are items of one grid row and share
- * the heading's baseline, whatever the title holds above or below it. The
- * title is a subgrid of the header's rows; the tags have a column of their
- * own beside the heading and never leave it.
+ * The heading and the tags are items of one grid row and share the heading's
+ * baseline, whatever the title holds above or below it. The title is a
+ * subgrid of the header's rows; the tags have a column of their own beside the
+ * heading and never leave it. The actions span every row of the header.
  */
-test('sets the heading, the tags and the actions on one baseline row', () => {
+test('sets the heading and the tags on one baseline row, the actions across the header', () => {
   const header = `${ui}>[data-part-header]`;
   assert.match(rule(header), /align-items:baseline/);
   assert.match(rule(header), /display:grid/);
@@ -238,12 +238,14 @@ test('sets the heading, the tags and the actions on one baseline row', () => {
   assert.match(tags, /grid-row:2/);
   assert.match(tags, /align-items:baseline/);
   assert.match(rule(`${header}>[data-part-title]>[data-part-description]`), /grid-row:3/);
-  assert.match(rule(`${header}>[data-part-actions]`), /grid-row:2/);
+  assert.match(rule(header), /grid-template-rows:1fr auto auto auto 1fr/);
+  assert.match(title, /grid-row:2 \/ span 3/);
+  assert.match(rule(`${header}>[data-part-actions]`), /grid-row:1 \/ -1/);
 });
 
 /** Only the actions leave the heading's row, and only on a narrow header. */
 test('moves the actions, never the tags, to a row of their own when narrow', () => {
   const narrow = normalized.split('@container (inline-size < 20rem){')[1] ?? '';
-  assert.match(narrow, /\[data-part-actions\]\{grid-column:1 \/ -1;grid-row:4/);
+  assert.match(narrow, /\[data-part-actions\]\{grid-column:1 \/ -1;grid-row:6/);
   assert.doesNotMatch(narrow, /data-part-tags/);
 });
