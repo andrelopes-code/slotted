@@ -727,6 +727,13 @@ const api: ApiRow[] = apiRows([
     'The name without the row, which is what a windowed group takes when its label has scrolled out of the slice',
   ],
   [
+    'columns',
+    'number',
+    'the listbox columns',
+    'SlListboxGroup',
+    'How many options across inside this group. The arrows step by the count of the group the active option is in, cross from its first or last row into the neighbouring group, and an inline arrow does nothing in a group of one column',
+  ],
+  [
     'renderOption',
     'ng-template slListboxOptionContent',
     '—',

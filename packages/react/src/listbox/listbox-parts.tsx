@@ -1,5 +1,6 @@
 import { keyedProps } from '@slotted/core/selector-key';
 import { useId } from 'react';
+import type { CSSProperties } from 'react';
 
 import { Glyph, Icon } from '../icon';
 import { useListbox } from './listbox-context';
@@ -91,15 +92,24 @@ export function ListboxOption({
  */
 export function ListboxGroup({
   children,
+  columns,
   label,
   labelProps,
   render,
+  style,
   ...nativeProps
 }: ListboxGroupProps) {
   const labelId = `${useId()}label`;
+  const count = columns === undefined ? undefined : Math.max(Math.floor(columns), 1);
 
   const rootProps: ListboxGroupRootProps = keyedProps({
     ...nativeProps,
+    ...(count === undefined
+      ? { style }
+      : {
+          'data-columns': String(count),
+          style: { ...style, '--slotted-listbox-columns': count } as CSSProperties,
+        }),
     'aria-labelledby': labelId,
     children: (
       <>

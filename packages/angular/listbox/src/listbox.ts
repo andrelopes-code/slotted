@@ -30,6 +30,7 @@ import {
   createCollection,
   createRowMetrics,
   moveIndex,
+  moveInGroups,
   nextSelection,
   offsetForIndex,
   shouldLoadMore,
@@ -37,6 +38,7 @@ import {
 } from '@slotted/core/collection';
 import type {
   Collection,
+  GroupMoveIntent,
   MoveIntent,
   RowMetrics,
   SelectionAction,
@@ -49,6 +51,7 @@ import type { TypeaheadHandle } from '@slotted/core/typeahead';
 
 import { SlListboxContext } from './listbox-context';
 import { injectListboxDefaults, SlListboxIdFactory } from './listbox-defaults';
+import { groupSpans } from './listbox-group-spans';
 import type {
   ListboxAlignment,
   ListboxFocusMode,
@@ -840,6 +843,10 @@ export class SlListbox implements ControlValueAccessor, OnInit, SlListboxContext
         loop,
         ...(page === undefined ? {} : { page }),
       });
+      land(index);
+    };
+
+    const land = (index: number) => {
       if (index === -1 || index === from) return;
       event.preventDefault();
       this.moveActive(index, event, snap.keys);
@@ -870,6 +877,29 @@ export class SlListbox implements ControlValueAccessor, OnInit, SlListboxContext
     const inlinePrevious = rtl ? 'ArrowRight' : 'ArrowLeft';
     const horizontal = this.resolvedOrientation() === 'horizontal';
     const grid = columns > 1;
+
+    /* A group with a column count of its own: the row keys step by the count
+       of the group the active option is in and cross into the next group. */
+    const spans = horizontal
+      ? null
+      : groupSpans(
+          element,
+          snap.keys.map((key) =>
+            element.querySelector<HTMLElement>(`${OPTION_SELECTOR}[data-key="${CSS.escape(key)}"]`),
+          ),
+          columns,
+        );
+    const groupIntents: Partial<Record<string, GroupMoveIntent>> = {
+      ArrowDown: 'down',
+      ArrowUp: 'up',
+      [inlineNext]: 'next',
+      [inlinePrevious]: 'previous',
+    };
+    const groupIntent = groupIntents[event.key];
+
+    if (spans !== null && groupIntent !== undefined) {
+      return land(moveInGroups({ enabled, from, groups: spans, intent: groupIntent }));
+    }
 
     if (event.key === 'ArrowDown' && !horizontal) {
       return grid ? step('pageDown', columns) : step('next');

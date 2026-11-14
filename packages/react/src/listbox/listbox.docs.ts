@@ -711,6 +711,13 @@ const api: ApiRow[] = apiRows([
     'ListboxGroup',
     'The group accessible name, which the pattern requires of every group',
   ],
+  [
+    'columns',
+    'number',
+    'the listbox columns',
+    'ListboxGroup',
+    'How many options across inside this group. The arrows step by the count of the group the active option is in, cross from its first or last row into the neighbouring group, and an inline arrow does nothing in a group of one column',
+  ],
 ]);
 
 const accessibility = [

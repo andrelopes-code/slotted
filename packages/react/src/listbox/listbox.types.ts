@@ -154,6 +154,7 @@ export interface ListboxOptionRootProps extends HTMLAttributes<HTMLDivElement> {
 
 /** What `render` receives for a group. */
 export interface ListboxGroupRootProps extends HTMLAttributes<HTMLElement> {
+  'data-columns'?: string | undefined;
   'data-part': string;
 }
 
@@ -192,6 +193,11 @@ export interface ListboxOptionProps extends Omit<
 
 export interface ListboxGroupProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   children?: ReactNode | undefined;
+  /**
+   * How many options stand side by side in this group, in place of the
+   * listbox's `columns`. The row keys step by it and cross into the next group.
+   */
+  columns?: number | undefined;
   /** The group's accessible name. A group without one is a group nobody hears. */
   label: ReactNode;
   /** Reaches the label element, for an id or a class the page owns. */

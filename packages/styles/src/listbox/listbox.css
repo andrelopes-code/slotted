@@ -393,6 +393,25 @@
   }
 
   /**
+   * A group with a column count of its own lays its options out in it,
+   * whatever the listbox's count is, so one listbox holds a column of rows
+   * beside a grid of cards and keeps one tab stop and one set of arrows.
+   */
+  [data-ui-listbox] [data-part-group][data-columns] {
+    --_columns: var(--slotted-listbox-columns, 1);
+
+    column-gap: var(--_column-gap);
+    grid-template-columns: repeat(var(--_columns), minmax(0, 1fr));
+    row-gap: var(--slotted-listbox-option-gap, 0);
+  }
+
+  [data-ui-listbox] [data-part-group][data-columns] > [data-part-option] {
+    grid-column: auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    margin-block-start: 0;
+  }
+
+  /**
    * Hover is a pointer's own feedback and nothing more. Unlike `menu`, it does
    * not move the active option: a listbox holds a selection as well as a
    * highlight, and a hover that moved the highlight would fight the arrow keys

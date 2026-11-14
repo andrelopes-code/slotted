@@ -6,6 +6,7 @@ import {
   Directive,
   inject,
   input,
+  numberAttribute,
   ViewEncapsulation,
 } from '@angular/core';
 import { SlGlyph, SlIcon } from '@slotted/angular/icon';
@@ -131,6 +132,8 @@ export class SlListboxOption {
     role: 'group',
     '[attr.aria-labelledby]': 'label() ? labelId : null',
     '[attr.aria-label]': 'label() ? null : ariaLabel()',
+    '[attr.data-columns]': 'count()',
+    '[style.--slotted-listbox-columns]': 'count()',
   },
 })
 export class SlListboxGroup {
@@ -142,8 +145,20 @@ export class SlListboxGroup {
    * and still has to be named.
    */
   readonly ariaLabel = input<string | undefined>(undefined, { alias: 'groupLabel' });
+  /**
+   * How many options stand side by side in this group, in place of the
+   * listbox's `columns`. The row keys step by it and cross into the next group.
+   */
+  readonly columns = input<number | undefined, number | string | undefined>(undefined, {
+    transform: (state) => (state === undefined ? undefined : numberAttribute(state)),
+  });
 
   protected readonly labelId = inject(SlListboxIdFactory).next();
+  protected readonly count = computed(() => {
+    const value = this.columns();
+
+    return value === undefined || !Number.isFinite(value) ? null : Math.max(Math.floor(value), 1);
+  });
 }
 
 /**

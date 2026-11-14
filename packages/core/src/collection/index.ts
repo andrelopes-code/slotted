@@ -29,6 +29,8 @@ export type {
   CollectionSection,
   CollectionSectionInfo,
 } from './items';
+export { moveInGroups } from './group-navigation';
+export type { GroupMoveIntent, GroupSpan, MoveInGroupsInput } from './group-navigation';
 export { moveIndex, PAGE_STEP } from './navigation';
 export type { MoveIndexInput, MoveIntent } from './navigation';
 export { nextSelection } from './selection';

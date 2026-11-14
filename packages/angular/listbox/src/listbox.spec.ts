@@ -702,6 +702,39 @@ describe('SlListbox, composition and escape hatches', () => {
     expect(group.querySelector(`#${labelId}`)?.textContent?.trim()).toBe('Pome');
   });
 
+  it('steps by the columns of the group the active option is in', () => {
+    const option = (value: string) =>
+      `<div slListboxOption value="${value}"><span slListboxLabel>${value}</span></div>`;
+    const fixture = renderTemplate(
+      `<div slListbox aria-label="Pay with" columns="1">
+        <div slListboxGroup label="Accounts">${option('a')}${option('b')}</div>
+        <div slListboxGroup label="Cards" columns="2">${option('c')}${option('d')}</div>
+      </div>`,
+    );
+    const at = (value: string) => byKey(fixture, value).hasAttribute('data-current');
+    const cards = box(fixture).querySelectorAll<HTMLElement>('[data-part="group"]')[1]!;
+
+    expect(cards.getAttribute('data-columns')).toBe('2');
+
+    focusIn(fixture);
+    expect(at('a')).toBe(true);
+
+    key(fixture, { key: 'ArrowRight' });
+    expect(at('a')).toBe(true);
+
+    key(fixture, { key: 'ArrowDown' });
+    expect(at('b')).toBe(true);
+
+    key(fixture, { key: 'ArrowDown' });
+    expect(at('c')).toBe(true);
+
+    key(fixture, { key: 'ArrowRight' });
+    expect(at('d')).toBe(true);
+
+    key(fixture, { key: 'ArrowDown' });
+    expect(at('d')).toBe(true);
+  });
+
   it('renders the message and the loader as the parts the contract declares', () => {
     const fixture = renderTemplate(
       `<div slListbox aria-label="Results">
