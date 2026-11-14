@@ -280,9 +280,8 @@
     min-inline-size: 0;
   }
 
-  /* The corner. It stays on the first row, so a title that wraps to two lines
-     does not drag the badge down with it, and it takes the last column whether
-     the header has two or three. */
+  /* The corner. Beside a title alone it stays on the first row, and it takes
+     the last column whether the header has two or three. */
   [data-ui-card] > [data-part-header] > [data-part-actions] {
     align-items: center;
     display: flex;
@@ -296,6 +295,45 @@
     /* Above the stretched hit area, like the footer: a control in the corner
        of a card that resolves elsewhere still has to be operable. */
     position: relative;
+  }
+
+  /* Beside a title and its description, the corner spans both rows, and the
+     last row is flexible: a corner taller than the text grows that row, not
+     the distance from the title to the description. */
+  [data-ui-card]
+    > [data-part-header]:has(
+      > :not([data-part-actions], [data-part-selection])
+        ~ :not([data-part-actions], [data-part-selection])
+    ) {
+    grid-template-rows: auto 1fr;
+  }
+
+  [data-ui-card]
+    > [data-part-header]:has(
+      > :not([data-part-actions], [data-part-selection])
+        ~ :not([data-part-actions], [data-part-selection])
+    )
+    > [data-part-actions] {
+    grid-row: 1 / span 2;
+  }
+
+  [data-ui-card]
+    > [data-part-header]:has(
+      > :not([data-part-actions], [data-part-selection])
+        ~ :not([data-part-actions], [data-part-selection])
+        ~ :not([data-part-actions], [data-part-selection])
+    ) {
+    grid-template-rows: auto auto 1fr;
+  }
+
+  [data-ui-card]
+    > [data-part-header]:has(
+      > :not([data-part-actions], [data-part-selection])
+        ~ :not([data-part-actions], [data-part-selection])
+        ~ :not([data-part-actions], [data-part-selection])
+    )
+    > [data-part-actions] {
+    grid-row: 1 / span 3;
   }
 
   /**
