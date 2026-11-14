@@ -15,6 +15,8 @@ export {
   StatCardUnit,
 } from './stat-card-parts';
 export { StatCardValue } from './stat-card-value';
+export { useCountTransition } from './use-count-transition';
+export type { CountTransitionOptions } from './use-count-transition';
 export type {
   StatCardActionProps,
   StatCardAttention,
@@ -44,5 +46,6 @@ export type {
   StatCardValueStatus,
   StatCardUnitProps,
   StatCardValueEmphasis,
+  StatCardValueTransition,
   StatCardValueProps,
 } from './stat-card.types';

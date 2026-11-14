@@ -118,9 +118,18 @@ export interface StatCardValueProps extends ComponentPropsWithRef<'span'> {
    */
   emphasis?: StatCardValueEmphasis | undefined;
   render?: (props: StatCardPartProps<'span'>) => ReactNode;
+  /**
+   * `count` moves a changed numeric value from the number it showed over the
+   * theme's long duration; the first render, a loading or empty card and a
+   * value drawn through `children` show the value as it is. `none`, the
+   * default, replaces it in one frame.
+   */
+  transition?: StatCardValueTransition | undefined;
 }
 
 export type StatCardValueEmphasis = 'none' | 'whole';
+
+export type StatCardValueTransition = 'none' | 'count';
 
 export interface StatCardUnitProps extends ComponentPropsWithRef<'span'> {
   render?: (props: StatCardPartProps<'span'>) => ReactNode;

@@ -351,6 +351,20 @@ export const REACT_STAT_CARD_DOCS = {
         'whole draws the symbol, the decimals and the suffix of a numeric value in the unit part, so the whole units carry the figure; the text is the formatter’s either way',
       ],
       [
+        'transition',
+        "'none' | 'count'",
+        "'none'",
+        'StatCardValue',
+        'count moves a changed numeric value from the number it showed over --slotted-duration-long with the standard easing, each frame drawn by the formatter; the moving figure is hidden from assistive technology and the final one is said. The first render, a loading or empty card and a 1ms duration show the value as it is',
+      ],
+      [
+        'useCountTransition(value, options?)',
+        '(value: number, { enabled?, source? }) => number',
+        '—',
+        'a value drawn through children',
+        'The number to draw while value moves to a new one, for a figure the consumer formats; the timing is read on source, the document root by default',
+      ],
+      [
         'messages',
         'Partial<StatCardMessages>',
         '—',

@@ -353,6 +353,13 @@ export const ANGULAR_STAT_CARD_DOCS = {
         'whole draws the symbol, the decimals and the suffix of a numeric value in the unit part, so the whole units carry the figure; the text is the formatter’s either way',
       ],
       [
+        'transition',
+        "'none' | 'count'",
+        "'none'",
+        'slStatCardValue',
+        'count moves a changed numeric value from the number it showed over --slotted-duration-long with the standard easing, each frame drawn by the formatter; the moving figure is hidden from assistive technology and the final one is said. The first render, a loading or empty card and a 1ms duration show the value as it is',
+      ],
+      [
         'messages',
         'Partial<StatCardMessages>',
         '—',

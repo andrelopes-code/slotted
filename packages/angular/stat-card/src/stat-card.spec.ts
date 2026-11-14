@@ -191,6 +191,34 @@ describe('SlStatCard', () => {
     expect(part('value')?.textContent?.replace(/\s+/g, '')).toBe('48KK');
   });
 
+  it('shows a changed value under transition count, with no hidden copy once it has moved', async () => {
+    @Component({
+      imports: [SlStatCard, SlStatCardFigure, SlStatCardValue],
+      template: `<div slStatCard aria-label="Revenue">
+        <div slStatCardFigure>
+          <span slStatCardValue transition="count" [value]="value()"></span>
+        </div>
+      </div>`,
+    })
+    class Counting {
+      readonly value = signal(100);
+    }
+    TestBed.configureTestingModule({ imports: [Counting] });
+    const fixture = TestBed.createComponent(Counting);
+    fixture.detectChanges();
+    const value = fixture.nativeElement.querySelector('[data-part="value"]') as HTMLElement;
+
+    expect(value.textContent?.trim()).toBe('100');
+
+    fixture.componentInstance.value.set(200);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(value.textContent?.trim()).toBe('200');
+    expect(value.querySelector('[data-ui="visually-hidden"]')).toBeNull();
+  });
+
   it.each([
     ['pt-BR', 'BRL', ['R$', ',88']],
     ['de-DE', 'EUR', [',88', '€']],
