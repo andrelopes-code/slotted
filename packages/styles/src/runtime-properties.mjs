@@ -326,6 +326,17 @@ export const RUNTIME_PROPERTY_PREFIXES = [
   '--slotted-media-viewer-media-inline-size',
   '--slotted-media-viewer-media-block-size',
   '--slotted-media-viewer-rotation',
+  /**
+   * `table` — how deep a folded row sits under the rows above it, for the
+   * reason `tree-depth` is: a fact about the consumer's data, stated per row.
+   * The step is `--slotted-table-tree-indent`, which is a token.
+   */
+  '--slotted-table-depth',
+  /**
+   * `meter` — the share of the track the indicator covers, from the value the
+   * consumer states. No theme can know it.
+   */
+  '--slotted-meter-ratio',
 ];
 
 /** Whether a custom property is written by script rather than by a theme. */

@@ -67,6 +67,7 @@ export * from './markdown';
 export * from './media-viewer';
 export * from './menu';
 export * from './menubar';
+export * from './meter';
 export * from './multi-select';
 export * from './navigation-menu';
 export * from './import-export-center';

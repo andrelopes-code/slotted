@@ -1,0 +1,136 @@
+@layer slotted.components {
+  /**
+   * A static value within a known range, drawn as a length.
+   *
+   *   ┌─ root ─ role="meter" ─ the whole inline size it is given ───────┐
+   *   │  ┌─ track ─ one continuous ground ─────────────────────────────┐ │
+   *   │  │ ┌─ indicator ─ the share, from the inline start ─┐          │ │
+   *   │  │ └────────────────────────────────────────────────┘          │ │
+   *   │  └─────────────────────────────────────────────────────────────┘ │
+   *   └──────────────────────────────────────────────────────────────────┘
+   *
+   * ── Why it is not a progress bar ────────────────────────────────────
+   *
+   * A progress bar is a wait: its track keeps a gap before the indicator and
+   * an end mark at its far end, which read as how far there is still to go.
+   * A share of a whole goes nowhere, so the track is one continuous ground
+   * and carries neither. The ink and the ground are `progress-indicator`'s
+   * own formula, and its tokens are the fallback, so a theme that retuned the
+   * progress bar retunes the meter beside it.
+   *
+   * ── Why it fills the cell ───────────────────────────────────────────
+   *
+   * A meter is read beside its exact value, most often in a table column. A
+   * box with no inline size of its own shrinks to nothing in an auto-layout
+   * cell, so the root takes the whole inline size it is given and keeps a
+   * least size that a column of shares still reads at.
+   */
+  [data-ui-meter][data-part-root] {
+    --_ink: var(
+      --slotted-meter-indicator-color,
+      var(--slotted-progress-indicator-indicator-color, var(--slotted-tone-accent-text))
+    );
+    --_track-color: var(
+      --slotted-meter-track-color,
+      var(
+        --slotted-progress-indicator-track-color,
+        color-mix(in oklab, var(--_ink) 24%, var(--slotted-surface))
+      )
+    );
+    --_thickness: var(--slotted-meter-thickness, var(--slotted-space-3, 0.375rem));
+    --_radius: var(--slotted-meter-radius, var(--slotted-radius-full, 9999px));
+    --_ratio: var(--slotted-meter-ratio, 0);
+
+    box-sizing: border-box;
+    display: block;
+    inline-size: 100%;
+    min-inline-size: var(--slotted-meter-min-inline-size, 4rem);
+  }
+
+  [data-ui-meter][data-part-root][data-size='sm'] {
+    --_thickness: var(--slotted-meter-thickness, var(--slotted-space-2, 0.25rem));
+  }
+
+  [data-ui-meter][data-part-root][data-size='lg'] {
+    --_thickness: var(--slotted-meter-thickness, var(--slotted-space-4, 0.5rem));
+  }
+
+  /**
+   * A tone is the ink of the indicator. `secondary` and `neutral` take the
+   * strong border step, because the secondary tone's text color is the page's
+   * own ink in two schemes and a bar painted from it reads as text.
+   */
+  [data-ui-meter][data-part-root][data-tone='secondary'],
+  [data-ui-meter][data-part-root][data-tone='neutral'] {
+    --_ink: var(--slotted-meter-indicator-color, var(--slotted-border-strong));
+  }
+
+  [data-ui-meter][data-part-root][data-tone='info'] {
+    --_ink: var(--slotted-meter-indicator-color, var(--slotted-tone-info-text));
+  }
+
+  [data-ui-meter][data-part-root][data-tone='success'] {
+    --_ink: var(--slotted-meter-indicator-color, var(--slotted-tone-success-text));
+  }
+
+  [data-ui-meter][data-part-root][data-tone='warning'] {
+    --_ink: var(--slotted-meter-indicator-color, var(--slotted-tone-warning-text));
+  }
+
+  [data-ui-meter][data-part-root][data-tone='danger'] {
+    --_ink: var(--slotted-meter-indicator-color, var(--slotted-tone-danger-text));
+  }
+
+  [data-ui-meter] [data-part-track] {
+    background-color: var(--_track-color);
+    block-size: var(--_thickness);
+    border-radius: var(--_radius);
+    display: block;
+    overflow: hidden;
+  }
+
+  /**
+   * The indicator is the whole track clipped from its inline end, so a value
+   * that changes moves without a layout and the rounded end stays round at
+   * every share: a scaled box squashes its own radius.
+   */
+  [data-ui-meter] [data-part-indicator] {
+    --_clip: calc((1 - var(--_ratio)) * 100%);
+
+    background-color: var(--_ink);
+    block-size: 100%;
+    clip-path: inset(0 var(--_clip) 0 0 round var(--_radius));
+    display: block;
+    inline-size: 100%;
+    transition: clip-path var(--slotted-duration-medium) var(--slotted-easing-standard);
+  }
+
+  [data-ui-meter] [data-part-indicator]:dir(rtl) {
+    clip-path: inset(0 0 0 var(--_clip) round var(--_radius));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-meter] [data-part-indicator] {
+      transition: none;
+    }
+  }
+
+  /**
+   * ── Forced colors ───────────────────────────────────────────────────
+   *
+   * The palette flattens the ink and the ground into the same system color,
+   * so the track keeps an outline and the indicator takes the highlight.
+   */
+  @media (forced-colors: active) {
+    [data-ui-meter] [data-part-track] {
+      background-color: Canvas;
+      outline: var(--slotted-border-width-thin, 1px) solid CanvasText;
+      outline-offset: calc(-1 * var(--slotted-border-width-thin, 1px));
+    }
+
+    [data-ui-meter] [data-part-indicator] {
+      background-color: Highlight;
+      forced-color-adjust: none;
+    }
+  }
+}

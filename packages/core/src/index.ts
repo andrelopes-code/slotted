@@ -12,6 +12,7 @@ export * from './keys';
 export * from './live-announcer';
 export * from './loading';
 export * from './measure';
+export * from './meter';
 export * from './number';
 export * from './overflow';
 export * from './progress';
