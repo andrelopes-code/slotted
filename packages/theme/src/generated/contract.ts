@@ -3880,11 +3880,17 @@ export type ComponentToken =
   | '--slotted-listbox-highlight'
   | '--slotted-listbox-highlight-active'
   | '--slotted-listbox-measure'
+  | '--slotted-listbox-option-border-color'
+  | '--slotted-listbox-option-border-width'
+  | '--slotted-listbox-option-gap'
+  | '--slotted-listbox-option-padding-block'
+  | '--slotted-listbox-option-padding-inline'
   | '--slotted-listbox-option-radius'
   | '--slotted-listbox-padding-block'
   | '--slotted-listbox-padding-inline'
   | '--slotted-listbox-radius'
   | '--slotted-listbox-rows'
+  | '--slotted-listbox-selected-border-color'
   | '--slotted-listbox-selected-surface'
   | '--slotted-listbox-selected-text'
   | '--slotted-listbox-shadow'
@@ -6191,11 +6197,17 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-listbox-highlight",
   "--slotted-listbox-highlight-active",
   "--slotted-listbox-measure",
+  "--slotted-listbox-option-border-color",
+  "--slotted-listbox-option-border-width",
+  "--slotted-listbox-option-gap",
+  "--slotted-listbox-option-padding-block",
+  "--slotted-listbox-option-padding-inline",
   "--slotted-listbox-option-radius",
   "--slotted-listbox-padding-block",
   "--slotted-listbox-padding-inline",
   "--slotted-listbox-radius",
   "--slotted-listbox-rows",
+  "--slotted-listbox-selected-border-color",
   "--slotted-listbox-selected-surface",
   "--slotted-listbox-selected-text",
   "--slotted-listbox-shadow",

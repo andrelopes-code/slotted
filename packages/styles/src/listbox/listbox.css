@@ -339,6 +339,10 @@
   [data-ui-listbox] [data-part-option] {
     align-content: center;
     background: transparent;
+    /* No edge by default. A list whose options are cards gives them one, and
+       the chosen option changes its colour with the selection's own token. */
+    border: var(--slotted-listbox-option-border-width, 0) solid
+      var(--slotted-listbox-option-border-color, transparent);
     border-radius: var(--_option-radius);
     box-sizing: border-box;
     color: inherit;
@@ -354,8 +358,8 @@
      */
     line-height: var(--slotted-line-height-md, 1.5);
     min-block-size: var(--_option-height);
-    padding-block: var(--slotted-space-2, 0.25rem);
-    padding-inline: var(--_option-inset);
+    padding-block: var(--slotted-listbox-option-padding-block, var(--slotted-space-2, 0.25rem));
+    padding-inline: var(--slotted-listbox-option-padding-inline, var(--_option-inset));
     position: relative;
     /* The one gap inside an option, between a label and the line under it. */
     row-gap: var(--slotted-space-1, 0.125rem);
@@ -365,6 +369,27 @@
         var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
       color var(--slotted-control-transition-duration, var(--slotted-duration-short))
         var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+  }
+
+  /* Options touch by default; a list of separate cards sets the distance. */
+  [data-ui-listbox] [data-part-option] + [data-part-option] {
+    margin-block-start: var(--slotted-listbox-option-gap, 0);
+  }
+
+  /* Along a row the distance is inline, and in a grid it is the tracks' gap,
+     so options of one row stay on one line. */
+  [data-ui-listbox][data-orientation='horizontal'] [data-part-option] + [data-part-option] {
+    margin-block-start: 0;
+    margin-inline-start: var(--slotted-listbox-option-gap, 0);
+  }
+
+  [data-ui-listbox][data-layout='grid'] [data-part-option] + [data-part-option] {
+    margin-block-start: 0;
+  }
+
+  [data-ui-listbox][data-layout='grid'],
+  [data-ui-listbox][data-layout='grid'] :is([data-part-group], [data-part-canvas]) {
+    row-gap: var(--slotted-listbox-option-gap, 0);
   }
 
   /**
@@ -430,6 +455,10 @@
    */
   [data-ui-listbox] [data-part-option][data-selected] {
     background-color: var(--_selected-surface);
+    border-color: var(
+      --slotted-listbox-selected-border-color,
+      var(--slotted-listbox-option-border-color, transparent)
+    );
     color: var(--_selected-text);
   }
 
