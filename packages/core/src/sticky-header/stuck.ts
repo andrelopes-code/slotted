@@ -51,3 +51,45 @@ export function observeStuck(header: HTMLElement, onChange: (stuck: boolean) => 
     if (frame !== 0) view.cancelAnimationFrame(frame);
   };
 }
+
+/**
+ * `data-stuck` on every element inside `container` that `selector` matches,
+ * each measured by `observeStuck` against its own parent. Elements added or
+ * removed later are picked up, so a list whose groups change as the reader
+ * types keeps every label marked. Returns the function that stops observing
+ * and removes the attribute.
+ */
+export function markStuckWithin(container: HTMLElement, selector: string): () => void {
+  const stops = new Map<HTMLElement, () => void>();
+
+  function release(element: HTMLElement) {
+    stops.get(element)?.();
+    stops.delete(element);
+    element.removeAttribute('data-stuck');
+  }
+
+  function sync() {
+    const found = new Set(container.querySelectorAll<HTMLElement>(selector));
+
+    for (const element of [...stops.keys()]) {
+      if (!found.has(element)) release(element);
+    }
+
+    for (const element of found) {
+      if (stops.has(element)) continue;
+      const stop = observeStuck(element, (stuck) => element.toggleAttribute('data-stuck', stuck));
+      stops.set(element, stop);
+    }
+  }
+
+  const view = container.ownerDocument.defaultView;
+  const mutations = view?.MutationObserver === undefined ? null : new view.MutationObserver(sync);
+
+  mutations?.observe(container, { childList: true, subtree: true });
+  sync();
+
+  return () => {
+    mutations?.disconnect();
+    for (const element of [...stops.keys()]) release(element);
+  };
+}

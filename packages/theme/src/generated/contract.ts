@@ -3190,6 +3190,7 @@ export type ComponentToken =
   | '--slotted-command-palette-border-color'
   | '--slotted-command-palette-footer-surface'
   | '--slotted-command-palette-group-label-height'
+  | '--slotted-command-palette-group-label-stuck-surface'
   | '--slotted-command-palette-highlight'
   | '--slotted-command-palette-highlight-ring'
   | '--slotted-command-palette-hover'
@@ -3643,6 +3644,7 @@ export type ComponentToken =
   | '--slotted-entity-picker-field-basis'
   | '--slotted-entity-picker-field-min'
   | '--slotted-entity-picker-group-label-height'
+  | '--slotted-entity-picker-group-label-stuck-surface'
   | '--slotted-entity-picker-highlight'
   | '--slotted-entity-picker-highlight-active'
   | '--slotted-entity-picker-highlight-ring'
@@ -5499,6 +5501,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-command-palette-border-color",
   "--slotted-command-palette-footer-surface",
   "--slotted-command-palette-group-label-height",
+  "--slotted-command-palette-group-label-stuck-surface",
   "--slotted-command-palette-highlight",
   "--slotted-command-palette-highlight-ring",
   "--slotted-command-palette-hover",
@@ -5952,6 +5955,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-entity-picker-field-basis",
   "--slotted-entity-picker-field-min",
   "--slotted-entity-picker-group-label-height",
+  "--slotted-entity-picker-group-label-stuck-surface",
   "--slotted-entity-picker-highlight",
   "--slotted-entity-picker-highlight-active",
   "--slotted-entity-picker-highlight-ring",

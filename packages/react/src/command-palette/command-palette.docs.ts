@@ -108,7 +108,13 @@ const anatomy: AnatomyRow[] = [
     purpose:
       'role="group", named by its group-label. The recents are the first group, labelled by the recent message.',
   },
-  { part: 'group-label', element: 'div', required: false, purpose: 'The heading of a group.' },
+  {
+    part: 'group-label',
+    element: 'div',
+    required: false,
+    purpose:
+      'The heading of a group. It carries data-stuck while rows pass under it, and only then paints the surface of the panel.',
+  },
   {
     part: 'item',
     element: 'div | a',

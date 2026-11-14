@@ -41,6 +41,7 @@ import { canonicalKey, isEditableTarget, matchesShortcut, parseShortcut } from '
 import type { KbdPlatform } from '@slotted/core/keys';
 import { getLiveAnnouncer } from '@slotted/core/live-announcer';
 import { createControllable } from '@slotted/core/state';
+import { markStuckWithin } from '@slotted/core/sticky-header';
 import type { ChangeRequest } from '@slotted/core/state';
 
 import { injectCommandPaletteDefaults } from './command-palette-defaults';
@@ -660,6 +661,14 @@ export class SlCommandPalette<Item extends CommandPaletteItem = CommandPaletteIt
         `#${CSS.escape(this.domId(id))}`,
       );
       if (typeof node?.scrollIntoView === 'function') node.scrollIntoView({ block: 'nearest' });
+    });
+
+    /* `data-stuck` on a group label while rows pass under it: only then does
+       it paint a surface of its own. */
+    effect((onCleanup) => {
+      const list = this.list()?.nativeElement;
+      if (list === undefined) return;
+      onCleanup(markStuckWithin(list, '[data-part-group-label]'));
     });
 
     /* Closing puts the palette back where it started, each value by its own

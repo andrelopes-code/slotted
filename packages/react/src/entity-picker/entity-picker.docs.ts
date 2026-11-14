@@ -132,7 +132,8 @@ const anatomy: AnatomyRow[] = [
     part: 'group-label',
     element: 'div',
     required: false,
-    purpose: 'The heading of a group.',
+    purpose:
+      'The heading of a group. It carries data-stuck while rows pass under it, and only then paints the surface of the panel.',
   },
   {
     part: 'item',

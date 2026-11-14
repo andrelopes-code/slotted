@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import type { CSSProperties } from 'react';
 import { cdp } from 'vitest/browser';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -85,5 +86,54 @@ describe('the backdrop filter', () => {
       features: [{ name: 'prefers-reduced-transparency', value: 'reduce' }],
     });
     expect(filter('blur(9px)')).toBe('none');
+  });
+});
+
+/**
+ * A group label paints no surface at rest, so a translucent panel does not
+ * draw a second layer under it, and fills only while rows pass under it.
+ */
+describe('a group label on a translucent panel', () => {
+  const many: CommandPaletteItem[] = Array.from({ length: 40 }, (_, index) => ({
+    id: `item-${index}`,
+    label: `Item ${index}`,
+    group: index < 30 ? 'nav' : 'actions',
+  }));
+
+  function open() {
+    render(
+      <div
+        style={
+          {
+            '--slotted-command-palette-surface': 'rgba(255, 255, 255, 0.5)',
+            '--slotted-command-palette-group-label-stuck-surface': 'rgb(1, 2, 3)',
+          } as CSSProperties
+        }
+      >
+        <CommandPalette groups={GROUPS} items={many} presentation="inline" />
+      </div>,
+    );
+
+    return document.querySelector('[data-part="group-label"]') as HTMLElement;
+  }
+
+  it('is transparent while not stuck', async () => {
+    const label = open();
+    await frame();
+
+    expect(label.hasAttribute('data-stuck')).toBe(false);
+    expect(getComputedStyle(label).backgroundColor).toBe('rgba(0, 0, 0, 0)');
+  });
+
+  it('carries data-stuck and the stuck surface once rows pass under it', async () => {
+    const label = open();
+    const list = document.querySelector('[data-part="list"]') as HTMLElement;
+
+    list.style.maxBlockSize = '200px';
+    list.scrollTop = 200;
+    for (let tries = 0; tries < 30 && !label.hasAttribute('data-stuck'); tries += 1) await frame();
+
+    expect(label.hasAttribute('data-stuck')).toBe(true);
+    expect(getComputedStyle(label).backgroundColor).toBe('rgb(1, 2, 3)');
   });
 });

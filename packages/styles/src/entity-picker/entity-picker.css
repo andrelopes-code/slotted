@@ -995,7 +995,7 @@
    * the items and below the parts the surface draws over them.
    */
   [data-ui-entity-picker][data-part-positioner] [data-part-group-label] {
-    background: var(--_surface);
+    background: transparent;
     box-sizing: border-box;
     color: var(--_muted);
     font-size: var(--_secondary-font-size);
@@ -1008,6 +1008,15 @@
     padding-inline: var(--_item-inset);
     position: sticky;
     z-index: 1;
+  }
+
+  /**
+   * At rest the label stands on the panel's own surface and paints none, so a
+   * translucent panel does not draw a second layer under every label. Only
+   * while it is stuck, with rows passing under it, does it fill.
+   */
+  [data-ui-entity-picker][data-part-positioner] [data-part-group-label][data-stuck] {
+    background: var(--slotted-entity-picker-group-label-stuck-surface, var(--_surface));
   }
 
   @media (forced-colors: active) {

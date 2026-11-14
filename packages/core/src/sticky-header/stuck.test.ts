@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { observeStuck } from './stuck';
+import { markStuckWithin, observeStuck } from './stuck';
 
 const rect = (top: number) => ({ top }) as DOMRect;
 
@@ -77,5 +77,57 @@ describe('observeStuck', () => {
     window.dispatchEvent(new Event('scroll'));
     flush();
     expect(changes).toEqual([]);
+  });
+});
+
+describe('markStuckWithin', () => {
+  let frames: FrameRequestCallback[];
+  const flush = () => frames.splice(0).forEach((callback) => callback(0));
+
+  beforeEach(() => {
+    frames = [];
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) =>
+      frames.push(callback),
+    );
+    vi.stubGlobal('cancelAnimationFrame', () => {});
+  });
+
+  afterEach(() => {
+    document.body.replaceChildren();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  function group(list: HTMLElement, top: { group: number; label: number }) {
+    const element = document.createElement('div');
+    const label = document.createElement('div');
+
+    label.dataset['part'] = 'group-label';
+    element.append(label);
+    list.append(element);
+    vi.spyOn(element, 'getBoundingClientRect').mockImplementation(() => rect(top.group));
+    vi.spyOn(label, 'getBoundingClientRect').mockImplementation(() => rect(top.label));
+
+    return label;
+  }
+
+  it('marks each matching element while it is stuck, including one added later', async () => {
+    const list = document.createElement('div');
+    document.body.append(list);
+    const first = group(list, { group: 0, label: 40 });
+    const stop = markStuckWithin(list, '[data-part="group-label"]');
+    flush();
+
+    expect(first.hasAttribute('data-stuck')).toBe(true);
+
+    const second = group(list, { group: 100, label: 140 });
+    await Promise.resolve();
+    flush();
+
+    expect(second.hasAttribute('data-stuck')).toBe(true);
+
+    stop();
+
+    expect(first.hasAttribute('data-stuck')).toBe(false);
   });
 });

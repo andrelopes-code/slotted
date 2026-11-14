@@ -14,4 +14,4 @@ export type {
   StickyHeaderOptions,
   StickyHeaderState,
 } from './sticky-header';
-export { observeStuck } from './stuck';
+export { markStuckWithin, observeStuck } from './stuck';

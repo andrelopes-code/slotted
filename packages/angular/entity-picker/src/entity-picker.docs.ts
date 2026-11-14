@@ -129,7 +129,8 @@ const anatomy: AnatomyRow[] = [
     part: 'group-label',
     element: 'div',
     required: false,
-    purpose: 'The heading of a group, drawn only when more than one group shows.',
+    purpose:
+      'The heading of a group, drawn only when more than one group shows. It carries data-stuck while rows pass under it, and only then paints the surface of the panel.',
   },
   {
     part: 'item',

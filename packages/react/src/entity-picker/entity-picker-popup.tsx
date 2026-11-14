@@ -8,6 +8,7 @@ import type { PositionerHandle } from '@slotted/core/positioner';
 import { createRowMetrics, offsetForIndex, virtualWindow } from '@slotted/core/collection';
 import { createPresence } from '@slotted/core/presence';
 import type { PresenceHandle, PresenceStatus } from '@slotted/core/presence';
+import { markStuckWithin } from '@slotted/core/sticky-header';
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { MouseEvent, PointerEvent } from 'react';
 import { createPortal } from 'react-dom';
@@ -103,6 +104,14 @@ export function EntityPickerPopup() {
 
   useEffect(() => presence.current?.sync(picker.open), [picker.open]);
   useEffect(() => presence.current?.setNode(layerNode), [layerNode]);
+
+  /* `data-stuck` on a group label while rows pass under it: only then does it
+     paint a surface of its own. */
+  useEffect(
+    () =>
+      surfaceNode === null ? undefined : markStuckWithin(surfaceNode, '[data-part-group-label]'),
+    [surfaceNode],
+  );
 
   /** Open renders the popup in the commit that opens it. */
   const mounted = picker.open || status !== 'unmounted';

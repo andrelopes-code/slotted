@@ -11,6 +11,7 @@ import { canonicalKey, isEditableTarget, matchesShortcut, parseShortcut } from '
 import type { KbdPlatform } from '@slotted/core/keys';
 import { getLiveAnnouncer } from '@slotted/core/live-announcer';
 import { createPortalRoot } from '@slotted/core/portal';
+import { markStuckWithin } from '@slotted/core/sticky-header';
 import { createControllable } from '@slotted/core/state';
 import {
   createContext,
@@ -367,6 +368,18 @@ export function CommandPalette<Item extends CommandPaletteItem = CommandPaletteI
     );
     if (typeof node?.scrollIntoView === 'function') node.scrollIntoView({ block: 'nearest' });
   }, [base, currentHighlighted]);
+
+  /* `data-stuck` on a group label while rows pass under it: only then does it
+     paint a surface of its own. */
+  const [listNode, setListNode] = useState<HTMLDivElement | null>(null);
+  const attachList = useCallback((node: HTMLDivElement | null) => {
+    listRef.current = node;
+    setListNode(node);
+  }, []);
+  useEffect(
+    () => (listNode === null ? undefined : markStuckWithin(listNode, '[data-part-group-label]')),
+    [listNode],
+  );
 
   /* ── Executing ────────────────────────────────────────────────────────── */
 
@@ -952,7 +965,7 @@ export function CommandPalette<Item extends CommandPaletteItem = CommandPaletteI
         data-part-list=""
         {...(resolved.loading ? { 'data-loading': '' } : {})}
         id={listId}
-        ref={listRef}
+        ref={attachList}
         role="listbox"
       >
         {resolved.loading && model.count === 0 ? (

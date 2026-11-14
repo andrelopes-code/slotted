@@ -81,6 +81,7 @@ import { createPositioner } from '@slotted/core/positioner';
 import type { PositionerHandle } from '@slotted/core/positioner';
 import { createPresence } from '@slotted/core/presence';
 import type { PresenceHandle } from '@slotted/core/presence';
+import { markStuckWithin } from '@slotted/core/sticky-header';
 import { createControllable } from '@slotted/core/state';
 import type { ChangeRequest } from '@slotted/core/state';
 
@@ -857,6 +858,7 @@ export class SlEntityPicker implements ControlValueAccessor, Validator {
   private view: EmbeddedViewRef<unknown> | null = null;
   private layerNode: HTMLElement | null = null;
   private surfaceNode: HTMLElement | null = null;
+  private unmarkStuck: (() => void) | null = null;
   private portalRoot: PortalRootHandle | null = null;
   private positionerHandle: PositionerHandle | null = null;
   private layer: DismissableLayerHandle | null = null;
@@ -1831,6 +1833,12 @@ export class SlEntityPicker implements ControlValueAccessor, Validator {
     ) as HTMLElement | null;
     this.surfaceNode = this.layerNode?.querySelector<HTMLElement>("[data-part='content']") ?? null;
     this.watchViewport();
+    /* `data-stuck` on a group label while rows pass under it: only then does
+       it paint a surface of its own. */
+    this.unmarkStuck =
+      this.surfaceNode === null
+        ? null
+        : markStuckWithin(this.surfaceNode, '[data-part-group-label]');
     if (this.layerNode === null) return;
     this.portalRoot.container?.append(this.layerNode);
     this.presence = createPresence({ present: true });
@@ -1909,6 +1917,8 @@ export class SlEntityPicker implements ControlValueAccessor, Validator {
 
   private teardown() {
     this.unwatchViewport?.();
+    this.unmarkStuck?.();
+    this.unmarkStuck = null;
     this.layer?.destroy();
     this.positionerHandle?.destroy();
     this.presence?.destroy();
