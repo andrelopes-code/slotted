@@ -30,6 +30,7 @@ export function DescriptionListDefaultsProvider({
         layout: defaults.layout ?? inherited.layout,
         minColumnWidth: defaults.minColumnWidth ?? inherited.minColumnWidth,
         termWidth: defaults.termWidth ?? inherited.termWidth,
+        valueAlign: defaults.valueAlign ?? inherited.valueAlign,
         variant: defaults.variant ?? inherited.variant,
       }}
     >

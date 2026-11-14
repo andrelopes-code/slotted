@@ -139,6 +139,7 @@ describe('SlDescriptionList', () => {
     expect(root.getAttribute('data-columns')).toBe(contract.resolution.columns[2]);
     expect(root.getAttribute('data-variant')).toBe(contract.resolution.variant[2]);
     expect(root.getAttribute('data-min-column-width')).toBe(contract.resolution.minColumnWidth[2]);
+    expect(root.getAttribute('data-value-align')).toBe(contract.resolution.valueAlign[2]);
 
     fixture.componentInstance.layout.set('stack');
     fixture.componentInstance.columns.set(3);
@@ -158,6 +159,7 @@ describe('SlDescriptionList', () => {
           columns: 2,
           layout: 'stack',
           minColumnWidth: 'sm',
+          valueAlign: 'end',
           variant: 'ruled',
         }),
       ],
@@ -165,6 +167,7 @@ describe('SlDescriptionList', () => {
 
     const { fixture, root } = panel();
     expect(root.getAttribute('data-min-column-width')).toBe('sm');
+    expect(root.getAttribute('data-value-align')).toBe('end');
     expect(root.getAttribute('data-layout')).toBe('stack');
     expect(root.getAttribute('data-columns')).toBe('2');
     expect(root.getAttribute('data-variant')).toBe('ruled');

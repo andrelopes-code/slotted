@@ -68,6 +68,7 @@ export function DescriptionList({
   render,
   style,
   termWidth,
+  valueAlign,
   variant,
   ...nativeProps
 }: DescriptionListProps) {
@@ -95,6 +96,7 @@ export function DescriptionList({
     'data-min-column-width': minColumnWidth ?? defaults.minColumnWidth ?? 'md',
     'data-part': 'root',
     'data-ui': 'description-list',
+    'data-value-align': valueAlign ?? defaults.valueAlign ?? 'start',
     'data-variant': context.variant,
     /* A length only the consumer knows, handed to the stylesheet under the
        name that says so. It is a runtime value rather than a design token,

@@ -315,6 +315,13 @@ export const REACT_DESCRIPTION_LIST_DOCS = {
         'The maximum width of the term column, as a length (not a percentage); the terms share one track sized to the widest of them, up to this. A row list narrower than this width plus --slotted-description-list-value-min (12rem) stacks each term over its value',
       ],
       [
+        'valueAlign',
+        "'start' | 'end'",
+        'start',
+        'DescriptionList',
+        'Where a value sits in a row list: after the term, or ended at the row so values compared down the list end on one line. A stacked list, and a row list folded to a stack, keep the value at the start',
+      ],
+      [
         'messages',
         'PartialMessages<DescriptionListMessages>',
         '—',
@@ -396,10 +403,10 @@ export const REACT_DESCRIPTION_LIST_DOCS = {
       ],
       [
         'DescriptionListDefaultsProvider',
-        'layout | columns | variant | termWidth | minColumnWidth',
+        'layout | columns | variant | termWidth | minColumnWidth | valueAlign',
         '—',
         'Application',
-        'Sets those five once for everything below it; a prop on the list still wins',
+        'Sets those six once for everything below it; a prop on the list still wins',
       ],
       [
         'children',

@@ -38,5 +38,6 @@ export type {
   DescriptionListRootProps,
   DescriptionListTermProps,
   DescriptionListTermRootProps,
+  DescriptionListValueAlign,
   DescriptionListVariant,
 } from './description-list.types';

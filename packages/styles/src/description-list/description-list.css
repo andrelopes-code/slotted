@@ -180,6 +180,7 @@
    * width.
    */
   [data-ui-description-list][data-layout='stack'] [data-part-list] {
+    --_value-align: start;
     --_pair: minmax(0, 1fr);
     --_term-floor: 0px;
     --_span-1: 1;
@@ -301,6 +302,16 @@
     vertical-align: text-bottom;
   }
 
+  /**
+   * Values a reader compares down the list end on one vertical line at the
+   * inline end of their rows. Set on the root, so a stacked list and a row
+   * list folded to a stack reset it on the list and keep their values at the
+   * start, under the term.
+   */
+  [data-ui-description-list][data-value-align='end'] {
+    --_value-align: end;
+  }
+
   [data-ui-description-list] [data-part-description] {
     align-items: baseline;
     /**
@@ -315,7 +326,8 @@
     grid-column: var(--_desc-col);
     grid-row: var(--_desc-row);
     grid-template-columns: minmax(0, max-content) auto;
-    justify-content: start;
+    justify-content: var(--_value-align, start);
+    text-align: var(--_value-align, start);
     /* `dd` carries a user-agent inline margin of forty pixels. */
     margin: 0;
     min-inline-size: 0;
@@ -655,6 +667,7 @@
      * cannot share one rule.
      */
     [data-ui-description-list][data-layout='row'] [data-part-list]:has([data-part-hint]) {
+      --_value-align: start;
       --_pair: minmax(0, 1fr);
       --_term-floor: 0px;
       --_span-1: 1;
@@ -681,6 +694,7 @@
 
   @container slotted-description-list (max-width: 1em) {
     [data-ui-description-list][data-layout='row'] [data-part-list] {
+      --_value-align: start;
       --_pair: minmax(0, 1fr);
       --_term-floor: 0px;
       --_span-1: 1;

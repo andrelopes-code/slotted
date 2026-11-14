@@ -10,6 +10,9 @@ export type DescriptionListColumns = 1 | 2 | 3;
 /** The narrowest column before the count folds: `md` 17rem, `sm` 12.5rem. */
 export type DescriptionListMinColumnWidth = 'sm' | 'md';
 
+/** Where a value sits in a row arrangement: after the term, or at the row's inline end. */
+export type DescriptionListValueAlign = 'start' | 'end';
+
 /** Nothing between pairs, a rule between them, or a framed table. */
 export type DescriptionListVariant = 'plain' | 'ruled' | 'framed';
 
@@ -39,12 +42,15 @@ export interface DescriptionListDefaults {
   minColumnWidth?: DescriptionListMinColumnWidth;
   /** The maximum width of the term column, as a CSS length. */
   termWidth?: string;
+  /** `end` ends every value at the row's inline end; a stacked arrangement ignores it. */
+  valueAlign?: DescriptionListValueAlign;
   variant?: DescriptionListVariant;
 }
 
 export const DESCRIPTION_LIST_DEFAULT_LAYOUT: DescriptionListLayout = 'row';
 export const DESCRIPTION_LIST_DEFAULT_COLUMNS: DescriptionListColumns = 1;
 export const DESCRIPTION_LIST_DEFAULT_MIN_COLUMN_WIDTH: DescriptionListMinColumnWidth = 'md';
+export const DESCRIPTION_LIST_DEFAULT_VALUE_ALIGN: DescriptionListValueAlign = 'start';
 export const DESCRIPTION_LIST_DEFAULT_VARIANT: DescriptionListVariant = 'plain';
 
 /**

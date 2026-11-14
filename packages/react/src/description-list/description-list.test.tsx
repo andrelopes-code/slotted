@@ -126,28 +126,32 @@ describe('DescriptionList', () => {
     expect(root()).toHaveAttribute('data-columns', contract.resolution.columns[2]);
     expect(root()).toHaveAttribute('data-variant', contract.resolution.variant[2]);
     expect(root()).toHaveAttribute('data-min-column-width', contract.resolution.minColumnWidth[2]);
+    expect(root()).toHaveAttribute('data-value-align', contract.resolution.valueAlign[2]);
 
     rerender(
       <DescriptionListDefaultsProvider
         columns={2}
         layout="stack"
         minColumnWidth="sm"
+        valueAlign="end"
         variant="framed"
       >
         <Panel />
       </DescriptionListDefaultsProvider>,
     );
     expect(root()).toHaveAttribute('data-min-column-width', 'sm');
+    expect(root()).toHaveAttribute('data-value-align', 'end');
     expect(root()).toHaveAttribute('data-layout', 'stack');
     expect(root()).toHaveAttribute('data-columns', '2');
     expect(root()).toHaveAttribute('data-variant', 'framed');
 
     rerender(
-      <DescriptionListDefaultsProvider columns={2} layout="stack" variant="framed">
-        <Panel columns={3} layout="row" minColumnWidth="md" variant="ruled" />
+      <DescriptionListDefaultsProvider columns={2} layout="stack" valueAlign="end" variant="framed">
+        <Panel columns={3} layout="row" minColumnWidth="md" valueAlign="start" variant="ruled" />
       </DescriptionListDefaultsProvider>,
     );
     expect(root()).toHaveAttribute('data-min-column-width', 'md');
+    expect(root()).toHaveAttribute('data-value-align', 'start');
     expect(root()).toHaveAttribute('data-layout', 'row');
     expect(root()).toHaveAttribute('data-columns', '3');
     expect(root()).toHaveAttribute('data-variant', 'ruled');

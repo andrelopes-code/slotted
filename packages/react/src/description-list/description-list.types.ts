@@ -15,6 +15,9 @@ export type DescriptionListColumns = 1 | 2 | 3;
 /** The narrowest column before the count folds: `md` 17rem, `sm` 12.5rem. */
 export type DescriptionListMinColumnWidth = 'sm' | 'md';
 
+/** Where a value sits in a row arrangement: after the term, or at the row's inline end. */
+export type DescriptionListValueAlign = 'start' | 'end';
+
 /** Nothing between pairs, a rule between them, or a framed table. */
 export type DescriptionListVariant = 'plain' | 'ruled' | 'framed';
 
@@ -50,6 +53,8 @@ export interface DescriptionListDefaults {
   minColumnWidth?: DescriptionListMinColumnWidth | undefined;
   /** The maximum width of the term column, as a CSS length. */
   termWidth?: string | undefined;
+  /** `end` ends every value at the row's inline end; a stacked arrangement ignores it. */
+  valueAlign?: DescriptionListValueAlign | undefined;
   variant?: DescriptionListVariant | undefined;
 }
 
@@ -76,6 +81,7 @@ export interface DescriptionListRootProps extends ComponentPropsWithRef<'div'> {
   'data-min-column-width': DescriptionListMinColumnWidth;
   'data-part': string;
   'data-ui': string;
+  'data-value-align': DescriptionListValueAlign;
   'data-variant': DescriptionListVariant;
 }
 
@@ -93,6 +99,8 @@ export interface DescriptionListProps extends ComponentPropsWithRef<'div'> {
   render?: ((props: DescriptionListRootProps) => ReactNode) | undefined;
   /** The maximum width of the term column, as a CSS length. */
   termWidth?: string | undefined;
+  /** `end` ends every value at the row's inline end; a stacked arrangement ignores it. */
+  valueAlign?: DescriptionListValueAlign | undefined;
   variant?: DescriptionListVariant | undefined;
 }
 

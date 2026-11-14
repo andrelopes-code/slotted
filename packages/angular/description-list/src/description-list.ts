@@ -35,6 +35,7 @@ import {
   DESCRIPTION_LIST_DEFAULT_COLUMNS,
   DESCRIPTION_LIST_DEFAULT_LAYOUT,
   DESCRIPTION_LIST_DEFAULT_MIN_COLUMN_WIDTH,
+  DESCRIPTION_LIST_DEFAULT_VALUE_ALIGN,
   DESCRIPTION_LIST_DEFAULT_VARIANT,
   DESCRIPTION_LIST_EMPTY_VALUE_MARK,
   injectDescriptionListDefaults,
@@ -46,6 +47,7 @@ import {
   type DescriptionListCopyRequest,
   type DescriptionListLayout,
   type DescriptionListMinColumnWidth,
+  type DescriptionListValueAlign,
   type DescriptionListVariant,
 } from './description-list.constants';
 
@@ -83,6 +85,7 @@ import {
     '[attr.data-layout]': 'layoutValue()',
     '[attr.data-columns]': 'columnsValue()',
     '[attr.data-min-column-width]': 'minColumnWidthValue()',
+    '[attr.data-value-align]': 'valueAlignValue()',
     '[attr.data-variant]': 'variantValue()',
     '[style.--slotted-description-list-term-width]': 'termWidthValue() ?? null',
   },
@@ -95,6 +98,8 @@ export class SlDescriptionList {
   readonly minColumnWidth = input<DescriptionListMinColumnWidth | undefined>(undefined);
   /** The maximum width of the term column, as a CSS length. */
   readonly termWidth = input<string | undefined>(undefined);
+  /** `end` ends every value at the row's inline end; a stacked arrangement ignores it. */
+  readonly valueAlign = input<DescriptionListValueAlign | undefined>(undefined);
   /**
    * Words laid over the catalog of the language in force, key by key: the
    * copy control and its announcements, the reveal control, and the sentence
@@ -115,6 +120,9 @@ export class SlDescriptionList {
       this.minColumnWidth() ??
       this.defaults.minColumnWidth ??
       DESCRIPTION_LIST_DEFAULT_MIN_COLUMN_WIDTH,
+  );
+  readonly valueAlignValue = computed(
+    () => this.valueAlign() ?? this.defaults.valueAlign ?? DESCRIPTION_LIST_DEFAULT_VALUE_ALIGN,
   );
   readonly variantValue = computed(
     () => this.variant() ?? this.defaults.variant ?? DESCRIPTION_LIST_DEFAULT_VARIANT,
