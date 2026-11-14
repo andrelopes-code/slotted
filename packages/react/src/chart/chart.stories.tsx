@@ -781,7 +781,7 @@ export const Zoom: Story = {
       <Chart
         {...DAILY_CHART}
         defaultZoom={{ start: 0.35, end: 0.7 }}
-        description="Drag, Ctrl+wheel, or + − 0 with the chart in focus"
+        description="Ctrl+wheel or + − 0 with the chart in focus; a drag pans"
         title="Daily sessions"
         zoomable
       />

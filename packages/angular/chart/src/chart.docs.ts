@@ -833,7 +833,7 @@ const events: EventRow[] = [
   {
     name: 'zoomChange, zoomChangeRequest',
     payload: 'ChartZoom, ChangeRequest<ChartZoom>',
-    when: 'With zoomable, on a drag, a wheel with Ctrl, + or −, 0 or the reset control: pointer, keyboard, clear, escape, programmatic.',
+    when: 'With zoomable, on a wheel with Ctrl, + or −, 0, the reset control or a drag that pans a zoomed chart: pointer, keyboard, clear, escape, programmatic.',
   },
   {
     name: 'tableOpenChange, tableOpenChangeRequest',
@@ -1084,7 +1084,13 @@ export const ANGULAR_CHART_DOCS = {
         'tooltip',
         'Tooltip rows in series order, or by value',
       ],
-      ['zoomable', 'boolean', 'false', 'slChart', 'Drag, Ctrl+wheel and + − 0 zoom the x axis'],
+      [
+        'zoomable',
+        'boolean',
+        'false',
+        'slChart',
+        'Ctrl+wheel and + − 0 zoom the x axis; a drag pans a zoomed chart',
+      ],
       ['selectable', 'boolean', 'false', 'slChart', 'A click or Enter selects a point'],
       [
         'loading',

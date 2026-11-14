@@ -671,7 +671,7 @@ export const Selection = story(
 
 export const Zoom = story(
   'zoom',
-  `<figure slChart zoomable title="Daily sessions" description="Drag, Ctrl+wheel, or + − 0 with the chart focused"
+  `<figure slChart zoomable title="Daily sessions" description="Ctrl+wheel or + − 0 with the chart focused; a drag pans"
     [data]="daily" [series]="sessions" [x]="day" [(zoom)]="zoom"></figure>`,
   { zoom: signal({ start: 0.35, end: 0.7 }) },
 );

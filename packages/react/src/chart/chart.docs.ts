@@ -822,7 +822,7 @@ const events: EventRow[] = [
   {
     name: 'onZoomChange',
     payload: '(zoom: ChartZoom, request: ChangeRequest<ChartZoom>)',
-    when: 'With zoomable, on a drag, a wheel with Ctrl, + or −, 0 or the reset control: pointer, keyboard, clear, escape, programmatic. start and end are fractions of the domain.',
+    when: 'With zoomable, on a wheel with Ctrl, + or −, 0, the reset control or a drag that pans a zoomed chart: pointer, keyboard, clear, escape, programmatic. start and end are fractions of the domain.',
   },
   {
     name: 'onTableOpenChange',
@@ -1074,7 +1074,13 @@ export const REACT_CHART_DOCS = {
         'tooltip',
         'Tooltip rows in series order, or by value',
       ],
-      ['zoomable', 'boolean', 'false', 'Chart', 'Drag, Ctrl+wheel and + − 0 zoom the x axis'],
+      [
+        'zoomable',
+        'boolean',
+        'false',
+        'Chart',
+        'Ctrl+wheel and + − 0 zoom the x axis; a drag pans a zoomed chart',
+      ],
       ['selectable', 'boolean', 'false', 'Chart', 'A click or Enter selects a point'],
       [
         'loading',
