@@ -312,12 +312,12 @@
    *   └──────────────────────────────────────────────────────────────────┘
    *
    * Every mark is placed by a share of the track the binding writes as
-   * --slotted-sparkline-at, so the strip is drawn without measuring and a
-   * stack of rows with the same extent lines up: the two end columns are one
-   * fixed width, and the track takes what is left.
+   * --slotted-sparkline-at, so the strip is drawn without measuring. Each end
+   * is as wide as its text, never cut: rows that state the same extent write
+   * the same ends in tabular figures, so their tracks line up.
    */
   [data-ui-sparkline][data-type='strip'] {
-    --_end: var(--slotted-sparkline-end-size, 3.5rem);
+    --_end: var(--slotted-sparkline-end-size, max-content);
     --_dot: var(--_marker);
     --_value-dot: calc(var(--_marker) * 1.75);
     --_band-color: color-mix(in oklab, var(--_color) 18%, var(--slotted-surface, Canvas));
@@ -338,8 +338,6 @@
 
   [data-ui-sparkline][data-type='strip'] :is([data-part-start], [data-part-end]) {
     color: var(--slotted-text-muted, GrayText);
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
   }
 

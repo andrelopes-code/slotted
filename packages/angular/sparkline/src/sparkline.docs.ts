@@ -215,7 +215,7 @@ const stripAnatomy: AnatomyRow[] = [
     element: 'span',
     required: true,
     purpose:
-      'role="img", data-type="strip", named by the value, the span of the periods and the reference. Three columns: the two ends at one fixed width, the track between them.',
+      'role="img", data-type="strip", named by the value, the span of the periods and the reference. Three columns: the two ends, each as wide as its text, and the track between them.',
   },
   { part: 'track', element: 'span', required: true, purpose: 'The axis every mark is placed on.' },
   {
@@ -256,25 +256,25 @@ const stripScenes: ReferenceSceneMeta[] = [
   {
     id: 'playground',
     title: 'Playground',
-    note: 'One ratio this period against its last eight: the band is their span, the larger dot this period, the dashed tick a long-run mean.',
+    note: 'This month’s savings against the eight months before it: each small dot is a month, the band their span, the large dot this month, the dashed tick their mean.',
     snippet: defineSnippet({
       id: 'position-strip-angular-playground',
       language: 'angular',
       label: 'A value among its periods',
       source:
-        '<span\n  slPositionStrip\n  label="Savings rate"\n  [reference]="1200"\n  [value]="800"\n  [values]="periods"\n></span>',
+        '<span slPositionStrip label="Savings" [reference]="1200" [value]="800" [values]="periods"></span>',
     }),
   },
   {
     id: 'stacked',
     title: 'Rows that line up',
-    note: 'Several strips stacked in a card state one min and max, so their planes line up: the ends are one fixed width and every mark is a share of the track.',
+    note: 'In a table, a value column writes the number and the strip shows where it stands. Every row states one min and max, so the rows write the same ends and their tracks line up.',
     snippet: defineSnippet({
       id: 'position-strip-angular-stacked',
       language: 'angular',
       label: 'One extent for every row',
       source:
-        '<span\n  slPositionStrip\n  label="Savings rate"\n  [max]="3000"\n  [min]="-1000"\n  [value]="800"\n  [values]="savings"\n></span>\n<span\n  slPositionStrip\n  label="Debt ratio"\n  [max]="3000"\n  [min]="-1000"\n  [value]="2200"\n  [values]="debt"\n></span>',
+        '<span\n  slPositionStrip\n  label="Savings"\n  [max]="3000"\n  [min]="-1000"\n  [value]="800"\n  [values]="savings"\n></span>\n<span\n  slPositionStrip\n  label="Debt service"\n  [max]="3000"\n  [min]="-1000"\n  [value]="2200"\n  [values]="debt"\n></span>',
     }),
   },
   {
@@ -285,19 +285,19 @@ const stripScenes: ReferenceSceneMeta[] = [
       id: 'position-strip-angular-pending',
       language: 'angular',
       label: 'The current period still open',
-      source: '<span slPositionStrip hideValue label="Savings rate" [values]="periods"></span>',
+      source: '<span slPositionStrip hideValue label="Savings" [values]="periods"></span>',
     }),
   },
   {
     id: 'accessibility',
     title: 'What a reader hears',
-    note: 'The root is an image named “Savings rate: 800, against a range of -500 to 2,500, reference 1,200”, every number in the locale and format given.',
+    note: 'The root is an image named “Savings: R$800.00, against a range of -R$500.00 to R$2,500.00, reference R$1,200.00”, every number in the locale and format given.',
     snippet: defineSnippet({
       id: 'position-strip-angular-accessibility',
       language: 'angular',
       label: 'The name, formatted',
       source:
-        '<span\n  slPositionStrip\n  label="Savings"\n  [formatOptions]="currency"\n  [value]="800"\n  [values]="periods"\n></span>',
+        '<span\n  slPositionStrip\n  label="Savings"\n  [formatOptions]="currency"\n  [reference]="1200"\n  [value]="800"\n  [values]="periods"\n></span>',
     }),
   },
 ];

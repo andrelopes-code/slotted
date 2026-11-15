@@ -34,6 +34,29 @@ describe('a position strip with a negative period', () => {
     );
   });
 
+  it('writes each end in full, whatever its format', () => {
+    render(
+      <div style={{ inlineSize: 320 }}>
+        <PositionStrip
+          formatOptions={{ currency: 'BRL', style: 'currency' }}
+          label="Savings"
+          locale="pt-BR"
+          max={12000}
+          min={-10000}
+          value={800}
+          values={VALUES}
+        />
+      </div>,
+    );
+    const root = screen.getByRole('img');
+
+    for (const name of ['start', 'end']) {
+      const end = root.querySelector<HTMLElement>(`[data-part="${name}"]`)!;
+
+      expect(end.scrollWidth).toBeLessThanOrEqual(end.clientWidth);
+    }
+  });
+
   it('draws no value dot while the value is hidden, and says so', () => {
     render(<PositionStrip hideValue label="Savings rate" value={800} values={VALUES} />);
     const root = screen.getByRole('img');

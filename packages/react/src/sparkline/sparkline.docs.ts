@@ -214,7 +214,7 @@ const stripAnatomy: AnatomyRow[] = [
     element: 'span',
     required: true,
     purpose:
-      'role="img", data-type="strip", named by the value, the span of the periods and the reference. Three columns: the two ends at one fixed width, the track between them.',
+      'role="img", data-type="strip", named by the value, the span of the periods and the reference. Three columns: the two ends, each as wide as its text, and the track between them.',
   },
   { part: 'track', element: 'span', required: true, purpose: 'The axis every mark is placed on.' },
   {
@@ -255,25 +255,24 @@ const stripScenes: ReferenceSceneMeta[] = [
   {
     id: 'playground',
     title: 'Playground',
-    note: 'One ratio this period against its last eight: the band is their span, the larger dot this period, the dashed tick a long-run mean.',
+    note: 'This month’s savings against the eight months before it: each small dot is a month, the band their span, the large dot this month, the dashed tick their mean.',
     snippet: defineSnippet({
       id: 'position-strip-react-playground',
       language: 'tsx',
       label: 'A value among its periods',
-      source:
-        '<PositionStrip label="Savings rate" reference={1200} value={800} values={periods} />;',
+      source: '<PositionStrip label="Savings" reference={1200} value={800} values={periods} />;',
     }),
   },
   {
     id: 'stacked',
     title: 'Rows that line up',
-    note: 'Several strips stacked in a card state one min and max, so their planes line up: the ends are one fixed width and every mark is a share of the track.',
+    note: 'In a table, a value column writes the number and the strip shows where it stands. Every row states one min and max, so the rows write the same ends and their tracks line up.',
     snippet: defineSnippet({
       id: 'position-strip-react-stacked',
       language: 'tsx',
       label: 'One extent for every row',
       source:
-        '<PositionStrip label="Savings rate" max={3000} min={-1000} value={800} values={savings} />;\n<PositionStrip label="Debt ratio" max={3000} min={-1000} value={2200} values={debt} />;',
+        '<PositionStrip label="Savings" max={3000} min={-1000} value={800} values={savings} />;\n<PositionStrip label="Debt service" max={3000} min={-1000} value={2200} values={debt} />;',
     }),
   },
   {
@@ -284,19 +283,19 @@ const stripScenes: ReferenceSceneMeta[] = [
       id: 'position-strip-react-pending',
       language: 'tsx',
       label: 'The current period still open',
-      source: '<PositionStrip hideValue label="Savings rate" value={null} values={periods} />;',
+      source: '<PositionStrip hideValue label="Savings" value={null} values={periods} />;',
     }),
   },
   {
     id: 'accessibility',
     title: 'What a reader hears',
-    note: 'The root is an image named “Savings rate: 800, against a range of -500 to 2,500, reference 1,200”, every number in the locale and format given.',
+    note: 'The root is an image named “Savings: R$800.00, against a range of -R$500.00 to R$2,500.00, reference R$1,200.00”, every number in the locale and format given.',
     snippet: defineSnippet({
       id: 'position-strip-react-accessibility',
       language: 'tsx',
       label: 'The name, formatted',
       source:
-        "<PositionStrip\n  formatOptions={{ style: 'currency', currency: 'BRL' }}\n  label=\"Savings\"\n  value={800}\n  values={periods}\n/>;",
+        "<PositionStrip\n  formatOptions={{ style: 'currency', currency: 'BRL' }}\n  label=\"Savings\"\n  reference={1200}\n  value={800}\n  values={periods}\n/>;",
     }),
   },
 ];
