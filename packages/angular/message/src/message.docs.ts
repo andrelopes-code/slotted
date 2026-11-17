@@ -25,7 +25,7 @@ export const ANGULAR_MESSAGE_TOKENS = messageTokens.map((name) => ({
 
 const imports: ReferenceImport = {
   source:
-    "import { provideMessageDefaults, SlBubble, SlBubbleCaret, SlBubbleContent, SlBubbleMeta, SlBubbleQuote, SlBubbleReaction, SlBubbleReactions, SlBubbleRetry, SlBubbleStream, SlBubbleTyping, SlMessage, SlMessageActions, SlMessageActivity, SlMessageActivityStep, SlMessageAuthor, SlMessageAvatar, SlMessageBody, SlMessageFooter, SlMessageGroup, SlMessageHeader, SlMessageReceipt, SlMessageTime, SlMessageVersions } from '@slotted/angular/message';",
+    "import { provideMessageDefaults, SlBubble, SlBubbleCaret, SlBubbleContent, SlBubbleMeta, SlBubbleQuote, SlBubbleReaction, SlBubbleReactions, SlBubbleRetry, SlBubbleStream, SlBubbleTyping, SlMessage, SlMessageActions, SlMessageActivity, SlMessageActivityStep, SlMessageActivityStepIcon, SlMessageAuthor, SlMessageAvatar, SlMessageBody, SlMessageFooter, SlMessageGroup, SlMessageHeader, SlMessageReceipt, SlMessageTime, SlMessageVersions } from '@slotted/angular/message';",
   selector:
     '[slMessage], [slMessageGroup], [slMessageAvatar], [slMessageBody], [slMessageHeader], [slMessageAuthor], time[slMessageTime], [slMessageFooter], [slMessageReceipt], [slMessageActions], [slMessageActivity], [slMessageActivityStep], [slMessageVersions], [slBubble], [slBubbleContent], [slBubbleMeta], [slBubbleQuote], [slBubbleCaret], [slBubbleTyping], button[slBubbleRetry], [slBubbleReactions], button[slBubbleReaction]',
   exportAs: 'slMessage, slMessageGroup, slBubble',
@@ -111,6 +111,13 @@ const messageAnatomy: AnatomyRow[] = [
     required: false,
     purpose:
       'One step of the activity: complete with a tick, current with the shared ring and a travelling band.',
+  },
+  {
+    part: 'activity-step-icon',
+    element: 'span',
+    required: false,
+    purpose:
+      'A tile before the words of a step, holding the icon of the step source: edged in the accent while the step is current, and holding the tick once it is complete.',
   },
   {
     part: 'versions',
@@ -711,6 +718,13 @@ export const ANGULAR_MESSAGE_DOCS = {
       ],
     ]),
     composition: apiRows([
+      [
+        'slMessageActivityStepIcon',
+        'directive',
+        '—',
+        'an element inside slMessageActivityStep',
+        'The icon of the step source, drawn in a tile before the words in place of the status mark. The tile is edged in the accent while the step is current and holds the tick once it is complete',
+      ],
       [
         'provideMessageDefaults',
         '{ layout, actionsVisibility, variant, tone }',

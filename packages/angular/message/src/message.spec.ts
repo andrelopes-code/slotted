@@ -27,6 +27,7 @@ import {
   SlMessageActions,
   SlMessageActivity,
   SlMessageActivityStep,
+  SlMessageActivityStepIcon,
   SlMessageAuthor,
   SlMessageAvatar,
   SlMessageBody,
@@ -52,6 +53,7 @@ const ALL = [
   SlMessageActions,
   SlMessageActivity,
   SlMessageActivityStep,
+  SlMessageActivityStepIcon,
   SlMessageAuthor,
   SlMessageAvatar,
   SlMessageBody,
@@ -85,7 +87,10 @@ const ALL = [
           </div>
           <div slMessageActivity>
             <div slMessageActivityStep status="complete">Li o registo</div>
-            <div slMessageActivityStep id="now">A procurar</div>
+            <div slMessageActivityStep id="now">
+              <svg slMessageActivityStepIcon></svg>
+              A procurar
+            </div>
           </div>
           <div slBubble id="bubble" [maxLines]="3">
             <div slBubbleContent>
@@ -235,6 +240,25 @@ describe('slMessage', () => {
     expect(root.querySelector('[data-complete]')).not.toBeNull();
   });
 
+  it('draws the icon of a step in a tile, and the tick in its place once complete', () => {
+    const fixture = TestBed.createComponent(SourcedStep);
+    fixture.detectChanges();
+    const step = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-part="activity-step"]',
+    )!;
+    const tile = () => step.querySelector('[data-part="activity-step-icon"]');
+
+    expect(step.getAttribute('aria-current')).toBe('step');
+    expect(tile()?.querySelector('#source')).not.toBeNull();
+    expect(step.querySelector('[data-ui="spinner"]')).toBeNull();
+
+    fixture.componentInstance.status.set('complete');
+    fixture.detectChanges();
+
+    expect(tile()?.querySelector('#source')).toBeNull();
+    expect(tile()?.querySelector('svg[slGlyph]')).not.toBeNull();
+  });
+
   it('lets an application set the layout once, and a row lay its own words over the language', () => {
     TestBed.configureTestingModule({
       providers: [provideMessageDefaults({ layout: 'thread' })],
@@ -326,3 +350,17 @@ describe('slBubbleStream', () => {
     expect(chunks()).toEqual([]);
   });
 });
+
+@Component({
+  standalone: true,
+  imports: [SlMessageActivity, SlMessageActivityStep, SlMessageActivityStepIcon],
+  template: `<div slMessageActivity>
+    <div slMessageActivityStep [status]="status()">
+      <svg slMessageActivityStepIcon id="source"></svg>
+      Projecting a balance
+    </div>
+  </div>`,
+})
+class SourcedStep {
+  readonly status = signal<'complete' | 'current' | 'pending'>('current');
+}

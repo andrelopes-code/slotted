@@ -46,7 +46,7 @@ const everything = () => (
         </MessageHeader>
         <MessageActivity>
           <MessageActivityStep status="complete">Li o registo</MessageActivityStep>
-          <MessageActivityStep>A procurar a causa</MessageActivityStep>
+          <MessageActivityStep icon={<svg />}>A procurar a causa</MessageActivityStep>
         </MessageActivity>
         <Bubble data-testid="bubble" maxLines={3}>
           <BubbleContent>
@@ -273,6 +273,37 @@ describe('Message', () => {
     expect(screen.getByText('um texto muito longo')).toBeInTheDocument();
     scroll.mockRestore();
     client.mockRestore();
+  });
+
+  it('draws the icon of a step in a tile, and the tick in its place once complete', () => {
+    const { rerender } = render(
+      <MessageActivity>
+        <MessageActivityStep data-testid="step" icon={<svg data-testid="source" />}>
+          Projecting a balance
+        </MessageActivityStep>
+      </MessageActivity>,
+    );
+    const tile = () => screen.getByTestId('step').querySelector('[data-part="activity-step-icon"]');
+
+    expect(screen.getByTestId('step')).toHaveAttribute('aria-current', 'step');
+    expect(tile()).toContainElement(screen.getByTestId('source'));
+    expect(tile()).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByTestId('step').querySelector('[data-ui="spinner"]')).toBeNull();
+
+    rerender(
+      <MessageActivity>
+        <MessageActivityStep
+          data-testid="step"
+          icon={<svg data-testid="source" />}
+          status="complete"
+        >
+          Projecting a balance
+        </MessageActivityStep>
+      </MessageActivity>,
+    );
+
+    expect(screen.queryByTestId('source')).toBeNull();
+    expect(tile()?.querySelector('[data-glyph="check"]')).not.toBeNull();
   });
 
   it('writes the activity steps with the shared states, the current one marked as the step', () => {

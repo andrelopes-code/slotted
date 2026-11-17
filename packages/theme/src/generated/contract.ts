@@ -3941,6 +3941,7 @@ export type ComponentToken =
   | '--slotted-menubar-text'
   | '--slotted-menubar-trigger-font-weight'
   | '--slotted-menubar-trigger-radius'
+  | '--slotted-message-activity-icon-size'
   | '--slotted-message-avatar-size'
   | '--slotted-message-bubble-padding-block'
   | '--slotted-message-bubble-padding-inline'
@@ -6275,6 +6276,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-menubar-text",
   "--slotted-menubar-trigger-font-weight",
   "--slotted-menubar-trigger-radius",
+  "--slotted-message-activity-icon-size",
   "--slotted-message-avatar-size",
   "--slotted-message-bubble-padding-block",
   "--slotted-message-bubble-padding-inline",

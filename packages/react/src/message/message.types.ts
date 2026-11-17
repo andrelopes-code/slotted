@@ -124,6 +124,12 @@ export interface MessageReceiptProps extends ComponentPropsWithRef<'span'> {
 }
 
 export interface MessageActivityStepProps extends ComponentPropsWithRef<'div'> {
+  /**
+   * The icon of the step's source, drawn in a tile before the words. The tile
+   * is edged in the accent while the step is current, and holds the tick once
+   * it is complete. Without it the step draws the status mark alone.
+   */
+  icon?: ReactNode | undefined;
   status?: MessageActivityStepStatus | undefined;
   render?: RenderProp;
 }

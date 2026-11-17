@@ -41,6 +41,7 @@ test('is a row and a surface, and the surface is told apart from the row in the 
     'actions',
     'activity',
     'activity-step',
+    'activity-step-icon',
     'versions',
     'version-previous',
     'version-label',

@@ -21,6 +21,7 @@ export {
   SlMessageActions,
   SlMessageActivity,
   SlMessageActivityStep,
+  SlMessageActivityStepIcon,
   SlMessageAuthor,
   SlMessageAvatar,
   SlMessageBody,

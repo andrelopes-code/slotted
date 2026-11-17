@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  contentChild,
   DestroyRef,
   Directive,
   ElementRef,
@@ -164,25 +165,38 @@ export class SlMessageActions {
 })
 export class SlMessageActivity {}
 
-/** One step of an activity: done, in progress, or waiting. */
+/**
+ * One step of an activity: done, in progress, or waiting. A projected
+ * `slMessageActivityStepIcon` replaces the status mark with a tile.
+ */
 @Component({
   selector: '[slMessageActivityStep]',
   standalone: true,
   imports: [SlGlyph, SlIcon],
-  template: `@switch (status()) {
-      @case ('complete') {
-        <span slIcon><svg slGlyph name="check"></svg></span>
-      }
-      @case ('current') {
-        <span aria-hidden="true"
-          ><span aria-hidden="true" data-ui="spinner" data-ui-spinner=""
-            ><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <circle cx="12" cy="12" r="8.875" />
-              <circle cx="12" cy="12" r="8.875" pathLength="100" /></svg></span
-        ></span>
-      }
-      @default {
-        <span aria-hidden="true"></span>
+  template: `@if (icon()) {
+      <span data-part="activity-step-icon" data-part-activity-step-icon="" aria-hidden="true">
+        @if (status() === 'complete') {
+          <span slIcon><svg slGlyph name="check"></svg></span>
+        } @else {
+          <ng-content select="[slMessageActivityStepIcon]"></ng-content>
+        }
+      </span>
+    } @else {
+      @switch (status()) {
+        @case ('complete') {
+          <span slIcon><svg slGlyph name="check"></svg></span>
+        }
+        @case ('current') {
+          <span aria-hidden="true"
+            ><span aria-hidden="true" data-ui="spinner" data-ui-spinner=""
+              ><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="8.875" />
+                <circle cx="12" cy="12" r="8.875" pathLength="100" /></svg></span
+          ></span>
+        }
+        @default {
+          <span aria-hidden="true"></span>
+        }
       }
     }
     <span><ng-content></ng-content></span>`,
@@ -198,7 +212,21 @@ export class SlMessageActivity {}
 })
 export class SlMessageActivityStep {
   readonly status = input<MessageActivityStepStatus>('current');
+
+  /** The projected icon of the step's source, which turns the mark into a tile. */
+  protected readonly icon = contentChild(SlMessageActivityStepIcon);
 }
+
+/**
+ * The icon of a step's source, projected into `slMessageActivityStep`. It is
+ * drawn in a tile before the words; the tile is edged in the accent while the
+ * step is current, and holds the tick once it is complete.
+ */
+@Directive({
+  selector: '[slMessageActivityStepIcon]',
+  standalone: true,
+})
+export class SlMessageActivityStepIcon {}
 
 /**
  * `2 de 3` between two controls that page through a reply's versions. It

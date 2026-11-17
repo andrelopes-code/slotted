@@ -110,6 +110,13 @@ const messageAnatomy: AnatomyRow[] = [
       'One step of the activity: complete with a tick, current with the shared ring and a travelling band.',
   },
   {
+    part: 'activity-step-icon',
+    element: 'span',
+    required: false,
+    purpose:
+      'A tile before the words of a step, holding the icon of the step source: edged in the accent while the step is current, and holding the tick once it is complete.',
+  },
+  {
     part: 'versions',
     element: 'div',
     required: false,
@@ -699,6 +706,13 @@ export const REACT_MESSAGE_DOCS = {
         'current',
         'MessageActivityStep',
         'Done with a tick, in progress with the ring, or waiting',
+      ],
+      [
+        'icon',
+        'ReactNode',
+        '—',
+        'MessageActivityStep',
+        'The icon of the step source, drawn in a tile before the words in place of the status mark. The tile is edged in the accent while the step is current and holds the tick once it is complete',
       ],
       ['dateTime', 'string', '—', 'MessageTime', 'The time element’s own machine-readable value'],
       [

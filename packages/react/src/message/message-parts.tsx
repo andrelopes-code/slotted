@@ -4,6 +4,7 @@ import type { KeyboardEvent, MouseEvent, ReactElement } from 'react';
 
 import { Glyph, Icon } from '../icon';
 import { reasonOf, useMessage } from './message';
+import { MessageActivityMark } from './message-activity-mark';
 import { BubbleMetaContext } from './bubble-context';
 import type {
   MessageActivityStepProps,
@@ -14,7 +15,6 @@ import type {
   MessageTimeProps,
   MessageVersionsProps,
 } from './message.types';
-import { SPINNER_RING } from '../button/spinner-ring';
 
 type Part = { render?: ((props: MessageRootProps) => ReactElement) | undefined };
 
@@ -132,30 +132,17 @@ export function MessageActivity({ render, ...nativeProps }: MessagePartProps) {
 /** One step of an activity: done, in progress, or waiting. */
 export function MessageActivityStep({
   children,
+  icon,
   render,
   status = 'current',
   ...nativeProps
 }: MessageActivityStepProps) {
-  const mark =
-    status === 'complete' ? (
-      <Icon>
-        <Glyph name="check" />
-      </Icon>
-    ) : status === 'current' ? (
-      <span aria-hidden="true">
-        <span aria-hidden="true" data-ui="spinner" data-ui-spinner="">
-          {SPINNER_RING}
-        </span>
-      </span>
-    ) : (
-      <span aria-hidden="true" />
-    );
   const rootProps: MessageRootProps = keyedProps({
     ...(status === 'current' ? { 'aria-current': 'step' as const } : {}),
     ...nativeProps,
     children: (
       <>
-        {mark}
+        <MessageActivityMark icon={icon} status={status} />
         <span>{children}</span>
       </>
     ),
