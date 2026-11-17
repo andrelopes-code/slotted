@@ -77,6 +77,16 @@ export interface CardRegionProps extends ComponentPropsWithRef<'div'> {
   render?: ((props: CardRegionRootProps) => ReactNode) | undefined;
 }
 
+export interface CardBodyProps extends CardRegionProps {
+  /**
+   * Runs the body's children from one edge of the card to the other: the body
+   * gives up its padding and is clipped to the corners of the card it touches.
+   * For a list whose rules and row grounds reach the edge.
+   * @default false
+   */
+  bleed?: boolean | undefined;
+}
+
 export interface CardLinkRootProps extends HTMLAttributes<HTMLElement> {
   children?: ReactNode | undefined;
   'data-part': string;

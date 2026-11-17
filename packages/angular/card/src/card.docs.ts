@@ -21,6 +21,13 @@ export const ANGULAR_CARD_DOCS = {
   card: {
     api: apiRows([
       [
+        'bleed',
+        'boolean',
+        'false',
+        'slCardBody',
+        'Runs the children of the body from one edge of the card to the other: the body gives up its padding and is clipped to the corners of the card it touches. For a list whose rules and row grounds reach the edge',
+      ],
+      [
         'orientation',
         "'vertical' | 'horizontal'",
         'vertical',

@@ -8,6 +8,7 @@ export { CardLink } from './card-link';
 export { CardMedia } from './card-media';
 export { CardSelection } from './card-selection';
 export type {
+  CardBodyProps,
   CardDefaults,
   CardDefaultsProviderProps,
   CardFill,

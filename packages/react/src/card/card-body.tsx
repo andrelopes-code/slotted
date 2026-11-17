@@ -1,9 +1,14 @@
 import { keyedProps } from '@slotted/core/selector-key';
-import type { CardRegionProps, CardRegionRootProps } from './card.types';
+
+import type { CardBodyProps, CardRegionRootProps } from './card.types';
 
 /** The content. It takes whatever a card stretched to a row height has left. */
-export function CardBody({ render, ...nativeProps }: CardRegionProps) {
-  const rootProps: CardRegionRootProps = keyedProps({ ...nativeProps, 'data-part': 'body' });
+export function CardBody({ bleed = false, render, ...nativeProps }: CardBodyProps) {
+  const rootProps: CardRegionRootProps = keyedProps({
+    ...nativeProps,
+    ...(bleed ? { 'data-bleed': '' } : {}),
+    'data-part': 'body',
+  });
 
   return render === undefined ? <div {...rootProps} /> : render(rootProps);
 }

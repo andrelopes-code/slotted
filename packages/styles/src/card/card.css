@@ -256,6 +256,28 @@
   }
 
   /**
+   * A body that bleeds: its children run from one edge of the card to the
+   * other, for a list whose rules reach the edge and whose rows take the full
+   * width for their ground. The body gives up its padding, as the media does,
+   * and is clipped to the corners of the card it touches. The edge is drawn
+   * over the box, so a row's ground passes under it.
+   */
+  [data-ui-card] > [data-part-body][data-bleed] {
+    overflow: clip;
+    padding: 0;
+  }
+
+  [data-ui-card]:not([data-orientation='horizontal']) > [data-part-body][data-bleed]:first-child {
+    border-start-end-radius: var(--_card-radius);
+    border-start-start-radius: var(--_card-radius);
+  }
+
+  [data-ui-card]:not([data-orientation='horizontal']) > [data-part-body][data-bleed]:last-child {
+    border-end-end-radius: var(--_card-radius);
+    border-end-start-radius: var(--_card-radius);
+  }
+
+  /**
    * The header stacks a title and the line that supports it in the first
    * column, and keeps a second column for whatever belongs in the corner: a
    * badge, a status, a menu button. Both are Typography and both are the

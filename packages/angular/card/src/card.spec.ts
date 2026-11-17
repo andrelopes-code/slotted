@@ -31,6 +31,8 @@ import { SlCardMedia } from './card-media';
 
     <div slCard id="body-only"><div slCardBody>Just a body</div></div>
 
+    <div slCard id="bled"><div slCardBody bleed>Rows</div></div>
+
     <div slCard id="linked">
       <div slCardHeader>
         <a slCardLink id="action" href="/accounts/northwind">Northwind Traders</a>
@@ -80,6 +82,14 @@ describe('SlCard', () => {
     for (const name of ['media', 'header', 'body', 'footer']) {
       expect(part(name).getAttribute('data-part')).toBe(name);
     }
+  });
+
+  it('writes data-bleed on the body only when it bleeds', () => {
+    const { bodyOnly, fixture } = mount();
+    const bled = (fixture.nativeElement as HTMLElement).querySelector('#bled [data-part="body"]');
+
+    expect(bled?.getAttribute('data-bleed')).toBe('');
+    expect(bodyOnly().querySelector('[data-part="body"]')?.hasAttribute('data-bleed')).toBe(false);
   });
 
   it('adds no role, because what a card is depends on the page', () => {
