@@ -885,6 +885,13 @@ export const ANGULAR_TABLE_DOCS = {
         'The record open elsewhere on the page, a detail pane beside the table, written as aria-current',
       ],
       [
+        'visuallyHidden',
+        'boolean',
+        'false',
+        'slTableCaption',
+        'Keeps the caption as the accessible name of the table and draws nothing, for a table under a heading that already names it',
+      ],
+      [
         'muted',
         'boolean',
         'false',

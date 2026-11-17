@@ -102,6 +102,24 @@ describe('the structure', () => {
     expect(screen.getByRole('table', { name: 'Invoices' })).not.toHaveAttribute('aria-labelledby');
   });
 
+  it('keeps a visually hidden caption as the name of the table', () => {
+    render(
+      <Table columns={1}>
+        <TableContent>
+          <TableCaption visuallyHidden>Ended items</TableCaption>
+          <TableBody>
+            <TableRow>
+              <TableCell>A</TableCell>
+            </TableRow>
+          </TableBody>
+        </TableContent>
+      </Table>,
+    );
+
+    expect(screen.getByRole('table', { name: 'Ended items' })).toBeInTheDocument();
+    expect(screen.getByText('Ended items')).toHaveAttribute('data-visually-hidden', '');
+  });
+
   it('scopes a column header to its column and a row header to its row', () => {
     render(<Invoices />);
 

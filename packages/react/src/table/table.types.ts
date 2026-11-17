@@ -614,7 +614,15 @@ export interface TableLoaderProps extends Omit<ComponentPropsWithRef<'tbody'>, '
   children?: ReactNode | undefined;
 }
 
-export type TableCaptionProps = ComponentPropsWithRef<'caption'>;
+export interface TableCaptionProps extends ComponentPropsWithRef<'caption'> {
+  /**
+   * Keeps the caption as the table's accessible name and draws nothing, for a
+   * table under a heading that already names it.
+   * @default false
+   */
+  visuallyHidden?: boolean | undefined;
+}
+
 export type TableHeadProps = ComponentPropsWithRef<'thead'>;
 export type TableBodyProps = ComponentPropsWithRef<'tbody'>;
 export type TableSummaryProps = ComponentPropsWithRef<'tfoot'>;

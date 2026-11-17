@@ -6,6 +6,7 @@ import { userEvent } from 'vitest/browser';
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableColumnHeader,
   TableContent,
@@ -137,6 +138,39 @@ describe('a pinned cell of a row with a translucent ground', () => {
     expect(plain.backgroundImage).toBe('none');
     expect(pinned.backgroundColor).toBe('rgba(0, 0, 0, 0)');
     expect(pinned.backgroundImage).toBe(`linear-gradient(${hover}, ${hover}), none`);
+  });
+});
+
+/**
+ * A caption hidden by wrapping its text kept its padding, about 12 pixels of
+ * empty space above the header row. `visuallyHidden` takes the box away and
+ * leaves the name.
+ */
+describe('a visually hidden caption', () => {
+  it('names the table and takes no space above the header', () => {
+    const { container, getByRole } = render(
+      <Table columns={1} variant="plain">
+        <TableContent>
+          <TableCaption visuallyHidden>Ended items</TableCaption>
+          <TableHead>
+            <TableRow>
+              <TableColumnHeader>Item</TableColumnHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell>A</TableCell>
+            </TableRow>
+          </TableBody>
+        </TableContent>
+      </Table>,
+    );
+    const table = getByRole('table', { name: 'Ended items' });
+    const caption = container.querySelector('caption')!.getBoundingClientRect();
+    const head = container.querySelector('thead')!.getBoundingClientRect();
+
+    expect(caption.height).toBeLessThanOrEqual(1);
+    expect(head.top).toBeCloseTo(table.getBoundingClientRect().top, 0);
   });
 });
 

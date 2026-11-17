@@ -1235,6 +1235,36 @@ class LedgerHost {
   readonly acted: string[] = [];
 }
 
+@Component({
+  standalone: true,
+  imports: [SlTable, SlTableContent, SlTableCaption, SlTableBody, SlTableRow, SlTableCell],
+  template: `<div slTable [columns]="1">
+    <table slTableContent>
+      <caption slTableCaption visuallyHidden>
+        Ended items
+      </caption>
+      <tbody slTableBody>
+        <tr slTableRow>
+          <td slTableCell>A</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`,
+})
+class HiddenCaptionHost {}
+
+describe('a visually hidden caption', () => {
+  it('stays the caption of the table and states that it is not drawn', async () => {
+    await TestBed.configureTestingModule({ imports: [HiddenCaptionHost] }).compileComponents();
+    const fixture = TestBed.createComponent(HiddenCaptionHost);
+    fixture.detectChanges();
+    const caption = (fixture.nativeElement as HTMLElement).querySelector('table > caption');
+
+    expect(caption?.textContent?.trim()).toBe('Ended items');
+    expect(caption?.getAttribute('data-visually-hidden')).toBe('');
+  });
+});
+
 describe('rows of a ledger', () => {
   let fixture: ComponentFixture<LedgerHost>;
   beforeEach(async () => {

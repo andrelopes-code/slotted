@@ -73,9 +73,19 @@ export class SlTableCellAxes {
   selector: 'caption[slTableCaption]',
   standalone: true,
   exportAs: 'slTableCaption',
-  host: { 'data-part': 'caption', 'data-part-caption': '' },
+  host: {
+    'data-part': 'caption',
+    'data-part-caption': '',
+    '[attr.data-visually-hidden]': "visuallyHidden() ? '' : null",
+  },
 })
-export class SlTableCaption {}
+export class SlTableCaption {
+  /**
+   * Keeps the caption as the table's accessible name and draws nothing, for a
+   * table under a heading that already names it.
+   */
+  readonly visuallyHidden = input(false, { transform: booleanAttribute });
+}
 
 @Directive({
   selector: 'thead[slTableHead]',

@@ -93,8 +93,14 @@ function cellAttributes(
  * who hides it with `visually-hidden` loses the picture and keeps the name —
  * and the family writes no `aria-labelledby` restating what the browser states.
  */
-export function TableCaption({ ref, ...props }: TableCaptionProps) {
-  return <caption {...withSelectorKey(props, 'part', 'caption')} ref={ref} />;
+export function TableCaption({ ref, visuallyHidden = false, ...props }: TableCaptionProps) {
+  return (
+    <caption
+      {...withSelectorKey(props, 'part', 'caption')}
+      {...(visuallyHidden ? { 'data-visually-hidden': '' } : {})}
+      ref={ref}
+    />
+  );
 }
 
 export function TableHead({ ref, ...props }: TableHeadProps) {
