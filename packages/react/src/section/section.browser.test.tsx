@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
 
 import { Section } from './section';
@@ -132,5 +133,36 @@ describe('the gap between the heading and the description', () => {
     section.style.setProperty('--slotted-section-description-gap', '0');
 
     expect(getComputedStyle(description).marginBlockStart).toBe('0px');
+  });
+});
+
+/**
+ * A top-level heading was always a label in small capitals. `heading="title"`
+ * draws it in mixed case at a larger step; a nested section keeps the
+ * subsection's form either way.
+ */
+describe('a section whose heading is a title', () => {
+  const heading = (container: HTMLElement) =>
+    getComputedStyle(container.querySelector('[data-part="heading"]')!);
+
+  it('draws the heading in mixed case with normal tracking, larger than the label', () => {
+    const label = heading(render(<Titled size="lg" />).container);
+    const title = heading(render(<Titled heading="title" size="lg" />).container);
+
+    expect(label.textTransform).toBe('uppercase');
+    expect(title.textTransform).toBe('none');
+    expect(title.letterSpacing).toBe('normal');
+    expect(parseFloat(title.fontSize)).toBeGreaterThan(parseFloat(label.fontSize));
+  });
+
+  it('reads its size from the title token of the section size', () => {
+    const { container } = render(
+      <Titled
+        heading="title"
+        style={{ '--slotted-section-title-size-md': '30px' } as CSSProperties}
+      />,
+    );
+
+    expect(heading(container).fontSize).toBe('30px');
   });
 });

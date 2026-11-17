@@ -16,9 +16,20 @@ import {
 } from '@angular/core';
 
 import { injectSectionDefaults, SlSectionIdFactory } from './section-defaults';
-import type { SectionGround, SectionLevel, SectionSize } from './section-defaults';
+import type {
+  SectionGround,
+  SectionHeadingForm,
+  SectionLevel,
+  SectionSize,
+} from './section-defaults';
 
-export type { SectionDefaults, SectionGround, SectionLevel, SectionSize } from './section-defaults';
+export type {
+  SectionDefaults,
+  SectionGround,
+  SectionHeadingForm,
+  SectionLevel,
+  SectionSize,
+} from './section-defaults';
 
 /**
  * One unit of content inside a page: a header — eyebrow, heading,
@@ -59,6 +70,7 @@ export const HEADER_SIZE_PROPERTY = '--slotted-section-header-size';
     '[attr.data-size]': 'resolvedSize()',
     '[attr.data-level]': 'resolvedLevel()',
     '[attr.data-ground]': 'resolvedGround()',
+    '[attr.data-heading]': 'resolvedHeading()',
     '[attr.data-divider]': "resolvedDivider() ? '' : null",
     '[attr.data-sticky]': "resolvedSticky() ? '' : null",
   },
@@ -68,6 +80,8 @@ export class SlSection {
   /** Defaults to `auto`: the rank the outline gives. */
   readonly level = input<SectionLevel | undefined>(undefined);
   readonly ground = input<SectionGround | undefined>(undefined);
+  /** The form of a top-level heading. Defaults to the provider, then `label`. */
+  readonly heading = input<SectionHeadingForm | undefined>(undefined);
   readonly divider = input<boolean | undefined, boolean | string | undefined>(undefined, {
     transform: (state) => (state === undefined ? undefined : booleanAttribute(state)),
   });
@@ -91,6 +105,7 @@ export class SlSection {
   readonly headingId = computed(() => `${this.id()}-heading`);
   readonly resolvedSize = computed(() => this.size() ?? this.defaults.size);
   readonly resolvedGround = computed(() => this.ground() ?? this.defaults.ground);
+  readonly resolvedHeading = computed(() => this.heading() ?? this.defaults.heading);
   readonly resolvedDivider = computed(() => (this.divider() ?? this.defaults.divider) === true);
   readonly resolvedSticky = computed(() => (this.sticky() ?? this.defaults.sticky) === true);
   readonly resolvedLevel = computed<HeadingLevelValue>(() => {

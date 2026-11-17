@@ -246,7 +246,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'defaults',
     title: 'Setting it once, and reaching past it',
-    note: 'provideSectionDefaults carries size, divider, ground and sticky for every section under it; the heading directive sits on the consumer’s own link while the family keeps the rank; a hash link reaches the root by its id.',
+    note: 'provideSectionDefaults carries size, divider, ground, heading and sticky for every section under it; the heading directive sits on the consumer’s own link while the family keeps the rank; a hash link reaches the root by its id.',
     snippet: defineSnippet({
       id: 'section-angular-defaults',
       language: 'ts',
@@ -307,6 +307,13 @@ export const ANGULAR_SECTION_DOCS = {
         'none is transparent; surface paints the raised surface with a subtle edge and the large radius — no shadow, no hover, no action, because a section is not a card',
       ],
       [
+        'heading',
+        "'label' | 'title'",
+        'label',
+        'slSection, provideSectionDefaults',
+        'label draws a top-level heading in small capitals; title draws it in mixed case at --slotted-section-title-size-{sm,md,lg}, for a section whose body opens with text heavier than a label. A nested section keeps the subsection form',
+      ],
+      [
         'sticky',
         'boolean',
         'false',
@@ -338,10 +345,10 @@ export const ANGULAR_SECTION_DOCS = {
       ],
       [
         'provideSectionDefaults()',
-        '{ size, divider, ground, sticky }',
+        '{ size, divider, ground, heading, sticky }',
         '—',
         'an injector',
-        'The four decisions an application takes once. A section that states any of them itself still wins',
+        'The five decisions an application takes once. A section that states any of them itself still wins',
       ],
       [
         'slHeadingLevel',
@@ -377,6 +384,7 @@ export const ANGULAR_SECTION_DOCS = {
   data-size="md"
   data-level="2"
   data-ground="none"
+  data-heading="label"
   data-divider
   id="itens"
   aria-labelledby="itens-heading"

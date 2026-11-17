@@ -49,6 +49,7 @@ export function Section({
   className,
   divider,
   ground,
+  heading,
   id,
   level,
   ref,
@@ -66,6 +67,7 @@ export function Section({
 
   const resolvedDivider = divider ?? defaults.divider;
   const resolvedGround = ground ?? defaults.ground;
+  const resolvedHeading = heading ?? defaults.heading;
   const resolvedSize = size ?? defaults.size;
   const resolvedSticky = sticky ?? defaults.sticky;
   const resolvedLevel: HeadingLevelValue =
@@ -131,6 +133,7 @@ export function Section({
     className,
     ...(resolvedDivider ? { 'data-divider': '' } : {}),
     'data-ground': resolvedGround,
+    'data-heading': resolvedHeading,
     'data-level': String(resolvedLevel),
     'data-part': 'root',
     'data-size': resolvedSize,

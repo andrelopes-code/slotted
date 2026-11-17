@@ -264,7 +264,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'defaults',
     title: 'Setting it once, and reaching past it',
-    note: 'The provider carries size, divider, ground and sticky for every section under it; render turns the heading into a link while the family keeps the rank and the identifier; a hash link reaches the root by its id.',
+    note: 'The provider carries size, divider, ground, heading and sticky for every section under it; render turns the heading into a link while the family keeps the rank and the identifier; a hash link reaches the root by its id.',
     snippet: defineSnippet({
       id: 'section-react-defaults',
       language: 'tsx',
@@ -325,6 +325,13 @@ export const REACT_SECTION_DOCS = {
         'none is transparent; surface paints the raised surface with a subtle edge and the large radius — no shadow, no hover, no action, because a section is not a card',
       ],
       [
+        'heading',
+        "'label' | 'title'",
+        'label',
+        'Section, SectionDefaultsProvider',
+        'label draws a top-level heading in small capitals; title draws it in mixed case at --slotted-section-title-size-{sm,md,lg}, for a section whose body opens with text heavier than a label. A nested section keeps the subsection form',
+      ],
+      [
         'sticky',
         'boolean',
         'false',
@@ -363,10 +370,10 @@ export const REACT_SECTION_DOCS = {
       ],
       [
         'SectionDefaultsProvider',
-        '{ size, divider, ground, sticky }',
+        '{ size, divider, ground, heading, sticky }',
         '—',
         'a subtree',
-        'The four decisions an application takes once. A section that states any of them itself still wins',
+        'The five decisions an application takes once. A section that states any of them itself still wins',
       ],
       [
         'HeadingLevel',
@@ -395,6 +402,7 @@ export const REACT_SECTION_DOCS = {
   data-size="md"
   data-level="2"
   data-ground="none"
+  data-heading="label"
   data-divider
   id="itens"
   aria-labelledby="itens-heading"

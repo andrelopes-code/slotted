@@ -221,6 +221,25 @@ describe('SlSection defaults', () => {
   })
   class Provided {}
 
+  @Component({
+    standalone: true,
+    imports: [SlSection, SlSectionBody],
+    providers: [provideSectionDefaults({ heading: 'title' })],
+    template: `<section slSection id="provided"><div slSectionBody>x</div></section>
+      <section slSection id="stated" heading="label"><div slSectionBody>x</div></section>`,
+  })
+  class Titled {}
+
+  it('writes the form of its heading, from the input, then the provider', () => {
+    const fixture = TestBed.createComponent(Titled);
+    fixture.detectChanges();
+    const form = (id: string) =>
+      (fixture.nativeElement as HTMLElement).querySelector(`#${id}`)?.getAttribute('data-heading');
+
+    expect(form('provided')).toBe('title');
+    expect(form('stated')).toBe('label');
+  });
+
   it('takes its defaults from the provider, and its own inputs over them', () => {
     const fixture = TestBed.createComponent(Provided);
     fixture.detectChanges();

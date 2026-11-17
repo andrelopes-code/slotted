@@ -14,10 +14,17 @@ export type SectionLevel = 'auto' | '1' | '2' | '3' | '4' | '5' | '6';
 /** The ground: nothing, or a surface with an edge and a radius and no shadow. */
 export type SectionGround = 'none' | 'surface';
 
+/**
+ * The form of a top-level heading: `label` is small capitals, `title` is mixed
+ * case at a larger step. A nested section keeps the subsection's form.
+ */
+export type SectionHeadingForm = 'label' | 'title';
+
 /** What an application sets once for every section under it. */
 export interface SectionDefaults {
   divider: boolean;
   ground: SectionGround;
+  heading: SectionHeadingForm;
   size: SectionSize;
   sticky: boolean;
 }
@@ -43,6 +50,7 @@ export interface SectionRootProps extends HTMLAttributes<HTMLElement> {
   'aria-labelledby'?: string | undefined;
   'data-divider'?: '' | undefined;
   'data-ground': SectionGround;
+  'data-heading': SectionHeadingForm;
   'data-level': string;
   'data-part': string;
   'data-size': SectionSize;
@@ -69,6 +77,8 @@ export interface SectionProps extends ComponentPropsWithRef<'section'> {
   divider?: boolean | undefined;
   /** Defaults to the provider, then `none`. */
   ground?: SectionGround | undefined;
+  /** Defaults to the provider, then `label`. The form of a top-level heading. */
+  heading?: SectionHeadingForm | undefined;
   /** Defaults to `auto`: the rank the outline gives. */
   level?: SectionLevel | undefined;
   /** Renders the root into another element. */

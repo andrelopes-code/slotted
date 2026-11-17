@@ -32,6 +32,9 @@
       var(--slotted-font-size-md, 0.875rem)
     );
     --_subheading-line-height: var(--slotted-line-height-md, 1.5);
+    /* The heading as a title: mixed case, for a panel whose body outweighs a label. */
+    --_title-size: var(--slotted-section-title-size-md, var(--slotted-font-size-lg, 1rem));
+    --_title-line-height: var(--slotted-line-height-lg, 1.5);
     /**
      * The ground a sticky header paints, so the content passing under it is
      * covered rather than read through. The page states its own ground in
@@ -60,6 +63,8 @@
       var(--slotted-font-size-sm, 0.8125rem)
     );
     --_subheading-line-height: var(--slotted-line-height-sm, 1.45);
+    --_title-size: var(--slotted-section-title-size-sm, var(--slotted-font-size-md, 0.875rem));
+    --_title-line-height: var(--slotted-line-height-md, 1.5);
   }
   [data-ui-section][data-size='lg'] {
     --_heading-size: var(--slotted-section-heading-size-lg, var(--slotted-font-size-sm, 0.8125rem));
@@ -69,6 +74,8 @@
       var(--slotted-font-size-lg, 1rem)
     );
     --_subheading-line-height: var(--slotted-line-height-lg, 1.5);
+    --_title-size: var(--slotted-section-title-size-lg, var(--slotted-font-size-xl, 1.125rem));
+    --_title-line-height: var(--slotted-line-height-xl, 1.5);
   }
 
   /**
@@ -229,6 +236,21 @@
     min-inline-size: 0;
     overflow-wrap: break-word;
     text-wrap: pretty;
+  }
+
+  /**
+   * `heading="title"`: the heading in mixed case at a larger step, for a
+   * section whose body opens with text heavier than a label. It stands above
+   * the subsection's rule, so a nested section keeps the subsection's form.
+   */
+  [data-ui-section][data-heading='title']
+    > [data-part-header]
+    > [data-part-title]
+    > [data-part-heading] {
+    font-size: var(--_title-size);
+    letter-spacing: normal;
+    line-height: var(--_title-line-height);
+    text-transform: none;
   }
 
   /**

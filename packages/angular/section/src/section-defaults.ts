@@ -9,9 +9,16 @@ export type SectionLevel = 'auto' | '1' | '2' | '3' | '4' | '5' | '6';
 /** The ground: nothing, or a surface with an edge and a radius and no shadow. */
 export type SectionGround = 'none' | 'surface';
 
+/**
+ * The form of a top-level heading: `label` is small capitals, `title` is mixed
+ * case at a larger step. A nested section keeps the subsection's form.
+ */
+export type SectionHeadingForm = 'label' | 'title';
+
 export interface SectionDefaults {
   divider: boolean;
   ground: SectionGround;
+  heading: SectionHeadingForm;
   size: SectionSize;
   sticky: boolean;
 }
@@ -19,6 +26,7 @@ export interface SectionDefaults {
 const FALLBACK: SectionDefaults = {
   divider: false,
   ground: 'none',
+  heading: 'label',
   size: 'md',
   sticky: false,
 };

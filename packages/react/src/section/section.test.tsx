@@ -120,6 +120,25 @@ describe('Section', () => {
     expect(root().getAttribute('aria-labelledby')).toBe('itens-heading');
   });
 
+  it('writes the form of its heading, from the prop, then the provider, then label', () => {
+    const { rerender } = render(<Items />);
+    expect(root()).toHaveAttribute('data-heading', 'label');
+
+    rerender(
+      <SectionDefaultsProvider heading="title">
+        <Items />
+      </SectionDefaultsProvider>,
+    );
+    expect(root()).toHaveAttribute('data-heading', 'title');
+
+    rerender(
+      <SectionDefaultsProvider heading="title">
+        <Items heading="label" />
+      </SectionDefaultsProvider>,
+    );
+    expect(root()).toHaveAttribute('data-heading', 'label');
+  });
+
   it('takes its defaults from the provider, and its own props over them', () => {
     render(
       <SectionDefaultsProvider divider ground="surface" size="sm" sticky>

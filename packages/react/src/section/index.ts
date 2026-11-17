@@ -17,6 +17,7 @@ export type {
   SectionDescriptionProps,
   SectionEyebrowProps,
   SectionGround,
+  SectionHeadingForm,
   SectionHeadingProps,
   SectionHeadingRootProps,
   SectionLevel,

@@ -5,6 +5,7 @@ import type { SectionDefaults, SectionDefaultsProviderProps } from './section.ty
 const FALLBACK: SectionDefaults = {
   divider: false,
   ground: 'none',
+  heading: 'label',
   size: 'md',
   sticky: false,
 };
@@ -29,6 +30,7 @@ export function SectionDefaultsProvider({ children, ...defaults }: SectionDefaul
       value={{
         divider: defaults.divider ?? inherited.divider,
         ground: defaults.ground ?? inherited.ground,
+        heading: defaults.heading ?? inherited.heading,
         size: defaults.size ?? inherited.size,
         sticky: defaults.sticky ?? inherited.sticky,
       }}

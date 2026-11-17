@@ -80,7 +80,20 @@ test('holds no state a reader moves', () => {
 });
 
 test('lets an application set its defaults once', () => {
-  assert.deepEqual(contract.provides.sectionDefaults, ['size', 'divider', 'ground', 'sticky']);
+  assert.deepEqual(contract.provides.sectionDefaults, [
+    'size',
+    'divider',
+    'ground',
+    'heading',
+    'sticky',
+  ]);
+});
+
+/** A top-level heading is a label unless the section says it is a title. */
+test('draws a top-level heading as a label or as a title', () => {
+  assert.deepEqual(contract.axes.heading, ['label', 'title']);
+  assert.deepEqual(contract.resolution.heading, ['prop', 'defaults', 'label']);
+  assert.equal(member.defaults.heading, 'label');
 });
 
 test('declines with a reason, never silently', () => {

@@ -5,7 +5,13 @@ export {
   SECTION_DEFAULTS,
   SlSectionIdFactory,
 } from './section-defaults';
-export type { SectionDefaults, SectionGround, SectionLevel, SectionSize } from './section-defaults';
+export type {
+  SectionDefaults,
+  SectionGround,
+  SectionHeadingForm,
+  SectionLevel,
+  SectionSize,
+} from './section-defaults';
 export {
   SlSectionActions,
   SlSectionBody,
