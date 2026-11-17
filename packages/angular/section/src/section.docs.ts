@@ -293,6 +293,13 @@ export const ANGULAR_SECTION_DOCS = {
         'The rank of the heading. auto takes the one typography’s outline gives: 2 directly in a page body, one deeper inside another section. A native heading element keeps its own tag; any other element gets aria-level from this',
       ],
       [
+        'bleed',
+        'boolean',
+        'false',
+        'slSectionBody',
+        'In a surface section, runs the body to the inline edges of the panel and to the block edge it touches, clipped to the corners of the panel. For a table or a grid with no frame of its own; without a surface it has no effect',
+      ],
+      [
         'divider',
         'boolean',
         'false',

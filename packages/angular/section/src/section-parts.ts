@@ -1,5 +1,13 @@
 import { SlHeadingLevel } from '@slotted/angular/typography';
-import { computed, Directive, ElementRef, inject, isDevMode } from '@angular/core';
+import {
+  booleanAttribute,
+  computed,
+  Directive,
+  ElementRef,
+  inject,
+  input,
+  isDevMode,
+} from '@angular/core';
 import type { OnDestroy, OnInit } from '@angular/core';
 
 import { SlSection } from './section';
@@ -123,6 +131,17 @@ export class SlSectionHeading implements OnInit, OnDestroy {
   selector: '[slSectionBody]',
   standalone: true,
   hostDirectives: [SlHeadingLevel],
-  host: { 'data-part': 'body', 'data-part-body': '' },
+  host: {
+    'data-part': 'body',
+    'data-part-body': '',
+    '[attr.data-bleed]': "bleed() ? '' : null",
+  },
 })
-export class SlSectionBody {}
+export class SlSectionBody {
+  /**
+   * In a surface section, runs the body to the panel's inline edges and to
+   * the block edge it touches, clipped to the panel's corners. For a table or
+   * a grid with no frame of its own. Without a surface it has no effect.
+   */
+  readonly bleed = input(false, { transform: booleanAttribute });
+}

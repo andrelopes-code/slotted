@@ -166,3 +166,56 @@ describe('a section whose heading is a title', () => {
     expect(heading(container).fontSize).toBe('30px');
   });
 });
+
+/**
+ * A table that runs edge to edge inside a surface section needed negative
+ * margins written by hand, and a grid stopped one inset short of the end edge.
+ * A bled body takes back the surface's inset on the sides it touches.
+ */
+describe('a surface section whose body bleeds', () => {
+  const scene = (bleed: boolean, ground: 'none' | 'surface' = 'surface') => {
+    const { container } = render(
+      <div style={{ inlineSize: 360 }}>
+        <Section ground={ground} size="lg">
+          <SectionHeader>
+            <SectionTitle>
+              <SectionHeading>Itens</SectionHeading>
+            </SectionTitle>
+          </SectionHeader>
+          <SectionBody bleed={bleed}>
+            <div data-testid="grid" style={{ blockSize: 80 }} />
+          </SectionBody>
+        </Section>
+      </div>,
+    );
+    const root = container.querySelector<HTMLElement>('[data-ui="section"]')!;
+
+    return {
+      body: container.querySelector<HTMLElement>('[data-part="body"]')!,
+      edge: parseFloat(getComputedStyle(root).borderTopWidth),
+      grid: container.querySelector('[data-testid="grid"]')!.getBoundingClientRect(),
+      root,
+      section: root.getBoundingClientRect(),
+    };
+  };
+
+  it('runs a child to the inner edges of the panel and rounds its lower corners', () => {
+    const { body, edge, grid, root, section } = scene(true);
+    const radius = parseFloat(getComputedStyle(root).borderEndEndRadius);
+
+    expect(grid.left).toBeCloseTo(section.left + edge, 1);
+    expect(grid.right).toBeCloseTo(section.right - edge, 1);
+    expect(grid.bottom).toBeCloseTo(section.bottom - edge, 1);
+    expect(parseFloat(getComputedStyle(body).borderEndEndRadius)).toBeCloseTo(radius - edge, 1);
+    expect(parseFloat(getComputedStyle(body).borderEndStartRadius)).toBeCloseTo(radius - edge, 1);
+  });
+
+  it('keeps the inset without bleed, and changes nothing without a surface', () => {
+    const inset = scene(false);
+    const plain = scene(true, 'none');
+
+    expect(inset.grid.left).toBeGreaterThan(inset.section.left + inset.edge);
+    expect(plain.grid.left).toBeCloseTo(plain.section.left, 1);
+    expect(plain.grid.right).toBeCloseTo(plain.section.right, 1);
+  });
+});

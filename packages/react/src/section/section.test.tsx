@@ -120,6 +120,24 @@ describe('Section', () => {
     expect(root().getAttribute('aria-labelledby')).toBe('itens-heading');
   });
 
+  it('writes data-bleed on the body only when it bleeds', () => {
+    const { rerender } = render(
+      <Section>
+        <SectionBody data-testid="body">x</SectionBody>
+      </Section>,
+    );
+    expect(screen.getByTestId('body')).not.toHaveAttribute('data-bleed');
+
+    rerender(
+      <Section>
+        <SectionBody bleed data-testid="body">
+          x
+        </SectionBody>
+      </Section>,
+    );
+    expect(screen.getByTestId('body')).toHaveAttribute('data-bleed', '');
+  });
+
   it('writes the form of its heading, from the prop, then the provider, then label', () => {
     const { rerender } = render(<Items />);
     expect(root()).toHaveAttribute('data-heading', 'label');

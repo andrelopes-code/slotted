@@ -336,4 +336,34 @@
   [data-ui-section] > [data-part-body] {
     min-inline-size: 0;
   }
+
+  /**
+   * A body that bleeds, in a surface section: a table or a grid with no frame
+   * of its own runs to the panel's inline edges, and to the block edge the
+   * body touches, where it is clipped to the panel's inner corners. The body
+   * takes back the inset the surface gave it; written by hand, the same
+   * margins left a grid one inset short of the panel's end edge. `clip` and
+   * not `hidden`, so a sticky header inside still sticks to the page.
+   */
+  [data-ui-section][data-ground='surface'] > [data-part-body][data-bleed] {
+    --_inner-radius: calc(
+      var(--slotted-section-radius, var(--slotted-radius-lg, 8px)) -
+        var(--slotted-border-width-thin, 1px)
+    );
+
+    margin-inline: calc(-1 * var(--slotted-section-inset, var(--slotted-space-6, 1rem)));
+    overflow: clip;
+  }
+
+  [data-ui-section][data-ground='surface'] > [data-part-body][data-bleed]:first-child {
+    border-start-end-radius: var(--_inner-radius);
+    border-start-start-radius: var(--_inner-radius);
+    margin-block-start: calc(-1 * var(--slotted-section-inset, var(--slotted-space-6, 1rem)));
+  }
+
+  [data-ui-section][data-ground='surface'] > [data-part-body][data-bleed]:last-child {
+    border-end-end-radius: var(--_inner-radius);
+    border-end-start-radius: var(--_inner-radius);
+    margin-block-end: calc(-1 * var(--slotted-section-inset, var(--slotted-space-6, 1rem)));
+  }
 }

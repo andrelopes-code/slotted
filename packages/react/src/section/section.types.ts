@@ -93,6 +93,17 @@ export interface SectionPartComponentProps extends ComponentPropsWithRef<'div'> 
   render?: ((props: SectionPartProps) => ReactNode) | undefined;
 }
 
+export interface SectionBodyProps extends SectionPartComponentProps {
+  /**
+   * In a surface section, runs the body to the panel's inline edges and to
+   * the block edge it touches, clipped to the panel's corners. For a table or
+   * a grid with no frame of its own. Without a surface there is no inset to
+   * take back, and it has no effect.
+   * @default false
+   */
+  bleed?: boolean | undefined;
+}
+
 export interface SectionEyebrowProps extends ComponentPropsWithRef<'span'> {
   render?: ((props: SectionPartProps) => ReactNode) | undefined;
 }

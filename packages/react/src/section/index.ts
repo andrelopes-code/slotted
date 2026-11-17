@@ -13,6 +13,7 @@ export {
 export type {
   SectionContextValue,
   SectionDefaults,
+  SectionBodyProps,
   SectionDefaultsProviderProps,
   SectionDescriptionProps,
   SectionEyebrowProps,

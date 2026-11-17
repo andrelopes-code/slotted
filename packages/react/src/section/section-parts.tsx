@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect } from 'react';
 import { HeadingLevel } from '../typography';
 import { useSection } from './section';
 import type {
+  SectionBodyProps,
   SectionDescriptionProps,
   SectionEyebrowProps,
   SectionHeadingProps,
@@ -169,17 +170,19 @@ export function SectionDescription({
 
 /** The content, one outline step deeper. */
 export function SectionBody({
+  bleed = false,
   children,
   className,
   ref,
   render,
   style,
   ...nativeProps
-}: SectionPartComponentProps) {
+}: SectionBodyProps) {
   const rootProps: SectionPartProps = keyedProps({
     ...nativeProps,
     children: <HeadingLevel>{children}</HeadingLevel>,
     className,
+    ...(bleed ? { 'data-bleed': '' } : {}),
     'data-part': 'body',
     style,
   });

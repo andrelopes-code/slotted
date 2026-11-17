@@ -311,6 +311,13 @@ export const REACT_SECTION_DOCS = {
         'The rank of the heading. auto takes the one typography’s outline gives: h2 directly in a page, one deeper inside another section',
       ],
       [
+        'bleed',
+        'boolean',
+        'false',
+        'SectionBody',
+        'In a surface section, runs the body to the inline edges of the panel and to the block edge it touches, clipped to the corners of the panel. For a table or a grid with no frame of its own; without a surface it has no effect',
+      ],
+      [
         'divider',
         'boolean',
         'false',

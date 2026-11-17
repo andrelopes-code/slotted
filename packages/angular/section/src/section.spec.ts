@@ -224,6 +224,23 @@ describe('SlSection defaults', () => {
   @Component({
     standalone: true,
     imports: [SlSection, SlSectionBody],
+    template: `<section slSection ground="surface"><div slSectionBody bleed>x</div></section>
+      <section slSection><div slSectionBody>x</div></section>`,
+  })
+  class Bled {}
+
+  it('writes data-bleed on the body only when it bleeds', () => {
+    const fixture = TestBed.createComponent(Bled);
+    fixture.detectChanges();
+    const bodies = (fixture.nativeElement as HTMLElement).querySelectorAll('[data-part="body"]');
+
+    expect(bodies[0]?.getAttribute('data-bleed')).toBe('');
+    expect(bodies[1]?.hasAttribute('data-bleed')).toBe(false);
+  });
+
+  @Component({
+    standalone: true,
+    imports: [SlSection, SlSectionBody],
     providers: [provideSectionDefaults({ heading: 'title' })],
     template: `<section slSection id="provided"><div slSectionBody>x</div></section>
       <section slSection id="stated" heading="label"><div slSectionBody>x</div></section>`,
