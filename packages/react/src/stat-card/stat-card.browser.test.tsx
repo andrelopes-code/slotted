@@ -64,6 +64,53 @@ function renderCard(props: Partial<StatCardProps>) {
 
 const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
+/**
+ * The loading card keeps the boxes of the loaded card. The value's bar is one
+ * cap tall, as every text placeholder is, and stands at the middle of the
+ * value's line, where the figure's capitals stand, not at its top.
+ */
+describe('a loading stat card', () => {
+  it.each(['sm', 'md', 'lg'] as const)(
+    'centers the value placeholder in the line the value takes at size %s',
+    (size) => {
+      const loaded = boxes(size, false);
+      const loading = boxes(size, true);
+      const bar = loading.container
+        .querySelector('[data-part="value"] [data-ui="skeleton"]')!
+        .getBoundingClientRect();
+
+      expect(loading.value.height).toBeCloseTo(loaded.value.height, 0);
+      expect(loading.value.top - loading.label.bottom).toBeCloseTo(
+        loaded.value.top - loaded.label.bottom,
+        0,
+      );
+      expect(bar.top + bar.height / 2).toBeCloseTo(loading.value.top + loading.value.height / 2, 0);
+      expect(bar.top - loading.label.bottom).toBeGreaterThan(
+        loading.value.top - loading.label.bottom,
+      );
+    },
+  );
+});
+
+function boxes(size: 'sm' | 'md' | 'lg', loading: boolean) {
+  const { container } = render(
+    <StatCard layout="stacked" loading={loading} size={size}>
+      <StatCardHeader>
+        <StatCardLabel>Balance</StatCardLabel>
+      </StatCardHeader>
+      <StatCardFigure>
+        <StatCardValue value="1,234.56" />
+      </StatCardFigure>
+    </StatCard>,
+  );
+
+  return {
+    container,
+    label: container.querySelector('[data-part="label"]')!.getBoundingClientRect(),
+    value: container.querySelector('[data-part="value"]')!.getBoundingClientRect(),
+  };
+}
+
 /* A changed figure moves from the number it showed, and a reader hears the final one. */
 describe('a stat card value with transition count', () => {
   const timed = {
