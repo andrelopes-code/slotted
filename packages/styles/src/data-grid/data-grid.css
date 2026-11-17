@@ -1732,27 +1732,31 @@
 
   /**
    * ── Alignment, numerals and the text treatment ─────────────────────────
+   *
+   * Every rule is keyed on `data-column`, which only the grid's own cells
+   * carry: `data-align` is a generic name, and a layout primitive rendered
+   * inside a cell writes it with another meaning.
    */
-  [data-ui-data-grid] [data-align='start'] {
+  [data-ui-data-grid] [data-column][data-align='start'] {
     justify-content: start;
     text-align: start;
   }
 
-  [data-ui-data-grid] [data-align='center'] {
+  [data-ui-data-grid] [data-column][data-align='center'] {
     justify-content: center;
     text-align: center;
   }
 
-  [data-ui-data-grid] [data-align='end'] {
+  [data-ui-data-grid] [data-column][data-align='end'] {
     justify-content: end;
     text-align: end;
   }
 
-  [data-ui-data-grid] [data-numeric] {
+  [data-ui-data-grid] [data-column][data-numeric] {
     font-variant-numeric: tabular-nums;
   }
 
-  [data-ui-data-grid] [data-numeric]:not([data-align]) {
+  [data-ui-data-grid] [data-column][data-numeric]:not([data-align]) {
     justify-content: end;
     text-align: end;
   }

@@ -5,6 +5,7 @@ import { cdp, userEvent } from 'vitest/browser';
 import { describe, expect, it, vi } from 'vitest';
 
 import { Button } from '../button';
+import { Inline } from '../inline';
 import { DataGrid } from './data-grid';
 import type { DataGridColumn } from './data-grid.types';
 
@@ -261,6 +262,42 @@ describe('DataGrid group row over an aggregating first column', () => {
        second line would add a whole row. */
     expect(group.getBoundingClientRect().height).toBeLessThanOrEqual(44 + 2);
     expect(summary).toHaveTextContent('Total');
+  });
+});
+
+/**
+ * `data-align` is a name other families write with another meaning: an Inline
+ * in a cell centers its items across the flow, and the grid's alignment rules
+ * reach only the grid's own cells.
+ */
+describe('DataGrid alignment rules', () => {
+  it('leave an Inline in a cell with its own justification', async () => {
+    const { container } = render(
+      <DataGrid<Entry>
+        aria-label="Entries"
+        cellRenderers={{
+          payee: ({ text }) => (
+            <Inline align="center" data-testid="inline">
+              <span>{text}</span>
+              <span>B</span>
+            </Inline>
+          ),
+        }}
+        columns={COLUMNS}
+        rowKey="id"
+        rows={ROWS.slice(0, 2)}
+        virtualize={false}
+      />,
+    );
+    await frame();
+    const inline = container.querySelector<HTMLElement>('[data-testid="inline"]')!;
+    const amount = container.querySelector<HTMLElement>(
+      '[data-part="cell"][data-column="amount"]',
+    )!;
+
+    expect(getComputedStyle(inline).justifyContent).toBe('normal');
+    expect(getComputedStyle(inline).textAlign).toBe('start');
+    expect(getComputedStyle(amount).textAlign).toBe('end');
   });
 });
 
