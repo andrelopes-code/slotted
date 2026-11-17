@@ -16,6 +16,15 @@ describe('SlEntityPicker stories', () => {
     ).toEqual([]);
   });
 
+  it('says what clips a layer kept in place, and what to do inside another layer', () => {
+    const portal = docs.api.find((row) => row.name === 'portal');
+
+    expect(portal?.description).toMatch(/nearest ancestor with overflow clips it/);
+    expect(portal?.description).toMatch(
+      /Inside another layer \(Popover, Dialog\) keep the default/,
+    );
+  });
+
   it('documents each public component API', () => {
     expect(apiMetadataErrors(member, docs.api, contract.stateModel)).toEqual([]);
   });

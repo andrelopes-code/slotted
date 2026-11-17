@@ -727,7 +727,13 @@ export const REACT_ENTITY_PICKER_DOCS = {
       ],
       ['loop', 'boolean', 'false', 'EntityPicker', 'The arrows wrap past the ends'],
       ['highlightMatch', 'boolean', 'true', 'EntityPicker', 'Marks the span the query found'],
-      ['portal', 'boolean', 'true', 'EntityPicker', 'false keeps the layer in place'],
+      [
+        'portal',
+        'boolean',
+        'true',
+        'EntityPicker',
+        'false keeps the layer in the DOM of the picker, where the nearest ancestor with overflow clips it. Inside another layer (Popover, Dialog) keep the default: a choice in the portalled list is not an outside press of the parent layer',
+      ],
       ['fullWidth', 'boolean', 'true', 'EntityPicker', 'false sizes the root to its content'],
       [
         'disabled',
