@@ -3048,6 +3048,7 @@ export type ComponentToken =
   | '--slotted-chart-focus-color'
   | '--slotted-chart-gap'
   | '--slotted-chart-grid-color'
+  | '--slotted-chart-header-gap'
   | '--slotted-chart-inset'
   | '--slotted-chart-label-color'
   | '--slotted-chart-label-size'
@@ -5378,6 +5379,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-chart-focus-color",
   "--slotted-chart-gap",
   "--slotted-chart-grid-color",
+  "--slotted-chart-header-gap",
   "--slotted-chart-inset",
   "--slotted-chart-label-color",
   "--slotted-chart-label-size",

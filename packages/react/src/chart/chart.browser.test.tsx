@@ -56,6 +56,29 @@ describe('the header of a card chart', () => {
     expect(toolbarButton).not.toBeNull();
     expect(Math.abs(center(actions) - center(toolbarButton))).toBeLessThan(0.5);
   });
+
+  it('reads the distance between the title and the description from one token', () => {
+    render(
+      <Chart
+        data={data}
+        description="One sentence."
+        series={[{ kind: 'line', field: 'revenue', label: 'Revenue' }]}
+        style={{ '--slotted-chart-header-gap': '0px' } as CSSProperties}
+        title="Revenue"
+        variant="card"
+        x={{ field: 'month' }}
+      />,
+    );
+    const heading = document.querySelector<HTMLElement>('[data-part="header"] > :first-child')!;
+    const title = heading.querySelector('[data-part="title"]')!.getBoundingClientRect();
+    const description = heading.querySelector('[data-part="description"]')!.getBoundingClientRect();
+
+    expect(getComputedStyle(heading).rowGap).toBe('0px');
+    expect(parseFloat(getComputedStyle(heading).minBlockSize)).toBeCloseTo(
+      title.height + description.height,
+      1,
+    );
+  });
 });
 
 /**
