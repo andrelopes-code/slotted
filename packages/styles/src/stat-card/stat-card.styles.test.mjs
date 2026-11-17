@@ -286,10 +286,10 @@ test('keeps the trend in the same box while it loads', () => {
  * than the same card loaded — every box under a row of figures moved when the
  * answer arrived.
  */
-test('keeps the value the height of one of its own lines while it loads', () => {
+test('keeps the value the height of one of its own lines while it loads, the bar at its middle', () => {
   assert.equal(
     body(`${ui}[data-loading] [data-part-value]`),
-    'min-block-size:calc(var(--_value-size) * var(--_value-line));',
+    'align-items:center;min-block-size:calc(var(--_value-size) * var(--_value-line));',
   );
   const scope = '@container stat-card (max-width:219px)';
   assert.equal(
