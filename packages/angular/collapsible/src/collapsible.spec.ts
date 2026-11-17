@@ -39,7 +39,9 @@ import {
   >
     @if (heading()) {
       <h3 slCollapsibleHeader>
-        <button slCollapsibleTrigger [description]="description()">Delivery</button>
+        <button slCollapsibleTrigger [description]="description()" [summary]="summary()">
+          Delivery
+        </button>
       </h3>
     } @else {
       <div slCollapsibleHeader>
@@ -62,6 +64,7 @@ class Host {
   readonly region = signal(false);
   readonly heading = signal(true);
   readonly description = signal<string | undefined>(undefined);
+  readonly summary = signal<string | undefined>(undefined);
   readonly requests: ChangeRequest<boolean>[] = [];
 }
 
@@ -87,6 +90,7 @@ describe('SlCollapsible', () => {
 
   it('renders the anatomy the contract declares', () => {
     host.description.set('3 de 12 itens');
+    host.summary.set('R$ 1.240,00');
     fixture.detectChanges();
 
     for (const part of [
@@ -95,6 +99,7 @@ describe('SlCollapsible', () => {
       'trigger',
       'indicator',
       'label',
+      'summary',
       'description',
       'actions',
       'panel',

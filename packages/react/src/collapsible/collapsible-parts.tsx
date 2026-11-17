@@ -78,6 +78,7 @@ export function CollapsibleTrigger({
   ref,
   render,
   style,
+  summary,
   ...nativeProps
 }: CollapsibleTriggerProps) {
   const { disabled: familyDisabled, held, ids, indicator, open, toggle } = useCollapsible();
@@ -104,6 +105,11 @@ export function CollapsibleTrigger({
         <span data-part="label" data-part-label="">
           {children}
         </span>
+        {summary === undefined ? null : (
+          <span data-part="summary" data-part-summary="">
+            {summary}
+          </span>
+        )}
         {description === undefined ? null : (
           <span data-part="description" data-part-description="">
             {description}

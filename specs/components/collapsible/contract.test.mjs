@@ -153,6 +153,7 @@ test('states every part the two bindings and the harness have to render', () => 
     'trigger',
     'indicator',
     'label',
+    'summary',
     'description',
     'actions',
     'panel',

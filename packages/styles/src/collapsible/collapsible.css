@@ -233,6 +233,49 @@
     white-space: nowrap;
   }
 
+  /**
+   * ── The summary ────────────────────────────────────────────────────────
+   *
+   * What a closed disclosure holds, stated at the end of the title's line:
+   * "Usage and limits … 65 requests today · 1 paused". It is one line, cut
+   * with an ellipsis, in the description's ink, and inside the trigger, so a
+   * reader hears it after the title as they hear the description.
+   *
+   * The title's column is as wide as the title and no wider, and the summary
+   * takes what remains, so a long summary is cut before the title is.
+   */
+  [data-ui-collapsible] > [data-part-header] > [data-part-trigger]:has(> [data-part-summary]) {
+    grid-template-columns: minmax(0, max-content) minmax(0, 1fr) auto;
+  }
+
+  [data-ui-collapsible] > [data-part-header] > [data-part-trigger] > [data-part-summary] {
+    color: var(--slotted-collapsible-description-color, var(--slotted-text-muted, GrayText));
+    font-size: var(--_description-font-size);
+    font-weight: var(--slotted-font-weight-regular, 400);
+    grid-column: 2;
+    grid-row: 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-align: end;
+    text-overflow: ellipsis;
+    unicode-bidi: isolate;
+    white-space: nowrap;
+  }
+
+  [data-ui-collapsible]
+    > [data-part-header]
+    > [data-part-trigger]:has(> [data-part-summary])
+    > [data-part-description] {
+    grid-column: 1 / span 2;
+  }
+
+  [data-ui-collapsible]
+    > [data-part-header]
+    > [data-part-trigger]:has(> [data-part-summary])
+    > [data-part-indicator] {
+    grid-column: 3;
+  }
+
   /* ── The indicator ────────────────────────────────────────────────────── */
 
   /**
@@ -326,6 +369,35 @@
     > [data-part-trigger]
     > [data-part-description] {
     grid-column: 2;
+  }
+
+  /* With the mark first, the summary takes the third column and the second
+     line runs under the title and the summary. */
+  [data-ui-collapsible][data-toggle-placement='start']
+    > [data-part-header]
+    > [data-part-trigger]:has(> [data-part-summary]) {
+    grid-template-columns: auto minmax(0, max-content) minmax(0, 1fr);
+  }
+
+  [data-ui-collapsible][data-toggle-placement='start']
+    > [data-part-header]
+    > [data-part-trigger]:has(> [data-part-summary])
+    > [data-part-indicator] {
+    grid-column: 1;
+  }
+
+  [data-ui-collapsible][data-toggle-placement='start']
+    > [data-part-header]
+    > [data-part-trigger]
+    > [data-part-summary] {
+    grid-column: 3;
+  }
+
+  [data-ui-collapsible][data-toggle-placement='start']
+    > [data-part-header]
+    > [data-part-trigger]:has(> [data-part-summary])
+    > [data-part-description] {
+    grid-column: 2 / span 2;
   }
 
   /**

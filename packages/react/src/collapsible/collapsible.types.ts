@@ -198,6 +198,12 @@ export interface CollapsibleTriggerProps extends ComponentPropsWithRef<'button'>
    * the accessible name — "Delivery, 3 of 12 items" is what a reader hears.
    */
   description?: ReactNode | undefined;
+  /**
+   * What the disclosure holds, at the end of the title's line, before the
+   * mark: one line, cut with an ellipsis. It is inside the trigger, so it is
+   * part of the accessible name, as the description is.
+   */
+  summary?: ReactNode | undefined;
   /** Renders the control into another element. */
   render?: ((props: CollapsibleTriggerRootProps) => ReactNode) | undefined;
 }

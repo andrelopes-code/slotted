@@ -82,6 +82,9 @@ export class SlCollapsibleHeader {
       ></span>
     }
     <span data-part="label" data-part-label=""><ng-content /></span>
+    @if (summary()) {
+      <span data-part="summary" data-part-summary="">{{ summary() }}</span>
+    }
     @if (description()) {
       <span data-part="description" data-part-description="">{{ description() }}</span>
     }`,
@@ -107,6 +110,13 @@ export class SlCollapsibleTrigger {
    * the accessible name — "Delivery, 3 of 12 items" is what a reader hears.
    */
   readonly description = input<string | undefined>(undefined);
+
+  /**
+   * What the disclosure holds, at the end of the title's line, before the
+   * mark: one line, cut with an ellipsis. It is inside the trigger, so it is
+   * part of the accessible name, as the description is.
+   */
+  readonly summary = input<string | undefined>(undefined);
 
   /**
    * The chevron is one glyph the stylesheet turns; plus and minus are two, so

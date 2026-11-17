@@ -79,3 +79,51 @@ describe('Collapsible panel content', () => {
     ).toBe('0px');
   });
 });
+
+/**
+ * A closed disclosure states what it holds at the end of the title's line:
+ * the summary shares the title's line, ends before the mark, is cut with an
+ * ellipsis when it does not fit, and is part of the trigger's name.
+ */
+describe('a trigger with a summary', () => {
+  const scene = (summary: string) => {
+    const { container } = render(
+      <div style={{ inlineSize: 320 }}>
+        <Collapsible>
+          <CollapsibleHeader>
+            <CollapsibleTrigger summary={summary}>Usage and limits</CollapsibleTrigger>
+          </CollapsibleHeader>
+          <CollapsiblePanel>Content</CollapsiblePanel>
+        </Collapsible>
+      </div>,
+    );
+    const box = (part: string) =>
+      container.querySelector(`[data-part="${part}"]`)!.getBoundingClientRect();
+
+    return { container, indicator: box('indicator'), label: box('label'), summary: box('summary') };
+  };
+
+  it('shares the title line and ends before the mark', () => {
+    const { container, indicator, label, summary } = scene('65 requests today');
+
+    expect(
+      Math.abs(summary.top + summary.height / 2 - (label.top + label.height / 2)),
+    ).toBeLessThan(2);
+    expect(summary.left).toBeGreaterThanOrEqual(label.right);
+    expect(summary.right).toBeLessThanOrEqual(indicator.left);
+    expect(container.querySelector('button')).toHaveAccessibleName(
+      'Usage and limits 65 requests today',
+    );
+  });
+
+  it('cuts a long summary with an ellipsis and keeps the title whole', () => {
+    const { container, indicator, label, summary } = scene(
+      '65 requests today · 1 paused · 3 over the monthly limit of the plan',
+    );
+    const part = container.querySelector<HTMLElement>('[data-part="summary"]')!;
+
+    expect(part.scrollWidth).toBeGreaterThan(part.clientWidth);
+    expect(label.height).toBeLessThan(30);
+    expect(summary.right).toBeLessThanOrEqual(indicator.left);
+  });
+});

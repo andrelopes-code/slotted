@@ -68,6 +68,13 @@ const anatomy: AnatomyRow[] = [
       'The title, holding whatever the trigger projects. A box of its own, so text-overflow has something to clip under truncate and so a title in another script reads its own way.',
   },
   {
+    part: 'summary',
+    element: 'span',
+    required: false,
+    purpose:
+      'What the disclosure holds, at the end of the title line and before the mark: one line, cut with an ellipsis, in the description ink. It is inside the trigger, so it is part of the accessible name.',
+  },
+  {
     part: 'description',
     element: 'span',
     required: false,
@@ -401,6 +408,13 @@ export const ANGULAR_COLLAPSIBLE_DOCS = {
         'from SlCollapsibleIdFactory',
         'slCollapsible',
         'What this disclosure is called inside an slAccordion. It is identity rather than state, and it reaches the DOM as data-value',
+      ],
+      [
+        'summary',
+        'string',
+        '—',
+        'slCollapsibleTrigger',
+        'What the disclosure holds, at the end of the title line and before the mark, cut with an ellipsis; inside the trigger and therefore inside its accessible name',
       ],
       [
         'description',

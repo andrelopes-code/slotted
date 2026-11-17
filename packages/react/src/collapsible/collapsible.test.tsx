@@ -34,7 +34,9 @@ describe('Collapsible', () => {
     render(
       <Collapsible defaultOpen level="3" region>
         <CollapsibleHeader>
-          <CollapsibleTrigger description="3 of 12 items">Delivery</CollapsibleTrigger>
+          <CollapsibleTrigger description="3 of 12 items" summary="$ 1,240.00">
+            Delivery
+          </CollapsibleTrigger>
         </CollapsibleHeader>
         <CollapsibleActions>
           <button type="button">Edit</button>
