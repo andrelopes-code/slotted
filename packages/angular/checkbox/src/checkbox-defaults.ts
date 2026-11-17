@@ -7,8 +7,10 @@ export type CheckboxSize = 'sm' | 'md' | 'lg';
  * Whether the choice is a box beside a line of text or a framed surface whose
  * whole area is the target. `tile` is the name Carbon and Cloudscape give the
  * framed choice; Mantine and Chakra call it a card, which is a family here.
+ * `control` is the box on a row of fields and buttons: one control tall, with
+ * the hover halo inside the root's own box.
  */
-export type CheckboxVariant = 'plain' | 'tile';
+export type CheckboxVariant = 'plain' | 'tile' | 'control';
 
 /**
  * Which side of its own label the box is on. It is never inherited from a

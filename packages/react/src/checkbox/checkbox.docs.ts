@@ -310,10 +310,10 @@ export const REACT_CHECKBOX_DOCS = {
       ],
       [
         'variant',
-        "'plain' | 'tile'",
+        "'plain' | 'tile' | 'control'",
         'plain',
         'Checkbox, CheckboxDefaultsProvider',
-        'How the choice is drawn. tile frames it and makes the whole surface the target; the label still names the control, so the keyboard and the accessible name are unchanged. When unset, the box takes the variant of its checkbox group, then of the provider.',
+        'How the choice is drawn. tile frames it and makes the whole surface the target; the label still names the control, so the keyboard and the accessible name are unchanged. control is for a row of fields and buttons: the root is one control tall and holds the hover halo inside its own box, where the plain halo stands outside the root and is shorter than a control. When unset, the box takes the variant of its checkbox group, then of the provider.',
       ],
       [
         'labelPlacement',

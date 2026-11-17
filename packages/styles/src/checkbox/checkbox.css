@@ -128,6 +128,7 @@
     --_size: var(--slotted-checkbox-size, var(--slotted-selection-size-sm, 14px));
     --_font-size: var(--slotted-control-font-size-sm, 12px);
     --_gap: var(--slotted-control-label-gap-sm, 8px);
+    --_control-height: var(--slotted-control-height-sm, 1.75rem);
     --_tile-inset: var(
       --slotted-checkbox-tile-inset,
       var(--slotted-control-padding-inline-sm, 10px)
@@ -138,6 +139,7 @@
     --_size: var(--slotted-checkbox-size, var(--slotted-selection-size-md, 16px));
     --_font-size: var(--slotted-control-font-size-md, 13px);
     --_gap: var(--slotted-control-label-gap-md, 12px);
+    --_control-height: var(--slotted-control-height-md, 2rem);
     --_tile-inset: var(
       --slotted-checkbox-tile-inset,
       var(--slotted-control-padding-inline-md, 13px)
@@ -148,6 +150,7 @@
     --_size: var(--slotted-checkbox-size, var(--slotted-selection-size-lg, 18px));
     --_font-size: var(--slotted-control-font-size-lg, 14px);
     --_gap: var(--slotted-control-label-gap-lg, 12px);
+    --_control-height: var(--slotted-control-height-lg, 2.5rem);
     --_tile-inset: var(
       --slotted-checkbox-tile-inset,
       var(--slotted-control-padding-inline-lg, 16px)
@@ -461,6 +464,45 @@
   [data-ui-checkbox][data-part-root][data-label-placement='start'] [data-part-label]::after {
     inset-inline-end: calc(-1 * (var(--_size) + var(--_gap) + var(--_halo-spread)));
     inset-inline-start: calc(-1.5 * var(--_halo-spread));
+  }
+
+  /* ── A control among controls ─────────────────────────────────────────
+   *
+   * `variant="control"`: the choice beside fields and buttons on one row. The
+   * plain root is its line of text, and its halo stands outside that box, so
+   * a stack of choices keeps the square on the edge of the form. On a row the
+   * same halo is shorter than the controls beside it and paints into the
+   * row's gap. Here the root is a box one control tall that holds the halo:
+   * the halo's overhang becomes the root's own padding, and the gap of the
+   * row is the space a reader sees between the halo and its neighbors.
+   *
+   * The block padding is what remains of the control height past one line, so
+   * a label that wraps adds lines and the halo still ends where the root ends.
+   */
+  [data-ui-checkbox][data-part-root][data-variant='control'] {
+    --_control-pad: max(
+      0px,
+      (var(--_control-height) - var(--_font-size) * var(--_line-height)) / 2
+    );
+
+    padding-block: var(--_control-pad);
+    padding-inline: var(--_halo-spread) calc(1.5 * var(--_halo-spread));
+  }
+
+  [data-ui-checkbox][data-part-root][data-variant='control'][data-label-placement='start'] {
+    padding-inline: calc(1.5 * var(--_halo-spread)) var(--_halo-spread);
+  }
+
+  [data-ui-checkbox][data-part-root][data-variant='control']:is(
+      [data-label-hidden],
+      :has(> [data-part-label]:empty)
+    ):not([data-label-placement='start']) {
+    padding-inline: var(--_halo-spread);
+  }
+
+  [data-ui-checkbox][data-part-root][data-variant='control'] [data-part-label]::after {
+    border-radius: var(--slotted-control-radius, 4px);
+    inset-block: calc(-1 * var(--_control-pad));
   }
 
   /* ── States ───────────────────────────────────────────────────────────

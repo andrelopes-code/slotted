@@ -177,7 +177,7 @@ test('declares one scenario per demonstration the reference page owes', () => {
  * things. Carbon and Cloudscape both call the framed choice a tile.
  */
 test('draws a choice as a framed surface without leaving the family', () => {
-  assert.deepEqual(contract.axes.variant, ['plain', 'tile']);
+  assert.deepEqual(contract.axes.variant, ['plain', 'tile', 'control']);
   assert.deepEqual(contract.resolution.variant, ['prop', 'group', 'defaults', 'plain']);
   assert.equal(member.defaults.variant, 'plain');
   assert.ok(member.capabilities.includes('appearance'));
