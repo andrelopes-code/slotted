@@ -28,6 +28,7 @@ import {
 import type { ButtonWait } from './button-appearance';
 import {
   BUTTON_DEFAULTS,
+  type ButtonFlush,
   type ButtonJustify,
   type ButtonSize,
   type ButtonTone,
@@ -80,6 +81,7 @@ import {
     '[attr.data-full-width]': 'stateAttribute(fullWidth())',
     '[attr.data-justify]': 'justify()',
     '[attr.data-inline]': 'stateAttribute(inline())',
+    '[attr.data-flush]': 'flush() ?? null',
     '[attr.data-disabled]': 'stateAttribute(disabled())',
     '[attr.data-loading]': 'stateAttribute(loading())',
     '[disabled]': 'inert.nativelyDisabled()',
@@ -100,6 +102,12 @@ export class SlButton implements ButtonWait {
    * dense cell: no box, the text's font and baseline, underlined.
    */
   readonly inline = input(false, { transform: booleanAttribute });
+  /**
+   * Stands the label on the edge of the text around it: the button is pulled
+   * out by its own inset on that side, and its hover ground, target and focus
+   * ring extend past the edge. For a boxless button over or beside text.
+   */
+  readonly flush = input<ButtonFlush | undefined>(undefined);
   /**
    * Where the content sits along the inline axis. `between` sets the label at
    * the start and the end slot at the inline end, as a field trigger reads;

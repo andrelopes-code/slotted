@@ -32,6 +32,7 @@ const defaults = contract.members.button.defaults;
     [focusableWhenDisabled]="focusableWhenDisabled()"
     [fullWidth]="fullWidth()"
     [inline]="inline()"
+    [flush]="flush()"
     [justify]="justify()"
     [loading]="loading()"
     [loadingDelay]="loadingDelay()"
@@ -56,6 +57,7 @@ class TestHost {
   readonly focusableWhenDisabled = signal(false);
   readonly fullWidth = signal(false);
   readonly inline = signal(false);
+  readonly flush = signal<'start' | 'end' | 'both' | undefined>(undefined);
   readonly justify = signal<ButtonJustify>('center');
   readonly loading = signal(false);
   readonly loadingDelay = signal(0);
@@ -312,6 +314,15 @@ describe('SlButton', () => {
     fixture.detectChanges();
 
     expect(button.getAttribute('type')).toBe('submit');
+  });
+
+  it('writes the side it is flush on, and nothing without it', () => {
+    const { button, fixture, host } = mount();
+    expect(button.hasAttribute('data-flush')).toBe(false);
+
+    host.flush.set('start');
+    fixture.detectChanges();
+    expect(button.getAttribute('data-flush')).toBe('start');
   });
 
   it('is a word of the surrounding text only when inline', () => {

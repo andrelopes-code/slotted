@@ -154,7 +154,7 @@ export const ANGULAR_BUTTON_DOCS = {
     anatomy: [
       root(
         'the button element you write',
-        'data-justify, and data-full-width, data-inline, data-disabled and data-loading when they apply.',
+        'data-justify, and data-full-width, data-flush, data-inline, data-disabled and data-loading when they apply.',
       ),
       ...content(true),
       indicatorRow('in the start box, else in the end box, else centerd over the label,'),
@@ -172,6 +172,13 @@ export const ANGULAR_BUTTON_DOCS = {
       ...appearance('SlButton', 'accent', 'solid'),
       ...CONTENT('SlButton'),
       ['fullWidth', 'boolean', 'false', 'SlButton', 'Fills the inline size of the container.'],
+      [
+        'flush',
+        "'start' | 'end' | 'both'",
+        '—',
+        'SlButton',
+        'Stands the label on the edge of the text around it: the button is pulled out by its own inset on the stated side, and the hover ground, the target and the focus ring extend past that edge. For a ghost button as the first line of a stacked cell. It has no effect on an inline button, which has no inset.',
+      ],
       [
         'inline',
         'boolean',

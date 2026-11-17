@@ -17,6 +17,8 @@ export type ButtonSize = (typeof BUTTON_SIZES)[number];
 export type ButtonShape = (typeof BUTTON_SHAPES)[number];
 export type ButtonJustify = (typeof BUTTON_JUSTIFICATIONS)[number];
 export type ButtonType = 'button' | 'submit' | 'reset';
+/** The side a flush button stands its label on the edge of. */
+export type ButtonFlush = 'start' | 'end' | 'both';
 
 /** The three axes every member paints itself from. */
 export interface ButtonAppearanceProps {
@@ -123,6 +125,12 @@ export interface ButtonProps
    * dense cell: no box, the text's font and baseline, underlined.
    */
   inline?: boolean | undefined;
+  /**
+   * Stands the label on the edge of the text around it: the button is pulled
+   * out by its own inset on that side, and its hover ground, target and focus
+   * ring extend past the edge. For a boxless button over or beside text.
+   */
+  flush?: ButtonFlush | undefined;
   render?: ButtonRender<ButtonRootProps> | undefined;
   type?: ButtonType | undefined;
 }

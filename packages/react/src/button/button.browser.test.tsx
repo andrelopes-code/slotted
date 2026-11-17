@@ -219,3 +219,45 @@ describe('an inline button inside a cell of a 28px table row', () => {
     expect(onClick).toHaveBeenCalledTimes(2);
   });
 });
+
+/**
+ * A ghost button over a line of text kept its inline inset, so its label
+ * started further in than the text under it. `flush` pulls the button out by
+ * that inset: the label stands on the text's edge and the box extends past it.
+ */
+describe('a flush ghost button over a line of text', () => {
+  it.each(['sm', 'md', 'lg'] as const)(
+    'starts its label where the text under it starts at size %s',
+    (size) => {
+      const { container } = render(
+        <div style={{ display: 'grid', justifyItems: 'start', paddingInline: 40 }}>
+          <Button flush="start" size={size} tone="secondary" variant="ghost">
+            Fixed costs
+          </Button>
+          <span data-testid="under">target 40%</span>
+        </div>,
+      );
+      const button = container.querySelector('[data-ui="button"]')!.getBoundingClientRect();
+      const label = container.querySelector('[data-part="label"]')!.getBoundingClientRect();
+      const under = container.querySelector('[data-testid="under"]')!.getBoundingClientRect();
+
+      expect(label.left).toBeCloseTo(under.left, 1);
+      expect(button.left).toBeLessThan(under.left);
+    },
+  );
+
+  it('ends its label where the container ends when flush at the end', () => {
+    const { container } = render(
+      <div style={{ display: 'grid', justifyItems: 'end', paddingInline: 40 }}>
+        <Button flush="end" variant="ghost">
+          Fixed costs
+        </Button>
+        <span data-testid="under">target 40%</span>
+      </div>,
+    );
+    const label = container.querySelector('[data-part="label"]')!.getBoundingClientRect();
+    const under = container.querySelector('[data-testid="under"]')!.getBoundingClientRect();
+
+    expect(label.right).toBeCloseTo(under.right, 1);
+  });
+});

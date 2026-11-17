@@ -282,6 +282,15 @@ describe('Button', () => {
     expect(button).toHaveAttribute('data-part', 'root');
   });
 
+  it('writes the side it is flush on, and nothing without it', () => {
+    const { rerender } = render(<Button>Split</Button>);
+    expect(screen.getByRole('button')).not.toHaveAttribute('data-flush');
+
+    rerender(<Button flush="start">Split</Button>);
+
+    expect(screen.getByRole('button')).toHaveAttribute('data-flush', 'start');
+  });
+
   it('writes data-inline only when inline', () => {
     const { rerender } = render(<Button>Split</Button>);
     expect(screen.getByRole('button')).not.toHaveAttribute('data-inline');

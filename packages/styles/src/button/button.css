@@ -747,6 +747,45 @@
   }
 
   /**
+   * ── Flush ──────────────────────────────────────────────────────────────
+   *
+   * A boxless button as the first line of a stacked cell: its label starts
+   * one inset after the line under it. `flush` pulls the button out by its own
+   * inset and edge on the stated side, so the label stands on the edge of the
+   * text around it and the hover ground, the target and the focus ring extend
+   * past that edge. The inset is the one in force: the glyph side's when a
+   * slot holds one.
+   */
+  [data-ui-button]:not([data-shape], [data-inline]):is([data-flush='start'], [data-flush='both']) {
+    margin-inline-start: calc(
+      -1 * (var(--_padding-inline) + var(--slotted-control-border-width, 1px))
+    );
+  }
+
+  [data-ui-button]:not([data-shape], [data-inline]):is([data-flush='end'], [data-flush='both']) {
+    margin-inline-end: calc(
+      -1 * (var(--_padding-inline) + var(--slotted-control-border-width, 1px))
+    );
+  }
+
+  [data-ui-button]:not([data-shape], [data-inline]):is(
+      [data-flush='start'],
+      [data-flush='both']
+    ):has(> [data-part-start]) {
+    margin-inline-start: calc(
+      -1 * (var(--_padding-inline-visual) + var(--slotted-control-border-width, 1px))
+    );
+  }
+
+  [data-ui-button]:not([data-shape], [data-inline]):is([data-flush='end'], [data-flush='both']):has(
+      > [data-part-end]
+    ) {
+    margin-inline-end: calc(
+      -1 * (var(--_padding-inline-visual) + var(--slotted-control-border-width, 1px))
+    );
+  }
+
+  /**
    * A field trigger: the label at the start and `end` at the inline end. The
    * label takes the free space, so `start` stays beside it and the end slot is
    * pushed to the edge; flex follows the writing direction, so it mirrors.

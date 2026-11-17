@@ -26,6 +26,7 @@ export { SlIconButton } from './icon-button';
 export { SlIconButtonLink } from './icon-button-link';
 export { SlToggleButton } from './toggle-button';
 export type {
+  ButtonFlush,
   ButtonJustify,
   ButtonShape,
   ButtonSize,

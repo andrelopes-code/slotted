@@ -36,4 +36,6 @@ export type ButtonVariant = (typeof BUTTON_VARIANTS)[number];
 export type ButtonSize = (typeof BUTTON_SIZES)[number];
 export type ButtonShape = (typeof BUTTON_SHAPES)[number];
 export type ButtonJustify = (typeof BUTTON_JUSTIFICATIONS)[number];
+/** The side a flush button stands its label on the edge of. */
+export type ButtonFlush = 'start' | 'end' | 'both';
 export type ButtonType = 'button' | 'submit' | 'reset';
