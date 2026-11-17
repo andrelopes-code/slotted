@@ -298,6 +298,21 @@
   }
 
   /**
+   * In the body the cells paint the row's ground, not the row. A pinned cell
+   * paints that ground over its own surface, and above a row that painted it
+   * too a translucent ground showed twice on the pinned column: a hover of 6%
+   * read as 12% there. Each cell is one layer, pinned or not. `:where()` keeps
+   * the rule under every other ground a cell states.
+   */
+  [data-ui-table] [data-part-body] > [data-part-row] {
+    background-color: transparent;
+  }
+
+  [data-ui-table] :where([data-part-body] > [data-part-row] > *) {
+    background-color: var(--_row-ground);
+  }
+
+  /**
    * ── Where a cell's content sits in its row ─────────────────────────────
    *
    * The middle, because a row is as tall as its tallest cell: a one-line value

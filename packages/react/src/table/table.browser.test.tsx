@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
 
 import {
   Table,
@@ -89,6 +90,53 @@ describe('a pinned column of a framed table wider than its scroller', () => {
     root.style.setProperty('--slotted-table-surface', 'transparent');
 
     expect(ground('td[data-sticky="end"]')).toBe('rgb(10, 20, 30)');
+  });
+});
+
+/**
+ * The row and its pinned cell both painted the row's ground, so a translucent
+ * ground showed twice on the pinned column. The cells of a body row paint it,
+ * once each, and the row paints none.
+ */
+describe('a pinned cell of a row with a translucent ground', () => {
+  it('paints the hover ground once, as the plain cells do', async () => {
+    const hover = 'rgba(255, 0, 0, 0.06)';
+    const { container } = render(
+      <div style={{ inlineSize: 372 }}>
+        <Table
+          columns={4}
+          style={
+            {
+              '--slotted-table-row-surface-hover': hover,
+              '--slotted-table-sticky-surface': 'transparent',
+            } as CSSProperties
+          }
+          variant="framed"
+        >
+          <TableContent>
+            <TableBody>
+              <TableRow value="r1">
+                <TableCell>A</TableCell>
+                <TableCell>B</TableCell>
+                <TableCell>C</TableCell>
+                <TableCell sticky="end">D</TableCell>
+              </TableRow>
+            </TableBody>
+          </TableContent>
+        </Table>
+      </div>,
+    );
+    const row = container.querySelector<HTMLElement>('tbody > tr')!;
+    const plain = getComputedStyle(container.querySelector('td:not([data-sticky])')!);
+    const pinned = getComputedStyle(container.querySelector('td[data-sticky="end"]')!);
+
+    await userEvent.hover(row);
+
+    expect(getComputedStyle(row).backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    expect(plain.backgroundColor).toBe(hover);
+    expect(plain.backgroundImage).toBe('none');
+    expect(pinned.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    expect(pinned.backgroundImage).toBe(`linear-gradient(${hover}, ${hover}), none`);
   });
 });
 
