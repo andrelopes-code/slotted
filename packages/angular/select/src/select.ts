@@ -176,15 +176,27 @@ const flatten = (items: SelectItems | undefined): readonly SelectOption[] =>
         [attr.data-placeholder]="selection().length === 0 ? '' : null"
         [attr.data-unmatched]="unmatched() ? '' : null"
       >
-        @if (summaryTemplate(); as template) {
-          <ng-container
-            [ngTemplateOutlet]="template"
-            [ngTemplateOutletContext]="{ $implicit: selection(), labels: labels() }"
-          />
-        } @else if (resolvedMultiple() && selection().length > 1) {
-          <span data-part="summary" data-part-summary="">{{ summary() }}</span>
+        <ng-template #valueContent>
+          @if (summaryTemplate(); as template) {
+            <ng-container
+              [ngTemplateOutlet]="template"
+              [ngTemplateOutletContext]="{ $implicit: selection(), labels: labels() }"
+            />
+          } @else {
+            {{ summary() }}
+          }
+        </ng-template>
+        <!--
+          Chosen values of a multiple select are the chips over the trigger, one
+          value included. The text stays the trigger's name in its own part,
+          which the stylesheet clips while the chips are shown.
+        -->
+        @if (resolvedMultiple() && selection().length > 0) {
+          <span data-part="summary" data-part-summary="">
+            <ng-container [ngTemplateOutlet]="valueContent" />
+          </span>
         } @else {
-          {{ summary() }}
+          <ng-container [ngTemplateOutlet]="valueContent" />
         }
       </span>
     </button>

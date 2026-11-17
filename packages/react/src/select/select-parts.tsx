@@ -564,24 +564,29 @@ export function SelectValue({ children, placeholder, ...nativeProps }: SelectVal
   const resolved = labels.filter((label): label is string => label !== undefined);
   const unmatched = select.selection.length > 0 && resolved.length < select.selection.length;
 
-  const summary = (() => {
+  const content = (() => {
     if (children !== undefined) return children(select.selection, resolved);
     if (select.selection.length === 0) return placeholder;
-    const first = labels[0] ?? select.selection[0];
-    if (!select.multiple || select.selection.length === 1) return first;
-    /**
-     * Several values are the chips beside this element, not a sentence here
-     * (SL4). The sentence stays anyway, in its own part: it is the trigger's
-     * accessible name, and it is what a control too narrow for a chip shows
-     * instead. The stylesheet decides which of the two is seen; the name is
-     * the same either way.
-     */
-    return (
-      <span data-part="summary" data-part-summary="">
-        {select.t('summary', { count: select.selection.length })}
-      </span>
-    );
+    if (!select.multiple || select.selection.length === 1) return labels[0] ?? select.selection[0];
+
+    return select.t('summary', { count: select.selection.length });
   })();
+
+  /**
+   * Chosen values of a multiple select are the chips beside this element, not
+   * a sentence here (SL4), one value included. The sentence stays anyway, in
+   * its own part: it is the trigger's accessible name, and it is what a
+   * control too narrow for a chip shows instead. The stylesheet decides which
+   * of the two is seen; the name is the same either way.
+   */
+  const summary =
+    select.multiple && select.selection.length > 0 ? (
+      <span data-part="summary" data-part-summary="">
+        {content}
+      </span>
+    ) : (
+      content
+    );
 
   return (
     <span

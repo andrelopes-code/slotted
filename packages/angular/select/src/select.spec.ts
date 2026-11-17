@@ -497,6 +497,21 @@ describe('SlSelect', () => {
     expect(overflow?.hasAttribute('hidden')).toBe(true);
   });
 
+  /** One chosen value is a chip too, so its text is not written bare under the chip. */
+  it('writes one chosen value of a multiple select in the summary part', () => {
+    fixture.componentInstance.multiple.set(true);
+    fixture.detectChanges();
+    open();
+
+    named('Apple').click();
+    fixture.detectChanges();
+
+    const value = trigger().querySelector("[data-part='value']");
+    expect(value?.children.length).toBe(1);
+    expect(value?.querySelector("[data-part='summary']")?.textContent?.trim()).toBe('Apple');
+    expect(trigger().textContent?.trim()).toBe('Apple');
+  });
+
   it('takes a value out of the selection from its own chip', () => {
     fixture.componentInstance.multiple.set(true);
     fixture.detectChanges();
