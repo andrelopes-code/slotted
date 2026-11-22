@@ -558,7 +558,7 @@
     "./*/styles.css": "./dist/styles/*.css"
   },
   "scripts": {
-    "build": "vite build && vite build --config vite.styles.config.ts && tsc -p tsconfig.build.json && node declarations.build.mjs && node css.build.mjs && node ../../tools/agent-docs/bin/build.mjs --binding react --out dist/docs --bin dist/bin/slotted-agent-docs.mjs && node package-boundary.verify.mjs",
+    "build": "vite build && vite build --config vite.styles.config.ts && tsc -p tsconfig.build.json && node declarations.build.mjs && node ../../scripts/add-declaration-extensions.mjs dist/types && node css.build.mjs && node ../../tools/agent-docs/bin/build.mjs --binding react --out dist/docs --bin dist/bin/slotted-agent-docs.mjs && node package-boundary.verify.mjs && node ../../scripts/verify-declarations.mjs",
     "test": "vitest run --project unit",
     "test:browser": "vitest run --project browser",
     "test:perf": "vitest run --config vitest.perf.config.ts",
