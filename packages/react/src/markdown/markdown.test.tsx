@@ -28,6 +28,21 @@ describe('Markdown from source', () => {
     expect(container.querySelector('h1')).toBeNull();
     expect(container.querySelector('p')?.textContent).toBe('# t');
   });
+
+  it('draws an image written in the source, its URL through transformUrl', () => {
+    const transformUrl = vi.fn((url: string) => `https://cdn.example${url}`);
+    const { container } = render(
+      <Markdown
+        source={'Text.\n\n![The settings screen](/img/settings.png "Caption")'}
+        transformUrl={transformUrl}
+      />,
+    );
+    const image = container.querySelector('img');
+
+    expect(image?.getAttribute('src')).toBe('https://cdn.example/img/settings.png');
+    expect(image?.getAttribute('alt')).toBe('The settings screen');
+    expect(container.textContent).not.toContain('![');
+  });
 });
 
 describe('Markdown', () => {

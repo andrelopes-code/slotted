@@ -47,6 +47,21 @@ describe('parseMarkdown', () => {
     });
   });
 
+  it('reads an image into an image node, and keeps its syntax as text outside the allowlist', () => {
+    const [paragraph] = parseMarkdown('![a *b*](b.png "c")').children ?? [];
+
+    expect(paragraph?.children).toEqual([{ type: 'image', url: 'b.png', title: 'c', alt: 'a b' }]);
+    expect(shape(parseMarkdown('![a](b.png)', { allow: ['paragraph', 'text', 'link'] }))).toEqual({
+      type: 'root',
+      children: [
+        {
+          type: 'paragraph',
+          children: [text('!'), { type: 'link', url: 'b.png', children: [text('a')] }],
+        },
+      ],
+    });
+  });
+
   it('keeps the syntax of a type outside the allowlist as text', () => {
     const allow = ['paragraph', 'text', 'list', 'listItem', 'strong', 'link'];
     expect(shape(parseMarkdown('# t', { allow }))).toEqual({

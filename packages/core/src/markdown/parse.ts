@@ -4,10 +4,11 @@
  *
  * Blocks: paragraphs, ATX headings, fenced code, block quotes, thematic
  * breaks, GFM tables, and bullet and ordered lists nested by indentation.
- * Inline: code spans, strong, emphasis, links, backslash escapes and hard
- * breaks. A construct whose mdast type is outside `allow` is not recognized,
- * so its syntax stays in the text. Anything else — images, HTML, reference
- * links, footnotes, setext headings, indented code — is text too; remark or
+ * Inline: code spans, strong, emphasis, links, images, backslash escapes and
+ * hard breaks. An image's URL goes through `transformUrl` as a link's does.
+ * A construct whose mdast type is outside `allow` is not recognized, so its
+ * syntax stays in the text. Anything else — HTML, reference links,
+ * footnotes, setext headings, indented code — is text too; remark or
  * marked through `fromMarkedTokens` read the whole of CommonMark and GFM.
  */
 
@@ -356,6 +357,20 @@ function inline(source: string, allowed: Allowed): MarkdownNode[] {
       continue;
     }
 
+    if (char === '!' && source[index + 1] === '[' && allowed('image')) {
+      const image = readLink(source, index + 1);
+      if (image) {
+        push({
+          type: 'image',
+          url: image.url,
+          title: image.title,
+          alt: plainText(inline(image.label, allowed)),
+        });
+        index = image.end;
+        continue;
+      }
+    }
+
     if (char === '[' && allowed('link')) {
       const link = readLink(source, index);
       if (link) {
@@ -388,6 +403,11 @@ function inline(source: string, allowed: Allowed): MarkdownNode[] {
   }
   flush();
   return out;
+}
+
+/** The words of inline nodes, which an image's `alt` is: its label without the markup. */
+function plainText(nodes: readonly MarkdownNode[]): string {
+  return nodes.map((node) => node.value ?? node.alt ?? plainText(node.children ?? [])).join('');
 }
 
 /** Where the backtick run of exactly `length` that closes a code span starts, or -1. */

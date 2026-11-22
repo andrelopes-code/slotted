@@ -287,7 +287,7 @@ export const ANGULAR_MARKDOWN_DOCS = {
         'string',
         '—',
         '[slMarkdown]',
-        'The document as CommonMark text, read by parseMarkdown in place of tree: the syntax of the types in allow is read and any other stays text. Paragraphs, ATX headings, fenced code, quotes, rules, GFM tables, nested lists, code spans, strong, emphasis, links, escapes and hard breaks; images and HTML need an adapter',
+        'The document as CommonMark text, read by parseMarkdown in place of tree: the syntax of the types in allow is read and any other stays text. Paragraphs, ATX headings, fenced code, quotes, rules, GFM tables, nested lists, code spans, strong, emphasis, links, images (their URL through transformUrl), escapes and hard breaks; HTML, reference links and footnotes need an adapter',
       ],
       ['size', "'md' | 'lg' | 'xl'", 'lg', '[slMarkdown]', 'The region’s type step, from prose'],
       [
