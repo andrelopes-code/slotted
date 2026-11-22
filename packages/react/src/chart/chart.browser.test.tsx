@@ -305,3 +305,41 @@ describe('a small chart with a category axis', () => {
     expect(overlap).toBe(false);
   });
 });
+
+describe('two charts stacked on the same categories', () => {
+  it('put a category at one place when their value axes share a label width', async () => {
+    const percent = (value: number) => `${value.toFixed(2)}%`;
+    const months = Array.from({ length: 12 }, (_, index) => `m${index + 1}`);
+    const chart = (low: number, high: number, testId: string) => (
+      <div data-testid={testId}>
+        <Chart
+          data={months.map((month, index) => ({
+            month,
+            value: low + ((high - low) * index) / 11,
+          }))}
+          renderer="svg"
+          series={[{ id: 'v', kind: 'line', field: 'value', label: 'Value', format: percent }]}
+          x={{ field: 'month' }}
+          y={{ format: percent, labelWidth: 56 }}
+        />
+      </div>
+    );
+    const { getByTestId } = render(
+      <div style={{ inlineSize: 400 }}>
+        {chart(3.9, 5.7, 'level')}
+        {chart(-30, 0, 'drawdown')}
+      </div>,
+    );
+    const firstLabel = (testId: string) =>
+      vi.waitFor(() => {
+        const label = [...getByTestId(testId).querySelectorAll('svg text')].find(
+          (text) => text.textContent === 'm1',
+        );
+        expect(label).toBeDefined();
+        const box = label!.getBoundingClientRect();
+        return box.left + box.width / 2;
+      });
+
+    expect(await firstLabel('level')).toBeCloseTo(await firstLabel('drawdown'), 0);
+  });
+});

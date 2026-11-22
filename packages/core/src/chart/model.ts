@@ -71,6 +71,7 @@ export interface ChartModelSeries {
 
 export interface ChartModelAxis {
   readonly label: string | undefined;
+  readonly labelWidth: number | undefined;
   readonly scale: 'linear' | 'log';
   readonly extent: 'zero' | 'data';
   readonly min: number | undefined;
@@ -256,6 +257,7 @@ export function createChartModel(spec: ChartSpec, options: ChartModelOptions = {
   const percent = stackMode === 'percent';
   const axisBase = axesSpec.slice(0, 2).map((axis) => ({
     label: axis.label,
+    labelWidth: axis.labelWidth,
     scale: axis.scale ?? 'linear',
     min: percent ? 0 : axis.min,
     max: percent ? 100 : axis.max,

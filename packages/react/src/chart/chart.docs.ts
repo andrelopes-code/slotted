@@ -879,7 +879,7 @@ export const REACT_CHART_DOCS = {
         'ChartYAxis | [ChartYAxis, ChartYAxis]',
         '—',
         'Chart',
-        'The value axis, or the start and end axes: label, format, scale, extent',
+        'The value axis, or the start and end axes: label, format, scale, extent, labelWidth',
       ],
       [
         'min',
@@ -896,6 +896,13 @@ export const REACT_CHART_DOCS = {
         'zero with a bar or stacked series, else data',
         'y',
         'What the axis holds besides the data: zero, for a bar, or the data alone, for a line',
+      ],
+      [
+        'labelWidth',
+        'number',
+        '—',
+        'y',
+        'The pixels the axis labels take beside an upright plot. Two charts stacked on the same categories with one width start their plots at one place; a longer label is cut with an ellipsis',
       ],
       [
         'orientation',

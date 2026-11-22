@@ -126,6 +126,13 @@ export interface ChartYAxis {
   readonly extent?: 'zero' | 'data' | undefined;
   readonly min?: number | undefined;
   readonly max?: number | undefined;
+  /**
+   * The inline size, in pixels, the axis' labels take beside the plot. The
+   * plot otherwise starts where the widest label ends, so two charts stacked
+   * on the same categories put one category at two places; the same width on
+   * both lines them up. A label wider than it is cut with an ellipsis.
+   */
+  readonly labelWidth?: number | undefined;
 }
 
 export interface ChartAnnotation {

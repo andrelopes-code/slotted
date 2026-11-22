@@ -329,12 +329,14 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
     const extremes = visible
       .filter((series) => series.axis === index)
       .flatMap((series) => [...series.plotted, ...series.top]);
-    const longestValue = Math.max(
-      0,
-      ...[axis.min, axis.max, ...extremes].map((value) =>
-        value === null || value === undefined ? 0 : estimate(axis.format(value)),
-      ),
-    );
+    const longestValue =
+      axis.labelWidth ??
+      Math.max(
+        0,
+        ...[axis.min, axis.max, ...extremes].map((value) =>
+          value === null || value === undefined ? 0 : estimate(axis.format(value)),
+        ),
+      );
     return room + longestValue + theme.inset;
   }, 0);
   const band =
@@ -428,6 +430,18 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
          it: centered on the line, its lower half met the first category label
          hanging from the same line at the plot's corner. */
       ...(horizontal ? {} : { verticalAlignMinLabel: 'bottom' }),
+      /* A stated width is the box every label takes, so the plot starts at
+         the same place whatever the labels say. */
+      /* A stated width cuts a label longer than it; the grid below gives the
+         plot its start from the width rather than from the labels. */
+      ...(axis.labelWidth !== undefined && !horizontal
+        ? {
+            width: axis.labelWidth,
+            overflow: 'truncate',
+            ellipsis: '…',
+            align: index === 0 ? 'right' : 'left',
+          }
+        : {}),
       formatter: (value: number) => axis.format(value),
     },
     splitLine: splitLine(
@@ -794,26 +808,42 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
   );
   const labelRoom = longest * theme.labelSize * 0.6 + theme.inset;
   const top = theme.inset + theme.labelSize / 2 + (named ? theme.labelSize * 1.5 : 0);
+  const bounds = {
+    left: theme.inset,
+    /* A time or value axis may put its last label on the plot's edge, and
+       the engine does not always count the half of it that hangs past. */
+    right:
+      theme.inset +
+      (horizontal && labelled.length ? labelRoom : 0) +
+      (!horizontal && model.xType !== 'category' ? theme.labelSize * 2 : 0),
+    top:
+      top +
+      (!horizontal && labelled.length ? theme.labelSize * 1.5 : 0) +
+      Math.max(0, labelRows - 1) * rowHeight,
+    bottom:
+      theme.inset +
+      (horizontal && model.axes.some((axis) => axis.label) ? theme.labelSize * 1.5 : 0),
+  };
+  /* A value axis with a stated label width places the plot's edge on that
+     side at the width, and the bounds only stop a longer label: two charts
+     stacked with one width start their plots at one place. */
+  const stated = (side: number) =>
+    horizontal || model.axes[side]?.labelWidth === undefined
+      ? 0
+      : model.axes[side]!.labelWidth! + theme.inset;
+  const fixed = stated(0) + stated(1) > 0;
   const option: Record<string, unknown> = {
     ...base,
-    grid: {
-      left: theme.inset,
-      /* A time or value axis may put its last label on the plot's edge, and
-         the engine does not always count the half of it that hangs past. */
-      right:
-        theme.inset +
-        (horizontal && labelled.length ? labelRoom : 0) +
-        (!horizontal && model.xType !== 'category' ? theme.labelSize * 2 : 0),
-      top:
-        top +
-        (!horizontal && labelled.length ? theme.labelSize * 1.5 : 0) +
-        Math.max(0, labelRows - 1) * rowHeight,
-      bottom:
-        theme.inset +
-        (horizontal && model.axes.some((axis) => axis.label) ? theme.labelSize * 1.5 : 0),
-      outerBoundsMode: 'same',
-      outerBoundsContain: 'all',
-    },
+    grid: fixed
+      ? {
+          ...bounds,
+          left: bounds.left + stated(0),
+          right: bounds.right + stated(1),
+          outerBoundsMode: 'auto',
+          outerBounds: bounds,
+          outerBoundsContain: 'all',
+        }
+      : { ...bounds, outerBoundsMode: 'same', outerBoundsContain: 'all' },
     [categoryAxisKey]: [categoryAxis],
     [valueAxisKey]: valueAxes,
     series: echartsSeries,
