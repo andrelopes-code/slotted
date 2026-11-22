@@ -473,3 +473,38 @@ describe('DataGrid resizing a column by its resizer', () => {
     expect(onColumnStateChange).not.toHaveBeenCalled();
   });
 });
+
+describe('the rows of a first load', () => {
+  it('vary their lengths by row and stand at the end of a numeric column', () => {
+    const { container } = render(
+      <div style={{ inlineSize: 1170 }}>
+        <DataGrid
+          aria-label="Movements"
+          columns={[
+            { id: 'description', header: 'Description' },
+            { id: 'category', header: 'Category' },
+            { id: 'amount', header: 'Amount', numeric: true },
+          ]}
+          loading
+          mode="server"
+          rowKey="id"
+          rows={[]}
+        />
+      </div>,
+    );
+    const rows = [...container.querySelectorAll('[data-part="loader"] > [data-part="row"]')];
+    const cellsOf = (column: number) =>
+      rows.map((row) => row.querySelectorAll('[role="gridcell"]')[column] as HTMLElement);
+    const widths = cellsOf(0).map(
+      (cell) => cell.querySelector('[data-ui="skeleton"]')!.getBoundingClientRect().width,
+    );
+    const amount = cellsOf(2)[0]!;
+    const bar = amount.querySelector('[data-ui="skeleton"]')!.getBoundingClientRect();
+    const end =
+      amount.getBoundingClientRect().right - parseFloat(getComputedStyle(amount).paddingInlineEnd);
+
+    expect(rows.length).toBeGreaterThan(1);
+    expect(new Set(widths.map(Math.round)).size).toBeGreaterThan(1);
+    expect(Math.abs(bar.right - end)).toBeLessThan(1);
+  });
+});

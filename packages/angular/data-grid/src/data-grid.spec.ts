@@ -860,7 +860,11 @@ describe('SlDataGrid', () => {
     expect(cells.slice(1).every((cell) => cell.querySelector('[data-ui="skeleton"]'))).toBe(true);
     /* The lengths follow the value columns: the first one takes the first width. */
     const first = cells[1]!.querySelector('[data-ui="skeleton"]') as HTMLElement;
-    expect(first.style.getPropertyValue('--slotted-skeleton-inline-size')).toBe('70%');
+    expect(first.style.getPropertyValue('--slotted-skeleton-inline-size')).toBe('62%');
+    /* And they step by row, so a column is not a stack of equal bars. */
+    const next = root().querySelectorAll('[data-part="loader"] [data-part="row"]')[1]!;
+    const below = next.children[1]!.querySelector('[data-ui="skeleton"]') as HTMLElement;
+    expect(below.style.getPropertyValue('--slotted-skeleton-inline-size')).toBe('78%');
   });
 
   /* The skeleton rows take the height of the rows they stand in for, so the

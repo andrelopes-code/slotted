@@ -1,4 +1,4 @@
-export { initialLoadingVisibility, nextLoadingVisibility } from './loading';
+export { initialLoadingVisibility, nextLoadingVisibility, placeholderWidth } from './loading';
 export type {
   LoadingVisibility,
   LoadingVisibilityRequest,

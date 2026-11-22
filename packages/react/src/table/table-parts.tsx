@@ -1,3 +1,4 @@
+import { placeholderWidth } from '@slotted/core/loading';
 import { keyedProps, withSelectorKey } from '@slotted/core/selector-key';
 import { isRowAction } from '@slotted/core/pointer-intent';
 import {
@@ -659,7 +660,7 @@ export function TableLoader({ children, ref, skeletonRows, ...nativeProps }: Tab
           <tr data-part="row" data-part-row="" key={row}>
             {Array.from({ length: table.columns }, (_cell, column) => (
               <td data-part="cell" data-part-cell="" key={column}>
-                <Skeleton inlineSize="100%" loading />
+                <Skeleton inlineSize={placeholderWidth(row, column)} loading />
               </td>
             ))}
           </tr>

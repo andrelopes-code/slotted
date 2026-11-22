@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { initialLoadingVisibility, nextLoadingVisibility } from './loading';
+import { initialLoadingVisibility, nextLoadingVisibility, placeholderWidth } from './loading';
 import type { LoadingVisibilityState } from './loading';
 
 /** Drives the machine through a list of moments, as a binding's timer would. */
@@ -139,5 +139,19 @@ describe('loading visibility', () => {
     expect(replay([{ loading: true, now: 0 }], { delay: Number.NaN, minDuration: -50 })).toEqual([
       { visible: true, wait: null },
     ]);
+  });
+});
+
+describe('placeholderWidth', () => {
+  it('steps by row and by column through one fixed sequence', () => {
+    expect([0, 1, 2, 3, 4, 5].map((row) => placeholderWidth(row, 0))).toEqual([
+      '62%',
+      '78%',
+      '49%',
+      '70%',
+      '55%',
+      '62%',
+    ]);
+    expect(placeholderWidth(0, 1)).toBe(placeholderWidth(1, 0));
   });
 });

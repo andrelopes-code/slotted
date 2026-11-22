@@ -97,3 +97,14 @@ export function nextLoadingVisibility({
   if (held >= hold) return settled(initialLoadingVisibility);
   return { state, wait: hold - held };
 }
+
+/**
+ * A skeleton line's share of its cell, from a fixed sequence that steps by row
+ * and by column: line lengths vary the way text varies, a column is not a
+ * stack of equal bars, and the server and the client draw the same lengths.
+ */
+export function placeholderWidth(row: number, column: number): string {
+  return `${PLACEHOLDER_WIDTHS[(row + column) % PLACEHOLDER_WIDTHS.length]!}%`;
+}
+
+const PLACEHOLDER_WIDTHS = [62, 78, 49, 70, 55];

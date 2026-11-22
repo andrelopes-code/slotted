@@ -1,3 +1,4 @@
+import { placeholderWidth } from '@slotted/core/loading';
 import {
   afterEveryRender,
   booleanAttribute,
@@ -684,7 +685,7 @@ export class SlTableEmpty {
     <tr data-part="row" data-part-row="">
       @for (cell of cells(); track cell) {
         <td data-part="cell" data-part-cell="">
-          <span slSkeleton loading inlineSize="100%"></span>
+          <span slSkeleton loading [inlineSize]="width(row, cell)"></span>
         </td>
       }
     </tr>
@@ -705,6 +706,8 @@ export class SlTableLoader {
   readonly cells = computed(() =>
     Array.from({ length: this.table.resolvedColumns() }, (_cell, index) => index),
   );
+  /** A line's share of its cell, stepping by row and by column. */
+  protected readonly width = placeholderWidth;
 }
 
 /** Every part of the family, for a template that imports the set at once. */

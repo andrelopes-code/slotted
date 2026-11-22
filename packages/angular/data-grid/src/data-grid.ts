@@ -1,3 +1,4 @@
+import { placeholderWidth } from '@slotted/core/loading';
 import { COMPACT_BELOW } from '@slotted/core/measure';
 import { writeToClipboard } from '@slotted/core/clipboard';
 import { createRowMetrics, nextSelection, virtualWindow } from '@slotted/core/collection';
@@ -1128,14 +1129,24 @@ function contentWidth(cell: HTMLElement): number {
           @for (row of skeletonRowsList(); track row) {
             <div data-part="row" data-part-row="" role="row">
               @for (columnId of columnIds(); track columnId; let index = $index) {
-                <div role="gridcell" [style.--slotted-data-grid-column]="index + 1">
+                <div
+                  role="gridcell"
+                  [attr.data-align]="resolved()[index - gutterCount()]?.align ?? null"
+                  [attr.data-numeric]="resolved()[index - gutterCount()]?.numeric ? '' : null"
+                  [style.--slotted-data-grid-column]="index + 1"
+                >
                   <!-- The gutters reserve their width and draw nothing: what
                        stands in them is a chooser, a handle and a toggle, and
                        an outline of a control nobody can press yet is a
                        control that lies. The lengths follow the value
-                       columns, so a gutter does not shift the sequence. -->
+                       columns, so a gutter does not shift the sequence, and
+                       they step by row as well, so a column is not a stack of
+                       equal bars. -->
                   @if (index >= gutterCount()) {
-                    <span slSkeleton [inlineSize]="skeletonWidth(index - gutterCount())"></span>
+                    <span
+                      slSkeleton
+                      [inlineSize]="skeletonWidth(row, index - gutterCount())"
+                    ></span>
                   }
                 </div>
               }
@@ -2110,9 +2121,8 @@ export class SlDataGrid<Row = unknown> implements ControlValueAccessor {
         : Math.max(1, Math.min(page ?? Infinity, Math.ceil(height / this.rowSize())));
     return Array.from({ length: count }, (_unused, index) => index);
   });
-  protected skeletonWidth(index: number) {
-    return `${[70, 55, 80, 40, 60][index % 5]}%`;
-  }
+  /** A placeholder's share of its cell, stepping by row and by column. */
+  protected readonly skeletonWidth = placeholderWidth;
 
   /* ── Cursor axis ────────────────────────────────────────────────────── */
   private readonly cursorRows = computed(() => {

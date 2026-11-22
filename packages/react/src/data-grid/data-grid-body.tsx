@@ -1,3 +1,4 @@
+import { placeholderWidth } from '@slotted/core/loading';
 import { selectorKeyProps } from '@slotted/core/selector-key';
 import {
   GROUP_ROW_PREFIX,
@@ -659,25 +660,29 @@ export function DataGridLoader<Row>({ rows, rowSize }: { rows: number; rowSize: 
     >
       {Array.from({ length: rows }, (_unused, row) => (
         <div data-part="row" data-part-row="" key={row} role="row">
-          {grid.columnIds.map((columnId, index) => (
-            <div
-              key={columnId}
-              role="gridcell"
-              style={{ '--slotted-data-grid-column': String(index + 1) } as CSSProperties}
-            >
-              {/* The gutters reserve their width and draw nothing: what stands
-                  in them is a chooser, a handle and a toggle, and an outline of
-                  a control nobody can press yet is a control that lies. The
-                  lengths follow the value columns, so a gutter does not shift
-                  the sequence. */}
-              {index >= gutterCount ? (
-                <Skeleton
-                  inlineSize={`${[70, 55, 80, 40, 60][(index - gutterCount) % 5]}%`}
-                  loading
-                />
-              ) : null}
-            </div>
-          ))}
+          {grid.columnIds.map((columnId, index) => {
+            const column = grid.resolved[index - gutterCount];
+
+            return (
+              <div
+                key={columnId}
+                role="gridcell"
+                {...(column?.align ? { 'data-align': column.align } : {})}
+                {...(column?.numeric ? { 'data-numeric': '' } : {})}
+                style={{ '--slotted-data-grid-column': String(index + 1) } as CSSProperties}
+              >
+                {/* The gutters reserve their width and draw nothing: what stands
+                    in them is a chooser, a handle and a toggle, and an outline
+                    of a control nobody can press yet is a control that lies.
+                    The lengths follow the value columns, so a gutter does not
+                    shift the sequence, and they step by row as well, so a
+                    column is not a stack of equal bars. */}
+                {column === undefined ? null : (
+                  <Skeleton inlineSize={placeholderWidth(row, index - gutterCount)} loading />
+                )}
+              </div>
+            );
+          })}
         </div>
       ))}
     </div>
