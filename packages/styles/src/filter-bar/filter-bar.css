@@ -1222,6 +1222,30 @@
       justify-self: start;
       padding-block: 0;
     }
+
+    /*
+     * With no chip and no pill, the row holds the summary alone: a line of a
+     * phone spent on one button, which pushed the first records down. The
+     * summary stands at the end of the search line instead, and the row of
+     * conditions comes back with the first chip or pinned field.
+     */
+    [data-ui-filter-bar]
+      > [data-part-frame]:not(:has(> [data-part-bar] > :is([data-part-chip], [data-part-pill]))) {
+      grid-template-areas:
+        'search bar'
+        'count count';
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    [data-ui-filter-bar]
+      > [data-part-frame]:not(
+        :has(> [data-part-bar] > :is([data-part-chip], [data-part-pill]))
+      ):has(> [data-part-end]:not(:empty)) {
+      grid-template-areas:
+        'search bar'
+        'end end'
+        'count count';
+    }
   }
 
   /**
