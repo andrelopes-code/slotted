@@ -545,23 +545,18 @@
     );
   }
 
-  [data-ui-switch][data-part-root][data-invalid] > [data-part-track],
-  [data-ui-switch][data-part-root][data-invalid] > [data-part-track] > [data-part-thumb] {
-    border-color: var(--slotted-switch-invalid-border-color, var(--slotted-tone-danger-border));
-    /*
-     * Width as well as color (WCAG 1.4.1), the edge `text-field` draws: in
-     * `high-contrast` the danger border is the resting edge's black. An edge
-     * inside the border of the track and of the thumb, so neither moves, in
-     * place of the thumb's resting lift; the thumb carries it where a checked
-     * track's fill would hide the track's own.
-     */
-    --_invalid-edge-width: var(
-      --slotted-switch-invalid-edge-width,
-      var(--slotted-control-invalid-edge-width, 1px)
-    );
-
-    box-shadow: inset 0 0 0 var(--_invalid-edge-width)
+  /*
+   * The outer edge of the track alone, at the width of the control border. An
+   * inset edge drew a second danger line inside the accent fill of a checked
+   * track and a ring around the thumb, in place of its own border and lift;
+   * the thumb keeps both. The edge is an outline laid over the border, so the
+   * checked, hover and pressed rules that set the border's color do not take
+   * it back, and the focus ring (in the invalid ring color) replaces it.
+   */
+  [data-ui-switch][data-part-root][data-invalid] > [data-part-track] {
+    outline: var(--_border) solid
       var(--slotted-switch-invalid-border-color, var(--slotted-tone-danger-border));
+    outline-offset: calc(-1 * var(--_border));
   }
 
   /**
@@ -679,19 +674,5 @@
   [data-ui-switch][data-part-root]:is([data-disabled], :has(> [data-part-control]:disabled))
     > [data-part-description] {
     color: var(--slotted-switch-disabled-color, var(--slotted-disabled-foreground, GrayText));
-  }
-
-  /*
-   * Forced colors remove every box shadow, and the edge with them. The width
-   * comes back as an outline inside the border, on the
-   * track and on the thumb; the focus ring takes the track and the thumb keeps
-   * its edge.
-   */
-  @media (forced-colors: active) {
-    [data-ui-switch][data-part-root][data-invalid] > [data-part-track],
-    [data-ui-switch][data-part-root][data-invalid] > [data-part-track] > [data-part-thumb] {
-      outline: var(--_invalid-edge-width) solid CanvasText;
-      outline-offset: calc(-1 * (var(--_border) + var(--_invalid-edge-width)));
-    }
   }
 }
