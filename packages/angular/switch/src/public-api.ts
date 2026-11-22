@@ -10,6 +10,7 @@ export type {
   SwitchDefaults,
   SwitchIndicator,
   SwitchLabelPlacement,
+  SwitchVariant,
   SwitchSize,
 } from './switch-defaults';
 export { SlSwitchDescription } from './switch-parts';

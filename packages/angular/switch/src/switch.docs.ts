@@ -315,6 +315,13 @@ export const ANGULAR_SWITCH_DOCS = {
         'Which side of the label the pill sits on. start is the settings row: the label takes the free width and the pill sits at the end of the row.',
       ],
       [
+        'variant',
+        "'plain' | 'control'",
+        'plain',
+        '[slSwitch], provideSwitchDefaults',
+        'control stands the switch in a box one control tall, so in a row of fields aligned to their end the pill sits on the line of their controls. --slotted-switch-control-block-size names another step than the switch size',
+      ],
+      [
         'loading',
         'boolean',
         'false',

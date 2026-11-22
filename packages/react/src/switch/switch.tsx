@@ -82,6 +82,7 @@ export function Switch({
   render,
   size,
   style,
+  variant,
   ...nativeProps
 }: SwitchProps) {
   const field = useField();
@@ -123,6 +124,7 @@ export function Switch({
   const resolvedSize = size ?? field?.size ?? defaults.size;
   const resolvedIndicator = indicator ?? defaults.indicator;
   const resolvedPlacement = labelPlacement ?? defaults.labelPlacement;
+  const resolvedVariant = variant ?? defaults.variant;
   const resolvedDisabled = disabled ?? field?.disabled;
   const resolvedReadOnly = readOnly ?? field?.readOnly;
   const resolvedInvalid = invalid ?? field?.invalid;
@@ -283,6 +285,7 @@ export function Switch({
     ...(resolvedInvalid === true ? { 'data-invalid': '' } : {}),
     ...(loading ? { 'data-loading': '' } : {}),
     'data-label-placement': resolvedPlacement,
+    'data-variant': resolvedVariant,
     'data-part': 'root',
     ...(resolvedReadOnly === true ? { 'data-readonly': '' } : {}),
     'data-size': resolvedSize,

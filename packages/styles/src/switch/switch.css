@@ -368,6 +368,37 @@
     --_gap: var(--slotted-control-label-gap-lg, 12px);
   }
 
+  /**
+   * One control tall: in a row of fields aligned to their end, the box ends
+   * where their controls end and the pill is centered on their line. The
+   * padding is what the control height leaves past the switch's own row, so a
+   * label that wraps grows the box. The height is the control of the switch's
+   * size unless `--slotted-switch-control-block-size` names another step (a
+   * small switch in a row of medium fields).
+   */
+  [data-ui-switch][data-part-root][data-variant='control'] {
+    padding-block: max(
+      0px,
+      (
+          var(--slotted-switch-control-block-size, var(--_control-height)) -
+            max(var(--_track-block), var(--_font-size) * var(--_line-height))
+        ) /
+        2
+    );
+  }
+
+  [data-ui-switch][data-part-root][data-size='sm'] {
+    --_control-height: var(--slotted-control-height-sm, 30px);
+  }
+
+  [data-ui-switch][data-part-root][data-size='md'] {
+    --_control-height: var(--slotted-control-height-md, 34px);
+  }
+
+  [data-ui-switch][data-part-root][data-size='lg'] {
+    --_control-height: var(--slotted-control-height-lg, 38px);
+  }
+
   /* ── States ───────────────────────────────────────────────────────────
    *
    * Written strongest last, and each weaker one guarded against every stronger

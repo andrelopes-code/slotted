@@ -282,9 +282,15 @@ describe('SlSwitch', () => {
 
   it('lets an application decide once what its switches look like', () => {
     const fixture = renderTemplate(`<span slSwitch defaultChecked>Alertas</span>`, [
-      provideSwitchDefaults({ indicator: 'none', labelPlacement: 'start', size: 'sm' }),
+      provideSwitchDefaults({
+        indicator: 'none',
+        labelPlacement: 'start',
+        size: 'sm',
+        variant: 'control',
+      }),
     ]);
 
+    expect(root(fixture).getAttribute('data-variant')).toBe('control');
     expect(root(fixture).getAttribute('data-size')).toBe('sm');
     expect(root(fixture).getAttribute('data-indicator')).toBe('none');
     expect(query(fixture, '[data-part="thumb"] svg[data-glyph]')).toBeNull();

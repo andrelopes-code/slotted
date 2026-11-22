@@ -32,10 +32,20 @@ import {
   SlSwitchIdFactory,
   SWITCH_LOADING_ANNOUNCE_DELAY,
 } from './switch-defaults';
-import type { SwitchIndicator, SwitchLabelPlacement, SwitchSize } from './switch-defaults';
+import type {
+  SwitchIndicator,
+  SwitchLabelPlacement,
+  SwitchSize,
+  SwitchVariant,
+} from './switch-defaults';
 import { SlSwitchDescription } from './switch-parts';
 
-export type { SwitchIndicator, SwitchLabelPlacement, SwitchSize } from './switch-defaults';
+export type {
+  SwitchIndicator,
+  SwitchLabelPlacement,
+  SwitchSize,
+  SwitchVariant,
+} from './switch-defaults';
 
 /**
  * Why the switch moved, read from the event rather than guessed. A pointer
@@ -119,6 +129,7 @@ export function activationReason(activation: { detail: number; isTrusted: boolea
     '[attr.data-size]': 'resolvedSize()',
     '[attr.data-indicator]': 'resolvedIndicator()',
     '[attr.data-label-placement]': 'resolvedLabelPlacement()',
+    '[attr.data-variant]': 'resolvedVariant()',
     '[attr.data-checked]': "checked() ? '' : null",
     '[attr.data-disabled]': "resolvedDisabled() === true ? '' : null",
     '[attr.data-readonly]': "resolvedReadOnly() === true ? '' : null",
@@ -140,6 +151,11 @@ export class SlSwitch implements ControlValueAccessor, OnInit {
   readonly size = input<SwitchSize | undefined>(undefined);
   readonly indicator = input<SwitchIndicator | undefined>(undefined);
   readonly labelPlacement = input<SwitchLabelPlacement | undefined>(undefined);
+  /**
+   * `control` stands the switch in a box one control tall, so in a row of
+   * fields aligned to their end its pill sits on the line of their controls.
+   */
+  readonly variant = input<SwitchVariant | undefined>(undefined);
   /**
    * The value is not settled yet. Activation is refused, the geometry does not
    * change, and the pending label is announced politely once the wait is worth
@@ -218,6 +234,7 @@ export class SlSwitch implements ControlValueAccessor, OnInit {
   readonly resolvedLabelPlacement = computed(
     () => this.labelPlacement() ?? this.defaults.labelPlacement,
   );
+  readonly resolvedVariant = computed(() => this.variant() ?? this.defaults.variant);
   readonly resolvedDisabled = computed(
     () => this.disabled() ?? this.formDisabled() ?? this.field?.resolvedDisabled(),
   );

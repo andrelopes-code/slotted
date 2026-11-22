@@ -19,6 +19,14 @@ export type SwitchIndicator = 'mark' | 'none';
 export type SwitchLabelPlacement = 'end' | 'start';
 
 /**
+ * The box the switch stands in. `plain` is as tall as its pill and its label,
+ * for a stack of settings; `control` is one control of its size tall, with the
+ * pill and the label centered in it, for a row of fields whose controls share
+ * one line.
+ */
+export type SwitchVariant = 'plain' | 'control';
+
+/**
  * How long a pending switch stays silent. A save that returns in two hundred
  * milliseconds should say nothing at all, and a live region that spoke on
  * every toggle would make a settings page unusable with a screen reader.
@@ -33,12 +41,14 @@ export interface SwitchDefaults {
   indicator: SwitchIndicator;
   labelPlacement: SwitchLabelPlacement;
   size: SwitchSize;
+  variant: SwitchVariant;
 }
 
 const FALLBACK: SwitchDefaults = {
   indicator: 'mark',
   labelPlacement: 'end',
   size: 'md',
+  variant: 'plain',
 };
 
 export const SWITCH_DEFAULTS = new InjectionToken<SwitchDefaults>('slotted switch defaults', {

@@ -147,14 +147,21 @@ test('resolves every axis from the prop, then the field, then the application', 
     size: ['sm', 'md', 'lg'],
     indicator: ['mark', 'none'],
     labelPlacement: ['end', 'start'],
+    variant: ['plain', 'control'],
   });
   assert.deepEqual(contract.resolution.size, ['prop', 'field', 'defaults', 'md']);
   assert.deepEqual(contract.resolution.indicator, ['prop', 'defaults', 'mark']);
   assert.deepEqual(contract.resolution.labelPlacement, ['prop', 'defaults', 'end']);
+  assert.deepEqual(contract.resolution.variant, ['prop', 'defaults', 'plain']);
 });
 
 test('lets an application decide once what its switches look like', () => {
-  assert.deepEqual(contract.provides.switchDefaults, ['size', 'indicator', 'labelPlacement']);
+  assert.deepEqual(contract.provides.switchDefaults, [
+    'size',
+    'indicator',
+    'labelPlacement',
+    'variant',
+  ]);
 });
 
 /**

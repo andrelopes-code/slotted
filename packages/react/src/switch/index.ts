@@ -10,6 +10,7 @@ export type {
   SwitchDefaultsProviderProps,
   SwitchIndicator,
   SwitchLabelPlacement,
+  SwitchVariant,
   SwitchProps,
   SwitchRootProps,
   SwitchSize,

@@ -21,6 +21,14 @@ export type SwitchIndicator = 'mark' | 'none';
 export type SwitchLabelPlacement = 'end' | 'start';
 
 /**
+ * The box the switch stands in. `plain` is as tall as its pill and its label,
+ * for a stack of settings; `control` is one control of its size tall, with the
+ * pill and the label centered in it, for a row of fields whose controls share
+ * one line.
+ */
+export type SwitchVariant = 'plain' | 'control';
+
+/**
  * Why the switch moved. A pointer press reports a click count; Space reports
  * none but is trusted; `element.click()` reports neither.
  */
@@ -34,6 +42,7 @@ export interface SwitchDefaults {
   indicator: SwitchIndicator;
   labelPlacement: SwitchLabelPlacement;
   size: SwitchSize;
+  variant: SwitchVariant;
 }
 
 export interface SwitchDefaultsProviderProps extends Partial<SwitchDefaults> {
@@ -56,6 +65,7 @@ export interface SwitchRootProps extends HTMLAttributes<HTMLElement> {
   'data-readonly'?: '' | undefined;
   'data-size': SwitchSize;
   'data-ui': string;
+  'data-variant': SwitchVariant;
 }
 
 /**
@@ -106,6 +116,12 @@ export interface SwitchProps extends Omit<
   invalid?: boolean | undefined;
   /** Which side of the label the pill sits on. Defaults to the provider, then to `end`. */
   labelPlacement?: SwitchLabelPlacement | undefined;
+  /**
+   * `control` stands the switch in a box one control tall, so in a row of
+   * fields aligned to their end its pill sits on the line of their controls.
+   * Defaults to the provider, then to `plain`.
+   */
+  variant?: SwitchVariant | undefined;
   /**
    * The value is not settled yet. Activation is refused, the geometry does not
    * change, and the pending label is announced politely after two seconds.

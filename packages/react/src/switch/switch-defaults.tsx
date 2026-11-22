@@ -17,6 +17,7 @@ const FALLBACK: SwitchDefaults = {
   indicator: 'mark',
   labelPlacement: 'end',
   size: 'md',
+  variant: 'plain',
 };
 
 const SwitchDefaultsContext = createContext<SwitchDefaults>(FALLBACK);
@@ -47,6 +48,7 @@ export function SwitchDefaultsProvider({ children, ...defaults }: SwitchDefaults
         indicator: defaults.indicator ?? inherited.indicator,
         labelPlacement: defaults.labelPlacement ?? inherited.labelPlacement,
         size: defaults.size ?? inherited.size,
+        variant: defaults.variant ?? inherited.variant,
       }}
     >
       {children}
