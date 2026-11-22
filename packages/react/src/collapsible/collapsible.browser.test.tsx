@@ -2,6 +2,8 @@ import { render } from '@testing-library/react';
 import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
 
+import { Inline } from '../inline';
+import { Tag } from '../tag';
 import { Collapsible } from './collapsible';
 import { CollapsibleHeader, CollapsiblePanel, CollapsibleTrigger } from './collapsible-parts';
 import type { CollapsibleSize } from './collapsible.types';
@@ -125,5 +127,68 @@ describe('a trigger with a summary', () => {
     expect(part.scrollWidth).toBeGreaterThan(part.clientWidth);
     expect(label.height).toBeLessThan(30);
     expect(summary.right).toBeLessThanOrEqual(indicator.left);
+  });
+});
+
+describe('a framed collapsible', () => {
+  it('occupies the width of its container, border included', () => {
+    const { container } = render(
+      <div style={{ display: 'grid', inlineSize: 300 }}>
+        <Collapsible variant="framed">
+          <CollapsibleHeader>
+            <CollapsibleTrigger>More</CollapsibleTrigger>
+          </CollapsibleHeader>
+          <CollapsiblePanel>Body</CollapsiblePanel>
+        </Collapsible>
+      </div>,
+    );
+    const root = container.querySelector<HTMLElement>('[data-ui="collapsible"]')!;
+
+    expect(root.getBoundingClientRect().width).toBe(300);
+  });
+});
+
+describe('a label that holds an element taller than its line', () => {
+  it.each<CollapsibleSize>(['sm', 'md', 'lg'])(
+    'centers the indicator on the label at size %s',
+    (size) => {
+      const { container } = render(
+        <Collapsible size={size} variant="framed">
+          <CollapsibleHeader>
+            <CollapsibleTrigger>
+              <Inline gap={3}>
+                <span>Other</span>
+                <Tag size="sm">32</Tag>
+              </Inline>
+            </CollapsibleTrigger>
+          </CollapsibleHeader>
+          <CollapsiblePanel>Body</CollapsiblePanel>
+        </Collapsible>,
+      );
+      const indicator = container.querySelector('[data-part="indicator"]')!;
+      const label = container.querySelector('[data-part="label"]')!;
+
+      expect(Math.abs(center(indicator) - center(label))).toBeLessThan(1);
+    },
+  );
+
+  it('keeps the indicator on the first line of a title that wraps', () => {
+    const { container } = render(
+      <div style={{ inlineSize: 160 }}>
+        <Collapsible>
+          <CollapsibleHeader>
+            <CollapsibleTrigger>A title long enough to wrap onto three lines here</CollapsibleTrigger>
+          </CollapsibleHeader>
+          <CollapsiblePanel>Body</CollapsiblePanel>
+        </Collapsible>
+      </div>,
+    );
+    const indicator = container.querySelector('[data-part="indicator"]')!;
+    const label = container.querySelector<HTMLElement>('[data-part="label"]')!;
+    const line = parseFloat(getComputedStyle(label).lineHeight);
+    const firstLine = label.getBoundingClientRect().top + line / 2;
+
+    expect(label.getBoundingClientRect().height).toBeGreaterThan(line * 2);
+    expect(Math.abs(center(indicator) - firstLine)).toBeLessThan(1);
   });
 });

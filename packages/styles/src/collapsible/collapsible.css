@@ -72,6 +72,8 @@
      */
     inline-size: 100%;
     min-inline-size: 0;
+    /* The framed border sits inside that width, not beside it. */
+    box-sizing: border-box;
   }
 
   [data-ui-collapsible][data-size='sm'] {
@@ -301,17 +303,35 @@
      * inherits the trigger's font and line-height, so the line it measures is
      * the line the title sets. The mark keeps its own row: spanning both put it
      * in a box the description made taller, which is what centerd it there.
+     *
+     * The mark is one line of the title tall, centered in it, and shares the
+     * title's first baseline: `::before` gives the box the baseline of that
+     * line. A fixed offset from the top missed the line whenever the title
+     * held an element taller than it (a tag with a count), which centers the
+     * text lower in the label box.
      */
     --slotted-icon-size: var(--_icon-size);
-    align-self: start;
-    block-size: var(--_icon-size);
+    align-items: center;
+    align-self: first baseline;
+    block-size: 1lh;
     color: var(--slotted-collapsible-indicator-color, currentColor);
     display: flex;
     flex: none;
     grid-column: 2;
     grid-row: 1;
     inline-size: var(--_icon-size);
-    margin-block-start: calc((1lh - var(--_icon-size)) / 2);
+  }
+
+  [data-ui-collapsible]
+    > [data-part-header]
+    > [data-part-trigger]
+    > [data-part-indicator]::before {
+    content: '\200b';
+    inline-size: 0;
+  }
+
+  [data-ui-collapsible] > [data-part-header] > [data-part-trigger] > [data-part-label] {
+    align-self: first baseline;
   }
 
   [data-ui-collapsible]

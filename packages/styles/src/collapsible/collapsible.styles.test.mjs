@@ -108,14 +108,14 @@ test('draws the indicator with the Glyph element rather than a mask or a charact
  * indicator of its own and inherits this one.
  *
  * `1lh` resolves against the element's own line box, so the mark has to inherit
- * the trigger's font and line-height for the margin to be half of *the title's*
- * line; it states neither, which is what makes the arithmetic hold.
+ * the trigger's font and line-height for its box to be *the title's* line; it
+ * states neither, which is what makes the arithmetic hold.
  */
 test('sits the mark on the first line of the title, not on the middle of the trigger', () => {
   const indicator = rule(`${ui}>[data-part-header]>[data-part-trigger]>[data-part-indicator]`);
-  assert.match(indicator, /align-self:start/);
+  assert.match(indicator, /align-self:first baseline/);
   assert.match(indicator, /grid-row:1(?!\s*\/)/);
-  assert.match(indicator, /margin-block-start:calc\(\(1lh - var\(--_icon-size\)\) \/ 2\)/);
+  assert.match(indicator, /block-size:1lh/);
   assert.ok(!/font-size:/.test(indicator), 'the mark sets a type size the line does not have');
   assert.ok(!/line-height:/.test(indicator), 'the mark sets a line the title does not set');
 });
