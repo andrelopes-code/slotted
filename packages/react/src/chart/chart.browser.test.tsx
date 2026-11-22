@@ -269,3 +269,39 @@ describe('a theme whose colors are not rgb()', () => {
     });
   });
 });
+
+describe('a small chart with a category axis', () => {
+  it('keeps the lowest value label clear of the first category label', async () => {
+    const percent = (value: number) => `${value.toFixed(2)}%`;
+    const { container } = render(
+      <div style={{ inlineSize: 330 }}>
+        <Chart
+          data={Array.from({ length: 12 }, (_, index) => ({
+            month: `nov-${2021 + index}`,
+            value: index % 2 === 0 ? -3 + index * 0.5 : 2 - index * 0.2,
+          }))}
+          renderer="svg"
+          series={[{ id: 'v', kind: 'line', field: 'value', label: 'Value', format: percent }]}
+          size="sm"
+          x={{ field: 'month' }}
+          y={{ format: percent }}
+        />
+      </div>,
+    );
+    const texts = await vi.waitFor(() => {
+      const found = [...container.querySelectorAll('svg text')];
+      expect(found.some((text) => text.textContent === 'nov-2021')).toBe(true);
+      return found;
+    });
+    const first = texts.find((text) => text.textContent === 'nov-2021')!.getBoundingClientRect();
+    const values = texts
+      .filter((text) => /%$/.test(text.textContent ?? ''))
+      .map((text) => text.getBoundingClientRect());
+    const lowest = values.reduce((low, box) => (box.bottom > low.bottom ? box : low));
+    const overlap =
+      Math.min(first.right, lowest.right) > Math.max(first.left, lowest.left) &&
+      Math.min(first.bottom, lowest.bottom) > Math.max(first.top, lowest.top);
+
+    expect(overlap).toBe(false);
+  });
+});

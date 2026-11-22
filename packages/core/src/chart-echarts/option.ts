@@ -424,6 +424,10 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
       fontFamily: theme.fontFamily,
       margin: theme.inset,
       hideOverlap: true,
+      /* Upright, the lowest label stands on the axis line rather than across
+         it: centered on the line, its lower half met the first category label
+         hanging from the same line at the plot's corner. */
+      ...(horizontal ? {} : { verticalAlignMinLabel: 'bottom' }),
       formatter: (value: number) => axis.format(value),
     },
     splitLine: splitLine(
