@@ -46,14 +46,32 @@ export class SlPromptComposerFooter {}
   selector: 'button[slPromptComposerAction]',
   standalone: true,
   exportAs: 'slPromptComposerAction',
-  host: { 'data-part': 'action', 'data-part-action': '', '[attr.type]': 'type' },
+  host: {
+    'data-part': 'action',
+    'data-part-action': '',
+    '[attr.data-icon-only]': 'iconOnly() ? "" : null',
+    '[attr.type]': 'type',
+  },
 })
 export class SlPromptComposerAction {
   protected readonly type = inject(new HostAttributeToken('type'), { optional: true }) ?? 'button';
+  /** Square when the button holds no words, whatever names it. */
+  protected readonly iconOnly = signal(false);
 
   constructor() {
     const element: HTMLElement = inject(ElementRef).nativeElement;
-    afterNextRender(() => writeSelectorKey(element, 'part', 'action'));
+    const destroy = inject(DestroyRef);
+
+    afterNextRender(() => {
+      writeSelectorKey(element, 'part', 'action');
+
+      const read = () => this.iconOnly.set((element.textContent ?? '').trim() === '');
+      read();
+      if (typeof MutationObserver === 'undefined') return;
+      const watch = new MutationObserver(read);
+      watch.observe(element, { childList: true, characterData: true, subtree: true });
+      destroy.onDestroy(() => watch.disconnect());
+    });
   }
 }
 

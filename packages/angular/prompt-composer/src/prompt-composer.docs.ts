@@ -64,7 +64,7 @@ const anatomy: AnatomyRow[] = [
     element: 'button[slPromptComposerAction]',
     required: false,
     purpose:
-      'A button of the consumer’s in a band: a model menu, a tool, Cancelar. Round when named by aria-label, a pill when named by its words; aria-expanded="true" keeps it pressed while its menu is open.',
+      'A button of the consumer’s in a band: a model menu, a tool, Cancelar. Round when it holds no words (an icon alone), a pill when it holds words, whether or not an aria-label names it; aria-expanded="true" keeps it pressed while its menu is open.',
   },
   {
     part: 'attach',

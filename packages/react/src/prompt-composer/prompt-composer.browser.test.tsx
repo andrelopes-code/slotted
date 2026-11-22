@@ -3,11 +3,14 @@ import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
+import { Glyph, Icon } from '../icon';
 import {
   PromptComposer,
   PromptComposerAction,
+  PromptComposerAttach,
   PromptComposerFooter,
   PromptComposerInput,
+  PromptComposerSubmit,
 } from './index';
 
 const MOTION = { '--slotted-duration-loop-slow': '4s' } as CSSProperties;
@@ -78,4 +81,87 @@ describe('the glow of the emphasis ring', () => {
     expect(halo.top).toBeGreaterThanOrEqual(outer.top - 2);
     expect(halo.bottom).toBeLessThanOrEqual(outer.bottom + 2);
   });
+});
+
+describe('a text action named by aria-label', () => {
+  it('keeps the padding, color and weight of a text action', () => {
+    render(
+      <PromptComposer>
+        <PromptComposerInput aria-label="Message" />
+        <PromptComposerFooter>
+          <PromptComposerAction aria-label="Model: gpt-5">gpt-5</PromptComposerAction>
+          <PromptComposerAction>gpt-4</PromptComposerAction>
+          <PromptComposerAction aria-label="Search">
+            <Icon>
+              <Glyph name="search-x" />
+            </Icon>
+          </PromptComposerAction>
+        </PromptComposerFooter>
+      </PromptComposer>,
+    );
+    const named = getComputedStyle(screen.getByRole('button', { name: 'Model: gpt-5' }));
+    const plain = getComputedStyle(screen.getByRole('button', { name: 'gpt-4' }));
+    const icon = getComputedStyle(screen.getByRole('button', { name: 'Search' }));
+
+    expect(parseFloat(named.paddingInlineStart)).toBeGreaterThan(0);
+    expect(named.paddingInlineStart).toBe(plain.paddingInlineStart);
+    expect(named.color).toBe(plain.color);
+    expect(named.fontWeight).toBe(plain.fontWeight);
+    expect(icon.paddingInlineStart).toBe('0px');
+  });
+});
+
+describe('the round buttons of the footer at a root other than 16px', () => {
+  it.each(['14px', '15px'])('measure whole pixels at a %s root', (size) => {
+    document.documentElement.style.fontSize = size;
+    try {
+      render(
+        <PromptComposer value="">
+          <PromptComposerInput aria-label="Message" />
+          <PromptComposerFooter>
+            <PromptComposerAttach />
+            <PromptComposerSubmit />
+          </PromptComposerFooter>
+        </PromptComposer>,
+      );
+      for (const part of ['submit', 'attach']) {
+        const box = document.querySelector(`[data-part="${part}"]`)!.getBoundingClientRect();
+        expect(Number.isInteger(box.width), `${part} width ${box.width}`).toBe(true);
+        expect(Number.isInteger(box.height), `${part} height ${box.height}`).toBe(true);
+      }
+    } finally {
+      document.documentElement.style.fontSize = '';
+    }
+  });
+});
+
+describe('content beside the input', () => {
+  it.each(['sm', 'md', 'lg'] as const)(
+    'starts on the edge of the value text through the published inset at %s',
+    (size) => {
+      render(
+        <PromptComposer size={size} value="">
+          <PromptComposerInput aria-label="Message" />
+          <div
+            data-testid="line"
+            style={{ paddingInline: 'var(--slotted-prompt-composer-content-inset)' }}
+          >
+            One line under the input
+          </div>
+          <PromptComposerFooter>
+            <PromptComposerSubmit />
+          </PromptComposerFooter>
+        </PromptComposer>,
+      );
+      const input = screen.getByRole('textbox', { name: 'Message' });
+      const line = screen.getByTestId('line');
+      const start = (element: HTMLElement) =>
+        element.getBoundingClientRect().left +
+        parseFloat(getComputedStyle(element).paddingInlineStart) +
+        parseFloat(getComputedStyle(element).borderInlineStartWidth);
+
+      expect(parseFloat(getComputedStyle(line).paddingInlineStart)).toBeGreaterThan(0);
+      expect(start(line)).toBeCloseTo(start(input), 2);
+    },
+  );
 });

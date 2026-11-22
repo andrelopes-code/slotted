@@ -12,7 +12,15 @@ import type { Dictation } from '@slotted/core/dictation';
 import { getLiveAnnouncer } from '@slotted/core/live-announcer';
 import { createControllable } from '@slotted/core/state';
 import { selectFiles } from '@slotted/core/upload';
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import {
+  createContext,
+  Fragment,
+  isValidElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import type {
   ChangeEvent,
   ClipboardEvent,
@@ -20,6 +28,7 @@ import type {
   SubmitEvent,
   KeyboardEvent,
   MouseEvent,
+  ReactNode,
   RefObject,
 } from 'react';
 
@@ -402,7 +411,7 @@ export function PromptComposerInput({
 
 /**
  * A button of the consumer's in a band: a model menu, a tool, Cancelar.
- * Square when named by `aria-label`, padded when named by its words; a
+ * Square when it holds no words, padded when it does, whatever names it; a
  * `MenuTrigger` hands it its wiring through its own `render`.
  */
 export function PromptComposerAction({
@@ -410,7 +419,13 @@ export function PromptComposerAction({
   type = 'button',
   ...nativeProps
 }: PromptComposerActionProps) {
-  const props = keyedProps({ ...nativeProps, 'data-part': 'action' as const, type });
+  const props = keyedProps({
+    ...nativeProps,
+    'data-icon-only': holdsText(nativeProps.children) ? undefined : '',
+    'data-part': 'action' as const,
+    type,
+  });
+
   return render === undefined ? <button {...props} /> : render(props);
 }
 
@@ -590,4 +605,16 @@ export function PromptComposerSubmit({
         ))}
     </button>
   );
+}
+
+/** Whether a node draws words: a string or a number, at any depth of arrays and fragments. */
+function holdsText(node: ReactNode): boolean {
+  if (typeof node === 'string') return node.trim() !== '';
+  if (typeof node === 'number' || typeof node === 'bigint') return true;
+  if (Array.isArray(node)) return node.some(holdsText);
+  if (isValidElement<{ children?: ReactNode }>(node) && node.type === Fragment) {
+    return holdsText(node.props.children);
+  }
+
+  return false;
 }

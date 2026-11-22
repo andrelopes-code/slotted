@@ -44,6 +44,14 @@
      * put the text five pixels inside the paperclip at `md`.
      */
     --_padding-inline: calc(var(--_inset) + (var(--_button) - var(--_icon-size)) / 2);
+    /**
+     * Published, not read: the inset of the value's text, for content of the
+     * consumer's placed beside the input (attachments above it, a line of help
+     * under it) to start on the same edge. Written on the root, so a theme
+     * that sets it is overridden; the inherited value follows the size and the
+     * variant.
+     */
+    --slotted-prompt-composer-content-inset: var(--_padding-inline);
     /* One row of the composer in a form is one row of a text field. */
     --_padding-block: max(0px, calc((var(--_height) - 1lh) / 2));
     --_radius: var(--slotted-prompt-composer-radius, var(--slotted-radius-lg, 8px));
@@ -110,7 +118,9 @@
    * that do not agree.
    */
   [data-ui-prompt-composer][data-part-root][data-variant='raised'] {
-    --_button: calc(var(--_inner-size) + var(--slotted-space-2, 0.25rem));
+    /* Rounded: a sum of pixels and rems is a half pixel at a root other than
+       16px, and a circle on a half pixel has an uneven edge. */
+    --_button: round(up, calc(var(--_inner-size) + var(--slotted-space-2, 0.25rem)), 1px);
     --_inset: var(--slotted-space-4, 0.5rem);
     --_padding-block: calc(var(--_inset) + var(--slotted-space-2, 0.25rem));
     --_radius: var(--slotted-prompt-composer-radius, calc(var(--_button) / 2 + var(--_inset)));
@@ -231,8 +241,9 @@
    *
    * `action` is the consumer's, `attach` the family's: both are R2 inner
    * controls — no frame, no ground at rest, one step of ground for hover and
-   * one for press, and the ink never moves. Square when named by aria-label,
-   * padded when named by their own words, the rule `text-field` set; round
+   * one for press, and the ink never moves. Square when they hold no words
+   * (`data-icon-only`, written by the binding), padded when they do, whatever
+   * names them: an aria-label gives a text action context, not a shape; round
    * in the chat composer, a pill when they carry words.
    */
   [data-ui-prompt-composer]
@@ -266,7 +277,7 @@
 
   [data-ui-prompt-composer]
     > :is([data-part-header], [data-part-footer])
-    > [data-part-action]:not([aria-label], [aria-labelledby]) {
+    > [data-part-action]:not([data-icon-only]) {
     color: var(--slotted-prompt-composer-action-label-color, var(--slotted-text, CanvasText));
     font-weight: var(--slotted-font-weight-medium, 500);
     padding-inline: var(--slotted-space-3, 0.375rem);
@@ -286,7 +297,7 @@
    */
   [data-ui-prompt-composer]
     > :is([data-part-header], [data-part-footer])
-    > [data-part-action]:not([aria-label], [aria-labelledby]) {
+    > [data-part-action]:not([data-icon-only]) {
     align-content: center;
     align-items: baseline;
     display: inline-grid;
@@ -296,7 +307,7 @@
 
   [data-ui-prompt-composer]
     > :is([data-part-header], [data-part-footer])
-    > [data-part-action]:not([aria-label], [aria-labelledby])
+    > [data-part-action]:not([data-icon-only])
     > [data-ui-icon] {
     margin-block-start: calc((1cap + 1ex) / 4 - var(--_icon-size) / 2);
     translate: 0 calc(var(--_icon-size) / 2 - (1cap + 1ex) / 4);
@@ -305,7 +316,7 @@
   /* A pill carries its words a step further from its round ends. */
   [data-ui-prompt-composer][data-variant='raised']
     > :is([data-part-header], [data-part-footer])
-    > [data-part-action]:not([aria-label], [aria-labelledby]) {
+    > [data-part-action]:not([data-icon-only]) {
     padding-inline: var(--slotted-space-4, 0.5rem);
   }
 

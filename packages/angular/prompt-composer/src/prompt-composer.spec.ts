@@ -167,6 +167,22 @@ describe('SlPromptComposer', () => {
     expect(root(fixture).querySelector('[data-part="ring"]')).toBeNull();
   });
 
+  it('marks an action square by its content, not by the name an aria-label gives it', () => {
+    const fixture = renderTemplate(`
+      <form slPromptComposer>
+        <textarea slPromptComposerInput aria-label="Message"></textarea>
+        <div slPromptComposerFooter>
+          <button slPromptComposerAction aria-label="Model: gpt-5">gpt-5</button>
+          <button slPromptComposerAction aria-label="Search"><span></span></button>
+        </div>
+      </form>`);
+    fixture.detectChanges();
+    const actions = root(fixture).querySelectorAll('[data-part="action"]');
+
+    expect(actions[0]?.hasAttribute('data-icon-only')).toBe(false);
+    expect(actions[1]?.hasAttribute('data-icon-only')).toBe(true);
+  });
+
   it('draws the ring and the glow, hidden from assistive technology, when asked', () => {
     const fixture = renderTemplate(
       COMPOSER.replace('slPromptComposer [status]', 'slPromptComposer emphasis="ring" [status]'),
