@@ -37,6 +37,35 @@ describe('a checkbox on a row of controls', () => {
   });
 });
 
+describe('a label that does not wrap', () => {
+  it('shrinks to its column, so a child that cuts with an ellipsis cuts', () => {
+    const { container } = render(
+      <div style={{ inlineSize: 200 }}>
+        <Checkbox description="18/11/2026">
+          <span
+            style={{
+              display: 'block',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            A description far longer than the two hundred pixels of its container
+          </span>
+        </Checkbox>
+      </div>,
+    );
+    const root = container.querySelector<HTMLElement>('[data-ui="checkbox"][data-part="root"]')!;
+    const label = root.querySelector<HTMLElement>('[data-part="label"]')!;
+    const text = label.querySelector('span')!;
+
+    expect(label.getBoundingClientRect().right).toBeLessThanOrEqual(
+      root.getBoundingClientRect().right + 0.5,
+    );
+    expect(text.scrollWidth).toBeGreaterThan(text.clientWidth);
+  });
+});
+
 const DENSITIES = [
   { gap: '12px', height: '34px' },
   { gap: '8px', height: '28px' },
