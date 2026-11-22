@@ -7,6 +7,7 @@ export type {
   ListItemAlign,
   ListItemCurrent,
   ListItemDefaults,
+  ListItemEndPlacement,
   ListItemSize,
   ListItemTone,
 } from './list-item-defaults';

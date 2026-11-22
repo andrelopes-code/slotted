@@ -330,6 +330,13 @@ export const ANGULAR_LIST_ITEM_DOCS = {
         'Where the leading visual and the metadata sit against a row of more than one line',
       ],
       [
+        'endPlacement',
+        "'auto' | 'beside'",
+        'auto',
+        'slListItem',
+        'Where the end goes in a row narrower than 22rem: under the title, or on its line for a figure that belongs beside its name',
+      ],
+      [
         'inset',
         'boolean',
         'false',
@@ -341,7 +348,7 @@ export const ANGULAR_LIST_ITEM_DOCS = {
         'boolean',
         'false',
         'slListItem',
-        'Clips the title and the lines under it to one line each. The whole string stays in the document',
+        'Clips the title and the lines under it to one line each, and keeps the body 10rem wide (--slotted-list-item-body-min-inline-size) before the end and the actions, so the row has one height per size. The whole string stays in the document',
       ],
       [
         'selected',
@@ -408,10 +415,10 @@ export const ANGULAR_LIST_ITEM_DOCS = {
       ],
       [
         'provideListItemDefaults',
-        '{ tone, size, align, inset, truncate }',
+        '{ tone, size, align, endPlacement, inset, truncate }',
         '—',
         'an injector',
-        'Sets the five once for every row under it; an explicit input still wins',
+        'Sets the six once for every row under it; an explicit input still wins',
       ],
     ]),
     accessibility: [

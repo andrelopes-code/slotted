@@ -557,6 +557,29 @@
     white-space: nowrap;
   }
 
+  /*
+   * One line per text is one height per row only if the body keeps a width:
+   * the end and the actions never shrink, and at 358px a long tag and a
+   * button left the title under twenty pixels, one letter per line. The body
+   * keeps `--slotted-list-item-body-min-inline-size` (10rem, never more than
+   * the row), and the end gives up the rest and cuts its own content.
+   */
+  [data-ui-list-item][data-truncate] > [data-part-content] {
+    grid-template-columns:
+      auto
+      minmax(min(100%, var(--slotted-list-item-body-min-inline-size, 10rem)), 1fr)
+      minmax(0, auto);
+  }
+
+  [data-ui-list-item][data-truncate] > [data-part-content] > [data-part-end] {
+    min-inline-size: 0;
+    overflow: hidden;
+  }
+
+  [data-ui-list-item][data-truncate]:has(> [data-part-actions]) > [data-part-content] {
+    flex: 1 1 0;
+  }
+
   /**
    * The metadata that belongs to what the row says — a timestamp, a count, a
    * badge. It is inside `content`, so it is part of the row's own name for a
@@ -888,14 +911,17 @@
    * is invalid CSS — `docs/token-foundation.md` rule 4.
    */
   @container slotted-list-item (max-inline-size: 22rem) {
-    [data-ui-list-item] > [data-part-content] {
+    /* `endPlacement="beside"` keeps the end on the title's line: a figure
+       that belongs beside its name (an amount, a balance) stays in the column
+       of figures of the rows above and below. */
+    [data-ui-list-item]:not([data-end-placement='beside']) > [data-part-content] {
       grid-template-areas:
         'start body'
         'start end';
       grid-template-columns: auto minmax(0, 1fr);
     }
 
-    [data-ui-list-item] > [data-part-content] > [data-part-end] {
+    [data-ui-list-item]:not([data-end-placement='beside']) > [data-part-content] > [data-part-end] {
       justify-content: start;
       margin-block-start: var(--slotted-list-item-body-gap, var(--slotted-space-1, 0.125rem));
       margin-inline-start: 0;
@@ -903,7 +929,9 @@
 
     /* The leading visual now spans two rows, so it stops being centerd on the
        block and returns to the title's line. */
-    [data-ui-list-item] > [data-part-content] > [data-part-start] {
+    [data-ui-list-item]:not([data-end-placement='beside'])
+      > [data-part-content]
+      > [data-part-start] {
       align-self: start;
       min-block-size: calc(var(--_font-size) * var(--slotted-line-height-md, 1.5));
     }

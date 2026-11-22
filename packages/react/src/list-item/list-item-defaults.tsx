@@ -4,6 +4,7 @@ import type { ListItemDefaults, ListItemDefaultsProviderProps } from './list-ite
 
 const FALLBACK: ListItemDefaults = {
   align: 'center',
+  endPlacement: 'auto',
   inset: false,
   size: 'md',
   tone: 'secondary',
@@ -29,6 +30,7 @@ export function ListItemDefaultsProvider({ children, ...defaults }: ListItemDefa
     <ListItemDefaultsContext.Provider
       value={{
         align: defaults.align ?? inherited.align,
+        endPlacement: defaults.endPlacement ?? inherited.endPlacement,
         inset: defaults.inset ?? inherited.inset,
         size: defaults.size ?? inherited.size,
         tone: defaults.tone ?? inherited.tone,

@@ -12,6 +12,7 @@ export {
 } from './list-item-parts';
 export type {
   ListItemAlign,
+  ListItemEndPlacement,
   ListItemButtonProps,
   ListItemButtonRootProps,
   ListItemContentProps,

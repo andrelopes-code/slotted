@@ -39,6 +39,7 @@ export function ListItem({
   children,
   current = false,
   disabled = false,
+  endPlacement,
   inset,
   loading = false,
   marker,
@@ -56,6 +57,7 @@ export function ListItem({
   const list = useList();
 
   const resolvedAlign = align ?? defaults.align;
+  const resolvedEndPlacement = endPlacement ?? defaults.endPlacement;
   const resolvedInset = (inset ?? list?.inset ?? defaults.inset) === true;
   const resolvedMarker = marker ?? list?.marker ?? 'none';
   const resolvedSize = size ?? list?.size ?? defaults.size;
@@ -90,6 +92,7 @@ export function ListItem({
     ...(selected ? { 'data-selected': '' } : {}),
     ...(resolvedTruncate ? { 'data-truncate': '' } : {}),
     'data-align': resolvedAlign,
+    'data-end-placement': resolvedEndPlacement,
     'data-marker': resolvedMarker,
     'data-part': 'root',
     'data-size': resolvedSize,

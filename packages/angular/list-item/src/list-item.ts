@@ -18,6 +18,7 @@ import { injectListItemDefaults } from './list-item-defaults';
 import type {
   ListItemAlign,
   ListItemCurrent,
+  ListItemEndPlacement,
   ListItemSize,
   ListItemTone,
 } from './list-item-defaults';
@@ -25,6 +26,7 @@ import type {
 export type {
   ListItemAlign,
   ListItemCurrent,
+  ListItemEndPlacement,
   ListItemSize,
   ListItemTone,
 } from './list-item-defaults';
@@ -70,6 +72,7 @@ export type {
     '[attr.data-size]': 'resolvedSize()',
     '[attr.data-marker]': 'resolvedMarker()',
     '[attr.data-align]': 'resolvedAlign()',
+    '[attr.data-end-placement]': 'resolvedEndPlacement()',
     '[attr.data-tone]': 'resolvedTone()',
     '[attr.data-inset]': "resolvedInset() ? '' : null",
     '[attr.data-truncate]': "resolvedTruncate() ? '' : null",
@@ -91,13 +94,22 @@ export class SlListItem {
   readonly marker = input<ListMarker | undefined>(undefined);
   /** Where the leading visual sits against a row of more than one line. */
   readonly align = input<ListItemAlign | undefined>(undefined);
+  /**
+   * Where the end goes in a row narrower than 22rem: under the title (`auto`)
+   * or on its line (`beside`), for a figure that belongs beside its name.
+   */
+  readonly endPlacement = input<ListItemEndPlacement | undefined>(undefined);
   /** The row's ink and the wash under the pointer. Falls back to `secondary`. */
   readonly tone = input<ListItemTone | undefined>(undefined);
   /** Takes the row's inline padding away. Falls back to the list, then the token. */
   readonly inset = input<boolean | undefined, boolean | string | undefined>(undefined, {
     transform: (state) => (state === undefined ? undefined : booleanAttribute(state)),
   });
-  /** Clips the title and the lines under it to one line each. The string stays. */
+  /**
+   * Clips the title and the lines under it to one line each, and keeps the
+   * body a minimum width before the end and the actions take the rest, so the
+   * row has one height per size. The string stays.
+   */
   readonly truncate = input<boolean | undefined, boolean | string | undefined>(undefined, {
     transform: (state) => (state === undefined ? undefined : booleanAttribute(state)),
   });
@@ -147,6 +159,7 @@ export class SlListItem {
   );
   readonly resolvedMarker = computed(() => this.marker() ?? this.list?.resolvedMarker() ?? 'none');
   readonly resolvedAlign = computed(() => this.align() ?? this.defaults.align);
+  readonly resolvedEndPlacement = computed(() => this.endPlacement() ?? this.defaults.endPlacement);
   readonly resolvedTone = computed(() => this.tone() ?? this.defaults.tone);
   readonly resolvedInset = computed(
     () => (this.inset() ?? this.list?.resolvedInset() ?? this.defaults.inset) === true,

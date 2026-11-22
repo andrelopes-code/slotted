@@ -21,6 +21,13 @@ export type ListItemSize = ListSize;
 export type ListItemAlign = 'center' | 'start';
 
 /**
+ * Where `ListItemEnd` goes in a row narrower than 22rem. `auto` moves it under
+ * the title; `beside` keeps it on the title's line, at the row's end, and the
+ * body takes what is left.
+ */
+export type ListItemEndPlacement = 'auto' | 'beside';
+
+/**
  * What the row is the current one *of*. ARIA 1.2 lists `aria-current` as
  * inherited by `listitem` and does not deprecate it, which makes this the one
  * selection-shaped state a static list may announce for itself.
@@ -30,6 +37,7 @@ export type ListItemCurrent = boolean | 'page' | 'step' | 'location' | 'date' | 
 /** What an application sets once for every row under it. */
 export interface ListItemDefaults {
   align: ListItemAlign;
+  endPlacement: ListItemEndPlacement;
   inset: boolean;
   size: ListItemSize;
   tone: ListItemTone;
@@ -58,6 +66,7 @@ export interface ListItemRootProps extends HTMLAttributes<HTMLElement> {
   'data-current'?: '' | undefined;
   /** ARIA 1.2 deprecates `aria-disabled` on `listitem`, so the state is data only. */
   'data-disabled'?: '' | undefined;
+  'data-end-placement': ListItemEndPlacement;
   'data-inset'?: '' | undefined;
   'data-loading'?: '' | undefined;
   'data-marker': ListMarker;
@@ -73,6 +82,11 @@ export interface ListItemRootProps extends HTMLAttributes<HTMLElement> {
 export interface ListItemProps extends ComponentPropsWithRef<'li'> {
   /** Where the leading visual sits against a row of more than one line. */
   align?: ListItemAlign | undefined;
+  /**
+   * Where the end goes in a row narrower than 22rem: under the title (`auto`)
+   * or on its line (`beside`), for a figure that belongs beside its name.
+   */
+  endPlacement?: ListItemEndPlacement | undefined;
   /**
    * The row the reader is on. `true` writes `aria-current="true"`; a token
    * writes that token, and `page` is what a navigation list wants.
@@ -114,7 +128,11 @@ export interface ListItemProps extends ComponentPropsWithRef<'li'> {
   size?: ListItemSize | undefined;
   /** The row's ink and the wash under the pointer. Defaults to `secondary`. */
   tone?: ListItemTone | undefined;
-  /** Clips the title and the lines under it to one line each. The string stays. */
+  /**
+   * Clips the title and the lines under it to one line each, and keeps the
+   * body a minimum width before the end and the actions take the rest, so the
+   * row has one height per size. The string stays.
+   */
   truncate?: boolean | undefined;
   /** How the rows are told apart. Defaults to the list, then `plain`. */
   variant?: ListVariant | undefined;

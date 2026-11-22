@@ -262,6 +262,14 @@ describe('SlListItem', () => {
     fixture.detectChanges();
     expect(el(fixture, 'row').getAttribute('data-tone')).toBe('accent');
   });
+
+  it('keeps the end under the title below 22rem unless a row asks for it beside', () => {
+    expect(el(setup(), 'row').getAttribute('data-end-placement')).toBe('auto');
+
+    TestBed.resetTestingModule();
+    const fixture = setup([provideListItemDefaults({ endPlacement: 'beside' })]);
+    expect(el(fixture, 'row').getAttribute('data-end-placement')).toBe('beside');
+  });
 });
 
 /**

@@ -13,6 +13,13 @@ export type ListItemSize = 'sm' | 'md' | 'lg';
 export type ListItemAlign = 'center' | 'start';
 
 /**
+ * Where the end goes in a row narrower than 22rem. `auto` moves it under the
+ * title; `beside` keeps it on the title's line, at the row's end, and the body
+ * takes what is left.
+ */
+export type ListItemEndPlacement = 'auto' | 'beside';
+
+/**
  * What the row is the current one *of*. ARIA 1.2 lists `aria-current` as
  * inherited by `listitem` and does not deprecate it, which makes this the one
  * selection-shaped state a static list may announce for itself.
@@ -21,6 +28,7 @@ export type ListItemCurrent = boolean | 'page' | 'step' | 'location' | 'date' | 
 
 export interface ListItemDefaults {
   align: ListItemAlign;
+  endPlacement: ListItemEndPlacement;
   inset: boolean;
   size: ListItemSize;
   tone: ListItemTone;
@@ -29,6 +37,7 @@ export interface ListItemDefaults {
 
 const FALLBACK: ListItemDefaults = {
   align: 'center',
+  endPlacement: 'auto',
   inset: false,
   size: 'md',
   tone: 'secondary',
@@ -50,6 +59,7 @@ export function provideListItemDefaults(defaults: Partial<ListItemDefaults>) {
     provide: LIST_ITEM_DEFAULTS,
     useFactory: (): ListItemDefaults => ({
       align: defaults.align ?? FALLBACK.align,
+      endPlacement: defaults.endPlacement ?? FALLBACK.endPlacement,
       inset: defaults.inset ?? FALLBACK.inset,
       size: defaults.size ?? FALLBACK.size,
       tone: defaults.tone ?? FALLBACK.tone,

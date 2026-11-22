@@ -3832,6 +3832,7 @@ export type ComponentToken =
   | '--slotted-list-item-background-hover'
   | '--slotted-list-item-background-selected'
   | '--slotted-list-item-body-gap'
+  | '--slotted-list-item-body-min-inline-size'
   | '--slotted-list-item-border-color'
   | '--slotted-list-item-border-width'
   | '--slotted-list-item-color'
@@ -6167,6 +6168,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-list-item-background-hover",
   "--slotted-list-item-background-selected",
   "--slotted-list-item-body-gap",
+  "--slotted-list-item-body-min-inline-size",
   "--slotted-list-item-border-color",
   "--slotted-list-item-border-width",
   "--slotted-list-item-color",
