@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
 
@@ -67,5 +67,28 @@ describe('an indeterminate bar', () => {
     await new Promise((resolve) => requestAnimationFrame(resolve));
 
     expect(Number(animation!.currentTime) - before).toBeGreaterThan(400);
+  });
+});
+
+describe('a compact bar in a table cell', () => {
+  it('draws the value alone at the end over a hairline track, named by its hidden label', () => {
+    const { container } = render(
+      <div style={{ inlineSize: 160 }}>
+        <ProgressBar hideLabel label="Seats used" max={50} showValue size="sm" value={42} />
+      </div>,
+    );
+    const root = container.querySelector<HTMLElement>('[data-ui="progress-indicator"]')!;
+    const label = root.querySelector<HTMLElement>('[data-part="label"]');
+    const value = root.querySelector<HTMLElement>('[data-part="value"]')!;
+    const track = root.querySelector<HTMLElement>('[data-part="track"]')!;
+    const bar = screen.getByRole('progressbar', { name: 'Seats used' });
+
+    expect(bar).toBe(root);
+    expect(label === null || label.getBoundingClientRect().width <= 1).toBe(true);
+    expect(track.getBoundingClientRect().height).toBe(4);
+    expect(value.getBoundingClientRect().right).toBeCloseTo(track.getBoundingClientRect().right, 0);
+    expect(value.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      track.getBoundingClientRect().top,
+    );
   });
 });
