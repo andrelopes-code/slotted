@@ -546,17 +546,29 @@
   }
 
   /*
-   * The outer edge of the track alone, at the width of the control border. An
-   * inset edge drew a second danger line inside the accent fill of a checked
-   * track and a ring around the thumb, in place of its own border and lift;
-   * the thumb keeps both. The edge is an outline laid over the border, so the
-   * checked, hover and pressed rules that set the border's color do not take
-   * it back, and the focus ring (in the invalid ring color) replaces it.
+   * The outer edge of the track alone. An inset edge drew a second danger line
+   * inside the accent fill of a checked track and a ring around the thumb, in
+   * place of its own border and lift; the thumb keeps both. The edge stands
+   * outside the track's border at the invalid edge width, so the state is
+   * width as well as color (WCAG 1.4.1, the edge `text-field` draws), and the
+   * checked, hover and pressed rules that color the border do not take it.
    */
   [data-ui-switch][data-part-root][data-invalid] > [data-part-track] {
-    outline: var(--_border) solid
+    --_invalid-edge-width: var(
+      --slotted-switch-invalid-edge-width,
+      var(--slotted-control-invalid-edge-width, 1px)
+    );
+
+    box-shadow: 0 0 0 var(--_invalid-edge-width)
       var(--slotted-switch-invalid-border-color, var(--slotted-tone-danger-border));
-    outline-offset: calc(-1 * var(--_border));
+  }
+
+  /* Forced colors remove every box shadow, and the edge with them: it comes
+     back as an outline of the same width around the track. */
+  @media (forced-colors: active) {
+    [data-ui-switch][data-part-root][data-invalid] > [data-part-track] {
+      outline: var(--_invalid-edge-width) solid CanvasText;
+    }
   }
 
   /**

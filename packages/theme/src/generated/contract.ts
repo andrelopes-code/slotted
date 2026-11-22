@@ -4613,6 +4613,7 @@ export type ComponentToken =
   | '--slotted-switch-disabled-thumb-background'
   | '--slotted-switch-hover-background'
   | '--slotted-switch-invalid-border-color'
+  | '--slotted-switch-invalid-edge-width'
   | '--slotted-switch-invalid-focus-ring-color'
   | '--slotted-switch-line-height'
   | '--slotted-switch-mark-color'
@@ -6952,6 +6953,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-switch-disabled-thumb-background",
   "--slotted-switch-hover-background",
   "--slotted-switch-invalid-border-color",
+  "--slotted-switch-invalid-edge-width",
   "--slotted-switch-invalid-focus-ring-color",
   "--slotted-switch-line-height",
   "--slotted-switch-mark-color",

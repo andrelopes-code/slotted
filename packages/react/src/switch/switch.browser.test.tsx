@@ -34,10 +34,9 @@ describe('an invalid switch', () => {
         .container,
     );
 
-    expect(invalid.track.boxShadow).toBe('none');
-    expect(invalid.track.outlineColor).toBe('rgb(200, 0, 0)');
-    expect(invalid.track.outlineWidth).toBe(invalid.track.borderTopWidth);
-    expect(valid.track.outlineStyle).toBe('none');
+    /* One edge outside the track's border, in the invalid color, and nothing inset. */
+    expect(invalid.track.boxShadow).toMatch(/^rgb\(200, 0, 0\) 0px 0px 0px \d/);
+    expect(invalid.track.boxShadow).not.toContain('inset');
     expect(invalid.thumb.boxShadow).toBe(valid.thumb.boxShadow);
     expect(invalid.thumb.borderTopColor).toBe(valid.thumb.borderTopColor);
   });
