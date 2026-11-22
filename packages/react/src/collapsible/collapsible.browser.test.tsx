@@ -177,7 +177,9 @@ describe('a label that holds an element taller than its line', () => {
       <div style={{ inlineSize: 160 }}>
         <Collapsible>
           <CollapsibleHeader>
-            <CollapsibleTrigger>A title long enough to wrap onto three lines here</CollapsibleTrigger>
+            <CollapsibleTrigger>
+              A title long enough to wrap onto three lines here
+            </CollapsibleTrigger>
           </CollapsibleHeader>
           <CollapsiblePanel>Body</CollapsiblePanel>
         </Collapsible>
