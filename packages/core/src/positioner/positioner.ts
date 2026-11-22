@@ -25,12 +25,15 @@ import {
   arrow as arrowMiddleware,
   autoUpdate,
   computePosition,
+  detectOverflow,
   flip as flipMiddleware,
   hide as hideMiddleware,
   offset as offsetMiddleware,
   shift as shiftMiddleware,
   size as sizeMiddleware,
 } from '@floating-ui/dom';
+
+import type { Middleware } from '@floating-ui/dom';
 
 import type { PhysicalSide, PositionAlign, PositionSide, WritingDirection } from './geometry';
 import { fromPlacement, resolveSide, toPlacement, transformOrigin } from './geometry';
@@ -58,6 +61,13 @@ export interface PositionerOptions {
   alignOffset?: number;
   /** Move to the opposite side when this one collides. Default `true`. */
   flip?: boolean;
+  /**
+   * The room, in pixels along the side, below which the layer is no longer
+   * usable: a list that shrinks to fit shows one row and never collides, so
+   * `flip` alone keeps it there. With less room than this on its side and
+   * more on the opposite one, the layer opens on the opposite side.
+   */
+  minRoom?: number;
   /** Sides to try after the opposite one. */
   fallbackSides?: PositionSide[];
   /** Slide along the side to stay inside the boundary. Default `true`. */
@@ -204,6 +214,9 @@ export function createPositioner(
         mainAxis: settings.sideOffset ?? 0,
         crossAxis: settings.alignOffset ?? 0,
       }),
+      ...(settings.flip === false || settings.minRoom === undefined
+        ? []
+        : [roomMiddleware(settings.minRoom, settings.sideOffset ?? 0, padding, settings.boundary)]),
       ...(settings.flip === false
         ? []
         : [
@@ -360,6 +373,44 @@ export function createPositioner(
       if (watchFrame !== 0) view?.cancelAnimationFrame(watchFrame);
       stopAutoUpdate?.();
       stopAutoUpdate = null;
+    },
+  };
+}
+
+const OPPOSITE: Record<PhysicalSide, PhysicalSide> = {
+  top: 'bottom',
+  bottom: 'top',
+  left: 'right',
+  right: 'left',
+};
+
+/**
+ * Opens the layer on the opposite side when its own side holds less than
+ * `minRoom` and the opposite side holds more. It runs once, on the side the
+ * family asked for, before `flip`.
+ */
+function roomMiddleware(
+  minRoom: number,
+  sideOffset: number,
+  padding: number,
+  boundary: Element | Element[] | undefined,
+): Middleware {
+  return {
+    name: 'slottedRoom',
+    async fn(state) {
+      if (state.placement !== state.initialPlacement) return {};
+
+      const side = state.placement.split('-')[0] as PhysicalSide;
+      const opposite = OPPOSITE[side];
+      const settings = { padding, ...(boundary ? { boundary } : {}) };
+      const reference = await detectOverflow(state, { ...settings, elementContext: 'reference' });
+      const room = (edge: PhysicalSide) => -reference[edge] - sideOffset;
+
+      if (room(side) >= minRoom || room(opposite) <= room(side)) return {};
+
+      return {
+        reset: { placement: state.placement.replace(side, opposite) as typeof state.placement },
+      };
     },
   };
 }

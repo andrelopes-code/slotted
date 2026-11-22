@@ -167,6 +167,8 @@ export function EntityPickerPopup() {
       flip: true,
       hideWhenDetached: true,
       matchWidth: width === 'anchor',
+      /* Four rows: below that the list is a slot, and the other side opens. */
+      minRoom: 160,
       shift: true,
       side,
       sideOffset: 4,

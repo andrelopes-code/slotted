@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
 import { EntityPicker } from './entity-picker';
@@ -92,5 +92,27 @@ describe('a long list of records', () => {
     const last = document.getElementById(input.getAttribute('aria-activedescendant') ?? '');
     expect(last?.textContent).toContain('Person 149');
     expect(document.querySelectorAll('[role="option"]').length).toBeLessThan(60);
+  });
+});
+
+describe('a picker near the bottom of the viewport', () => {
+  /* The list opens short (no record yet) and fits below; once the records
+     arrive the layer is held to the room below and never collided again. */
+  it('opens above when the room below holds less than a usable list', async () => {
+    const picker = (items: typeof MANY) => (
+      <div style={{ insetBlockEnd: 75, insetInlineStart: 16, position: 'fixed', inlineSize: 300 }}>
+        <EntityPicker aria-label="Owner" items={items} openOn="focus" searchDelay={0} />
+      </div>
+    );
+    const view = render(picker([]));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Owner' }));
+    view.rerender(picker(MANY.slice(0, 80)));
+    await userEvent.keyboard('P');
+
+    await vi.waitFor(() => {
+      const positioner = document.querySelector<HTMLElement>('[data-part="positioner"][data-open]');
+      expect(positioner?.getAttribute('data-side')).toBe('top');
+      expect(positioner!.getBoundingClientRect().height).toBeGreaterThan(200);
+    });
   });
 });

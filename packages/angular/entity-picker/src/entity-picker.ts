@@ -1855,6 +1855,8 @@ export class SlEntityPicker implements ControlValueAccessor, Validator {
       flip: true,
       hideWhenDetached: true,
       matchWidth: this.resolvedWidth() === 'anchor',
+      /* Four rows: below that the list is a slot, and the other side opens. */
+      minRoom: 160,
       shift: true,
       side: this.side() ?? this.defaults.side,
       sideOffset: 4,

@@ -283,6 +283,28 @@ describe('createPositioner', () => {
     positioner.destroy();
   });
 
+  it('opens on the other side when its own holds less than the room it needs', async () => {
+    /* A list that shrank to the 60px below fits there and never collides. */
+    const { anchor, floating } = scene(
+      { x: 100, y: 690, width: 50, height: 20 },
+      { width: 200, height: 50 },
+    );
+    const positioner = createPositioner(anchor, floating, { minRoom: 160 });
+    await positioner.update();
+
+    expect(floating.getAttribute('data-side')).toBe('top');
+    positioner.destroy();
+  });
+
+  it('keeps its side when the room there is enough', async () => {
+    const { anchor, floating } = scene(ANCHOR, { width: 200, height: 50 });
+    const positioner = createPositioner(anchor, floating, { minRoom: 160 });
+    await positioner.update();
+
+    expect(floating.getAttribute('data-side')).toBe('bottom');
+    positioner.destroy();
+  });
+
   it('stays on its side when the consumer refuses the flip', async () => {
     const { anchor, floating } = scene({ ...ANCHOR, y: 700 });
     const positioner = createPositioner(anchor, floating, { flip: false });
