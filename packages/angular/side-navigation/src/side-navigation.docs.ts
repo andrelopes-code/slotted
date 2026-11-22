@@ -603,6 +603,13 @@ export const ANGULAR_SIDE_NAVIGATION_DOCS = {
         'Stated on the row itself, it wins over the root’s value. Unstated, an aria-current the router wrote on the element (routerLinkActive with ariaCurrentWhenActive) is read instead',
       ],
       [
+        'current',
+        'boolean',
+        '—',
+        'button[slSideNavigationTrigger]',
+        'A trigger that is the whole row is a destination too: its item is current when the root’s value names it, and a stated current wins over the value. It writes aria-current="page" on the trigger',
+      ],
+      [
         'href',
         'string',
         '—',

@@ -146,11 +146,17 @@ export function SideNavigationItem({
   const [labelText, setLabelText] = useState('');
   const [descriptionText, setDescriptionText] = useState('');
   const [triggerNode, setTriggerNode] = useState<HTMLElement | null>(null);
+  /* A `current` stated on a whole-row trigger, which wins over the root's value. */
+  const [triggerCurrent, setTriggerCurrent] = useState<boolean | undefined>(undefined);
   const [descendants, setDescendants] = useState<readonly string[]>([]);
 
   const expanded = navigation.isExpanded(value);
   const flyoutOpen = navigation.compact && navigation.flyout === value;
-  const current = hasLink && navigation.value === value;
+  /* The destination is the row's own link or, on a row whose trigger is the
+     whole row, the trigger. */
+  const current = hasLink
+    ? navigation.value === value
+    : (triggerCurrent ?? navigation.value === value);
   const holdsCurrent = descendants.length > 0;
   const resolvedDisabled = disabled === true || parent?.disabled === true;
 
@@ -197,6 +203,7 @@ export function SideNavigationItem({
       setHasGroup,
       setHasLink,
       setLabelText,
+      setTriggerCurrent,
       setTriggerNode,
       triggerNode,
       value,
@@ -368,6 +375,7 @@ export function SideNavigationLink({
 export function SideNavigationTrigger({
   children,
   className,
+  current,
   onClick,
   ref,
   render,
@@ -377,6 +385,13 @@ export function SideNavigationTrigger({
   const navigation = useSideNavigation();
   const item = useSideNavigationItem();
   const hybrid = item.hasLink;
+  const destination = !hybrid && item.current;
+  const { setTriggerCurrent } = item;
+
+  useEffect(() => {
+    setTriggerCurrent(current);
+    return () => setTriggerCurrent(undefined);
+  }, [current, setTriggerCurrent]);
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     onClick?.(event);
@@ -394,6 +409,7 @@ export function SideNavigationTrigger({
     'aria-controls': item.ids.groupId,
     'aria-expanded': item.flyoutOpen || item.expanded,
     ...(hybrid ? { 'aria-labelledby': item.ids.labelId } : {}),
+    ...(destination ? { 'aria-current': 'page' as const, 'data-current': '' as const } : {}),
     children: (
       <>
         {children}

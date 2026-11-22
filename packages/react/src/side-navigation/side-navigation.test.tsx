@@ -481,3 +481,45 @@ describe('SideNavigationLink rendered as a button', () => {
     expect(screen.getByRole('button', { name: 'Orders' })).not.toHaveAttribute('aria-current');
   });
 });
+
+describe('a whole-row trigger that is a destination', () => {
+  function Reports({ current, value }: { current?: boolean; value: string }) {
+    return (
+      <SideNavigation aria-label="Main" value={value}>
+        <SideNavigationList>
+          <SideNavigationItem value="reports">
+            <SideNavigationTrigger current={current}>
+              <SideNavigationLabel>Reports</SideNavigationLabel>
+            </SideNavigationTrigger>
+            <SideNavigationGroup>
+              <SideNavigationItem value="reports.flows">
+                <SideNavigationLink href="/reports?tab=flows">
+                  <SideNavigationLabel>Flows</SideNavigationLabel>
+                </SideNavigationLink>
+              </SideNavigationItem>
+            </SideNavigationGroup>
+          </SideNavigationItem>
+        </SideNavigationList>
+      </SideNavigation>
+    );
+  }
+
+  it('marks the item and the trigger when the root value names the item', () => {
+    const { container } = render(<Reports value="reports" />);
+    const item = container.querySelector('[data-part="item"][data-value="reports"]')!;
+    const trigger = container.querySelector('[data-part="trigger"]')!;
+
+    expect(item).toHaveAttribute('data-current');
+    expect(trigger).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('lets a stated current win over the root value', () => {
+    const { container } = render(<Reports current value="elsewhere" />);
+
+    expect(container.querySelector('[data-value="reports"]')).toHaveAttribute('data-current');
+    expect(container.querySelector('[data-part="trigger"]')).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
+});

@@ -385,3 +385,54 @@ describe('SlSideNavigation', () => {
     });
   });
 });
+
+@Component({
+  standalone: true,
+  imports: PARTS,
+  template: `<nav slSideNavigation aria-label="Main" [value]="value()">
+    <ul slSideNavigationList>
+      <li slSideNavigationItem value="reports">
+        <button slSideNavigationTrigger [current]="current()">
+          <span slSideNavigationLabel>Reports</span>
+        </button>
+        <ul slSideNavigationGroup>
+          <li slSideNavigationItem value="reports.flows">
+            <a slSideNavigationLink href="/reports?tab=flows"
+              ><span slSideNavigationLabel>Flows</span></a
+            >
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>`,
+})
+class WholeRow {
+  readonly value = signal<string | null>('reports');
+  readonly current = signal<boolean | undefined>(undefined);
+}
+
+describe('a whole-row trigger that is a destination', () => {
+  it('marks the item and the trigger when the root value names the item, and a stated current wins', async () => {
+    await TestBed.configureTestingModule({ imports: [WholeRow] }).compileComponents();
+    const fixture = TestBed.createComponent(WholeRow);
+    fixture.detectChanges();
+    const item = () =>
+      fixture.nativeElement.querySelector(
+        '[data-part="item"][data-value="reports"]',
+      ) as HTMLElement;
+    const trigger = () => item().querySelector(':scope > [data-part="trigger"]') as HTMLElement;
+
+    expect(item().hasAttribute('data-current')).toBe(true);
+    expect(trigger().getAttribute('aria-current')).toBe('page');
+
+    fixture.componentInstance.value.set('elsewhere');
+    fixture.componentInstance.current.set(true);
+    fixture.detectChanges();
+    expect(item().hasAttribute('data-current')).toBe(true);
+
+    fixture.componentInstance.current.set(false);
+    fixture.detectChanges();
+    expect(item().hasAttribute('data-current')).toBe(false);
+    expect(trigger().hasAttribute('aria-current')).toBe(false);
+  });
+});

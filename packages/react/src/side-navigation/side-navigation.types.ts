@@ -124,6 +124,8 @@ export interface SideNavigationItemContextValue {
   setLabelText: (text: string) => void;
   setDescriptionText: (text: string) => void;
   setTriggerNode: (node: HTMLElement | null) => void;
+  /** A whole-row trigger states whether it is the destination. */
+  setTriggerCurrent: (current: boolean | undefined) => void;
   /** A descendant says whether it holds the current destination. */
   reportCurrent: (value: string, current: boolean) => void;
 }
@@ -271,6 +273,7 @@ export interface SideNavigationTriggerRootProps extends ButtonHTMLAttributes<HTM
   'aria-controls': string;
   'aria-expanded': boolean;
   'aria-labelledby'?: string | undefined;
+  'data-current'?: '' | undefined;
   'data-part': string;
   id: string;
   ref?: (node: HTMLElement | null) => void;
@@ -278,6 +281,11 @@ export interface SideNavigationTriggerRootProps extends ButtonHTMLAttributes<HTM
 }
 
 export interface SideNavigationTriggerProps extends ComponentPropsWithRef<'button'> {
+  /**
+   * The row is where the reader is. A trigger that is the whole row is a
+   * destination too; stated, it wins over the root's `value`.
+   */
+  current?: boolean | undefined;
   render?: ((props: SideNavigationTriggerRootProps) => ReactNode) | undefined;
 }
 

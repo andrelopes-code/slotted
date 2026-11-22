@@ -654,6 +654,13 @@ export const REACT_SIDE_NAVIGATION_DOCS = {
         'Stated on the row itself — what a router’s link writes — it wins over the root’s value',
       ],
       [
+        'current',
+        'boolean',
+        '—',
+        'SideNavigationTrigger',
+        'A trigger that is the whole row is a destination too: its item is current when the root’s value names it, and a stated current wins over the value. It writes aria-current="page" on the trigger',
+      ],
+      [
         'href',
         'string',
         '—',

@@ -118,14 +118,23 @@ export class SlSideNavigationItem {
   readonly labelText = signal('');
   readonly descriptionText = signal('');
   readonly triggerNode = signal<HTMLElement | null>(null);
+  /** A `current` stated on a whole-row trigger, which wins over the root's value. */
+  readonly triggerCurrent = signal<boolean | undefined>(undefined);
   private readonly descendants = signal<readonly string[]>([]);
 
   readonly expanded = computed(() => this.navigation.isExpanded(this.value()));
   readonly flyoutOpen = computed(
     () => this.navigation.compact() && this.navigation.flyout() === this.value(),
   );
-  /** Whether the current destination is this item's own link. */
-  readonly current = computed(() => this.hasLink() && this.navigation.value() === this.value());
+  /**
+   * Whether the current destination is this item: its own link, or, on a row
+   * whose trigger is the whole row, the trigger.
+   */
+  readonly current = computed(() =>
+    this.hasLink()
+      ? this.navigation.value() === this.value()
+      : (this.triggerCurrent() ?? this.navigation.value() === this.value()),
+  );
   /** Whether the current destination is somewhere under this item. */
   readonly holdsCurrent = computed(() => this.descendants().length > 0);
   readonly resolvedDisabled: Signal<boolean> = computed(
@@ -363,19 +372,34 @@ export class SlSideNavigationLink extends SideNavigationRow {
     '[attr.aria-controls]': 'item.ids.groupId',
     '[attr.aria-expanded]': 'item.flyoutOpen() || item.expanded()',
     '[attr.aria-labelledby]': 'item.hasLink() ? item.ids.labelId : null',
+    '[attr.aria-current]': "destination() ? 'page' : null",
+    '[attr.data-current]': "destination() ? '' : null",
     '[disabled]': 'item.resolvedDisabled()',
     '(click)': 'onClick($event)',
   },
 })
 export class SlSideNavigationTrigger extends SideNavigationRow {
+  /**
+   * The row is where the reader is. A trigger that is the whole row is a
+   * destination too; stated, it wins over the root's `value`.
+   */
+  readonly current = input<boolean | undefined, boolean | string | undefined>(undefined, {
+    transform: (state) => (state === undefined ? undefined : booleanAttribute(state)),
+  });
   readonly hint = computed(
     () => !this.item.hasLink() && (this.navigation.compact() || this.item.clipped()),
   );
+  /** A whole-row trigger carries the destination; a hybrid row's link does. */
+  protected readonly destination = computed(() => !this.item.hasLink() && this.item.current());
 
   constructor() {
     super();
     this.item.triggerNode.set(this.native);
-    inject(DestroyRef).onDestroy(() => this.item.triggerNode.set(null));
+    effect(() => this.item.triggerCurrent.set(this.current()));
+    inject(DestroyRef).onDestroy(() => {
+      this.item.triggerNode.set(null);
+      this.item.triggerCurrent.set(undefined);
+    });
   }
 
   protected onClick(event: Event) {
