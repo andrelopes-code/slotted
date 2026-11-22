@@ -241,3 +241,41 @@ describe('the blocks of a page body', () => {
     );
   });
 });
+
+describe('a level-1 detail panel in a page body', () => {
+  it('reads as the page itself: one inset to its heading, a hairline across the page', () => {
+    const { container } = render(
+      <div style={{ inlineSize: 390 }}>
+        <Page width="full">
+          <PageBody>
+            <DetailPanel level="1" scroll="ancestor">
+              <PageHeader>
+                <PageHeaderTitleArea>
+                  <PageHeaderTitleRow>
+                    <PageHeaderTitle>Record</PageHeaderTitle>
+                  </PageHeaderTitleRow>
+                </PageHeaderTitleArea>
+              </PageHeader>
+              <DetailPanelBody>
+                <div data-testid="content">Content</div>
+              </DetailPanelBody>
+            </DetailPanel>
+            <div data-testid="block">A block of the page</div>
+          </PageBody>
+        </Page>
+      </div>,
+    );
+    const page = container.querySelector('[data-ui="page"]')!.getBoundingClientRect();
+    const header = container
+      .querySelector('[data-ui="detail-panel"] [data-ui="page-header"]')!
+      .getBoundingClientRect();
+    const title = container.querySelector('[data-part="title"]')!.getBoundingClientRect();
+    const content = container.querySelector('[data-testid="content"]')!.getBoundingClientRect();
+    const inset = container.querySelector('[data-testid="block"]')!.getBoundingClientRect().left;
+
+    expect(header.left).toBeCloseTo(page.left, 0);
+    expect(header.right).toBeCloseTo(page.right, 0);
+    expect(title.left).toBeCloseTo(inset, 0);
+    expect(content.left).toBeCloseTo(inset, 0);
+  });
+});
