@@ -1,4 +1,5 @@
 export {
+  injectPageSizeClass,
   SCROLLPORT_BLOCK_SIZE_PROPERTY,
   SlPage,
   SlPageBody,

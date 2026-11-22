@@ -2,6 +2,8 @@ import { keyedProps } from '@slotted/core/selector-key';
 import '@slotted/styles/page/page.css';
 
 import { pageMessages } from '@slotted/core/i18n';
+import { sizeClassOf } from '@slotted/core/measure';
+import type { SizeClass } from '@slotted/core/measure';
 import { createPresence } from '@slotted/core/presence';
 import type { PresenceStatus } from '@slotted/core/presence';
 import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -109,16 +111,18 @@ export function Page({
   const resolvedScroll = scroll ?? defaults.scroll;
   const resolvedWidth = width ?? defaults.width;
 
+  const [root, setRoot] = useState<HTMLElement | null>(null);
+  const [sizeClass, setSizeClass] = useState<SizeClass | null>(null);
+
   const context: PageContextValue = {
     ground: resolvedGround,
     inset: resolvedInset,
     loading: loading === true,
     scroll: resolvedScroll,
+    sizeClass,
     t,
     width: resolvedWidth,
   };
-
-  const [root, setRoot] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     if (isDevelopment && root !== null) warnWithoutBody(root);
@@ -154,6 +158,19 @@ export function Page({
     if (bar !== null) observer.observe(bar);
     return () => observer.disconnect();
   }, [root, resolvedScroll, footer !== undefined]);
+
+  /* The size class from the page's own width, which a split view narrows
+     while the viewport stays: it changes only when a threshold is crossed. */
+  useIsomorphicLayoutEffect(() => {
+    if (root === null || typeof ResizeObserver === 'undefined') return undefined;
+
+    const read = () => setSizeClass(sizeClassOf(root.getBoundingClientRect().width));
+    read();
+    const observer = new ResizeObserver(read);
+    observer.observe(root);
+
+    return () => observer.disconnect();
+  }, [root]);
 
   useIsomorphicLayoutEffect(() => {
     if (root === null) return undefined;

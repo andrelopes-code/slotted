@@ -1,3 +1,4 @@
+import type { SizeClass } from '@slotted/core/measure';
 import type { FamilyTranslator, PageMessages, PartialMessages } from '@slotted/core/i18n';
 import type { ComponentPropsWithRef, HTMLAttributes, ReactNode } from 'react';
 
@@ -118,6 +119,8 @@ export interface PageContextValue extends PageMeasure {
   ground: PageGround;
   loading: boolean;
   scroll: PageScroll;
+  /** The page's size class from its own width; `null` before it is measured. */
+  sizeClass: SizeClass | null;
   /** The family's words in the language in force, with this page's `messages` laid over them. */
   t: FamilyTranslator<PageMessages>;
 }

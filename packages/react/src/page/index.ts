@@ -7,6 +7,7 @@ export {
   usePage,
 } from './page';
 export { PageDefaultsProvider, usePageDefaults } from './page-defaults';
+export { usePageSizeClass } from './use-page-size-class';
 export type {
   PageBodyProps,
   PageContextValue,

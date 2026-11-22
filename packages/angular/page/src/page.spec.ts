@@ -12,7 +12,15 @@ import {
   SlSectionHeading,
   SlSectionTitle,
 } from '@slotted/angular/section';
-import { SlPage, SlPageBody, SlPageFooter, STICKY_BOTTOM_PROPERTY } from './page';
+import { sizeClassOf } from '@slotted/core/measure';
+import { By } from '@angular/platform-browser';
+import {
+  injectPageSizeClass,
+  SlPage,
+  SlPageBody,
+  SlPageFooter,
+  STICKY_BOTTOM_PROPERTY,
+} from './page';
 import { providePageDefaults } from './page-defaults';
 
 class FakeResizeObserver {
@@ -286,5 +294,44 @@ describe('SlPage without a body', () => {
 
     expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
+  });
+});
+
+describe('injectPageSizeClass', () => {
+  @Component({
+    standalone: true,
+    selector: 'sl-size-probe',
+    template: `{{ sizeClass() }}`,
+  })
+  class Probe {
+    readonly sizeClass = injectPageSizeClass();
+  }
+
+  @Component({
+    standalone: true,
+    imports: [SlPage, SlPageBody, Probe],
+    template: `<main slPage>
+        <div slPageBody><sl-size-probe /></div>
+      </main>
+      <sl-size-probe id="outside" />`,
+  })
+  class Sized {}
+
+  it('follows the page’s measured class, and the viewport outside a page', () => {
+    const fixture = TestBed.createComponent(Sized);
+    fixture.detectChanges();
+    const page = fixture.debugElement.query(By.directive(SlPage)).injector.get(SlPage);
+    const inside = () =>
+      fixture.nativeElement.querySelector('main sl-size-probe').textContent.trim();
+    const outside = () => fixture.nativeElement.querySelector('#outside').textContent.trim();
+
+    page.sizeClass.set('medium');
+    fixture.detectChanges();
+    expect(inside()).toBe('medium');
+    expect(outside()).toBe(sizeClassOf(window.innerWidth));
+
+    page.sizeClass.set('compact');
+    fixture.detectChanges();
+    expect(inside()).toBe('compact');
   });
 });

@@ -1,5 +1,7 @@
 import { createPresence } from '@slotted/core/presence';
 import type { PresenceStatus } from '@slotted/core/presence';
+import { sizeClassOf } from '@slotted/core/measure';
+import type { SizeClass } from '@slotted/core/measure';
 import { findScrollParent } from '@slotted/core/sticky-header';
 import { SlContainer } from '@slotted/angular/container';
 import { injectMessages } from '@slotted/angular/i18n';
@@ -21,6 +23,7 @@ import {
   signal,
   ViewEncapsulation,
 } from '@angular/core';
+import type { Signal } from '@angular/core';
 
 import { injectPageDefaults } from './page-defaults';
 import type { PageGround, PageInset, PageLandmark, PageScroll, PageWidth } from './page-defaults';
@@ -146,6 +149,12 @@ export class SlPage {
   readonly resolvedLandmark = computed(() => this.landmark() ?? this.defaults.landmark);
   /** The family's words in the language in force, with this page's `messages` laid over them. */
   readonly t = injectMessages(pageMessages, this.messages);
+  /**
+   * The page's size class from its own width, which a split view narrows
+   * while the viewport stays; `null` before it is measured. It changes only
+   * when a threshold is crossed. Read it through `injectPageSizeClass()`.
+   */
+  readonly sizeClass = signal<SizeClass | null>(null);
 
   /** `role="main"` only where the element is not already `main`, and only when asked. */
   protected readonly role = computed(() => {
@@ -159,6 +168,9 @@ export class SlPage {
     afterNextRender(() => {
       if (isDevMode()) warnWithoutBody(this.native);
       if (typeof ResizeObserver === 'undefined') return;
+      const measure = () =>
+        this.sizeClass.set(sizeClassOf(this.native.getBoundingClientRect().width));
+      measure();
       const target = findScrollParent(this.native) ?? this.native.ownerDocument.documentElement;
       const bar = () => this.native.querySelector<HTMLElement>(':scope > [data-part="footer"]');
       /* The property inherits, so every write invalidates style for everything
@@ -180,6 +192,7 @@ export class SlPage {
       /* The scroller is read on a size report only, never while rendering:
          the observer reports once as soon as it observes. */
       const observer = new ResizeObserver(() => {
+        measure();
         publish();
         write(SCROLLPORT_BLOCK_SIZE_PROPERTY, scroller.clientHeight);
       });
@@ -195,6 +208,32 @@ export class SlPage {
       });
     });
   }
+}
+
+/**
+ * The size class to compose by, from the page's own width: `compact` under 600
+ * pixels, `medium` under 1024, `expanded` from there, the thresholds of the
+ * page's container queries. A split view narrows the page while the viewport
+ * stays, and code that chose by `matchMedia` disagreed with the stylesheet;
+ * this follows the page. Outside a page, or before it is measured, it reads
+ * the viewport. Call it in an injection context.
+ */
+export function injectPageSizeClass(): Signal<SizeClass> {
+  const page = inject(SlPage, { optional: true });
+  const viewport = signal<SizeClass>(viewportClass());
+
+  if (typeof window !== 'undefined') {
+    const onResize = () => viewport.set(viewportClass());
+    window.addEventListener('resize', onResize);
+    inject(DestroyRef).onDestroy(() => window.removeEventListener('resize', onResize));
+  }
+
+  return computed(() => page?.sizeClass() ?? viewport());
+}
+
+/* A server has no width: the class a desktop renders first. */
+function viewportClass(): SizeClass {
+  return typeof window === 'undefined' ? 'expanded' : sizeClassOf(window.innerWidth);
 }
 
 /**

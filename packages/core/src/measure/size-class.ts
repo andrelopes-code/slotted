@@ -12,3 +12,13 @@
 export const COMPACT_BELOW = 600;
 /** From this width, in pixels, a container is expanded. */
 export const EXPANDED_FROM = 1024;
+
+/** A container's size class: what a surface composes by at that width. */
+export type SizeClass = 'compact' | 'medium' | 'expanded';
+
+/** The size class of a width in pixels, at the two widths above. */
+export function sizeClassOf(width: number): SizeClass {
+  if (width < COMPACT_BELOW) return 'compact';
+
+  return width < EXPANDED_FROM ? 'medium' : 'expanded';
+}

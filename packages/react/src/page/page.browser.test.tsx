@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import type { CSSProperties } from 'react';
 import { cdp, page } from 'vitest/browser';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { AppShell, AppShellBanner, AppShellBrand, AppShellMain } from '../app-shell';
 import { DetailPanel, DetailPanelBody } from '../detail-panel';
@@ -12,7 +12,7 @@ import {
   PageHeaderTitleRow,
 } from '../page-header';
 import { Section } from '../section';
-import { Page, PageBody, PageFooter } from './index';
+import { Page, PageBody, PageFooter, usePageSizeClass } from './index';
 
 const THEME = {
   '--slotted-page-footer-background': 'rgb(10 20 30 / 0.5)',
@@ -277,5 +277,36 @@ describe('a level-1 detail panel in a page body', () => {
     expect(header.right).toBeCloseTo(page.right, 0);
     expect(title.left).toBeCloseTo(inset, 0);
     expect(content.left).toBeCloseTo(inset, 0);
+  });
+});
+
+describe('the size class of a page', () => {
+  function Probe() {
+    return <span data-testid="class">{usePageSizeClass()}</span>;
+  }
+
+  it('follows the page’s own width, not the viewport’s', async () => {
+    const view = render(
+      <div style={{ inlineSize: 1100 }}>
+        <Page>
+          <PageBody>
+            <Probe />
+          </PageBody>
+        </Page>
+      </div>,
+    );
+    const read = () => view.container.querySelector('[data-testid="class"]')!.textContent;
+
+    await vi.waitFor(() => expect(read()).toBe('expanded'));
+    (view.container.firstElementChild as HTMLElement).style.inlineSize = '700px';
+    await vi.waitFor(() => expect(read()).toBe('medium'));
+    (view.container.firstElementChild as HTMLElement).style.inlineSize = '390px';
+    await vi.waitFor(() => expect(read()).toBe('compact'));
+  });
+
+  it('reads the viewport outside a page', () => {
+    const { container } = render(<Probe />);
+
+    expect(container.textContent).toBe('compact');
   });
 });

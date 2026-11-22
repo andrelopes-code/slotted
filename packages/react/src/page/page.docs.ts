@@ -260,6 +260,13 @@ export const REACT_PAGE_DOCS = {
         'blocks stacks what is written in the body at --slotted-page-block-gap, and a section without a surface at --slotted-page-section-gap, both a step smaller below 600 pixels of the page’s width; none leaves a body that is not a list of blocks (a workspace, a split) to its own layout',
       ],
       [
+        'usePageSizeClass',
+        '() => SizeClass',
+        '—',
+        'inside a page',
+        'The size class to compose by from the page’s own width: compact under 600 pixels, medium under 1024, expanded from there, the thresholds of the page’s container queries, so code that chooses what to render agrees with the stylesheet inside a split view. Outside a page it reads the viewport',
+      ],
+      [
         'ground',
         "'sunken' | 'surface'",
         'sunken',
