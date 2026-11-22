@@ -1,3 +1,5 @@
+import { textBoxValues } from '@slotted/core/text';
+import type { TextBox } from '@slotted/core/text';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -48,6 +50,8 @@ import type {
     '[attr.data-numeric]': 'numeric() ?? null',
     '[attr.data-truncate]': 'lines()',
     '[style.--slotted-typography-lines]': 'lines()',
+    '[attr.data-text-box]': 'box().trim',
+    '[style.--_text-box-edge]': 'box().edge',
   },
 })
 export class SlText {
@@ -59,7 +63,15 @@ export class SlText {
   readonly truncate = input<boolean | number>();
   readonly weight = input<TypographyWeight>();
   readonly wrap = input<TypographyWrap>();
+  /**
+   * Takes the half-leading off the start, the end or both edges of the box, so
+   * the text shares a top edge, a bottom edge and an optical center with an
+   * icon, a control or a text of another size beside it. The edge defaults to
+   * the theme's `--slotted-text-box-edge` (`cap alphabetic`).
+   */
+  readonly textBox = input<TextBox>();
 
   protected readonly toneAttribute = computed(() => toneAttribute(this.tone()));
   protected readonly lines = computed(() => truncatedLines(this.truncate()));
+  protected readonly box = computed(() => textBoxValues(this.textBox()));
 }

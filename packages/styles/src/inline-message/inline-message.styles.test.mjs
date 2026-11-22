@@ -115,7 +115,7 @@ test('rounds its leading to whole pixels and trims its box to the type', () => {
     /line-height:round\(up,1em \* var\(--slotted-inline-message-line-height/,
   );
   assert.match(declarations, /,2px\)/);
-  assert.match(declarations, /text-box:trim-both cap alphabetic/);
+  assert.match(declarations, /text-box:trim-both var\(--slotted-text-box-edge,cap alphabetic\)/);
 });
 
 /**

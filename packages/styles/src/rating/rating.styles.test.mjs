@@ -173,7 +173,7 @@ test('centers the text beside the stars on its ink', () => {
   );
   assert.match(trimmed, /\[data-part-level-count\]/);
   assert.match(trimmed, /\[data-part-level-label\]>span:not\(\[data-ui\]\)/);
-  assert.match(trimmed, /text-box:trim-both cap alphabetic/);
+  assert.match(trimmed, /text-box:trim-both var\(--slotted-text-box-edge,cap alphabetic\)/);
   assert.doesNotMatch(trimmed.split('}')[0], /aggregate/);
 });
 

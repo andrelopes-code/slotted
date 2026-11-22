@@ -4748,6 +4748,7 @@ export type ComponentToken =
   | '--slotted-tags-input-subtle-background'
   | '--slotted-tags-input-subtle-border-color'
   | '--slotted-tags-input-subtle-hover-background'
+  | '--slotted-text-box-edge'
   | '--slotted-text-field-action-active-background'
   | '--slotted-text-field-action-color'
   | '--slotted-text-field-action-hover-background'
@@ -7100,6 +7101,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-tags-input-subtle-background",
   "--slotted-tags-input-subtle-border-color",
   "--slotted-tags-input-subtle-hover-background",
+  "--slotted-text-box-edge",
   "--slotted-text-field-action-active-background",
   "--slotted-text-field-action-color",
   "--slotted-text-field-action-hover-background",

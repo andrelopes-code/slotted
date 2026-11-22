@@ -108,6 +108,27 @@ describe('SlText', () => {
     expect(find('decided').getAttribute('data-tone')).toBeNull();
   });
 
+  it('trims its box when asked, and writes the edge it was given', () => {
+    @Component({
+      standalone: true,
+      imports: [SlText],
+      template: `<span slText textBox="both" id="both">Both</span>
+        <span slText [textBox]="{ trim: 'start', edge: 'cap' }" id="start">Start</span>
+        <span slText id="none">None</span>`,
+    })
+    class Boxes {}
+
+    const fixture = TestBed.createComponent(Boxes);
+    fixture.detectChanges();
+    const el = (id: string) => fixture.nativeElement.querySelector(`#${id}`) as HTMLElement;
+
+    expect(el('both').getAttribute('data-text-box')).toBe('trim-both');
+    expect(el('both').style.getPropertyValue('--_text-box-edge')).toBe('');
+    expect(el('start').getAttribute('data-text-box')).toBe('trim-start');
+    expect(el('start').style.getPropertyValue('--_text-box-edge')).toBe('cap text');
+    expect(el('none').hasAttribute('data-text-box')).toBe(false);
+  });
+
   it('keeps the lines it was told to keep, and never fewer than one', () => {
     const { fixture, find } = mount(TextHost);
     const paragraph = find('paragraph');

@@ -11,3 +11,11 @@ export type {
   TypographyWeight,
   TypographyWrap,
 } from './typography';
+export type {
+  TextBox,
+  TextBoxConfig,
+  TextBoxEdge,
+  TextBoxOverEdge,
+  TextBoxTrim,
+  TextBoxUnderEdge,
+} from '@slotted/core/text';

@@ -53,6 +53,13 @@ export const REACT_TYPOGRAPHY_DOCS = {
         'Text',
         'Keeps one line, or the given number; the string stays whole',
       ],
+      [
+        'textBox',
+        "'none' | 'start' | 'end' | 'both' | { trim, edge? }",
+        'none',
+        'Text',
+        'Takes the half-leading off the start, the end or both edges, so the text shares a top edge, a bottom edge and an optical center with what stands beside it. edge is an over edge (text, cap, ex, ideographic, ideographic-ink) or an { over, under } pair, and defaults to --slotted-text-box-edge (cap alphabetic), which the families that trim their own labels read too. A trimmed box clips descenders under overflow hidden or a line clamp, a focus ring or a ground hugs the cap height, and only the first and last line of a wrapped text are trimmed',
+      ],
       ['render', '(props) => ReactNode', '—', 'Text', 'Renders a different root element'],
     ]),
     accessibility: [
@@ -118,6 +125,13 @@ export const REACT_TYPOGRAPHY_DOCS = {
         '—',
         'Heading',
         'Keeps the given number of lines; the string stays whole',
+      ],
+      [
+        'textBox',
+        "'none' | 'start' | 'end' | 'both' | { trim, edge? }",
+        'none',
+        'Heading',
+        'Takes the half-leading off the start, the end or both edges, so the text shares a top edge, a bottom edge and an optical center with what stands beside it. edge is an over edge (text, cap, ex, ideographic, ideographic-ink) or an { over, under } pair, and defaults to --slotted-text-box-edge (cap alphabetic), which the families that trim their own labels read too. A trimmed box clips descenders under overflow hidden or a line clamp, a focus ring or a ground hugs the cap height, and only the first and last line of a wrapped text are trimmed',
       ],
     ]),
     accessibility: [

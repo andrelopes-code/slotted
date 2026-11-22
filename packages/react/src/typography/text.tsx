@@ -18,6 +18,7 @@ export function Text({
   render,
   size,
   style,
+  textBox,
   tone,
   transform,
   truncate,
@@ -27,10 +28,10 @@ export function Text({
 }: TextProps) {
   const rootProps: TypographyRootProps = keyedProps({
     ...nativeProps,
-    ...axisAttributes({ align, numeric, size, tone, transform, truncate, weight, wrap }),
+    ...axisAttributes({ align, numeric, size, textBox, tone, transform, truncate, weight, wrap }),
     'data-part': 'root',
     'data-ui': 'typography',
-    style: truncationStyle(truncate, style),
+    style: truncationStyle(truncate, style, textBox),
   });
 
   return render === undefined ? <span {...rootProps} /> : render(rootProps);

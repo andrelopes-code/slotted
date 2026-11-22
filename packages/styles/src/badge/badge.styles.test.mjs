@@ -167,7 +167,10 @@ test('gives the text a box of its own, and trims it where the engine can', () =>
 
   const guarded = normalized.split('@supports (text-box:trim-both cap alphabetic){')[1] ?? '';
   const supported = guarded.split('}')[0];
-  assert.ok(supported.includes('text-box:trim-both cap alphabetic'), 'the trim is not guarded');
+  assert.ok(
+    supported.includes('text-box:trim-both var(--slotted-text-box-edge,cap alphabetic)'),
+    'the trim is not guarded',
+  );
   /**
    * A box trimmed to the cap and the baseline leaves descenders and tall
    * diacritics outside itself, and the clip beheaded them. The padding buys the

@@ -316,7 +316,7 @@ test('sizes the count from the small type step and centers its figures on the in
     /@supports \(text-box: trim-both cap alphabetic\)\s*\{\s*\[data-ui-top-navigation\] \[data-part-count\]\s*\{([^}]*)\}/,
   )?.[1];
   assert.ok(trimmed, 'the count is not trimmed to its ink');
-  assert.match(trimmed, /text-box: trim-both cap alphabetic/);
+  assert.match(trimmed, /text-box: trim-both var\(--slotted-text-box-edge, cap alphabetic\)/);
 });
 
 /**

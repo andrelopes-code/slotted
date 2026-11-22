@@ -1,3 +1,5 @@
+import { textBoxValues } from '@slotted/core/text';
+import type { TextBox } from '@slotted/core/text';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -64,6 +66,8 @@ const SIZE_OF_LEVEL: Record<HeadingLevelValue, TypographySize> = {
     '[attr.data-numeric]': 'numeric() ?? null',
     '[attr.data-truncate]': 'lines()',
     '[style.--slotted-typography-lines]': 'lines()',
+    '[attr.data-text-box]': 'box().trim',
+    '[style.--_text-box-edge]': 'box().edge',
   },
 })
 export class SlHeading {
@@ -75,6 +79,13 @@ export class SlHeading {
   readonly truncate = input<boolean | number>();
   readonly weight = input<TypographyWeight>('semibold');
   readonly wrap = input<TypographyWrap>('balance');
+  /**
+   * Takes the half-leading off the start, the end or both edges of the box, so
+   * the heading shares a top edge, a bottom edge and an optical center with an
+   * element beside it. The edge defaults to the theme's
+   * `--slotted-text-box-edge` (`cap alphabetic`).
+   */
+  readonly textBox = input<TextBox>();
 
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly section = inject(SlHeadingLevel, { optional: true });
@@ -85,6 +96,7 @@ export class SlHeading {
   protected readonly resolvedSize = computed(() => this.size() ?? SIZE_OF_LEVEL[this.level]);
   protected readonly toneAttribute = computed(() => toneAttribute(this.tone()));
   protected readonly lines = computed(() => truncatedLines(this.truncate()));
+  protected readonly box = computed(() => textBoxValues(this.textBox()));
 
   constructor() {
     const ambient = this.section?.level ?? 1;

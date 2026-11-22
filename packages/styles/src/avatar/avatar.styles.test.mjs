@@ -241,7 +241,10 @@ test('centers the ink of the initials rather than their line box, where the engi
     trimmed.startsWith(`${ui} [data-part-fallback]:not(:has(> *)){`),
     'the trim applies to the fallback, and only to one holding text alone',
   );
-  assert.ok(trimmed.includes('text-box:trim-both cap alphabetic'), 'the trim is not guarded');
+  assert.ok(
+    trimmed.includes('text-box:trim-both var(--slotted-text-box-edge,cap alphabetic)'),
+    'the trim is not guarded',
+  );
   assert.ok(trimmed.includes('display:block'), 'the trim needs a block container');
   assert.ok(
     trimmed.includes('align-content:center'),

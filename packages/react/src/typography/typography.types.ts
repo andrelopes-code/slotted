@@ -1,3 +1,4 @@
+import type { TextBox } from '@slotted/core/text';
 import type { ComponentPropsWithoutRef, CSSProperties, HTMLAttributes, ReactNode } from 'react';
 
 export type TypographySize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
@@ -38,6 +39,16 @@ export interface TypographyAxes {
   truncate?: boolean | number | undefined;
   weight?: TypographyWeight | undefined;
   wrap?: TypographyWrap | undefined;
+  /**
+   * Takes the half-leading off the start, the end or both edges of the box, so
+   * the text shares a top edge, a bottom edge and an optical center with an
+   * icon, a control or a text of another size beside it. The edge defaults to
+   * the theme's `--slotted-text-box-edge` (`cap alphabetic`). Defaults to
+   * `none`. A trimmed box clips descenders under `overflow: hidden` or a line
+   * clamp, a focus ring or a ground hugs the cap height, and only the first and
+   * the last line of a text that wraps are trimmed.
+   */
+  textBox?: TextBox | undefined;
 }
 
 export interface TypographyRootProps extends HTMLAttributes<HTMLElement> {

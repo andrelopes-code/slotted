@@ -30,6 +30,7 @@ export function Heading({
   numeric,
   size,
   style,
+  textBox,
   tone,
   transform,
   truncate,
@@ -59,6 +60,7 @@ export function Heading({
         align,
         numeric,
         size: size ?? SIZE_OF_LEVEL[resolved],
+        textBox,
         tone,
         transform,
         truncate,
@@ -67,7 +69,7 @@ export function Heading({
       }),
       'data-part': 'root',
       'data-ui': 'typography',
-      style: truncationStyle(truncate, style),
+      style: truncationStyle(truncate, style, textBox),
     }),
   );
 }

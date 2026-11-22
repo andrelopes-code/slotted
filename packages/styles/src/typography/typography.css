@@ -212,4 +212,29 @@
     min-inline-size: 0;
     overflow: hidden;
   }
+
+  /**
+   * `textBox`: the half-leading taken off the start, the end or both edges of
+   * the box. `text-box-trim` does not inherit, so it is set on the root, and
+   * the edge is the instance's or the theme's (`--slotted-text-box-edge`), the
+   * one every family that trims its own labels reads. A browser without the
+   * property draws the normal box.
+   */
+  @supports (text-box: trim-both cap alphabetic) {
+    [data-ui-typography][data-text-box] {
+      text-box-edge: var(--_text-box-edge, var(--slotted-text-box-edge, cap alphabetic));
+    }
+
+    [data-ui-typography][data-text-box='trim-start'] {
+      text-box-trim: trim-start;
+    }
+
+    [data-ui-typography][data-text-box='trim-end'] {
+      text-box-trim: trim-end;
+    }
+
+    [data-ui-typography][data-text-box='trim-both'] {
+      text-box-trim: trim-both;
+    }
+  }
 }
