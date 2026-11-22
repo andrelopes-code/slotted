@@ -4360,6 +4360,8 @@ export type ComponentToken =
   | '--slotted-section-title-size-lg'
   | '--slotted-section-title-size-md'
   | '--slotted-section-title-size-sm'
+  | '--slotted-segmented-bar-dimmed-opacity'
+  | '--slotted-segmented-bar-gap'
   | '--slotted-segmented-control-active-background'
   | '--slotted-segmented-control-background'
   | '--slotted-segmented-control-border-color'
@@ -6714,6 +6716,8 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-section-title-size-lg",
   "--slotted-section-title-size-md",
   "--slotted-section-title-size-sm",
+  "--slotted-segmented-bar-dimmed-opacity",
+  "--slotted-segmented-bar-gap",
   "--slotted-segmented-control-active-background",
   "--slotted-segmented-control-background",
   "--slotted-segmented-control-border-color",

@@ -1638,4 +1638,74 @@
       background-color: Canvas;
     }
   }
+
+  /* ── Segmented ────────────────────────────────────────────────────────
+   *
+   * One total in parts: the track is a row of segments whose flex growth is
+   * each part's value, so their widths keep the parts' ratio at any width,
+   * with a hairline of the ground between two of them. A segment's color is
+   * a data palette slot; a remainder is hatched in the muted ink, so it is
+   * told apart by more than color. Marking one part dims the others with the
+   * motion tokens, and at once under reduced motion.
+   */
+  [data-ui-progress-indicator][data-shape='segmented'] {
+    --_thickness: var(--slotted-progress-indicator-thickness, var(--slotted-space-4, 0.5rem));
+
+    display: grid;
+    row-gap: var(--slotted-space-2, 0.25rem);
+  }
+
+  [data-ui-progress-indicator][data-shape='segmented'] > [data-part-track] {
+    block-size: var(--_thickness);
+    border-radius: var(--_radius);
+    column-gap: var(--slotted-segmented-bar-gap, var(--slotted-border-width-medium, 2px));
+    display: flex;
+    overflow: clip;
+  }
+
+  [data-ui-progress-indicator][data-shape='segmented'] [data-part-segment] {
+    background-color: var(--_segment-color, var(--slotted-text-muted, GrayText));
+    flex-basis: 0;
+    min-inline-size: 0;
+    transition: opacity var(--slotted-duration-short) var(--slotted-easing-standard);
+  }
+
+  [data-ui-progress-indicator][data-shape='segmented'] [data-part-segment][data-pattern='hatch'] {
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--slotted-text-muted, GrayText) 0 2px,
+      transparent 2px 5px
+    );
+  }
+
+  [data-ui-progress-indicator][data-shape='segmented'][data-current]
+    [data-part-segment]:not([data-current]) {
+    opacity: var(--slotted-segmented-bar-dimmed-opacity, 0.35);
+  }
+
+  [data-ui-progress-indicator][data-shape='segmented'] > [data-part-scale] {
+    color: var(--slotted-text-muted, GrayText);
+    display: flex;
+    font-size: var(--_font-size);
+    font-variant-numeric: tabular-nums;
+    justify-content: space-between;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-ui-progress-indicator][data-shape='segmented'] [data-part-segment] {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-progress-indicator][data-shape='segmented'] [data-part-segment] {
+      outline: 1px solid CanvasText;
+      outline-offset: -1px;
+    }
+
+    [data-ui-progress-indicator][data-shape='segmented'] [data-part-segment][data-current] {
+      background-color: Highlight;
+      forced-color-adjust: none;
+    }
+  }
 }
