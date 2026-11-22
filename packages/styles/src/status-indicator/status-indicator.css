@@ -49,10 +49,11 @@
      * fractional disc lands its edge across two device pixels at 1×. ReUI draws
      * the same light at 6 pixels beside 14-pixel type (0.43 em); 8 beside 13 is
      * 0.62 em, which keeps the tone legible in a table cell without
-     * outweighing the word.
+     * outweighing the word. The step is rounded, because the space scale is
+     * in rems: at a 14px root `sm` was 5.25 pixels.
      */
     --_dot-size: var(--slotted-space-4, 0.5rem);
-    --_mark-size: var(--_dot-size);
+    --_mark-size: round(nearest, var(--_dot-size), 1px);
     --_rim-width: var(
       --slotted-status-indicator-mark-border-width,
       var(--slotted-border-width-thin, 1px)
