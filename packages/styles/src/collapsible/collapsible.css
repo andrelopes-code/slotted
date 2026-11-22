@@ -600,12 +600,34 @@
    */
   [data-ui-collapsible][data-variant='framed'] {
     background-color: var(--slotted-collapsible-surface, var(--slotted-surface-raised, Canvas));
-    border: var(--_rule-size) solid
-      var(--slotted-collapsible-rule-color, var(--slotted-border-subtle, ButtonBorder));
     border-radius: var(--slotted-collapsible-radius, var(--slotted-radius-md, 6px));
+    --_frame-edge: var(
+      --slotted-collapsible-border-color,
+      var(--slotted-collapsible-rule-color, var(--slotted-border-subtle, ButtonBorder))
+    );
+
+    box-shadow: var(--slotted-collapsible-shadow, none);
+    /* The containing block of the edge. */
+    position: relative;
     /* The trigger's own background is drawn to the frame's edge, so the corner
        it meets has to be the corner the frame draws. */
     overflow: clip;
+  }
+
+  /**
+   * The frame's edge is drawn as a card's is: by `::before` over the box and
+   * out of flow, in its own color, so a theme that gives cards a hairline and
+   * a shadow with an inset top line gives the frame the same two rows of
+   * pixels. A real border put that inset line one border width lower.
+   */
+  [data-ui-collapsible][data-variant='framed']::before {
+    border: var(--_rule-size) solid var(--_frame-edge);
+    border-radius: inherit;
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 1;
   }
 
   /* The frame clips the trigger, so its hover fill meets the frame's own corner. */

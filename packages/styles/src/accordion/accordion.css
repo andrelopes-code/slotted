@@ -55,10 +55,28 @@
    */
   [data-ui-accordion][data-variant='framed'] {
     background-color: var(--slotted-accordion-surface, var(--slotted-surface-raised, Canvas));
-    border: var(--_rule-size) solid
-      var(--slotted-accordion-rule-color, var(--slotted-border-subtle, ButtonBorder));
     border-radius: var(--slotted-accordion-radius, var(--slotted-radius-md, 6px));
+    --_frame-edge: var(
+      --slotted-accordion-border-color,
+      var(--slotted-accordion-rule-color, var(--slotted-border-subtle, ButtonBorder))
+    );
+
+    box-shadow: var(--slotted-accordion-shadow, none);
     overflow: clip;
+    /* The containing block of the edge. */
+    position: relative;
+  }
+
+  /* The edge, drawn as a card's is (collapsible records why), in a color of
+     its own rather than the inner rules'. */
+  [data-ui-accordion][data-variant='framed']::before {
+    border: var(--_rule-size) solid var(--_frame-edge);
+    border-radius: inherit;
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 1;
   }
 
   /**

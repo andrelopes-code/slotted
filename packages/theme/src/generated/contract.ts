@@ -2782,9 +2782,11 @@ export type ColorToken =
   | '--slotted-rating-edge';
 
 export type ComponentToken =
+  | '--slotted-accordion-border-color'
   | '--slotted-accordion-gap'
   | '--slotted-accordion-radius'
   | '--slotted-accordion-rule-color'
+  | '--slotted-accordion-shadow'
   | '--slotted-accordion-surface'
   | '--slotted-action-bar-backdrop-filter'
   | '--slotted-action-bar-background'
@@ -3125,6 +3127,7 @@ export type ComponentToken =
   | '--slotted-code-block-tab-size'
   | '--slotted-collapsible-active-background'
   | '--slotted-collapsible-background'
+  | '--slotted-collapsible-border-color'
   | '--slotted-collapsible-color'
   | '--slotted-collapsible-description-color'
   | '--slotted-collapsible-hover-background'
@@ -3135,6 +3138,7 @@ export type ComponentToken =
   | '--slotted-collapsible-panel-padding-block-start'
   | '--slotted-collapsible-radius'
   | '--slotted-collapsible-rule-color'
+  | '--slotted-collapsible-shadow'
   | '--slotted-collapsible-surface'
   | '--slotted-color-picker-channel-size'
   | '--slotted-color-picker-thumb-size'
@@ -5001,6 +5005,7 @@ export type ComponentToken =
   | '--slotted-toolbar-overflow-hover-color'
   | '--slotted-toolbar-overflow-open-background'
   | '--slotted-toolbar-separator-color'
+  | '--slotted-toolbar-shadow'
   | '--slotted-tooltip-arrow-size'
   | '--slotted-tooltip-arrow-tip-radius'
   | '--slotted-tooltip-backdrop-filter'
@@ -5129,9 +5134,11 @@ export type ComponentToken =
   | '--slotted-wizard-toggle-hover-border-color';
 
 export const COMPONENT_TOKENS: readonly ComponentToken[] = [
+  "--slotted-accordion-border-color",
   "--slotted-accordion-gap",
   "--slotted-accordion-radius",
   "--slotted-accordion-rule-color",
+  "--slotted-accordion-shadow",
   "--slotted-accordion-surface",
   "--slotted-action-bar-backdrop-filter",
   "--slotted-action-bar-background",
@@ -5472,6 +5479,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-code-block-tab-size",
   "--slotted-collapsible-active-background",
   "--slotted-collapsible-background",
+  "--slotted-collapsible-border-color",
   "--slotted-collapsible-color",
   "--slotted-collapsible-description-color",
   "--slotted-collapsible-hover-background",
@@ -5482,6 +5490,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-collapsible-panel-padding-block-start",
   "--slotted-collapsible-radius",
   "--slotted-collapsible-rule-color",
+  "--slotted-collapsible-shadow",
   "--slotted-collapsible-surface",
   "--slotted-color-picker-channel-size",
   "--slotted-color-picker-thumb-size",
@@ -7348,6 +7357,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-toolbar-overflow-hover-color",
   "--slotted-toolbar-overflow-open-background",
   "--slotted-toolbar-separator-color",
+  "--slotted-toolbar-shadow",
   "--slotted-tooltip-arrow-size",
   "--slotted-tooltip-arrow-tip-radius",
   "--slotted-tooltip-backdrop-filter",
