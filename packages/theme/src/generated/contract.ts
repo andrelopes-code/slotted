@@ -3136,6 +3136,7 @@ export type ComponentToken =
   | '--slotted-collapsible-padding-inline'
   | '--slotted-collapsible-panel-color'
   | '--slotted-collapsible-panel-padding-block-start'
+  | '--slotted-collapsible-peek-fade'
   | '--slotted-collapsible-radius'
   | '--slotted-collapsible-rule-color'
   | '--slotted-collapsible-shadow'
@@ -5489,6 +5490,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-collapsible-padding-inline",
   "--slotted-collapsible-panel-color",
   "--slotted-collapsible-panel-padding-block-start",
+  "--slotted-collapsible-peek-fade",
   "--slotted-collapsible-radius",
   "--slotted-collapsible-rule-color",
   "--slotted-collapsible-shadow",

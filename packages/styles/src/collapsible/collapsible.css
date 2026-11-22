@@ -524,6 +524,54 @@
   }
 
   /**
+   * ── Peek ────────────────────────────────────────────────────────────────
+   *
+   * A closed panel that keeps the start of its content in view: the track's
+   * minimum is the peek, so `minmax(peek, 0fr)` closed and `minmax(peek, 1fr)`
+   * open interpolate as the plain panel's `0fr` and `1fr` do, with the same
+   * duration. The content is drawn, clipped at the peek and faded at its end;
+   * the binding keeps it inert, so nothing in the clipped part takes focus.
+   * Forced colors drop the fade and keep the clip.
+   */
+  [data-ui-collapsible][data-peek] > [data-part-panel] {
+    grid-template-rows: minmax(var(--_peek), 0fr);
+  }
+
+  [data-ui-collapsible][data-peek][data-open] > [data-part-panel] {
+    grid-template-rows: minmax(var(--_peek), 1fr);
+  }
+
+  [data-ui-collapsible][data-peek]:not([data-open]) > [data-part-panel] > [data-part-content] {
+    content-visibility: visible;
+    mask-image: linear-gradient(
+      to bottom,
+      #000 calc(100% - var(--slotted-collapsible-peek-fade, 3rem)),
+      transparent
+    );
+    opacity: 1;
+    padding-block-start: var(
+      --slotted-collapsible-panel-padding-block-start,
+      var(--_padding-block)
+    );
+  }
+
+  /* Over the fade, at the end of what is in view. */
+  [data-ui-collapsible] > [data-part-more] {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: center;
+    margin-block: calc(-1 * var(--slotted-collapsible-peek-fade, 3rem) / 2) var(--_padding-block);
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (forced-colors: active) {
+    [data-ui-collapsible][data-peek]:not([data-open]) > [data-part-panel] > [data-part-content] {
+      mask-image: none;
+    }
+  }
+
+  /**
    * A panel whose content has not arrived. The box is held open at a line's
    * height so the reader is not handed an empty frame, and `aria-busy` on the
    * panel is what says the emptiness is temporary. What stands in for the
@@ -659,6 +707,10 @@
 
     [data-ui-collapsible] > [data-part-panel] {
       grid-row: 3;
+    }
+
+    [data-ui-collapsible] > [data-part-more] {
+      grid-row: 4;
     }
   }
 }

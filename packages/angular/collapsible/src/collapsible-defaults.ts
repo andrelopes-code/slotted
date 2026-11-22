@@ -45,6 +45,8 @@ export interface CollapsibleDefaults {
   indicator: CollapsibleIndicator;
   level: CollapsibleLevel;
   mount: CollapsibleMount;
+  /** The block size a closed panel keeps in view; `undefined` keeps none. */
+  peek: string | undefined;
   size: CollapsibleSize;
   togglePlacement: CollapsibleTogglePlacement;
   truncate: boolean;
@@ -55,6 +57,7 @@ const FALLBACK: CollapsibleDefaults = {
   indicator: 'chevron',
   level: 'none',
   mount: 'eager',
+  peek: undefined,
   size: 'md',
   togglePlacement: 'end',
   truncate: false,

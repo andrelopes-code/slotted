@@ -9,6 +9,8 @@ import type {
   CollapsibleActionsProps,
   CollapsibleHeaderProps,
   CollapsibleHeaderRootProps,
+  CollapsibleMoreProps,
+  CollapsibleMoreRootProps,
   CollapsiblePanelProps,
   CollapsiblePanelRootProps,
   CollapsibleTriggerProps,
@@ -190,7 +192,7 @@ export function CollapsiblePanel({
   style,
   ...nativeProps
 }: CollapsiblePanelProps) {
-  const { ids, loading, mount, open, region, seen, toggle } = useCollapsible();
+  const { ids, loading, mount, open, peek, region, seen, toggle } = useCollapsible();
   /* A ref rather than state: held in state, attaching the panel rendered it a
      second time on mount, for an element nothing renders from. */
   const node = useRef<HTMLElement | null>(null);
@@ -240,6 +242,7 @@ export function CollapsiblePanel({
     ) : null,
     className,
     'data-part': 'panel',
+    ...(peek !== undefined && !open ? { 'data-state': 'peek' } : {}),
     id: ids.panelId,
     ...(region ? { role: 'region' as const } : {}),
     style,
@@ -257,4 +260,30 @@ export function CollapsiblePanel({
       }}
     />
   );
+}
+
+/**
+ * The control a peeking panel draws over its fade: present only while the
+ * panel is closed and `peek` is set, it opens the panel and names it through
+ * `aria-controls`, as the header's trigger does.
+ */
+export function CollapsibleMore({ onClick, render, ...nativeProps }: CollapsibleMoreProps) {
+  const { disabled, ids, open, peek, toggle } = useCollapsible();
+
+  if (open || peek === undefined) return null;
+
+  const rootProps: CollapsibleMoreRootProps = keyedProps({
+    ...nativeProps,
+    'aria-controls': ids.panelId,
+    'aria-expanded': false as const,
+    'data-part': 'more',
+    disabled,
+    onClick: (event: MouseEvent<HTMLButtonElement>) => {
+      onClick?.(event);
+      if (!event.defaultPrevented) toggle(true, activationReason(event), event);
+    },
+    type: 'button' as const,
+  });
+
+  return render === undefined ? <button {...rootProps} /> : render(rootProps);
 }

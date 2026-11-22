@@ -102,6 +102,13 @@ const anatomy: AnatomyRow[] = [
     purpose:
       'What the panel’s grid track clips. Its content-visibility takes closed content out of the tab sequence, out of the accessibility tree and out of the browser’s page search. mount decides whether it is built at all, and an ng-template[slCollapsibleContent] inside it is what makes lazy actually lazy.',
   },
+  {
+    part: 'more',
+    element: 'button',
+    required: false,
+    purpose:
+      'The control a peeking panel draws over its fade, present only while the panel is closed and peek is set: it opens the panel and names it through aria-controls, as the header trigger does.',
+  },
 ];
 
 const scenes: ReferenceSceneMeta[] = [
@@ -373,6 +380,13 @@ export const ANGULAR_COLLAPSIBLE_DOCS = {
         'eager',
         'slCollapsible, slAccordion, provideCollapsibleDefaults',
         'When the panel’s content exists. The box always does, so aria-controls never names an element that is gone. lazy needs an ng-template[slCollapsibleContent], because projected content is built whether or not it is inserted',
+      ],
+      [
+        'peek',
+        'string',
+        '—',
+        'slCollapsible, provideCollapsibleDefaults',
+        'A length (9rem): a closed panel keeps that block size of its content in view under a fade, stays inert, and animates to its full size with the same durations; forced colors drop the fade and keep the clip. The panel carries data-state="peek", and mount is forced to eager',
       ],
       [
         'truncate',

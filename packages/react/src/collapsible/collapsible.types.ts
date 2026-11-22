@@ -53,6 +53,8 @@ export interface CollapsibleDefaults {
   indicator: CollapsibleIndicator;
   level: CollapsibleLevel;
   mount: CollapsibleMount;
+  /** The block size a closed panel keeps in view; `undefined` keeps none. */
+  peek: string | undefined;
   size: CollapsibleSize;
   togglePlacement: CollapsibleTogglePlacement;
   truncate: boolean;
@@ -75,6 +77,8 @@ export interface CollapsibleContextValue {
   loading: boolean;
   mount: CollapsibleMount;
   open: boolean;
+  /** The block size a closed panel keeps in view, or `undefined`. */
+  peek: string | undefined;
   /** Whether the group refuses to let this one close, which the APG marks. */
   held: boolean;
   /** Whether the panel is a landmark. Off unless the consumer asks. */
@@ -93,6 +97,7 @@ export interface CollapsibleRootProps extends HTMLAttributes<HTMLElement> {
   'data-mount': CollapsibleMount;
   'data-open'?: '' | undefined;
   'data-part': string;
+  'data-peek'?: '' | undefined;
   'data-size': CollapsibleSize;
   'data-toggle-placement': CollapsibleTogglePlacement;
   'data-truncate'?: '' | undefined;
@@ -126,6 +131,7 @@ export interface CollapsibleTriggerRootProps extends ButtonHTMLAttributes<HTMLEl
 export interface CollapsiblePanelRootProps extends HTMLAttributes<HTMLElement> {
   'aria-labelledby': string;
   'data-part': string;
+  'data-state'?: 'peek' | undefined;
   id: string;
 }
 
@@ -139,6 +145,13 @@ export interface CollapsibleProps extends Omit<ComponentPropsWithRef<'div'>, 'on
   disabled?: boolean | undefined;
   /** Defaults to the accordion, then the provider, then `chevron`. */
   indicator?: CollapsibleIndicator | undefined;
+  /**
+   * A length (`9rem`): a closed panel keeps that block size of its content in
+   * view under a fade instead of none, and stays inert, so the reader keeps
+   * the context of what the block holds. `CollapsibleMore` draws the control
+   * that opens it over the fade. Forces `mount` to `eager`.
+   */
+  peek?: string | undefined;
   /** Defaults to the accordion, then the provider, then `none`. */
   level?: CollapsibleLevel | undefined;
   /**
@@ -216,4 +229,15 @@ export interface CollapsibleActionsProps extends ComponentPropsWithRef<'div'> {
 export interface CollapsiblePanelProps extends ComponentPropsWithRef<'div'> {
   /** Renders the panel into another element. */
   render?: ((props: CollapsiblePanelRootProps) => ReactNode) | undefined;
+}
+
+export interface CollapsibleMoreProps extends Omit<ComponentPropsWithRef<'button'>, 'type'> {
+  render?: ((props: CollapsibleMoreRootProps) => ReactNode) | undefined;
+}
+
+export interface CollapsibleMoreRootProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  'aria-controls': string;
+  'aria-expanded': false;
+  'data-part': string;
+  type: 'button';
 }

@@ -19,6 +19,7 @@ export {
   SlCollapsibleActions,
   SlCollapsibleContent,
   SlCollapsibleHeader,
+  SlCollapsibleMore,
   SlCollapsiblePanel,
   SlCollapsibleTrigger,
 } from './collapsible-parts';

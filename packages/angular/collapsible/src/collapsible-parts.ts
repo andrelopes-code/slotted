@@ -210,6 +210,8 @@ export class SlCollapsibleContent {
     '[attr.aria-labelledby]': 'ids().triggerId',
     '[attr.role]': "collapsible.region() ? 'region' : null",
     '[attr.aria-busy]': "collapsible.loading() ? 'true' : null",
+    '[attr.data-state]':
+      "collapsible.resolvedPeek() !== undefined && !collapsible.isOpen() ? 'peek' : null",
   },
 })
 export class SlCollapsiblePanel {
@@ -259,5 +261,33 @@ export class SlCollapsiblePanel {
 
   protected ids() {
     return this.collapsible.ids();
+  }
+}
+
+/**
+ * The control a peeking panel draws over its fade: shown only while the panel
+ * is closed and `peek` is set, it opens the panel and names it through
+ * `aria-controls`, as the header's trigger does.
+ */
+@Directive({
+  selector: 'button[slCollapsibleMore]',
+  standalone: true,
+  host: {
+    'data-part': 'more',
+    'data-part-more': '',
+    type: 'button',
+    '[attr.aria-controls]': 'collapsible.ids().panelId',
+    'aria-expanded': 'false',
+    '[attr.hidden]': "collapsible.isOpen() || collapsible.resolvedPeek() === undefined ? '' : null",
+    '[disabled]': 'collapsible.resolvedDisabled()',
+    '(click)': 'onClick($event)',
+  },
+})
+export class SlCollapsibleMore {
+  protected readonly collapsible = inject(SlCollapsible);
+
+  protected onClick(event: MouseEvent) {
+    if (event.defaultPrevented) return;
+    this.collapsible.toggle(true, event.detail === 0 ? 'keyboard' : 'pointer', event);
   }
 }

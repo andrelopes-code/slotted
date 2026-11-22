@@ -5,7 +5,12 @@ import { describe, expect, it } from 'vitest';
 import { Inline } from '../inline';
 import { Tag } from '../tag';
 import { Collapsible } from './collapsible';
-import { CollapsibleHeader, CollapsiblePanel, CollapsibleTrigger } from './collapsible-parts';
+import {
+  CollapsibleHeader,
+  CollapsibleMore,
+  CollapsiblePanel,
+  CollapsibleTrigger,
+} from './collapsible-parts';
 import type { CollapsibleSize } from './collapsible.types';
 
 const center = (element: Element) => {
@@ -192,5 +197,34 @@ describe('a label that holds an element taller than its line', () => {
 
     expect(label.getBoundingClientRect().height).toBeGreaterThan(line * 2);
     expect(Math.abs(center(indicator) - firstLine)).toBeLessThan(1);
+  });
+});
+
+describe('a closed panel that peeks', () => {
+  it('keeps its peek in view under a fade, and its full height once open', async () => {
+    const view = render(
+      <div style={{ '--slotted-duration-medium': '0s' } as CSSProperties}>
+        <Collapsible peek="64px">
+          <CollapsibleHeader>
+            <CollapsibleTrigger>Fixed income</CollapsibleTrigger>
+          </CollapsibleHeader>
+          <CollapsiblePanel>
+            <div style={{ blockSize: 400 }}>Charts</div>
+          </CollapsiblePanel>
+          <CollapsibleMore>Show more</CollapsibleMore>
+        </Collapsible>
+      </div>,
+    );
+    const panel = view.container.querySelector<HTMLElement>('[data-part="panel"]')!;
+    const content = panel.querySelector<HTMLElement>('[data-part="content"]')!;
+
+    expect(panel.getBoundingClientRect().height).toBeCloseTo(64, 0);
+    expect(getComputedStyle(content).maskImage).toMatch(/linear-gradient/);
+
+    view.container.querySelector<HTMLElement>('[data-part="more"]')!.click();
+    await new Promise(requestAnimationFrame);
+
+    expect(panel.getBoundingClientRect().height).toBeGreaterThan(400);
+    expect(getComputedStyle(content).maskImage).toBe('none');
   });
 });

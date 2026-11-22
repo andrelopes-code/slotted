@@ -3,6 +3,7 @@ import '@slotted/styles/collapsible/collapsible.css';
 
 import { createControllable } from '@slotted/core/state';
 import { createContext, useContext, useId, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 
 import { useAccordion } from '../accordion';
 import { useCollapsibleDefaults } from './collapsible-defaults';
@@ -62,6 +63,7 @@ export function Collapsible({
   mount,
   onOpenChange,
   open,
+  peek,
   region,
   ref,
   render,
@@ -93,7 +95,10 @@ export function Collapsible({
   const resolvedDisabled = (disabled ?? group?.disabled) === true;
   const resolvedIndicator = indicator ?? group?.indicator ?? defaults.indicator;
   const resolvedLevel = level ?? group?.level ?? defaults.level;
-  const resolvedMount = mount ?? group?.mount ?? defaults.mount;
+  const resolvedPeek = peek ?? defaults.peek;
+  /* A peeking panel draws its content while closed. */
+  const resolvedMount =
+    resolvedPeek === undefined ? (mount ?? group?.mount ?? defaults.mount) : 'eager';
   const resolvedSize = size ?? group?.size ?? defaults.size;
   const resolvedTogglePlacement =
     togglePlacement ?? group?.togglePlacement ?? defaults.togglePlacement;
@@ -140,6 +145,7 @@ export function Collapsible({
     loading: loading === true,
     mount: resolvedMount,
     open: current,
+    peek: resolvedPeek,
     region: region === true,
     seen: seen.current,
     toggle,
@@ -155,13 +161,15 @@ export function Collapsible({
     'data-mount': resolvedMount,
     ...(current ? { 'data-open': '' } : {}),
     'data-part': 'root',
+    ...(resolvedPeek === undefined ? {} : { 'data-peek': '' }),
     'data-size': resolvedSize,
     'data-toggle-placement': resolvedTogglePlacement,
     ...(resolvedTruncate ? { 'data-truncate': '' } : {}),
     'data-ui': 'collapsible',
     'data-value': identity,
     'data-variant': resolvedVariant,
-    style,
+    style:
+      resolvedPeek === undefined ? style : ({ '--_peek': resolvedPeek, ...style } as CSSProperties),
   });
 
   return (

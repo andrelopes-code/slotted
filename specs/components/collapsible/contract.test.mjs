@@ -158,6 +158,7 @@ test('states every part the two bindings and the harness have to render', () => 
     'actions',
     'panel',
     'content',
+    'more',
   ]);
 });
 

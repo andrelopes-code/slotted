@@ -3,6 +3,7 @@ export { CollapsibleDefaultsProvider, useCollapsibleDefaults } from './collapsib
 export {
   CollapsibleActions,
   CollapsibleHeader,
+  CollapsibleMore,
   CollapsiblePanel,
   CollapsibleTrigger,
 } from './collapsible-parts';
@@ -16,6 +17,8 @@ export type {
   CollapsibleHeaderRootProps,
   CollapsibleIndicator,
   CollapsibleLevel,
+  CollapsibleMoreProps,
+  CollapsibleMoreRootProps,
   CollapsibleMount,
   CollapsibleOpenReason,
   CollapsiblePanelProps,

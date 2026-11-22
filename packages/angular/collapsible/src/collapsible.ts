@@ -77,6 +77,8 @@ export const COLLAPSIBLE_TRIGGER_SELECTOR = '[data-part="trigger"]';
     '[attr.data-indicator]': 'resolvedIndicator()',
     '[attr.data-toggle-placement]': 'resolvedTogglePlacement()',
     '[attr.data-mount]': 'resolvedMount()',
+    '[attr.data-peek]': "resolvedPeek() === undefined ? null : ''",
+    '[style.--_peek]': 'resolvedPeek() ?? null',
     '[attr.data-truncate]': "resolvedTruncate() ? '' : null",
     '[attr.data-open]': "isOpen() ? '' : null",
     '[attr.data-disabled]': "resolvedDisabled() ? '' : null",
@@ -113,6 +115,12 @@ export class SlCollapsible implements OnInit {
   readonly togglePlacement = input<CollapsibleTogglePlacement | undefined>(undefined);
   readonly level = input<CollapsibleLevel | undefined>(undefined);
   readonly mount = input<CollapsibleMount | undefined>(undefined);
+  /**
+   * A length (`9rem`): a closed panel keeps that block size of its content in
+   * view under a fade instead of none, and stays inert. `slCollapsibleMore`
+   * draws the control that opens it over the fade. Forces `mount` to `eager`.
+   */
+  readonly peek = input<string | undefined>(undefined);
   readonly truncate = input<boolean | undefined, boolean | string | undefined>(undefined, {
     transform: (state) => (state === undefined ? undefined : booleanAttribute(state)),
   });
@@ -160,8 +168,12 @@ export class SlCollapsible implements OnInit {
   readonly resolvedLevel = computed(
     () => this.level() ?? this.group?.resolvedHeadingLevel() ?? this.defaults.level,
   );
-  readonly resolvedMount = computed(
-    () => this.mount() ?? this.group?.resolvedMount() ?? this.defaults.mount,
+  readonly resolvedPeek = computed(() => this.peek() ?? this.defaults.peek);
+  /* A peeking panel draws its content while closed. */
+  readonly resolvedMount = computed(() =>
+    this.resolvedPeek() === undefined
+      ? (this.mount() ?? this.group?.resolvedMount() ?? this.defaults.mount)
+      : 'eager',
   );
   readonly resolvedTruncate = computed(
     () => (this.truncate() ?? this.group?.resolvedTruncate() ?? this.defaults.truncate) === true,

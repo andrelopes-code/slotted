@@ -11,6 +11,7 @@ import {
   SlCollapsibleActions,
   SlCollapsibleContent,
   SlCollapsibleHeader,
+  SlCollapsibleMore,
   SlCollapsiblePanel,
   SlCollapsibleTrigger,
 } from './collapsible-parts';
@@ -342,5 +343,51 @@ describe('SlCollapsible inside a set', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('panel a');
+  });
+});
+
+describe('a collapsible that peeks', () => {
+  @Component({
+    standalone: true,
+    imports: [
+      SlCollapsible,
+      SlCollapsibleHeader,
+      SlCollapsibleMore,
+      SlCollapsiblePanel,
+      SlCollapsibleTrigger,
+    ],
+    template: `<div slCollapsible peek="9rem">
+      <h3 slCollapsibleHeader><button slCollapsibleTrigger>Fixed income</button></h3>
+      <div slCollapsiblePanel>Charts</div>
+      <button slCollapsibleMore>Show more</button>
+    </div>`,
+  })
+  class Peeking {}
+
+  it('keeps the start of a closed panel in view, inert, and opens from the control over the fade', async () => {
+    const fixture = TestBed.createComponent(Peeking);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const root = fixture.nativeElement.querySelector('[data-ui="collapsible"]') as HTMLElement;
+    const panel = root.querySelector('[data-part="panel"]') as HTMLElement;
+    const trigger = root.querySelector('[data-part="trigger"]') as HTMLElement;
+    const more = root.querySelector('[data-part="more"]') as HTMLButtonElement;
+
+    expect(root.hasAttribute('data-peek')).toBe(true);
+    expect(root.style.getPropertyValue('--_peek')).toBe('9rem');
+    expect(panel.getAttribute('data-state')).toBe('peek');
+    expect(panel.hasAttribute('inert')).toBe(true);
+    expect(panel.textContent?.trim()).toBe('Charts');
+    expect(more.getAttribute('aria-controls')).toBe(panel.id);
+    expect(more.hidden).toBe(false);
+
+    more.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    expect(panel.hasAttribute('inert')).toBe(false);
+    expect(panel.hasAttribute('data-state')).toBe(false);
+    expect(more.hidden).toBe(true);
   });
 });

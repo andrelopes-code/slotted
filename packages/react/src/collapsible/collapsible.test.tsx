@@ -9,6 +9,7 @@ import { CollapsibleDefaultsProvider } from './collapsible-defaults';
 import {
   CollapsibleActions,
   CollapsibleHeader,
+  CollapsibleMore,
   CollapsiblePanel,
   CollapsibleTrigger,
 } from './collapsible-parts';
@@ -44,12 +45,22 @@ describe('Collapsible', () => {
         <CollapsiblePanel>scheduled for September 12</CollapsiblePanel>
       </Collapsible>,
     );
+    /* The control over a peeking panel's fade exists only while it is closed. */
+    render(
+      <Collapsible peek="4rem">
+        <CollapsibleHeader>
+          <CollapsibleTrigger>Returns</CollapsibleTrigger>
+        </CollapsibleHeader>
+        <CollapsiblePanel>Charts</CollapsiblePanel>
+        <CollapsibleMore>Show more</CollapsibleMore>
+      </Collapsible>,
+    );
 
     for (const part of contract.members.collapsible.parts) {
       expect(document.querySelector(`[data-part="${part}"]`)).not.toBeNull();
     }
     expect(document.querySelector('h3[data-part="header"]')).not.toBeNull();
-    expect(screen.getByRole('region')).toBe(panel());
+    expect(screen.getByRole('region')).toBe(document.querySelectorAll('[data-part="panel"]')[0]);
   });
 
   /** The pattern's two properties, and the identifiers that wire them. */
@@ -315,5 +326,37 @@ describe('Collapsible', () => {
       /must be rendered inside Collapsible/,
     );
     quiet.mockRestore();
+  });
+});
+
+describe('a collapsible that peeks', () => {
+  it('keeps the start of a closed panel in view, inert, and opens from the control over the fade', () => {
+    render(
+      <Collapsible defaultOpen={false} peek="9rem">
+        <CollapsibleHeader>
+          <CollapsibleTrigger>Fixed income</CollapsibleTrigger>
+        </CollapsibleHeader>
+        <CollapsiblePanel>Charts</CollapsiblePanel>
+        <CollapsibleMore>Show more</CollapsibleMore>
+      </Collapsible>,
+    );
+    const root = document.querySelector<HTMLElement>('[data-ui="collapsible"]')!;
+    const panel = document.querySelector<HTMLElement>('[data-part="panel"]')!;
+    const trigger = screen.getByRole('button', { name: 'Fixed income' });
+    const more = screen.getByRole('button', { name: 'Show more' });
+
+    expect(panel).toHaveAttribute('data-state', 'peek');
+    expect(panel).toHaveAttribute('inert');
+    expect(panel.textContent).toBe('Charts');
+    expect(root.style.getPropertyValue('--_peek')).toBe('9rem');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(more).toHaveAttribute('aria-controls', panel.id);
+
+    fireEvent.click(more, { detail: 1 });
+
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(panel).not.toHaveAttribute('inert');
+    expect(panel).not.toHaveAttribute('data-state');
+    expect(screen.queryByRole('button', { name: 'Show more' })).toBeNull();
   });
 });

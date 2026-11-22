@@ -91,7 +91,11 @@ test('draws the indicator with the Glyph element rather than a mask or a charact
   const indicator = rule(`${ui}>[data-part-header]>[data-part-trigger]>[data-part-indicator]`);
   assert.match(indicator, /--slotted-icon-size:var\(--_icon-size\)/);
   assert.ok(!/content:/.test(indicator), 'the mark is drawn with content rather than geometry');
-  assert.ok(!/mask/.test(normalized), 'the stylesheet still paints a mark with a mask');
+  /* A mask that fades a peeking panel is not a mark: no mask draws artwork. */
+  assert.ok(
+    !/mask[\w-]*:[^;]*(url\(|--slotted-icon)/.test(normalized),
+    'the stylesheet still paints a mark with a mask',
+  );
   assert.match(
     fragment,
     /data-part="indicator"[^>]*>\s*<span data-ui="icon"[^>]*><svg data-part="glyph" data-glyph="chevron-down">/,
