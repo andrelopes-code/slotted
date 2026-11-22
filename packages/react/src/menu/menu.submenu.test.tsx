@@ -1,9 +1,10 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Menu } from './menu';
 import { MenuContent, MenuTrigger } from './menu-parts';
-import { MenuItem } from './menu-items';
+import { MenuItem, MenuRadioGroup, MenuRadioItem } from './menu-items';
 
 /**
  * Where a submenu lands (M2). A headless document lays nothing out, so the
@@ -205,5 +206,53 @@ describe('three levels deep', () => {
     fireEvent.keyDown(screen.getByRole('menuitem', { name: 'Teams' }), { key: 'ArrowLeft' });
     await waitFor(() => expect(screen.getAllByRole('menu')).toHaveLength(2));
     await waitFor(() => expect(more).toHaveFocus());
+  });
+});
+
+describe('an open submenu across renders of its parent', () => {
+  function Probe({ tick }: { tick: number }) {
+    const [value, setValue] = useState('a');
+    return (
+      <Menu>
+        <MenuTrigger data-tick={tick}>root</MenuTrigger>
+        <MenuContent>
+          <Menu>
+            <MenuTrigger>sub</MenuTrigger>
+            <MenuContent>
+              <MenuRadioGroup aria-label="g" onValueChange={setValue} value={value}>
+                <MenuRadioItem value="a">A</MenuRadioItem>
+                <MenuRadioItem value="b">B</MenuRadioItem>
+              </MenuRadioGroup>
+            </MenuContent>
+          </Menu>
+        </MenuContent>
+      </Menu>
+    );
+  }
+
+  it('keeps data-open on the submenu positioner through a render with the same props', async () => {
+    const view = render(<Probe tick={0} />);
+    fireEvent.click(screen.getByRole('button', { name: 'root' }), { detail: 1 });
+    await screen.findByRole('menu');
+    const item = screen.getByRole('menuitem', { name: 'sub' });
+    item.focus();
+    fireEvent.keyDown(item, { key: 'ArrowRight' });
+    await waitFor(() => expect(screen.getAllByRole('menu')).toHaveLength(2));
+    const layer = (screen.getAllByRole('menu')[1] as HTMLElement).parentElement as HTMLElement;
+    await waitFor(() => expect(layer).toHaveAttribute('data-open'));
+
+    const changes: (string | null)[] = [];
+    const observer = new MutationObserver((records) => {
+      for (const record of records) changes.push(layer.getAttribute(record.attributeName!));
+    });
+    observer.observe(layer, { attributeFilter: ['data-open'] });
+    view.rerender(<Probe tick={0} />);
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+    observer.disconnect();
+
+    expect(changes).toEqual([]);
+    expect(layer).toHaveAttribute('data-open');
   });
 });

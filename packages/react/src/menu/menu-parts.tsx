@@ -466,6 +466,11 @@ export function MenuContent({ children, loading, ref, render, ...nativeProps }: 
     });
   }, []);
 
+  /* The parent's surface element, not the parent's context value: the value
+     is a new object on every render of the parent, and an effect keyed on it
+     tore the open submenu's position down and wrote it again each time. */
+  const parentSurface = menu.parent?.node ?? null;
+
   useLayoutEffect(() => {
     if (layerNode === null || anchor === null) return;
 
@@ -474,9 +479,9 @@ export function MenuContent({ children, loading, ref, render, ...nativeProps }: 
        inset above its first item is taken off along the alignment, so the
        first item lines up with the item that opened it (M2). */
     const submenu =
-      menu.parent !== null && surfaceNode !== null && menu.triggerNode !== null
+      parentSurface !== null && surfaceNode !== null && menu.triggerNode !== null
         ? submenuOffsets({
-            parentSurface: menu.parent.node,
+            parentSurface,
             item: menu.triggerNode,
             surface: surfaceNode,
           })
@@ -510,7 +515,7 @@ export function MenuContent({ children, loading, ref, render, ...nativeProps }: 
     flip,
     hideWhenDetached,
     layerNode,
-    menu.parent,
+    parentSurface,
     menu.triggerNode,
     shift,
     side,
