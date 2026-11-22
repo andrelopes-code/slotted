@@ -30,6 +30,7 @@ export default defineConfig({
         glyph: resolve(import.meta.dirname, 'src/glyph/index.ts'),
         grid: resolve(import.meta.dirname, 'src/grid/index.ts'),
         focus: resolve(import.meta.dirname, 'src/focus/index.ts'),
+        'floating-panel': resolve(import.meta.dirname, 'src/floating-panel/index.ts'),
         fullscreen: resolve(import.meta.dirname, 'src/fullscreen/index.ts'),
         'media-viewer': resolve(import.meta.dirname, 'src/media-viewer/index.ts'),
         highlight: resolve(import.meta.dirname, 'src/highlight/index.ts'),

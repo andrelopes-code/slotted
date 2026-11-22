@@ -1,0 +1,118 @@
+@layer slotted.components {
+  /**
+   * A tool that floats over the page and holds nobody: no scrim, no focus
+   * trap, no inert page. It stands at the place the binding writes (`--_x`,
+   * `--_y`, the top-left corner in viewport pixels) and the translation is
+   * clamped by the viewport and its own size, so the whole panel stays in view
+   * while it moves, when the window shrinks and when a stored place lies
+   * outside it, with no script on resize.
+   *
+   *   [data-ui-floating-panel] ▸ handle ▸ grip · title · close
+   *                            ▸ body
+   */
+  [data-ui-floating-panel][data-part-root] {
+    background-color: var(--slotted-floating-panel-surface, var(--slotted-surface-raised, Canvas));
+    border: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-floating-panel-border-color, var(--slotted-border-strong, CanvasText));
+    border-radius: var(--slotted-floating-panel-radius, var(--slotted-radius-lg, 8px));
+    box-shadow: var(--slotted-floating-panel-shadow, var(--slotted-shadow-lg, none));
+    -webkit-backdrop-filter: var(--slotted-floating-panel-backdrop-filter, none);
+    backdrop-filter: var(--slotted-floating-panel-backdrop-filter, none);
+    box-sizing: border-box;
+    color: var(--slotted-text, CanvasText);
+    display: flex;
+    flex-direction: column;
+    font-family: var(--slotted-font-family-sans, system-ui, sans-serif);
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+    /* The place is physical (a pointer's coordinates), so the panel stands
+       at the viewport's left edge in either direction before it moves. */
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    max-block-size: 100dvh;
+    max-inline-size: 100vw;
+    position: fixed;
+    translate: clamp(0px, var(--_x, 0px), calc(100vw - 100%))
+      clamp(0px, var(--_y, 0px), calc(100dvh - 100%));
+    /* Over the page and its popovers' layer, under a toast. */
+    z-index: var(--slotted-z-index-popover, 1000);
+  }
+
+  [data-ui-floating-panel][data-part-root]:dir(rtl) {
+    inset-inline-end: 0;
+    inset-inline-start: auto;
+  }
+
+  [data-ui-floating-panel] > [data-part-handle] {
+    align-items: center;
+    border-block-end: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-floating-panel-rule-color, var(--slotted-border-subtle, ButtonBorder));
+    cursor: grab;
+    display: flex;
+    gap: var(--slotted-space-3, 0.375rem);
+    padding-block: var(--slotted-space-2, 0.25rem);
+    padding-inline: var(--slotted-space-3, 0.375rem);
+    /* A press on the handle is a drag, never a scroll of the page. */
+    touch-action: none;
+    user-select: none;
+  }
+
+  [data-ui-floating-panel][data-dragging] > [data-part-handle] {
+    cursor: grabbing;
+  }
+
+  [data-ui-floating-panel] > [data-part-handle] > [data-part-title] {
+    flex: 1 1 auto;
+    font-weight: var(--slotted-font-weight-semibold, 600);
+    margin: 0;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-floating-panel] > [data-part-handle] > :is([data-part-grip], [data-part-close]) {
+    align-items: center;
+    appearance: none;
+    background-color: transparent;
+    block-size: var(--slotted-control-inner-size-md, 24px);
+    border: 0;
+    border-radius: var(--slotted-radius-sm, 4px);
+    color: var(--slotted-text-muted, GrayText);
+    cursor: inherit;
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--slotted-control-inner-size-md, 24px);
+    justify-content: center;
+    padding: 0;
+  }
+
+  [data-ui-floating-panel] > [data-part-handle] > [data-part-close] {
+    cursor: pointer;
+  }
+
+  [data-ui-floating-panel]
+    > [data-part-handle]
+    > :is([data-part-grip], [data-part-close]):hover:not(:disabled) {
+    background-color: var(--slotted-tone-secondary-subtle-hover);
+  }
+
+  [data-ui-floating-panel]
+    > [data-part-handle]
+    > :is([data-part-grip], [data-part-close]):focus-visible {
+    outline: var(--slotted-focus-ring-width, 2px) solid var(--slotted-focus-ring-color, Highlight);
+    outline-offset: var(--slotted-focus-ring-offset, 2px);
+  }
+
+  [data-ui-floating-panel] > [data-part-body] {
+    min-block-size: 0;
+    overflow: auto;
+    padding: var(--slotted-space-5, 0.75rem);
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-floating-panel][data-part-root] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+}

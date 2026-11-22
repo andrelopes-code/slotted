@@ -40,6 +40,7 @@ import { ptBR as drawer } from './pt-BR/drawer';
 import { ptBR as entityPicker } from './pt-BR/entity-picker';
 import { ptBR as eventCalendar } from './pt-BR/event-calendar';
 import { ptBR as field } from './pt-BR/field';
+import { ptBR as floatingPanel } from './pt-BR/floating-panel';
 import { ptBR as filterBar } from './pt-BR/filter-bar';
 import { ptBR as form } from './pt-BR/form';
 import { ptBR as fullscreen } from './pt-BR/fullscreen';
@@ -124,6 +125,7 @@ export const PT_BR: SlottedMessages = {
   entityPicker,
   eventCalendar,
   field,
+  floatingPanel,
   filterBar,
   form,
   fullscreen,

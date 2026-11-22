@@ -47,6 +47,7 @@ export * from './event-calendar';
 export * from './field';
 export * from './field-group';
 export * from './filter-bar';
+export * from './floating-panel';
 export * from './form';
 export * from './fullscreen';
 export * from './grid';

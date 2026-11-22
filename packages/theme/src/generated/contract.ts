@@ -3738,6 +3738,12 @@ export type ComponentToken =
   | '--slotted-filter-bar-surface'
   | '--slotted-filter-bar-value-max'
   | '--slotted-filter-bar-value-max-narrow'
+  | '--slotted-floating-panel-backdrop-filter'
+  | '--slotted-floating-panel-border-color'
+  | '--slotted-floating-panel-radius'
+  | '--slotted-floating-panel-rule-color'
+  | '--slotted-floating-panel-shadow'
+  | '--slotted-floating-panel-surface'
   | '--slotted-form-aside-size'
   | '--slotted-form-color'
   | '--slotted-form-field-gap'
@@ -6095,6 +6101,12 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-filter-bar-surface",
   "--slotted-filter-bar-value-max",
   "--slotted-filter-bar-value-max-narrow",
+  "--slotted-floating-panel-backdrop-filter",
+  "--slotted-floating-panel-border-color",
+  "--slotted-floating-panel-radius",
+  "--slotted-floating-panel-rule-color",
+  "--slotted-floating-panel-shadow",
+  "--slotted-floating-panel-surface",
   "--slotted-form-aside-size",
   "--slotted-form-color",
   "--slotted-form-field-gap",

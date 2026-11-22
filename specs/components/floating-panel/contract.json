@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 5,
+  "family": "floating-panel",
+  "ui": "floating-panel",
+  "catalog": {
+    "group": "Overlays",
+    "summary": "A non-modal tool panel the reader drags over the page."
+  },
+  "rootRole": "region",
+  "roleReason": "The panel holds nobody: the page under it stays usable, and the shortcuts an application holds back while a dialog is open keep working. A named region says what it is without the dialog role's promise of a modal context; a press on the page is a press on the page.",
+  "modal": false,
+  "dismiss": "Escape inside the panel and its close control ask onOpenChange(false); focus returns to the element that held it before it opened. An outside press does nothing: the panel stays where it was left.",
+  "placement": "A place is the panel's top-left corner in viewport pixels. The first place is a corner in the reading direction; a move by pointer or by key reports its end through onPlaceChange. The stylesheet clamps the translation by the viewport and the panel's own size, so it stays whole during a move, when the viewport shrinks and when a stored place lies outside it.",
+  "axes": {},
+  "stateAttributes": {
+    "dragging": "data-dragging"
+  },
+  "messages": ["close", "move"],
+  "members": {
+    "floatingPanel": {
+      "nativeElement": "section",
+      "defaults": {
+        "defaultPlace": "bottom-end"
+      },
+      "capabilities": ["placement", "wiring"],
+      "states": ["default", "dragging"],
+      "parts": ["root", "handle", "grip", "title", "close", "body"]
+    }
+  },
+  "scenarios": {
+    "floatingPanel": ["playground", "keyboard", "accessibility"]
+  }
+}

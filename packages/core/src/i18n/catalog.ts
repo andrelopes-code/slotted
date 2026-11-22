@@ -38,6 +38,7 @@ import * as drawerModule from './messages/drawer';
 import * as entityPickerModule from './messages/entity-picker';
 import * as eventCalendarModule from './messages/event-calendar';
 import * as fieldModule from './messages/field';
+import * as floatingPanelModule from './messages/floating-panel';
 import * as filterBarModule from './messages/filter-bar';
 import * as formModule from './messages/form';
 import * as fullscreenModule from './messages/fullscreen';
@@ -121,6 +122,7 @@ export type { DrawerMessages } from './messages/drawer';
 export type { EntityPickerMessages } from './messages/entity-picker';
 export type { EventCalendarMessages } from './messages/event-calendar';
 export type { FieldMessages } from './messages/field';
+export type { FloatingPanelMessages } from './messages/floating-panel';
 export type { FilterBarMessages } from './messages/filter-bar';
 export type { FormMessages } from './messages/form';
 export type { FullscreenMessages } from './messages/fullscreen';
@@ -204,6 +206,7 @@ export { drawerMessages } from './messages/drawer';
 export { entityPickerMessages } from './messages/entity-picker';
 export { eventCalendarMessages } from './messages/event-calendar';
 export { fieldMessages } from './messages/field';
+export { floatingPanelMessages } from './messages/floating-panel';
 export { filterBarMessages } from './messages/filter-bar';
 export { formMessages } from './messages/form';
 export { fullscreenMessages } from './messages/fullscreen';
@@ -289,6 +292,7 @@ export interface SlottedMessages {
   readonly entityPicker: entityPickerModule.EntityPickerMessages;
   readonly eventCalendar: eventCalendarModule.EventCalendarMessages;
   readonly field: fieldModule.FieldMessages;
+  readonly floatingPanel: floatingPanelModule.FloatingPanelMessages;
   readonly filterBar: filterBarModule.FilterBarMessages;
   readonly form: formModule.FormMessages;
   readonly fullscreen: fullscreenModule.FullscreenMessages;
@@ -375,6 +379,7 @@ export const EN_US: SlottedMessages = {
   entityPicker: entityPickerModule.en,
   eventCalendar: eventCalendarModule.en,
   field: fieldModule.en,
+  floatingPanel: floatingPanelModule.en,
   filterBar: filterBarModule.en,
   form: formModule.en,
   fullscreen: fullscreenModule.en,
