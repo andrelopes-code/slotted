@@ -202,3 +202,70 @@ describe('the tooltip of a chart', () => {
     expect(added.getBoundingClientRect().width).toBeCloseTo(tooltip.clientWidth - padding, 0);
   });
 });
+
+/* A theme whose colors resolve to oklch(), which the engine cannot mix. */
+const OKLCH = {
+  '--slotted-chart-color-1': 'oklch(0.66 0.16 215)',
+  '--slotted-text-muted': 'oklch(0.7 0.02 250)',
+} as CSSProperties;
+
+const fills = (root: ParentNode) =>
+  [...root.querySelectorAll('svg path')].map((path) => ({
+    fill: path.getAttribute('fill') ?? '',
+    opacity: path.getAttribute('fill-opacity'),
+  }));
+
+describe('a theme whose colors are not rgb()', () => {
+  it('dims the bars a selection does not name', async () => {
+    const { container } = render(
+      <div style={OKLCH}>
+        <Chart
+          data={[
+            { x: 'a', v: 1 },
+            { x: 'b', v: 2 },
+          ]}
+          renderer="svg"
+          selectable
+          selection={{ series: 's', key: 'a' }}
+          series={[{ id: 's', kind: 'bar', field: 'v', label: 'V' }]}
+          x={{ field: 'x' }}
+        />
+      </div>,
+    );
+    const bars = await vi.waitFor(() => {
+      const painted = fills(container).filter(({ fill }) => /^(rgb|#)/.test(fill));
+      expect(painted.length).toBeGreaterThanOrEqual(2);
+      return painted;
+    });
+
+    expect(new Set(bars.map(({ fill }) => fill)).size).toBeGreaterThan(1);
+    expect(bars.some(({ fill }) => fill.startsWith('oklch'))).toBe(false);
+  });
+
+  it('paints a band annotation translucent', async () => {
+    const { container } = render(
+      <div style={OKLCH}>
+        <Chart
+          annotations={[
+            { kind: 'band', axis: 'x', from: 'a', to: 'c', tone: 'neutral', label: 'Gap' },
+          ]}
+          data={[
+            { x: 'a', v: 1 },
+            { x: 'b', v: 2 },
+            { x: 'c', v: 3 },
+          ]}
+          renderer="svg"
+          series={[{ id: 's', kind: 'line', field: 'v', label: 'V' }]}
+          x={{ field: 'x' }}
+        />
+      </div>,
+    );
+
+    await vi.waitFor(() => {
+      const band = fills(container).find(
+        ({ fill, opacity }) => /0\.12\)$/.test(fill) || opacity === '0.12',
+      );
+      expect(band).toBeDefined();
+    });
+  });
+});

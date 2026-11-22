@@ -1,4 +1,5 @@
 import { THEME_CHANGE_EVENT } from '../portal/portal';
+import { toRgb } from './color';
 import type { ChartColor, ChartSlot, ChartTone } from './types';
 
 /**
@@ -121,7 +122,7 @@ function readTheme(element: Element): ChartTheme {
     const value = raw(name);
     probe.style.color = '';
     probe.style.color = value || fallback;
-    return probeStyle.color || fallback;
+    return toRgb(probeStyle.color || fallback, element.ownerDocument);
   };
   const length = (name: string, fallback: number) => {
     const value = raw(name);

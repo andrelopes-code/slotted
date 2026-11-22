@@ -11,6 +11,7 @@ import {
   type ChartTheme,
   type ChartZoom,
 } from '../chart/index';
+import { toRgb } from '../chart/color';
 
 import { placeLineLabels } from './annotation-labels';
 
@@ -125,7 +126,7 @@ export function bezier([x1, y1, x2, y2]: readonly [number, number, number, numbe
 }
 
 function channels(color: string) {
-  const match = /^rgba?\(([^)]+)\)$/.exec(color);
+  const match = /^rgba?\(([^)]+)\)$/.exec(toRgb(color, globalThis.document));
   if (!match) return null;
   const [r, g, b] = match[1]!
     .split(/[\s,/]+/)
@@ -162,7 +163,7 @@ function dash(series: ChartModelSeries, width: number): number[] | 'solid' {
 }
 
 function withAlpha(color: string, alpha: number) {
-  const match = /^rgba?\(([^)]+)\)$/.exec(color);
+  const match = /^rgba?\(([^)]+)\)$/.exec(toRgb(color, globalThis.document));
   if (!match) return color;
   const [r, g, b] = match[1]!.split(/[\s,/]+/).filter(Boolean);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
