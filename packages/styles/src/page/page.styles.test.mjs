@@ -173,5 +173,8 @@ test('caps the inset of its containers at step 4 below 600 pixels', () => {
   for (let step = 0; step <= 4; step += 1) {
     assert.ok(!selectors.includes(`[data-inset='${step}']`), `inset ${step} is capped`);
   }
-  assert.match(body ?? '', /--_inset:var\(--slotted-space-4,0\.5rem\)/);
+  assert.match(
+    body ?? '',
+    /--_inset:var\(--slotted-page-inset-compact,var\(--slotted-space-4,0\.5rem\)\)/,
+  );
 });

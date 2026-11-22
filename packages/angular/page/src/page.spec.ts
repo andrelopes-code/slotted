@@ -192,6 +192,29 @@ describe('SlPage defaults', () => {
   });
 });
 
+describe('SlPageBody flow', () => {
+  @Component({
+    standalone: true,
+    imports: [SlPage, SlPageBody],
+    template: `<main slPage>
+      <div slPageBody id="blocks">x</div>
+      <div slPageBody id="free" flow="none">y</div>
+    </main>`,
+  })
+  class Flows {}
+
+  it('stacks its blocks unless told the body is not a list of them', () => {
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver);
+    const fixture = TestBed.createComponent(Flows);
+    fixture.detectChanges();
+    const body = (id: string) => fixture.nativeElement.querySelector(`#${id}`) as HTMLElement;
+
+    expect(body('blocks').getAttribute('data-flow')).toBe('blocks');
+    expect(body('free').getAttribute('data-flow')).toBe('none');
+    vi.unstubAllGlobals();
+  });
+});
+
 describe('SlPage language', () => {
   @Component({
     standalone: true,

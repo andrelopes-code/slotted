@@ -97,6 +97,13 @@ export interface PageProps extends ComponentPropsWithRef<'main'> {
 }
 
 export interface PageBodyProps extends ComponentPropsWithRef<'div'> {
+  /**
+   * How the body lays out what is written in it. `blocks` stacks its direct
+   * children at `--slotted-page-block-gap`, and a section without a surface at
+   * `--slotted-page-section-gap`; `none` leaves a body that is not a list of
+   * blocks (a workspace, a split) to its own layout. Defaults to `blocks`.
+   */
+  flow?: 'blocks' | 'none' | undefined;
   /** Renders the body into another element. */
   render?: ((props: HTMLAttributes<HTMLElement>) => ReactNode) | undefined;
 }

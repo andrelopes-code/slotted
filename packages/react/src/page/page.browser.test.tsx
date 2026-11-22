@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import type { CSSProperties } from 'react';
 import { cdp, page } from 'vitest/browser';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -10,6 +11,7 @@ import {
   PageHeaderTitleArea,
   PageHeaderTitleRow,
 } from '../page-header';
+import { Section } from '../section';
 import { Page, PageBody, PageFooter } from './index';
 
 const THEME = {
@@ -171,5 +173,71 @@ describe('a consumer’s sticky element under an inset application frame', () =>
         scroller.getBoundingClientRect().bottom + 0.5,
       );
     }
+  });
+});
+
+describe('the blocks of a page body', () => {
+  const TOKENS = {
+    '--slotted-page-block-gap': '13px',
+    '--slotted-page-section-gap': '29px',
+    '--slotted-page-inset-compact': '16px',
+    inlineSize: 390,
+  } as CSSProperties;
+
+  it('stand at the block gap, and a section without a surface at the section gap', () => {
+    const { container } = render(
+      <div style={{ ...TOKENS, inlineSize: 800 }}>
+        <Page>
+          <PageBody>
+            <div data-testid="one">One</div>
+            <div data-testid="two">Two</div>
+            <Section data-testid="section" title="Section">
+              Body
+            </Section>
+          </PageBody>
+        </Page>
+      </div>,
+    );
+    const box = (id: string) =>
+      container.querySelector(`[data-testid="${id}"]`)!.getBoundingClientRect();
+    const column = container.querySelector('[data-part="body"] > [data-ui="container"]')!;
+
+    expect(getComputedStyle(column).rowGap).toBe('13px');
+    expect(box('two').top - box('one').bottom).toBeCloseTo(13, 0);
+    expect(box('section').top - box('two').bottom).toBeCloseTo(29, 0);
+  });
+
+  it('leave a body of flow none to its own layout', () => {
+    const { container } = render(
+      <div style={TOKENS}>
+        <Page>
+          <PageBody flow="none">
+            <div>One</div>
+          </PageBody>
+        </Page>
+      </div>,
+    );
+    const column = container.querySelector('[data-part="body"] > [data-ui="container"]')!;
+
+    expect(getComputedStyle(column).rowGap).toBe('normal');
+  });
+
+  it('take the compact inset the theme sets below 600 pixels', () => {
+    const { container } = render(
+      <div style={TOKENS}>
+        <Page>
+          <PageBody>
+            <div data-testid="one">One</div>
+          </PageBody>
+        </Page>
+      </div>,
+    );
+    const column = container.querySelector('[data-part="body"] > [data-ui="container"]')!;
+    const one = container.querySelector('[data-testid="one"]')!;
+
+    expect(one.getBoundingClientRect().left - column.getBoundingClientRect().left).toBeCloseTo(
+      16,
+      0,
+    );
   });
 });

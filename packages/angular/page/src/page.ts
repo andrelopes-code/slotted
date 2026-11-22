@@ -216,10 +216,18 @@ export class SlPage {
   host: {
     'data-part': 'body',
     'data-part-body': '',
+    '[attr.data-flow]': 'flow()',
     '[attr.aria-busy]': "page?.loading() ? 'true' : null",
   },
 })
 export class SlPageBody {
+  /**
+   * How the body lays out what is written in it. `blocks` stacks its direct
+   * children at `--slotted-page-block-gap`, and a section without a surface at
+   * `--slotted-page-section-gap`; `none` leaves a body that is not a list of
+   * blocks (a workspace, a split) to its own layout.
+   */
+  readonly flow = input<'blocks' | 'none'>('blocks');
   protected readonly page = inject(SlPage, { optional: true });
 }
 

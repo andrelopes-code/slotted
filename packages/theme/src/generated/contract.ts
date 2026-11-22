@@ -4103,6 +4103,8 @@ export type ComponentToken =
   | '--slotted-overlay-max-block-size'
   | '--slotted-page-background-sunken'
   | '--slotted-page-background-surface'
+  | '--slotted-page-block-gap'
+  | '--slotted-page-block-gap-compact'
   | '--slotted-page-footer-backdrop-filter'
   | '--slotted-page-footer-background'
   | '--slotted-page-footer-border'
@@ -4126,7 +4128,10 @@ export type ComponentToken =
   | '--slotted-page-header-snapped-heading-size-lg'
   | '--slotted-page-header-snapped-heading-size-md'
   | '--slotted-page-header-snapped-heading-size-sm'
+  | '--slotted-page-inset-compact'
   | '--slotted-page-padding-block'
+  | '--slotted-page-section-gap'
+  | '--slotted-page-section-gap-compact'
   | '--slotted-pagination-color'
   | '--slotted-pagination-color-disabled'
   | '--slotted-pagination-color-muted'
@@ -6443,6 +6448,8 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-overlay-max-block-size",
   "--slotted-page-background-sunken",
   "--slotted-page-background-surface",
+  "--slotted-page-block-gap",
+  "--slotted-page-block-gap-compact",
   "--slotted-page-footer-backdrop-filter",
   "--slotted-page-footer-background",
   "--slotted-page-footer-border",
@@ -6466,7 +6473,10 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-page-header-snapped-heading-size-lg",
   "--slotted-page-header-snapped-heading-size-md",
   "--slotted-page-header-snapped-heading-size-sm",
+  "--slotted-page-inset-compact",
   "--slotted-page-padding-block",
+  "--slotted-page-section-gap",
+  "--slotted-page-section-gap-compact",
   "--slotted-pagination-color",
   "--slotted-pagination-color-disabled",
   "--slotted-pagination-color-muted",

@@ -22,6 +22,14 @@
       --slotted-page-footer-padding-block,
       var(--slotted-space-4, 0.5rem)
     );
+    /**
+     * The distance between two blocks of the body (cards, a row of figures, a
+     * bar of controls), and the larger one above a titled section that paints
+     * no surface. One decision on the theme, so screens with the same kind of
+     * content stand the same distance apart.
+     */
+    --_block-gap: var(--slotted-page-block-gap, var(--slotted-space-6, 1rem));
+    --_section-gap: var(--slotted-page-section-gap, var(--slotted-space-8, 1.5rem));
     --_duration: var(--slotted-duration-medium);
     --_easing: var(--slotted-easing-standard, cubic-bezier(0.2, 0, 0, 1));
     /**
@@ -116,6 +124,28 @@
     }
   }
 
+  /**
+   * The blocks of the body are the direct children of its container, one per
+   * row of its grid at the block gap; a section without a surface that
+   * follows another block stands at the section gap. `flow="none"` leaves a
+   * body that is not a list of blocks (a workspace, a split) to its own
+   * layout.
+   */
+  [data-ui-page]
+    > [data-part-scroll]
+    > [data-part-body]:not([data-flow='none'])
+    > [data-ui-container] {
+    row-gap: var(--_block-gap);
+  }
+
+  [data-ui-page]
+    > [data-part-scroll]
+    > [data-part-body]:not([data-flow='none'])
+    > [data-ui-container]
+    > [data-ui-section]:not([data-ground='surface']):not(:first-child) {
+    margin-block-start: calc(var(--_section-gap) - var(--_block-gap));
+  }
+
   [data-ui-page][data-loading] > [data-part-scroll] > [data-part-body] {
     cursor: progress;
   }
@@ -176,9 +206,10 @@
 
   /**
    * Below 600 pixels, the compact size class: the gutters of every container
-   * in the page stop at step 4 of the space scale. At the default inset,
-   * step 6, the two gutters took 32 of a 390-pixel phone's pixels; at step 4
-   * they take 16. The steps under 4 keep their own value.
+   * in the page stop at `--slotted-page-inset-compact`, step 4 of the space
+   * scale unless a theme sets it. At the default inset, step 6, the two
+   * gutters took 32 of a 390-pixel phone's pixels; at step 4 they take 16. The
+   * steps under 4 keep their own value. The gaps of the body step down too.
    */
   @container slotted-page (width < 600px) {
     [data-ui-page] [data-ui-container][data-inset='5'],
@@ -189,7 +220,13 @@
     [data-ui-page] [data-ui-container][data-inset='10'],
     [data-ui-page] [data-ui-container][data-inset='11'],
     [data-ui-page] [data-ui-container][data-inset='12'] {
-      --_inset: var(--slotted-space-4, 0.5rem);
+      --_inset: var(--slotted-page-inset-compact, var(--slotted-space-4, 0.5rem));
+    }
+
+    /* On the body: a container query reaches the page's descendants only. */
+    [data-ui-page] > [data-part-scroll] > [data-part-body] {
+      --_block-gap: var(--slotted-page-block-gap-compact, var(--slotted-space-5, 0.75rem));
+      --_section-gap: var(--slotted-page-section-gap-compact, var(--slotted-space-6, 1rem));
     }
   }
 }

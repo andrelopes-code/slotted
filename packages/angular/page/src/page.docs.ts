@@ -240,6 +240,13 @@ export const ANGULAR_PAGE_DOCS = {
         'The body stops growing with its content and its child stretches to what is left, for a master–detail, a splitter or a canvas that scroll their own panes. The body’s principal scroller snaps the header’s area. From 600 pixels of the page’s width up; below it the page scrolls as without fill',
       ],
       [
+        'flow',
+        "'blocks' | 'none'",
+        'blocks',
+        'slPageBody',
+        'blocks stacks what is written in the body at --slotted-page-block-gap, and a section without a surface at --slotted-page-section-gap, both a step smaller below 600 pixels of the page’s width; none leaves a body that is not a list of blocks (a workspace, a split) to its own layout',
+      ],
+      [
         'ground',
         "'sunken' | 'surface'",
         'sunken',

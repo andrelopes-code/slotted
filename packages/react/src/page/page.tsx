@@ -258,6 +258,7 @@ const FooterStatusContext = createContext<{
 export function PageBody({
   children,
   className,
+  flow = 'blocks',
   ref,
   render,
   style,
@@ -273,6 +274,7 @@ export function PageBody({
       </Container>
     ),
     className,
+    'data-flow': flow,
     'data-part': 'body',
     style,
   });
