@@ -25,6 +25,11 @@ const HEADINGS = [
     selector: '[data-ui-typography]:is(h1, h2, h3, h4, h5, h6)',
   },
   { family: 'alert', part: 'title', selector: '[data-ui-alert] [data-part-title]', hook: true },
+  {
+    family: 'floating-panel',
+    part: 'title',
+    selector: '[data-ui-floating-panel] > [data-part-handle] > [data-part-title]',
+  },
   { family: 'dialog', part: 'title', selector: ':scope [data-part-title]', hook: true },
   {
     family: 'drawer',
