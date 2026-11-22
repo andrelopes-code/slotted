@@ -66,13 +66,13 @@ describe('the frames a theme restyles with the cards', () => {
       const box = getComputedStyle(frame);
       const edge = getComputedStyle(frame, '::before');
 
-      expect(box.borderTopWidth, frame.dataset.ui).toBe('0px');
-      expect(box.boxShadow, frame.dataset.ui).toBe(SHADOW);
-      expect(edge.borderTopColor, frame.dataset.ui).toBe(EDGE);
-      expect(edge.borderTopWidth, frame.dataset.ui).toBe(
+      expect(box.borderTopWidth, frame.dataset['ui']).toBe('0px');
+      expect(box.boxShadow, frame.dataset['ui']).toBe(SHADOW);
+      expect(edge.borderTopColor, frame.dataset['ui']).toBe(EDGE);
+      expect(edge.borderTopWidth, frame.dataset['ui']).toBe(
         getComputedStyle(card!, '::before').borderTopWidth,
       );
-      expect(edge.top, frame.dataset.ui).toBe('0px');
+      expect(edge.top, frame.dataset['ui']).toBe('0px');
     }
   });
 });
