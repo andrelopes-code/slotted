@@ -11,6 +11,7 @@ import {
   TableColumnHeader,
   TableContent,
   TableExpander,
+  TableGroupRow,
   TableHead,
   TableRow,
 } from './index';
@@ -301,5 +302,131 @@ describe('the guide of a folded row', () => {
     expect(parseFloat(guide.height)).toBeCloseTo(cell.height, 0);
     expect(parseFloat(guide.width)).toBeGreaterThan(0);
     expect(text.getBoundingClientRect().left).toBeGreaterThan(line);
+  });
+});
+
+describe('a framed table with a visible caption', () => {
+  it.each([false, true])('paints the caption on the header ground, stickyHeader %s', (sticky) => {
+    const { container } = render(
+      <Table columns={2} stickyHeader={sticky} variant="framed">
+        <TableContent>
+          <TableCaption>Flows by month</TableCaption>
+          <TableHead>
+            <TableRow>
+              <TableColumnHeader>Month</TableColumnHeader>
+              <TableColumnHeader numeric>Amount</TableColumnHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell>May</TableCell>
+              <TableCell numeric>12</TableCell>
+            </TableRow>
+          </TableBody>
+        </TableContent>
+      </Table>,
+    );
+    const ground = (part: string) =>
+      getComputedStyle(container.querySelector(`[data-part="${part}"]`)!).backgroundColor;
+
+    expect(ground('caption')).toBe(ground('column-header'));
+  });
+});
+
+describe('a sticky header', () => {
+  it('pins the head as one element a backdrop filter spans', async () => {
+    const { container } = render(
+      <div
+        style={
+          {
+            '--slotted-table-header-backdrop-filter': 'blur(40px)',
+          } as CSSProperties
+        }
+      >
+        <Table columns={3} stickyHeader>
+          <TableContent>
+            <TableHead>
+              <TableRow>
+                {['A', 'B', 'C'].map((name) => (
+                  <TableColumnHeader key={name}>{name}</TableColumnHeader>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {Array.from({ length: 20 }, (_, row) => (
+                <TableRow key={row}>
+                  <TableCell>{row}</TableCell>
+                  <TableCell>{row}</TableCell>
+                  <TableCell>{row}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </TableContent>
+        </Table>
+      </div>,
+    );
+    const head = container.querySelector<HTMLElement>('[data-part="head"]')!;
+    const scroll = container.querySelector<HTMLElement>('[data-part="scroll"]')!;
+    const headerRow = head.querySelector('[data-part="row"]')!.getBoundingClientRect();
+
+    scroll.style.maxBlockSize = '160px';
+    scroll.scrollTop = 200;
+    await new Promise(requestAnimationFrame);
+
+    expect(scroll.scrollTop).toBeGreaterThan(0);
+    expect(getComputedStyle(head).position).toBe('sticky');
+    expect(getComputedStyle(head).backdropFilter).toBe('blur(40px)');
+    expect(head.getBoundingClientRect().width).toBeCloseTo(headerRow.width, 0);
+    expect(head.getBoundingClientRect().top).toBeCloseTo(scroll.getBoundingClientRect().top, 0);
+  });
+});
+
+describe('a group band in a table wider than its scroller', () => {
+  it('keeps the name and the total in view at both ends of the scroll', async () => {
+    const { container } = render(
+      <div style={{ inlineSize: 360 }}>
+        <Table columns={4}>
+          <TableContent>
+            <TableHead>
+              <TableRow>
+                {['Date', 'Payee', 'Category', 'Amount'].map((name) => (
+                  <TableColumnHeader key={name} style={{ minInlineSize: 200 }}>
+                    {name}
+                  </TableColumnHeader>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableGroupRow end="−R$ 477,80">Today</TableGroupRow>
+              <TableRow>
+                <TableCell>1</TableCell>
+                <TableCell>2</TableCell>
+                <TableCell>3</TableCell>
+                <TableCell>4</TableCell>
+              </TableRow>
+            </TableBody>
+          </TableContent>
+        </Table>
+      </div>,
+    );
+    const scroll = container.querySelector<HTMLElement>('[data-part="scroll"]')!;
+    const band = container.querySelector<HTMLElement>('[data-part="group-content"]')!;
+    const start = container.querySelector('[data-part="group-start"]')!;
+    const end = container.querySelector('[data-part="group-end"]')!;
+    const inset = parseFloat(getComputedStyle(band).paddingInlineStart);
+
+    expect(scroll.scrollWidth).toBeGreaterThan(scroll.clientWidth);
+    for (const left of [0, scroll.scrollWidth - scroll.clientWidth]) {
+      scroll.scrollLeft = left;
+      await new Promise(requestAnimationFrame);
+      const box = scroll.getBoundingClientRect();
+      const viewEnd = box.left + scroll.clientLeft + scroll.clientWidth;
+
+      expect(start.getBoundingClientRect().left).toBeCloseTo(
+        box.left + scroll.clientLeft + inset,
+        0,
+      );
+      expect(end.getBoundingClientRect().right).toBeCloseTo(viewEnd - inset, 0);
+    }
   });
 });

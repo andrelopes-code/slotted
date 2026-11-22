@@ -4628,6 +4628,7 @@ export type ComponentToken =
   | '--slotted-table-border-color'
   | '--slotted-table-border-color-strong'
   | '--slotted-table-border-width'
+  | '--slotted-table-caption-surface'
   | '--slotted-table-cell-padding-block'
   | '--slotted-table-cell-padding-inline'
   | '--slotted-table-color'
@@ -4642,6 +4643,7 @@ export type ComponentToken =
   | '--slotted-table-group-sticky-offset'
   | '--slotted-table-group-surface'
   | '--slotted-table-guide-color'
+  | '--slotted-table-header-backdrop-filter'
   | '--slotted-table-header-surface'
   | '--slotted-table-header-surface-hover'
   | '--slotted-table-icon-size'
@@ -6965,6 +6967,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-table-border-color",
   "--slotted-table-border-color-strong",
   "--slotted-table-border-width",
+  "--slotted-table-caption-surface",
   "--slotted-table-cell-padding-block",
   "--slotted-table-cell-padding-inline",
   "--slotted-table-color",
@@ -6979,6 +6982,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-table-group-sticky-offset",
   "--slotted-table-group-surface",
   "--slotted-table-guide-color",
+  "--slotted-table-header-backdrop-filter",
   "--slotted-table-header-surface",
   "--slotted-table-header-surface-hover",
   "--slotted-table-icon-size",

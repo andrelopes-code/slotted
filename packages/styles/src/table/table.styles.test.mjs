@@ -205,12 +205,12 @@ test('pins a column on the ground its container publishes before the page surfac
  */
 test('reads the sticky offsets only under stickyTo page', () => {
   const header = normalize(
-    '[data-ui-table][data-sticky-header] [data-part-column-header],[data-ui-table][data-sticky-header] [data-part-head] [data-part-selection]{inset-block-start:0;',
+    '[data-ui-table][data-sticky-header] [data-part-head]{backdrop-filter:var(--slotted-table-header-backdrop-filter,none);inset-block-start:0;',
   );
   assert.ok(normalized.includes(header), 'the header sticks at the top of its own scroller');
   assert.ok(
     normalized.includes(
-      "[data-ui-table][data-sticky-to='page'][data-sticky-header] [data-part-column-header],[data-ui-table][data-sticky-to='page'][data-sticky-header] [data-part-head] [data-part-selection]{inset-block-start:var(--slotted-table-sticky-offset,0);}",
+      "[data-ui-table][data-sticky-to='page'][data-sticky-header] [data-part-head]{inset-block-start:var(--slotted-table-sticky-offset,0);}",
     ),
     'the header stops under the page chrome under stickyTo page',
   );

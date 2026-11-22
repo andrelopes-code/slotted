@@ -245,6 +245,12 @@
   /* The name without the picture: a table under a heading that already names
      it. The caption keeps naming the table and takes no box, so the space
      above the header row is the space under the last row. */
+  /* Inside a frame the caption is the top of the same band as the header,
+     not a band of the table's surface above it. */
+  [data-ui-table][data-variant='framed'] [data-part-caption] {
+    background-color: var(--slotted-table-caption-surface, var(--_head-surface));
+  }
+
   [data-ui-table] [data-part-caption][data-visually-hidden] {
     block-size: 1px;
     clip-path: inset(50%);
@@ -611,6 +617,33 @@
     min-inline-size: 0;
   }
 
+  /*
+   * A table wider than its scroller kept the group's total at the end of the
+   * full table width, off screen until the reader scrolled all the way across,
+   * and the name left the view on the way. The band's ground and rule still
+   * span the table; its content is the scroller's width, pinned to its start,
+   * so the name and the total stay in view at every scroll position. The
+   * scroller is a size container only when it holds a group row.
+   */
+  [data-ui-table] [data-part-scroll]:has([data-part-group-row]) {
+    container-type: inline-size;
+  }
+
+  [data-ui-table]
+    [data-part-scroll]:has([data-part-group-row])
+    [data-part-group-row]
+    > [data-part-group-header] {
+    padding-inline: 0;
+  }
+
+  [data-ui-table] [data-part-scroll]:has([data-part-group-row]) [data-part-group-content] {
+    box-sizing: border-box;
+    inline-size: min(100cqi, 100%);
+    inset-inline-start: 0;
+    padding-inline: var(--_pad-inline);
+    position: sticky;
+  }
+
   [data-ui-table] [data-part-group-end] {
     font-variant-numeric: tabular-nums;
     text-align: end;
@@ -734,20 +767,19 @@
    * top, over the first rows. A `page` table inside a scrolling box of the
    * consumer's own sets the offset on that box, `0` for its top edge.
    */
-  [data-ui-table][data-sticky-header] [data-part-column-header],
-  /* The chooser's own header is a `selection` cell and not a `column-header`,
-     and a rule naming only the second left the select-all scrolling away while
-     every column beside it stayed. */
-  [data-ui-table][data-sticky-header] [data-part-head] [data-part-selection] {
+  /* The `thead` is pinned as one element, not each cell: a backdrop filter
+     samples only inside the box that carries it, so a blur set per cell
+     restarted at every column boundary. Pinned as one, the head is the box a
+     theme blurs once (`--slotted-table-header-backdrop-filter`) and the
+     select-all moves with the columns beside it. */
+  [data-ui-table][data-sticky-header] [data-part-head] {
+    backdrop-filter: var(--slotted-table-header-backdrop-filter, none);
     inset-block-start: 0;
     position: sticky;
     z-index: calc(var(--slotted-z-index-sticky, 100) + 1);
   }
 
-  [data-ui-table][data-sticky-to='page'][data-sticky-header] [data-part-column-header],
-  [data-ui-table][data-sticky-to='page'][data-sticky-header]
-    [data-part-head]
-    [data-part-selection] {
+  [data-ui-table][data-sticky-to='page'][data-sticky-header] [data-part-head] {
     inset-block-start: var(--slotted-table-sticky-offset, 0);
   }
 
@@ -1777,8 +1809,7 @@
       overflow: visible;
     }
 
-    [data-ui-table][data-sticky-header] [data-part-column-header],
-    [data-ui-table][data-sticky-header] [data-part-head] [data-part-selection],
+    [data-ui-table][data-sticky-header] [data-part-head],
     [data-ui-table][data-sticky-footer] [data-part-summary] > [data-part-row] > *,
     [data-ui-table] [data-sticky] {
       position: static;
