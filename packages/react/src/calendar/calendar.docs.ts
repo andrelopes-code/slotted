@@ -126,6 +126,33 @@ const anatomy: AnatomyRow[] = [
       'What falls on the day, drawn from marks: a dot in the row today’s dot reserves, in the mark’s tone, holding the visually hidden count that the day’s accessible name ends with.',
   },
   {
+    part: 'day-content',
+    element: 'span',
+    required: false,
+    purpose:
+      'What a day holds under its number, from renderDay. The day keeps its button, focus, selection, today and outside-day states; the content is part of the day’s name unless dayLabel names it.',
+  },
+  {
+    part: 'day-marks',
+    element: 'span',
+    required: false,
+    purpose: 'A row of marks in a day, one per record.',
+  },
+  {
+    part: 'day-mark',
+    element: 'span',
+    required: false,
+    purpose:
+      'One record: a dot in a tone or a data palette slot, a ring when hollow (an open record), so state is not color alone.',
+  },
+  {
+    part: 'day-value',
+    element: 'span',
+    required: false,
+    purpose:
+      'A short figure of the day, its total: one line in tabular figures at the end of the day, hidden where the calendar is narrower than 28rem.',
+  },
+  {
     part: 'months',
     element: 'div',
     required: false,
@@ -412,6 +439,27 @@ const api: ApiRow[] = apiRows([
     '—',
     'Calendar',
     'What falls on each day, keyed by its ISO date: a dot under the number in the mark’s tone, and its count in the day’s accessible name (“12, 2 items”). Composes with every selection mode, min, max and outsideDays.',
+  ],
+  [
+    'renderDay',
+    '(date, state) => ReactNode',
+    '—',
+    'Calendar',
+    'What a day holds under its number: CalendarDayMarks with one CalendarDayMark per record (a tone or data-1 to data-8, hollow for an open record) and a one-line CalendarDayValue. The family keeps the day’s button, focus, selection, today and outside-day states; state is outside, selected, today and unavailable.',
+  ],
+  [
+    'dayLabel',
+    '(date) => string',
+    '—',
+    'Calendar',
+    'Replaces the day’s generated accessible name, for a day whose content says more than a count.',
+  ],
+  [
+    'layout',
+    "'cells' | 'fill'",
+    'cells',
+    'Calendar',
+    'cells draws square cells of --slotted-calendar-cell-size; fill shares the inline size between the seven columns and takes the row height from --slotted-calendar-day-height.',
   ],
   [
     'locale',

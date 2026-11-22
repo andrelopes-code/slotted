@@ -1,4 +1,5 @@
 export { Calendar } from './calendar';
+export { CalendarDayMark, CalendarDayMarks, CalendarDayValue } from './calendar-day';
 export { CalendarDefaultsProvider, useCalendarDefaults } from './calendar-defaults';
 export {
   asDates,
@@ -10,6 +11,8 @@ export {
 } from './calendar-selection';
 export type {
   CalendarCalendar,
+  CalendarDayMarkProps,
+  CalendarDayState,
   CalendarDefaults,
   CalendarDefaultsProviderProps,
   CalendarHandle,

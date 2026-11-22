@@ -1,7 +1,13 @@
 import type { CalendarMessages, PartialMessages } from '@slotted/core/i18n';
 import type { PlainDate } from '@slotted/core/date';
 import type { ChangeRequest } from '@slotted/core/state';
-import type { ComponentPropsWithRef, HTMLAttributes, ReactNode, Ref } from 'react';
+import type {
+  ComponentPropsWithoutRef,
+  ComponentPropsWithRef,
+  HTMLAttributes,
+  ReactNode,
+  Ref,
+} from 'react';
 
 /** A run of days, either end of which may still be open while it is drawn. */
 export interface DateRange {
@@ -98,6 +104,24 @@ export interface CalendarProps extends Omit<
   ComponentPropsWithRef<'div'>,
   'defaultValue' | 'onChange' | 'ref'
 > {
+  /**
+   * Replaces the day's generated accessible name, for a day whose content
+   * says more than a count: "October 20; 2 items, 1 open".
+   */
+  dayLabel?: ((date: PlainDate) => string) | undefined;
+  /**
+   * `cells` draws square cells of `--slotted-calendar-cell-size`; `fill` shares
+   * the inline size between the seven columns and takes the row height from
+   * `--slotted-calendar-day-height`, for a month view with content in its days.
+   */
+  layout?: 'cells' | 'fill' | undefined;
+  /**
+   * What a day holds under its number: `CalendarDayMarks`, `CalendarDayValue`.
+   * The family keeps the day's button, focus, selection, today and
+   * outside-day states; the content is part of the day's name unless
+   * `dayLabel` names it.
+   */
+  renderDay?: ((date: PlainDate, state: CalendarDayState) => ReactNode) | undefined;
   /** Present means the consumer owns the value. */
   value?: CalendarValue | undefined;
   defaultValue?: CalendarValue | undefined;
@@ -159,4 +183,26 @@ export interface CalendarProps extends Omit<
 
   render?: ((props: CalendarRootProps) => ReactNode) | undefined;
   ref?: Ref<CalendarHandle> | undefined;
+}
+
+/** What a day is, for the content `renderDay` draws in it. */
+export interface CalendarDayState {
+  readonly outside: boolean;
+  readonly selected: boolean;
+  readonly today: boolean;
+  readonly unavailable: boolean;
+}
+
+export interface CalendarDayMarkProps extends ComponentPropsWithoutRef<'span'> {
+  /** A tone or a data palette slot (`data-1` to `data-8`). Defaults to `accent`. */
+  tone?:
+    | 'accent'
+    | 'info'
+    | 'success'
+    | 'warning'
+    | 'danger'
+    | `data-${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`
+    | undefined;
+  /** An open record: the mark is a ring rather than a dot, so state is not color alone. */
+  hollow?: boolean | undefined;
 }

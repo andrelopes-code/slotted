@@ -24,6 +24,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  contentChild,
+  Directive,
   effect,
   ElementRef,
   inject,
@@ -32,9 +34,11 @@ import {
   numberAttribute,
   output,
   signal,
+  TemplateRef,
   ViewEncapsulation,
 } from '@angular/core';
 import type { OnInit } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { injectLocale, injectMessages } from '@slotted/angular/i18n';
 import { SlGlyph, SlIcon } from '@slotted/angular/icon';
 import { calendarMessages, type CalendarMessages, type PartialMessages } from '@slotted/core/i18n';
@@ -79,11 +83,65 @@ let sequence = 0;
  * rather than being taken out of the grid, so a reader can arrow onto it, hear
  * why it is out, and arrow past it.
  */
+/** What a day is, for the content a day template draws in it. */
+export interface CalendarDayState {
+  readonly outside: boolean;
+  readonly selected: boolean;
+  readonly today: boolean;
+  readonly unavailable: boolean;
+}
+
+/** The template of a day's content, under its number. */
+@Directive({ selector: 'ng-template[slCalendarDay]', standalone: true })
+export class SlCalendarDay {
+  readonly template =
+    inject<TemplateRef<{ $implicit: PlainDate; state: CalendarDayState }>>(TemplateRef);
+}
+
+/** A row of marks in a day, one per record, under the day's number. */
+@Directive({
+  selector: '[slCalendarDayMarks]',
+  standalone: true,
+  host: { 'data-part': 'day-marks', 'data-part-day-marks': '' },
+})
+export class SlCalendarDayMarks {}
+
+/**
+ * One record of a day: a dot in a tone or a data palette slot, and a ring
+ * when the record is still open, so its state is not told by color alone.
+ */
+@Directive({
+  selector: '[slCalendarDayMark]',
+  standalone: true,
+  host: {
+    'data-part': 'day-mark',
+    'data-part-day-mark': '',
+    '[attr.data-tone]': 'tone() ?? null',
+    '[attr.data-hollow]': "hollow() ? '' : null",
+  },
+})
+export class SlCalendarDayMark {
+  /** A tone or a data palette slot (`data-1` to `data-8`). Defaults to `accent`. */
+  readonly tone = input<string | undefined>(undefined);
+  readonly hollow = input(false, { transform: booleanAttribute });
+}
+
+/**
+ * A short figure of the day (its total): one line in tabular figures at the
+ * end of the day, hidden where the calendar is too narrow to read it.
+ */
+@Directive({
+  selector: '[slCalendarDayValue]',
+  standalone: true,
+  host: { 'data-part': 'day-value', 'data-part-day-value': '' },
+})
+export class SlCalendarDayValue {}
+
 @Component({
   selector: '[slCalendar]',
   standalone: true,
   exportAs: 'slCalendar',
-  imports: [SlGlyph, SlIcon],
+  imports: [NgTemplateOutlet, SlGlyph, SlIcon],
   template: `<div data-part="header" data-part-header="">
       <button
         data-part="previous"
@@ -206,7 +264,14 @@ let sequence = 0;
                             (click)="!refused(day) && select(day.date, 'pointer', $event)"
                             (pointerenter)="hovered.set(day.date)"
                             (pointerleave)="hovered.set(null)"
-                          >{{ day.date.day }}@if (markOf(day.date); as mark) {<span
+                            [attr.aria-label]="dayLabel()?.(day.date) ?? null"
+                          >{{ day.date.day }}@if (dayTemplate(); as template) {<span
+                                data-part="day-content"
+                                data-part-day-content=""
+                              ><ng-container
+                                  [ngTemplateOutlet]="template.template"
+                                  [ngTemplateOutletContext]="{ $implicit: day.date, state: dayState(day) }"
+                              /></span>}@if (markOf(day.date); as mark) {<span
                                 data-part="mark"
                                 data-part-mark=""
                                 [attr.data-tone]="mark.tone ?? null"
@@ -290,6 +355,7 @@ let sequence = 0;
     '[attr.data-view]': 'currentView()',
     '[attr.data-calendar]': 'resolvedCalendar()',
     '[attr.data-months]': 'resolvedMonths() > 1 ? resolvedMonths() : null',
+    '[attr.data-layout]': "layout() === 'fill' ? 'fill' : null",
     '[attr.data-week-numbers]': "resolvedWeekNumbers() ? '' : null",
     '[attr.data-disabled]': "disabled() === true ? '' : null",
     '[attr.data-readonly]': "readOnly() === true ? '' : null",
@@ -333,6 +399,31 @@ export class SlCalendar implements OnInit {
    * with every selection mode, `min`, `max` and `outsideDays`.
    */
   readonly marks = input<ReadonlyMap<string, CalendarMark> | undefined>(undefined);
+  /**
+   * Replaces the day's generated accessible name, for a day whose content
+   * says more than a count: "October 20; 2 items, 1 open".
+   */
+  readonly dayLabel = input<((date: PlainDate) => string) | undefined>(undefined);
+  /**
+   * `cells` draws square cells of `--slotted-calendar-cell-size`; `fill` shares
+   * the inline size between the seven columns and takes the row height from
+   * `--slotted-calendar-day-height`, for a month view with content in its days.
+   */
+  readonly layout = input<'cells' | 'fill'>('cells');
+  /**
+   * What a day holds under its number, from an `ng-template[slCalendarDay]`
+   * (`let-date`, `let-state="state"`): `slCalendarDayMarks`, `slCalendarDayValue`.
+   */
+  protected readonly dayTemplate = contentChild(SlCalendarDay);
+
+  protected dayState(day: CalendarDay): CalendarDayState {
+    return {
+      outside: day.outsideMonth,
+      selected: this.chosen(day.date),
+      today: this.isToday(day.date),
+      unavailable: this.refused(day),
+    };
+  }
 
   /** The locale that writes months and days. Unset, the language in force decides. */
   readonly locale = input<string | undefined>(undefined);

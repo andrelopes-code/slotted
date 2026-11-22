@@ -8,7 +8,13 @@ import type { ChangeRequest } from '@slotted/core/state';
 import { describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/calendar/contract.json';
-import { SlCalendar } from './calendar';
+import {
+  SlCalendar,
+  SlCalendarDay,
+  SlCalendarDayMark,
+  SlCalendarDayMarks,
+  SlCalendarDayValue,
+} from './calendar';
 import { provideCalendarDefaults } from './calendar-defaults';
 import type { CalendarValue, DateRange } from './calendar-defaults';
 
@@ -704,5 +710,42 @@ describe('a focused date the consumer owns', () => {
     expect(document.activeElement?.textContent?.trim()).toBe('1');
     expect(document.activeElement?.getAttribute('data-part')).toBe('day');
     expect(document.activeElement?.closest('[data-outside-month]')).toBeNull();
+  });
+});
+
+describe('a month with content in its days', () => {
+  @Component({
+    standalone: true,
+    imports: [SlCalendar, SlCalendarDay, SlCalendarDayMark, SlCalendarDayMarks, SlCalendarDayValue],
+    template: `<div slCalendar [defaultFocusedDate]="october" [dayLabel]="label" layout="fill">
+      <ng-template slCalendarDay let-date>
+        @if (date.day === 20 && date.month === 10) {
+          <span slCalendarDayMarks>
+            <span slCalendarDayMark tone="data-1"></span>
+            <span slCalendarDayMark tone="data-2" hollow></span>
+          </span>
+          <span slCalendarDayValue>−220</span>
+        }
+      </ng-template>
+    </div>`,
+  })
+  class DayContent {
+    readonly october = plainDate(2026, 10, 1);
+    readonly label = (date: PlainDate) =>
+      date.day === 20 ? 'October 20; 2 items, 1 open' : `October ${String(date.day)}`;
+  }
+
+  it('draws the marks and the figure of a day under its number, and names the day', () => {
+    const fixture = TestBed.createComponent(DayContent);
+    fixture.detectChanges();
+    const root = fixture.nativeElement.querySelector('[data-ui="calendar"]') as HTMLElement;
+    const day = root.querySelector('[aria-label="October 20; 2 items, 1 open"]') as HTMLElement;
+    const marks = [...day.querySelectorAll('[data-part="day-mark"]')];
+
+    expect(root.getAttribute('data-layout')).toBe('fill');
+    expect(day.getAttribute('data-part')).toBe('day');
+    expect(marks.map((mark) => mark.getAttribute('data-tone'))).toEqual(['data-1', 'data-2']);
+    expect(marks[1]!.hasAttribute('data-hollow')).toBe(true);
+    expect(day.querySelector('[data-part="day-value"]')?.textContent).toBe('−220');
   });
 });

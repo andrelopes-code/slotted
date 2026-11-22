@@ -92,8 +92,10 @@ export function Calendar({
   fixedWeeks,
   focusedDate,
   granularity,
+  dayLabel,
   invalid,
   isDateUnavailable,
+  layout = 'cells',
   locale,
   max,
   min,
@@ -109,6 +111,7 @@ export function Calendar({
   readOnly,
   ref,
   render,
+  renderDay,
   selectionMode = 'single',
   style,
   timeZone,
@@ -529,7 +532,9 @@ export function Calendar({
             key={`${String(month.year)}-${String(month.month)}`}
             month={month}
             onHover={setHovered}
+            dayLabel={dayLabel}
             marks={marks}
+            renderDay={renderDay}
             markName={(mark) =>
               mark.count === undefined ? t('marked') : t('markCount', { count: mark.count })
             }
@@ -674,6 +679,7 @@ export function Calendar({
     ...(readOnly === true ? { 'data-readonly': '' } : {}),
     ...(resolvedWeekNumbers ? { 'data-week-numbers': '' } : {}),
     ...(resolvedMonths > 1 ? { 'data-months': String(resolvedMonths) } : {}),
+    ...(layout === 'fill' ? { 'data-layout': 'fill' } : {}),
     'data-calendar': resolvedCalendar,
     'data-columns': String(VIEW_COLUMNS[currentView]),
     'data-part': 'root',
@@ -691,6 +697,7 @@ export function Calendar({
 
 /** One month, as the `table` the grid role belongs on. */
 function MonthTable({
+  dayLabel,
   editable,
   firstDayOfWeek,
   fixedWeeks,
@@ -704,11 +711,14 @@ function MonthTable({
   onSelect,
   outsideDays,
   pending,
+  renderDay,
   today,
   unavailable,
   value,
   weekNumbers,
 }: {
+  dayLabel: CalendarProps['dayLabel'];
+  renderDay: CalendarProps['renderDay'];
   markName: (mark: CalendarMark) => string;
   marks: ReadonlyMap<string, CalendarMark> | undefined;
   editable: boolean;
@@ -811,8 +821,19 @@ function MonthTable({
                       onPointerLeave={() => onHover(null)}
                       role="button"
                       tabIndex={roving && editable ? 0 : -1}
+                      {...(dayLabel === undefined ? {} : { 'aria-label': dayLabel(day.date) })}
                     >
                       {day.date.day}
+                      {renderDay === undefined ? null : (
+                        <span data-part="day-content" data-part-day-content="">
+                          {renderDay(day.date, {
+                            outside,
+                            selected: chosen,
+                            today: today !== null && isSameDate(day.date, today),
+                            unavailable: unavailable(day.date),
+                          })}
+                        </span>
+                      )}
                       {mark === undefined ? null : (
                         <span
                           data-part="mark"

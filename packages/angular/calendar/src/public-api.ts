@@ -1,4 +1,11 @@
-export { SlCalendar } from './calendar';
+export {
+  SlCalendar,
+  SlCalendarDay,
+  SlCalendarDayMark,
+  SlCalendarDayMarks,
+  SlCalendarDayValue,
+} from './calendar';
+export type { CalendarDayState } from './calendar';
 export {
   CALENDAR_DEFAULTS,
   injectCalendarDefaults,
