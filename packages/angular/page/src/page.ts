@@ -168,9 +168,9 @@ export class SlPage {
     afterNextRender(() => {
       if (isDevMode()) warnWithoutBody(this.native);
       if (typeof ResizeObserver === 'undefined') return;
+      /* Read on a size report only: the observer reports once as it observes. */
       const measure = () =>
         this.sizeClass.set(sizeClassOf(this.native.getBoundingClientRect().width));
-      measure();
       const target = findScrollParent(this.native) ?? this.native.ownerDocument.documentElement;
       const bar = () => this.native.querySelector<HTMLElement>(':scope > [data-part="footer"]');
       /* The property inherits, so every write invalidates style for everything
