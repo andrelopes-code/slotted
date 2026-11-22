@@ -52,3 +52,26 @@ describe('a link row with a leading checkbox', () => {
     expect(box.top + box.height / 2).toBeCloseTo(label.top + label.height / 2, 0);
   });
 });
+
+describe('the hover wash on a touch screen', () => {
+  /* The browser project runs with touch and no hovering pointer. */
+  it('leaves a tapped row its rest fill once the finger lifts', async () => {
+    render(
+      <ul>
+        <ListItem>
+          <ListItemLink href="#row">
+            <ListItemBody>
+              <ListItemLabel>Row</ListItemLabel>
+            </ListItemBody>
+          </ListItemLink>
+        </ListItem>
+      </ul>,
+    );
+    const row = document.querySelector<HTMLElement>('[data-ui="list-item"]')!;
+    const rest = getComputedStyle(row).getPropertyValue('--_fill');
+
+    expect(matchMedia('(hover: hover)').matches).toBe(false);
+    await userEvent.hover(document.querySelector('a')!);
+    expect(getComputedStyle(row).getPropertyValue('--_fill')).toBe(rest);
+  });
+});

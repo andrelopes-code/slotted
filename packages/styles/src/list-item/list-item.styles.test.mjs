@@ -290,3 +290,16 @@ test('yields at 240px: the content shrinks and the actions take a line that fits
   assert.match(glyphs, /flex-basis:auto/, 'icon-only targets take a line of their own');
   assert.match(glyphs, /padding-block-end:0/);
 });
+
+/**
+ * A touch screen leaves the tapped element in `:hover` until another is
+ * touched, so a row kept its wash after the tap and read as selected. Every
+ * rule that answers `:hover` sits behind `(hover: hover)`.
+ */
+test('washes a row on hover only where the pointer hovers', () => {
+  const gated = normalized.split('@media (hover:hover){').slice(1).join('');
+  const outside = normalized.split('@media (hover:hover){')[0];
+
+  assert.match(gated, /:hover\)\{--_fill:var\(--_hover\)/);
+  assert.ok(!/:hover\)\{--_fill/.test(outside), 'a hover wash outside (hover: hover)');
+});

@@ -197,12 +197,16 @@
     outline-offset: calc(var(--slotted-focus-ring-offset, 2px) * -1);
   }
 
-  [data-ui-data-list]
-    [data-ui-list-item]:not([data-disabled]):not([data-loading])
-    :is(a[href], button:not(:disabled))[data-part-title]:hover {
-    text-decoration: underline;
-    text-decoration-thickness: from-font;
-    text-underline-offset: 0.2em;
+  /* Behind (hover: hover), as `list-item` gates its wash: a tap leaves the
+     title in `:hover` on a touch screen. */
+  @media (hover: hover) {
+    [data-ui-data-list]
+      [data-ui-list-item]:not([data-disabled]):not([data-loading])
+      :is(a[href], button:not(:disabled))[data-part-title]:hover {
+      text-decoration: underline;
+      text-decoration-thickness: from-font;
+      text-underline-offset: 0.2em;
+    }
   }
 
   /**
@@ -212,11 +216,13 @@
    * through the row's own `--_fill`, which already knows the tone and the
    * selection it is painted over. Both hold back for `disabled` and `loading`.
    */
-  [data-ui-data-list]
-    [data-ui-list-item]:not([data-disabled]):not([data-loading]):has(
-      [data-part-title]:is(a[href], button:not(:disabled)):hover
-    ) {
-    --_fill: var(--_hover, ButtonFace);
+  @media (hover: hover) {
+    [data-ui-data-list]
+      [data-ui-list-item]:not([data-disabled]):not([data-loading]):has(
+        [data-part-title]:is(a[href], button:not(:disabled)):hover
+      ) {
+      --_fill: var(--_hover, ButtonFace);
+    }
   }
 
   [data-ui-data-list]

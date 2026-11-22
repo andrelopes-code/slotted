@@ -699,11 +699,18 @@
    * Only a row that acts answers the pointer. A row that is only read has
    * nothing to say about being pointed at, and washing it would promise an
    * interaction that never arrives.
+   *
+   * The wash waits for a pointer that hovers: a touch screen leaves the last
+   * tapped element in `:hover` until something else is touched, and the row
+   * kept the wash after the tap and read as selected. Press stays the feedback
+   * of a finger.
    */
-  [data-ui-list-item]:not([data-disabled]):not([data-loading]):has(
-      > :is(a, button)[data-part-content]:not(:disabled):hover
-    ) {
-    --_fill: var(--_hover);
+  @media (hover: hover) {
+    [data-ui-list-item]:not([data-disabled]):not([data-loading]):has(
+        > :is(a, button)[data-part-content]:not(:disabled):hover
+      ) {
+      --_fill: var(--_hover);
+    }
   }
 
   [data-ui-list-item]:not([data-disabled]):not([data-loading]):has(
