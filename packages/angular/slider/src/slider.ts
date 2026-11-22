@@ -95,12 +95,14 @@ const toArray = (value: number | readonly number[]): number[] =>
       (pointercancel)="onPointerUp($event)"
     >
       <div data-part="track" data-part-track="" #track>
-        <div
-          data-part="indicator"
-          data-part-indicator=""
-          [style.--_start]="span().start"
-          [style.--_end]="span().end"
-        ></div>
+        @if (indicator()) {
+          <div
+            data-part="indicator"
+            data-part-indicator=""
+            [style.--_start]="span().start"
+            [style.--_end]="span().end"
+          ></div>
+        }
         @for (mark of markList(); track mark.value) {
           <span
             data-part="mark"
@@ -192,6 +194,12 @@ export class SlSlider implements ControlValueAccessor {
   readonly origin = input<SliderOrigin>('min');
   /** The ticks drawn beside the rail. A mark's label becomes its announced value. */
   readonly marks = input<readonly (number | SliderMark)[] | undefined>(undefined);
+  /**
+   * Draws the filled span from the start to the thumb. `false` draws none, for
+   * a track whose ground is the information (a hue, saturation or lightness
+   * scale set through `--slotted-slider-track-background`).
+   */
+  readonly indicator = input(true, { transform: booleanAttribute });
   /** How the value is written, through `Intl.NumberFormat`. */
   readonly format = input<Intl.NumberFormatOptions | undefined>(undefined);
   /** BCP 47. Unset, the language in force decides. */

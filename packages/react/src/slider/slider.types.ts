@@ -112,6 +112,12 @@ export interface SliderProps extends Omit<
   locale?: string | undefined;
   /** The ticks drawn beside the rail. A mark's label becomes its announced value. */
   marks?: readonly (number | SliderMark)[] | undefined;
+  /**
+   * Draws the filled span from the start to the thumb. `false` draws none, for
+   * a track whose ground is the information (a hue, saturation or lightness
+   * scale set through `--slotted-slider-track-background`). Defaults to `true`.
+   */
+  indicator?: boolean | undefined;
   /** The largest value the scale holds. */
   max?: number | undefined;
   /** The smallest value the scale holds. */

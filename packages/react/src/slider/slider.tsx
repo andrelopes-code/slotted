@@ -80,6 +80,7 @@ export function Slider({
   invalid,
   largeStep,
   locale,
+  indicator = true,
   marks,
   max = 100,
   min = 0,
@@ -368,11 +369,13 @@ export function Slider({
         onPointerUp={endDrag}
       >
         <div data-part="track" data-part-track="" ref={trackRef}>
-          <div
-            data-part="indicator"
-            data-part-indicator=""
-            style={spanStyle(fractionOfValue(spanStart, scale), fractionOfValue(spanEnd, scale))}
-          />
+          {indicator ? (
+            <div
+              data-part="indicator"
+              data-part-indicator=""
+              style={spanStyle(fractionOfValue(spanStart, scale), fractionOfValue(spanEnd, scale))}
+            />
+          ) : null}
           {marksList.map((mark) => (
             <span
               data-part="mark"

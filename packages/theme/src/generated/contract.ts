@@ -4485,6 +4485,7 @@ export type ComponentToken =
   | '--slotted-slider-thumb-hover-background'
   | '--slotted-slider-thumb-shadow'
   | '--slotted-slider-thumb-size'
+  | '--slotted-slider-track-background'
   | '--slotted-slider-track-border-color'
   | '--slotted-slider-track-color'
   | '--slotted-slider-track-size'
@@ -6831,6 +6832,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-slider-thumb-hover-background",
   "--slotted-slider-thumb-shadow",
   "--slotted-slider-thumb-size",
+  "--slotted-slider-track-background",
   "--slotted-slider-track-border-color",
   "--slotted-slider-track-color",
   "--slotted-slider-track-size",

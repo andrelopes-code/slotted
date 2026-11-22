@@ -374,6 +374,13 @@ export const ANGULAR_SLIDER_DOCS = {
         'The ticks beside the rail. A mark that carries a label reserves the room for it and becomes the thumb’s aria-valuetext at that value',
       ],
       [
+        'indicator',
+        'boolean',
+        'true',
+        'slSlider',
+        'Draws the filled span from the start to the thumb. false draws none, for a track whose ground is the information: a hue scale is --slotted-slider-track-background: linear-gradient(to right in hsl longer hue, red, red), which takes any background, and the thumb takes the current color through --slotted-slider-thumb-color',
+      ],
+      [
         'format',
         'Intl.NumberFormatOptions',
         '—',

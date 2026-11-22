@@ -98,7 +98,10 @@ test('draws focus on the thumb, from the input beneath it', () => {
  */
 test('draws the rail as a channel rather than as a line', () => {
   const track = rule(`${ui} [data-part-track]`);
-  assert.match(track, /background-color:var\(--slotted-slider-track-color/);
+  assert.match(
+    track,
+    /background:var\(--slotted-slider-track-background,var\(--slotted-slider-track-color/,
+  );
   assert.match(track, /border:var\(--slotted-control-border-width,1px\)solid/);
   assert.match(track, /box-sizing:border-box/);
 });
