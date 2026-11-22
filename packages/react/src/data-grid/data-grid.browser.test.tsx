@@ -481,9 +481,9 @@ describe('the rows of a first load', () => {
         <DataGrid
           aria-label="Movements"
           columns={[
-            { id: 'description', header: 'Description' },
-            { id: 'category', header: 'Category' },
-            { id: 'amount', header: 'Amount', numeric: true },
+            { id: 'description', label: 'Description' },
+            { id: 'category', label: 'Category' },
+            { id: 'amount', label: 'Amount', numeric: true },
           ]}
           loading
           mode="server"
