@@ -638,10 +638,10 @@ export const REACT_DASHBOARD_GRID_DOCS = {
       ],
       [
         'usePersistedDashboardLayout',
-        '({ key, storage?, defaultLayout? }) => { layout, defaultLayout, onLayoutChange, clear }',
+        '({ key, storage?, defaultLayout?, subscribe? }) => { layout, defaultLayout, onLayoutChange, clear }',
         'localStorage',
         'a component',
-        'Reads the stored layout once and writes every change; a store that throws reads as empty. Spread on the grid, its defaultLayout is what Reset asks for',
+        'Reads the stored layout at mount, and again each time subscribe calls back (a server copy written to the store after mount), and writes every change; a store that throws reads as empty. Spread on the grid, its defaultLayout is what Reset asks for',
       ],
     ]),
     accessibility: [

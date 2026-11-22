@@ -190,6 +190,13 @@ export interface UsePersistedDashboardLayoutOptions {
   storage?: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | null;
   /** What the grid shows when nothing is stored. Default: every widget at its defaults. */
   defaultLayout?: DashboardLayout;
+  /**
+   * Tells the hook the store changed after mount (a server's copy written to
+   * it once the request answered): on each call it reads the key again and
+   * draws what it holds, or the default when it cannot be read. Returns the
+   * unsubscribe, as `useSyncExternalStore` asks of a subscription.
+   */
+  subscribe?: (onChange: () => void) => () => void;
 }
 
 export interface PersistedDashboardLayout {

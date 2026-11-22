@@ -3,7 +3,7 @@ import {
   serializeDashboardLayout,
   type DashboardLayout,
 } from '@slotted/core/dashboard-grid';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type {
   PersistedDashboardLayout,
@@ -33,17 +33,21 @@ export function usePersistedDashboardLayout({
   key,
   storage,
   defaultLayout = EMPTY,
+  subscribe,
 }: UsePersistedDashboardLayoutOptions): PersistedDashboardLayout {
   const store = useMemo(() => (storage === undefined ? defaultStorage() : storage), [storage]);
-  const [layout, setLayout] = useState<DashboardLayout>(() => {
-    let text: string | null;
-    try {
-      text = store?.getItem(key) ?? null;
-    } catch {
-      text = null;
-    }
-    return (text === null ? null : parseDashboardLayout(text)) ?? defaultLayout;
-  });
+  const [layout, setLayout] = useState<DashboardLayout>(() =>
+    readLayout(store, key, defaultLayout),
+  );
+
+  /* A layout written to the store after mount — a server's copy that arrived
+     — is read again when the application says so, and the mounted grid draws
+     it without remounting. */
+  useEffect(() => {
+    if (subscribe === undefined) return undefined;
+
+    return subscribe(() => setLayout(readLayout(store, key, defaultLayout)));
+  }, [defaultLayout, key, store, subscribe]);
 
   const onLayoutChange = useCallback(
     (next: DashboardLayout) => {
@@ -67,4 +71,20 @@ export function usePersistedDashboardLayout({
   }, [defaultLayout, key, store]);
 
   return { layout, defaultLayout, onLayoutChange, clear };
+}
+
+/** What the store holds under the key, parsed; a store that throws holds nothing. */
+function readLayout(
+  store: UsePersistedDashboardLayoutOptions['storage'],
+  key: string,
+  defaultLayout: DashboardLayout,
+): DashboardLayout {
+  let text: string | null;
+  try {
+    text = store?.getItem(key) ?? null;
+  } catch {
+    text = null;
+  }
+
+  return (text === null ? null : parseDashboardLayout(text)) ?? defaultLayout;
 }

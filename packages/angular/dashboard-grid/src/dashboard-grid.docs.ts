@@ -658,10 +658,10 @@ export const ANGULAR_DASHBOARD_GRID_DOCS = {
       ],
       [
         'persistedDashboardLayout',
-        '({ key, storage?, defaultLayout?, injector? }) => { layout, defaultLayout, clear }',
+        '({ key, storage?, defaultLayout?, injector?, subscribe? }) => { layout, defaultLayout, clear }',
         'localStorage',
         'an injection context',
-        'A signal read once from the store and written after every change; bind it with [(layout)], and its defaultLayout to [defaultLayout], which Reset asks for',
+        'A signal read from the store at creation, and again each time subscribe calls back (a server copy written to the store later), and written after every change; bind it with [(layout)], and its defaultLayout to [defaultLayout], which Reset asks for',
       ],
     ]),
     accessibility: [

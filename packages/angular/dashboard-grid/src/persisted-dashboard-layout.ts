@@ -1,4 +1,12 @@
-import { effect, signal, untracked, type Injector, type WritableSignal } from '@angular/core';
+import {
+  DestroyRef,
+  effect,
+  inject,
+  signal,
+  untracked,
+  type Injector,
+  type WritableSignal,
+} from '@angular/core';
 import {
   parseDashboardLayout,
   serializeDashboardLayout,
@@ -20,6 +28,14 @@ export interface PersistedDashboardLayoutOptions {
   readonly defaultLayout?: DashboardLayout | undefined;
   /** Needed outside an injection context, as `effect` is. */
   readonly injector?: Injector | undefined;
+  /**
+   * Tells the layout the store changed after it was read (a server's copy
+   * written to it once the request answered): on each call the key is read
+   * again and `layout` takes what it holds, or the default when it cannot be
+   * read, without writing it back. Returns the unsubscribe, called when the
+   * injector is destroyed.
+   */
+  readonly subscribe?: ((onChange: () => void) => () => void) | undefined;
 }
 
 export interface PersistedDashboardLayout {
@@ -59,6 +75,7 @@ export function persistedDashboardLayout({
   storage,
   defaultLayout = [],
   injector,
+  subscribe,
 }: PersistedDashboardLayoutOptions): PersistedDashboardLayout {
   const store = storage === undefined ? defaultStorage() : storage;
   const text = readStored(store, key);
@@ -84,6 +101,16 @@ export function persistedDashboardLayout({
     },
     injector === undefined ? {} : { injector },
   );
+
+  if (subscribe !== undefined) {
+    const unsubscribe = subscribe(() => {
+      const stored = readStored(store, key);
+      held = (stored === null ? null : parseDashboardLayout(stored)) ?? defaultLayout;
+      layout.set(held);
+    });
+    (injector?.get(DestroyRef) ?? inject(DestroyRef)).onDestroy(unsubscribe);
+  }
+
   return {
     layout,
     defaultLayout,

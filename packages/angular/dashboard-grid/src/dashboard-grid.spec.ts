@@ -5,7 +5,7 @@ import { provideSlotted } from '@slotted/angular/i18n';
 import { SlHeadingLevel } from '@slotted/angular/typography';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
 import { DASHBOARD_SUBROWS } from '@slotted/core/dashboard-grid';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { SlDashboardGrid } from './dashboard-grid';
 import {
@@ -697,6 +697,38 @@ describe('persistedDashboardLayout', () => {
       persistedDashboardLayout({ key: 'sales', storage, defaultLayout }),
     );
     expect(persisted.defaultLayout).toBe(defaultLayout);
+  });
+
+  it('takes a layout stored after it was read when the store says so, and writes nothing back', () => {
+    const store = new Map<string, string>();
+    const setItem = vi.fn((key: string, value: string) => void store.set(key, value));
+    const storage = {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem,
+      removeItem: (key: string) => void store.delete(key),
+    };
+    let notify = () => {};
+    const unsubscribe = vi.fn();
+    const persisted = TestBed.runInInjectionContext(() =>
+      persistedDashboardLayout({
+        key: 'sales',
+        storage,
+        subscribe: (onChange) => {
+          notify = onChange;
+          return unsubscribe;
+        },
+      }),
+    );
+    expect(persisted.layout()).toEqual([]);
+
+    store.set('sales', '{"v":2,"items":[["trend",0,0,12,3]]}');
+    notify();
+    TestBed.tick();
+
+    expect(persisted.layout()).toEqual([{ key: 'trend', x: 0, y: 0, w: 12, h: 3 }]);
+    expect(setItem).not.toHaveBeenCalled();
+    TestBed.resetTestingModule();
+    expect(unsubscribe).toHaveBeenCalled();
   });
 });
 

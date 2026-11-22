@@ -816,4 +816,37 @@ describe('usePersistedDashboardLayout', () => {
     render(<Persisted storage={storage} />);
     expect(order()).toEqual(['revenue', 'orders', 'trend']);
   });
+
+  it('draws a layout stored after mount when the store says so, without remounting', () => {
+    const store = new Map<string, string>();
+    const storage = {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => void store.set(key, value),
+      removeItem: (key: string) => void store.delete(key),
+    } as Storage;
+    const listeners = new Set<() => void>();
+    const subscribe = (onChange: () => void) => {
+      listeners.add(onChange);
+      return () => listeners.delete(onChange);
+    };
+    function Subscribed() {
+      const persisted = usePersistedDashboardLayout({ key: 'sales', storage, subscribe });
+      return (
+        <DashboardGrid aria-label="Sales" {...persisted}>
+          {widgets()}
+        </DashboardGrid>
+      );
+    }
+    const { container } = render(<Subscribed />);
+    const grid = container.querySelector('[data-ui="dashboard-grid"]');
+    expect(order()).toEqual(['revenue', 'orders', 'trend']);
+
+    store.set('sales', '{"v":2,"items":[["trend",0,0,12,3]]}');
+    act(() => {
+      for (const listener of listeners) listener();
+    });
+
+    expect(order()).toEqual(['trend', 'revenue', 'orders']);
+    expect(container.querySelector('[data-ui="dashboard-grid"]')).toBe(grid);
+  });
 });
