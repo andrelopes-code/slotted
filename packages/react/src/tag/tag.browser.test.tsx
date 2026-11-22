@@ -64,3 +64,22 @@ describe('the inline inset of a tag', () => {
     expect(body('Removable').paddingInlineEnd).toBe('4px');
   });
 });
+
+describe('a tag in a flex row narrower than it', () => {
+  it('shrinks inside the row and cuts its label with an ellipsis', () => {
+    const { container } = render(
+      <div style={{ display: 'flex', inlineSize: '10rem' }}>
+        <span>Name</span>
+        <Tag size="sm">a label longer than the remaining space</Tag>
+      </div>,
+    );
+    const row = container.firstElementChild!;
+    const tag = row.querySelector<HTMLElement>('[data-ui="tag"][data-part="root"]')!;
+    const label = tag.querySelector<HTMLElement>('[data-part="label"]')!;
+
+    expect(tag.getBoundingClientRect().right).toBeLessThanOrEqual(
+      row.getBoundingClientRect().right + 0.5,
+    );
+    expect(label.scrollWidth).toBeGreaterThan(label.clientWidth);
+  });
+});
