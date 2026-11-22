@@ -1,6 +1,8 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
+import { Inline } from '../inline';
+import { TextField } from '../text-field';
 import { Select } from './select';
 import { SelectContent, SelectTrigger, SelectValue } from './select-parts';
 import { SelectItem } from './select-items';
@@ -58,5 +60,38 @@ describe('the value of a multiple select', () => {
     expect(value.childNodes).toHaveLength(1);
     expect(summary).toHaveTextContent('Structured output');
     expect(summary.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+  });
+});
+
+describe('a select beside a text field in a row', () => {
+  /* Each control's flex basis is its content: the select keeps the width of
+     its value and chevron, and the text field takes the rest of the row. */
+  it('keeps the select at its content and gives the text field the rest', () => {
+    const { container } = render(
+      <div style={{ inlineSize: '300px' }}>
+        <Inline gap={2} wrap="nowrap">
+          <TextField aria-label="Value" defaultValue="11.5" />
+          <Select onValueChange={() => {}} value="month">
+            <SelectTrigger aria-label="Period">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="month">Month</SelectItem>
+              <SelectItem value="year">Year</SelectItem>
+            </SelectContent>
+          </Select>
+        </Inline>
+      </div>,
+    );
+    const select = container
+      .querySelector('[data-ui="select"][data-part="root"]')!
+      .getBoundingClientRect();
+    const field = container
+      .querySelector('[data-ui="text-field"][data-part="root"]')!
+      .getBoundingClientRect();
+
+    expect(select.width).toBeLessThan(150);
+    expect(field.width).toBeLessThan(300);
+    expect(field.width + select.width).toBeGreaterThan(280);
   });
 });
