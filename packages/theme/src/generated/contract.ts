@@ -3867,6 +3867,7 @@ export type ComponentToken =
   | '--slotted-list-padding-inline-lg'
   | '--slotted-list-padding-inline-sm'
   | '--slotted-list-radius'
+  | '--slotted-list-section-background'
   | '--slotted-list-section-color'
   | '--slotted-list-section-font-size'
   | '--slotted-list-section-font-weight'
@@ -6201,6 +6202,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-list-padding-inline-lg",
   "--slotted-list-padding-inline-sm",
   "--slotted-list-radius",
+  "--slotted-list-section-background",
   "--slotted-list-section-color",
   "--slotted-list-section-font-size",
   "--slotted-list-section-font-weight",

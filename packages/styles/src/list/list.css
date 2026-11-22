@@ -48,6 +48,11 @@
     --_frame-width: var(--slotted-list-border-width, var(--slotted-border-width-thin, 1px));
     --_frame-radius: var(--slotted-list-radius, var(--slotted-radius-md, 6px));
     --_surface: var(--slotted-list-background, var(--slotted-surface, Canvas));
+    /* The ground a sticky group heading paints, so it covers the rows that
+       scroll under it. A plain or ruled list paints no surface and stands on
+       a ground it does not know (a page, a sunken region); the consumer names
+       that ground here. A framed or separated list paints its own. */
+    --_section-background: var(--slotted-list-section-background, var(--slotted-surface, Canvas));
     /* The group heading's type and color. It is a heading in the document,
        so it takes the muted ink rather than a tone: a colored heading over a
        neutral list reads as a status the group does not have. */
@@ -127,6 +132,10 @@
 
   [data-ui-list][data-part-root][data-variant='separated'] {
     row-gap: var(--_gap);
+  }
+
+  [data-ui-list][data-part-root]:is([data-variant='framed'], [data-variant='separated']) {
+    --_section-background: var(--slotted-list-section-background, var(--_surface));
   }
 
   /**
@@ -221,7 +230,7 @@
   }
 
   [data-ui-list] [data-part-section-label][data-sticky] {
-    background-color: var(--_surface);
+    background-color: var(--_section-background);
     inset-block-start: 0;
     position: sticky;
     z-index: var(--slotted-z-index-sticky, 100);
