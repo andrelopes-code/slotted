@@ -13,14 +13,29 @@ export type ListSize = 'sm' | 'md' | 'lg';
  */
 export type ListMarker = 'none' | 'bullet' | 'number';
 
+/**
+ * How a row's hover, pressed, selected and current grounds are drawn. `row`
+ * runs them edge to edge; `inset` draws them as a rounded tile inside a gutter
+ * of `--slotted-list-fill-inset`, the form of a list on a phone. The content
+ * does not move.
+ */
+export type ListFill = 'row' | 'inset';
+
 export interface ListDefaults {
+  fill: ListFill;
   inset: boolean;
   marker: ListMarker;
   size: ListSize;
   variant: ListVariant;
 }
 
-const FALLBACK: ListDefaults = { inset: false, marker: 'none', size: 'md', variant: 'plain' };
+const FALLBACK: ListDefaults = {
+  fill: 'row',
+  inset: false,
+  marker: 'none',
+  size: 'md',
+  variant: 'plain',
+};
 
 export const LIST_DEFAULTS = new InjectionToken<ListDefaults>('slotted list defaults', {
   providedIn: 'root',
@@ -37,6 +52,7 @@ export function provideListDefaults(defaults: Partial<ListDefaults>) {
   return {
     provide: LIST_DEFAULTS,
     useFactory: (): ListDefaults => ({
+      fill: defaults.fill ?? FALLBACK.fill,
       inset: defaults.inset ?? FALLBACK.inset,
       marker: defaults.marker ?? FALLBACK.marker,
       size: defaults.size ?? FALLBACK.size,

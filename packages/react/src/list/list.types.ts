@@ -13,11 +13,20 @@ export type ListSize = 'sm' | 'md' | 'lg';
  */
 export type ListMarker = 'none' | 'bullet' | 'number';
 
+/**
+ * How a row's hover, pressed, selected and current grounds are drawn. `row`
+ * runs them edge to edge; `inset` draws them as a rounded tile inside a gutter
+ * of `--slotted-list-fill-inset`, the form of a list on a phone. The content
+ * does not move.
+ */
+export type ListFill = 'row' | 'inset';
+
 /** The heading a group's name is set as. `none` renders a `div`. */
 export type ListSectionLevel = 'none' | '1' | '2' | '3' | '4' | '5' | '6';
 
 /** What an application sets once for every list under it. */
 export interface ListDefaults {
+  fill: ListFill;
   inset: boolean;
   marker: ListMarker;
   size: ListSize;
@@ -34,6 +43,7 @@ export interface ListDefaultsProviderProps extends Partial<ListDefaults> {
  * travels this way.
  */
 export interface ListContextValue {
+  fill: ListFill;
   inset: boolean;
   marker: ListMarker;
   ordered: boolean;
@@ -46,6 +56,7 @@ export interface ListContextValue {
    here made the wiring unassignable to the props it was built from. */
 export interface ListRootProps extends HTMLAttributes<HTMLElement> {
   children?: ReactNode | undefined;
+  'data-fill': ListFill;
   'data-inset'?: '' | undefined;
   'data-loading'?: '' | undefined;
   'data-marker': ListMarker;
@@ -56,6 +67,11 @@ export interface ListRootProps extends HTMLAttributes<HTMLElement> {
 }
 
 export interface ListProps extends ComponentPropsWithRef<'ul'> {
+  /**
+   * How a row's grounds are drawn: edge to edge (`row`) or as a rounded tile
+   * inside a gutter (`inset`). Defaults to the provider, then to `row`.
+   */
+  fill?: ListFill | undefined;
   /**
    * Takes the rows' inline padding away, for a list inside a box that already
    * pads its own content — a card body, a dialog. The rule and the fill still

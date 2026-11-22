@@ -10,9 +10,9 @@ import {
 } from '@angular/core';
 
 import { injectListDefaults } from './list-defaults';
-import type { ListMarker, ListSize, ListVariant } from './list-defaults';
+import type { ListFill, ListMarker, ListSize, ListVariant } from './list-defaults';
 
-export type { ListMarker, ListSize, ListVariant } from './list-defaults';
+export type { ListFill, ListMarker, ListSize, ListVariant } from './list-defaults';
 
 /**
  * A vertical run of related rows. The rows are `slListItem`, a family of its
@@ -52,6 +52,7 @@ export type { ListMarker, ListSize, ListVariant } from './list-defaults';
     '[attr.data-variant]': 'resolvedVariant()',
     '[attr.data-size]': 'resolvedSize()',
     '[attr.data-marker]': 'resolvedMarker()',
+    '[attr.data-fill]': 'resolvedFill()',
     '[attr.data-inset]': "resolvedInset() ? '' : null",
     '[attr.data-loading]': "loading() ? '' : null",
     '[attr.aria-busy]': "loading() ? 'true' : null",
@@ -64,6 +65,11 @@ export class SlList {
   readonly size = input<ListSize>();
   /** What is painted in the marker column. Falls back to the injected default. */
   readonly marker = input<ListMarker>();
+  /**
+   * How a row's grounds are drawn: edge to edge (`row`) or as a rounded tile
+   * inside a gutter (`inset`). Falls back to the injected default.
+   */
+  readonly fill = input<ListFill>();
   /**
    * Takes the rows' inline padding away, for a list inside a box that already
    * pads its own content. The rule and the fill still run edge to edge.
@@ -89,6 +95,7 @@ export class SlList {
   readonly resolvedVariant = computed(() => this.variant() ?? this.defaults.variant);
   readonly resolvedSize = computed(() => this.size() ?? this.defaults.size);
   readonly resolvedMarker = computed(() => this.marker() ?? this.defaults.marker);
+  readonly resolvedFill = computed(() => this.fill() ?? this.defaults.fill);
 
   /**
    * Read by every row under this set, and by the row's own input first. The

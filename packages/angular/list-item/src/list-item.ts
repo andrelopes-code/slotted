@@ -73,6 +73,7 @@ export type {
     '[attr.data-marker]': 'resolvedMarker()',
     '[attr.data-align]': 'resolvedAlign()',
     '[attr.data-end-placement]': 'resolvedEndPlacement()',
+    '[attr.data-fill]': "list?.resolvedFill() ?? 'row'",
     '[attr.data-tone]': 'resolvedTone()',
     '[attr.data-inset]': "resolvedInset() ? '' : null",
     '[attr.data-truncate]': "resolvedTruncate() ? '' : null",
@@ -145,7 +146,7 @@ export class SlListItem {
   readonly setSize = input<number | undefined>(undefined);
 
   private readonly defaults = injectListItemDefaults();
-  private readonly list = inject(SlList, { optional: true });
+  protected readonly list = inject(SlList, { optional: true });
   /** An `aria-current` the consumer wrote is never replaced by the family's. */
   private readonly writtenCurrent = inject(new HostAttributeToken('aria-current'), {
     optional: true,

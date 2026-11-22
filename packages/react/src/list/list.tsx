@@ -35,6 +35,7 @@ export function useList(): ListContextValue | undefined {
  * `listitem`, so a selection model here would announce nothing.
  */
 export function List({
+  fill,
   inset,
   loading = false,
   marker,
@@ -46,6 +47,7 @@ export function List({
 }: ListProps) {
   const defaults = useListDefaults();
 
+  const resolvedFill = fill ?? defaults.fill;
   const resolvedInset = (inset ?? defaults.inset) === true;
   const resolvedMarker = marker ?? defaults.marker;
   const resolvedSize = size ?? defaults.size;
@@ -56,6 +58,7 @@ export function List({
     ...nativeProps,
     ...(loading ? { 'aria-busy': true, 'data-loading': '' } : {}),
     ...(resolvedInset ? { 'data-inset': '' } : {}),
+    'data-fill': resolvedFill,
     'data-marker': resolvedMarker,
     'data-part': 'root',
     'data-size': resolvedSize,
@@ -64,6 +67,7 @@ export function List({
   });
 
   const context: ListContextValue = {
+    fill: resolvedFill,
     inset: resolvedInset,
     marker: resolvedMarker,
     ordered,

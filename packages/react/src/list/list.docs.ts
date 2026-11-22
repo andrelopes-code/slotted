@@ -251,6 +251,13 @@ export const REACT_LIST_DOCS = {
         "Removes the rows' inline padding, for a list inside a box that already pads its content. Rules and hover fills still run edge to edge.",
       ],
       [
+        'fill',
+        "'row' | 'inset'",
+        'row',
+        'List',
+        'How a row draws its hover, pressed, selected and current grounds: edge to edge, or as a tile with the row radius inside a gutter of --slotted-list-fill-inset. The content does not move.',
+      ],
+      [
         'loading',
         'boolean',
         'false',

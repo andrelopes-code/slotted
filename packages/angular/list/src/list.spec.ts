@@ -175,6 +175,15 @@ describe('SlList', () => {
     expect(el(fixture, 'row').getAttribute('data-variant')).toBe('ruled');
     expect(el(fixture, 'row').getAttribute('data-marker')).toBe('bullet');
   });
+
+  it('hands each row the inset fill an application sets once', () => {
+    expect(el(setup(), 'row').getAttribute('data-fill')).toBe('row');
+
+    TestBed.resetTestingModule();
+    const fixture = setup([provideListDefaults({ fill: 'inset' })]);
+    expect(el(fixture, 'list').getAttribute('data-fill')).toBe('inset');
+    expect(el(fixture, 'row').getAttribute('data-fill')).toBe('inset');
+  });
 });
 
 @Component({

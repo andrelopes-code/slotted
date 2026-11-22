@@ -70,7 +70,7 @@ test('draws its own marker from the glyph scale and a counter', () => {
   assert.equal(contract.marker.drawnBy, 'list-item');
   assert.equal(contract.marker.counter, 'slotted-list-item');
   assert.match(contract.marker.bullet, /--slotted-icon-dot/);
-  assert.deepEqual(contract.provides.toItems, ['variant', 'size', 'marker', 'inset']);
+  assert.deepEqual(contract.provides.toItems, ['variant', 'size', 'marker', 'inset', 'fill']);
 });
 
 /**

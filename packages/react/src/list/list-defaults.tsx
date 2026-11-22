@@ -2,7 +2,13 @@ import { createContext, useContext } from 'react';
 
 import type { ListDefaults, ListDefaultsProviderProps } from './list.types';
 
-const FALLBACK: ListDefaults = { inset: false, marker: 'none', size: 'md', variant: 'plain' };
+const FALLBACK: ListDefaults = {
+  fill: 'row',
+  inset: false,
+  marker: 'none',
+  size: 'md',
+  variant: 'plain',
+};
 
 const ListDefaultsContext = createContext<ListDefaults>(FALLBACK);
 
@@ -23,6 +29,7 @@ export function ListDefaultsProvider({ children, ...defaults }: ListDefaultsProv
   return (
     <ListDefaultsContext.Provider
       value={{
+        fill: defaults.fill ?? inherited.fill,
         inset: defaults.inset ?? inherited.inset,
         marker: defaults.marker ?? inherited.marker,
         size: defaults.size ?? inherited.size,

@@ -3823,6 +3823,7 @@ export type ComponentToken =
   | '--slotted-list-empty-padding'
   | '--slotted-list-empty-padding-lg'
   | '--slotted-list-empty-padding-sm'
+  | '--slotted-list-fill-inset'
   | '--slotted-list-gap'
   | '--slotted-list-gap-lg'
   | '--slotted-list-gap-sm'
@@ -6159,6 +6160,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-list-empty-padding",
   "--slotted-list-empty-padding-lg",
   "--slotted-list-empty-padding-sm",
+  "--slotted-list-fill-inset",
   "--slotted-list-gap",
   "--slotted-list-gap-lg",
   "--slotted-list-gap-sm",

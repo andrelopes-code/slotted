@@ -93,6 +93,7 @@ export function ListItem({
     ...(resolvedTruncate ? { 'data-truncate': '' } : {}),
     'data-align': resolvedAlign,
     'data-end-placement': resolvedEndPlacement,
+    'data-fill': list?.fill ?? 'row',
     'data-marker': resolvedMarker,
     'data-part': 'root',
     'data-size': resolvedSize,

@@ -45,3 +45,39 @@ describe('a sticky group heading', () => {
     expect(label.backgroundColor).toBe('rgb(4, 5, 6)');
   });
 });
+
+describe('a list with the inset fill', () => {
+  function pressedRow(fill?: 'inset') {
+    const { container } = render(
+      <div style={{ inlineSize: 390 }}>
+        <List fill={fill}>
+          <ListItem selected>
+            <ListItemBody>
+              <ListItemLabel>Row</ListItemLabel>
+            </ListItemBody>
+          </ListItem>
+        </List>
+      </div>,
+    );
+    const row = container.querySelector<HTMLElement>('[data-ui="list-item"]')!;
+
+    return {
+      label: container.querySelector('[data-part="label"]')!.getBoundingClientRect(),
+      row,
+      tile: getComputedStyle(row, '::after'),
+    };
+  }
+
+  it('draws the ground as a rounded tile inside the gutter and leaves the content in place', () => {
+    const inset = pressedRow('inset');
+    const gutter = parseFloat(inset.tile.left);
+    const plainLabel = pressedRow().label;
+
+    expect(gutter).toBeGreaterThan(0);
+    expect(parseFloat(inset.tile.right)).toBe(gutter);
+    expect(parseFloat(inset.tile.borderTopLeftRadius)).toBeGreaterThan(0);
+    expect(inset.tile.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+    expect(getComputedStyle(inset.row).backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    expect(inset.label.left).toBe(plainLabel.left);
+  });
+});

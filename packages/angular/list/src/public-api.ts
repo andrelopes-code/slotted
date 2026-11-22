@@ -4,7 +4,7 @@ export {
   provideListDefaults,
   SlListIdFactory,
 } from './list-defaults';
-export type { ListDefaults, ListMarker, ListSize, ListVariant } from './list-defaults';
+export type { ListDefaults, ListFill, ListMarker, ListSize, ListVariant } from './list-defaults';
 export { SlList } from './list';
 export {
   SlListEmpty,

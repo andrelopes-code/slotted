@@ -6,6 +6,7 @@ export type {
   ListDefaults,
   ListDefaultsProviderProps,
   ListEmptyProps,
+  ListFill,
   ListMarker,
   ListProps,
   ListRootProps,

@@ -977,6 +977,42 @@
   }
 
   /**
+   * ── The inset fill ─────────────────────────────────────────────────────
+   *
+   * `fill="inset"` on the list: the row's grounds, its rule and its state edge
+   * are drawn on a tile inside a gutter of `--slotted-list-fill-inset`, with
+   * the row's radius, so a pressed row on a phone reads as a tile rather than
+   * a stripe across the screen. The row itself paints nothing and its content
+   * stays where it was; the tile sits under it in the row's own stacking
+   * context.
+   */
+  [data-ui-list-item][data-fill='inset'] {
+    --_fill-inset: var(--slotted-list-fill-inset, var(--slotted-space-3, 0.375rem));
+
+    background-color: transparent;
+    box-shadow: none;
+    isolation: isolate;
+    position: relative;
+  }
+
+  [data-ui-list-item][data-fill='inset']::after {
+    background-color: var(--_fill);
+    border-radius: var(--_radius);
+    box-shadow: var(--_rule-shadow), var(--_edge-shadow);
+    content: '';
+    inset-block: 0;
+    inset-inline: var(--_fill-inset);
+    pointer-events: none;
+    position: absolute;
+    transition:
+      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
+      box-shadow var(--slotted-control-transition-duration, var(--slotted-duration-short))
+        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
+    z-index: -1;
+  }
+
+  /**
    * ── Forced colors ─────────────────────────────────────────────────────
    *
    * The theme remaps every semantic token once, so the row needs a rule only
@@ -990,7 +1026,8 @@
      * resting one would be the same rectangle. Selection is the accent state,
      * and the system's own selected pair is what says so.
      */
-    [data-ui-list-item][data-selected] {
+    [data-ui-list-item][data-selected]:not([data-fill='inset']),
+    [data-ui-list-item][data-selected][data-fill='inset']::after {
       background-color: Highlight;
     }
 

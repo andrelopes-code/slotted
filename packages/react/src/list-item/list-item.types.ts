@@ -7,7 +7,7 @@ import type {
   ReactNode,
 } from 'react';
 
-import type { ListMarker, ListSize, ListVariant } from '../list';
+import type { ListFill, ListMarker, ListSize, ListVariant } from '../list';
 
 /** The five the theme carries. `secondary` is the library's neutral. */
 export type ListItemTone = 'secondary' | 'accent' | 'info' | 'success' | 'warning' | 'danger';
@@ -67,6 +67,7 @@ export interface ListItemRootProps extends HTMLAttributes<HTMLElement> {
   /** ARIA 1.2 deprecates `aria-disabled` on `listitem`, so the state is data only. */
   'data-disabled'?: '' | undefined;
   'data-end-placement': ListItemEndPlacement;
+  'data-fill': ListFill;
   'data-inset'?: '' | undefined;
   'data-loading'?: '' | undefined;
   'data-marker': ListMarker;
