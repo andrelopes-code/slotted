@@ -81,6 +81,27 @@ function mount() {
   return { button, fixture, host: fixture.componentInstance };
 }
 
+@Component({
+  imports: [SlButton],
+  template: `<button slButton [widest]="months">May 2026</button>`,
+})
+class WidestHost {
+  readonly months = ['May 2026', 'September 2026'];
+}
+
+describe('SlButton widest', () => {
+  it('hands the label every text it can take, and keeps them out of the text', () => {
+    const fixture = TestBed.createComponent(WidestHost);
+    fixture.detectChanges();
+    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    const label = button.querySelector('[data-part="label"]')!;
+
+    expect(label.getAttribute('data-widest')).toBe('May 2026\nSeptember 2026');
+    expect(label.querySelector('[data-label-text]')?.textContent).toBe('May 2026');
+    expect(button.textContent?.trim()).toBe('May 2026');
+  });
+});
+
 describe('SlButton', () => {
   it('is the platform’s own button, carrying the family identity', () => {
     const { button } = mount();

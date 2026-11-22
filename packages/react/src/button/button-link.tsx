@@ -36,6 +36,7 @@ export function ButtonLink({
   start,
   tone,
   variant,
+  widest,
   ...anchorProps
 }: ButtonLinkProps) {
   const appearance = useAppearance({ size, tone, variant }, BUTTON_LINK_DEFAULTS);
@@ -44,7 +45,7 @@ export function ButtonLink({
     ...anchorProps,
     ...rootData({ disabled, fullWidth, justify, ...appearance }),
     children: (
-      <ButtonContent end={end} start={start}>
+      <ButtonContent end={end} start={start} widest={widest}>
         {children}
       </ButtonContent>
     ),

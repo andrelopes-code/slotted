@@ -11,6 +11,7 @@ import {
 } from '../description-list';
 import { Glyph, Icon } from '../icon';
 import { Table, TableBody, TableCell, TableContent, TableRow } from '../table';
+import { ButtonGroup } from '../button-group';
 import { Button, IconButton } from './index';
 
 const box = (element: Element) => {
@@ -260,4 +261,62 @@ describe('a flush ghost button over a line of text', () => {
 
     expect(label.right).toBeCloseTo(under.right, 1);
   });
+});
+
+describe('a stepper whose label changes', () => {
+  const MONTHS = [
+    'January 2026',
+    'February 2026',
+    'March 2026',
+    'April 2026',
+    'May 2026',
+    'June 2026',
+    'July 2026',
+    'August 2026',
+    'September 2026',
+    'October 2026',
+    'November 2026',
+    'December 2026',
+  ];
+
+  it('keeps the next arrow in place and the text centered in the button', () => {
+    const view = render(<Stepper month="May 2026" />);
+    const next = () => document.querySelector('[aria-label="Next"]')!.getBoundingClientRect().left;
+    const at = next();
+
+    for (const month of MONTHS) {
+      view.rerender(<Stepper month={month} />);
+      expect(next()).toBe(at);
+    }
+
+    const button = document.querySelector('[data-testid="month"]')!;
+    const text = button.querySelector('[data-label-text]')!.getBoundingClientRect();
+    const box = button.getBoundingClientRect();
+    const border = 0;
+    expect(
+      Math.abs(text.top - box.top - border - (box.bottom - border - text.bottom)),
+    ).toBeLessThan(0.5);
+    expect(button.textContent).toBe('December 2026');
+    expect(button.getAttribute('aria-label')).toBeNull();
+  });
+
+  function Stepper({ month }: { month: string }) {
+    return (
+      <ButtonGroup aria-label="Month">
+        <IconButton aria-label="Previous">
+          <Icon>
+            <Glyph name="chevron-left" />
+          </Icon>
+        </IconButton>
+        <Button data-testid="month" widest={MONTHS}>
+          {month}
+        </Button>
+        <IconButton aria-label="Next">
+          <Icon>
+            <Glyph name="chevron-right" />
+          </Icon>
+        </IconButton>
+      </ButtonGroup>
+    );
+  }
 });

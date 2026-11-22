@@ -6,6 +6,8 @@ interface ButtonContentProps {
   /** Drawn while the control is waiting, if the wait has lasted long enough to show. */
   indicator?: ReactNode;
   start?: ReactNode;
+  /** The texts the label can take: it reserves the width of the widest. */
+  widest?: readonly string[] | undefined;
 }
 
 /**
@@ -28,7 +30,7 @@ interface ButtonContentProps {
  * label, so the ring is rendered beside the label and the stylesheet fades
  * everything that is not the ring.
  */
-export function ButtonContent({ children, end, indicator, start }: ButtonContentProps) {
+export function ButtonContent({ children, end, indicator, start, widest }: ButtonContentProps) {
   const waiting = indicator !== undefined && indicator !== null;
   const inStart = waiting && start !== undefined;
   const inEnd = waiting && !inStart && end !== undefined;
@@ -41,9 +43,15 @@ export function ButtonContent({ children, end, indicator, start }: ButtonContent
           {inStart ? indicator : null}
         </span>
       )}
-      <span data-part="label" data-part-label="">
-        {children}
-      </span>
+      {widest === undefined ? (
+        <span data-part="label" data-part-label="">
+          {children}
+        </span>
+      ) : (
+        <span data-part="label" data-part-label="" data-widest={widest.join('\n')}>
+          <span data-label-text="">{children}</span>
+        </span>
+      )}
       {end === undefined ? null : (
         <span data-part="end" data-part-end="">
           {end}

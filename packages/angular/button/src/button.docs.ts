@@ -193,6 +193,13 @@ export const ANGULAR_BUTTON_DOCS = {
         'SlButton',
         'Where the content sits along the inline axis: center keeps the label and end together in the middle; between sets the label at the start and end at the inline end, as a field trigger reads, with start beside the label. It mirrors in a right-to-left document.',
       ],
+      [
+        'widest',
+        'readonly string[]',
+        '—',
+        'SlButton',
+        'Every text the label can take, for a label that changes under the pointer (the month of a stepper): the label reserves the width of the widest and centers the visible text in it, in tabular figures. The entries stay out of the accessible name; no effect under fullWidth.',
+      ],
       ...unavailable('SlButton'),
       ...waiting('SlButton'),
       [
@@ -262,6 +269,13 @@ export const ANGULAR_BUTTON_DOCS = {
         'center',
         'SlButtonLink',
         'Where the content sits along the inline axis: center keeps the label and end together in the middle; between sets the label at the start and end at the inline end, as a field trigger reads, with start beside the label. It mirrors in a right-to-left document.',
+      ],
+      [
+        'widest',
+        'readonly string[]',
+        '—',
+        'SlButtonLink',
+        'Every text the label can take, for a label that changes under the pointer (the month of a stepper): the label reserves the width of the widest and centers the visible text in it, in tabular figures. The entries stay out of the accessible name; no effect under fullWidth.',
       ],
       [
         'disabled',
@@ -471,6 +485,13 @@ export const ANGULAR_BUTTON_DOCS = {
         'center',
         'SlToggleButton',
         'Where the content sits along the inline axis: center keeps the label and end together in the middle; between sets the label at the start and end at the inline end, as a field trigger reads, with start beside the label. It mirrors in a right-to-left document.',
+      ],
+      [
+        'widest',
+        'readonly string[]',
+        '—',
+        'SlToggleButton',
+        'Every text the label can take, for a label that changes under the pointer (the month of a stepper): the label reserves the width of the widest and centers the visible text in it, in tabular figures. The entries stay out of the accessible name; no effect under fullWidth.',
       ],
       ...unavailable('SlToggleButton'),
       ...waiting('SlToggleButton'),

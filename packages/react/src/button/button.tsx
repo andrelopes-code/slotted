@@ -38,6 +38,7 @@ export function Button({
   tone,
   type = 'button',
   variant,
+  widest,
   ...nativeProps
 }: ButtonProps) {
   const appearance = useAppearance({ size, tone, variant }, BUTTON_DEFAULTS);
@@ -54,6 +55,7 @@ export function Button({
         end={end}
         indicator={waiting ? <ButtonIndicator label={t('loading')} /> : null}
         start={start}
+        widest={widest}
       >
         {children}
       </ButtonContent>

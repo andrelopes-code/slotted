@@ -47,6 +47,7 @@ export function ToggleButton({
   tone,
   type = 'button',
   variant,
+  widest,
   ...nativeProps
 }: ToggleButtonProps) {
   const appearance = useAppearance({ size, tone, variant }, TOGGLE_BUTTON_DEFAULTS);
@@ -65,6 +66,7 @@ export function ToggleButton({
         end={end}
         indicator={waiting ? <ButtonIndicator label={t('loading')} /> : null}
         start={start}
+        widest={widest}
       >
         {children}
       </ButtonContent>

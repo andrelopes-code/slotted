@@ -697,6 +697,42 @@
   }
 
   /**
+   * `widest` reserves the width of the widest text the label can show, so a
+   * stepper's arrow stays under the pointer as the label changes. The label is
+   * one grid cell holding the visible text and, under it, `::before`: the texts
+   * from an attribute, one per line, with no height and no paint, so out of
+   * the accessible name and of the text content. The cell is as wide as the
+   * widest and as tall as the text. The text keeps its own block, which is
+   * what the trim below reads, and its digits take tabular figures.
+   */
+  [data-ui-button] [data-part-label][data-widest] {
+    display: grid;
+    font-variant-numeric: tabular-nums;
+    justify-items: center;
+  }
+
+  [data-ui-button] [data-part-label][data-widest] > [data-label-text],
+  [data-ui-button] [data-part-label][data-widest]::before {
+    grid-area: 1 / 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui-button] [data-part-label][data-widest] > [data-label-text] {
+    display: block;
+    max-inline-size: 100%;
+  }
+
+  [data-ui-button] [data-part-label][data-widest]::before {
+    block-size: 0;
+    content: attr(data-widest);
+    visibility: hidden;
+    white-space: pre;
+  }
+
+  /**
    * A flex container centers the line box, and a line box is not symmetric
    * around the letters inside it. Measured on this family, the word sat 1.2
    * pixels above the center of the glyph beside it at every step of every
@@ -722,6 +758,18 @@
    */
   @supports (text-box: trim-both cap alphabetic) {
     [data-ui-button] [data-part-label] {
+      padding-block: calc((var(--slotted-line-height-sm, 1.45) * 1em - 0.75em) / 2);
+      text-box: trim-both cap alphabetic;
+    }
+
+    /* Under widest the label is a grid, which nothing trims: the text's own
+       block takes the trim and the padding. */
+    [data-ui-button] [data-part-label][data-widest] {
+      padding-block: 0;
+      text-box: normal;
+    }
+
+    [data-ui-button] [data-part-label][data-widest] > [data-label-text] {
       padding-block: calc((var(--slotted-line-height-sm, 1.45) * 1em - 0.75em) / 2);
       text-box: trim-both cap alphabetic;
     }

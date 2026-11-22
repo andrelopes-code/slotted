@@ -55,6 +55,13 @@ export interface ButtonContentProps {
   start?: ReactNode;
   /** Content after the label in the reading order, mirrored in a right-to-left document. */
   end?: ReactNode;
+  /**
+   * Every text the label can take, for a control whose label changes under the
+   * pointer (the month of a stepper): the label reserves the width of the
+   * widest and centers the visible one in it, in tabular figures. The entries
+   * stay out of the accessible name. No effect under `fullWidth`.
+   */
+  widest?: readonly string[] | undefined;
 }
 
 /**
