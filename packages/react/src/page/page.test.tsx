@@ -1,5 +1,5 @@
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/page/contract.json';
@@ -8,6 +8,7 @@ import { Section, SectionHeader, SectionHeading, SectionTitle } from '../section
 import { Page, PageBody, PageFooter, STICKY_BOTTOM_PROPERTY } from './page';
 import { PageDefaultsProvider } from './page-defaults';
 import type { PageProps } from './page.types';
+import { usePageSizeClass } from './use-page-size-class';
 
 class FakeResizeObserver {
   static callbacks: ResizeObserverCallback[] = [];
@@ -267,3 +268,42 @@ describe('Page without a body', () => {
     warn.mockRestore();
   });
 });
+
+describe('Page size class', () => {
+  beforeEach(() => {
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver);
+    vi.stubGlobal('innerWidth', 1280);
+    FakeResizeObserver.callbacks = [];
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('reads the viewport until the observer reports a width', () => {
+    render(<SizeClassScreen />);
+
+    expect(screen.getByTestId('size-class').textContent).toBe('expanded');
+  });
+
+  it('reads the viewport while the observer reports a width of 0', () => {
+    render(<SizeClassScreen />);
+
+    act(() => {
+      for (const callback of FakeResizeObserver.callbacks) callback([], {} as never);
+    });
+
+    expect(screen.getByTestId('size-class').textContent).toBe('expanded');
+  });
+});
+
+function SizeClassScreen() {
+  return (
+    <Page>
+      <PageBody>
+        <SizeClassProbe />
+      </PageBody>
+    </Page>
+  );
+}
+
+function SizeClassProbe() {
+  return <span data-testid="size-class">{usePageSizeClass()}</span>;
+}

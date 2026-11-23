@@ -334,4 +334,20 @@ describe('injectPageSizeClass', () => {
     fixture.detectChanges();
     expect(inside()).toBe('compact');
   });
+
+  it('reads the viewport while the page reports a width of 0', async () => {
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver);
+    vi.stubGlobal('innerWidth', 1280);
+    FakeResizeObserver.callbacks = [];
+    const fixture = TestBed.createComponent(Sized);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    for (const callback of FakeResizeObserver.callbacks) callback([], {} as never);
+    fixture.detectChanges();
+
+    const inside = fixture.nativeElement.querySelector('main sl-size-probe').textContent.trim();
+    expect(inside).toBe('expanded');
+    vi.unstubAllGlobals();
+  });
 });

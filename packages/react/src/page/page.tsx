@@ -164,8 +164,11 @@ export function Page({
   useIsomorphicLayoutEffect(() => {
     if (root === null || typeof ResizeObserver === 'undefined') return undefined;
 
-    const read = () => setSizeClass(sizeClassOf(root.getBoundingClientRect().width));
-    read();
+    /* Read on a size report only; a box of 0 is not laid out, and the hook reads the viewport. */
+    const read = () => {
+      const { width } = root.getBoundingClientRect();
+      setSizeClass(width === 0 ? null : sizeClassOf(width));
+    };
     const observer = new ResizeObserver(read);
     observer.observe(root);
 
