@@ -67,7 +67,7 @@ export class SlList {
   readonly marker = input<ListMarker>();
   /**
    * How a row's grounds are drawn: edge to edge (`row`) or as a rounded tile
-   * inside a gutter (`inset`). Falls back to the injected default.
+   * that reaches past the content (`inset`). Falls back to the injected default.
    */
   readonly fill = input<ListFill>();
   /**

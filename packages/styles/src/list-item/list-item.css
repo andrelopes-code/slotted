@@ -979,37 +979,36 @@
   /**
    * ── The inset fill ─────────────────────────────────────────────────────
    *
-   * `fill="inset"` on the list: the row's grounds, its rule and its state edge
-   * are drawn on a tile inside a gutter of `--slotted-list-fill-inset`, with
-   * the row's radius, so a pressed row on a phone reads as a tile rather than
-   * a stripe across the screen. The row itself paints nothing and its content
-   * stays where it was; the tile sits under it in the row's own stacking
-   * context.
+   * `fill="inset"` on a plain or ruled list: the list reaches past its content
+   * by `--slotted-list-fill-inset` on each side (its own stylesheet), and the
+   * row gives that distance back as its inline padding. The content keeps the
+   * inline edge of the container, and the row's box, with its radius, is the
+   * tile its grounds are painted on and the target the finger lands on. The
+   * rule between rows stays as wide as the content.
    */
-  [data-ui-list-item][data-fill='inset'] {
-    --_fill-inset: var(--slotted-list-fill-inset, var(--slotted-space-3, 0.375rem));
+  [data-ui-list-item][data-fill='inset']:is([data-variant='plain'], [data-variant='ruled']) {
+    --_pad-inline: var(--slotted-list-fill-inset, var(--slotted-space-3, 0.375rem));
 
-    background-color: transparent;
-    box-shadow: none;
-    isolation: isolate;
+    border-radius: var(--_radius);
+    box-shadow: var(--_edge-shadow);
     position: relative;
   }
 
-  [data-ui-list-item][data-fill='inset']::after {
-    background-color: var(--_fill);
-    border-radius: var(--_radius);
-    box-shadow: var(--_rule-shadow), var(--_edge-shadow);
+  [data-ui-list-item][data-fill='inset'][data-inset]:is(
+      [data-variant='plain'],
+      [data-variant='ruled']
+    )
+    > [data-part-content] {
+    padding-inline: var(--_pad-inline);
+  }
+
+  [data-ui-list-item][data-fill='inset'][data-variant='ruled']:not(:first-child)::after {
+    box-shadow: var(--_rule-shadow);
     content: '';
     inset-block: 0;
-    inset-inline: var(--_fill-inset);
+    inset-inline: var(--_pad-inline);
     pointer-events: none;
     position: absolute;
-    transition:
-      background-color var(--slotted-control-transition-duration, var(--slotted-duration-short))
-        var(--slotted-control-transition-easing, var(--slotted-easing-standard)),
-      box-shadow var(--slotted-control-transition-duration, var(--slotted-duration-short))
-        var(--slotted-control-transition-easing, var(--slotted-easing-standard));
-    z-index: -1;
   }
 
   /**
@@ -1028,11 +1027,6 @@
      */
     [data-ui-list-item][data-selected] {
       background-color: Highlight;
-    }
-
-    /* The tile would be forced to Canvas over that ground. */
-    [data-ui-list-item][data-fill='inset']::after {
-      display: none;
     }
 
     [data-ui-list-item][data-selected] > [data-part-content] {

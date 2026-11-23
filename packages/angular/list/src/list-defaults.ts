@@ -15,9 +15,11 @@ export type ListMarker = 'none' | 'bullet' | 'number';
 
 /**
  * How a row's hover, pressed, selected and current grounds are drawn. `row`
- * runs them edge to edge; `inset` draws them as a rounded tile inside a gutter
- * of `--slotted-list-fill-inset`, the form of a list on a phone. The content
- * does not move.
+ * runs them edge to edge of the list. `inset`, for a plain or ruled list inside
+ * a container that pads its content, draws them as a rounded tile that reaches
+ * past the content by `--slotted-list-fill-inset` on each side; the content
+ * keeps the inline edge of the container. A framed or separated list keeps
+ * `row`.
  */
 export type ListFill = 'row' | 'inset';
 

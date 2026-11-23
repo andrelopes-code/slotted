@@ -193,6 +193,28 @@
   }
 
   /**
+   * `fill="inset"` is the form of a list on a phone: a pressed row reads as a
+   * rounded tile that reaches past the content, not as a stripe. The set bleeds
+   * by the tile's reach and its rows pad their content back by as much, so the
+   * icons, the names and the group headings keep the inline edge of the
+   * container, which pads its content by at least that. A framed or separated
+   * list draws its own box and keeps to it.
+   */
+  [data-ui-list][data-part-root][data-fill='inset']:is(
+      [data-variant='plain'],
+      [data-variant='ruled']
+    ) {
+    --_row-inset-inline: var(--slotted-list-fill-inset, var(--slotted-space-3, 0.375rem));
+
+    margin-inline: calc(-1 * var(--_row-inset-inline));
+  }
+
+  [data-ui-list][data-inset][data-fill='inset']:is([data-variant='plain'], [data-variant='ruled'])
+    :is([data-part-section-label], [data-part-empty]) {
+    padding-inline: var(--_row-inset-inline);
+  }
+
+  /**
    * A heading that stays while its own rows scroll past. MUI ships it and is
    * the only surveyed source that does; composing it needs the family's ground
    * and its stack level, and a consumer writing `position: sticky` alone gets a

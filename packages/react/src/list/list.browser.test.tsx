@@ -2,9 +2,17 @@ import { render } from '@testing-library/react';
 import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
 
-import { ListItem, ListItemBody, ListItemLabel } from '../list-item';
+import { Glyph, Icon } from '../icon';
+import {
+  ListItem,
+  ListItemBody,
+  ListItemButton,
+  ListItemEnd,
+  ListItemLabel,
+  ListItemStart,
+} from '../list-item';
 import { List, ListSection } from './index';
-import type { ListVariant } from './index';
+import type { ListProps, ListVariant } from './index';
 
 function stickyLabel(variant: ListVariant, style?: CSSProperties) {
   const { container } = render(
@@ -46,38 +54,103 @@ describe('a sticky group heading', () => {
   });
 });
 
-describe('a list with the inset fill', () => {
-  function pressedRow(fill?: 'inset') {
+/* The tile sat inside the list's content box: either the icon touched the tile's edge or the content
+   left the page margin. The tile reaches past the content, which keeps the container's inline edge. */
+describe('a list with the inset fill in a page container', () => {
+  const REACH = 10;
+
+  function mount(props: ListProps = {}) {
     const { container } = render(
-      <div style={{ inlineSize: 390 }}>
-        <List fill={fill}>
-          <ListItem selected>
-            <ListItemBody>
-              <ListItemLabel>Row</ListItemLabel>
-            </ListItemBody>
-          </ListItem>
+      <div
+        data-testid="page"
+        style={
+          {
+            '--slotted-list-fill-inset': `${REACH}px`,
+            boxSizing: 'border-box',
+            inlineSize: 390,
+            paddingInline: 16,
+          } as CSSProperties
+        }
+      >
+        <p>Page text</p>
+        <List fill="inset" {...props}>
+          <ListSection label="Today">
+            <ListItem>
+              <ListItemButton>
+                <ListItemStart>
+                  <Icon>
+                    <Glyph name="circle-info" />
+                  </Icon>
+                </ListItemStart>
+                <ListItemBody>
+                  <ListItemLabel>First</ListItemLabel>
+                </ListItemBody>
+                <ListItemEnd>12.00</ListItemEnd>
+              </ListItemButton>
+            </ListItem>
+            <ListItem selected>
+              <ListItemButton>
+                <ListItemBody>
+                  <ListItemLabel>Second</ListItemLabel>
+                </ListItemBody>
+              </ListItemButton>
+            </ListItem>
+          </ListSection>
         </List>
       </div>,
     );
-    const row = container.querySelector<HTMLElement>('[data-ui="list-item"]')!;
+    const box = (selector: string) => container.querySelector(selector)!.getBoundingClientRect();
 
     return {
-      label: container.querySelector('[data-part="label"]')!.getBoundingClientRect(),
-      row,
-      tile: getComputedStyle(row, '::after'),
+      box,
+      page: container.querySelector<HTMLElement>('[data-testid="page"]')!,
+      rows: [...container.querySelectorAll<HTMLElement>('[data-ui="list-item"]')],
+      text: box('p'),
     };
   }
 
-  it('draws the ground as a rounded tile inside the gutter and leaves the content in place', () => {
-    const inset = pressedRow('inset');
-    const gutter = parseFloat(inset.tile.left);
-    const plainLabel = pressedRow().label;
+  it('keeps the leading icon, the label and the end on the inline edges of the page text', () => {
+    const { box, text } = mount();
 
-    expect(gutter).toBeGreaterThan(0);
-    expect(parseFloat(inset.tile.right)).toBe(gutter);
-    expect(parseFloat(inset.tile.borderTopLeftRadius)).toBeGreaterThan(0);
-    expect(inset.tile.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
-    expect(getComputedStyle(inset.row).backgroundColor).toBe('rgba(0, 0, 0, 0)');
-    expect(inset.label.left).toBe(plainLabel.left);
+    expect(box('[data-part="start"] [data-ui="icon"]').left).toBeCloseTo(text.left, 1);
+    expect(box('[data-part="end"]').right).toBeCloseTo(text.right, 1);
+    const name = document.createRange();
+    name.selectNodeContents(document.querySelector('[data-part="section-label"]')!);
+    expect(name.getBoundingClientRect().left).toBeCloseTo(text.left, 1);
+  });
+
+  it('starts the pressed tile the token before the text, with the row radius, and presses there', async () => {
+    const { rows, text } = mount();
+    const row = rows[0]!;
+    const tile = row.getBoundingClientRect();
+
+    expect(tile.left).toBeCloseTo(text.left - REACH, 1);
+    expect(tile.right).toBeCloseTo(text.right + REACH, 1);
+    expect(parseFloat(getComputedStyle(row).borderTopLeftRadius)).toBeGreaterThan(0);
+    expect(
+      document.elementFromPoint(tile.left + 2, tile.top + tile.height / 2)?.closest('button'),
+    ).not.toBeNull();
+    expect(getComputedStyle(rows[1]!).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+  });
+
+  it('widens no page that pads its content by as much', () => {
+    const { page } = mount();
+
+    expect(page.scrollWidth).toBe(page.clientWidth);
+  });
+
+  it('draws the rule between rows from edge to edge of the content', () => {
+    const { rows } = mount({ variant: 'ruled' });
+    const rule = getComputedStyle(rows[1]!, '::after');
+
+    expect(rule.left).toBe(`${REACH}px`);
+    expect(rule.right).toBe(`${REACH}px`);
+    expect(rule.boxShadow).not.toBe('none');
+  });
+
+  it('leaves a framed list to its frame', () => {
+    const { box, text } = mount({ variant: 'framed' });
+
+    expect(box('[data-ui="list"]').left).toBeCloseTo(text.left, 1);
   });
 });

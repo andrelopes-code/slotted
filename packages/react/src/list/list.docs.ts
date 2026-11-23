@@ -255,7 +255,7 @@ export const REACT_LIST_DOCS = {
         "'row' | 'inset'",
         'row',
         'List',
-        'How a row draws its hover, pressed, selected and current grounds: edge to edge, or as a tile with the row radius inside a gutter of --slotted-list-fill-inset. The content does not move.',
+        'How a row draws its hover, pressed, selected and current grounds. row: edge to edge of the list. inset, for a plain or ruled list inside a container that pads its content: as a tile with the row radius that reaches past the content by --slotted-list-fill-inset on each side, while the content keeps the inline edge of the container. A framed or separated list keeps row.',
       ],
       [
         'loading',
