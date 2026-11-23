@@ -3,6 +3,7 @@ export {
   SlCalendarDay,
   SlCalendarDayMark,
   SlCalendarDayMarks,
+  SlCalendarDayTooltip,
   SlCalendarDayValue,
 } from './calendar';
 export type { CalendarDayState } from './calendar';

@@ -448,6 +448,13 @@ const api: ApiRow[] = apiRows([
     'What a day holds under its number: CalendarDayMarks with one CalendarDayMark per record (a tone or data-1 to data-8, hollow for an open record) and a one-line CalendarDayValue. The family keeps the day’s button, focus, selection, today and outside-day states; state is outside, selected, today and unavailable.',
   ],
   [
+    'renderDayTooltip',
+    '(date, state) => ReactNode',
+    '—',
+    'Calendar',
+    'What a tooltip says of a day, with the day as its trigger: it opens on hover and on the keyboard focus, and describes the day. Nothing returned draws no tooltip.',
+  ],
+  [
     'dayLabel',
     '(date) => string',
     '—',
@@ -460,6 +467,20 @@ const api: ApiRow[] = apiRows([
     'cells',
     'Calendar',
     'cells draws square cells of --slotted-calendar-cell-size; fill shares the inline size between the seven columns and takes the row height from --slotted-calendar-day-height.',
+  ],
+  [
+    'lines',
+    'boolean',
+    'false',
+    'Calendar',
+    'Hairlines between the days of the fill layout, in --slotted-calendar-line-color.',
+  ],
+  [
+    'header',
+    'boolean',
+    'true',
+    'Calendar',
+    'The name of the page and the controls that turn it. false leaves them out, for a page with a month control of its own: the grid is named by its caption, and focusedDate turns the page.',
   ],
   [
     'locale',

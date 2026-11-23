@@ -903,6 +903,23 @@
     padding-block: var(--slotted-space-2, 0.25rem);
   }
 
+  /* Between the days and not around them: the lines divide a plane, they frame nothing. */
+  [data-ui-calendar][data-layout='fill'][data-lines]
+    [data-part-week]
+    > [data-part-cell]
+    + [data-part-cell] {
+    border-inline-start: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-calendar-line-color, var(--slotted-border-subtle, ButtonBorder));
+  }
+
+  [data-ui-calendar][data-layout='fill'][data-lines]
+    [data-part-week]
+    + [data-part-week]
+    > [data-part-cell] {
+    border-block-start: var(--slotted-border-width-thin, 1px) solid
+      var(--slotted-calendar-line-color, var(--slotted-border-subtle, ButtonBorder));
+  }
+
   [data-ui-calendar] [data-part-day-content] {
     align-items: center;
     display: flex;

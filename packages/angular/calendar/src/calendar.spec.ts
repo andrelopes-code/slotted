@@ -13,6 +13,7 @@ import {
   SlCalendarDay,
   SlCalendarDayMark,
   SlCalendarDayMarks,
+  SlCalendarDayTooltip,
   SlCalendarDayValue,
 } from './calendar';
 import { provideCalendarDefaults } from './calendar-defaults';
@@ -747,5 +748,52 @@ describe('a month with content in its days', () => {
     expect(marks.map((mark) => mark.getAttribute('data-tone'))).toEqual(['data-1', 'data-2']);
     expect(marks[1]!.hasAttribute('data-hollow')).toBe(true);
     expect(day.querySelector('[data-part="day-value"]')?.textContent).toBe('−220');
+  });
+});
+
+describe('a filled month of a page with its own month control', () => {
+  @Component({
+    standalone: true,
+    imports: [SlCalendar, SlCalendarDayTooltip],
+    template: `<div slCalendar layout="fill" lines [defaultFocusedDate]="october" [header]="false">
+      <ng-template slCalendarDayTooltip let-date let-state="state" [when]="busy">
+        {{ date.day }}: 2 items
+      </ng-template>
+    </div>`,
+  })
+  class Schedule {
+    readonly october = plainDate(2026, 10, 20);
+    readonly busy = (date: PlainDate) => date.day === 20 && date.month === 10;
+  }
+
+  it('draws no header, names its grid, and states its lines', () => {
+    const fixture = TestBed.createComponent(Schedule);
+    fixture.detectChanges();
+    const root = fixture.nativeElement.querySelector('[data-ui="calendar"]') as HTMLElement;
+    const grid = root.querySelector('[data-part="grid"]') as HTMLElement;
+
+    expect(root.querySelector('[data-part="header"]')).toBeNull();
+    expect(root.querySelector('[aria-live]')).toBeNull();
+    expect(grid.hasAttribute('aria-labelledby')).toBe(false);
+    expect(grid.querySelector('caption')?.textContent?.trim()).toMatch(/2026/);
+    expect(root.hasAttribute('data-lines')).toBe(true);
+  });
+
+  it('opens the tooltip of a day from the day, and leaves the others without one', async () => {
+    const fixture = TestBed.createComponent(Schedule);
+    fixture.detectChanges();
+    const days = [...fixture.nativeElement.querySelectorAll('[data-part="day"]')] as HTMLElement[];
+    const day = days.find((each) => each.tabIndex === 0)!;
+    Object.assign(day, { matches: () => true });
+
+    day.dispatchEvent(new FocusEvent('focus'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(document.querySelector('[role="tooltip"]')?.textContent?.trim()).toBe('20: 2 items');
+    expect(day.getAttribute('aria-describedby')).toBe(
+      document.querySelector('[role="tooltip"]')?.id,
+    );
+    expect(days.filter((each) => each.hasAttribute('aria-describedby'))).toEqual([day]);
   });
 });

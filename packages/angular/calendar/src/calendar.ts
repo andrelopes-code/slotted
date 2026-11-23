@@ -41,6 +41,12 @@ import type { OnInit } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { injectLocale, injectMessages } from '@slotted/angular/i18n';
 import { SlGlyph, SlIcon } from '@slotted/angular/icon';
+import {
+  SlTooltip,
+  SlTooltipContent,
+  SlTooltipLayer,
+  SlTooltipTrigger,
+} from '@slotted/angular/tooltip';
 import { calendarMessages, type CalendarMessages, type PartialMessages } from '@slotted/core/i18n';
 
 import { injectCalendarDefaults } from './calendar-defaults';
@@ -98,6 +104,15 @@ export class SlCalendarDay {
     inject<TemplateRef<{ $implicit: PlainDate; state: CalendarDayState }>>(TemplateRef);
 }
 
+/** The template of a day's tooltip, for the days `when` answers true for; every day unless stated. */
+@Directive({ selector: 'ng-template[slCalendarDayTooltip]', standalone: true })
+export class SlCalendarDayTooltip {
+  readonly when = input<(date: PlainDate) => boolean>(() => true);
+
+  readonly template =
+    inject<TemplateRef<{ $implicit: PlainDate; state: CalendarDayState }>>(TemplateRef);
+}
+
 /** A row of marks in a day, one per record, under the day's number. */
 @Directive({
   selector: '[slCalendarDayMarks]',
@@ -141,47 +156,57 @@ export class SlCalendarDayValue {}
   selector: '[slCalendar]',
   standalone: true,
   exportAs: 'slCalendar',
-  imports: [NgTemplateOutlet, SlGlyph, SlIcon],
-  template: `<div data-part="header" data-part-header="">
-      <button
-        data-part="previous"
-        data-part-previous=""
-        type="button"
-        [attr.aria-label]="pageNames()[0]"
-        [disabled]="!editable()"
-        (click)="turnPage(-1, $event)"
-      >
-        <span slIcon directional><svg slGlyph name="chevron-right"></svg></span>
-      </button>
-      <!--
-        The heading is a live region: paging with a key changes nothing that
-        focus lands on, so without this nothing announces the new month.
-      -->
-      <button
-        data-part="heading"
-        data-part-heading=""
-        type="button"
-        aria-live="polite"
-        [attr.id]="headingId"
-        [disabled]="!editable() || currentView() === 'year'"
-        (click)="walkUp()"
-      >
-        {{ heading() }}
-        @if (currentView() !== 'year') {
-          <span slIcon><svg slGlyph name="chevron-down"></svg></span>
-        }
-      </button>
-      <button
-        data-part="next"
-        data-part-next=""
-        type="button"
-        [attr.aria-label]="pageNames()[1]"
-        [disabled]="!editable()"
-        (click)="turnPage(1, $event)"
-      >
-        <span slIcon directional><svg slGlyph name="chevron-right"></svg></span>
-      </button>
-    </div>
+  imports: [
+    NgTemplateOutlet,
+    SlGlyph,
+    SlIcon,
+    SlTooltip,
+    SlTooltipContent,
+    SlTooltipLayer,
+    SlTooltipTrigger,
+  ],
+  template: `@if (header()) {
+      <div data-part="header" data-part-header="">
+        <button
+          data-part="previous"
+          data-part-previous=""
+          type="button"
+          [attr.aria-label]="pageNames()[0]"
+          [disabled]="!editable()"
+          (click)="turnPage(-1, $event)"
+        >
+          <span slIcon directional><svg slGlyph name="chevron-right"></svg></span>
+        </button>
+        <!--
+          The heading is a live region: paging with a key changes nothing that
+          focus lands on, so without this nothing announces the new month.
+        -->
+        <button
+          data-part="heading"
+          data-part-heading=""
+          type="button"
+          aria-live="polite"
+          [attr.id]="headingId"
+          [disabled]="!editable() || currentView() === 'year'"
+          (click)="walkUp()"
+        >
+          {{ heading() }}
+          @if (currentView() !== 'year') {
+            <span slIcon><svg slGlyph name="chevron-down"></svg></span>
+          }
+        </button>
+        <button
+          data-part="next"
+          data-part-next=""
+          type="button"
+          [attr.aria-label]="pageNames()[1]"
+          [disabled]="!editable()"
+          (click)="turnPage(1, $event)"
+        >
+          <span slIcon directional><svg slGlyph name="chevron-right"></svg></span>
+        </button>
+      </div>
+    }
 
     @switch (currentView()) {
       @case ('day') {
@@ -191,7 +216,7 @@ export class SlCalendarDayValue {}
               data-part="grid"
               data-part-grid=""
               role="grid"
-              [attr.aria-labelledby]="headingId"
+              [attr.aria-labelledby]="header() ? headingId : null"
             >
               <caption data-part="grid-caption" data-part-grid-caption="">
                 {{
@@ -251,31 +276,51 @@ export class SlCalendarDayValue {}
                         [attr.data-preview]="drawn(day) && proposed(day.date) ? '' : null"
                       >
                         @if (drawn(day)) {
-                          <!-- The mark's words follow the number with no space, so the name reads "12, 2 items". -->
-                          <!-- prettier-ignore -->
-                          <span
-                            data-part="day"
-                            data-part-day=""
-                            role="button"
-                            [attr.data-today]="isToday(day.date) ? '' : null"
-                            [attr.aria-selected]="chosen(day.date) ? 'true' : null"
-                            [attr.aria-disabled]="refused(day) ? 'true' : null"
-                            [tabindex]="tabIndexOf(day.date)"
-                            (click)="!refused(day) && select(day.date, 'pointer', $event)"
-                            (pointerenter)="hovered.set(day.date)"
-                            (pointerleave)="hovered.set(null)"
-                            [attr.aria-label]="dayLabel()?.(day.date) ?? null"
-                          >{{ day.date.day }}@if (dayTemplate(); as template) {<span
-                                data-part="day-content"
-                                data-part-day-content=""
-                              ><ng-container
-                                  [ngTemplateOutlet]="template.template"
-                                  [ngTemplateOutletContext]="{ $implicit: day.date, state: dayState(day) }"
-                              /></span>}@if (markOf(day.date); as mark) {<span
-                                data-part="mark"
-                                data-part-mark=""
-                                [attr.data-tone]="mark.tone ?? null"
-                              ><span data-ui="visually-hidden" data-ui-visually-hidden="">, {{ markName(mark) }}</span></span>}</span>
+                          @if (tooltipOf(day.date); as tooltip) {
+                            <ng-container slTooltip>
+                              <!-- prettier-ignore -->
+                              <span
+                              slTooltipTrigger
+                              data-part="day"
+                              data-part-day=""
+                              role="button"
+                              [attr.data-today]="isToday(day.date) ? '' : null"
+                              [attr.aria-selected]="chosen(day.date) ? 'true' : null"
+                              [attr.aria-disabled]="refused(day) ? 'true' : null"
+                              [tabindex]="tabIndexOf(day.date)"
+                              (click)="!refused(day) && select(day.date, 'pointer', $event)"
+                              (pointerenter)="hovered.set(day.date)"
+                              (pointerleave)="hovered.set(null)"
+                              [attr.aria-label]="dayLabel()?.(day.date) ?? null"
+                            ><ng-container [ngTemplateOutlet]="dayBody" [ngTemplateOutletContext]="{ $implicit: day }" /></span>
+                              <ng-template slTooltipLayer>
+                                <span slTooltipContent>
+                                  <ng-container
+                                    [ngTemplateOutlet]="tooltip.template"
+                                    [ngTemplateOutletContext]="{
+                                      $implicit: day.date,
+                                      state: dayState(day),
+                                    }"
+                                  />
+                                </span>
+                              </ng-template>
+                            </ng-container>
+                          } @else {
+                            <!-- prettier-ignore -->
+                            <span
+                              data-part="day"
+                              data-part-day=""
+                              role="button"
+                              [attr.data-today]="isToday(day.date) ? '' : null"
+                              [attr.aria-selected]="chosen(day.date) ? 'true' : null"
+                              [attr.aria-disabled]="refused(day) ? 'true' : null"
+                              [tabindex]="tabIndexOf(day.date)"
+                              (click)="!refused(day) && select(day.date, 'pointer', $event)"
+                              (pointerenter)="hovered.set(day.date)"
+                              (pointerleave)="hovered.set(null)"
+                              [attr.aria-label]="dayLabel()?.(day.date) ?? null"
+                            ><ng-container [ngTemplateOutlet]="dayBody" [ngTemplateOutletContext]="{ $implicit: day }" /></span>
+                          }
                         }
                       </td>
                     }
@@ -340,7 +385,21 @@ export class SlCalendarDayValue {}
           }
         </div>
       }
-    }`,
+    }
+
+    <!-- The mark's words follow the number with no space, so the name reads "12, 2 items". -->
+    <!-- prettier-ignore -->
+    <ng-template #dayBody let-day>{{ day.date.day }}@if (dayTemplate(); as template) {<span
+          data-part="day-content"
+          data-part-day-content=""
+        ><ng-container
+            [ngTemplateOutlet]="template.template"
+            [ngTemplateOutletContext]="{ $implicit: day.date, state: dayState(day) }"
+        /></span>}@if (markOf(day.date); as mark) {<span
+          data-part="mark"
+          data-part-mark=""
+          [attr.data-tone]="mark.tone ?? null"
+        ><span data-ui="visually-hidden" data-ui-visually-hidden="">, {{ markName(mark) }}</span></span>}</ng-template>`,
   styleUrls: [
     '../../../styles/src/calendar/calendar.css',
     '../../../styles/src/visually-hidden/visually-hidden.css',
@@ -356,6 +415,7 @@ export class SlCalendarDayValue {}
     '[attr.data-calendar]': 'resolvedCalendar()',
     '[attr.data-months]': 'resolvedMonths() > 1 ? resolvedMonths() : null',
     '[attr.data-layout]': "layout() === 'fill' ? 'fill' : null",
+    '[attr.data-lines]': "lines() ? '' : null",
     '[attr.data-week-numbers]': "resolvedWeekNumbers() ? '' : null",
     '[attr.data-disabled]': "disabled() === true ? '' : null",
     '[attr.data-readonly]': "readOnly() === true ? '' : null",
@@ -415,6 +475,25 @@ export class SlCalendar implements OnInit {
    * (`let-date`, `let-state="state"`): `slCalendarDayMarks`, `slCalendarDayValue`.
    */
   protected readonly dayTemplate = contentChild(SlCalendarDay);
+  /**
+   * What a tooltip says of a day, from an `ng-template[slCalendarDayTooltip]`.
+   * The day itself is its trigger, by the pointer and by the keyboard focus.
+   */
+  private readonly dayTooltip = contentChild(SlCalendarDayTooltip);
+  /**
+   * The name of the page and the controls that turn it. `false` leaves them
+   * out, for a page with a month control of its own: the grid is then named by
+   * its caption, and `focusedDate` turns the page.
+   */
+  readonly header = input(true, { transform: booleanAttribute });
+  /** Hairlines between the days of the `fill` layout. */
+  readonly lines = input(false, { transform: booleanAttribute });
+
+  protected tooltipOf(date: PlainDate) {
+    const tooltip = this.dayTooltip();
+
+    return tooltip?.when()(date) === true ? tooltip : null;
+  }
 
   protected dayState(day: CalendarDay): CalendarDayState {
     return {

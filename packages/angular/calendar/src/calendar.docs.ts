@@ -444,6 +444,13 @@ const api: ApiRow[] = apiRows([
     'What a day holds under its number: slCalendarDayMarks with one slCalendarDayMark per record (a tone or data-1 to data-8, hollow for an open record) and a one-line slCalendarDayValue. The family keeps the day’s button, focus, selection, today and outside-day states; state is outside, selected, today and unavailable.',
   ],
   [
+    'ng-template[slCalendarDayTooltip]',
+    'let-date, let-state, [when]',
+    '—',
+    'SlCalendar',
+    'What a tooltip says of a day, with the day as its trigger: it opens on hover and on the keyboard focus, and describes the day. when answers which days have one; every day unless stated.',
+  ],
+  [
     'dayLabel',
     '(date) => string',
     '—',
@@ -456,6 +463,20 @@ const api: ApiRow[] = apiRows([
     'cells',
     'SlCalendar',
     'cells draws square cells of --slotted-calendar-cell-size; fill shares the inline size between the seven columns and takes the row height from --slotted-calendar-day-height.',
+  ],
+  [
+    'lines',
+    'boolean',
+    'false',
+    'SlCalendar',
+    'Hairlines between the days of the fill layout, in --slotted-calendar-line-color.',
+  ],
+  [
+    'header',
+    'boolean',
+    'true',
+    'SlCalendar',
+    'The name of the page and the controls that turn it. false leaves them out, for a page with a month control of its own: the grid is named by its caption, and focusedDate turns the page.',
   ],
   [
     'locale',

@@ -77,6 +77,7 @@ export interface CalendarRootProps extends HTMLAttributes<HTMLElement> {
   'data-calendar': CalendarCalendar;
   'data-disabled'?: '' | undefined;
   'data-invalid'?: '' | undefined;
+  'data-lines'?: '' | undefined;
   'data-months'?: string | undefined;
   'data-part': string;
   'data-readonly'?: '' | undefined;
@@ -122,6 +123,19 @@ export interface CalendarProps extends Omit<
    * `dayLabel` names it.
    */
   renderDay?: ((date: PlainDate, state: CalendarDayState) => ReactNode) | undefined;
+  /**
+   * What a tooltip says of a day, or nothing for a day without one. The day
+   * itself is its trigger, by the pointer and by the keyboard focus.
+   */
+  renderDayTooltip?: ((date: PlainDate, state: CalendarDayState) => ReactNode) | undefined;
+  /**
+   * The name of the page and the controls that turn it. `false` leaves them
+   * out, for a page with a month control of its own: the grid is then named by
+   * its caption, and `focusedDate` turns the page.
+   */
+  header?: boolean | undefined;
+  /** Hairlines between the days of the `fill` layout. */
+  lines?: boolean | undefined;
   /** Present means the consumer owns the value. */
   value?: CalendarValue | undefined;
   defaultValue?: CalendarValue | undefined;
