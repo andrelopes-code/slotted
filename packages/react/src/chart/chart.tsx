@@ -771,13 +771,19 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
   const rangeDrag = useMemo(createRangeDrag, []);
 
   const onPlotPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!rangeSelectable || event.button !== 0 || event.shiftKey || !rangeDrag.press()) return;
+    const touch = event.pointerType === 'touch';
+    if (!rangeSelectable || event.button !== 0 || event.shiftKey || !rangeDrag.press(touch)) return;
+
     const view = event.currentTarget.ownerDocument.defaultView;
     const finish = (ended: PointerEvent) => {
       view?.removeEventListener('pointerup', finish);
       view?.removeEventListener('pointercancel', finish);
       if (ended.type === 'pointercancel') rangeDrag.cancel();
-      else if (rangeDrag.release() && rangeValue) requestRange(null, 'pointer', ended);
+      else if (rangeDrag.release() && rangeValue) {
+        requestRange(null, 'pointer', ended);
+        // A finger that clears the range leaves no pointer on the plot to read a point.
+        if (touch) requestActive(null, 'pointer', ended);
+      }
     };
     view?.addEventListener('pointerup', finish);
     view?.addEventListener('pointercancel', finish);
@@ -789,7 +795,8 @@ export function Chart<Row extends object = ChartRecord>(props: ChartProps<Row>) 
         rangeSelectable && model ? rangeDrag.point(model, point?.key ?? null) : undefined;
       if (spanned) requestRange(spanned, 'pointer', source);
       if (point) requestActive(point, 'pointer', source);
-      else if (document.activeElement !== plot.current) requestActive(null, 'pointer', source);
+      // The keyboard's point outlives the pointer; the ring says whose the focus is.
+      else if (!plot.current || !focusVisible(plot.current)) requestActive(null, 'pointer', source);
     },
     onPress: (point, source) => {
       if (!selectable || !point) return;

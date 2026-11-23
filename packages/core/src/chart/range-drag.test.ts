@@ -34,6 +34,20 @@ describe('createRangeDrag', () => {
     expect(drag.release()).toBe(true);
   });
 
+  it('starts a touch at the first point under the finger, not at the last one a mouse left', () => {
+    const drag = createRangeDrag();
+
+    drag.point(model, 'Jan');
+    expect(drag.press(true)).toBe(true);
+    expect(drag.point(model, 'Mar')).toBeUndefined();
+    expect(drag.release()).toBe(true);
+
+    drag.press(true);
+    drag.point(model, 'Mar');
+    expect(drag.point(model, 'Feb')).toEqual({ from: 'Feb', to: 'Mar' });
+    expect(drag.release()).toBe(false);
+  });
+
   it('starts nothing when no point is under the pointer', () => {
     expect(createRangeDrag().press()).toBe(false);
   });

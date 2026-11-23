@@ -197,6 +197,8 @@ export function mountChartEngine(
     const zr = instance.getZr();
     zr.on('mousemove', (event: { offsetX: number; offsetY: number; event?: unknown }) => {
       if (model()?.shape === 'pie') return;
+      // A finger lands on a point anew, the one it last left included.
+      if ((event.event as Event | undefined)?.type === 'touchstart') pointer = null;
       report(cartesianPoint(event.offsetX, event.offsetY), event.event as unknown as Event);
     });
     zr.on('globalout', (event: { event?: unknown }) =>

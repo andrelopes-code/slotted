@@ -503,6 +503,10 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
          legend drives it. */
         silent: true,
         z: series.kind === 'bar' ? 2 : 3,
+        /* An option is merged over the one before it, and a series that names
+         no mark keeps the marks it had: an empty one removes them. */
+        markLine: { data: [] },
+        markArea: { data: [] },
       };
 
       /* A band is two stacked lines: an invisible one up to the lower bound, and
@@ -766,29 +770,31 @@ export function buildChartOption(view: ChartEngineView, width = 0): ChartOptionR
     }
     const target = host as Record<string, unknown>;
     if (annotation.kind === 'line') {
-      const mark = (target['markLine'] as { data: unknown[] } | undefined) ?? {
+      target['markLine'] = {
         silent: true,
         symbol: 'none',
         animation: false,
-        data: [] as unknown[],
+        data: [
+          ...(target['markLine'] as { data: unknown[] }).data,
+          {
+            [key]: read(annotation.value),
+            label,
+            lineStyle: { color, width: 1, type: [4, 4] },
+          },
+        ],
       };
-      mark.data.push({
-        [key]: read(annotation.value),
-        label,
-        lineStyle: { color, width: 1, type: [4, 4] },
-      });
-      target['markLine'] = mark;
     } else {
-      const mark = (target['markArea'] as { data: unknown[] } | undefined) ?? {
+      target['markArea'] = {
         silent: true,
         animation: false,
-        data: [] as unknown[],
+        data: [
+          ...(target['markArea'] as { data: unknown[] }).data,
+          [
+            { [key]: read(annotation.from), label, itemStyle: { color: withAlpha(color, 0.12) } },
+            { [key]: read(annotation.to) },
+          ],
+        ],
       };
-      mark.data.push([
-        { [key]: read(annotation.from), label, itemStyle: { color: withAlpha(color, 0.12) } },
-        { [key]: read(annotation.to) },
-      ]);
-      target['markArea'] = mark;
     }
   }
 

@@ -333,6 +333,26 @@ describe('SlChart', () => {
     expect(host.range()).toBeNull();
   });
 
+  it('clears the range on a tap away from the point the mouse left', async () => {
+    const { host, part, settle } = await mount((each) => {
+      each.range.set({ from: 'Jan', to: 'Feb' });
+    });
+    const plot = part('plot')!;
+    const touch = (type: string) =>
+      plot.dispatchEvent(
+        new PointerEvent(type, { bubbles: true, button: 0, pointerId: 2, pointerType: 'touch' }),
+      );
+
+    engine.callbacks!.onPointer!({ series: 'revenue', key: 'Feb' }, undefined);
+    touch('pointerdown');
+    engine.callbacks!.onPointer!({ series: 'revenue', key: 'Mar' }, undefined);
+    touch('pointerup');
+    await settle();
+
+    expect(host.range()).toBeNull();
+    expect(host.activePoint()).toBeNull();
+  });
+
   it('extends the range with Shift and an arrow', async () => {
     const { host, part, settle } = await mount((each) => {
       each.activePoint.set({ series: 'revenue', key: 'Feb' });

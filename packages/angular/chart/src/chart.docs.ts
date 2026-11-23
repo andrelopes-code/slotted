@@ -833,7 +833,7 @@ const events: EventRow[] = [
   {
     name: 'rangeChange, rangeChangeRequest',
     payload: 'ChartRange | null, ChangeRequest<ChartRange | null>',
-    when: 'With rangeSelectable, at each point a drag reaches, on Shift and an arrow, on a click without a drag and on Escape: pointer, keyboard, escape, programmatic.',
+    when: 'With rangeSelectable, at each point a drag reaches, on Shift and an arrow, on a click or a tap without a drag and on Escape: pointer, keyboard, escape, programmatic.',
   },
   {
     name: 'zoomChange, zoomChangeRequest',

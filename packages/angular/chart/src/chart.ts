@@ -477,7 +477,8 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
               : undefined;
           if (spanned) this.requestRange(spanned, 'pointer', source);
           if (point) this.requestActive(point, 'pointer', source);
-          else if (document.activeElement !== plot) this.requestActive(null, 'pointer', source);
+          // The keyboard's point outlives the pointer; the ring says whose the focus is.
+          else if (!focusVisible(plot)) this.requestActive(null, 'pointer', source);
         },
         onPress: (point, source) => {
           if (!this.selectable() || !point) return;
@@ -1098,14 +1099,20 @@ export class SlChart<Row extends object = ChartRecord> implements ChartHandle {
 
   /** A drag across the plot selects a range; a click without one clears it. */
   protected onPlotPointerDown(event: PointerEvent) {
+    const touch = event.pointerType === 'touch';
     if (!this.rangeSelectable() || event.button !== 0 || event.shiftKey) return;
-    if (!this.rangeDrag.press()) return;
+    if (!this.rangeDrag.press(touch)) return;
+
     const view = this.host.ownerDocument.defaultView;
     const finish = (ended: PointerEvent) => {
       view?.removeEventListener('pointerup', finish);
       view?.removeEventListener('pointercancel', finish);
       if (ended.type === 'pointercancel') this.rangeDrag.cancel();
-      else if (this.rangeDrag.release() && this.range()) this.requestRange(null, 'pointer', ended);
+      else if (this.rangeDrag.release() && this.range()) {
+        this.requestRange(null, 'pointer', ended);
+        // A finger that clears the range leaves no pointer on the plot to read a point.
+        if (touch) this.requestActive(null, 'pointer', ended);
+      }
     };
     view?.addEventListener('pointerup', finish);
     view?.addEventListener('pointercancel', finish);
