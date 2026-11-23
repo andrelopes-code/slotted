@@ -2,6 +2,24 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.37 — 2026-11-23
+
+- docs(evals): the theme variants material meets its thresholds
+- feat(theme): a variant states CSS values, and its axes are one block of switches
+- fix(chart): a family returned by renderTooltip takes the tooltip's full width
+- fix(app-shell): a scrollbar token on one region draws that region's bar alone
+- fix(chart): the theme is read in one style recalculation, with no custom property read
+- test(styles): the rails of a table row are a runtime property
+- feat(page): the resolved gaps are readable properties (reworked, #140)
+- feat(section): a child of the body bleeds alone (reworked, #118)
+- feat(calendar): a month without its header, a tooltip of the day, hairlines between days (reworked, #111)
+- feat(message): an activity with no frame (reworked, #113)
+- feat(table): guides="branch" draws a rail from the parent's mark to each child (reworked, #103)
+- fix(button, dashboard-grid): an inline icon button centers its ink on the capital beside it (reworked, #106, #91)
+- fix(collapsible): a Button drawn as CollapsibleMore keeps its place, over no legible text (reworked, #143)
+- feat(floating-panel): content takes focus as it opens, steps and inset are stated (reworked, #132)
+- fix(chart): a cleared range and removed annotations leave the plot (reworked, #108)
+
 ## 0.1.0-beta.36 — 2026-11-23
 
 - docs(evals): the own-elements material meets its thresholds
