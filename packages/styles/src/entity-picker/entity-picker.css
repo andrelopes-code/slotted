@@ -1013,10 +1013,57 @@
   /**
    * At rest the label stands on the panel's own surface and paints none, so a
    * translucent panel does not draw a second layer under every label. Only
-   * while it is stuck, with rows passing under it, does it fill.
+   * while it is stuck, with rows passing under it, does it fill. Under a
+   * material panel that fill is translucent, so the label blurs the rows with
+   * the panel's filter, or with one the theme states for it.
+   *
+   * A blur leaves part of a sharp row in view. Where the engine times an
+   * animation by the scroll, the rows end at the label instead: each one is cut
+   * by the share of it that has passed the label's bottom edge, which is the
+   * list's scroll padding. Nothing is under the label then, so it paints no
+   * fill and no filter but the ones a theme states.
    */
   [data-ui-entity-picker][data-part-positioner] [data-part-group-label][data-stuck] {
     background: var(--slotted-entity-picker-group-label-stuck-surface, var(--_surface));
+    -webkit-backdrop-filter: var(
+      --slotted-entity-picker-group-label-stuck-backdrop-filter,
+      var(--slotted-entity-picker-content-backdrop-filter, none)
+    );
+    backdrop-filter: var(
+      --slotted-entity-picker-group-label-stuck-backdrop-filter,
+      var(--slotted-entity-picker-content-backdrop-filter, none)
+    );
+  }
+
+  @supports (animation-timeline: view()) {
+    [data-ui-entity-picker][data-part-positioner] [data-part-group-label][data-stuck] {
+      background: var(--slotted-entity-picker-group-label-stuck-surface, transparent);
+      -webkit-backdrop-filter: var(--slotted-entity-picker-group-label-stuck-backdrop-filter, none);
+      backdrop-filter: var(--slotted-entity-picker-group-label-stuck-backdrop-filter, none);
+    }
+
+    [data-ui-entity-picker][data-part-positioner] [data-part-group-label][data-stuck] ~ * {
+      animation: slotted-entity-picker-under-label linear forwards;
+      animation-range: exit;
+      animation-timeline: view();
+    }
+  }
+
+  @keyframes slotted-entity-picker-under-label {
+    from {
+      clip-path: inset(0);
+    }
+
+    to {
+      clip-path: inset(100% 0 0);
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    [data-ui-entity-picker][data-part-positioner] [data-part-group-label][data-stuck] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
   }
 
   @media (forced-colors: active) {

@@ -115,7 +115,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div',
     required: false,
     purpose:
-      'The heading of a group. It carries data-stuck while rows pass under it, and only then paints the surface of the panel.',
+      'The heading of a group. It carries data-stuck while rows pass under it. Where the engine times an animation by the scroll, the rows end at the label and it paints no ground of its own, so a material panel stays whole; elsewhere it paints --slotted-command-palette-group-label-stuck-surface, the panel surface by default, with --slotted-command-palette-group-label-stuck-backdrop-filter, the panel filter by default.',
   },
   {
     part: 'item',

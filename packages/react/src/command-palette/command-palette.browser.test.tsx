@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import type { CSSProperties } from 'react';
-import { cdp } from 'vitest/browser';
+import { cdp, page } from 'vitest/browser';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { press } from '../test/press';
@@ -137,3 +137,117 @@ describe('a group label on a translucent panel', () => {
     expect(getComputedStyle(label).backgroundColor).toBe('rgb(1, 2, 3)');
   });
 });
+
+/* Under a material panel no stuck fill is right: the fallback is as translucent as the panel, and the
+   rows were read through the label. */
+describe('a stuck group label on a material panel', () => {
+  const long: CommandPaletteItem[] = Array.from({ length: 40 }, (_, index) => ({
+    id: `item-${index}`,
+    label: `Item ${index} ${'MWMW '.repeat(8)}`,
+    group: index < 30 ? 'nav' : 'actions',
+  }));
+
+  afterEach(async () => {
+    await cdp().send('Emulation.setEmulatedMedia', { features: [] });
+  });
+
+  async function stuck(tokens: Record<string, string>) {
+    render(
+      <div style={{ background: 'linear-gradient(90deg, #c33, #36c)', ...tokens } as CSSProperties}>
+        <CommandPalette groups={GROUPS} items={long} presentation="inline" />
+      </div>,
+    );
+    const list = document.querySelector('[data-part="list"]') as HTMLElement;
+    const label = document.querySelector('[data-part="group-label"]') as HTMLElement;
+
+    list.style.maxBlockSize = '200px';
+    list.scrollTop = 200;
+    for (let tries = 0; tries < 30 && !label.hasAttribute('data-stuck'); tries += 1) await frame();
+
+    return label;
+  }
+
+  const MATERIAL = {
+    '--slotted-command-palette-backdrop-filter': 'blur(20px)',
+    '--slotted-command-palette-surface': 'rgba(255, 255, 255, 0.68)',
+    '--slotted-text': '#111111',
+  };
+
+  it('paints nothing over the panel but what the theme states for it', async () => {
+    const plain = getComputedStyle(await stuck(MATERIAL));
+    expect(plain.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    expect(plain.backdropFilter).toBe('none');
+    cleanup();
+
+    const own = getComputedStyle(
+      await stuck({
+        ...MATERIAL,
+        '--slotted-command-palette-group-label-stuck-backdrop-filter': 'blur(8px)',
+      }),
+    );
+    expect(own.backdropFilter).toBe('blur(8px)');
+  });
+
+  it('filters nothing under reduced transparency', async () => {
+    const label = await stuck({
+      ...MATERIAL,
+      '--slotted-command-palette-group-label-stuck-backdrop-filter': 'blur(8px)',
+    });
+    expect(getComputedStyle(label).backdropFilter).toBe('blur(8px)');
+
+    await cdp().send('Emulation.setEmulatedMedia', {
+      features: [{ name: 'prefers-reduced-transparency', value: 'reduce' }],
+    });
+    expect(getComputedStyle(label).backdropFilter).toBe('none');
+  });
+
+  it('leaves no row to read through it', async () => {
+    const label = await stuck(MATERIAL);
+    const rows = document.querySelector('[data-part="list"]')!;
+
+    const beneath = await roughness(label, rows);
+
+    expect(beneath.row).toBeGreaterThan(60);
+    expect(beneath.label).toBeLessThan(12);
+  });
+});
+
+/** The largest step of luminance between neighbouring pixels, in the label's band and in a row under it. */
+async function roughness(label: Element, rows: Element) {
+  const base64 = await page.screenshot({ element: document.documentElement, save: false });
+  const image = new Image();
+  image.src = `data:image/png;base64,${base64}`;
+  await image.decode();
+  const canvas = document.createElement('canvas');
+  canvas.width = image.width;
+  canvas.height = image.height;
+  const context = canvas.getContext('2d')!;
+  context.drawImage(image, 0, 0);
+  const scale = image.width / document.documentElement.clientWidth;
+  const band = label.getBoundingClientRect();
+  const left = band.left + band.width / 2;
+
+  const step = (top: number, height: number) => {
+    const { data, width } = context.getImageData(
+      Math.round(left * scale),
+      Math.round(top * scale),
+      Math.round((band.width / 3) * scale),
+      Math.round(height * scale),
+    );
+    let largest = 0;
+    for (let at = 4; at < data.length; at += 4) {
+      if ((at / 4) % width === 0) continue;
+      const luminance = (index: number) =>
+        0.2126 * data[index]! + 0.7152 * data[index + 1]! + 0.0722 * data[index + 2]!;
+      largest = Math.max(largest, Math.abs(luminance(at) - luminance(at - 4)));
+    }
+
+    return largest;
+  };
+
+  const inner = rows.getBoundingClientRect();
+  return {
+    label: step(band.top + 1, band.height - 2),
+    row: step(band.bottom + 4, inner.bottom - band.bottom - 8),
+  };
+}
