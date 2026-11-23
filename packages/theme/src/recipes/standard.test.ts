@@ -156,16 +156,6 @@ describe('recipes.standard', () => {
   });
 
   /**
-   * The dark edge and ink of the accent keep its hue; the floor bounds alone
-   * lift them to the contrast the scheme needs. Fixed offsets of −10° and −13°
-   * copied the drift of the palette the default theme was matched to, and
-   * turned every other seed toward blue: #7c6cff, a violet at 283°, gave a
-   * dark border of #b1c7ff. The derivation is read for four hues; the screen
-   * is read for that violet, which the two tokens hold inside sRGB — a seed
-   * whose light tints leave the gamut is clipped by the display, a drift no
-   * offset in the recipe answers.
-   */
-  /**
    * The dark ink of a tone was a pastel two lightness steps above the seed with
    * under half its chroma, which read as near-white pink beside the body text.
    */
@@ -182,6 +172,53 @@ describe('recipes.standard', () => {
     expect(misses).toEqual([]);
   });
 
+  /**
+   * A dark ink stood a fixed lightness above its seed, so a seed chosen for a
+   * dark page (a -400) drew an ink past it: #f87171 gave a pale pink beside the
+   * body text. The ink stops at the lightness of the reference and keeps the
+   * chroma and the hue of the seed there.
+   */
+  it.each([
+    ['danger', '#f87171'],
+    ['danger', '#dc2626'],
+    ['success', '#4ade80'],
+    ['accent', '#60a5fa'],
+    ['warning', '#facc15'],
+  ] as const)('draws the dark %s ink and edge of %s at the reference', (tone, seed) => {
+    const REFERENCE = {
+      accent: '#60a5fa',
+      danger: '#f87171',
+      success: '#4ade80',
+      warning: '#facc15',
+    };
+
+    const values = evaluateRecipe(standard, { ...base, [tone]: parseSeed(seed)! }, 'dark');
+
+    for (const role of ['border', 'text']) {
+      const ink = values[`--slotted-tone-${tone}-${role}`]!;
+      expect(deltaE(ink, parseSeed(REFERENCE[tone])!), role).toBeLessThan(0.02);
+    }
+  });
+
+  /* The reds near the pink side of the wheel lose the hue first: the ink never turns from its seed. */
+  it('keeps the danger hue in the dark edge and ink', () => {
+    const seed = parseSeed('#dc2626')!;
+    const values = evaluateRecipe(standard, base, 'dark');
+
+    expect(turn(values['--slotted-tone-danger-text']!, seed)).toBeLessThan(1);
+    expect(turn(values['--slotted-tone-danger-border']!, seed)).toBeLessThan(1);
+  });
+
+  /**
+   * The dark edge and ink of the accent keep its hue; the floor bounds alone
+   * lift them to the contrast the scheme needs. Fixed offsets of −10° and −13°
+   * copied the drift of the palette the default theme was matched to, and
+   * turned every other seed toward blue: #7c6cff, a violet at 283°, gave a
+   * dark border of #b1c7ff. The derivation is read for four hues; the screen
+   * is read for that violet, which the two tokens hold inside sRGB — a seed
+   * whose light tints leave the gamut is clipped by the display, a drift no
+   * offset in the recipe answers.
+   */
   it('keeps the accent hue in the dark edge and ink for any accent seed', () => {
     const misses: string[] = [];
     const tokens = ['--slotted-tone-accent-border', '--slotted-tone-accent-text'];

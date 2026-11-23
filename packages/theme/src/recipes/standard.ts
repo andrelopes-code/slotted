@@ -1130,10 +1130,11 @@ export const standard: Recipe = {
       seed: 'accent',
       l: {
         offset: 0.226,
+        max: 0.714,
       },
       c: {
-        scale: 0.66,
-        max: 0.25,
+        scale: 1,
+        max: 0.143,
       },
       bounds: [
         {
@@ -1151,10 +1152,11 @@ export const standard: Recipe = {
       seed: 'accent',
       l: {
         offset: 0.226,
+        max: 0.714,
       },
       c: {
-        scale: 0.66,
-        max: 0.25,
+        scale: 1,
+        max: 0.143,
       },
       bounds: [
         {
@@ -1329,20 +1331,22 @@ export const standard: Recipe = {
       seed: 'success',
       l: {
         offset: 0.273,
+        max: 0.8,
       },
       c: {
         scale: 1.328,
-        max: 0.25,
+        max: 0.182,
       },
     },
     '--slotted-tone-success-text': {
       seed: 'success',
       l: {
         offset: 0.273,
+        max: 0.8,
       },
       c: {
         scale: 1.328,
-        max: 0.25,
+        max: 0.182,
       },
       bounds: [
         {
@@ -1451,20 +1455,22 @@ export const standard: Recipe = {
       seed: 'warning',
       l: {
         offset: 0,
+        max: 0.861,
       },
       c: {
         scale: 1,
-        max: 0.25,
+        max: 0.173,
       },
     },
     '--slotted-tone-warning-text': {
       seed: 'warning',
       l: {
         offset: 0,
+        max: 0.861,
       },
       c: {
         scale: 1,
-        max: 0.25,
+        max: 0.173,
       },
       bounds: [
         {
@@ -1572,23 +1578,23 @@ export const standard: Recipe = {
       seed: 'danger',
       l: {
         offset: 0.134,
+        max: 0.711,
       },
       c: {
-        scale: 0.772,
-        max: 0.25,
+        scale: 1,
+        max: 0.166,
       },
-      h: -5,
     },
     '--slotted-tone-danger-text': {
       seed: 'danger',
       l: {
         offset: 0.134,
+        max: 0.711,
       },
       c: {
-        scale: 0.772,
-        max: 0.25,
+        scale: 1,
+        max: 0.166,
       },
-      h: -5,
       bounds: [
         {
           side: 'floor',
@@ -1805,10 +1811,11 @@ export const standard: Recipe = {
       seed: 'info',
       l: {
         offset: 0.226,
+        max: 0.714,
       },
       c: {
-        scale: 0.66,
-        max: 0.25,
+        scale: 1,
+        max: 0.143,
       },
       bounds: [
         {
@@ -1826,10 +1833,11 @@ export const standard: Recipe = {
       seed: 'info',
       l: {
         offset: 0.226,
+        max: 0.714,
       },
       c: {
-        scale: 0.66,
-        max: 0.25,
+        scale: 1,
+        max: 0.143,
       },
       bounds: [
         {

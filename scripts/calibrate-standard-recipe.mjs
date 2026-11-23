@@ -59,11 +59,24 @@ export const DEFAULT_SEEDS = {
  * Tokens that keep their seed's hue although the reference turns from it. The
  * dark accent edge and ink were 10° and 13° from the seed, the drift of the
  * palette the default theme was matched to, and every other seed took that
- * turn toward blue: a violet accent drew a periwinkle edge.
+ * turn toward blue: a violet accent drew a periwinkle edge. The danger edge and
+ * ink turned 5° toward pink.
  */
 const KEEP_HUE = {
-  dark: new Set(['--slotted-tone-accent-border', '--slotted-tone-accent-text']),
+  dark: new Set([
+    '--slotted-tone-accent-border',
+    '--slotted-tone-accent-text',
+    '--slotted-tone-danger-border',
+    '--slotted-tone-danger-text',
+  ]),
 };
+
+/**
+ * The dark edge and ink of a tone. They stop at the reference's lightness and
+ * keep the seed's chroma up to the reference's: an offset alone carried a seed
+ * chosen for a dark page past it, to a pastel beside the body text.
+ */
+const DARK_INK = /-(border|text)$/;
 
 /** The share the hover moves toward white, per scheme — the rule the JSON pipeline applied before the recipe. */
 const HOVER_SHARE = { light: 0.06, dark: 0.08, 'high-contrast': 0.06 };
@@ -290,10 +303,16 @@ function fit(reference, seeds) {
       if (shift > 180) shift -= 360;
       if (shift < -180) shift += 360;
       const turned = target.c >= 0.02 && Math.abs(shift) > 3 && !KEEP_HUE[scheme]?.has(token);
+      const ink = scheme === 'dark' && follows && DARK_INK.test(token);
+      const offset = { offset: round(target.l - seed.l, 3) };
       recipe[scheme][token] = {
         seed: name,
-        l: follows ? { offset: round(target.l - seed.l, 3) } : round(target.l, 3),
-        c: { scale: target.c < 0.004 ? 0 : scale, max },
+        l: follows
+          ? { ...offset, ...(ink ? { max: round(target.l, 3) } : {}) }
+          : round(target.l, 3),
+        c: ink
+          ? { scale: Math.max(scale, 1), max: round(target.c, 3) }
+          : { scale: target.c < 0.004 ? 0 : scale, max },
         ...(turned ? { h: Math.round(shift) } : {}),
       };
     }
