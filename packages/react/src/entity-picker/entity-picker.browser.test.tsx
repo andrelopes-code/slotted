@@ -180,16 +180,7 @@ describe('a stuck group label', () => {
       <div
         style={{ '--slotted-entity-picker-surface': 'rgb(255 255 255 / 0.68)' } as CSSProperties}
       >
-        <EntityPicker
-          aria-label="Owner"
-          groups={[
-            { id: 'near', label: 'Near' },
-            { id: 'far', label: 'Far' },
-          ]}
-          items={grouped}
-          openOn="focus"
-          searchDelay={0}
-        />
+        <EntityPicker aria-label="Owner" items={grouped} openOn="focus" searchDelay={0} />
       </div>,
     );
     await userEvent.click(screen.getByRole('combobox', { name: 'Owner' }));
