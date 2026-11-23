@@ -25,7 +25,7 @@ export const REACT_TABLE_TOKENS = tableTokens.map((name) => ({
 
 const imports: ReferenceImport = {
   source:
-    "import {\n  Table,\n  TableBody,\n  TableCaption,\n  TableCell,\n  TableColumnActions,\n  TableColumnHeader,\n  TableContent,\n  TableDefaultsProvider,\n  TableDetail,\n  TableEmpty,\n  TableExpander,\n  TableFooter,\n  TableGroupRow,\n  TableHead,\n  TableLoader,\n  TableRow,\n  TableRowHeader,\n  TableSelect,\n  TableSelectAll,\n  TableSort,\n  TableSummary,\n} from '@slotted/react';",
+    "import {\n  Table,\n  TableBody,\n  TableCaption,\n  TableCell,\n  TableColumnActions,\n  TableColumnHeader,\n  TableContent,\n  TableDefaultsProvider,\n  TableDetail,\n  TableEmpty,\n  TableExpander,\n  TableFooter,\n  TableGroupRow,\n  TableHead,\n  TableLoader,\n  TableMark,\n  TableRow,\n  TableRowHeader,\n  TableSelect,\n  TableSelectAll,\n  TableSort,\n  TableSummary,\n} from '@slotted/react';",
 };
 
 const anatomy: AnatomyRow[] = [
@@ -212,6 +212,13 @@ const anatomy: AnatomyRow[] = [
     required: false,
     purpose:
       'Opens and closes one row detail. It carries aria-expanded, and aria-controls naming the detail row while that row is open. It is the APG Disclosure pattern, borrowed whole.',
+  },
+  {
+    part: 'mark',
+    element: 'span',
+    required: false,
+    purpose:
+      'A record’s leading mark: an avatar, a logo, an icon. One box per level, --slotted-table-mark-size and a step smaller at a child, which the steps of an avatar up to md measure. Under guides="branch" the rail of the children starts at its foot.',
   },
   {
     part: 'detail',
@@ -678,10 +685,10 @@ export const REACT_TABLE_DOCS = {
       ['striped', 'boolean', 'false', 'Table', 'A tinted ground on every second record'],
       [
         'guides',
-        'boolean',
+        "boolean | 'branch'",
         'true',
         'Table',
-        'A line per ancestor level beside the rows that name a parent, on the center of the expander one level up',
+        'A line per ancestor level beside the rows that name a parent, on the center of the expander one level up. branch draws a rail from the foot of the parent’s mark (TableMark, or the expander), a branch to each child and an elbow at the last, and keeps the marks of a level in one column',
       ],
       [
         'stickyHeader',

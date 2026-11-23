@@ -30,6 +30,7 @@ import type {
   TableDetailProps,
   TableEmptyProps,
   TableExpanderProps,
+  TableMarkProps,
   TableFooterProps,
   TableGroupRowProps,
   TableHeadProps,
@@ -542,6 +543,15 @@ export function TableExpander({ onClick, ref, value, ...nativeProps }: TableExpa
       type="button"
     />
   );
+}
+
+/**
+ * A record's leading mark: an avatar, a logo, an icon. One box per level, the
+ * boxes of a level in one column, and an avatar inside takes the size of the
+ * box. Under `guides="branch"` the rail of the children starts at its foot.
+ */
+export function TableMark({ ref, ...nativeProps }: TableMarkProps) {
+  return <span {...nativeProps} data-part="mark" data-part-mark="" ref={ref} />;
 }
 
 /** The ids of the detail row and of the rows that name `key` as their parent. */

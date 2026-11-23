@@ -1283,6 +1283,219 @@
     background-image: none;
   }
 
+  /* A record's leading mark, an avatar or an icon: one box per level. The steps
+     of an avatar that fit a row all measure the box. */
+  [data-ui-table] [data-part-mark] {
+    --_mark: round(var(--slotted-table-mark-size, 1.5rem), 1px);
+    --slotted-avatar-size-xs: var(--_mark);
+    --slotted-avatar-size-sm: var(--_mark);
+    --slotted-avatar-size-md: var(--_mark);
+    align-items: center;
+    block-size: var(--_mark);
+    display: inline-flex;
+    inline-size: var(--_mark);
+    justify-content: center;
+    margin-block: calc((var(--_line) - var(--_mark)) / 2);
+    margin-inline-end: var(--_gap);
+    vertical-align: top;
+  }
+
+  [data-ui-table] [data-part-row]:not([data-level='0'])[data-level] [data-part-mark] {
+    --_mark: round(var(--slotted-table-mark-child-size, 1.25rem), 1px);
+  }
+
+  /**
+   * ── The branch of each child ───────────────────────────────────────────
+   *
+   * `guides="branch"`: a rail leaves the foot of the parent's mark and runs
+   * down its center, each child has a branch from the rail to its own mark, and
+   * the rail turns into the branch of the last child. The mark is the row's
+   * `mark` part, or its expander where the cell holds none. Whether a row is
+   * the last, starts a rail or is crossed by the rail of an ancestor is written
+   * by the binding (`data-branch`, `data-branch-open`, `--slotted-tree-rails`).
+   *
+   * Every mark of a level stands in one column: what leads it, an expander or
+   * the room of one, is taken out of the indent rather than added to it.
+   * Positions are taken from the cell's padding box, so a rail is one line
+   * through rows of any height.
+   */
+  [data-ui-table][data-guides='branch'] {
+    --_lead: 0px;
+    --_branch: var(--slotted-table-branch-size, 1.25rem);
+    --_node: var(--slotted-target-min, 24px);
+    --_node-child: var(--_node);
+  }
+
+  [data-ui-table][data-guides='branch']:has([data-part-row][data-level] [data-part-mark]) {
+    --_node: round(var(--slotted-table-mark-size, 1.5rem), 1px);
+    --_node-child: round(var(--slotted-table-mark-child-size, 1.25rem), 1px);
+  }
+
+  /* An expander written before the mark keeps its room in every row. */
+  [data-ui-table][data-guides='branch']:has(
+      [data-part-row][data-level] > * > [data-part-expander] + [data-part-mark]
+    ) {
+    --_lead: calc(var(--slotted-target-min, 24px) + var(--_gap));
+  }
+
+  /* A child that folds too has its expander between its branch and its mark. */
+  [data-ui-table][data-guides='branch']:has(
+      [data-part-row][data-level]:not([data-level='0'])
+        > *
+        > [data-part-expander]
+        + [data-part-mark]
+    ) {
+    --_branch: calc(var(--slotted-target-min, 24px) + var(--_gap) + var(--slotted-space-2, 4px));
+  }
+
+  [data-ui-table][data-guides='branch'] [data-part-row][data-level] {
+    --_guide: var(
+      --slotted-table-guide-color,
+      color-mix(in oklab, var(--slotted-text, CanvasText) 26%, var(--_surface))
+    );
+    /* The inline start of the first rail, and from one rail to the next. */
+    --_rail: round(
+      down,
+      calc(var(--_pad-inline) + var(--_lead) + (var(--_node) - var(--_rule-width)) / 2),
+      1px
+    );
+    --_rail-step: calc(var(--_branch) + var(--_node-child) / 2);
+    /* Where the row's own mark starts, and the rail it hangs from. */
+    --_own: calc(var(--_pad-inline) + var(--_lead));
+    --_from: 0px;
+    --_mark-size: var(--_node);
+    /* The middle of the mark: in the cell, and in the box of the lines, which
+       starts a rule above it; the middle of a line placed there as a tile. */
+    --_y: 50%;
+    --_at: calc(50% + var(--_rule-width) / 2);
+    --_tile: calc(50% + var(--_rule-width) / 2);
+  }
+
+  [data-ui-table][data-guides='branch'] [data-part-row][data-level]:not([data-level='0']) {
+    --_from: calc(var(--_rail) + (var(--slotted-table-depth) - 1) * var(--_rail-step));
+    --_own: calc(var(--_from) + var(--_branch));
+    --_mark-size: var(--_node-child);
+  }
+
+  [data-ui-table][data-guides='branch'][data-cell-align='start'] [data-part-row][data-level] {
+    --_y: calc(var(--_pad-block) + var(--_line) / 2);
+    --_at: calc(var(--_y) + var(--_rule-width));
+    --_tile: calc(var(--_y) + var(--_rule-width) / 2);
+  }
+
+  [data-ui-table][data-guides='branch'][data-cell-align='end'] [data-part-row][data-level] {
+    --_y: calc(100% - var(--_pad-block) - var(--_line) / 2);
+    --_at: var(--_y);
+    --_tile: calc(var(--_y) + var(--_rule-width) / 2);
+  }
+
+  /* The row's lead: the mark stands out of flow at one place of its level, and
+     the cell keeps its room. An expander before it is in flow, inside the indent. */
+  [data-ui-table][data-guides='branch']
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection])) {
+    block-size: calc(var(--_node) + 2 * var(--slotted-space-1, 2px));
+    box-sizing: border-box;
+    padding-inline-start: var(--_own);
+  }
+
+  [data-ui-table][data-guides='branch']
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection])):has(> [data-part-mark]) {
+    padding-inline-start: calc(var(--_own) + var(--_mark-size) + var(--_gap));
+  }
+
+  [data-ui-table][data-guides='branch']
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection])):not(
+      :has(> :is([data-part-expander], [data-part-mark]))
+    ) {
+    padding-inline-start: calc(var(--_own) + var(--_mark-size) + var(--_gap));
+  }
+
+  [data-ui-table][data-guides='branch']
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection]))
+    > [data-part-mark] {
+    inset-block-start: calc(var(--_y) - var(--_mark-size) / 2);
+    inset-inline-start: var(--_own);
+    margin: 0;
+    position: absolute;
+  }
+
+  [data-ui-table][data-guides='branch']
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection]))
+    > [data-part-expander]:has(+ [data-part-mark]) {
+    inset-block-start: calc(var(--_y) - var(--slotted-target-min, 24px) / 2);
+    inset-inline-start: calc(var(--_own) - var(--_gap) - var(--slotted-target-min, 24px));
+    margin: 0;
+    position: absolute;
+  }
+
+  [data-ui-table][data-guides='branch']
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection]))::before {
+    --_ink: linear-gradient(var(--_guide) 0 0);
+    --_trunk: none;
+    --_twig: none;
+    --_root: none;
+    background: var(--_root), var(--_twig), var(--_trunk), var(--slotted-tree-rails, none);
+    inline-size: calc(var(--_own) + var(--_mark-size));
+    inset-inline-start: 0;
+  }
+
+  [data-ui-table][data-guides='branch']
+    [data-part-row][data-level]:not([data-level='0'])
+    > :nth-child(1 of :not([data-part-selection]))::before {
+    --_reach: calc(var(--_branch) - var(--_rule-width) - var(--slotted-space-1, 2px));
+    --_trunk: var(--_ink) var(--_from) 0 / var(--_rule-width) 100% no-repeat;
+    --_twig: var(--_ink) var(--_from) var(--_tile) / calc(var(--_rule-width) + var(--_reach))
+      var(--_rule-width) no-repeat;
+  }
+
+  /* An expander between the branch and the mark takes the rest of the way. */
+  [data-ui-table][data-guides='branch']
+    [data-part-row][data-level]:not([data-level='0'])
+    > :nth-child(1 of :not([data-part-selection])):has(
+      > [data-part-expander] + [data-part-mark]
+    )::before {
+    --_reach: var(--slotted-space-2, 4px);
+  }
+
+  [data-ui-table][data-guides='branch']
+    [data-part-row][data-level]:not([data-level='0'])
+    > :nth-child(1 of :not([data-part-selection])):not(
+      :has(> :is([data-part-expander], [data-part-mark]))
+    )::before {
+    --_reach: calc(var(--_branch) + var(--_mark-size) - var(--_rule-width));
+  }
+
+  [data-ui-table][data-guides='branch']
+    [data-part-row][data-level][data-branch='last']:not([data-level='0'])
+    > :nth-child(1 of :not([data-part-selection]))::before {
+    --_trunk: var(--_ink) var(--_from) 0 / var(--_rule-width)
+      calc(var(--_at) + var(--_rule-width) / 2) no-repeat;
+  }
+
+  [data-ui-table][data-guides='branch']
+    [data-part-row][data-level][data-branch-open]
+    > :nth-child(1 of :not([data-part-selection]))::before {
+    --_root: linear-gradient(
+        to bottom,
+        transparent calc(var(--_at) + var(--_mark-size) / 2),
+        var(--_guide) calc(var(--_at) + var(--_mark-size) / 2)
+      )
+      calc(var(--_rail) + var(--slotted-table-depth) * var(--_rail-step)) 0 / var(--_rule-width)
+      100% no-repeat;
+  }
+
+  [data-ui-table][data-guides='branch']
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection])):dir(rtl)::before {
+    scale: -1 1;
+  }
+
   /**
    * ── The expander ───────────────────────────────────────────────────────
    *

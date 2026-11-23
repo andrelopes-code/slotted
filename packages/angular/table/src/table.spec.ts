@@ -21,7 +21,7 @@ import { PT_BR } from '@slotted/core/i18n/pt-BR';
 import { SlTable } from './table';
 import { SlTableContent } from './table-content';
 import { provideTableDefaults } from './table-defaults';
-import type { TableSortDescriptor } from './table-defaults';
+import type { TableGuides, TableSortDescriptor } from './table-defaults';
 import {
   SlTableDateFilter,
   SlTableDateTimeFilter,
@@ -416,7 +416,13 @@ describe('the language in force', () => {
     SlTableCell,
     SlTableExpander,
   ],
-  template: `<div slTable #table="slTable" [columns]="2" [(expanded)]="expanded">
+  template: `<div
+    slTable
+    #table="slTable"
+    [columns]="2"
+    [(expanded)]="expanded"
+    [guides]="guides()"
+  >
     <div slTableContent>
       <table>
         <tbody slTableBody>
@@ -441,9 +447,29 @@ describe('the language in force', () => {
 })
 class Accounts {
   readonly expanded = signal<readonly string[]>(['assets']);
+  readonly guides = signal<TableGuides>(true);
 }
 
 describe('rows that fold their children', () => {
+  it('names the last branch of a parent, and the parent a rail starts at', async () => {
+    await TestBed.configureTestingModule({ imports: [Accounts] }).compileComponents();
+    const fixture = TestBed.createComponent(Accounts);
+    fixture.componentInstance.guides.set('branch');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const branch = (value: string) => query(fixture, `[data-value="${value}"]`).dataset['branch'];
+
+    expect(query(fixture, '[data-ui="table"]').getAttribute('data-guides')).toBe('branch');
+    expect(query(fixture, '[data-value="assets"]').hasAttribute('data-branch-open')).toBe(true);
+    expect([branch('cash'), branch('bank')]).toEqual(['middle', 'last']);
+
+    query(fixture, '[data-part="expander"]').click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(query(fixture, '[data-value="assets"]').hasAttribute('data-branch-open')).toBe(false);
+  });
+
   it('opens over its children, and removes them from the document when it closes', async () => {
     await TestBed.configureTestingModule({ imports: [Accounts] }).compileComponents();
     const fixture = TestBed.createComponent(Accounts);

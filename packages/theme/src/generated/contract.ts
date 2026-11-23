@@ -4687,6 +4687,7 @@ export type ComponentToken =
   | '--slotted-table-border-color'
   | '--slotted-table-border-color-strong'
   | '--slotted-table-border-width'
+  | '--slotted-table-branch-size'
   | '--slotted-table-caption-surface'
   | '--slotted-table-cell-padding-block'
   | '--slotted-table-cell-padding-inline'
@@ -4706,6 +4707,8 @@ export type ComponentToken =
   | '--slotted-table-header-surface'
   | '--slotted-table-header-surface-hover'
   | '--slotted-table-icon-size'
+  | '--slotted-table-mark-child-size'
+  | '--slotted-table-mark-size'
   | '--slotted-table-of-contents-color'
   | '--slotted-table-of-contents-color-current'
   | '--slotted-table-of-contents-color-hover'
@@ -7048,6 +7051,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-table-border-color",
   "--slotted-table-border-color-strong",
   "--slotted-table-border-width",
+  "--slotted-table-branch-size",
   "--slotted-table-caption-surface",
   "--slotted-table-cell-padding-block",
   "--slotted-table-cell-padding-inline",
@@ -7067,6 +7071,8 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-table-header-surface",
   "--slotted-table-header-surface-hover",
   "--slotted-table-icon-size",
+  "--slotted-table-mark-child-size",
+  "--slotted-table-mark-size",
   "--slotted-table-of-contents-color",
   "--slotted-table-of-contents-color-current",
   "--slotted-table-of-contents-color-hover",

@@ -499,6 +499,18 @@ export class SlTableSelectAll {
 }
 
 /**
+ * A record's leading mark: an avatar, a logo, an icon. One box per level, the
+ * boxes of a level in one column, and an avatar inside takes the size of the
+ * box. Under `guides="branch"` the rail of the children starts at its foot.
+ */
+@Directive({
+  selector: '[slTableMark]',
+  standalone: true,
+  host: { 'data-part': 'mark', 'data-part-mark': '' },
+})
+export class SlTableMark {}
+
+/**
  * The Disclosure pattern, borrowed whole: a `button` carrying `aria-expanded`
  * and naming the row it opens.
  */
@@ -725,6 +737,7 @@ export const SL_TABLE_PARTS = [
   SlTableGroupRowEnd,
   SlTableHead,
   SlTableLoader,
+  SlTableMark,
   SlTableRow,
   SlTableRowHeader,
   SlTableSelect,

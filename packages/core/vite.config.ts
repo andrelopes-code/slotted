@@ -75,6 +75,7 @@ export default defineConfig({
         'dashboard-grid': resolve(import.meta.dirname, 'src/dashboard-grid/index.ts'),
         'import-export-center': resolve(import.meta.dirname, 'src/import-export-center/index.ts'),
         tour: resolve(import.meta.dirname, 'src/tour/index.ts'),
+        'tree-branches': resolve(import.meta.dirname, 'src/tree-branches/index.ts'),
         typeahead: resolve(import.meta.dirname, 'src/typeahead/index.ts'),
         upload: resolve(import.meta.dirname, 'src/upload/index.ts'),
         wizard: resolve(import.meta.dirname, 'src/wizard/index.ts'),

@@ -321,12 +321,15 @@ export interface TableSetFilterProps extends TableConditionFilterProps<
   searchThreshold?: number | undefined;
 }
 
+/** The lines beside rows that fold their children, or `false` for none. */
+export type TableGuides = boolean | 'branch';
+
 /** What an application sets once for every table under it. */
 export interface TableDefaults {
   cellAlign?: TableAlign | undefined;
   columns?: number | undefined;
   edges?: TableEdges | undefined;
-  guides?: boolean | undefined;
+  guides?: TableGuides | undefined;
   layout?: TableLayout | undefined;
   selectionMode?: TableSelectionMode | undefined;
   stickyFooter?: boolean | undefined;
@@ -379,9 +382,11 @@ export interface TableProps extends Omit<ComponentPropsWithRef<'div'>, 'onChange
   defaultSort?: TableSortDescriptor | null | undefined;
   /**
    * Draws a line per ancestor level beside the rows that name a `parent`, on
-   * the center of the expander one level up. On by default.
+   * the center of the expander one level up. On by default. `branch` draws a
+   * rail from the parent's mark instead (`TableMark`, or the expander), with a
+   * branch to each child and an elbow at the last.
    */
-  guides?: boolean | undefined;
+  guides?: TableGuides | undefined;
   defaultValue?: readonly string[] | undefined;
   expanded?: readonly string[] | undefined;
   layout?: TableLayout | undefined;
@@ -585,6 +590,8 @@ export interface TableSelectAllProps
 export interface TableExpanderProps extends ComponentPropsWithRef<'button'> {
   value?: string | undefined;
 }
+
+export type TableMarkProps = ComponentPropsWithRef<'span'>;
 
 export interface TableDetailProps extends ComponentPropsWithRef<'tr'> {
   /** How many columns the detail spans. Defaults to the table's own count. */

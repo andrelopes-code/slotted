@@ -15,6 +15,8 @@ export type TableEdges = 'inset' | 'flush';
  * table states. `fixed` is what makes a stated width hold and a truncated cell
  * truncate at all.
  */
+/** The lines beside rows that fold their children, or `false` for none. */
+export type TableGuides = boolean | 'branch';
 export type TableLayout = 'auto' | 'fixed';
 
 export type TableSelectionMode = 'none' | 'single' | 'multiple';
@@ -54,7 +56,7 @@ export interface TableDefaults {
   cellAlign: TableAlign;
   columns: number;
   edges: TableEdges;
-  guides: boolean;
+  guides: TableGuides;
   layout: TableLayout;
   selectionMode: TableSelectionMode;
   stickyFooter: boolean;

@@ -2,9 +2,11 @@ import { nextSelection } from '@slotted/core/collection';
 import { getLiveAnnouncer } from '@slotted/core/live-announcer';
 import { createControllable } from '@slotted/core/state';
 import type { ChangeRequest } from '@slotted/core/state';
+import { observeTreeBranches } from '@slotted/core/tree-branches';
 import { injectMessages } from '@slotted/angular/i18n';
 import { tableMessages, type PartialMessages, type TableMessages } from '@slotted/core/i18n';
 import {
+  afterRenderEffect,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
@@ -27,6 +29,7 @@ import {
   SlTableIdFactory,
   type TableAlign,
   type TableEdges,
+  type TableGuides,
   type TableLayout,
   type TableSelectionMode,
   type TableSelectionReason,
@@ -40,6 +43,7 @@ export type {
   TableDefaults,
   TableEdges,
   TableExpandedReason,
+  TableGuides,
   TableLayout,
   TableSelectionMode,
   TableSelectionReason,
@@ -93,7 +97,7 @@ export const TABLE_ROW_SELECTOR = '[data-part="body"] > [data-part="row"][data-v
     'data-part-root': '',
     '[attr.data-variant]': 'resolvedVariant()',
     '[attr.data-edges]': 'resolvedEdges()',
-    '[attr.data-guides]': "resolvedGuides() ? null : 'false'",
+    '[attr.data-guides]': 'resolvedGuides() === true ? null : resolvedGuides()',
     '[attr.data-layout]': 'resolvedLayout()',
     '[attr.data-cell-align]': 'resolvedCellAlign()',
     '[attr.data-striped]': "resolvedStriped() ? '' : null",
@@ -120,10 +124,13 @@ export class SlTable implements ControlValueAccessor {
   readonly edges = input<TableEdges | undefined>(undefined);
   /**
    * Draws a line per ancestor level beside the rows that name a `parent`, on
-   * the center of the expander one level up. On by default.
+   * the center of the expander one level up. On by default. `branch` draws a
+   * rail from the parent's mark instead (`slTableMark`, or the expander), with
+   * a branch to each child and an elbow at the last.
    */
-  readonly guides = input<boolean | undefined, boolean | string | undefined>(undefined, {
-    transform: (state) => (state === undefined ? undefined : booleanAttribute(state)),
+  readonly guides = input<TableGuides | undefined, boolean | string | undefined>(undefined, {
+    transform: (state) =>
+      state === undefined || state === 'branch' ? state : booleanAttribute(state),
   });
   readonly layout = input<TableLayout | undefined>(undefined);
   readonly selectionMode = input<TableSelectionMode | undefined>(undefined);
@@ -197,6 +204,15 @@ export class SlTable implements ControlValueAccessor {
   readonly resolvedColumns = computed(() => this.columns() ?? this.defaults.columns);
   /** The family's words in the language in force, with this table's `messages` laid over them. */
   readonly t = injectMessages(tableMessages, this.messages);
+
+  constructor() {
+    /* A stylesheet cannot say which child is the last of its parent. */
+    afterRenderEffect((onCleanup) => {
+      if (this.resolvedGuides() === 'branch') {
+        onCleanup(observeTreeBranches(this.host.nativeElement));
+      }
+    });
+  }
 
   isSelected(key: string) {
     return this.value().includes(key);

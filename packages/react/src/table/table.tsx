@@ -5,7 +5,16 @@ import { nextSelection } from '@slotted/core/collection';
 import { getLiveAnnouncer } from '@slotted/core/live-announcer';
 import { tableMessages } from '@slotted/core/i18n';
 import { createControllable } from '@slotted/core/state';
-import { createContext, useCallback, useContext, useId, useRef, useState } from 'react';
+import { observeTreeBranches } from '@slotted/core/tree-branches';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { useMessages } from '../i18n';
 import { useTableDefaults } from './table-defaults';
@@ -118,6 +127,13 @@ export function Table({
   const resolvedStickyTo = stickyTo ?? defaults.stickyTo ?? 'scroll';
   const resolvedStriped = (striped ?? defaults.striped ?? false) === true;
   const resolvedVariant = variant ?? defaults.variant ?? 'ruled';
+
+  /* A stylesheet cannot say which child is the last of its parent. */
+  useLayoutEffect(() => {
+    if (resolvedGuides !== 'branch' || root.current === null) return undefined;
+
+    return observeTreeBranches(root.current);
+  }, [resolvedGuides]);
 
   const attach = useCallback(
     (node: HTMLDivElement | null) => {
@@ -272,7 +288,7 @@ export function Table({
     children,
     'data-cell-align': resolvedCellAlign,
     'data-edges': resolvedEdges,
-    ...(resolvedGuides ? {} : { 'data-guides': 'false' }),
+    ...(resolvedGuides === true ? {} : { 'data-guides': String(resolvedGuides) }),
     'data-layout': resolvedLayout,
     ...(loading === true ? { 'data-loading': '' } : {}),
     'data-part': 'root',

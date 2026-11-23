@@ -216,6 +216,13 @@ const anatomy: AnatomyRow[] = [
       'Opens and closes one row detail. It carries aria-expanded, and aria-controls naming the detail row while that row is open. It is the APG Disclosure pattern, borrowed whole.',
   },
   {
+    part: 'mark',
+    element: '[slTableMark]',
+    required: false,
+    purpose:
+      'A record’s leading mark: an avatar, a logo, an icon. One box per level, --slotted-table-mark-size and a step smaller at a child, which the steps of an avatar up to md measure. Under guides="branch" the rail of the children starts at its foot.',
+  },
+  {
     part: 'detail',
     element: 'tr[slTableDetail]',
     required: false,
@@ -695,10 +702,10 @@ export const ANGULAR_TABLE_DOCS = {
       ['striped', 'boolean', 'false', 'slTable', 'A tinted ground on every second record'],
       [
         'guides',
-        'boolean',
+        "boolean | 'branch'",
         'true',
         'slTable',
-        'A line per ancestor level beside the rows that name a parent, on the center of the expander one level up',
+        'A line per ancestor level beside the rows that name a parent, on the center of the expander one level up. branch draws a rail from the foot of the parent’s mark (slTableMark, or the expander), a branch to each child and an elbow at the last, and keeps the marks of a level in one column',
       ],
       [
         'stickyHeader',

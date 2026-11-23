@@ -22,7 +22,7 @@ test('declares one member, because every part reads one table', () => {
   assert.deepEqual(Object.keys(contract.members), ['table']);
 });
 
-test('names the thirty-five parts a table is made of', () => {
+test('names the thirty-six parts a table is made of', () => {
   assert.deepEqual(table.parts, [
     'root',
     'scroll',
@@ -50,6 +50,7 @@ test('names the thirty-five parts a table is made of', () => {
     'filter-actions',
     'selection',
     'expander',
+    'mark',
     'detail',
     'group-row',
     'group-header',
