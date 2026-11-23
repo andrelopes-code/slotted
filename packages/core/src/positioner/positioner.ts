@@ -403,7 +403,12 @@ function roomMiddleware(
       const side = state.placement.split('-')[0] as PhysicalSide;
       const opposite = OPPOSITE[side];
       const settings = { padding, ...(boundary ? { boundary } : {}) };
-      const reference = await detectOverflow(state, { ...settings, elementContext: 'reference' });
+      /* Against the boxes that clip the layer: a panel that clips the anchor alone is not its edge. */
+      const reference = await detectOverflow(state, {
+        ...settings,
+        altBoundary: true,
+        elementContext: 'reference',
+      });
       const room = (edge: PhysicalSide) => -reference[edge] - sideOffset;
 
       if (room(side) >= minRoom || room(opposite) <= room(side)) return {};

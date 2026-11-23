@@ -1,7 +1,16 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import { userEvent } from 'vitest/browser';
+import type { CSSProperties } from 'react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { page, userEvent } from 'vitest/browser';
 
+import {
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverFooter,
+  PopoverLayer,
+  PopoverTrigger,
+} from '../popover';
 import { EntityPicker } from './entity-picker';
 import {
   EntityPickerOptionDescription,
@@ -96,6 +105,8 @@ describe('a long list of records', () => {
 });
 
 describe('a picker near the bottom of the viewport', () => {
+  afterEach(() => page.viewport(412, 915));
+
   /* The list opens short (no record yet) and fits below; once the records
      arrive the layer is held to the room below and never collided again. */
   it('opens above when the room below holds less than a usable list', async () => {
@@ -114,5 +125,94 @@ describe('a picker near the bottom of the viewport', () => {
       expect(positioner?.getAttribute('data-side')).toBe('top');
       expect(positioner!.getBoundingClientRect().height).toBeGreaterThan(200);
     });
+  });
+
+  /* The room was read against the box that clips the trigger. Inside a popover that is the panel, and
+     a trigger at the top of it had more of the panel below than above. */
+  it('opens above inside a popover that has more of itself below the trigger', async () => {
+    await page.viewport(1440, 1000);
+    const filter = (items: typeof MANY) => (
+      <div style={{ insetBlockEnd: 0, insetInlineStart: 400, position: 'fixed' }}>
+        <Popover open side="top">
+          <PopoverTrigger>Filter</PopoverTrigger>
+          <PopoverLayer>
+            <PopoverContent aria-label="Filter">
+              <PopoverBody>
+                <EntityPicker aria-label="Owner" items={items} openOn="focus" searchDelay={0} />
+              </PopoverBody>
+              <PopoverFooter>
+                <button type="button">Apply</button>
+              </PopoverFooter>
+            </PopoverContent>
+          </PopoverLayer>
+        </Popover>
+      </div>
+    );
+    const view = render(filter([]));
+    const input = await screen.findByRole('combobox', { name: 'Owner' });
+    await vi.waitFor(() => {
+      const below = window.innerHeight - input.getBoundingClientRect().bottom;
+      expect(below).toBeGreaterThan(50);
+      expect(below).toBeLessThan(100);
+    });
+    await userEvent.click(input);
+    view.rerender(filter(MANY.slice(0, 80)));
+    await userEvent.keyboard('P');
+
+    await vi.waitFor(() => {
+      const list = document.querySelector<HTMLElement>(
+        '[data-ui="entity-picker"][data-part="positioner"][data-open]',
+      );
+      expect(list?.getAttribute('data-side')).toBe('top');
+      expect(list!.getBoundingClientRect().height).toBeGreaterThan(200);
+    });
+  });
+});
+
+/* Under a material panel the stuck label had no fill that fits: the rows end at its edge instead. */
+describe('a stuck group label', () => {
+  it('cuts the rows that pass under it, and paints nothing over the panel', async () => {
+    const grouped = MANY.slice(0, 60).map((person, index) => ({
+      ...person,
+      group: index < 30 ? 'near' : 'far',
+    }));
+    render(
+      <div
+        style={{ '--slotted-entity-picker-surface': 'rgb(255 255 255 / 0.68)' } as CSSProperties}
+      >
+        <EntityPicker
+          aria-label="Owner"
+          groups={[
+            { id: 'near', label: 'Near' },
+            { id: 'far', label: 'Far' },
+          ]}
+          items={grouped}
+          openOn="focus"
+          searchDelay={0}
+        />
+      </div>,
+    );
+    await userEvent.click(screen.getByRole('combobox', { name: 'Owner' }));
+    await screen.findAllByRole('option');
+    const label = document.querySelector<HTMLElement>('[data-part="group-label"]')!;
+    const list = document.querySelector<HTMLElement>('[data-part="content"]')!;
+
+    list.style.maxBlockSize = '220px';
+    list.scrollTop = 60;
+
+    await vi.waitFor(() => expect(label.hasAttribute('data-stuck')).toBe(true));
+    const edge = label.getBoundingClientRect().bottom;
+    const under = [...document.querySelectorAll<HTMLElement>('[role="option"]')].filter(
+      (option) => option.getBoundingClientRect().top < edge,
+    );
+
+    expect(under.length).toBeGreaterThan(0);
+    for (const option of under) {
+      const rect = option.getBoundingClientRect();
+      const cut = Math.min(1, (edge - rect.top) / rect.height) * 100;
+      const inset = Number.parseFloat(getComputedStyle(option).clipPath.slice('inset('.length));
+      expect(Math.abs(inset - cut)).toBeLessThan(4);
+    }
+    expect(getComputedStyle(label).backgroundColor).toBe('rgba(0, 0, 0, 0)');
   });
 });

@@ -296,6 +296,26 @@ describe('createPositioner', () => {
     positioner.destroy();
   });
 
+  it('reads the room against what clips the layer, not what clips the anchor alone', async () => {
+    /* A panel holds the anchor with more of itself below than above; the layer is outside it. */
+    document.body.innerHTML =
+      '<div id="panel" style="overflow: auto"><button id="anchor"></button></div><div id="floating"></div>';
+    const panel = document.getElementById('panel') as HTMLElement;
+    const anchor = document.getElementById('anchor') as HTMLElement;
+    const floating = document.getElementById('floating') as HTMLElement;
+    rect(panel, { x: 90, y: 670, width: 220, height: 90 });
+    Object.defineProperty(panel, 'clientHeight', { value: 90 });
+    Object.defineProperty(panel, 'clientWidth', { value: 220 });
+    rect(anchor, { x: 100, y: 680, width: 50, height: 20 });
+    sized(floating, 200, 50);
+
+    const positioner = createPositioner(anchor, floating, { minRoom: 160 });
+    await positioner.update();
+
+    expect(floating.getAttribute('data-side')).toBe('top');
+    positioner.destroy();
+  });
+
   it('keeps its side when the room there is enough', async () => {
     const { anchor, floating } = scene(ANCHOR, { width: 200, height: 50 });
     const positioner = createPositioner(anchor, floating, { minRoom: 160 });
