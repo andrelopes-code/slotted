@@ -164,17 +164,6 @@
     --_frame: var(--slotted-app-shell-frame, var(--slotted-surface-sunken, Canvas));
     --_canvas: var(--slotted-app-shell-canvas, var(--slotted-surface, Canvas));
     --_ink: var(--slotted-app-shell-color, var(--slotted-text, CanvasText));
-    /**
-     * The bar of a scrolling body: the thumb at the strong border step, which
-     * is the step `scroll-area` gives it and the one the foundation holds to
-     * 3:1 against every surface; the track the column's own ground, because a
-     * groove down the side of a navigation column is a second column.
-     */
-    --_scrollbar-thumb: var(
-      --slotted-app-shell-scrollbar-thumb-color,
-      var(--slotted-border-strong, ButtonBorder)
-    );
-    --_scrollbar-track: var(--slotted-app-shell-scrollbar-track-color, transparent);
 
     /**
      * ── The palette, region by region ──────────────────────────────────────
@@ -563,7 +552,6 @@
     overflow-block: auto;
     overscroll-behavior: contain;
     padding-block: var(--slotted-space-4, 0.5rem);
-    scrollbar-color: var(--_scrollbar-thumb) var(--_scrollbar-track);
     scrollbar-gutter: stable;
     scrollbar-width: thin;
   }
@@ -715,9 +703,24 @@
     overscroll-behavior: contain;
     padding-block: var(--slotted-space-5, 0.75rem);
     padding-inline: calc(var(--_row-inset) + var(--_row-gap));
-    scrollbar-color: var(--_scrollbar-thumb) var(--_scrollbar-track);
     scrollbar-gutter: stable;
     scrollbar-width: thin;
+  }
+  /**
+   * The bar of the two scrolling bodies: the thumb at the strong border step,
+   * which is the step `scroll-area` gives it and the one the foundation holds
+   * to 3:1 against every surface; the track the column's own ground, because a
+   * groove down the side of a navigation column is a second column. Read on
+   * the body, so a region's own token and its own scheme reach its bar.
+   */
+  [data-ui-app-shell]
+    > :is([data-part-nav], [data-part-aside])
+    > :is([data-part-nav-body], [data-part-aside-body]) {
+    scrollbar-color: var(
+        --slotted-app-shell-scrollbar-thumb-color,
+        var(--slotted-border-strong, ButtonBorder)
+      )
+      var(--slotted-app-shell-scrollbar-track-color, transparent);
   }
   /* Content that brings its own inset — a page, a detail panel, a list to the edges. */
   [data-ui-app-shell] > [data-part-aside] > [data-part-aside-body][data-inset='none'] {

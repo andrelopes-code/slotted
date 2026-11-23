@@ -975,7 +975,7 @@ export const ANGULAR_APP_SHELL_DOCS = {
   --slotted-app-shell-nav-surface: transparent;
   --slotted-app-shell-aside-surface: var(--slotted-surface);
   --slotted-app-shell-footer-color: var(--slotted-text-muted);
-  /* The bar of the two scrolling bodies: thumb and track. */
+  /* The bar of the two scrolling bodies: thumb and track. On one region, that region's alone. */
   --slotted-app-shell-scrollbar-thumb-color: var(--slotted-border-strong);
   --slotted-app-shell-scrollbar-track-color: transparent;
 }

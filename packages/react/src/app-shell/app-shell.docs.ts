@@ -1029,7 +1029,7 @@ export const REACT_APP_SHELL_DOCS = {
   --slotted-app-shell-aside-color: var(--slotted-text);
   --slotted-app-shell-footer-surface: transparent;
   --slotted-app-shell-footer-color: var(--slotted-text-muted);
-  /* The bar of the two scrolling bodies: thumb and track. */
+  /* The bar of the two scrolling bodies: thumb and track. On one region, that region's alone. */
   --slotted-app-shell-scrollbar-thumb-color: var(--slotted-border-strong);
   --slotted-app-shell-scrollbar-track-color: transparent;
 }

@@ -453,17 +453,12 @@ test('gives both scrolling bodies a gutter and the thin themed bar', () => {
     const { body } = rule(selector);
     assert.match(body, /scrollbar-gutter:\s*stable/, `${selector} reserves no gutter`);
     assert.match(body, /scrollbar-width:\s*thin/, `${selector} draws the wide bar`);
-    assert.match(
-      body,
-      /scrollbar-color:\s*var\(--_scrollbar-thumb\)\s+var\(--_scrollbar-track\)/,
-      `${selector} leaves the bar unthemed`,
-    );
   }
-  const root = rule('[data-ui-app-shell] {').body;
-  assert.match(root, /--_scrollbar-thumb:\s*var\(\s*--slotted-app-shell-scrollbar-thumb-color/);
+  /* Read where the bar is drawn: a token on one region leaves the other's bar alone. */
+  const bar = rule('> :is([data-part-nav-body], [data-part-aside-body]) {').body;
   assert.match(
-    root,
-    /--_scrollbar-track:\s*var\(--slotted-app-shell-scrollbar-track-color,\s*transparent\)/,
+    bar,
+    /scrollbar-color:\s*var\(\s*--slotted-app-shell-scrollbar-thumb-color,[^;]*\bvar\(--slotted-app-shell-scrollbar-track-color,\s*transparent\)/,
   );
 });
 

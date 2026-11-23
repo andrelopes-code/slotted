@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import type { CSSProperties } from 'react';
 import { page } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -8,6 +9,8 @@ import {
   AppShellAsideBody,
   AppShellAsideResizer,
   AppShellMain,
+  AppShellNav,
+  AppShellNavBody,
 } from './app-shell-parts';
 import type { AppShellCanvas, AppShellNavSide } from './app-shell.types';
 
@@ -73,5 +76,42 @@ describe('the pane edge', () => {
 
     expect(Math.abs(box.left + box.width / 2 - seam)).toBeLessThanOrEqual(0.5);
     expect(resizer.contains(document.elementFromPoint(seam, y))).toBe(true);
+  });
+});
+
+/** The two scrollbar tokens are read where the bar is drawn, so a region restyles its own. */
+describe('the scrollbar of a region', () => {
+  const bar = (part: string) =>
+    getComputedStyle(document.querySelector(`[data-part="${part}"]`)!).scrollbarColor;
+  const shell = (nav?: CSSProperties) => (
+    <AppShell asideMode="inline" asideOpen navOpen primary="nav">
+      <AppShellNav style={nav}>
+        <AppShellNavBody>Orders</AppShellNavBody>
+      </AppShellNav>
+      <AppShellMain>Orders</AppShellMain>
+      <AppShellAside>
+        <AppShellAsideBody>ORD-4521</AppShellAsideBody>
+      </AppShellAside>
+    </AppShell>
+  );
+
+  it('takes the tokens declared on the region alone', () => {
+    const { rerender } = render(shell());
+    const themed = bar('aside-body');
+    expect(bar('nav-body')).toBe(themed);
+
+    rerender(
+      shell({ '--slotted-app-shell-scrollbar-thumb-color': 'transparent' } as CSSProperties),
+    );
+
+    expect(bar('nav-body')).toBe('rgba(0, 0, 0, 0) rgba(0, 0, 0, 0)');
+    expect(bar('aside-body')).toBe(themed);
+  });
+
+  it('follows the scheme of the region', () => {
+    render(shell({ '--slotted-border-strong': 'rgb(1, 2, 3)' } as CSSProperties));
+
+    expect(bar('nav-body')).toBe('rgb(1, 2, 3) rgba(0, 0, 0, 0)');
+    expect(bar('aside-body')).not.toBe(bar('nav-body'));
   });
 });
