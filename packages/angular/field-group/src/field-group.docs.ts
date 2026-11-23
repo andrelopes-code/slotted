@@ -170,7 +170,7 @@ export const ANGULAR_FIELD_GROUP_DOCS = {
         "'sm' | 'md' | 'lg'",
         'md',
         'slFieldGroup',
-        'The type step of the legend, and the step provided to every field inside. The legend reads the control type scale one step above the labels under it, so a group in a dense table shrinks with them',
+        'The type step of the legend, and the step provided to every field inside. The legend of a question takes the type of a field label; the legend of a section stands one step above the labels under it, so a group in a dense table shrinks with them',
       ],
       [
         'orientation',

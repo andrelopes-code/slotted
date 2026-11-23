@@ -20,7 +20,7 @@
    * competes with it.
    */
   [data-ui-field-group][data-part-root] {
-    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
     /** Legend to its own description, and description to error. */
     --_message-gap: var(--slotted-field-group-message-gap, var(--slotted-space-2, 0.25rem));
     /**
@@ -76,22 +76,32 @@
   /* ── Size ─────────────────────────────────────────────────────────────
    *
    * The same three steps a field has, and for the same reason: a group in a
-   * dense table shrinks with the controls it holds. The legend reads the control
-   * type scale one step above the field label it sits over — the difference
-   * between a legend and a label at the same step is weight rather than size,
-   * because a third type scale would be a fourth thing for a theme to retune.
+   * dense table shrinks with the controls it holds. A question's legend takes
+   * the type of a field's label, because it names one answer as a label does. A
+   * section's legend stands one step above the labels under it.
    */
 
   [data-ui-field-group][data-part-root][data-size='sm'] {
-    --_font-size: var(--slotted-control-font-size-md, 13px);
+    --_font-size: var(--slotted-control-font-size-sm, 12px);
   }
 
   [data-ui-field-group][data-part-root][data-size='md'] {
-    --_font-size: var(--slotted-control-font-size-lg, 14px);
+    --_font-size: var(--slotted-control-font-size-md, 13px);
   }
 
   [data-ui-field-group][data-part-root][data-size='lg'] {
     --_font-size: var(--slotted-control-font-size-lg, 14px);
+  }
+
+  [data-ui-field-group][data-part-root][data-kind='section']:is(
+      [data-size='md'],
+      [data-size='lg']
+    ) {
+    --_font-size: var(--slotted-control-font-size-lg, 14px);
+  }
+
+  [data-ui-field-group][data-part-root][data-kind='section'][data-size='sm'] {
+    --_font-size: var(--slotted-control-font-size-md, 13px);
   }
 
   /* ── The legend ───────────────────────────────────────────────────────
