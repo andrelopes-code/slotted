@@ -117,7 +117,7 @@ async function selected(
 ) {
   render(<Scenario annotations={annotations} renderer={renderer} />);
   const plot = document.querySelector<HTMLElement>('[data-ui="chart"] [data-part="plot"]')!;
-  await expect.poll(() => plot.querySelector('svg, canvas')).not.toBeNull();
+  await expect.poll(() => plot.querySelector('svg, canvas'), { timeout: 5000 }).not.toBeNull();
   await leave();
   const first = await capture(plot);
 

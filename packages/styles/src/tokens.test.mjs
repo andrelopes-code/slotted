@@ -95,6 +95,7 @@ test('names every runtime prefix once, where a family can find the reason', () =
     '--slotted-page-sticky-bottom',
     '--slotted-section-header-size',
     '--slotted-tree-depth',
+    '--slotted-tree-rails',
     '--slotted-tree-row-offset',
     '--slotted-segmented-control-count',
     '--slotted-segmented-control-index',

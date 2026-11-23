@@ -88,6 +88,12 @@ export const RUNTIME_PROPERTY_PREFIXES = [
    */
   '--slotted-tree-depth',
   /**
+   * `table` — the rails of ancestors that cross one row of a hierarchy, as
+   * layers of a background: `@slotted/core/tree-branches` writes it from the
+   * order and the levels of the rows in the document.
+   */
+  '--slotted-tree-rails',
+  /**
    * `tree` — where one row sits on a windowed canvas, in pixels. It is written
    * only on a row the window does not cover and the family renders anyway: the
    * active node, and the anchor a range is measured from. The number is the
