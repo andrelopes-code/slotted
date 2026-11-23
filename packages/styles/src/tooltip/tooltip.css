@@ -58,6 +58,8 @@
      */
     --_shadow: var(--slotted-tooltip-shadow, var(--slotted-shadow-xs));
     --_arrow-size: var(--slotted-tooltip-arrow-size, 0.5rem);
+    /* How far the clipped arrow reaches over the content along each of its edges. */
+    --_arrow-overlap: 0.5px;
     /* The point, softened to the same degree the surface's own corners are.
        A 90-degree tip beside a rounded panel reads as a different object. */
     --_arrow-tip-radius: var(--slotted-tooltip-arrow-tip-radius, var(--slotted-radius-xs, 2px));
@@ -269,6 +271,8 @@
     --_text: var(--slotted-tooltip-text-raised, var(--slotted-text, #0f172a));
     --_border-color: var(--slotted-tooltip-border-color, var(--slotted-border-subtle, #e2e8f0));
     --_border-width: var(--slotted-border-width-thin, 1px);
+    /* Along a rotated edge, 1.5 border widths reach one border width deep. */
+    --_arrow-overlap: calc(var(--_border-width) * 1.5);
   }
 
   [data-ui-tooltip] > [data-part-content] {
@@ -345,6 +349,12 @@
    *
    * `arrowPadding` keeps it clear of the corners, where the content's radius
    * would leave the base uncovered.
+   *
+   * ── Why only its outer half is drawn ─────────────────────────────────
+   *
+   * While both parts fade, the half that lies over the content composites
+   * twice and the whole diamond shows through it. The square is clipped to its
+   * outer half, with the overlap that covers the content's edge under the base.
    */
   [data-ui-tooltip] > [data-part-arrow] {
     position: absolute;
@@ -363,6 +373,11 @@
     border-right-width: var(--_border-width);
     border-bottom-width: var(--_border-width);
     border-bottom-right-radius: var(--_arrow-tip-radius);
+    clip-path: polygon(
+      100% 100%,
+      100% calc(-1 * var(--_arrow-overlap)),
+      calc(-1 * var(--_arrow-overlap)) 100%
+    );
   }
 
   [data-ui-tooltip][data-side='bottom'] > [data-part-arrow] {
@@ -372,6 +387,11 @@
     border-top-width: var(--_border-width);
     border-left-width: var(--_border-width);
     border-top-left-radius: var(--_arrow-tip-radius);
+    clip-path: polygon(
+      0 0,
+      calc(100% + var(--_arrow-overlap)) 0,
+      0 calc(100% + var(--_arrow-overlap))
+    );
   }
 
   [data-ui-tooltip][data-side='left'] > [data-part-arrow] {
@@ -381,6 +401,11 @@
     border-top-width: var(--_border-width);
     border-right-width: var(--_border-width);
     border-top-right-radius: var(--_arrow-tip-radius);
+    clip-path: polygon(
+      100% 0,
+      100% calc(100% + var(--_arrow-overlap)),
+      calc(-1 * var(--_arrow-overlap)) 0
+    );
   }
 
   [data-ui-tooltip][data-side='right'] > [data-part-arrow] {
@@ -390,5 +415,10 @@
     border-bottom-width: var(--_border-width);
     border-left-width: var(--_border-width);
     border-bottom-left-radius: var(--_arrow-tip-radius);
+    clip-path: polygon(
+      0 100%,
+      0 calc(-1 * var(--_arrow-overlap)),
+      calc(100% + var(--_arrow-overlap)) 100%
+    );
   }
 }
