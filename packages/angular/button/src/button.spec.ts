@@ -82,23 +82,44 @@ function mount() {
 }
 
 @Component({
-  imports: [SlButton],
-  template: `<button slButton [widest]="months">May 2026</button>`,
+  imports: [SlButton, SlButtonStart],
+  template: `<button slButton [widest]="months">
+    <span slButtonStart>
+      @if (marked()) {
+        <i></i>
+      }
+    </span>
+    May 2026
+  </button>`,
 })
 class WidestHost {
+  readonly marked = signal(false);
   readonly months = ['May 2026', 'September 2026'];
 }
 
 describe('SlButton widest', () => {
-  it('hands the label every text it can take, and keeps them out of the text', () => {
+  it('hands the control every text its label can take, and keeps them out of the text', () => {
     const fixture = TestBed.createComponent(WidestHost);
     fixture.detectChanges();
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
-    const label = button.querySelector('[data-part="label"]')!;
 
-    expect(label.getAttribute('data-widest')).toBe('May 2026\nSeptember 2026');
-    expect(label.querySelector('[data-label-text]')?.textContent).toBe('May 2026');
+    expect(button.getAttribute('data-widest')).toBe('May 2026\nSeptember 2026');
+    expect(button.querySelector('[data-part="label"]')?.textContent?.trim()).toBe('May 2026');
     expect(button.textContent?.trim()).toBe('May 2026');
+  });
+
+  /* The stylesheet leaves an empty start out of what it centers, by `:empty`. */
+  it('leaves a start that renders nothing empty, beside the label', () => {
+    const fixture = TestBed.createComponent(WidestHost);
+    fixture.detectChanges();
+    const start = fixture.nativeElement.querySelector('[data-part="start"]') as HTMLElement;
+
+    expect(start.matches(':empty')).toBe(true);
+
+    fixture.componentInstance.marked.set(true);
+    fixture.detectChanges();
+
+    expect(start.matches(':empty')).toBe(false);
   });
 });
 

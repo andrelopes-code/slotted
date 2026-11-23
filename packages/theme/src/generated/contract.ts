@@ -2980,6 +2980,7 @@ export type ComponentToken =
   | '--slotted-breadcrumb-separator-thickness'
   | '--slotted-breadcrumb-underline-offset'
   | '--slotted-breadcrumb-underline-thickness'
+  | '--slotted-button-widest-start'
   | '--slotted-calendar-active-background'
   | '--slotted-calendar-background'
   | '--slotted-calendar-cell-size'
@@ -5337,6 +5338,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-breadcrumb-separator-thickness",
   "--slotted-breadcrumb-underline-offset",
   "--slotted-breadcrumb-underline-thickness",
+  "--slotted-button-widest-start",
   "--slotted-calendar-active-background",
   "--slotted-calendar-background",
   "--slotted-calendar-cell-size",

@@ -33,6 +33,7 @@ interface RootDataOptions {
   size: ButtonSize;
   tone: ButtonTone;
   variant: ButtonVariant;
+  widest?: readonly string[] | undefined;
 }
 
 /**
@@ -57,6 +58,7 @@ export function rootData(options: RootDataOptions) {
     'data-disabled': options.disabled ? '' : undefined,
     'data-loading': options.loading ? '' : undefined,
     'data-pressed': options.pressed ? '' : undefined,
+    'data-widest': options.widest?.join('\n'),
   } as const;
 }
 

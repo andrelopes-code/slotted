@@ -43,9 +43,9 @@ export function ButtonLink({
 
   const rootProps: ButtonLinkRootProps = keyedProps({
     ...anchorProps,
-    ...rootData({ disabled, fullWidth, justify, ...appearance }),
+    ...rootData({ disabled, fullWidth, justify, widest, ...appearance }),
     children: (
-      <ButtonContent end={end} start={start} widest={widest}>
+      <ButtonContent end={end} start={start}>
         {children}
       </ButtonContent>
     ),

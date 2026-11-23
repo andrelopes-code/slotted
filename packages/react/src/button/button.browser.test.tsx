@@ -290,17 +290,148 @@ describe('a stepper whose label changes', () => {
     }
 
     const button = document.querySelector('[data-testid="month"]')!;
-    const text = button.querySelector('[data-label-text]')!.getBoundingClientRect();
+    const text = button.querySelector('[data-part="label"]')!.getBoundingClientRect();
     const box = button.getBoundingClientRect();
-    const border = 0;
-    expect(
-      Math.abs(text.top - box.top - border - (box.bottom - border - text.bottom)),
-    ).toBeLessThan(0.5);
+    expect(Math.abs(text.top - box.top - (box.bottom - text.bottom))).toBeLessThan(0.5);
     expect(button.textContent).toBe('December 2026');
     expect(button.getAttribute('aria-label')).toBeNull();
   });
 
-  function Stepper({ month }: { month: string }) {
+  /* The reservation was the label's alone: a mark in `start` either changed the width as it came and
+     went, or kept its room while absent and left the label off center. */
+  it.each(['sm', 'md', 'lg'] as const)(
+    'keeps one width with the mark on and off, and centers what is visible (%s)',
+    (size) => {
+      const view = render(<Stepper marked month="May 2026" size={size} />);
+      const button = () => document.querySelector<HTMLElement>('[data-testid="month"]')!;
+      const width = button().getBoundingClientRect().width;
+
+      for (const month of MONTHS) {
+        for (const marked of [true, false]) {
+          view.rerender(<Stepper marked={marked} month={month} size={size} />);
+
+          expect(button().getBoundingClientRect().width).toBeCloseTo(width, 0);
+          expect(visibleCenter(button())).toBeLessThan(0.5);
+        }
+      }
+    },
+  );
+
+  it('reserves the mark, its gap and the widest label, and no more', () => {
+    const { container } = render(
+      <Button
+        start={<i style={MARK} />}
+        style={{ '--slotted-button-widest-start': '6px' } as CSSProperties}
+        widest={MONTHS}
+      >
+        September 2026
+      </Button>,
+    );
+    const button = container.querySelector('button')!;
+    const style = getComputedStyle(button);
+    const inset =
+      parseFloat(style.paddingInlineStart) +
+      parseFloat(style.paddingInlineEnd) +
+      parseFloat(style.borderInlineStartWidth) * 2;
+    const mark = button.querySelector('[data-part="start"] i')!.getBoundingClientRect();
+    const label = button.querySelector('[data-part="label"]')!.getBoundingClientRect();
+
+    expect(button.getBoundingClientRect().width).toBeCloseTo(inset + (label.right - mark.left), 0);
+    expect(label.left - mark.right).toBe(8);
+  });
+
+  it('keeps the size of a glyph in start', () => {
+    const { container } = render(
+      <>
+        <Button
+          start={
+            <Icon>
+              <Glyph name="calendar" />
+            </Icon>
+          }
+        >
+          May 2026
+        </Button>
+        <Button
+          start={
+            <Icon>
+              <Glyph name="calendar" />
+            </Icon>
+          }
+          widest={['May 2026']}
+        >
+          May 2026
+        </Button>
+      </>,
+    );
+    const [plain, reserved] = [...container.querySelectorAll('[data-part="start"]')];
+
+    expect(box(reserved!)).toEqual(box(plain!));
+  });
+
+  it('draws the label at the start and end at the edge under justify between', () => {
+    const { container } = render(
+      <Button
+        end={<i style={MARK} />}
+        justify="between"
+        style={{ inlineSize: 320 }}
+        widest={MONTHS}
+      >
+        May 2026
+      </Button>,
+    );
+    const button = container.querySelector('button')!.getBoundingClientRect();
+    const label = container.querySelector('[data-part="label"]')!.getBoundingClientRect();
+    const end = container.querySelector('[data-part="end"]')!.getBoundingClientRect();
+
+    expect(label.left - button.left).toBeLessThan(20);
+    expect(button.right - end.right).toBeLessThan(20);
+  });
+
+  it('cuts the label with an ellipsis where the container is narrower than it', () => {
+    const { container } = render(
+      <div style={{ inlineSize: 100 }}>
+        <Button start={<i style={MARK} />} style={{ maxInlineSize: '100%' }} widest={MONTHS}>
+          September 2026
+        </Button>
+      </div>,
+    );
+    const button = container.querySelector('button')!;
+    const label = container.querySelector('[data-part="label"]')!;
+
+    expect(button.getBoundingClientRect().width).toBeLessThanOrEqual(100);
+    expect(label.getBoundingClientRect().right).toBeLessThan(button.getBoundingClientRect().right);
+    expect(label.scrollWidth).toBeGreaterThan(label.clientWidth);
+  });
+
+  const MARK = {
+    background: 'currentcolor',
+    blockSize: 6,
+    borderRadius: '50%',
+    inlineSize: 6,
+  } as const;
+
+  /** How far the center of what is drawn (the mark and the label, or the label) is from the button's. */
+  function visibleCenter(button: HTMLElement) {
+    const outer = button.getBoundingClientRect();
+    const label = button.querySelector('[data-part="label"]')!.getBoundingClientRect();
+    const mark = button.querySelector('[data-part="start"] i')?.getBoundingClientRect();
+    const left = mark?.left ?? label.left;
+
+    return Math.abs((left + label.right) / 2 - (outer.left + outer.right) / 2);
+  }
+
+  function Stepper({
+    marked,
+    month,
+    size = 'md',
+  }: {
+    marked?: boolean;
+    month: string;
+    size?: 'lg' | 'md' | 'sm';
+  }) {
+    const mark = marked ? <i style={MARK} /> : null;
+
     return (
       <ButtonGroup aria-label="Month">
         <IconButton aria-label="Previous">
@@ -308,7 +439,12 @@ describe('a stepper whose label changes', () => {
             <Glyph name="chevron-left" />
           </Icon>
         </IconButton>
-        <Button data-testid="month" widest={MONTHS}>
+        <Button
+          data-testid="month"
+          size={size}
+          start={marked === undefined ? undefined : mark}
+          widest={MONTHS}
+        >
           {month}
         </Button>
         <IconButton aria-label="Next">

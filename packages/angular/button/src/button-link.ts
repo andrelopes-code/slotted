@@ -36,8 +36,7 @@ import {
   selector: 'a[slButtonLink]',
   standalone: true,
   template: `<ng-content select="[slButtonStart]"></ng-content
-    ><span data-part="label" data-part-label="" [attr.data-widest]="widestText()"
-      ><span data-label-text=""><ng-content></ng-content></span></span
+    ><span data-part="label" data-part-label=""><ng-content></ng-content></span
     ><ng-content select="[slButtonEnd]"></ng-content>`,
   styleUrl: '../../../styles/src/button/button.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,6 +56,7 @@ import {
     '[attr.data-size]': 'appearance.size()',
     '[attr.data-full-width]': 'stateAttribute(fullWidth())',
     '[attr.data-justify]': 'justify()',
+    '[attr.data-widest]': 'widestText()',
     '[attr.data-disabled]': 'stateAttribute(disabled())',
   },
 })
@@ -71,9 +71,11 @@ export class SlButtonLink {
   readonly justify = input<ButtonJustify>('center');
   /**
    * Every text the label can take, for a control whose label changes under the
-   * pointer (the month of a stepper): the label reserves the width of the
-   * widest and centers the visible one in it, in tabular figures. The entries
-   * stay out of the accessible name. No effect under `fullWidth`.
+   * pointer (the month of a stepper): the control reserves the width of its
+   * whole content with the widest of them, in tabular figures, and centers what
+   * is visible. A `start` that renders nothing keeps its room in the
+   * reservation and takes none beside the label. The entries stay out of the
+   * accessible name. No effect under `fullWidth`.
    */
   readonly widest = input<readonly string[] | undefined>(undefined);
   protected readonly widestText = computed(() => this.widest()?.join('\n') ?? null);

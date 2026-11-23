@@ -65,12 +65,14 @@ test('is selected by the identifier the contract declares', () => {
 /**
  * The whole point of the rebuild. Button aliased the density scale into
  * `--slotted-button-*` and therefore never saw the larger control the theme
- * emits under `@media (pointer: coarse)`.
+ * emits under `@media (pointer: coarse)`. `--slotted-button-widest-start` is
+ * no alias: it is the measure of a mark the control cannot read while the mark
+ * is absent.
  */
 test('reads control geometry directly rather than through a family alias', () => {
   assert.doesNotMatch(
     declarations,
-    /--slotted-button-/,
+    /--slotted-button-(?!widest-start\b)/,
     'the family declares a token of its own again',
   );
   for (const size of ['sm', 'md', 'lg']) {

@@ -48,14 +48,13 @@ export function Button({
 
   const rootProps: ButtonRootProps = keyedProps({
     ...nativeProps,
-    ...rootData({ disabled, flush, fullWidth, inline, justify, loading, ...appearance }),
+    ...rootData({ disabled, flush, fullWidth, inline, justify, loading, widest, ...appearance }),
     'aria-disabled': inert.ariaDisabled,
     children: (
       <ButtonContent
         end={end}
         indicator={waiting ? <ButtonIndicator label={t('loading')} /> : null}
         start={start}
-        widest={widest}
       >
         {children}
       </ButtonContent>

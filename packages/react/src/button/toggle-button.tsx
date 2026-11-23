@@ -58,7 +58,15 @@ export function ToggleButton({
 
   const rootProps: ButtonRootProps = keyedProps({
     ...nativeProps,
-    ...rootData({ disabled, fullWidth, justify, loading, pressed: state.pressed, ...appearance }),
+    ...rootData({
+      disabled,
+      fullWidth,
+      justify,
+      loading,
+      pressed: state.pressed,
+      widest,
+      ...appearance,
+    }),
     'aria-disabled': inert.ariaDisabled,
     'aria-pressed': state.pressed,
     children: (
@@ -66,7 +74,6 @@ export function ToggleButton({
         end={end}
         indicator={waiting ? <ButtonIndicator label={t('loading')} /> : null}
         start={start}
-        widest={widest}
       >
         {children}
       </ButtonContent>

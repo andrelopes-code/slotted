@@ -57,9 +57,11 @@ export interface ButtonContentProps {
   end?: ReactNode;
   /**
    * Every text the label can take, for a control whose label changes under the
-   * pointer (the month of a stepper): the label reserves the width of the
-   * widest and centers the visible one in it, in tabular figures. The entries
-   * stay out of the accessible name. No effect under `fullWidth`.
+   * pointer (the month of a stepper): the control reserves the width of its
+   * whole content with the widest of them, in tabular figures, and centers what
+   * is visible. A `start` that renders nothing keeps its room in the
+   * reservation and takes none beside the label. The entries stay out of the
+   * accessible name. No effect under `fullWidth`.
    */
   widest?: readonly string[] | undefined;
 }
