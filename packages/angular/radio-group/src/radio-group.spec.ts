@@ -14,7 +14,7 @@ import type {
 } from './public-api';
 import { SlRadioGroup } from './radio-group';
 import { provideRadioGroupDefaults } from './radio-group-defaults';
-import { SlRadio, SlRadioDescription, SlRadioMedia } from './radio-group-parts';
+import { SlRadio, SlRadioDescription } from './radio-group-parts';
 
 @Component({
   standalone: true,
@@ -27,7 +27,6 @@ import { SlRadio, SlRadioDescription, SlRadioMedia } from './radio-group-parts';
     SlRadio,
     SlRadioDescription,
     SlRadioGroup,
-    SlRadioMedia,
   ],
   template: `<div slRadioGroup></div>`,
 })
@@ -74,35 +73,6 @@ describe('SlRadioGroup', () => {
       labelPlacement: ['end', 'start'],
     };
     expect(axes).toEqual(contract.axes);
-  });
-
-  it('draws picture tiles with no mark and the media before the label', () => {
-    const fixture = renderTemplate(
-      `<div slRadioGroup aria-label="Plan" variant="tile" mark="hidden">
-        <div slRadio value="basic"><svg slRadioMedia aria-hidden="true"></svg>Basic</div>
-        <div slRadio value="pro"><svg slRadioMedia aria-hidden="true"></svg>Pro</div>
-      </div>`,
-    );
-    const root = group(fixture);
-
-    expect(root.getAttribute('data-mark')).toBe('hidden');
-    expect(root.querySelector('[data-part="indicator"]')).toBeNull();
-    for (const item of root.querySelectorAll('[data-part="item"]')) {
-      const media = item.querySelector('[data-part="media"]')!;
-      const label = item.querySelector('[data-part="label"]')!;
-
-      expect(media.compareDocumentPosition(label) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-      expect(label.contains(media)).toBe(false);
-    }
-  });
-
-  it('keeps the mark in a plain group whatever mark says', () => {
-    const fixture = renderTemplate(
-      `<div slRadioGroup aria-label="Envio" mark="hidden">${SET}</div>`,
-    );
-
-    expect(group(fixture).getAttribute('data-mark')).toBe('visible');
-    expect(group(fixture).querySelector('[data-part="indicator"]')).not.toBeNull();
   });
 
   it('is selected in public by the family identifier and its parts', () => {

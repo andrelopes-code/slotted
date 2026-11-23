@@ -33,15 +33,7 @@ test('names the identifier a consumer selects the family by', () => {
  */
 test('holds its items as a part rather than as a second family', () => {
   assert.equal(contract.itemPart, 'item');
-  assert.deepEqual(member.parts, [
-    'root',
-    'item',
-    'label',
-    'control',
-    'indicator',
-    'media',
-    'description',
-  ]);
+  assert.deepEqual(member.parts, ['root', 'item', 'label', 'control', 'indicator', 'description']);
   assert.equal(member.nativeElement, 'div');
   assert.equal(contract.controlPart, 'control');
 });

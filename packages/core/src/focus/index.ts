@@ -9,6 +9,8 @@ export { createFocusScope, tabbables } from './focus-scope';
 export type { FocusScopeHandle, FocusScopeOptions } from './focus-scope';
 export { createRemovalFocus } from './removal-focus';
 export type { RemovalFocusHandle, RemovalFocusOptions } from './removal-focus';
+export { createRovingRadio } from './roving-radio';
+export type { RovingRadioHandle, RovingRadioOptions } from './roving-radio';
 export { createRovingTabindex } from './roving-tabindex';
 export { TOOLBAR_ITEM_SELECTOR, TOOLBAR_KEYS_ATTRIBUTE, toolbarOwnedKeys } from './toolbar-items';
 export type { RovingTabindexHandle, RovingTabindexOptions } from './roving-tabindex';

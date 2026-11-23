@@ -87,9 +87,22 @@ these primitives:
   CanvasText system color and a dimmed one GrayText, with
   `forced-color-adjust: none`.
 - The mark is an image named by its numbers; a focusable part takes the focus
-  ring of section 5.
+  ring of section 6.
 
-## 5. Write it
+## 5. A gallery of illustrated choices
+
+A choice told apart by pictures belongs to its screen's identity: its frame,
+its chosen state and the motion of its illustration are the application's own.
+`radio-group` draws a choice in words (CP-04). The gallery starts from:
+
+- one native radio input per tile, visually hidden, all with one `name`, the
+  tile being its label. The platform gives one tab stop, the arrows across
+  every section that shares the name, and Enter that submits.
+- `createRovingRadio` from `@slotted/core/focus` when the tile is a button that
+  carries the radio role, its `name` and its `value`: it gives the same
+  keyboard and reports each choice; the application writes the checked state.
+
+## 6. Write it
 
 1. Give each interactive part the native element that carries its role: a
    button for an action, a link for a destination, an input for a value. Add
@@ -109,7 +122,7 @@ these primitives:
    step (OE-10).
 6. Text that stands alone takes its size from the `typography` family (CP-02).
 
-## 6. Done
+## 7. Done
 
 1. Each `Check` of `{{docsDir}}/guidelines/own-elements.md` passes.
 2. The element's CSS holds no color or length literal without its comment.

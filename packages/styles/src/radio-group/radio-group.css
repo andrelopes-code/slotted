@@ -553,56 +553,6 @@
     position: absolute;
   }
 
-  /**
-   * A tile without its circle. The frame and the chosen edge say the choice,
-   * so the input leaves the layout and keeps its role, its name and its tab
-   * stop; the ring the tile draws on focus stays the visible focus. The text
-   * takes the column the circle held.
-   */
-  [data-ui-radio-group][data-part-root][data-variant='tile'][data-mark='hidden']
-    [data-part-control] {
-    block-size: 1px;
-    clip-path: inset(50%);
-    inline-size: 1px;
-    margin: 0;
-    overflow: hidden;
-    position: absolute;
-  }
-
-  [data-ui-radio-group][data-part-root][data-variant='tile'][data-mark='hidden']
-    :is([data-part-label], [data-part-description]) {
-    grid-column: 1 / -1;
-  }
-
-  /**
-   * A picture above the label, across the tile. It is a row of its own, so
-   * the circle, the label and the description move one row down and keep
-   * their order.
-   */
-  [data-ui-radio-group][data-part-root][data-variant='tile'] [data-part-media] {
-    display: block;
-    grid-column: 1 / -1;
-    grid-row: 1;
-    margin-block-end: var(--slotted-radio-group-tile-media-gap, var(--slotted-space-4, 0.5rem));
-  }
-
-  [data-ui-radio-group][data-part-root][data-variant='tile'] [data-part-media] > :is(img, svg) {
-    display: block;
-    max-inline-size: 100%;
-  }
-
-  [data-ui-radio-group][data-part-root][data-variant='tile']
-    [data-part-item]:has(> [data-part-media])
-    > :is([data-part-control], [data-part-indicator], [data-part-label]) {
-    grid-row: 2;
-  }
-
-  [data-ui-radio-group][data-part-root][data-variant='tile']
-    [data-part-item]:has(> [data-part-media])
-    > [data-part-description] {
-    grid-row: 3;
-  }
-
   /* ── The tile's states ────────────────────────────────────────────────
    *
    * Read on the item rather than on the control, because the stretched

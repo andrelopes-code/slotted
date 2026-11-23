@@ -4355,7 +4355,6 @@ export type ComponentToken =
   | '--slotted-radio-group-tile-invalid-border-color'
   | '--slotted-radio-group-tile-invalid-checked-background'
   | '--slotted-radio-group-tile-invalid-checked-border-color'
-  | '--slotted-radio-group-tile-media-gap'
   | '--slotted-radio-group-tile-radius'
   | '--slotted-radio-group-tile-readonly-background'
   | '--slotted-radio-group-tile-readonly-border-color'
@@ -6715,7 +6714,6 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-radio-group-tile-invalid-border-color",
   "--slotted-radio-group-tile-invalid-checked-background",
   "--slotted-radio-group-tile-invalid-checked-border-color",
-  "--slotted-radio-group-tile-media-gap",
   "--slotted-radio-group-tile-radius",
   "--slotted-radio-group-tile-readonly-background",
   "--slotted-radio-group-tile-readonly-border-color",

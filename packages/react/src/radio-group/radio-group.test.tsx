@@ -385,15 +385,20 @@ describe('RadioGroup', () => {
   });
 });
 
-describe('the mark of a radio group', () => {
-  it('stays drawn in a plain group whatever mark says', () => {
-    render(
-      <RadioGroup aria-label="Shipping" mark="hidden">
-        <Radio value="standard">Standard</Radio>
+/* A picture gallery is the application's own element: the group draws a choice in words. */
+describe('the tile variant', () => {
+  it('has no mark axis and no media slot', () => {
+    const { container } = render(
+      // @ts-expect-error -- mark is not an axis of RadioGroup.
+      <RadioGroup aria-label="Plan" mark="hidden" variant="tile">
+        {/* @ts-expect-error -- media is not a slot of Radio. */}
+        <Radio media={<svg />} value="basic">
+          Basic
+        </Radio>
       </RadioGroup>,
     );
 
-    expect(document.querySelector('[data-part="root"]')).toHaveAttribute('data-mark', 'visible');
-    expect(document.querySelector('[data-part="indicator"]')).not.toBeNull();
+    expect(container.querySelector('[data-mark]')).toBeNull();
+    expect(container.querySelector('[data-part="media"]')).toBeNull();
   });
 });

@@ -62,7 +62,6 @@ export function RadioGroup({
   disabled,
   invalid,
   labelPlacement,
-  mark,
   variant,
   name,
   onValueChange,
@@ -90,7 +89,6 @@ export function RadioGroup({
   const resolvedOrientation = orientation ?? defaults.orientation;
   const resolvedLabelPlacement = labelPlacement ?? defaults.labelPlacement;
   const resolvedVariant = variant ?? defaults.variant;
-  const resolvedMark = resolvedVariant === 'tile' ? (mark ?? 'visible') : 'visible';
   const resolvedDisabled = disabled ?? field?.disabled ?? fieldDefaults.disabled;
   const resolvedReadOnly = readOnly ?? field?.readOnly ?? fieldDefaults.readOnly;
   const resolvedInvalid = invalid ?? field?.invalid ?? fieldGroup?.invalid;
@@ -104,7 +102,6 @@ export function RadioGroup({
     disabled: resolvedDisabled,
     invalid: resolvedInvalid,
     labelPlacement: resolvedLabelPlacement,
-    mark: resolvedMark,
     variant: resolvedVariant,
     name: name ?? `slotted-radio-group-${generatedName}`,
     readOnly: resolvedReadOnly,
@@ -156,7 +153,6 @@ export function RadioGroup({
     ...(resolvedInvalid === true ? { 'data-invalid': '' } : {}),
     ...(resolvedReadOnly === true ? { 'data-readonly': '' } : {}),
     'data-label-placement': resolvedLabelPlacement,
-    'data-mark': resolvedMark,
     'data-orientation': resolvedOrientation,
     'data-part': 'root',
     'data-size': resolvedSize,

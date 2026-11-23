@@ -20,13 +20,6 @@ export type RadioGroupVariant = 'plain' | 'tile';
  */
 export type RadioGroupLabelPlacement = 'end' | 'start';
 
-/**
- * Whether a tile draws its circle. `hidden` leaves the frame and the chosen
- * edge to say the choice; the input keeps its role, its name and its tab stop.
- * A plain group always draws it.
- */
-export type RadioGroupMark = 'visible' | 'hidden';
-
 export interface RadioGroupDefaults {
   labelPlacement: RadioGroupLabelPlacement;
   variant: RadioGroupVariant;

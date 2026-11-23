@@ -42,22 +42,6 @@ export class SlRadioDescription {
 }
 
 /**
- * A picture above the label inside a tile, on the consumer's own element.
- * Decorative: the label names the option, so an image here takes an empty
- * `alt`.
- */
-@Directive({
-  selector: '[slRadioMedia]',
-  standalone: true,
-  exportAs: 'slRadioMedia',
-  host: {
-    'data-part': 'media',
-    'data-part-media': '',
-  },
-})
-export class SlRadioMedia {}
-
-/**
  * A click synthesised by the keyboard reports no detail; a real one reports the
  * click count. It is why `Space` and a pointer are told apart without a key
  * listener existing anywhere in the family.
@@ -98,12 +82,9 @@ function activationReason(event: Event): RadioGroupSelectionReason {
       (click)="onClick($event)"
       (blur)="onBlur()"
     />
-    @if (group.resolvedMark() === 'visible') {
-      <span data-part="indicator" data-part-indicator=""
-        ><span slIcon><svg slGlyph name="dot"></svg></span
-      ></span>
-    }
-    <ng-content select="[slRadioMedia]" />
+    <span data-part="indicator" data-part-indicator=""
+      ><span slIcon><svg slGlyph name="dot"></svg></span
+    ></span>
     <label data-part="label" data-part-label="" [attr.for]="controlId"><ng-content /></label>
     <ng-content select="[slRadioDescription]" />`,
   changeDetection: ChangeDetectionStrategy.OnPush,

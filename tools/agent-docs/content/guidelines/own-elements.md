@@ -123,3 +123,13 @@ Why: A mark sized by its own data draws its own axis, and two marks with two axe
 Do: Two bars and the tick row under them take one scale, the track reads `--slotted-mark-track-thickness` and `--slotted-mark-track-color`, the dot reads `--slotted-mark-dot-size`, and the benchmark is drawn in `--slotted-text-muted`.
 Don't: Each row computes its width from the largest value of that row, and the tick row under them computes another.
 Check: Set one value to zero and one to an extreme of the domain: the first ends on the zero tick and the second on the last tick, to the pixel.
+
+### OE-12 · A picture gallery is one radio group
+
+Level: MUST
+Applies to: a gallery of illustrated choices of the application's own, where one is chosen
+Rule: The gallery is one tab stop that the arrows move through, across every section, and Enter submits: native radio inputs that share a name, or `createRovingRadio` of `@slotted/core/focus`.
+Why: A tile that is a plain button puts every choice in the tab order and announces no set, so the reader cannot tell which is chosen or how many there are.
+Do: Two sections of tiles share one name; the tile that is hovered or chosen moves its own illustration.
+Don't: A grid of toggle buttons, each a tab stop, with the chosen one told by its border alone.
+Check: Tab into the gallery and out of it in two presses; from the last tile of one section an arrow reaches the first tile of the next, and Enter submits the form.

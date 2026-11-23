@@ -64,13 +64,6 @@ const anatomy: AnatomyRow[] = [
       'Names the item’s control through for, and carries the target and the hover wash: a 24-pixel square around the circle, and a wash behind the circle and the text that stands half the control gap off the circle and half as far again past the text. It is as wide as its text, so the empty space beside it does not toggle the circle.',
   },
   {
-    part: 'media',
-    element: 'span',
-    required: false,
-    purpose:
-      'A picture above the label inside a tile, given through the media prop. It is decorative, because the label names the option, and the stretched label makes it part of the target.',
-  },
-  {
     part: 'description',
     element: 'p',
     required: false,
@@ -353,13 +346,6 @@ export const REACT_RADIO_GROUP_DOCS = {
         'end',
         'RadioGroup, RadioGroupDefaultsProvider',
         'Which side of its label each circle is on, set once for the set so the circles line up.',
-      ],
-      [
-        'mark',
-        "'visible' | 'hidden'",
-        'visible',
-        'RadioGroup',
-        'Whether a tile draws its circle. hidden leaves the frame and the chosen edge to say the choice; the input keeps its role, its name and its single tab stop, and the tile draws the focus ring. A plain group ignores it.',
       ],
       [
         'disabled',
