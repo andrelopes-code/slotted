@@ -2,6 +2,33 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.36 — 2026-11-23
+
+- docs(evals): the own-elements material meets its thresholds
+- test(entity-picker): the stuck label test names groups by their records
+- test(list): the rule of the inset fill is read between two rows at rest
+- docs(page): the page size class reads the viewport until the first size report (fixed, #172)
+- fix(list): the inset fill reaches past the content, which keeps the edge of its container (reworked, #162)
+- feat(radio-group): the tile variant loses its media slot and hidden mark (removed, #101)
+- docs(guidelines): own elements place a comparison mark by one shared scale (removed, #173; replaces #82, #88, #93 and #119)
+- fix(entity-picker): the room around the field is measured against what clips the list (fixed, #109)
+- fix(command-palette, entity-picker): rows end at a stuck group label instead of showing through it (reworked, #83)
+- fix(button): size sets the font step of an inline button (reworked, #97)
+- fix(button): an inline ghost icon button is a muted mark with no ground (reworked, #106)
+- fix(dashboard-grid): the widget help centers on the first line of its title (reworked, #91)
+- feat(button): widest reserves the whole content and centers what is visible (reworked, #138)
+- fix(button): a danger outline or ghost button hovers on a tint of its solid (reworked, #90)
+- fix(theme): the dark ink and edge of a tone stop at the reference and keep the seed's chroma (reworked, #92)
+- fix(field-group): a question's legend takes the type of a field label (fixed, #57)
+- fix(tooltip): the arrow is clipped to its outer half, so it does not show through a fading content (fixed, #39)
+- feat(sparkline, progress-indicator): remove the comparison marks, keep the scale and the mark tokens
+- test(page): take the stubs down when an assertion fails
+- fix(page): the React page takes its size class from a size report only
+
+### Guidelines
+
+- Added: OE-11, OE-12
+
 ## 0.1.0-beta.35 — 2026-11-23
 
 - fix(floating-panel): the title takes the heading face
