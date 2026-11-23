@@ -5,6 +5,7 @@ import { page, userEvent } from 'vitest/browser';
 
 import { DashboardGrid } from './dashboard-grid';
 import { Chart } from '../chart';
+import { atPixelRatio, inkSpan, paint } from '../test/ink';
 import { DashboardWidget } from './dashboard-widget';
 
 const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
@@ -189,6 +190,7 @@ describe('a chart in a dashboard widget', () => {
 });
 
 describe('a widget with help', () => {
+  const SIX = ['one', 'two', 'three', 'four', 'five', 'six'];
   const note = 'Liquid balance divided by the mean monthly expense';
 
   it('draws the control as a glyph no taller than 1.5rem, and the note at the help measure', async () => {
@@ -216,35 +218,63 @@ describe('a widget with help', () => {
     root.style.removeProperty('--slotted-dashboard-grid-help-measure');
   });
 
-  /* The control took the line of the text around the widget, not of the title, and stood lower. */
+  /**
+   * Text and icon snap to the pixel grid each on its own, so the centers are
+   * read from the ink, in widgets whose title rows start at other fractions.
+   */
   it.each([
-    ['comfortable', '16px', undefined],
-    ['a title of another size', '16px', '20px'],
-    ['a page of another size', '20px', undefined],
-  ] as const)('centers the glyph on the first line of the title (%s)', (_, page, title) => {
-    const style = {
-      fontSize: page,
-      ...(title ? { '--slotted-dashboard-grid-title-font-size': title } : {}),
-    } as CSSProperties;
-    render(
-      <div style={style}>
-        <DashboardGrid aria-label="Sales">
-          <DashboardWidget
-            help={note}
-            title="Liquidity over the whole of the period that the report was asked to cover, month by month, account by account"
-            value="liquidity"
-          />
-        </DashboardGrid>
-      </div>,
-    );
-    const help = document.querySelector('[data-part="help"]')!;
-    const glyph = help.querySelector('svg, [data-ui="icon"]')!;
-    const line = firstLine(document.querySelector('[data-part="title"]')!);
+    [1, 'the default size', '16px', undefined],
+    [1, 'a title of another size', '16px', '20px'],
+    [1, 'a page of another size', '20px', undefined],
+    [2, 'the default size', '16px', undefined],
+    [2, 'a title of another size', '16px', '20px'],
+    [2, 'a page of another size', '20px', undefined],
+  ] as const)(
+    'centers the ink of the glyph on the capital of the title (ratio %d, %s)',
+    async (ratio, _, page, title) => {
+      render(
+        <div
+          style={
+            {
+              fontSize: page,
+              ...(title ? { '--slotted-dashboard-grid-title-font-size': title } : {}),
+            } as CSSProperties
+          }
+        >
+          <DashboardGrid aria-label="Sales">
+            {SIX.map((value, index) => (
+              <DashboardWidget
+                help={note}
+                key={value}
+                title={index % 2 === 0 ? 'H' : `H ${'and a title of two lines '.repeat(4)}`}
+                value={value}
+              />
+            ))}
+          </DashboardGrid>
+        </div>,
+      );
+      await frame();
 
-    expect(Math.abs(centerOf(glyph).y - line)).toBeLessThanOrEqual(0.5);
-    expect(Math.abs(centerOf(glyph).x - centerOf(help).x)).toBeLessThanOrEqual(0.5);
-    expect(Math.abs(centerOf(glyph).y - centerOf(help).y)).toBeLessThanOrEqual(0.5);
-  });
+      const rows = [...document.querySelectorAll<HTMLElement>('[data-part="title-row"]')];
+      rows.forEach((row, index) => {
+        row.style.marginBlockStart = `${String(index * 0.17)}px`;
+      });
+
+      const offsets = await atPixelRatio(ratio, async () => {
+        const painted = await paint();
+
+        return rows.map((row) => {
+          const capital = inkSpan(painted, firstLetter(row.querySelector('[data-part="title"]')!));
+          const help = row.querySelector('[data-part="help"]')!;
+          const glyph = inkSpan(painted, help.getBoundingClientRect());
+
+          return Number((glyph.center - capital.center).toFixed(2));
+        });
+      });
+
+      expect(Math.max(...offsets.map(Math.abs)), offsets.join(' ')).toBeLessThanOrEqual(0.5);
+    },
+  );
 
   it('names the control after the title and leaves the header alone without help', () => {
     render(
@@ -287,17 +317,12 @@ describe('a widget with help', () => {
   });
 });
 
-function centerOf(element: Element) {
-  const rect = element.getBoundingClientRect();
-
-  return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
-}
-
-/** The vertical center of the first line of text in an element. */
-function firstLine(element: Element) {
+/** The box of the first letter of the text in an element. */
+function firstLetter(element: Element) {
   const range = document.createRange();
-  range.selectNodeContents(element);
-  const rect = range.getClientRects()[0]!;
+  const text = document.createTreeWalker(element, NodeFilter.SHOW_TEXT).nextNode()!;
+  range.setStart(text, 0);
+  range.setEnd(text, 1);
 
-  return rect.y + rect.height / 2;
+  return range.getBoundingClientRect();
 }

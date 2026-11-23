@@ -967,20 +967,44 @@
 
   /**
    * An icon-only control inside a line of text — a help trigger beside a term
-   * — is that line tall, so the line does not grow. The box takes the text's
-   * line height and stands on the line box's top, and a pseudo-element outside
-   * layout keeps the target at the WCAG 2.2 minimum around it.
+   * — is a mark on the capital beside it. The icon is the capital height
+   * rounded to a pixel and two pixels more at each end, and it hangs those two
+   * below the baseline: text and icon snap to the pixel grid each on its own,
+   * and an icon a whole even number of pixels taller than the capital snaps
+   * with it wherever the line stands.
+   *
+   * The icon's box is the capital alone and the two pixels hang outside it, so
+   * the control's baseline is the text's in a line and in a flex row that aligns
+   * baselines. The ground is one line tall; margins take back what of it passes
+   * the capital, so the line keeps its height. A pseudo-element outside layout
+   * keeps the target at the WCAG 2.2 minimum.
    */
   [data-ui-button][data-shape][data-inline] {
+    --_capital: round(1cap, 1px);
     block-size: 1lh;
-    font-size: inherit;
+    font: inherit;
     inline-size: 1lh;
-    line-height: inherit;
+    margin-block: calc((var(--_capital) - 1lh) / 2);
     margin-inline-start: 0.25em;
     min-block-size: 0;
     min-inline-size: 0;
     position: relative;
-    vertical-align: top;
+    vertical-align: baseline;
+  }
+
+  [data-ui-button][data-shape][data-inline] [data-part-icon] {
+    --_icon-size: calc(var(--_capital) + 4px);
+    block-size: var(--_capital);
+    font-size: inherit;
+    inline-size: var(--_capital);
+  }
+
+  [data-ui-button][data-shape][data-inline] [data-part-icon] > *:not([data-part-indicator]) {
+    block-size: calc(100% + 4px);
+    inline-size: calc(100% + 4px);
+    inset-block-start: -2px;
+    inset-inline-start: -2px;
+    position: absolute;
   }
 
   [data-ui-button][data-shape][data-inline]::before {

@@ -221,12 +221,19 @@
     overflow-wrap: anywhere;
   }
 
-  /* The title and its help control on one row. The row takes the title's type,
-     so the inline icon button is one line of the title tall and centers on the
-     first of them without adding to the row's height. */
+  /* The title and its help control on one row, on the baseline of the title's
+     first line. The row takes the title's type, so the inline icon button is
+     drawn from the title's capital and adds nothing to the row's height. */
   [data-ui-dashboard-grid] [data-part-widget] [data-part-title-row] {
-    align-items: flex-start;
+    align-items: baseline;
     display: flex;
+    font-family: var(
+      --slotted-dashboard-grid-title-font-family,
+      var(
+        --slotted-font-family-heading,
+        var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+      )
+    );
     font-size: var(
       --slotted-dashboard-grid-title-font-size,
       var(--slotted-font-size-md, 0.8125rem)

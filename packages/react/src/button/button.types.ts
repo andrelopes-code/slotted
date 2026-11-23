@@ -196,7 +196,8 @@ export type IconButtonProps = Omit<
     children: ReactNode;
     /**
      * One line of the surrounding text tall, for a trigger inside a sentence
-     * or a term: the line does not grow, and the target stays 24px square.
+     * or a term: the line does not grow, and the target stays 24px square. The
+     * icon is drawn from the capital height and centers on the capital beside it.
      */
     inline?: boolean | undefined;
     render?: ButtonRender<ButtonRootProps> | undefined;
