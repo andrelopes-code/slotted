@@ -2,6 +2,99 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.35 — 2026-11-23
+
+- fix(floating-panel): the title takes the heading face
+- feat(floating-panel): a non-modal panel the reader drags, for tools that stay over the page
+- feat(calendar): content inside a day, a label of its own and a layout that fills its column
+- feat(progress-indicator): a segmented bar, one total split into parts
+- feat(collapsible): a closed panel that keeps the start of its content in view
+- fix(page): measure the size class on a size report only
+- feat(typography): a typed text-box trim on Text and Heading, and one edge token for every trimmed label
+- test(card): read the frame's name through the dataset index
+- feat(collapsible, accordion, toolbar): frames a theme colors and lifts as it does a card
+- test(progress-indicator): the compact form of a bar in a table cell
+- feat(slider): a track that shows a scale, with no indicator over it
+- feat(page): the page's size class from its own width, for code that chooses what to render
+- test(data-grid): name the loader test's columns by label
+- feat(button): a label that reserves the width of the widest text it can show
+- feat(data-grid): first-load rows vary their lengths and follow the column's alignment
+- feat(filter-bar): on a phone the filters button stands on the search line until a chip shows
+- feat(switch): a control variant that sits the pill on the line of a row of fields
+- test(select): a select beside a text field in a row keeps its content width
+- fix(page): a level-1 detail panel in the body reads as the page itself
+- feat(page): a gap between the blocks of a body, and a compact inset a theme sets
+- feat(dashboard-grid): a persisted layout reads the store again when told it changed
+- feat(markdown): source reads the inline image syntax
+- fix(build): the published declarations resolve under nodenext
+- feat(side-navigation): a whole-row trigger is marked as the destination
+- fix(entity-picker): the popup opens above when the room below holds less than a list
+- fix(menu): an open submenu keeps its place across renders of its parent
+- feat(chart): a value axis of a stated label width, so stacked charts share a plot start
+- fix(chart): the lowest value label stands on the axis line
+- fix(chart): a theme color in any syntax mixes and fades as an rgb() one does
+- fix(list-item): forced colors select the row as before under the inset fill
+- fix(switch): the invalid edge stands outside the track at the edge width
+- style(collapsible): format the indicator rules and their test
+- feat(table): one band at the top of a frame, a head pinned as one element, a group band kept in view
+- feat(list): an inset fill drawn as a rounded tile inside a gutter
+- feat(list-item): an end that stays beside the title, and a truncated row of one height
+- fix(list): a sticky group heading paints the ground the list stands on
+- fix(list-item): the hover wash waits for a pointer that hovers
+- fix(switch): an invalid switch marks the outer edge of the track alone
+- fix(prompt-composer): text actions keep their shape under an aria-label, round buttons land on whole pixels, the text inset is published
+- fix(status-indicator): the dot is a whole number of pixels at any root size
+- fix(collapsible): the framed root fits its container and the mark sits on the title's line
+- fix(tag): the root shrinks inside a flex row
+- fix(checkbox): a label that does not wrap shrinks to its column
+- test(stat-card): expect the loading value to center its placeholder
+- feat(section): a body that runs edge to edge inside a surface section
+- feat(card): a body that runs edge to edge
+- feat(message): a leading icon for the source of an activity step
+- feat(collapsible): a summary at the end of the trigger line
+- feat(button): a flush side that stands the label on the edge of the text around it
+- feat(checkbox): a control variant, one control tall with the halo inside its box
+- feat(section): a heading drawn as a mixed-case title
+- feat(table): a caption that names the table without being drawn
+- fix(table): paint a body row's ground in its cells, once on a pinned cell
+- fix(stat-card): stand the value placeholder at the middle of the value's line
+- fix(select): keep one chosen value of a multiple select out from under its chip
+- fix(select): draw one no-results line when a search matches nothing
+- docs(entity-picker): say what clips a list kept out of the portal
+- feat(chart): a token for the gap between the header title and description
+- fix(data-grid): key the alignment rules on the grid's own cells
+- fix(sparkline): write the ends of a position strip in full
+- fix(sparkline): document the strip and the comparison in the family's docs module
+- fix(sparkline): keep one docs object per docs module
+- feat(sparkline): a position strip and a signed bar comparison
+- feat(meter): a static value within a range, drawn as a length
+- feat(table): parent rows that fold their children
+- fix(button): list the radius step an inline button reads
+- feat(button): an inline button is a word of the line it sits in
+- feat(chart): select a span of the x axis with a drag
+- docs(chart): a drag pans a zoomed chart; Ctrl+wheel and + − 0 zoom
+- feat(stat-card): move a changed value from the number it showed
+- feat(segmented-control): condense a row to a column that keeps its labels whole
+- feat(list-item): a leading select part beside a link or button box
+- fix(radio-group): list the space step the tile media gap falls back to
+- feat(radio-group): picture tiles, with a media slot and the mark hidden
+- fix(dashboard-grid): draw the widget help as an inline glyph, and widen its note
+- feat(listbox): a column count for each group inside one listbox
+- feat(listbox): tokens for a bordered option, the gap between options and the chosen edge
+- fix(command-palette): paint a group label's surface only while it is stuck
+- feat(icon-button): an inline icon button one line of its text tall
+- feat(description-list): end the values of a row list with valueAlign
+- fix(table): publish the cell padding in use on the cell
+- fix(section): span the header actions over every row, and token the description gap
+- fix(card): span the header actions over the title and its description
+- fix(data-grid): keep a group row one line tall, and end a numeric header at its values
+- fix(theme): keep the chroma of a tone's ink in the dark scheme
+- fix(dismissable-layer): a modal layer covers the layers under it for outside presses
+- fix(table): pin a sticky column on the ground its container publishes
+- fix(button): draw the danger tone's edge and hover fill on outline and ghost
+- fix(collapsible): round the trigger with the control corner
+- fix(page): publish the ground it paints as --slotted-ground
+
 ## 0.1.0-beta.34 — 2026-11-05
 
 - docs(drawer): add the form scene its reference entry names
