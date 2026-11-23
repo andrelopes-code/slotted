@@ -5,6 +5,7 @@ import { page } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Segment, SegmentedControl } from '../segmented-control';
+import { Stack } from '../stack';
 import { Chart, ChartTooltipContent } from './index';
 
 const data = [
@@ -224,15 +225,19 @@ describe('the tooltip of a chart', () => {
     for (const label of labels) expect(label.getBoundingClientRect().width).toBeGreaterThan(0);
   });
 
-  it('gives content added in renderTooltip the width of the tooltip', async () => {
+  it.each([
+    ['added beside the content', true, <div data-testid="added">Scheduled: -$99.90</div>],
+    ['of a family beside the content', true, <Stack data-testid="added">Scheduled: -$99.90</Stack>],
+    ['of a family in its place', false, <Stack data-testid="added">Scheduled: -$99.90</Stack>],
+  ])('gives an element %s the width of the tooltip', async (_, beside, element) => {
     render(
       <Chart
         data={[{ x: 'a', y: 1 }]}
         defaultActivePoint={opened}
         renderTooltip={(context, model) => (
           <>
-            <ChartTooltipContent context={context} model={model} />
-            <div data-testid="added">Scheduled: -$99.90</div>
+            {beside && <ChartTooltipContent context={context} model={model} />}
+            {element}
           </>
         )}
         series={[{ id: 'y', kind: 'line', field: 'y', label: 'Y' }]}
@@ -240,9 +245,9 @@ describe('the tooltip of a chart', () => {
       />,
     );
     const added = await vi.waitFor(() => {
-      const element = document.querySelector('[data-testid="added"]');
-      expect(element).not.toBeNull();
-      return element as HTMLElement;
+      const found = document.querySelector('[data-testid="added"]');
+      expect(found).not.toBeNull();
+      return found as HTMLElement;
     });
     const tooltip = document.querySelector('[data-part="tooltip"]') as HTMLElement;
     const style = getComputedStyle(tooltip);
