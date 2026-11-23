@@ -343,6 +343,7 @@ describe('variants', () => {
   };
   const declared = (text: string, scheme: string, name: string) =>
     new RegExp(`\\n *${name}: (.*);`).exec(schemeBody(text, scheme))?.[1];
+  const stated = (name: string) => new RegExp(`\\n *${name}: (.*);`).exec(variantCss)?.[1];
 
   it('switches each value on under its attribute, and every value of the axis off first', () => {
     expect(variantCss).toContain(
@@ -354,24 +355,27 @@ describe('variants', () => {
   });
 
   it('derives a token from the value that is on, and from the recipe when none is', () => {
-    expect(declared(variantCss, 'dark', '--_variant_depth_oled_surface')).toMatch(
+    expect(stated('--_variant_depth_oled_dark_surface')).toMatch(
       /^var\(--_variant_depth_oled\)oklch\(from var\(--slotted-seed-neutral\) 0 /,
     );
-    expect(declared(variantCss, 'dark', '--slotted-surface')).toBe(
-      `var(--_variant_depth_oled_surface, var(--_variant_depth_dim_surface, ${declared(css, 'dark', '--slotted-surface')}))`,
+    expect(stated('--_dark_surface')).toBe(
+      'var(--_variant_depth_oled_dark_surface, var(--_variant_depth_dim_dark_surface))',
     );
-    expect(declared(variantCss, 'light', '--slotted-surface')).toBe(
-      `var(--_variant_depth_oled_surface, ${declared(css, 'light', '--slotted-surface')})`,
-    );
-    expect(schemeBody(variantCss, 'high-contrast')).not.toContain('--_variant');
+    expect(stated('--_light_surface')).toBe('var(--_variant_depth_oled_light_surface)');
+    for (const scheme of ['light', 'dark']) {
+      expect(declared(variantCss, scheme, '--slotted-surface')).toBe(
+        `var(--_${scheme}_surface, ${declared(css, scheme, '--slotted-surface')})`,
+      );
+    }
+    expect(schemeBody(variantCss, 'high-contrast')).not.toContain('--_high-contrast');
   });
 
   it('states a scheme value as it is written', () => {
-    expect(declared(variantCss, 'dark', '--_variant_shadows_flat_shadow-md')).toBe(
+    expect(stated('--_variant_shadows_flat_dark_shadow-md')).toBe(
       'var(--_variant_shadows_flat)none',
     );
     expect(declared(variantCss, 'dark', '--slotted-shadow-md')).toBe(
-      `var(--_variant_shadows_flat_shadow-md, ${declared(css, 'dark', '--slotted-shadow-md')})`,
+      `var(--_dark_shadow-md, ${declared(css, 'dark', '--slotted-shadow-md')})`,
     );
   });
 
@@ -421,5 +425,37 @@ describe('variants', () => {
     const grown = renderTheme(defineTheme({ ...theme, variants } as unknown as ThemeDefinition));
 
     expect(grown.length / css.length).toBeLessThanOrEqual(1.2);
+  });
+
+  it('adds at most 15% for a palette and a combined ground axis in two schemes', () => {
+    const seed = { seed: 'accent', l: 0.4236, c: { scale: 0.22, max: 0.085 }, h: 120 };
+    const shadow = '0 10px 15px -3px rgb(0 0 0 / 0.60), 0 4px 6px -4px rgb(0 0 0 / 0.50)';
+    const axis = (count: number, names: readonly string[], rule: unknown = seed) => {
+      const rules = Object.fromEntries(names.map((name) => [`--slotted-${name}`, rule]));
+      return Object.fromEntries(
+        Array.from({ length: count }, (_, index) => [
+          `value-${index}`,
+          { light: rules, dark: rules },
+        ]),
+      );
+    };
+    const variants = {
+      ground: axis(8, ['surface', 'surface-raised', 'surface-sunken']),
+      border: axis(3, ['border-subtle']),
+      shadows: axis(3, ['shadow-sm', 'shadow-md', 'shadow-lg'], shadow),
+      series: axis(
+        4,
+        Array.from({ length: 8 }, (_, slot) => `data-${slot + 1}`),
+      ),
+      secondary: axis(2, ['text-muted'], theme.recipe.dark['--slotted-text-muted']),
+    };
+    const grown = renderTheme(defineTheme({ ...theme, variants } as unknown as ThemeDefinition));
+
+    expect(grown.length / css.length).toBeLessThanOrEqual(1.15);
+  });
+
+  it('writes the property of a value once for its scheme, whatever the blocks that read it', () => {
+    expect(variantCss.match(/--_variant_depth_oled_dark_surface:/g)).toHaveLength(1);
+    expect(variantCss.match(/var\(--_dark_surface, /g)).toHaveLength(2);
   });
 });

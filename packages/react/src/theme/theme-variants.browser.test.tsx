@@ -1,5 +1,6 @@
 import { defineTheme, recipes, renderTheme } from '@slotted/theme';
 import { render } from '@testing-library/react';
+import { cdp } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import values from '../../../themes/src/default/values.json';
@@ -28,6 +29,11 @@ const css = renderTheme(
         },
       },
       shadows: { flat: { dark: { '--slotted-shadow-md': 'none' } } },
+      ink: {
+        strong: {
+          light: { '--slotted-text': { seed: 'neutral', l: 0, c: { scale: 0, max: 0 } } },
+        },
+      },
     },
   } as never),
 );
@@ -48,7 +54,8 @@ describe('data-slotted-variant-<axis>', () => {
     document.head.append(style);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await cdp().send('Emulation.setEmulatedMedia', { features: [] });
     document.head.querySelector('style[data-variants-test]')?.remove();
   });
 
@@ -139,6 +146,25 @@ describe('data-slotted-variant-<axis>', () => {
     expect(paint('nested-scheme', '--slotted-surface')).toBe(BLACK);
     expect(paint('nested-back', '--slotted-surface')).toBe(tinted);
     expect([BLACK, tinted]).not.toContain(paint('off', '--slotted-surface'));
+  });
+
+  it.each(['light', 'dark'])('follows the system scheme that prefers %s', async (preferred) => {
+    await cdp().send('Emulation.setEmulatedMedia', {
+      features: [{ name: 'prefers-color-scheme', value: preferred }],
+    });
+    render(
+      <ThemeScope
+        data-slotted-variant-depth="oled"
+        data-slotted-variant-ink="strong"
+        scheme="system"
+        theme="variants-test"
+      >
+        <Probe id="system" />
+      </ThemeScope>,
+    );
+
+    expect(paint('system', '--slotted-surface') === BLACK).toBe(preferred === 'dark');
+    expect(paint('system', '--slotted-text') === BLACK).toBe(preferred === 'light');
   });
 
   it('derives a value from the seeds of the element it reaches', () => {

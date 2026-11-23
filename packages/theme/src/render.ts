@@ -41,9 +41,13 @@ const variantSelector = (axis: string, value?: string) =>
 /** Axis, value and token names hold no underscore, so the parts never run together. */
 const variantSwitch = (axis: string, value: string) => `--_variant_${axis}_${value}`;
 
+/** The property that holds what the values switched on make of a token, in one scheme. */
+const schemeProperty = (scheme: Scheme, name: string) =>
+  `--_${scheme}_${name.replace('--slotted-', '')}`;
+
 /**
- * One scheme, scoped to the nearest element that names it. The limit stops at
- * any element that names another scheme or theme, and scoping proximity makes
+ * Schemes, scoped to the nearest element that names one of them. The limit stops
+ * at any element that names another scheme or theme, and scoping proximity makes
  * the nearest root win when two schemes are nested. A theme element under the
  * scheme roots it only when it names no scheme of its own; without the guard,
  * a light panel in a dark page was a root of both scopes at the same distance,
@@ -53,16 +57,24 @@ const variantSwitch = (axis: string, value: string) => `--_variant_${axis}_${val
  * `reroots` adds the elements that name a variant axis, at no specificity: the
  * values switched on there are read again in every scheme block.
  */
-function schemeScope(theme: string, scheme: string, body: string, reroots: string | null): string {
+function schemeScope(
+  theme: string,
+  schemes: readonly string[],
+  body: string,
+  reroots: string | null,
+): string {
   const t = themeSelector(theme);
-  const s = schemeSelector(scheme);
+  const roots = schemes.map((scheme) => {
+    const s = schemeSelector(scheme);
+    return `${t}${s}, ${t} ${s}, ${s} ${t}:not([data-slotted-scheme])`;
+  });
   const selectors = [
     ':scope',
     '[data-slotted-seeds]',
     ...(reroots === null ? [] : [`:where(${reroots})`]),
   ];
   return (
-    `@scope (${t}${s}, ${t} ${s}, ${s} ${t}:not([data-slotted-scheme])) to ([data-slotted-scheme], [data-slotted-theme]) {\n` +
+    `@scope (${roots.join(', ')}) to ([data-slotted-scheme], [data-slotted-theme]) {\n` +
     `${indent(block(selectors, body))}\n}`
   );
 }
@@ -76,21 +88,46 @@ function schemeValues(theme: Theme, scheme: Scheme): Record<string, string> {
 
 /**
  * The declarations of one scheme. A token a variant states takes the value that
- * is switched on, and the scheme's own value when none is: a switch that is off
- * holds the guaranteed-invalid value, which makes the property that reads it
- * invalid too, and `var()` then takes its fallback.
+ * is switched on, and the scheme's own value when none is.
  */
 function schemeDeclarations(theme: Theme, scheme: Scheme): string {
   const values = schemeValues(theme, scheme);
-  const stated: Record<string, string> = {};
-  for (const { axis, value, name, rule } of schemeVariants(theme, scheme).reverse()) {
-    const property = `${variantSwitch(axis, value)}_${name.replace('--slotted-', '')}`;
-    /* No space: it would stay in the token's computed value. */
-    stated[property] = `var(${variantSwitch(axis, value)})${variantCss(rule)}`;
-    values[name] = `var(${property}, ${values[name]})`;
-  }
+  for (const name of new Set(schemeVariants(theme, scheme).map((stated) => stated.name)))
+    values[name] = `var(${schemeProperty(scheme, name)}, ${values[name]})`;
 
-  return declarations({ ...stated, ...values });
+  return declarations(values);
+}
+
+/**
+ * What every variant value derives, in one block under the roots of every
+ * scheme, so a value is written once and not again for `system`. A switch that
+ * is off holds the guaranteed-invalid value, which makes the property that reads
+ * it invalid too, and `var()` then takes its fallback: the next value of the
+ * token's one axis, or, where none is on, the scheme's own value.
+ */
+function variantProperties(theme: Theme, reroots: string | null): string[] {
+  const values: Record<string, string> = {};
+  const tokens: Record<string, string> = {};
+  for (const scheme of SCHEMES) {
+    for (const { axis, value, name, rule } of schemeVariants(theme, scheme).reverse()) {
+      const token = schemeProperty(scheme, name);
+      const property = `${variantSwitch(axis, value)}${token.slice(2)}`;
+      /* No space: it would stay in the token's computed value. */
+      values[property] = `var(${variantSwitch(axis, value)})${variantCss(rule)}`;
+      tokens[token] =
+        tokens[token] === undefined ? `var(${property})` : `var(${property}, ${tokens[token]})`;
+    }
+  }
+  if (Object.keys(values).length === 0) return [];
+
+  return [
+    schemeScope(
+      theme.name,
+      [...SCHEMES, 'system'],
+      declarations({ ...values, ...tokens }),
+      reroots,
+    ),
+  ];
 }
 
 /**
@@ -206,11 +243,12 @@ export function renderTheme(theme: Theme): string {
 
   const axes = Object.keys(theme.variants ?? {});
   const reroots = axes.length === 0 ? null : axes.map((axis) => variantSelector(axis)).join(', ');
+  blocks.push(...variantProperties(theme, reroots));
   for (const scheme of SCHEMES) {
     blocks.push(
       schemeScope(
         name,
-        scheme,
+        [scheme],
         `color-scheme: ${UA_SCHEME[scheme]};\n${schemeDeclarations(theme, scheme)}`,
         reroots,
       ),
@@ -219,7 +257,7 @@ export function renderTheme(theme: Theme): string {
   blocks.push(
     schemeScope(
       name,
-      'system',
+      ['system'],
       `color-scheme: light;\n${schemeDeclarations(theme, 'light')}`,
       reroots,
     ),
@@ -228,7 +266,7 @@ export function renderTheme(theme: Theme): string {
     `@media (prefers-color-scheme: dark) {\n${indent(
       schemeScope(
         name,
-        'system',
+        ['system'],
         `color-scheme: dark;\n${schemeDeclarations(theme, 'dark')}`,
         reroots,
       ),
@@ -282,7 +320,7 @@ export function renderTheme(theme: Theme): string {
     `@media (prefers-reduced-transparency: reduce) {\n${indent(
       [
         block([themeSelector(name)], opaque),
-        ...[...SCHEMES, 'system'].map((scheme) => schemeScope(name, scheme, opaque, reroots)),
+        ...[...SCHEMES, 'system'].map((scheme) => schemeScope(name, [scheme], opaque, reroots)),
       ].join('\n\n'),
     )}\n}`,
   );
@@ -299,7 +337,7 @@ export function renderTheme(theme: Theme): string {
     `@media (forced-colors: active) {\n${indent(
       [
         block([themeSelector(name)], forced),
-        ...[...SCHEMES, 'system'].map((scheme) => schemeScope(name, scheme, forced, reroots)),
+        ...[...SCHEMES, 'system'].map((scheme) => schemeScope(name, [scheme], forced, reroots)),
       ].join('\n\n'),
     )}\n}`,
   );
