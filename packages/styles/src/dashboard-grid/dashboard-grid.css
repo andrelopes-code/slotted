@@ -221,19 +221,34 @@
     overflow-wrap: anywhere;
   }
 
-  /* The title and its help control on one row; the control centers on the
-     title's first line without adding to the row's height. */
+  /* The title and its help control on one row. The row takes the title's type,
+     so the inline icon button is one line of the title tall and centers on the
+     first of them without adding to the row's height. */
   [data-ui-dashboard-grid] [data-part-widget] [data-part-title-row] {
     align-items: flex-start;
     display: flex;
+    font-size: var(
+      --slotted-dashboard-grid-title-font-size,
+      var(--slotted-font-size-md, 0.8125rem)
+    );
     gap: var(--slotted-space-1, 0.125rem);
+    line-height: var(--slotted-line-height-md, 1.5);
   }
 
-  /* An annotation of the title rather than a button beside it: the inline
-     icon button is one line of the title tall, muted until hovered. */
+  /* An annotation of the title rather than a button beside it. Its ground says
+     it is a control under the pointer, and that the note is its own when open. */
   [data-ui-dashboard-grid] [data-part-widget] [data-part-title-row] > [data-part-help] {
-    color: var(--slotted-dashboard-grid-description-color, var(--slotted-text-muted, GrayText));
     flex: none;
+  }
+
+  [data-ui-dashboard-grid]
+    [data-part-widget]
+    [data-part-title-row]
+    > [data-part-help][data-inline][data-variant]:hover:not(:disabled):not([data-disabled]):not(
+      [data-loading]
+    ),
+  [data-ui-dashboard-grid] [data-part-widget] [data-part-title-row] > [data-part-help][data-open] {
+    background: var(--slotted-tone-secondary-subtle-hover, ButtonFace);
   }
 
   /**

@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import type { CSSProperties } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 
@@ -215,6 +216,36 @@ describe('a widget with help', () => {
     root.style.removeProperty('--slotted-dashboard-grid-help-measure');
   });
 
+  /* The control took the line of the text around the widget, not of the title, and stood lower. */
+  it.each([
+    ['comfortable', '16px', undefined],
+    ['a title of another size', '16px', '20px'],
+    ['a page of another size', '20px', undefined],
+  ] as const)('centers the glyph on the first line of the title (%s)', (_, page, title) => {
+    const style = {
+      fontSize: page,
+      ...(title ? { '--slotted-dashboard-grid-title-font-size': title } : {}),
+    } as CSSProperties;
+    render(
+      <div style={style}>
+        <DashboardGrid aria-label="Sales">
+          <DashboardWidget
+            help={note}
+            title="Liquidity over the whole of the period that the report was asked to cover, month by month, account by account"
+            value="liquidity"
+          />
+        </DashboardGrid>
+      </div>,
+    );
+    const help = document.querySelector('[data-part="help"]')!;
+    const glyph = help.querySelector('svg, [data-ui="icon"]')!;
+    const line = firstLine(document.querySelector('[data-part="title"]')!);
+
+    expect(Math.abs(centerOf(glyph).y - line)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(centerOf(glyph).x - centerOf(help).x)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(centerOf(glyph).y - centerOf(help).y)).toBeLessThanOrEqual(0.5);
+  });
+
   it('names the control after the title and leaves the header alone without help', () => {
     render(
       <DashboardGrid aria-label="Sales">
@@ -255,3 +286,18 @@ describe('a widget with help', () => {
     expect(document.activeElement).toBe(help);
   });
 });
+
+function centerOf(element: Element) {
+  const rect = element.getBoundingClientRect();
+
+  return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+}
+
+/** The vertical center of the first line of text in an element. */
+function firstLine(element: Element) {
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  const rect = range.getClientRects()[0]!;
+
+  return rect.y + rect.height / 2;
+}
