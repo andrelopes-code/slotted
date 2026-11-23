@@ -298,6 +298,8 @@ describe('SlPage without a body', () => {
 });
 
 describe('injectPageSizeClass', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
   @Component({
     standalone: true,
     selector: 'sl-size-probe',
@@ -348,6 +350,5 @@ describe('injectPageSizeClass', () => {
 
     const inside = fixture.nativeElement.querySelector('main sl-size-probe').textContent.trim();
     expect(inside).toBe('expanded');
-    vi.unstubAllGlobals();
   });
 });
