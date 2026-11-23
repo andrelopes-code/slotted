@@ -244,9 +244,11 @@ describe('slMessage', () => {
     const fixture = TestBed.createComponent(SourcedStep);
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector('[data-part="activity"]').getAttribute('data-variant'),
-    ).toBe('plain');
+    const activity = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-part="activity"]',
+    )!;
+    expect(activity.getAttribute('data-variant')).toBe('plain');
+    expect(activity.getAttribute('data-shimmer')).toBe('');
     const step = (fixture.nativeElement as HTMLElement).querySelector(
       '[data-part="activity-step"]',
     )!;
@@ -257,8 +259,10 @@ describe('slMessage', () => {
     expect(step.querySelector('[data-ui="spinner"]')).toBeNull();
 
     fixture.componentInstance.status.set('complete');
+    fixture.componentInstance.shimmer.set(false);
     fixture.detectChanges();
 
+    expect(activity.hasAttribute('data-shimmer')).toBe(false);
     expect(tile()?.querySelector('#source')).toBeNull();
     expect(tile()?.querySelector('svg[slGlyph]')).not.toBeNull();
   });
@@ -358,7 +362,7 @@ describe('slBubbleStream', () => {
 @Component({
   standalone: true,
   imports: [SlMessageActivity, SlMessageActivityStep, SlMessageActivityStepIcon],
-  template: `<div slMessageActivity variant="plain">
+  template: `<div slMessageActivity variant="plain" [shimmer]="shimmer()">
     <div slMessageActivityStep [status]="status()">
       <svg slMessageActivityStepIcon id="source"></svg>
       Projecting a balance
@@ -366,5 +370,6 @@ describe('slBubbleStream', () => {
   </div>`,
 })
 class SourcedStep {
+  readonly shimmer = signal(true);
   readonly status = signal<'complete' | 'current' | 'pending'>('current');
 }

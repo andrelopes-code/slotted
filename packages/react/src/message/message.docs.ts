@@ -708,6 +708,13 @@ export const REACT_MESSAGE_DOCS = {
         'bubble draws a raised frame around the steps; plain draws the steps alone, with no border, ground or inset, for a turn that stands on a rail',
       ],
       [
+        'shimmer',
+        'boolean',
+        'true',
+        'MessageActivity',
+        'Whether a band of light travels across the words of the current step; without it they stand in the plain ink, which the tile of an icon already sets apart',
+      ],
+      [
         'status',
         "'complete' | 'current' | 'pending'",
         'current',

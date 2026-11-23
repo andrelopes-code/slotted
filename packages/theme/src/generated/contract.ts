@@ -4001,7 +4001,15 @@ export type ComponentToken =
   | '--slotted-menubar-text'
   | '--slotted-menubar-trigger-font-weight'
   | '--slotted-menubar-trigger-radius'
+  | '--slotted-message-activity-color-complete'
+  | '--slotted-message-activity-gap'
+  | '--slotted-message-activity-icon-border-color-current'
+  | '--slotted-message-activity-icon-glyph-size'
+  | '--slotted-message-activity-icon-radius'
   | '--slotted-message-activity-icon-size'
+  | '--slotted-message-activity-icon-surface'
+  | '--slotted-message-activity-rise'
+  | '--slotted-message-activity-step-gap'
   | '--slotted-message-avatar-size'
   | '--slotted-message-bubble-padding-block'
   | '--slotted-message-bubble-padding-inline'
@@ -6366,7 +6374,15 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-menubar-text",
   "--slotted-menubar-trigger-font-weight",
   "--slotted-menubar-trigger-radius",
+  "--slotted-message-activity-color-complete",
+  "--slotted-message-activity-gap",
+  "--slotted-message-activity-icon-border-color-current",
+  "--slotted-message-activity-icon-glyph-size",
+  "--slotted-message-activity-icon-radius",
   "--slotted-message-activity-icon-size",
+  "--slotted-message-activity-icon-surface",
+  "--slotted-message-activity-rise",
+  "--slotted-message-activity-step-gap",
   "--slotted-message-avatar-size",
   "--slotted-message-bubble-padding-block",
   "--slotted-message-bubble-padding-inline",

@@ -1,4 +1,5 @@
 import {
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -171,11 +172,14 @@ export class SlMessageActions {
   host: {
     'data-part': 'activity',
     'data-part-activity': '',
+    '[attr.data-shimmer]': "shimmer() ? '' : null",
     '[attr.data-variant]': 'variant()',
     role: 'status',
   },
 })
 export class SlMessageActivity {
+  /** Whether a band of light travels across the words of the current step. */
+  readonly shimmer = input(true, { transform: booleanAttribute });
   readonly variant = input<MessageActivityVariant>('bubble');
 }
 

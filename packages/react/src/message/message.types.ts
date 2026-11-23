@@ -127,6 +127,8 @@ export interface MessageReceiptProps extends ComponentPropsWithRef<'span'> {
 export type MessageActivityVariant = 'bubble' | 'plain';
 
 export interface MessageActivityProps extends MessagePartProps {
+  /** Whether a band of light travels across the words of the current step. Defaults to `true`. */
+  shimmer?: boolean | undefined;
   /** Defaults to `bubble`. */
   variant?: MessageActivityVariant | undefined;
 }

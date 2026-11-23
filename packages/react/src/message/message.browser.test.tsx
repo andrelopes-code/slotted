@@ -20,6 +20,7 @@ import {
   MessageActivity,
   MessageActivityStep,
   MessageBody,
+  type MessageActivityProps,
 } from './index';
 
 /**
@@ -180,4 +181,104 @@ describe('a plain activity', () => {
       }
     },
   );
+});
+
+/* An assistant turn on a rail: the tile of each source is the turn's own drawing. */
+describe('the tile of an activity step', () => {
+  const TILE = {
+    '--slotted-message-activity-color-complete': 'rgb(1, 2, 3)',
+    '--slotted-message-activity-gap': '8px',
+    '--slotted-message-activity-icon-border-color-current': 'rgb(4, 5, 6)',
+    '--slotted-message-activity-icon-glyph-size': '12px',
+    '--slotted-message-activity-icon-radius': '7px',
+    '--slotted-message-activity-icon-size': '22px',
+    '--slotted-message-activity-icon-surface': 'rgb(7, 8, 9)',
+    '--slotted-message-activity-step-gap': '10px',
+    '--slotted-text': 'rgb(10, 11, 12)',
+  } as CSSProperties;
+
+  it('takes its size, corners, ground, edge, inks and gaps from the tokens', () => {
+    renderSteps({ shimmer: false, style: TILE, variant: 'plain' });
+    const [done, current] = steps();
+    const edge = (part: Element) => part.getBoundingClientRect();
+    const style = (part: Element) => getComputedStyle(part);
+
+    expect(edge(done!.step).height).toBe(22);
+    expect(edge(current!.step).top - edge(done!.step).bottom).toBe(8);
+    expect(edge(done!.words).left - edge(done!.tile).right).toBe(10);
+    expect(edge(done!.tile).width).toBe(22);
+    expect(style(done!.tile).borderRadius).toBe('7px');
+    expect(style(done!.tile).backgroundColor).toBe('rgb(7, 8, 9)');
+    expect(style(done!.tile).color).toBe('rgb(1, 2, 3)');
+    expect(style(current!.tile).borderTopColor).toBe('rgb(4, 5, 6)');
+    expect(edge(done!.tile.querySelector('svg')!).width).toBe(12);
+    expect(edge(current!.tile.querySelector('svg')!).width).toBe(12);
+    expect(style(current!.words).color).toBe('rgb(10, 11, 12)');
+  });
+
+  it('stands on the raised surface where no frame does, and on the surface inside one', () => {
+    const grounds = {
+      '--slotted-surface': 'rgb(1, 1, 1)',
+      '--slotted-surface-raised': 'rgb(2, 2, 2)',
+    } as CSSProperties;
+    const { unmount } = renderSteps({ style: grounds, variant: 'plain' });
+    expect(getComputedStyle(steps()[0]!.tile).backgroundColor).toBe('rgb(2, 2, 2)');
+    unmount();
+
+    renderSteps({ style: grounds });
+    expect(getComputedStyle(steps()[0]!.tile).backgroundColor).toBe('rgb(1, 1, 1)');
+  });
+
+  it.each([true, false])('sweeps the words of the current step (shimmer: %s)', (shimmer) => {
+    renderSteps({
+      shimmer,
+      style: {
+        '--slotted-duration-loop-slow': '2s',
+        '--slotted-text': 'rgb(0, 0, 0)',
+        '--slotted-text-muted': 'rgb(90, 90, 90)',
+      } as CSSProperties,
+    });
+    const { words } = steps()[1]!;
+
+    expect(getComputedStyle(words).animationName).toBe(shimmer ? 'slotted-message-sweep' : 'none');
+    expect(getComputedStyle(words).backgroundImage === 'none').toBe(!shimmer);
+  });
+
+  it('rises by the token as a step enters', () => {
+    renderSteps({
+      style: {
+        '--slotted-duration-medium': '10s',
+        '--slotted-message-activity-rise': '40px',
+      } as CSSProperties,
+    });
+
+    expect(parseFloat(getComputedStyle(steps()[1]!.step).translate.split(' ')[1]!)).toBeGreaterThan(
+      20,
+    );
+  });
+
+  function renderSteps(props: MessageActivityProps) {
+    return render(
+      <Message layout="thread">
+        <MessageBody>
+          <MessageActivity {...props}>
+            <MessageActivityStep icon={<svg viewBox="0 0 24 24" />} status="complete">
+              Reading balances
+            </MessageActivityStep>
+            <MessageActivityStep icon={<svg viewBox="0 0 24 24" />}>
+              Projecting a balance
+            </MessageActivityStep>
+          </MessageActivity>
+        </MessageBody>
+      </Message>,
+    );
+  }
+
+  function steps() {
+    return [...document.querySelectorAll('[data-part="activity-step"]')].map((step) => ({
+      step,
+      tile: step.firstElementChild!,
+      words: step.lastElementChild!,
+    }));
+  }
 });

@@ -124,6 +124,7 @@ export function MessageActions({ render, ...nativeProps }: MessagePartProps) {
  */
 export function MessageActivity({
   render,
+  shimmer = true,
   variant = 'bubble',
   ...nativeProps
 }: MessageActivityProps) {
@@ -131,6 +132,7 @@ export function MessageActivity({
     role: 'status',
     ...nativeProps,
     'data-part': 'activity',
+    ...(shimmer ? { 'data-shimmer': '' } : {}),
     'data-variant': variant,
   });
   return render === undefined ? <div {...rootProps} /> : render(rootProps);
