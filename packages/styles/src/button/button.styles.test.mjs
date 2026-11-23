@@ -287,6 +287,12 @@ test('hovers by lightening the fill, or by the one neutral ground under a bare c
     }));
   assert.ok(hovering.length >= 2, 'the family paints no hover');
   for (const { selector, body } of hovering) {
+    /* A help mark inside a line draws no ground: its ink is what answers the pointer. */
+    if (/\[data-shape\]\[data-inline\].*\[data-tone='secondary'\]:hover/.test(selector)) {
+      assert.equal(body, 'color:var(--slotted-text,CanvasText);');
+      continue;
+    }
+
     assert.match(body, /^background:[^;]+;$/, `"${selector}" changes more than the fill on hover`);
   }
   const solid = hovering.find(({ selector }) => selector.includes("[data-variant='solid']"));

@@ -343,7 +343,7 @@ export const ANGULAR_BUTTON_DOCS = {
         'boolean',
         'false',
         'SlIconButton',
-        "One line of the surrounding text tall, for a help trigger inside a sentence or a term: the line does not grow, the control takes the text's font size, and a 24px target stays around it.",
+        "One line of the surrounding text tall, for a help trigger inside a sentence or a term: the line does not grow, the control takes the text's font size, and a 24px target stays around it. In ghost it draws no ground under the pointer; in the secondary tone it is muted at rest and takes the text color on hover, on keyboard focus and while its tooltip or popover is open.",
       ],
       ...unavailable('SlIconButton'),
       ...waiting('SlIconButton'),

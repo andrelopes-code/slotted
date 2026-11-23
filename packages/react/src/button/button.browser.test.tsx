@@ -11,6 +11,7 @@ import {
 } from '../description-list';
 import { Glyph, Icon } from '../icon';
 import { Table, TableBody, TableCell, TableContent, TableRow } from '../table';
+import { Tooltip, TooltipContent, TooltipLayer, TooltipTrigger } from '../tooltip';
 import { ButtonGroup } from '../button-group';
 import { Button, IconButton } from './index';
 
@@ -156,6 +157,75 @@ describe('an inline icon button inside a description list term', () => {
 
   it('answers a press anywhere in a 24 by 24 pixel target', () => {
     expect(term(true).hits).toEqual([true, true, true, true]);
+  });
+});
+
+/* A help mark beside a term is secondary: it took the ink of the term, and a ground under the pointer. */
+describe('an inline ghost icon button in the secondary tone', () => {
+  const MUTED = 'rgb(100, 110, 120)';
+  const TEXT = 'rgb(10, 20, 30)';
+  const INKS = {
+    '--slotted-text': TEXT,
+    '--slotted-text-muted': MUTED,
+    '--slotted-tone-secondary-subtle-hover': 'rgb(240, 240, 240)',
+    '--slotted-tone-secondary-text': TEXT,
+  } as CSSProperties;
+
+  function mount() {
+    render(
+      <p style={INKS}>
+        Opening balance{' '}
+        <Tooltip openDelay={0}>
+          <TooltipTrigger
+            render={(props) => (
+              <IconButton
+                {...props}
+                aria-label="About opening balance"
+                inline
+                size="sm"
+                tone="secondary"
+                variant="ghost"
+              >
+                <Icon size="sm">
+                  <Glyph name="circle-question" />
+                </Icon>
+              </IconButton>
+            )}
+          />
+          <TooltipLayer>
+            <TooltipContent>Value at the end of the day before the period</TooltipContent>
+          </TooltipLayer>
+        </Tooltip>
+      </p>,
+    );
+    const button = document.querySelector<HTMLElement>('[data-ui="button"]')!;
+
+    return { button, ink: () => getComputedStyle(button).color };
+  }
+
+  it('is muted at rest, and takes the text color under the pointer with no ground', async () => {
+    const { button, ink } = mount();
+
+    expect(ink()).toBe(MUTED);
+
+    await userEvent.hover(button);
+    await expect.poll(ink).toBe(TEXT);
+    expect(getComputedStyle(button).backgroundColor).toBe('rgba(0, 0, 0, 0)');
+  });
+
+  it('takes the text color under the keyboard focus and while its tooltip is open', async () => {
+    const { button, ink } = mount();
+
+    await cdp().send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 400, y: 900 });
+    await userEvent.keyboard('{Tab}');
+    await expect.poll(ink).toBe(TEXT);
+    expect(button.matches('[data-open]')).toBe(true);
+
+    button.blur();
+    await expect.poll(ink).toBe(MUTED);
+
+    button.setAttribute('data-open', '');
+    await expect.poll(ink).toBe(TEXT);
   });
 });
 
