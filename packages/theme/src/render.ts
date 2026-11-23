@@ -2,14 +2,15 @@ import {
   assertTheme,
   CORNERS,
   DENSITIES,
+  schemeVariants,
+  variantCss,
   type Corner,
   type FontFaceDefinition,
-  type RecipeVariant,
   type Theme,
 } from './define';
 import { contract } from './generated/contract';
 import { LAYER_ORDER_STATEMENT } from './layer-order';
-import { derivationCss, SCHEMES, SEED_NAMES, type Derivation, type Scheme } from './recipe';
+import { derivationCss, SCHEMES, SEED_NAMES, type Scheme } from './recipe';
 import { processRules } from './rules';
 
 /** `high-contrast` paints black on white, so the light user-agent style matches it. */
@@ -37,7 +38,8 @@ const variantSelector = (axis: string, value?: string) =>
     ? `[data-slotted-variant-${axis}]`
     : `[data-slotted-variant-${axis}="${value}"]`;
 
-const REFERENCE = /var\(\s*(--[a-z0-9-]+)/g;
+/** Axis, value and token names hold no underscore, so the parts never run together. */
+const variantSwitch = (axis: string, value: string) => `--_variant_${axis}_${value}`;
 
 /**
  * One scheme, scoped to the nearest element that names it. The limit stops at
@@ -48,21 +50,13 @@ const REFERENCE = /var\(\s*(--[a-z0-9-]+)/g;
  * and the one written later won. `[data-slotted-seeds]` re-derives every
  * color from the seeds an element carries itself.
  *
- * `targets` replaces those two when given; `reroots` adds the elements that
- * name a variant axis, at no specificity, so every scheme block declares on
- * them again and a later block (reduced transparency, forced colors) still
- * wins over a variant's values there.
+ * `reroots` adds the elements that name a variant axis, at no specificity: the
+ * values switched on there are read again in every scheme block.
  */
-function schemeScope(
-  theme: string,
-  scheme: string,
-  body: string,
-  reroots: string | null,
-  targets?: readonly string[],
-): string {
+function schemeScope(theme: string, scheme: string, body: string, reroots: string | null): string {
   const t = themeSelector(theme);
   const s = schemeSelector(scheme);
-  const selectors = targets ?? [
+  const selectors = [
     ':scope',
     '[data-slotted-seeds]',
     ...(reroots === null ? [] : [`:where(${reroots})`]),
@@ -78,6 +72,43 @@ function schemeValues(theme: Theme, scheme: Scheme): Record<string, string> {
   for (const [name, rule] of Object.entries(theme.recipe[scheme]))
     values[name] = derivationCss(rule);
   return { ...values, ...(theme.schemes?.[scheme] ?? {}) };
+}
+
+/**
+ * The declarations of one scheme. A token a variant states takes the value that
+ * is switched on, and the scheme's own value when none is: a switch that is off
+ * holds the guaranteed-invalid value, which makes the property that reads it
+ * invalid too, and `var()` then takes its fallback.
+ */
+function schemeDeclarations(theme: Theme, scheme: Scheme): string {
+  const values = schemeValues(theme, scheme);
+  const stated: Record<string, string> = {};
+  for (const { axis, value, name, rule } of schemeVariants(theme, scheme).reverse()) {
+    const property = `${variantSwitch(axis, value)}_${name.replace('--slotted-', '')}`;
+    /* No space: it would stay in the token's computed value. */
+    stated[property] = `var(${variantSwitch(axis, value)})${variantCss(rule)}`;
+    values[name] = `var(${property}, ${values[name]})`;
+  }
+
+  return declarations({ ...stated, ...values });
+}
+
+/**
+ * The switches of one axis. They stand outside every scope and inherit, so a
+ * scheme root, a seed scope and an element that names another axis read the
+ * nearest element that names this one, inside the theme or above it. A value
+ * the theme does not state switches every one off. `initial` is off and an
+ * empty value is on, which a minifier keeps.
+ */
+function variantSwitches(axis: string, values: readonly string[]): string[] {
+  const off = Object.fromEntries(values.map((value) => [variantSwitch(axis, value), 'initial']));
+
+  return [
+    block([variantSelector(axis)], declarations(off)),
+    ...values.map((value) =>
+      block([variantSelector(axis, value)], `${variantSwitch(axis, value)}: ;`),
+    ),
+  ];
 }
 
 function densitySelectors(theme: string, density: string): string[] {
@@ -170,6 +201,9 @@ export function renderTheme(theme: Theme): string {
     block([...SCHEMES, 'system'].map(schemeSelector), '--_slotted-scheme-anchor: initial;'),
   ];
 
+  for (const [axis, values] of Object.entries(theme.variants ?? {}))
+    blocks.push(...variantSwitches(axis, Object.keys(values)));
+
   const axes = Object.keys(theme.variants ?? {});
   const reroots = axes.length === 0 ? null : axes.map((axis) => variantSelector(axis)).join(', ');
   for (const scheme of SCHEMES) {
@@ -177,7 +211,7 @@ export function renderTheme(theme: Theme): string {
       schemeScope(
         name,
         scheme,
-        `color-scheme: ${UA_SCHEME[scheme]};\n${declarations(schemeValues(theme, scheme))}`,
+        `color-scheme: ${UA_SCHEME[scheme]};\n${schemeDeclarations(theme, scheme)}`,
         reroots,
       ),
     );
@@ -186,7 +220,7 @@ export function renderTheme(theme: Theme): string {
     schemeScope(
       name,
       'system',
-      `color-scheme: light;\n${declarations(schemeValues(theme, 'light'))}`,
+      `color-scheme: light;\n${schemeDeclarations(theme, 'light')}`,
       reroots,
     ),
   );
@@ -195,17 +229,11 @@ export function renderTheme(theme: Theme): string {
       schemeScope(
         name,
         'system',
-        `color-scheme: dark;\n${declarations(schemeValues(theme, 'dark'))}`,
+        `color-scheme: dark;\n${schemeDeclarations(theme, 'dark')}`,
         reroots,
       ),
     )}\n}`,
   );
-
-  for (const [axis, values] of Object.entries(theme.variants ?? {})) {
-    for (const [value, variant] of Object.entries(values)) {
-      blocks.push(...variantBlocks(theme, axis, value, variant, reroots!));
-    }
-  }
 
   for (const density of DENSITIES) {
     blocks.push(
@@ -299,95 +327,4 @@ export function renderTheme(theme: Theme): string {
     );
   }
   return escapeEndTags(`${parts.join('\n\n')}\n`);
-}
-
-/**
- * The blocks of one variant value: each scheme it changes, and `system` for
- * light and dark under the color scheme the system reports. The light one
- * names `light` in its query, because a later unconditional block would win
- * over the system's dark scheme.
- */
-function variantBlocks(
-  theme: Theme,
-  axis: string,
-  value: string,
-  variant: RecipeVariant,
-  reroots: string,
-): string[] {
-  const blocks: string[] = [];
-  for (const scheme of SCHEMES) {
-    if (variant[scheme] === undefined) continue;
-    blocks.push(variantScope(theme, scheme, scheme, axis, value, variant, reroots));
-  }
-  for (const scheme of ['light', 'dark'] as const) {
-    if (variant[scheme] === undefined) continue;
-    blocks.push(
-      `@media (prefers-color-scheme: ${scheme}) {\n${indent(
-        variantScope(theme, scheme, 'system', axis, value, variant, reroots),
-      )}\n}`,
-    );
-  }
-
-  return blocks;
-}
-
-/**
- * One variant value of one scheme. It declares the tokens the variant derives,
- * and every scheme value that reads one of them through `var()`, transitively:
- * a custom property holds the value it had where it was declared, so an alias
- * declared at the scheme root would keep the root's color inside the variant.
- *
- * Three elements take the value: the scheme root, when it or an ancestor
- * carries the attribute; an element inside the scope that carries it; and a
- * `[data-slotted-seeds]` element at or under such an element. Each selector has the specificity of the scheme block's
- * own selector for that element, and the block comes after the scheme blocks
- * and before reduced transparency and forced colors, so source order decides
- * against both.
- */
-function variantScope(
-  theme: Theme,
-  scheme: Scheme,
-  scope: string,
-  axis: string,
-  value: string,
-  variant: RecipeVariant,
-  reroots: string,
-): string {
-  const v = variantSelector(axis, value);
-  const targets = [
-    `:scope:where(${v}, ${v} *)`,
-    `:where(${v})`,
-    `[data-slotted-seeds]:where(${v}, ${v} *)`,
-  ];
-
-  return schemeScope(
-    theme.name,
-    scope,
-    declarations(variantValues(theme, scheme, variant[scheme] ?? {})),
-    reroots,
-    targets,
-  );
-}
-
-function variantValues(
-  theme: Theme,
-  scheme: Scheme,
-  rules: Readonly<Record<string, Derivation>>,
-): Record<string, string> {
-  const values = schemeValues(theme, scheme);
-  for (const [name, rule] of Object.entries(rules)) values[name] = derivationCss(rule);
-
-  const changed = new Set(Object.keys(rules));
-  for (let grew = true; grew;) {
-    grew = false;
-    for (const [name, css] of Object.entries(values)) {
-      if (changed.has(name)) continue;
-      if ([...css.matchAll(REFERENCE)].some(([, reference]) => changed.has(reference!))) {
-        changed.add(name);
-        grew = true;
-      }
-    }
-  }
-
-  return Object.fromEntries(Object.entries(values).filter(([name]) => changed.has(name)));
 }

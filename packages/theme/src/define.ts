@@ -39,8 +39,10 @@ export type CornerToken = (typeof CORNER_TOKENS)[number];
 
 type Values<T extends string> = Readonly<Partial<Record<T, string>>>;
 
-/** What one variant value derives again: a partial recipe, per scheme it changes. */
-export type RecipeVariant = Readonly<Partial<Record<Scheme, Readonly<Record<string, Derivation>>>>>;
+/** A token of a variant value: derived again, or stated as `schemes` states it. */
+export type VariantRule = Derivation | string;
+/** What one variant value changes, per scheme. */
+export type ThemeVariant = Readonly<Partial<Record<Scheme, Readonly<Record<string, VariantRule>>>>>;
 
 export interface FontFaceDefinition {
   readonly family: string;
@@ -61,11 +63,11 @@ export interface ThemeDefinition {
   /** A partial radius scale per corner; `standard` is the base scale unless it is written here. */
   readonly corners?: Readonly<Partial<Record<Corner, Values<CornerToken>>>>;
   /**
-   * Recipe values a reader chooses at runtime, by axis and value, written under
-   * `data-slotted-variant-<axis>="<value>"`. Two axes that derive the same token
+   * Scheme values a reader chooses at runtime, by axis and value, under
+   * `data-slotted-variant-<axis>="<value>"`. Two axes that change the same token
    * of one scheme are refused: they are one combined axis.
    */
-  readonly variants?: Readonly<Record<string, Readonly<Record<string, RecipeVariant>>>>;
+  readonly variants?: Readonly<Record<string, Readonly<Record<string, ThemeVariant>>>>;
   readonly reducedMotion?: Values<MotionToken>;
   readonly components?: Values<ComponentToken>;
   readonly fonts?: readonly FontFaceDefinition[];
@@ -82,6 +84,7 @@ export type ThemeOverrides = Omit<Partial<ThemeDefinition>, 'name' | 'seeds'> & 
 };
 
 const NAME = /^[a-z][a-z0-9-]*$/;
+const REFERENCE = /var\(\s*(--[a-z0-9-]+)/g;
 
 function deepFreeze<T>(value: T): T {
   if (value && typeof value === 'object' && !(value instanceof URL) && !Object.isFrozen(value)) {
@@ -138,7 +141,7 @@ export function flattenTheme(theme: ThemeDefinition): FlatTheme {
 }
 
 /**
- * One scheme with `variant` laid over its recipe. A token the variant derives
+ * One scheme with `variant` laid over its recipe. A token the variant changes
  * wins over the theme's scheme value for it, as its declaration does in the
  * stylesheet.
  */
@@ -146,19 +149,38 @@ function flatScheme(
   theme: ThemeDefinition,
   seeds: Record<SeedName, Oklch>,
   scheme: Scheme,
-  variant: Readonly<Record<string, Derivation>>,
+  variant: Readonly<Record<string, VariantRule>>,
 ): Record<string, string> {
-  const rules = { ...theme.recipe[scheme], ...variant };
+  const stated = { ...(theme.schemes?.[scheme] ?? {}) } as Record<string, string>;
+  const rules: Record<string, Derivation> = { ...theme.recipe[scheme] };
+  for (const [name, rule] of Object.entries(variant)) {
+    if (typeof rule === 'string') {
+      stated[name] = rule;
+    } else {
+      rules[name] = rule;
+      delete stated[name];
+    }
+  }
   const derived = evaluateRecipe({ ...theme.recipe, [scheme]: rules }, seeds, scheme);
   const values: Record<string, string> = {};
   for (const [name, rule] of Object.entries(rules)) {
     values[name] = 'alias' in rule ? `var(${rule.alias})` : toHex(derived[name]!);
   }
-  const literals = Object.entries(theme.schemes?.[scheme] ?? {}).filter(
-    ([name]) => !(name in variant),
-  );
 
-  return { ...values, ...Object.fromEntries(literals) };
+  return { ...values, ...stated };
+}
+
+/** Every token the variants change in one scheme, in the order they are written. */
+export function schemeVariants(theme: ThemeDefinition, scheme: Scheme) {
+  return Object.entries(theme.variants ?? {}).flatMap(([axis, values]) =>
+    Object.entries(values).flatMap(([value, variant]) =>
+      Object.entries(variant[scheme] ?? {}).map(([name, rule]) => ({ axis, value, name, rule })),
+    ),
+  );
+}
+
+export function variantCss(rule: VariantRule): string {
+  return typeof rule === 'string' ? rule : derivationCss(rule);
 }
 
 /**
@@ -217,7 +239,7 @@ function themeErrors(definition: ThemeDefinition): string[] {
       errors.push(...derivationErrors(`recipe ${scheme} ${name}`, rule));
     }
   }
-  errors.push(...variantErrors(definition));
+  errors.push(...variantErrors(definition, schemeTokens));
   // A rule given as a URL is read, and held to the same policy, by `slotted-build-theme`.
   for (const [index, rule] of (definition.rules ?? []).entries()) {
     if (typeof rule !== 'string') {
@@ -249,6 +271,7 @@ function themeErrors(definition: ThemeDefinition): string[] {
   if (errors.length === 0) {
     try {
       errors.push(...validateTheme(contract, flattenTheme(definition)));
+      errors.push(...variantCycles(definition));
     } catch (error) {
       errors.push((error as Error).message);
     }
@@ -265,20 +288,20 @@ function derivationErrors(label: string, rule: Derivation): string[] {
     return [`${label} is not a derivation`];
   }
 
-  return hasUnsafeStructuralChar(css)
-    ? [
-        `${label} writes ${JSON.stringify(css)}, which contains an unquoted ;, { or }, or leaves a string, a comment or an escape open`,
-      ]
-    : [];
+  return hasUnsafeStructuralChar(css) ? [unsafeValue(label, 'writes', css)] : [];
+}
+
+function unsafeValue(label: string, verb: 'is' | 'writes', value: string): string {
+  return `${label} ${verb} ${JSON.stringify(value)}, which contains an unquoted ;, { or }, or leaves a string, a comment or an escape open`;
 }
 
 /**
  * Every reason the variants cannot be rendered. An axis and a value land in an
  * attribute selector; a variant derives again only what the recipe derives for
- * that scheme; and two axes never derive one token of one scheme, because
- * their scopes would overlap with no order between them.
+ * that scheme, and states only what a scheme carries; and two axes never change
+ * one token of one scheme, because nothing orders one axis before the other.
  */
-function variantErrors(definition: ThemeDefinition): string[] {
+function variantErrors(definition: ThemeDefinition, schemeTokens: ReadonlySet<string>): string[] {
   const errors: string[] = [];
   const owners = new Map<string, string>();
   for (const [axis, values] of Object.entries(definition.variants ?? {})) {
@@ -297,15 +320,22 @@ function variantErrors(definition: ThemeDefinition): string[] {
         }
         for (const [name, rule] of Object.entries(rules ?? {})) {
           const label = `variants ${axis} ${value} ${scheme} ${name}`;
-          if (definition.recipe?.[scheme as Scheme]?.[name] === undefined) {
-            errors.push(`${label} is not a token the recipe derives for ${scheme}`);
+          if (!schemeTokens.has(name)) {
+            errors.push(`${label} is not a token a scheme carries`);
             continue;
           }
-          errors.push(...derivationErrors(label, rule));
+          if (typeof rule === 'string') {
+            if (hasUnsafeStructuralChar(rule)) errors.push(unsafeValue(label, 'is', rule));
+          } else if (definition.recipe?.[scheme as Scheme]?.[name] === undefined) {
+            errors.push(`${label} is not a token the recipe derives for ${scheme}`);
+            continue;
+          } else {
+            errors.push(...derivationErrors(label, rule));
+          }
           const owner = owners.get(`${scheme} ${name}`);
           if (owner !== undefined && owner !== axis) {
             errors.push(
-              `${label} is also derived by the axis ${owner}; axes that derive one token are one combined axis`,
+              `${label} is also changed by the axis ${owner}; axes that change one token are one combined axis`,
             );
           }
           owners.set(`${scheme} ${name}`, axis);
@@ -315,6 +345,54 @@ function variantErrors(definition: ThemeDefinition): string[] {
   }
 
   return errors;
+}
+
+/**
+ * The first cycle of each scheme across its values and every variant of it. One
+ * block declares them all, and CSS counts a reference in a fallback that is not
+ * taken, so such a cycle would leave each of its tokens without a value.
+ */
+function variantCycles(definition: ThemeDefinition): string[] {
+  return SCHEMES.flatMap((scheme) => {
+    const reads = new Map<string, Set<string>>();
+    const add = (name: string, css: string) => {
+      const known = reads.get(name) ?? new Set();
+      for (const [, reference] of css.matchAll(REFERENCE)) known.add(reference!);
+      reads.set(name, known);
+    };
+    const variants = schemeVariants(definition, scheme);
+    if (variants.length === 0) return [];
+
+    for (const [name, rule] of Object.entries(definition.recipe[scheme]))
+      if (definition.schemes?.[scheme]?.[name as never] === undefined)
+        add(name, derivationCss(rule));
+    for (const [name, css] of Object.entries(definition.schemes?.[scheme] ?? {})) add(name, css);
+    for (const { name, rule } of variants) add(name, variantCss(rule));
+
+    const cycle = cycleIn(reads);
+    return cycle === null ? [] : [`variants ${scheme}: ${cycle.join(' → ')} is a cycle`];
+  });
+}
+
+function cycleIn(reads: ReadonlyMap<string, ReadonlySet<string>>): string[] | null {
+  const done = new Set<string>();
+  const visit = (name: string, path: readonly string[]): string[] | null => {
+    if (path.includes(name)) return [...path.slice(path.indexOf(name)), name];
+    if (done.has(name)) return null;
+    for (const next of reads.get(name) ?? []) {
+      const cycle = visit(next, [...path, name]);
+      if (cycle !== null) return cycle;
+    }
+    done.add(name);
+    return null;
+  };
+
+  for (const name of reads.keys()) {
+    const cycle = visit(name, []);
+    if (cycle !== null) return cycle;
+  }
+
+  return null;
 }
 
 /**
@@ -341,7 +419,7 @@ function mergeVariants(
   base: ThemeDefinition['variants'],
   overrides: ThemeDefinition['variants'],
 ): NonNullable<ThemeDefinition['variants']> {
-  const merged: Record<string, Record<string, RecipeVariant>> = { ...(base ?? {}) };
+  const merged: Record<string, Record<string, ThemeVariant>> = { ...(base ?? {}) };
   for (const [axis, values] of Object.entries(overrides ?? {})) {
     const own = { ...(merged[axis] ?? {}) };
     for (const [value, variant] of Object.entries(values))

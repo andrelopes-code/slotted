@@ -330,13 +330,16 @@ describe('variants', () => {
     );
     expect(() =>
       define({ depth: { oled: { dark: { '--slotted-space-1': { alias: '--slotted-text' } } } } }),
-    ).toThrow(/--slotted-space-1 is not a token the recipe derives for dark/);
+    ).toThrow(/--slotted-space-1 is not a token a scheme carries/);
+    expect(() =>
+      define({ depth: { oled: { dark: { '--slotted-shadow-md': { alias: '--slotted-text' } } } } }),
+    ).toThrow(/--slotted-shadow-md is not a token the recipe derives for dark/);
     expect(() =>
       define({ depth: { oled: { dark: { '--slotted-surface': { mix: '--x;}', share: 0.1 } } } } }),
     ).toThrow(/variants depth oled dark --slotted-surface writes/);
   });
 
-  it('refuses two axes that derive one token of one scheme', () => {
+  it('refuses two axes that change one token of one scheme', () => {
     const step = {
       far: {
         dark: {
@@ -346,7 +349,39 @@ describe('variants', () => {
     };
 
     expect(() => defineTheme(definition({ variants: { ...OLED, step } as never }))).toThrow(
-      /--slotted-surface-raised is also derived by the axis depth; axes that derive one token are one combined axis/,
+      /--slotted-surface-raised is also changed by the axis depth; axes that change one token are one combined axis/,
+    );
+  });
+
+  it('takes a CSS value for a token the schemes state, held to the rules of the schemes', () => {
+    const define = (values: Record<string, unknown>) =>
+      defineTheme(definition({ variants: { shadows: { flat: { dark: values } } } as never }));
+    const flat = flattenTheme(define({ '--slotted-shadow-md': 'none' }));
+
+    expect(flat.variants?.['shadows']?.['flat']?.['dark']?.['--slotted-shadow-md']).toBe('none');
+    expect(() => define({ '--slotted-space-1': '1px' })).toThrow(
+      /variants shadows flat dark --slotted-space-1 is not a token a scheme carries/,
+    );
+    expect(() => define({ '--slotted-shadow-md': 'none; } x {' })).toThrow(
+      /variants shadows flat dark --slotted-shadow-md is "none; } x {", which contains an unquoted/,
+    );
+    expect(() => define({ '--slotted-shadow-md': 'var(--slotted-nothing)' })).toThrow(
+      /variant shadows=flat dark --slotted-shadow-md references --slotted-nothing, which the contract does not declare/,
+    );
+    expect(() => define({ '--slotted-shadow-md': 4 })).toThrow(/--slotted-shadow-md/);
+  });
+
+  /** Every value of a scheme is declared in one block, where a cycle empties all its tokens. */
+  it('refuses a cycle across the recipe and the variants of one scheme', () => {
+    const variants = {
+      depth: {
+        oled: { dark: { '--slotted-surface': { alias: '--slotted-surface-raised' } } },
+        dim: { dark: { '--slotted-surface-raised': { alias: '--slotted-surface' } } },
+      },
+    };
+
+    expect(() => defineTheme(definition({ variants: variants as never }))).toThrow(
+      /variants dark: --slotted-surface → --slotted-surface-raised → --slotted-surface is a cycle/,
     );
   });
 

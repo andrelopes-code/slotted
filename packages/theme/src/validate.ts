@@ -263,6 +263,16 @@ export function validateTheme(contract: TokenContract, theme: Partial<FlatTheme>
   for (const [scheme, values] of Object.entries(asMap(theme.schemes))) {
     checkComposition(errors, index, `scheme ${scheme}`, values);
   }
+  for (const [axis, values] of Object.entries(theme.variants ?? {})) {
+    for (const [value, schemes] of Object.entries(values)) {
+      for (const [scheme, own] of Object.entries(schemes)) {
+        const base = asMap(theme.schemes?.[scheme]);
+        const changed = Object.entries(own).filter(([name, css]) => base[name] !== css);
+        const label = `variant ${axis}=${value} ${scheme}`;
+        checkComposition(errors, index, label, Object.fromEntries(changed));
+      }
+    }
+  }
   for (const [density, values] of Object.entries(asMap(theme.densities))) {
     checkComposition(errors, index, `density ${density}`, values);
   }

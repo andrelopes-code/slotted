@@ -328,53 +328,98 @@ describe('variants', () => {
         light: { '--slotted-surface': { seed: 'neutral', l: 1, c: { scale: 0, max: 0 } } },
         dark: { '--slotted-surface': { seed: 'neutral', l: 0, c: { scale: 0.22, max: 0.08 } } },
       },
+      dim: {
+        dark: { '--slotted-surface': { seed: 'neutral', l: 0.1, c: { scale: 0.22, max: 0.08 } } },
+      },
     },
+    shadows: { flat: { dark: { '--slotted-shadow-md': 'none' } } },
   } as const;
   const variantCss = renderTheme(defineTheme({ ...theme, variants: OLED } as ThemeDefinition));
   const scope = (scheme: string) =>
     `@scope ([data-slotted-theme="test"][data-slotted-scheme="${scheme}"], [data-slotted-theme="test"] [data-slotted-scheme="${scheme}"], [data-slotted-scheme="${scheme}"] [data-slotted-theme="test"]:not([data-slotted-scheme])) to ([data-slotted-scheme], [data-slotted-theme]) {`;
-  const v = '[data-slotted-variant-depth="oled"]';
-  const targets = `:scope:where(${v}, ${v} *),\n    :where(${v}),\n    [data-slotted-seeds]:where(${v}, ${v} *) {`;
-  const variantBody = (scheme: string) => {
-    const start = variantCss.indexOf(`${scope(scheme)}\n    ${targets}`);
-    return start === -1 ? undefined : variantCss.slice(start, variantCss.indexOf('}', start));
+  const schemeBody = (text: string, scheme: string) => {
+    const start = text.indexOf(scope(scheme));
+    return text.slice(start, text.indexOf('}', start));
   };
+  const declared = (text: string, scheme: string, name: string) =>
+    new RegExp(`\\n *${name}: (.*);`).exec(schemeBody(text, scheme))?.[1];
 
-  it('writes each scheme a value changes under the attribute, after the scheme blocks', () => {
-    const dark = variantBody('dark');
-
-    expect(dark).toContain('--slotted-surface: oklch(from var(--slotted-seed-neutral) 0 ');
-    expect(variantCss.indexOf(`${scope('dark')}\n    ${targets}`)).toBeGreaterThan(
-      variantCss.indexOf('@media (prefers-color-scheme: dark)'),
+  it('switches each value on under its attribute, and every value of the axis off first', () => {
+    expect(variantCss).toContain(
+      '  [data-slotted-variant-depth] {\n    --_variant_depth_oled: initial;\n    --_variant_depth_dim: initial;\n  }\n\n' +
+        '  [data-slotted-variant-depth="oled"] {\n    --_variant_depth_oled: ;\n  }\n\n' +
+        '  [data-slotted-variant-depth="dim"] {\n    --_variant_depth_dim: ;\n  }',
     );
-    expect(variantBody('high-contrast')).toBeUndefined();
+    expect(css).not.toContain('variant');
   });
 
-  it('declares again every scheme value that reads a token the variant derives', () => {
-    const dependents = Object.entries(theme.recipe.dark)
-      .filter(([, rule]) => 'alias' in rule && rule.alias === '--slotted-surface')
-      .map(([name]) => name);
-
-    expect(dependents.length).toBeGreaterThan(0);
-    for (const name of dependents)
-      expect(variantBody('dark')).toContain(`${name}: var(--slotted-surface);`);
-    expect(variantBody('dark')).not.toContain('--slotted-text:');
+  it('derives a token from the value that is on, and from the recipe when none is', () => {
+    expect(declared(variantCss, 'dark', '--_variant_depth_oled_surface')).toMatch(
+      /^var\(--_variant_depth_oled\)oklch\(from var\(--slotted-seed-neutral\) 0 /,
+    );
+    expect(declared(variantCss, 'dark', '--slotted-surface')).toBe(
+      `var(--_variant_depth_oled_surface, var(--_variant_depth_dim_surface, ${declared(css, 'dark', '--slotted-surface')}))`,
+    );
+    expect(declared(variantCss, 'light', '--slotted-surface')).toBe(
+      `var(--_variant_depth_oled_surface, ${declared(css, 'light', '--slotted-surface')})`,
+    );
+    expect(schemeBody(variantCss, 'high-contrast')).not.toContain('--_variant');
   });
 
-  it('follows the system scheme, each under the scheme the system reports', () => {
-    expect(variantCss).toContain(
-      `@media (prefers-color-scheme: light) {\n    ${scope('system')}\n      ${targets.replaceAll('\n    ', '\n      ')}`,
+  it('states a scheme value as it is written', () => {
+    expect(declared(variantCss, 'dark', '--_variant_shadows_flat_shadow-md')).toBe(
+      'var(--_variant_shadows_flat)none',
     );
-    expect(variantCss).toContain(
-      `@media (prefers-color-scheme: dark) {\n    ${scope('system')}\n      ${targets.replaceAll('\n    ', '\n      ')}`,
+    expect(declared(variantCss, 'dark', '--slotted-shadow-md')).toBe(
+      `var(--_variant_shadows_flat_shadow-md, ${declared(css, 'dark', '--slotted-shadow-md')})`,
     );
+  });
+
+  it('keeps the empty switch through a minifier', () => {
+    const minified = transform({
+      filename: 'theme.css',
+      code: Buffer.from(variantCss),
+      minify: true,
+    }).code.toString();
+
+    expect(minified).toMatch(/\[data-slotted-variant-depth=oled\]\{--_variant_depth_oled: ;?\}/);
   });
 
   it('declares every scheme, reduced transparency and forced colors again on an element naming an axis', () => {
-    const reroot = ':scope,\n    [data-slotted-seeds],\n    :where([data-slotted-variant-depth]) {';
-    expect(variantCss).toContain(`${scope('dark')}\n    ${reroot}\n      color-scheme: dark;`);
-    const forced = variantCss.slice(variantCss.indexOf('@media (forced-colors: active)'));
-    expect(forced).toContain(`:where([data-slotted-variant-depth]) {`);
-    expect(css).not.toContain('data-slotted-variant');
+    const named = ':where([data-slotted-variant-depth], [data-slotted-variant-shadows]) {';
+    expect(variantCss).toContain(
+      `${scope('dark')}\n    :scope,\n    [data-slotted-seeds],\n    ${named}\n      color-scheme: dark;`,
+    );
+    expect(variantCss.slice(variantCss.indexOf('@media (forced-colors: active)'))).toContain(named);
+  });
+
+  it('adds at most 20% to the sheet of a theme with six axes', () => {
+    const seed = (l: number) => ({ seed: 'neutral', l, c: { scale: 0.22, max: 0.08 } });
+    const axis = (values: readonly string[], tokens: readonly string[]) =>
+      Object.fromEntries(
+        values.map((value, index) => {
+          const rules = Object.fromEntries(tokens.map((name) => [name, seed(0.2 + index * 0.1)]));
+          return [value, { light: rules, dark: rules, 'high-contrast': rules }];
+        }),
+      );
+    const shadow = '0 10px 15px -3px rgb(0 0 0 / 0.60), 0 4px 6px -4px rgb(0 0 0 / 0.50)';
+    const shadows = Object.fromEntries(
+      ['xs', 'sm', 'md', 'lg'].map((step) => [`--slotted-shadow-${step}`, shadow]),
+    );
+    const depths = { light: shadows, dark: shadows, 'high-contrast': shadows };
+    const variants = {
+      depth: axis(
+        ['oled', 'deep', 'dim', 'soft'],
+        ['--slotted-surface', '--slotted-surface-sunken'],
+      ),
+      step: axis(['near', 'far'], ['--slotted-surface-raised']),
+      border: axis(['faint', 'medium', 'strong'], ['--slotted-border-subtle']),
+      contrast: axis(['low', 'high'], ['--slotted-text-muted']),
+      palette: axis(['cool', 'warm'], ['--slotted-tone-info-solid', '--slotted-tone-accent-solid']),
+      shadows: { flat: depths, soft: depths, deep: depths },
+    };
+    const grown = renderTheme(defineTheme({ ...theme, variants } as unknown as ThemeDefinition));
+
+    expect(grown.length / css.length).toBeLessThanOrEqual(1.2);
   });
 });

@@ -31,10 +31,11 @@ export type {
   Corner,
   Density,
   FontFaceDefinition,
-  RecipeVariant,
   Theme,
   ThemeDefinition,
   ThemeOverrides,
+  ThemeVariant,
+  VariantRule,
 } from './define';
 export { COMPONENT_TOKENS, contract } from './generated/contract';
 export type {
