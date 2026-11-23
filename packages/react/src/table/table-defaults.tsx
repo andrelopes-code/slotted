@@ -23,6 +23,7 @@ export function TableDefaultsProvider({ children, ...defaults }: TableDefaultsPr
         cellAlign: defaults.cellAlign ?? inherited.cellAlign,
         columns: defaults.columns ?? inherited.columns,
         edges: defaults.edges ?? inherited.edges,
+        expanderRoom: defaults.expanderRoom ?? inherited.expanderRoom,
         guides: defaults.guides ?? inherited.guides,
         layout: defaults.layout ?? inherited.layout,
         selectionMode: defaults.selectionMode ?? inherited.selectionMode,

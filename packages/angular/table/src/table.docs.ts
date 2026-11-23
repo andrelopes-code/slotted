@@ -708,6 +708,13 @@ export const ANGULAR_TABLE_DOCS = {
         'A line per ancestor level beside the rows that name a parent, on the center of the expander one level up. branch draws a rail from the foot of the parent’s mark (slTableMark, or the expander), a branch to each child and an elbow at the last, and keeps the marks of a level in one column',
       ],
       [
+        'expanderRoom',
+        "'auto' | 'always'",
+        'auto',
+        'slTable',
+        'Under guides="branch", whether the marks of the top level keep the room of an expander before them. auto keeps it while a row of the table has one; always keeps it in a table where no row folds, so the marks of several tables, and of a table and its skeleton, stand in one column',
+      ],
+      [
         'stickyHeader',
         'boolean',
         'false',

@@ -1331,7 +1331,11 @@
     --_node-child: round(var(--slotted-table-mark-child-size, 1.25rem), 1px);
   }
 
-  /* An expander written before the mark keeps its room in every row. */
+  /* An expander written before the mark keeps its room in every row, and in a
+     table where no row folds when the table asks for it. */
+  [data-ui-table][data-guides='branch'][data-expander-room='always']:has(
+      [data-part-row][data-level] [data-part-mark]
+    ),
   [data-ui-table][data-guides='branch']:has(
       [data-part-row][data-level] > * > [data-part-expander] + [data-part-mark]
     ) {

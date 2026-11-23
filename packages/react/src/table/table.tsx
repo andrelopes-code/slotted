@@ -76,6 +76,7 @@ export function Table({
   defaultValue,
   edges,
   expanded,
+  expanderRoom,
   guides,
   layout,
   loading,
@@ -118,6 +119,7 @@ export function Table({
 
   const resolvedColumns = columns ?? defaults.columns ?? 1;
   const resolvedEdges = edges ?? defaults.edges ?? 'inset';
+  const resolvedExpanderRoom = expanderRoom ?? defaults.expanderRoom ?? 'auto';
   const resolvedGuides = guides ?? defaults.guides ?? true;
   const resolvedLayout = layout ?? defaults.layout ?? 'auto';
   const resolvedMode = selectionMode ?? defaults.selectionMode ?? 'none';
@@ -288,6 +290,7 @@ export function Table({
     children,
     'data-cell-align': resolvedCellAlign,
     'data-edges': resolvedEdges,
+    ...(resolvedExpanderRoom === 'always' ? { 'data-expander-room': 'always' } : {}),
     ...(resolvedGuides === true ? {} : { 'data-guides': String(resolvedGuides) }),
     'data-layout': resolvedLayout,
     ...(loading === true ? { 'data-loading': '' } : {}),

@@ -17,6 +17,8 @@ export type TableEdges = 'inset' | 'flush';
  */
 /** The lines beside rows that fold their children, or `false` for none. */
 export type TableGuides = boolean | 'branch';
+/** Whether the room of an expander leads the marks of a table where no row folds. */
+export type TableExpanderRoom = 'auto' | 'always';
 export type TableLayout = 'auto' | 'fixed';
 
 export type TableSelectionMode = 'none' | 'single' | 'multiple';
@@ -56,6 +58,7 @@ export interface TableDefaults {
   cellAlign: TableAlign;
   columns: number;
   edges: TableEdges;
+  expanderRoom: TableExpanderRoom;
   guides: TableGuides;
   layout: TableLayout;
   selectionMode: TableSelectionMode;
@@ -70,6 +73,7 @@ const FALLBACK: TableDefaults = {
   cellAlign: 'center',
   columns: 1,
   edges: 'inset',
+  expanderRoom: 'auto',
   guides: true,
   layout: 'auto',
   selectionMode: 'none',

@@ -21,7 +21,7 @@ import { PT_BR } from '@slotted/core/i18n/pt-BR';
 import { SlTable } from './table';
 import { SlTableContent } from './table-content';
 import { provideTableDefaults } from './table-defaults';
-import type { TableGuides, TableSortDescriptor } from './table-defaults';
+import type { TableExpanderRoom, TableGuides, TableSortDescriptor } from './table-defaults';
 import {
   SlTableDateFilter,
   SlTableDateTimeFilter,
@@ -421,6 +421,7 @@ describe('the language in force', () => {
     #table="slTable"
     [columns]="2"
     [(expanded)]="expanded"
+    [expanderRoom]="expanderRoom()"
     [guides]="guides()"
   >
     <div slTableContent>
@@ -447,10 +448,25 @@ describe('the language in force', () => {
 })
 class Accounts {
   readonly expanded = signal<readonly string[]>(['assets']);
+  readonly expanderRoom = signal<TableExpanderRoom | undefined>(undefined);
   readonly guides = signal<TableGuides>(true);
 }
 
 describe('rows that fold their children', () => {
+  it('keeps the room of an expander where the table asks for it', async () => {
+    await TestBed.configureTestingModule({ imports: [Accounts] }).compileComponents();
+    const fixture = TestBed.createComponent(Accounts);
+    fixture.detectChanges();
+    const room = () => query(fixture, '[data-ui="table"]').getAttribute('data-expander-room');
+
+    expect(room()).toBeNull();
+
+    fixture.componentInstance.expanderRoom.set('always');
+    fixture.detectChanges();
+
+    expect(room()).toBe('always');
+  });
+
   it('names the last branch of a parent, and the parent a rail starts at', async () => {
     await TestBed.configureTestingModule({ imports: [Accounts] }).compileComponents();
     const fixture = TestBed.createComponent(Accounts);

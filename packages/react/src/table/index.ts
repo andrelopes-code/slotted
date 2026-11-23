@@ -64,6 +64,7 @@ export type {
   TableFilterReason,
   TableFilterRequest,
   TableExpanderProps,
+  TableExpanderRoom,
   TableGuides,
   TableFooterProps,
   TableGroupRowProps,

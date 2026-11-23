@@ -9,6 +9,7 @@ export type {
   TableDefaults,
   TableEdges,
   TableExpandedReason,
+  TableExpanderRoom,
   TableGuides,
   TableLayout,
   TableSelectionMode,

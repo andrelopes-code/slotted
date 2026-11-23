@@ -324,11 +324,15 @@ export interface TableSetFilterProps extends TableConditionFilterProps<
 /** The lines beside rows that fold their children, or `false` for none. */
 export type TableGuides = boolean | 'branch';
 
+/** Whether the room of an expander leads the marks of a table where no row folds. */
+export type TableExpanderRoom = 'auto' | 'always';
+
 /** What an application sets once for every table under it. */
 export interface TableDefaults {
   cellAlign?: TableAlign | undefined;
   columns?: number | undefined;
   edges?: TableEdges | undefined;
+  expanderRoom?: TableExpanderRoom | undefined;
   guides?: TableGuides | undefined;
   layout?: TableLayout | undefined;
   selectionMode?: TableSelectionMode | undefined;
@@ -389,6 +393,13 @@ export interface TableProps extends Omit<ComponentPropsWithRef<'div'>, 'onChange
   guides?: TableGuides | undefined;
   defaultValue?: readonly string[] | undefined;
   expanded?: readonly string[] | undefined;
+  /**
+   * Under `guides="branch"`, whether the marks of the top level keep the room of
+   * an expander before them. `auto` keeps it while a row of the table has one;
+   * `always` keeps it in a table where no row folds, so the marks of several
+   * tables, and of a table and its skeleton, stand in one column.
+   */
+  expanderRoom?: TableExpanderRoom | undefined;
   layout?: TableLayout | undefined;
   /** A refresh over rows already shown: `aria-busy`, and nothing moves. */
   loading?: boolean | undefined;

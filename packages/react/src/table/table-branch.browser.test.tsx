@@ -14,6 +14,7 @@ import {
   TableMark,
   TableRow,
   type TableAlign,
+  type TableExpanderRoom,
 } from './index';
 
 /**
@@ -70,6 +71,41 @@ describe('the marks of a table with branches', () => {
     expect(size('home')).toBeLessThan(size('loans'));
   });
 
+  describe.each(['ltr', 'rtl'])('of two tables in %s', (dir) => {
+    const inset = (scene: SceneProps) => {
+      const { container } = mount({ ...scene, dir });
+      const table = container.querySelector('[data-ui="table"]')!.getBoundingClientRect();
+      const box = container
+        .querySelector('[data-value="cash"] [data-part="mark"]')!
+        .getBoundingClientRect();
+
+      return dir === 'rtl' ? table.right - box.right : box.left - table.left;
+    };
+
+    it('stand in one column where the room of the expander is kept', () => {
+      const folding = inset({ expanderRoom: 'always' });
+
+      expect(inset({})).toBe(folding);
+      expect(inset({ expanderRoom: 'always', folds: false })).toBe(folding);
+    });
+
+    it('stand at the cell padding where no row folds and the room is not kept', () => {
+      expect(inset({ folds: false })).toBeLessThan(inset({}));
+    });
+  });
+
+  it('keep no room in a table with no mark', () => {
+    const words = (scene: SceneProps) => {
+      const { container } = mount({ ...scene, marks: false });
+      const range = document.createRange();
+      range.selectNodeContents(container.querySelector('[data-value="cash"] > td')!);
+
+      return range.getBoundingClientRect().left;
+    };
+
+    expect(words({ expanderRoom: 'always' })).toBe(words({}));
+  });
+
   it('leave the rows of one height', () => {
     mount({});
     const heights = [...document.querySelectorAll('[data-level]')].map(
@@ -119,7 +155,10 @@ describe('the marks of a table with branches', () => {
 interface SceneProps {
   readonly cellAlign?: TableAlign;
   readonly deep?: boolean;
+  readonly dir?: string;
   readonly expander?: 'before' | 'after';
+  readonly expanderRoom?: TableExpanderRoom;
+  readonly folds?: boolean;
   readonly ground?: string;
   readonly marks?: boolean;
   readonly text?: string;
@@ -128,7 +167,10 @@ interface SceneProps {
 function mount({
   cellAlign = 'center',
   deep = false,
+  dir = 'ltr',
   expander = 'before',
+  expanderRoom,
+  folds = true,
   ground = '#fff',
   marks = true,
   text = '#111',
@@ -161,8 +203,9 @@ function mount({
     </TableRow>
   );
 
-  render(
+  return render(
     <div
+      dir={dir}
       style={
         {
           inlineSize: 400,
@@ -171,15 +214,21 @@ function mount({
         } as CSSProperties
       }
     >
-      <Table cellAlign={cellAlign} columns={2} defaultExpanded={['loans', 'cards']} guides="branch">
+      <Table
+        cellAlign={cellAlign}
+        columns={2}
+        defaultExpanded={['loans', 'cards']}
+        expanderRoom={expanderRoom}
+        guides="branch"
+      >
         <TableContent>
           <TableBody>
-            {row('loans', 0, undefined, true)}
-            {row('home', 1, 'loans', deep)}
+            {row('loans', 0, undefined, folds)}
+            {folds && row('home', 1, 'loans', deep)}
             {deep && row('flat', 2, 'home')}
-            {row('car', 1, 'loans')}
-            {row('cards', 0, undefined, true)}
-            {row('visa', 1, 'cards')}
+            {folds && row('car', 1, 'loans')}
+            {row('cards', 0, undefined, folds)}
+            {folds && row('visa', 1, 'cards')}
             {row('cash', 0)}
           </TableBody>
         </TableContent>

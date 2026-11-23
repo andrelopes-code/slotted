@@ -29,6 +29,7 @@ import {
   SlTableIdFactory,
   type TableAlign,
   type TableEdges,
+  type TableExpanderRoom,
   type TableGuides,
   type TableLayout,
   type TableSelectionMode,
@@ -43,6 +44,7 @@ export type {
   TableDefaults,
   TableEdges,
   TableExpandedReason,
+  TableExpanderRoom,
   TableGuides,
   TableLayout,
   TableSelectionMode,
@@ -97,6 +99,7 @@ export const TABLE_ROW_SELECTOR = '[data-part="body"] > [data-part="row"][data-v
     'data-part-root': '',
     '[attr.data-variant]': 'resolvedVariant()',
     '[attr.data-edges]': 'resolvedEdges()',
+    '[attr.data-expander-room]': "resolvedExpanderRoom() === 'always' ? 'always' : null",
     '[attr.data-guides]': 'resolvedGuides() === true ? null : resolvedGuides()',
     '[attr.data-layout]': 'resolvedLayout()',
     '[attr.data-cell-align]': 'resolvedCellAlign()',
@@ -132,6 +135,13 @@ export class SlTable implements ControlValueAccessor {
     transform: (state) =>
       state === undefined || state === 'branch' ? state : booleanAttribute(state),
   });
+  /**
+   * Under `guides="branch"`, whether the marks of the top level keep the room of
+   * an expander before them. `auto` keeps it while a row of the table has one;
+   * `always` keeps it in a table where no row folds, so the marks of several
+   * tables, and of a table and its skeleton, stand in one column.
+   */
+  readonly expanderRoom = input<TableExpanderRoom | undefined>(undefined);
   readonly layout = input<TableLayout | undefined>(undefined);
   readonly selectionMode = input<TableSelectionMode | undefined>(undefined);
   /**
@@ -193,6 +203,7 @@ export class SlTable implements ControlValueAccessor {
 
   readonly resolvedVariant = computed(() => this.variant() ?? this.defaults.variant);
   readonly resolvedEdges = computed(() => this.edges() ?? this.defaults.edges);
+  readonly resolvedExpanderRoom = computed(() => this.expanderRoom() ?? this.defaults.expanderRoom);
   readonly resolvedGuides = computed(() => this.guides() ?? this.defaults.guides);
   readonly resolvedLayout = computed(() => this.layout() ?? this.defaults.layout);
   readonly resolvedCellAlign = computed(() => this.cellAlign() ?? this.defaults.cellAlign);
