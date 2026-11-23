@@ -113,3 +113,13 @@ Why: The theme pairs each elevation with a ground per scheme and drops shadows u
 Do: A day's detail card floats with `--slotted-surface-raised`, `--slotted-shadow-md` and `--slotted-z-index-popover`.
 Don't: A shadow written as a literal and a stacking order of 9999.
 Check: Every shadow and every stacking order of the element's own CSS reads a token of these two groups.
+
+### OE-11 · Comparison marks share a scale
+
+Level: SHOULD
+Applies to: a comparison bar, a position strip or a split bar of the application's own
+Rule: The mark places every value, tick and zero line by one `linearScale` of `@slotted/core/sparkline`, and marks read against each other state the same min and max.
+Why: A mark sized by its own data draws its own axis, and two marks with two axes cannot be compared.
+Do: Two bars and the tick row under them take one scale, the track reads `--slotted-mark-track-thickness` and `--slotted-mark-track-color`, the dot reads `--slotted-mark-dot-size`, and the benchmark is drawn in `--slotted-text-muted`.
+Don't: Each row computes its width from the largest value of that row, and the tick row under them computes another.
+Check: Set one value to zero and one to an extreme of the domain: the first ends on the zero tick and the second on the last tick, to the pixel.
