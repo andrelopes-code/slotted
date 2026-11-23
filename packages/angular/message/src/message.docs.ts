@@ -696,6 +696,13 @@ export const ANGULAR_MESSAGE_DOCS = {
         'The receipt’s own status',
       ],
       [
+        'variant',
+        "'bubble' | 'plain'",
+        'bubble',
+        'slMessageActivity',
+        'bubble draws a raised frame around the steps; plain draws the steps alone, with no border, ground or inset, for a turn that stands on a rail',
+      ],
+      [
         'status',
         "'complete' | 'current' | 'pending'",
         'current',

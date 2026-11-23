@@ -132,3 +132,52 @@ describe('an activity nested in another family inside a message body', () => {
     expect(nested!.paddingTop).toBe(direct!.paddingTop);
   });
 });
+
+/* On a rail, with no bubbles, the frame around the steps floats in the turn. */
+describe('a plain activity', () => {
+  it.each(['thread', 'bubble'] as const)(
+    'draws no frame and starts its steps on the edge of the body (%s)',
+    (layout) => {
+      render(
+        <Message
+          align="start"
+          layout={layout}
+          style={
+            {
+              '--slotted-surface-raised': '#eee',
+              '--slotted-shadow-xs': '0 1px red',
+            } as CSSProperties
+          }
+        >
+          <MessageBody>
+            <MessageActivity data-testid="plain" variant="plain">
+              <MessageActivityStep icon={<span />} status="complete">
+                Reading accounts
+              </MessageActivityStep>
+            </MessageActivity>
+            <Collapsible defaultOpen>
+              <CollapsiblePanel>
+                <MessageActivity data-testid="nested" variant="plain">
+                  <MessageActivityStep>Reading balances</MessageActivityStep>
+                </MessageActivity>
+              </CollapsiblePanel>
+            </Collapsible>
+          </MessageBody>
+        </Message>,
+      );
+      const body = document.querySelector('[data-part="body"]')!.getBoundingClientRect();
+      const plain = document.querySelector('[data-testid="plain"]')!;
+      const step = plain.querySelector('[data-part="activity-step"]')!.getBoundingClientRect();
+
+      expect(Math.abs(step.left - body.left)).toBeLessThanOrEqual(0.5);
+      for (const activity of [plain, document.querySelector('[data-testid="nested"]')!]) {
+        const style = getComputedStyle(activity);
+
+        expect(style.borderTopWidth).toBe('0px');
+        expect(style.padding).toBe('0px');
+        expect(style.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+        expect(style.boxShadow).toBe('none');
+      }
+    },
+  );
+});

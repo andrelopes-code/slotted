@@ -8,6 +8,7 @@ export type {
   BubbleVariant,
   MessageActionsVisibility,
   MessageActivityStepStatus,
+  MessageActivityVariant,
   MessageAlign,
   MessageChangeReason,
   MessageDefaults,

@@ -123,6 +123,14 @@ export interface MessageReceiptProps extends ComponentPropsWithRef<'span'> {
   render?: RenderProp;
 }
 
+/** `bubble` draws a raised frame around the steps; `plain` draws the steps alone. */
+export type MessageActivityVariant = 'bubble' | 'plain';
+
+export interface MessageActivityProps extends MessagePartProps {
+  /** Defaults to `bubble`. */
+  variant?: MessageActivityVariant | undefined;
+}
+
 export interface MessageActivityStepProps extends ComponentPropsWithRef<'div'> {
   /**
    * The icon of the step's source, drawn in a tile before the words. The tile

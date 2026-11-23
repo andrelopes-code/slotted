@@ -243,6 +243,10 @@ describe('slMessage', () => {
   it('draws the icon of a step in a tile, and the tick in its place once complete', () => {
     const fixture = TestBed.createComponent(SourcedStep);
     fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelector('[data-part="activity"]').getAttribute('data-variant'),
+    ).toBe('plain');
     const step = (fixture.nativeElement as HTMLElement).querySelector(
       '[data-part="activity-step"]',
     )!;
@@ -354,7 +358,7 @@ describe('slBubbleStream', () => {
 @Component({
   standalone: true,
   imports: [SlMessageActivity, SlMessageActivityStep, SlMessageActivityStepIcon],
-  template: `<div slMessageActivity>
+  template: `<div slMessageActivity variant="plain">
     <div slMessageActivityStep [status]="status()">
       <svg slMessageActivityStepIcon id="source"></svg>
       Projecting a balance

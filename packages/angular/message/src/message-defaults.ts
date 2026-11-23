@@ -7,6 +7,8 @@ export type MessageActionsVisibility = 'always' | 'hover';
 export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed' | 'streaming';
 export type BubbleVariant = 'solid' | 'soft' | 'outline' | 'plain';
 export type BubbleTone = 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger';
+/** `bubble` draws a raised frame around the steps; `plain` draws the steps alone. */
+export type MessageActivityVariant = 'bubble' | 'plain';
 export type MessageActivityStepStatus = 'complete' | 'current' | 'pending';
 
 /** Why a version, a reaction or a clamp moved. */

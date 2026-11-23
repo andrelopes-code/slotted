@@ -15,7 +15,11 @@ import { SlGlyph, SlIcon } from '@slotted/angular/icon';
 
 import { SlMessage } from './message';
 import { reasonOf } from './message-defaults';
-import type { MessageActivityStepStatus, MessageStatus } from './message-defaults';
+import type {
+  MessageActivityStepStatus,
+  MessageActivityVariant,
+  MessageStatus,
+} from './message-defaults';
 
 function message(): SlMessage {
   const owner = inject(SlMessage, { optional: true });
@@ -157,13 +161,23 @@ export class SlMessageActions {
   protected readonly label = computed(() => this.written ?? this.owner.t('actions'));
 }
 
-/** What a reply is doing before it has words, as a short log of steps; a status region. */
+/**
+ * What a reply is doing before it has words, as a short log of steps; a status
+ * region. `plain` draws the steps with no frame, for a turn that stands on a rail.
+ */
 @Directive({
   selector: '[slMessageActivity]',
   standalone: true,
-  host: { 'data-part': 'activity', 'data-part-activity': '', role: 'status' },
+  host: {
+    'data-part': 'activity',
+    'data-part-activity': '',
+    '[attr.data-variant]': 'variant()',
+    role: 'status',
+  },
 })
-export class SlMessageActivity {}
+export class SlMessageActivity {
+  readonly variant = input<MessageActivityVariant>('bubble');
+}
 
 /**
  * One step of an activity: done, in progress, or waiting. A projected

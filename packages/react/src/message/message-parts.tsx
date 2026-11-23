@@ -7,6 +7,7 @@ import { reasonOf, useMessage } from './message';
 import { MessageActivityMark } from './message-activity-mark';
 import { BubbleMetaContext } from './bubble-context';
 import type {
+  MessageActivityProps,
   MessageActivityStepProps,
   MessagePartProps,
   MessageReceiptProps,
@@ -118,13 +119,19 @@ export function MessageActions({ render, ...nativeProps }: MessagePartProps) {
 
 /**
  * What a reply is doing before it has words, as a short log of steps. It is a
- * status region: a step that becomes current is read once, in words.
+ * status region: a step that becomes current is read once, in words. `plain`
+ * draws the steps with no frame, for a turn that stands on a rail.
  */
-export function MessageActivity({ render, ...nativeProps }: MessagePartProps) {
+export function MessageActivity({
+  render,
+  variant = 'bubble',
+  ...nativeProps
+}: MessageActivityProps) {
   const rootProps: MessageRootProps = keyedProps({
     role: 'status',
     ...nativeProps,
     'data-part': 'activity',
+    'data-variant': variant,
   });
   return render === undefined ? <div {...rootProps} /> : render(rootProps);
 }
