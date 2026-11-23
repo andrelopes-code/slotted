@@ -305,8 +305,13 @@ test('hovers by lightening the fill, or by the one neutral ground under a bare c
   );
   const danger = rule(`${ui}[data-tone='danger']`);
   assert.match(danger, /--_bare-edge:var\(--slotted-tone-danger-border\)/);
-  assert.match(danger, /--_bare-hover:var\(--slotted-tone-danger-subtle-hover\)/);
-  assert.match(danger, /--_bare-active:var\(--slotted-tone-danger-subtle-active\)/);
+  for (const [role, share] of [
+    ['hover', 12],
+    ['active', 20],
+  ]) {
+    const tint = `color-mix(in oklab,var(--slotted-tone-danger-solid) ${share}%,transparent)`;
+    assert.ok(danger.includes(`--_bare-${role}:${tint};`), `${role} is not a ${share}% tint`);
+  }
   assert.match(
     rule(`${ui}[data-variant='outline']`),
     /border-color:var\(--_bare-edge,var\(--slotted-control-border-color,ButtonBorder\)\)/,

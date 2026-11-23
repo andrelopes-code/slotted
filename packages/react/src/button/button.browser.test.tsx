@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import type { CSSProperties } from 'react';
-import { userEvent } from 'vitest/browser';
-import { describe, expect, it, vi } from 'vitest';
+import { cdp, userEvent } from 'vitest/browser';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   DescriptionList,
@@ -320,3 +320,61 @@ describe('a stepper whose label changes', () => {
     );
   }
 });
+
+/* The danger hover took the tone's subtle step, near black in the dark scheme. It is the solid as a
+   tint, over whatever ground the control stands on, and the label keeps the tone's ink. */
+describe('a bare button in the danger tone', () => {
+  const INK = 'rgb(248, 113, 113)';
+  const TONE = {
+    '--slotted-duration-instant': '0s',
+    '--slotted-tone-danger-border': INK,
+    '--slotted-tone-danger-solid': '#dc2626',
+    '--slotted-tone-danger-subtle-active': '#211414',
+    '--slotted-tone-danger-subtle-hover': '#181111',
+    '--slotted-tone-danger-text': INK,
+  } as CSSProperties;
+  const tint = (share: number) => `color-mix(in oklab, #dc2626 ${share}%, transparent)`;
+
+  afterEach(() => cdp().send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...LEFT }));
+
+  it.each(['ghost', 'outline'] as const)(
+    'keeps its ink over a tint of the solid, hovered and pressed (%s)',
+    async (variant) => {
+      const { container } = render(
+        <div style={TONE}>
+          <Button tone="danger" variant={variant}>
+            Remove
+          </Button>
+          <i style={{ background: tint(12) }} />
+          <i style={{ background: tint(20) }} />
+        </div>,
+      );
+      const button = container.querySelector('button')!;
+      const [hovered, pressed] = [...container.querySelectorAll('i')].map(
+        (sample) => getComputedStyle(sample).backgroundColor,
+      );
+      const at = center(button);
+
+      await cdp().send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...at });
+      await expect.poll(() => getComputedStyle(button).backgroundColor).toBe(hovered);
+      expect(getComputedStyle(button).color).toBe(INK);
+
+      await cdp().send('Input.dispatchMouseEvent', { type: 'mousePressed', ...LEFT, ...at });
+      await expect.poll(() => getComputedStyle(button).backgroundColor).toBe(pressed);
+      expect(getComputedStyle(button).color).toBe(INK);
+    },
+  );
+});
+
+const LEFT = { button: 'left', clickCount: 1, x: 0, y: 0 } as const;
+
+/** The middle of an element, in the coordinates of the page that holds the test frame. */
+function center(element: Element) {
+  const frame = window.frameElement?.getBoundingClientRect();
+  const rect = element.getBoundingClientRect();
+
+  return {
+    x: (frame?.left ?? 0) + rect.x + rect.width / 2,
+    y: (frame?.top ?? 0) + rect.y + rect.height / 2,
+  };
+}
