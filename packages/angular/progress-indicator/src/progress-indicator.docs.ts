@@ -66,20 +66,6 @@ const anatomy: AnatomyRow[] = [
     purpose:
       'The quantity: the filled bar, the arc, or the morphing shape. It is what the tone paints and what the motion moves.',
   },
-  {
-    part: 'segment',
-    element: 'span',
-    required: false,
-    purpose:
-      'One part of a total in a slSegmentedBar: its width is in the ratio of its value, its color a data palette slot, a remainder hatched in the muted ink. data-current marks the one a legend row points at and the others dim.',
-  },
-  {
-    part: 'scale',
-    element: 'div',
-    required: false,
-    purpose:
-      'The line under a slSegmentedBar: what stands at its start and at its end (a zero, the total), in tabular figures. It stays text, outside the picture the track names.',
-  },
 ];
 
 const scenes: ReferenceSceneMeta[] = [
@@ -305,27 +291,6 @@ export const ANGULAR_PROGRESS_INDICATOR_DOCS = {
     anatomy,
     scenes,
     api: apiRows([
-      [
-        'segments',
-        '{ key?, value, color?, pattern?, label }[]',
-        '—',
-        'slSegmentedBar',
-        'One total in parts: each segment is as wide as its share of the values, colored by a data palette slot (color 1 to 8), or hatched in the muted ink for a remainder (pattern: hatch). The track is role img, named by every label in order in the language’s list format',
-      ],
-      [
-        'current',
-        'string | number | null',
-        'null',
-        'slSegmentedBar',
-        'The segment to mark, by key or index; the others dim with the motion tokens, at once under reduced motion. A legend row sets it from its pointer',
-      ],
-      [
-        'label / start / end',
-        'string',
-        '—',
-        'slSegmentedBar',
-        'label names the whole and leads the accessible name; start and end stand under the bar as text, the total at the end',
-      ],
       [
         'value',
         'number | null',

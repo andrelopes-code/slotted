@@ -4,14 +4,10 @@ import { describe, expect, it } from 'vitest';
 
 import contract from '../../../../specs/components/sparkline/contract.json';
 import { REACT_SPARKLINE_DOCS } from './sparkline.docs';
-import * as barCompareStories from './bar-compare.stories';
-import * as positionStripStories from './position-strip.stories';
 import * as sparklineStories from './sparkline.stories';
 
 const storyModules = {
   sparkline: sparklineStories,
-  positionStrip: positionStripStories,
-  barCompare: barCompareStories,
 };
 
 describe('Sparkline stories', () => {

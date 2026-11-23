@@ -12,13 +12,12 @@ import contract from '../../../../specs/components/progress-indicator/contract.j
 import { SlLoader } from './loader';
 import { SlProgressBar } from './progress-bar';
 import { SlProgressCircle } from './progress-circle';
-import { SlSegmentedBar } from './segmented-bar';
 import { provideProgressIndicatorDefaults } from './progress-indicator-defaults';
 
 const defaults = contract.members.progressIndicator.defaults;
 
 @Component({
-  imports: [SlProgressBar, SlProgressCircle, SlLoader, SlSegmentedBar],
+  imports: [SlProgressBar, SlProgressCircle, SlLoader],
   template: `<div
       slProgressBar
       [value]="value()"
@@ -39,24 +38,9 @@ const defaults = contract.members.progressIndicator.defaults;
       (withdraw)="onWithdraw()"
     ></div>
     <div slProgressCircle id="ring" [value]="value()" [wave]="wave()" label="Rebuilding"></div>
-    <div slLoader id="loader" [contained]="contained()" label="Signing you in"></div>
-    <div
-      slSegmentedBar
-      id="split"
-      label="Split of the total"
-      [segments]="split"
-      [current]="currentPart()"
-      start="0"
-      end="Total 4"
-    ></div>`,
+    <div slLoader id="loader" [contained]="contained()" label="Signing you in"></div>`,
 })
 class TestHost {
-  readonly split = [
-    { key: 'a', value: 2, color: 4 as const, label: 'Item A 50%' },
-    { key: 'b', value: 1, color: 2 as const, label: 'Item B 25%' },
-    { key: 'c', value: 1, pattern: 'hatch' as const, label: 'Remainder 25%' },
-  ];
-  readonly currentPart = signal<string | null>(null);
   readonly value = signal<number | null | undefined>(40);
   readonly min = signal<number | undefined>(undefined);
   readonly max = signal<number | undefined>(undefined);
@@ -416,34 +400,6 @@ describe('the application-wide defaults', () => {
     fixture.detectChanges();
 
     expect(bar(fixture)?.getAttribute('aria-valuetext')).toBe('8 %');
-  });
-});
-
-describe('a total split into parts', () => {
-  it('names the parts in order and marks the current one alone', () => {
-    const fixture = mount();
-    const split = fixture.nativeElement.querySelector('#split') as HTMLElement;
-    const track = split.querySelector('[role="img"]') as HTMLElement;
-    const segments = () => [...split.querySelectorAll('[data-part="segment"]')];
-
-    expect(track.getAttribute('aria-label')).toBe(
-      'Split of the total: Item A 50%, Item B 25%, Remainder 25%',
-    );
-    expect(segments().map((segment) => (segment as HTMLElement).style.flexGrow)).toEqual([
-      '2',
-      '1',
-      '1',
-    ]);
-    expect(segments()[2]!.getAttribute('data-pattern')).toBe('hatch');
-    expect(split.textContent).toContain('Total 4');
-
-    fixture.componentInstance.currentPart.set('b');
-    fixture.detectChanges();
-    expect(segments().map((segment) => segment.hasAttribute('data-current'))).toEqual([
-      false,
-      true,
-      false,
-    ]);
   });
 });
 

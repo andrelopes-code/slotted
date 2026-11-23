@@ -1083,6 +1083,24 @@ export const contract: TokenContract = {
       "root": true
     },
     {
+      "name": "--slotted-mark-track-thickness",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length"
+    },
+    {
+      "name": "--slotted-mark-dot-size",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length"
+    },
+    {
+      "name": "--slotted-mark-ring-width",
+      "layer": "semantic",
+      "axis": "base",
+      "type": "length"
+    },
+    {
       "name": "--slotted-focus-ring-color",
       "layer": "semantic",
       "axis": "scheme",
@@ -1777,6 +1795,20 @@ export const contract: TokenContract = {
       "axis": "scheme",
       "type": "color",
       "forcedColor": "Field"
+    },
+    {
+      "name": "--slotted-mark-track-color",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "forcedColor": "GrayText"
+    },
+    {
+      "name": "--slotted-mark-ring-color",
+      "layer": "semantic",
+      "axis": "scheme",
+      "type": "color",
+      "forcedColor": "Canvas"
     },
     {
       "name": "--slotted-current-edge",
@@ -2482,7 +2514,10 @@ export type BaseToken =
   | '--slotted-selection-size-md'
   | '--slotted-selection-size-lg'
   | '--slotted-selection-halo-opacity'
-  | '--slotted-highlight-tint-opacity';
+  | '--slotted-highlight-tint-opacity'
+  | '--slotted-mark-track-thickness'
+  | '--slotted-mark-dot-size'
+  | '--slotted-mark-ring-width';
 
 export type SchemeToken =
   | '--slotted-focus-ring-color'
@@ -2572,6 +2607,8 @@ export type SchemeToken =
   | '--slotted-border-strong'
   | '--slotted-control-border-color'
   | '--slotted-control-surface'
+  | '--slotted-mark-track-color'
+  | '--slotted-mark-ring-color'
   | '--slotted-current-edge'
   | '--slotted-state-hover'
   | '--slotted-state-pressed'
@@ -2736,6 +2773,8 @@ export type ColorToken =
   | '--slotted-border-strong'
   | '--slotted-control-border-color'
   | '--slotted-control-surface'
+  | '--slotted-mark-track-color'
+  | '--slotted-mark-ring-color'
   | '--slotted-current-edge'
   | '--slotted-state-hover'
   | '--slotted-state-pressed'
@@ -4367,8 +4406,6 @@ export type ComponentToken =
   | '--slotted-section-title-size-lg'
   | '--slotted-section-title-size-md'
   | '--slotted-section-title-size-sm'
-  | '--slotted-segmented-bar-dimmed-opacity'
-  | '--slotted-segmented-bar-gap'
   | '--slotted-segmented-control-active-background'
   | '--slotted-segmented-control-background'
   | '--slotted-segmented-control-border-color'
@@ -4505,13 +4542,10 @@ export type ComponentToken =
   | '--slotted-slider-track-size'
   | '--slotted-sparkline-area-opacity'
   | '--slotted-sparkline-bar-share'
-  | '--slotted-sparkline-bar-thickness'
   | '--slotted-sparkline-block-size'
   | '--slotted-sparkline-block-size-lg'
   | '--slotted-sparkline-block-size-sm'
   | '--slotted-sparkline-color'
-  | '--slotted-sparkline-end-size'
-  | '--slotted-sparkline-label-size'
   | '--slotted-sparkline-line-width'
   | '--slotted-sparkline-line-width-sm'
   | '--slotted-sparkline-marker-size'
@@ -4522,7 +4556,6 @@ export type ComponentToken =
   | '--slotted-sparkline-ring-color'
   | '--slotted-sparkline-ring-width'
   | '--slotted-sparkline-ring-width-sm'
-  | '--slotted-sparkline-value-size'
   | '--slotted-spinner-size'
   | '--slotted-split-button-radius'
   | '--slotted-splitter-disabled-line-color'
@@ -6730,8 +6763,6 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-section-title-size-lg",
   "--slotted-section-title-size-md",
   "--slotted-section-title-size-sm",
-  "--slotted-segmented-bar-dimmed-opacity",
-  "--slotted-segmented-bar-gap",
   "--slotted-segmented-control-active-background",
   "--slotted-segmented-control-background",
   "--slotted-segmented-control-border-color",
@@ -6868,13 +6899,10 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-slider-track-size",
   "--slotted-sparkline-area-opacity",
   "--slotted-sparkline-bar-share",
-  "--slotted-sparkline-bar-thickness",
   "--slotted-sparkline-block-size",
   "--slotted-sparkline-block-size-lg",
   "--slotted-sparkline-block-size-sm",
   "--slotted-sparkline-color",
-  "--slotted-sparkline-end-size",
-  "--slotted-sparkline-label-size",
   "--slotted-sparkline-line-width",
   "--slotted-sparkline-line-width-sm",
   "--slotted-sparkline-marker-size",
@@ -6885,7 +6913,6 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-sparkline-ring-color",
   "--slotted-sparkline-ring-width",
   "--slotted-sparkline-ring-width-sm",
-  "--slotted-sparkline-value-size",
   "--slotted-spinner-size",
   "--slotted-split-button-radius",
   "--slotted-splitter-disabled-line-color",

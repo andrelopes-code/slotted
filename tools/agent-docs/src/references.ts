@@ -46,6 +46,8 @@ export const REFERENCE_EXCEPTIONS: Readonly<Record<string, string>> = {
   'data-part': 'the attribute that names a part of a family (OE-08)',
   'container-name': 'the CSS property an element of its own names its container with (OE-09)',
   ':focus-visible': 'the CSS pseudo-class an element of its own draws its focus ring on (OE-03)',
+  linearScale: 'the scale a comparison mark of its own places its marks by, from @slotted/core',
+  '@slotted/core/sparkline': 'the entry point of @slotted/core that holds linearScale',
 };
 
 function walk(dir: string): string[] {

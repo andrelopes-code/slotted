@@ -3,7 +3,6 @@ import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
 
 import { ProgressBar } from './progress-bar';
-import { SegmentedBar } from './segmented-bar';
 
 /** Properties Chrome animates on the compositor, away from the main thread. */
 const COMPOSITED = new Set([
@@ -91,40 +90,5 @@ describe('a compact bar in a table cell', () => {
     expect(value.getBoundingClientRect().bottom).toBeLessThanOrEqual(
       track.getBoundingClientRect().top,
     );
-  });
-});
-
-describe('a total split into parts', () => {
-  it('draws segments in the ratio of their values, named by their labels in order', () => {
-    const segments = [
-      { key: 'a', value: 2, color: 4 as const, label: 'Item A 50%' },
-      { key: 'b', value: 1, color: 2 as const, label: 'Item B 25%' },
-      { key: 'c', value: 1, pattern: 'hatch' as const, label: 'Remainder 25%' },
-    ];
-    const view = render(
-      <div style={{ inlineSize: 404, '--slotted-segmented-bar-gap': '0px' } as CSSProperties}>
-        <SegmentedBar aria-label="Split of the total" end="Total 4" segments={segments} start="0" />
-      </div>,
-    );
-    const parts = () => [...view.container.querySelectorAll<HTMLElement>('[data-part="segment"]')];
-    const [a, b, c] = parts().map((segment) => segment.getBoundingClientRect().width);
-
-    expect(a! / b!).toBeCloseTo(2, 1);
-    expect(b! / c!).toBeCloseTo(1, 1);
-    expect(screen.getByRole('img').getAttribute('aria-label')).toBe(
-      'Split of the total: Item A 50%, Item B 25%, Remainder 25%',
-    );
-    expect(view.container.textContent).toContain('Total 4');
-
-    view.rerender(
-      <div style={{ inlineSize: 404 }}>
-        <SegmentedBar aria-label="Split of the total" current="b" segments={segments} />
-      </div>,
-    );
-    const marked = parts().map((segment) => segment.hasAttribute('data-current'));
-
-    expect(marked).toEqual([false, true, false]);
-    expect(getComputedStyle(parts()[0]!).opacity).not.toBe('1');
-    expect(getComputedStyle(parts()[1]!).opacity).toBe('1');
   });
 });

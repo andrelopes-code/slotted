@@ -4,7 +4,7 @@
   "ui": "sparkline",
   "catalog": {
     "group": "Data display",
-    "summary": "Word-sized graphics: a trend, a position, a comparison."
+    "summary": "Word-sized graphics: a trend in a line or bars."
   },
   "axes": {
     "type": ["line", "bar"],
@@ -40,26 +40,9 @@
       "capabilities": ["appearance", "size", "measurement", "content"],
       "states": ["default"],
       "parts": ["root", "plot", "area", "line", "bar", "reference", "ring", "marker"]
-    },
-    "positionStrip": {
-      "nativeElement": "span",
-      "defaults": {
-        "size": "md",
-        "hideValue": false
-      },
-      "capabilities": ["appearance", "size", "measurement", "content"],
-      "states": ["default"],
-      "parts": ["root", "track", "band", "dot", "value", "reference", "zero", "start", "end"]
-    },
-    "barCompare": {
-      "nativeElement": "span",
-      "defaults": {},
-      "capabilities": ["appearance", "measurement", "content"],
-      "states": ["default"],
-      "parts": ["root", "row", "label", "track", "bar", "value", "zero", "tick"]
     }
   },
-  "messages": ["down", "flat", "noData", "strip", "stripPending", "stripReference", "up"],
+  "messages": ["down", "flat", "noData", "up"],
   "stateAttributes": {},
   "motion": "the marks ease to a new data, written as data-animate on the root for that render and only under prefers-reduced-motion: no-preference; a change of the measured box redraws at once. The root keeps the nominal width as its minimum (--slotted-sparkline-min-inline-size, 6rem) in a box sized by its content",
   "scenarios": {
@@ -74,10 +57,6 @@
       "extremes",
       "in-table",
       "accessibility"
-    ],
-    "positionStrip": ["playground", "stacked", "pending", "accessibility"],
-    "barCompare": ["playground", "shared-domain", "texture", "accessibility"]
-  },
-  "positionStrip": "one axis with a dot per period, the span of the periods as a band, the current value as a larger dot, an optional dashed reference tick, the zero tick when the extent crosses it, and the extent's two ends written at the ends. Positions are shares of the track, so rows that state the same min and max line up without measuring. hideValue leaves the value dot out and the name says the value is pending",
-  "barCompare": "one row per value: its label, a bar from zero to the value on one signed axis, and the value written at the bar's end — past it for a positive value, before it for a negative one. min, max and step state the domain, so roots that state the same three draw the same axis and ticks. texture hatches a row's fill, to tell a reference from the subject without color"
+    ]
+  }
 }

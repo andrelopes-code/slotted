@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ComponentPropsWithRef, ReactNode } from 'react';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
 
 export type ProgressSize = 'sm' | 'md' | 'lg';
 export type ProgressTone = 'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger';
@@ -124,31 +124,4 @@ export interface LoaderProps
   /** M3's fully rounded container behind the morphing shape. */
   contained?: boolean;
   render?: (props: ProgressRootProps) => ReactNode;
-}
-
-/** One part of a total, drawn as a segment of a `SegmentedBar`. */
-export interface SegmentedBarSegment {
-  /** Names the segment for `current`. Defaults to its index. */
-  readonly key?: string | undefined;
-  /** The part's share of the total; the segment's width is proportional to it. */
-  readonly value: number;
-  /** A data palette slot, 1 to 8 (`--slotted-data-N`). Defaults to the segment's order. */
-  readonly color?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | undefined;
-  /** `hatch` draws a remainder (unassigned, other) in the muted ink. */
-  readonly pattern?: 'hatch' | undefined;
-  /** What the part is, for the accessible name: "Item A 88%". */
-  readonly label: string;
-}
-
-export interface SegmentedBarProps extends Omit<ComponentPropsWithoutRef<'div'>, 'children'> {
-  /** The whole the bar stands for; the accessible name ends with the parts. */
-  'aria-label'?: string | undefined;
-  /** The segment to mark, by key or index; the others dim. */
-  current?: string | number | null | undefined;
-  /** What stands at the start of the line under the bar: a minimum, a zero. */
-  start?: ReactNode | undefined;
-  /** What stands at its end: the total. */
-  end?: ReactNode | undefined;
-  segments: readonly SegmentedBarSegment[];
-  size?: ProgressSize | undefined;
 }

@@ -21,7 +21,7 @@ convention.
 | Layer       | Holds                                                          | Tokens |
 | ----------- | -------------------------------------------------------------- | ------ |
 | `primitive` | A value with no meaning attached: a step on a scale.           | 131    |
-| `semantic`  | What a value is for: a surface, a border, a control, a target. | 152    |
+| `semantic`  | What a value is for: a surface, a border, a control, a target. | 157    |
 | `component` | One family adjusting a semantic value for itself.              | 28     |
 
 A token is a **scale root** when it states a value rather than composing one: a
@@ -576,6 +576,21 @@ each scheme promises that word. In `high-contrast`, over a highlighted row,
 | ---------------------------------- | ------------- |
 | `--slotted-highlight-tint-opacity` | `0.075`       |
 
+## Mark
+
+A word-sized data mark an application draws itself — a comparison bar, a
+position strip, a split bar — takes its track, its dots and the ring around the
+current value from these tokens. Its series and tones come from `data` and
+`tone`.
+
+| Token                            | Default value                       |
+| -------------------------------- | ----------------------------------- |
+| `--slotted-mark-track-thickness` | `var(--slotted-space-2)`            |
+| `--slotted-mark-dot-size`        | `var(--slotted-space-3)`            |
+| `--slotted-mark-ring-width`      | `var(--slotted-border-width-thick)` |
+
+The colors of the track and the ring are scheme tokens, in the tables below.
+
 ## Control typography
 
 These tokens answer what a control's text and frame look like before any family
@@ -646,6 +661,8 @@ by forced colors instead.
 | `--slotted-border-strong`            | `#7a889c`                                                      | `#6d737a`                                                      | `#000000`                                                   |
 | `--slotted-control-border-color`     | `#bfc7d1`                                                      | `#393d44`                                                      | `#000000`                                                   |
 | `--slotted-control-surface`          | `var(--slotted-surface)`                                       | `var(--slotted-surface)`                                       | `var(--slotted-surface)`                                    |
+| `--slotted-mark-track-color`         | `var(--slotted-border-subtle)`                                 | `var(--slotted-border-subtle)`                                 | `var(--slotted-border-subtle)`                              |
+| `--slotted-mark-ring-color`          | `var(--slotted-surface-raised)`                                | `var(--slotted-surface-raised)`                                | `var(--slotted-surface-raised)`                             |
 | `--slotted-current-edge`             | `transparent`                                                  | `transparent`                                                  | `#000000`                                                   |
 | `--slotted-state-hover`              | `color-mix(in oklab, var(--slotted-text) 5%, transparent)`     | `color-mix(in oklab, var(--slotted-text) 6%, transparent)`     | `color-mix(in oklab, var(--slotted-text) 10%, transparent)` |
 | `--slotted-state-pressed`            | `color-mix(in oklab, var(--slotted-text) 10%, transparent)`    | `color-mix(in oklab, var(--slotted-text) 12%, transparent)`    | `color-mix(in oklab, var(--slotted-text) 20%, transparent)` |
@@ -899,6 +916,8 @@ that reads a semantic token keeps working without writing a rule of its own.
 | `--slotted-border-strong`            | `CanvasText`   |
 | `--slotted-control-border-color`     | `ButtonBorder` |
 | `--slotted-control-surface`          | `Field`        |
+| `--slotted-mark-track-color`         | `GrayText`     |
+| `--slotted-mark-ring-color`          | `Canvas`       |
 | `--slotted-current-edge`             | `Highlight`    |
 | `--slotted-state-hover`              | `Canvas`       |
 | `--slotted-state-pressed`            | `Canvas`       |

@@ -16,25 +16,12 @@ test('satisfies the shared contract schema', () => {
   assertContractShape(contract);
 });
 
-test('is one family with one member, four components and seven parts', () => {
+test('is one family with one member, three components and five parts', () => {
   assert.equal(contract.family, 'progress-indicator');
   assert.equal(contract.ui, 'progress-indicator');
   assert.deepEqual(Object.keys(contract.members), ['progressIndicator']);
-  assert.deepEqual(Object.keys(contract.components), [
-    'progressBar',
-    'progressCircle',
-    'loader',
-    'segmentedBar',
-  ]);
-  assert.deepEqual(member.parts, [
-    'root',
-    'label',
-    'value',
-    'track',
-    'indicator',
-    'segment',
-    'scale',
-  ]);
+  assert.deepEqual(Object.keys(contract.components), ['progressBar', 'progressCircle', 'loader']);
+  assert.deepEqual(member.parts, ['root', 'label', 'value', 'track', 'indicator']);
 });
 
 /**
@@ -67,13 +54,8 @@ test('renders a div and writes the progressbar role itself', () => {
  * therefore absent from the capabilities, and the values live here so the
  * stylesheet, both bindings and the harness fragment read one table.
  */
-test('discriminates the four geometries without offering a shape prop', () => {
-  assert.deepEqual(Object.values(contract.components), [
-    'linear',
-    'circular',
-    'morph',
-    'segmented',
-  ]);
+test('discriminates the three geometries without offering a shape prop', () => {
+  assert.deepEqual(Object.values(contract.components), ['linear', 'circular', 'morph']);
   assert.ok(!member.capabilities.includes('shape'));
 });
 

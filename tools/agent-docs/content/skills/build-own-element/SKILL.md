@@ -62,7 +62,34 @@ A new appearance is a new combination of tokens, never a new value.
 A decision no group names is written as a literal beside a comment that says
 why no token covers it (CP-05).
 
-## 4. Write it
+## 4. A word-sized comparison
+
+A comparison bar, a position strip and a split bar are elements of the
+application's own: each depends on its screen — a scale shared with blocks
+outside it, inks that carry meaning, labels placed on the mark. They start from
+these primitives:
+
+- `linearScale` from `@slotted/core/sparkline` takes a min, a max, the values
+  and whether zero stays inside the domain. Its at method returns a value's
+  share of the domain from 0 to 1; its zero is the share of zero, or null when
+  the domain does not cross it; its ticks method lists a tick at each multiple
+  of a step. Marks that state the same min and max draw the same axis.
+- A share is written as a custom property of the mark and read as a
+  percentage of its track (`inset-inline-start: calc(var(--at) * 100%)`), so
+  the mark needs no measuring.
+- A track takes `--slotted-mark-track-thickness` in
+  `--slotted-mark-track-color`. A dot takes `--slotted-mark-dot-size`, and the
+  current value's ring `--slotted-mark-ring-width` in
+  `--slotted-mark-ring-color`. A reference or zero line takes
+  `--slotted-border-strong`.
+- The inks come from the `data` and `tone` groups; a neutral part takes
+  `--slotted-text-muted`. Under forced colors, a filled mark takes the
+  CanvasText system color and a dimmed one GrayText, with
+  `forced-color-adjust: none`.
+- The mark is an image named by its numbers; a focusable part takes the focus
+  ring of section 5.
+
+## 5. Write it
 
 1. Give each interactive part the native element that carries its role: a
    button for an action, a link for a destination, an input for a value. Add
@@ -82,7 +109,7 @@ why no token covers it (CP-05).
    step (OE-10).
 6. Text that stands alone takes its size from the `typography` family (CP-02).
 
-## 5. Done
+## 6. Done
 
 1. Each `Check` of `{{docsDir}}/guidelines/own-elements.md` passes.
 2. The element's CSS holds no color or length literal without its comment.
