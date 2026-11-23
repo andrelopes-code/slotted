@@ -909,10 +909,11 @@
   /**
    * A text action inside a line — "show details" in a sentence, "split" in a
    * dense table cell — is a word of that line. It takes the font, weight and
-   * line height around it, draws no box in any variant, stands on the
-   * baseline and is underlined in its tone's text color, so the row keeps its
-   * height and the word lines up with its neighbours. WCAG 2.5.8 exempts a
-   * target inside a sentence from the 24px minimum.
+   * line height around it, or the step of the text scale its `size` names, draws
+   * no box in any variant, stands on the baseline and is underlined in its tone's
+   * text color, so the row keeps its height and the word lines up with its
+   * neighbours. WCAG 2.5.8 exempts a target inside a sentence from the 24px
+   * minimum.
    */
   [data-ui-button][data-inline]:not([data-shape]) {
     background: transparent;
@@ -929,6 +930,19 @@
     text-decoration-thickness: from-font;
     text-underline-offset: 0.2em;
     vertical-align: baseline;
+  }
+
+  /* The root writes no size of its own here: only one the consumer stated. */
+  [data-ui-button][data-inline]:not([data-shape])[data-size='sm'] {
+    font-size: var(--slotted-font-size-sm, 0.8125rem);
+  }
+
+  [data-ui-button][data-inline]:not([data-shape])[data-size='md'] {
+    font-size: var(--slotted-font-size-md, 0.875rem);
+  }
+
+  [data-ui-button][data-inline]:not([data-shape])[data-size='lg'] {
+    font-size: var(--slotted-font-size-lg, 1rem);
   }
 
   [data-ui-button][data-inline]:not([data-shape]) [data-part-label] {

@@ -184,7 +184,7 @@ export const ANGULAR_BUTTON_DOCS = {
         'boolean',
         'false',
         'SlButton',
-        'A word of the surrounding text, for an action inside a sentence or a dense cell: no box in any variant, the font, line height and baseline of the text around it, underlined in the tone. A row of small text keeps its height.',
+        'A word of the surrounding text, for an action inside a sentence or a dense cell: no box in any variant, the font, line height and baseline of the text around it, underlined in the tone. A stated size sets the step of the text scale (--slotted-font-size-sm, -md, -lg); without one the font is the one around it, whatever a provider states. A row of small text keeps its height.',
       ],
       [
         'justify',

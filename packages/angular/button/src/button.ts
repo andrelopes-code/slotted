@@ -77,7 +77,7 @@ import {
     '[attr.aria-disabled]': 'inert.ariaDisabled()',
     '[attr.data-tone]': 'appearance.tone()',
     '[attr.data-variant]': 'appearance.variant()',
-    '[attr.data-size]': 'appearance.size()',
+    '[attr.data-size]': 'drawnSize()',
     '[attr.data-full-width]': 'stateAttribute(fullWidth())',
     '[attr.data-justify]': 'justify()',
     '[attr.data-widest]': 'widestText()',
@@ -100,7 +100,9 @@ export class SlButton implements ButtonWait {
   readonly fullWidth = input(false, { transform: booleanAttribute });
   /**
    * A word of the surrounding text, for an action inside a sentence or a
-   * dense cell: no box, the text's font and baseline, underlined.
+   * dense cell: no box, the text's font and baseline, underlined. `size` sets
+   * the step of the text scale; without it, and whatever a provider states,
+   * the font is the one around it.
    */
   readonly inline = input(false, { transform: booleanAttribute });
   /**
@@ -142,6 +144,10 @@ export class SlButton implements ButtonWait {
 
   readonly stateAttribute = stateAttribute;
   protected readonly appearance = resolveAppearance(this, BUTTON_DEFAULTS);
+  /** Absent on an inline button with no `size`, which takes the font around it. */
+  protected readonly drawnSize = computed(() =>
+    this.inline() ? (this.size() ?? null) : this.appearance.size(),
+  );
   protected readonly inert = resolveInertness(this);
   readonly waiting = resolveLoadingIndicator(this.loading, this.loadingDelay);
 

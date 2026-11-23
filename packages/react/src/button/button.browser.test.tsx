@@ -13,7 +13,7 @@ import { Glyph, Icon } from '../icon';
 import { Table, TableBody, TableCell, TableContent, TableRow } from '../table';
 import { Tooltip, TooltipContent, TooltipLayer, TooltipTrigger } from '../tooltip';
 import { ButtonGroup } from '../button-group';
-import { Button, IconButton } from './index';
+import { Button, ButtonDefaultsProvider, IconButton } from './index';
 
 const box = (element: Element) => {
   const rect = element.getBoundingClientRect();
@@ -276,6 +276,61 @@ describe('an inline button inside a cell of a 28px table row', () => {
     expect(action!.getBoundingClientRect().height).toBeCloseTo(29, 0);
     expect(textBottom(label)).toBeCloseTo(textBottom(action!.firstElementChild!), 0);
   });
+
+  /* `size` was read and then overruled by the font of the cell. */
+  it.each([
+    ['sm', '--slotted-font-size-sm'],
+    ['md', '--slotted-font-size-md'],
+    ['lg', '--slotted-font-size-lg'],
+  ] as const)('takes the font step its size names (%s)', (size, token) => {
+    const { container } = render(
+      <table>
+        <tbody>
+          <tr>
+            <td style={{ ...STEPS, fontSize: 14 }}>
+              <Button inline size={size}>
+                Split
+              </Button>
+              <i style={{ fontSize: `var(${token})` }} />
+            </td>
+          </tr>
+        </tbody>
+      </table>,
+    );
+
+    const label = getComputedStyle(container.querySelector('[data-part="label"]')!);
+    const step = getComputedStyle(container.querySelector('i')!);
+
+    expect(label.fontSize).toBe(step.fontSize);
+  });
+
+  it('takes the font of the text around it without a size', () => {
+    const { container } = render(
+      <p style={{ ...STEPS, fontSize: 17 }}>
+        <Button inline>Split</Button>
+      </p>,
+    );
+
+    expect(getComputedStyle(container.querySelector('button')!).fontSize).toBe('17px');
+  });
+
+  it('is not sized by the default of a provider', () => {
+    const { container } = render(
+      <ButtonDefaultsProvider size="sm">
+        <p style={{ ...STEPS, fontSize: 17 }}>
+          <Button inline>Split</Button>
+        </p>
+      </ButtonDefaultsProvider>,
+    );
+
+    expect(getComputedStyle(container.querySelector('button')!).fontSize).toBe('17px');
+  });
+
+  const STEPS = {
+    '--slotted-font-size-lg': '15px',
+    '--slotted-font-size-md': '13px',
+    '--slotted-font-size-sm': '12px',
+  } as CSSProperties;
 
   it('is a button that Enter and Space press', async () => {
     const onClick = vi.fn();

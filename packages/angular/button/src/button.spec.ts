@@ -376,6 +376,25 @@ describe('SlButton', () => {
     expect(button.getAttribute('data-inline')).toBe('');
   });
 
+  /* The stylesheet sizes an inline button by `data-size`: without a stated one it takes the text's. */
+  it('writes a size on an inline button only when one is stated', () => {
+    @Component({
+      imports: [SlButton],
+      template: `<button slButton inline>Split</button
+        ><button slButton inline size="sm">Split</button>`,
+    })
+    class InlineHost {}
+    const fixture = TestBed.configureTestingModule({
+      providers: [provideButtonDefaults({ size: 'lg' })],
+    }).createComponent(InlineHost);
+    fixture.detectChanges();
+    const sizes = [...fixture.nativeElement.querySelectorAll('button')].map((button) =>
+      button.getAttribute('data-size'),
+    );
+
+    expect(sizes).toEqual([null, 'sm']);
+  });
+
   it('fills its container only when asked', () => {
     const { button, fixture, host } = mount();
     expect(button.hasAttribute('data-full-width')).toBe(false);

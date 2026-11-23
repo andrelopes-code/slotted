@@ -131,7 +131,9 @@ export interface ButtonProps
     ButtonLoadingProps {
   /**
    * A word of the surrounding text, for an action inside a sentence or a
-   * dense cell: no box, the text's font and baseline, underlined.
+   * dense cell: no box, the text's font and baseline, underlined. `size` sets
+   * the step of the text scale; without it, and whatever a provider states,
+   * the font is the one around it.
    */
   inline?: boolean | undefined;
   /**

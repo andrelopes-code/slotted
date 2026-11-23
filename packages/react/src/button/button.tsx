@@ -48,7 +48,17 @@ export function Button({
 
   const rootProps: ButtonRootProps = keyedProps({
     ...nativeProps,
-    ...rootData({ disabled, flush, fullWidth, inline, justify, loading, widest, ...appearance }),
+    ...rootData({
+      disabled,
+      flush,
+      fullWidth,
+      inline,
+      justify,
+      loading,
+      widest,
+      ...appearance,
+      size: inline ? size : appearance.size,
+    }),
     'aria-disabled': inert.ariaDisabled,
     children: (
       <ButtonContent

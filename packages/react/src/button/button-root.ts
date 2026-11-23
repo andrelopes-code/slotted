@@ -30,7 +30,8 @@ interface RootDataOptions {
   loading?: boolean;
   pressed?: boolean | undefined;
   shape?: ButtonShape;
-  size: ButtonSize;
+  /** Absent on an inline button with no `size`, which takes the font around it. */
+  size: ButtonSize | undefined;
   tone: ButtonTone;
   variant: ButtonVariant;
   widest?: readonly string[] | undefined;
