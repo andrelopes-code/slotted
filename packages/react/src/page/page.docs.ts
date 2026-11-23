@@ -264,7 +264,7 @@ export const REACT_PAGE_DOCS = {
         '() => SizeClass',
         '—',
         'inside a page',
-        'The size class to compose by from the page’s own width: compact under 600 pixels, medium under 1024, expanded from there, the thresholds of the page’s container queries, so code that chooses what to render agrees with the stylesheet inside a split view. Outside a page it reads the viewport',
+        'The size class to compose by from the page’s own width: compact under 600 pixels, medium under 1024, expanded from there, the thresholds of the page’s container queries, so code that chooses what to render agrees with the stylesheet inside a split view. Outside a page, until the page reports a size and while that size is 0, it reads the viewport',
       ],
       [
         'ground',
