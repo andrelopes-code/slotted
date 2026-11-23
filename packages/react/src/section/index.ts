@@ -2,6 +2,7 @@ export { HEADER_SIZE_PROPERTY, Section, useSection } from './section';
 export { SectionDefaultsProvider, useSectionDefaults } from './section-defaults';
 export {
   SectionActions,
+  SectionBleed,
   SectionBody,
   SectionDescription,
   SectionEyebrow,

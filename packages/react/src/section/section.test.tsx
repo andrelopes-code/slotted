@@ -7,6 +7,7 @@ import { Section } from './section';
 import { SectionDefaultsProvider } from './section-defaults';
 import {
   SectionActions,
+  SectionBleed,
   SectionBody,
   SectionDescription,
   SectionEyebrow,
@@ -33,7 +34,10 @@ function Items({ title = 'Order items', ...props }: Partial<SectionProps> & { ti
           <button type="button">Exportar</button>
         </SectionActions>
       </SectionHeader>
-      <SectionBody>{props.children ?? <p>Pneu radial</p>}</SectionBody>
+      <SectionBody>
+        {props.children ?? <p>Pneu radial</p>}
+        <SectionBleed>Table</SectionBleed>
+      </SectionBody>
     </Section>
   );
 }

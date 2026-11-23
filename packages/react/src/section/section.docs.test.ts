@@ -43,6 +43,7 @@ describe('the anatomy of the section', () => {
       description: 'title',
       actions: 'header',
       body: 'root',
+      bleed: 'body',
     });
   });
 

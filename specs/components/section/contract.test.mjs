@@ -33,6 +33,7 @@ test('declares its anatomy as parts', () => {
     'description',
     'actions',
     'body',
+    'bleed',
   ]);
 });
 

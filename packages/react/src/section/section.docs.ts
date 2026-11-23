@@ -28,7 +28,7 @@ export const REACT_SECTION_TOKENS = sectionTokens.map((name) => ({
 
 const imports: ReferenceImport = {
   source:
-    "import { Section, SectionHeader, SectionTitle, SectionEyebrow, SectionHeading, SectionTags, SectionDescription, SectionActions, SectionBody, SectionDefaultsProvider } from '@slotted/react';",
+    "import { Section, SectionHeader, SectionTitle, SectionEyebrow, SectionHeading, SectionTags, SectionDescription, SectionActions, SectionBody, SectionBleed, SectionDefaultsProvider } from '@slotted/react';",
 };
 
 const anatomy: AnatomyRow[] = [
@@ -102,6 +102,14 @@ const anatomy: AnatomyRow[] = [
     required: true,
     purpose:
       'The content, wrapped one HeadingLevel deeper, so a section inside it takes the next rank without being told.',
+  },
+  {
+    part: 'bleed',
+    parent: 'body',
+    element: 'div',
+    required: false,
+    purpose:
+      'A child of the body that bleeds alone, in the body or in the one stack the body holds: in a surface section it runs to the panel’s inline edges, and to its lower corners when it is the last of the panel, while the rest of the body keeps the inset.',
   },
 ];
 

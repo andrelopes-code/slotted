@@ -2,9 +2,12 @@ import { render } from '@testing-library/react';
 import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
 
+import { Stack } from '../stack';
+import { Table, TableBody, TableCell, TableContent, TableRow } from '../table';
 import { Section } from './section';
 import {
   SectionActions,
+  SectionBleed,
   SectionBody,
   SectionDescription,
   SectionHeader,
@@ -217,5 +220,106 @@ describe('a surface section whose body bleeds', () => {
     expect(inset.grid.left).toBeGreaterThan(inset.section.left + inset.edge);
     expect(plain.grid.left).toBeCloseTo(plain.section.left, 1);
     expect(plain.grid.right).toBeCloseTo(plain.section.right, 1);
+  });
+});
+
+/* A body that holds a line of text above its table bled whole, and the text lost the inset. */
+describe('a child of a surface section body that bleeds alone', () => {
+  it.each([
+    ['in a stack of the body', true],
+    ['as a child of the body', false],
+  ])('runs to the panel and follows its lower corners (%s)', (_, stacked) => {
+    const children = (
+      <>
+        <p data-testid="text" style={{ margin: 0 }}>
+          Twelve entries
+        </p>
+        <SectionBleed data-testid="bleed">
+          <Table columns={2} variant="ruled">
+            <TableContent aria-label="Entries">
+              <TableBody>
+                <TableRow>
+                  <TableCell>Rent</TableCell>
+                  <TableCell numeric>1,200.00</TableCell>
+                </TableRow>
+              </TableBody>
+            </TableContent>
+          </Table>
+        </SectionBleed>
+      </>
+    );
+    const { container } = render(
+      <div style={{ inlineSize: 360 }}>
+        <Section ground="surface" size="lg">
+          <SectionHeader>
+            <SectionTitle>
+              <SectionHeading>Entries</SectionHeading>
+            </SectionTitle>
+          </SectionHeader>
+          {stacked ? (
+            <SectionBody>
+              <Stack gap={5}>{children}</Stack>
+            </SectionBody>
+          ) : (
+            <SectionBody style={{ display: 'grid', rowGap: 12 }}>{children}</SectionBody>
+          )}
+        </Section>
+      </div>,
+    );
+    const root = container.querySelector<HTMLElement>('[data-ui="section"]')!;
+    const style = getComputedStyle(root);
+    const edge = parseFloat(style.borderTopWidth);
+    const panel = root.getBoundingClientRect();
+    const text = container.querySelector('[data-testid="text"]')!.getBoundingClientRect();
+    const bleed = container.querySelector<HTMLElement>('[data-testid="bleed"]')!;
+    const box = bleed.getBoundingClientRect();
+    const table = bleed.querySelector('[data-ui="table"]')!.getBoundingClientRect();
+    const stack = getComputedStyle(bleed.parentElement!);
+
+    expect(text.left).toBeCloseTo(panel.left + edge + parseFloat(style.paddingLeft), 1);
+    expect(text.right).toBeCloseTo(panel.right - edge - parseFloat(style.paddingRight), 1);
+    expect(table.left).toBeCloseTo(panel.left + edge, 1);
+    expect(table.right).toBeCloseTo(panel.right - edge, 1);
+    expect(box.bottom).toBeCloseTo(panel.bottom - edge, 1);
+    for (const corner of ['borderEndEndRadius', 'borderEndStartRadius'] as const) {
+      expect(parseFloat(getComputedStyle(bleed)[corner])).toBeCloseTo(
+        parseFloat(style[corner]) - edge,
+        1,
+      );
+    }
+    expect(box.top - text.bottom).toBeCloseTo(parseFloat(stack.rowGap), 1);
+  });
+
+  it('keeps its corners square between two children, and stays in a section with no surface', () => {
+    const { container } = render(
+      <div style={{ inlineSize: 360 }}>
+        <Section ground="surface">
+          <SectionBody>
+            <p>Above</p>
+            <SectionBleed data-testid="middle">
+              <div style={{ blockSize: 20 }} />
+            </SectionBleed>
+            <p>Below</p>
+          </SectionBody>
+        </Section>
+        <Section>
+          <SectionBody>
+            <SectionBleed data-testid="plain">
+              <div style={{ blockSize: 20 }} />
+            </SectionBleed>
+          </SectionBody>
+        </Section>
+      </div>,
+    );
+    const [surface, none] = [...container.querySelectorAll('[data-ui="section"]')].map((section) =>
+      section.getBoundingClientRect(),
+    );
+    const middle = container.querySelector('[data-testid="middle"]')!;
+    const plain = container.querySelector('[data-testid="plain"]')!.getBoundingClientRect();
+
+    expect(getComputedStyle(middle).borderEndEndRadius).toBe('0px');
+    expect(middle.getBoundingClientRect().left).toBeCloseTo(surface!.left + 1, 1);
+    expect(plain.left).toBeCloseTo(none!.left, 1);
+    expect(plain.right).toBeCloseTo(none!.right, 1);
   });
 });

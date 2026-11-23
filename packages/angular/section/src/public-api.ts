@@ -14,6 +14,7 @@ export type {
 } from './section-defaults';
 export {
   SlSectionActions,
+  SlSectionBleed,
   SlSectionBody,
   SlSectionDescription,
   SlSectionEyebrow,

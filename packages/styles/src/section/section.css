@@ -366,4 +366,35 @@
     border-end-start-radius: var(--_inner-radius);
     margin-block-end: calc(-1 * var(--slotted-section-inset, var(--slotted-space-6, 1rem)));
   }
+
+  /**
+   * A child of the body that bleeds alone, for a body that holds more than its
+   * table: the same margins on the child, in the body or in the one stack the
+   * body holds, and the same corners when it is the last of the panel.
+   */
+  [data-ui-section][data-ground='surface'] > [data-part-body] > [data-part-bleed],
+  [data-ui-section][data-ground='surface'] > [data-part-body] > * > [data-part-bleed] {
+    --_inner-radius: calc(
+      var(--slotted-section-radius, var(--slotted-radius-lg, 8px)) -
+        var(--slotted-border-width-thin, 1px)
+    );
+
+    justify-self: stretch;
+    margin-inline: calc(-1 * var(--slotted-section-inset, var(--slotted-space-6, 1rem)));
+    max-inline-size: none;
+    min-inline-size: 0;
+    overflow: clip;
+  }
+
+  [data-ui-section][data-ground='surface']
+    > [data-part-body]:last-child
+    > [data-part-bleed]:last-child,
+  [data-ui-section][data-ground='surface']
+    > [data-part-body]:last-child
+    > :last-child
+    > [data-part-bleed]:last-child {
+    border-end-end-radius: var(--_inner-radius);
+    border-end-start-radius: var(--_inner-radius);
+    margin-block-end: calc(-1 * var(--slotted-section-inset, var(--slotted-space-6, 1rem)));
+  }
 }

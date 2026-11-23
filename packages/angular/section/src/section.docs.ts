@@ -28,7 +28,7 @@ export const ANGULAR_SECTION_TOKENS = sectionTokens.map((name) => ({
 
 const imports: ReferenceImport = {
   source:
-    "import { SlSection, SlSectionHeader, SlSectionTitle, SlSectionEyebrow, SlSectionHeading, SlSectionTags, SlSectionDescription, SlSectionActions, SlSectionBody, provideSectionDefaults } from '@slotted/angular/section';",
+    "import { SlSection, SlSectionHeader, SlSectionTitle, SlSectionEyebrow, SlSectionHeading, SlSectionTags, SlSectionDescription, SlSectionActions, SlSectionBleed, SlSectionBody, provideSectionDefaults } from '@slotted/angular/section';",
   selector:
     '[slSection], [slSectionHeader], [slSectionTitle], [slSectionEyebrow], [slSectionHeading], [slSectionTags], [slSectionDescription], [slSectionActions], [slSectionBody]',
   exportAs: 'slSection, slSectionHeading',
@@ -106,6 +106,14 @@ const anatomy: AnatomyRow[] = [
     required: true,
     purpose:
       'The content, with slHeadingLevel as a host directive, so a section inside it takes the next rank without being told.',
+  },
+  {
+    part: 'bleed',
+    parent: 'body',
+    element: '[slSectionBleed]',
+    required: false,
+    purpose:
+      'A child of the body that bleeds alone, in the body or in the one stack the body holds: in a surface section it runs to the panel’s inline edges, and to its lower corners when it is the last of the panel, while the rest of the body keeps the inset.',
   },
 ];
 

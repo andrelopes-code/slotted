@@ -126,6 +126,18 @@ export class SlSectionHeading implements OnInit, OnDestroy {
   }
 }
 
+/**
+ * A child of the body that bleeds alone: a table under a line of text runs to
+ * the panel's inline edges while the text keeps the section's inset. It stands
+ * in the body or in the one stack the body holds.
+ */
+@Directive({
+  selector: '[slSectionBleed]',
+  standalone: true,
+  host: { 'data-part': 'bleed', 'data-part-bleed': '' },
+})
+export class SlSectionBleed {}
+
 /** The content, one outline step deeper: `slHeadingLevel` is a host directive. */
 @Directive({
   selector: '[slSectionBody]',

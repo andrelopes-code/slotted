@@ -8,6 +8,7 @@ import { SlSection } from './section';
 import { provideSectionDefaults } from './section-defaults';
 import {
   SlSectionActions,
+  SlSectionBleed,
   SlSectionBody,
   SlSectionDescription,
   SlSectionEyebrow,
@@ -26,6 +27,7 @@ const PARTS = [
   SlSectionTags,
   SlSectionDescription,
   SlSectionActions,
+  SlSectionBleed,
   SlSectionBody,
 ];
 
@@ -54,6 +56,7 @@ const PARTS = [
         <div slSectionActions><button type="button">Export</button></div>
       </div>
       <div slSectionBody>
+        <div slSectionBleed>Table</div>
         <section slSection>
           <div slSectionHeader>
             <div slSectionTitle><div slSectionHeading>Heavy vehicles</div></div>
@@ -148,6 +151,7 @@ describe('SlSection', () => {
       'description',
       'actions',
       'body',
+      'bleed',
     ]) {
       expect(root().querySelector(`[data-part="${part}"]`), part).not.toBeNull();
     }

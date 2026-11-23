@@ -168,6 +168,30 @@ export function SectionDescription({
   return <p {...rootProps} ref={ref} />;
 }
 
+/**
+ * A child of the body that bleeds alone: a table under a line of text runs to
+ * the panel's inline edges while the text keeps the section's inset. It stands
+ * in the body or in the one stack the body holds.
+ */
+export function SectionBleed({
+  children,
+  className,
+  ref,
+  render,
+  style,
+  ...nativeProps
+}: SectionPartComponentProps) {
+  const rootProps: SectionPartProps = keyedProps({
+    ...nativeProps,
+    children,
+    className,
+    'data-part': 'bleed',
+    style,
+  });
+  if (render !== undefined) return render(rootProps);
+  return <div {...rootProps} ref={ref} />;
+}
+
 /** The content, one outline step deeper. */
 export function SectionBody({
   bleed = false,
