@@ -12,6 +12,7 @@ import {
   PageHeaderTitleRow,
 } from '../page-header';
 import { Section } from '../section';
+import { Tab, TabList, TabPanel, Tabs } from '../tabs';
 import { Page, PageBody, PageFooter, usePageSizeClass } from './index';
 
 const THEME = {
@@ -205,6 +206,46 @@ describe('the blocks of a page body', () => {
     expect(getComputedStyle(column).rowGap).toBe('13px');
     expect(box('two').top - box('one').bottom).toBeCloseTo(13, 0);
     expect(box('section').top - box('two').bottom).toBeCloseTo(29, 0);
+  });
+
+  it.each([1280, 390])('are stacked deeper in the page at the same gaps (%d px)', (inlineSize) => {
+    const { container } = render(
+      <div style={{ inlineSize }}>
+        <Page>
+          <PageBody>
+            <div data-testid="one">One</div>
+            <div data-testid="two">Two</div>
+            <Section data-testid="section">Body</Section>
+            <Tabs defaultValue="entries">
+              <TabList aria-label="Account">
+                <Tab value="entries">Entries</Tab>
+              </TabList>
+              <TabPanel value="entries">
+                <div
+                  data-testid="stack"
+                  style={{ display: 'grid', gap: 'var(--slotted-page-gap)' }}
+                >
+                  <div>One</div>
+                  <div style={{ marginBlockStart: 'var(--slotted-page-section-space)' }}>Two</div>
+                </div>
+              </TabPanel>
+            </Tabs>
+          </PageBody>
+        </Page>
+      </div>,
+    );
+    const box = (id: string) =>
+      container.querySelector(`[data-testid="${id}"]`)!.getBoundingClientRect();
+    const column = container.querySelector('[data-part="body"] > [data-ui="container"]')!;
+    const stack = container.querySelector('[data-testid="stack"]')!;
+    const gap = getComputedStyle(column).rowGap;
+
+    expect(gap).toBe(inlineSize === 390 ? '12px' : '16px');
+    expect(getComputedStyle(stack).rowGap).toBe(gap);
+    expect(parseFloat(getComputedStyle(stack.lastElementChild!).marginTop)).toBeCloseTo(
+      box('section').top - box('two').bottom,
+      1,
+    );
   });
 
   it('leave a body of flow none to its own layout', () => {

@@ -107,6 +107,8 @@ test('keeps the footer in the flow and holds it through its exit', () => {
  */
 test('publishes the fixed geometry as runtime properties and bridges table', () => {
   assert.deepEqual(Object.keys(contract.runtime), [
+    '--slotted-page-gap',
+    '--slotted-page-section-space',
     '--slotted-page-sticky-top',
     '--slotted-page-sticky-bottom',
     '--slotted-page-scrollport-block-size',

@@ -332,6 +332,13 @@ export const REACT_PAGE_DOCS = {
         'The five decisions an application takes once. A page that states any of them itself still wins',
       ],
       [
+        '--slotted-page-gap, --slotted-page-section-space',
+        'runtime properties on the body',
+        '—',
+        'a stack of blocks deeper in the page: a tab panel, a column beside an aside',
+        'The distances between two blocks and above a section without a surface, as the page resolves them, the compact step below 600 pixels included: gap: var(--slotted-page-gap) stacks blocks as the body stacks its own',
+      ],
+      [
         '--slotted-page-sticky-top, --slotted-page-sticky-bottom, --slotted-page-scrollport-block-size',
         'runtime properties on the scroller',
         '—',
