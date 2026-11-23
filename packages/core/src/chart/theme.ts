@@ -72,6 +72,26 @@ export const CHART_TONES: readonly ChartTone[] = [
   'danger',
 ];
 
+/** The system color each color of the theme falls back to; a slot and a tone take the text's. */
+const COLOR_FALLBACKS = {
+  text: 'CanvasText',
+  label: 'GrayText',
+  grid: 'GrayText',
+  axis: 'GrayText',
+  reference: 'GrayText',
+  overflow: 'GrayText',
+  surface: 'Canvas',
+} as const;
+
+/** Pixels. */
+const LENGTH_FALLBACKS = {
+  labelSize: 12,
+  lineWidth: 2,
+  markerSize: 6,
+  barRadius: 4,
+  inset: 8,
+} as const;
+
 export function slotProperty(slot: ChartSlot | number) {
   return `--_chart-slot-${slot}`;
 }
@@ -105,67 +125,97 @@ function parseEasing(value: string): [number, number, number, number] {
 /**
  * Reads the theme at an element. The element is the plot part, whose
  * stylesheet declares the properties; any element under a chart's root works.
+ *
+ * Every property is declared on a probe as `var()` and read back from a
+ * standard property, with every probe in place before the first read: the
+ * document is written once and its styles are recalculated once. Nothing is
+ * read with `getPropertyValue`, whose cost in jsdom doubles with each ancestor
+ * of an undeclared custom property.
  */
 function readTheme(element: Element): ChartTheme {
-  const view = element.ownerDocument.defaultView!;
-  const style = view.getComputedStyle(element);
-  const raw = (name: string) => style.getPropertyValue(name).trim();
+  const document = element.ownerDocument;
+  const view = document.defaultView!;
+  const probes = createProbes(document);
 
-  const probe = element.ownerDocument.createElement('span');
-  probe.setAttribute('aria-hidden', 'true');
-  probe.style.cssText =
-    'position:absolute;visibility:hidden;pointer-events:none;inline-size:0;block-size:0;overflow:hidden';
-  element.appendChild(probe);
-  const probeStyle = view.getComputedStyle(probe);
+  const color = (probe: Element): string => {
+    const value = view.getComputedStyle(probe).color;
+    /* jsdom substitutes no `var()`; the parent holds the fallback. */
+    return value.startsWith('var(') ? color(probe.parentElement!) : toRgb(value, document);
+  };
+  const number = (value: string, fallback: number) => {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
+  const length = (probe: Element, name: keyof typeof LENGTH_FALLBACKS) =>
+    number(view.getComputedStyle(probe).inlineSize, LENGTH_FALLBACKS[name]);
 
-  const color = (name: string, fallback: string) => {
-    const value = raw(name);
-    probe.style.color = '';
-    probe.style.color = value || fallback;
-    return toRgb(probeStyle.color || fallback, element.ownerDocument);
-  };
-  const length = (name: string, fallback: number) => {
-    const value = raw(name);
-    if (!value) return fallback;
-    probe.style.inlineSize = '';
-    probe.style.inlineSize = value;
-    const pixels = Number.parseFloat(probeStyle.inlineSize || probeStyle.width);
-    probe.style.inlineSize = '0';
-    return Number.isFinite(pixels) ? pixels : fallback;
-  };
-  const number = (name: string, fallback: number) => {
-    const value = Number.parseFloat(raw(name));
-    return Number.isFinite(value) ? value : fallback;
-  };
-
+  element.appendChild(probes.host);
   try {
-    const text = color(CHART_THEME_PROPERTIES.text, 'CanvasText');
     return {
-      slots: Array.from({ length: 8 }, (_, index) => color(slotProperty(index + 1), text)),
-      tones: Object.fromEntries(
-        CHART_TONES.map((tone) => [tone, color(toneProperty(tone), text)]),
-      ) as Record<ChartTone, string>,
-      overflow: color(CHART_THEME_PROPERTIES.overflow, 'GrayText'),
-      text,
-      label: color(CHART_THEME_PROPERTIES.label, 'GrayText'),
-      grid: color(CHART_THEME_PROPERTIES.grid, 'GrayText'),
-      axis: color(CHART_THEME_PROPERTIES.axis, 'GrayText'),
-      reference: color(CHART_THEME_PROPERTIES.reference, 'GrayText'),
-      surface: color(CHART_THEME_PROPERTIES.surface, 'Canvas'),
-      fontFamily: style.fontFamily,
-      labelSize: length(CHART_THEME_PROPERTIES.labelSize, 12),
-      lineWidth: length(CHART_THEME_PROPERTIES.lineWidth, 2),
-      markerSize: length(CHART_THEME_PROPERTIES.markerSize, 6),
-      barRadius: length(CHART_THEME_PROPERTIES.barRadius, 4),
-      areaOpacity: number(CHART_THEME_PROPERTIES.areaOpacity, 0.16),
-      inset: length(CHART_THEME_PROPERTIES.inset, 8),
-      duration: parseDuration(raw(CHART_THEME_PROPERTIES.duration)),
-      easing: parseEasing(raw(CHART_THEME_PROPERTIES.easing)),
+      slots: probes.slots.map(color),
+      tones: mapRecord(probes.tones, color),
+      ...mapRecord(probes.colors, color),
+      ...mapRecord(probes.lengths, length),
+      fontFamily: view.getComputedStyle(element).fontFamily,
+      areaOpacity: number(view.getComputedStyle(probes.areaOpacity).scale, 0.16),
+      duration: parseDuration(view.getComputedStyle(probes.duration).transitionDuration),
+      easing: parseEasing(view.getComputedStyle(probes.easing).transitionTimingFunction),
       forcedColors: view.matchMedia?.('(forced-colors: active)').matches ?? false,
     };
   } finally {
-    probe.remove();
+    probes.host.remove();
   }
+}
+
+/**
+ * One probe per property. An undeclared color inherits the fallback its parent
+ * states; any other undeclared property computes to a keyword, not to a number.
+ * `!important` holds a probe against a consumer's `* { transition: none }`.
+ */
+function createProbes(document: Document) {
+  const probe = (parent: Element, property: string, value: string) => {
+    const node = document.createElement('span');
+    node.style.setProperty(property, value, 'important');
+    parent.append(node);
+    return node;
+  };
+  const colorUnder = (parent: Element, name: string) => probe(parent, 'color', `var(${name})`);
+  const value = (property: string, name: string) => probe(host, property, `var(${name})`);
+
+  const host = document.createElement('span');
+  host.setAttribute('aria-hidden', 'true');
+  host.style.cssText =
+    'position:absolute;visibility:hidden;pointer-events:none;inline-size:0;block-size:0;overflow:hidden';
+
+  const colors = mapRecord(COLOR_FALLBACKS, (fallback, name) =>
+    colorUnder(probe(host, 'color', fallback), CHART_THEME_PROPERTIES[name]),
+  );
+  const tones = CHART_TONES.map((tone) => [tone, colorUnder(colors.text, toneProperty(tone))]);
+
+  return {
+    host,
+    colors,
+    slots: Array.from({ length: 8 }, (_, index) =>
+      colorUnder(colors.text, slotProperty(index + 1)),
+    ),
+    tones: Object.fromEntries(tones) as Record<ChartTone, HTMLElement>,
+    lengths: mapRecord(LENGTH_FALLBACKS, (_, name) =>
+      value('inline-size', CHART_THEME_PROPERTIES[name]),
+    ),
+    /* `scale` takes a bare number. */
+    areaOpacity: value('scale', CHART_THEME_PROPERTIES.areaOpacity),
+    duration: value('transition-duration', CHART_THEME_PROPERTIES.duration),
+    easing: value('transition-timing-function', CHART_THEME_PROPERTIES.easing),
+  };
+}
+
+function mapRecord<K extends string, V, R>(
+  record: Readonly<Record<K, V>>,
+  map: (value: V, key: K) => R,
+) {
+  return Object.fromEntries(
+    Object.entries<V>(record).map(([key, value]) => [key, map(value, key as K)]),
+  ) as Record<K, R>;
 }
 
 /**
@@ -187,8 +237,8 @@ export function readChartTheme(element: Element): ChartTheme {
 /* ── The cache ─────────────────────────────────────────────────────────── */
 
 /**
- * Themes already read, by the context they were read in. A read appends a
- * probe and computes two dozen styles, which forces a style recalculation of
+ * Themes already read, by the context they were read in. A read appends
+ * probes and computes two dozen styles, which forces a style recalculation of
  * whatever the page just committed; every chart under the same scheme reads
  * the same values, so a chart mounted in a context already read takes the
  * stored theme and computes no style.

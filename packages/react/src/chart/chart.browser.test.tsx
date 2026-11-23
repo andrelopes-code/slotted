@@ -1,3 +1,4 @@
+import { readChartTheme } from '@slotted/core/chart';
 import { render } from '@testing-library/react';
 import type { CSSProperties } from 'react';
 import { page } from 'vitest/browser';
@@ -126,6 +127,54 @@ describe('the table view of a chart', () => {
     }
     expect(slot(themed!)).not.toBe('');
     expect(slot(themed!)).toBe(slot(plain!));
+  });
+});
+
+/**
+ * The theme is read through probes that declare each property as `var()`; a
+ * property nothing declares falls back, and a consumer's blanket rule does not
+ * reach the probes.
+ */
+describe('the theme a chart reads', () => {
+  it('resolves what the context declares and falls back for the rest', () => {
+    const { container } = render(
+      <div
+        style={
+          {
+            '--_chart-text': 'rgb(1 2 3)',
+            '--_chart-slot-1': 'color-mix(in srgb, rgb(255 0 0) 50%, rgb(0 0 255))',
+            '--_chart-tone-danger': '#ff0000',
+            '--_chart-label-size': '0.75rem',
+            '--_chart-line-width': 'calc(1px + 0.5px)',
+            '--_chart-area-opacity': '0.3',
+            '--_chart-duration': '120ms',
+            '--_chart-easing': 'cubic-bezier(0.1, 0.2, 0.3, 1)',
+          } as CSSProperties
+        }
+      >
+        <style>{'* { transition: none !important; scale: none !important; }'}</style>
+        <div data-testid="plot" />
+      </div>,
+    );
+    const theme = readChartTheme(container.querySelector('[data-testid="plot"]')!);
+
+    expect(theme).toMatchObject({
+      text: 'rgb(1, 2, 3)',
+      labelSize: 12,
+      lineWidth: 1.5,
+      markerSize: 6,
+      barRadius: 4,
+      inset: 8,
+      areaOpacity: 0.3,
+      duration: 120,
+      easing: [0.1, 0.2, 0.3, 1],
+    });
+    expect(theme.slots[0]).toBe('rgb(128, 0, 128)');
+    expect(theme.slots[1]).toBe('rgb(1, 2, 3)');
+    expect(theme.tones.danger).toBe('rgb(255, 0, 0)');
+    expect(theme.tones.info).toBe('rgb(1, 2, 3)');
+    expect(theme.surface).not.toBe(theme.grid);
+    expect(container.querySelector('[data-testid="plot"]')!.childElementCount).toBe(0);
   });
 });
 

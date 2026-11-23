@@ -87,6 +87,64 @@ describe('observeChartTheme', () => {
   });
 });
 
+describe('readChartTheme', () => {
+  /**
+   * jsdom answers a read of an undeclared custom property by asking every
+   * ancestor twice, so one read doubles per level: 3 s at 20 levels, and the
+   * theme has thirty properties. A write between two computed reads empties
+   * its cascade cache, and forces one style recalculation in a browser.
+   */
+  it('reads no custom property and writes to the document once', () => {
+    const { element, remove } = nested(24);
+    const custom = vi.spyOn(CSSStyleDeclaration.prototype, 'getPropertyValue');
+    const observer = new MutationObserver(() => {});
+    observer.observe(document, { attributes: true, childList: true, subtree: true });
+    const start = performance.now();
+
+    readChartTheme(element);
+
+    const elapsed = performance.now() - start;
+    const writes = observer.takeRecords();
+    observer.disconnect();
+    remove();
+    expect(custom).not.toHaveBeenCalled();
+    custom.mockRestore();
+    /* The probes enter in one insertion and leave in one removal. */
+    expect(writes.map(({ type }) => type)).toEqual(['childList', 'childList']);
+    expect(elapsed).toBeLessThan(2000);
+  });
+
+  it('takes every fallback in a document whose style sheets declare no chart token', () => {
+    const { element, remove } = nested(2);
+    const probe = document.createElement('span');
+    element.append(probe);
+    const resolved = (color: string) => {
+      probe.style.color = color;
+      return getComputedStyle(probe).color;
+    };
+
+    const theme = readChartTheme(element);
+
+    expect(theme).toMatchObject({
+      text: resolved('CanvasText'),
+      label: resolved('GrayText'),
+      overflow: resolved('GrayText'),
+      surface: resolved('Canvas'),
+      labelSize: 12,
+      lineWidth: 2,
+      markerSize: 6,
+      barRadius: 4,
+      areaOpacity: 0.16,
+      inset: 8,
+      duration: 0,
+      easing: [0.2, 0, 0, 1],
+    });
+    expect(new Set([...theme.slots, ...Object.values(theme.tones)])).toEqual(new Set([theme.text]));
+    expect(theme.slots).toHaveLength(8);
+    remove();
+  });
+});
+
 describe('the theme cache', () => {
   it('gives a chart the theme another chart read in the same context', () => {
     const first = document.createElement('div');
@@ -132,3 +190,17 @@ describe('the theme cache', () => {
     wrapper.remove();
   });
 });
+
+/** An element under `depth` elements of the body. */
+function nested(depth: number) {
+  const top = document.createElement('div');
+  let element: HTMLElement = top;
+  for (let level = 1; level < depth; level += 1) {
+    const child = document.createElement('div');
+    element.append(child);
+    element = child;
+  }
+  document.body.append(top);
+
+  return { element, remove: () => top.remove() };
+}
