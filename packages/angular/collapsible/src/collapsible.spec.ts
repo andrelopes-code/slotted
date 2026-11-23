@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import type { ChangeRequest } from '@slotted/core/state';
 import { SlAccordion } from '@slotted/angular/accordion';
+import { SlButton } from '@slotted/angular/button';
 import { SlCollapsible } from './collapsible';
 import { provideCollapsibleDefaults } from './collapsible-defaults';
 import {
@@ -389,5 +390,23 @@ describe('a collapsible that peeks', () => {
     expect(panel.hasAttribute('inert')).toBe(false);
     expect(panel.hasAttribute('data-state')).toBe(false);
     expect(more.hidden).toBe(true);
+  });
+
+  @Component({
+    standalone: true,
+    imports: [SlButton, SlCollapsible, SlCollapsibleMore, SlCollapsiblePanel],
+    template: `<div slCollapsible peek="9rem">
+      <div slCollapsiblePanel>Charts</div>
+      <button slButton slCollapsibleMore>Show more</button>
+    </div>`,
+  })
+  class PeekingButton {}
+
+  it('keeps the attribute the stylesheet places the control by on a button of another family', () => {
+    const fixture = TestBed.createComponent(PeekingButton);
+    fixture.detectChanges();
+    const button = fixture.nativeElement.querySelector('[data-ui="button"]') as HTMLElement;
+
+    expect(button.hasAttribute('data-collapsible-more')).toBe(true);
   });
 });

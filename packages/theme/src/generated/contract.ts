@@ -3174,6 +3174,7 @@ export type ComponentToken =
   | '--slotted-collapsible-hover-background'
   | '--slotted-collapsible-hover-color'
   | '--slotted-collapsible-indicator-color'
+  | '--slotted-collapsible-more-overlap'
   | '--slotted-collapsible-padding-inline'
   | '--slotted-collapsible-panel-color'
   | '--slotted-collapsible-panel-padding-block-start'
@@ -5534,6 +5535,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-collapsible-hover-background",
   "--slotted-collapsible-hover-color",
   "--slotted-collapsible-indicator-color",
+  "--slotted-collapsible-more-overlap",
   "--slotted-collapsible-padding-inline",
   "--slotted-collapsible-panel-color",
   "--slotted-collapsible-panel-padding-block-start",

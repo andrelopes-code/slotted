@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import { SlGlyph, SlIcon } from '@slotted/angular/icon';
 import type { GlyphName } from '@slotted/angular/icon';
+import { hostSelectorKey } from '@slotted/core/selector-key';
 
 import { SlCollapsible } from './collapsible';
 
@@ -265,7 +266,7 @@ export class SlCollapsiblePanel {
 }
 
 /**
- * The control a peeking panel draws over its fade: shown only while the panel
+ * The control at the end of a peeking panel: shown only while the panel
  * is closed and `peek` is set, it opens the panel and names it through
  * `aria-controls`, as the header's trigger does.
  */
@@ -273,8 +274,8 @@ export class SlCollapsiblePanel {
   selector: 'button[slCollapsibleMore]',
   standalone: true,
   host: {
-    'data-part': 'more',
-    'data-part-more': '',
+    'data-collapsible-more': '',
+    '[attr.data-part]': 'part',
     type: 'button',
     '[attr.aria-controls]': 'collapsible.ids().panelId',
     'aria-expanded': 'false',
@@ -285,6 +286,15 @@ export class SlCollapsiblePanel {
 })
 export class SlCollapsibleMore {
   protected readonly collapsible = inject(SlCollapsible);
+
+  private readonly native: HTMLElement = inject(ElementRef).nativeElement;
+
+  /** `more`, unless the element is another family's root. */
+  protected readonly part = hostSelectorKey(
+    this.native,
+    'part',
+    this.native.hasAttribute('data-ui') ? this.native.getAttribute('data-part') : 'more',
+  );
 
   protected onClick(event: MouseEvent) {
     if (event.defaultPrevented) return;

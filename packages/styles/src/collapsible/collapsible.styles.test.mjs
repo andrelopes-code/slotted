@@ -45,13 +45,14 @@ test('is selected by the identifier the contract declares', () => {
   assert.ok(normalized.includes(`${ui}{`), 'the family has no base rule keyed on data-ui');
 });
 
+/* A Button rendered as `more` names its own part, so the control has a key of its own. */
+const KEYS = { more: '[data-collapsible-more]' };
+
 test('styles every part the contract declares', () => {
   for (const declared of member.parts) {
     if (declared === 'root') continue;
-    assert.ok(
-      normalized.includes(`[data-part-${declared.toLowerCase()}]`),
-      `no rule reaches the ${declared} part`,
-    );
+    const key = KEYS[declared] ?? `[data-part-${declared.toLowerCase()}]`;
+    assert.ok(normalized.includes(key), `no rule reaches the ${declared} part`);
   }
 });
 

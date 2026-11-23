@@ -263,7 +263,7 @@ export function CollapsiblePanel({
 }
 
 /**
- * The control a peeking panel draws over its fade: present only while the
+ * The control at the end of a peeking panel: present only while the
  * panel is closed and `peek` is set, it opens the panel and names it through
  * `aria-controls`, as the header's trigger does.
  */
@@ -276,6 +276,7 @@ export function CollapsibleMore({ onClick, render, ...nativeProps }: Collapsible
     ...nativeProps,
     'aria-controls': ids.panelId,
     'aria-expanded': false as const,
+    'data-collapsible-more': '',
     'data-part': 'more',
     disabled,
     onClick: (event: MouseEvent<HTMLButtonElement>) => {

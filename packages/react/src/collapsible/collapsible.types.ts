@@ -238,6 +238,7 @@ export interface CollapsibleMoreProps extends Omit<ComponentPropsWithRef<'button
 export interface CollapsibleMoreRootProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   'aria-controls': string;
   'aria-expanded': false;
+  'data-collapsible-more': '';
   'data-part': string;
   type: 'button';
 }

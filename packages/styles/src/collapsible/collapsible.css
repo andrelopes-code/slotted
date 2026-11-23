@@ -532,7 +532,20 @@
    * duration. The content is drawn, clipped at the peek and faded at its end;
    * the binding keeps it inert, so nothing in the clipped part takes focus.
    * Forced colors drop the fade and keep the clip.
+   *
+   * A control drawn over the end (`more`) is keyed on an attribute of its own:
+   * a Button given through `render` names its own part. The content is gone
+   * under the part of it that stands over the panel, and the fade ends where
+   * that part starts, so no line is legible beneath it at any height.
    */
+  [data-ui-collapsible][data-peek] {
+    --_overlap: 0px;
+  }
+
+  [data-ui-collapsible][data-peek]:has(> [data-collapsible-more]) {
+    --_overlap: var(--slotted-collapsible-more-overlap, 1.5rem);
+  }
+
   [data-ui-collapsible][data-peek] > [data-part-panel] {
     grid-template-rows: minmax(var(--_peek), 0fr);
   }
@@ -545,8 +558,8 @@
     content-visibility: visible;
     mask-image: linear-gradient(
       to bottom,
-      #000 calc(100% - var(--slotted-collapsible-peek-fade, 3rem)),
-      transparent
+      #000 calc(100% - var(--_overlap) - var(--slotted-collapsible-peek-fade, 3rem)),
+      transparent calc(100% - var(--_overlap))
     );
     opacity: 1;
     padding-block-start: var(
@@ -555,12 +568,13 @@
     );
   }
 
-  /* Over the fade, at the end of what is in view. */
-  [data-ui-collapsible] > [data-part-more] {
+  /* Past the fade, at the end of what is in view. */
+  [data-ui-collapsible] > [data-collapsible-more] {
+    align-self: start;
     grid-column: 1 / -1;
     grid-row: 3;
     justify-self: center;
-    margin-block: calc(-1 * var(--slotted-collapsible-peek-fade, 3rem) / 2) var(--_padding-block);
+    margin-block: calc(-1 * var(--_overlap)) var(--_padding-block);
     position: relative;
     z-index: 1;
   }
@@ -568,6 +582,10 @@
   @media (forced-colors: active) {
     [data-ui-collapsible][data-peek]:not([data-open]) > [data-part-panel] > [data-part-content] {
       mask-image: none;
+    }
+
+    [data-ui-collapsible] > [data-collapsible-more] {
+      margin-block-start: var(--_padding-block);
     }
   }
 
@@ -709,7 +727,7 @@
       grid-row: 3;
     }
 
-    [data-ui-collapsible] > [data-part-more] {
+    [data-ui-collapsible] > [data-collapsible-more] {
       grid-row: 4;
     }
   }

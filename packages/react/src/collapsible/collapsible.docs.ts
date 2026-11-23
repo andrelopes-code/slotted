@@ -104,7 +104,7 @@ const anatomy: AnatomyRow[] = [
     element: 'button',
     required: false,
     purpose:
-      'The control a peeking panel draws over its fade, present only while the panel is closed and peek is set: it opens the panel and names it through aria-controls, as the header trigger does.',
+      'The control at the end of a peeking panel, past the fade and --slotted-collapsible-more-overlap over the panel, where the content is masked whole; a Button takes its place. Present only while the panel is closed and peek is set, it opens the panel and names it through aria-controls, as the header trigger does.',
   },
 ];
 
