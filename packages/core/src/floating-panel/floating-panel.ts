@@ -1,8 +1,8 @@
 /**
- * The geometry of a panel the reader moves over the page: where it starts,
- * where a key moves it, and the clamp that keeps it whole inside the viewport
- * during a move, when the viewport shrinks and when a stored place is
- * restored. A place is the panel's top-left corner in viewport pixels.
+ * The geometry of a panel the reader moves over the page: where a key moves
+ * it, and the clamp that keeps it whole inside the viewport during a move. A
+ * place is the panel's top-left corner in viewport pixels; the stylesheet
+ * draws the corner a panel starts in and clamps a place it is handed.
  */
 
 export interface FloatingPlace {
@@ -18,7 +18,7 @@ export interface FloatingSize {
 /** The corner a panel first opens in, in the reading direction. */
 export type FloatingCorner = 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
 
-/** The distance one arrow key moves the panel, and one with Shift. */
+/** The default distance one arrow key moves the panel, and one with Shift, in pixels. */
 export const FLOATING_STEP = 8;
 export const FLOATING_LARGE_STEP = 32;
 
@@ -34,30 +34,8 @@ export function clampPlace(
   };
 }
 
-/** The place of a corner, `inset` pixels from the viewport's edges. */
-export function cornerPlace(
-  corner: FloatingCorner,
-  size: FloatingSize,
-  viewport: FloatingSize,
-  inset: number,
-  direction: 'ltr' | 'rtl' = 'ltr',
-): FloatingPlace {
-  const [block, inline] = corner.split('-') as ['top' | 'bottom', 'start' | 'end'];
-  const atRight = (inline === 'end') === (direction === 'ltr');
-
-  return clampPlace(
-    {
-      x: atRight ? viewport.width - size.width - inset : inset,
-      y: block === 'bottom' ? viewport.height - size.height - inset : inset,
-    },
-    size,
-    viewport,
-  );
-}
-
-/** Where an arrow key moves the panel, or `null` for any other key. */
-export function stepPlace(place: FloatingPlace, key: string, large: boolean): FloatingPlace | null {
-  const step = large ? FLOATING_LARGE_STEP : FLOATING_STEP;
+/** Where an arrow key moves the panel by `step` pixels, or `null` for any other key. */
+export function stepPlace(place: FloatingPlace, key: string, step: number): FloatingPlace | null {
   const delta = ARROWS[key];
   if (delta === undefined) return null;
 

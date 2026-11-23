@@ -10,11 +10,15 @@ export interface FloatingPanelProps extends Omit<ComponentPropsWithoutRef<'secti
   open: boolean;
   /** Asked with `false` on Escape inside the panel and on its close control. */
   onOpenChange: (open: boolean) => void;
-  /** The corner the panel first opens in, in the reading direction. Defaults to `bottom-end`. */
+  /** The corner the panel stands in until its first move, in the reading direction. Defaults to `bottom-end`. */
   defaultPlace?: FloatingCorner | undefined;
   /** A controlled place, its top-left corner in viewport pixels; drawn inside the viewport. */
   place?: FloatingPlace | undefined;
-  /** Fired at the end of a move, by pointer or by key, for the application to store. */
+  /** Pixels an arrow key on the grip moves the panel. Defaults to 8. */
+  step?: number | undefined;
+  /** Pixels an arrow key with Shift moves it. Defaults to 32. */
+  largeStep?: number | undefined;
+  /** Fired once at the end of a move, by pointer or by key, for the application to store. */
   onPlaceChange?: ((place: FloatingPlace) => void) | undefined;
   /** Words laid over the catalog of the language in force. */
   messages?: PartialMessages<FloatingPanelMessages> | undefined;

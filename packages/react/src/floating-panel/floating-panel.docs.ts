@@ -85,7 +85,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'keyboard',
     title: 'Moved by the keyboard, and stored where it was left',
-    note: 'The grip takes focus; an arrow key moves the panel eight pixels, thirty-two with Shift. onPlaceChange reports the end of every move, so the application stores the place and hands it back as place.',
+    note: 'The grip takes focus; an arrow key moves the panel by step, eight pixels, and by largeStep, thirty-two, with Shift. onPlaceChange reports the end of every move, so the application stores the place and hands it back as place.',
     snippet: defineSnippet({
       id: 'floating-panel-react-keyboard',
       language: 'tsx',
@@ -127,7 +127,7 @@ export const REACT_FLOATING_PANEL_DOCS = {
         "'top-start' | 'top-end' | 'bottom-start' | 'bottom-end'",
         'bottom-end',
         'FloatingPanel',
-        'The corner the panel first opens in, in the reading direction',
+        'The corner the panel stands in until its first move, in the reading direction, --slotted-floating-panel-inset from the edges',
       ],
       [
         'place',
@@ -136,12 +136,14 @@ export const REACT_FLOATING_PANEL_DOCS = {
         'FloatingPanel',
         'A controlled place, the top-left corner in viewport pixels, drawn inside the viewport',
       ],
+      ['step', 'number', '8', 'FloatingPanel', 'Pixels an arrow key on the grip moves the panel'],
+      ['largeStep', 'number', '32', 'FloatingPanel', 'Pixels an arrow key with Shift moves it'],
       [
         'onPlaceChange',
         '(place) => void',
         '—',
         'FloatingPanel',
-        'Fired at the end of a move, by pointer or by key, for the application to store',
+        'Fired once at the end of a move, by pointer or by key, for the application to store',
       ],
       [
         'messages',

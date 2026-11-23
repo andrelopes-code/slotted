@@ -1,16 +1,18 @@
 @layer slotted.components {
   /**
    * A tool that floats over the page and holds nobody: no scrim, no focus
-   * trap, no inert page. It stands at the place the binding writes (`--_x`,
-   * `--_y`, the top-left corner in viewport pixels) and the translation is
-   * clamped by the viewport and its own size, so the whole panel stays in view
-   * while it moves, when the window shrinks and when a stored place lies
-   * outside it, with no script on resize.
+   * trap, no inert page. It opens in a corner (`data-corner`), and once it has
+   * a place it stands there (`--_x`, `--_y`, the top-left corner in viewport
+   * pixels, written by the binding); the translation is clamped by the viewport
+   * and its own size, so the whole panel stays in view while it moves, when the
+   * window shrinks and when a stored place lies outside it, with no script on
+   * resize.
    *
    *   [data-ui-floating-panel] ▸ handle ▸ grip · title · close
    *                            ▸ body
    */
   [data-ui-floating-panel][data-part-root] {
+    --_inset: var(--slotted-floating-panel-inset, var(--slotted-space-6, 16px));
     background-color: var(--slotted-floating-panel-surface, var(--slotted-surface-raised, Canvas));
     border: var(--slotted-border-width-thin, 1px) solid
       var(--slotted-floating-panel-border-color, var(--slotted-border-strong, CanvasText));
@@ -28,8 +30,9 @@
        at the viewport's left edge in either direction before it moves. */
     inset-block-start: 0;
     inset-inline-start: 0;
-    max-block-size: 100dvh;
-    max-inline-size: 100vw;
+    /* One limit in a corner and at a place: a move never resizes the panel. */
+    max-block-size: calc(100dvh - 2 * var(--_inset));
+    max-inline-size: calc(100vw - 2 * var(--_inset));
     position: fixed;
     translate: clamp(0px, var(--_x, 0px), calc(100vw - 100%))
       clamp(0px, var(--_y, 0px), calc(100dvh - 100%));
@@ -40,6 +43,27 @@
   [data-ui-floating-panel][data-part-root]:dir(rtl) {
     inset-inline-end: 0;
     inset-inline-start: auto;
+  }
+
+  [data-ui-floating-panel][data-part-root][data-corner] {
+    inset: auto;
+    translate: none;
+  }
+
+  [data-ui-floating-panel][data-part-root][data-corner^='top'] {
+    inset-block-start: var(--_inset);
+  }
+
+  [data-ui-floating-panel][data-part-root][data-corner^='bottom'] {
+    inset-block-end: var(--_inset);
+  }
+
+  [data-ui-floating-panel][data-part-root][data-corner$='start'] {
+    inset-inline-start: var(--_inset);
+  }
+
+  [data-ui-floating-panel][data-part-root][data-corner$='end'] {
+    inset-inline-end: var(--_inset);
   }
 
   [data-ui-floating-panel] > [data-part-handle] {

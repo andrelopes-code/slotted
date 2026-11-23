@@ -7,6 +7,7 @@ import {
   ElementRef,
   inject,
   input,
+  numberAttribute,
   output,
   signal,
   untracked,
@@ -14,7 +15,12 @@ import {
 } from '@angular/core';
 import { injectMessages } from '@slotted/angular/i18n';
 import { SlGlyph, SlIcon } from '@slotted/angular/icon';
-import { clampPlace, cornerPlace, stepPlace } from '@slotted/core/floating-panel';
+import {
+  clampPlace,
+  FLOATING_LARGE_STEP,
+  FLOATING_STEP,
+  stepPlace,
+} from '@slotted/core/floating-panel';
 import type { FloatingCorner, FloatingPlace } from '@slotted/core/floating-panel';
 import {
   floatingPanelMessages,
@@ -52,10 +58,10 @@ let titles = 0;
     '[attr.hidden]': "open() ? null : ''",
     '[attr.aria-labelledby]': 'label() === undefined ? titleId : null',
     '[attr.aria-label]': 'label() ?? null',
+    '[attr.data-corner]': 'shown() === null ? defaultPlace() : null',
     '[attr.data-dragging]': "live() === null ? null : ''",
     '[style.--_x]': "shown() === null ? null : shown()!.x + 'px'",
     '[style.--_y]': "shown() === null ? null : shown()!.y + 'px'",
-    '[style.visibility]': "shown() === null ? 'hidden' : null",
     '(keydown)': 'onKeydown($event)',
   },
 })
@@ -68,11 +74,15 @@ export class SlFloatingPanel {
   readonly defaultPlace = input<FloatingCorner>('bottom-end');
   /** A controlled place, its top-left corner in viewport pixels; drawn inside the viewport. */
   readonly place = input<FloatingPlace | undefined>(undefined);
+  /** Pixels an arrow key on the grip moves the panel. */
+  readonly step = input(FLOATING_STEP, { transform: numberAttribute });
+  /** Pixels an arrow key with Shift moves it. */
+  readonly largeStep = input(FLOATING_LARGE_STEP, { transform: numberAttribute });
   readonly messages = input<PartialMessages<FloatingPanelMessages> | undefined>(undefined);
 
   /** Asked with `false` on Escape inside the panel and on its close control. */
   readonly openChange = output<boolean>();
-  /** Fired at the end of a move, by pointer or by key, for the application to store. */
+  /** Fired once at the end of a move, by pointer or by key, for the application to store. */
   readonly placeChange = output<FloatingPlace>();
 
   readonly t = injectMessages(floatingPanelMessages, this.messages);
@@ -92,8 +102,6 @@ export class SlFloatingPanel {
         const active = this.native.ownerDocument.activeElement;
         this.opener =
           active instanceof HTMLElement && active !== active.ownerDocument.body ? active : null;
-        if (this.place() !== undefined || this.own() !== null) return;
-        queueMicrotask(() => this.placeInCorner());
       });
     });
   }
@@ -106,40 +114,40 @@ export class SlFloatingPanel {
 
   /** Moves the panel one step for an arrow key, a larger one with Shift. */
   move(event: KeyboardEvent) {
-    const shown = this.shown();
-    if (shown === null) return;
-
-    const next = stepPlace(shown, event.key, event.shiftKey);
+    const step = event.shiftKey ? this.largeStep() : this.step();
+    const next = stepPlace(this.drawn(), event.key, step);
     if (next === null) return;
+
     event.preventDefault();
     this.commit(this.clamped(next));
   }
 
   /** Drags the panel from a press on its handle, the pointer captured. */
   startDrag(event: PointerEvent) {
-    const from = this.shown();
-    if (event.button !== 0 || from === null) return;
+    if (event.button !== 0) return;
     if ((event.target as Element).closest('[data-part="close"]') !== null) return;
 
     const handle = event.currentTarget as HTMLElement;
-    const pointer = { x: event.clientX, y: event.clientY };
+    const from = this.drawn();
+    const pressed = { x: event.clientX, y: event.clientY };
+    let last: FloatingPlace | null = null;
     handle.setPointerCapture(event.pointerId);
 
-    const onMove = (move: PointerEvent) =>
-      this.live.set(
-        this.clamped({
-          x: from.x + move.clientX - pointer.x,
-          y: from.y + move.clientY - pointer.y,
-        }),
-      );
-    const onEnd = (end: PointerEvent) => {
-      onMove(end);
+    const onMove = (move: PointerEvent) => {
+      const by = { x: move.clientX - pressed.x, y: move.clientY - pressed.y };
+      if (last === null && by.x === 0 && by.y === 0) return;
+
+      last = this.clamped({ x: from.x + by.x, y: from.y + by.y });
+      this.live.set(last);
+    };
+    const onEnd = () => {
       handle.removeEventListener('pointermove', onMove);
       handle.removeEventListener('pointerup', onEnd);
       handle.removeEventListener('pointercancel', onEnd);
-      const last = this.live();
+      if (last === null) return;
+
       this.live.set(null);
-      if (last !== null) this.commit(last);
+      this.commit(last);
     };
     handle.addEventListener('pointermove', onMove);
     handle.addEventListener('pointerup', onEnd);
@@ -152,11 +160,6 @@ export class SlFloatingPanel {
     this.close();
   }
 
-  private placeInCorner() {
-    const direction = getComputedStyle(this.native).direction === 'rtl' ? 'rtl' : 'ltr';
-    this.own.set(cornerPlace(this.defaultPlace(), this.size(), this.viewport(), 16, direction));
-  }
-
   private commit(next: FloatingPlace) {
     if (this.place() === undefined) this.own.set(next);
     this.placeChange.emit(next);
@@ -164,6 +167,13 @@ export class SlFloatingPanel {
 
   private clamped(next: FloatingPlace) {
     return clampPlace(next, this.size(), this.viewport());
+  }
+
+  /** Where the panel is drawn, which is not its stored place when that lies outside the viewport. */
+  private drawn(): FloatingPlace {
+    const box = this.native.getBoundingClientRect();
+
+    return { x: box.left, y: box.top };
   }
 
   private size() {

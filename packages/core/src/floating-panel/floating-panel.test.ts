@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { clampPlace, cornerPlace, stepPlace } from './index';
+import { clampPlace, stepPlace } from './index';
 
 const VIEWPORT = { width: 1000, height: 600 };
 const PANEL = { width: 300, height: 200 };
@@ -15,15 +15,9 @@ describe('the geometry of a floating panel', () => {
     });
   });
 
-  it('opens in a corner of the reading direction', () => {
-    expect(cornerPlace('bottom-end', PANEL, VIEWPORT, 16)).toEqual({ x: 684, y: 384 });
-    expect(cornerPlace('bottom-end', PANEL, VIEWPORT, 16, 'rtl')).toEqual({ x: 16, y: 384 });
-    expect(cornerPlace('top-start', PANEL, VIEWPORT, 16)).toEqual({ x: 16, y: 16 });
-  });
-
-  it('moves one step on an arrow, a larger one with Shift, and ignores other keys', () => {
-    expect(stepPlace({ x: 10, y: 10 }, 'ArrowRight', false)).toEqual({ x: 18, y: 10 });
-    expect(stepPlace({ x: 10, y: 40 }, 'ArrowUp', true)).toEqual({ x: 10, y: 8 });
-    expect(stepPlace({ x: 10, y: 10 }, 'Enter', false)).toBeNull();
+  it('moves by the step on an arrow, and ignores other keys', () => {
+    expect(stepPlace({ x: 10, y: 10 }, 'ArrowRight', 8)).toEqual({ x: 18, y: 10 });
+    expect(stepPlace({ x: 10, y: 40 }, 'ArrowUp', 32)).toEqual({ x: 10, y: 8 });
+    expect(stepPlace({ x: 10, y: 10 }, 'Enter', 8)).toBeNull();
   });
 });

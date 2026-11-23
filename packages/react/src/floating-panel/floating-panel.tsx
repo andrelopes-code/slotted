@@ -1,4 +1,9 @@
-import { clampPlace, cornerPlace, stepPlace } from '@slotted/core/floating-panel';
+import {
+  clampPlace,
+  FLOATING_LARGE_STEP,
+  FLOATING_STEP,
+  stepPlace,
+} from '@slotted/core/floating-panel';
 import type { FloatingPlace } from '@slotted/core/floating-panel';
 import { floatingPanelMessages } from '@slotted/core/i18n';
 import { keyedProps } from '@slotted/core/selector-key';
@@ -33,12 +38,14 @@ export function FloatingPanel({
   'aria-label': ariaLabel,
   children,
   defaultPlace = 'bottom-end',
+  largeStep = FLOATING_LARGE_STEP,
   messages,
   onKeyDown,
   onOpenChange,
   onPlaceChange,
   open,
   place,
+  step = FLOATING_STEP,
   style,
   ...nativeProps
 }: FloatingPanelProps) {
@@ -46,7 +53,6 @@ export function FloatingPanel({
   const titleId = useId();
   const root = useRef<HTMLElement | null>(null);
   const opener = useRef<HTMLElement | null>(null);
-  const drag = useRef<{ pointer: FloatingPlace; from: FloatingPlace } | null>(null);
   const [own, setOwn] = useState<FloatingPlace | null>(null);
   const [live, setLive] = useState<FloatingPlace | null>(null);
 
@@ -60,18 +66,6 @@ export function FloatingPanel({
     opener.current = active instanceof HTMLElement && active !== document.body ? active : null;
   }, [open]);
 
-  /* An uncontrolled panel opens in its corner, from its own size. */
-  useLayoutEffect(() => {
-    if (!open || place !== undefined || own !== null || root.current === null) return;
-
-    const direction = getComputedStyle(root.current).direction === 'rtl' ? 'rtl' : 'ltr';
-    setOwn(cornerPlace(defaultPlace, sizeOf(root.current), viewport(), 16, direction));
-  }, [defaultPlace, open, own, place]);
-
-  function clamped(next: FloatingPlace) {
-    return root.current === null ? next : clampPlace(next, sizeOf(root.current), viewport());
-  }
-
   function commit(next: FloatingPlace) {
     if (place === undefined) setOwn(next);
     onPlaceChange?.(next);
@@ -83,33 +77,31 @@ export function FloatingPanel({
   }
 
   function startDrag(event: PointerEvent<HTMLElement>) {
-    if (event.button !== 0 || shown === null) return;
+    const panel = root.current;
+    if (event.button !== 0 || panel === null) return;
     if ((event.target as Element).closest('[data-part="close"]') !== null) return;
 
     const handle = event.currentTarget;
+    const from = placeOf(panel);
+    const pressed = { x: event.clientX, y: event.clientY };
+    let last: FloatingPlace | null = null;
     handle.setPointerCapture(event.pointerId);
-    drag.current = { pointer: { x: event.clientX, y: event.clientY }, from: shown };
 
     const onMove = (move: globalThis.PointerEvent) => {
-      const start = drag.current;
-      if (start === null) return;
-      setLive(
-        clamped({
-          x: start.from.x + move.clientX - start.pointer.x,
-          y: start.from.y + move.clientY - start.pointer.y,
-        }),
-      );
+      const by = { x: move.clientX - pressed.x, y: move.clientY - pressed.y };
+      if (last === null && by.x === 0 && by.y === 0) return;
+
+      last = clampPlace({ x: from.x + by.x, y: from.y + by.y }, sizeOf(panel), viewport());
+      setLive(last);
     };
-    const onEnd = (end: globalThis.PointerEvent) => {
-      onMove(end);
+    const onEnd = () => {
       handle.removeEventListener('pointermove', onMove);
       handle.removeEventListener('pointerup', onEnd);
       handle.removeEventListener('pointercancel', onEnd);
-      drag.current = null;
-      setLive((last) => {
-        if (last !== null) commit(last);
-        return null;
-      });
+      if (last === null) return;
+
+      setLive(null);
+      commit(last);
     };
     handle.addEventListener('pointermove', onMove);
     handle.addEventListener('pointerup', onEnd);
@@ -117,12 +109,14 @@ export function FloatingPanel({
   }
 
   function move(event: KeyboardEvent) {
-    if (shown === null) return;
+    if (root.current === null) return;
 
-    const next = stepPlace(shown, event.key, event.shiftKey);
+    const from = placeOf(root.current);
+    const next = stepPlace(from, event.key, event.shiftKey ? largeStep : step);
     if (next === null) return;
+
     event.preventDefault();
-    commit(clamped(next));
+    commit(clampPlace(next, sizeOf(root.current), viewport()));
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
@@ -142,12 +136,11 @@ export function FloatingPanel({
     ...(live === null ? {} : { 'data-dragging': '' }),
     'data-part': 'root',
     'data-ui': 'floating-panel',
+    ...(shown === null ? { 'data-corner': defaultPlace } : {}),
     onKeyDown: handleKeyDown,
     role: 'region',
     style: {
-      ...(shown === null
-        ? { visibility: 'hidden' }
-        : { '--_x': `${String(shown.x)}px`, '--_y': `${String(shown.y)}px` }),
+      ...(shown === null ? {} : { '--_x': `${String(shown.x)}px`, '--_y': `${String(shown.y)}px` }),
       ...style,
     } as CSSProperties,
   });
@@ -157,6 +150,13 @@ export function FloatingPanel({
       <section {...rootProps} ref={root} />
     </FloatingPanelContext.Provider>
   );
+}
+
+/** Where the panel is drawn, which is not its stored place when that lies outside the viewport. */
+function placeOf(element: HTMLElement): FloatingPlace {
+  const box = element.getBoundingClientRect();
+
+  return { x: box.left, y: box.top };
 }
 
 function sizeOf(element: HTMLElement) {
