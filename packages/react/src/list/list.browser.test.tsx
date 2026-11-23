@@ -66,6 +66,7 @@ describe('a list with the inset fill in a page container', () => {
         style={
           {
             '--slotted-list-fill-inset': `${REACH}px`,
+            '--slotted-list-item-border-color': 'rgb(1, 2, 3)',
             boxSizing: 'border-box',
             inlineSize: 390,
             paddingInline: 16,
@@ -88,10 +89,17 @@ describe('a list with the inset fill in a page container', () => {
                 <ListItemEnd>12.00</ListItemEnd>
               </ListItemButton>
             </ListItem>
-            <ListItem selected>
+            <ListItem>
               <ListItemButton>
                 <ListItemBody>
                   <ListItemLabel>Second</ListItemLabel>
+                </ListItemBody>
+              </ListItemButton>
+            </ListItem>
+            <ListItem selected>
+              <ListItemButton>
+                <ListItemBody>
+                  <ListItemLabel>Third</ListItemLabel>
                 </ListItemBody>
               </ListItemButton>
             </ListItem>
@@ -130,7 +138,7 @@ describe('a list with the inset fill in a page container', () => {
     expect(
       document.elementFromPoint(tile.left + 2, tile.top + tile.height / 2)?.closest('button'),
     ).not.toBeNull();
-    expect(getComputedStyle(rows[1]!).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+    expect(getComputedStyle(rows[2]!).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
   });
 
   it('widens no page that pads its content by as much', () => {
@@ -145,7 +153,8 @@ describe('a list with the inset fill in a page container', () => {
 
     expect(rule.left).toBe(`${REACH}px`);
     expect(rule.right).toBe(`${REACH}px`);
-    expect(rule.boxShadow).not.toBe('none');
+    expect(rule.boxShadow).toContain('rgb(1, 2, 3)');
+    expect(getComputedStyle(rows[1]!).boxShadow).not.toContain('rgb(1, 2, 3)');
   });
 
   it('leaves a framed list to its frame', () => {
