@@ -52,10 +52,12 @@ import { calendarMessages, type CalendarMessages, type PartialMessages } from '@
 import { injectCalendarDefaults } from './calendar-defaults';
 import type {
   CalendarCalendar,
+  CalendarDayAlign,
   CalendarGranularity,
   CalendarMark,
   CalendarOutsideDays,
   CalendarSelectionMode,
+  CalendarTodayMark,
   CalendarValue,
   CalendarView,
 } from './calendar-defaults';
@@ -228,7 +230,7 @@ export class SlCalendarDayValue {}
                   @if (resolvedWeekNumbers()) {
                     <th data-part="week-number" data-part-week-number="" aria-hidden="true"></th>
                   }
-                  @for (name of weekdayNarrow(); track $index) {
+                  @for (name of weekdayNames(); track $index) {
                     <th
                       data-part="week-header"
                       data-part-week-header=""
@@ -260,6 +262,7 @@ export class SlCalendarDayValue {}
                         data-part="cell"
                         data-part-cell=""
                         [attr.data-outside-month]="day.outsideMonth ? '' : null"
+                        [attr.data-inert]="drawn(day) && inert(day.date) ? '' : null"
                         [attr.data-unavailable]="
                           !drawn(day) ? null : unavailable(day.date) ? '' : null
                         "
@@ -310,15 +313,15 @@ export class SlCalendarDayValue {}
                             <span
                               data-part="day"
                               data-part-day=""
-                              role="button"
+                              [attr.role]="inert(day.date) ? null : 'button'"
                               [attr.data-today]="isToday(day.date) ? '' : null"
-                              [attr.aria-selected]="chosen(day.date) ? 'true' : null"
-                              [attr.aria-disabled]="refused(day) ? 'true' : null"
+                              [attr.aria-selected]="chosen(day.date) && !inert(day.date) ? 'true' : null"
+                              [attr.aria-disabled]="refused(day) && !inert(day.date) ? 'true' : null"
                               [tabindex]="tabIndexOf(day.date)"
                               (click)="!refused(day) && select(day.date, 'pointer', $event)"
                               (pointerenter)="hovered.set(day.date)"
                               (pointerleave)="hovered.set(null)"
-                              [attr.aria-label]="dayLabel()?.(day.date) ?? null"
+                              [attr.aria-label]="inert(day.date) ? null : (dayLabel()?.(day.date) ?? null)"
                             ><ng-container [ngTemplateOutlet]="dayBody" [ngTemplateOutletContext]="{ $implicit: day }" /></span>
                           }
                         }
@@ -389,7 +392,10 @@ export class SlCalendarDayValue {}
 
     <!-- The mark's words follow the number with no space, so the name reads "12, 2 items". -->
     <!-- prettier-ignore -->
-    <ng-template #dayBody let-day>{{ day.date.day }}@if (dayTemplate(); as template) {<span
+    <ng-template #dayBody let-day>@if (layout() === 'fill') {<span
+          data-part="day-number"
+          data-part-day-number=""
+        >{{ day.date.day }}</span>} @else {{{ day.date.day }}}@if (dayTemplate(); as template) {<span
           data-part="day-content"
           data-part-day-content=""
         ><ng-container
@@ -416,6 +422,8 @@ export class SlCalendarDayValue {}
     '[attr.data-months]': 'resolvedMonths() > 1 ? resolvedMonths() : null',
     '[attr.data-layout]': "layout() === 'fill' ? 'fill' : null",
     '[attr.data-lines]': "lines() ? '' : null",
+    '[attr.data-day-align]': "dayAlign() === 'start' ? 'start' : null",
+    '[attr.data-today-mark]': "todayMark() === 'disc' ? 'disc' : null",
     '[attr.data-week-numbers]': "resolvedWeekNumbers() ? '' : null",
     '[attr.data-disabled]': "disabled() === true ? '' : null",
     '[attr.data-readonly]': "readOnly() === true ? '' : null",
@@ -434,6 +442,12 @@ export class SlCalendar implements OnInit {
   readonly min = input<PlainDate | undefined>(undefined);
   readonly max = input<PlainDate | undefined>(undefined);
   readonly isDateUnavailable = input<((date: PlainDate) => boolean) | undefined>(undefined);
+  /**
+   * The days that hold nothing to choose, as the days of a month of records
+   * that have none: plain text, with no button, tooltip or label of their own.
+   * The arrow keys cross them. A day that is both is inert, not unavailable.
+   */
+  readonly isDateInert = input<((date: PlainDate) => boolean) | undefined>(undefined);
 
   readonly selectionMode = input<CalendarSelectionMode>('single');
   readonly months = input<number | undefined, unknown>(undefined, {
@@ -488,11 +502,22 @@ export class SlCalendar implements OnInit {
   readonly header = input(true, { transform: booleanAttribute });
   /** Hairlines between the days of the `fill` layout. */
   readonly lines = input(false, { transform: booleanAttribute });
+  /**
+   * Where the content of a day stands in the `fill` layout. `start` puts the
+   * number on the start of the first line, the figure on the end of its own and
+   * the marks, written last, on the start of the last line.
+   */
+  readonly dayAlign = input<CalendarDayAlign>('center');
+  /**
+   * How the `fill` layout marks today: a `dot` under the number, or the number
+   * in a `disc` of the accent solid.
+   */
+  readonly todayMark = input<CalendarTodayMark>('dot');
 
   protected tooltipOf(date: PlainDate) {
     const tooltip = this.dayTooltip();
 
-    return tooltip?.when()(date) === true ? tooltip : null;
+    return !this.inert(date) && tooltip?.when()(date) === true ? tooltip : null;
   }
 
   protected dayState(day: CalendarDay): CalendarDayState {
@@ -500,7 +525,7 @@ export class SlCalendar implements OnInit {
       outside: day.outsideMonth,
       selected: this.chosen(day.date),
       today: this.isToday(day.date),
-      unavailable: this.refused(day),
+      unavailable: this.refused(day) && !this.inert(day.date),
     };
   }
 
@@ -626,7 +651,9 @@ export class SlCalendar implements OnInit {
   );
 
   protected readonly weekdayLong = computed(() => this.format().weekdayNames('long'));
-  protected readonly weekdayNarrow = computed(() => this.format().weekdayNames('narrow'));
+  protected readonly weekdayNames = computed(() =>
+    this.format().weekdayNames(this.layout() === 'fill' ? 'short' : 'narrow'),
+  );
   protected readonly monthNames = computed(() => this.format().monthNames('short'));
   /** Each paging button is named for the step it takes in the view showing. */
   protected readonly pageNames = computed(() => {
@@ -724,23 +751,28 @@ export class SlCalendar implements OnInit {
     });
   }
 
+  protected inert(date: PlainDate): boolean {
+    return this.isDateInert()?.(date) === true;
+  }
+
   protected unavailable(date: PlainDate): boolean {
+    if (this.inert(date)) return false;
     if (!isDateInRange(date, this.min(), this.max())) return true;
     return this.isDateUnavailable()?.(date) === true;
   }
 
-  /** Unavailable, or an outside day the axis says may not be chosen. */
   /** Whether the cell carries a day at all, or stands empty to fill the row. */
   protected drawn(day: CalendarDay): boolean {
     return !(day.outsideMonth && this.resolvedOutsideDays() === 'hidden');
   }
 
   /**
-   * The grid already knows which month a day belongs to, and asking the first
+   * Unavailable, inert, or an outside day the axis says may not be chosen. The
+   * grid already knows which month a day belongs to, and asking the first
    * shown month instead refused every day of the second one in a pair.
    */
   protected refused(day: CalendarDay): boolean {
-    if (this.unavailable(day.date)) return true;
+    if (this.inert(day.date) || this.unavailable(day.date)) return true;
     return day.outsideMonth && this.resolvedOutsideDays() === 'shown';
   }
 
@@ -790,7 +822,7 @@ export class SlCalendar implements OnInit {
   }
 
   protected select(date: PlainDate, reason: ChangeReason, source: Event | undefined) {
-    if (!this.editable() || this.unavailable(date)) return;
+    if (!this.editable() || this.inert(date) || this.unavailable(date)) return;
     this.requestValue(nextValue(date, this.held(), this.selectionMode()), reason, source);
     this.requestFocused(date, reason, source);
   }

@@ -38,6 +38,12 @@ export type CalendarGranularity = 'day' | 'month';
 /** What happens to a day belonging to the month either side. */
 export type CalendarOutsideDays = 'shown' | 'selectable' | 'hidden';
 
+/** Where the content of a day stands in the `fill` layout. */
+export type CalendarDayAlign = 'center' | 'start';
+
+/** How the `fill` layout marks today. */
+export type CalendarTodayMark = 'dot' | 'disc';
+
 /**
  * The calendar system the value is written in. One value today, and an axis
  * rather than a silence: a second calendar system is a second arithmetic, and
@@ -75,12 +81,14 @@ export interface CalendarDefaultsProviderProps extends Partial<CalendarDefaults>
 
 export interface CalendarRootProps extends HTMLAttributes<HTMLElement> {
   'data-calendar': CalendarCalendar;
+  'data-day-align'?: 'start' | undefined;
   'data-disabled'?: '' | undefined;
   'data-invalid'?: '' | undefined;
   'data-lines'?: '' | undefined;
   'data-months'?: string | undefined;
   'data-part': string;
   'data-readonly'?: '' | undefined;
+  'data-today-mark'?: 'disc' | undefined;
   'data-ui': string;
   'data-view': CalendarView;
   'data-week-numbers'?: '' | undefined;
@@ -136,6 +144,17 @@ export interface CalendarProps extends Omit<
   header?: boolean | undefined;
   /** Hairlines between the days of the `fill` layout. */
   lines?: boolean | undefined;
+  /**
+   * Where the content of a day stands in the `fill` layout. `start` puts the
+   * number on the start of the first line, the figure on the end of its own and
+   * the marks, written last, on the start of the last line.
+   */
+  dayAlign?: CalendarDayAlign | undefined;
+  /**
+   * How the `fill` layout marks today: a `dot` under the number, or the number
+   * in a `disc` of the accent solid.
+   */
+  todayMark?: CalendarTodayMark | undefined;
   /** Present means the consumer owns the value. */
   value?: CalendarValue | undefined;
   defaultValue?: CalendarValue | undefined;
@@ -151,6 +170,12 @@ export interface CalendarProps extends Omit<
   max?: PlainDate | undefined;
   /** Refuses particular dates. A refused date stays focusable and is not selectable. */
   isDateUnavailable?: ((date: PlainDate) => boolean) | undefined;
+  /**
+   * The days that hold nothing to choose, as the days of a month of records
+   * that have none: plain text, with no button, tooltip or label of their own.
+   * The arrow keys cross them. A day that is both is inert, not unavailable.
+   */
+  isDateInert?: ((date: PlainDate) => boolean) | undefined;
 
   selectionMode?: CalendarSelectionMode | undefined;
   /** How many months are drawn side by side. They wrap when they do not fit. */

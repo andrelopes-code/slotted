@@ -1,12 +1,18 @@
-import { plainDate } from '@slotted/core/date';
-import { render, screen } from '@testing-library/react';
+import { addDays, plainDate, todayIn } from '@slotted/core/date';
+import { render, screen, within } from '@testing-library/react';
 import type { CSSProperties } from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { cdp, userEvent } from 'vitest/browser';
 
 import { Dialog, DialogBody, DialogContent, DialogTitle } from '../dialog';
 
-import { Calendar, CalendarDayMark, CalendarDayMarks, CalendarDayValue } from './index';
+import {
+  Calendar,
+  CalendarDayMark,
+  CalendarDayMarks,
+  CalendarDayValue,
+  type CalendarProps,
+} from './index';
 
 describe('a month with content in its days', () => {
   it('draws the marks and the figure of a day, names it, and fills its column', () => {
@@ -162,3 +168,210 @@ describe('the lines of a filled month', () => {
     expect(weeks.at(-1)!.at(-1)!.borderRightWidth).toBe('0px');
   });
 });
+
+/* A month of records reads down its columns: the number, the figure, the marks. */
+describe('the content of a day at its start', () => {
+  it.each(['ltr', 'rtl'])('stands on the start of the first and of the last line (%s)', (dir) => {
+    const { container } = renderMonth({ dayAlign: 'start', dir });
+    const day = container.querySelector<HTMLElement>('[data-part="day"]')!.getBoundingClientRect();
+    const box = (part: string) =>
+      container.querySelector(`[data-part="day"] [data-part="${part}"]`)!.getBoundingClientRect();
+    const start = (rect: DOMRect) =>
+      dir === 'rtl' ? day.right - rect.right : rect.left - day.left;
+    const end = (rect: DOMRect) => (dir === 'rtl' ? rect.left - day.left : day.right - rect.right);
+
+    expect(start(box('day-number'))).toBeLessThan(6);
+    expect(box('day-number').top - day.top).toBeLessThan(6);
+    expect(start(box('day-mark'))).toBeLessThan(10);
+    expect(day.bottom - box('day-marks').bottom).toBeLessThan(6);
+    expect(end(box('day-value'))).toBeLessThan(10);
+    expect(box('day-value').top).toBeGreaterThanOrEqual(box('day-number').bottom);
+    expect(box('day-value').bottom).toBeLessThanOrEqual(box('day-marks').top);
+  });
+
+  it('starts the names of the weekdays on the line of the numbers', () => {
+    const { container } = renderMonth({ dayAlign: 'start' });
+    const header = container.querySelector('[data-part="week-header"]')!;
+    const range = document.createRange();
+    range.selectNodeContents(header);
+    const mark = container.querySelector('[data-part="day"] [data-part="day-mark"]')!;
+    const inset = (box: DOMRect, cell: Element) => box.left - cell.getBoundingClientRect().left;
+
+    expect(header.textContent).toBe('Sun');
+    expect(inset(range.getBoundingClientRect(), header)).toBeCloseTo(
+      inset(mark.getBoundingClientRect(), mark.closest('td')!),
+      0,
+    );
+  });
+
+  it('stays in the middle unless it is asked for', () => {
+    const { container } = renderMonth({});
+    const day = container.querySelector('[data-part="day"]')!.getBoundingClientRect();
+    const number = container.querySelector('[data-part="day-number"]')!.getBoundingClientRect();
+
+    expect(number.left + number.width / 2).toBeCloseTo(day.left + day.width / 2, 0);
+  });
+});
+
+describe('today in a disc', () => {
+  const today = todayIn();
+  const paint = {
+    '--slotted-tone-accent-solid': 'rgb(1, 2, 3)',
+    '--slotted-tone-accent-on-solid': 'rgb(250, 251, 252)',
+  } as CSSProperties;
+
+  function number(container: HTMLElement) {
+    return container.querySelector('[data-today] [data-part="day-number"]')!;
+  }
+
+  it('fills a circle with the accent solid, and draws no dot', () => {
+    const { container } = renderMonth({
+      defaultFocusedDate: today,
+      style: paint,
+      todayMark: 'disc',
+    });
+    const disc = getComputedStyle(number(container));
+    const box = number(container).getBoundingClientRect();
+
+    expect(disc.backgroundColor).toBe('rgb(1, 2, 3)');
+    expect(disc.color).toBe('rgb(250, 251, 252)');
+    expect(box.width).toBeCloseTo(box.height, 1);
+    expect(getComputedStyle(container.querySelector('[data-today]')!, '::before').display).toBe(
+      'none',
+    );
+  });
+
+  it('stays apart from the ground of a chosen day', () => {
+    const { container } = renderMonth({
+      defaultFocusedDate: today,
+      defaultValue: today,
+      style: paint,
+      todayMark: 'disc',
+    });
+    const disc = getComputedStyle(number(container));
+
+    expect(disc.backgroundColor).toBe('rgb(250, 251, 252)');
+    expect(disc.color).toBe('rgb(1, 2, 3)');
+  });
+
+  it('takes its ground and its ink from the tokens, chosen or not', () => {
+    for (const value of [null, today]) {
+      const { container, unmount } = renderMonth({
+        defaultFocusedDate: today,
+        defaultValue: value,
+        style: {
+          '--slotted-calendar-today-background': 'rgb(4, 5, 6)',
+          '--slotted-calendar-today-color': 'rgb(7, 8, 9)',
+        } as CSSProperties,
+        todayMark: 'disc',
+      });
+      const disc = getComputedStyle(number(container));
+
+      expect(disc.backgroundColor).toBe('rgb(4, 5, 6)');
+      expect(disc.color).toBe('rgb(7, 8, 9)');
+      unmount();
+    }
+  });
+
+  it('is a dot unless it is asked for', () => {
+    const { container } = renderMonth({ defaultFocusedDate: today, style: paint });
+
+    expect(getComputedStyle(number(container)).backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    expect(getComputedStyle(container.querySelector('[data-today]')!, '::before').display).not.toBe(
+      'none',
+    );
+  });
+});
+
+/* A day with no record holds nothing to choose, which is not the same as a refused one. */
+describe('a day that holds nothing to choose', () => {
+  const inert = (date: { day: number }) => date.day !== 20 && date.day !== 22;
+
+  it('is plain text: no button, no strike, no tooltip, the ink of any day', () => {
+    const { container } = renderMonth({
+      isDateInert: inert,
+      renderDayTooltip: (date) => `tooltip ${String(date.day)}`,
+    });
+    const grid = within(container.querySelector('[data-part="grid"]')!);
+    const days = [...container.querySelectorAll<HTMLElement>('[data-part="day"]')];
+    const plain = days.find((day) => day.textContent.startsWith('12'))!;
+    const pressable = days.find((day) => day.textContent.startsWith('20'))!;
+
+    expect(grid.getAllByRole('button')).toHaveLength(2);
+    expect(plain.hasAttribute('aria-disabled')).toBe(false);
+    expect(plain.hasAttribute('aria-label')).toBe(false);
+    expect(getComputedStyle(plain).textDecorationLine).toBe('none');
+    expect(getComputedStyle(plain).color).toBe(getComputedStyle(pressable).color);
+    expect(getComputedStyle(plain).cursor).toBe('default');
+  });
+
+  it('is crossed by the arrows and chosen by neither a press nor a key', async () => {
+    const onValueChange = vi.fn();
+    const { container } = renderMonth({
+      defaultFocusedDate: plainDate(2026, 10, 20),
+      isDateInert: inert,
+      onValueChange,
+    });
+    const focused = () => document.activeElement!.textContent;
+
+    await userEvent.keyboard('{Tab}');
+    await userEvent.keyboard('{ArrowRight}');
+    expect(focused()).toMatch(/^21/);
+
+    await userEvent.keyboard('{Enter}');
+    await userEvent.click(
+      [...container.querySelectorAll('[data-part="day"]')].find((day) =>
+        day.textContent.startsWith('12'),
+      )!,
+    );
+    expect(onValueChange).not.toHaveBeenCalled();
+
+    await userEvent.click(
+      [...container.querySelectorAll('[data-part="day"]')].find((day) =>
+        day.textContent.startsWith('22'),
+      )!,
+    );
+    expect(onValueChange.mock.lastCall![0]).toEqual(plainDate(2026, 10, 22));
+  });
+
+  it('may stand inside a run, and takes precedence over a refused date', () => {
+    const { container } = renderMonth({
+      defaultValue: {
+        start: plainDate(2026, 10, 20),
+        end: addDays(plainDate(2026, 10, 20), 2),
+      },
+      isDateInert: inert,
+      isDateUnavailable: (date) => date.day === 21,
+      selectionMode: 'range',
+    });
+    const cell = container.querySelector('[data-in-range]')!;
+
+    expect(cell.textContent).toMatch(/^21/);
+    expect(cell.hasAttribute('data-unavailable')).toBe(false);
+    expect(within(cell as HTMLElement).queryByRole('button')).toBeNull();
+  });
+});
+
+function renderMonth({ dir, ...props }: CalendarProps) {
+  return render(
+    <div dir={dir} style={{ inlineSize: 700 }}>
+      <Calendar
+        defaultFocusedDate={plainDate(2026, 10, 1)}
+        header={false}
+        layout="fill"
+        locale="en-US"
+        outsideDays="hidden"
+        renderDay={() => (
+          <>
+            <CalendarDayValue>−220</CalendarDayValue>
+            <CalendarDayMarks>
+              <CalendarDayMark tone="data-1" />
+              <CalendarDayMark hollow tone="data-2" />
+            </CalendarDayMarks>
+          </>
+        )}
+        {...props}
+      />
+    </div>,
+  );
+}

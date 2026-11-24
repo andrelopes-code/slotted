@@ -9,13 +9,11 @@ import {
   endOfWeek,
   isDateInRange,
   isSameDate,
-  monthGrid,
   plainDate,
   startOfWeek,
   stepMonth,
   stepYear,
   todayIn,
-  toISODate,
   visibleMonths,
   yearPage,
 } from '@slotted/core/date';
@@ -34,25 +32,16 @@ import {
 import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
 
 import { useLocale, useMessages } from '../i18n';
-import { CalendarDayButton } from './calendar-day-button';
 import { useCalendarDefaults } from './calendar-defaults';
 import { CalendarHeader } from './calendar-header';
-import {
-  isRange,
-  isSameValue,
-  isSelected,
-  nextValue,
-  previewRun,
-  rangeStateOf,
-} from './calendar-selection';
+import { CalendarMonthTable } from './calendar-month-table';
+import { CalendarPeriods } from './calendar-periods';
+import { isRange, isSameValue, nextValue, previewRun } from './calendar-selection';
 import type {
-  CalendarDayState,
-  CalendarMark,
   CalendarProps,
   CalendarRootProps,
   CalendarValue,
   CalendarView,
-  DateRange,
 } from './calendar.types';
 
 /** The month and year views are drawn four across; a week is seven. */
@@ -95,8 +84,10 @@ export function Calendar({
   focusedDate,
   granularity,
   header = true,
+  dayAlign = 'center',
   dayLabel,
   invalid,
+  isDateInert,
   isDateUnavailable,
   layout = 'cells',
   lines = false,
@@ -120,6 +111,7 @@ export function Calendar({
   selectionMode = 'single',
   style,
   timeZone,
+  todayMark = 'dot',
   value,
   view,
   weekNumbers,
@@ -357,13 +349,16 @@ export function Calendar({
     [requestFocused],
   );
 
+  const inert = useCallback((date: PlainDate) => isDateInert?.(date) === true, [isDateInert]);
+
   const unavailable = useCallback(
-    (date: PlainDate) => !isDateInRange(date, min, max) || isDateUnavailable?.(date) === true,
-    [isDateUnavailable, max, min],
+    (date: PlainDate) =>
+      !inert(date) && (!isDateInRange(date, min, max) || isDateUnavailable?.(date) === true),
+    [inert, isDateUnavailable, max, min],
   );
 
   const select = (date: PlainDate, reason: 'pointer' | 'keyboard', source: unknown) => {
-    if (!editable || unavailable(date)) return;
+    if (!editable || inert(date) || unavailable(date)) return;
     requestValue(nextValue(date, held, selectionMode), reason, source);
     requestFocused(date, reason, source);
   };
@@ -527,13 +522,15 @@ export function Calendar({
     currentView === 'day' ? (
       <div data-part="grids" data-part-grids="">
         {visibleMonths(page, resolvedMonths).map((month) => (
-          <MonthTable
+          <CalendarMonthTable
             editable={editable}
             firstDayOfWeek={format.firstDayOfWeek}
             fixedWeeks={resolvedFixedWeeks}
             focused={focused}
             format={format}
+            filled={layout === 'fill'}
             headingId={header ? headingId : undefined}
+            inert={inert}
             key={`${String(month.year)}-${String(month.month)}`}
             month={month}
             onHover={setHovered}
@@ -554,66 +551,21 @@ export function Calendar({
           />
         ))}
       </div>
-    ) : currentView === 'month' && monthly ? (
-      <div data-part="months" data-part-months="">
-        {format.monthNames('short').map((name, index) => {
-          const month = index + 1;
-          const refused = monthUnavailable(focused.year, month);
-          const chosen = heldMonth?.year === focused.year && heldMonth.month === month;
-          return (
-            <button
-              aria-label={format.monthYear(plainDate(focused.year, month, 1))}
-              data-part="period"
-              data-part-period=""
-              key={name}
-              onClick={(event) => selectMonth(focused.year, month, 'pointer', event)}
-              tabIndex={focused.month === month ? 0 : -1}
-              type="button"
-              {...(chosen ? { 'aria-selected': true, 'data-selected': '' } : {})}
-              {...(refused ? { 'aria-disabled': true, 'data-unavailable': '' } : {})}
-              {...(focused.month === month ? { 'data-focused': '' } : {})}
-            >
-              {name}
-            </button>
-          );
-        })}
-      </div>
-    ) : currentView === 'month' ? (
-      <div data-part="months" data-part-months="">
-        {format.monthNames('short').map((name, index) => (
-          <button
-            data-part="period"
-            data-part-period=""
-            key={name}
-            onClick={(event) => {
-              requestFocused({ ...focused, month: index + 1, day: 1 }, 'pointer', event);
-              changeView('day');
-            }}
-            type="button"
-            {...(focused.month === index + 1 ? { 'aria-selected': true, 'data-selected': '' } : {})}
-          >
-            {name}
-          </button>
-        ))}
-      </div>
     ) : (
-      <div data-part="years" data-part-years="">
-        {yearPage(focused.year, YEAR_PAGE).map((year) => (
-          <button
-            data-part="period"
-            data-part-period=""
-            key={year}
-            onClick={(event) => {
-              requestFocused({ ...focused, year, day: 1 }, 'pointer', event);
-              changeView('month');
-            }}
-            type="button"
-            {...(focused.year === year ? { 'aria-selected': true, 'data-selected': '' } : {})}
-          >
-            {year}
-          </button>
-        ))}
-      </div>
+      <CalendarPeriods
+        focused={focused}
+        format={format}
+        held={heldMonth}
+        monthly={monthly}
+        onMonth={(month, event) => selectMonth(focused.year, month, 'pointer', event)}
+        onWalkDown={(date, next, event) => {
+          requestFocused(date, 'pointer', event);
+          changeView(next);
+        }}
+        refused={(month) => monthUnavailable(focused.year, month)}
+        view={currentView}
+        years={yearPage(focused.year, YEAR_PAGE)}
+      />
     );
 
   /* Each paging button is named for the step it takes in the view showing. */
@@ -655,6 +607,8 @@ export function Calendar({
     ...(resolvedMonths > 1 ? { 'data-months': String(resolvedMonths) } : {}),
     ...(layout === 'fill' ? { 'data-layout': 'fill' } : {}),
     ...(lines ? { 'data-lines': '' } : {}),
+    ...(dayAlign === 'start' ? { 'data-day-align': 'start' } : {}),
+    ...(todayMark === 'disc' ? { 'data-today-mark': 'disc' } : {}),
     'data-calendar': resolvedCalendar,
     'data-columns': String(VIEW_COLUMNS[currentView]),
     'data-part': 'root',
@@ -667,170 +621,5 @@ export function Calendar({
     <div {...(rootProps as CalendarRootProps & { ref?: React.Ref<HTMLDivElement> })} />
   ) : (
     render(rootProps)
-  );
-}
-
-/** One month, as the `table` the grid role belongs on. */
-function MonthTable({
-  dayLabel,
-  editable,
-  firstDayOfWeek,
-  fixedWeeks,
-  focused,
-  format,
-  headingId,
-  markName,
-  marks,
-  month,
-  onHover,
-  onSelect,
-  outsideDays,
-  pending,
-  renderDay,
-  renderDayTooltip,
-  today,
-  unavailable,
-  value,
-  weekNumbers,
-}: {
-  dayLabel: CalendarProps['dayLabel'];
-  renderDay: CalendarProps['renderDay'];
-  renderDayTooltip: CalendarProps['renderDayTooltip'];
-  markName: (mark: CalendarMark) => string;
-  marks: ReadonlyMap<string, CalendarMark> | undefined;
-  editable: boolean;
-  firstDayOfWeek: number;
-  fixedWeeks: boolean;
-  focused: PlainDate;
-  format: ReturnType<typeof createDateFormat>;
-  /** Absent without a header: the caption names the grid. */
-  headingId: string | undefined;
-  month: { year: number; month: number };
-  onHover: (date: PlainDate | null) => void;
-  onSelect: (date: PlainDate, reason: 'pointer' | 'keyboard', source: unknown) => void;
-  outsideDays: 'shown' | 'selectable' | 'hidden';
-  /** The run as drawn, which is the value's own once the run is whole. */
-  pending: DateRange | null;
-  today: PlainDate | null;
-  unavailable: (date: PlainDate) => boolean;
-  value: CalendarValue;
-  weekNumbers: boolean;
-}) {
-  const weeks = monthGrid({ ...month, firstDayOfWeek, fixedWeeks });
-  const caption = format.monthYear(plainDate(month.year, month.month, 1));
-  const long = format.weekdayNames('long');
-  const narrow = format.weekdayNames('narrow');
-
-  return (
-    <table aria-labelledby={headingId} data-part="grid" data-part-grid="" role="grid">
-      <caption data-part="grid-caption" data-part-grid-caption="">
-        {caption}
-      </caption>
-      <thead>
-        <tr data-part="week-headers" data-part-week-headers="">
-          {weekNumbers ? (
-            <th aria-hidden="true" data-part="week-number" data-part-week-number="" />
-          ) : null}
-          {narrow.map((name, index) => (
-            /* Two characters is what a column holds and is not a weekday; the
-               full name reaches assistive technology through `abbr`, which is
-               the APG's own answer. */
-            <th
-              abbr={long[index]}
-              data-part="week-header"
-              data-part-week-header=""
-              key={long[index]}
-              scope="col"
-            >
-              {name}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {weeks.map((week) => (
-          <tr data-part="week" data-part-week="" key={week.weekNumber}>
-            {weekNumbers ? (
-              <th data-part="week-number" data-part-week-number="" scope="row">
-                {week.weekNumber}
-              </th>
-            ) : null}
-            {week.days.map((day) => {
-              const outside = day.outsideMonth;
-              const hidden = outside && outsideDays === 'hidden';
-              const refused = unavailable(day.date) || (outside && outsideDays === 'shown');
-              const chosen = isSelected(day.date, value);
-              const run = rangeStateOf(day.date, pending ?? value);
-              /* Every cell of the pending band is a proposal except the start
-                 the reader already chose. */
-              const proposed = pending !== null && run !== null && !chosen;
-              const roving = isSameDate(day.date, focused);
-              const mark = hidden ? undefined : marks?.get(toISODate(day.date));
-              const state: CalendarDayState = {
-                outside,
-                selected: chosen,
-                today: today !== null && isSameDate(day.date, today),
-                unavailable: unavailable(day.date),
-              };
-
-              return (
-                /* A hidden day is an empty cell and nothing else. It carried
-                   the marks of the date it stood for, so a range across a
-                   month boundary painted a band with no digits under it. */
-                <td
-                  data-part="cell"
-                  data-part-cell=""
-                  key={`${String(day.date.month)}-${String(day.date.day)}`}
-                  {...(outside ? { 'data-outside-month': '' } : {})}
-                  {...(!hidden && unavailable(day.date) ? { 'data-unavailable': '' } : {})}
-                  {...(!hidden && chosen ? { 'data-selected': '' } : {})}
-                  {...(!hidden && run === 'start' ? { 'data-range-start': '' } : {})}
-                  {...(!hidden && run === 'end' ? { 'data-range-end': '' } : {})}
-                  {...(!hidden && run === 'inside' ? { 'data-in-range': '' } : {})}
-                  {...(!hidden && proposed ? { 'data-preview': '' } : {})}
-                >
-                  {hidden ? null : (
-                    <CalendarDayButton
-                      aria-disabled={refused ? true : undefined}
-                      aria-selected={chosen ? true : undefined}
-                      data-part="day"
-                      data-part-day=""
-                      {...(state.today ? { 'data-today': '' } : {})}
-                      onClick={(event) => {
-                        if (!refused) onSelect(day.date, 'pointer', event);
-                      }}
-                      onPointerEnter={() => onHover(day.date)}
-                      onPointerLeave={() => onHover(null)}
-                      role="button"
-                      tabIndex={roving && editable ? 0 : -1}
-                      tooltip={renderDayTooltip?.(day.date, state)}
-                      {...(dayLabel === undefined ? {} : { 'aria-label': dayLabel(day.date) })}
-                    >
-                      {day.date.day}
-                      {renderDay === undefined ? null : (
-                        <span data-part="day-content" data-part-day-content="">
-                          {renderDay(day.date, state)}
-                        </span>
-                      )}
-                      {mark === undefined ? null : (
-                        <span
-                          data-part="mark"
-                          data-part-mark=""
-                          {...(mark.tone === undefined ? {} : { 'data-tone': mark.tone })}
-                        >
-                          <span data-ui="visually-hidden" data-ui-visually-hidden="">
-                            {`, ${markName(mark)}`}
-                          </span>
-                        </span>
-                      )}
-                    </CalendarDayButton>
-                  )}
-                </td>
-              );
-            })}
-          </tr>
-        ))}
-      </tbody>
-    </table>
   );
 }

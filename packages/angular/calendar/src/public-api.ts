@@ -14,10 +14,12 @@ export {
 } from './calendar-defaults';
 export type {
   CalendarCalendar,
+  CalendarDayAlign,
   CalendarDefaults,
   CalendarMark,
   CalendarOutsideDays,
   CalendarSelectionMode,
+  CalendarTodayMark,
   CalendarValue,
   CalendarGranularity,
   CalendarView,

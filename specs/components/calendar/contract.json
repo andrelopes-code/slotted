@@ -62,6 +62,13 @@
     "selectable": false,
     "evaluatedOncePerVisibleCell": true
   },
+  "inert": {
+    "predicate": "isDateInert",
+    "role": null,
+    "focusable": true,
+    "selectable": false,
+    "reason": "A month of records has days with none. A refused day says it cannot happen; an inert one has nothing to choose, so it takes no button, tooltip or label, and stays in the arrow path, where every cell of a grid is."
+  },
   "range": {
     "min": "min",
     "max": "max",
@@ -74,7 +81,9 @@
     "calendar": ["gregory"],
     "weekNumbers": ["off", "on"],
     "fixedWeeks": ["off", "on"],
-    "outsideDays": ["shown", "selectable", "hidden"]
+    "outsideDays": ["shown", "selectable", "hidden"],
+    "dayAlign": ["center", "start"],
+    "todayMark": ["dot", "disc"]
   },
   "resolution": {
     "months": ["prop", "defaults", "1"],
@@ -86,7 +95,9 @@
     "locale": ["prop", "slotted", "en-US"],
     "timeZone": ["prop", "defaults", "runtime"],
     "firstDayOfWeek": ["prop", "defaults", "locale"],
-    "calendar": ["prop", "defaults", "gregory"]
+    "calendar": ["prop", "defaults", "gregory"],
+    "dayAlign": ["prop", "center"],
+    "todayMark": ["prop", "dot"]
   },
   "provides": {
     "calendarDefaults": [
@@ -129,6 +140,7 @@
     "data-today": "the day the reader's own zone is on, marked apart from selection",
     "data-outside-month": "a day belonging to the month either side",
     "data-unavailable": "refused by the predicate",
+    "data-inert": "holds nothing to choose: plain text, with no role",
     "data-range-start": "the first date of a range",
     "data-range-end": "the last date of a range",
     "data-in-range": "a date between the two",
@@ -170,7 +182,9 @@
         "calendar": "gregory",
         "weekNumbers": false,
         "fixedWeeks": false,
-        "outsideDays": "shown"
+        "outsideDays": "shown",
+        "dayAlign": "center",
+        "todayMark": "dot"
       },
       "capabilities": [
         "value",
@@ -208,6 +222,7 @@
         "cell",
         "day",
         "mark",
+        "day-number",
         "day-content",
         "day-marks",
         "day-mark",

@@ -683,3 +683,45 @@ describe('a focused date the consumer owns', () => {
     expect(document.activeElement?.closest('[data-outside-month]')).toBeNull();
   });
 });
+
+describe('the months of a year', () => {
+  const selected = () =>
+    [...document.querySelectorAll('[data-part="period"][data-selected]')].map(
+      (period) => period.textContent,
+    );
+
+  it('mark the month held where a month is the choice, not the one the reader is on', () => {
+    render(
+      <Calendar
+        defaultFocusedDate={plainDate(2026, 5, 1)}
+        defaultValue={plainDate(2026, 3, 1)}
+        granularity="month"
+        locale="en-US"
+        min={plainDate(2026, 2, 1)}
+      />,
+    );
+
+    expect(selected()).toEqual(['Mar']);
+    expect(document.querySelector('[data-focused]')?.textContent).toBe('May');
+    expect(document.querySelector('[data-part="period"][data-unavailable]')?.textContent).toBe(
+      'Jan',
+    );
+  });
+
+  it('mark the month the reader is on where they lead to its days', () => {
+    render(
+      <Calendar
+        defaultFocusedDate={plainDate(2026, 5, 1)}
+        defaultValue={plainDate(2026, 3, 1)}
+        defaultView="month"
+        locale="en-US"
+      />,
+    );
+
+    expect(selected()).toEqual(['May']);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Jul' }));
+
+    expect(screen.getByRole('grid', { name: /July 2026/ })).toBeInTheDocument();
+  });
+});

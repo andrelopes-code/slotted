@@ -30,6 +30,12 @@ export type CalendarGranularity = 'day' | 'month';
 /** What happens to a day belonging to the month either side. */
 export type CalendarOutsideDays = 'shown' | 'selectable' | 'hidden';
 
+/** Where the content of a day stands in the `fill` layout. */
+export type CalendarDayAlign = 'center' | 'start';
+
+/** How the `fill` layout marks today. */
+export type CalendarTodayMark = 'dot' | 'disc';
+
 /** What falls on a day. */
 export interface CalendarMark {
   count?: number;

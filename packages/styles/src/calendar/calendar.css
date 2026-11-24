@@ -487,6 +487,12 @@
     font-weight: var(--slotted-font-weight-semibold, 600);
   }
 
+  /* The disc says it, and the rest of the day keeps its own ink. */
+  [data-ui-calendar]:where([data-layout='fill'][data-today-mark='disc'])
+    [data-part-day][data-today] {
+    color: inherit;
+  }
+
   [data-ui-calendar] [data-part-day]::before {
     /* Reserved in every cell and painted in one, so the row keeps its line. */
     background-color: transparent;
@@ -746,6 +752,17 @@
     background-color: transparent;
   }
 
+  /* A day that holds nothing to choose answers nothing, in the ink of any day. */
+  [data-ui-calendar] [data-part-cell][data-inert] [data-part-day] {
+    cursor: default;
+  }
+
+  [data-ui-calendar]
+    [data-part-cell][data-inert]:not([data-selected], [data-in-range])
+    [data-part-day]:is(:hover, :active):not([data-disabled]) {
+    background-color: transparent;
+  }
+
   /**
    * The chosen date. A fill rather than a ring, so it and today can be true at
    * once and still read as two facts.
@@ -903,6 +920,90 @@
     padding-block: var(--slotted-space-2, 0.25rem);
   }
 
+  /**
+   * The content at the start of the day: the number on the first line, the
+   * figure on the end of its own, the marks on the last. Every number stands in
+   * the middle of one box, so the digits of a column line up whatever their
+   * count, and today's disc is that box filled.
+   */
+  [data-ui-calendar][data-layout='fill'] [data-part-day-number] {
+    --_number: calc(1em + 2 * var(--slotted-space-2, 0.25rem));
+  }
+
+  [data-ui-calendar][data-layout='fill']:is([data-day-align='start'], [data-today-mark='disc'])
+    [data-part-day-number] {
+    block-size: var(--_number);
+    border-radius: var(--slotted-radius-full, 9999px);
+    display: grid;
+    flex: none;
+    min-inline-size: var(--_number);
+    place-items: center;
+  }
+
+  [data-ui-calendar][data-layout='fill'][data-day-align='start'] [data-part-week-header] {
+    padding-inline: calc(
+      var(--slotted-border-width-thin, 1px) + var(--slotted-space-2, 0.25rem) +
+        var(--slotted-space-1, 0.125rem)
+    );
+    text-align: start;
+  }
+
+  [data-ui-calendar][data-layout='fill'][data-day-align='start'] [data-part-day] {
+    align-items: start;
+    padding-inline: var(--slotted-space-2, 0.25rem);
+  }
+
+  /* Under the middle of the number's box. */
+  [data-ui-calendar][data-layout='fill'][data-day-align='start'] [data-part-day]::before,
+  [data-ui-calendar][data-layout='fill'][data-day-align='start'] [data-part-mark] {
+    margin-inline-start: calc(0.5em + var(--slotted-space-2, 0.25rem) / 2);
+  }
+
+  [data-ui-calendar][data-layout='fill'][data-day-align='start'] [data-part-day-content] {
+    align-items: start;
+    flex: 1;
+    min-block-size: 0;
+  }
+
+  [data-ui-calendar][data-layout='fill'][data-day-align='start'] [data-part-day-marks] {
+    justify-content: start;
+    padding-inline: var(--slotted-space-1, 0.125rem);
+  }
+
+  [data-ui-calendar][data-layout='fill'][data-day-align='start'] [data-part-day-marks]:last-child {
+    margin-block-start: auto;
+  }
+
+  /* Today in a disc: the dot leaves, its row with it. */
+  [data-ui-calendar][data-layout='fill'][data-today-mark='disc'] [data-part-day]::before {
+    display: none;
+  }
+
+  [data-ui-calendar][data-layout='fill'][data-today-mark='disc']
+    [data-part-cell]:not([data-outside-month])
+    [data-part-day][data-today]
+    > [data-part-day-number] {
+    background-color: var(--slotted-calendar-today-background, var(--slotted-tone-accent-solid));
+    color: var(--slotted-calendar-today-color, var(--slotted-tone-accent-on-solid));
+  }
+
+  /* On the ground of a chosen day the disc is that ground and its ink, exchanged. */
+  [data-ui-calendar][data-layout='fill'][data-today-mark='disc']
+    [data-part-cell][data-selected]:not([data-outside-month])
+    [data-part-day][data-today]
+    > [data-part-day-number] {
+    background-color: var(--slotted-calendar-today-background, var(--slotted-tone-accent-on-solid));
+    color: var(--slotted-calendar-today-color, var(--slotted-tone-accent-solid));
+  }
+
+  [data-ui-calendar][data-part-root][data-layout='fill'][data-today-mark='disc'][data-disabled]
+    [data-part-cell]:not([data-outside-month])
+    [data-part-day][data-today]
+    > [data-part-day-number] {
+    background-color: var(--slotted-disabled-background);
+    color: var(--slotted-disabled-foreground);
+  }
+
   /* Between the days and not around them: the lines divide a plane, they frame nothing. */
   [data-ui-calendar][data-layout='fill'][data-lines]
     [data-part-week]
@@ -941,11 +1042,11 @@
     --_mark: var(--slotted-tone-accent-solid, currentcolor);
 
     background-color: var(--_mark);
-    block-size: var(--slotted-space-3, 0.375rem);
+    block-size: var(--slotted-calendar-day-mark-size, var(--slotted-space-3, 0.375rem));
     border: var(--slotted-border-width-thin, 1px) solid var(--_mark);
     border-radius: var(--slotted-radius-full, 9999px);
     box-sizing: border-box;
-    inline-size: var(--slotted-space-3, 0.375rem);
+    inline-size: var(--slotted-calendar-day-mark-size, var(--slotted-space-3, 0.375rem));
   }
 
   [data-ui-calendar] [data-part-day-mark][data-hollow] {
@@ -1012,6 +1113,15 @@
   }
 
   @media (forced-colors: active) {
+    [data-ui-calendar][data-layout='fill'][data-today-mark='disc']
+      [data-part-cell]:not([data-outside-month])
+      [data-part-day][data-today]
+      > [data-part-day-number] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+
     [data-ui-calendar] [data-part-day-mark] {
       background-color: CanvasText;
       border-color: CanvasText;

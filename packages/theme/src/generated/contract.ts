@@ -2986,6 +2986,7 @@ export type ComponentToken =
   | '--slotted-calendar-cell-size'
   | '--slotted-calendar-color'
   | '--slotted-calendar-day-height'
+  | '--slotted-calendar-day-mark-size'
   | '--slotted-calendar-day-radius'
   | '--slotted-calendar-disabled-color'
   | '--slotted-calendar-hover-background'
@@ -3003,6 +3004,7 @@ export type ComponentToken =
   | '--slotted-calendar-range-hover-background'
   | '--slotted-calendar-selected-background'
   | '--slotted-calendar-selected-color'
+  | '--slotted-calendar-today-background'
   | '--slotted-calendar-today-color'
   | '--slotted-calendar-trigger-color'
   | '--slotted-calendar-unavailable-color'
@@ -5359,6 +5361,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-calendar-cell-size",
   "--slotted-calendar-color",
   "--slotted-calendar-day-height",
+  "--slotted-calendar-day-mark-size",
   "--slotted-calendar-day-radius",
   "--slotted-calendar-disabled-color",
   "--slotted-calendar-hover-background",
@@ -5376,6 +5379,7 @@ export const COMPONENT_TOKENS: readonly ComponentToken[] = [
   "--slotted-calendar-range-hover-background",
   "--slotted-calendar-selected-background",
   "--slotted-calendar-selected-color",
+  "--slotted-calendar-today-background",
   "--slotted-calendar-today-color",
   "--slotted-calendar-trigger-color",
   "--slotted-calendar-unavailable-color",

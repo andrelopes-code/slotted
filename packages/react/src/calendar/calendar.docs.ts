@@ -109,7 +109,7 @@ const anatomy: AnatomyRow[] = [
     element: 'td',
     required: true,
     purpose:
-      'The grid cell. It carries the facts about the date — data-outside-month, data-unavailable, data-selected, data-range-start, data-range-end, data-in-range — and the range band is painted on it, behind the day.',
+      'The grid cell. It carries the facts about the date — data-outside-month, data-unavailable, data-inert, data-selected, data-range-start, data-range-end, data-in-range — and the range band is painted on it, behind the day.',
   },
   {
     part: 'day',
@@ -124,6 +124,13 @@ const anatomy: AnatomyRow[] = [
     required: false,
     purpose:
       'What falls on the day, drawn from marks: a dot in the row today’s dot reserves, in the mark’s tone, holding the visually hidden count that the day’s accessible name ends with.',
+  },
+  {
+    part: 'day-number',
+    element: 'span',
+    required: false,
+    purpose:
+      'The number of a day in the fill layout, in a box of its own: the disc of today, and the box the digits of a column stand in the middle of.',
   },
   {
     part: 'day-content',
@@ -413,6 +420,13 @@ const api: ApiRow[] = apiRows([
     'Refuses particular dates. A refused date stays focusable and cannot be chosen.',
   ],
   [
+    'isDateInert',
+    '(date: PlainDate) => boolean',
+    '—',
+    'Calendar',
+    'The days that hold nothing to choose, as the days of a month of records that have none: plain text with no button role, tooltip or label, in the ink of any day. The arrow keys cross them, a run may hold them, and a date that is also unavailable is inert.',
+  ],
+  [
     'weekNumbers',
     'boolean',
     'false',
@@ -474,6 +488,20 @@ const api: ApiRow[] = apiRows([
     'false',
     'Calendar',
     'Hairlines between the days of the fill layout, in --slotted-calendar-line-color.',
+  ],
+  [
+    'dayAlign',
+    "'center' | 'start'",
+    'center',
+    'Calendar',
+    'Where the content of a day stands in the fill layout. start puts the number on the start of the first line, the figure on the end of its own and the marks, written last, on the start of the last line; the weekday names start on the same line.',
+  ],
+  [
+    'todayMark',
+    "'dot' | 'disc'",
+    'dot',
+    'Calendar',
+    'How the fill layout marks today: a dot under the number, or the number in a disc of the accent solid, in --slotted-calendar-today-background and --slotted-calendar-today-color.',
   ],
   [
     'header',

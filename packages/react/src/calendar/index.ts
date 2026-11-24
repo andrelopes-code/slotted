@@ -11,6 +11,7 @@ export {
 } from './calendar-selection';
 export type {
   CalendarCalendar,
+  CalendarDayAlign,
   CalendarDayMarkProps,
   CalendarDayState,
   CalendarDefaults,
@@ -21,6 +22,7 @@ export type {
   CalendarProps,
   CalendarRootProps,
   CalendarSelectionMode,
+  CalendarTodayMark,
   CalendarValue,
   CalendarValueReason,
   CalendarGranularity,

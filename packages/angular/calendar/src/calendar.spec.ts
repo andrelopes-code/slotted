@@ -797,3 +797,65 @@ describe('a filled month of a page with its own month control', () => {
     expect(days.filter((each) => each.hasAttribute('aria-describedby'))).toEqual([day]);
   });
 });
+
+describe('a filled month of records', () => {
+  @Component({
+    standalone: true,
+    imports: [SlCalendar, SlCalendarDayTooltip],
+    template: `<div
+      slCalendar
+      dayAlign="start"
+      layout="fill"
+      locale="en-US"
+      todayMark="disc"
+      [dayLabel]="label"
+      [defaultFocusedDate]="october"
+      [header]="false"
+      [isDateInert]="inert"
+      [isDateUnavailable]="inert"
+      (valueChange)="chosen.push($event.value)"
+    >
+      <ng-template slCalendarDayTooltip let-date>{{ date.day }}</ng-template>
+    </div>`,
+  })
+  class Records {
+    readonly october = plainDate(2026, 10, 20);
+    readonly chosen: unknown[] = [];
+    readonly inert = (date: PlainDate) => date.day !== 20 || date.month !== 10;
+    readonly label = (date: PlainDate) => `October ${String(date.day)}`;
+  }
+
+  it('draws a day with nothing to choose as plain text, and chooses it by no press', () => {
+    const fixture = TestBed.createComponent(Records);
+    fixture.detectChanges();
+    const root = fixture.nativeElement.querySelector('[data-ui="calendar"]') as HTMLElement;
+    const days = [...root.querySelectorAll<HTMLElement>('[data-part="day"]')];
+    const plain = days.find((day) => day.textContent?.trim() === '12')!;
+
+    expect(root.querySelectorAll('[role="button"]')).toHaveLength(1);
+    expect(root.querySelector('[role="button"]')?.getAttribute('aria-label')).toBe('October 20');
+    expect(plain.closest('td')?.hasAttribute('data-inert')).toBe(true);
+    expect(plain.closest('td')?.hasAttribute('data-unavailable')).toBe(false);
+    expect(plain.hasAttribute('aria-disabled')).toBe(false);
+    expect(plain.hasAttribute('aria-label')).toBe(false);
+
+    plain.click();
+    expect(fixture.componentInstance.chosen).toEqual([]);
+
+    (root.querySelector('[role="button"]') as HTMLElement).click();
+    expect(fixture.componentInstance.chosen).toEqual([plainDate(2026, 10, 20)]);
+  });
+
+  it('states the alignment and the mark of today, and boxes the number', () => {
+    const fixture = TestBed.createComponent(Records);
+    fixture.detectChanges();
+    const root = fixture.nativeElement.querySelector('[data-ui="calendar"]') as HTMLElement;
+
+    expect(root.getAttribute('data-day-align')).toBe('start');
+    expect(root.getAttribute('data-today-mark')).toBe('disc');
+    expect(root.querySelector('[data-part="week-header"]')?.textContent?.trim()).toBe('Sun');
+    expect(root.querySelectorAll('[data-part="day"] > [data-part="day-number"]')).toHaveLength(
+      root.querySelectorAll('[data-part="day"]').length,
+    );
+  });
+});
