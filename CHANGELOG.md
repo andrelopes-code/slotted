@@ -2,6 +2,15 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.38 — 2026-11-24
+
+- test(chart): the first tooltip waits for the engine it fetches
+- feat(focus): a roving tab stop over a grid of controls
+- feat(calendar): a month of records reads from the start of its days
+- feat(table): expanderRoom keeps the marks of several tables in one column
+- feat(message): the tile of an activity step takes its drawing from tokens
+- fix(theme): a variant value is written once per scheme
+
 ## 0.1.0-beta.37 — 2026-11-23
 
 - docs(evals): the theme variants material meets its thresholds
