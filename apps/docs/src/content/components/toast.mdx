@@ -1,0 +1,100 @@
+---
+title: Toast
+description: A short message that appears over the page, is announced, and leaves on its own or when it is dismissed.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+Render one region near the root of the application and show messages from anywhere: `toast.show` in React, `SlToastService.show` in Angular. The examples below use a queue each, so that a message appears once on this page.
+
+## Tones
+
+`tone` says what the message is about and draws the mark that goes with it: `info`, `success`, `warning` and `danger`. `accent`, the default, draws the information mark, and `secondary` is a note with no mark.
+
+<Example name="tones" wide />
+
+## Variants
+
+`raised`, the default, keeps the neutral surface and puts the tone in the mark, which suits a message over any content. `soft` tints the surface, and `solid` fills it.
+
+<Example name="variants" />
+
+## Duration
+
+A message stays for five seconds, counted from the moment it appears. `duration` sets another time in milliseconds, and `0` keeps the message until it is dismissed. `progress` draws the time that is left. The timer stops while the pointer is over the region, while focus is inside it and while the tab is hidden.
+
+<Example name="duration" />
+
+## Actions
+
+`actions` puts controls under the text, in React as a node and in Angular as a template that receives the message. A message with actions does not expire unless it states a duration, so there is time to reach Undo.
+
+<Example name="actions" />
+
+## Following a promise
+
+`promise` shows one message for the whole operation. It starts as loading, with a loader and no timer, and becomes the success or the failure in place. The result of the promise is returned, so a caller can still handle it.
+
+<Example name="promise" />
+
+## Updating a message
+
+Showing an `id` that is already in the queue updates that message in place and starts its timer again. Press Upload the price list, then Finish.
+
+<Example name="update" />
+
+## Announcement priority
+
+Every message is announced when it appears. `polite`, the default, waits for the screen reader to finish its sentence, and `assertive` interrupts it. The priority does not follow the tone, so state `assertive` only for what cannot wait.
+
+<Example name="priority" />
+
+## Queue
+
+`limit` sets how many messages are on screen at once, three by default. The rest wait without a timer, and take a place as a message leaves. `clear` empties the queue.
+
+<Example name="queue" />
+
+## Stacking
+
+`stacking="stack"` draws the messages as a pile and opens it while the pointer is over it or focus is inside it. It suits a region that can hold several messages on a small screen.
+
+<Example name="stacking" />
+
+## Placement
+
+`placement` names an edge in the direction of the text: `bottom-end`, the default, is the bottom right in English and the bottom left in Arabic.
+
+<Example name="placement" />
+
+## Why a message left
+
+The close button, Escape, a swipe and the timer each request the change with a reason of their own. `onToastsChange` in React and `toastsChange` in Angular receive it, and `cancel()` refuses the change. Show a message and let it go in different ways.
+
+<Example name="dismissal" />
+
+## A queue you own
+
+A region that receives `toasts` draws that array and only asks for changes, for messages that live in the state of a page. `attach="inline"` positions the region in the nearest positioned ancestor instead of the viewport. `defaultToasts` gives a queue its first messages without owning it.
+
+<Example name="controlled" />
+
+## Keyboard
+
+A message never takes focus when it appears. `hotkey` sets the key that moves focus to the newest message, `F6` by default. Tab reaches its controls, and Escape dismisses it.
+
+<Example name="keyboard" />
+
+## Long content
+
+A title wraps, and a string without spaces breaks inside the box. `hideIcon` leaves the mark out, and the text then starts at the edge of the box.
+
+<Example name="long-content" />
+
+## Defaults for an application
+
+`ToastDefaultsProvider` in React and `provideToastDefaults` in Angular set the axes once for every region and message under them. Here every message is `soft`, appears at the top and stays until it is dismissed.
+
+<Example name="defaults" />
