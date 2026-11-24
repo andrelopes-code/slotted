@@ -29,6 +29,8 @@ export async function highlight(code: string, language: CodeLanguage): Promise<C
       lang: language,
       theme: 'github-light',
       includeExplanation: 'scopeName',
+      // With scopes a line is read twice; a limit that stops one reading on a busy machine throws.
+      tokenizeTimeLimit: 0,
     }),
   );
 }
