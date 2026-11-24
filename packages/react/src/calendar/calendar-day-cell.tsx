@@ -86,7 +86,7 @@ export function CalendarDayCell({
   /* An inert day has no role, so it takes no name and no state of one. */
   const pressable = {
     'aria-disabled': refused ? true : undefined,
-    'aria-selected': chosen ? true : undefined,
+    'aria-pressed': chosen,
     role: 'button',
     ...(dayLabel === undefined ? {} : { 'aria-label': dayLabel(date) }),
   };

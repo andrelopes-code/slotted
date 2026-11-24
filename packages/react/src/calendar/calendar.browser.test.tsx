@@ -115,7 +115,7 @@ describe('the tooltip of a day', () => {
     await expect.poll(() => tooltip()?.textContent, { timeout: 2000 }).toBe('22: 2 items');
 
     await userEvent.click(day('22'));
-    expect(day('22').getAttribute('aria-selected')).toBe('true');
+    expect(day('22').getAttribute('aria-pressed')).toBe('true');
     await cdp().send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 400, y: 900 });
   });
 

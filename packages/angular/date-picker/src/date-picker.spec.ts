@@ -571,7 +571,7 @@ describe('month granularity', () => {
       fixture.nativeElement.querySelector('[data-ui="calendar"]').getAttribute('data-view'),
     ).toBe('month');
     expect(fixture.nativeElement.querySelector('[data-part="grid"]')).toBeNull();
-    expect(month(fixture, 'October 2026').getAttribute('aria-selected')).toBe('true');
+    expect(month(fixture, 'October 2026').getAttribute('aria-pressed')).toBe('true');
 
     click(fixture, month(fixture, 'November 2026'));
 

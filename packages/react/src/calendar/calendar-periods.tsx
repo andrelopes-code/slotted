@@ -37,12 +37,13 @@ export function CalendarPeriods({
       <div data-part="years" data-part-years="">
         {years.map((year) => (
           <button
+            aria-pressed={focused.year === year}
             data-part="period"
             data-part-period=""
             key={year}
             onClick={(event) => onWalkDown({ ...focused, year, day: 1 }, 'month', event)}
             type="button"
-            {...(focused.year === year ? { 'aria-selected': true, 'data-selected': '' } : {})}
+            {...(focused.year === year ? { 'data-selected': '' } : {})}
           >
             {year}
           </button>
@@ -66,6 +67,7 @@ export function CalendarPeriods({
 
         return (
           <button
+            aria-pressed={chosen}
             data-part="period"
             data-part-period=""
             key={name}
@@ -74,7 +76,7 @@ export function CalendarPeriods({
               else onWalkDown({ ...focused, month, day: 1 }, 'day', event);
             }}
             type="button"
-            {...(chosen ? { 'aria-selected': true, 'data-selected': '' } : {})}
+            {...(chosen ? { 'data-selected': '' } : {})}
             {...(monthly ? choice : {})}
           >
             {name}

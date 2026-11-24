@@ -288,7 +288,7 @@ export class SlCalendarDayValue {}
                               data-part-day=""
                               role="button"
                               [attr.data-today]="isToday(day.date) ? '' : null"
-                              [attr.aria-selected]="chosen(day.date) ? 'true' : null"
+                              [attr.aria-pressed]="chosen(day.date)"
                               [attr.aria-disabled]="refused(day) ? 'true' : null"
                               [tabindex]="tabIndexOf(day.date)"
                               (click)="!refused(day) && select(day.date, 'pointer', $event)"
@@ -315,7 +315,7 @@ export class SlCalendarDayValue {}
                               data-part-day=""
                               [attr.role]="inert(day.date) ? null : 'button'"
                               [attr.data-today]="isToday(day.date) ? '' : null"
-                              [attr.aria-selected]="chosen(day.date) && !inert(day.date) ? 'true' : null"
+                              [attr.aria-pressed]="inert(day.date) ? null : chosen(day.date)"
                               [attr.aria-disabled]="refused(day) && !inert(day.date) ? 'true' : null"
                               [tabindex]="tabIndexOf(day.date)"
                               (click)="!refused(day) && select(day.date, 'pointer', $event)"
@@ -344,7 +344,7 @@ export class SlCalendarDayValue {}
                 type="button"
                 [attr.aria-label]="monthLabel($index + 1)"
                 [attr.data-selected]="heldMonth($index + 1) ? '' : null"
-                [attr.aria-selected]="heldMonth($index + 1) ? 'true' : null"
+                [attr.aria-pressed]="heldMonth($index + 1)"
                 [attr.aria-disabled]="monthUnavailable($index + 1) ? 'true' : null"
                 [attr.data-unavailable]="monthUnavailable($index + 1) ? '' : null"
                 [attr.data-focused]="focused().month === $index + 1 ? '' : null"
@@ -363,7 +363,7 @@ export class SlCalendarDayValue {}
                 data-part-period=""
                 type="button"
                 [attr.data-selected]="focused().month === $index + 1 ? '' : null"
-                [attr.aria-selected]="focused().month === $index + 1 ? 'true' : null"
+                [attr.aria-pressed]="focused().month === $index + 1"
                 (click)="pickMonth($index + 1, $event)"
               >
                 {{ name }}
@@ -380,7 +380,7 @@ export class SlCalendarDayValue {}
               data-part-period=""
               type="button"
               [attr.data-selected]="focused().year === year ? '' : null"
-              [attr.aria-selected]="focused().year === year ? 'true' : null"
+              [attr.aria-pressed]="focused().year === year"
               (click)="pickYear(year, $event)"
             >
               {{ year }}

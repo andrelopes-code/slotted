@@ -118,7 +118,7 @@ const anatomy: AnatomyRow[] = [
     element: 'span',
     required: true,
     purpose:
-      'The number the reader presses. It holds the roving tabindex, data-today, aria-selected and aria-disabled. It is the cell’s child rather than the cell itself because the range band runs edge to edge while the day stays a rounded box inside it.',
+      'The number the reader presses. It holds the roving tabindex, data-today, aria-pressed and aria-disabled. It is the cell’s child rather than the cell itself because the range band runs edge to edge while the day stays a rounded box inside it.',
   },
   {
     part: 'mark',
@@ -178,7 +178,8 @@ const anatomy: AnatomyRow[] = [
     part: 'period',
     element: 'button',
     required: false,
-    purpose: 'One month or one year in those two views.',
+    purpose:
+      'One month or one year in those two views. It carries aria-pressed, which is true on the one held.',
   },
 ];
 

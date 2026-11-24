@@ -455,7 +455,7 @@ describe('month granularity', () => {
     expect(document.querySelector('[data-part="grid"]')).toBeNull();
     const november = screen.getByRole('button', { name: 'November 2026' });
     expect(screen.getByRole('button', { name: 'October 2026' })).toHaveAttribute(
-      'aria-selected',
+      'aria-pressed',
       'true',
     );
 

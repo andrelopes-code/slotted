@@ -2,6 +2,7 @@ import { plainDate } from '@slotted/core/date';
 import type { PlainDate } from '@slotted/core/date';
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import axe from 'axe-core';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -723,5 +724,70 @@ describe('the months of a year', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Jul' }));
 
     expect(screen.getByRole('grid', { name: /July 2026/ })).toBeInTheDocument();
+  });
+});
+
+describe('what a chosen day says to assistive technology', () => {
+  const pressed = () =>
+    screen.queryAllByRole('button', { pressed: true }).map((element) => element.textContent);
+  const violations = async () => {
+    const { violations: found } = await axe.run(document.body, {
+      runOnly: ['aria-allowed-attr', 'aria-allowed-role', 'aria-valid-attr-value'],
+    });
+
+    return found.map(({ id }) => id);
+  };
+
+  it('is the press of its button', async () => {
+    render(<Calendar defaultFocusedDate={NINTH} locale="en-US" />);
+    expect(pressed()).toEqual([]);
+
+    fireEvent.click(dayFor(12));
+
+    expect(pressed()).toEqual(['12']);
+    expect(dayFor(13)).toHaveAttribute('aria-pressed', 'false');
+    expect(await violations()).toEqual([]);
+  });
+
+  it('is the press of each end of a range, and of each day of a set', async () => {
+    const run: DateRange = { start: plainDate(2026, 9, 7), end: plainDate(2026, 9, 11) };
+    const { unmount } = render(
+      <Calendar defaultValue={run} locale="en-US" selectionMode="range" />,
+    );
+    expect(pressed()).toEqual(['7', '11']);
+    expect(await violations()).toEqual([]);
+    unmount();
+
+    render(
+      <Calendar
+        defaultValue={[NINTH, plainDate(2026, 9, 21)]}
+        locale="en-US"
+        selectionMode="multiple"
+      />,
+    );
+
+    expect(pressed()).toEqual(['9', '21']);
+    expect(await violations()).toEqual([]);
+  });
+
+  it('is the press of a month and of a year', async () => {
+    const { unmount } = render(
+      <Calendar defaultValue={plainDate(2026, 3, 1)} granularity="month" locale="en-US" />,
+    );
+    expect(pressed()).toEqual(['Mar']);
+    expect(await violations()).toEqual([]);
+    unmount();
+
+    render(<Calendar defaultFocusedDate={NINTH} defaultView="year" locale="en-US" />);
+
+    expect(pressed()).toEqual(['2026']);
+    expect(await violations()).toEqual([]);
+  });
+
+  it('is not said by a day with nothing to choose', async () => {
+    render(<Calendar defaultValue={NINTH} isDateInert={(date) => date.day === 9} locale="en-US" />);
+
+    expect(dayFor(9)).not.toHaveAttribute('aria-pressed');
+    expect(await violations()).toEqual([]);
   });
 });

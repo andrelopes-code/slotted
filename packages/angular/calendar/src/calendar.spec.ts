@@ -859,3 +859,71 @@ describe('a filled month of records', () => {
     );
   });
 });
+
+describe('what a chosen day says to assistive technology', () => {
+  const pressed = (fixture: Fixture) =>
+    [...root(fixture).querySelectorAll('[aria-pressed="true"]')].map((element) =>
+      (element.textContent ?? '').trim(),
+    );
+
+  it.each([
+    ['a day', `<div slCalendar locale="en-US" [defaultValue]="ninth"></div>`, ['9']],
+    [
+      'a range',
+      `<div slCalendar locale="en-US" selectionMode="range" [defaultValue]="run"></div>`,
+      ['7', '11'],
+    ],
+    [
+      'a month',
+      `<div slCalendar granularity="month" locale="en-US" [defaultValue]="ninth"></div>`,
+      ['Sep'],
+    ],
+    [
+      'the month the reader is on',
+      `<div slCalendar defaultView="month" locale="en-US" [defaultFocusedDate]="ninth"></div>`,
+      ['Sep'],
+    ],
+    [
+      'a year',
+      `<div slCalendar defaultView="year" locale="en-US" [defaultFocusedDate]="ninth"></div>`,
+      ['2026'],
+    ],
+  ])('is the press of its button: %s', (_, template, held) => {
+    const fixture = renderTemplate(template);
+
+    expect(pressed(fixture)).toEqual(held);
+    expect(root(fixture).querySelectorAll('[aria-pressed="false"]').length).toBeGreaterThan(0);
+    expect(root(fixture).querySelector('[aria-selected]')).toBeNull();
+  });
+
+  it('is said by a chosen day with a tooltip, and not by a day with nothing to choose', () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(Chosen);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('[aria-pressed="true"]')?.textContent?.trim()).toBe('20');
+    expect(element.querySelectorAll('[aria-pressed]')).toHaveLength(1);
+    expect(element.querySelector('[aria-selected]')).toBeNull();
+  });
+});
+
+@Component({
+  standalone: true,
+  imports: [SlCalendar, SlCalendarDayTooltip],
+  template: `<div
+    slCalendar
+    locale="en-US"
+    selectionMode="multiple"
+    [defaultFocusedDate]="october"
+    [defaultValue]="held"
+    [isDateInert]="inert"
+  >
+    <ng-template slCalendarDayTooltip let-date>{{ date.day }}</ng-template>
+  </div>`,
+})
+class Chosen {
+  readonly october = plainDate(2026, 10, 20);
+  readonly held = [this.october, plainDate(2026, 10, 12)];
+  readonly inert = (date: PlainDate) => date.day !== 20 || date.month !== 10;
+}
