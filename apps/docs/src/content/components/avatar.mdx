@@ -1,0 +1,74 @@
+---
+title: Avatar
+description: Draws the picture of a person or an entity, and stands in with initials or a glyph when there is none.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Picture and fallback chain
+
+`src` sets the picture. The avatar draws the first of three things that is available: the picture, the initials taken from `name`, then a person glyph. A picture that is still loading, or that fails, shows the initials; the browser's broken-image mark never appears. `onStatusChange` in React and `statusChange` in Angular report the status derived from the picture. Press the button to make the request fail, then restore it.
+
+<Example name="picture" />
+
+## Status
+
+`status` is `idle` when there is no `src`, `loading` while the picture is requested, `loaded` once it arrives and `error` when the request fails. The avatar derives it from the picture. A value passed in wins over the derived one and is never reported back, which suits a server that already knows the outcome. Here each status is passed in.
+
+<Example name="status" />
+
+## Sizes
+
+`size` takes `xs`, `sm`, `md`, `lg` or `xl`, from the densest rows to a profile header. The `xs` step has room for one letter, so it draws the first initial only; every other step draws two.
+
+<Example name="sizes" />
+
+## Shapes
+
+`shape="circle"`, the default, stands for a person. `shape="square"` stands for a team, an organization or a bot, so a list that mixes both stays readable at a glance.
+
+<Example name="shapes" />
+
+## Tone and variant
+
+`tone` sets the semantic color of the fallback: `accent`, `secondary`, `info`, `success`, `warning` or `danger`. `variant` paints that color `soft`, a tinted ground, or `solid`, a filled one. The default tone is `auto`, covered next.
+
+<Example name="tones" />
+
+## Identity
+
+With `tone="auto"` the avatar derives a color from `name`, so the same person keeps the same color in a list that is sorted or paged. `auto` picks from five tones, `accent`, `secondary`, `success`, `warning` and `danger`, so two people can share one: the color helps a reader scan, and the name identifies the person. `idFor` seeds the color in place of the name, for a name that changes or that two people share. `initials` replaces the derived letters.
+
+<Example name="identity" />
+
+## Custom fallback content
+
+Without a `name` and without `src`, the avatar draws the person glyph, and assistive technology skips it. Content passed as children in React, or projected with `slAvatarFallback` in Angular, replaces the initials and the glyph, for a mark that stands for an entity. The `name` is still the accessible name.
+
+<Example name="fallback" />
+
+## Surface
+
+`surface` sets the ground behind the avatar. `tone`, the default, paints the tone behind the fallback and nothing behind a loaded picture. `none` paints nothing. `plate` paints a light plate in every color scheme, for a logo made for a white ground: in the dark scheme the first two leave the mark on the page background, and the plate keeps it legible.
+
+<Example name="surface" />
+
+## Interactive
+
+An avatar is not focusable and not a command. In React, `render` returns the element the page needs; in Angular, `slAvatar` is written on that element. An anchor or a button then takes the platform's own keyboard behavior, and the avatar draws the focus ring and the hover edge. The `name` is the accessible name of that element, which keeps its own role: the first avatar is announced as a link and the second as a button. `disabled` marks a deactivated account and withholds the ring and the edge; a disabled button also needs the native `disabled`.
+
+<Example name="interactive" />
+
+## Beside a name
+
+When the page already writes the name next to the avatar, `decorative` removes the avatar from the accessibility tree so the person is read once. The `name` still drives the initials and the color. `avatar-group` has its own page.
+
+<Example name="decorative" />
+
+## Defaults
+
+A defaults provider sets `size`, `shape`, `tone`, `variant` and `locale` once for every avatar under it: `AvatarDefaultsProvider` in React, `provideAvatarDefaults` in Angular. An avatar that states a value of its own keeps it, as the last one does here.
+
+<Example name="defaults" />
