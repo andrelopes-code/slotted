@@ -1,0 +1,72 @@
+---
+title: Inline Message
+description: One sentence about one field or one control, with a tone, a mark, and a severity word a screen reader reads before it.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## When to use it
+
+`InlineMessage` is one sentence about one field or one control: a hint, an error, a warning, a confirmation or a wait. A message about a section or a page is an `Alert`, which frames it with a title, a description and a control that puts it away. Inside a `Field`, `FieldDescription` and `FieldError` already render an inline message with the identifier and the states the field provides, so a form field needs no `InlineMessage` of its own. Use `InlineMessage` for a control outside a field, such as the result of a check beside a button. A `Toast` is for an outcome that appears over the page and leaves on its own; an inline message stays in the flow of the page until your code removes it.
+
+## Tones
+
+`tone` says what the message is about. `secondary`, the default, is help: no mark, no severity word and the muted ink. `accent` and `info` draw the information mark and no word. `success`, `warning` and `danger` are severities: each draws its own mark and writes "Success:", "Warning:" or "Error:" in text a screen reader reads before the sentence.
+
+<Example name="tones" />
+
+## Sizes
+
+`size` sets the type step. `sm`, the default, sits beside a compact field and `md` beside a large field. Both follow the control scales, so a denser theme shrinks them with the controls around them.
+
+<Example name="sizes" />
+
+## Marks
+
+`mark` chooses what is drawn before the sentence. `glyph`, the default, is the mark of the tone. `dot` is one bullet in the ink of the tone, the same shape for every tone, so a column of messages starts on one edge. `none` draws nothing and takes no room, so the tone is read from the ink, and the ring of `loading` still appears. `hideIcon` removes the part, ring included, for a message that carries its own artwork beside it. To replace the mark, pass `icon` in React or project an element with `slInlineMessageIcon` in Angular. The last message draws a clock in the place of the warning mark.
+
+<Example name="marks" />
+
+## Severity word
+
+A reader who cannot see the message hears only its text, so a severity is also a word. The word is clipped from sight and sits first in the markup. `prefix` replaces it, and the empty string removes it for a sentence that already names the severity. A screen reader reads the three messages as "Error: Enter a valid tax ID.", "Overdue: Invoice 4822 was due on March 3." and "Error: the tax ID needs 9 digits.". An application translates the words once with `InlineMessageDefaultsProvider` in React or `provideInlineMessageDefaults` in Angular.
+
+<Example name="prefix" />
+
+## States
+
+`loading` turns the mark into a ring that turns inside the same box, so the message keeps its size when the wait ends. `disabled` mutes the ink and stops the ring, because a message about a control nobody can use is not waiting for anything. The ring also stops under reduced motion. A disabled message stays in the accessibility tree.
+
+<Example name="states" />
+
+## Waiting for a result
+
+A check that returns after a moment sets `loading` while it runs and `tone` when it answers. The message is rendered from the start with `reserve` and `live="polite"`, so the page does not move and a screen reader announces each sentence set in it. Press the button: the check takes 1.8 seconds.
+
+<Example name="pending" />
+
+## Announcing a message
+
+`live` is `off` by default, because a message already on the page when it loads is announced by nothing. `polite` writes `role="status"` on the message and waits for the screen reader to finish its sentence. `assertive` writes `role="alert"` and interrupts it. Use them for a message that arrives after the page. Render the message before it has a sentence, as here with `reserve`: a screen reader announces a change in a live region it already knows. In Angular, write the sentence between the tags with no space around it, so an empty one leaves the message empty.
+
+<Example name="live" />
+
+## Holding the line open
+
+`reserve` holds one line of the message open whether or not it has a sentence, and the mark and the word withdraw when it has none. Render the message every time and nothing below it moves when the error arrives. Both columns render the message; only the second has a sentence, and the second fields sit at the same height.
+
+<Example name="reserve" wide />
+
+## Actions
+
+Put the answers a message offers after its sentence: `InlineMessageActions` in React, an element with `slInlineMessageActions` in Angular. The message becomes a group named by its sentence, the live role moves to the sentence so a screen reader does not announce the buttons, and the buttons take the size of the message. In Angular, write the message on a `div`, because a paragraph cannot hold a button. Press an answer to settle the quantity.
+
+<Example name="actions" />
+
+## Pointing a control at the message
+
+A message does not know which control it describes. Set `aria-invalid` on the control and `aria-errormessage` to the identifier of the message; on `TextField`, `invalid` writes `aria-invalid`. In React, pass the message an `id` from `useId`. In Angular, `exportAs` hands the identifier to the template: `#message="slInlineMessage"` and `message.messageId`. A message with no `id` generates one, and an `id` you write is never replaced.
+
+<Example name="wiring" />

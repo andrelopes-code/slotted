@@ -32,7 +32,7 @@ const imports: ReferenceImport = {
 const anatomy: AnatomyRow[] = [
   {
     part: 'root',
-    element: 'the element the consumer wrote — a p',
+    element: 'the element you wrote, a p',
     required: true,
     purpose:
       'The message. Carries data-ui="inline-message", the three axes, data-loading, data-disabled, data-reserve, the identifier a control points at, and the live role.',
@@ -56,7 +56,7 @@ const anatomy: AnatomyRow[] = [
     element: 'span',
     required: true,
     purpose:
-      'The sentence. Written by the family around the projected content, which is what makes “is there a message?” a question the stylesheet can ask and keeps a message holding a link one grid item rather than two.',
+      'The sentence. Written by slInlineMessage around the projected content, which is what makes “is there a message?” a question the stylesheet can ask and keeps a message holding a link one grid item rather than two.',
   },
   {
     part: 'actions',
@@ -82,11 +82,11 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'tones',
     title: 'What the message is about',
-    note: 'Four severities and one absence of one. secondary is help: no mark, no severity word, and the neutral muted ink rather than a tone’s louder label color.',
+    note: 'Three severities, two tones for information, and help. secondary is help: no mark, no severity word, and the neutral muted ink rather than a tone’s louder label color.',
     snippet: defineSnippet({
       id: 'inline-message-angular-tones',
       language: 'angular',
-      label: 'The five, and what each one says',
+      label: 'Help, a confirmation and an error',
       source:
         '<p slInlineMessage>Between 8 and 64 characters.</p>\n<p slInlineMessage tone="success">Username available.</p>\n<p slInlineMessage tone="danger">This email is already registered.</p>',
     }),
@@ -100,7 +100,7 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'angular',
       label: 'Two steps, both answering density',
       source:
-        '<p slInlineMessage size="sm" tone="danger">A mensagem de um campo compacto.</p>\n<p slInlineMessage size="md" tone="danger">A mensagem de um campo grande.</p>',
+        '<p slInlineMessage size="sm" tone="danger">The reorder point must be a whole number.</p>\n<p slInlineMessage size="md" tone="danger">The reorder point must be lower than the stock ceiling.</p>',
     }),
   },
   {
@@ -118,7 +118,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'wiring',
     title: 'Pointing a control at the message',
-    note: 'The three attributes that make an error reach a reader: aria-invalid on the control, aria-errormessage at the message’s id, and an id the family generates when the page states none.',
+    note: 'The three attributes that make an error reach a reader: aria-invalid on the control, aria-errormessage at the message’s id, and an id slInlineMessage generates when the page states none.',
     snippet: defineSnippet({
       id: 'inline-message-angular-wiring',
       language: 'angular',
@@ -136,7 +136,7 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'angular',
       label: 'A message that arrived after the page did',
       source:
-        '<!-- role="status" on the message itself, which implies aria-live and\n     aria-atomic. There are no controls inside it to keep out of the region. -->\n<p slInlineMessage live="polite" tone="success">Changes saved.</p>',
+        '<!-- role="status" on the message itself, which implies aria-live and\n     aria-atomic. With actions inside, the role sits on the sentence. -->\n<p slInlineMessage live="polite" tone="success">Changes saved.</p>',
     }),
   },
   {
@@ -148,12 +148,12 @@ const scenes: ReferenceSceneMeta[] = [
       language: 'angular',
       label: 'One line box, message or no message',
       source:
-        '<!-- Rendered whether or not there is an error, so nothing below it moves. -->\n<p slInlineMessage reserve tone="danger">{{ errors().cnpj }}</p>',
+        '<!-- Rendered whether or not there is an error, so nothing below it moves. -->\n<p slInlineMessage reserve tone="danger">{{ errors().ein }}</p>',
     }),
   },
   {
     id: 'content',
-    title: 'Content the family did not choose',
+    title: 'Content you write',
     note: 'A German compound over three lines, a container digest with no break opportunity, a sentence carrying a link, and the page’s own artwork — the mark stays on the first line in all four.',
     snippet: defineSnippet({
       id: 'inline-message-angular-content',
@@ -200,70 +200,70 @@ export const ANGULAR_INLINE_MESSAGE_DOCS = {
         "'accent' | 'secondary' | 'info' | 'success' | 'warning' | 'danger'",
         'secondary',
         'slInlineMessage',
-        'What the message is about, and therefore which mark it draws and which word a reader hears first. secondary is help: no mark, no word, and the neutral muted ink',
+        'What the message is about, and therefore which mark it draws and which word a reader hears first. secondary is help: no mark, no word, and the neutral muted ink.',
       ],
       [
         'size',
         "'sm' | 'md'",
         'sm',
         'slInlineMessage',
-        'The type step. sm beside a compact field, md beside a large field; both read the control scales, which the theme restates per density',
+        'The type step. sm beside a compact field, md beside a large field; both read the control scales, which the theme restates per density.',
       ],
       [
         'live',
         "'off' | 'polite' | 'assertive'",
         'off',
         'slInlineMessage',
-        'Whether the message announces itself. polite writes role="status" and assertive writes role="alert", both on the host — there are no controls inside it to keep out of the region. A role the template wrote is read first and kept',
+        'Whether the message announces itself. polite writes role="status" and assertive writes role="alert", both on the host, or on the sentence when the message holds actions. A role the template wrote is read first and kept.',
       ],
       [
         'mark',
         "'glyph' | 'dot' | 'none'",
         'glyph',
         'slInlineMessage',
-        'Which mark is drawn. glyph is the tone’s own silhouette; dot is one neutral bullet in the tone’s ink, the same shape for every tone including help; none draws nothing, and the tone is said by the ink and the weight of the sentence. slField and slFieldGroup ask for none, because a silhouette under every control of a form is texture rather than a warning',
+        'Which mark is drawn. glyph is the tone’s own silhouette; dot is one neutral bullet in the tone’s ink, the same shape for every tone including help; none draws nothing, and the tone is said by the ink and the weight of the sentence. slField and slFieldGroup ask for none, because a silhouette under every control of a form is texture rather than a warning.',
       ],
       [
         'prefix',
         'string',
         '—',
         'slInlineMessage',
-        'The word read before the message. Unstated is the tone’s own; the empty string removes it, for a sentence that already names the severity',
+        'The word read before the message. Unstated is the tone’s own; the empty string removes it, for a sentence that already names the severity.',
       ],
       [
         'hideIcon',
         'boolean',
         'false',
         'slInlineMessage',
-        'Draws no mark at all. The severity word stays, because it is what a reader hears rather than what a reader sees',
+        'Draws no mark at all. The severity word stays, because it is what a reader hears rather than what a reader sees.',
       ],
       [
         'loading',
         'boolean',
         'false',
         'slInlineMessage',
-        'The message is waiting for something: the mark becomes a ring turning at the same duration slButton’s does, and stopping under reduced motion',
+        'The message is waiting for something: the mark becomes a ring turning at the same duration slButton’s does, and stopping under reduced motion.',
       ],
       [
         'disabled',
         'boolean',
         '—',
         'slInlineMessage',
-        'Unstated rather than false, so the field this family sits in can answer it once field ships in wave 3. Stated, it wins: the ink is muted and the ring stops',
+        'Unstated rather than false, so a field around the message can answer it. Stated, it wins: the ink is muted and the ring stops.',
       ],
       [
         'reserve',
         'boolean',
         'false',
         'slInlineMessage',
-        'Holds one line box of the family’s own leading open whether or not there is a message, so a form rendering the message unconditionally never moves when the error arrives',
+        'Holds one line box of slInlineMessage’s own leading open whether or not there is a message, so a form rendering the message unconditionally never moves when the error arrives.',
       ],
       [
         'id',
         'string',
         'generated',
         'slInlineMessage',
-        'What aria-describedby or aria-errormessage points at. Read from the host attribute before the family writes its own, so a static id the template wrote survives the host binding',
+        'What aria-describedby or aria-errormessage points at. Read from the host attribute before slInlineMessage writes its own, so a static id the template wrote survives the host binding.',
       ],
     ]),
     composition: apiRows([
@@ -272,39 +272,46 @@ export const ANGULAR_INLINE_MESSAGE_DOCS = {
         'directive',
         '—',
         'a projected element',
-        'The page’s own mark, projected into the box the family draws so it keeps the size, the color and the place on the first line the tone’s mark would have had',
+        'The page’s own mark, projected into the box slInlineMessage draws so it keeps the size, the color and the place on the first line the tone’s mark would have had.',
       ],
       [
         'messageId',
         'string',
         'generated',
         'slInlineMessage',
-        'The identifier, reachable from the template through exportAs — the reach an Angular template has and a React consumer answers with useId in their own component',
+        'The identifier, reachable from the template through exportAs — the reach an Angular template has; in React, call useId in your own component.',
       ],
       [
         'provideInlineMessageDefaults',
-        '{ tone, size, live, prefixes }',
+        '{ tone, size, mark, live, prefixes }',
         '—',
         'an injector',
-        'Sets the three axes once, and — the one that matters — the table of severity words, merged over the shipped one so a single word can be replaced alone',
+        'Sets the axes once, and the table of severity words, merged over the shipped one so a single word can be replaced alone.',
+      ],
+      [
+        '[slInlineMessageActions]',
+        'directive',
+        '—',
+        'slInlineMessage',
+        'Holds the answers the message offers, after its sentence. The buttons inside take the size of the message.',
       ],
       [
         'ng-content',
         'projected content',
         '—',
         'slInlineMessage',
-        'The sentence, wrapped by the family in the text part. Projecting nothing leaves that part empty, which is what reserve draws nothing in',
+        'The sentence, wrapped by slInlineMessage in the text part. Projecting nothing leaves that part empty, which is what reserve draws nothing in.',
       ],
     ]),
     accessibility: [
-      'A message about a section, a page or a command’s outcome is an alert, at reach section or page. This family is the message of one field or one control, under or beside it.',
+      'A message about a section, a page or the outcome of a command belongs in an Alert. slInlineMessage is the message of one field or one control, under or beside it.',
       'There is no WAI-ARIA APG pattern for a message attached to a field. Three documents cover it between them: the APG Alert Pattern (w3.org/WAI/ARIA/apg/patterns/alert/) for the announcing behavior, MDN’s aria-errormessage reference for the wiring, and WCAG 2.2 Understanding 3.3.1 Error Identification for the requirement that the error be identified in text.',
-      'The severity is a word, not only a color and a mark. A reader who cannot see the message hears the sentence and nothing else, so the family writes “Error:”, “Warning:” or “Success:” in clipped text before it — GOV.UK’s Error message component publishes the idea for errors, and this generalizes it to every severity and to a table an application replaces once through provideInlineMessageDefaults.',
-      'The live role goes on the host. slAlert puts its role on an inner part because it has a dismiss button beside its text and MDN’s alert role reference restricts the role to text content; this family owns no controls, so the element that is the text is the element that announces. live defaults to off, because a message already present when the page finishes loading is announced by nothing whatever role it carries.',
-      'Wiring is the control’s job and the identifier is the family’s. MDN: set aria-invalid="true" on the control, then aria-errormessage to the id of the element holding the message. exportAs hands the template the instance so it can write [attr.aria-errormessage]="message.messageId" without inventing an id of its own.',
-      'The mark is aria-hidden, because it repeats what the severity word already says. Under forced colors it keeps its silhouette in CanvasText — the circle, the diamond and the circled exclamation are what tell an error from a note when every color has been replaced, which is WCAG 2.2 1.4.1.',
-      'A disabled message is muted to a measured color rather than faded by opacity, and its ring stops: STATE_PRECEDENCE puts disabled above loading, and a control nobody can use is not waiting for anything. Nothing is removed from the accessibility tree, because a message about a disabled field is still a message.',
-      'The family never becomes a tooltip. The message is visible text in the flow of the page, which is the requirement WCAG 2.2 3.3.1 states and the one a hover-only error fails for every reader who does not hover.',
+      'The severity is a word, not only a color and a mark. A reader who cannot see the message hears the sentence and nothing else, so slInlineMessage writes “Error:”, “Warning:” or “Success:” in clipped text before it — GOV.UK’s Error message component publishes the idea for errors, and this generalizes it to every severity and to a table an application replaces once through provideInlineMessageDefaults.',
+      'The live role goes on the host. slAlert puts its role on an inner part because it has a dismiss button beside its text and MDN’s alert role reference restricts the role to text content; slInlineMessage without actions owns no controls, so the element that is the text is the element that announces. With actions, the live role moves to the sentence. live defaults to off, because a message already present when the page finishes loading is announced by nothing whatever role it carries.',
+      'Wiring is the control’s job and the identifier is slInlineMessage’s. MDN: set aria-invalid="true" on the control, then aria-errormessage to the id of the element holding the message. exportAs hands the template the instance so it can write [attr.aria-errormessage]="message.messageId" without inventing an id of its own.',
+      'The mark is aria-hidden, because it repeats what the severity word already says. Under forced colors it keeps its silhouette in CanvasText — the mark of each severity has a shape of its own, which is what tells an error from a note when every color has been replaced, which is WCAG 2.2 1.4.1.',
+      'A disabled message is muted to a measured color rather than faded by opacity, and its ring stops: disabled takes precedence over loading, and a control nobody can use is not waiting for anything. Nothing is removed from the accessibility tree, because a message about a disabled field is still a message.',
+      'slInlineMessage never becomes a tooltip. The message is visible text in the flow of the page, which is the requirement WCAG 2.2 3.3.1 states and the one a hover-only error fails for every reader who does not hover.',
     ],
     snippets: [
       defineSnippet({
@@ -317,7 +324,7 @@ export const ANGULAR_INLINE_MESSAGE_DOCS = {
       defineSnippet({
         id: 'inline-message-theming',
         language: 'css',
-        label: 'Retuning the family for an application',
+        label: 'Retuning slInlineMessage for an application',
         source:
           "[data-ui='inline-message'] {\n  --slotted-inline-message-column-gap: var(--slotted-space-4);\n  --slotted-inline-message-line-height: var(--slotted-line-height-sm);\n  --slotted-inline-message-icon: url('/icons/exclamation.svg');\n}",
       }),
