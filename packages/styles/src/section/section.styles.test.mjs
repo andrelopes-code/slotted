@@ -156,7 +156,10 @@ test('sets a nested section heading in mixed case and the muted tone', () => {
   const nested = rule(`${ui} ${ui}>[data-part-header]>[data-part-title]>[data-part-heading]`);
   assert.match(nested, /text-transform:none/);
   assert.match(nested, /color:var\(--_muted\)/);
-  assert.match(nested, /font-size:var\(--_subheading-size\)/);
+  assert.match(
+    rule(`${ui} ${ui}>[data-part-header]>[data-part-title]`),
+    /--_text-size:var\(--_subheading-size\)/,
+  );
   assert.match(rule(ui), /--slotted-section-subheading-size-md,var\(--slotted-font-size-md/);
   assert.match(
     rule(`${ui}[data-size='sm']`),

@@ -198,6 +198,9 @@
    * their column; the tags never leave the heading's row.
    */
   [data-ui-section] > [data-part-header] > [data-part-title] {
+    /* The heading's text, which an inline icon button in the tags takes too. */
+    --_text-size: var(--_heading-size);
+    --_text-line-height: var(--_heading-line-height);
     align-items: baseline;
     display: grid;
     grid-column: 1;
@@ -225,10 +228,10 @@
       --slotted-font-family-heading,
       var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
     );
-    font-size: var(--_heading-size);
+    font-size: var(--_text-size);
     font-weight: var(--slotted-font-weight-semibold, 600);
     letter-spacing: 0.08em;
-    line-height: var(--_heading-line-height);
+    line-height: var(--_text-line-height);
     text-transform: uppercase;
     grid-column: 1;
     grid-row: 2;
@@ -243,13 +246,16 @@
    * section whose body opens with text heavier than a label. It stands above
    * the subsection's rule, so a nested section keeps the subsection's form.
    */
+  [data-ui-section][data-heading='title'] > [data-part-header] > [data-part-title] {
+    --_text-size: var(--_title-size);
+    --_text-line-height: var(--_title-line-height);
+  }
+
   [data-ui-section][data-heading='title']
     > [data-part-header]
     > [data-part-title]
     > [data-part-heading] {
-    font-size: var(--_title-size);
     letter-spacing: normal;
-    line-height: var(--_title-line-height);
     text-transform: none;
   }
 
@@ -258,15 +264,18 @@
    * read without the color. The text stays the muted token, which the theme
    * holds above 4.5:1 on every ground a section stands on.
    */
+  [data-ui-section] [data-ui-section] > [data-part-header] > [data-part-title] {
+    --_text-size: var(--_subheading-size);
+    --_text-line-height: var(--_subheading-line-height);
+  }
+
   [data-ui-section]
     [data-ui-section]
     > [data-part-header]
     > [data-part-title]
     > [data-part-heading] {
     color: var(--_muted);
-    font-size: var(--_subheading-size);
     letter-spacing: normal;
-    line-height: var(--_subheading-line-height);
     text-transform: none;
   }
 
@@ -287,6 +296,39 @@
   }
   [data-ui-section] > [data-part-header] > [data-part-title] > [data-part-tags]:empty {
     display: none;
+  }
+
+  /**
+   * An inline icon button is a mark on the text before it, so it takes the
+   * heading's text and keeps the distance it keeps after a word: its own
+   * margin, with neither the tags' margin nor their gap added to it.
+   */
+  [data-ui-section]
+    > [data-part-header]
+    > [data-part-title]
+    > [data-part-tags]
+    > [data-ui-button][data-shape][data-inline] {
+    font-family: var(
+      --slotted-font-family-heading,
+      var(--slotted-font-family-sans, ui-sans-serif, system-ui, sans-serif)
+    );
+    font-size: var(--_text-size);
+    line-height: var(--_text-line-height);
+  }
+
+  [data-ui-section]
+    > [data-part-header]
+    > [data-part-title]
+    > [data-part-tags]:has(> [data-ui-button][data-shape][data-inline]:first-child) {
+    margin-inline-start: 0;
+  }
+
+  [data-ui-section]
+    > [data-part-header]
+    > [data-part-title]
+    > [data-part-tags]
+    > [data-ui-button][data-shape][data-inline]:not(:first-child) {
+    margin-inline-start: calc(0.25em - var(--slotted-space-3, 0.375rem));
   }
 
   [data-ui-section] > [data-part-header] > [data-part-title] > [data-part-description] {

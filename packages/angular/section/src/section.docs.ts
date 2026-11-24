@@ -81,7 +81,7 @@ const anatomy: AnatomyRow[] = [
     element: 'the element carrying slSectionTags',
     required: false,
     purpose:
-      'Badges or tags beside the heading — a count, a status — aligned on the heading’s baseline. Outside the heading, so they are not read into the region’s name. They never leave the heading’s row: a long heading wraps its words and the badges stack beside it.',
+      'Badges or tags beside the heading — a count, a status — aligned on the heading’s baseline. Outside the heading, so they are not read into the region’s name. They never leave the heading’s row: a long heading wraps its words and the badges stack beside it. An inline icon button, the help trigger of the heading, takes the heading’s text and stands at the distance it keeps after a word.',
   },
   {
     part: 'description',

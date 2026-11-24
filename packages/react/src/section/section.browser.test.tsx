@@ -2,8 +2,12 @@ import { render } from '@testing-library/react';
 import type { CSSProperties } from 'react';
 import { describe, expect, it } from 'vitest';
 
+import { IconButton } from '../button';
+import { Glyph, Icon } from '../icon';
 import { Stack } from '../stack';
 import { Table, TableBody, TableCell, TableContent, TableRow } from '../table';
+import { Tag } from '../tag';
+import { Text } from '../typography';
 import { Section } from './section';
 import {
   SectionActions,
@@ -12,6 +16,7 @@ import {
   SectionDescription,
   SectionHeader,
   SectionHeading,
+  SectionTags,
   SectionTitle,
 } from './section-parts';
 import type { SectionProps } from './section.types';
@@ -321,5 +326,88 @@ describe('a child of a surface section body that bleeds alone', () => {
     expect(middle.getBoundingClientRect().left).toBeCloseTo(surface!.left + 1, 1);
     expect(plain.left).toBeCloseTo(none!.left, 1);
     expect(plain.right).toBeCloseTo(none!.right, 1);
+  });
+});
+
+/* A help trigger beside a heading stands where it stands after a word of text. */
+describe('an inline icon button in the tags', () => {
+  const trigger = (
+    <IconButton aria-label="About the criteria" inline tone="secondary" variant="ghost">
+      <Icon>
+        <Glyph name="circle-question" />
+      </Icon>
+    </IconButton>
+  );
+
+  function distance(words: Element, dir: string) {
+    const range = document.createRange();
+    range.selectNodeContents(words.firstChild!);
+    const text = range.getBoundingClientRect();
+    const glyph = document
+      .querySelector('[data-ui="button"] [data-ui="icon"]')!
+      .getBoundingClientRect();
+    const button = document.querySelector('[data-ui="button"]') as HTMLElement;
+    const line = parseFloat(getComputedStyle(button).lineHeight);
+
+    expect(button.getBoundingClientRect().width).toBeCloseTo(line, 1);
+    expect(button.getBoundingClientRect().height).toBeCloseTo(line, 1);
+
+    return dir === 'rtl' ? text.left - glyph.right : glyph.left - text.right;
+  }
+
+  describe.each(['ltr', 'rtl'])('in %s', (dir) => {
+    it.each(['sm', 'md', 'lg'] as const)(
+      'keeps the distance it keeps after a word (%s)',
+      (size) => {
+        const section = render(
+          <div dir={dir}>
+            <Section heading="title" size={size}>
+              <SectionHeader>
+                <SectionTitle>
+                  <SectionHeading>Criteria</SectionHeading>
+                  <SectionTags>{trigger}</SectionTags>
+                </SectionTitle>
+              </SectionHeader>
+            </Section>
+          </div>,
+        );
+        const heading = document.querySelector('[data-part="heading"]')!;
+        const { fontSize, lineHeight } = getComputedStyle(heading);
+        const beside = distance(heading, dir);
+        section.unmount();
+
+        render(
+          <div dir={dir}>
+            <Text style={{ fontSize, lineHeight }}>Criteria{trigger}</Text>
+          </div>,
+        );
+        const after = distance(document.querySelector('[data-ui="typography"]')!, dir);
+
+        expect(Math.abs(beside - after)).toBeLessThanOrEqual(1);
+      },
+    );
+  });
+
+  it('stands after a badge at the distance it keeps after a word', () => {
+    render(
+      <Section heading="title">
+        <SectionHeader>
+          <SectionTitle>
+            <SectionHeading>Criteria</SectionHeading>
+            <SectionTags>
+              <Tag size="sm">Draft</Tag>
+              {trigger}
+            </SectionTags>
+          </SectionTitle>
+        </SectionHeader>
+      </Section>,
+    );
+    const tag = document.querySelector('[data-ui="tag"]')!.getBoundingClientRect();
+    const button = document.querySelector('[data-ui="button"]') as HTMLElement;
+    const heading = document.querySelector('[data-part="heading"]')!.getBoundingClientRect();
+    const quarter = parseFloat(getComputedStyle(button).fontSize) / 4;
+
+    expect(button.getBoundingClientRect().left - tag.right).toBeCloseTo(quarter, 0);
+    expect(tag.left - heading.right).toBeGreaterThan(4);
   });
 });
