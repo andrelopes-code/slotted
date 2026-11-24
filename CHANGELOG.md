@@ -2,6 +2,15 @@
 
 Every release of the six `@slotted/*` packages, newest first, at one shared version. `pnpm release` writes each entry from the commit subjects since the previous `v*` tag. The `0.x` line changes its public API between beta releases without deprecation.
 
+## 0.1.0-beta.39 — 2026-11-24
+
+- fix(docs): a code block is highlighted whatever the load of the machine
+- feat(dialog, drawer): a token filters the page under a modal layer
+- fix(section): an inline icon button in the tags stands as after a word
+- fix(list-item): a step of space stands around the controls of a row
+- fix(table): an expander with no mark stands on the middle of its content
+- fix(calendar): a chosen day, month or year says aria-pressed on its button
+
 ## 0.1.0-beta.38 — 2026-11-24
 
 - test(chart): the first tooltip waits for the engine it fetches
