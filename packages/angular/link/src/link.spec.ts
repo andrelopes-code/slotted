@@ -164,6 +164,22 @@ describe('SlLink', () => {
       expect(link.getAttribute('rel')).toBe('nofollow');
       expect(link.textContent).toContain('(opens in a new tab)');
     });
+
+    @Component({
+      imports: [SlLink],
+      template: `<a slLink external href="https://example.com" target="_self">Terms</a>`,
+    })
+    class OverruledTarget {}
+
+    it('says nothing when the target overrules external', () => {
+      const fixture = TestBed.createComponent(OverruledTarget);
+      fixture.detectChanges();
+      const link = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
+
+      expect(link.getAttribute('target')).toBe('_self');
+      expect(link.hasAttribute('rel')).toBe(false);
+      expect(link.textContent).toBe('Terms');
+    });
   });
 
   describe('disabled', () => {

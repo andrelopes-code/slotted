@@ -125,10 +125,12 @@ export class SlLink {
   readonly visitedValue = computed(() => this.visited() ?? this.defaults.visited ?? false);
 
   /**
-   * The fact, not the prop. `external` is the way to state it, and an anchor
-   * the consumer already pointed at a new tab has stated the same thing.
+   * The fact, not the prop. `external` is the way to state it, and a target
+   * already written on the anchor decides over it.
    */
-  readonly newTab = computed(() => this.external() || this.ownTarget === '_blank');
+  readonly newTab = computed(() =>
+    this.ownTarget === null ? this.external() : this.ownTarget === '_blank',
+  );
   readonly hint = computed(() => ` ${this.t('externalHint')}`);
 
   /**
