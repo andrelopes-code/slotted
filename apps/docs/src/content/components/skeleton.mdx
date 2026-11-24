@@ -1,0 +1,83 @@
+---
+title: Skeleton
+description: Reserves the boxes of content that is still loading, so the loaded screen lands in the same place.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## A placeholder inside a region
+
+`Skeleton` draws one placeholder. With no props it is a line of text: as wide as its container and as tall as the type around it. `SkeletonRegion` owns the wait for everything inside it. It carries `aria-busy`, announces `messages.label` once through a visually hidden status element, and passes its loading state to every placeholder inside. The placeholders are `aria-hidden` and `inert`, so a screen reader hears one message and focus never lands on a bar. This region has no `loading` prop, so it stays loading; the examples further down switch it.
+
+## Shapes
+
+`shape` states what the placeholder stands for: `text` is a line of type, `block` is a box with the height you give it (`blockSize`), and `circle` and `square` are the two boxes an avatar can be. `inlineSize` and `blockSize` reserve a width and a height in any CSS length. In React a bare number is pixels.
+
+<Example name="shapes" />
+
+## Avatar sizes
+
+`size` applies to `circle` and `square` and reads the Avatar scale: `xs`, `sm`, `md`, `lg` and `xl`, with `md` as the default. A placeholder and the `Avatar` of the same size occupy the same box. `text` takes its height from the type around it and `block` takes it from `blockSize`, so neither reads `size`.
+
+<Example name="sizes" />
+
+## Paragraphs
+
+`SkeletonText` reserves the rows of a paragraph. Each row is one line box of the type it sits in, so three rows occupy the three lines the words will. `lines` sets the count and defaults to 3. When there is more than one row the last one is drawn short, 62% wide unless `lastLineSize` says otherwise; a single row is never shortened. `inlineSize` narrows the whole paragraph.
+
+<Example name="text" />
+
+## Type and direction
+
+A placeholder takes its height from the type around it, so one placed inside a `Heading` is exactly as tall as that heading at its size, with no height written anywhere. Widths and the short last row are logical, so a paragraph under `dir="rtl"` starts at the right edge.
+
+<Example name="content" />
+
+## Animation
+
+`animation` chooses how the wait moves: `shimmer` sends a band across the placeholder and is the default, `pulse` dims and restores the fill, and `none` is still. A region passes its value to every placeholder inside it, and a placeholder's own `animation` wins. Under `prefers-reduced-motion` all three stop and the shape stays.
+
+<Example name="animation" />
+
+## Covering real content
+
+Put content inside a `Skeleton` and the box takes that content's own geometry, hides it, and draws the placeholder over it. When loading ends the box stops taking part in layout and the content stays exactly where it was, so the reserved space cannot differ from what replaces it. Cover one element per box, such as a `Text` or an `Avatar`, so that the box and the element are the same size. Here the boxes follow the region: a `Skeleton` with no `loading` of its own uses the nearest region's answer. The button replays a first load of 1.5 seconds.
+
+<Example name="cover" wide />
+
+## Loading a list
+
+A list that is being fetched keeps its chrome painted and reserves only the rows that are coming. The heading and the button render for real. Each row renders the same layout in both states: a circle at the avatar size, and a `Skeleton` inside each `Text`, with widths that differ from row to row, so the line height is the one the text will take. `loadedLabel` makes the region announce a second message when the content arrives; without it the region is silent on arrival. The button replays the first load.
+
+<Example name="region" wide />
+
+## Loading in pieces
+
+`loading` on a `Skeleton` or `SkeletonText` overrides the region for that box only. Data that arrives in pieces shows each piece as it lands: here the status is known and shown, while the carrier and the notes are still placeholders. With `loading={false}` in React and `[loading]="false"` in Angular, the box is no longer `aria-hidden` or `inert`.
+
+<Example name="partial" />
+
+## Delay and minimum duration
+
+`delay` is how long the wait must last before anything is painted, and `minDuration` is how long a placeholder that did appear stays. Both default to 0. Set them once for the application, 200 and 400 milliseconds being the recommended pair: `SkeletonDefaultsProvider` in React and `provideSkeletonDefaults` in Angular. The provider also takes `animation`, `lastLineSize`, `live` and `loadedLabel`, and a prop on a region or a box still wins. `onReveal` in React and `(reveal)` in Angular fire when the placeholders are actually withdrawn, which is later than `loading` turning false whenever `minDuration` still holds them. Cover the content, as here, so that it stands during the delay and returns only when the placeholder goes: a page that swaps the two on its own `loading` follows neither time. The first button responds before the delay, so nothing is drawn and the counter does not move. The second responds 50 ms after the placeholder appears, which stays its 400 ms. The third draws the placeholder after 200 ms and withdraws it with the response.
+
+<Example name="timing" wide />
+
+## Silent regions
+
+`live="off"` removes the status element, so the region keeps `aria-busy` and says nothing. Use it where the surrounding screen already announces the wait, or where the content is decorative, such as a strip of avatars. `live` defaults to `polite`.
+
+<Example name="silent" wide />
+
+## Choosing the indicator
+
+A skeleton answers a wait whose structure is known before the data arrives: a list, a table, a card, a form. Other waits take another indicator.
+
+- A control that started the work and stays on screen uses its own `loading`, as `Button` does.
+- Work that reports how much is done uses the progress indicator.
+- A region that is already painted and is being replaced uses the loading overlay.
+- Refreshing data that is already on screen keeps its values and takes `aria-busy` on the region, instead of returning to a skeleton on every refresh.
+
+Two indicators never answer the same wait in the same region. A region that finishes loading with nothing to show renders an empty state, never an empty skeleton, and an error replaces the placeholders.
