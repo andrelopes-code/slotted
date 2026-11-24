@@ -1,6 +1,7 @@
 import { PT_BR } from '@slotted/core/i18n/pt-BR';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 
 import contract from '../../../../specs/components/alert/contract.json';
@@ -529,5 +530,54 @@ describe('AlertActions paint', () => {
     const button = screen.getByRole('button', { name: 'Go' });
     expect(button).toHaveAttribute('data-tone', 'danger');
     expect(button).toHaveAttribute('data-size', 'md');
+  });
+});
+
+describe('the name of the box', () => {
+  const titled = (
+    <Alert data-testid="alert">
+      <AlertContent>
+        <AlertTitle id="price-title">Prices saved</AlertTitle>
+      </AlertContent>
+    </Alert>
+  );
+
+  it('is its title in the server HTML, before any effect runs', () => {
+    expect(renderToString(titled)).toMatch(/<section[^>]*aria-labelledby="price-title"/);
+  });
+
+  it('follows the identifier the page gave the title', () => {
+    render(titled);
+
+    expect(screen.getByTestId('alert')).toHaveAccessibleName('Prices saved');
+  });
+
+  it('does not take the title of an alert nested in its description', () => {
+    const html = renderToString(
+      <Alert data-testid="outer">
+        <AlertContent>
+          <Alert>
+            <AlertTitle id="inner-title">Inner</AlertTitle>
+          </Alert>
+        </AlertContent>
+      </Alert>,
+    );
+
+    expect(/<section[^>]*data-testid="outer"[^>]*>/.exec(html)?.[0]).not.toContain('labelledby');
+    expect(html.match(/aria-labelledby="inner-title"/g)).toHaveLength(1);
+  });
+
+  it('goes with the title', () => {
+    const { rerender } = render(titled);
+
+    rerender(
+      <Alert data-testid="alert">
+        <AlertContent>
+          <AlertDescription>Rates were updated.</AlertDescription>
+        </AlertContent>
+      </Alert>,
+    );
+
+    expect(screen.getByTestId('alert')).not.toHaveAttribute('aria-labelledby');
   });
 });

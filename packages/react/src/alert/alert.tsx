@@ -9,8 +9,9 @@ import type { FocusEvent, MouseEvent, SyntheticEvent } from 'react';
 import { useMessages } from '../i18n';
 import { Glyph, Icon } from '../icon';
 import type { GlyphName } from '../icon';
+import { readTitleId } from '../title-id/read-title-id';
 import { useAlertDefaults } from './alert-defaults';
-import { AlertProvider } from './alert-parts';
+import { AlertProvider, AlertTitle } from './alert-parts';
 import type { AlertCloseReason, AlertProps, AlertRootProps, AlertTone } from './alert.types';
 
 /**
@@ -76,9 +77,12 @@ export function Alert({
   const defaults = useAlertDefaults();
   const t = useMessages(alertMessages, messages);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
-  const [hasTitle, setHasTitle] = useState(false);
+  /** The identifier the title actually carries, which is not always ours. */
+  const [labelId, setLabelId] = useState<string | null>(null);
   const id = useId();
   const titleId = `${id}title`;
+  const named =
+    labelId ?? readTitleId(children, { root: Alert, title: AlertTitle, fallback: titleId });
 
   const resolvedLive = live ?? defaults.live;
   const isOpen = open ?? uncontrolledOpen;
@@ -117,7 +121,7 @@ export function Alert({
 
   const resolvedTone = tone ?? defaults.tone;
   const context = useMemo(
-    () => ({ live: resolvedLive, registerTitle: setHasTitle, titleId, tone: resolvedTone }),
+    () => ({ live: resolvedLive, registerTitle: setLabelId, titleId, tone: resolvedTone }),
     [resolvedLive, titleId, resolvedTone],
   );
 
@@ -134,7 +138,7 @@ export function Alert({
   const glyph = TONE_GLYPH[resolvedTone];
 
   const rootProps: AlertRootProps = keyedProps({
-    ...(hasTitle ? { 'aria-labelledby': titleId } : {}),
+    ...(named === null ? {} : { 'aria-labelledby': named }),
     ...nativeProps,
     ...(isOpen ? { 'data-open': '' } : {}),
     children: (

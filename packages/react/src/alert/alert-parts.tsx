@@ -26,7 +26,7 @@ export interface AlertContextValue {
   live: AlertLive;
   tone: AlertTone;
   titleId: string;
-  registerTitle: (present: boolean) => void;
+  registerTitle: (id: string | null) => void;
 }
 
 const AlertContext = createContext<AlertContextValue | undefined>(undefined);
@@ -87,16 +87,17 @@ export function AlertContent({ render, ...nativeProps }: AlertContentProps) {
  */
 export function AlertTitle({ render, ...nativeProps }: AlertTitleProps) {
   const { registerTitle, titleId } = useAlertContext('Title');
+  const id = nativeProps.id ?? titleId;
 
   useEffect(() => {
-    registerTitle(true);
-    return () => registerTitle(false);
-  }, [registerTitle]);
+    registerTitle(id);
+    return () => registerTitle(null);
+  }, [id, registerTitle]);
 
   const partProps: AlertPartProps = keyedProps({
-    id: titleId,
     ...nativeProps,
     'data-part': 'title',
+    id,
   });
 
   return render === undefined ? <div {...partProps} /> : render(partProps);
