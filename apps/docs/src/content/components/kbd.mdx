@@ -1,0 +1,70 @@
+---
+title: Kbd
+description: Draws a key or a whole shortcut for the reader's keyboard, and gives each key a name a screen reader can speak.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## A key by name
+
+`Kbd` in React and `slKbd` in Angular draw one key. `keyName` takes a token from the vocabulary (`mod`, `meta`, `ctrl`, `alt`, `shift`, `fn`, `enter`, `escape`, `tab`, `space`, `backspace`, `delete`, `capslock`, `pageup`, `pagedown`, `home`, `end`, `plus`, `up`, `down`, `left`, `right`) or an alias such as `esc`, `cmd`, `option` or `arrowup`. A key in the vocabulary hides its legend from assistive technology and carries a spoken name beside it: the legend is what the eye reads, the name is what a screen reader says. `f1` to `f24` are drawn as words with no name. A key written as content, such as `Right click`, is drawn verbatim: the page owns its wording, so no name is added. `keyName` wins when both are written. The component draws a key and does not listen for it.
+
+<Example name="keys" />
+
+## Variants
+
+`variant` sets how the key is painted. `raised` is a key with a bottom edge and the default. `outline` draws the edge and owns no ground, so it sits on any surface. `soft` is a tinted chip. `plain` has no edge and takes the color of the text around it.
+
+<Example name="variants" />
+
+## Sizes
+
+`xs`, `sm`, `md` and `lg` are fixed heights of 16, 20, 24 and 28 pixels. The legend follows the control type scale, so a denser density shrinks it inside the same height. `inherit` reads the text around the key and stays inside its line: use it in a heading or in fine print, where an absolute height reads as a stamp or a slab.
+
+<Example name="sizes" />
+
+## One string, every platform
+
+`Shortcut` in React and `slShortcut` in Angular draw a combination from one string: `keys` joins keys pressed together with `+`. The element is a `kbd` that holds one `kbd` per key, as the HTML Standard describes a combination, and the `+` between two keys is a separate part that assistive technology skips. `mod` is Command on a Mac and Control elsewhere. `platform` sets the keyboard the legends are drawn for: `mac`, `windows`, `linux`, `other` or `auto`. The modifiers are put in each platform's own order, so one authored string is right everywhere. A Mac joins its keys with nothing and draws marks (⌘ ⇧), so no `+` is rendered there. The word for `meta` differs too: Win on Windows, Super on Linux, Meta otherwise.
+
+`auto`, the default, reads the browser: `navigator.userAgentData.platform`, then `navigator.platform`. The server cannot read it and renders `other`. React renders `other` on the server and during hydration, then corrects once the page is hydrated. Angular reads the browser at once and renders `other` only on the server, where a development-mode warning says so when `platform` is not stated. A server-rendered page states `platform` once through the defaults provider and nothing is detected.
+
+<Example name="platform" />
+
+## A sequence of steps
+
+Whitespace in `keys` separates steps, so `g i` is G, then I. The word between two steps is `then`, and it is read aloud, because it is the only thing that tells a sequence from a combination. A single letter is drawn in upper case with no name.
+
+<Example name="sequence" />
+
+## Disabled
+
+`disabled` dims the key, its rim, its ink and the separators. It writes no `aria-disabled`, because `kbd` can carry only the global ARIA attributes: the item the shortcut belongs to owns the semantics. `Kbd` and `Shortcut` both take it.
+
+<Example name="states" />
+
+## Beside a command
+
+In a list of commands the label stands first and the shortcut at the end. `plain` takes the color of the row, so a row that dims takes its shortcut with it and no state is set on the key.
+
+<Example name="commands" />
+
+## Words of your own
+
+`legends` replaces what the eye reads for a key token, and `names` replaces what a reader hears. `separator` replaces the `+` between two keys pressed together, except on a Mac. `messages` lays words over the keys catalog of the language in force, key by key and for `then`. A key keeps its mark or its word from the catalog until one of these sets another.
+
+<Example name="words" />
+
+## Defaults for an application
+
+`KbdDefaultsProvider` in React and `provideKbdDefaults` in Angular set `platform`, `size`, `variant`, `separator`, `legends` and `names` once for everything below them. A key that states a value of its own keeps it: here the last shortcut states `outline`.
+
+<Example name="defaults" />
+
+## Authored keys
+
+Children of `Shortcut` are keys written by hand and rendered in the order written: this is the way out of the platform ordering. It also holds content outside the vocabulary, such as a click. A `Kbd` inside takes `platform`, `size`, `variant` and `disabled` from the shortcut unless it states its own. React also takes `render`, which substitutes the element; Angular writes the directive on the element the page already owns.
+
+<Example name="composition" />
