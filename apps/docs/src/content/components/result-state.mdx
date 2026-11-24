@@ -1,0 +1,80 @@
+---
+title: Result State
+description: Stands in for content that is not there, such as an empty list, a search with no matches, a failed request or a missing page, and says what to do next.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Result state, alert or inline message
+
+A result state replaces the content it is about: a list with no rows, a panel that failed to load, a route that does not exist. Use it when the region has nothing else to show. An `Alert` sits beside content that is still on the page and frames a notice about it. An `InlineMessage` is one line under one control. A `Skeleton` fills the region while the request is pending, and the result state takes its place once the request returns nothing or fails; the two never share a region.
+
+The region is a `section` named by its title. The title and the description sit in the content part, the only part that announces. The buttons sit in the actions part and the documentation link in the footer part, both outside the content part.
+
+## Statuses
+
+`status` names the situation: `empty`, `no-results`, `not-found`, `error`, `forbidden`, `offline` or `success`. The value is written on the root as `data-status` and paints nothing, so the title and the description carry the meaning. Say what happened and what the reader can do about it. The default is `empty`.
+
+<Example name="statuses" wide />
+
+## Reach
+
+`reach` sets the scope of the message. `inline` is one row for a table cell or a toolbar, with the actions on the same line and no illustration. `section` is a panel inside a card or a page. `page` is a whole route and sets the title in the `3xl` step of the type scale. The default is `section`.
+
+<Example name="reach" wide />
+
+## Alignment
+
+`align="center"` centers the region and suits a panel or a route. `align="start"` reads from the inline edge and suits a screen of dense tables, where a centered column interrupts the rows. The default is `center`.
+
+<Example name="align" />
+
+## Your own artwork
+
+The media part holds a glyph or an illustration of your own. In React pass it as `media`; in Angular project an element carrying `slResultStateMedia`. The part is hidden from assistive technology, so the title and the description must say what the picture says. The part keeps the height the reach gives it, so artwork that loads late does not move the title.
+
+<Example name="media" />
+
+## Illustrations
+
+`illustration` draws a neutral picture around the glyph in the media part: `tile` frames the glyph, `stack` leans three layers behind it and `cards` shows a thumbnail beside two lines, like a row. `tile` and `stack` draw nothing without a glyph, `cards` draws its lines with or without one, and `inline` reach draws none of them. The drawings take no tone.
+
+<Example name="illustrations" wide />
+
+## Actions and footer
+
+The actions part holds the controls that get the reader out of the situation. Give a failed request the retry first and an alternative second. The controls are your own `Button`s, so they keep every button state. They stack below a container width of 20rem. The footer part holds the line under the actions, such as a link to documentation that is not a call to action.
+
+<Example name="actions" />
+
+## Retrying a request
+
+Set `loading` on the retry button while the request is in flight, and keep the region on the page. The region changes its status and its text in place, so the content part, which already exists, announces the new message. Press the button: the retry takes 1.5 seconds.
+
+<Example name="retry" />
+
+## Clearing a search
+
+A search that matches nothing is `no-results`, and its action clears the search. The region replaces the list while the query matches nothing and the list returns when the query matches again. Press the button to clear the query.
+
+<Example name="search" />
+
+## What a reader hears
+
+`live` sets whether the text announces itself. `polite`, the default, writes `role="status"` on the content part, because the region is the outcome of an operation. `assertive` writes `role="alert"` for a failure the reader has to hear now. `off` writes no role, for a screen that already owns a live region around this one. The root is never a live region and never moves focus: it carries `tabindex="-1"` so your code can send focus to it.
+
+<Example name="live" />
+
+## Title as a heading
+
+The title is a `div` by default, because a heading enters the document outline and only the page knows whether this message belongs there. A full page for a missing route does: render the title as the page's `h1`. In React pass `render` to `ResultStateTitle`; in Angular write `slResultStateTitle` on an `h1`. A region inside one card of a grid keeps the `div`.
+
+<Example name="heading" />
+
+## Defaults
+
+A defaults provider sets `status`, `reach`, `align`, `live` and `illustration` once for every result state under it: `ResultStateDefaultsProvider` in React and `provideResultStateDefaults` in Angular. A region that sets a value of its own keeps it. A screen of tables sets `reach="inline"` and `align="start"` once.
+
+<Example name="defaults" />
