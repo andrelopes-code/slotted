@@ -24,42 +24,48 @@ const GAP = '0 | 1 | … | 12';
 export const REACT_GRID_DOCS = {
   grid: {
     api: apiRows([
-      ['gap', GAP, '6', 'Grid', 'Separation between cells, as a step on the space scale'],
+      ['gap', GAP, '6', 'Grid', 'Sets the separation between cells as a step on the space scale.'],
       [
         'columns',
         '1 | 2 | … | 12',
         'auto',
         'Grid',
-        'At most this many tracks; absent, the grid fits as many as it can',
+        'Sets the most columns a row may hold. When absent, the grid fits as many as it can.',
       ],
       [
         'minItemWidth',
         "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
         'md',
         'Grid',
-        'The narrowest a cell may become before a column is dropped',
+        'Sets the narrowest a cell may become before a column is dropped.',
       ],
       [
         'align',
         "'start' | 'center' | 'end' | 'stretch'",
         '—',
         'Grid',
-        'Positions a child across the flow, inside its own cell',
+        'Positions a child along the block axis, inside its own cell.',
       ],
       [
         'justify',
         "'start' | 'center' | 'end' | 'stretch'",
         '—',
         'Grid',
-        'Positions a child along the flow, inside its own cell',
+        'Positions a child along the inline axis, inside its own cell.',
       ],
-      ['render', '(props) => ReactNode', '—', 'Grid', 'Renders a different root element'],
+      [
+        'render',
+        '(props) => ReactNode',
+        '—',
+        'Grid',
+        'Renders a different root element from the props it receives.',
+      ],
     ]),
     accessibility: [
-      'This is not the APG grid widget. There is no role="grid", no cell and no arrow-key navigation: the family lays children out, and the children keep whatever semantics they already had.',
-      'There is no axis that reorders or places children. Visual order stays DOM order, which is what WCAG 2.2 SC 1.3.2 asks for (technique C27, failure F1) and what keeps the Tab order matching the page.',
-      'A stated count is a ceiling the container may lower. Twelve columns become six and then one as the container narrows, so a page reflows to 320 CSS pixels without scrolling in two dimensions, as WCAG 1.4.10 requires.',
-      'The reflow is measured against the grid’s own inline size, not the viewport, so a grid inside a narrow panel behaves the same as one inside a narrow window. No breakpoint and no container query appears in the family.',
+      'This is not the APG grid widget. There is no role="grid", no cell and no arrow-key navigation: Grid lays children out, and the children keep whatever semantics they already had.',
+      'There is no prop that reorders or places children. Visual order stays DOM order, which is what WCAG 2.2 SC 1.3.2 asks for (technique C27, failure F1) and what keeps the Tab order matching the page.',
+      'A stated count is a ceiling the grid may lower. Twelve columns become six and then one as the grid narrows, so a page reflows to 320 CSS pixels without scrolling in two dimensions, as WCAG 1.4.10 requires.',
+      'The reflow is measured against the grid’s own inline size, not the viewport, so a grid inside a narrow panel behaves the same as one inside a narrow window. Grid uses no breakpoint and no container query.',
       'minItemWidth is stated in rem, so the point at which a column is dropped moves with the browser zoom WCAG 1.4.4 requires.',
     ],
     snippets: [
@@ -80,9 +86,9 @@ export const REACT_GRID_DOCS = {
       defineSnippet({
         id: 'grid-react-span',
         language: 'tsx',
-        label: 'A child that crosses two tracks says so on itself',
+        label: 'A child that crosses every column states it on itself',
         source:
-          "<Grid columns={2} gap={6}>\n  <Panel style={{ gridColumn: 'span 2' }}>Summary</Panel>\n  <Panel>Left</Panel>\n  <Panel>Right</Panel>\n</Grid>;",
+          "<Grid columns={2} gap={6}>\n  <Panel style={{ gridColumn: '1 / -1' }}>Summary</Panel>\n  <Panel>Left</Panel>\n  <Panel>Right</Panel>\n</Grid>;",
       }),
     ],
   },

@@ -1,0 +1,54 @@
+---
+title: Grid
+description: Arranges children in equal columns that reflow with the width of the grid itself, with no breakpoints.
+---
+
+<Example name="basic" wide />
+
+<Installation />
+
+## Grid, Stack, Inline and Container
+
+Use `Grid` for cells of equal width that wrap into rows, such as cards, metrics or form fields. Use `Stack` to lay children out in one column and `Inline` to lay them out in one row, each sized by its content. Use `Container` to bound the width of a whole page or section; a grid fills whatever width it is given. The root is a `div`; pass `render` in React, or write `slGrid` on a `ul` or `section` in Angular, to change the element. The order of the children is the reading order and the Tab order.
+
+## Minimum cell width
+
+Without a column count, the grid draws as many equal columns as fit while each stays at least `minItemWidth` wide, and drops a column when it would not. The steps are `xs` (8rem), `sm` (12rem), `md` (16rem, the default), `lg` (20rem) and `xl` (24rem). A minimum wider than the grid becomes one full-width column. A column left empty collapses, so two cells fill the row. Each group below holds the same four cells at one step.
+
+<Example name="min-item-width" wide />
+
+## Column count
+
+`columns` sets the most columns a row may hold, from 1 to 12. It is a ceiling, not a promise: a row never holds a cell narrower than `minItemWidth`, so the grid uses fewer columns when it narrows. A count above the number of children leaves the remaining tracks empty. Four metrics below fill two, three and four columns; with three, the fourth starts a second row.
+
+<Example name="columns" wide />
+
+## Gap
+
+`gap` is the separation between cells, a step on the space scale from `0` to `12`, `6` by default. It applies to rows and columns alike. At `0` the cells touch.
+
+<Example name="gap" wide />
+
+## Alignment across the row
+
+`align` positions each child along the block axis inside its own cell. By default, and with `stretch`, every child takes the height of its row. `start`, `center` and `end` give a child its own height and place it at the top, middle or bottom of the row.
+
+<Example name="align" wide />
+
+## Justification along the row
+
+`justify` positions each child along the inline axis inside its own cell. With `stretch` a child fills its cell. `start`, `center` and `end` size the child to its content and place it at the start, middle or end of the cell.
+
+<Example name="justify" wide />
+
+## Spanning every column
+
+Grid has no prop that places a child. A child that crosses the row states it on itself with `grid-column: 1 / -1`, through `style`: it spans the columns the row holds at that width, and stays one cell when the grid is one column. `span 2` would add a second column to a grid that had reflowed to one. In this form the company field spans both columns, and the other four fields fill the two rows below it.
+
+<Example name="span" wide />
+
+## Reflow follows the grid
+
+The grid measures its own width, not the window, so no breakpoint is involved. The same grid with `columns={4}` and `minItemWidth="xs"` holds four columns across the preview and fewer inside a card that is half as wide.
+
+<Example name="own-width" wide />
