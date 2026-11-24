@@ -1,0 +1,48 @@
+---
+title: Aspect Ratio
+description: Holds a box at a stated proportion of its own width before its content arrives, so a picture, a map or a player moves nothing below it.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Reserving room for media
+
+`AspectRatio` is a box whose height is a stated proportion of its width. The room exists before the first byte of the picture arrives, so a grid of thumbnails does not shift as each request returns. The frame uses the CSS `aspect-ratio` property and draws nothing of its own. To fix a width or a height in a unit instead of a proportion, size the element directly; to crop a picture to a shape, use `Image` with `fit`.
+
+## Named ratios
+
+`ratio` is required, because the proportion is a decision of your page. Five names cover the common cases: `square` (1:1), `landscape` (4:3), `portrait` (3:4), `video` (16:9) and `wide` (21:9). The name is written to `data-ratio`, so the DOM says which proportion was chosen. Each frame below holds a card so its edge is visible.
+
+<Example name="ratios" wide />
+
+## Custom ratios
+
+A pair of numbers or a single number sets any other proportion. A pair is written exactly as given: `[2, 1]` becomes `2 / 1`. A number is its own quotient: `1.85` stays `1.85`. Both set `data-ratio="custom"` and write the value to the `--slotted-aspect-ratio` custom property on the element.
+
+<Example name="custom" />
+
+## Fitting media whole
+
+The frame reserves room and never crops. An `img` or a `video` child is sized to the frame and fitted with `object-fit: contain`, so the whole picture is shown, with space around it when its proportion differs from the frame's. Here a card outlines the frame: a 4:3 picture sits inside a 16:9 frame, then inside a square one.
+
+<Example name="media" />
+
+## Content taller than the ratio
+
+The ratio is a floor, not a ceiling. Content that has a height of its own, such as text or a card, keeps its minimum size, so a frame that cannot hold it grows to fit. Nothing is clipped and nothing overlaps the content below. The first frame holds one line and keeps its 16:9 shape; the second holds a paragraph taller than that shape and grows to the paragraph. A replaced child, such as an image, does not grow the frame.
+
+<Example name="growth" />
+
+## Layers in one cell
+
+The frame is a grid of one cell, and every child takes that cell. A second child stacks on the first with no positioning of your own. Here an `Inline` fills the cell and centers a badge over the picture of a camera that stopped.
+
+<Example name="overlay" />
+
+## Picture with a caption
+
+The frame has no role and announces nothing. The content carries its own name: an `img` its `alt`, an `iframe` its `title`. A picture that needs a visible caption goes in a `figure` that wraps the frame, with the `figcaption` after it. The `alt` describes the picture and does not repeat the caption.
+
+<Example name="figure" />
