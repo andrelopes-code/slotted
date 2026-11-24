@@ -4,6 +4,7 @@ import { userEvent } from 'vitest/browser';
 import { describe, expect, it } from 'vitest';
 
 import { Avatar } from '../avatar';
+import { Tag } from '../tag';
 import { paint } from '../test/ink';
 import {
   Table,
@@ -13,6 +14,7 @@ import {
   TableExpander,
   TableMark,
   TableRow,
+  TableRowHeader,
   type TableAlign,
   type TableExpanderRoom,
 } from './index';
@@ -152,6 +154,60 @@ describe('the marks of a table with branches', () => {
   });
 });
 
+describe.each(['ltr', 'rtl'])('an expander with no mark before a taller content in %s', (dir) => {
+  it.each(['center', 'start', 'end'] as const)(
+    'stands on the branch of its row (%s)',
+    async (cellAlign) => {
+      mountCodes({ cellAlign, dir, guides: 'branch' });
+      const ink = await reader();
+      const rail = center(expanderOf('p')).x;
+      const own = expanderOf('c').getBoundingClientRect();
+      const [from, to] = dir === 'rtl' ? [own.right + 3, rail - 1] : [rail + 1, own.left - 3];
+
+      expect(to - from).toBeGreaterThan(4);
+      expect(ink.line(center(expanderOf('c')).y, from, to)).toBe(true);
+    },
+  );
+
+  it.each(['branch', true, false] as const)(
+    'stands on the middle of the content (guides %s)',
+    (guides) => {
+      mountCodes({ dir, guides });
+
+      expect(Math.abs(center(expanderOf('c')).y - center(tagOf('c')).y)).toBeLessThanOrEqual(1);
+    },
+  );
+
+  it.each(['start', 'end'] as const)('follows the cell that states %s', async (align) => {
+    const place = () => center(expanderOf('c')).y - row('c').top;
+    const { unmount } = mountCodes({ cellAlign: align, dir, guides: true, tall: true });
+    const stated = place();
+    unmount();
+    mountCodes({ blockAlign: align, dir, guides: 'branch', tall: true });
+    const ink = await reader();
+    const rail = center(expanderOf('p')).x;
+    const own = expanderOf('c').getBoundingClientRect();
+    const [from, to] = dir === 'rtl' ? [own.right + 3, rail - 1] : [rail + 1, own.left - 3];
+
+    expect(place()).toBeCloseTo(stated, 0);
+    expect(ink.line(center(expanderOf('c')).y, from, to)).toBe(true);
+  });
+
+  it.each(['branch', true] as const)(
+    'leaves the content where a row with no expander has it (guides %s)',
+    (guides) => {
+      mountCodes({ dir, guides });
+      const start = (value: string) => {
+        const box = tagOf(value).getBoundingClientRect();
+
+        return dir === 'rtl' ? box.right : box.left;
+      };
+
+      expect(start('c')).toBeCloseTo(start('leaf'), 1);
+    },
+  );
+});
+
 interface SceneProps {
   readonly cellAlign?: TableAlign;
   readonly deep?: boolean;
@@ -235,6 +291,64 @@ function mount({
       </Table>
     </div>,
   );
+}
+
+interface CodesProps {
+  readonly blockAlign?: TableAlign;
+  readonly cellAlign?: TableAlign;
+  readonly dir: string;
+  readonly guides: 'branch' | boolean;
+  readonly tall?: boolean;
+}
+
+/** Rows whose record is a tag, taller than the line of text it stands on. */
+function mountCodes({ blockAlign, cellAlign = 'center', dir, guides, tall = false }: CodesProps) {
+  const row = (value: string, level: number, parent?: string, folds = true) => (
+    <TableRow level={level} value={value} {...(parent === undefined ? {} : { parent })}>
+      <TableRowHeader {...(blockAlign === undefined ? {} : { blockAlign })}>
+        {folds && <TableExpander />}
+        <Tag size="sm">{value}</Tag>
+      </TableRowHeader>
+      <TableCell>
+        1,500.00
+        {tall && (
+          <>
+            <br />a second line
+            <br />a third line
+          </>
+        )}
+      </TableCell>
+    </TableRow>
+  );
+
+  return render(
+    <div
+      dir={dir}
+      style={{ fontSize: 14, inlineSize: 400, '--slotted-surface': '#fff' } as CSSProperties}
+    >
+      <Table cellAlign={cellAlign} columns={2} defaultExpanded={['p']} guides={guides}>
+        <TableContent aria-label="Codes">
+          <TableBody>
+            {row('p', 0)}
+            {row('c', 1, 'p')}
+            {row('leaf', 1, 'p', false)}
+          </TableBody>
+        </TableContent>
+      </Table>
+    </div>,
+  );
+}
+
+function row(value: string) {
+  return document.querySelector(`[data-value="${value}"]`)!.getBoundingClientRect();
+}
+
+function expanderOf(value: string) {
+  return document.querySelector(`[data-value="${value}"] [data-part="expander"]`)!;
+}
+
+function tagOf(value: string) {
+  return document.querySelector(`[data-value="${value}"] [data-ui="tag"]`)!;
 }
 
 function mark(value: string) {

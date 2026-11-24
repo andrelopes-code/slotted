@@ -1204,7 +1204,10 @@
    * half the expander plus a step of the space scale, so the line one level up
    * sits on the expander's center and the row's own expander starts a fixed
    * distance past it. A row without an expander keeps the expander's box as
-   * space, so a leaf's text lines up with a sibling's that has one.
+   * space, so a leaf's text lines up with a sibling's that has one. An expander
+   * that leads a cell with no mark stands out of flow in that same space, on
+   * the middle of the content where `cellAlign` places it: in flow it stood on
+   * one line of text, above the middle of any content taller than that line.
    *
    * The guide is one box per row with a line per ancestor level, through the
    * whole row and over the rule above it, so it stays continuous across rows
@@ -1221,23 +1224,53 @@
       --slotted-table-guide-color,
       color-mix(in oklab, var(--slotted-border-strong) 60%, var(--slotted-border-subtle))
     );
+    /* Where the row's lead starts in its cell. */
+    --_own: calc(var(--_pad-inline) + var(--_tree-step) * var(--slotted-table-depth, 0));
   }
 
+  /**
+   * The middle the row's lead stands on: in the cell, in the box of the lines,
+   * which starts a rule above it, and of a line placed there as a tile. A cell
+   * that states `blockAlign` answers for its own lead.
+   */
   [data-ui-table] [data-part-row][data-level] > :nth-child(1 of :not([data-part-selection])) {
+    --_y: 50%;
+    --_at: calc(var(--_y) + var(--_rule-width) / 2);
+    --_tile: calc(var(--_y) + var(--_rule-width) / 2);
     inline-size: auto;
     padding-inline-end: var(--_pad-inline);
-    padding-inline-start: calc(
-      var(--_pad-inline) + var(--_tree-step) * var(--slotted-table-depth, 0)
-    );
+    padding-inline-start: var(--_own);
+  }
+
+  [data-ui-table][data-cell-align='start']
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection])):not([data-block-align]),
+  [data-ui-table]
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection]))[data-block-align='start'] {
+    --_y: calc(var(--_pad-block) + var(--_line) / 2);
+    --_at: calc(var(--_y) + var(--_rule-width));
+  }
+
+  [data-ui-table][data-cell-align='end']
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection])):not([data-block-align]),
+  [data-ui-table]
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection]))[data-block-align='end'] {
+    --_y: calc(100% - var(--_pad-block) - var(--_line) / 2);
+    --_at: var(--_y);
   }
 
   [data-ui-table]
     [data-part-row][data-level]
-    > :nth-child(1 of :not([data-part-selection])):not(:has(> [data-part-expander])) {
-    padding-inline-start: calc(
-      var(--_pad-inline) + var(--_tree-step) * var(--slotted-table-depth, 0) +
-        var(--slotted-target-min, 24px) + var(--_gap)
-    );
+    > :nth-child(1 of :not([data-part-selection])):not(:has(> [data-part-expander])),
+  [data-ui-table]
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection])):has(> [data-part-expander]:first-child):not(
+      :has(> [data-part-mark])
+    ) {
+    padding-inline-start: calc(var(--_own) + var(--slotted-target-min, 24px) + var(--_gap));
   }
 
   [data-ui-table]
@@ -1275,6 +1308,16 @@
   [data-ui-table] [data-part-row][data-level] > * > [data-part-expander] {
     margin-inline-end: var(--_gap);
     vertical-align: top;
+  }
+
+  [data-ui-table]
+    [data-part-row][data-level]
+    > :nth-child(1 of :not([data-part-selection])):not(:has(> [data-part-mark]))
+    > [data-part-expander]:first-child {
+    inset-block-start: calc(var(--_y) - var(--slotted-target-min, 24px) / 2);
+    inset-inline-start: var(--_own);
+    margin: 0;
+    position: absolute;
   }
 
   [data-ui-table][data-guides='false']
@@ -1368,11 +1411,6 @@
     --_own: calc(var(--_pad-inline) + var(--_lead));
     --_from: 0px;
     --_mark-size: var(--_node);
-    /* The middle of the mark: in the cell, and in the box of the lines, which
-       starts a rule above it; the middle of a line placed there as a tile. */
-    --_y: 50%;
-    --_at: calc(50% + var(--_rule-width) / 2);
-    --_tile: calc(50% + var(--_rule-width) / 2);
   }
 
   [data-ui-table][data-guides='branch'] [data-part-row][data-level]:not([data-level='0']) {
@@ -1381,20 +1419,8 @@
     --_mark-size: var(--_node-child);
   }
 
-  [data-ui-table][data-guides='branch'][data-cell-align='start'] [data-part-row][data-level] {
-    --_y: calc(var(--_pad-block) + var(--_line) / 2);
-    --_at: calc(var(--_y) + var(--_rule-width));
-    --_tile: calc(var(--_y) + var(--_rule-width) / 2);
-  }
-
-  [data-ui-table][data-guides='branch'][data-cell-align='end'] [data-part-row][data-level] {
-    --_y: calc(100% - var(--_pad-block) - var(--_line) / 2);
-    --_at: var(--_y);
-    --_tile: calc(var(--_y) + var(--_rule-width) / 2);
-  }
-
   /* The row's lead: the mark stands out of flow at one place of its level, and
-     the cell keeps its room. An expander before it is in flow, inside the indent. */
+     the cell keeps its room. An expander before it stands inside the indent. */
   [data-ui-table][data-guides='branch']
     [data-part-row][data-level]
     > :nth-child(1 of :not([data-part-selection])) {
