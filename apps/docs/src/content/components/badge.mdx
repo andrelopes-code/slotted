@@ -1,0 +1,74 @@
+---
+title: Badge
+description: A short, non-interactive label or count that states the status of the element beside it or sits on its corner.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Tone and variant
+
+`tone` picks the semantic color: `accent`, `secondary`, `info`, `success`, `warning` or `danger`. `variant` picks how the tone is painted: `solid` fills the badge, `soft` tints it, `outline` draws the edge alone. The default is `secondary` and `soft`. Pair the color with words, as the status names here do, because color alone is not a signal.
+
+<Example name="appearance" wide />
+
+## Sizes
+
+`size` takes the control scale: `sm`, `md` and `lg`. A badge shrinks and grows with the controls it sits beside, so a table of `sm` buttons takes `sm` badges.
+
+<Example name="sizes" />
+
+## Shapes
+
+`pill` rounds the badge fully and `square` rounds it by one step. `dot` draws no count: its children are its only content, so the words of a dot go in a visually hidden element, and a text beside it states what it means. The dot below carries the hidden word "Online" next to the visible label of the service.
+
+<Example name="shapes" />
+
+## Count
+
+`count` writes a number before any children and formats it for the locale. Above `max`, 99 by default, the badge shows the ceiling and a plus sign; `max={false}` in React and `[max]="false"` in Angular removes the ceiling. `locale` sets the language of the digits and falls back to the defaults, then to the runtime. A count of zero removes the badge from the page, and `showZero` keeps it. In React the badge renders nothing; in Angular it takes `display: none`.
+
+<Example name="count" wide />
+
+## Glyphs
+
+A glyph goes before or after the label: the `start` and `end` props in React, and an element carrying `slBadgeStart` or `slBadgeEnd` in Angular. The part sizes and centers the glyph. In Angular the start part draws first and the end part last, whatever their order in the template.
+
+<Example name="glyphs" />
+
+## On the corner of an element
+
+`BadgeAnchor` in React, and `slBadgeAnchor` on the element around the host in Angular, places the badge on a corner of the host. React renders a wrapper `span`; Angular writes the directive on an element the page already has. The badge comes after the host in document order, so it is read after the host. When the host is interactive and its name must carry the count, point `aria-describedby` from the host to the id of the badge, as the second host does, or put the count in the host's `aria-label`. A badge is not focusable and takes no press, so the host stays the only control.
+
+<Example name="anchor" />
+
+## Placement
+
+`placement` chooses the corner: `top-end`, the default, `top-start`, `bottom-end` or `bottom-start`. Start and end follow the inline direction, so a right-to-left document mirrors them.
+
+<Example name="placement" wide />
+
+## Overlap and offset
+
+`overlap` states the shape of the host. `rectangle`, the default, sets the badge on the corner point; `circle` moves it in far enough to meet the curve. `offset` then moves it by `x` and `y` pixels from the computed corner. `x` runs along the inline axis and mirrors with the document.
+
+<Example name="overlap" wide />
+
+## Live updates
+
+`live` sets whether a change to the badge is announced. `off`, the default, announces nothing. `polite` writes `role="status"` and `assertive` writes `role="alert"`. A role written on the badge is kept. Use `polite` for a count that changes while the person works, and `assertive` only for a failure. Press each button and the matching count changes.
+
+<Example name="live" />
+
+## A badge that navigates
+
+The root takes the element the page chooses: the `render` prop in React, and the directive written on an `a` in Angular. A badge on an anchor is focusable and draws the focus ring; a badge on a `span` is not a command.
+
+<Example name="link" />
+
+## Defaults
+
+`BadgeDefaultsProvider` in React and `provideBadgeDefaults` in Angular set `tone`, `variant`, `size`, `shape`, `max` and `locale` once for every badge below them. A badge that states a value of its own keeps it, as the rejected badge does with `size` and `variant`.
+
+<Example name="defaults" />
