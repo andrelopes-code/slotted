@@ -1,0 +1,62 @@
+---
+title: Link
+description: Text that goes to another page or resource, with an underline, a new-tab warning and a current-page state.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Link or button
+
+A link goes somewhere: it renders an anchor with an `href`, so the link role, `Enter`, the context menu, the middle click and every modified click come from the platform. An action that runs a handler and leaves the page where it is, such as sending an email again, is a Button, and `inline` sets it in the text around it. `Space` does not activate a link, and `Link` does not add it. For a navigation that wants the surface of a button, use `ButtonLink` in React and `slButtonLink` in Angular.
+
+<Example name="action" />
+
+## Underline
+
+`underline` sets when the underline is drawn. `always`, the default, is the only value that suits a link inside a sentence, because color alone does not tell a link from the text beside it. `hover` draws the underline on hover and on keyboard focus, and `none` never draws it. Use `hover` and `none` where the position already says the text is a link, such as a navigation row or a table cell. Under forced colors the underline returns whatever the value is.
+
+<Example name="underline" />
+
+## Variants
+
+`variant` sets how the link is painted. `accent`, the default, uses the accent color. `neutral` takes the color of the text around it, so it belongs where nothing else on the line could be mistaken for it, such as a cell, a title or a row, and never inside a sentence. `inverse` uses the inverse text color, for a link on a solid surface.
+
+<Example name="variants" />
+
+## Sizes
+
+`size` sets the text to `xs`, `sm` or `md`: 12, 13 or 14 pixels on the type scale. Without it, a link takes the size its action slot states, or else the size of the text around it.
+
+<Example name="sizes" />
+
+## States
+
+A link that has no destination yet is `disabled`. It renders no `href`, which stops a middle click as well as a left one, and it keeps `role="link"`, `aria-disabled` and its place in the tab sequence, so a keyboard reader can still find it. Hover and press change the color and the underline. `visited` opts in to the visited color, which the browser applies once the destination is in its history.
+
+<Example name="states" />
+
+## Leaving the application
+
+`external` opens the destination in a new tab and states it three ways: `rel="noopener noreferrer"`, a marker for the eye, and the words "(opens in a new tab)" appended to the accessible name. The three follow the resolved target, so a `target="_blank"` you write yourself is warned about in the same way, and `target="_self"` beside `external` withdraws the warning. `rel` and `target` that you write are kept. `messages` replaces the wording of the warning: pass `externalHint`.
+
+<Example name="external" />
+
+## Current page
+
+A link marks the page you are on through `aria-current`, the attribute a router already writes. The link takes the body text color. Its underline and its weight do not change, so the row does not shift. `Link` has no prop for it. In Angular, `routerLinkActive` with `ariaCurrentWhenActive` writes the attribute on the anchor.
+
+<Example name="current" />
+
+## Your own router link
+
+In React, `render` substitutes the element and hands it the destination and every data attribute, so a router's own link component keeps both. In Angular, `slLink` is an attribute on your own anchor, so `routerLink` and `routerLinkActive` sit on the same element. The example handles the click itself, which is what a router link does: the view changes and the page does not reload.
+
+<Example name="router" />
+
+## Defaults for the application
+
+`LinkDefaultsProvider` in React and `provideLinkDefaults` in Angular set `underline`, `variant` and `visited` once for everything below them. A link that states a value of its own keeps it, as the last link here keeps its accent underline.
+
+<Example name="defaults" />

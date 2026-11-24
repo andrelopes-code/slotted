@@ -32,7 +32,7 @@ const anatomy: AnatomyRow[] = [
     element: 'a',
     required: true,
     purpose:
-      'The link itself. Carries data-ui="link", the axes as data attributes, and every native anchor attribute the consumer passes.',
+      'The link itself. Carries data-ui="link", the axes as data attributes, and every native anchor attribute you pass.',
   },
   {
     part: 'external-icon',
@@ -167,43 +167,49 @@ export const REACT_LINK_DOCS = {
     anatomy,
     scenes,
     api: apiRows([
-      ['underline', "'always' | 'hover' | 'none'", 'always', 'Link', 'When the underline is drawn'],
+      [
+        'underline',
+        "'always' | 'hover' | 'none'",
+        'always',
+        'Link',
+        'When the underline is drawn.',
+      ],
       [
         'variant',
         "'accent' | 'neutral' | 'inverse'",
         'accent',
         'Link',
-        'Accent, the color of the surrounding text, or a solid surface',
+        'The accent color, the color of the surrounding text, or the color for a solid surface.',
       ],
       [
         'size',
         "'xs' | 'sm' | 'md'",
         '—',
         'Link',
-        'The text size: 12, 13 or 14 pixels on the type scale. Unset, the link takes the size its action slot states — a stat card’s action, a section’s or a chart’s actions state sm — or else its parent’s',
+        'The text size: 12, 13 or 14 pixels on the type scale. Unset, the link takes the size its action slot states — a stat card’s action, a section’s or a chart’s actions state sm — or else its parent’s.',
       ],
-      ['external', 'boolean', 'false', 'Link', 'Opens a new tab and warns that it does'],
+      ['external', 'boolean', 'false', 'Link', 'Opens a new tab and warns that it does.'],
       [
         'messages',
         'Partial<LinkMessages>',
         '—',
         'Link',
-        'Words laid over the language in force: the wording of that warning (externalHint)',
+        'Words laid over the language in force: the wording of that warning (externalHint).',
       ],
       [
         'disabled',
         'boolean',
         'false',
         'Link',
-        'Withholds the destination, keeps the role, the state and the tab stop',
+        'Withholds the destination, keeps the role, the state and the tab stop.',
       ],
-      ['visited', 'boolean', 'false', 'Link', 'Paints a destination the reader already followed'],
+      ['visited', 'boolean', 'false', 'Link', 'Paints a destination the reader already followed.'],
       [
         'href',
         'string',
         '—',
         'Link',
-        'The destination, and every other anchor attribute — target, rel, download, hreflang — reaches the element unchanged',
+        'The destination, and every other anchor attribute — target, rel, download, hreflang — reaches the element unchanged.',
       ],
     ]),
     composition: apiRows([
@@ -214,20 +220,20 @@ export const REACT_LINK_DOCS = {
         'Link',
         'Substitutes the rendered element. The destination and every data attribute are handed to it, so a router link keeps both.',
       ],
-      ['ref', 'Ref<HTMLAnchorElement>', '—', 'Link', 'Reaches the anchor, and focus() with it'],
+      ['ref', 'Ref<HTMLAnchorElement>', '—', 'Link', 'Reaches the anchor, and focus() with it.'],
       [
         'onClick, onAuxClick, onKeyDown',
         'EventHandler',
         '—',
         'Link',
-        'Composed rather than replaced. While disabled the family refuses first and the handler is not called.',
+        'Composed rather than replaced. While disabled, Link refuses the event first and the handler is not called.',
       ],
       [
         'LinkDefaultsProvider',
         'underline | variant | visited',
         '—',
         'Application',
-        'Sets those three once for everything below it; a prop on the link still wins',
+        'Sets those three once for everything below it. A prop on the link still wins.',
       ],
     ]),
     accessibility: [
@@ -235,10 +241,10 @@ export const REACT_LINK_DOCS = {
       'underline="always" is the default because color alone does not distinguish a link: the accent text color clears 4.5:1 against the surface and not 3:1 against the body text beside it.',
       'variant="neutral" takes the color of the text around it, so it belongs where nothing on the line could be mistaken for it — a cell, a title, a row — and never inside a sentence.',
       'Whatever the underline axis says, the underline returns under forced-colors, where the palette flattens the color contrast a bare link relies on.',
-      'A new browsing context is announced in the accessible name and marked with a glyph, and both follow the resolved target: a target="_blank" written by hand is warned about exactly like external.',
-      'external also sets rel="noopener noreferrer"; a rel or target the consumer passed is kept instead of rewritten.',
+      'A new browsing context is announced in the accessible name and marked with a glyph, and both follow the resolved target: a target="_blank" you write is warned about exactly like external.',
+      'external also sets rel="noopener noreferrer"; a rel or target you pass is kept instead of rewritten.',
       'A disabled link renders no href, which is what stops a middle click as well as a left one, and keeps role="link", aria-disabled and its place in the tab sequence so the state can be discovered.',
-      'The current page is painted from aria-current, the attribute a router already writes; the family invents no prop for it.',
+      'The current page is painted from aria-current, the attribute a router already writes; Link adds no prop for it.',
     ],
     snippets: [
       defineSnippet({
@@ -251,7 +257,7 @@ export const REACT_LINK_DOCS = {
       defineSnippet({
         id: 'link-theming',
         language: 'css',
-        label: 'Retuning the family for an application',
+        label: 'Retuning Link for an application',
         source:
           "[data-ui='link'] {\n  --slotted-link-underline-offset: 0.2em;\n  --slotted-link-external-icon-gap: 0.2em;\n}",
       }),

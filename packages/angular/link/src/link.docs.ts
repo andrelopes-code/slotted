@@ -34,7 +34,7 @@ const anatomy: AnatomyRow[] = [
     element: 'a',
     required: true,
     purpose:
-      'The consumer’s own anchor, which is why routerLink, href and every native attribute sit on the same element. Carries data-ui="link" and the axes as data attributes.',
+      'Your own anchor, which is why routerLink, href and every native attribute sit on the same element. Carries data-ui="link" and the axes as data attributes.',
   },
   {
     part: 'external-icon',
@@ -91,7 +91,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'external',
     title: 'Leaving the application',
-    note: 'One fact told three ways: the safe rel, the marker for the eye, the warning in the accessible name. A static target="_blank" the consumer wrote states the same fact and earns the same three.',
+    note: 'One fact told three ways: the safe rel, the marker for the eye, the warning in the accessible name. A static target="_blank" you wrote states the same fact and earns the same three.',
     snippet: defineSnippet({
       id: 'link-angular-external',
       language: 'angular',
@@ -115,7 +115,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'current',
     title: 'The page you are on',
-    note: 'routerLinkActive writes aria-current through ariaCurrentWhenActive, and the stylesheet paints that attribute. The family declares no input for it and nothing to keep in sync.',
+    note: 'routerLinkActive writes aria-current through ariaCurrentWhenActive, and the stylesheet paints that attribute. SlLink declares no input for it and has nothing to keep in sync.',
     snippet: defineSnippet({
       id: 'link-angular-current',
       language: 'angular',
@@ -139,7 +139,7 @@ const scenes: ReferenceSceneMeta[] = [
   {
     id: 'composition',
     title: 'Composition',
-    note: 'The directive sits on the anchor the consumer wrote, so routerLink, a static href and a dense table cell all compose with it. provideLinkDefaults decides for a whole application what a link looks like.',
+    note: 'The directive sits on the anchor you wrote, so routerLink, a static href and a dense table cell all compose with it. provideLinkDefaults decides for a whole application what a link looks like.',
     snippet: defineSnippet({
       id: 'link-angular-composition',
       language: 'ts',
@@ -173,38 +173,44 @@ export const ANGULAR_LINK_DOCS = {
         "'always' | 'hover' | 'none'",
         'always',
         'slLink',
-        'When the underline is drawn',
+        'When the underline is drawn.',
       ],
       [
         'variant',
         "'accent' | 'neutral' | 'inverse'",
         'accent',
         'slLink',
-        'Accent, the color of the surrounding text, or a solid surface',
+        'The accent color, the color of the surrounding text, or the color for a solid surface.',
       ],
       [
         'size',
         "'xs' | 'sm' | 'md'",
         '—',
         'slLink',
-        'The text size: 12, 13 or 14 pixels on the type scale. Unset, the link takes the size its action slot states — a stat card’s action, a section’s or a chart’s actions state sm — or else its parent’s',
+        'The text size: 12, 13 or 14 pixels on the type scale. Unset, the link takes the size its action slot states — a stat card’s action, a section’s or a chart’s actions state sm — or else its parent’s.',
       ],
-      ['external', 'boolean', 'false', 'slLink', 'Opens a new tab and warns that it does'],
+      ['external', 'boolean', 'false', 'slLink', 'Opens a new tab and warns that it does.'],
       [
         'messages',
         'Partial<LinkMessages>',
         '—',
         'slLink',
-        'Words laid over the language in force: the wording of that warning (externalHint)',
+        'Words laid over the language in force: the wording of that warning (externalHint).',
       ],
       [
         'disabled',
         'boolean',
         'false',
         'slLink',
-        'Withholds the destination, keeps the role, the state and the tab stop',
+        'Withholds the destination, keeps the role, the state and the tab stop.',
       ],
-      ['visited', 'boolean', 'false', 'slLink', 'Paints a destination the reader already followed'],
+      [
+        'visited',
+        'boolean',
+        'false',
+        'slLink',
+        'Paints a destination the reader already followed.',
+      ],
     ]),
     composition: apiRows([
       [
@@ -212,39 +218,39 @@ export const ANGULAR_LINK_DOCS = {
         'attribute',
         '—',
         'The anchor',
-        'The consumer’s own attributes. rel and target are added only when the anchor carries neither, and never rewritten.',
+        'Your own attributes. rel and target are added only when the anchor carries neither, and never rewritten.',
       ],
       [
         'routerLink, routerLinkActive',
         'directive',
         '—',
         'The same element',
-        'The directive claims no destination of its own, so the router writes href and aria-current on the anchor it already owns',
+        'The directive claims no destination of its own, so the router writes href and aria-current on the anchor it already owns.',
       ],
       [
         'exportAs="slLink"',
         'template reference',
         '—',
         'Template',
-        'Reaches the instance, for a template that needs to read the resolved axes',
+        'Reaches the instance, for a template that needs to read the resolved axes.',
       ],
       [
         'provideLinkDefaults',
         'underline | variant | visited',
         '—',
         'Application',
-        'Sets those three once for the whole injector; an input on the link still wins',
+        'Sets those three once for the whole injector. An input on the link still wins.',
       ],
     ]),
     accessibility: [
-      'The directive sits on the consumer’s own anchor, so the link role, Enter, the context menu and every modified click come from the platform — and routerLink composes on the same element. Space does not activate a link, and nothing here makes it. An action inside a line that runs a handler and goes nowhere is a button slButton with inline, not an anchor without an href.',
+      'The directive sits on your own anchor, so the link role, Enter, the context menu and every modified click come from the platform — and routerLink composes on the same element. Space does not activate a link, and nothing here makes it. An action inside a line that runs a handler and goes nowhere is a button slButton with inline, not an anchor without an href.',
       'underline="always" is the default because color alone does not distinguish a link: the accent text color clears 4.5:1 against the surface and not 3:1 against the body text beside it.',
       'variant="neutral" takes the color of the text around it, so it belongs where nothing on the line could be mistaken for it — a cell, a title, a row — and never inside a sentence.',
       'Whatever the underline axis says, the underline returns under forced-colors, where the palette flattens the color contrast a bare link relies on.',
-      'A new browsing context is announced in the accessible name and marked with a glyph. external states it, and so does a static target="_blank" the consumer wrote.',
-      'rel and target are added only when the anchor carries neither, so an attribute the consumer wrote is never rewritten or removed.',
+      'A new browsing context is announced in the accessible name and marked with a glyph. external states it, and so does a static target="_blank" you wrote.',
+      'rel and target are added only when the anchor carries neither, so an attribute you wrote is never rewritten or removed.',
       'A disabled link keeps no href, which is what stops a middle click as well as a left one, and keeps role="link", aria-disabled and its place in the tab sequence so the state can be discovered.',
-      'The current page is painted from aria-current, which routerLinkActive writes through ariaCurrentWhenActive; the family invents no input for it.',
+      'The current page is painted from aria-current, which routerLinkActive writes through ariaCurrentWhenActive; SlLink adds no input for it.',
     ],
     snippets: [
       defineSnippet({
@@ -257,7 +263,7 @@ export const ANGULAR_LINK_DOCS = {
       defineSnippet({
         id: 'link-theming',
         language: 'css',
-        label: 'Retuning the family for an application',
+        label: 'Retuning Link for an application',
         source:
           "[data-ui='link'] {\n  --slotted-link-underline-offset: 0.2em;\n  --slotted-link-external-icon-gap: 0.2em;\n}",
       }),
