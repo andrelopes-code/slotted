@@ -148,7 +148,6 @@ export function ToastRegion({
     controlled
       ? createToastStore<ToastContent>({
           toasts,
-          defaultToasts: defaultToasts ?? [],
           limit: limit ?? defaults.limit,
           duration: duration ?? defaults.duration,
         })
@@ -183,6 +182,12 @@ export function ToastRegion({
   useEffect(() => {
     if (controlled) store.sync(toasts);
   }, [store, controlled, toasts]);
+
+  const seed = useRef(controlled ? [] : (defaultToasts ?? []));
+  useEffect(() => {
+    for (const message of seed.current) store.show(message);
+    seed.current = [];
+  }, [store]);
 
   useEffect(() => () => own?.destroy(), [own]);
 

@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import contract from '../../../../specs/components/toast/contract.json';
 import { SlottedProvider } from '../i18n';
 import { createToaster, Toast, ToastDefaultsProvider, ToasterProvider, ToastRegion } from './index';
-import type { Toaster, ToastMessage } from './index';
+import type { ToastContentValue, Toaster, ToastMessage } from './index';
 
 /** A toaster of its own per test, so no message outlives the render it was shown in. */
 function setup(ui?: (toaster: Toaster) => React.ReactNode) {
@@ -429,5 +429,40 @@ describe('composition', () => {
 
     expect(items()[0]?.textContent).toBe('Mine');
     expect(items()[0]).toHaveAttribute('data-open');
+  });
+});
+
+describe('a queue that starts with messages', () => {
+  const seeded: ToastMessage<ToastContentValue> = {
+    id: 'restored',
+    duration: 0,
+    priority: 'polite',
+    announcement: 'Draft restored',
+    loading: false,
+    action: false,
+    data: { title: 'Draft restored' },
+    status: 'visible',
+    revision: 0,
+  };
+
+  it('shows them once and goes on from there', () => {
+    const toaster = createToaster();
+    const { rerender } = render(
+      <ToastRegion attach="inline" defaultToasts={[seeded]} toaster={toaster} />,
+    );
+    expect(screen.getByText('Draft restored')).toBeInTheDocument();
+
+    act(() => toaster.clear());
+    rerender(<ToastRegion attach="inline" defaultToasts={[seeded, seeded]} toaster={toaster} />);
+    act(() => {
+      toaster.show({ title: 'Saved', duration: 0 });
+    });
+
+    expect(toaster.store.snapshot.visible.map((message) => message.data.title)).toContain('Saved');
+    expect(
+      toaster.store.snapshot.visible.filter(
+        (message) => message.id === 'restored' && message.status === 'visible',
+      ),
+    ).toHaveLength(0);
   });
 });

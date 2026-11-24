@@ -8,6 +8,7 @@ import { PT_BR } from '@slotted/core/i18n/pt-BR';
 import contract from '../../../../specs/components/toast/contract.json';
 import { SlToastRegion } from './toast';
 import { provideToastDefaults, SlToastService } from './toast-defaults';
+import type { ToastContent, ToastMessage } from './toast-defaults';
 
 @Component({
   standalone: true,
@@ -348,5 +349,68 @@ describe('the service', () => {
 
     service.pauseAll();
     expect(service.paused()).toBe(true);
+  });
+});
+
+describe('the queue a page owns', () => {
+  const message = (id: string, title: string): ToastMessage<ToastContent> => ({
+    id,
+    duration: 0,
+    priority: 'polite',
+    announcement: title,
+    loading: false,
+    action: false,
+    data: { title },
+    status: 'visible',
+    revision: 0,
+  });
+
+  @Component({
+    standalone: true,
+    imports: [SlToastRegion],
+    template: `<sl-toast-region
+      attach="inline"
+      [toasts]="queue()"
+      (toastsChange)="queue.set($event.value)"
+    />`,
+  })
+  class OwnedHost {
+    readonly queue = signal<readonly ToastMessage<ToastContent>[]>([message('a', 'Draft saved')]);
+  }
+
+  @Component({
+    standalone: true,
+    imports: [SlToastRegion],
+    template: `<sl-toast-region attach="inline" [defaultToasts]="start" />`,
+  })
+  class SeededHost {
+    readonly start = [message('a', 'Draft restored')];
+  }
+
+  it('is what the region draws, and what the region asks to change', () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(OwnedHost);
+    fixture.detectChanges();
+    expect(items(fixture)).toHaveLength(1);
+    expect(TestBed.inject(SlToastService).visible()).toHaveLength(0);
+
+    items(fixture)[0]?.querySelector<HTMLElement>('[data-part="close"]')?.click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.queue()).toHaveLength(0);
+
+    fixture.componentInstance.queue.set([message('b', 'Sent')]);
+    fixture.detectChanges();
+    fixture.detectChanges();
+    expect(region(fixture).textContent).toContain('Sent');
+  });
+
+  it('starts from the messages it was given, in the service every caller reaches', () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(SeededHost);
+    fixture.detectChanges();
+    fixture.detectChanges();
+
+    expect(region(fixture).textContent).toContain('Draft restored');
+    expect(TestBed.inject(SlToastService).visible()).toHaveLength(1);
   });
 });

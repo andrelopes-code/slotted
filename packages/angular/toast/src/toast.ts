@@ -18,6 +18,7 @@ import {
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
+import type { OnInit } from '@angular/core';
 import { injectMessages } from '@slotted/angular/i18n';
 import { SlGlyph, SlIcon } from '@slotted/angular/icon';
 import { SlLoader } from '@slotted/angular/progress-indicator';
@@ -357,7 +358,7 @@ export class SlToastItem {
   encapsulation: ViewEncapsulation.None,
   host: { style: 'display: contents' },
 })
-export class SlToastRegion {
+export class SlToastRegion implements OnInit {
   /** Defaults to the token, then to `bottom-end`. */
   readonly placement = input<ToastPlacement | undefined>(undefined);
   /** Defaults to the token, then to `portal`. */
@@ -387,6 +388,8 @@ export class SlToastRegion {
   readonly container = input<Element | null | undefined>(undefined);
   /** The queue the page owns. Present at all decides the mode for good. */
   readonly toasts = input<readonly ToastMessage<ToastContent>[] | undefined>(undefined);
+  /** The messages the queue starts with, read once. */
+  readonly defaultToasts = input<readonly ToastMessage<ToastContent>[]>([]);
 
   /**
    * One output for one transition, carrying the value, the value it replaces,
@@ -407,14 +410,13 @@ export class SlToastRegion {
   /**
    * A region the page's own array feeds cannot share the injected service: the
    * mode is decided once, for the life of the store, and the service's store is
-   * uncontrolled by construction.
+   * uncontrolled by construction. The input that decides is not bound while the
+   * constructor runs, so the store is chosen when the region initializes.
    */
-  private readonly ownStore: ToastStore<ToastContent> | null =
-    this.toasts() === undefined
-      ? null
-      : createToastStore<ToastContent>({ toasts: this.toasts() ?? [] });
+  private ownStore: ToastStore<ToastContent> | null = null;
+  private stop = () => {};
 
-  readonly store: ToastStore<ToastContent> = this.ownStore ?? this.service.store;
+  store: ToastStore<ToastContent> = this.service.store;
 
   private readonly snapshot = signal(this.store.snapshot);
 
@@ -433,9 +435,6 @@ export class SlToastRegion {
   private cameFrom: HTMLElement | null = null;
 
   constructor() {
-    const stop = this.store.subscribe(() => this.snapshot.set(this.store.snapshot));
-    this.store.onRequest((request) => this.toastsChange.emit(request));
-
     effect(() => {
       this.store.configure({
         limit: this.limit() ?? this.defaults.limit,
@@ -563,9 +562,27 @@ export class SlToastRegion {
     });
 
     inject(DestroyRef).onDestroy(() => {
-      stop();
+      this.stop();
       this.ownStore?.destroy();
     });
+  }
+
+  ngOnInit() {
+    const owned = this.toasts();
+    if (owned !== undefined) {
+      this.ownStore = createToastStore<ToastContent>({ toasts: owned });
+      this.store = this.ownStore;
+    }
+
+    const stopSnapshot = this.store.subscribe(() => this.snapshot.set(this.store.snapshot));
+    const stopRequests = this.store.onRequest((request) => this.toastsChange.emit(request));
+    this.stop = () => {
+      stopSnapshot();
+      stopRequests();
+    };
+    this.snapshot.set(this.store.snapshot);
+
+    if (owned === undefined) for (const message of this.defaultToasts()) this.store.show(message);
   }
 
   /** Sends the keyboard to the newest message. The family never does it alone. */
