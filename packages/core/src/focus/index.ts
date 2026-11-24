@@ -9,6 +9,13 @@ export { createFocusScope, tabbables } from './focus-scope';
 export type { FocusScopeHandle, FocusScopeOptions } from './focus-scope';
 export { createRemovalFocus } from './removal-focus';
 export type { RemovalFocusHandle, RemovalFocusOptions } from './removal-focus';
+export { createRovingGrid } from './roving-grid';
+export type {
+  GridPosition,
+  RovingGridHandle,
+  RovingGridKey,
+  RovingGridOptions,
+} from './roving-grid';
 export { createRovingRadio } from './roving-radio';
 export type { RovingRadioHandle, RovingRadioOptions } from './roving-radio';
 export { createRovingTabindex } from './roving-tabindex';
