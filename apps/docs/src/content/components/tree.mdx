@@ -1,0 +1,170 @@
+---
+title: Tree
+description: A hierarchy of nodes that open, close and can be chosen, with search, lazy branches and virtual scrolling.
+---
+
+<Example name="basic" />
+
+<Installation />
+
+## Nodes from data
+
+`nodes` renders a hierarchy you already hold, and `getKey`, `getLabel` and `getChildren` read it. A node written by hand suits a short, fixed tree; `nodes` is what `expandAll`, the cascade, the search and virtual scrolling need, because the children of a closed branch are not in the DOM. The buttons call the handle that `handleRef` gives in React and the `slTree` template reference gives in Angular.
+
+<Example name="nodes" />
+
+## Flat rows
+
+A backend often returns a hierarchy as rows in reading order, each with its depth. `getLevel` reads that depth, and no nested structure has to be built first.
+
+<Example name="flat-rows" />
+
+## What opens a branch
+
+`expandOn` decides what a press does. `row`, the default, opens a branch from anywhere on its row and also chooses it. `expander` leaves opening to the chevron, whose target grows to the minimum pointer size, so a press on the row only chooses. Use `expander` when a branch is itself something to choose.
+
+<Example name="expansion" wide />
+
+## Controlled
+
+The selection, the open branches and the position of the keyboard are three separate values. React takes `value`, `expandedKeys` and `activeKey` with a change handler each; Angular binds each two ways. The request sent with a change carries its reason and `cancel()`.
+
+<Example name="controlled" />
+
+## Choosing several nodes
+
+`selectionMode="multiple"` draws a checkbox on every row and holds a set of keys. A press changes one node and leaves the others. Shift with an arrow key extends the selection, and Control+A chooses every visible node.
+
+<Example name="multiple" />
+
+## Cascade
+
+`selectionCascade="descendants"` makes a branch stand for what is under it. Choosing Orders chooses its three permissions, and a branch that holds part of its children draws a dash. Approve payouts is disabled, so choosing Finance leaves it as it was.
+
+<Example name="cascade" />
+
+## Selection as in a file list
+
+`selectionBehavior="replace"` makes a plain press choose one row and drop the rest. Control or Command adds a row, and Shift chooses a range. Set `selectionIndicator="highlight"` with it, because a checkbox says that each press is independent.
+
+<Example name="replace" />
+
+## Selection indicator
+
+`selectionIndicator` decides how a choice is drawn and which attribute states it: `highlight` writes `aria-selected` and `checkbox` writes `aria-checked`. The default, `auto`, draws a highlight for a single choice and checkboxes for several. Here a single choice draws the checkbox.
+
+<Example name="indicator" />
+
+## Navigation
+
+`selectionMode="none"` writes no selection attribute, for a tree that opens pages. `onNodeActivate` in React and `nodeActivate` in Angular fire when a row is pressed and when Enter is pressed on it. The active node stays drawn on the page being shown.
+
+<Example name="navigation" />
+
+## Row content
+
+A row holds an icon, the name, a muted description, trailing meta and trailing controls. React takes them as props of `TreeNode`; Angular projects elements marked `slTreeIcon`, `slTreeDescription`, `slTreeMeta` and `slTreeActions`. One icon anywhere reserves the cell on every row, so the names stay in one column. A long name truncates before its meta.
+
+<Example name="row-content" />
+
+## Row content from data
+
+With `nodes`, `renderCells` in React returns the cells of one row. In Angular, an `ng-template` marked `slTreeCell` fills one cell of every row and holds the directive of that cell. A cell left out is not drawn, and the name stays the one `getLabel` returns.
+
+<Example name="cells" />
+
+## Icons by state
+
+An icon can follow the branch it stands on. This tree controls `expandedKeys` and draws an open folder on every key in it.
+
+<Example name="icon-by-state" />
+
+## Trailing controls
+
+The controls in `actions` are always in the DOM, and each is a tab stop of its own. A press on one neither chooses nor opens the row, and the keys pressed on it are its own.
+
+<Example name="actions" />
+
+## Sizes
+
+`size` moves the row height, the type size, the glyph and the indent together: `sm`, `md`, the default, or `lg`.
+
+<Example name="sizes" wide />
+
+## Variants
+
+`plain`, the default, draws no box, for a panel or a drawer that already has an edge. `framed` draws an edge, a radius and a shadow, for a tree that stands alone on a page.
+
+<Example name="variants" wide />
+
+## Guides
+
+Each guide runs under the chevron of an ancestor and says which branch a row belongs to. Set `guides` to `false` for a tree of two levels, where the indent is enough.
+
+<Example name="guides" wide />
+
+## States
+
+A disabled node keeps its place, and the arrow keys pass over it unless `navigateDisabled` is set. `readOnly` fixes the selection while branches still open, `disabled` stops the whole tree, and `invalid` draws the edge of a framed tree in the danger tone.
+
+<Example name="states" wide />
+
+## Lazy branches
+
+`hasChildren` draws a chevron on a branch whose children have not been fetched. Start the request when the branch opens and return `true` from `isNodeLoading` until it ends: a spinner takes the place of the chevron, the branch has `aria-busy`, and a live region announces how many items arrived. `getChildrenCount` states the size of the set while part of it is missing. Open an account to fetch its orders.
+
+<Example name="lazy" />
+
+## Loading
+
+`loading` writes `aria-busy` on the tree while its first nodes arrive. Rows with a `Skeleton` as the label hold the place of the names, at widths that vary by row, and `SkeletonRegion` waits 200 milliseconds before it draws. Refresh locations starts a 1.5-second load.
+
+<Example name="loading" />
+
+## Empty
+
+`emptyContent` in React and an element marked `slTreeEmpty` in Angular show when the tree holds no node. The tree keeps its role and its name.
+
+<Example name="empty" />
+
+## Search
+
+`query` filters `nodes` by name. Every match keeps the branches above it, the matched text is marked, and the path to it is open while the query lasts. The set of branches the reader opened does not change, so clearing the field brings it back. The field is yours.
+
+<Example name="filtering" />
+
+## Revealing a node
+
+`scrollToKey` opens the branches above a node and scrolls to it. The second argument places it at the `start`, the `center` or the `end`, or moves as little as possible with `nearest`, the default.
+
+<Example name="reveal" />
+
+## Virtual scrolling
+
+`virtual` renders only the rows in view, plus `overscan` rows on each side. Set `itemSize` to the row height in pixels. The rows are flat and state their own level, and the active node stays in the document while it is out of view. This tree holds 3,624 rows.
+
+<Example name="virtualization" />
+
+## In a form
+
+In React, `name` renders one hidden input for each chosen key, so a native form carries the set. In Angular, the tree is the form control: bind `formControlName` or `ngModel`.
+
+<Example name="form" />
+
+## Defaults for an application
+
+`TreeDefaultsProvider` in React and `provideTreeDefaults` in Angular set the axes once for every tree under them. A value set on a tree still wins: the second tree below turns its guides back on.
+
+<Example name="defaults" wide />
+
+## Recipe: a catalog browser
+
+A tree filters the list beside it. `expandOn="expander"` lets a branch be chosen without closing it, and `disallowEmptySelection` keeps one category chosen. Choosing a branch lists the products of every category under it.
+
+<Example name="catalog" wide />
+
+## Recipe: an access editor
+
+The cascade, the search and a disabled permission together. The count reads the permissions and leaves out the branches that the cascade adds to the value.
+
+<Example name="access-editor" />
