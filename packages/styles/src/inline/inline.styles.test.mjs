@@ -56,7 +56,7 @@ test('maps every step of the space scale to the token of the same name', () => {
     const rule = ruleFor(`${ui}[data-gap='${step}']`);
     assert.notEqual(rule, '', `Missing gap ${step}`);
     if (step === '0') {
-      assert.equal(rule, '--_gap:0;', 'the absence of separation is zero, not a token');
+      assert.equal(rule, '--_gap:0px;', 'the absence of separation is zero, not a token');
       continue;
     }
     assert.match(
