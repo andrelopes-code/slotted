@@ -21,11 +21,10 @@
    * clipped and nothing escapes: the frame reserves, and it never crops. The
    * crop is `image`'s decision, taken with `fit`.
    *
-   * A replaced child contributes nothing to that minimum: css-sizing-3 §5.2.1
-   * resolves a cyclic percentage on a replaced element against zero for the
-   * min-content contribution, so a 4000-pixel photograph at `block-size: 100%`
-   * does not grow the frame to 4000 pixels. Only content with a height of its
-   * own — text, a control, a card — can.
+   * A replaced child contributes nothing to that minimum: its size is
+   * contained, so a 4000-pixel photograph does not grow the frame to 4000
+   * pixels. Only content with a height of its own — text, a control, a card —
+   * can.
    */
   [data-ui-aspect-ratio][data-part-root] {
     /**
@@ -48,8 +47,10 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: 1fr;
-    /* The width the container gives, and never more. */
-    max-inline-size: 100%;
+    /* No inline maximum: through the ratio it becomes a block maximum, and in
+       a flex column that held the frame at its ratio around taller content.
+       The width stays the container's because no child contributes one of
+       its own beyond the content it holds. */
     min-inline-size: 0;
   }
 
@@ -110,19 +111,19 @@
    * `picture` is in the list so its `img` sees a definite box to be 100 %
    * of; an `iframe` and a `canvas` take the size and have no `object-fit`.
    *
-   * `min-block-size: 0` is what keeps the frame at its ratio around a
-   * photograph. A grid item's automatic minimum is content-based, and while
-   * the row is being sized the percentage height is treated as `auto`, so
-   * the item asked for its natural height and a 4:3 photograph grew a 16:9
-   * frame to 4:3 (measured in the first capture of the `media` scene). A
-   * replaced element has nothing to say about the frame's height; the text
+   * `contain: size` is what keeps the frame at its ratio around a photograph.
+   * While the row is being sized the percentage height is treated as `auto`,
+   * so the item asked for its natural height and a 4:3 photograph grew a 16:9
+   * frame to 4:3 (measured in the first capture of the `media` scene); its
+   * natural width widened a frame that had no width of its own the same way.
+   * A replaced element has nothing to say about the frame's size; the text
    * child above keeps its automatic minimum, and the growth rule with it.
    */
   [data-ui-aspect-ratio][data-part-root] > :is(img, video, canvas, svg, iframe, picture) {
     block-size: 100%;
+    contain: size;
     display: block;
     inline-size: 100%;
-    min-block-size: 0;
   }
 
   [data-ui-aspect-ratio][data-part-root] > :is(img, video) {

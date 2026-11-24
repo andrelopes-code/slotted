@@ -78,6 +78,7 @@ test('reserves the ratio with the platform’s own property, read from the publi
   assert.ok(!normalized.includes('padding-block-end:'), 'the padding hack is not this frame');
   assert.ok(!normalized.includes('position:absolute'), 'nothing is taken out of the flow');
   assert.ok(!/overflow:(hidden|clip)/.test(body), 'the frame reserves and never crops');
+  assert.ok(!body.includes('max-inline-size'), 'a ratio turns an inline maximum into a block one');
 });
 
 /**
@@ -110,8 +111,7 @@ test('is a grid of one cell whose row can still grow', () => {
 
 /**
  * A replaced child is sized to the cell, told to fit rather than to fill,
- * and given a zero block minimum: a grid item's automatic minimum is
- * content-based and treats a percentage height as `auto` while the row is
+ * and contained: a percentage height is treated as `auto` while the row is
  * sized, so without it a 4:3 photograph grew a 16:9 frame to 4:3. Text
  * keeps its minimum, and the growth rule with it.
  */
@@ -120,7 +120,7 @@ test('fits replaced content whole, and keeps it from growing the frame', () => {
     /:is\(img,video,canvas,svg,iframe,picture\)\{([^}]*)\}/.exec(normalized)?.[1] ?? '';
   assert.ok(replaced.includes('block-size:100%'));
   assert.ok(replaced.includes('inline-size:100%'));
-  assert.ok(replaced.includes('min-block-size:0'));
+  assert.ok(replaced.includes('contain:size'));
   assert.ok(/:is\(img,video\)\{object-fit:contain;?\}/.test(normalized));
   assert.ok(!normalized.includes('object-fit:cover'), 'the crop is image’s decision');
   assert.ok(!rule(`${root} > *`).includes('min-block-size'), 'text keeps its content minimum');
