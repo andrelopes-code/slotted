@@ -1,0 +1,42 @@
+---
+title: Container
+description: Bounds the width of a page or a section, insets it from the edge and places it when space is left over.
+---
+
+<Example name="basic" wide />
+
+<Installation />
+
+## Container, Stack, Inline and Grid
+
+Use `Container` once per page or section to decide how wide its content may grow. Use `Stack` to lay children out in one column, `Inline` to lay them out in one row, and `Grid` to arrange cells in equal columns; none of the three bounds its own width. A container paints nothing and adds no semantics. Its root is a `div`; pass `render` in React, or write `slContainer` on a `main`, `section` or `article` in Angular, to change the element. Wrap text in an element: a run of text written directly inside the container cannot be placed in the column.
+
+## Size
+
+`size` names what the column is bounded to. `measure` is a reading line of `65ch`, the width of 65 zeros in the type the text is set in. `content` is 56rem, the default. `wide` is 80rem. `full` takes the space the frame gives up to 120rem. `bleed` has no maximum. `full` and `bleed` keep the inset. Each maximum is a theme token. The preview is narrower than a page, so this example lowers four of them, and every size stops at a width of its own.
+
+<Example name="size" wide />
+
+## Inset
+
+`inset` is the minimum gap between the column and the edge of the space the container was given, a step on the space scale from `0` to `12`, `6` by default. It applies to both sides and holds when the container is narrower than its maximum. Each container below sits inside a card, so the gap to the card's edge is the inset.
+
+<Example name="inset" />
+
+## Alignment
+
+`align` sets where the column sits when space is left over: `center` by default, `start` or `end`. The values are logical, so a right-to-left document mirrors them. In each card below the column is bounded to a `measure` of `40ch`, which leaves room to move.
+
+<Example name="align" wide />
+
+## Breakout
+
+`ContainerBreakout` is a direct child that leaves the bound and reaches both edges of the container, such as a table, a banner or a strip of media inside a page of prose. It answers the container, not the window, and ignores the inset. The next child in the container returns to the bounded column. A container separates nothing, so this one states a row gap from the space scale. To put bounded content back inside a breakout, nest another `Container` in it.
+
+<Example name="breakout" wide />
+
+## Application defaults
+
+An application states its page bounds once with `ContainerDefaultsProvider` in React or `provideContainerDefaults` in Angular. Every container under it takes `size`, `inset` and `align` from the provider, and a container that states a value of its own keeps it.
+
+<Example name="defaults" wide />
