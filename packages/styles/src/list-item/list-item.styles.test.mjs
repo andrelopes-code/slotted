@@ -288,7 +288,10 @@ test('yields at 240px: the content shrinks and the actions take a line that fits
     narrow.split(`${ui}>[data-part-actions]:not(:has(>:not([data-shape]))){`)[1]?.split('}')[0] ??
     '';
   assert.match(glyphs, /flex-basis:auto/, 'icon-only targets take a line of their own');
-  assert.match(glyphs, /padding-block-end:0/);
+  assert.match(
+    glyphs,
+    /padding-block:var\(--_actions-start,var\(--_actions-inset\)\) var\(--_actions-inset\)/,
+  );
 });
 
 /**

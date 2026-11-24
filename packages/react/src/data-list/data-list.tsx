@@ -83,6 +83,9 @@ import type {
 /** The value that stands for "no sort" in the column group, a string no column id can be. */
 const NO_SORT = '\u0000none';
 
+/** The box of the control a record's action is drawn with. */
+const ACTION_SIZE = 'var(--slotted-control-height-sm, 30px)';
+
 /** Varied lengths, so a skeleton reads as text rather than as a stack of equal bars. */
 const BAR_WIDTHS = ['9rem', '7rem', '8rem', '6.5rem', '9.5rem'];
 const FIELD_WIDTHS = ['3.5rem', '5.5rem', '4rem', '5rem', '4.5rem', '6rem'];
@@ -819,6 +822,18 @@ export function DataList<Row>({
                   </dl>
                 ) : null}
               </ListItemContent>
+              {layout.actions.length > 0 ? (
+                <ListItemActions>
+                  {layout.actions.map((column) => (
+                    <Skeleton
+                      blockSize={ACTION_SIZE}
+                      inlineSize={ACTION_SIZE}
+                      key={column.id}
+                      shape="block"
+                    />
+                  ))}
+                </ListItemActions>
+              ) : null}
             </ListItem>
           ))}
         </List>

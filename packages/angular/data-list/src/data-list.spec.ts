@@ -90,7 +90,7 @@ const COLUMNS: GridColumn<Account>[] = [
     subtitle="email"
     trailing="balance"
     [rows]="rows()"
-    [columns]="columns"
+    [columns]="columns()"
     [fields]="fields()"
     [selectionMode]="selectionMode()"
     [disabledKeys]="disabledKeys()"
@@ -124,7 +124,7 @@ const COLUMNS: GridColumn<Account>[] = [
 })
 class Host {
   readonly list = viewChild.required<SlDataList<Account>>('list');
-  readonly columns = COLUMNS;
+  readonly columns = signal(COLUMNS);
   readonly rows = signal<readonly Account[]>(ROWS);
   readonly fields = signal<number | undefined>(undefined);
   readonly selectionMode = signal<DataListSelectionMode>('none');
@@ -382,6 +382,17 @@ describe('SlDataList', () => {
     await mount((h) => h.loading.set(true));
     expect(root().getAttribute('aria-busy')).toBe('true');
     expect(records()).toHaveLength(3);
+  });
+
+  it('draws the box of each action in skeleton', async () => {
+    await mount((h) => {
+      h.columns.set([...COLUMNS, { id: 'menu', kind: 'actions', label: 'Actions' }]);
+      h.rows.set([]);
+      h.loading.set(true);
+    });
+    const record = root().querySelector('[data-part=loader] [data-ui=list-item]');
+
+    expect(record?.querySelectorAll('[data-part=actions] > [data-ui=skeleton]')).toHaveLength(1);
   });
 
   it('asks for more rows from the footer', async () => {

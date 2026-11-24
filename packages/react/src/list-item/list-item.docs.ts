@@ -104,7 +104,7 @@ const anatomy: AnatomyRow[] = [
     element: 'div',
     required: false,
     purpose:
-      'Independent targets, and a sibling of the box rather than its child: interactive content may not nest inside an a or a button.',
+      'Independent targets, and a sibling of the box rather than its child: interactive content may not nest inside an a or a button. A step of space stands above and below the control, so a row of one line is taller than its text where a control needs it.',
   },
 ];
 

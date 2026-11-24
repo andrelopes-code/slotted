@@ -1,9 +1,11 @@
 import { render } from '@testing-library/react';
+import type { CSSProperties } from 'react';
 import { userEvent } from 'vitest/browser';
 import { describe, expect, it } from 'vitest';
 
-import { Button } from '../button';
+import { Button, IconButton } from '../button';
 import { Checkbox } from '../checkbox';
+import { Glyph } from '../icon';
 import { List } from '../list';
 import { Tag } from '../tag';
 import {
@@ -175,3 +177,79 @@ describe('a truncated row with a long end and actions at 358px', () => {
     ).toBeGreaterThan(120);
   });
 });
+
+/* The control of a row stands off both edges of it, whatever the lines of its body. */
+describe('the actions of a framed row', () => {
+  /** The control heights of the three densities, and of a touch screen, where they are one. */
+  const DENSITIES = {
+    comfortable: { md: '34px', sm: '30px' },
+    compact: { md: '28px', sm: '26px' },
+    dense: { md: '26px', sm: '24px' },
+    touch: { md: '44px', sm: '44px' },
+  } as const;
+  const STEP = 6;
+
+  it.each(
+    (Object.keys(DENSITIES) as (keyof typeof DENSITIES)[]).flatMap((density) =>
+      (
+        [
+          ['one line', {}],
+          ['two lines', { description: true }],
+          ['one line at the start', { align: 'start' }],
+          ['one line narrower than 22rem', { inlineSize: 240 }],
+          ['a glyph narrower than 22rem', { glyph: true, inlineSize: 240 }],
+        ] as const
+      ).map(([name, scene]) => [name, density, scene] as const),
+    ),
+  )('keep a step of space above and below the button (%s, %s)', (_, density, scene) => {
+    const { bottom, top } = distances({ ...scene, heights: DENSITIES[density] });
+
+    expect(top).toBeGreaterThanOrEqual(STEP);
+    expect(bottom).toBeGreaterThanOrEqual(STEP);
+  });
+});
+
+interface ActionsProps {
+  readonly align?: 'start';
+  readonly description?: boolean;
+  readonly glyph?: boolean;
+  readonly heights: { readonly md: string; readonly sm: string };
+  readonly inlineSize?: number;
+}
+
+function distances({ align, description, glyph, heights, inlineSize = 600 }: ActionsProps) {
+  const scale = {
+    '--slotted-control-height-md': heights.md,
+    '--slotted-control-height-sm': heights.sm,
+    inlineSize,
+  } as CSSProperties;
+  const { container } = render(
+    <div style={scale}>
+      <List aria-label="Signals" variant="framed" {...(align ? { align } : {})}>
+        <ListItem>
+          <ListItemContent>
+            <ListItemBody>
+              <ListItemLabel>One line</ListItemLabel>
+              {description && <ListItemDescription>A second line</ListItemDescription>}
+            </ListItemBody>
+          </ListItemContent>
+          <ListItemActions>
+            {glyph ? (
+              <IconButton aria-label="Remove" size="sm" variant="outline">
+                <Glyph name="x" />
+              </IconButton>
+            ) : (
+              <Button size="sm" variant="outline">
+                Add
+              </Button>
+            )}
+          </ListItemActions>
+        </ListItem>
+      </List>
+    </div>,
+  );
+  const row = container.querySelector('[data-ui="list-item"]')!.getBoundingClientRect();
+  const button = container.querySelector('[data-ui="button"]')!.getBoundingClientRect();
+
+  return { bottom: row.bottom - button.bottom, top: button.top - row.top };
+}

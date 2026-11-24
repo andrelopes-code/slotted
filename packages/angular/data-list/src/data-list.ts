@@ -103,6 +103,9 @@ import {
 /** The value that stands for "no sort" in the column group, a string no column id can be. */
 const NO_SORT = '\u0000none';
 
+/** The box of the control a record's action is drawn with. */
+const ACTION_SIZE = 'var(--slotted-control-height-sm, 30px)';
+
 /** Varied lengths, so a skeleton reads as text rather than as a stack of equal bars. */
 const BAR_WIDTHS = ['9rem', '7rem', '8rem', '6.5rem', '9.5rem'];
 const FIELD_WIDTHS = ['3.5rem', '5.5rem', '4rem', '5rem', '4.5rem', '6rem'];
@@ -391,6 +394,18 @@ interface RecordView<Row> {
                     </dl>
                   }
                 </div>
+                @if (layout().actions.length > 0) {
+                  <div slListItemActions>
+                    @for (column of layout().actions; track column.id) {
+                      <span
+                        slSkeleton
+                        shape="block"
+                        [blockSize]="actionSize"
+                        [inlineSize]="actionSize"
+                      ></span>
+                    }
+                  </div>
+                }
               </li>
             }
           </ul>
@@ -792,6 +807,7 @@ export class SlDataList<Row = unknown> {
 
   protected readonly firstLoad = computed(() => this.loading() && this.rows().length === 0);
   protected readonly showLoader = computed(() => this.firstLoad() || this.holding());
+  protected readonly actionSize = ACTION_SIZE;
   protected readonly skeletonIndexes = computed(() =>
     Array.from({ length: this.skeletonRows() ?? this.defaults.skeletonRows }, (_, index) => index),
   );
