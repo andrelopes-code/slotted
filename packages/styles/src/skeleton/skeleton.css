@@ -217,10 +217,29 @@
    */
   [data-ui-skeleton][data-part-root][data-loading]:not(:empty) {
     block-size: var(--slotted-skeleton-block-size, auto);
+    /* The rim stands outside the content's box and takes no room: a negative
+       margin of its own width gives back what the border adds, so the box
+       occupies exactly the place of what it covers. */
+    margin: calc(-1 * var(--slotted-skeleton-border-width, var(--slotted-border-width-thin, 1px)));
     /* An element child is hidden by `visibility`; a bare text node is not an
        element and can only be hidden by taking the color away. */
     color: transparent;
     inline-size: var(--slotted-skeleton-inline-size, auto);
+  }
+
+  /**
+   * A single covered element is an item of the box, as it is an item of the
+   * page's own layout once the box is `display: contents`. Left inline, it
+   * stands on the line of the type around it and the box is as tall as that
+   * line.
+   */
+  [data-ui-skeleton][data-part-root][data-loading]:has(> :only-child) {
+    display: inline-grid;
+    grid-auto-flow: column;
+  }
+
+  [data-ui-skeleton][data-part-root][data-loading][data-shape='block']:has(> :only-child) {
+    display: grid;
   }
 
   [data-ui-skeleton][data-part-root][data-loading]:not(:empty) > * {
