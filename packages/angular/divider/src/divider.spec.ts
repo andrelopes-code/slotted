@@ -21,6 +21,7 @@ import type { DividerAlign, DividerOrientation } from './divider';
       <li slDivider id="in-menu"></li>
     </ul>
     <hr slDivider id="named" aria-label="End of the invoice" />
+    <div slDivider id="renamed" aria-label="End of the invoice" label="Or"></div>
   `,
 })
 class Host {
@@ -140,6 +141,13 @@ describe('SlDivider', () => {
       expect(labelled().getAttribute('aria-label')).toBe('Or');
       expect(labelled().querySelector('[data-part="label"]')?.textContent?.trim()).toBe('Or');
       expect(labelled().getAttribute('data-labelled')).toBe('');
+    });
+
+    it('keeps the name the consumer wrote over the one its label gives', () => {
+      const { fixture } = mount();
+      const host = fixture.nativeElement as HTMLElement;
+
+      expect(host.querySelector('#renamed')?.getAttribute('aria-label')).toBe('End of the invoice');
     });
 
     it('carries no name once it is decoration, because role="none" prohibits one', () => {

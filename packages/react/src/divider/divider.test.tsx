@@ -65,6 +65,12 @@ describe('Divider', () => {
     expect(screen.getByTestId('divider')).toHaveAttribute('role', 'presentation');
   });
 
+  it('keeps the name the consumer wrote over the one its label gives', () => {
+    render(<Divider aria-label="End of the invoice" data-testid="divider" label="Or" />);
+
+    expect(screen.getByTestId('divider')).toHaveAttribute('aria-label', 'End of the invoice');
+  });
+
   it('stops short of both ends when it is inset', () => {
     render(<Divider data-testid="divider" inset />);
 

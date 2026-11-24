@@ -14,6 +14,7 @@ import type { DividerProps, DividerRootProps } from './divider.types';
  * presentational, so the visible label never reaches the accessibility tree.
  */
 export function Divider({
+  'aria-label': ariaLabel,
   align = 'center',
   decorative = false,
   inset = false,
@@ -30,7 +31,7 @@ export function Divider({
   const rootProps: DividerRootProps = keyedProps({
     ...nativeProps,
     /* A rule that is decoration has no name to give: role="none" prohibits one. */
-    ...(labelled && !decorative ? { 'aria-label': label } : {}),
+    'aria-label': ariaLabel ?? (decorative ? undefined : label),
     /* A separator is horizontal unless it says otherwise. */
     ...(orientation === 'vertical' && !decorative ? { 'aria-orientation': 'vertical' } : {}),
     ...(labelled ? { 'data-align': align, 'data-labelled': '' } : {}),
